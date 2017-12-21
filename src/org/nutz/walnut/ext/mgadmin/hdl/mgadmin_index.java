@@ -2,8 +2,6 @@ package org.nutz.walnut.ext.mgadmin.hdl;
 
 import java.util.List;
 
-import org.nutz.ioc.Ioc;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -18,8 +16,7 @@ public class mgadmin_index implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        Ioc ioc = Mvcs.getIoc();
-        MongoDB mongoDB = ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
         DB db = mongoDB.getRaw();
         String colName = hc.params.get("co", "obj");
         DBCollection co = db.getCollection(colName);

@@ -3,10 +3,8 @@ package org.nutz.walnut.ext.mgadmin.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -24,8 +22,7 @@ public class mgadmin_profile implements JvmHdl {
     @SuppressWarnings("unchecked")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        Ioc ioc = Mvcs.getIoc();
-        MongoDB mongoDB = ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
         DB db = mongoDB.getRaw();
         CommandResult re;
         if (hc.params.vals.length > 0) {

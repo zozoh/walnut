@@ -1,9 +1,8 @@
 package org.nutz.walnut.ext.mgadmin.hdl;
 
-import org.nutz.ioc.Ioc;
 import org.nutz.mongo.ZMoDoc;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.ZParams;
 
@@ -19,9 +18,8 @@ import com.mongodb.DBCursor;
  */
 public abstract class mgadmin_raw implements JvmHdl {
 
-    public DBCursor rawQuery(ZParams params) {
-        Ioc ioc = Mvcs.getIoc();
-        MongoDB mongoDB = ioc.get(MongoDB.class, "mongoDB");
+    public DBCursor rawQuery(ZParams params, JvmHdlContext hc) {
+        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
         DB db = mongoDB.getRaw();
         DBCollection co = db.getCollection(params.get("co", "obj"));
         int limit = params.getInt("limit", 100);
