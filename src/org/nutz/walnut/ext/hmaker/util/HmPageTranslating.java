@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -325,6 +326,7 @@ public class HmPageTranslating extends HmContext {
         this.jsLinks.add("/gu/rs/core/js/nutz/zutil.js");
         this.jsLinks.add("/gu/rs/core/js/nutz/zdimension.js");
         this.jsLinks.add("/gu/rs/core/js/ui/dateformat.js");
+        this.jsLinks.add("/gu/rs/ext/hmaker/hm_runtime.js");
         // ---------------------------------------------------
         // 加入皮肤
         if (null != this.oSkinJs) {
@@ -366,14 +368,27 @@ public class HmPageTranslating extends HmContext {
         }
         // ---------------------------------------------------
         // 依次处理控件
+        // 考虑到 dynamic 组件需要获取其他控件的 getValue，因此要延迟一下
         Elements eleComs = doc.body().getElementsByClass("hm-com");
+        List<Element> eleDelayList = new ArrayList<>(eleComs.size());
         for (Element eleCom : eleComs) {
-            // 执行自己的控件渲染逻辑
-            this.__do_com(eleCom);
-            // ---------------------------------------------------
             // 标识自己是运行时
             eleCom.attr("hmaker-rt", "yes");
+
+            // dynamic 控件需要延迟
+            if ("dynamic".equals(eleCom.attr("ctype"))) {
+                eleDelayList.add(eleCom);
+                continue;
+            }
+
+            // 执行自己的控件渲染逻辑
+            this.__do_com(eleCom);
         }
+        // 处理延迟转换的控件
+        for (Element eleCom : eleDelayList) {
+            this.__do_com(eleCom);
+        }
+
         // ---------------------------------------------------
         // 对于所有的 <img> 标签，处理一遍 src
         Elements eleImgs = doc.body().getElementsByTag("img");

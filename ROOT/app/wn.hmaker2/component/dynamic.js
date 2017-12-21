@@ -56,7 +56,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         com = com || UI.getData();
 
         
-        console.log("I am dynamic paint:", com);
+        //console.log("I am dynamic paint:", com);
 
         // 检查显示模式
         var oApi = UI.__check_mode(com);
@@ -294,6 +294,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         // 转换数据
         //console.log("dynamic draw", data);
         var d2 = HmRT.convertDataForTmpl(data, tmplInfo.dataType);
+        //console.log(d2);
         if(HmRT.isDataEmptyForTmpl(d2, tmplInfo.dataType)) {
             UI.__tip("api_empty", "api-no-data", jData);
             return;

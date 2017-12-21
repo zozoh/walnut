@@ -83,6 +83,11 @@ return ZUI.def("app.wn.hm_com_pager", {
         // 绘制
         UI.arena.hmc_pager(_.extend({forIDE:true}, com));
         UI.arena.hmc_pager("value", pg);
+
+        // 确保保存了默认值
+        if(!com.defaultValue) {
+            UI.__save_defaultValue();
+        }
     },
     //...............................................................
     getComValue : function() {

@@ -80,7 +80,20 @@ return ZUI.def("ui.th_obj_index_detail", {
                     }]);
                 }
             }],
-            preview : conf.detail.markdown,
+            preview : conf.detail.markdown || {
+                media : function(src) {
+                    var m = /^(media|attacument)\/(.+)$/.exec(src);
+                    if(m) {
+                        return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
+                            thset : UI.getHomeObjId(),
+                            th_id : UI.__OBJ.id,
+                            cate  : m[1],
+                            path  : m[2]
+                        });
+                    }
+                    return src;
+                }
+            },
             defaultMode : UI.local("markdown-mode"),
             on_mode : function(m) {
                 UI.local("markdown-mode", m);

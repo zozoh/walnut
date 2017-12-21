@@ -46,11 +46,13 @@ define({
                 "title"  : "显示名",
                 "type"   : "字段类型",
                 "tip"    : "说明文字",
+                "dft"    : "默认值",
                 "editAs" : "显示控件",
                 "uiConf" : "控件配置项",
                 "uiConf_ph" : "JSON文本",
                 "hide"   : "在列表中隐藏",
                 "multi"  : "多选",
+                "uiWidth" : "控件宽度",
             },
             "t" : {
                 "string"   : "字符串",
@@ -130,6 +132,9 @@ define({
             "th_c_cmt" : "评论数",
             "th_c_view" : "浏览数",
             "th_c_agree" : "赞同数",
+        },
+        "keytip" : {
+            "thumb" : "只能上传 jpeg 或者 jpg 格式的图片",
         },
         "meta"   : "属性",
         "detail" : {

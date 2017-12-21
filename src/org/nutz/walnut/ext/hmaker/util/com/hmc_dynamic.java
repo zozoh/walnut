@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
 import java.util.List;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +31,25 @@ public class hmc_dynamic extends AbstractNoneValueCom {
 
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
+        // 必须得有皮肤
+        if (!ing.hasSkin())
+            return false;
+
+        // 从皮肤得到模板
+        String skin = ing.eleCom.attr("skin");
+        if (Strings.isBlank(skin))
+            return false;
+
+        // 得到模板的信息
+        Matcher m = Pattern.compile("^skin-dynamic-([^-]+)-(.+)$").matcher(skin);
+        if (!m.find())
+            return false;
+
+        String templateName = m.group(1) + "/" + m.group(2);
+        HmTemplate tmpl = ing.getTemplate(templateName);
+        if (null == tmpl)
+            return false;
+
         // 设置内容
         NutMap reMap = this.__setup_dynamic_content(ing);
         if (null == reMap)
@@ -37,17 +57,6 @@ public class hmc_dynamic extends AbstractNoneValueCom {
 
         // 初始化服务器端数据
         __add_data_script(ing, eleArena, reMap);
-
-        // 得到模板的信息
-        String templateName = ing.propCom.getString("template");
-        HmTemplate tmpl = ing.getTemplate(templateName);
-
-        // 得到模板皮肤
-        // ing.skinInfo
-        if (ing.hasSkin()) {
-            String skinSelector = ing.skinInfo.getSkinForTemplate(templateName);
-            eleArena.addClass(skinSelector);
-        }
 
         // 采用指定的 wnml 代码模板
         if (tmpl.hasDom()) {
@@ -229,6 +238,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             String apiUrl = API + com.getString("api");
             com.put("apiUrl", apiUrl);
         }
+        com.put("apiDomain", ing.domainName);
 
         // 得到 api 提交时的参数上下文
         com.put("paramContext",
@@ -360,10 +370,6 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             options = Lang.map("API", API);
         }
         com.put("options", options);
-
-        // 模板的类选择器
-        if (ing.hasSkin())
-            com.put("skinSelector", ing.skinInfo.getSkinForTemplate(templateName));
 
         // 返回成功
         return reMap;

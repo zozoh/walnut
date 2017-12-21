@@ -77,7 +77,7 @@ return ZUI.def("ui.edit-markdown", {
     updatePreviewHtml : function(){
         var UI  = this;
         var opt = UI.options;
-
+        console.log(opt.preview)
         var str  = UI.getData();
         var html = str ? $z.markdownToHtml(str, opt.preview)
                        : UI.compactHTML('<div class="edmd-empty"><%=markdown.emptyPreview%></div>');

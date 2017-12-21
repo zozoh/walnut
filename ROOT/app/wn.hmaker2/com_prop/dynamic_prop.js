@@ -93,7 +93,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         var jParams  = UI.arena.find(">.api-params");
         var jOptions = UI.arena.find(">.tmpl-options");
 
-        console.log("prop update", UI.uiCom.getComSkin(), com)
+        //console.log("prop update", UI.uiCom.getComSkin(), com)
 
         // 如果发现属性有不正确的，会标记这个变量，以便通知组件重绘
         var raw_com_json = $z.toJson(com);
@@ -136,8 +136,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         //-----------------------------------------------------
         // 根据皮肤更新一下 API 列表
         var oApiList = UI.getHttpApiList(function(oApi){
-            return tmplInfo ? tmplInfo.dataType == oApi.api_return
-                            : false;
+            if(!tmplInfo || !oApi)
+                return false;
+            return HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType);
         });
         UI.gasket.api.setItems(oApiList);
 

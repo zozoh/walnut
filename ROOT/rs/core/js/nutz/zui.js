@@ -989,7 +989,7 @@ define(function (require, exports, module) {
             }
             var re = $z.getValue((msgMap || this._msg_map), key);
             if (!re) {
-                return dft || str;
+                return _.isUndefined(dft) ? str : dft;
             }
             // 得到了字符串
             if (_.isString(re)) {

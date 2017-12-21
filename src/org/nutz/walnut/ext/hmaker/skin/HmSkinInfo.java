@@ -10,8 +10,6 @@ public class HmSkinInfo {
 
     public Map<String, HmSkinInfoCom[]> com;
 
-    public Map<String, String> template;
-
     public String[] js;
 
     public HmSkinInfoCom[] area;
@@ -29,12 +27,6 @@ public class HmSkinInfo {
                 }
             }
         }
-        return null;
-    }
-
-    public String getSkinForTemplate(String templateName) {
-        if (null != template)
-            return template.get(templateName);
         return null;
     }
 

@@ -20,6 +20,14 @@ import org.nutz.walnut.ext.hmaker.template.HmTemplateInfo;
 
 public class HmContext {
 
+    /**
+     * 执行转换的域名
+     */
+    public String domainName;
+
+    /**
+     * IO 接口
+     */
     public WnIo io;
 
     /**
@@ -82,7 +90,8 @@ public class HmContext {
      */
     private int[] processCount;
 
-    public HmContext(WnIo io) {
+    public HmContext(WnIo io, String domainName) {
+        this.domainName = domainName;
         this.io = io;
         this.templates = new HashMap<>();
         this.APIs = new HashMap<>();
@@ -93,6 +102,7 @@ public class HmContext {
     }
 
     protected HmContext(HmContext hpc) {
+        this.domainName = hpc.domainName;
         this.io = hpc.io;
         this.resources = hpc.resources;
         this.oHome = hpc.oHome;

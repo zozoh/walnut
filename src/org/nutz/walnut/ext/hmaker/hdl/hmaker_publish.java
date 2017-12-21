@@ -32,7 +32,7 @@ public class hmaker_publish implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // ------------------------------------------------------------
         // 上下文
-        final HmContext hpc = new HmContext(sys.io);
+        final HmContext hpc = new HmContext(sys.io, sys.se.group());
         hpc.strict = !hc.params.is("quiet");
         hpc.oConfHome = Wn.checkObj(sys, "~/.hmaker");
         hpc.oApiHome = Wn.getObj(sys, "~/.regapi/api");

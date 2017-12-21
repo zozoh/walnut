@@ -287,20 +287,19 @@ return ZUI.def("app.wn.thdesign", {
                               , UI.str("thing.conf.cicon." + fo.editAs
                                     , '<i class="zmdi zmdi-minus"></i>'));
                 
-                // 得到字段显示名
-                var keyName = UI.str("thing.key." + fo.key, fo.key);
-                
-                // 内置专有字段，需要显示一下自己的字段真实名
-                if(/^(id|th_nm|th_ow|lbls|th_site|th_pub|thumb|th_enabled|lm|ct)$/.test(fo.key)) {
-                    keyName += " (" + fo.key + ")";
-                }
-
                 // 字段名
-                html += '<b>' + keyName + '</b>';
-
-                // 自定义了显示名
+                html += '<b>' + fo.key + '</b>';
+                
+                // 指定了字段的标题
                 if(fo.title) {
-                    html += '<em>' + UI.text(fo.title) + '</em>';
+                    html += '<em>:' + UI.text(fo.title) + '</em>';
+                }
+                // 看看有没有默认描述
+                else {
+                    var keyTitle = UI.str("thing.key." + fo.key, "");
+                    if(keyTitle) {
+                        html += '<em>&gt;' + keyTitle + '</em>';
+                    }
                 }
                 
                 // 返回
@@ -344,11 +343,11 @@ return ZUI.def("app.wn.thdesign", {
         var dis_flds;
         // 内置专有字段，有了固定的设置
         if(/^(id|th_ow|lbls|th_site|th_enabled|lm|ct)$/.test(fo.key)) {
-            dis_flds = ["key","type","editAs","uiConf"];
+            dis_flds = ["key","type","dft","editAs","uiConf"];
         }
         // 缩略图和名称
         else if(/^(thumb|th_nm)$/.test(fo.key)) {
-            dis_flds = ["key","type","editAs","uiConf", "hide"];
+            dis_flds = ["key","type","dft","editAs","uiConf", "hide"];
         }
         // 默认为自定义字段
         else {
@@ -370,6 +369,28 @@ return ZUI.def("app.wn.thdesign", {
                 fields : UI.__gen_fields(),
                 on_change : function(key, val) {
                     var newFo = this.getData();
+
+                    // 确保字段被更新
+                    newFo[key] = val;
+                    //console.log(newFo)
+
+                    // 根据字段类型，格式化默认值
+                    // if(!_.isUndefined(newFo.dft)){
+                    //     // NULL
+                    //     if("null" == newFo.dft) {
+                    //         newFo.dft = null;
+                    //     }
+                    //     // 其他转换一下
+                    //     else if(newFo.type){
+                    //         newFo.dft = $z.strToJsObj(newFo.dft, newFo.type);
+                    //     }
+                    // }
+
+                    // 转换一下 uiWidth
+                    if(newFo.uiWidth && /^[0-9]+$/.test(newFo.uiWidth)){
+                        newFo.uiWidth = parseInt(newFo.uiWidth);
+                    }
+
                     var jFo = UI.gasket.list.$item();
                     UI.gasket.list.update(newFo, jFo);
                     UI.__check_btn_status();
@@ -422,6 +443,35 @@ return ZUI.def("app.wn.thdesign", {
             title  : "i18n:thing.conf.key.tip",
             editAs : "text",
         }, {
+            // TODO 如果支持默认值，那么创建的时候要增加默认值才行
+            key    : "dft",
+            title  : "i18n:thing.conf.key.dft",
+            type   : "string",
+            editAs : "input",
+            uiConf : {
+                formatData : function(val) {
+                    //console.log("parse", val)
+                    if("null" == val)
+                        return null;
+                    if("undefined" == val)
+                        return undefined;
+                    return val;
+                },
+                parseData : function(val) {
+                    //console.log("format", val, this);
+                    if(_.isNull(val))
+                        return "null";
+                    if(_.isUndefined(val))
+                        return "undefined";
+                    return val;                    
+                },
+            }
+        }, {
+            key    : "hide",
+            title  : "i18n:thing.conf.key.hide",
+            type   : "boolean",
+            editAs : "toggle"
+        }, {
             key    : "editAs",
             title  : "i18n:thing.conf.key.editAs",
             editAs : "droplist",
@@ -459,10 +509,21 @@ return ZUI.def("app.wn.thdesign", {
                 }
             }
         }, {
-            key    : "hide",
-            title  : "i18n:thing.conf.key.hide",
-            type   : "boolean",
-            editAs : "toggle"
+            key    : "uiWidth",
+            title  : "i18n:thing.conf.key.uiWidth",
+            type   : "string",
+            editAs : "input",
+            uiConf : {
+                assist : {
+                    icon : '<i class="zmdi zmdi-more"></i>',
+                    uiType : "ui/form/c_list",
+                    uiConf : {
+                        drawOnSetData : false,
+                        textAsValue : true,
+                        items : ["all","auto"]
+                    }
+                }
+            }
         }]
     },
     //...............................................................
@@ -471,7 +532,7 @@ return ZUI.def("app.wn.thdesign", {
         var opt  = UI.options;
         UI.__oTS = oThSet;
 
-        console.log(oThSet, thConf)
+        //console.log(oThSet, thConf)
 
         // 更新一下 ThingSet 设置
         UI.gasket.icon.setData(oThSet.icon);
@@ -573,6 +634,7 @@ return ZUI.def("app.wn.thdesign", {
     getThConfJson : function(){
         // 得到字段
         var fields = this.gasket.list.getData();
+
         // 得到全局设置
         var setupObj = this.gasket.setup.getData();
 

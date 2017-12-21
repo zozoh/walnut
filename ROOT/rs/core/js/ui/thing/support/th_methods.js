@@ -93,6 +93,7 @@ var __format_thing_fld = function(fld) {
         $z.extend(fld, {
             hide : true,
             type : "string",
+            tip  : "i18n:thing.keytip.thumb",
             beforeSetData : function(o){
                 this.UI.setTarget($z.tmpl("id:{{th_set}}/data/{{id}}/thumb.jpg")(o));
             },
@@ -159,7 +160,7 @@ var DATA_MODE = {
                 var UI = this;
                 $z.setUndefined(params, "skip",  0);
                 $z.setUndefined(params, "limit", 50);
-                var cmdText = $z.tmpl("thing {{pid}} query -skip {{skip}}"
+                var cmdText = $z.tmpl("thing {{pid}} query '<%=match%>' -skip {{skip}}"
                                     + " -limit {{limit}}"
                                     + " -json -pager")(params);
                 // 增加排序项

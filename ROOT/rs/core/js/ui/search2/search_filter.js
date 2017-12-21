@@ -652,6 +652,8 @@ return ZUI.def("ui.search_filter", {
                 mch[m[5]] = m[6];
             }
             else if(m[1]){
+                var key = m[2];
+                var val = m[3];
                 mch[m[2]] = $z.strToJsObj(m[3], UI.parent.getFieldType(m[2]));
             }
             //.............................

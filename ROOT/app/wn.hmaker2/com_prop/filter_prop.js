@@ -462,7 +462,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
                 sync_input_ass(this, data.type);
             },
             callback : callback
-        });
+        }, UI);
     },
     //...............................................................
     createField : function(com){
@@ -558,7 +558,7 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             },
             data  : data,
             callback : callback
-        });
+        }, UI);
     },
     //...............................................................
     /*

@@ -5,17 +5,31 @@
 window.HmRT = {
     //...............................................................
     // 判断一个模板的数据类型能否与 api 的返回值匹配
-    isMatchDataType : function(apiReType, tmplDataType){
-        if("page" == apiReType || "list" == apiReType) {
-            return "list" == tmplDataType;
+    isMatchDataType : function(apiReTypes, tmplDataType){
+        if(!apiReTypes || !tmplDataType)
+            return false;
+        if(!_.isArray(apiReTypes)){
+            apiReTypes = [apiReTypes];
         }
-        return "obj" == tmplDataType;
+
+        for(var i=0;i<apiReTypes.length;i++) {
+            var apiReType = apiReTypes[i];
+            if(_.isArray(tmplDataType)){
+                if(tmplDataType.indexOf(apiReType) < 0)
+                    return false
+            }
+            else if(apiReType != tmplDataType){
+                return false;
+            }
+        }
+
+        return true;
     },
     //...............................................................
     // 将一个数据尽量转换成模板能支持的数据类型
     // 如果转换失败将抛错, null 将被原样返回
     convertDataForTmpl : function(data, tmplDataType){
-        if("list" == tmplDataType && data){
+        if(HmRT.isMatchDataType(["page", "list"], tmplDataType)){
             if(data.list && data.pager)
                 return data.list;
             if(_.isArray(data))
@@ -29,7 +43,7 @@ window.HmRT = {
     isDataEmptyForTmpl : function(data, tmplDataType) {
         if(!data)
             return true;
-        if("list" == tmplDataType){
+        if(HmRT.isMatchDataType(["page", "list"], tmplDataType)){
             if(!_.isArray(data) || data.length == 0)
                 return true;
         }

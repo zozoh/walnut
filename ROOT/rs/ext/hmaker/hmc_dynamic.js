@@ -179,6 +179,14 @@ $.fn.extend({ "hmc_dynamic" : function(opt, arg){
         return CMD[opt].apply(this, args.slice(1));
     }
 
+    // 当本机测试环境下，修改 apiUrl
+    if(opt.apiUrl && /https?:\/\/(localhost|127.0.0.1)/.test(window.location.href)){
+        opt.apiUrl = "/api/" + opt.apiDomain + opt.api;
+        if(opt.options && opt.options.API) {
+            opt.options.API += "/" + opt.apiDomain;
+        }
+    }
+
     // 记录自己
     var jData = this;
 
@@ -207,6 +215,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt, arg){
     window.setTimeout(function(){
         // 采用裸数据首次绘制
         var json = $.trim(jData.children(".dynamic-raw-data").html());
+        //console.log(json)
         if(json) {
             draw_api_result(jData, json, opt);
         }

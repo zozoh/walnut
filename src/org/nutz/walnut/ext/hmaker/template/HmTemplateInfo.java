@@ -12,7 +12,7 @@ public class HmTemplateInfo {
 
     public String title;
 
-    public String dataType;
+    public String[] dataType;
 
     public NutMap options;
 

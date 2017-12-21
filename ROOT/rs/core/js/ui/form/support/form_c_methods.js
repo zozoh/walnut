@@ -14,6 +14,14 @@ var methods = {
             if(UI.__equals(v, UI.__old_val))
                 return;
         }
+        // 直接比较: undefined
+        else if(_.isUndefined(v) && _.isUndefined(UI.__old_val)) {
+            return;
+        }
+        // 直接比较: null
+        else if(_.isNull(v) && _.isNull(UI.__old_val)) {
+            return;
+        }
         // 直接比较
         else if(v == UI.__old_val){
             return;
