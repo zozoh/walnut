@@ -33,7 +33,7 @@ public class cmd_json extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "cqnr", "^(err)$");
+        ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only)$");
 
         // 读取输入
         String json = Streams.read(sys.in.getReader()).toString();
@@ -89,6 +89,13 @@ public class cmd_json extends JvmExecutor {
 
         if (params.has("d")) {
             fmt.setDateFormat(params.get("d"));
+        }
+
+        // 映射字段的值
+        if (params.has("mapping")) {
+            NutMap mapping = Lang.map(params.get("mapping"));
+            boolean is_mapping_only = params.is("mapping_only");
+            obj = __do_mapping(obj, mapping, is_mapping_only);
         }
 
         // 深层的修改键值
@@ -156,6 +163,51 @@ public class cmd_json extends JvmExecutor {
             sys.out.println(Json.toJson(obj, fmt));
         }
 
+    }
+
+    private Object __do_mapping(Object obj, NutMap mapping, boolean is_mapping_only) {
+        // 输入的值就是对象的话 ...
+        if (obj instanceof Map<?, ?>) {
+            return __do_mapping_obj(mapping, is_mapping_only, (Map<?, ?>) obj);
+        }
+        // 输入的对象是个列表
+        else if (obj instanceof List) {
+            List<?> list = (List<?>) obj;
+            if (list.size() > 0) {
+                List<Object> list2 = new ArrayList<>(list.size());
+                for (Object ele : list) {
+                    // 如果是个对象就映射
+                    if (ele instanceof Map<?, ?>) {
+                        list2.add(this.__do_mapping_obj(mapping, is_mapping_only, (Map<?, ?>) ele));
+                    }
+                    // 如果不是对象，就加回去
+                    else {
+                        list2.add(ele);
+                    }
+                }
+                return list2;
+            }
+        }
+        // 原样返回
+        return obj;
+    }
+
+    private NutMap __do_mapping_obj(NutMap mapping, boolean is_mapping_only, Map<?, ?> map) {
+        NutMap map2 = new NutMap();
+        for (Map.Entry<?, ?> en : map.entrySet()) {
+            String key = en.getKey().toString();
+            Object val = en.getValue();
+            // 需要映射
+            String k2 = mapping.getString(key);
+            if (!Strings.isBlank(k2)) {
+                map2.put(k2, val);
+            }
+            // 不需要映射的话，如果不是强制输出
+            else if (!is_mapping_only) {
+                map2.put(key, val);
+            }
+        }
+        return map2;
     }
 
     @SuppressWarnings("unchecked")
