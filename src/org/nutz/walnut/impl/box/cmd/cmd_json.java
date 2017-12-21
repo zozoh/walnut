@@ -192,15 +192,36 @@ public class cmd_json extends JvmExecutor {
         return obj;
     }
 
+    @SuppressWarnings("unchecked")
     private NutMap __do_mapping_obj(NutMap mapping, boolean is_mapping_only, Map<?, ?> map) {
+        NutMap input = NutMap.WRAP((Map<String, Object>) map);
         NutMap map2 = new NutMap();
-        for (Map.Entry<?, ?> en : map.entrySet()) {
-            String key = en.getKey().toString();
+        for (Map.Entry<String, Object> en : input.entrySet()) {
+            String key = en.getKey();
             Object val = en.getValue();
             // 需要映射
             String k2 = mapping.getString(key);
             if (!Strings.isBlank(k2)) {
-                map2.put(k2, val);
+                // 需要映射值
+                int pos = k2.indexOf(':');
+                // 仅仅是合并值
+                if (pos == 0) {
+                    // TODO 这里需要来个预解析，否则太慢了
+                    Tmpl tmpl = Tmpl.parse(k2.substring(1), "@");
+                    Object v2 = tmpl.render(input);
+                    map2.put(key, v2);
+                }
+                // 改键值
+                else if (pos > 0) {
+                    Tmpl tmpl = Tmpl.parse(k2.substring(pos + 1), "@");
+                    Object v2 = tmpl.render(input);
+                    k2 = k2.substring(0, pos);
+                    map2.put(k2, v2);
+                }
+                // 仅仅改键
+                else {
+                    map2.put(k2, val);
+                }
             }
             // 不需要映射的话，如果不是强制输出
             else if (!is_mapping_only) {
