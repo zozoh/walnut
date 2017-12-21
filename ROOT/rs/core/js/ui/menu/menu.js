@@ -1,5 +1,5 @@
 (function($z){
-$z.declare('zui', function(ZUI){
+$z.declare(['zui', "ui/form/c_droplist"], function(ZUI, DroplistUI){
 //==============================================
 var do_close_allmenu = function(ignore_cids){
     if(!ignore_cids){
@@ -44,7 +44,7 @@ return ZUI.def("ui.menu", {
         // 注册全局关闭
         if(opt.position){
             UI.watchMouse("click", do_close_allmenu);
-            UI.watchKey(27, do_close_allmenu);            
+            UI.watchKey(27, do_close_allmenu);
         }
 
         // 默认是自动整理菜单
@@ -95,7 +95,7 @@ return ZUI.def("ui.menu", {
                 return mi;
             };
 
-            // 循环整理二级菜单 
+            // 循环整理二级菜单
             var miList = [];
             for(var i=0; i<opt.setup.length; i++){
                 var mi = _.extend({}, opt.setup[i]);
@@ -167,12 +167,12 @@ return ZUI.def("ui.menu", {
                 var val   = jq.attr("val");
                 jItem.find(".menu-item-si").removeClass("menu-item-si-on");
                 jq.addClass("menu-item-si-on");
-                
+
                 var context = this.options.context || this.parent || this;
-                
+
                 // 调用回调
                 $z.invoke(mi, "on_change", [val, mi], context);
-                
+
                 if(_.isFunction(context.trigger)){
                     context.trigger("menu:"+(mi.key||"status"), val);
                 }
@@ -183,10 +183,10 @@ return ZUI.def("ui.menu", {
             var jItem = $(e.currentTarget);
             var mi    =  jItem.data("@DATA");
             mi.on = mi.on ? false : true;
-            
+
             // 调用回调
             $z.invoke(mi, "on_change", [mi.on, mi], context);
-            
+
             if(_.isFunction(context.trigger)){
                 context.trigger("menu:"+(mi.key||"boolean"), mi.on);
             }
@@ -239,7 +239,7 @@ return ZUI.def("ui.menu", {
     // 假想给定的 ele 是 .ment-item
     closeGroup : function(ele){
         var UI = this;
-        // 还没初始化完的，无视 
+        // 还没初始化完的，无视
         if(!UI.arena)
             return;
 
@@ -248,7 +248,7 @@ return ZUI.def("ui.menu", {
             var jq = $(ele);
             if(jq.hasClass("menu-item")){
                 jq.removeAttr("open");
-                jq.children(".menu-sub").remove();   
+                jq.children(".menu-sub").remove();
                 return;
             }
         }
@@ -347,7 +347,7 @@ return ZUI.def("ui.menu", {
         // 循环绘制每个项目
         for(var i=0; i<items.length; i++){
             var mi = items[i];
-            
+
             // 看看是否有必要调用初始化函数
             $z.invoke(mi, "init", [mi], context);
 
@@ -361,12 +361,12 @@ return ZUI.def("ui.menu", {
             jItem.data("@DATA", mi);
 
             // 按钮
-            if(mi.type == "button" 
+            if(mi.type == "button"
                 || _.isFunction(mi.asyncHandler)
                 || _.isFunction(mi.handler)){
                 UI.__draw_button(mi, jq, jItem);
             }
-            // 子菜单 
+            // 子菜单
             else if(mi.type == "group" || _.isArray(mi.items) || _.isFunction(mi.items)){
                 UI.__draw_group(mi, jq, jItem);
             }
@@ -377,6 +377,10 @@ return ZUI.def("ui.menu", {
             // 布尔项目
             else if(mi.type == "boolean") {
                 UI.__draw_boolean(mi, jq, jItem);
+            }
+            // 下拉项目
+            else if(mi.type == "select" || _.isArray(mi.options)) {
+                UI.__draw_select(mi, jq, jItem);
             }
             // 分隔符
             else if(mi.type == "separator"){
@@ -400,13 +404,39 @@ return ZUI.def("ui.menu", {
             }
         }
     },
+    //
+    __draw_select : function(mi, jq, jItem){
+        var UI = this;
+        jItem.attr("tp", "select");
+
+        // 绘制状态按钮
+        var sgasket = "dl_" + new Date().getTime();
+        var jselect = $('<span class="menu-item-select" ui-gasket="' + sgasket + '">').appendTo(jq);
+
+        new DroplistUI({
+            $pel: jq,
+            gasketName: sgasket,
+            items: mi.options,
+            on_change: function (val) {
+                var context = UI.options.context || UI.parent || UI;
+                // 调用回调
+                $z.invoke(mi, "on_change", [val, mi], context);
+
+                if(_.isFunction(context.trigger)){
+                    context.trigger("menu:"+(mi.key||"select"), val);
+                }
+            }
+        }).render(function () {
+            this.setData(mi.dft);
+        });
+    },
     //..............................................
     __draw_boolean : function(mi, jq, jItem){
         var UI = this;
         jItem.attr("tp", "boolean");
 
         // 初始化 icon
-        mi.icon = mi.on ? mi.icon_on 
+        mi.icon = mi.on ? mi.icon_on
                         : mi.icon_off;
         mi.text = mi.on ? (mi.text_on  || mi.text)
                         : (mi.text_off || mi.text)

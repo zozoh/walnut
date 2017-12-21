@@ -13,7 +13,7 @@ public class mgadmin_raw_explain extends mgadmin_raw {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        sys.out.writeJson(rawQuery(hc.params).explain());
+        sys.out.writeJson(rawQuery(hc.params, hc).explain());
     }
 
 }

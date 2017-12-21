@@ -15,7 +15,7 @@ public class mgadmin_raw_query extends mgadmin_raw {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        DBCursor cur = rawQuery(hc.params);
+        DBCursor cur = rawQuery(hc.params, hc);
         sys.out.println("// count=" + cur.count());
         sys.out.print("[");
         while (cur.hasNext()) {
