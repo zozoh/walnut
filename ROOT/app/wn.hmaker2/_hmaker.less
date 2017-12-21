@@ -63,15 +63,19 @@
         .hm-resource {
             .ui-tree {
                 .tree-node > .tnd-self {
-                    line-height: 28px; padding: 0 @d2;
+                    line-height: 16px; padding: @d2 @d0 @d2 @d2;
+                    width:100%; @flex(); 
+                    > * {flex:0 0 auto;}
                     > .tnd-text {
+                        flex:1 1 auto; white-space: pre-wrap;
                         a {
                             font-weight: normal; font-size:@f2;
-                            color: @cf0; 
+                            color: @cf0; margin-right:@d2;
                         }
                         em {
-                            font-style: italic; margin-left:@d2;
+                            font-style: italic;
                             font-size:@f1; color:@c2;
+                            display: inline-block; vertical-align: middle;
                         }
                     }
                     .z-edit-it {

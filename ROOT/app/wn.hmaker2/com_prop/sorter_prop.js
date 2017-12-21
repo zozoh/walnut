@@ -379,7 +379,7 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
             },
             data  : data,
             callback : callback
-        });
+        }, UI);
     },
     //...............................................................
     createField : function(com){
@@ -475,7 +475,7 @@ return ZUI.def("app.wn.hm_com_sorter_prop", HmMethods({
             },
             data  : data,
             callback : callback
-        });
+        }, UI);
     },
     //...............................................................
     /*

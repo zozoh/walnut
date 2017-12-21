@@ -121,13 +121,13 @@ return ZUI.def("app.wn.hm_com_sorter", {
     getDefaultData : function(){
         return {
             "fields": [{
-                    "text": "按发布日期",
-                    "name": "lm",
+                    "text": "按创建时间",
+                    "name": "ct",
                     "modify": false,
                     "order": -1
                 }, {
-                    "text": "按价格",
-                    "name": "price",
+                    "text": "按发布日期",
+                    "name": "th_date",
                     "modify": true,
                     "order": 1
                 }]
