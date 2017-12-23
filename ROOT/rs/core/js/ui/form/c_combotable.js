@@ -126,11 +126,12 @@ return ZUI.def("ui.form_com_combotable", {
         // 绘制输入框
         if(opt.combo) {
             // 转换过滤器为 c_list 的合法过滤器
+            var assistConf = $z.pick(opt.combo, "!^filter$");
+            $z.setUndefined(assistConf, "drawOnSetData", true);
             if(_.isFunction(opt.combo.filter)) {
-                UI.__filter = opt.combo.filter;
-                opt.combo.filter = function(o) {
+                assistConf.filter = function(o) {
                     var list = UI._get_data();
-                    return UI.__filter(o, list);
+                    return opt.combo.filter.apply(UI, [o, list]);
                 }
             }
 
@@ -144,9 +145,7 @@ return ZUI.def("ui.form_com_combotable", {
                 assist : {
                     icon : '<i class="zmdi zmdi-more"></i>',
                     uiType : "ui/form/c_list",
-                    uiConf : _.extend({
-                        drawOnSetData : true,
-                    }, opt.combo),
+                    uiConf : assistConf,
                 }
             }).render(function(){
                 this.setData("");

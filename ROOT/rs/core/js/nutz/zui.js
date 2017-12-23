@@ -427,7 +427,7 @@ define(function (require, exports, module) {
             var UI = this;
             var opt = UI.options;
 
-            // console.log("destroy UI:", UI.uiName, "::", UI.cid);
+            console.log("destroy UI:", UI.uiName, "::", UI.cid);
 
             // 释放通用拖拽操作
             if(UI.dragAndDrop) {
@@ -753,14 +753,15 @@ define(function (require, exports, module) {
         },
         //............................................
         // 汇报自己完成了哪个延迟加载的 UI
-        defer_report: function (key) {
+        defer_report: function (key, quiet) {
             var UI = this;
-
             // 因为是延迟，所以放到执行队列最后执行
             window.setTimeout(function () {
                 //console.log("report", UI.uiName, _.keys(UI._defer_keys).join(","));
                 // 抛出明显的错误
                 if (_.isUndefined(UI._defer_keys[key])) {
+                    if(quiet)
+                        return;
                     alert("defer key '" + key + "' without define!");
                     throw "defer key '" + key + "' without define!";
                 }
