@@ -15,122 +15,41 @@
             },
             redraw: function () {
                 var UI = this;
-
+                // 获取指定目录的pid
+                var udir = Wn.exec("obj ~/.ticket/user");
+                var cdir = Wn.exec("obj ~/.ticket/cservice");
                 // 加载对象编辑器
                 new SearchUI2({
                     parent: UI,
                     gasketName: "main",
-                    data: "obj ~/abc -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
+                    data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
                     menu: ["create", "refresh", "delete", "edit"],
                     edtCmdTmpl: {
-                        "create": "obj ~/abc -new '<%=json%>' -o",
-                        "delete": "rm -rf id:{{id}}",
-                        "edit": "obj id:{{id}} -u '<%=json%>' -o"
                     },
                     filter: {
-                        keyField: ["nm", "alias"],
+                        keyField: ["usrNm", "usrAlias"],
                         keyFieldIsOr: true,
                         formatData: function (obj) {
-                            // 这里随便怎么改 obj 里的字段
                             return obj;
                         },
-                        assist: {
-                            width: 600,
-                            autoOpen: false,
-                            form: {
-                                fields: [{
-                                    key: "race",
-                                    title: "种类",
-                                    dft: null,
-                                    uiType: "@switch",
-                                    uiConf: {
-                                        singleKeepOne: false,
-                                        items: [{
-                                            value: "FILE", text: "文件"
-                                        }, {
-                                            value: "DIR", text: "目录"
-                                        }]
-                                    }
-                                }, {
-                                    key: "lm",
-                                    title: "最后修改日期",
-                                    dft: null,
-                                    uiWidth: 300,
-                                    uiType: "@date_range",
-                                    uiConf: {
-                                        formatData: function (str) {
-                                            if (/^[mM][sS]/.test(str))
-                                                return str;
-                                            return str ? "MS" + str : null;
-                                        },
-                                        parseData: function (str) {
-                                            if (/^[mM][sS]/.test(str))
-                                                return str.substring(2);
-                                            return str;
-                                        }
-                                    }
-                                }, {
-                                    key: "number",
-                                    title: "某个数字范围",
-                                    dft: null,
-                                    uiType: "@number_range",
-                                    uiConf: {}
-                                }]
-                            }
-                        },
                         tabs: [{
-                            icon: '<i class="zmdi zmdi-file"></i>',
-                            text: "文件",
-                            // color : "#000",
-                            // background : "#F0F",
+                            icon: '<i class="fa fa-user"></i>',
+                            text: "用户",
                             value: {
-                                race: "FILE"
+                                tp: "user"
                             }
                         }, {
                             dchecked: true,
-                            icon: '<i class="zmdi zmdi-folder"></i>',
-                            text: "目录",
-                            // color : "#000",
-                            // background : "#FF0",
+                            icon: '<i class="fa fa-user-md"></i>',
+                            text: "客服",
                             value: {
-                                race: "DIR"
+                                tp: "cservice"
                             }
-                        }, {
-                            icon: '<i class="zmdi zmdi-apps"></i>',
-                            text: "APP",
-                            value: {
-                                nm: "app"
-                            }
-                            // }, {
-                            //     text : "很长很长很长很长的文字",
-                            //     value : {}
-                            // }, {
-                            //     text : "很长很长很长很长的文字",
-                            //     value : {}
-                            // }, {
-                            //     text : "很长很长很长很长的文字",
-                            //     value : {}
-                            // }, {
-                            //     text : "很长很长很长很长的文字",
-                            //     value : {}
                         }],
                         tabsPosition: "left",
-                        dtabsMulti: true,
-                        dtabsKeepChecked: true,
-                        tabsStatusKey: "test_pet_search_tab",
-                        dhideInputBox: true,
-                    },
-                    dsorter: {
-                        setup: [{
-                            icon: 'asc',
-                            text: "按最后修改日期",
-                            value: {lm: 1},
-                        }, {
-                            icon: 'desc',
-                            text: "按名称",
-                            value: {nm: -1},
-                        }],
-                        storeKey: "test_pet_search_sort"
+                        tabsMulti: false,
+                        tabsKeepChecked: false,
+                        tabsStatusKey: "test_pet_search_tab"
                     },
                     list: {
                         fields: [{

@@ -9,7 +9,7 @@
         icon: '<i class="fa fa-ticket"></i>',
         text: 'i18n:ticket.dataconf'
     }, {
-        ph: '~/.ticket',
+        ph: '~/.ticket/user',
         icon: '<i class="fa fa-user-circle"></i>',
         text: 'i18n:ticket.people',
         editor: 'edit_ticket_people'

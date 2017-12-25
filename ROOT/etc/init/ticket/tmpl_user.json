@@ -1,4 +1,6 @@
 {
+  usrAlias: "",
+  serviceTp: "user",
   notiWalnut: true,
   notiEmail: false,
   notiSms: false,
