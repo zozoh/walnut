@@ -520,6 +520,16 @@ var Wn = {
         });
     },
     //................................................................
+    // 执行明后后，直接转换为json格式
+    execJ : function(str, input, opt) {
+        var result = this.exec(str, input, opt);
+        try {
+            return $z.fromJson(result);
+        } catch (e) {
+            throw e;
+        }
+    },
+    //................................................................
     // 采用模板方式执行命令
     execf : function(tmpl, input, context, opt) {
         if(!_.isString(input)) {
@@ -527,11 +537,11 @@ var Wn = {
             context = input;
 
             var str = $z.tmpl(tmpl)(context);
-            return this.exec(str, opt);    
+            return this.exec(str, opt);
         }
         // 带 input 的模式
         var str = $z.tmpl(tmpl)(context);
-        return  this.exec(str, input, opt);       
+        return  this.exec(str, input, opt);
     },
     /*................................................................
     # 执行命令的 opt 配置对象的内容

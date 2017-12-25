@@ -16,15 +16,17 @@
             redraw: function () {
                 var UI = this;
                 // 获取指定目录的pid
-                var udir = Wn.exec("obj ~/.ticket/user");
-                var cdir = Wn.exec("obj ~/.ticket/cservice");
+                var udir = Wn.execJ("obj ~/.ticket/user");
+                var cdir = Wn.execJ("obj ~/.ticket/cservice");
                 // 加载对象编辑器
                 new SearchUI2({
                     parent: UI,
                     gasketName: "main",
                     data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
-                    menu: ["create", "refresh", "delete", "edit"],
+                    menu: ["refresh", "edit", "delete"],
                     edtCmdTmpl: {
+                        "delete"  : "rm -rf id:{{id}}",
+                        "edit"    : "obj id:{{id}} -u '<%=json%>' -o"
                     },
                     filter: {
                         keyField: ["usrNm", "usrAlias"],
@@ -33,53 +35,69 @@
                             return obj;
                         },
                         tabs: [{
+                            checked: true,
                             icon: '<i class="fa fa-user"></i>',
                             text: "用户",
                             value: {
-                                tp: "user"
+                                serviceTp: "user",
+                                pid: udir.id
                             }
                         }, {
                             dchecked: true,
                             icon: '<i class="fa fa-user-md"></i>',
                             text: "客服",
                             value: {
-                                tp: "cservice"
+                                serviceTp: "cservice",
+                                pid: cdir.id
                             }
                         }],
                         tabsPosition: "left",
                         tabsMulti: false,
-                        tabsKeepChecked: false,
-                        tabsStatusKey: "test_pet_search_tab"
+                        tabsKeepChecked: false
                     },
                     list: {
                         fields: [{
-                            key: "nm",
+                            key: "usrNm",
                             title: "名称",
+                            uiType: '@label'
                         }, {
-                            key: "alias",
+                            key: "usrAlias",
                             title: "别名"
                         }, {
-                            key: "g",
-                            title: "所在组",
+                            key: "serviceTp",
+                            title: "类型",
                             uiType: '@label',
-                        }, {
-                            key: "race",
-                            title: "种类",
-                            uiType: "@switch",
-                            uiConf: {
-                                items: [{
-                                    value: "FILE", text: "文件"
-                                }, {
-                                    value: "DIR", text: "目录"
-                                }]
+                            display: function (o) {
+                                if (o.serviceTp == 'user') {
+                                    return "用户";
+                                }
+                                if (o.serviceTp == 'cservice') {
+                                    return "客服";
+                                }
                             }
                         }, {
-                            key: "lm",
-                            title: "最后修改时间",
+                            key: "ct",
+                            title: "注册时间",
                             uiType: '@label',
                             display: function (o) {
                                 return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
                             }
+                        }],
+                        checkable: false,
+                        multi: false,
+                        layout: {
+                            sizeHint: [150, 150, 50, "*"]
+                        }
+                    },
+                    sorter: {
+                        setup: [{
+                            icon: 'asc',
+                            text: "按注册日期",
+                            value: {ct: 1}
+                        }, {
+                            icon: 'desc',
+                            text: "按名称",
+                            value: {nm: -1}
                         }]
                     }
                 }).render(function () {
