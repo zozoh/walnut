@@ -7,7 +7,7 @@
         'ui/search2/search',
     ], function (ZUI, Wn, SearchUI2) {
         var html = `<div class="ui-arena ticket-contaner" ui-gasket="main" ui-fitparent="true"></div>`;
-        return ZUI.def("app.wn.ticket.people", {
+        return ZUI.def("app.wn.ticket.search", {
             dom: html,
             css: "app/wn.ticket/theme/ticket-{{theme}}.css",
             i18n: "app/wn.ticket/i18n/{{lang}}.js",
@@ -16,101 +16,125 @@
             },
             redraw: function () {
                 var UI = this;
-
+                // 获取指定目录的pid
+                var rdir = Wn.execJ("obj ~/.ticket/record");
+                var tsmap = {
+                    'new': "新工单待分派",
+                    'assign': "工单已分派",
+                    'reassign': "工单重新分派 ",
+                    'creply': "待您反馈",
+                    'ureply': "待客服继续处理",
+                    'done': "工单处理完毕",
+                    'close': "工单已关闭"
+                };
+                var ttmap = {
+                    'issue': "Issue",
+                    'question': "普通问题"
+                };
+                var stabs = [];
+                for (var k in tsmap) {
+                    stabs.push({
+                        text: tsmap[k],
+                        value: {
+                            ticketStatus: k
+                        }
+                    });
+                }
                 // 加载对象编辑器
                 new SearchUI2({
                     parent: UI,
                     gasketName: "main",
-                    data: "obj ~/ -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
-                    menu: ["create", "refresh", "delete", "edit"],
-                    edtCmdTmpl: {
-                        "create": "obj -new '<%=json%>' -o",
-                        "delete": "rm -rf id:{{id}}",
-                        "edit": "obj id:{{id}} -u '<%=json%>' -o"
-                    },
+                    data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
+                    menu: ["refresh"],
+                    edtCmdTmpl: {},
                     filter: {
-                        keyField: ["nm", "alias"],
-                        keyFieldIsOr: true,
+                        keyField: ["text"],
+                        keyFieldIsOr: false,
                         formatData: function (obj) {
-                            // 这里随便怎么改 obj 里的字段
                             return obj;
                         },
-                        tabs: [{
-                            icon: '<i class="zmdi zmdi-file"></i>',
-                            text: "文件",
-                            value: {
-                                race: "FILE"
-                            }
-                        }, {
-                            dchecked: true,
-                            icon: '<i class="zmdi zmdi-folder"></i>',
-                            text: "目录",
-                            value: {
-                                race: "DIR"
-                            }
-                        }, {
-                            icon: '<i class="zmdi zmdi-apps"></i>',
-                            text: "APP",
-                            value: {
-                                nm: "app"
-                            }
-                        }],
-                        tabsPosition: "left",
-                        dtabsMulti: true,
-                        dtabsKeepChecked: true,
-                        tabsStatusKey: "test_pet_search_tab",
-                        dhideInputBox: true,
-                    },
-                    dsorter: {
-                        setup: [{
-                            icon: 'asc',
-                            text: "按最后修改日期",
-                            value: {lm: 1},
-                        }, {
-                            icon: 'desc',
-                            text: "按名称",
-                            value: {nm: -1},
-                        }],
-                        storeKey: "test_pet_search_sort"
+                        tabs: stabs,
+                        tabsPosition: "drop",
+                        tabsMulti: false,
+                        tabsKeepChecked: false
                     },
                     list: {
                         fields: [{
-                            key: "nm",
-                            title: "名称",
-                        }, {
-                            key: "alias",
-                            title: "别名"
-                        }, {
-                            key: "g",
-                            title: "所在组",
-                            uiType: '@label',
-                        }, {
-                            key: "race",
-                            title: "种类",
-                            uiType: "@switch",
-                            uiConf: {
-                                items: [{
-                                    value: "FILE", text: "文件"
-                                }, {
-                                    value: "DIR", text: "目录"
-                                }]
-                            }
-                        }, {
-                            key: "lm",
-                            title: "最后修改时间",
+                            key: "ticketTp",
+                            title: "工单类型",
                             uiType: '@label',
                             display: function (o) {
-                                return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
+                                var s = o.ticketStatus;
+                                return tsmap[s] || "未定义状态";
                             }
+                        }, {
+                            key: "ticketStatus",
+                            title: "工单状态",
+                            uiType: '@label',
+                            display: function (o) {
+                                var s = o.ticketStatus;
+                                return tsmap[s] || "未定义状态";
+                            }
+                        }, {
+                            key: "text",
+                            title: "问题概述",
+                            uiType: '@label',
+                            display: function (o) {
+                                var otext = o.text;
+                                if (otext.length > 15) {
+                                    return otext.substr(0, 10) + "..."
+                                }
+                                return otext;
+                            }
+                        }, {
+                            key: "csAlias",
+                            title: "处理客服",
+                            uiType: '@label',
+                            display: function (o) {
+                                return o.csAlias || "";
+                            }
+                        }, {
+                            key: "tickerStart",
+                            title: "开始时间",
+                            uiType: '@label',
+                            display: function (o) {
+                                return $z.parseDate(o.tickerStart).format("yyyy-mm-dd HH:MM:ss");
+                            }
+                        }, {
+                            key: "ticketEnd",
+                            title: "结束时间",
+                            uiType: '@label',
+                            display: function (o) {
+                                if (o.ticketEnd < 0) {
+                                    return "未结束";
+                                }
+                                return $z.parseDate(o.ticketEnd).format("yyyy-mm-dd HH:MM:ss");
+                            }
+                        }],
+                        checkable: false,
+                        multi: false,
+                        layout: {
+                            sizeHint: [100, 100, 250, 100, 250, 250, "*"]
+                        }
+                    },
+                    sorter: {
+                        setup: [{
+                            icon: 'asc',
+                            text: "按提交日期",
+                            value: {tickerStart: 1}
+                        }, {
+                            icon: 'asc',
+                            text: "按工单类型",
+                            value: {ticketTp: 1}
                         }]
                     }
                 }).render(function () {
                     this.uiFilter.setData({
-                        "d1": Wn.app().session.grp
+                        "d1": Wn.app().session.grp,
+                        "pid": rdir.id
                     });
                     UI.defer_report("main");
                 });
-
                 // 返回延迟加载
                 return ["main"];
             },

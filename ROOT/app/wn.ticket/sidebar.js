@@ -13,5 +13,10 @@
         icon: '<i class="fa fa-user-circle"></i>',
         text: 'i18n:ticket.people',
         editor: 'edit_ticket_people'
+    }, {
+        ph: '~/.ticket/record',
+        icon: '<i class="fa fa-bell-o"></i>',
+        text: 'i18n:ticket.record',
+        editor: 'edit_ticket_search'
     }]
 }])
