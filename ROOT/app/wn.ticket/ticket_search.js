@@ -22,7 +22,7 @@
                     'new': "新工单待分派",
                     'assign': "工单已分派",
                     'reassign': "工单重新分派 ",
-                    'creply': "待您反馈",
+                    'creply': "待用户反馈",
                     'ureply': "待客服继续处理",
                     'done': "工单处理完毕",
                     'close': "工单已关闭"
@@ -114,14 +114,14 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [100, 100, 250, 100, 250, 250, "*"]
+                            sizeHint: [100, 100, 250, 100, 150, 150, "*"]
                         }
                     },
                     sorter: {
                         setup: [{
-                            icon: 'asc',
+                            icon: 'desc',
                             text: "按提交日期",
-                            value: {tickerStart: 1}
+                            value: {tickerStart: -1}
                         }, {
                             icon: 'asc',
                             text: "按工单类型",
