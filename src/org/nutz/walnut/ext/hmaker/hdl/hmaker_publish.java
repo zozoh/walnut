@@ -148,33 +148,24 @@ public class hmaker_publish implements JvmHdl {
         // ------------------------------------------------------------
         // 将皮肤目录关键文件 copy 过去
         if (hpc.hasSkin()) {
+            // 确保清理皮肤
+            if (hc.params.is("keep")) {
+                String cmdText = String.format("rm -rfv id:%s/skin", hpc.oDest.id());
+                log.info("clean skin: " + cmdText);
+                sys.exec(cmdText);
+            }
+
             log.info("copy skin:");
             WnObj oTaSkin = hpc.createTarget("skin", WnRace.DIR);
 
-            // 删除旧 JS
-            WnObj oTaSkinJs = sys.io.fetch(oTaSkin, "skin.js");
-            if (null != oTaSkinJs) {
-                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinJs));
-                sys.io.delete(oTaSkinJs);
-            }
+            // 添加 JS
+            WnObj oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
+            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+            Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
 
-            // 添加新 JS
-            if (null != hpc.oSkinJs) {
-                log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinJs));
-                oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
-                Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
-            }
-
-            // 删除旧 CSS
-            WnObj oTaSkinCss = sys.io.fetch(oTaSkin, "skin.css");
-            if (null != oTaSkinCss) {
-                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinCss));
-                sys.io.delete(oTaSkinCss);
-            }
-
-            // 添加新 CSS
-            log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinCss));
-            oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
+            // 添加 CSS
+            WnObj oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
+            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinCss));
             Wn.Io.copyFile(sys.io, hpc.oSkinCss, oTaSkinCss);
 
             // Copy 其他资源
