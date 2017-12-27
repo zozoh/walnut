@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.icp.hdl;
 
+import java.net.InetAddress;
 import java.net.URL;
 
 import org.jsoup.Jsoup;
@@ -18,8 +19,7 @@ public class icp_query implements JvmHdl {
         String hostname = hc.params.val_check(0);
         if (hostname.startsWith("www"))
             hostname = hostname.substring(4);
-        Elements eles = Jsoup.parse(new URL("http://" + hostname + ".xin"), 10000)
-                             .select(".company .detail");
+        Elements eles = Jsoup.parse(new URL("http://" + hostname + ".xin"), 10000).select(".company .detail");
         NutMap map = new NutMap();
         if (eles.size() < 1) {
             map.put("error", "icp_not_found");
@@ -49,6 +49,10 @@ public class icp_query implements JvmHdl {
                 }
 
             }
+        }
+        try {
+            map.put("ip", InetAddress.getByName(hostname).getHostAddress());
+        } catch (Throwable e) {
         }
         sys.out.writeJson(map, JsonFormat.full());
     }
