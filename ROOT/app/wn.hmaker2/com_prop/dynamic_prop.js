@@ -356,6 +356,21 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     objTemplate : F.mapping || {}
                 };
             }
+            // 字段：开关
+            else if("toggle" == F.type) {
+                fld.type = "string";
+                fld.editAs = "toggle";
+                fld.uiConf = {
+                    values : ({
+                        "yes/no" : ["no", "yes"],
+                        "yes"    : [null, "yes"],
+                        "on/off" : ["off", "on"],
+                        "on"     : [null, "on"],
+                        "true/false" : ["false", "true"],
+                        "true"       : [null, "true"],
+                    })[F.arg]
+                }
+            }
             // 字段: input 作为默认选项
             else {
                 fld.editAs = "input";

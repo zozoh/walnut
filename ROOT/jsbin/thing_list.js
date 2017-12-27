@@ -8,7 +8,8 @@ params: {
     pid  : "14eulqbbkgh6vq9t5ldpipjvs0",  // ThingSet ID
     s    : "ct:1,th_nm:-1",               // 排序字段
     lb   : "AA BB",                       // 指定标签
-    ca   : "xxx",                         // 指定分类的值
+    c    : "xxx",                         // 指定分类的值
+    detail : "yes",                       // 如果为 "yes" 表示读取数据详情
 }
 
 用法
@@ -42,8 +43,13 @@ function _main(params){
     }
 
     // 分类
-    if(params.ca){
-        cmdText += " \"th_cate:'" + params.ca + "'\"";
+    if(params.c){
+        cmdText += " \"th_cate:'" + params.c + "'\"";
+    }
+    
+    // 读取详情
+    if("yes" == params.detail) {
+    		cmdText += " -content";
     }
 
     //log.warn(cmdText);

@@ -17,7 +17,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.WnPager;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager|content|obj)$")
 public class thing_query implements JvmHdl {
 
     @Override
@@ -84,6 +84,13 @@ public class thing_query implements JvmHdl {
         // ..............................................
         // 执行查询并返回结果
         List<WnObj> list = sys.io.query(q);
+
+        // 循环读取内容
+        if (hc.params.is("content")) {
+            for (WnObj oT : list) {
+                oT.put("content", sys.io.readText(oT));
+            }
+        }
 
         // 如果只输出一个对象
         if (hc.params.is("obj")) {
