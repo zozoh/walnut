@@ -38,12 +38,13 @@ var CssP = {
         var re = "";
         for(var key in cssRule) {
             var v = cssRule[key];
-            if(v){
-                re += key + ":" + v;
-                if(_.isNumber(v))
-                    re += "px";
-                re += ";\n";
-            }
+            if(_.isNull(v) || _.isUndefined(v) || "" === v)
+                continue;
+
+            re += $z.lowerWord(key) + ":" + v;
+            if(_.isNumber(v))
+                re += "px";
+            re += ";\n";
         }
         return re;
     },

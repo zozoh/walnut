@@ -268,6 +268,7 @@ return ZUI.def("ui.form_com_background", {
         var UI = this;
         var opt = UI.options;
         var bgo = UI.__get_background();
+        //console.log(opt)
         if("string" == opt.dataType)
             return CssP.strBackground(bgo);
         return bgo;

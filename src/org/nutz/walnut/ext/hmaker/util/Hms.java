@@ -114,7 +114,7 @@ public final class Hms {
             4:[ 63, 76) image/H05.jpg
              * </pre>
              */
-            if ("background".equals(key)) {
+            if ("background".equals(key) || "backgroundImage".equals(key)) {
                 Matcher m = P_BACKGROUND.matcher(str);
                 if (m.find()) {
                     String bgImgId = m.group(2);
