@@ -6,10 +6,15 @@
 params: {
     // 下面这些字段为必须字段
     pid  : "14eulqbbkgh6vq9t5ldpipjvs0",  // ThingSet ID
-    s    : "ct:1,th_nm:-1",               // 排序字段
-    lb   : "AA BB",                       // 指定标签
-    c    : "xxx",                         // 指定分类的值
-    detail : "yes",                       // 如果为 "yes" 表示读取数据详情
+
+    // 下面的字段为可选字段
+    s    : "ct:1",       // 排序字段
+    lb   : "AA BB",      // 指定标签
+    c    : "xxx",        // 指定分类的值
+    detail : "yes",      // 如果为 "yes" 表示读取数据详情
+    pn   : 1             // 页数，如果 >=1 则表示分页，
+    pgsz : 10            // 页大小，默认 10，只有 pn>=1 才生效
+    skip : 10            // 跳过多少记录，不声明则用 (pn-1) * pgsz                
 }
 
 用法
@@ -27,9 +32,6 @@ function _main(params){
     }
     // 准备生成命令
     var cmdText = 'thing ' + paramObj.pid + ' query ';
-
-    // 最多输出 100 条记录
-    cmdText += "-limit 100";
     
     // 排序
     if(params.s)
@@ -50,6 +52,36 @@ function _main(params){
     // 读取详情
     if("yes" == params.detail) {
     		cmdText += " -content";
+    }
+
+    // 设置页大小
+    var pgsz = 10;
+    if((typeof params.pgsz) == "number") {
+        // 最多一千条记录
+        if(params.pgsz > 1000) {
+            pgsz = 1000;
+        }
+        // 比1大才有意义
+        else if(params.pgsz >= 1) {
+            pgsz = params.pgsz;
+        }
+
+    }
+    cmdText += " -limit " + pgsz;
+
+    // 分页
+    if(params.pn >= 1) {
+        // 设置 skip
+        if((typeof params.skip) != "number") {
+            params.skip = (params.pn - 1) * params.pgsz;
+        }
+        // 加入标识
+        cmdText += " -pager";
+    }
+    
+    // 设置跳过的数据
+    if(params.skip > 0) {
+        cmdText += " -skip " + params.skip;
     }
 
     //log.warn(cmdText);
