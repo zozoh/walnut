@@ -23,7 +23,14 @@ public class WnPager {
         this();
         this.skip = params.getInt("skip", 0);
         this.limit = params.getInt("limit", -1);
-        this.countPage = params.is("pager");
+
+        // 是否计算分页
+        this.countPage = params.is("pager") && this.limit > 0;
+
+        // 最大不能超过一千条
+        if (this.limit <= 0 || this.limit > 1000) {
+            this.limit = 1000;
+        }
         this.pgsz = limit > 0 ? limit : 50;
         this.pn = skip > 0 ? skip / pgsz + 1 : 1;
     }
