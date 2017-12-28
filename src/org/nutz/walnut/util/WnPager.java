@@ -22,7 +22,7 @@ public class WnPager {
     public WnPager(ZParams params) {
         this();
         this.skip = params.getInt("skip", 0);
-        this.limit = params.getInt("limit", -1);
+        this.limit = params.getInt("limit", 50);
 
         // 是否计算分页
         this.countPage = params.is("pager") && this.limit > 0;
