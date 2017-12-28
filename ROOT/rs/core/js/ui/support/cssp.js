@@ -127,24 +127,46 @@ var CssP = {
     },
     //.........................................................
     // 将背景字符串变成一行字符串表示
-    strBackground : function(bg) {
+    strBackground : function(bgo) {
+        // 首先整理成新的对象
+        var bg2 = _.extend({}, bgo);
+        console.log(bg2);
+
+        // 声明了backgroundPositionX/Y
+        var bg_pos = [];
+        if(bg2.backgroundPositionX) {
+            bg_pos.push(bg2.backgroundPositionX);
+            bg2.backgroundPositionX = undefined;
+        }
+        if(bg2.backgroundPositionY) {
+            bg_pos.push(bg2.backgroundPositionY);
+            bg2.backgroundPositionY = undefined;
+        }
+        if(bg_pos.length > 0) {
+            bg2.backgroundPosition = bg_pos.join(" ");
+        }
+
         var re = [];
-        for(var key in bg) {
+        for(var key in bg2) {
+            // 忽略空值
+            var val = bg2[key];
+            if(_.isNull(val) || _.isUndefined(val))
+                continue;
             // 忽略这两东东，因为需要连写
             if(/^background(Position|Size)$/.test(key))
                 continue;
             // 其他的加入
-            re.push(bg[key]);
+            re.push(val);
         }
         // 最后整合 backgroundPosition 和 backgroundSize
         var pos_sz = [];
-        if(bg.backgroundPosition)
-            pos_sz.push(bg.backgroundPosition);
-        if(bg.backgroundSize){
+        if(bg2.backgroundPosition)
+            pos_sz.push(bg2.backgroundPosition);
+        if(bg2.backgroundSize){
             // 指定了 size 则必须指定一个背景位置
             if(pos_sz.length == 0)
                 pos_sz.push("left");
-            pos_sz.push(bg.backgroundSize);
+            pos_sz.push(bg2.backgroundSize);
         }
         if(pos_sz.length > 0)
             re.push(pos_sz.join("/"));
