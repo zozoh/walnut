@@ -270,7 +270,7 @@ window.HmRT = {
     // - API : 一个 regapi 的前缀
     // - th  : Thing 对象，里面需要有 content, th_set, id 这几个字段
     thContentToHtml : function(API, th){
-        return $z.markdownToHtml(th.content, {
+        return $z.markdownToHtml(th.content||"", {
             media : function(src){
                 // 看看是否是媒体
                 var m = /^media\/(.+)$/.exec(src);
