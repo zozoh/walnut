@@ -161,7 +161,8 @@ return ZUI.def("ui.test_for_search", {
                         return $z.parseDate(o.lm).format("yyyy-mm-dd HH:MM:ss");
                     }
                 }]
-            }
+            },
+            dpager : null
         }).render(function(){
             this.uiFilter.setData({
                 "d1" : Wn.app().session.grp
