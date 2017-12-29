@@ -21,7 +21,7 @@ var methods = {
             // 设置高亮模式
             UI.$el.attr("highlight-mode", "yes");
 
-            console.log(jq)
+            //console.log(jq)
 
             // 高亮当前区域
             if(!jq.attr("highlight")) {
