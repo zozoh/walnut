@@ -11,8 +11,37 @@ $(function(){
                             : "mobile";
         // 修改顶级元素 <HTML> 的 fontSize 以便适用 rem
         $z.do_change_root_fontSize(SC);
+
+        // 重新应用滚动
+        on_page_scroll();
+
         // 回调皮肤的自定义 resize 函数
         $z.invoke(SC.skin, "resize", [], SC);
+    };
+    var on_page_scroll = function(){
+        var jWin = $(window);
+        // 得到窗口的矩形
+        var rectWin = $D.dom.winsz();
+        // rectWin.top = jWin.scrollTop();
+        // rectWin.left = jWin.scrollLeft();
+        $D.rect.count_tlwh(rectWin);
+
+        //console.log($D.rect.dumpValues(rectWin));
+
+        // 循环所有的组件，计算其所在矩形是否在窗口之内
+        $(document.body).find(".hm-com").each(function(){
+            var jCom = $(this);
+            var rect = $D.rect.gen(jCom);
+            //console.log(" > ", jCom.attr("id")+":", $D.rect.dumpValues(rect));
+            var inview = $D.rect.is_overlap(rectWin, rect);
+            var once = jCom.attr("hm-once-inview") || inview ? true : false;
+            $(this).attr({
+                "hm-never-inview"   : (once ? null  : "yes"),
+                "hm-once-inview"    : (once ? "yes" : null),
+                "hm-scroll-inview"  : (inview ? "yes" : null),
+                "hm-scroll-outview" : (inview ? null  : "yes"),
+            });
+        });
     };
     //........................................................
     // 加载
@@ -39,26 +68,7 @@ $(function(){
         });
 
         // 增加 scroll 事件监听
-        window.addEventListener("scroll", function(){
-            var jWin = $(window);
-            // 得到窗口的矩形
-            var rectWin = $D.dom.winsz();
-            rectWin.top = jWin.scrollTop();
-            rectWin.left = jWin.scrollLeft();
-            $D.rect.count_tlwh(rectWin);
-
-            //console.log($D.rect.dumpValues(rectWin));
-
-            // 循环所有的组件，计算其所在矩形是否在窗口之内
-            $(document.body).find(".hm-com").each(function(){
-                var rect = $D.rect.gen(this);
-                var inview = $D.rect.is_overlap(rectWin, rect);
-                $(this).attr({
-                    "hm-scroll-inview"  : (inview ? "yes" : null),
-                    "hm-scroll-outview" : (inview ? null  : "yes"),
-                });
-            });
-        });
+        window.addEventListener("scroll", on_page_scroll);
         
         // 调整屏幕方向的监听
         window.addEventListener("orientationchange", function(){
