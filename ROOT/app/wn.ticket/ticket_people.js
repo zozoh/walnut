@@ -25,8 +25,8 @@
                     data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
                     menu: ["refresh", "edit", "delete"],
                     edtCmdTmpl: {
-                        "delete"  : "rm -rf id:{{id}}",
-                        "edit"    : "obj id:{{id}} -u '<%=json%>' -o"
+                        "delete": "rm -rf id:{{id}}",
+                        "edit": "obj id:{{id}} -u '<%=json%>' -o"
                     },
                     filter: {
                         keyField: ["usrNm", "usrAlias"],
