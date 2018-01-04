@@ -433,7 +433,7 @@ public class WnStoreImpl implements WnStore {
         }
 
         // 否则就是默认的桶实现
-        return buckets.checkById(data);
+        return buckets.getById(data);
     }
 
     @Override
