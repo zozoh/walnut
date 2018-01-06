@@ -186,7 +186,7 @@ var methods = {
 
         // 重新读取
         if(!_.isArray(list)) {
-            var re = Wn.exec("obj -mine -match \"api_return:'^(obj|list|page)$'\""
+            var re = Wn.exec("obj -mine -match \"api_return:'^([a-z]+)$'\""
                              + " -json -l -sort 'pid:1,nm:1'");
             list = $z.fromJson(re);
         }

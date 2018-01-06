@@ -136,6 +136,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         //-----------------------------------------------------
         // 根据皮肤更新一下 API 列表
         var oApiList = UI.getHttpApiList(function(oApi){
+            //console.log(oApi.ph)
             if(!tmplInfo || !oApi)
                 return false;
             return HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType);

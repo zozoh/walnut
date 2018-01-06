@@ -28,10 +28,11 @@ var paramObj = JSON.parse(paramStr);
 function _main(params){
     // 检查关键值
     if(!params.pid){
-        return ajax_error("api.thing.noThingSetId");
+        sys.exec("ajaxre e.api.thing.list.noThingSetId");
+        return;
     }
     // 准备生成命令
-    var cmdText = 'thing ' + paramObj.pid + ' query ';
+    var cmdText = 'thing ' + params.pid + ' query ';
     
     // 排序
     if(params.s)

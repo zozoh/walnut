@@ -11,6 +11,7 @@
                [-read /path/to/src]    # 指定写入文件的内容，如果没给参数从标准输入读取内容
                [-del xxx.jpg]
                [-get xxx.jpg]          # 获取指定文件的元数据
+               [-ufc]                  # 重新计算 Thing 的附件数量和元数据
                [-cat abc.txt]          # 输出指定文件的内容（根据文件的mime类型决定是按照文本还是二进制输出）
                [-httpresponse]         # 当 -cat 模式时，输出为标准 HTTP 响应
                [-http-etag]            # 当输出标准 HTTP 响应的时候，是否需要根据 etag 判断输出 304

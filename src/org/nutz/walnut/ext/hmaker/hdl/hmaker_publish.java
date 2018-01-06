@@ -135,9 +135,13 @@ public class hmaker_publish implements JvmHdl {
             log.info("copy template:");
             WnObj oTaTmpl = hpc.createTarget("template", WnRace.DIR);
             for (HmTemplate tmpl : hpc.templates.values()) {
-                WnObj oTaTmplJs = sys.io.createIfNoExists(oTaTmpl,
-                                                          tmpl.info.name + ".js",
-                                                          WnRace.FILE);
+                // 确保删除皮肤文件
+                String tmplNm = tmpl.info.name + ".js";
+                WnObj oTaTmplJs = sys.io.fetch(oTaTmpl, tmplNm);
+                if (null != oTaTmplJs) {
+                    sys.io.delete(oTaTmplJs);
+                }
+                oTaTmplJs = sys.io.create(oTaTmpl, tmplNm, WnRace.FILE);
                 log.infof(" +%s %s",
                           hpc.getProcessInfoAndDoCount(),
                           hpc.getRelativeDestPath(oTaTmplJs));

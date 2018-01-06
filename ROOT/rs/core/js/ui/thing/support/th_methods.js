@@ -376,7 +376,11 @@ var DATA_MODE = {
                         progress : function(e){
                             $z.invoke(setup, "progress", [e.loaded/e.total]);
                         },
-                        done : setup.done,
+                        done : function(newObj){
+                            Wn.execf('thing {{th_set}} '+mode+' {{id}} -ufc',th,function(){
+                                setup.done.apply(this, [newObj]);
+                            });
+                        },
                         fail : setup.fail,
                     });
                 }

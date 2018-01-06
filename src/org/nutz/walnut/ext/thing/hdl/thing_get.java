@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.thing.hdl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -31,7 +31,7 @@ public class thing_get implements JvmHdl {
             if (oT.len() > 0) {
                 detail = sys.io.readText(oT);
             }
-            oT.put("th_detail", detail);
+            oT.put("content", detail);
 
             // 媒体映射
             oT.put("th_media_map", __gen_file_map(sys, oT, "th_media_ids"));
@@ -45,7 +45,7 @@ public class thing_get implements JvmHdl {
     }
 
     private Map<String, String> __gen_file_map(WnSystem sys, WnObj oT, String key) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new TreeMap<String, String>();
         if (oT.has(key)) {
             String[] ids = oT.getArray(key, String.class);
             for (String id : ids) {

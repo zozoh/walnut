@@ -27,10 +27,11 @@ var paramObj = JSON.parse(paramStr);
 function _main(params){
     // 检查关键值
     if(!params.pid){
-        return ajax_error("api.thing.noThingSetId");
+        sys.exec("ajaxre e.api.thing.query.noThingSetId");
+        return;
     }
     // 准备生成命令
-    var cmdText = 'thing ' + paramObj.pid + ' query -pager ';
+    var cmdText = 'thing ' + params.pid + ' query -pager ';
 
     // 分页信息
     cmdText += "-limit " + (params.pgsz || 100);
