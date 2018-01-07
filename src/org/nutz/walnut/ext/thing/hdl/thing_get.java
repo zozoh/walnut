@@ -1,8 +1,11 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.Things;
@@ -34,28 +37,32 @@ public class thing_get implements JvmHdl {
             oT.put("content", detail);
 
             // 媒体映射
-            oT.put("th_media_map", __gen_file_map(sys, oT, "th_media_ids"));
+            __set_file_map(sys, oT, "media");
 
             // 附件映射
-            oT.put("th_attachment_map", __gen_file_map(sys, oT, "th_attachment_ids"));
+            __set_file_map(sys, oT, "attachment");
         }
 
         // 记录输出
         hc.output = oT;
     }
 
-    private Map<String, String> __gen_file_map(WnSystem sys, WnObj oT, String key) {
-        Map<String, String> map = new TreeMap<String, String>();
+    private void __set_file_map(WnSystem sys, WnObj oT, String mode) {
+        String key = "th_" + mode + "_ids";
         if (oT.has(key)) {
             String[] ids = oT.getArray(key, String.class);
+            Map<String, String> map = new TreeMap<String, String>();
+            List<NutBean> list = new ArrayList<>(ids.length);
             for (String id : ids) {
                 WnObj o = sys.io.get(id);
                 if (null != o) {
                     map.put(o.name(), o.id());
+                    list.add(o.pick("id", "nm", "mime", "tp"));
                 }
             }
+            oT.put("th_" + mode + "_map", map);
+            oT.put("th_" + mode + "_list", list);
         }
-        return map;
     }
 
 }

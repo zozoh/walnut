@@ -40,7 +40,7 @@ function _main(params){
         return;
     }
     // 统一过滤一下不输出的字段 
-    var jfmt = ' -json \'{locked:"^(_.+|nm|c|m|g|md|race|ct|lm|tp|d0|d1|mime|ph)\\$", compact:false}\'';
+    var jfmt = ' -json \'{locked:"^(_.+|c|m|g|md|race|ct|lm|d0|d1|ph)\\$", compact:false}\'';
     //---------------------------------------
     // 获取一下商品数据
     var re = sys.exec2f('thing %s get %s -full -q %s', params.pid, params.id, jfmt);
