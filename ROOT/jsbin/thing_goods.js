@@ -14,11 +14,15 @@ params: {
 {
     current : {..}    // 商品当前型号的元数据
     cate    : {..}    // 商品所属类别的元数据
-    models  : [{      // 同类别下还有哪些型号
-        ..
-    }, {
-        ..
-    }]  
+    models  : [{      // 同类别下还有哪些型号（去除重复后）
+        id    : "xxx",      // 对应产品 ID
+        text  : "xxx",      // 型号的 名称
+        thumb : "id:xxx"    // 「选」型号的缩略图
+    }],
+    colors  : [{      // 「可选」当前型号还有哪些可选颜色或者图案
+        id   : "xxx",       // 对应产品的 ID
+        text : "Red",       // 颜色或者图案名称
+    }]
 }
 
 用法
@@ -54,6 +58,7 @@ function _main(params){
     // 获取一下商品类型数据
     var cate = {};
     var models = [];
+    var colors = [];
     if(go.th_cate && params.cid) {
 
         // 获取当前商品类型
@@ -71,7 +76,33 @@ function _main(params){
             sys.exec("ajaxre", re);
             return;
         }
-        models = JSON.parse(re);
+        var list = JSON.parse(re);
+
+        // 去除重复的型号，如果型号与当前型号相同，则归纳不同的颜色
+        var mmap = {};
+        for(var i=0 ; i<list.length; i++) {
+            var mo = list[i];
+            // 归纳型号
+            if(!mmap[mo.th_nm])
+                mmap[mo.th_nm] = mo;
+
+            // 归纳颜色
+            if(mo.th_nm == go.th_nm && mo.th_color) {
+                colors.push({
+                    id   : mo.id,
+                    text : mo.th_color
+                });
+            }
+        }
+        // 输出型号
+        for(var key in mmap) {
+            var mo = mmap[key];
+            models.push({
+                id    : mo.id,
+                text  : mo.th_nm,
+                thumb : mo.thumb || null
+            });
+        }
     }
     
     // 合并输出
@@ -79,6 +110,7 @@ function _main(params){
         current : go,
         cate    : cate,
         models  : models,
+        colors  : colors,
     };
     sys.out.println(JSON.stringify(reo, null, '    '));
 }

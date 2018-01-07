@@ -1,6 +1,6 @@
 $(function(){
     //........................................................
-    // 声明一下函数
+    // 事件:屏幕 resize
     var on_screen_resize = function(SC){
         skin = SC.skin;
         // 判断一下如果宽度小于给定宽度，则为移动设备，否则为桌面
@@ -18,6 +18,8 @@ $(function(){
         // 回调皮肤的自定义 resize 函数
         $z.invoke(SC.skin, "resize", [], SC);
     };
+    //........................................................
+    // 事件:页面滚动
     var on_page_scroll = function(){
         var jWin = $(window);
         // 得到窗口的矩形
@@ -44,8 +46,8 @@ $(function(){
         });
     };
     //........................................................
-    // 加载
-    seajs.use(window.skin_js_path || "./skin/skin.js", function(skin){
+    // 入口函数
+    var __main__ = function(skin){
         // 准备上下文
         var SC = {
             mode   : "runtime",
@@ -74,6 +76,13 @@ $(function(){
         window.addEventListener("orientationchange", function(){
             on_screen_resize(SC);
         });
+    };
+    //........................................................
+    // 加载
+    seajs.use(window.skin_js_path || "./skin/skin.js", function(skin){
+        window.setTimeout(function(){
+            __main__(skin);
+        }, 0);
     });
     //........................................................
 });
