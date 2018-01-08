@@ -74,6 +74,10 @@ public class thing_detail implements JvmHdl {
                     content = Strings.trim(content).replaceAll("[>+-`#\t\r\n ]", "");
                     brief = content.substring(0, Math.min(content.length(), 50));
                 }
+                // 如果指定为空摘要
+                else if("null".equals(brief)) {
+                    brief = null;
+                }
 
                 // 设置 thing 元数据
                 oT.setv("brief", brief);

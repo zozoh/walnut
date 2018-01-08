@@ -319,13 +319,13 @@ var DATA_MODE = {
             save : function(th, det, callback) {
                 //console.log(det);
                 Wn.execf('thing {{th_set}} detail {{id}} -content', det.content||"", th, function(){
-                    if(det.brief || det.tp) {
+                    if(!_.isUndefined(det.brief) || det.tp) {
                         var cmdText = $z.tmpl('thing {{th_set}} detail {{id}}')(th);
                         if(det.tp)
                             cmdText += ' -tp ' + det.tp;
                         // 更新摘要和类型
-                        if(det.brief) {
-                            Wn.exec(cmdText + ' -brief', det.brief, callback);
+                        if(!_.isUndefined(det.brief)) {
+                            Wn.exec(cmdText + ' -brief', det.brief||"null", callback);
                         }
                         // 仅仅更新类型
                         else {
