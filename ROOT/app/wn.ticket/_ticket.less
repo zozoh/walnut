@@ -2,15 +2,130 @@
   display: block;
 }
 
-// 列表
+.clear {
+  clear: both
+}
 
-.ticket-re-list {
+;
+
+// 对话列表
+.ticket-chat {
   width: 100%;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: 8px 4px;
+
+  .chat-record {
+    margin-bottom: 8px;
+    overflow: hidden;
+
+    &.cservice {
+      .chat-user {
+        float: right;
+      }
+      .chat-content {
+
+        .chat-content-text {
+          float: right;
+
+          span {
+            border-radius: 4px 0 4px 4px;
+            color: @ch1_f;
+            background-color: @ch1_b;
+          }
+
+          &:before {
+            display: none;
+          }
+
+          &:after {
+            right: -9px;
+            border-right: 9px solid transparent;
+            border-top: 16px solid @ch1_b;
+          }
+        }
+      }
+
+      .chat-content-time {
+        float: right;
+      }
+    }
+
+  }
+
+  @cmargin: 70px;
+
+  .chat-user {
+    width: @cmargin;
+    float: left;
+
+    @avatar-size: 40px;
+
+    .chat-user-avatar {
+      display: block;
+      width: @avatar-size;
+      height: @avatar-size;
+      margin: 0 auto;
+    }
+
+    .chat-user-name {
+      text-align: center;
+      font-size: 10px;
+    }
+
+  }
+
+  @comargin: @cmargin * 2;
+
+  .chat-content {
+    width: calc(~"100% - @{comargin}");
+    position: relative;
+    display: block;
+    margin: 0px auto;
+    min-height: 39px;
+
+    @ctop: 4px;
+
+    .chat-content-text {
+      padding-top: @ctop;
+
+      span {
+        min-height: 39px;
+        color: @ch0_f;
+        background-color: @ch0_b;
+        border-radius: 0 4px 4px 4px;
+        position: relative;
+        padding: 8px 12px;
+        font-size: 13px;
+        word-break: break-word !important;
+        word-break: break-all;
+        line-height: 1.5;
+        display: table-cell;
+      }
+
+      &:before, &:after {
+        position: absolute;
+        top: @ctop;
+        content: "";
+        display: inline-block;
+      }
+
+      &:before {
+        left: -9px;
+        border-left: 9px solid transparent;
+        border-top: 16px solid @ch0_b;
+      }
+
+    }
+  }
+
+  .chat-content-time {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #d9d9d9;
+    margin-left: @cmargin;
+  }
+
 }
 
-.ticket-re-item {
-
-}
