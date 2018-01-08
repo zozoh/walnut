@@ -989,15 +989,21 @@ return ZUI.def("app.wn.hmaker_page", {
         //console.log($D.rect.dumpValues(rectWin));
 
         // 循环所有的组件，计算其所在矩形是否在窗口之内
-        UI._C.iedit.$body.find(".hm-com").each(function(){
-            var rect = $D.rect.gen(this);
+        UI._C.iedit.$body.find(".hm-com, .hm-watch-scroll").each(function(){
+            var jCom = $(this);
+            var rect = $D.rect.gen(jCom);
             var inview = $D.rect.is_overlap(rectWin, rect);
+            var once = jCom.attr("hm-once-inview") || inview ? true : false;
             $(this).attr({
+                "hm-never-inview"   : (once ? null  : "yes"),
+                "hm-once-inview"    : (once ? "yes" : null),
                 "hm-scroll-inview"  : (inview ? "yes" : null),
                 "hm-scroll-outview" : (inview ? null  : "yes"),
             });
         });
 
+        // 回调皮肤的自定义 scroll 函数
+        this.invokeSkin("scroll");
     },
     //...............................................................
     /* 

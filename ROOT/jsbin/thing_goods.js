@@ -56,7 +56,7 @@ function _main(params){
 
     //---------------------------------------
     // 获取一下商品类型数据
-    var cate = {};
+    var cate = null;
     var models = [];
     var colors = [];
     if(go.th_cate && params.cid) {

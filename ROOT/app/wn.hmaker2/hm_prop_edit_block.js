@@ -273,6 +273,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 on_change : function(key, val) {
                     var block = this.getData();
                     UI.uiCom.saveBlock("panel", block);
+                    UI.pageUI().invokeSkin("ready");
+                    UI.pageUI().invokeSkin("resize");
                 },
                 fields : UI.__gen_block_fields(blockFields)
             }).render(function(){
