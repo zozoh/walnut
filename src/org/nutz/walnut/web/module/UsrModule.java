@@ -673,7 +673,7 @@ public class UsrModule extends AbstractWnModule {
             // 尝试查找用户
             WnUsr fUsr = usrs.fetch(nm);
             if (fUsr != null) {
-                avatarPath = "/home/" + fUsr.name() + "/.avatar";
+                avatarPath = Wn.appendPath(fUsr.home(), ".avatar");
                 avatarObj = io.fetch(null, avatarPath);
                 if (avatarObj != null) {
                     return io.getInputStream(avatarObj, 0);
