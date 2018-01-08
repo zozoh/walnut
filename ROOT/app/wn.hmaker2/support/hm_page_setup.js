@@ -328,6 +328,7 @@ var methods = {
         if(!UI._C.iedit.doc.defaultView.hm_resize_binded){
             UI._C.iedit.doc.defaultView.hm_resize_binded = true;
             $(UI._C.iedit.doc.defaultView).resize(function(){
+                UI.invokeSkin("ready");
                 UI.invokeSkin("resize");
             });
         }
@@ -651,6 +652,7 @@ var methods = {
                         ing.uiCom.setBlock(ing.comBlock);
                     }
                     // 重新应用皮肤
+                    UI.invokeSkin("ready");
                     UI.invokeSkin("resize");
                 }
                 //......................................

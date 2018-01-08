@@ -103,6 +103,13 @@ function _main(params){
                 thumb : mo.thumb || null
             });
         }
+        // 对两个输出做排序(不需要考虑相等的问题)
+        models.sort(function(a, b){
+            return a.text > b.text ? 1 : -1;
+        });
+        colors.sort(function(a, b){
+            return a.text > b.text ? 1 : -1;
+        });
     }
     
     // 合并输出

@@ -56,7 +56,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         com = com || UI.getData();
 
         
-        //console.log("I am dynamic paint:", com);
+        // console.log("I am dynamic paint:", com);
 
         // 检查显示模式
         var oApi = UI.__check_mode(com);
@@ -315,6 +315,10 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 调用模板的 jQuery 插件进行绘制
         jData[tmplInfo.name](d2, tmplOptions);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 重新应用皮肤
+        PageUI.invokeSkin("ready");
+        PageUI.invokeSkin("resize");
     },
     //...............................................................
     isDynamicButLackParams : function(){

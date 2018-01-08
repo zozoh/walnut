@@ -113,6 +113,7 @@ return ZUI.def("app.wn.hmaker_page", {
             uiCom.paint(com);
 
             // 重新应用皮肤
+            UI.invokeSkin("ready");
             UI.invokeSkin("resize");
         });
 
@@ -574,6 +575,7 @@ return ZUI.def("app.wn.hmaker_page", {
             jCom.attr({"ctype":ctype, "lib":val});
             UI.reloadLibCode(jCom, function(uiCom){
                 uiCom.notifyActived(null);
+                UI.pageUI().invokeSkin("ready");
                 UI.pageUI().invokeSkin("resize");
             });
         }
@@ -623,6 +625,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 uiCom.setComSkin(uiCom.getComSkin());
 
                 // 通知皮肤
+                this.invokeSkin("ready");
                 this.invokeSkin("resize");
                 
             });
@@ -674,6 +677,7 @@ return ZUI.def("app.wn.hmaker_page", {
         this.__cancel_highlight_area(nextCom);
 
         // 应用皮肤
+        this.invokeSkin("ready");
         this.invokeSkin("resize");
 
         return re.length > 0 ? re[0] : null;
@@ -751,6 +755,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 UI._C.SkinJS = SkinJS;
                 // 应用
                 UI.invokeSkin("on");
+                UI.invokeSkin("ready");
                 UI.invokeSkin("resize");
             });
         }
@@ -964,8 +969,10 @@ return ZUI.def("app.wn.hmaker_page", {
             uiCom.$el.remove();
 
             // 重新应用皮肤
-            if(!noResizeSkin)
+            if(!noResizeSkin){
+                this.invokeSkin("ready");
                 this.invokeSkin("resize");
+            }
         }
     },
     //...............................................................
@@ -1154,6 +1161,7 @@ return ZUI.def("app.wn.hmaker_page", {
     setScreenMode : function(mode) {
         this.local("screen_mode", mode);
         this.arena.find(".hmpg-stage").attr("mode", mode);
+        this.invokeSkin("ready");
         this.invokeSkin("resize");
     },
     //...............................................................
@@ -1306,6 +1314,7 @@ return ZUI.def("app.wn.hmaker_page", {
                             var uiCom = UI.getActivedCom();
                             if(uiCom){
                                 uiCom.appendToArea(null);
+                                UI.invokeSkin("ready");
                                 UI.invokeSkin("resize");
                             }
                         }

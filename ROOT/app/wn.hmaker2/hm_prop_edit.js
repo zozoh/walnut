@@ -273,6 +273,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
         uiLibCom.showLoading();
         UI.pageUI().reloadLibCode(uiLibCom.$el, function(uiCom){
             uiCom.notifyActived(null);
+            UI.pageUI().invokeSkin("ready");
             UI.pageUI().invokeSkin("resize");
         });
     },
@@ -289,6 +290,7 @@ return ZUI.def("app.wn.hm_prop_edit", {
             UI.pageUI().reloadLibCode(uiLibCom.$el, function(uiCom){
                 uiCom.setComLibName(null);
                 uiCom.notifyActived(null);
+                UI.pageUI().invokeSkin("ready");
                 UI.pageUI().invokeSkin("resize");
             });
         });

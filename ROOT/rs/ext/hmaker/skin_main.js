@@ -63,6 +63,7 @@ $(function(){
 
         // 启用皮肤
         $z.invoke(skin, "on", [], SC);
+        $z.invoke(skin, "ready", [], SC);
         
         // 增加 resize 事件监听
         window.addEventListener("resize", function(){
