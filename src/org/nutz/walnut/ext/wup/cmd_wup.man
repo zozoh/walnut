@@ -8,13 +8,37 @@
     
 # wup服务初始化
 
-	# 初始化
-	wendal@~$ wup init
-    
+```
+# 初始化
+wendal@~$ wup init
+```
+ 
 # 节点操作
 
-    # node初始化
-    wendal@~$ wup node init -macid AABBCCDDEEFF -godkey 123456 -type gbox
+```
+# node初始化
+wendal@~$ wup node init -macid AABBCCDDEEFF -godkey 123456 -type gbox
+
+# node获取节点信息
+wendal@~$ wup node get -macid AABBCCDDEEFF
+{
+	...
+}
+
+# 获取node列表
+wendal@~$ wup node query
+[
+	{
+		...
+	},
+	{
+		...
+	}
+]
+
+#设置软件版本
+wendal@~$ wup node set -macid AABBCCDDEEFF -pkg walnut -version $version
+```
 	
 # 更新包操作
 
