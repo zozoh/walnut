@@ -61,38 +61,8 @@
                                 height: "80%",
                                 closer: true
                             }).render(function () {
-                                // 添加html
-                                var cid = "ticket_mask_" + $z.randomInt(1000, 10000);
-                                var html = "";
-                                html += TkTmp.tkList(cid);
                                 var $main = this.$el.find('.ui-mask-main');
-                                $main.html(html);
-
-                                // 准备数据
-                                var ritems = [];
-                                ritems = ritems.concat(obj.request || []);
-                                ritems = ritems.concat(obj.response || []);
-
-                                new Vue({
-                                    el: '#' + cid,
-                                    data: {
-                                        items: ritems
-                                    },
-                                    computed: {
-                                        timeItems: function () {
-                                            return this.items.sort(function (a, b) {
-                                                return a.time > b.time;
-                                            });
-                                        }
-                                    },
-                                    methods: {
-                                        timeText: function (item) {
-                                            return $z.currentTime(item.time)
-                                        }
-                                    },
-                                    mounted: function () {
-                                    }
-                                });
+                                var vueChat = TkTmp.chat.create($main, obj);
                             });
                         }
                     },
