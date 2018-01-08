@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.wup.hdl;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -16,18 +19,17 @@ public class wup_node_get implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String macid = hc.params.check("macid").toUpperCase();
-        String key = hc.params.check("key");
         String confsDir = Wn.normalizeFullPath("~/wup/confs/", sys);
         WnObj confs = sys.io.createIfNoExists(null, confsDir, WnRace.DIR);
-        WnObj confObj = sys.io.fetch(confs, macid + ".json");
-        if (confObj == null) {
-            confObj = sys.io.query(Wn.Q.pid(confs.id()).setv("macid", macid)).get(0);
+        WnObj node = sys.io.fetch(confs, macid + ".json");
+        if (node == null) {
+            node = sys.io.query(Wn.Q.pid(confs.id()).setv("macid", macid)).get(0);
         }
-        if (!key.equals(confObj.getString("vkey"))) {
-            //sys.err.print("key miss match!!");
-            //return;
+        sys.out.print(sys.io.readText(node));
+        if (hc.params.has("updated")) {
+            String pkg = hc.params.get("updated");
+            sys.exec("websocket text id:"+node.id()+" '" + Json.toJson(new NutMap("pkg", pkg), JsonFormat.compact()) + "'");
         }
-        sys.out.print(sys.io.readText(confObj));
     }
 
 }
