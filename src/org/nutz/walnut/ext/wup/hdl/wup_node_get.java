@@ -11,7 +11,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
 /**
- * 获取节点配置数据
+ * 获取节点软件配置数据
  * @author wendal
  *
  */

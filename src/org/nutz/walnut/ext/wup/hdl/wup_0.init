@@ -35,3 +35,6 @@ httpapi:
 
 @wup/v1/pkg/get
 > wup pkg get -key "${http-qs-key}" -macid "${http-qs-macid}" -name "${http-qs-name}" -version "${http-qs-version}"
+
+@wup/v1/conf/get
+> wup srvconf get -key "${http-qs-key}" -macid "${http-qs-macid}"
