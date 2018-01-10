@@ -8,6 +8,7 @@ params: {
     pid  : "14eulqbbkgh6vq9t5ldpipjvs0",  // ThingSet ID
     k    : "搜索关键字",                    // 关键字
     s    : "price:-1,vvv:1",              // 排序字段
+    detail : "yes",      // 如果为 "yes" 表示读取数据详情
     pn   : 8,        // 要跳转的页码
     pgsz : 12,       // 页大小，默认 100
     skip : 84,       // 要跳过的记录数
@@ -42,6 +43,11 @@ function _main(params){
     if(params.s)
         cmdText += " -sort '" + params.s + "' ";
 
+    // 读取详情
+    if("yes" == params.detail) {
+            cmdText += " -content";
+    }
+
     // 搜索关键字
     var flt = {};
     if(params.k){
@@ -52,7 +58,7 @@ function _main(params){
     // 循环参数表，找到过滤函数
     for(var key in params) {
         // 固定参数，已经处理过了，忽略
-        if(/^(pid|k|s|pn|pgsz|skip)$/.test(key))
+        if(/^(pid|k|s|pn|pgsz|skip|detail)$/.test(key))
             continue;
         // 处理值
         var val = params[key];

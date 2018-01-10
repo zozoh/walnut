@@ -308,6 +308,15 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var tmplOptions = _.extend({}, com.options, {
             API : UI.getHttpApiUrl(),
         });
+        // 循环填充默认值
+        //console.log(tmplInfo)
+        if(tmplInfo.options) {
+            var tiOptions = HmRT.parseSetting(tmplInfo.options, true);
+            for(var key in tiOptions) {
+                var fld = tiOptions[key];
+                $z.setUndefined(tmplOptions, key, fld.dft);
+            }
+        }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保设置模板皮肤
         if(skinSelector)
