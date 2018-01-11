@@ -17,6 +17,7 @@ public class hmc_pager extends AbstractSimpleCom {
         return "hmc-pager";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         ing.eleCom.attr("wn-rt-jq-fn", "hmc_pager");
@@ -27,9 +28,14 @@ public class hmc_pager extends AbstractSimpleCom {
 
         // 存储默认值
         Object dfv = ing.propCom.get("defaultValue");
-        if (null != dfv && (dfv instanceof Map<?, ?>))
-            ing.eleCom.attr("default-value", Json.toJson(dfv, JsonFormat.compact()));
+        if (null != dfv && (dfv instanceof Map<?, ?>)) {
+            // 更新一下指定默认值
+            NutMap map = NutMap.WRAP((Map<String, Object>) dfv);
+            map.put("pgsz", ing.propCom.getInt("dftPageSize", 50));
 
+            // 存一下，以便 getValue 的时候使用
+            ing.eleCom.attr("default-value", Json.toJson(map, JsonFormat.compact()));
+        }
         // ...........................................
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_pager.js");
