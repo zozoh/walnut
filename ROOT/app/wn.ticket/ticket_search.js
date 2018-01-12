@@ -39,24 +39,38 @@
                 // 获取指定目录的pid
                 var rdir = Wn.execJ("obj ~/.ticket/record");
                 var tsmap = {
-                    'new': "新工单待分派",
-                    'assign': "工单已分派",
-                    'reassign': "工单重新分派",
+                    'new': "新工单",
+                    'assign': "已分派",
+                    'reassign': "重新分派",
                     'creply': "待用户反馈",
-                    'ureply': "待客服继续处理",
-                    'done': "工单处理完毕",
-                    'close': "工单已关闭"
+                    'ureply': "待继续处理",
+                    'done': "已完成",
+                    'close': "已关闭"
                 };
                 var ttmap = {
                     'issue': "Issue",
                     'question': "普通问题"
                 };
-                var stabs = [];
+                var stepmap = {
+                    1: "待分配",
+                    2: "处理中",
+                    3: "已完成"
+                };
+                var stepDrops = [];
+                for (var k in stepmap) {
+                    stepDrops.push({
+                        text: stepmap[k],
+                        value: {
+                            ticketStep: k
+                        }
+                    });
+                }
+                var statusDrops = [];
                 for (var k in tsmap) {
-                    stabs.push({
+                    statusDrops.push({
                         text: tsmap[k],
                         value: {
-                            ticketStatus: k
+                            ticketStep: k
                         }
                     });
                 }
@@ -81,8 +95,8 @@
                         formatData: function (obj) {
                             return obj;
                         },
-                        tabs: stabs,
-                        tabsPosition: "drop",
+                        tabs: stepDrops,
+                        tabsPosition: "left",
                         tabsMulti: false,
                         tabsKeepChecked: false
                     },

@@ -136,6 +136,7 @@ public class ticket_record implements JvmHdl {
             tMeta.setv("tickerStart", System.currentTimeMillis());
             tMeta.setv("ticketEnd", -1);
             tMeta.setv("ticketStatus", "new");
+            tMeta.setv("ticketStep", "1");
             tMeta.setv("ticketTp", tMeta.get("ticketTp", "question"));
             tMeta.setv("lbls", new String[0]);
             tMeta.setv("ticketIssue", new String[0]);
@@ -182,9 +183,11 @@ public class ticket_record implements JvmHdl {
                     curRecord.addv2("csTrans", curRecord.getString("csId"));
                     curRecord.setv("ticketStatus", "reassign");
                 }
+                curRecord.setv("ticketStep", "2");
                 curRecord.setv("csId", csPeople.getString("usrId"));
                 curRecord.setv("csAlias", csPeople.getString("usrAlias"));
-                sys.io.appendMeta(curRecord, "^csId|csAlias|csTrans|csTransTime|ticketStatus$");
+                sys.io.appendMeta(curRecord,
+                                  "^csId|csAlias|csTrans|csTransTime|ticketStatus|ticketStep$");
                 sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
             } else {
                 sys.err.printf("e.ticket: record[%s] not found", rid);
@@ -232,6 +235,7 @@ public class ticket_record implements JvmHdl {
                         // 关闭票
                         if (ureply.getBoolean("finish", false)) {
                             curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketStep", "3");
                         }
                         // 如果还有内容提交
                         if (!Strings.isBlank(ureply.getString("text", ""))) {
@@ -244,7 +248,7 @@ public class ticket_record implements JvmHdl {
                         if (!curRecord.has("csId")) {
                             curRecord.setv("ticketStatus", "new");
                         }
-                        sys.io.appendMeta(curRecord, "^request|ticketStatus$");
+                        sys.io.appendMeta(curRecord, "^request|ticketStatus|ticketStep$");
                         sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current user is not you",

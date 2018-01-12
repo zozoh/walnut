@@ -36,28 +36,34 @@
             },
             redraw: function () {
                 var UI = this;
-                // 获取指定目录的pid
                 var tsmap = {
                     'new': "新工单",
                     'assign': "已分配客服",
                     'reassign': "重新分配客服",
                     'creply': "已回复",
                     'ureply': "待处理",
-                    'done': "已关闭"
+                    'done': "已完成",
+                    'close': "已关闭"
                 };
                 var ttmap = {
                     'issue': "Issue",
                     'question': "普通问题"
                 };
-                var stabs = [];
-                for (var k in tsmap) {
-                    stabs.push({
-                        text: tsmap[k],
+                var stepmap = {
+                    1: "新工单",
+                    2: "处理中",
+                    3: "已完成"
+                };
+                var stepDrops = [];
+                for (var k in stepmap) {
+                    stepDrops.push({
+                        text: stepmap[k],
                         value: {
-                            ticketStatus: k
+                            ticketStep: k
                         }
                     });
                 }
+                stepDrops[0].checked = true;
                 // 加载对象编辑器
                 UI.myTicketUI = new SearchUI2({
                     parent: UI,
@@ -109,10 +115,10 @@
                         formatData: function (obj) {
                             return obj;
                         },
-                        tabs: stabs,
-                        tabsPosition: "drop",
+                        tabs: stepDrops,
+                        tabsPosition: "left",
                         tabsMulti: false,
-                        tabsKeepChecked: false
+                        tabsKeepChecked: true
                     },
                     list: {
                         fields: [{
