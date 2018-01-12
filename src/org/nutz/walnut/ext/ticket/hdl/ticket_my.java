@@ -144,7 +144,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
             } else {
                 sys.err.println(Json.toJson(ar));
             }
@@ -159,7 +159,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
             } else {
                 sys.err.println(Json.toJson(ar));
             }
@@ -173,7 +173,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }
@@ -186,7 +186,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }
@@ -240,7 +240,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      attaFileIn);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }

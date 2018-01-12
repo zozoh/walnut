@@ -18,5 +18,15 @@
         icon: '<i class="fa fa-bell-o"></i>',
         text: 'i18n:ticket.record',
         editor: 'edit_ticket_search'
+    }, {
+        ph: '~/.ticket_client_user',
+        icon: '<i class="fa fa-bell-o"></i>',
+        text: 'i18n:ticket.client.user',
+        editor: 'edit_ticket_client_user'
+    }, {
+        ph: '~/.ticket_client_cservice',
+        icon: '<i class="fa fa-bell-o"></i>',
+        text: 'i18n:ticket.client.cservice',
+        editor: 'edit_ticket_client_cservice'
     }]
 }])

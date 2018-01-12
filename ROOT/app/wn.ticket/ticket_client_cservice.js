@@ -8,8 +8,8 @@
         'ui/search2/search',
         'app/wn.ticket/ticket_vuetmp',
     ], function (ZUI, Wn, MaskUI, SearchUI2, TkTmp) {
-        var html = `<div class="ui-arena ticket-contaner" ui-gasket="main" ui-fitparent="true"></div>`;
-        return ZUI.def("app.wn.ticket.search", {
+        var html = `<div class="ui-arena ticket-container" ui-gasket="main" ui-fitparent="true"></div>`;
+        return ZUI.def("app.wn.ticket.client.cservice", {
             dom: html,
             css: "app/wn.ticket/theme/ticket-{{theme}}.css",
             i18n: "app/wn.ticket/i18n/{{lang}}.js",
@@ -31,21 +31,19 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj, {hideMenu: true});
+                    this.treply = TkTmp.ticketReply.create(this, $main, obj);
                 });
             },
             redraw: function () {
                 var UI = this;
                 // 获取指定目录的pid
-                var rdir = Wn.execJ("obj ~/.ticket/record");
                 var tsmap = {
-                    'new': "新工单待分派",
-                    'assign': "工单已分派",
-                    'reassign': "工单重新分派",
-                    'creply': "待用户反馈",
-                    'ureply': "待客服继续处理",
-                    'done': "工单处理完毕",
-                    'close': "工单已关闭"
+                    'new': "新工单",
+                    'assign': "已分配客服",
+                    'reassign': "重新分配客服",
+                    'creply': "已回复",
+                    'ureply': "待处理",
+                    'done': "已关闭"
                 };
                 var ttmap = {
                     'issue': "Issue",
@@ -64,14 +62,16 @@
                 UI.myTicketUI = new SearchUI2({
                     parent: UI,
                     gasketName: "main",
-                    data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
+                    data: "ticket my -list '<%=match%>' -skip {{skip}} -limit {{limit}}",
                     menu: ["refresh"],
-                    edtCmdTmpl: {},
+                    edtCmdTmpl: {
+                    },
                     events: {
                         "dblclick .list-item": function (e) {
                             var jq = $(e.currentTarget);
                             var obj = this.uiList.getData(jq)
                             console.log(obj);
+                            // mask显示下
                             UI.showTicketChat(obj);
                         }
                     },
@@ -123,44 +123,27 @@
                             }
                         }, {
                             key: "tickerStart",
-                            title: "开始时间",
+                            title: "提交时间",
                             uiType: '@label',
                             display: function (o) {
-                                return $z.parseDate(o.tickerStart).format("yyyy-mm-dd HH:MM");
-                            }
-                        }, {
-                            key: "ticketEnd",
-                            title: "结束时间",
-                            uiType: '@label',
-                            display: function (o) {
-                                if (o.ticketEnd < 0) {
-                                    return "未结束";
-                                }
-                                return $z.parseDate(o.ticketEnd).format("yyyy-mm-dd HH:MM");
+                                return $z.currentTime(o.tickerStart);
                             }
                         }],
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 80, '*', 100, 150, 150]
+                            sizeHint: [80, 80, '*', 100, 150]
                         }
                     },
                     sorter: {
                         setup: [{
                             icon: 'desc',
-                            text: "按提交日期",
-                            value: {tickerStart: -1}
-                        }, {
-                            icon: 'asc',
-                            text: "按工单类型",
-                            value: {ticketTp: 1}
+                            text: "按更新时间",
+                            value: {lm: -1}
                         }]
                     }
                 }).render(function () {
-                    this.uiFilter.setData({
-                        "d1": Wn.app().session.grp,
-                        "pid": rdir.id
-                    });
+                    this.uiFilter.setData({});
                     UI.defer_report("main");
                 });
                 // 返回延迟加载
