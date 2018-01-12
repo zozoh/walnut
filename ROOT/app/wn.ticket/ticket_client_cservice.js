@@ -8,7 +8,24 @@
         'ui/search2/search',
         'app/wn.ticket/ticket_vuetmp',
     ], function (ZUI, Wn, MaskUI, SearchUI2, TkTmp) {
-        var html = `<div class="ui-arena ticket-container" ui-gasket="main" ui-fitparent="true"></div>`;
+        var html = `
+            <div class="ui-code-template">
+                <div code-id="formmask">
+                    <div class="ui-arena srh-mask-form" ui-fitparent="yes">
+                        <div class="ui-mask-bg"></div>
+                        <div class="ui-mask-main"><div class="srh-mask">
+                            <div class="srh-qform" ui-gasket="main"></div>
+                            <div class="srh-qbtns">
+                                <b class="srh-qform-ok"><i class="ing fa fa-spinner fa-spin"></i>{{ok}}</b>
+                                <b class="srh-qform-cancel">{{cancel}}</b>
+                            </div>
+                        </div></div>
+                        <div class="ui-mask-closer"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui-arena ticket-container" ui-gasket="ticketList" ui-fitparent="true"></div>
+        `;
         return ZUI.def("app.wn.ticket.client.cservice", {
             dom: html,
             css: "app/wn.ticket/theme/ticket-{{theme}}.css",
@@ -33,6 +50,13 @@
                     var $main = this.$el.find('.ui-mask-main');
                     this.treply = TkTmp.ticketReply.create(this, $main, obj);
                 });
+            },
+            init: function () {
+                var UI = this;
+                // 获取所有客服信息
+                UI.cslist = JSON.parse(Wn.exec("ticket my -cservice")) || [];
+                // 获取我的信息
+                UI.me = JSON.parse(Wn.exec("me -json"));
             },
             redraw: function () {
                 var UI = this;
@@ -64,14 +88,80 @@
                     });
                 }
                 stepDrops[0].checked = true;
+                stepDrops[0].value.mode = "search";  // 新工单要查全局 其他的只查自己
                 // 加载对象编辑器
                 UI.myTicketUI = new SearchUI2({
                     parent: UI,
-                    gasketName: "main",
-                    data: "ticket my -search '<%=match%>' -skip {{skip}} -limit {{limit}}",
-                    menu: ["refresh"],
-                    edtCmdTmpl: {
-                    },
+                    gasketName: "ticketList",
+                    data: "ticket my -list '<%=match%>' -skip {{skip}} -limit {{limit}}",
+                    menu: [{
+                        text: "指派客服",
+                        handler: function () {
+                            // 先选中一个
+                            var obj = UI.myTicketUI.uiList.getActived();
+                            if (!obj) {
+                                UI.alert("请选中一个工单后再操作");
+                                return;
+                            }
+                            if (obj.ticketStep == '3') {
+                                UI.alert("该工单已经无法再进行指派操作");
+                                return;
+                            }
+
+                            // 默认是自己，可以选择其他人
+                            var cslist = [];
+                            for (var i = 0; i < UI.cslist.length; i++) {
+                                var c = UI.cslist[i];
+                                cslist.push({
+                                    text: c.usrNm + "(" + c.usrAlias + ")",
+                                    value: c.usrId
+                                })
+                            }
+                            new MaskUI({
+                                dom: UI.ccode("formmask").html(),
+                                i18n: UI._msg_map,
+                                exec: UI.exec,
+                                width: 600,
+                                height: 120,
+                                dom_events: {
+                                    "click .srh-qform-ok": function (e) {
+                                        var uiMask = ZUI(this);
+                                        var formData = uiMask.body.getData();
+                                        if (formData) {
+                                            console.log(JSON.stringify(formData))
+                                        }
+                                    },
+                                    "click .srh-qform-cancel": function (e) {
+                                        var uiMask = ZUI(this);
+                                        uiMask.close();
+                                    }
+                                },
+                                setup: {
+                                    uiType: "ui/form/form",
+                                    uiConf: {
+                                        uiWidth: "all",
+                                        title: "",
+                                        fields: [{
+                                            key: "cservice",
+                                            title: "指定客服",
+                                            tip: "默认情况选中自己",
+                                            type: "string",
+                                            editAs: "droplist",
+                                            uiWidth: "auto",
+                                            uiConf: {
+                                                items: cslist
+                                            }
+                                        }]
+                                    }
+                                }
+                            }).render(function () {
+                                this.body.setData({
+                                    cservice: obj.csId || UI.me.id
+                                });
+                            });
+                        }
+                    }, "refresh"],
+                    edtCmdTmpl: {},
                     events: {
                         "dblclick .list-item": function (e) {
                             var jq = $(e.currentTarget);
@@ -121,13 +211,6 @@
                                 return otext;
                             }
                         }, {
-                            key: "csAlias",
-                            title: "处理客服",
-                            uiType: '@label',
-                            display: function (o) {
-                                return o.csAlias || "";
-                            }
-                        }, {
                             key: "tickerStart",
                             title: "提交时间",
                             uiType: '@label',
@@ -138,7 +221,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 80, '*', 100, 150]
+                            sizeHint: [80, 80, '*', 150]
                         }
                     },
                     sorter: {
@@ -157,7 +240,7 @@
             },
             //..............................................
             update: function (o) {
-                this.gasket.main.refresh();
+                this.gasket.ticketList.refresh();
             }
             //..............................................
         });

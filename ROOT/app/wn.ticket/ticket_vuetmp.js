@@ -54,7 +54,7 @@ define(function (require, exports, module) {
                 data: data,
                 computed: {
                     menuHide: function () {
-                        return this.wobj.ticketStatus == 'done' || this.hideMenu;
+                        return this.wobj.ticketStep == '1' || this.wobj.ticketStep == '3' || this.hideMenu;
                     },
                     tkTitle: function () {
                         var otext = this.wobj.text;

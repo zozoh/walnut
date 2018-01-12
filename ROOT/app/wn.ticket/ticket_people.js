@@ -53,7 +53,7 @@
                         }],
                         tabsPosition: "left",
                         tabsMulti: false,
-                        tabsKeepChecked: false
+                        tabsKeepChecked: true
                     },
                     list: {
                         fields: [{
