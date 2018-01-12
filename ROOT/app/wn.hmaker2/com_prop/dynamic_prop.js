@@ -273,6 +273,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         // 循环输出表单字段配置信息
         for(var i=0; i<flds.length; i++) {
             var F = flds[i];
+            console.log(F)
             // 准备字段
             var fld = {
                 key      : F.key,
@@ -288,6 +289,21 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fld.editAs = "droplist";
                 fld.uiConf = {
                     emptyItem : {},
+                    items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
+                    icon  : '<i class="fa fa-cubes"></i>',
+                    text  : function(o){
+                        return o.title || o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    }
+                };
+            }
+            // 字段: TSS
+            if("TSS" == F.type) {
+                fld.editAs = "droplist";
+                fld.uiConf = {
+                    multi : true,
                     items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
                     icon  : '<i class="fa fa-cubes"></i>',
                     text  : function(o){
