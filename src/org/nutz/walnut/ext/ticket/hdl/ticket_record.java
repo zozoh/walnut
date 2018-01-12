@@ -232,17 +232,17 @@ public class ticket_record implements JvmHdl {
                     // 先检查是否我的订单
                     if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
                         NutMap ureply = Lang.map(params.getString("c"));
-                        // 关闭票
-                        if (ureply.getBoolean("finish", false)) {
-                            curRecord.setv("ticketStatus", "done");
-                            curRecord.setv("ticketStep", "3");
-                        }
                         // 如果还有内容提交
                         if (!Strings.isBlank(ureply.getString("text", ""))) {
                             ureply.setv("attachments", new String[0]);
                             ureply.setv("time", System.currentTimeMillis());
                             curRecord.addv2("request", ureply);
                             curRecord.setv("ticketStatus", "ureply");
+                        }
+                        // 关闭票
+                        if (ureply.getBoolean("finish", false)) {
+                            curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketStep", "3");
                         }
                         // 如果没有客服接这个任务
                         if (!curRecord.has("csId")) {
@@ -258,13 +258,20 @@ public class ticket_record implements JvmHdl {
                     // 先检查是否是分配给我的订单
                     if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
                         NutMap creply = Lang.map(params.getString("c"));
-                        creply.setv("csId", tPeople.getString("usrId"));
-                        creply.setv("csAlias", tPeople.getString("usrAlias"));
-                        creply.setv("attachments", new String[0]);
-                        creply.setv("time", System.currentTimeMillis());
-                        curRecord.addv2("response", creply);
-                        curRecord.setv("ticketStatus", "creply");
-                        sys.io.appendMeta(curRecord, "^response|ticketStatus$");
+                        // 如果还有内容提交
+                        if (!Strings.isBlank(creply.getString("text", ""))) {
+                            creply.setv("csId", tPeople.getString("usrId"));
+                            creply.setv("csAlias", tPeople.getString("usrAlias"));
+                            creply.setv("attachments", new String[0]);
+                            creply.setv("time", System.currentTimeMillis());
+                            curRecord.addv2("response", creply);
+                            curRecord.setv("ticketStatus", "creply");
+                        }
+                        if (creply.getBoolean("finish", false)) {
+                            curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketStep", "3");
+                        }
+                        sys.io.appendMeta(curRecord, "^response|ticketStatus|ticketStep$");
                         sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current cservice is you",

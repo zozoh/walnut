@@ -48,7 +48,9 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj);
+                    this.treply = TkTmp.ticketReply.create(this, $main, obj, {
+                        hideMenu: obj.ticketStep == '1'
+                    });
                 });
             },
             init: function () {
@@ -113,7 +115,7 @@
                             for (var i = 0; i < UI.cslist.length; i++) {
                                 var c = UI.cslist[i];
                                 cslist.push({
-                                    text: c.usrNm + "(" + c.usrAlias + ")",
+                                    text: c.usrNm + "(" + (c.usrId == UI.me.id ? "我" : c.usrAlias) + ")",
                                     value: c.usrId
                                 })
                             }
@@ -128,7 +130,17 @@
                                         var uiMask = ZUI(this);
                                         var formData = uiMask.body.getData();
                                         if (formData) {
-                                            console.log(JSON.stringify(formData))
+                                            console.log(JSON.stringify(formData));
+                                            var csId = formData.cservice;
+                                            Wn.exec("ticket my -assign " + obj.id + " -tu " + csId, function (re) {
+                                                var re = JSON.parse(re);
+                                                if (re.ok) {
+                                                    UI.myTicketUI.refresh();
+                                                } else {
+                                                    UI.alret(re.data);
+                                                }
+                                                uiMask.close();
+                                            });
                                         }
                                     },
                                     "click .srh-qform-cancel": function (e) {
