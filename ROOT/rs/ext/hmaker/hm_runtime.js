@@ -89,7 +89,7 @@ window.HmRT = {
             // 字符串形式
             if(_.isString(val)) {
                 // 分析一下
-                var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|site|com|link|toggle)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
+                var m = /^([*])?(\(([^\)]+)\))?@(input|TSS|thingset|site|com|link|toggle)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
                 // 指定了类型
                 if(m) {
                     fld.required = m[1] ? true : false;
