@@ -1561,7 +1561,10 @@ return ZUI.def("app.wn.hmaker_page", {
         return cobj;
     },
     //...............................................................
-    getCurrentEditObj : function() {
+    getCurrentEditObj : function(force) {
+        if(force) {
+            this._page_obj = Wn.getById(this._page_obj.id, false, true);
+        }
         return this._page_obj;
     },
     getCurrentTextContent : function(forSave) {

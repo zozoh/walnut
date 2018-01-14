@@ -4,10 +4,10 @@ $z.declare([
     'wn/util',
     'ui/form/form',
     'ui/menu/menu',
-    'ui/mask/mask',
+    'ui/pop/pop',
     'ui/list/list',
     'app/wn.hmaker2/support/hm__methods_panel',
-], function(ZUI, Wn, FormUI, MenuUI, MaskUI, ListUI, HmMethods, HmPickResourceUI){
+], function(ZUI, Wn, FormUI, MenuUI, POP, ListUI, HmMethods, HmPickResourceUI){
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-page" ui-fitparent="yes">
@@ -15,6 +15,7 @@ var html = `
         <header>
             <i class="zmdi zmdi-alert-circle-o"></i>
             <b>{{hmaker.page.attr}}</b>
+            <a>{{hmaker.page.meta}}</a>
         </header>
         <section ui-gasket="form"></section>
     </div>
@@ -34,6 +35,12 @@ return ZUI.def("app.wn.hm_prop_page", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+    },
+    //...............................................................
+    events : {
+        "click .pp-attr header a" : function(){
+            this.doEditMore();
+        }
     },
     //...............................................................
     redraw : function(){
@@ -120,16 +127,138 @@ return ZUI.def("app.wn.hm_prop_page", {
         return ["form", "menu", "links"];
     },
     //...............................................................
+    __get_items_for_tsid: function(oPage){
+        var UI = this;
+        
+        var list = [];
+        // 显示可用数据集
+        if(_.isArray(oPage.hm_list_tsid) && oPage.hm_list_tsid.length>0) {
+            for(var i=0; i<oPage.hm_list_tsid.length;i++) {
+                var tsid = oPage.hm_list_tsid[i];
+                var oTS = Wn.getById(tsid);
+                list.push({
+                    icon  : oTS.icon,
+                    text  : oTS.nm,
+                    value : oTS.id
+                });
+            }
+        }
+        // 显示个空
+        else {
+            list.push({
+                text  : UI.msg("none"),
+                value : null
+            });
+        }
+        return list;
+    },
+    //...............................................................
+    __get_items_for_api: function(oPage){
+        var UI = this;
+        
+        var list = [];
+        // 显示可用数据集
+        if(_.isArray(oPage.hm_list_api) && oPage.hm_list_api.length>0) {
+            for(var i=0; i<oPage.hm_list_api.length;i++) {
+                var api = oPage.hm_list_api[i];
+                list.push({
+                    icon  : '<i class="fa fa-plug"></i>',
+                    text  : api,
+                    value : api
+                });
+            }
+        }
+        // 显示个空
+        else {
+            list.push({
+                text  : UI.msg("none"),
+                value : null
+            });
+        }
+        return list;
+    },
+    //...............................................................
+    doEditMore : function() {
+        var UI = this;
+        var oPage = this.pageUI().getCurrentEditObj(true);
+        var rph = UI.getRelativePath(oPage);
+
+        // 打开对话框
+        POP.openUIPanel({
+            title  : "i18n:hmaker.page.meta",
+            width  : 640,
+            height : 480,
+            setup : {
+                uiType : "ui/form/form",
+                uiConf : {
+                    mergeData : false,
+                    on_change : function(key, val){
+                        var uiForm = this;
+                        uiForm.showPrompt(key, "spinning");
+                        Wn.execf('obj id:{{homeId}}/{{rph}}'
+                                    +' -u \'{{key}}:"{{val}}"\';'
+                                    + 'hmaker id:{{homeId}} syncmeta {{rph}}', {
+                            homeId : UI.getHomeObjId(),
+                            rph : rph,
+                            key : key,
+                            val : val
+                        }, function(re){
+                            uiForm.hidePrompt();
+                            // 错误
+                            if(/^e./.test(re)) {
+                                uiForm.showPrompt(key, "warn", re);
+                            }
+                            // 重新更新一下表单
+                            else {
+                                var reo = $z.fromJson(re);
+                                uiForm.setData(reo);
+                            }
+                        });
+                    },
+                    fields : [{
+                        key : "hm_pg_tsid",
+                        title : "i18n:hmaker.page.meta_hm_pg_tsid",
+                        uiType : "@droplist",
+                        uiConf : {
+                            items : function(){
+                                return UI.__get_items_for_tsid(oPage);
+                            }
+                        },
+                    }, {
+                        key : "hm_pg_api",
+                        title : "i18n:hmaker.page.meta_hm_pg_api",
+                        uiType : "@droplist",
+                        uiConf : {
+                            items : function(){
+                                return UI.__get_items_for_api(oPage);
+                            }
+                        }
+                    }, {
+                        key : "hm_api_method",
+                        title : "i18n:hmaker.page.meta_hm_api_method",
+                        uiType : "@label",
+                    }, {
+                        key : "hm_api_return",
+                        title : "i18n:hmaker.page.meta_hm_api_return",
+                        uiType : "@label",
+                    }]
+                }
+            },
+            ready : function(uiBody) {
+                uiBody.setData(oPage);
+            },
+            btnCancel : null,
+        }, UI);
+    },
+    //...............................................................
     doEditResources : function(){
         var UI = this;
         var homeId = UI.getHomeObjId();
 
-        // 打开遮罩
-        new MaskUI({
-            css  : "ui/pop/theme/pop-{{theme}}.css",
-            dom  : "ui/pop/pop.html",
-            width : 400,
-            height: "80%",
+        POP.openUIPanel({
+            title  : "i18n:hmaker.page.pick_rs",
+            width  : 400,
+            height : "80%",
             setup : {
                 uiType : "ui/list/list",
                 uiConf : {
@@ -146,66 +275,50 @@ return ZUI.def("app.wn.hm_prop_page", {
                     }
                 }
             },
-            events : {
-                "click .pm-btn-ok" : function(){
-                    var uiMask = this;
-                    // 得到数据
-                    var objs   = uiMask.body.getChecked();
-                    //console.log(objs)
-                    // 设置
-                    UI.pageUI().setPageAttr({
-                        links : objs
-                    }, true);
+            ready : function(uiBody) {
+                uiBody.showLoading();
+                var cmdText = 'hmaker id:'+homeId+" rs -path"
+                Wn.execf('hmaker id:{{homeId}} rs -match "{{match}}" -path "css,js" -key "{{key}}"',{
+                    homeId : homeId,
+                    match  : "[.](css|js)$",
+                    key    : "nm,tp,mime,ph,rph"
+                }, function(re){
+                    // 隐藏加载提示
+                    uiBody.hideLoading();
 
-                    // 清空一下缓存
-                    UI.pageUI().cleanCssSelectors();
+                    // 防错
+                    if(/^e./.test(re)){
+                        UI.alert(re);
+                        return;
+                    }
 
-                    // 刷新列表
-                    UI.gasket.links.setData(objs);
+                    // 显示
+                    var list = $z.fromJson(re);
+                    uiBody.setData(list);
 
-                    // 关闭对话框
-                    uiMask.close();
-                },
-                "click .pm-btn-cancel" : function(){
-                    this.close();
-                }
-            }
-        }).render(function(){
-            var uiMask = this;
+                    // 标识已经选中的
+                    var links = (UI.pageUI().getPageAttr().links || []);
+                    for(var i=0; i<links.length; i++) {
+                        uiBody.check(links[i].ph);
+                    }
+                });
+            },
+            ok : function(uiBody) {
+                // 得到数据
+                var objs   = uiBody.getChecked();
+                //console.log(objs)
+                // 设置
+                UI.pageUI().setPageAttr({
+                    links : objs
+                }, true);
 
-            // 设置标题
-            uiMask.arena.find(".pm-title").html(UI.msg("hmaker.page.pick_rs"));
+                // 清空一下缓存
+                UI.pageUI().cleanCssSelectors();
 
-            // 显示加载中
-            uiMask.body.showLoading();
-            
-            // 获取数据
-            var cmdText = 'hmaker id:'+homeId+" rs -path"
-            Wn.execf('hmaker id:{{homeId}} rs -match "{{match}}" -path "css,js" -key "{{key}}"',{
-                homeId : homeId,
-                match  : "[.](css|js)$",
-                key    : "nm,tp,mime,ph,rph"
-            }, function(re){
-                // 隐藏加载提示
-                uiMask.body.hideLoading();
-
-                // 防错
-                if(/^e./.test(re)){
-                    UI.alert(re);
-                    return;
-                }
-
-                // 显示
-                var list = $z.fromJson(re);
-                uiMask.body.setData(list);
-
-                // 标识已经选中的
-                var links = (UI.pageUI().getPageAttr().links || []);
-                for(var i=0; i<links.length; i++) {
-                    uiMask.body.check(links[i].ph);
-                }
-            });
-        });
+                // 刷新列表
+                UI.gasket.links.setData(objs);
+            },
+        }, UI);
     },
     //...............................................................
     refresh : function(){

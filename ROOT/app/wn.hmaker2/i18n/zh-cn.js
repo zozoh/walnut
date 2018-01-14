@@ -160,6 +160,11 @@ define({
             "links_edit"  : "编辑资源列表",
             "pick_rs"     : "选择资源",
             "preparing"   : "正在准备页面组件...",
+            "meta"         : "更多设置",
+            "meta_hm_pg_tsid"  : "显示数据集",
+            "meta_hm_pg_api"   : "显示接口",
+            "meta_hm_api_method"   : "显示接口方法",
+            "meta_hm_api_return"   : "显示接口返回",
         },
         "com" : {
             "_" : {

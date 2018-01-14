@@ -1352,13 +1352,13 @@ var Wn = {
         return reObj;
     },
     //..............................................
-    get : function(o, quiet){
+    get : function(o, quiet, force){
         if(/^id:\w{6,}$/.test(o) && o.indexOf("/")<0)
-            return this.getById(o.substring(3), quiet);
-        return this.fetch(o, quiet);
+            return this.getById(o.substring(3), quiet, force);
+        return this.fetch(o, quiet, force);
     },
     //..............................................
-    getById : function(oid, quiet) {
+    getById : function(oid, quiet, force) {
         if(!oid)
             return null;
 
@@ -1366,7 +1366,7 @@ var Wn = {
         var store = Wn._storeAPI;
         // 首先获取缓存
         var key  = "oid:"+oid;
-        var json = store.getItem(key);
+        var json = force ? null : store.getItem(key);
 
         // 有内容的话，看看是否过期了
         if(json){
@@ -1486,7 +1486,7 @@ var Wn = {
         return this.appendPath(Wn.app().session.envs.PWD, ph);
     },
     //..............................................
-    fetch : function(ph, quiet){
+    fetch : function(ph, quiet, force){
         var Wn = this;
         // 首先格式化 Path 到绝对路径
         // var ss = ph.split(/\/+/);
@@ -1501,7 +1501,7 @@ var Wn = {
 
         // 找到了 ID 就用 ID 读一下
         if(oid)
-            return Wn.getById(oid);
+            return Wn.getById(oid, quiet, force);
 
         
         // 木有？ 那就重新根据路径加载
