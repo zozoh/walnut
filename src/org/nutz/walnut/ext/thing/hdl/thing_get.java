@@ -20,12 +20,16 @@ public class thing_get implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到对应对 Thing
+        WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnObj oT = Things.checkThIndex(sys, hc);
 
         // 这个 Thing 必须是有效的
         if (oT.getInt("th_live") == Things.TH_DEAD) {
             throw Er.create("e.cmd.thing.gone", oT.id());
         }
+
+        // 补充上 ThingSet 的集合名称
+        oT.put("th_set_nm", oTs.name());
 
         // 看看是否要读取 detail/media/attachment 的映射等东东
         if (hc.params.is("full")) {

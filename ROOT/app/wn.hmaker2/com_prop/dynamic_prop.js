@@ -273,7 +273,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         // 循环输出表单字段配置信息
         for(var i=0; i<flds.length; i++) {
             var F = flds[i];
-            console.log(F)
+            //console.log(F)
             // 准备字段
             var fld = {
                 key      : F.key,
@@ -311,6 +311,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     },
                     value : function(o){
                         return o.id;
+                    },
+                    parseData : function(ids) {
+                        return ids ? ids.split(/ *[, ] */g) : [];
                     }
                 };
             }

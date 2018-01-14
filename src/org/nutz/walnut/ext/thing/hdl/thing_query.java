@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
@@ -22,24 +24,15 @@ public class thing_query implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        // 找到数据目录
-        WnObj oIndex = Things.dirTsIndex(sys, hc);
+        WnQuery q = new WnQuery();
 
         // ..............................................
         // 准备分页信息
         WnPager wp = new WnPager(hc.params);
 
-        // 没有数据
-        if (null == oIndex) {
-            hc.pager = wp;
-            hc.output = new LinkedList<WnObj>();
-            return;
-        }
-
         // ..............................................
         // 准备查询条件
         String qStr = Cmds.getParamOrPipe(sys, hc.params, 0);
-        WnQuery q = new WnQuery();
         // 指定了条件
         if (!Strings.isBlank(qStr)) {
             // 条件是"或"
@@ -56,10 +49,56 @@ public class thing_query implements JvmHdl {
         else {
             q.first();
         }
+
+        // ..............................................
         // 确保限定了集合
-        NutMap map = new NutMap();
-        map.put("pid", oIndex.id());
-        q.setAllToList(map);
+        Map<String, WnObj> oTsCache = new HashMap<String, WnObj>();
+        if (hc.params.has("tss")) {
+            String[] tss = hc.params.getAs("tss", String[].class);
+
+            // 寻找对应的 ThingSet.index 对象，并计入 pid
+            String[] pids = new String[tss.length];
+            for (int i = 0; i < tss.length; i++) {
+                String tsId = tss[i];
+                WnObj oRefer = sys.io.checkById(tsId);
+                WnObj oTs = Things.checkThingSet(oRefer);
+                WnObj oIndex = Things.dirTsIndex(sys.io, oTs);
+                oTsCache.put(oTs.id(), oTs);
+                pids[i] = oIndex.id();
+            }
+
+            // 没有数据
+            if (0 == pids.length) {
+                hc.pager = wp;
+                hc.output = new LinkedList<WnObj>();
+                return;
+            }
+
+            // 只有一个数据
+            if (1 == pids.length) {
+                q.setAllToList(Lang.map("pid", pids[0]));
+            }
+            // 多个数据
+            else {
+                q.setAllToList(Lang.map("pid", pids));
+            }
+        }
+        // 找到数据目录
+        else {
+            WnObj oTs = Things.checkThingSet(hc.oRefer);
+            WnObj oIndex = Things.dirTsIndex(sys.io, oTs);
+            oTsCache.put(oTs.id(), oTs);
+
+            // 没有数据
+            if (null == oIndex) {
+                hc.pager = wp;
+                hc.output = new LinkedList<WnObj>();
+                return;
+            }
+
+            // 限定数据集
+            q.setAllToList(Lang.map("pid", oIndex.id()));
+        }
 
         // 检查 th_live
         List<NutMap> qList = q.getList();
@@ -84,6 +123,14 @@ public class thing_query implements JvmHdl {
         // ..............................................
         // 执行查询并返回结果
         List<WnObj> list = sys.io.query(q);
+
+        // 循环补充上 ThingSet 的集合名称
+        for (WnObj oT : list) {
+            WnObj oTs = oTsCache.get(oT.getString("th_set"));
+            if (null != oTs) {
+                oT.put("th_set_nm", oTs.name());
+            }
+        }
 
         // 循环读取内容
         if (hc.params.is("content")) {
