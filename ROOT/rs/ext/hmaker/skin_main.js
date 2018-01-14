@@ -5,7 +5,6 @@ $(function(){
         skin = SC.skin;
         // 判断一下如果宽度小于给定宽度，则为移动设备，否则为桌面
         // 默认 640 作为移动设备和桌面设备的屏幕宽度分隔线
-        skin.designWidth = skin.designWidth || 640;
         SC.screen = SC.win.innerWidth > skin.designWidth 
                             ? "desktop"
                             : "mobile";
@@ -60,6 +59,12 @@ $(function(){
             jQuery : window.jQuery,
             skin   : skin,
         };
+
+        // 决定屏幕形式
+        skin.designWidth = skin.designWidth || 640;
+        SC.screen = SC.win.innerWidth > skin.designWidth 
+                            ? "desktop"
+                            : "mobile";
 
         // 启用皮肤
         $z.invoke(skin, "on", [], SC);

@@ -80,14 +80,16 @@ function _main(params){
 
         // 去除重复的型号，如果型号与当前型号相同，则归纳不同的颜色
         var mmap = {};
+        var go_model = go.th_model || go.th_nm;
         for(var i=0 ; i<list.length; i++) {
             var mo = list[i];
+            var model = mo.th_model || mo.th_nm;
             // 归纳型号
-            if(!mmap[mo.th_nm])
-                mmap[mo.th_nm] = mo;
+            if(!mmap[model])
+                mmap[model] = mo;
 
             // 归纳颜色
-            if(mo.th_nm == go.th_nm && mo.th_color) {
+            if(model == go_model && mo.th_color) {
                 colors.push({
                     id   : mo.id,
                     text : mo.th_color
@@ -99,7 +101,7 @@ function _main(params){
             var mo = mmap[key];
             models.push({
                 id    : mo.id,
-                text  : mo.th_nm,
+                text  : key,
                 thumb : mo.thumb || null
             });
         }

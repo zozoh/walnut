@@ -300,7 +300,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 };
             }
             // 字段: TSS
-            if("TSS" == F.type) {
+            else if("TSS" == F.type) {
                 fld.editAs = "droplist";
                 fld.uiConf = {
                     multi : true,

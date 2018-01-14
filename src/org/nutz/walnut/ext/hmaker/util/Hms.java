@@ -256,6 +256,13 @@ public final class Hms {
     }
 
     /**
+     * @see #loadProp(Element, String, boolean)
+     */
+    public static NutMap loadPropAndRemoveNode(Element ele, String className) {
+        return loadProp(ele, className, true);
+    }
+
+    /**
      * 从一个节点里读取 hmaker 给它设置的属性，
      * <p>
      * 属性节点是一个 SCRIPT，根据类选择器确定该节点
@@ -266,10 +273,12 @@ public final class Hms {
      *            元素
      * @param className
      *            类选择器选择器
+     * @param removeNode
+     *            是否同时删除这个节点
      * 
      * @return 解析好的属性
      */
-    public static NutMap loadPropAndRemoveNode(Element ele, String className) {
+    public static NutMap loadProp(Element ele, String className, boolean removeNode) {
         // Element eleProp = ele.children().last();
         Element eleProp = ele.select(">script." + className).first();
         if (null == eleProp)
@@ -283,7 +292,8 @@ public final class Hms {
         String json = eleProp.html();
 
         // 删除属性
-        eleProp.remove();
+        if (removeNode)
+            eleProp.remove();
 
         // 解析并返回
         if (Strings.isBlank(json))
@@ -360,6 +370,9 @@ public final class Hms {
     /**
      * 根据给定的内容给页面对象设置元数据
      * 
+     * @param hpc
+     *            转换上下文，如果为 null 则会自动生成
+     * 
      * @param sys
      *            系统上下文
      * @param oPage
@@ -367,24 +380,103 @@ public final class Hms {
      * @param content
      *            内容
      */
-    public static void syncPageMeta(WnSystem sys, WnObj oPage, String content) {
+    public static void syncPageMeta(HmContext hpc, WnSystem sys, WnObj oPage, String content) {
+        // 生成一个新的转换上下文
+        if (null == hpc) {
+            hpc = new HmContext(sys.io, sys.se.group());
+        }
+        // 确保有 apiHome
+        if (null == hpc.oApiHome)
+            hpc.oApiHome = Wn.getObj(sys, "~/.regapi/api");
+
+        // 准备存储分析的结果
         Set<String> libNames = new HashSet<>();
+        Set<String> apiList = new HashSet<String>();
+        Set<String> tsidList = new HashSet<String>();
+        Set<String> tmplList = new HashSet<String>();
+
+        // 有内容的话开始分析
         if (!Strings.isBlank(content)) {
+            // 逐个分析控件
             Document doc = Jsoup.parse(content);
-            Elements eleLibs = doc.body().select(".hm-com[lib]");
-            for (Element ele : eleLibs) {
-                libNames.add(ele.attr("lib"));
+            Elements eleComs = doc.body().select(".hm-com");
+
+            for (Element eleCom : eleComs) {
+                // 存储关联的组件
+                String libName = eleCom.attr("lib");
+                if (!Strings.isBlank(libName))
+                    libNames.add(libName);
+
+                // 分析动态控件
+                if ("dynamic".equals(eleCom.attr("ctype"))) {
+                    NutMap com = loadProp(eleCom, "hm-prop-com", false);
+
+                    // 记录模板
+                    String template = com.getString("template");
+                    if (!Strings.isBlank(template))
+                        tmplList.add(template);
+
+                    // 记录 API
+                    String api = com.getString("api");
+                    if (!Strings.isBlank(api))
+                        apiList.add(api);
+
+                    // 得到 params.pid
+                    NutMap params = com.getAs("params", NutMap.class);
+                    if (null != params) {
+                        String[] tsids = params.getAs("pid", String[].class);
+                        if (null != tsids && tsids.length > 0) {
+                            for (String tsid : tsids) {
+                                tsidList.add(tsid);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 得到原来的记录
+        String myTsId = __get_hm_pg_xx_in_list(oPage, "hm_pg_tsid", tsidList);
+        String myApi = __get_hm_pg_xx_in_list(oPage, "hm_pg_api", apiList);
+
+        // 更新一下 API 的返回值
+        String apiMethod = null;
+        String apiReturn = null;
+        if (!Strings.isBlank(myApi)) {
+            WnObj oApi = hpc.getApiObj(myApi);
+            if (null != oApi) {
+                apiReturn = oApi.getString("api_return");
+                apiMethod = oApi.getString("api_method");
             }
         }
 
         // 得到站点
         WnObj oSiteHome = getSiteHome(sys, oPage);
         oPage.setv("hm_site_id", oSiteHome == null ? null : oSiteHome.id());
-
+        oPage.setv("hm_pg_tsid", myTsId);
+        oPage.setv("hm_pg_api", myApi);
+        oPage.setv("hm_api_return", apiReturn);
+        oPage.setv("hm_api_method", apiMethod);
+        oPage.setv("hm_list_tsid", tsidList);
+        oPage.setv("hm_list_api", apiList);
+        oPage.setv("hm_list_tmpl", tmplList);
         // .................................................
         // 保存元数据索引
         oPage.setv("hm_libs", libNames);
-        sys.io.set(oPage, "^hm_(site_id|libs)$");
+        sys.io.set(oPage, "^hm_(site_id|libs|(pg|list|api)_[a-z]+)$");
+    }
+
+    private static String __get_hm_pg_xx_in_list(WnObj oPage, String key, Set<String> tsidList) {
+        String myTsId = oPage.getString(key);
+        // 清空
+        if (tsidList.isEmpty()) {
+            myTsId = null;
+        }
+        // 不存在或者本身就没有，自动选第一个
+        else if (Strings.isBlank(myTsId) || !tsidList.contains(myTsId)) {
+            myTsId = tsidList.iterator().next();
+        }
+        return myTsId;
     }
 
     /**
