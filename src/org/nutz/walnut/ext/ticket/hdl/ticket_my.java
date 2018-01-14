@@ -48,6 +48,8 @@ public class ticket_my implements JvmHdl {
     private static String API_FETCH = "/ticket/fetch";
     // 分配
     private static String API_ASSIGN = "/ticket/assign";
+    // 客服列表
+    private static String API_CSERVICE = "/ticket/cservice";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -106,6 +108,28 @@ public class ticket_my implements JvmHdl {
         httpPs.setv("tp", tp);
         httpPs.setv("ustr", ustr);
 
+        // 查询客服列表
+        if (params.is("cservice")) {
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_CSERVICE, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData()));
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
+
+        // FIXME 前端searchUI2 不支持动态修改data字符串
+        if (params.has("list")) {
+            NutMap listQuery = Json.fromJson(NutMap.class, params.getString("list"));
+            if (listQuery.containsKey("mode")) {
+                String toMode = listQuery.getString("mode");
+                listQuery.remove("mode");
+                params.setv(toMode, Json.toJson(listQuery, JsonFormat.compact()));
+            }
+        }
+
         // 注册
         if (params.is("reg")) {
             AjaxReturn ar = httpPost(String.format(API_TMPL + API_REG, service, ts), httpPs, null);
@@ -134,22 +158,6 @@ public class ticket_my implements JvmHdl {
                 sys.err.println(Json.toJson(ar));
             }
         }
-
-        // 查询我的工单
-        else if (params.has("list")) {
-            httpPs.setv("query", params.getString("list"));
-            httpPs.setv("skip", params.getInt("skip", 0));
-            httpPs.setv("limit", params.getInt("limit", 10));
-            AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
-                                     httpPs,
-                                     null);
-            if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
-            } else {
-                sys.err.println(Json.toJson(ar));
-            }
-        }
-
         // 查询全局工单
         else if (params.has("search")) {
             httpPs.setv("search", params.getString("search"));
@@ -159,12 +167,25 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
             } else {
                 sys.err.println(Json.toJson(ar));
             }
         }
-
+        // 查询我的工单
+        else if (params.has("list")) {
+            httpPs.setv("query", params.getString("list"));
+            httpPs.setv("skip", params.getInt("skip", 0));
+            httpPs.setv("limit", params.getInt("limit", 10));
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_QUERY, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
         // 分配
         else if (params.has("assign")) {
             httpPs.setv("assign", params.getString("assign"));
@@ -173,12 +194,11 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }
         }
-
         // 获取指定工单
         else if (params.has("fetch")) {
             httpPs.setv("fetch", params.getString("fetch"));
@@ -186,12 +206,11 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      null);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }
         }
-
         // 提交/回复工单
         else if (params.has("post")) {
             String trid = null;
@@ -240,7 +259,7 @@ public class ticket_my implements JvmHdl {
                                      httpPs,
                                      attaFileIn);
             if (ar.isOk()) {
-                sys.out.print(Json.toJson(ar.getData()));
+                sys.out.print(Json.toJson(ar));
             } else {
                 sys.err.println(Json.toJson(ar));
             }
