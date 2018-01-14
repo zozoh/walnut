@@ -37,12 +37,6 @@ return ZUI.def("app.wn.hm_prop_edit", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
-
-        UI.listenBus("active:page",   UI.doActiveOther);
-        UI.listenBus("active:folder", UI.doActiveOther);
-        UI.listenBus("active:rs",     UI.doActiveOther);
-        UI.listenBus("active:other",  UI.doActiveOther);
-        UI.listenBus("active:com",    UI.doActiveCom);
         
         UI.listenBus("change:block",  UI.doChangeBlock);
         UI.listenBus("change:com",    UI.doChangeCom);
@@ -294,11 +288,6 @@ return ZUI.def("app.wn.hm_prop_edit", {
                 UI.pageUI().invokeSkin("resize");
             });
         });
-    },
-    //...............................................................
-    doActiveOther : function(){
-        //console.log("hm_prop_edit->doActiveOther:");
-        // this.gasket.com.showBlank();
     },
     //...............................................................
     doActiveCom : function(uiCom) {

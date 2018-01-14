@@ -34,8 +34,6 @@ return ZUI.def("app.wn.hm_prop_page", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
-
-        UI.listenBus("active:page",  UI.refresh);
     },
     //...............................................................
     redraw : function(){

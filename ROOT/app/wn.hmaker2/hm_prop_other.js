@@ -15,10 +15,6 @@ return ZUI.def("app.wn.hm_prop_other", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
-
-        UI.listenBus("active:other",  function(o){
-            UI.gasket.meta.update(o);
-        });
     },
     //...............................................................
     redraw : function() {

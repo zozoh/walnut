@@ -45,14 +45,18 @@ return ZUI.def("app.wn.hm_prop", {
         UI.listenBus("active:other",  UI.onActiveOther);
     },
     //...............................................................
-    onActiveFolder : function(){
+    onActiveFolder : function(o){
         var UI = this;
         //this.showProp("folder");
         //this.setTitle("hmaker.prop.tt_folder");
         new PropFolderUI({
             parent : UI,
             gasketName : "form"
-        }).render();
+        }).render(function(){
+            this.oFolder = o;
+            this.gasket.upload.setTarget(o);
+            this.do_active_file(this.oFolder);
+        });
     },
     //...............................................................
     onActiveLib : function(){
@@ -62,7 +66,9 @@ return ZUI.def("app.wn.hm_prop", {
         new PropLibUI({
             parent : UI,
             gasketName : "form"
-        }).render();
+        }).render(function(){
+            this.showHelp();
+        });
     },
     //...............................................................
     onActiveCom : function(uiCom) {
@@ -86,17 +92,21 @@ return ZUI.def("app.wn.hm_prop", {
         new PropPageUI({
             parent : UI,
             gasketName : "form"
-        }).render();
+        }).render(function(){
+            this.refresh();
+        });
     },
     //...............................................................
-    onActiveOther : function(){
+    onActiveOther : function(o){
         var UI = this;
         //this.showProp("other");
         //this.setTitle("hmaker.prop.tt_other");
         new PropOtherUI({
             parent : UI,
             gasketName : "form"
-        }).render();
+        }).render(function(){
+            this.gasket.meta.update(o);
+        });
     },
     //...............................................................
 });
