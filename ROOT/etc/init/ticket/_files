@@ -103,5 +103,5 @@ httpparam -in id:${id} | jsc /app/wn.ticket/regapi/assign.js -vars
 
 }
 %TMPL:
-> httpparam -in id:${id} | jsc /jsbin/obj_read.js -vars
+httpparam -in id:${id} | jsc /jsbin/obj_read.js -vars
 %END%
