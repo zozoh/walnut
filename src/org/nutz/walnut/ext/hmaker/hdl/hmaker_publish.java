@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.hdl;
 
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
@@ -8,6 +10,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
@@ -188,7 +191,7 @@ public class hmaker_publish implements JvmHdl {
             }, WalkMode.LEAF_ONLY);
         }
         // ------------------------------------------------------------
-        // 最后处理所有依赖的资源: copy 它们
+        // 所有依赖的资源: copy 它们
         if (hpc.resources.size() > 0) {
             log.infof("copy %d resources:", hpc.resources.size());
 
@@ -206,6 +209,15 @@ public class hmaker_publish implements JvmHdl {
         else {
             log.info("- no resource need to be copy -");
         }
+        // ------------------------------------------------------------
+        // 输出站点地图文件
+        log.info("gen sitemap ...");
+        Map<String, NutBean> sitemap = hpc.genSiteMap();
+        WnObj oSiteMap = sys.io.createIfNoExists(hpc.oDest, "js/_sitemap.js", WnRace.FILE);
+        sys.io.writeText(oSiteMap,
+                         String.format("(function(){\nwindow.__SITEMAP = %s;\n})();",
+                                       Json.toJson(sitemap, JsonFormat.nice())));
+        log.infof(" ... sitemap created : %s", hpc.getRelativeDestPath(oSiteMap));
         // ------------------------------------------------------------
         // 全部输出完成
         sw.stop();

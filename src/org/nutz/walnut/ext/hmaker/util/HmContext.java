@@ -2,13 +2,17 @@ package org.nutz.walnut.ext.hmaker.util;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Nums;
+import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
@@ -120,6 +124,42 @@ public class HmContext {
         this.processCount = hpc.processCount;
         this.__conf = hpc.__conf;
         this.__lib_codes = hpc.__lib_codes;
+    }
+
+    /**
+     * @return 一个本站所有页面的元数据集合，键为对于站点的相对路径
+     */
+    public Map<String, NutBean> genSiteMap() {
+        HashMap<String, NutBean> map = new HashMap<>();
+
+        // 首先遍历本站所有的页面
+        List<WnObj> children = io.getChildren(oHome, null);
+        for (WnObj child : children) {
+            this.__join_site_map(map, child);
+        }
+
+        return map;
+    }
+
+    private void __join_site_map(Map<String, NutBean> map, WnObj oPage) {
+        // 目录: 递归
+        if (oPage.isDIR()) {
+            List<WnObj> children = io.getChildren(oPage, null);
+            for (WnObj child : children) {
+                this.__join_site_map(map, child);
+            }
+        }
+        // 文件的话，看看是否有后缀，如果没有后缀的话，就加入
+        else if (oPage.isMime("text/html")) {
+            if (Strings.isBlank(Files.getSuffixName(oPage.name()))) {
+                // 得到相对路径
+                String rph = this.getRelativePath(oPage);
+                NutBean bean = oPage.pickBy("^(nm|title|hm_.+)$");
+
+                // 计入
+                map.put(rph, bean);
+            }
+        }
     }
 
     /**
