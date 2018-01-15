@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.ticket.hdl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
@@ -233,8 +234,8 @@ public class ticket_record implements JvmHdl {
                     if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
                         NutMap ureply = Lang.map(params.getString("c"));
                         // 如果还有内容提交
-                        if (!Strings.isBlank(ureply.getString("text", ""))) {
-                            ureply.setv("attachments", new String[0]);
+                        if (!Strings.isBlank(ureply.getString("text", "")) || params.has("atta")) {
+                            ureply.setv("attachments", attas(sys, curRecord, params));
                             ureply.setv("time", System.currentTimeMillis());
                             curRecord.addv2("request", ureply);
                             curRecord.setv("ticketStatus", "ureply");
@@ -259,10 +260,10 @@ public class ticket_record implements JvmHdl {
                     if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
                         NutMap creply = Lang.map(params.getString("c"));
                         // 如果还有内容提交
-                        if (!Strings.isBlank(creply.getString("text", ""))) {
+                        if (!Strings.isBlank(creply.getString("text", "")) || params.has("atta")) {
                             creply.setv("csId", tPeople.getString("usrId"));
                             creply.setv("csAlias", tPeople.getString("usrAlias"));
-                            creply.setv("attachments", new String[0]);
+                            creply.setv("attachments", attas(sys, curRecord, params));
                             creply.setv("time", System.currentTimeMillis());
                             curRecord.addv2("response", creply);
                             curRecord.setv("ticketStatus", "creply");
@@ -283,6 +284,20 @@ public class ticket_record implements JvmHdl {
             }
         }
 
+    }
+
+    private List<String> attas(WnSystem sys, WnObj curRecord, ZParams params) {
+        List<String> attas = new ArrayList<>();
+        if (params.has("atta")) {
+            String destDir = curRecord.getRegularPath();
+            String[] fids = params.get("atta").split(",");
+            for (String afid : fids) {
+                WnObj attaFile = sys.io.get(afid);
+                sys.io.move(attaFile, destDir);
+                attas.add(afid);
+            }
+        }
+        return attas;
     }
 
     private WnObj getRecord(WnSystem sys, String rid) {

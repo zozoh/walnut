@@ -257,7 +257,10 @@ var Wn = {
             }
         }, opt);
 
-        new MaskUI(mask_options).render();
+        var maskUI = new MaskUI(mask_options);
+        maskUI.render();
+
+        return maskUI;
     },
     /*................................................................
     提供一个文件对象选择（上传）框的快捷方法，参数为

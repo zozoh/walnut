@@ -18,7 +18,7 @@ define(function (require, exports, module) {
                                 </div>
                                 <div class="chat-content">
                                     <div class="chat-content-text">
-                                        <span>{{item.text}}</span>
+                                        <div class="text-con">{{item.text}}<img class="atta-image" :src="attaImage(afid)" v-for="afid in (item.attachments || [])"></div>
                                         <div class="chat-content-time">{{timeText(item)}}</div>
                                     </div>
                                 </div>
@@ -26,11 +26,12 @@ define(function (require, exports, module) {
                         </ul>
                         <div class="ticket-menu">
                             <div class="ticket-send-input">
-                                <textarea name="" id="" cols="30" rows="3" placeholder="填写描述并点击'发送内容'，附件请拖拽至该窗口" v-model="text"></textarea>
+                                <textarea name="" id="" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
                             </div>
                             <div class="ticket-send-btns">
                                 <button @click="sendText">发送内容</button>
-                                <button class="close" @click="sendClose">已解决并关闭</button>
+                                <button @click="sendFile" class="file">上传附件</button>
+                                <button @click="sendClose" class="close" >已解决并关闭</button>
                             </div>
                         </div>
                     </div>
@@ -91,6 +92,9 @@ define(function (require, exports, module) {
                         }
                         return "用户";
                     },
+                    attaImage: function (fid) {
+                        return "/api/" + this.wobj.d1 + "/ticket/obj/read?ph=id:" + fid;
+                    },
                     // 更新内容
                     refreshItems: function () {
                         // 准备数据
@@ -142,7 +146,40 @@ define(function (require, exports, module) {
                         });
                     },
                     sendFile: function () {
-
+                        var self = this;
+                        Wn.uploadPanel({
+                            title: "附件上传(仅支持图片)",
+                            parent: UI,
+                            target: {
+                                ph: "~/.ticket_upload",
+                                race: "DIR"
+                            },
+                            validate: "^.+[.](png|jpg|jpeg|gif)$",
+                            finish: function (objs) {
+                                var cUI = this.parent;
+                                // 执行添加命令
+                                if (objs != null && objs.length > 0) {
+                                    var fids = [];
+                                    for (var i = 0; i < objs.length; i++) {
+                                        fids.push(objs[i].id);
+                                    }
+                                    self.sending = true;
+                                    Wn.exec("ticket my -post '" + self.ticketId + "' -atta '" + fids.join(",") + "'", function (re) {
+                                        var re = JSON.parse(re);
+                                        if (re.ok) {
+                                            self.text = '';
+                                            self.wobj = re.data;
+                                            self.refreshItems();
+                                            cUI.close();
+                                        } else {
+                                            UI.alert(re.data);
+                                        }
+                                        self.sending = false;
+                                    });
+                                }
+                            },
+                            replaceable: true
+                        });
                     }
                 },
                 mounted: function () {
