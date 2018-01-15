@@ -53,8 +53,16 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     
     // 得到自己所在控件
     var jq = this.empty();
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 准备一下获取值
+    var kwd = opt.defaultValue || "";
+    var m = /^@<([^>]+)>$/.exec(kwd);
+    if(m) {
+        kwd = (window.__REQUEST || {})[m[1]] || "";
+    }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 开始绘制
     var jInput = $('<div class="kwd-input"><input></div>')
                     .appendTo(jq)
@@ -64,7 +72,7 @@ $.fn.extend({ "hmc_searcher" : function(opt){
         "placeholder" : opt.placeholder || null,
         "maxlength"   : opt.maxLen > 0 ? opt.maxLen : null,
         "trim-space"  : opt.trimSpace ? "yes" : null,
-    }).val(opt.defaultValue || "");
+    }).val(kwd);
 
     // 按钮文字
     var jBtnW  = $('<div class="kwd-btn"><b></b></div>').appendTo(jq);

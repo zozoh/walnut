@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -44,9 +47,16 @@ public class hmc_searcher extends AbstractSimpleCom {
         return true;
     }
 
+    private final Pattern _P = Pattern.compile("^@<([^>]+)>$");
+
     @Override
     public Object getValue(Element eleCom) {
-        return eleCom.attr("default-value");
+        String val = eleCom.attr("default-value");
+        Matcher m = _P.matcher(val);
+        if (m.find()) {
+            return "${params." + m.group(1) + "?}";
+        }
+        return val;
     }
 
 }

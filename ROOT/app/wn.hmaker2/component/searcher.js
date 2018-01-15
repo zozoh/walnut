@@ -34,9 +34,11 @@ return ZUI.def("app.wn.hm_com_searcher", {
         // 标识是否是链接
         UI.arena.find('aside').remove();
         if(com.postAction) {
-            $('<aside>')
-                .html('<i class="zmdi zmdi-link"></i>')
-                    .appendTo(UI.arena);
+            var icon = '<i class="zmdi zmdi-open-in-new"></i>';
+            if("self" == com.postTarget) {
+                icon = '<i class="zmdi zmdi-link"></i>';
+            }
+            $('<aside>').html(icon).appendTo(UI.arena);
         }        
     },
     //...............................................................
