@@ -97,3 +97,11 @@ httpparam -in id:${id} | jsc /app/wn.ticket/regapi/cservice.js -vars
 %TMPL:
 httpparam -in id:${id} | jsc /app/wn.ticket/regapi/assign.js -vars
 %END%
+
+@FILE .regapi/api/ticket/obj/read
+{
+
+}
+%TMPL:
+> httpparam -in id:${id} | jsc /jsbin/obj_read.js -vars
+%END%

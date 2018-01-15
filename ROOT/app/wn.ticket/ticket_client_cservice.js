@@ -6,8 +6,9 @@
         'wn/util',
         "ui/mask/mask",
         'ui/search2/search',
+        'ui/upload/upload',
         'app/wn.ticket/ticket_vuetmp',
-    ], function (ZUI, Wn, MaskUI, SearchUI2, TkTmp) {
+    ], function (ZUI, Wn, MaskUI, SearchUI2, UploadUI, TkTmp) {
         var html = `
             <div class="ui-code-template">
                 <div code-id="formmask">

@@ -6,8 +6,9 @@
         'wn/util',
         "ui/mask/mask",
         'ui/search2/search',
+        'ui/upload/upload',
         'app/wn.ticket/ticket_vuetmp',
-    ], function (ZUI, Wn, MaskUI, SearchUI2, TkTmp) {
+    ], function (ZUI, Wn, MaskUI, SearchUI2, UploadUI, TkTmp) {
         var html = `<div class="ui-arena ticket-container" ui-gasket="main" ui-fitparent="true"></div>`;
         return ZUI.def("app.wn.ticket.client.user", {
             dom: html,
@@ -31,7 +32,7 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj);
+                    this.treply = TkTmp.ticketReply.create(UI, $main, obj);
                 });
             },
             redraw: function () {

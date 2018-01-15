@@ -243,16 +243,7 @@ public class ticket_my implements JvmHdl {
             // 附件
             InputStream attaFileIn = null;
             if (params.has("atta")) {
-                httpPs.setv("atta", true);
-                String fids = params.getString("atta");
-                // 从管道中读取
-                if (fids.equalsIgnoreCase("true") || fids.equalsIgnoreCase("false")) {
-                    attaFileIn = sys.in.getInputStream();
-                }
-                // 文件id列表
-                else {
-                    httpPs.setv("fids", fids);
-                }
+                httpPs.setv("atta", params.getString("atta"));
             }
 
             AjaxReturn ar = httpPost(String.format(API_TMPL + API_POST, service, ts),
