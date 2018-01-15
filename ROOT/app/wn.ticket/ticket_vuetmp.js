@@ -19,9 +19,9 @@ define(function (require, exports, module) {
                                 <div class="chat-content">
                                     <div class="chat-content-text">
                                         <span>{{item.text}}</span>
+                                        <div class="chat-content-time">{{timeText(item)}}</div>
                                     </div>
                                 </div>
-                                <div class="chat-content-time">{{timeText(item)}}</div>
                             </li>
                         </ul>
                         <div class="ticket-menu">
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
                         return item.csId != undefined;
                     },
                     timeText: function (item) {
-                        return $z.parseDate(item.time).format("yyyy-MM-dd HH:mm");
+                        return $z.currentTime(item.time).substr(0, 16);
                     },
                     userAvatar: function (item) {
                         if (this.isCS(item)) {
