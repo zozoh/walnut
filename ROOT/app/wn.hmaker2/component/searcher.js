@@ -31,6 +31,13 @@ return ZUI.def("app.wn.hm_com_searcher", {
             forIDE : true
         }, com));
         
+        // 标识是否是链接
+        UI.arena.find('aside').remove();
+        if(com.postAction) {
+            $('<aside>')
+                .html('<i class="zmdi zmdi-link"></i>')
+                    .appendTo(UI.arena);
+        }        
     },
     //...............................................................
     getComValue : function() {
