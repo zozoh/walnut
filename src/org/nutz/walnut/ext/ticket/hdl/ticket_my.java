@@ -152,8 +152,11 @@ public class ticket_my implements JvmHdl {
                 myConf.setv("confs", confs);
 
                 sys.io.writeJson(myConfObj, myConf, JsonFormat.forLook());
-
                 sys.exec("ticket my -conf " + ts);
+
+                // 添加侧边栏客户端
+                sys.exec("touch ~/.ticket_client_" + tp);
+
             } else {
                 sys.err.println(Json.toJson(ar));
             }
