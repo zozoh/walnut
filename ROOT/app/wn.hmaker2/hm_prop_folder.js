@@ -21,11 +21,6 @@ return ZUI.def("app.wn.hm_prop_folder", {
     init : function() {
         var UI = HmMethods(this);
 
-        UI.listenBus("active:file",  function(o){
-            // console.log("active:file", o.id)
-            UI.do_active_file(o);
-        });
-
         UI.listenBus("blur:file",  function(nextObj){
             if(!nextObj)
                 UI.do_active_file(UI.oFolder);

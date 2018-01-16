@@ -83,6 +83,10 @@ return ZUI.def("app.wn.hm_prop", {
                 this.doActiveCom(uiCom);
             });
         }
+        // 否则直接来一下
+        else {
+            UI.gasket.form.doActiveCom(uiCom);
+        }
     },
     //...............................................................
     onActivePage : function(){
