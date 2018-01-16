@@ -322,9 +322,12 @@ return ZUI.def("app.wn.hm_prop_page", {
     },
     //...............................................................
     refresh : function(){
-        var attr = this.pageUI().getPageAttr(true);
-        this.gasket.form.setData(attr);
-        this.gasket.links.setData(attr.links);
+        var pageUI = this.pageUI(true);
+        if(pageUI) {
+            var attr = pageUI.getPageAttr(true);
+            this.gasket.form.setData(attr);
+            this.gasket.links.setData(attr.links);
+        }
     },
     //...............................................................
     resize : function(){

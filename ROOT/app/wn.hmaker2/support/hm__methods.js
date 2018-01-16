@@ -33,7 +33,7 @@ var methods = {
     pageUI : function(quiet) {
         var UI = this;
         var uiHMaker = this.hmaker();
-        var re = uiHMaker.gasket.main;
+        var re = uiHMaker ? uiHMaker.gasket.main : null;
         // 严格模式
         if(!quiet){
             if(!re){

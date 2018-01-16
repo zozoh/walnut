@@ -509,7 +509,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
                 
                 // 布尔模式
-                m = /^@([\d\w]+)(\(([^\)]+)\))?(\{yes(\/no)?\})(=(yes|no))?/
+                m = /^@([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\{yes(\/no)?\})(=(yes|no))?/
                         .exec(key);
                 if(m) {
                     //console.log(m)
