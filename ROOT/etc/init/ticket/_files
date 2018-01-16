@@ -81,6 +81,14 @@ httpparam -in id:${id} | jsc /app/wn.ticket/regapi/search.js -vars
 httpparam -in id:${id} | jsc /app/wn.ticket/regapi/fetch.js -vars
 %END%
 
+@FILE .regapi/api/ticket/cservice
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/cservice.js -vars
+%END%
+
 
 @FILE .regapi/api/ticket/assign
 {
@@ -88,4 +96,12 @@ httpparam -in id:${id} | jsc /app/wn.ticket/regapi/fetch.js -vars
 }
 %TMPL:
 httpparam -in id:${id} | jsc /app/wn.ticket/regapi/assign.js -vars
+%END%
+
+@FILE .regapi/api/ticket/obj/read
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /jsbin/obj_read.js -vars
 %END%

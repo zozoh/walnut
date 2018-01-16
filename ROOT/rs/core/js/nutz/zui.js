@@ -427,7 +427,7 @@ define(function (require, exports, module) {
             var UI = this;
             var opt = UI.options;
 
-            console.log("destroy UI:", UI.uiName, "::", UI.cid);
+            //console.log("destroy UI:", UI.uiName, "::", UI.cid);
 
             // 释放通用拖拽操作
             if(UI.dragAndDrop) {

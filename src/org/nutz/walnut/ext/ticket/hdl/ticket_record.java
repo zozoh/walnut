@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.ticket.hdl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -14,9 +16,8 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
-
-import com.beust.jcommander.Strings;
 
 public class ticket_record implements JvmHdl {
 
@@ -50,7 +51,7 @@ public class ticket_record implements JvmHdl {
         String tp = params.get("tp", myConf.getString("tp"));
         boolean isUser = "user".equals(tp);
 
-        String thString = Strings.isStringEmpty(ts) ? "~/.ticket" : "~/.ticket_" + ts;
+        String thString = Strings.isBlank(ts) ? "~/.ticket" : "~/.ticket_" + ts;
         WnObj ticketHome = sys.io.fetch(null, Wn.normalizeFullPath(thString, sys));
         if (ticketHome == null) {
             sys.err.printf("e.ticket: data dir [%s] not found, please exec 'ticket init'",
@@ -66,8 +67,14 @@ public class ticket_record implements JvmHdl {
         }
         WnObj recordDir = sys.io.check(ticketHome, "record");
 
+        NutMap sort = null;
+        if (params.has("sort") && !Strings.isBlank(params.getString("sort", ""))) {
+            sort = Lang.map(params.check("sort"));
+        }
+
         // 查询全局工单
         if (params.has("search")) {
+            params.setv("pager", true);
             // 仅限客服
             if (isUser) {
                 sys.err.printf("e.ticket: cservice can serach record, others only query their records");
@@ -79,14 +86,21 @@ public class ticket_record implements JvmHdl {
             wnQuery.setv("pid", recordDir.id());
             wnQuery.sortBy("ct", -1);
             wnQuery.sortBy("nm", 1);
-            wnQuery.limit(params.getInt("limit", 100));
-            wnQuery.skip(params.getInt("skip", 0));
+
+            WnPager wp = new WnPager(params);
+            wp.setupQuery(sys, wnQuery);
+
+            if (sort != null) {
+                wnQuery.sort(sort);
+            }
+
             List<WnObj> pList = sys.io.query(wnQuery);
-            sys.out.println(Json.toJson(pList));
+            sys.out.println(outList(pList, wp));
         }
 
         // 查询与我相关工单
         if (params.has("query")) {
+            params.setv("pager", true);
             NutMap qvars = Lang.map(params.getString("query"));
             WnQuery wnQuery = new WnQuery();
             wnQuery.add(qvars);
@@ -98,10 +112,16 @@ public class ticket_record implements JvmHdl {
             wnQuery.setv("pid", recordDir.id());
             wnQuery.sortBy("ct", -1);
             wnQuery.sortBy("nm", 1);
-            wnQuery.limit(params.getInt("limit", 10));
-            wnQuery.skip(params.getInt("skip", 0));
+
+            WnPager wp = new WnPager(params);
+            wp.setupQuery(sys, wnQuery);
+
+            if (sort != null) {
+                wnQuery.sort(sort);
+            }
+
             List<WnObj> pList = sys.io.query(wnQuery);
-            sys.out.print(Json.toJson(pList));
+            sys.out.println(outList(pList, wp));
         }
 
         // 新工单
@@ -117,24 +137,19 @@ public class ticket_record implements JvmHdl {
             tMeta.setv("tickerStart", System.currentTimeMillis());
             tMeta.setv("ticketEnd", -1);
             tMeta.setv("ticketStatus", "new");
+            tMeta.setv("ticketStep", "1");
             tMeta.setv("ticketTp", tMeta.get("ticketTp", "question"));
             tMeta.setv("lbls", new String[0]);
             tMeta.setv("ticketIssue", new String[0]);
-
-            String text = tMeta.getString("text", "");
-            NutMap req = NutMap.NEW();
-            req.setv("text", text);
-            req.setv("attachments", new String[0]);
-            req.setv("time", tMeta.getLong("tickerStart"));
-            tMeta.addv2("request", req);
+            tMeta.setv("request", new NutMap[0]);
 
             // 写入对象
             WnObj reObj = sys.io.create(recordDir,
                                         tPeople.name() + "_" + System.currentTimeMillis(),
                                         WnRace.DIR);
             sys.io.appendMeta(reObj, tMeta);
-            // 返回工单ID
-            sys.out.printf("{ id: '%s'}", reObj.id());
+            // 返回工单全部内容
+            sys.out.printf(Json.toJson(sys.io.get(reObj.id())));
         }
 
         // 分配/转移客服, 仅限客服
@@ -169,9 +184,11 @@ public class ticket_record implements JvmHdl {
                     curRecord.addv2("csTrans", curRecord.getString("csId"));
                     curRecord.setv("ticketStatus", "reassign");
                 }
+                curRecord.setv("ticketStep", "2");
                 curRecord.setv("csId", csPeople.getString("usrId"));
                 curRecord.setv("csAlias", csPeople.getString("usrAlias"));
-                sys.io.appendMeta(curRecord, "^csId|csAlias|csTrans|csTransTime|ticketStatus$");
+                sys.io.appendMeta(curRecord,
+                                  "^csId|csAlias|csTrans|csTransTime|ticketStatus|ticketStep$");
                 sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
             } else {
                 sys.err.printf("e.ticket: record[%s] not found", rid);
@@ -216,13 +233,24 @@ public class ticket_record implements JvmHdl {
                     // 先检查是否我的订单
                     if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
                         NutMap ureply = Lang.map(params.getString("c"));
-                        ureply.setv("attachments", new String[0]);
-                        ureply.setv("time", System.currentTimeMillis());
-                        curRecord.addv2("request", ureply);
-                        curRecord.setv("ticketStatus",
-                                       ureply.getBoolean("finish", false) ? "done" : "ureply");
-                        sys.io.appendMeta(curRecord, "^request|ticketStatus$");
-                        sys.out.print(Json.toJson(curRecord.toMap("^id|ticketStatus|lm$")));
+                        // 如果还有内容提交
+                        if (!Strings.isBlank(ureply.getString("text", "")) || params.has("atta")) {
+                            ureply.setv("attachments", attas(sys, curRecord, params));
+                            ureply.setv("time", System.currentTimeMillis());
+                            curRecord.addv2("request", ureply);
+                            curRecord.setv("ticketStatus", "ureply");
+                        }
+                        // 关闭票
+                        if (ureply.getBoolean("finish", false)) {
+                            curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketStep", "3");
+                        }
+                        // 如果没有客服接这个任务
+                        if (!curRecord.has("csId")) {
+                            curRecord.setv("ticketStatus", "new");
+                        }
+                        sys.io.appendMeta(curRecord, "^request|ticketStatus|ticketStep$");
+                        sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current user is not you",
                                        curRecord.id());
@@ -231,14 +259,21 @@ public class ticket_record implements JvmHdl {
                     // 先检查是否是分配给我的订单
                     if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
                         NutMap creply = Lang.map(params.getString("c"));
-                        creply.setv("csId", tPeople.getString("usrId"));
-                        creply.setv("csAlias", tPeople.getString("usrAlias"));
-                        creply.setv("attachments", new String[0]);
-                        creply.setv("time", System.currentTimeMillis());
-                        curRecord.addv2("response", creply);
-                        curRecord.setv("ticketStatus", "creply");
-                        sys.io.appendMeta(curRecord, "^response|ticketStatus$");
-                        sys.out.print(Json.toJson(curRecord.toMap("^id|ticketStatus|lm$")));
+                        // 如果还有内容提交
+                        if (!Strings.isBlank(creply.getString("text", "")) || params.has("atta")) {
+                            creply.setv("csId", tPeople.getString("usrId"));
+                            creply.setv("csAlias", tPeople.getString("usrAlias"));
+                            creply.setv("attachments", attas(sys, curRecord, params));
+                            creply.setv("time", System.currentTimeMillis());
+                            curRecord.addv2("response", creply);
+                            curRecord.setv("ticketStatus", "creply");
+                        }
+                        if (creply.getBoolean("finish", false)) {
+                            curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketStep", "3");
+                        }
+                        sys.io.appendMeta(curRecord, "^response|ticketStatus|ticketStep$");
+                        sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current cservice is you",
                                        curRecord.id());
@@ -249,6 +284,20 @@ public class ticket_record implements JvmHdl {
             }
         }
 
+    }
+
+    private List<String> attas(WnSystem sys, WnObj curRecord, ZParams params) {
+        List<String> attas = new ArrayList<>();
+        if (params.has("atta")) {
+            String destDir = curRecord.getRegularPath();
+            String[] fids = params.get("atta").split(",");
+            for (String afid : fids) {
+                WnObj attaFile = sys.io.get(afid);
+                sys.io.move(attaFile, destDir);
+                attas.add(afid);
+            }
+        }
+        return attas;
     }
 
     private WnObj getRecord(WnSystem sys, String rid) {
@@ -270,6 +319,20 @@ public class ticket_record implements JvmHdl {
     private WnObj myConf(WnSystem sys) {
         WnObj myHome = sys.getHome();
         return sys.io.fetch(myHome, ".ticket_my.json");
+    }
+
+    private String outList(List<WnObj> outs, WnPager wp) {
+        NutMap re = new NutMap();
+        re.setv("list", outs);
+        re.setv("pager",
+                Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d",
+                          wp.pn,
+                          wp.pgsz,
+                          wp.sum_page,
+                          wp.sum_count,
+                          wp.skip,
+                          outs.size()));
+        return Json.toJson(re);
     }
 
 }

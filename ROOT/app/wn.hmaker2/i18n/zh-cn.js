@@ -160,6 +160,11 @@ define({
             "links_edit"  : "编辑资源列表",
             "pick_rs"     : "选择资源",
             "preparing"   : "正在准备页面组件...",
+            "meta"         : "更多设置",
+            "meta_hm_pg_tsid"  : "显示数据集",
+            "meta_hm_pg_api"   : "显示接口",
+            "meta_hm_api_method"   : "显示接口方法",
+            "meta_hm_api_return"   : "显示接口返回",
         },
         "com" : {
             "_" : {
@@ -322,13 +327,20 @@ define({
                 "name"  : "搜索框",
                 "tip"   : "与 '动态数据' 控件联合使用，可以为数据接口提供搜索关键字参数",
                 "icon"  : '<i class="fa fa-search"></i>',
+                "display" : "显示设置",
+                "post"    : "提交设置",
                 "placeholder"  : "提示信息",
                 "plhd_dft"     : "请输入",
                 "defaultValue" : "默认值",
                 "btnText"   : "按钮文字",
                 "trimSpace" : "截取空白",
                 "maxLen"    : "最大长度",
-                "maxLen_tip" : "负数或者 0 表示不限制。超过这个长度，内容将被截断"
+                "maxLen_tip" : "负数或者 0 表示不限制。超过这个长度，内容将被截断",
+                "postAction" : "目标页面",
+                "postTarget" : "目标打开方式",
+                "postTarget_blank" : "新窗口",
+                "postTarget_self"  : "本窗口",
+                "postParamName" : "提交参数名",
             },
             "filter" : {
                 "name"  : "筛选条件",

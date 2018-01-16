@@ -54,14 +54,33 @@ var methods = {
         return re;
     },
     //...............................................................
-    setItems : function(items, callback, params){
+    setData : function(val, jso, obj){
+        var UI  = this;
+        var opt = UI.options;
+        //console.log("I am enum setData");
+        // 存储旧值
+        UI.__old_val = val;
+
+        // 设置到控件
+        this.ui_parse_data(val, function(v){
+            // 动态的话，首先重新设置一下项目
+            if(opt.dynamic) {
+                UI.__load_items(opt.items, function(){
+                    UI._set_data(v);    
+                }, obj);
+            }
+            // 静态的话，直接设置就好
+            else {
+                UI._set_data(v);
+            }
+        });
+    },
+    //...............................................................
+    __load_items : function(items, callback, params) {
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
-        // var context = _.extend({}, opt.context || UI, {
-        //     app  : UI.app,
-        //     exec : UI.exec
-        // });
+        
         $z.evalData(items, params || opt.itemArgs, function(list){
             var list2;
             // 应用过滤器
@@ -82,6 +101,20 @@ var methods = {
             // 调用回调
             $z.doCallback(callback, [list2], UI);
         }, UI);
+    },
+    //...............................................................
+    setItems : function(items, callback, params){
+        var UI  = this;
+        var opt = UI.options;
+
+        // 动态的话，只有 setData 的时候才会调用
+        if(opt.dynamic) {
+            $z.doCallback(callback, [], UI);
+        }
+        // 静态的话，先初始化
+        else {
+            UI.__load_items(items, callback, params);
+        }
     },
     //...............................................................
     refresh : function(callback) {

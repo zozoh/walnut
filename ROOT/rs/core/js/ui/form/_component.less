@@ -219,13 +219,15 @@
   }
   > .cc-edit {
     > .cce-con[for="bgimg"] {
-        width: 430px; height: 300px;
+        width: 320px; height:unset; padding:0;
         .form {
-            padding:@d3;
+            padding:0; background: @cb1;
+            .form-body {overflow: auto;} 
             .form-fld  {
-                padding:@d1;
-                > .ff-txt {padding:@d3; min-width: 80px;}
-                > .ff-val {padding:0;}
+                border-top:1px solid @cborder1;
+                &:first-child {border-top:0;}
+                > .ff-txt {}
+                > .ff-val {}
             }
         }
     }

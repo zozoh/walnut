@@ -114,9 +114,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").first().click();
-        }, 200);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-com").first().click();
+        // }, 200);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）
@@ -328,6 +328,7 @@ var methods = {
         if(!UI._C.iedit.doc.defaultView.hm_resize_binded){
             UI._C.iedit.doc.defaultView.hm_resize_binded = true;
             $(UI._C.iedit.doc.defaultView).resize(function(){
+                UI.invokeSkin("ready");
                 UI.invokeSkin("resize");
             });
         }
@@ -651,6 +652,7 @@ var methods = {
                         ing.uiCom.setBlock(ing.comBlock);
                     }
                     // 重新应用皮肤
+                    UI.invokeSkin("ready");
                     UI.invokeSkin("resize");
                 }
                 //......................................

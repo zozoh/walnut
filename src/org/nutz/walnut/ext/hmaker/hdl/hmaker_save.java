@@ -39,7 +39,7 @@ public class hmaker_save implements JvmHdl {
 
         // .................................................
         // 分析页面内容看看都使用了哪些组件
-        Hms.syncPageMeta(sys, oPage, content);
+        Hms.syncPageMeta(null, sys, oPage, content);
 
         // .................................................
         // 最后输出内容

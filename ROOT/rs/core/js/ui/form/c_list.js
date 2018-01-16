@@ -22,7 +22,7 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
         this.__setup_dft_display_func(opt);
 
         $z.setUndefined(opt, "escapeHtml", true);
-        $z.setUndefined(opt, "drawOnSetData", true);
+        $z.setUndefined(opt, "drawOnSetData", !_.isArray(opt.items));
     },
     //...............................................................
     events : {

@@ -17,6 +17,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 进行一次网页转换的上线文
@@ -414,6 +415,17 @@ public class HmPageTranslating extends HmContext {
             this.scripts.add("window.__REQUEST = ${params(json:cqn)?-obj-};");
         }
         // ---------------------------------------------------
+        // 得到资源的相对路径
+        String rph = this.getTargetRelativePath(o) + ".html";
+
+        // 输出本页的一些有用元数据
+        this.scripts.add("window.__PAGE_PATH = '" + rph + "';");
+        this.scripts.add("window.__ROOT_PATH = '" + rootPath + "';");
+
+        // 链接站点地图
+        this.jsLinks.add(Wn.appendPath(rootPath, "js/_sitemap.js"));
+
+        // ---------------------------------------------------
         // 展开链接资源
         __extend_link_and_style();
 
@@ -425,9 +437,9 @@ public class HmPageTranslating extends HmContext {
             for (NutMap link : list) {
                 WnObj oLink = this.io.fetch(null, link.getString("ph"));
                 if (null != oLink) {
-                    String rph = this.getRelativePath(oSrc, oLink);
+                    String rph2 = this.getRelativePath(oSrc, oLink);
                     Element eleLink = doc.head().appendElement("link");
-                    eleLink.attr("rel", "stylesheet").attr("type", "text/css").attr("href", rph);
+                    eleLink.attr("rel", "stylesheet").attr("type", "text/css").attr("href", rph2);
                 }
             }
         }
@@ -439,10 +451,6 @@ public class HmPageTranslating extends HmContext {
         }
 
         // ---------------------------------------------------
-        // 准备目标
-        // 得到资源的相对路径
-        String rph = this.getTargetRelativePath(o) + ".html";
-
         // 在目标处创建
         this.oTa = createTarget(rph, o.race());
 

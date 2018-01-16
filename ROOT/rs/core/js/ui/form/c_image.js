@@ -130,9 +130,9 @@ return ZUI.def("ui.form_com_image", {
             // 执行上传
             UI.__do_upload(e.originalEvent.dataTransfer.files[0]);
         },
-        "click img" : function(){
-            alert(this.options.target)
-        }
+        // "click img" : function(){
+        //     alert(this.options.target)
+        // }
     },
     //...............................................................
     redraw : function(){

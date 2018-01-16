@@ -431,6 +431,11 @@ function draw_block(jWrapper, opt, d){
     //d.setDate(32);
     //d.setDate(0);
     //d = new Date("2015-12-21");
+    var ssd = "" + d;
+    console.log("zcal.draw_block:", ssd);
+    if("Invalid Date" == ssd) {
+        console.warn("hahahahahah");
+    }
     // 开始计算前的准备工作
     var jRoot= $root(jWrapper);
     var ms   = d.getTime();

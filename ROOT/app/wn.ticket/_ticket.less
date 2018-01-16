@@ -1,0 +1,287 @@
+.ticket-container {
+  display: block;
+}
+
+.clear {
+  clear: both;
+}
+
+@menu-h: 150px;
+@title-h: 40px;
+
+.ticket-reply {
+  width: 100%;
+  height: 100%;
+
+  &.hide-menu {
+
+    .ticket-menu {
+      display: none;
+    }
+
+    .ticket-chat {
+      height: calc(~"100% - @{title-h}");
+    }
+  }
+}
+
+// 标题部分
+.ticket-title {
+  height: @title-h;
+  line-height: @title-h;
+  text-align: center;
+
+  // 标题内容
+  .text {
+    text-underline: #888;
+    font-size: 16px;
+    text-decoration: underline;
+  }
+
+}
+
+// 发送部分
+.ticket-menu {
+  padding: 8px 4px;
+  width: 100%;
+  height: @menu-h;
+
+  .ticket-send-input {
+    textarea {
+      width: 100%;
+      height: 96px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+      border: 1px solid @cinput_l;
+      background-color: @cinput_b;
+      color: @cinput_f;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+
+      &:focus {
+        border: 1px solid @cinput_lF;
+        background-color: @cinput_bF;
+        color: @cinput_fF;
+      }
+    }
+  }
+
+  .ticket-send-btns {
+    text-align: center;
+
+    button {
+      display: inline-block;
+      margin: 6px;
+      padding: 4px 8px;
+      font-size: 14px;
+      border: none;
+      border-radius: 20px;
+      color: #fff;
+      background-color: #42c02e;
+      cursor: pointer;
+      outline: none;
+
+      &.close {
+        background-color: #F00;
+      }
+
+      &.file {
+        background-color: #00a1e9;
+      }
+    }
+  }
+}
+
+// 对话列表
+.ticket-chat {
+  width: 100%;
+  height: calc(~"100% - @{menu-h} - @{title-h}");
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 4px;
+
+  .chat-no-record {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+  }
+
+  .chat-record {
+    margin-bottom: 8px;
+    overflow: hidden;
+
+    &.cservice {
+      .chat-user {
+        float: right;
+      }
+      .chat-content {
+
+        .chat-content-text {
+          float: right;
+
+          .text-con {
+            border-radius: 4px 0 4px 4px;
+            color: @ch1_f;
+            background-color: @ch1_b;
+          }
+
+          &:before {
+            display: none;
+          }
+
+          &:after {
+            right: -9px;
+            border-right: 9px solid transparent;
+            border-top: 16px solid @ch1_b;
+          }
+        }
+      }
+
+      .chat-content-time {
+        right: 0;
+        left: inherit;
+        text-align: right;
+      }
+    }
+
+  }
+
+  @cmargin: 70px;
+
+  .chat-user {
+    width: @cmargin;
+    float: left;
+
+    @avatar-size: 40px;
+
+    .chat-user-avatar {
+      display: block;
+      width: @avatar-size;
+      height: @avatar-size;
+      margin: 0 auto;
+    }
+
+    .chat-user-name {
+      text-align: center;
+      font-size: 10px;
+    }
+
+  }
+
+  @comargin: @cmargin * 2;
+
+  .chat-content {
+    width: calc(~"100% - @{comargin}");
+    position: relative;
+    display: block;
+    margin: 0px auto;
+    min-height: 39px;
+    padding-bottom: 14px;
+
+    @ctop: 4px;
+    .chat-content-text {
+      position: relative;
+      padding-top: @ctop;
+
+      .text-con {
+        min-height: 39px;
+        color: @ch0_f;
+        background-color: @ch0_b;
+        border-radius: 0 4px 4px 4px;
+        position: relative;
+        padding: 8px 12px;
+        font-size: 13px;
+        word-break: break-word !important;
+        word-break: break-all;
+        line-height: 1.5;
+        display: table-cell;
+      }
+
+      &:before, &:after {
+        position: absolute;
+        top: @ctop;
+        content: "";
+        display: inline-block;
+      }
+
+      &:before {
+        left: -9px;
+        border-left: 9px solid transparent;
+        border-top: 16px solid @ch0_b;
+      }
+
+    }
+  }
+
+  @foot-time: 14px;
+  .chat-content-time {
+    width: 150px;
+    margin-top: 4px;
+    font-size: 10px;
+    color: #d9d9d9;
+    position: absolute;
+    bottom: (@foot-time + 2) * -1;
+    left: 0;
+  }
+
+  .atta-image {
+    width: 100%;
+  }
+
+}
+
+/*.............................................. mask*/
+.srh-mask {
+  width: 100%;
+  height: 100%;
+  padding-bottom: @d8;
+  position: relative;
+  background: @cb0;
+  .srh-qform {
+    width: 100%;
+    height: 100%;
+    .form-body-wrapper {
+      padding: 0 @d4 0 @d2;
+    }
+    .ff-txt {
+      padding-left: @d8;
+    }
+  }
+  .srh-qbtns {@noselect();
+    background: @cb1;
+    border-top: 1px solid @cborder0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: @d8;
+    text-align: center;
+    padding-top: @d2;
+    b {@btn();
+      padding: @d3 @d2;
+    }
+    b:hover {@btn_hover();
+    }
+
+    .ing {
+      margin-right: @d1;
+      visibility: hidden;
+      display: inline-block;
+      width: @d4;
+      margin-left: -@d4;
+    }
+    b[ui-ing] {
+      .ing {
+        visibility: visible;
+      }
+    }
+
+    .srh-qform-ok {
+      min-width: @db;
+    }
+    .srh-qform-cancel {
+      min-width: @da;
+    }
+  }
+}

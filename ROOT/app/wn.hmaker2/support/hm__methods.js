@@ -73,6 +73,11 @@ var methods = {
     getHomeObjName : function() {
         return this.getHomeObj().nm;
     },
+    getFileObj : function(path, quiet) {
+        var oHome = this.getHomeObj();
+        var aph = Wn.appendPath(oHome.ph, path);
+        return Wn.fetch(aph, quiet);
+    },
     //=========================================================
     // 得到站点的皮肤设定， null 表示没有设定皮肤
     getSkinInfo : function() {
@@ -186,7 +191,7 @@ var methods = {
 
         // 重新读取
         if(!_.isArray(list)) {
-            var re = Wn.exec("obj -mine -match \"api_return:'^(obj|list|page)$'\""
+            var re = Wn.exec("obj -mine -match \"api_return:'^([a-z]+)$'\""
                              + " -json -l -sort 'pid:1,nm:1'");
             list = $z.fromJson(re);
         }
@@ -456,6 +461,7 @@ var methods = {
             imageBy : {
                 uiType : "ui/picker/opicker",
                 uiConf : {
+                    //base : UI.getFileObj("image", true) || oHome,
                     base : oHome,
                     lastObjKey : "hmaker_pick_image",
                     clearable  : false,

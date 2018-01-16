@@ -20,6 +20,7 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.hmaker.util.HmContext;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -106,6 +107,9 @@ public class hmaker_lib implements JvmHdl {
                 // 查到关联页面的列表
                 List<WnObj> oPageList = this.__query_refer_pages(sys, oSiteHome, libName);
 
+                // 准备一个转换上下
+                HmContext hpc = new HmContext(sys.io, sys.se.group());
+
                 // 开始循环处理
                 int sum = oPageList.size() + 1;
                 int n = 0;
@@ -132,7 +136,7 @@ public class hmaker_lib implements JvmHdl {
                     sys.io.writeText(oPage, html);
 
                     // 同步元数据
-                    Hms.syncPageMeta(sys, oPage, html);
+                    Hms.syncPageMeta(hpc, sys, oPage, html);
                 }
 
                 // 最后更新
@@ -266,7 +270,7 @@ public class hmaker_lib implements JvmHdl {
 
         // .................................................
         // 分析页面内容看看都使用了哪些组件
-        Hms.syncPageMeta(sys, oLib, content);
+        Hms.syncPageMeta(null, sys, oLib, content);
 
         // 是否输出?
         if (hc.params.is("o")) {

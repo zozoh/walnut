@@ -113,6 +113,7 @@ return ZUI.def("app.wn.hmaker_page", {
             uiCom.paint(com);
 
             // 重新应用皮肤
+            UI.invokeSkin("ready");
             UI.invokeSkin("resize");
         });
 
@@ -574,6 +575,7 @@ return ZUI.def("app.wn.hmaker_page", {
             jCom.attr({"ctype":ctype, "lib":val});
             UI.reloadLibCode(jCom, function(uiCom){
                 uiCom.notifyActived(null);
+                UI.pageUI().invokeSkin("ready");
                 UI.pageUI().invokeSkin("resize");
             });
         }
@@ -623,6 +625,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 uiCom.setComSkin(uiCom.getComSkin());
 
                 // 通知皮肤
+                this.invokeSkin("ready");
                 this.invokeSkin("resize");
                 
             });
@@ -674,6 +677,7 @@ return ZUI.def("app.wn.hmaker_page", {
         this.__cancel_highlight_area(nextCom);
 
         // 应用皮肤
+        this.invokeSkin("ready");
         this.invokeSkin("resize");
 
         return re.length > 0 ? re[0] : null;
@@ -751,6 +755,7 @@ return ZUI.def("app.wn.hmaker_page", {
                 UI._C.SkinJS = SkinJS;
                 // 应用
                 UI.invokeSkin("on");
+                UI.invokeSkin("ready");
                 UI.invokeSkin("resize");
             });
         }
@@ -964,8 +969,10 @@ return ZUI.def("app.wn.hmaker_page", {
             uiCom.$el.remove();
 
             // 重新应用皮肤
-            if(!noResizeSkin)
+            if(!noResizeSkin){
+                this.invokeSkin("ready");
                 this.invokeSkin("resize");
+            }
         }
     },
     //...............................................................
@@ -982,15 +989,21 @@ return ZUI.def("app.wn.hmaker_page", {
         //console.log($D.rect.dumpValues(rectWin));
 
         // 循环所有的组件，计算其所在矩形是否在窗口之内
-        UI._C.iedit.$body.find(".hm-com").each(function(){
-            var rect = $D.rect.gen(this);
+        UI._C.iedit.$body.find(".hm-com, .hm-watch-scroll").each(function(){
+            var jCom = $(this);
+            var rect = $D.rect.gen(jCom);
             var inview = $D.rect.is_overlap(rectWin, rect);
+            var once = jCom.attr("hm-once-inview") || inview ? true : false;
             $(this).attr({
+                "hm-never-inview"   : (once ? null  : "yes"),
+                "hm-once-inview"    : (once ? "yes" : null),
                 "hm-scroll-inview"  : (inview ? "yes" : null),
                 "hm-scroll-outview" : (inview ? null  : "yes"),
             });
         });
 
+        // 回调皮肤的自定义 scroll 函数
+        this.invokeSkin("scroll");
     },
     //...............................................................
     /* 
@@ -1154,6 +1167,7 @@ return ZUI.def("app.wn.hmaker_page", {
     setScreenMode : function(mode) {
         this.local("screen_mode", mode);
         this.arena.find(".hmpg-stage").attr("mode", mode);
+        this.invokeSkin("ready");
         this.invokeSkin("resize");
     },
     //...............................................................
@@ -1306,6 +1320,7 @@ return ZUI.def("app.wn.hmaker_page", {
                             var uiCom = UI.getActivedCom();
                             if(uiCom){
                                 uiCom.appendToArea(null);
+                                UI.invokeSkin("ready");
                                 UI.invokeSkin("resize");
                             }
                         }
@@ -1546,7 +1561,10 @@ return ZUI.def("app.wn.hmaker_page", {
         return cobj;
     },
     //...............................................................
-    getCurrentEditObj : function() {
+    getCurrentEditObj : function(force) {
+        if(force) {
+            this._page_obj = Wn.getById(this._page_obj.id, false, true);
+        }
         return this._page_obj;
     },
     getCurrentTextContent : function(forSave) {

@@ -1,7 +1,7 @@
 /**
 提供运行时的帮助函数集合，IDE 也会用的到
 */
-(function () {
+(function($, $z){
 window.HmRT = {
     //...............................................................
     // 判断一个模板的数据类型能否与 api 的返回值匹配
@@ -89,7 +89,7 @@ window.HmRT = {
             // 字符串形式
             if(_.isString(val)) {
                 // 分析一下
-                var m = /^([*])?(\(([^\)]+)\))?@(input|thingset|site|com|link)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
+                var m = /^([*])?(\(([^\)]+)\))?@(input|TSS|thingset|site|com|link|toggle)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
                 // 指定了类型
                 if(m) {
                     fld.required = m[1] ? true : false;
@@ -264,7 +264,27 @@ window.HmRT = {
         if(dyId) {
             $("#"+dyId+" > .hmc-dynamic").hmc_dynamic("reload", jumpToHead);
         }
-    }
+    },
+    //...............................................................
+    // 将一个 Thing 格式的对象的 markdown 内容转换成 html
+    // - API : 一个 regapi 的前缀
+    // - th  : Thing 对象，里面需要有 content, th_set, id 这几个字段
+    thContentToHtml : function(API, th){
+        return $z.markdownToHtml(th.content||"", {
+            media : function(src){
+                // 看看是否是媒体
+                var m = /^media\/(.+)$/.exec(src);
+                if(m){
+                    return API + "/thing/media"
+                            + "?pid=" + th.th_set
+                            + "&id="  + th.id
+                            + "&fnm=" + m[1];
+                }
+                // 原样返回
+                return src;
+            }
+        });
+    },
     //...............................................................
 };  // ~ window.HmRT =
-})();
+})(window.jQuery, window.NutzUtil);

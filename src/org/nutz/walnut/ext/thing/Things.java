@@ -347,6 +347,12 @@ public abstract class Things {
             // 最后计入输出
             hc.output = oM;
         }
+        // 仅仅是更新计数
+        else if (hc.params.is("ufc")) {
+            __update_file_count(sys, oT, key, q);
+            // 更新计数的话，就返回 Thing 数据本身咯
+            hc.output = oT;
+        }
         // 删除
         else if (hc.params.is("del")) {
             List<WnObj> list = new ArrayList<>(hc.params.vals.length);
@@ -423,7 +429,7 @@ public abstract class Things {
     }
 
     private static void __update_file_count(WnSystem sys, WnObj oT, String countKey, WnQuery q) {
-        List<WnObj> oFiles = sys.io.query(q);
+        List<WnObj> oFiles = sys.io.query(q.asc("nm"));
         oT.setv(String.format("th_%s_nb", countKey), oFiles.size());
         List<String> fIds = new ArrayList<String>(oFiles.size());
         for (WnObj oF : oFiles)

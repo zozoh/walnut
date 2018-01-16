@@ -28,10 +28,13 @@ httpapi:
 > wup node init -godkey "${http-qs-godkey}" -macid "${http-qs-macid}" -type "${http-qs-type}"
 
 @wup/v1/node/get
-> wup node get -key "${http-qs-key}" -macid "${http-qs-macid}" | json -q
+> wup node get -key "${http-qs-key}" -macid "${http-qs-macid}" -updated "${http-qs-updated}" | json -q
 
 @wup/v1/pkg/info
 > wup pkg info -key "${http-qs-key}" -macid "${http-qs-macid}" -name "${http-qs-name}" -version "${http-qs-version}" | json -q
 
 @wup/v1/pkg/get
 > wup pkg get -key "${http-qs-key}" -macid "${http-qs-macid}" -name "${http-qs-name}" -version "${http-qs-version}"
+
+@wup/v1/conf/get
+> wup srvconf get -key "${http-qs-key}" -macid "${http-qs-macid}"

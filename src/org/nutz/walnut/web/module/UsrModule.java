@@ -599,6 +599,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 看看是否存在
         WnUsr u = this.nosecurity(new Proton<WnUsr>() {
+            @Override
             protected WnUsr exec() {
                 return usrs.fetchBy(ui);
             }
@@ -611,6 +612,7 @@ public class UsrModule extends AbstractWnModule {
 
             // 进入内核态
             this.nosecurity(new Atom() {
+                @Override
                 public void run() {
                     // 更新一下用户的登录信息
                     NutMap meta = NutMap.WRAP(me.pickBy("^(email|phone|oauth_.+)$"));
@@ -668,8 +670,18 @@ public class UsrModule extends AbstractWnModule {
         if (avatarObj != null) {
             return io.getInputStream(avatarObj, 0);
         } else {
-            return this.getClass().getResourceAsStream("/avatar.png");
+            // 尝试查找用户
+            WnUsr fUsr = usrs.fetch(nm);
+            if (fUsr != null) {
+                avatarPath = Wn.appendPath(fUsr.home(), ".avatar");
+                avatarObj = io.fetch(null, avatarPath);
+                if (avatarObj != null) {
+                    return io.getInputStream(avatarObj, 0);
+                }
+            }
         }
+        // 最后不管怎么样，返回一个默认的
+        return this.getClass().getResourceAsStream("/avatar.png");
     }
 
     @At("/exists")
@@ -677,6 +689,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     public boolean usrExists(@Param("str") String str) {
         WnUsr u = Wn.WC().security(new WnEvalLink(io), new Proton<WnUsr>() {
+            @Override
             protected WnUsr exec() {
                 return usrs.fetch(str);
             }
@@ -797,6 +810,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 执行查询
         Wn.WC().security(new WnEvalLink(io), new Atom() {
+            @Override
             public void run() {
                 // 查询
                 List<WnUsr> us = usrs.query(q);

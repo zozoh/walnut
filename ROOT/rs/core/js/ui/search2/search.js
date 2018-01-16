@@ -310,7 +310,9 @@ return ZUI.def("ui.search2", {
         //window.setTimeout(function(){
         var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
         var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
-        var pgr = UI.uiPager  ? UI.uiPager.getData()  : {};
+        var pgr = UI.uiPager  ? UI.uiPager.getData()  : {
+                                    skip : 0, limit: 0
+                                };
 
         // console.log(pgr)
 
@@ -332,14 +334,24 @@ return ZUI.def("ui.search2", {
         UI.showLoading();
 
         // 组合成查询条件，执行查询
-        $z.evalData(opt.data, qc, function(re){
+        $z.evalData(opt.data, qc, function(reo){
             UI.hideLoading();
 
-            // console.log(re)
+            // console.log(reo)
+            // 如果是数组，则格式化数据
+            if(_.isArray(reo)) {
+                reo = {
+                    list  : reo,
+                    pager : {}
+                };
+            }
 
-            // 将查询的结果分别设置到列表以及分页器里
-            UI.uiPager.setData(re.pager);
-            UI.uiList.setData(re ? re.list : []);
+            // 更新分页器
+            if(UI.uiPager)
+                UI.uiPager.setData(reo.pager);
+
+            // 设置数据
+            UI.uiList.setData(reo ? reo.list : []);
 
             // 如果之前有高亮内容，重新高亮
             if(activedId){
@@ -347,14 +359,14 @@ return ZUI.def("ui.search2", {
             }
 
             // 触发事件回调
-            UI.trigger("search:refresh", re);
-            $z.invoke(UI.options, "on_refresh", [re], UI);
+            UI.trigger("search:refresh", reo);
+            $z.invoke(UI.options, "on_refresh", [reo], UI);
 
             // 调整尺寸
             UI.resize();
 
             // 回调
-            $z.doCallback(callback, [re.list,re.pager], UI);
+            $z.doCallback(callback, [reo.list,reo.pager], UI);
         }, UI);
         //}, 0);
 

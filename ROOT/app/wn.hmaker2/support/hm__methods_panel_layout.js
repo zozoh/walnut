@@ -274,7 +274,7 @@ var methods = {
         var UI = this;
         var jAlign = jLi.find('[key="areaAlign"]');
         var align = jAlign.attr("area-align");
-        console.log(jAlign, align)
+        //console.log(jAlign, align)
 
         // 绘制一下 align_box
         var html = UI.compactHTML(`

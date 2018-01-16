@@ -1,6 +1,6 @@
 {
   usrAlias: "客服",
-  serviceTp: "CS",
+  serviceTp: "cservice",
   notiWalnut: true,
   notiEmail: false,
   notiSms: false,

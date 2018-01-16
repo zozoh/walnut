@@ -56,7 +56,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         com = com || UI.getData();
 
         
-        //console.log("I am dynamic paint:", com);
+        // console.log("I am dynamic paint:", com);
 
         // 检查显示模式
         var oApi = UI.__check_mode(com);
@@ -308,6 +308,15 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var tmplOptions = _.extend({}, com.options, {
             API : UI.getHttpApiUrl(),
         });
+        // 循环填充默认值
+        //console.log(tmplInfo)
+        if(tmplInfo.options) {
+            var tiOptions = HmRT.parseSetting(tmplInfo.options, true);
+            for(var key in tiOptions) {
+                var fld = tiOptions[key];
+                $z.setUndefined(tmplOptions, key, fld.dft);
+            }
+        }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保设置模板皮肤
         if(skinSelector)
@@ -315,6 +324,10 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 调用模板的 jQuery 插件进行绘制
         jData[tmplInfo.name](d2, tmplOptions);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 重新应用皮肤
+        PageUI.invokeSkin("ready");
+        PageUI.invokeSkin("resize");
     },
     //...............................................................
     isDynamicButLackParams : function(){

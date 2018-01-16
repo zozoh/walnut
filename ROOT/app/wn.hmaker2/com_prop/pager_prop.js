@@ -51,7 +51,7 @@ return ZUI.def("app.wn.hm_com_pager_prop", HmMethods({
                 key    : "dftPageSize",
                 title  : 'i18n:hmaker.com.pager.dft_pgsz',
                 tip  : 'i18n:hmaker.com.pager.dft_pgsz_tip',
-                type   : "input",
+                type   : "int",
                 dft    : 50,
             }, {
                 title  : "i18n:hmaker.com.pager.t_button",

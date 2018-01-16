@@ -45,6 +45,7 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
     // 正文
     var jArticle = $('<article class="md-content">').appendTo(jData);
     if(o2.content)
+        /*
         jArticle.html($z.markdownToHtml(o2.content, {
             media : function(src){
                 // 看看是否是媒体
@@ -59,6 +60,8 @@ $.fn.extend({ "wn_obj_th_article" : function(obj, opt){
                 return src;
             }
         }));
+        */
+        jArticle.html(HmRT.thContentToHtml(opt.API, o2));
     
     // 返回自身以便链式赋值
     return this;

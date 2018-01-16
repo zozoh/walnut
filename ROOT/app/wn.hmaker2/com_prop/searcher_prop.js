@@ -24,33 +24,62 @@ return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
             },
             uiWidth : "all",
             fields : [{
-                key    : "placeholder",
-                title  : 'i18n:hmaker.com.searcher.placeholder',
-                type   : "string",
-                dft    : "",
+                title  : "i18n:hmaker.com.searcher.display",
+                fields : [{
+                        key    : "placeholder",
+                        title  : 'i18n:hmaker.com.searcher.placeholder',
+                        type   : "string",
+                        dft    : "",
+                    }, {
+                        key    : "defaultValue",
+                        title  : 'i18n:hmaker.com.searcher.defaultValue',
+                        type   : "string",
+                        dft    : "",
+                    }, {
+                        key    : "btnText",
+                        title  : 'i18n:hmaker.com.searcher.btnText',
+                        type   : "string",
+                        dft    : "",
+                    }, {
+                        key    : "trimSpace",
+                        title  : 'i18n:hmaker.com.searcher.trimSpace',
+                        type   : "boolean",
+                        dft    : true,
+                        uiType : "@toggle"
+                    }, {
+                        key    : "maxLen",
+                        title  : 'i18n:hmaker.com.searcher.maxLen',
+                        tip    : 'i18n:hmaker.com.searcher.maxLen_tip',
+                        type   : "int",
+                        dft    : 0,
+                    }]
             }, {
-                key    : "defaultValue",
-                title  : 'i18n:hmaker.com.searcher.defaultValue',
-                type   : "string",
-                dft    : "",
-            }, {
-                key    : "btnText",
-                title  : 'i18n:hmaker.com.searcher.btnText',
-                type   : "string",
-                dft    : "",
-            }, {
-                key    : "trimSpace",
-                title  : 'i18n:hmaker.com.searcher.trimSpace',
-                type   : "boolean",
-                dft    : true,
-                editAs : "toggle"
-            }, {
-                key    : "maxLen",
-                title  : 'i18n:hmaker.com.searcher.maxLen',
-                tip    : 'i18n:hmaker.com.searcher.maxLen_tip',
-                type   : "int",
-                dft    : 0,
-            }]  
+                title  : "i18n:hmaker.com.searcher.post",
+                fields : [{
+                        key    : "postAction",
+                        title  : 'i18n:hmaker.com.searcher.postAction',
+                        type   : "string",
+                        uiType  : "app/wn.hmaker2/support/c_edit_link",
+                    }, {
+                        key    : "postTarget",
+                        title  : 'i18n:hmaker.com.searcher.postTarget',
+                        dft    : "_blank",
+                        uiType : "@switch",
+                        uiConf : {
+                            items : [{
+                                text  : "i18n:hmaker.com.searcher.postTarget_blank",
+                                value : "_blank",
+                            }, {
+                                text  : "i18n:hmaker.com.searcher.postTarget_self",
+                                value : "self",
+                            }]
+                        }
+                    }, {
+                        key    : "postParamName",
+                        title  : 'i18n:hmaker.com.searcher.postTarget',
+                        dft    : "k",
+                    }]
+            }]
         }).render(function(){
             UI.defer_report("form");
         });

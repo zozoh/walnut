@@ -273,6 +273,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 on_change : function(key, val) {
                     var block = this.getData();
                     UI.uiCom.saveBlock("panel", block);
+                    UI.pageUI().invokeSkin("ready");
+                    UI.pageUI().invokeSkin("resize");
                 },
                 fields : UI.__gen_block_fields(blockFields)
             }).render(function(){
@@ -426,7 +428,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 re.push({
                     key    : "background",
                     title  : "i18n:hmaker.prop.background",
-                    type   : "string",
+                    type   : "object",
                     nullAsUndefined : true,
                     editAs : "background",
                     uiConf : UI.getBackgroundImageEditConf()
@@ -469,7 +471,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                         re.push({
                             key    : a_key,
                             title  : a_txt,
-                            type   : "string",
+                            type   : "object",
                             simpleKey : true,
                             dft    : a_dft,
                             nullAsUndefined : true,

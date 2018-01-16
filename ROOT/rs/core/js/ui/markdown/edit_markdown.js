@@ -29,19 +29,21 @@ return ZUI.def("ui.edit-markdown", {
         UI.changeMode(opt.defaultMode, true);
 
         // 菜单配置信息
-        var menuSetup = [{
-            type : "boolean",
-            on : "preview" == opt.defaultMode,
-            text_on  : 'i18n:edit',
-            icon_on  : '<i class="zmdi zmdi-edit"></i>',
-            text_off : "i18n:preview",
-            icon_off : '<i class="zmdi zmdi-eye"></i>',
-            on_change : function(isPreview) {
-                UI.changeMode(isPreview ? "preview" : "edit");
+        var menuSetup = [].concat(opt.menu);
+        for(var i=0; i<menuSetup.length; i++){
+            if("preview" == menuSetup[i]){
+                menuSetup[i] = {
+                        type : "boolean",
+                        on : "preview" == opt.defaultMode,
+                        text_on  : 'i18n:edit',
+                        icon_on  : '<i class="zmdi zmdi-edit"></i>',
+                        text_off : "i18n:preview",
+                        icon_off : '<i class="zmdi zmdi-eye"></i>',
+                        on_change : function(isPreview) {
+                            UI.changeMode(isPreview ? "preview" : "edit");
+                        }
+                    }
             }
-        }];
-        if(_.isArray(opt.menu) && opt.menu.length > 0){
-            menuSetup = menuSetup.concat({type : "separator"}, opt.menu);
         }
 
         // 创建菜单

@@ -1,4 +1,6 @@
 {
+  usrAlias: "普通用户",
+  serviceTp: "user",
   notiWalnut: true,
   notiEmail: false,
   notiSms: false,

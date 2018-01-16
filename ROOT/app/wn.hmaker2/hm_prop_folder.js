@@ -21,12 +21,6 @@ return ZUI.def("app.wn.hm_prop_folder", {
     init : function() {
         var UI = HmMethods(this);
 
-        UI.listenBus("active:folder",  function(o){
-            UI.oFolder = o;
-            UI.gasket.upload.setTarget(o);
-            UI.do_active_file(UI.oFolder);
-        });
-
         UI.listenBus("active:file",  function(o){
             // console.log("active:file", o.id)
             UI.do_active_file(o);

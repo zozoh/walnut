@@ -53,16 +53,26 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     
     // 得到自己所在控件
     var jq = this.empty();
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 准备一下获取值
+    var kwd = opt.defaultValue || "";
+    var m = /^@<([^>]+)>$/.exec(kwd);
+    if(m) {
+        kwd = (window.__REQUEST || {})[m[1]] || "";
+    }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 开始绘制
-    var jInput = $('<div class="kwd-input"><input></div>').appendTo(jq).find("input");
+    var jInput = $('<div class="kwd-input"><input></div>')
+                    .appendTo(jq)
+                        .find("input");
 
     jInput.attr({
         "placeholder" : opt.placeholder || null,
         "maxlength"   : opt.maxLen > 0 ? opt.maxLen : null,
         "trim-space"  : opt.trimSpace ? "yes" : null,
-    }).val(opt.defaultValue || "");
+    }).val(kwd);
 
     // 按钮文字
     var jBtnW  = $('<div class="kwd-btn"><b></b></div>').appendTo(jq);
@@ -74,7 +84,27 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     if(!opt.forIDE) {
         // 修改输入框内容
         jq.on("change", ".kwd-input input", function(){
-            HmRT.invokeDynamicReload($(this), true);
+            // 提交到某个页面
+            if(opt.postAction) {
+                var url = window.__ROOT_PATH;
+                if(!url || /\/$/.test(url))
+                    url += opt.postAction.substring(1) + ".html";
+                else
+                    url += opt.postAction + ".html";
+                
+                var target = opt.postTarget || "_blank";
+                var key = opt.postParamName || "k";
+                var val = jInput.val();
+                if(opt.trimSpace) {
+                    val = $.trim(val);
+                }
+
+                $z.openUrl(url, target, "GET", $z.obj(key, val));
+            }
+            // 默认刷新与自己关联的动态数据控件
+            else {
+                HmRT.invokeDynamicReload($(this), true);
+            }
         });
     }
 

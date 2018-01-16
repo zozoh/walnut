@@ -790,11 +790,6 @@ public class cmd_obj extends JvmExecutor {
         // if (!"root".equals(sys.se.group()))
         // q.setv("d1", sys.se.group());
 
-        // 最大不能超过一千条
-        if (wp.limit <= 0) {
-            wp.limit = Math.max(wp.limit, 1000);
-        }
-
         // 设置分页信息
         wp.setupQuery(sys, q);
 

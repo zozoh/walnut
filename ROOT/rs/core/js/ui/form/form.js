@@ -617,7 +617,7 @@ return ZUI.def("ui.form", {
         // 指定字段
         else {
             var val = jso.parseByObj(o).value();
-            fui.setData(val, jso);
+            fui.setData(val, jso, o);
         }
 
         // 调用回调

@@ -79,7 +79,7 @@ return ZUI.def("ui.th_obj_index_detail", {
                         });
                     }]);
                 }
-            }],
+            }, {type : "separator"}, "preview"],
             preview : conf.detail.markdown || {
                 media : function(src) {
                     var m = /^(media|attacument)\/(.+)$/.exec(src);

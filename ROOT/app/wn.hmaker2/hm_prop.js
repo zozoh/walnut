@@ -26,13 +26,7 @@ var html = function(){/*
             <li class="hmpn-pin"><i class="fa fa-thumb-tack"></i></li>
         </ul>
     </header>
-    <section class="hm-prop-form">
-        <div class="hmpp-con hmpp-con-folder"  ui-gasket="folder"></div>
-        <div class="hmpp-con hmpp-con-lib"     ui-gasket="lib"></div>
-        <div class="hmpp-con hmpp-con-page"    ui-gasket="page"></div>
-        <div class="hmpp-con hmpp-con-edit"    ui-gasket="edit"></div>
-        <div class="hmpp-con hmpp-con-other"   ui-gasket="other"></div>
-    </section>
+    <section class="hm-prop-form" ui-gasket="form"></section>
 </div>
 */};
 //==============================================
@@ -51,86 +45,69 @@ return ZUI.def("app.wn.hm_prop", {
         UI.listenBus("active:other",  UI.onActiveOther);
     },
     //...............................................................
-    redraw : function() {
+    onActiveFolder : function(o){
         var UI = this;
-
-        // 文件夹
+        //this.showProp("folder");
+        //this.setTitle("hmaker.prop.tt_folder");
         new PropFolderUI({
             parent : UI,
-            gasketName : "folder"
+            gasketName : "form"
         }).render(function(){
-            UI.defer_report("folder");
+            this.oFolder = o;
+            this.gasket.upload.setTarget(o);
+            this.do_active_file(this.oFolder);
         });
-
-        // 库
-        new PropLibUI({
-            parent : UI,
-            gasketName : "lib"
-        }).render(function(){
-            UI.defer_report("lib");
-        });
-
-        // 页
-        new PropPageUI({
-            parent : UI,
-            gasketName : "page"
-        }).render(function(){
-            UI.defer_report("page");
-        });
-
-        // 编辑控件&块
-        new PropEditUI({
-            parent : UI,
-            gasketName : "edit"
-        }).render(function(){
-            UI.defer_report("edit");
-        });
-
-        // 其他
-        new PropOtherUI({
-            parent : UI,
-            gasketName : "other"
-        }).render(function(){
-            UI.defer_report("other");
-        });
-
-        // 返回延迟加载
-        return ["folder", "page", "lib", "edit", "other"];
-    },
-    //...............................................................
-    onActiveFolder : function(){
-        this.showProp("folder");
-        //this.setTitle("hmaker.prop.tt_folder");
     },
     //...............................................................
     onActiveLib : function(){
-        this.showProp("lib");
+        var UI = this;
+        //this.showProp("lib");
         //this.setTitle("hmaker.prop.tt_folder");
+        new PropLibUI({
+            parent : UI,
+            gasketName : "form"
+        }).render(function(){
+            this.showHelp();
+        });
     },
     //...............................................................
     onActiveCom : function(uiCom) {
-        this.showProp("edit");
+        var UI = this;
+        //this.showProp("edit");
         //this.setTitle("hmaker.prop.tt_edit");
+        if(!UI.gasket.form || 'app.wn.hm_prop_edit' != UI.gasket.form.uiName) {
+            new PropEditUI({
+                parent : UI,
+                gasketName : "form"
+            }).render(function(){
+                this.doActiveCom(uiCom);
+            });
+        }
     },
     //...............................................................
     onActivePage : function(){
-        this.showProp("page");
-        //this.setTitle("hmaker.prop.tt_page");
-    },
-    //...............................................................
-    onActiveOther : function(){
-        this.showProp("other");
-        //this.setTitle("hmaker.prop.tt_other");
-    },
-    //...............................................................
-    showProp : function(key) {
         var UI = this;
-        UI.arena.find("section>.hmpp-con")
-            .removeAttr("current")
-                .filter(".hmpp-con-"+key)
-                    .attr("current", "yes");
-        UI.resize(true);
-    }
+        //this.showProp("page");
+        //this.setTitle("hmaker.prop.tt_page");
+        new PropPageUI({
+            parent : UI,
+            gasketName : "form"
+        }).render(function(){
+            this.refresh();
+        });
+    },
+    //...............................................................
+    onActiveOther : function(o){
+        var UI = this;
+        //this.showProp("other");
+        //this.setTitle("hmaker.prop.tt_other");
+        new PropOtherUI({
+            parent : UI,
+            gasketName : "form"
+        }).render(function(){
+            this.gasket.meta.update(o);
+        });
+    },
     //...............................................................
 });
 //===================================================================

@@ -93,6 +93,9 @@ public abstract class AbstractCom implements HmComHandler {
         }
     }
 
+    private static Pattern _P = Pattern.compile("^#([BCL])>(.+)$");
+
+    @SuppressWarnings("unchecked")
     private void __prepare_block_css_and_skin_attributes(HmPageTranslating ing) {
         // 生成顶级元素的 CSS: 这个逻辑会顺便移除位置相关的属性
         ing.cssEle = __gen_cssEle_for_mode(ing);
@@ -109,7 +112,6 @@ public abstract class AbstractCom implements HmComHandler {
             ing.cssArena.put("height", "100%");
 
         // 处理块属性
-        Pattern p = Pattern.compile("^#([BCL])>(.+)$");
         for (Map.Entry<String, Object> en : ing.propBlock.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -136,19 +138,32 @@ public abstract class AbstractCom implements HmComHandler {
             // 那么必然是样式
             else if (!key.startsWith("_")) {
                 // 自定义样式
-                Matcher m = p.matcher(key);
+                Matcher m = _P.matcher(key);
                 if (m.find()) {
                     String propType = m.group(1);
                     String selector = m.group(2);
-                    String propName;
-                    if ("B".equals(propType)) {
-                        propName = "background";
-                    } else if ("C".equals(propType)) {
-                        propName = "color";
-                    } else {
-                        propName = "border-color";
+                    NutMap prop;
+                    // 属性的集合
+                    if (val instanceof Map) {
+                        prop = NutMap.WRAP((Map<String, Object>) val);
                     }
-                    ing.addMySkinRule(selector, Lang.map(propName, val));
+                    // 背景
+                    else if ("B".equals(propType)) {
+                        prop = Lang.map("background", val);
+                    }
+                    // 前景色
+                    else if ("C".equals(propType)) {
+                        prop = Lang.map("color", val);
+                    }
+                    // 边线色
+                    else {
+                        prop = Lang.map("border-color", val);
+                    }
+                    ing.addMySkinRule(selector, prop);
+                }
+                // 属性集合
+                else if (val instanceof Map) {
+                    ing.cssArena.putAll((Map<? extends String, ? extends Object>) val);
                 }
                 // 其他的就属于内容区域的 CSS
                 else {

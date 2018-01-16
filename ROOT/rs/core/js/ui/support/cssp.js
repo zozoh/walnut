@@ -38,12 +38,13 @@ var CssP = {
         var re = "";
         for(var key in cssRule) {
             var v = cssRule[key];
-            if(v){
-                re += key + ":" + v;
-                if(_.isNumber(v))
-                    re += "px";
-                re += ";\n";
-            }
+            if(_.isNull(v) || _.isUndefined(v) || "" === v)
+                continue;
+
+            re += $z.lowerWord(key) + ":" + v;
+            if(_.isNumber(v))
+                re += "px";
+            re += ";\n";
         }
         return re;
     },
@@ -84,16 +85,18 @@ var CssP = {
         R += "|(url\\([^\\)]+\\))";
         // 3: 组合 backgroundPosition / backgroundSize 的组合
         R += "|(";
-        // 4: backgroundPosition : 2 子表达式
-        R += "(top|left|bottom|right|center|\\d+(%|em|px|cm|ch) \\d+(%|em|px|cm|ch))";
-        // 7: backgroundSize : 3 子表达式
-        R += "/(cover|contain|\\d+(%|em|px)( \\d+(%|em|px))?|auto( auto)?)";
+        // 4: backgroundPositionX
+        R += "(left|right|center|\\d+(%|em|px|cm|ch))";
+        // 6: backgroundPositionX
+        R += " *(top|bottom|center|\\d+(%|em|px|cm|ch)?)";
+        // 8: backgroundSize : 3 子表达式
+        R += "/(auto|cover|contain|\\d+(%|em|px)( \\d+(%|em|px))?|auto( auto)?)";
         R += ")";
-        // 12: backgroundRepeat
+        // 13: backgroundRepeat
         R += "|(repeat|no-repeat)";  
-        // 13: backgroundOrigin : 1 子表达式
+        // 14: backgroundOrigin : 1 子表达式
         R += "|((padding|border|content)-box)";
-        // 15: backgroundAttachment
+        // 16: backgroundAttachment
         R += "|(scroll|fixed)";
         var regex = new RegExp(R, "gi");
 
@@ -101,11 +104,12 @@ var CssP = {
         var indexes = {
             backgroundColor      : 1,
             backgroundImage      : 2,
-            backgroundPosition   : 4,
-            backgroundSize       : 7,
-            backgroundRepeat     : 12,
-            backgroundOrigin     : 13,
-            backgroundAttachment : 15
+            backgroundPositionX  : 4,
+            backgroundPositionY  : 6,
+            backgroundSize       : 8,
+            backgroundRepeat     : 13,
+            backgroundOrigin     : 14,
+            backgroundAttachment : 16
         };
 
         // 准备返回对象
@@ -114,6 +118,7 @@ var CssP = {
         // 循环解析字符串
         var m;
         while ((m = regex.exec(s)) !== null) {
+            //console.log(m)
             for(var key in indexes){
                 var index = indexes[key];
                 if(m[index]){
@@ -127,24 +132,46 @@ var CssP = {
     },
     //.........................................................
     // 将背景字符串变成一行字符串表示
-    strBackground : function(bg) {
+    strBackground : function(bgo) {
+        // 首先整理成新的对象
+        var bg2 = _.extend({}, bgo);
+        //console.log(bg2);
+
+        // 声明了backgroundPositionX/Y
+        var bg_pos = [];
+        if(bg2.backgroundPositionX) {
+            bg_pos.push(bg2.backgroundPositionX);
+            bg2.backgroundPositionX = undefined;
+        }
+        if(bg2.backgroundPositionY) {
+            bg_pos.push(bg2.backgroundPositionY);
+            bg2.backgroundPositionY = undefined;
+        }
+        if(bg_pos.length > 0) {
+            bg2.backgroundPosition = bg_pos.join(" ");
+        }
+
         var re = [];
-        for(var key in bg) {
+        for(var key in bg2) {
+            // 忽略空值
+            var val = bg2[key];
+            if(_.isNull(val) || _.isUndefined(val))
+                continue;
             // 忽略这两东东，因为需要连写
             if(/^background(Position|Size)$/.test(key))
                 continue;
             // 其他的加入
-            re.push(bg[key]);
+            re.push(val);
         }
         // 最后整合 backgroundPosition 和 backgroundSize
         var pos_sz = [];
-        if(bg.backgroundPosition)
-            pos_sz.push(bg.backgroundPosition);
-        if(bg.backgroundSize){
+        if(bg2.backgroundPosition)
+            pos_sz.push(bg2.backgroundPosition);
+        if(bg2.backgroundSize){
             // 指定了 size 则必须指定一个背景位置
             if(pos_sz.length == 0)
                 pos_sz.push("left");
-            pos_sz.push(bg.backgroundSize);
+            pos_sz.push(bg2.backgroundSize);
         }
         if(pos_sz.length > 0)
             re.push(pos_sz.join("/"));

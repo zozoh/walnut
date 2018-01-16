@@ -380,6 +380,8 @@ var methods = {
         else {
             block = _.extend({}, block);
         }
+
+        // console.log("applyBlock", block);
         
         // 更新控件的模式
         jCom.attr({
@@ -434,30 +436,42 @@ var methods = {
 
         // 自定义的皮肤样式选择器，子控件可以重载 applyBlockCss 函数添加更多
         UI.css_style = {};      // 重置一下自定义 CSS
-        for(var key in block){
-            var v = block[key];
-            if(!v)
+        for(var key in css){
+            var v = css[key];
+            // 无视空值
+            if(_.isNull(v) || _.isUndefined(v))
                 continue;
+
+            // 自定义皮肤选择器样式
             var m = /^#([BCL])>(.+)$/.exec(key);
             if(m) {
                 var propType = m[1];
                 var selector = m[2];
-                var propName;
+                var prop;
+                // 属性的集合
+                if(_.isObject(v)) {
+                    prop = v;
+                }
                 // 背景
-                if("B" == propType){
-                    propName = "background";
+                else if("B" == propType){
+                    prop = $z.obj("background", v);
                 }
                 // 颜色
                 else if("C" == propType){
-                    propName = "color";
+                    prop = $z.obj("color", v);
                 }
                 // 边框颜色
                 else {
-                    propName = "border-color";
+                    prop = $z.obj("border-color", v);
                 }
                 // 添加到自定义规则里
-                UI.addMySkinRule(selector, $z.obj(propName, v))
-                block[key] = null;
+                UI.addMySkinRule(selector, prop)
+                css[key] = "";
+            }
+            // 集合属性
+            else if(_.isObject(v)) {
+                css[key] = "";
+                _.extend(css, v);
             }
         }
         

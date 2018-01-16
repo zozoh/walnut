@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.hdl;
 
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
@@ -8,6 +10,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
@@ -135,9 +138,13 @@ public class hmaker_publish implements JvmHdl {
             log.info("copy template:");
             WnObj oTaTmpl = hpc.createTarget("template", WnRace.DIR);
             for (HmTemplate tmpl : hpc.templates.values()) {
-                WnObj oTaTmplJs = sys.io.createIfNoExists(oTaTmpl,
-                                                          tmpl.info.name + ".js",
-                                                          WnRace.FILE);
+                // 确保删除皮肤文件
+                String tmplNm = tmpl.info.name + ".js";
+                WnObj oTaTmplJs = sys.io.fetch(oTaTmpl, tmplNm);
+                if (null != oTaTmplJs) {
+                    sys.io.delete(oTaTmplJs);
+                }
+                oTaTmplJs = sys.io.create(oTaTmpl, tmplNm, WnRace.FILE);
                 log.infof(" +%s %s",
                           hpc.getProcessInfoAndDoCount(),
                           hpc.getRelativeDestPath(oTaTmplJs));
@@ -148,33 +155,24 @@ public class hmaker_publish implements JvmHdl {
         // ------------------------------------------------------------
         // 将皮肤目录关键文件 copy 过去
         if (hpc.hasSkin()) {
+            // 确保清理皮肤
+            if (hc.params.is("keep")) {
+                String cmdText = String.format("rm -rfv id:%s/skin", hpc.oDest.id());
+                log.info("clean skin: " + cmdText);
+                sys.exec(cmdText);
+            }
+
             log.info("copy skin:");
             WnObj oTaSkin = hpc.createTarget("skin", WnRace.DIR);
 
-            // 删除旧 JS
-            WnObj oTaSkinJs = sys.io.fetch(oTaSkin, "skin.js");
-            if (null != oTaSkinJs) {
-                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinJs));
-                sys.io.delete(oTaSkinJs);
-            }
+            // 添加 JS
+            WnObj oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
+            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
+            Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
 
-            // 添加新 JS
-            if (null != hpc.oSkinJs) {
-                log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinJs));
-                oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
-                Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
-            }
-
-            // 删除旧 CSS
-            WnObj oTaSkinCss = sys.io.fetch(oTaSkin, "skin.css");
-            if (null != oTaSkinCss) {
-                log.info(" -  delete old: " + hpc.getRelativeDestPath(oTaSkinCss));
-                sys.io.delete(oTaSkinCss);
-            }
-
-            // 添加新 CSS
-            log.info(" +     add new: " + hpc.getRelativePath(hpc.oSkinCss));
-            oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
+            // 添加 CSS
+            WnObj oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
+            log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinCss));
             Wn.Io.copyFile(sys.io, hpc.oSkinCss, oTaSkinCss);
 
             // Copy 其他资源
@@ -193,7 +191,7 @@ public class hmaker_publish implements JvmHdl {
             }, WalkMode.LEAF_ONLY);
         }
         // ------------------------------------------------------------
-        // 最后处理所有依赖的资源: copy 它们
+        // 所有依赖的资源: copy 它们
         if (hpc.resources.size() > 0) {
             log.infof("copy %d resources:", hpc.resources.size());
 
@@ -211,6 +209,15 @@ public class hmaker_publish implements JvmHdl {
         else {
             log.info("- no resource need to be copy -");
         }
+        // ------------------------------------------------------------
+        // 输出站点地图文件
+        log.info("gen sitemap ...");
+        Map<String, NutBean> sitemap = hpc.genSiteMap();
+        WnObj oSiteMap = sys.io.createIfNoExists(hpc.oDest, "js/_sitemap.js", WnRace.FILE);
+        sys.io.writeText(oSiteMap,
+                         String.format("(function(){\nwindow.__SITEMAP = %s;\n})();",
+                                       Json.toJson(sitemap, JsonFormat.nice())));
+        log.infof(" ... sitemap created : %s", hpc.getRelativeDestPath(oSiteMap));
         // ------------------------------------------------------------
         // 全部输出完成
         sw.stop();

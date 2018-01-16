@@ -31,7 +31,6 @@ return ZUI.def("app.wn.hm_prop_lib", {
         var UI = HmMethods(this);
 
         UI.listenBus("active:libItem", UI.showLibItem);
-        UI.listenBus("active:lib",     UI.showHelp);
         UI.listenBus("blur:libItem",   UI.showHelp);
     },
     //...............................................................

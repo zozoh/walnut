@@ -13,7 +13,14 @@ function draw_data(jData, opt, data) {
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 准备绘制模板参数
-    var tmplOptions = _.extend(opt.options);
+    var tmplOptions = _.extend({}, opt.options);
+    // 循环填充默认值
+    if(tmplInfo.options) {
+        for(var key in tmplInfo.options) {
+            var fld = tmplInfo.options[key];
+            $z.setUndefined(tmplOptions, key, fld.dft);
+        }
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 确保设置模板皮肤
     if(opt.skinSelector)

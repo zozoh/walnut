@@ -136,6 +136,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         //-----------------------------------------------------
         // 根据皮肤更新一下 API 列表
         var oApiList = UI.getHttpApiList(function(oApi){
+            //console.log(oApi.ph)
             if(!tmplInfo || !oApi)
                 return false;
             return HmRT.isMatchDataType(oApi.api_return, tmplInfo.dataType);
@@ -272,6 +273,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         // 循环输出表单字段配置信息
         for(var i=0; i<flds.length; i++) {
             var F = flds[i];
+            //console.log(F)
             // 准备字段
             var fld = {
                 key      : F.key,
@@ -294,6 +296,24 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     },
                     value : function(o){
                         return o.id;
+                    }
+                };
+            }
+            // 字段: TSS
+            else if("TSS" == F.type) {
+                fld.editAs = "droplist";
+                fld.uiConf = {
+                    multi : true,
+                    items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
+                    icon  : '<i class="fa fa-cubes"></i>',
+                    text  : function(o){
+                        return o.title || o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    },
+                    parseData : function(ids) {
+                        return ids ? ids.split(/ *[, ] */g) : [];
                     }
                 };
             }
@@ -355,6 +375,21 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     templateAsDefault : false,
                     objTemplate : F.mapping || {}
                 };
+            }
+            // 字段：开关
+            else if("toggle" == F.type) {
+                fld.type = "string";
+                fld.editAs = "toggle";
+                fld.uiConf = {
+                    values : ({
+                        "yes/no" : ["no", "yes"],
+                        "yes"    : [null, "yes"],
+                        "on/off" : ["off", "on"],
+                        "on"     : [null, "on"],
+                        "true/false" : ["false", "true"],
+                        "true"       : [null, "true"],
+                    })[F.arg]
+                }
             }
             // 字段: input 作为默认选项
             else {

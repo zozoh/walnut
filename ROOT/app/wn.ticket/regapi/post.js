@@ -2,8 +2,9 @@ var ustr = ustr || '';
 var tp = tp || '';
 var rid = rid || '';
 var content = content || '';
+var atta = atta || "";
 
-function main(tp, ustr, rid, content) {
+function main(tp, ustr, rid, content, atta) {
     var _u_tp = " -u " + ustr + " -tp " + tp;
     // 新工单
     if (rid == '') {
@@ -23,7 +24,12 @@ function main(tp, ustr, rid, content) {
         var frecord = sys.exec2("ticket record -fetch '" + rid + "' " + _u_tp);
         if (!/^e./.test(frecord)) {
             // 开始提交回复
-            var re = sys.exec2("ticket record -reply '" + rid + "' -c '" + content + "' " + _u_tp);
+            var recmd = "ticket record -reply '" + rid + "' -c '" + content + "' ";
+            if (atta != '') {
+                recmd += ' -atta ' + atta;
+            }
+            recmd += ' ' + _u_tp;
+            var re = sys.exec2(recmd);
             if (!/^e./.test(re)) {
                 var rejson = eval('(' + re + ')');
                 $wn.ajax_re({
@@ -39,4 +45,4 @@ function main(tp, ustr, rid, content) {
     }
 }
 
-main(tp, ustr, rid, content);
+main(tp, ustr, rid, content, atta);
