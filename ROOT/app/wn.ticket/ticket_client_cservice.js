@@ -49,7 +49,7 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj, {
+                    this.treply = TkTmp.ticketReply.create(UI, $main, obj, {
                         hideMenu: obj.ticketStep == '1'
                     });
                 });

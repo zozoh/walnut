@@ -1,10 +1,11 @@
 var ustr = ustr || '';
 var tp = tp || '';
 var rid = rid || '';
+var meta = meta == 'true';
 var content = content || '';
 var atta = atta || "";
 
-function main(tp, ustr, rid, content, atta) {
+function main(tp, ustr, rid, content, atta, meta) {
     var _u_tp = " -u " + ustr + " -tp " + tp;
     // 新工单
     if (rid == '') {
@@ -24,7 +25,7 @@ function main(tp, ustr, rid, content, atta) {
         var frecord = sys.exec2("ticket record -fetch '" + rid + "' " + _u_tp);
         if (!/^e./.test(frecord)) {
             // 开始提交回复
-            var recmd = "ticket record -reply '" + rid + "' -c '" + content + "' ";
+            var recmd = "ticket record -reply '" + rid + "' -c '" + content + "' -m " + meta;
             if (atta != '') {
                 recmd += ' -atta ' + atta;
             }
@@ -45,4 +46,4 @@ function main(tp, ustr, rid, content, atta) {
     }
 }
 
-main(tp, ustr, rid, content, atta);
+main(tp, ustr, rid, content, atta, meta);

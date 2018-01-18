@@ -231,6 +231,8 @@ public class ticket_my implements JvmHdl {
         else if (params.has("post")) {
             String trid = null;
             String pcontent = params.getString("c", "");
+            boolean isMeta = params.is("m", false);
+            httpPs.setv("meta", isMeta);
             NutMap content = null;
             if (!params.getString("post").equalsIgnoreCase("true")
                 && !params.getString("post").equalsIgnoreCase("false")
@@ -255,7 +257,6 @@ public class ticket_my implements JvmHdl {
             if (content != null) {
                 httpPs.setv("content", Json.toJson(content, JsonFormat.compact()));
             }
-
             // 附件
             InputStream attaFileIn = null;
             if (params.has("atta")) {
