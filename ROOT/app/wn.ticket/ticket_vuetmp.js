@@ -29,10 +29,13 @@ define(function (require, exports, module) {
                                 <textarea name="" id="" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
                             </div>
                             <div class="ticket-send-btns">
-                                <button @click="sendText">发送内容</button>
-                                <button @click="sendFile" class="file">上传附件</button>
-                                <button @click="sendClose" class="close" >已解决并关闭</button>
+                                <button @click="sendText" class="tk-btn">发送内容</button>
+                                <button @click="sendFile" class="tk-btn file">上传附件</button>
+                                <button @click="sendClose" class="tk-btn close" >已解决并关闭</button>
                             </div>
+                        </div>
+                        <div class="ticket-menu-finish" v-show="tkStep == '3'">
+                            <button @click="sendReopen" class="tk-btn reopen" >继续处理该工单</button>
                         </div>
                     </div>
                 `;
@@ -55,7 +58,10 @@ define(function (require, exports, module) {
                 data: data,
                 computed: {
                     menuHide: function () {
-                        return this.wobj.ticketStep == '3' || this.hideMenu;
+                        return this.tkStep == '3' || this.hideMenu;
+                    },
+                    tkId: function () {
+                        return this.wobj.id;
                     },
                     tkTp: function () {
                         return this.wobj.ticketTp;
@@ -67,13 +73,13 @@ define(function (require, exports, module) {
                         }
                         return otext;
                     },
+                    tkStep: function () {
+                        return this.wobj.ticketStep;
+                    },
                     timeItems: function () {
                         return this.items.sort(function (a, b) {
                             return a.time > b.time;
                         });
-                    },
-                    ticketId: function () {
-                        return this.wobj.id;
                     }
                 },
                 methods: {
@@ -101,68 +107,73 @@ define(function (require, exports, module) {
                     // 更新工单标题
                     editTk: function () {
                         var self = this;
+                        // 如果是用户或处理客服的话
                         var obj = this.wobj;
-                        var MaskUI = require("ui/mask/mask");
-                        new MaskUI({
-                            dom: UI.ccode("formmask").html(),
-                            i18n: UI._msg_map,
-                            exec: UI.exec,
-                            dom_events: {
-                                "click .srh-qform-ok": function (e) {
-                                    var uiMask = ZUI(this);
-                                    var fd = uiMask.body.getData();
-                                    // 如果数据不符合规范，form 控件会返回空的
-                                    if (fd) {
-                                        fd.text = (fd.text || '').trim();
-                                        if (fd.text == '') {
-                                            UI.toast('请输入工单标题后再提交');
-                                            return;
-                                        }
-                                        var posCmd = "ticket my -post '" + self.ticketId + "' -m true -c '" + JSON.stringify(fd, null, '') + "'";
-                                        console.log(posCmd);
-                                        Wn.exec(posCmd, function (re) {
-                                            var re = JSON.parse(re);
-                                            if (re.ok) {
-                                                self.wobj = re.data;
-                                                self.refreshItems();
-                                            } else {
-                                                UI.alert(re.data);
+                        if (obj.usrId == UI.me.id || obj.csId == UI.me.id) {
+                            var MaskUI = require("ui/mask/mask");
+                            new MaskUI({
+                                dom: UI.ccode("formmask").html(),
+                                i18n: UI._msg_map,
+                                exec: UI.exec,
+                                dom_events: {
+                                    "click .srh-qform-ok": function (e) {
+                                        var uiMask = ZUI(this);
+                                        var fd = uiMask.body.getData();
+                                        // 如果数据不符合规范，form 控件会返回空的
+                                        if (fd) {
+                                            fd.text = (fd.text || '').trim();
+                                            if (fd.text == '') {
+                                                UI.toast('请输入工单标题后再提交');
+                                                return;
                                             }
-                                            uiMask.close();
-                                        });
+                                            var posCmd = "ticket my -post '" + self.tkId + "' -m true -c '" + JSON.stringify(fd, null, '') + "'";
+                                            console.log(posCmd);
+                                            Wn.exec(posCmd, function (re) {
+                                                var re = JSON.parse(re);
+                                                if (re.ok) {
+                                                    self.wobj = re.data;
+                                                    self.refreshItems();
+                                                } else {
+                                                    UI.alert(re.data);
+                                                }
+                                                uiMask.close();
+                                            });
+                                        }
+                                    },
+                                    "click .srh-qform-cancel": function (e) {
+                                        var uiMask = ZUI(this);
+                                        uiMask.close();
                                     }
                                 },
-                                "click .srh-qform-cancel": function (e) {
-                                    var uiMask = ZUI(this);
-                                    uiMask.close();
+                                setup: {
+                                    uiType: "ui/form/form",
+                                    uiConf: {
+                                        uiWidth: "all",
+                                        title: "更新工单",
+                                        fields: [{
+                                            key: "text",
+                                            title: "工单标题",
+                                            tip: "请不要超过20个字符",
+                                        }, {
+                                            key: "ticketTp",
+                                            title: "工单类型",
+                                            type: "string",
+                                            editAs: "droplist",
+                                            uiWidth: "auto",
+                                            uiConf: {items: UI._tps}
+                                        }]
+                                    }
                                 }
-                            },
-                            setup: {
-                                uiType: "ui/form/form",
-                                uiConf: {
-                                    uiWidth: "all",
-                                    title: "更新工单",
-                                    fields: [{
-                                        key: "text",
-                                        title: "工单标题",
-                                        tip: "请不要超过20个字符",
-                                    }, {
-                                        key: "ticketTp",
-                                        title: "工单类型",
-                                        type: "string",
-                                        editAs: "droplist",
-                                        uiWidth: "auto",
-                                        uiConf: {items: UI._tps}
-                                    }]
-                                }
-                            }
-                        }).render(function () {
-                            // 设置默认内容
-                            this.body.setData({
-                                text: obj.text,
-                                ticketTp: obj.ticketTp
+                            }).render(function () {
+                                // 设置默认内容
+                                this.body.setData({
+                                    text: obj.text,
+                                    ticketTp: obj.ticketTp
+                                });
                             });
-                        });
+                        } else {
+                            UI.alert('您无权修改该工单');
+                        }
                     },
                     // 更新内容
                     refreshItems: function () {
@@ -182,7 +193,7 @@ define(function (require, exports, module) {
                             return;
                         }
                         self.sending = true;
-                        Wn.exec("ticket my -post '" + self.ticketId + "' -c 'text: \"" + stext + "\"'", function (re) {
+                        Wn.exec("ticket my -post '" + self.tkId + "' -c 'text: \"" + stext + "\"'", function (re) {
                             var re = JSON.parse(re);
                             if (re.ok) {
                                 self.text = '';
@@ -194,12 +205,35 @@ define(function (require, exports, module) {
                             self.sending = false;
                         });
                     },
+                    sendReopen: function () {
+                        var self = this;
+                        // 如果是用户或处理客服的话
+                        var obj = this.wobj;
+                        if (obj.usrId == UI.me.id || obj.csId == UI.me.id) {
+                            UI.confirm("该工单已被关闭，确定要重新打开继续处理吗？", {
+                                ok: function () {
+                                    Wn.exec("ticket my -post '" + self.tkId + "' -open true", function (re) {
+                                        var re = JSON.parse(re);
+                                        if (re.ok) {
+                                            self.text = '';
+                                            self.wobj = re.data;
+                                            self.refreshItems();
+                                        } else {
+                                            UI.alert(re.data);
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            UI.alert('您无权修改该工单');
+                        }
+                    },
                     sendClose: function () {
                         var self = this;
                         UI.confirm("问题已经得到了解决，该工单将被关闭", {
                             ok: function () {
                                 self.sending = true;
-                                Wn.exec("ticket my -post '" + self.ticketId + "' -c 'finish: true'", function (re) {
+                                Wn.exec("ticket my -post '" + self.tkId + "' -c 'finish: true'", function (re) {
                                     var re = JSON.parse(re);
                                     if (re.ok) {
                                         self.text = '';
@@ -233,7 +267,7 @@ define(function (require, exports, module) {
                                         fids.push(objs[i].id);
                                     }
                                     self.sending = true;
-                                    Wn.exec("ticket my -post '" + self.ticketId + "' -atta '" + fids.join(",") + "'", function (re) {
+                                    Wn.exec("ticket my -post '" + self.tkId + "' -atta '" + fids.join(",") + "'", function (re) {
                                         var re = JSON.parse(re);
                                         if (re.ok) {
                                             self.text = '';

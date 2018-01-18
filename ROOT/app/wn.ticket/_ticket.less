@@ -12,6 +12,7 @@
 .ticket-reply {
   width: 100%;
   height: 100%;
+  position: relative;
   background: @cpop_b;
 
   &.hide-menu {
@@ -48,7 +49,15 @@
 
 }
 
-// 发送部分
+// 完成状态菜单
+.ticket-menu-finish {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+// 修改状态菜单
 .ticket-menu {
   padding: 8px 4px;
   width: 100%;
@@ -77,27 +86,27 @@
 
   .ticket-send-btns {
     text-align: center;
+  }
+}
 
-    button {
-      display: inline-block;
-      margin: 6px;
-      padding: 4px 8px;
-      font-size: 14px;
-      border: none;
-      border-radius: 20px;
-      color: #fff;
-      background-color: #42c02e;
-      cursor: pointer;
-      outline: none;
+.tk-btn {
+  display: inline-block;
+  margin: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  background-color: #42c02e;
+  cursor: pointer;
+  outline: none;
 
-      &.close {
-        background-color: #F00;
-      }
+  &.close, &.reopen {
+    background-color: #F00;
+  }
 
-      &.file {
-        background-color: #00a1e9;
-      }
-    }
+  &.file {
+    background-color: #00a1e9;
   }
 }
 

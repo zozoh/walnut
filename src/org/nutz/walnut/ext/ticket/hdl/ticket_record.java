@@ -228,11 +228,21 @@ public class ticket_record implements JvmHdl {
             // 获取工单号
             String rid = params.getString("reply");
             boolean isMeta = params.is("m", false);
+            boolean isOpen = params.is("open", false);
             WnObj curRecord = getRecord(sys, rid);
             if (curRecord != null) {
                 // 只更新meta
                 if (isMeta) {
                     NutMap meta = Lang.map(params.getString("c"));
+                    sys.io.appendMeta(curRecord, meta);
+                    sys.out.print(Json.toJson(getRecord(sys, rid)));
+                }
+                // 打开
+                else if (isOpen) {
+                    NutMap meta = NutMap.NEW();
+                    meta.setv("ticketStatus", "reassign"); // 算是重新指派给客服了
+                    meta.setv("ticketEnd", -1);
+                    meta.setv("ticketStep", "2");
                     sys.io.appendMeta(curRecord, meta);
                     sys.out.print(Json.toJson(getRecord(sys, rid)));
                 }

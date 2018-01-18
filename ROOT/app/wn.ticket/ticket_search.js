@@ -31,8 +31,13 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj, {hideMenu: true});
+                    this.treply = TkTmp.ticketReply.create(UI, $main, obj, {hideMenu: true});
                 });
+            },
+            init: function () {
+                var UI = this;
+                // 获取我的信息
+                UI.me = JSON.parse(Wn.exec("me -json"));
             },
             redraw: function () {
                 var UI = this;
