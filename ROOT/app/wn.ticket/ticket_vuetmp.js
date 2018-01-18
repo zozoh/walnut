@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var ticketReply = {
         html: function (id) {
             return `
-                    <div class="ticket-reply" id="` + id + `"  :class="menuHide ? 'hide-menu': ''" >
+                    <div class="ticket-reply" id="` + id + `"  :class="tkStatusClass" >
                         <div class="ticket-title" @click="editTk"><span class="tp">[{{tkTp}}]</span><span class="text">{{tkTitle}}</span></div>
                         <ul class="ticket-chat">
                             <li class="chat-no-record" v-show="timeItems.length == 0">暂无内容</li>
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
                                 </div>
                             </li>
                         </ul>
-                        <div class="ticket-menu">
+                        <div class="ticket-menu step2">
                             <div class="ticket-send-input">
                                 <textarea name="" id="" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
                             </div>
@@ -34,8 +34,10 @@ define(function (require, exports, module) {
                                 <button @click="sendClose" class="tk-btn close" >已解决并关闭</button>
                             </div>
                         </div>
-                        <div class="ticket-menu-finish" v-show="tkStep == '3'">
-                            <button @click="sendReopen" class="tk-btn reopen" >继续处理该工单</button>
+                        <div class="ticket-menu step3">
+                            <div class="ticket-send-btns">
+                                <button @click="sendReopen" class="tk-btn reopen" >重新打开工单</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -75,6 +77,14 @@ define(function (require, exports, module) {
                     },
                     tkStep: function () {
                         return this.wobj.ticketStep;
+                    },
+                    tkStatusClass: function () {
+                        var self = this;
+                        return {
+                            'step1': self.tkStep == '1',
+                            'step2': self.tkStep == '2',
+                            'step3': self.tkStep == '3'
+                        }
                     },
                     timeItems: function () {
                         return this.items.sort(function (a, b) {

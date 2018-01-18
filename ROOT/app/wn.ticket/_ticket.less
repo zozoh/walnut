@@ -6,7 +6,8 @@
   clear: both;
 }
 
-@menu-h: 150px;
+@menu-h-step2: 150px;
+@menu-h-step3: 50px;
 @title-h: 40px;
 
 .ticket-reply {
@@ -15,14 +16,36 @@
   position: relative;
   background: @cpop_b;
 
-  &.hide-menu {
+  &.step1 {
 
     .ticket-menu {
       display: none;
     }
-
     .ticket-chat {
       height: calc(~"100% - @{title-h}");
+    }
+  }
+
+  &.step2 {
+
+    .ticket-menu.step2 {
+      display: block;
+      height: @menu-h-step2;
+    }
+
+    .ticket-chat {
+      height: calc(~"100% - @{title-h} - @{menu-h-step2}");
+    }
+  }
+
+  &.step3 {
+
+    .ticket-menu.step3 {
+      display: block;
+      height: @menu-h-step3;
+    }
+    .ticket-chat {
+      height: calc(~"100% - @{title-h} - @{menu-h-step3}");
     }
   }
 }
@@ -49,19 +72,11 @@
 
 }
 
-// 完成状态菜单
-.ticket-menu-finish {
-  position: absolute;
-  bottom: 8px;
-  width: 100%;
-  text-align: center;
-}
-
 // 修改状态菜单
 .ticket-menu {
+  display: none;
   padding: 8px 4px;
   width: 100%;
-  height: @menu-h;
 
   .ticket-send-input {
     textarea {
@@ -113,7 +128,7 @@
 // 对话列表
 .ticket-chat {
   width: 100%;
-  height: calc(~"100% - @{menu-h} - @{title-h}");
+  height: calc(~"100% - @{title-h}");
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 4px;

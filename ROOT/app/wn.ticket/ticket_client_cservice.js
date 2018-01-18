@@ -236,7 +236,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 80, '*', 150]
+                            sizeHint: [80, 100, '*', 150]
                         }
                     },
                     sorter: {
