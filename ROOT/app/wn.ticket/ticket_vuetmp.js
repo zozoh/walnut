@@ -62,8 +62,8 @@ define(function (require, exports, module) {
                     },
                     tkTitle: function () {
                         var otext = this.wobj.text;
-                        if (otext.length > 15) {
-                            return otext.substr(0, 10) + "..."
+                        if (otext.length > 20) {
+                            return otext.substr(0, 20) + "..."
                         }
                         return otext;
                     },
