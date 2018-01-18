@@ -47,10 +47,6 @@
                     'done': "已完成",
                     'close': "已关闭"
                 };
-                var ttmap = {
-                    'issue': "Issue",
-                    'question': "普通问题"
-                };
                 var stepmap = {
                     1: "待分配",
                     2: "处理中",
@@ -104,11 +100,7 @@
                         fields: [{
                             key: "ticketTp",
                             title: "工单类型",
-                            uiType: '@label',
-                            display: function (o) {
-                                var s = o.ticketTp;
-                                return ttmap[s] || "未定义状态";
-                            }
+                            uiType: '@label'
                         }, {
                             key: "ticketStatus",
                             title: "工单状态",
@@ -161,6 +153,10 @@
                     },
                     sorter: {
                         setup: [{
+                            icon: 'desc',
+                            text: "按更新日期",
+                            value: {lm: -1}
+                        }, {
                             icon: 'desc',
                             text: "按提交日期",
                             value: {tickerStart: -1}

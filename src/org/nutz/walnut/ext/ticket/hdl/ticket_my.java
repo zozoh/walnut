@@ -38,6 +38,8 @@ public class ticket_my implements JvmHdl {
     private static String API_TMPL = "http://%s/api/%s";
     // 注册
     private static String API_REG = "/ticket/reg";
+    // 配置查询
+    private static String API_TKCONF = "/ticket/conf";
     // 提交、回复
     private static String API_POST = "/ticket/post";
     // 我的查询
@@ -157,6 +159,17 @@ public class ticket_my implements JvmHdl {
                 // 添加侧边栏客户端
                 sys.exec("touch ~/.ticket_client_" + tp);
 
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
+        // 查询配置
+        else if (params.has("tkconf")) {
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_TKCONF, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
             } else {
                 sys.err.println(Json.toJson(ar));
             }

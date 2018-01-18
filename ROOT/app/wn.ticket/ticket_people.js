@@ -57,13 +57,6 @@
                     },
                     list: {
                         fields: [{
-                            key: "usrNm",
-                            title: "名称",
-                            uiType: '@label'
-                        }, {
-                            key: "usrAlias",
-                            title: "别名"
-                        }, {
                             key: "serviceTp",
                             title: "类型",
                             uiType: '@label',
@@ -76,6 +69,13 @@
                                 }
                             }
                         }, {
+                            key: "usrNm",
+                            title: "名称",
+                            uiType: '@label'
+                        }, {
+                            key: "usrAlias",
+                            title: "别名"
+                        }, {
                             key: "ct",
                             title: "注册时间",
                             uiType: '@label',
@@ -86,7 +86,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [150, 150, 50, "*"]
+                            sizeHint: [50, 120, 120, 150, "*"]
                         }
                     },
                     sorter: {
