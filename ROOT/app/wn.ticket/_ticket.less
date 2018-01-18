@@ -258,11 +258,26 @@
   }
 
   .atta-preview {
-    display: inline-block;
-    width: 100%;
-
+    text-align: center;
     img, video {
-      width: 100%;
+      display: block;
+      max-width: 100%;
+      min-size: 32px;
+      margin: 0 auto;
+    }
+
+    &.dw {
+      padding-top: 4px;
+      padding-bottom: 4px;
+
+      &:hover {
+        cursor: pointer;
+        .filenm {
+          text-underline: #888;
+          text-decoration: underline;
+          color: #888;
+        }
+      }
     }
   }
 

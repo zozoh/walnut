@@ -19,8 +19,9 @@ define(function (require, exports, module) {
                                 <div class="chat-content">
                                     <div class="chat-content-text">
                                         <div class="text-con">{{item.text}}
-                                            <div class="atta-preview" v-for="atta in (item.attachments || [])">
-                                                <img :src="attaImage(atta)" alt="" v-if="isImage(atta)">
+                                            <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
+                                                <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
+                                                <img :src="attaImage(atta)" v-if="isImage(atta)">
                                                 <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
                                             </div>
                                         <div class="chat-content-time">{{timeText(item)}}</div>
@@ -117,6 +118,20 @@ define(function (require, exports, module) {
                             return item.csAlias;
                         }
                         return "用户";
+                    },
+                    dwAtta: function (atta) {
+                        if (this.canDownload(atta)) {
+                            window.open("/gu/id:" + atta.id);
+                        }
+                    },
+                    canDownload: function (atta) {
+                        return this.isOther(atta);
+                    },
+                    isOther: function (atta) {
+                        return !this.isImage(atta) && !this.isVideo(atta);
+                    },
+                    attaOther: function (atta) {
+                        return "/o/thumbnail/id:" + atta.id + "?sh=64";
                     },
                     isImage: function (atta) {
                         return atta.tp == "jpg" || atta.tp == "png" || atta.tp == "gif" || atta.tp == "jpeg";
@@ -287,7 +302,7 @@ define(function (require, exports, module) {
                                 ph: "~/.ticket_upload",
                                 race: "DIR"
                             },
-                            validate: "^.+[.](png|jpg|jpeg|gif|mp4)$",
+                            // validate: "^.+[.](png|jpg|jpeg|gif|mp4)$",
                             finish: function (objs) {
                                 var cUI = this.parent;
                                 // 执行添加命令
