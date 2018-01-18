@@ -243,13 +243,14 @@ public class ticket_record implements JvmHdl {
                         // 关闭票
                         if (ureply.getBoolean("finish", false)) {
                             curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketEnd", System.currentTimeMillis());
                             curRecord.setv("ticketStep", "3");
                         }
                         // 如果没有客服接这个任务
                         if (!curRecord.has("csId")) {
                             curRecord.setv("ticketStatus", "new");
                         }
-                        sys.io.appendMeta(curRecord, "^request|ticketStatus|ticketStep$");
+                        sys.io.appendMeta(curRecord, "^request|ticketStatus|ticketStep|ticketEnd$");
                         sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current user is not you",
@@ -270,9 +271,11 @@ public class ticket_record implements JvmHdl {
                         }
                         if (creply.getBoolean("finish", false)) {
                             curRecord.setv("ticketStatus", "done");
+                            curRecord.setv("ticketEnd", System.currentTimeMillis());
                             curRecord.setv("ticketStep", "3");
                         }
-                        sys.io.appendMeta(curRecord, "^response|ticketStatus|ticketStep$");
+                        sys.io.appendMeta(curRecord,
+                                          "^response|ticketStatus|ticketStep|ticketEnd$");
                         sys.out.print(Json.toJson(curRecord));
                     } else {
                         sys.err.printf("e.ticket: record[%s] current cservice is you",

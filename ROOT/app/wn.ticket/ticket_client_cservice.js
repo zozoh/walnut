@@ -60,6 +60,16 @@
                 UI.cslist = JSON.parse(Wn.exec("ticket my -cservice")) || [];
                 // 获取我的信息
                 UI.me = JSON.parse(Wn.exec("me -json"));
+                // 工单类型
+                UI.tkconf = Wn.execJ("ticket my -tkconf");
+                var tps = [];
+                for (var i = 0; i < UI.tkconf.tps.length; i++) {
+                    tps.push({
+                        text: UI.tkconf.tps[i],
+                        value: UI.tkconf.tps[i]
+                    })
+                }
+                UI._tps = tps;
             },
             redraw: function () {
                 var UI = this;
@@ -71,10 +81,6 @@
                     'ureply': "待处理",
                     'done': "已完成",
                     'close': "已关闭"
-                };
-                var ttmap = {
-                    'issue': "Issue",
-                    'question': "普通问题"
                 };
                 var stepmap = {
                     1: "新工单",
@@ -199,11 +205,7 @@
                         fields: [{
                             key: "ticketTp",
                             title: "工单类型",
-                            uiType: '@label',
-                            display: function (o) {
-                                var s = o.ticketTp;
-                                return ttmap[s] || "未定义状态";
-                            }
+                            uiType: '@label'
                         }, {
                             key: "ticketStatus",
                             title: "工单状态",
@@ -246,10 +248,10 @@
                     }
                 }).render(function () {
                     this.uiFilter.setData({});
-                    UI.defer_report("main");
+                    UI.defer_report("ticketList");
                 });
                 // 返回延迟加载
-                return ["main"];
+                return ["ticketList"];
             },
             //..............................................
             update: function (o) {
