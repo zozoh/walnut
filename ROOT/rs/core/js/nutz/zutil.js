@@ -1677,6 +1677,11 @@
             // 返回
             return re;
         },
+        // 滚动到底部
+        scroll2bottom: function (jq) {
+            var h = jq[0].scrollHeight;
+            jq.scrollTop(h);
+        },
         //.............................................
         // 从数组里获取值
         //   arr   : 数组

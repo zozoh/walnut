@@ -312,15 +312,19 @@ public class ticket_record implements JvmHdl {
 
     }
 
-    private List<String> attas(WnSystem sys, WnObj curRecord, ZParams params) {
-        List<String> attas = new ArrayList<>();
+    private List<NutMap> attas(WnSystem sys, WnObj curRecord, ZParams params) {
+        List<NutMap> attas = new ArrayList<>();
         if (params.has("atta")) {
             String destDir = curRecord.getRegularPath();
             String[] fids = params.get("atta").split(",");
             for (String afid : fids) {
                 WnObj attaFile = sys.io.get(afid);
                 sys.io.move(attaFile, destDir);
-                attas.add(afid);
+                attas.add(NutMap.NEW()
+                                .setv("ph", attaFile.path())
+                                .setv("id", attaFile.id())
+                                .setv("nm", attaFile.name())
+                                .setv("tp", attaFile.type()));
             }
         }
         return attas;

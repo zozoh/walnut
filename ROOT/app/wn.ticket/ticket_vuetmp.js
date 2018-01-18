@@ -18,7 +18,11 @@ define(function (require, exports, module) {
                                 </div>
                                 <div class="chat-content">
                                     <div class="chat-content-text">
-                                        <div class="text-con">{{item.text}}<img class="atta-image" :src="attaImage(afid)" v-for="afid in (item.attachments || [])"></div>
+                                        <div class="text-con">{{item.text}}
+                                            <div class="atta-preview" v-for="atta in (item.attachments || [])">
+                                                <img :src="attaImage(atta)" alt="" v-if="isImage(atta)">
+                                                <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
+                                            </div>
                                         <div class="chat-content-time">{{timeText(item)}}</div>
                                     </div>
                                 </div>
@@ -93,6 +97,9 @@ define(function (require, exports, module) {
                     }
                 },
                 methods: {
+                    chat2bottom: function () {
+                        $z.scroll2bottom($area.find('.ticket-chat'));
+                    },
                     isCS: function (item) {
                         return item.csId != undefined;
                     },
@@ -111,8 +118,17 @@ define(function (require, exports, module) {
                         }
                         return "用户";
                     },
-                    attaImage: function (fid) {
-                        return "/api/" + this.wobj.d1 + "/ticket/obj/read?ph=id:" + fid;
+                    isImage: function (atta) {
+                        return atta.tp == "jpg" || atta.tp == "png" || atta.tp == "gif" || atta.tp == "jpeg";
+                    },
+                    attaImage: function (atta) {
+                        return "/api/" + this.wobj.d1 + "/ticket/obj/read?ph=id:" + atta.id;
+                    },
+                    isVideo: function (atta) {
+                        return atta.tp == "mp4";
+                    },
+                    attaVideo: function (atta) {
+                        return "/api/" + this.wobj.d1 + "/ticket/obj/read?ph=id:" + atta.id;
                     },
                     // 更新工单标题
                     editTk: function () {
@@ -187,11 +203,15 @@ define(function (require, exports, module) {
                     },
                     // 更新内容
                     refreshItems: function () {
+                        var self = this;
                         // 准备数据
                         var ritems = [];
                         ritems = ritems.concat(this.wobj.request || []);
                         ritems = ritems.concat(this.wobj.response || []);
                         this.items = ritems;
+                        setTimeout(function () {
+                            self.chat2bottom(); // 200ms为了让图片，视频加载完
+                        }, 200);
                     },
                     // 发送内容
                     sendText: function () {
@@ -267,7 +287,7 @@ define(function (require, exports, module) {
                                 ph: "~/.ticket_upload",
                                 race: "DIR"
                             },
-                            validate: "^.+[.](png|jpg|jpeg|gif)$",
+                            validate: "^.+[.](png|jpg|jpeg|gif|mp4)$",
                             finish: function (objs) {
                                 var cUI = this.parent;
                                 // 执行添加命令
