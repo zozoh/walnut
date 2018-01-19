@@ -143,6 +143,8 @@
     margin-bottom: 8px;
     overflow: hidden;
 
+    // 客服数据在右边
+
     &.cservice {
       .chat-user {
         float: right;
@@ -171,10 +173,18 @@
         }
       }
 
-      .chat-content-time {
+      .chat-content-footer {
         right: 0;
         left: inherit;
         text-align: right;
+
+        &.left {
+          display: none;
+        }
+
+        &.right {
+          display: block;
+        }
       }
     }
 
@@ -210,7 +220,7 @@
     display: block;
     margin: 0px auto;
     min-height: 39px;
-    padding-bottom: 14px;
+    padding-bottom: 16px;
 
     @ctop: 4px;
     .chat-content-text {
@@ -230,6 +240,13 @@
         //white-space: pre-line;
         line-height: 1.5;
         display: table-cell;
+
+        &:hover {
+          .fa {
+            display: inline-block;
+          }
+        }
+
       }
 
       &:before, &:after {
@@ -250,13 +267,29 @@
 
   @foot-time: 14px;
 
-  .chat-content-time {
-    width: 150px;
-    font-size: 10px;
-    color: #d9d9d9;
+  .chat-content-footer {
+    min-width: 200px;
     position: absolute;
-    bottom: (@foot-time + 4) * -1;
+    bottom: (@foot-time + 6) * -1;
     left: 0;
+
+    &.right {
+      display: none;
+    }
+
+    .time {
+      font-size: 10px;
+      color: #d9d9d9;
+    }
+
+    .fa {
+      display: none;
+    }
+
+    .fa:hover {
+      cursor: pointer;
+      color: #F00;
+    }
   }
 
   .atta-preview {
@@ -281,6 +314,7 @@
         }
       }
     }
+
   }
 
 }

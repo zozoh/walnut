@@ -24,7 +24,16 @@ define(function (require, exports, module) {
                                                 <img :src="attaImage(atta)" v-if="isImage(atta)">
                                                 <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
                                             </div>
-                                        <div class="chat-content-time">{{timeText(item)}}</div>
+                                        <div class="chat-content-footer left">
+                                            <span class="time">{{timeText(item)}}</span>
+                                            <i class="fa fa-edit" @click="editContent(item, index)"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)"></i>
+                                        </div>
+                                        <div class="chat-content-footer right">
+                                            <i class="fa fa-edit" @click="editContent(item, index)"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)"></i>
+                                            <span class="time">{{timeText(item)}}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </li>
@@ -57,7 +66,8 @@ define(function (require, exports, module) {
                 items: [],
                 // 发送相关
                 text: "",
-                sending: false
+                sending: false,
+                expmin: 30
             }, opt || {});
 
             return new Vue({
@@ -328,6 +338,24 @@ define(function (require, exports, module) {
                             },
                             replaceable: true
                         });
+                    },
+                    isPassTime: function (time) {
+                        var ct = new Date().getTime();
+                        return ct - (this.expmin * 1000 * 60) > time;
+                    },
+                    editContent: function (item, index) {
+                        if (!this.isPassTime(item.time)) {
+                            console.log("updateConent");
+                        } else {
+                            UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
+                        }
+                    },
+                    removeContent: function (item, index) {
+                        if (!this.isPassTime(item.time)) {
+                            console.log("removeConent");
+                        } else {
+                            UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
+                        }
                     }
                 },
                 mounted: function () {
