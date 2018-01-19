@@ -148,9 +148,10 @@
         float: right;
       }
       .chat-content {
+        text-align: right;
 
         .chat-content-text {
-          float: right;
+          display: inline-block;
 
           .text-con {
             border-radius: 4px 0 4px 4px;
@@ -226,6 +227,7 @@
         font-size: 13px;
         word-break: break-word !important;
         word-break: break-all;
+        //white-space: pre-line;
         line-height: 1.5;
         display: table-cell;
       }
@@ -247,13 +249,13 @@
   }
 
   @foot-time: 14px;
+
   .chat-content-time {
     width: 150px;
-    margin-top: 4px;
     font-size: 10px;
     color: #d9d9d9;
     position: absolute;
-    bottom: (@foot-time + 2) * -1;
+    bottom: (@foot-time + 4) * -1;
     left: 0;
   }
 
