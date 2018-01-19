@@ -26,12 +26,12 @@ define(function (require, exports, module) {
                                             </div>
                                         <div class="chat-content-footer left">
                                             <span class="time">{{timeText(item)}}</span>
-                                            <i class="fa fa-edit" @click="editContent(item, index)"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)"></i>
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item)"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
                                         </div>
                                         <div class="chat-content-footer right">
-                                            <i class="fa fa-edit" @click="editContent(item, index)"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)"></i>
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item)"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
                                             <span class="time">{{timeText(item)}}</span>
                                         </div>
                                     </div>
@@ -113,6 +113,15 @@ define(function (require, exports, module) {
                     },
                     isCS: function (item) {
                         return item.csId != undefined;
+                    },
+                    isMyContent: function (item) {
+                        if (item.stp == 'req') {
+                            return this.wobj.usrId == UI.me.id;
+                        }
+                        if (item.stp == 'resp') {
+                            return item.csId == UI.me.id;
+                        }
+                        return false;
                     },
                     timeText: function (item) {
                         return $z.currentTime(item.time).substr(0, 16);
@@ -231,7 +240,15 @@ define(function (require, exports, module) {
                         var self = this;
                         // 准备数据
                         var ritems = [];
+                        for (var i = 0; i < this.wobj.request.length; i++) {
+                            this.wobj.request[i].stp = 'req';
+                            this.wobj.request[i].sindex = i;
+                        }
                         ritems = ritems.concat(this.wobj.request || []);
+                        for (var i = 0; i < this.wobj.response.length; i++) {
+                            this.wobj.response[i].stp = 'resp';
+                            this.wobj.response[i].sindex = i;
+                        }
                         ritems = ritems.concat(this.wobj.response || []);
                         this.items = ritems;
                         setTimeout(function () {
@@ -345,14 +362,14 @@ define(function (require, exports, module) {
                     },
                     editContent: function (item, index) {
                         if (!this.isPassTime(item.time)) {
-                            console.log("updateConent");
+                            console.log("updateConent: " + item.stp + " No." + item.sindex);
                         } else {
                             UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
                         }
                     },
                     removeContent: function (item, index) {
                         if (!this.isPassTime(item.time)) {
-                            console.log("removeConent");
+                            console.log("removeConent " + item.stp + " No." + item.sindex);
                         } else {
                             UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
                         }
