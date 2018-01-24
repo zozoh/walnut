@@ -31,8 +31,13 @@
                     }
                 }).render(function () {
                     var $main = this.$el.find('.ui-mask-main');
-                    this.treply = TkTmp.ticketReply.create(this, $main, obj, {hideMenu: true});
+                    this.treply = TkTmp.ticketReply.create(UI, $main, obj, {hideMenu: true});
                 });
+            },
+            init: function () {
+                var UI = this;
+                // 获取我的信息
+                UI.me = JSON.parse(Wn.exec("me -json"));
             },
             redraw: function () {
                 var UI = this;
@@ -46,10 +51,6 @@
                     'ureply': "待继续处理",
                     'done': "已完成",
                     'close': "已关闭"
-                };
-                var ttmap = {
-                    'issue': "Issue",
-                    'question': "普通问题"
                 };
                 var stepmap = {
                     1: "待分配",
@@ -104,11 +105,7 @@
                         fields: [{
                             key: "ticketTp",
                             title: "工单类型",
-                            uiType: '@label',
-                            display: function (o) {
-                                var s = o.ticketTp;
-                                return ttmap[s] || "未定义状态";
-                            }
+                            uiType: '@label'
                         }, {
                             key: "ticketStatus",
                             title: "工单状态",
@@ -123,8 +120,8 @@
                             uiType: '@label',
                             display: function (o) {
                                 var otext = o.text;
-                                if (otext.length > 15) {
-                                    return otext.substr(0, 10) + "..."
+                                if (otext.length > 20) {
+                                    return otext.substr(0, 20) + "..."
                                 }
                                 return otext;
                             }
@@ -161,6 +158,10 @@
                     },
                     sorter: {
                         setup: [{
+                            icon: 'desc',
+                            text: "按更新日期",
+                            value: {lm: -1}
+                        }, {
                             icon: 'desc',
                             text: "按提交日期",
                             value: {tickerStart: -1}

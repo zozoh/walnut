@@ -26,7 +26,8 @@
 %COPY:
 {
     nm: "walnut工单系统",
-    welcome: "欢迎你注册使用walnut工单服务，您已注册成功"
+    welcome: "欢迎你注册使用walnut工单服务，您已注册成功",
+    tps: ["使用问题", "新需求", "Bug"]
 }
 %END%
 
@@ -46,6 +47,14 @@ httpparam -in id:${id} | jsc /app/wn.ticket/regapi/ping.js -vars
 }
 %TMPL:
 httpparam -in id:${id} | jsc /app/wn.ticket/regapi/reg.js -vars
+%END%
+
+@FILE .regapi/api/ticket/conf
+{
+
+}
+%TMPL:
+httpparam -in id:${id} | jsc /app/wn.ticket/regapi/conf.js -vars
 %END%
 
 @FILE .regapi/api/ticket/post

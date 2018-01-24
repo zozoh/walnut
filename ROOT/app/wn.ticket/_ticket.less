@@ -6,21 +6,46 @@
   clear: both;
 }
 
-@menu-h: 150px;
+@menu-h-step2: 150px;
+@menu-h-step3: 50px;
 @title-h: 40px;
 
 .ticket-reply {
   width: 100%;
   height: 100%;
+  position: relative;
+  background: @cpop_b;
 
-  &.hide-menu {
+  &.step1 {
 
     .ticket-menu {
       display: none;
     }
-
     .ticket-chat {
       height: calc(~"100% - @{title-h}");
+    }
+  }
+
+  &.step2 {
+
+    .ticket-menu.step2 {
+      display: block;
+      height: @menu-h-step2;
+    }
+
+    .ticket-chat {
+      height: calc(~"100% - @{title-h} - @{menu-h-step2}");
+    }
+  }
+
+  &.step3 {
+
+    .ticket-menu.step3 {
+      display: block;
+      height: @menu-h-step3;
+    }
+    .ticket-chat {
+      height: calc(~"100% - @{title-h} - @{menu-h-step3}");
     }
   }
 }
@@ -30,6 +55,7 @@
   height: @title-h;
   line-height: @title-h;
   text-align: center;
+  cursor: pointer;
 
   // 标题内容
   .text {
@@ -38,13 +64,19 @@
     text-decoration: underline;
   }
 
+  .tp {
+    font-size: 16px;
+    color: #F9400f;
+    margin-right: 4px;
+  }
+
 }
 
-// 发送部分
+// 修改状态菜单
 .ticket-menu {
+  display: none;
   padding: 8px 4px;
   width: 100%;
-  height: @menu-h;
 
   .ticket-send-input {
     textarea {
@@ -69,34 +101,34 @@
 
   .ticket-send-btns {
     text-align: center;
+  }
+}
 
-    button {
-      display: inline-block;
-      margin: 6px;
-      padding: 4px 8px;
-      font-size: 14px;
-      border: none;
-      border-radius: 20px;
-      color: #fff;
-      background-color: #42c02e;
-      cursor: pointer;
-      outline: none;
+.tk-btn {
+  display: inline-block;
+  margin: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  background-color: #42c02e;
+  cursor: pointer;
+  outline: none;
 
-      &.close {
-        background-color: #F00;
-      }
+  &.close, &.reopen {
+    background-color: #F00;
+  }
 
-      &.file {
-        background-color: #00a1e9;
-      }
-    }
+  &.file {
+    background-color: #00a1e9;
   }
 }
 
 // 对话列表
 .ticket-chat {
   width: 100%;
-  height: calc(~"100% - @{menu-h} - @{title-h}");
+  height: calc(~"100% - @{title-h}");
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 4px;
@@ -111,14 +143,17 @@
     margin-bottom: 8px;
     overflow: hidden;
 
+    // 客服数据在右边
+
     &.cservice {
       .chat-user {
         float: right;
       }
       .chat-content {
+        text-align: right;
 
         .chat-content-text {
-          float: right;
+          display: inline-block;
 
           .text-con {
             border-radius: 4px 0 4px 4px;
@@ -138,10 +173,18 @@
         }
       }
 
-      .chat-content-time {
+      .chat-content-footer {
         right: 0;
         left: inherit;
         text-align: right;
+
+        &.left {
+          display: none;
+        }
+
+        &.right {
+          display: block;
+        }
       }
     }
 
@@ -177,7 +220,7 @@
     display: block;
     margin: 0px auto;
     min-height: 39px;
-    padding-bottom: 14px;
+    padding-bottom: 16px;
 
     @ctop: 4px;
     .chat-content-text {
@@ -194,8 +237,16 @@
         font-size: 13px;
         word-break: break-word !important;
         word-break: break-all;
+        //white-space: pre-line;
         line-height: 1.5;
         display: table-cell;
+
+        &:hover {
+          .fa {
+            display: inline-block;
+          }
+        }
+
       }
 
       &:before, &:after {
@@ -215,18 +266,55 @@
   }
 
   @foot-time: 14px;
-  .chat-content-time {
-    width: 150px;
-    margin-top: 4px;
-    font-size: 10px;
-    color: #d9d9d9;
+
+  .chat-content-footer {
+    min-width: 200px;
     position: absolute;
-    bottom: (@foot-time + 2) * -1;
+    bottom: (@foot-time + 6) * -1;
     left: 0;
+
+    &.right {
+      display: none;
+    }
+
+    .time {
+      font-size: 10px;
+      color: #d9d9d9;
+    }
+
+    .fa {
+      display: none;
+    }
+
+    .fa:hover {
+      cursor: pointer;
+      color: #F00;
+    }
   }
 
-  .atta-image {
-    width: 100%;
+  .atta-preview {
+    text-align: center;
+    img, video {
+      display: block;
+      max-width: 100%;
+      min-size: 32px;
+      margin: 0 auto;
+    }
+
+    &.dw {
+      padding-top: 4px;
+      padding-bottom: 4px;
+
+      &:hover {
+        cursor: pointer;
+        .filenm {
+          text-underline: #888;
+          text-decoration: underline;
+          color: #888;
+        }
+      }
+    }
+
   }
 
 }

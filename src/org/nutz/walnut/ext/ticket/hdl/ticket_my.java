@@ -38,6 +38,8 @@ public class ticket_my implements JvmHdl {
     private static String API_TMPL = "http://%s/api/%s";
     // 注册
     private static String API_REG = "/ticket/reg";
+    // 配置查询
+    private static String API_TKCONF = "/ticket/conf";
     // 提交、回复
     private static String API_POST = "/ticket/post";
     // 我的查询
@@ -161,6 +163,17 @@ public class ticket_my implements JvmHdl {
                 sys.err.println(Json.toJson(ar));
             }
         }
+        // 查询配置
+        else if (params.has("tkconf")) {
+            AjaxReturn ar = httpPost(String.format(API_TMPL + API_TKCONF, service, ts),
+                                     httpPs,
+                                     null);
+            if (ar.isOk()) {
+                sys.out.print(Json.toJson(ar.getData())); // 只返回内容
+            } else {
+                sys.err.println(Json.toJson(ar));
+            }
+        }
         // 查询全局工单
         else if (params.has("search")) {
             httpPs.setv("search", params.getString("search"));
@@ -218,6 +231,10 @@ public class ticket_my implements JvmHdl {
         else if (params.has("post")) {
             String trid = null;
             String pcontent = params.getString("c", "");
+            boolean isMeta = params.is("m", false);
+            boolean isOpen = params.is("open", false);
+            httpPs.setv("meta", isMeta);
+            httpPs.setv("open", isOpen);
             NutMap content = null;
             if (!params.getString("post").equalsIgnoreCase("true")
                 && !params.getString("post").equalsIgnoreCase("false")
@@ -242,7 +259,6 @@ public class ticket_my implements JvmHdl {
             if (content != null) {
                 httpPs.setv("content", Json.toJson(content, JsonFormat.compact()));
             }
-
             // 附件
             InputStream attaFileIn = null;
             if (params.has("atta")) {

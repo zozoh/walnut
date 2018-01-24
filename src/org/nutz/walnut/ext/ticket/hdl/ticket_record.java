@@ -227,56 +227,82 @@ public class ticket_record implements JvmHdl {
         if (params.has("reply")) {
             // 获取工单号
             String rid = params.getString("reply");
+            boolean isMeta = params.is("m", false);
+            boolean isOpen = params.is("open", false);
             WnObj curRecord = getRecord(sys, rid);
             if (curRecord != null) {
-                if (isUser) {
-                    // 先检查是否我的订单
-                    if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
-                        NutMap ureply = Lang.map(params.getString("c"));
-                        // 如果还有内容提交
-                        if (!Strings.isBlank(ureply.getString("text", "")) || params.has("atta")) {
-                            ureply.setv("attachments", attas(sys, curRecord, params));
-                            ureply.setv("time", System.currentTimeMillis());
-                            curRecord.addv2("request", ureply);
-                            curRecord.setv("ticketStatus", "ureply");
+                // 只更新meta
+                if (isMeta) {
+                    NutMap meta = Lang.map(params.getString("c"));
+                    sys.io.appendMeta(curRecord, meta);
+                    sys.out.print(Json.toJson(getRecord(sys, rid)));
+                }
+                // 打开
+                else if (isOpen) {
+                    NutMap meta = NutMap.NEW();
+                    meta.setv("ticketStatus", "reassign"); // 算是重新指派给客服了
+                    meta.setv("ticketEnd", -1);
+                    meta.setv("ticketStep", "2");
+                    sys.io.appendMeta(curRecord, meta);
+                    sys.out.print(Json.toJson(getRecord(sys, rid)));
+                }
+                // 其他内容
+                else {
+                    if (isUser) {
+                        // 先检查是否我的订单
+                        if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
+                            NutMap ureply = Lang.map(params.getString("c"));
+                            // 如果还有内容提交
+                            if (!Strings.isBlank(ureply.getString("text", ""))
+                                || params.has("atta")) {
+                                ureply.setv("attachments", attas(sys, curRecord, params));
+                                ureply.setv("time", System.currentTimeMillis());
+                                curRecord.addv2("request", ureply);
+                                curRecord.setv("ticketStatus", "ureply");
+                            }
+                            // 关闭票
+                            if (ureply.getBoolean("finish", false)) {
+                                curRecord.setv("ticketStatus", "done");
+                                curRecord.setv("ticketEnd", System.currentTimeMillis());
+                                curRecord.setv("ticketStep", "3");
+                            }
+                            // 如果没有客服接这个任务
+                            if (!curRecord.has("csId")) {
+                                curRecord.setv("ticketStatus", "new");
+                            }
+                            sys.io.appendMeta(curRecord,
+                                              "^request|ticketStatus|ticketStep|ticketEnd$");
+                            sys.out.print(Json.toJson(curRecord));
+                        } else {
+                            sys.err.printf("e.ticket: record[%s] current user is not you",
+                                           curRecord.id());
                         }
-                        // 关闭票
-                        if (ureply.getBoolean("finish", false)) {
-                            curRecord.setv("ticketStatus", "done");
-                            curRecord.setv("ticketStep", "3");
-                        }
-                        // 如果没有客服接这个任务
-                        if (!curRecord.has("csId")) {
-                            curRecord.setv("ticketStatus", "new");
-                        }
-                        sys.io.appendMeta(curRecord, "^request|ticketStatus|ticketStep$");
-                        sys.out.print(Json.toJson(curRecord));
                     } else {
-                        sys.err.printf("e.ticket: record[%s] current user is not you",
-                                       curRecord.id());
-                    }
-                } else {
-                    // 先检查是否是分配给我的订单
-                    if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
-                        NutMap creply = Lang.map(params.getString("c"));
-                        // 如果还有内容提交
-                        if (!Strings.isBlank(creply.getString("text", "")) || params.has("atta")) {
-                            creply.setv("csId", tPeople.getString("usrId"));
-                            creply.setv("csAlias", tPeople.getString("usrAlias"));
-                            creply.setv("attachments", attas(sys, curRecord, params));
-                            creply.setv("time", System.currentTimeMillis());
-                            curRecord.addv2("response", creply);
-                            curRecord.setv("ticketStatus", "creply");
+                        // 先检查是否是分配给我的订单
+                        if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
+                            NutMap creply = Lang.map(params.getString("c"));
+                            // 如果还有内容提交
+                            if (!Strings.isBlank(creply.getString("text", ""))
+                                || params.has("atta")) {
+                                creply.setv("csId", tPeople.getString("usrId"));
+                                creply.setv("csAlias", tPeople.getString("usrAlias"));
+                                creply.setv("attachments", attas(sys, curRecord, params));
+                                creply.setv("time", System.currentTimeMillis());
+                                curRecord.addv2("response", creply);
+                                curRecord.setv("ticketStatus", "creply");
+                            }
+                            if (creply.getBoolean("finish", false)) {
+                                curRecord.setv("ticketStatus", "done");
+                                curRecord.setv("ticketEnd", System.currentTimeMillis());
+                                curRecord.setv("ticketStep", "3");
+                            }
+                            sys.io.appendMeta(curRecord,
+                                              "^response|ticketStatus|ticketStep|ticketEnd$");
+                            sys.out.print(Json.toJson(curRecord));
+                        } else {
+                            sys.err.printf("e.ticket: record[%s] current cservice is you",
+                                           curRecord.id());
                         }
-                        if (creply.getBoolean("finish", false)) {
-                            curRecord.setv("ticketStatus", "done");
-                            curRecord.setv("ticketStep", "3");
-                        }
-                        sys.io.appendMeta(curRecord, "^response|ticketStatus|ticketStep$");
-                        sys.out.print(Json.toJson(curRecord));
-                    } else {
-                        sys.err.printf("e.ticket: record[%s] current cservice is you",
-                                       curRecord.id());
                     }
                 }
             } else {
@@ -286,15 +312,19 @@ public class ticket_record implements JvmHdl {
 
     }
 
-    private List<String> attas(WnSystem sys, WnObj curRecord, ZParams params) {
-        List<String> attas = new ArrayList<>();
+    private List<NutMap> attas(WnSystem sys, WnObj curRecord, ZParams params) {
+        List<NutMap> attas = new ArrayList<>();
         if (params.has("atta")) {
             String destDir = curRecord.getRegularPath();
             String[] fids = params.get("atta").split(",");
             for (String afid : fids) {
                 WnObj attaFile = sys.io.get(afid);
                 sys.io.move(attaFile, destDir);
-                attas.add(afid);
+                attas.add(NutMap.NEW()
+                                .setv("ph", attaFile.path())
+                                .setv("id", attaFile.id())
+                                .setv("nm", attaFile.name())
+                                .setv("tp", attaFile.type()));
             }
         }
         return attas;

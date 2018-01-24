@@ -1102,7 +1102,7 @@ var Wn = {
         if(forceReload || !o.children || o.children.length==0 ){
             // 有回调，异步
             if(_.isFunction(callback)){
-                Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'", function(re){
+                Wn.exec("obj id:"+o.id+"/* -l -limit 1000 -sort 'nm:1'", function(re){
                     do_after_load(o, re);
                     var reList = do_filter(o, filter);
                     callback(reList);
@@ -1111,7 +1111,7 @@ var Wn = {
             }
             // 否则同步
             else{
-                 var re = Wn.exec("obj id:"+o.id+"/* -l -sort 'nm:1'");
+                 var re = Wn.exec("obj id:"+o.id+"/* -l -limit 1000 -sort 'nm:1'");
                  do_after_load(o, re);
                  var reList = do_filter(o, filter);
                  return reList;
