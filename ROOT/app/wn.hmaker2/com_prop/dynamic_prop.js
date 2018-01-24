@@ -383,6 +383,41 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     objTemplate : F.mapping || {}
                 };
             }
+            // 字段: 字段列表
+            else if("fields" == F.type) {
+                fld.type = "object";
+                fld.editAs = "text";
+                fld.uiConf = {
+                    height : 100,
+                    formatData : function(s){
+                        var re = {};
+                        if(s) {
+                            var lines = s.split(/(\r?\n)+/g);
+                            for(var i=0; i<lines.length; i++) {
+                                var line = $.trim(lines[i]);
+                                if(line) {
+                                    var ss = line.split(/[ \t]*[:：][ \t]*/);
+                                    var key = ss[0];
+                                    var val = ss.length > 1 ? ss[1] : null;
+                                    re[key] = val;
+                                }
+                            }
+                        }
+                        return re;
+                    },
+                    parseData : function(obj) {
+                        var re = "";
+                        for(var key in obj) {
+                            var val = obj[key];
+                            re += key;
+                            if(val) {
+                                re += " : " + val + "\n";
+                            }
+                        }
+                        return re;
+                    }
+                };
+            }
             // 字段：开关
             else if("toggle" == F.type) {
                 fld.type = "string";
