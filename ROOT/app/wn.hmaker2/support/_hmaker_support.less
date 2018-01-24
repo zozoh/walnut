@@ -1,15 +1,35 @@
 
 .com-edit-link {
-    width:100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width:100%; word-break:break-all; 
+    //white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     color:@clink; cursor: pointer; font-family: @f_fixed; font-size: @f2;
     line-height: 32px; 
-    &[nohref]{font-style: italic; color:@c2;}
-    &:hover{color:@clink_hover; text-decoration: underline;}
-    &:before {
-        font-family: 'FontAwesome'; display: inline; 
-        margin-right: @d1; content: "\f0c1";
+    &[nohref]{
+        color:@c2;
+        .cel-icon {
+            i:first-child {display: none;}
+            i:last-child  {display: inline-block;}
+        }
+        .cel-href {font-style: italic; }
+        .cel-del {display: none;}
     }
-    &[nohref]:before {content: "\f127";}
+    .cel-icon {
+        margin-right:@d2;
+        i:first-child {display: inline-block;}
+        i:last-child  {display: none;}
+    }
+    .cel-href {
+        &:hover {color:@clink_hover; text-decoration: underline;}
+    }
+    .cel-del {
+        display: inline-block; vertical-align: middle;
+        padding:0 @d2;
+        i {transition: .3s;}
+        &:hover i {
+            color:@clink_hover; font-weight: bold;
+            transform:rotate(180deg) scale(1.1);
+        }
+    }
 }
 
 

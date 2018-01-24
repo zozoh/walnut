@@ -93,30 +93,37 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
         var jUl = UI.arena.find("ul").removeAttr("empty").empty();
         var context = opt.context || UI.parent;
 
+        // 判断一下绘制过图标没
+        var hasIcon = false;
+
+        // 是否绘制空对象
+        var offset = 0;
+        if(opt.emptyItem) {
+            UI.__append_item(offset++, opt.emptyItem, jUl);
+            if(opt.emptyItem.icon)
+                hasIcon = true;
+        }
+
+        // 默认添加一些固定的 items
+        if(_.isArray(opt.fixItems)) {
+            items = [].concat(opt.fixItems, items);
+        }
+
         if(!_.isArray(items) || items.length == 0) {
             jUl.attr("empty", "yes").text(UI.msg("empty"));
             return;
         }
 
-        var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
             var val  = opt.value.call(context, item, i, UI); 
-
-            var jLi = $('<li>').appendTo(jUl)
-                .attr("index", i)
-                .data("@VAL", val);
 
             // 图标
             var icon = _.isString(opt.icon)
                                 ? $z.tmpl(opt.icon)(item)
                                 : opt.icon.call(context, item, i, UI);
-            jIcon = $('<span it="icon">').appendTo(jLi);
-            if(_.isString(icon)){
-                jIcon.html(icon);
-                hasIcon = true;
-            }
-            //console.log(val)
+            if(!hasIcon)
+                hasIcon = icon ? true : false;
 
             // 文字
             var text = val;
@@ -125,19 +132,43 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
             else if(_.isFunction(opt.text))
                 text = opt.text.call(context, item, i, UI);
 
-            // 直接逃逸文字
-            if(opt.escapeHtml) {
-                $('<b it="text">').text(UI.text(text)).appendTo(jLi);
-            }
-            // 否则输出 HTML
-            else {
-                $('<b it="text">').html(UI.compactHTML(text)).appendTo(jLi);
-            }
+            // 绘制项目
+            UI.__append_item(offset + i, {
+                icon  : icon,
+                text  : text,
+                value : val
+            }, jUl);
         }
 
         // 没有 Icon 就全部移除
         if(!hasIcon){
             UI.arena.find("span[it='icon']").remove();
+        }
+    },
+    //...............................................................
+    // it - 接受标准的 {icon,text,value} 格式对象，绘制一个项目
+    __append_item : function(index, it, jUl) {
+        var UI  = this;
+        var opt = UI.options;
+
+        var jLi = $('<li>').appendTo(jUl)
+            .attr("index", index)
+            .data("@VAL", it.value);
+
+        // 图标
+        jIcon = $('<span it="icon">').appendTo(jLi);
+        if(_.isString(it.icon)){
+            jIcon.html(it.icon);
+        }
+        //console.log(val)
+
+        // 直接逃逸文字
+        if(opt.escapeHtml) {
+            $('<b it="text">').text(UI.text(it.text)).appendTo(jLi);
+        }
+        // 否则输出 HTML
+        else {
+            $('<b it="text">').html(UI.compactHTML(it.text)).appendTo(jLi);
         }
     },
     //...............................................................

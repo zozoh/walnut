@@ -365,6 +365,13 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             // 字段: link
             else if("link" == F.type) {
                 fld.uiType = "app/wn.hmaker2/support/c_edit_link";
+                fld.uiConf = {
+                    emptyItem : {
+                        icon  : '<i class="zmdi zmdi-flash-auto"></i>',
+                        text  : '<span>@auto</span><em>{{hmaker.link.auto}}</em>',
+                        value : '@auto'
+                    }
+                }
             }
             // 字段: 映射表
             else if("mapping" == F.type) {

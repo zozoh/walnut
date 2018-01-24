@@ -9,6 +9,7 @@ define({
         },
         "link" : {
             "none"   : "无链接",
+            "auto"   : "自动匹配目标页面",
             "edit"   : '<i class="zmdi zmdi-link"></i> 编辑超链接',
             "select" : "站内链接快速选择",
             "href"   : "目标页面", 

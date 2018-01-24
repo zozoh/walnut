@@ -519,11 +519,13 @@ var methods = {
             setup  : {
                 uiType : 'app/wn.hmaker2/support/edit_link',
                 uiConf : {
-                    homeObj  : homeObj,
-                    pageObj  : pageObj,
-                    pageUI   : pageUI,
-                    pagePath : "/" + Wn.getRelativePath(homeObj, pageObj),
-                    text : function(o) {
+                    emptyItem  : opt.emptyItem,
+                    fixItems   : opt.fixItems,
+                    homeObj    : homeObj,
+                    pageObj    : pageObj,
+                    pageUI     : pageUI,
+                    pagePath   : "/" + Wn.getRelativePath(homeObj, pageObj),
+                    anchorText : function(o) {
                         return UI.get_com_display_text(o.ctype, o.id, o.skin);
                     }
                 }

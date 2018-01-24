@@ -8,7 +8,16 @@ $z.declare([
 function(ZUI, Wn, FormCtrlMethods, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena com-edit-link" nohref="yes">{{hmaker.link.none}}</div>
+<div class="ui-arena com-edit-link" nohref="yes">
+    <span class="cel-icon">
+        <i class="fa fa-link"></i>
+        <i class="fa fa-unlink"></i>
+    </span>
+    <span class="cel-href">{{hmaker.link.none}}</span>
+    <span class="cel-del" balloon="down:clear">
+        <i class="zmdi zmdi-close"></i>
+    </span>
+</div>
 */};
 //==============================================
 return ZUI.def("ui.form_com_edit-link", {
@@ -20,16 +29,28 @@ return ZUI.def("ui.form_com_edit-link", {
     },
     //...............................................................
     events : {
-        "click .com-edit-link" : function(){
-            var UI = this;
+        // 编辑链接
+        "click .com-edit-link .cel-href" : function(){
+            var UI   = this;
+            var opt  = UI.options;
             var href = UI._get_data();
             UI.openEditLinkPanel({
-                href     : href,
-                callback : function(href){
+                emptyItem : opt.emptyItem,
+                fixItems  : opt.fixItems,
+                href      : href,
+                callback  : function(href){
                     UI._set_data(href, true);
                 }
             });
+        },
+        // 清除链接
+        "click .com-edit-link .cel-del" : function(){
+            this._set_data("", true);
         }
+    },
+    //...............................................................
+    redraw : function() {
+        this.balloon();
     },
     //...............................................................
     setData : function(link){
@@ -47,7 +68,8 @@ return ZUI.def("ui.form_com_edit-link", {
         str = $.trim(str || "");
         UI.arena
             .attr("nohref", str ? null : "yes")
-                .text(str || UI.msg("hmaker.link.none"));
+                .find(".cel-href")
+                    .text(str || UI.msg("hmaker.link.none"));
 
         // 效果
         if(showBlink){
@@ -66,7 +88,9 @@ return ZUI.def("ui.form_com_edit-link", {
     },
     //...............................................................
     _get_data : function(){
-        return this.arena.attr("nohref") ? "" : $.trim(this.arena.text());
+        return this.arena.attr("nohref") 
+                    ? "" 
+                    : $.trim(this.arena.find(".cel-href").text());
     }
     //...............................................................
 });

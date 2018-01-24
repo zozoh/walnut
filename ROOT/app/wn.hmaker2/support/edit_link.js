@@ -41,6 +41,8 @@ return ZUI.def("ui.edit_link", {
                         uiType : "ui/form/c_list",
                         uiConf : {
                             drawOnSetData : true,
+                            emptyItem : opt.emptyItem,
+                            fixItems  : opt.fixItems,
                             items : 'hmaker id:'+homeId+' links -key "rph,nm,tp,title" -site',
                             escapeHtml : false,
                             icon  : function(o){
@@ -83,6 +85,11 @@ return ZUI.def("ui.edit_link", {
                                 // console.log("opt.pagePath", opt.pagePath)
                                 // console.log(opt.pageObj.ph)
                                 // console.log(opt.homeObj.ph)
+                                
+                                // 自动获取的 href 的话，不显示页内链接，因为不知道
+                                if("@auto" == href) {
+                                    return [];
+                                }
                                 // 如果就是当前页面，那么直接在页面里搜索
                                 if(!href || opt.pagePath == href) {
                                     var uiComs = opt.pageUI.getComList();
@@ -117,7 +124,7 @@ return ZUI.def("ui.edit_link", {
                             text : function(o) {
                                 var str = '<span>' + o.id + '</span>';
                                 str += '<em>' ;
-                                str += opt.text(o);
+                                str += opt.anchorText(o);
                                 str += '</em>';
                                 if(o.lib) {
                                     str += '<u>' + o.lib.name + '</u>';
