@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
 var Wn = require("wn/util");
 // ....................................
-var __format_thing_fld = function(fld) {
+var __format_thing_fld = function(UI, fld) {
     // id
     if("id" == fld.key) {
         $z.setUndefined(fld, "title", "i18n:thing.key.id");
@@ -120,6 +120,15 @@ var __format_thing_fld = function(fld) {
             __format_theConf_field(subFld);
         }
     }
+
+    // 如果没有声明字段的标题，看看是否需要自动为其声明
+    if(!fld.title) {
+        var keyTitle = UI.str("thing.key." + fld.key, "");
+        if(keyTitle){
+            fld.title = keyTitle;
+        }
+    }
+
     // 最后返回
     return fld;
 };
@@ -148,7 +157,7 @@ var DATA_MODE = {
             // console.log(fld.key, !/^__/.test(fld.key))
             // 特殊字段无视就好
             if(!/^__/.test(fld.key)){
-                fields.push(__format_thing_fld(fld));
+                fields.push(__format_thing_fld(UI, fld));
             }
         }
         conf.fields = fields;

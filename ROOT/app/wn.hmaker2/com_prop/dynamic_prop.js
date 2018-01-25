@@ -390,8 +390,10 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fld.uiConf = {
                     height : 100,
                     formatData : function(s){
-                        var re = {};
+                        var re = null;
+                        s = $.trim(s);
                         if(s) {
+                            re = {};
                             var lines = s.split(/(\r?\n)+/g);
                             for(var i=0; i<lines.length; i++) {
                                 var line = $.trim(lines[i]);
