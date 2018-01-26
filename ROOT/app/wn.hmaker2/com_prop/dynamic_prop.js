@@ -281,7 +281,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 tip      : F.tip,
                 dft      : F.dft,
                 required : F.required,
-                uiWidth  : F.uiWidth || "auto",
+                uiWidth  : F.uiWidth,
             };
 
             // 默认增加 key 的说明
@@ -458,7 +458,11 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 // input 作为默认选项
                 $z.setUndefined(fld, "type", "string");
                 $z.setUndefined(fld, "uiType", "@input");
+                $z.setUndefined(fld, "uiWidth", "all");
             }
+
+            // 默认uiWidth为 auto
+            $z.setUndefined(fld, "uiWidth", "auto");
 
             // 计入结果
             re.push(fld);
