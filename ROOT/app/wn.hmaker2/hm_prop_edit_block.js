@@ -560,23 +560,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     var a_dft = m[8];
 
                     // 解析值列表
-                    var items = [];
-                    var ss = a_val.split(/[ ,\n\r\t]+/);
-                    for(var x=0; x<ss.length; x++) {
-                        var s = $.trim(ss[x]);
-                        var pos = s.indexOf('=');
-                        if(pos > 0) {
-                            items.push({
-                                text  : $.trim(s.substring(0, pos)),
-                                value : $.trim(s.substring(pos+1))
-                            });
-                        } else {
-                            items.push({
-                                text  : s,
-                                value : s
-                            });
-                        }
-                    }
+                    var items = UI.parseStringItems(a_val);
 
                     // 默认值
                     a_dft = a_dft || undefined;

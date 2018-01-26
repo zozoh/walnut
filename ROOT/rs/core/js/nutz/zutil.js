@@ -2521,6 +2521,18 @@
                         fmt += ":ss";
                     }
                 }
+                // 自动格式化
+                else if("min" == fmt) {
+                    // 精确到分
+                    if(this.hour <=0) {
+                        fmt = "mm:ss";
+                    }
+                    // 否则精确到小时
+                    else {
+                        fmt = "HH:mm:ss";
+                    }
+                }
+
                 // 进行格式化
                 var sb  = "";
                 var reg = /a|[HhKkms]{1,2}|S(SS)?/g;

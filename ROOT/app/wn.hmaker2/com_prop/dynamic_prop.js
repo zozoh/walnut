@@ -281,12 +281,17 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 tip      : F.tip,
                 dft      : F.dft,
                 required : F.required,
-                key_tip  : F.key == F.title ? null : F.key,
+                uiWidth  : F.uiWidth || "auto",
             };
+
+            // 默认增加 key 的说明
+            if(!fld.key_tip && F.key != F.title) {
+                fld.key_tip = F.key;
+            }
 
             // 字段: thingset
             if("thingset" == F.type) {
-                fld.editAs = "droplist";
+                fld.uiType = "@droplist";
                 fld.uiConf = {
                     emptyItem : {},
                     items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
@@ -301,7 +306,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: TSS
             else if("TSS" == F.type) {
-                fld.editAs = "droplist";
+                fld.uiType = "@droplist";
                 fld.uiConf = {
                     multi : true,
                     items : "obj -mine -match \"tp:'thing_set'\" -json -l -sort 'nm:1' -e '^(id|nm|title)'",
@@ -319,7 +324,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: sites
             else if("site" == F.type) {
-                fld.editAs = "droplist";
+                fld.uiType = "@droplist";
                 fld.valueKey = F.arg,
                 fld.uiConf = {
                     emptyItem : {
@@ -339,7 +344,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: com
             else if("com" == F.type) {
-                fld.editAs = "droplist";
+                fld.uiType = "@droplist";
                 fld.uiConf = {
                     emptyItem : {
                         text : "i18n:hmaker.com.dynamic.com_none",
@@ -376,7 +381,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             // 字段: 映射表
             else if("mapping" == F.type) {
                 fld.type = "object";
-                fld.editAs = "pair";
+                fld.uiType = "@pair";
                 fld.uiConf = {
                     mergeWith   : true,
                     templateAsDefault : false,
@@ -386,7 +391,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             // 字段: 字段列表
             else if("fields" == F.type) {
                 fld.type = "object";
-                fld.editAs = "text";
+                fld.uiType = "@text";
                 fld.uiConf = {
                     height : 100,
                     formatData : function(s){
@@ -422,22 +427,37 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段：开关
             else if("toggle" == F.type) {
-                fld.type = "string";
-                fld.editAs = "toggle";
+                fld.type = /^true(\/false)?/.test(F.arg)
+                                ? "boolean"
+                                : "string";
+                fld.uiType = "@toggle";
                 fld.uiConf = {
                     values : ({
                         "yes/no" : ["no", "yes"],
                         "yes"    : [null, "yes"],
                         "on/off" : ["off", "on"],
                         "on"     : [null, "on"],
-                        "true/false" : ["false", "true"],
-                        "true"       : [null, "true"],
+                        "true/false" : [false, true],
+                        "true"       : [false, true],
                     })[F.arg]
                 }
             }
-            // 字段: input 作为默认选项
+            // 字段：切换开关
+            // 其 F.arg 格式为 "文字[=值]?", 譬如
+            //  "黑色=black,白色=white"
+            else if("switch" == F.type || "droplist" == F.type) {
+                fld.type = "string";
+                fld.uiType = "@" + F.type;
+                fld.uiConf = {
+                    items : UI.parseStringItems(F.arg)
+                }
+            }
+            // 直接使用
             else {
-                fld.editAs = "input";
+                _.extend(fld, F);
+                // input 作为默认选项
+                $z.setUndefined(fld, "type", "string");
+                $z.setUndefined(fld, "uiType", "@input");
             }
 
             // 计入结果

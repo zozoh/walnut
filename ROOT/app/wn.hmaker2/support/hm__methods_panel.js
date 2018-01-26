@@ -368,7 +368,38 @@ var methods = {
         jBox = $(jBox).closest(".hm-skin-box");
         var jSpan = jBox.find(">.page-css");
         jSpan.off().find(">div").remove();
-    }
+    },
+    // 解析字符串描述的列表值
+    // @str 格式为 "文字[=值]?", 譬如 "黑色=black,白色=white"
+    parseStringItems : function(str) {
+        // 解析值列表
+        var items = [];
+        var ss = str.split(/[ ,\n\r\t]+/);
+        for(var i=0; i<ss.length; i++) {
+            var s = $.trim(ss[i]);
+            var pos = s.indexOf('=');
+            var it;
+            if(pos > 0) {
+                it = {
+                    text  : $.trim(s.substring(0, pos)),
+                    value : $.trim(s.substring(pos+1))
+                };
+            } else {
+                it = {
+                    text  : s,
+                    value : s
+                };
+            }
+            // 如果值为数字形式，变成数字
+            if(/^-?[0-9.]+$/.test(it.value)) {
+                it.value = it.value * 1;
+            }
+            // 计入
+            items.push(it);
+        }
+        // 搞定收工
+        return items;
+    },
 }; // ~End methods
 //====================================================================
 // 得到 HMaker 所有 UI 对象的方法

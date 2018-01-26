@@ -61,7 +61,16 @@ public class thing_get implements JvmHdl {
                 WnObj o = sys.io.get(id);
                 if (null != o) {
                     map.put(o.name(), o.id());
-                    list.add(o.pick("id", "nm", "mime", "tp"));
+                    list.add(o.pick("id",
+                                    "nm",
+                                    "thumb",
+                                    "mime",
+                                    "tp",
+                                    "duration",
+                                    "width",
+                                    "height",
+                                    "video_frame_count",
+                                    "video_frame_rate"));
                 }
             }
             oT.put("th_" + mode + "_map", map);

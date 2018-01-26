@@ -32,17 +32,25 @@ tags:
 key : "[*][(参数显示名)]@类型[=默认值][:参数[{映射表}][#注释]]"
 ```
 
-这个值的 JSON 形式就是:
+这个值的 JSON 形式就是 form 的 fld 的一个变种
 
 ```
 {
-   type     : "thingset",  // 项目类型
-   arg      : "xxx",       // 项目参数
-   mapping  : {..}         // 映射表（基本只有@com类型才会有用），默认为 null
-   required : true,        // 字段是否必须
-   key      : "xxx",       // 字段名
-   title    : "xxx",       // 字段显示名
-   tip      : "xxx",       // 提示信息
+    // 项目类型，下面是一些特殊的值
+    // input|TSS|thingset|site|com|link|toggle|fields
+    // 如果是上述值，则会解析时进行特殊处理，配置特殊的表单控件以符合具体场景要求
+    type     : "thingset",  
+    
+    // 下面和 form field 字段意义相同
+    key      : "xxx",       // 字段名
+    title    : "xxx",       // 字段显示名
+    tip      : "xxx",       // 提示信息
+    required : true,        // 字段是否必须
+    uiType   : "xxx",
+    uiConf   : "xxx",
+    
+    // 映射表（基本只有@com类型才会有用），默认为 null
+    mapping  : {..}
 }
 ```
 
