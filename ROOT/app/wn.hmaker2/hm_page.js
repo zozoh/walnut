@@ -714,6 +714,9 @@ return ZUI.def("app.wn.hmaker_page", {
         var skinName = oHome.hm_site_skin;
         var skinInfo = UI.getSkinInfo() || {};
 
+        // 缓存记录 skinInfo
+        UI.__skin_info = skinInfo;
+
         // 移除所有的 ibar 项目
         UI.arena.find(".hmpg-ibar-ibox section").empty();
 
