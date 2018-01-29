@@ -16,7 +16,7 @@ opt : {
 */
 (function($, $z){
 //...........................................................
-function normalize_val_by_input(jInput, val) {
+var normalize_val_by_input = function(jInput, val) {
     var trimSpace = jInput.attr("trim-space");
     var maxLen = jInput.attr("maxlength") * 1;
     val = jInput.val();
@@ -27,7 +27,35 @@ function normalize_val_by_input(jInput, val) {
         val = val.substring(0, maxLen);
     }
     return val;
-}
+};
+//...........................................................
+// 执行搜索
+var do_search = function(opt, jq) {
+    // 提交到某个页面
+    if(opt.postAction) {
+        var jInput = jq.find(".kwd-input input");
+
+        var url = window.__ROOT_PATH;
+        if(!url || /\/$/.test(url))
+            url += opt.postAction.substring(1) + ".html";
+        else
+            url += opt.postAction + ".html";
+        
+        var target = opt.postTarget || "_blank";
+        var key = opt.postParamName || "k";
+        var val = jInput.val();
+        if(opt.trimSpace) {
+            val = $.trim(val);
+        }
+
+        console.log(target)
+        $z.openUrl(url, target, "GET", $z.obj(key, val));
+    }
+    // 默认刷新与自己关联的动态数据控件
+    else {
+        HmRT.invokeDynamicReload(jq, true);
+    }
+};
 //...........................................................
 // 命令模式
 var CMD = {
@@ -82,28 +110,16 @@ $.fn.extend({ "hmc_searcher" : function(opt){
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件
     if(!opt.forIDE) {
-        // 修改输入框内容
-        jq.on("change", ".kwd-input input", function(){
-            // 提交到某个页面
-            if(opt.postAction) {
-                var url = window.__ROOT_PATH;
-                if(!url || /\/$/.test(url))
-                    url += opt.postAction.substring(1) + ".html";
-                else
-                    url += opt.postAction + ".html";
-                
-                var target = opt.postTarget || "_blank";
-                var key = opt.postParamName || "k";
-                var val = jInput.val();
-                if(opt.trimSpace) {
-                    val = $.trim(val);
-                }
-
-                $z.openUrl(url, target, "GET", $z.obj(key, val));
+        // 回车表示搜索
+        jq.on("keydown", ".kwd-input input", function(e){
+            if(13 == e.which) {
+                do_search(opt, jq);
             }
-            // 默认刷新与自己关联的动态数据控件
-            else {
-                HmRT.invokeDynamicReload($(this), true);
+        });
+        // 点击搜索按钮
+        jq.on("click", ".kwd-btn", function(){
+            if($.trim(jInput.val())) {
+                do_search(opt, jq);
             }
         });
     }

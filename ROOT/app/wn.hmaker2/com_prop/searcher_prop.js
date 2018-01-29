@@ -71,7 +71,7 @@ return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
                                 value : "_blank",
                             }, {
                                 text  : "i18n:hmaker.com.searcher.postTarget_self",
-                                value : "self",
+                                value : "_self",
                             }]
                         }
                     }, {

@@ -35,7 +35,7 @@ return ZUI.def("app.wn.hm_com_searcher", {
         UI.arena.find('aside').remove();
         if(com.postAction) {
             var icon = '<i class="zmdi zmdi-open-in-new"></i>';
-            if("self" == com.postTarget) {
+            if("_self" == com.postTarget) {
                 icon = '<i class="zmdi zmdi-link"></i>';
             }
             $('<aside>').html(icon).appendTo(UI.arena);

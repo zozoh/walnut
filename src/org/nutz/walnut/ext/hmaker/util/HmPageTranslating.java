@@ -617,6 +617,9 @@ public class HmPageTranslating extends HmContext {
         if (Strings.isBlank(link))
             return null;
 
+        if ("@auto".equals(link))
+            return link;
+
         // 一个绝对链接
         if (link.matches("^(https?://|javascript:).+$")) {
             return link;
