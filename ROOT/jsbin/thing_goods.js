@@ -47,19 +47,51 @@ function _main(params){
     var jfmt = ' -json \'{locked:"^(_.+|c|m|g|md|race|ct|lm|d0|d1|ph)\\$", compact:false}\'';
     //---------------------------------------
     // 获取一下商品数据
-    var re = sys.exec2f('thing %s get %s -full -q %s', params.pid, params.id, jfmt);
+    var re = sys.exec2f('obj id:%s -q -e "^(id|th_go_id|th_set)$"', params.id);
+    //sys.out.printlnf("Haha: %s :: %s", re, params.pid);
     if(/^e./.test(re)) {
         sys.exec("ajaxre", re);
         return;
     }
     var go = JSON.parse(re);
 
+    // 如果指定的是一个商品分类，试图获取其指代商品
+    if(go.th_go_id) {
+        // 先获取字段
+        re = sys.exec2f('obj id:%s -e "^(id|th_set)$" -q', 
+                        go.th_go_id);
+        if(/^e./.test(re)) {
+            sys.exec("ajaxre", re);
+            return;
+        }
+        go = JSON.parse(re);
+        // 获取商品详情
+        re = sys.exec2f('thing %s get %s -full -q %s', 
+                        go.th_set, go.id, jfmt);
+        if(/^e./.test(re)) {
+            sys.exec("ajaxre", re);
+            return;
+        }           
+        go = JSON.parse(re);
+        params.pid = go.th_set;
+    }
+    // 否则就是一个商品，那么获取其内容
+    else {
+        re = sys.exec2f('thing %s get %s -full -q %s', 
+                        go.th_set, go.id, jfmt);
+        if(/^e./.test(re)) {
+            sys.exec("ajaxre", re);
+            return;
+        }
+        go = JSON.parse(re);
+    }
+
     //---------------------------------------
     // 获取一下商品类型数据
     var cate = null;
     var models = [];
     var colors = [];
-    if(go.th_cate && params.cid) {
+    if(go.th_cate && params.cid && go.th_set != params.cid) {
 
         // 获取当前商品类型
         re = sys.exec2f('thing %s get %s -full -q %s', params.cid, go.th_cate, jfmt);
@@ -70,7 +102,7 @@ function _main(params){
         cate = JSON.parse(re);
 
         // 获取同类型下其他商品
-        re = sys.exec2f('thing %s query \'th_cate:"%s", th_enabled:true\' -q %s',
+        re = sys.exec2f('thing %s query \'th_cate:"%s"\' -q %s',
                             params.pid, go.th_cate, jfmt);
         if(/^e./.test(re)) {
             sys.exec("ajaxre", re);
