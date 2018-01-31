@@ -449,25 +449,33 @@ var methods = {
             },
             viewport : function(){
                 var ing = this;
-                var jAreaCon = ing.jCom.closest(".hm-area-con");
-                if(jAreaCon.length>0){
-                    ing.is_in_area = true;
-                    return jAreaCon;
+                // 仅仅绝对定位的块，需要考虑是否寻找布局分栏作为视口
+                if("abs" == ing.comBlock.mode) {
+                    var jAreaCon = ing.jCom.closest(".hm-area-con");
+                    if(jAreaCon.length>0){
+                        ing.is_in_area = true;
+                        return jAreaCon;
+                    }
                 }
+                // 其他的就用选区作为视口，即整个 <body>
                 return ing.$selection;
             },
             viewportRect : function(){
-                var jAreaCon = this.$trigger.closest(".hm-area-con");
+                var ing = this;
                 var editBody = UI.get_edit_win_rect();
-                // 在 hm-area 里，则用它
-                if(jAreaCon.length>0) {
-                    return $D.rect.gen(jAreaCon, {
-                        boxing   : "content",
-                        scroll_c : true,
-                        viewport : editBody,
-                        overflow : true,
-                        overflowEle : jAreaCon,
-                    });
+                // 仅仅绝对定位的块，需要考虑是否寻找布局分栏作为视口
+                if("abs" == ing.comBlock.mode) {
+                    var jAreaCon = ing.$trigger.closest(".hm-area-con");
+                    // 在 hm-area 里，则用它
+                    if(jAreaCon.length>0) {
+                        return $D.rect.gen(jAreaCon, {
+                            boxing   : "content",
+                            scroll_c : true,
+                            viewport : editBody,
+                            overflow : true,
+                            overflowEle : jAreaCon,
+                        });
+                    }
                 }
                 // 否则用 body
                 return editBody;

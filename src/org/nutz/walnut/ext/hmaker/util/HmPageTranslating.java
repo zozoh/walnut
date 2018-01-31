@@ -276,9 +276,9 @@ public class HmPageTranslating extends HmContext {
         Hms.COMs.check(this.comType).invoke(this);
 
         // 移除没必要的属性
-        eleCom.removeAttr("c_seq");
-        eleCom.removeAttr("hmc-mode");
-        eleCom.removeAttr("hmc-pos-by");
+        // eleCom.removeAttr("c_seq");
+        // eleCom.removeAttr("hmc-mode");
+        // eleCom.removeAttr("hmc-pos-by");
         eleCom.removeAttr("hm-actived");
         eleCom.removeAttr("ui-id");
     }

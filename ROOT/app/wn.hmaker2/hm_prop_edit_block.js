@@ -74,7 +74,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             this.uiCom.saveBlock(null, block);
         },
         // 点击顶点
-        "click .hmpb-pos[mode=abs] .hmpb-pos-v" : function(e) {
+        'click .hmpb-pos[mode=abs] .hmpb-pos-v, .hmpb-pos[mode=fix] .hmpb-pos-v' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             if(jq.attr("highlight")){
@@ -216,7 +216,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                     .attr("current", "yes");
 
         // 绝对定位
-        if("abs" == block.mode) {
+        if(/^(abs|fix)$/.test(block.mode)) {
             // 打开提示
             UI.balloon(".hmpb-pos-box");
 

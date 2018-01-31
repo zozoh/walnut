@@ -191,7 +191,7 @@ public abstract class AbstractCom implements HmComHandler {
         // 处理顶级块的 CSS
         String mode = prop.getString("mode");
         // 对于绝对位置，绝对位置的话，应该忽略 margin
-        if ("abs".equals(mode)) {
+        if ("abs".equals(mode) || "fix".equals(mode)) {
             // 绝对位置的话，就不要 margin 了
             ing.propBlock.remove("margin");
 
@@ -235,7 +235,9 @@ public abstract class AbstractCom implements HmComHandler {
                                  ing.oSrc.path());
             }
             re = prop.pickBy(Pattern.compile(regex), false);
-            re.put("position", "absolute");
+
+            // 最后加入一下 position
+            re.put("position", "abs".equals(mode) ? "absolute" : "fixed");
         }
         // 相对位置
         else {

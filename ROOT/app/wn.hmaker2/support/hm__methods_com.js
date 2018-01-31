@@ -395,11 +395,18 @@ var methods = {
         // 准备 css 对象
         var css = {};
         
-        // 对于绝对位置，绝对位置的话，应该忽略 margin
+        // 对于绝对定位
         if("abs" == block.mode) {
             _.extend(css, 
                 $z.pick(block, "!^(mode|posBy|sa-.+)$"),{
                 "position" : "absolute"
+            });
+        }
+        // 对于固定定位
+        else if("fix" == block.mode) {
+            _.extend(css, 
+                $z.pick(block, "!^(mode|posBy|sa-.+)$"),{
+                "position" : "fixed"
             });
         }
         // 相对位置
@@ -497,6 +504,11 @@ var methods = {
             !$D.dom.isUnset(css.width) ? "yes" : null);
         this.$el.attr("auto-wrap-height", 
             !$D.dom.isUnset(css.height) ? "yes" : null);
+
+        // 绝对定位的话，应该忽略 margin
+        if(/^(abs|fix)$/.test(block.mode)) {
+            css.margin = "";
+        }
             
         // 最后分别应用属性到对应的元素上
         var posKeys  = "^(position|top|left|right|bottom|margin|width|height)$";
@@ -681,7 +693,7 @@ module.exports = function(uiCom){
     // 控件默认的确保块在各个模式下的正常显示
     $z.setUndefined(uiCom, "checkBlockMode", function(block){
         // 绝对定位的块，必须有宽高
-        if("abs" == block.mode) {
+        if(/^(fix|abs)$/.test(block.mode)) {
             // 确保定位模式正确
             if(!block.posBy || "WH" == block.posBy)
                 block.posBy = "TLWH";

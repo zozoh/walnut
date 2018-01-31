@@ -23,7 +23,7 @@ return ZUI.def("app.wn.hm_com_image", {
         },
         // 重置图片的原始宽度
         "dblclick img" : function(e){
-            console.log("dblclick img")
+            //console.log("dblclick img")
             this.saveBlock(null, {
                 "width"   : "unset",
                 "height"  : "unset",
@@ -204,7 +204,7 @@ return ZUI.def("app.wn.hm_com_image", {
     //...............................................................
     checkBlockMode : function(block) {
         // 绝对定位的块，必须有宽高
-        if("abs" == block.mode) {
+        if(/^(abs|fix)$/.test(block.mode)) {
             // 确保定位模式正确
             if(!block.posBy || "WH" == block.posBy)
                 block.posBy = "TLWH";

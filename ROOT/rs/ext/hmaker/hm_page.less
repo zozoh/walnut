@@ -90,6 +90,16 @@ ul, ol {list-style: none; margin:0; padding:0;}
     > .hm-com-W > div {height:100%;}
 }
 
+// COM 元素下的子元素通常是表示 .ui-arena，当然这个选择器会被去掉
+// 那么这个元素需要被设定 relative，以便重载绝对浮动的元素
+.hm-com>* {position: relative;}
+
+// 绝对定位控件应该覆盖在其他控件之上
+.hm-com[hmc-mode="abs"],
+.hm-com[hmc-mode="fix"] {
+    z-index: 1;
+}
+
 /**
  * 控件: image
  */
