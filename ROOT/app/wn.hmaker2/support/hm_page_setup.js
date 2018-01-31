@@ -309,18 +309,19 @@ var methods = {
                 UI.fire("active:page", UI._page_obj);
             }
         });
-        UI._C.iedit.$body.on("keyup", function(e){
-            // Shift 将表示开关移动遮罩的  no-drag
-            if(16 == e.which) {
-                var mvMask = UI._C.iedit.$body.children(".pmv-mask");
-                if(mvMask.length > 0) {
-                    $z.toggleAttr(mvMask, "no-drag", "yes");
-                }
-            }
-        });
 
         // 阻止页面的 form 提交
         UI._C.iedit.$body.on("submit", "form", function(e){
+            e.preventDefault();
+        });
+
+        // 阻止页面的 drag&drop
+        UI._C.iedit.$body.on("dragstart", "img,a", function(e){
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        UI._C.iedit.$body.on("drop", function(e){
+            e.stopPropagation();
             e.preventDefault();
         });
 

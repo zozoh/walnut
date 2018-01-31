@@ -603,18 +603,22 @@ var methods = {
     //...............................................................
     // 得到控件所属的视口 DOM，如果不在分栏里，那么就是 body
     getMyViewport : function(){
-        var jArea = this.$el.closest(".hm-area-con");
-        if(jArea.length > 0)
-            return jArea;
+        if("abs" == this.$el.attr("hmc-mode")) {
+            var jArea = this.$el.closest(".hm-area-con");
+            if(jArea.length > 0)
+                return jArea;
+        }
         return this.$el.closest("body");
     },
     getMyViewportRect : function(){
         // 用一个区域
-        var jArea = this.$el.closest(".hm-area-con");
-        if(jArea.length > 0) {
-            return $D.rect.gen(jArea, {
-                overflow : {x:"auto", y:"auto"}
-            });
+        if("abs" == this.$el.attr("hmc-mode")) {
+            var jArea = this.$el.closest(".hm-area-con");
+            if(jArea.length > 0) {
+                return $D.rect.gen(jArea, {
+                    overflow : {x:"auto", y:"auto"}
+                });
+            }
         }
         // 用 body
         return $D.rect.gen(this.$el.closest("body"), {
