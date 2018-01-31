@@ -92,10 +92,10 @@
         .hm-prop-con[current] {display: block;}
         //....................................................
         // 块属性
-        @bPosH  : 148px;
+        @bPosH  : 120px;
         @bSkinH : 32px;
-        @boxW : 200px;
-        @boxH : 100px;
+        @boxW : 150px;
+        @boxH : 96px;
         @vS : 12px;
         @dH : 24px;
         .hm-prop-block {
@@ -125,21 +125,32 @@
             }
             .hmpb-pos {
                 top:0; height:@bPosH;
-                .hmpb-pos-abs {
-                    padding:@d2; text-align: center;
-                    > label {cursor: pointer;}
-                    > label>* {display: inline; margin: 0 @d0;}
-                    i {display: inline-block; width:14px; vertical-align: middle;}
-                    i:first-child {display: none;}
-                    i:last-child  {display: inline-block;}
+                @flex(); padding:0 0 0 @d5;
+                .hmpb-pos-box-con {
+                    flex:1 1 auto;
+                }
+                .hmpb-pos-mode {
+                    flex:0 0 auto; font-size:@f0;
+                    ul {
+                        margin-top:-@d3;
+                        li[head] {
+                            color:@c2; font-size: @f0;
+                            text-align: center;
+                        }
+                        li[v] {
+                            padding:@d1; border:1px dotted @c2;
+                            color:@c2; cursor: pointer;
+                            border-radius: @d0; margin:@d0 0;
+                            &[current] {
+                                border:1px solid @chx_b;
+                                background: @chx_b; color:@chx_f;
+                            }
+                        }
+                    }
                 }
             }
             // 绝对定位
             .hmpb-pos[mode="abs"] {
-                .hmpb-pos-abs{
-                    i:first-child {display: inline-block;}
-                    i:last-child  {display: none;}
-                }
                 .hmpb-pos-v:hover {background:@cb0; border-color:@c6;}
                 .hmpb-pos-v[highlight], .hmpb-pos-v[highlight]:hover {
                     background:@cb0; border-color:@c6;
@@ -194,6 +205,7 @@
                 .hmpb-pos-d[key="bottom"]{bottom:@dH/-2;left:@vS;right:@vS;}
                 .hmpb-pos-d[key="width"],
                 .hmpb-pos-d[key="height"] { left:0; right:0;
+                    line-height: 18px; height:18px;
                     span > * {display: inline-block; padding:0 @d1; vertical-align: middle;}
                     b  {width: 30px; text-align: right;}
                     em {

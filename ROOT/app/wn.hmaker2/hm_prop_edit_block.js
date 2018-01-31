@@ -10,7 +10,7 @@ $z.declare([
 var html = `
 <div class="ui-arena hm-prop-block">
     <div class="hmpb-pos">
-        <div class="hmpb-pos-box">
+        <div class="hmpb-pos-box-con"><div class="hmpb-pos-box">
             <div class="hmpb-pos-d" key="width"><span><b>{{hmaker.pos.width}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="height"><span><b>{{hmaker.pos.height}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="left"><span><b>{{hmaker.pos.left}}</b><em></em></span></div>
@@ -21,12 +21,22 @@ var html = `
             <div class="hmpb-pos-v" md="TR" balloon="up:hmaker.pos.TR"   val="TRWH"></div>
             <div class="hmpb-pos-v" md="LB" balloon="down:hmaker.pos.LB" val="LBWH"></div>
             <div class="hmpb-pos-v" md="BR" balloon="down:hmaker.pos.BR" val="BRWH"></div>
-        </div>
-        <div class="hmpb-pos-abs">
-            <label>
-                <dt><i class="fa fa-check-square"></i><i class="fa fa-square-o"></i></dt>
-                <dd>{{hmaker.pos.abs}}</dd>
-            </label>
+        </div></div>
+        <div class="hmpb-pos-mode">
+            <ul>
+                <li head="yes">
+                    <span>{{hmaker.pos.mode}}</span>
+                </li>
+                <li v="inflow" balloon="left:hmaker.pos.inflow_tip">
+                    <span>{{hmaker.pos.inflow}}</span>
+                </li>
+                <li v="abs" balloon="left:hmaker.pos.abs_tip">
+                    <span>{{hmaker.pos.abs}}</span>
+                </li>
+                <li v="fix" balloon="left:hmaker.pos.fix_tip">
+                    <span>{{hmaker.pos.fix}}</span>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="hmpb-skin">
@@ -45,12 +55,14 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     //...............................................................
     events : {
         // 切换绝对/相对定位选择框
-        "click .hmpb-pos-abs label" : function() {
+        "click .hmpb-pos-mode li[v]" : function(e) {
             var block = this.uiCom.getBlock();
+            var jLi = $(e.currentTarget);
 
-            block.mode = this.arena.find(".hmpb-pos").attr("mode") == "abs"
-                            ? "inflow"
-                            : "abs";
+            // 确保模式正确
+            block.mode = jLi.attr("v");
+            if(!/^(inflow|abs|fix)$/.test(block.mode))
+                block.mode = "inflow";
             
             // 如果切换到了绝对定位，需要默认设置其宽高
             this.uiCom.checkBlockMode(block);
@@ -196,24 +208,25 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI   = this;
         var jPos = UI.arena.find(".hmpb-pos");
 
+        // 标记定位
+        var mode = block.mode || "inflow";
+        jPos.attr("mode", mode);
+        jPos.find('li').removeAttr("current")
+                .filter('[v="'+mode+'"]')
+                    .attr("current", "yes");
+
         // 绝对定位
         if("abs" == block.mode) {
-            // 标志
-            jPos.attr("mode", "abs");
-            
             // 打开提示
-            UI.balloon();
+            UI.balloon(".hmpb-pos-box");
 
             // 更新显示
             UI.changePosBy(block, block.posBy || "TLWH");
         }
         // 相对定位
         else {
-            // 标志
-            jPos.attr("mode", "inflow");
-            
             // 关闭提示
-            UI.balloon(false);
+            UI.balloon(".hmpb-pos-box", false);
 
             // 更新显示
             UI.changePosBy(block, "WH");
@@ -295,7 +308,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         UI.arena.find(".hmpb-pos-d em").text("unset");
 
         // 启用提示
-        //this.balloon();
+        UI.balloon();
 
         // // margin 
         // new SwitchUI({
