@@ -4,6 +4,12 @@ define(function (require, exports, module) {
         return "v_ticket_chat_" + $z.randomInt(1, 10000);
     };
 
+    Vue.directive('focus', {
+        update: function (el) {
+            el.focus()
+        }
+    })
+
     var ticketReply = {
         html: function (id) {
             return `
@@ -17,21 +23,21 @@ define(function (require, exports, module) {
                                     <div class="chat-user-name">{{userName(item)}}</div>
                                 </div>
                                 <div class="chat-content">
-                                    <div class="chat-content-text">
+                                    <div class="chat-content-text" :class="{edit: editIndex == index}">
                                         <div class="text-con">{{item.text}}
                                             <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
                                                 <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
                                                 <img :src="attaImage(atta)" v-if="isImage(atta)">
                                                 <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
                                             </div>
-                                        <div class="chat-content-footer left">
+                                        <div class="chat-content-footer left" >
                                             <span class="time">{{timeText(item)}}</span>
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item)"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
                                         </div>
-                                        <div class="chat-content-footer right">
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item)"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
+                                        <div class="chat-content-footer right" >
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
                                             <span class="time">{{timeText(item)}}</span>
                                         </div>
                                     </div>
@@ -40,12 +46,12 @@ define(function (require, exports, module) {
                         </ul>
                         <div class="ticket-menu step2">
                             <div class="ticket-send-input">
-                                <textarea name="" id="" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
+                                <textarea v-focus="focusStatus" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
                             </div>
                             <div class="ticket-send-btns">
-                                <button @click="sendText" class="tk-btn">发送内容</button>
-                                <button @click="sendFile" class="tk-btn file">上传附件</button>
-                                <button @click="sendClose" class="tk-btn close" >已解决并关闭</button>
+                                <button @click="sendText" class="tk-btn">{{editing? "更新内容": "发送内容"}}</button>
+                                <button @click="sendFile" class="tk-btn file" v-show="!editing">上传附件</button>
+                                <button @click="sendClose" class="tk-btn close" v-show="!editing">已解决并关闭</button>
                             </div>
                         </div>
                         <div class="ticket-menu step3">
@@ -67,16 +73,17 @@ define(function (require, exports, module) {
                 // 发送相关
                 text: "",
                 sending: false,
-                expmin: 30
+                editing: false,
+                editIndex: -1,
+                editSndex: -1,
+                expmin: 30,
+                focusStatus: false
             }, opt || {});
 
             return new Vue({
                 el: '#' + cid,
                 data: data,
                 computed: {
-                    menuHide: function () {
-                        return this.tkStep == '3' || this.hideMenu;
-                    },
                     tkId: function () {
                         return this.wobj.id;
                     },
@@ -105,6 +112,14 @@ define(function (require, exports, module) {
                         return this.items.sort(function (a, b) {
                             return a.time > b.time;
                         });
+                    }
+                },
+                watch: {
+                    editing: function (val) {
+                        if (val == false) {
+                            this.editIndex = -1;
+                            this.editSndex = -1;
+                        }
                     }
                 },
                 methods: {
@@ -269,9 +284,12 @@ define(function (require, exports, module) {
                             return;
                         }
                         self.sending = true;
-                        Wn.exec("ticket my -post '" + self.tkId + "' -c 'text: \"" + stext + "\"'", function (re) {
+                        Wn.exec("ticket my -post '" + self.tkId + "' -c 'text: \"" + stext + "\"' -edit " + self.editSndex, function (re) {
                             var re = JSON.parse(re);
                             if (re.ok) {
+                                if (self.editing) {
+                                    self.editing = false;
+                                }
                                 self.text = '';
                                 self.wobj = re.data;
                                 self.refreshItems();
@@ -368,6 +386,11 @@ define(function (require, exports, module) {
                         var self = this;
                         if (!self.isPassTime(item.time)) {
                             console.log("updateConent: " + item.stp + " No." + item.sindex);
+                            self.editIndex = index;
+                            self.editSndex = item.sindex;
+                            self.editing = true;
+                            self.text = item.text;
+                            self.focusStatus = true;
                         } else {
                             UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
                         }
