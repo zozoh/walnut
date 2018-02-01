@@ -56,7 +56,7 @@ return ZUI.def("app.wn.hm_com_searcher", {
     getDefaultData : function(){
         return {
             "placeholder"  : this.msg("hmaker.com.searcher.plhd_dft"),
-            "btnText"      : this.msg("search"),
+            "btnText"      : "",
             "defaultValue" : "",
             "maxLen"       : 0,
             "trimSpace"    : true,

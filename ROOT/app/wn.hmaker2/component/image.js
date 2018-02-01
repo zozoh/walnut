@@ -49,6 +49,11 @@ return ZUI.def("app.wn.hm_com_image", {
         // 这个是空白图片
         var BLANK_IMG = '/a/load/wn.hmaker2/img_blank.jpg';
         //console.log(com)
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 更新属性
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        UI.arena.attr("tpos", com.textPos || null);
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接: 要显示链接提示图标
@@ -227,19 +232,13 @@ return ZUI.def("app.wn.hm_com_image", {
     },
     //...............................................................
     getBlockPropFields : function(block) {
-        return [block.mode == 'inflow' ? "margin" : null,
-                "border","borderRadius", 
-                "boxShadow", "background",
-                $z.tmpl("@t-pos({{tt}})[{{N}}=top,{{P}}=center,{{S}}=bottom]=bottom")({
-                    tt : this.msg("hmaker.com.image.text_pos"),
-                    N  : this.msg("hmaker.com.image.text_pos_N"),
-                    P  : this.msg("hmaker.com.image.text_pos_P"),
-                    S  : this.msg("hmaker.com.image.text_pos_S"),
-                }),
-                "_align","_font",
-                "color", "#B> section(文字背景)=",
-                "padding", "fontFamily", "fontSize",
-                "lineHeight","letterSpacing","textShadow"];
+        return [
+            "margin", "padding",
+            "border","color", "background",
+            "textAlign", "fontFamily", "fontSize", "_font",
+            "lineHeight", "letterSpacing",
+            "textShadow","boxShadow","borderRadius"
+        ];
     },
     //...............................................................
     // 返回属性菜单， null 表示没有属性
