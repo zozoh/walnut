@@ -4,6 +4,37 @@
 (function($, $z){
 window.HmRT = {
     //...............................................................
+    // 自动寻找一个合适的详情页面
+    // - obj 表示要渲染的数据
+    // - sitemap 表示站点索引数据，默认取 window.__SITEMAP
+    explainAutoHref : function(obj, sitemap) {
+        sitemap = sitemap || window.__SITEMAP;
+        if(sitemap && obj.th_set){
+            for(var rph in sitemap) {
+                var oPage = sitemap[rph];
+                // 如果符合目标对象所属的 th_set
+                // API 返回的数据类型为 obj | goods 
+                if(oPage.hm_pg_tsid == obj.th_set
+                    && /^(obj|goods)$/.test(oPage.hm_api_return)) {
+                    // 那么就是它了
+                    return window.__ROOT_PATH + rph + ".html";
+                }
+            }
+        }
+    },
+    //...............................................................
+    // 通用的解析一个链接的方法，支持 @auto
+    // - href 链接，@auto 的话则自动调用 explainAutoHref
+    // - obj 表示要渲染的数据
+    // - isIDE 表示在 IDE 里，那么就应该总是返回 href
+    explainHref : function(href, obj, isIDE) {
+        // 试图自动寻找链接
+        if("@auto" == href && !isIDE) {
+            return HmRT.explainAutoHref(obj);
+        }
+        return href;
+    },
+    //...............................................................
     // 判断一个模板的数据类型能否与 api 的返回值匹配
     isMatchDataType : function(apiReTypes, tmplDataType){
         if(!apiReTypes || !tmplDataType)
