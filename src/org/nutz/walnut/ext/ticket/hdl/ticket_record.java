@@ -229,6 +229,9 @@ public class ticket_record implements JvmHdl {
             String rid = params.getString("reply");
             boolean isMeta = params.is("m", false);
             boolean isOpen = params.is("open", false);
+            boolean isClose = params.is("close", false);
+            int editIndex = params.getInt("edit", -1);
+            int deletIndex = params.getInt("delete", -1);
             WnObj curRecord = getRecord(sys, rid);
             if (curRecord != null) {
                 // 只更新meta
@@ -251,20 +254,40 @@ public class ticket_record implements JvmHdl {
                     if (isUser) {
                         // 先检查是否我的订单
                         if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
-                            NutMap ureply = Lang.map(params.getString("c"));
-                            // 如果还有内容提交
-                            if (!Strings.isBlank(ureply.getString("text", ""))
-                                || params.has("atta")) {
-                                ureply.setv("attachments", attas(sys, curRecord, params));
-                                ureply.setv("time", System.currentTimeMillis());
-                                curRecord.addv2("request", ureply);
-                                curRecord.setv("ticketStatus", "ureply");
-                            }
-                            // 关闭票
-                            if (ureply.getBoolean("finish", false)) {
+                            // 关闭
+                            if (isClose) {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                            }
+                            // 删除某条
+                            if (deletIndex > -1) {
+                                List<NutMap> requestList = curRecord.getAsList("request",
+                                                                               NutMap.class);
+                                requestList.remove(deletIndex);
+                                curRecord.setv("request", requestList);
+                                curRecord.setv("ticketStatus", "ureply");
+                            }
+                            NutMap ureply = Lang.map(params.getString("c"));
+                            boolean hasContent = !Strings.isBlank(ureply.getString("text", ""));
+                            boolean hasAtta = params.has("atta");
+                            // 有内容提交
+                            if (hasContent || hasAtta) {
+                                // 修改旧贴
+                                if (editIndex > -1) {
+                                    List<NutMap> requestList = curRecord.getAsList("request",
+                                                                                   NutMap.class);
+                                    NutMap editreplay = requestList.get(editIndex);
+                                    editreplay.setv("text", ureply.getString("text", ""));
+                                    editreplay.setv("attachments", attas(sys, curRecord, params));
+                                }
+                                // 提交新贴
+                                else {
+                                    ureply.setv("attachments", attas(sys, curRecord, params));
+                                    ureply.setv("time", System.currentTimeMillis());
+                                    curRecord.addv2("request", ureply);
+                                }
+                                curRecord.setv("ticketStatus", "ureply");
                             }
                             // 如果没有客服接这个任务
                             if (!curRecord.has("csId")) {
@@ -280,21 +303,43 @@ public class ticket_record implements JvmHdl {
                     } else {
                         // 先检查是否是分配给我的订单
                         if (tPeople.getString("usrId").equals(curRecord.getString("csId"))) {
-                            NutMap creply = Lang.map(params.getString("c"));
-                            // 如果还有内容提交
-                            if (!Strings.isBlank(creply.getString("text", ""))
-                                || params.has("atta")) {
-                                creply.setv("csId", tPeople.getString("usrId"));
-                                creply.setv("csAlias", tPeople.getString("usrAlias"));
-                                creply.setv("attachments", attas(sys, curRecord, params));
-                                creply.setv("time", System.currentTimeMillis());
-                                curRecord.addv2("response", creply);
-                                curRecord.setv("ticketStatus", "creply");
-                            }
-                            if (creply.getBoolean("finish", false)) {
+                            // 关闭
+                            if (isClose) {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                            }
+                            // 删除某条
+                            if (deletIndex > -1) {
+                                List<NutMap> respList = curRecord.getAsList("response",
+                                                                            NutMap.class);
+                                respList.remove(deletIndex);
+                                curRecord.setv("response", respList);
+                                curRecord.setv("ticketStatus", "creply");
+                            }
+                            NutMap creply = Lang.map(params.getString("c"));
+                            boolean hasContent = !Strings.isBlank(creply.getString("text", ""));
+                            boolean hasAtta = params.has("atta");
+                            // 有内容提交
+                            if (hasContent || hasAtta) {
+                                // 修改旧贴
+                                if (editIndex > -1) {
+                                    List<NutMap> respList = curRecord.getAsList("response",
+                                                                                NutMap.class);
+                                    NutMap editreplay = respList.get(editIndex);
+                                    editreplay.setv("text", creply.getString("text", ""));
+                                    editreplay.setv("attachments", attas(sys, curRecord, params));
+                                }
+                                // 提交新贴
+                                else {
+                                    creply.setv("csId", tPeople.getString("usrId"));
+                                    creply.setv("csAlias", tPeople.getString("usrAlias"));
+                                    creply.setv("attachments", attas(sys, curRecord, params));
+                                    creply.setv("time", System.currentTimeMillis());
+                                    curRecord.addv2("response", creply);
+
+                                }
+                                curRecord.setv("ticketStatus", "creply");
                             }
                             sys.io.appendMeta(curRecord,
                                               "^response|ticketStatus|ticketStep|ticketEnd$");

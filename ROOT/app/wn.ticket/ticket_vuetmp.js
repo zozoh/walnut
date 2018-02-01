@@ -26,11 +26,11 @@ define(function (require, exports, module) {
                                             </div>
                                         <div class="chat-content-footer left">
                                             <span class="time">{{timeText(item)}}</span>
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item)"></i>
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item)"></i>
                                             <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
                                         </div>
                                         <div class="chat-content-footer right">
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item)"></i>
+                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item)"></i>
                                             <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item)"></i>
                                             <span class="time">{{timeText(item)}}</span>
                                         </div>
@@ -122,6 +122,10 @@ define(function (require, exports, module) {
                             return item.csId == UI.me.id;
                         }
                         return false;
+                    },
+                    canEdit: function (item) {
+                        var atta = item.attachments || [];
+                        return atta.length == 0;
                     },
                     timeText: function (item) {
                         return $z.currentTime(item.time).substr(0, 16);
@@ -305,7 +309,7 @@ define(function (require, exports, module) {
                         UI.confirm("问题已经得到了解决，该工单将被关闭", {
                             ok: function () {
                                 self.sending = true;
-                                Wn.exec("ticket my -post '" + self.tkId + "' -c 'finish: true'", function (re) {
+                                Wn.exec("ticket my -post '" + self.tkId + "' -close true", function (re) {
                                     var re = JSON.parse(re);
                                     if (re.ok) {
                                         self.text = '';
@@ -361,15 +365,31 @@ define(function (require, exports, module) {
                         return ct - (this.expmin * 1000 * 60) > time;
                     },
                     editContent: function (item, index) {
-                        if (!this.isPassTime(item.time)) {
+                        var self = this;
+                        if (!self.isPassTime(item.time)) {
                             console.log("updateConent: " + item.stp + " No." + item.sindex);
                         } else {
                             UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
                         }
                     },
                     removeContent: function (item, index) {
-                        if (!this.isPassTime(item.time)) {
+                        var self = this;
+                        if (!self.isPassTime(item.time)) {
                             console.log("removeConent " + item.stp + " No." + item.sindex);
+                            UI.confirm("确定要删除这条内容吗？", {
+                                ok: function () {
+                                    Wn.exec("ticket my -post '" + self.tkId + "' -del " + item.sindex, function (re) {
+                                        var re = JSON.parse(re);
+                                        if (re.ok) {
+                                            self.text = '';
+                                            self.wobj = re.data;
+                                            self.refreshItems();
+                                        } else {
+                                            UI.alert(re.data);
+                                        }
+                                    });
+                                }
+                            });
                         } else {
                             UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
                         }

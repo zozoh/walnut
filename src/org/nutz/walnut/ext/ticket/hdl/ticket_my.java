@@ -231,10 +231,11 @@ public class ticket_my implements JvmHdl {
         else if (params.has("post")) {
             String trid = null;
             String pcontent = params.getString("c", "");
-            boolean isMeta = params.is("m", false);
-            boolean isOpen = params.is("open", false);
-            httpPs.setv("meta", isMeta);
-            httpPs.setv("open", isOpen);
+            httpPs.setv("meta", params.is("m", false));
+            httpPs.setv("open", params.is("open", false));
+            httpPs.setv("close", params.is("close", false));
+            httpPs.setv("edit", params.getInt("edit", -1));
+            httpPs.setv("del", params.getInt("del", -1));
             NutMap content = null;
             if (!params.getString("post").equalsIgnoreCase("true")
                 && !params.getString("post").equalsIgnoreCase("false")
