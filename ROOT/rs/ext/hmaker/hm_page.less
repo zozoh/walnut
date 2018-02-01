@@ -107,14 +107,18 @@ ul, ol {list-style: none; margin:0; padding:0;}
 .hmc-image { @noselect(); color:#FFF; 
     position: relative; overflow: hidden; text-decoration: none;
     img {border:0; display:block; vertical-align: bottom;}
-    section {position: absolute;padding:.08rem;}
+    section {
+        position: absolute;padding:.08rem;
+        bottom:0; left:0; right:0;
+        text-align: center;
+    }
 }
-.hmc-image[sa-t-pos="center"] section{
+.hmc-image[tpos="center"] section{
     top:0;bottom:0;left:0;right:0;
-    @flex(); justify-content:center; align-items:center;
+    @flex(); flex-wrap:wrap; align-items:center;
 }
-.hmc-image[sa-t-pos="top"]  section{top:0;left:0;right:0;}
-.hmc-image[sa-t-pos="bottom"]  section{bottom:0;left:0;right:0;}
+.hmc-image[tpos="top"]  section{top:0;left:0;right:0;}
+.hmc-image[tpos="bottom"]  section{bottom:0;left:0;right:0;}
 
 /**
  * 控件: text

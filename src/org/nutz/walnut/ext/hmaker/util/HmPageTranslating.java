@@ -625,8 +625,16 @@ public class HmPageTranslating extends HmContext {
             return link;
         }
 
+        // 截取链接尾部的锚点
+        int pos = link.indexOf('#');
+        String anchor = null;
+        if (pos > 1) {
+            anchor = link.substring(pos);
+            link = link.substring(0, pos);
+        }
+
         // 分析链接是否包含参数
-        int pos = link.indexOf('?');
+        pos = link.indexOf('?');
         String params = null;
         if (pos > 0) {
             params = link.substring(pos);
@@ -667,8 +675,14 @@ public class HmPageTranslating extends HmContext {
         if (!Strings.isBlank(pageName))
             rph = Files.renamePath(rph, pageName);
 
+        // 拼接回参数
+        if (!Strings.isBlank(params))
+            rph += params;
+        // 拼接回锚点
+        if (!Strings.isBlank(anchor))
+            rph += anchor;
         // 返回
-        return null == params ? rph : rph + params;
+        return rph;
     }
 
 }

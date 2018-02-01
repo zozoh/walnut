@@ -26,6 +26,11 @@ public class hmc_image extends AbstractNoneValueCom {
             return false;
         }
 
+        // 展开属性
+        if (ing.propCom.has("textPos")) {
+            eleArena.attr("tpos", ing.propCom.getString("textPos"));
+        }
+
         // zozoh: src 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
         eleArena.appendElement("img").attr("src", src);
 

@@ -118,7 +118,6 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             title  : "i18n:hmaker.prop.objectFit",
             type   : "string",
             dft    : "fill",
-            editAs : "link",
             editAs : "switch", 
             uiConf : {
                 items : [{
@@ -133,9 +132,27 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                 }]
             }
         }, {
+            key    : "textPos",
+            title  : "i18n:hmaker.com.image.tpos",
+            type   : "string",
+            dft    : null,
+            editAs : "switch", 
+            uiConf : {
+                singleKeepOne : false,
+                items : [{
+                    text : 'i18n:hmaker.com.image.tpos_top',
+                    val  : 'top',
+                }, {
+                    text : 'i18n:hmaker.com.image.tpos_center',
+                    val  : 'center',
+                }, {
+                    text : 'i18n:hmaker.com.image.tpos_bottom',
+                    val  : 'bottom',
+                }]
+            }
+        }, {
             key    : "text",
             title  : "i18n:hmaker.com.image.text",
-            tip    : "i18n:hmaker.com.image.text_tip",
             type   : "string",
             dft    : null,
             emptyAsNull : true,
