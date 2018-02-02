@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
@@ -21,7 +22,7 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.RawView2;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.mvc.view.RawView.RangeRange;
 
 /**
@@ -40,14 +41,12 @@ public class WnHttpResponse {
     /**
      * 准备要写入的内容流
      */
-    private InputStream ins = null;
+    private InputStream ins;
 
     /**
      * 唯一性标识，prepare 前需要设置好
      */
     private String etag;
-
-    private String __304_msg;
 
     /**
      * 响应码，默认会写入 200 如果返现 ETag 相同，则会是 304
@@ -62,24 +61,42 @@ public class WnHttpResponse {
         this.status = status;
     }
 
-    private String statusText;
+    private String userAgent;
 
-    public String getStatusText() {
-        return statusText;
+    public String getUserAgent() {
+        return userAgent;
     }
 
-    public void setStatusText(String statusText) {
-        this.statusText = statusText;
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 
-    private boolean rangeNotSatisfiable;
+    private String downloadName;
 
-    public String getETag() {
+    public String getDownloadName() {
+        return downloadName;
+    }
+
+    public void setDownloadName(String downloadName) {
+        this.downloadName = downloadName;
+    }
+
+    public String getEtag() {
         return this.etag;
     }
 
-    public void setETag(String etag) {
+    public void setEtag(String etag) {
         this.etag = etag;
+    }
+
+    private String contentType;
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     /**
@@ -93,7 +110,17 @@ public class WnHttpResponse {
      *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
      */
     public void prepare(WnIo io, WnObj wobj, String range) {
-        headers.put("Content-Type", wobj.mime());
+        // 默认采用 obj 的 mime
+        if (Strings.isBlank(this.contentType))
+            this.contentType = wobj.mime();
+
+        // 默认用 obj 的名称作为下载名
+        if (Strings.isBlank(this.downloadName))
+            this.downloadName = wobj.name();
+
+        // 准备记录 ETag
+        String objETag = Wn.getEtag(wobj);
+        headers.put("ETag", objETag);
 
         // 没给 ETag 那么就直接写咯
         if (Strings.isBlank(etag)) {
@@ -102,21 +129,18 @@ public class WnHttpResponse {
         }
         // 看看 ETag 和 Range 的逻辑
         else {
-            // 准备记录 ETag
-            String objETag = Wn.getEtag(wobj);
-            headers.put("ETag", objETag);
-
             // 304
             if (null != etag && etag.equalsIgnoreCase(objETag)) {
                 this.status = 304;
-                this.__304_msg = "Walnut-Object-Id: " + wobj.id();
+                this.headers.put("Walnut-Object-Id", wobj.id());
             }
             // 断点续传
             else if (!Strings.isBlank(range)) {
                 // 解析 Range
                 List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
                 if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1) {
-                    rangeNotSatisfiable = true;
+                    this.status = 400;
+                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
                 }
                 // 解析成功
                 else {
@@ -151,6 +175,67 @@ public class WnHttpResponse {
             headers.put("Content-Length", ins.available());
     }
 
+    public static interface HandleHeader {
+        public void invoke(String key, String val) throws IOException;
+    }
+
+    public void __do_header(HandleHeader callback) throws IOException {
+        // 然后是确保有 Content-Type
+        if (!Strings.isBlank(this.contentType))
+            headers.putDefault("Content-Type", this.contentType);
+
+        // 是否声明有下载目标信息呀？
+        if (!Strings.isBlank(this.userAgent) && !Strings.isBlank(this.downloadName)) {
+            headers.putDefault("Content-Disposition",
+                               WnWeb.genHttpRespHeaderContentDisposition(this.downloadName,
+                                                                         this.userAgent));
+        }
+
+        // 输出Header
+        for (Entry<String, Object> en : headers.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            if (null != val) {
+                String str = val.toString();
+                if (!Strings.isBlank(str)) {
+                    callback.invoke(key, str);
+                }
+            }
+        }
+    }
+
+    /**
+     * 向一个HTTP响应输出流写入数据
+     * 
+     * @param resp
+     *            响应对象
+     * 
+     * @throws IOException
+     */
+    public void writeTo(HttpServletResponse resp) throws IOException {
+        // 设置状态码
+        resp.setStatus(this.status);
+
+        // 30X 就不继续了
+        if (status / 100 == 3)
+            return;
+
+        // 输出Header
+        this.__do_header((key, val) -> {
+            resp.setHeader(key, val);
+        });
+
+        // 来个空行准备写 Body
+        resp.flushBuffer();
+
+        // 写入Body
+        if (null != ins) {
+            OutputStream ops = resp.getOutputStream();
+            Streams.write(ops, ins);
+            resp.flushBuffer();
+        }
+    }
+
     /**
      * 向一个输出流写入数据（并不会关闭输出流）
      * 
@@ -164,54 +249,40 @@ public class WnHttpResponse {
         try {
             OutputStreamWriter w = new OutputStreamWriter(ops);
 
-            // 30X 的话是不需要写入内容的
-            if (status / 100 == 3) {
-                w.write("HTTP/1.1 304 Not Modified\n");
-                if (!Strings.isBlank(this.__304_msg)) {
-                    w.write(this.__304_msg + "\n");
-                }
-                w.write("\n");
-                return;
-            }
-
-            // 错误状态
-            if (this.rangeNotSatisfiable) {
-                w.write("HTTP/1.1 Range Not Satisfiable\n\n");
-                return;
-            }
-
             // 首先的状态行
-            String status_text = this.statusText;
-            if (Strings.isBlank(status_text))
-                status_text = Http.getStatusText(status, "FUCK");
+            String status_text = Http.getStatusText(status, "FUCK");
             w.write(String.format("HTTP/1.1 %d %s\n", status, status_text));
 
-            // 然后是headers
-            w.write("X-Power-By: Walnut\n");
-            for (Entry<String, Object> en : headers.entrySet()) {
-                w.write(URLEncoder.encode(en.getKey(), "UTF-8"));
-                w.write(": ");
+            // 30X 就不继续了
+            if (status / 100 == 3) {
+                w.flush();
+                return;
+            }
+
+            // 输出Header
+            this.__do_header((key, val) -> {
+                // w.write(URLEncoder.encode(key, "UTF-8"));
                 // sys.out.println(URLEncoder.encode(""+en.getValue(),
                 // "UTF-8"));
-                w.write("" + en.getValue() + "\n");
-            }
+                w.write(key + ": " + val + "\n");
+            });
 
             // 来个空行准备写 Body
             w.write("\n");
-            
-            // 写入
             w.flush();
 
-            // 写吧
-            Streams.write(ops, ins);
+            // 写入Body
+            if (null != ins)
+                Streams.write(ops, ins);
         }
         finally {
             Streams.safeFlush(ops);
-            Streams.safeClose(ops);
+            // Streams.safeClose(ops);
         }
     }
 
     public WnHttpResponse() {
+        this.ins = null;
         this.headers = new NutMap();
         this.status = 200;
     }

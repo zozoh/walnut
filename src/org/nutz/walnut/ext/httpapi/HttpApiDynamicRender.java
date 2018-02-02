@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.http.Http;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 
@@ -152,16 +151,14 @@ public class HttpApiDynamicRender {
             // 标准的header总是以\r\n\r\n结束
             int endIndex = 0;
             if (tmp[i] == '\n') {
-                if (tmp[i+1] == '\r') {
+                if (tmp[i + 1] == '\r') {
                     if (tmp.length - i < 2) {
                         // 越界了, 等下一个数据吧
                         return;
-                    }
-                    else if (tmp[i+2] == '\n') {
+                    } else if (tmp[i + 2] == '\n') {
                         endIndex = 2;
                     }
-                }
-                else if (tmp[i+1] == '\n') {
+                } else if (tmp[i + 1] == '\n') {
                     endIndex = 1;
                 }
             }
@@ -177,9 +174,10 @@ public class HttpApiDynamicRender {
                     throw Lang.makeThrow("invalid HTTP status line: %s", sStatus);
 
                 int statusCode = Integer.parseInt(m.group(1));
-                String statusText = Strings.trim(m.group(3));
-                if (Strings.isBlank(statusText))
-                    statusText = Http.getStatusText(statusCode);
+                // zozoh: 下面貌似木有用，先注释掉
+                // String statusText = Strings.trim(m.group(3));
+                // if (Strings.isBlank(statusText))
+                // statusText = Http.getStatusText(statusCode);
                 resp.setStatus(statusCode);
                 // 读取头部信息
                 pos++;

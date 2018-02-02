@@ -39,6 +39,7 @@ import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
 @IocBean
@@ -180,9 +181,12 @@ public class WWWModule extends AbstractWnModule {
     @Filters({@By(type = WWWSetSessionID.class)})
     public View show_page(String usr,
                           String a_path,
+                          @Param("down") boolean isDownload,
+                          @ReqHeader("User-Agent") String ua,
+                          @ReqHeader("If-None-Match") String etag,
+                          @ReqHeader("Range") String range,
                           HttpServletRequest req,
-                          HttpServletResponse resp,
-                          @ReqHeader("User-Agent") String ua) {
+                          HttpServletResponse resp) {
         // 如果有的话，去掉开头的绝对路径符
         if (null == a_path) {
             a_path = "";
@@ -310,6 +314,9 @@ public class WWWModule extends AbstractWnModule {
             return new ServerRedirectView(redirectPath);
         }
 
+        // 确保可读，同时处理链接文件
+        o = Wn.WC().whenRead(o, false);
+
         // 渲染这个文件对象
         try {
             // 动态网页
@@ -356,22 +363,15 @@ public class WWWModule extends AbstractWnModule {
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);
             }
-            // 静态网页网页图片等，直接显示，清空 UA 后会去掉 CONTENT_DISPOSITION
-            else if (o.isType("^(html|htm|css|js|txt|gif|png|jpe?g|webp|mp3|mp4)$")) {
-                if (log.isDebugEnabled())
-                    log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
-                ua = null;
-            }
             // 其他的都是静态资源，就直接下载了
-            else {
-                if (log.isDebugEnabled())
-                    log.debugf(" - www.D (%s)@%s : %s", o.id(), usr, a_path);
-            }
-            // 输出吧
-            WnObj o2 = Wn.WC().whenRead(o, false);
-            if (Wn.checkEtag(o2, req, resp))
-                return HTTP_304;
-            return new WnObjDownloadView(io, o2, ua);
+            if (log.isDebugEnabled())
+                log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
+
+            // 特殊的类型，将不生成下载目标
+            ua = WnWeb.autoUserAgent(o, ua, isDownload);
+
+            // 返回下载视图
+            return new WnObjDownloadView(io, o, ua, etag, range);
 
         }
         catch (Exception e) {

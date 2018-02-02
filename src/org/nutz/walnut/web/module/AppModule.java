@@ -279,10 +279,14 @@ public class AppModule extends AbstractWnModule {
     public View load(String appName,
                      String rsName,
                      @Param("mime") String mimeType,
+                     @Param("down") boolean isDownload,
                      @Param("auto_unwrap") boolean auto_unwrap,
                      @ReqHeader("User-Agent") String ua,
+                     @ReqHeader("If-None-Match") String etag,
+                     @ReqHeader("Range") String range,
                      HttpServletRequest req,
-                     HttpServletResponse resp) {
+                     HttpServletResponse resp)
+            throws IOException {
         // 准备计时
         Stopwatch sw = null;
         if (log.isDebugEnabled()) {
@@ -299,6 +303,10 @@ public class AppModule extends AbstractWnModule {
 
             // 读取资源对象
             WnObj o = io.check(oAppHome, rsName);
+
+            // 确保可读，同时处理链接文件
+            o = Wn.WC().whenRead(o, false);
+
             String text = null;
             if (log.isDebugEnabled())
                 sw.tag("check_rs " + rsName);
@@ -315,7 +323,7 @@ public class AppModule extends AbstractWnModule {
             }
 
             // 处理一下 ua 来决定是否下载
-            ua = WnWeb.autoUserAgent(o, ua, true);
+            ua = WnWeb.autoUserAgent(o, ua, isDownload);
 
             // 如果是 JSON ，那么特殊的格式化一下
             if ("application/json".equals(mimeType)) {
@@ -326,18 +334,17 @@ public class AppModule extends AbstractWnModule {
             // 已经预先处理了内容
             if (null != text) {
                 StringInputStream ins = new StringInputStream(text);
-                return new WnObjDownloadView(ins, ins.available(), mimeType);
+                return new WnObjDownloadView(ins,
+                                             -1,
+                                             ua,
+                                             Strings.sBlank(mimeType, o.mime()),
+                                             o.name(),
+                                             etag,
+                                             range);
             }
 
-            if (Wn.checkEtag(o, req, resp))
-                return HTTP_304;
-
-            // 指定了 mimeType
-            if (!Strings.isBlank(mimeType)) {
-                return new WnObjDownloadView(io, o, mimeType, ua);
-            }
             // 其他就默认咯
-            return new WnObjDownloadView(io, o, ua);
+            return new WnObjDownloadView(io, o, ua, etag, range);
         }
         // 最后打印总时长
         finally {

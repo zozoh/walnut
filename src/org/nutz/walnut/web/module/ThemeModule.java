@@ -47,8 +47,8 @@ public class ThemeModule extends AbstractWnModule {
     @At("/r/?/**")
     @Ok("void")
     @Fail("http:404")
-    public View getUiTheme(String themeCate, 
-                           String rsName, 
+    public View getUiTheme(String themeCate,
+                           String rsName,
                            @ReqHeader("User-Agent") String ua,
                            HttpServletRequest req,
                            HttpServletResponse resp) {
@@ -127,7 +127,7 @@ public class ThemeModule extends AbstractWnModule {
             return HTTP_304;
 
         // 读取 CSS 内容返回以便输出
-        return new WnObjDownloadView(io, oCss, null);
+        return new WnObjDownloadView(io, oCss, null, null, null);
     }
 
 }

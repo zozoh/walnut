@@ -44,6 +44,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnImageView;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
@@ -229,11 +230,7 @@ public class ObjModule extends AbstractWnModule {
         String sz_key = String.format("%1$dx%1$d", sizeHint);
 
         // 尝试从本域读取默认缩略图
-        String ph = Wn.normalizeFullPath("~/.thumbnail/dft/"
-                                         + tp
-                                         + "/"
-                                         + sz_key
-                                         + ".png",
+        String ph = Wn.normalizeFullPath("~/.thumbnail/dft/" + tp + "/" + sz_key + ".png",
                                          Wn.WC().checkSE());
         WnObj oThumb = io.fetch(null, ph);
 
@@ -330,6 +327,8 @@ public class ObjModule extends AbstractWnModule {
                      @Param("d") boolean isDownload,
                      @Param("aph") boolean isAbsolutePath,
                      @ReqHeader("User-Agent") String ua,
+                     @ReqHeader("If-None-Match") String etag,
+                     @ReqHeader("Range") String range,
                      HttpServletRequest req,
                      HttpServletResponse resp) {
         // 截取参数
@@ -352,11 +351,12 @@ public class ObjModule extends AbstractWnModule {
             if (!o.isSameSha1(sha1))
                 return new HttpStatusView(400);
         }
-        if (Wn.checkEtag(o, req, resp))
-            return HTTP_304;
 
-        // 读取对象的值
-        return new WnObjDownloadView(io, o, isDownload ? ua : null);
+        // 特殊的类型，将不生成下载目标
+        ua = WnWeb.autoUserAgent(o, ua, isDownload);
+
+        // 返回下载视图
+        return new WnObjDownloadView(io, o, ua, etag, range);
     }
 
     @POST

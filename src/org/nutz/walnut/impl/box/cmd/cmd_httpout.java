@@ -20,8 +20,7 @@ public class cmd_httpout extends JvmExecutor {
         // 准备响应对象头部
         WnHttpResponse resp = new WnHttpResponse(params.getString("headers"));
         resp.setStatus(params.getInt("status", 200));
-        resp.setStatusText(params.getString("status_text"));
-        resp.setETag(params.getString("etag"));
+        resp.setEtag(params.getString("etag"));
 
         // 准备响应体
         String body = params.getString("body");

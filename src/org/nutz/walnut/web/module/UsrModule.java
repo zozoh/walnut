@@ -25,6 +25,7 @@ import org.nutz.mvc.annotation.GET;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.RawView;
@@ -46,6 +47,7 @@ import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
@@ -104,7 +106,13 @@ public class UsrModule extends AbstractWnModule {
 
     @At("/h/**")
     @Fail(">>:/")
-    public View show_host(String rph, @Attr("wn_www_host") String host, HttpServletRequest req) {
+    public View show_host(String rph,
+                          @Attr("wn_www_host") String host,
+                          @Param("down") boolean isDownload,
+                          @ReqHeader("User-Agent") String ua,
+                          @ReqHeader("If-None-Match") String etag,
+                          @ReqHeader("Range") String range,
+                          HttpServletRequest req) {
         // 确保没有登录过
         String seid = Wn.WC().SEID();
         if (null != seid && "login.html".equals(rph)) {
@@ -139,9 +147,16 @@ public class UsrModule extends AbstractWnModule {
                 // 得到文件内容
                 WnObj o = io.check(oPageHome, rph);
 
+                // 确保可读，同时处理链接文件
+                o = Wn.WC().whenRead(o, false);
+
                 // 如果不是html，那么必然是资源
                 if (!o.name().matches("^.*[.]html?")) {
-                    return new WnObjDownloadView(io, o);
+                    // 特殊的类型，将不生成下载目标
+                    ua = WnWeb.autoUserAgent(o, ua, isDownload);
+
+                    // 返回下载视图
+                    return new WnObjDownloadView(io, o, ua, etag, range);
                 }
 
                 String input = io.readText(o);

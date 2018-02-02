@@ -45,17 +45,23 @@ public class GuestModule extends AbstractWnModule {
     @At("/**")
     @Fail("http:404")
     public View read(String str,
+                     @Param("down") boolean isDownload,
+                     @ReqHeader("User-Agent") String ua,
+                     @ReqHeader("If-None-Match") String etag,
+                     @ReqHeader("Range") String range,
                      HttpServletRequest req,
-                     HttpServletResponse resp,
-                     @ReqHeader("User-Agent") String ua) {
+                     HttpServletResponse resp) {
+        // 获取对象
         WnObj o = Wn.checkObj(io, str);
-        if (Wn.checkEtag(o, req, resp))
-            return HTTP_304;
+
+        // 确保可读，同时处理链接文件
+        o = Wn.WC().whenRead(o, false);
 
         // 特殊的类型，将不生成下载目标
-        ua = WnWeb.autoUserAgent(o, ua, false);
+        ua = WnWeb.autoUserAgent(o, ua, isDownload);
 
-        return new WnObjDownloadView(io, o, ua);
+        // 返回下载视图
+        return new WnObjDownloadView(io, o, ua, etag, range);
     }
 
     @At("/qrcode")

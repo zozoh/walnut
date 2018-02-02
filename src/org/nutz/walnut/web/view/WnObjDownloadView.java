@@ -1,43 +1,61 @@
 package org.nutz.walnut.web.view;
 
-import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
-import org.nutz.mvc.view.RawView2;
+import org.nutz.mvc.View;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.web.util.WnWeb;
+import org.nutz.walnut.util.WnHttpResponse;
 
-public class WnObjDownloadView extends RawView2 {
+public class WnObjDownloadView implements View {
 
-    public WnObjDownloadView(WnIo io, WnObj o) {
-        this(io, o, o.mime(), null);
+    private WnHttpResponse re;
+
+    @Override
+    public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
+            throws Throwable {
+        re.writeTo(resp);
     }
 
-    public WnObjDownloadView(WnIo io, WnObj o, String ua) {
-        this(io, o, o.mime(), ua);
+    public WnObjDownloadView(WnIo io, WnObj o, String ua, String etag, String range) {
+        this.re = new WnHttpResponse();
+        this.re.setEtag(etag);
+        this.re.setUserAgent(ua);
+        this.re.prepare(io, o, range);
     }
 
-    public WnObjDownloadView(WnIo io, WnObj o, String mimeType, String ua) {
-        this(o.len() == 0 ? Lang.ins("") : io.getInputStream(o, 0), (int) o.len(), mimeType);
-        String nm = o.getString("title", o.name());
-        if (o.hasType() && !nm.endsWith("." + o.type())) {
-            nm += "." + o.type();
-        }
-        if (!Strings.isBlank(ua))
-            this.CONTENT_DISPOSITION = WnWeb.genHttpRespHeaderContentDisposition(nm, ua);
+    public WnObjDownloadView(InputStream ins,
+                             int len,
+                             String ua,
+                             String mimeType,
+                             String downloadName,
+                             String etag,
+                             String range)
+            throws IOException {
+        this.re = new WnHttpResponse();
+        this.re.setEtag(etag);
+        this.re.setContentType(mimeType);
+        this.re.setDownloadName(downloadName);
+        this.re.setUserAgent(ua);
+        this.re.prepare(ins, len);
     }
 
-    public WnObjDownloadView(InputStream ins, int maxLen, String mimeType) {
-        this(new DataInputStream(ins), maxLen, mimeType);
-    }
-
-    public WnObjDownloadView(DataInputStream input, int maxLen, String mimeType) {
-        this.contentType = Strings.sBlank(mimeType, "text/plain");
-        this.in = input;
-        this.maxLen = maxLen;
+    public WnObjDownloadView(byte[] buf,
+                             String ua,
+                             String mimeType,
+                             String downloadName,
+                             String etag,
+                             String range)
+            throws IOException {
+        this.re = new WnHttpResponse();
+        this.re.setEtag(etag);
+        this.re.setContentType(mimeType);
+        this.re.setDownloadName(downloadName);
+        this.re.setUserAgent(ua);
+        this.re.prepare(buf);
     }
 
 }

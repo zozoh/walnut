@@ -401,7 +401,7 @@ public abstract class Things {
             if (!Strings.isBlank(etag)) {
                 String range = hc.params.getString("range");
                 WnHttpResponse resp = new WnHttpResponse();
-                resp.setETag(etag);
+                resp.setEtag(etag);
                 resp.prepare(sys.io, oM, range);
                 hc.output = resp;
             }
