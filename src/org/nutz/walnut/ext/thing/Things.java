@@ -400,8 +400,15 @@ public abstract class Things {
             String etag = hc.params.getString("etag");
             if (!Strings.isBlank(etag)) {
                 String range = hc.params.getString("range");
+
                 WnHttpResponse resp = new WnHttpResponse();
                 resp.setEtag(etag);
+
+                // 准备下载
+                if (hc.params.is("download")) {
+                    resp.setUserAgent(hc.params.getString("UserAgent"));
+                }
+
                 resp.prepare(sys.io, oM, range);
                 hc.output = resp;
             }

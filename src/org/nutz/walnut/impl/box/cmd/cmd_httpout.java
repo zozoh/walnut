@@ -22,6 +22,11 @@ public class cmd_httpout extends JvmExecutor {
         resp.setStatus(params.getInt("status", 200));
         resp.setEtag(params.getString("etag"));
 
+        // 准备下载
+        if (params.is("download")) {
+            resp.setUserAgent(params.getString("UserAgent"));
+        }
+
         // 准备响应体
         String body = params.getString("body");
 
