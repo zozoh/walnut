@@ -1,0 +1,227 @@
+package org.nutz.walnut.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.sshd.common.util.io.LimitInputStream;
+import org.nutz.http.Http;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.ByteInputStream;
+import org.nutz.lang.util.NutMap;
+import org.nutz.mvc.view.RawView;
+import org.nutz.mvc.view.RawView2;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
+
+import org.nutz.mvc.view.RawView.RangeRange;
+
+/**
+ * 封装 HTTP 流写出逻辑，提供给诸如 `cmd_httpout` 等命令使用 <br>
+ * <b>!!!线程不安全</b>
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+public class WnHttpResponse {
+
+    /**
+     * 响应的头
+     */
+    private NutMap headers;
+
+    /**
+     * 准备要写入的内容流
+     */
+    private InputStream ins = null;
+
+    /**
+     * 唯一性标识，prepare 前需要设置好
+     */
+    private String etag;
+
+    private String __304_msg;
+
+    /**
+     * 响应码，默认会写入 200 如果返现 ETag 相同，则会是 304
+     */
+    private int status;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    private String statusText;
+
+    public String getStatusText() {
+        return statusText;
+    }
+
+    public void setStatusText(String statusText) {
+        this.statusText = statusText;
+    }
+
+    private boolean rangeNotSatisfiable;
+
+    public String getETag() {
+        return this.etag;
+    }
+
+    public void setETag(String etag) {
+        this.etag = etag;
+    }
+
+    /**
+     * 写入前的准备
+     * 
+     * @param io
+     *            IO 接口
+     * @param wobj
+     *            对象
+     * @param range
+     *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
+     */
+    public void prepare(WnIo io, WnObj wobj, String range) {
+        headers.put("Content-Type", wobj.mime());
+
+        // 没给 ETag 那么就直接写咯
+        if (Strings.isBlank(etag)) {
+            headers.put("Content-Length", "" + wobj.len());
+            ins = io.getInputStream(wobj, 0);
+        }
+        // 看看 ETag 和 Range 的逻辑
+        else {
+            // 准备记录 ETag
+            String objETag = Wn.getEtag(wobj);
+            headers.put("ETag", objETag);
+
+            // 304
+            if (null != etag && etag.equalsIgnoreCase(objETag)) {
+                this.status = 304;
+                this.__304_msg = "Walnut-Object-Id: " + wobj.id();
+            }
+            // 断点续传
+            else if (!Strings.isBlank(range)) {
+                // 解析 Range
+                List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
+                if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1) {
+                    rangeNotSatisfiable = true;
+                }
+                // 解析成功
+                else {
+                    RangeRange rr = rs.get(0);
+                    headers.put("Content-Length", rr.end - rr.start);
+                    headers.put("Accept-Ranges", "bytes");
+                    headers.put("Content-Range",
+                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
+                    status = 206;
+                    ins = io.getInputStream(wobj, rr.start);
+                    ins = new LimitInputStream(ins, rr.end - rr.start);
+                }
+            }
+            // 写全部的流
+            else {
+                ins = io.getInputStream(wobj, 0);
+                headers.put("Content-Length", wobj.len());
+            }
+        }
+    }
+
+    public void prepare(byte[] buf) {
+        ins = new ByteInputStream(buf);
+        headers.put("Content-Length", buf.length);
+    }
+
+    public void prepare(InputStream ins, int len) throws IOException {
+        this.ins = ins;
+        if (len > 0)
+            headers.put("Content-Length", len);
+        else if (ins.available() > 0)
+            headers.put("Content-Length", ins.available());
+    }
+
+    /**
+     * 向一个输出流写入数据（并不会关闭输出流）
+     * 
+     * @param ops
+     *            要被写入的输出流
+     * 
+     * @throws IOException
+     */
+    public void writeTo(OutputStream ops) throws IOException {
+        // 写入内容
+        try {
+            OutputStreamWriter w = new OutputStreamWriter(ops);
+
+            // 30X 的话是不需要写入内容的
+            if (status / 100 == 3) {
+                w.write("HTTP/1.1 304 Not Modified\n");
+                if (!Strings.isBlank(this.__304_msg)) {
+                    w.write(this.__304_msg + "\n");
+                }
+                w.write("\n");
+                return;
+            }
+
+            // 错误状态
+            if (this.rangeNotSatisfiable) {
+                w.write("HTTP/1.1 Range Not Satisfiable\n\n");
+                return;
+            }
+
+            // 首先的状态行
+            String status_text = this.statusText;
+            if (Strings.isBlank(status_text))
+                status_text = Http.getStatusText(status, "FUCK");
+            w.write(String.format("HTTP/1.1 %d %s\n", status, status_text));
+
+            // 然后是headers
+            w.write("X-Power-By: Walnut\n");
+            for (Entry<String, Object> en : headers.entrySet()) {
+                w.write(URLEncoder.encode(en.getKey(), "UTF-8"));
+                w.write(": ");
+                // sys.out.println(URLEncoder.encode(""+en.getValue(),
+                // "UTF-8"));
+                w.write("" + en.getValue() + "\n");
+            }
+
+            // 来个空行准备写 Body
+            w.write("\n");
+            
+            // 写入
+            w.flush();
+
+            // 写吧
+            Streams.write(ops, ins);
+        }
+        finally {
+            Streams.safeFlush(ops);
+            Streams.safeClose(ops);
+        }
+    }
+
+    public WnHttpResponse() {
+        this.headers = new NutMap();
+        this.status = 200;
+    }
+
+    @SuppressWarnings("unchecked")
+    public WnHttpResponse(Map<String, ? extends Object> map) {
+        this.headers = NutMap.WRAP((Map<String, Object>) map);
+    }
+
+    public WnHttpResponse(String headers_str) {
+        this.headers = Strings.isBlank(headers_str) ? new NutMap() : Lang.map(headers_str);
+    }
+}

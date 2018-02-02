@@ -13,8 +13,8 @@
                [-get xxx.jpg]          # 获取指定文件的元数据
                [-ufc]                  # 重新计算 Thing 的附件数量和元数据
                [-cat abc.txt]          # 输出指定文件的内容（根据文件的mime类型决定是按照文本还是二进制输出）
-               [-httpresponse]         # 当 -cat 模式时，输出为标准 HTTP 响应
-               [-http-etag]            # 当输出标准 HTTP 响应的时候，是否需要根据 etag 判断输出 304
+               [-etag]                 # 输出为标准 HTTP 响应，同时根据 etag 判断是否输出 304
+               [-range]                # 当输出 HTTP 响应时，分段下载表示，符合 Http头的 Range 规范
                [-quiet]
 
 # 示例
