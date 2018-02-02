@@ -216,10 +216,6 @@ public class WnHttpResponse {
         // 设置状态码
         resp.setStatus(this.status);
 
-        // 30X 就不继续了
-        if (status / 100 == 3)
-            return;
-
         // 输出Header
         this.__do_header((key, val) -> {
             resp.setHeader(key, val);
@@ -252,12 +248,6 @@ public class WnHttpResponse {
             // 首先的状态行
             String status_text = Http.getStatusText(status, "FUCK");
             w.write(String.format("HTTP/1.1 %d %s\n", status, status_text));
-
-            // 30X 就不继续了
-            if (status / 100 == 3) {
-                w.flush();
-                return;
-            }
 
             // 输出Header
             this.__do_header((key, val) -> {
