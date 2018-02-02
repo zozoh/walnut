@@ -14,8 +14,12 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 
 public class JvmBoxOutput implements Flushable, Closeable {
+
+    private static final Log log = Logs.get();
 
     private OutputStream ops;
 
@@ -53,6 +57,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
             Streams.write(ops, ins);
             ops.flush();
         }
+        catch (org.eclipse.jetty.io.EofException e) {
+            if (log.isDebugEnabled())
+                log.debug("EofException cached");
+        }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
         }
@@ -62,6 +70,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
         try {
             Streams.write(ops, ins);
             ops.flush();
+        }
+        catch (org.eclipse.jetty.io.EofException e) {
+            if (log.isDebugEnabled())
+                log.debug("EofException cached");
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
@@ -79,6 +91,10 @@ public class JvmBoxOutput implements Flushable, Closeable {
         try {
             ops.write(b, off, len);
             ops.flush();
+        }
+        catch (org.eclipse.jetty.io.EofException e) {
+            if (log.isDebugEnabled())
+                log.debug("EofException cached");
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
@@ -108,10 +124,14 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     public void writeJson(Object o, JsonFormat fmt) {
-        Writer w = getWriter();
-        Json.toJson(w, o, fmt);
         try {
+            Writer w = getWriter();
+            Json.toJson(w, o, fmt);
             w.flush();
+        }
+        catch (org.eclipse.jetty.io.EofException e) {
+            if (log.isDebugEnabled())
+                log.debug("EofException cached");
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
@@ -127,10 +147,14 @@ public class JvmBoxOutput implements Flushable, Closeable {
     }
 
     public void print(CharSequence msg) {
-        Writer w = getWriter();
         try {
+            Writer w = getWriter();
             w.write(null == msg ? "null" : msg.toString());
             w.flush();
+        }
+        catch (org.eclipse.jetty.io.EofException e) {
+            if (log.isDebugEnabled())
+                log.debug("EofException cached");
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
