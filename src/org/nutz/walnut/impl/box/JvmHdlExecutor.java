@@ -51,7 +51,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
 
     protected void _before_quit(WnSystem sys, JvmHdlContext hc) throws Exception {}
 
-    protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) throws Exception {
+    protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
         if (hc.args.length == 0)
             return;
         // 默认第一个参数为处理器名称

@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public class cmd_ticket extends JvmHdlExecutor {
     @Override
-    protected void _before_invoke(WnSystem sys, JvmHdlContext hc) {
+    protected void _before_invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 尝试读取管道内的数据添加到当前的参数中
         NutMap vars = new NutMap();
         if (sys.pipeId > 0) {
