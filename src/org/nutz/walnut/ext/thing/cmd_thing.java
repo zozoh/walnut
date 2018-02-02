@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.WnHttpResponse;
 
 public class cmd_thing extends JvmHdlExecutor {
 
@@ -58,7 +60,7 @@ public class cmd_thing extends JvmHdlExecutor {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void _before_quit(WnSystem sys, JvmHdlContext hc) {
+    protected void _before_quit(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 输出
         if (!hc.params.is("Q")) {
             // 输出内容
@@ -111,6 +113,12 @@ public class cmd_thing extends JvmHdlExecutor {
                 // 如果是字符串，不要强制输出换行
                 else if (hc.output instanceof CharSequence) {
                     sys.out.print(hc.output.toString());
+                }
+                // 如果是 WnHttpResponse，那么就渲染
+                else if (hc.output instanceof WnHttpResponse) {
+                    WnHttpResponse resp = (WnHttpResponse) hc.output;
+                    OutputStream ops = sys.out.getOutputStream();
+                    resp.writeTo(ops);
                 }
                 // 其他的情况，就直接 toString 输出咯
                 else {

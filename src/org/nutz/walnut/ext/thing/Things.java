@@ -19,6 +19,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
@@ -395,8 +396,17 @@ public abstract class Things {
                 throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
             }
 
+            // 看看是否 HTTP 方式输出
+            String etag = hc.params.getString("etag");
+            if (!Strings.isBlank(etag)) {
+                String range = hc.params.getString("range");
+                WnHttpResponse resp = new WnHttpResponse();
+                resp.setETag(etag);
+                resp.prepare(sys.io, oM, range);
+                hc.output = resp;
+            }
             // 输出文本
-            if (oM.isMime("^text/.+$")) {
+            else if (oM.isMime("^text/.+$")) {
                 hc.output = sys.io.readText(oM);
             }
             // 输出二进制内容
