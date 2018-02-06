@@ -5,9 +5,7 @@ function main(tp, ustr) {
     var re = sys.exec2("ticket people -add " + ustr + " -tp " + tp);
     log.infof("ticket regapi-reg: %s", re);
     if (!/^e./.test(re)) {
-        // 组装配置项
-        var tjson = sys.exec2("cat ~/.ticket/ticket.json");
-        tjson = eval('(' + tjson + ')');
+        var tjson = eval('(' + re + ')');
         $wn.ajax_re({
             ok: true,
             data: tjson

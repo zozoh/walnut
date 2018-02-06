@@ -31,7 +31,7 @@ public class ticket_people implements JvmHdl {
 
     private Log log = Logs.get();
 
-    private static String ADD_GRP = "grp %s -a %s";
+    private static String ADD_GRP = "grp %s -a %s -role 10";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -55,30 +55,44 @@ public class ticket_people implements JvmHdl {
             WnUsr wnUsr = getWnUser(sys, params.getString("add"));
 
             // 检查用户是否存在
+            WnObj tPeople = null;
             String pNm = "wn_" + wnUsr.id();
             if (sys.io.exists(peoDir, pNm)) {
-                sys.err.printf("e.ticket: has %s reg by [%s]", tp, params.getString("add"));
-                return;
-            }
-            // 新建并初始化
-            WnObj cjson = sys.io.fetch(null,
-                                       Wn.normalizeFullPath("/etc/init/ticket/tmpl_" + tp + ".json",
-                                                            sys));
-            NutMap uConf = sys.io.readJson(cjson, NutMap.class);
-            uConf.setv("usrId", wnUsr.id());
-            uConf.setv("usrNm", wnUsr.name());
-            uConf.setv("usrDmn", wnUsr.home().replaceAll("/home/", ""));
-            if (isCS) {
-                uConf.setv("usrAlias", uConf.getString("usrAlias", "") + wnUsr.name());
-            }
-            WnObj tPeople = sys.io.create(peoDir, pNm, WnRace.FILE);
-            sys.io.appendMeta(tPeople, uConf);
+                // sys.err.printf("e.ticket: has %s reg by [%s]", tp,
+                // params.getString("add"));
+                tPeople = sys.io.fetch(peoDir, pNm);
+            } else {
+                // 新建并初始化
+                WnObj cjson = sys.io.fetch(null,
+                                           Wn.normalizeFullPath("/etc/init/ticket/tmpl_"
+                                                                + tp
+                                                                + ".json",
+                                                                sys));
+                NutMap uConf = sys.io.readJson(cjson, NutMap.class);
+                uConf.setv("usrId", wnUsr.id());
+                uConf.setv("usrNm", wnUsr.name());
+                uConf.setv("usrDmn", wnUsr.home().replaceAll("/home/", ""));
+                if (isCS) {
+                    uConf.setv("usrAlias", uConf.getString("usrAlias", "") + wnUsr.name());
+                }
+                tPeople = sys.io.create(peoDir, pNm, WnRace.FILE);
+                sys.io.appendMeta(tPeople, uConf);
 
-            // 加入到我的组，可以访问.ticket内容
-            if (isCS && !wnUsr.home().equals(sys.me.home())) {
-                sys.execf(ADD_GRP, sys.me.name(), wnUsr.name());
-                sys.execf("ln -s ~/.ticket %s/.ticket_%s", wnUsr.home(), sys.me.name());
+                // 加入到我的组，可以访问.ticket内容
+                if (!wnUsr.home().equals(sys.me.home())) {
+                    // 加入组，然后可以访问自己的对象
+                    sys.execf(ADD_GRP, sys.me.name(), wnUsr.name());
+                    NutMap pvg = NutMap.NEW();
+                    pvg.setv(wnUsr.name(), 5);
+                    sys.io.appendMeta(tPeople, NutMap.NEW().setv("pvg", pvg));
+                }
             }
+
+            // 返回指定内容
+            WnObj cfObj = sys.io.fetch(ticketHome, "ticket.json");
+            NutMap reJson = sys.io.readJson(cfObj, NutMap.class);
+            reJson.setv("notiObj", tPeople.id());
+            sys.out.print(Json.toJson(reJson));
         }
 
         // 更新

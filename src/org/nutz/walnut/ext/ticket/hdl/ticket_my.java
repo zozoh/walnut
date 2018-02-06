@@ -146,6 +146,7 @@ public class ticket_my implements JvmHdl {
                 regConf.setv("tp", tp);
                 regConf.setv("ts", ts);
                 regConf.setv("tsNm", regReply.getString("nm"));
+                regConf.setv("notiObj", regReply.getString("notiObj", ""));
 
                 NutMap confs = myConf.getAs("confs", NutMap.class);
                 confs.setv(ts, regConf);
