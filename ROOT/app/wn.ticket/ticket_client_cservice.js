@@ -215,6 +215,14 @@
                                 return tsmap[s] || "未定义状态";
                             }
                         }, {
+                            key: "lbls",
+                            title: "标签",
+                            uiType: '@label',
+                            display: function (o) {
+                                var lbls = o.lbls || [];
+                                return lbls.join(" ");
+                            }
+                        }, {
                             key: "text",
                             title: "问题概述",
                             uiType: '@label',
@@ -236,7 +244,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 100, '*', 150]
+                            sizeHint: [80, 100, 200, '*', 150]
                         }
                     },
                     sorter: {

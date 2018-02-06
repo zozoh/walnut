@@ -44,9 +44,16 @@ define(function (require, exports, module) {
                                 </div>
                             </li>
                         </ul>
-                        <div class="ticket-menu step2">
+                        <div class="ticket-menu step2" :class="!isMyTicket()? 'cservice': ''">
                             <div class="ticket-send-input">
-                                <textarea v-focus="focusStatus" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
+                                <div class="ticket-label-edit" @click="labelFocus()">
+                                    <span class="lbl-item" v-for="(lbl, bindex) in lbls">{{lbl}}<div class="lbl-del" @click="delLabel(bindex)">x</div></span>
+                                    <span class="lbl-input">
+                                        <input type="text" v-model="label" @change="addLabel">
+                                    </span>
+                                    <span class="lbl-placeholder" v-show="lbls.length == 0 && label.trim() == ''">请输入标签</span>
+                                </div>
+                                <textarea class="ticket-text-edit" cols="30" rows="3" placeholder="填写描述并点击'发送内容'" v-model="text"></textarea>
                             </div>
                             <div class="ticket-send-btns">
                                 <button @click="sendText" class="tk-btn">{{editing? "更新内容": "发送内容"}}</button>
@@ -72,11 +79,14 @@ define(function (require, exports, module) {
                 items: [],
                 // 发送相关
                 text: "",
+                label: "",
+                lbls: [],
                 sending: false,
                 editing: false,
                 editIndex: -1,
                 editSndex: -1,
                 expmin: 30,
+                focusLabel: false,
                 focusStatus: false
             }, opt || {});
 
@@ -123,11 +133,50 @@ define(function (require, exports, module) {
                     }
                 },
                 methods: {
+                    delLabel: function (bindex) {
+                        this.lbls.splice(bindex, 1);
+                        this.updatelbls();
+                    },
+                    addLabel: function () {
+                        var clbl = this.label.trim();
+                        var clblarr = clbl.split(/\s+/);
+                        if (clblarr.length == 1) {
+                            this.lbls.push(clbl);
+                        } else {
+                            this.lbls = this.lbls.concat(clblarr);
+                        }
+                        this.label = '';
+                        this.updatelbls();
+                    },
+                    updatelbls: function () {
+                        var self = this;
+                        // 推送到后台
+                        var lblstr = this.lbls.join("','");
+                        if (lblstr != '') {
+                            lblstr = "'" + lblstr + "'";
+                        }
+                        var posCmd = "ticket my -post '" + self.tkId + "' -m true -c \"lbls:[" + lblstr + "]\"";
+                        console.log(posCmd);
+                        Wn.exec(posCmd, function (re) {
+                            var re = JSON.parse(re);
+                            if (re.ok) {
+                                // nothing
+                            } else {
+                                UI.alert(re.data);
+                            }
+                        });
+                    },
+                    labelFocus: function () {
+                        $area.find('.lbl-input input').focus();
+                    },
                     chat2bottom: function () {
                         $z.scroll2bottom($area.find('.ticket-chat'));
                     },
                     isCS: function (item) {
                         return item.csId != undefined;
+                    },
+                    isMyTicket: function () {
+                        return this.wobj.usrId == UI.me.id;
                     },
                     isMyContent: function (item) {
                         if (item.stp == 'req') {
@@ -270,6 +319,7 @@ define(function (require, exports, module) {
                         }
                         ritems = ritems.concat(this.wobj.response || []);
                         this.items = ritems;
+                        this.lbls = this.wobj.lbls || [];
                         setTimeout(function () {
                             self.chat2bottom(); // 200ms为了让图片，视频加载完
                         }, 200);
@@ -292,6 +342,7 @@ define(function (require, exports, module) {
                                 }
                                 self.text = '';
                                 self.wobj = re.data;
+                                self.focusStatus = false;
                                 self.refreshItems();
                             } else {
                                 UI.alert(re.data);
@@ -333,7 +384,6 @@ define(function (require, exports, module) {
                                         self.text = '';
                                         self.wobj = re.data;
                                         self.refreshItems();
-                                        UI.close();
                                     } else {
                                         UI.alert(re.data);
                                     }

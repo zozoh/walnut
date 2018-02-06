@@ -6,7 +6,7 @@
   clear: both;
 }
 
-@menu-h-step2: 150px;
+@menu-h-step2: 180px;
 @menu-h-step3: 50px;
 @title-h: 40px;
 
@@ -78,25 +78,130 @@
   padding: 8px 4px;
   width: 100%;
 
-  .ticket-send-input {
-    textarea {
-      width: 100%;
-      height: 96px;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-size: 13px;
-      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-      border: 1px solid @cinput_l;
-      background-color: @cinput_b;
-      color: @cinput_f;
-      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  @tedit-h: 126px;
+  @tedit-lbl-h: 32px;
+  @tedit-ta-h: @tedit-h - @tedit-lbl-h - 4px;
 
+  .ticket-text-edit {
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    height: @tedit-h;
+    border: 1px solid @cinput_l;
+    background-color: @cinput_b;
+    color: @cinput_f;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+
+    &:focus {
+      border: 1px solid @cinput_lF;
+      background-color: @cinput_bF;
+      color: @cinput_fF;
+    }
+  }
+
+  .ticket-label-edit {
+    position: relative;
+    display: none;
+    margin-bottom: 4px;
+    height: @tedit-lbl-h;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    width: 100%;
+
+    border: 1px solid @ch0_b;
+    background-color: @ch1_f;
+    color: @ch0_f;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+
+  }
+
+  &.cservice {
+
+    .ticket-text-edit {
+      height: @tedit-ta-h;
+    }
+
+    .ticket-label-edit {
+      display: block;
+    }
+  }
+
+  // label
+
+  .lbl-input {
+
+    input {
+      border: none;
+      outline: none;
+      background-color: transparent;
+      vertical-align: middle;
+      box-sizing: content-box;
+      min-width: 5px;
+      display: inline-block;
+      height: 24px;
+      line-height: 24px;
       &:focus {
-        border: 1px solid @cinput_lF;
-        background-color: @cinput_bF;
-        color: @cinput_fF;
+        width: auto;
       }
     }
+
+    span {
+      height: 24px;
+      line-height: 24px;
+      display: inline-block;
+    }
+  }
+
+  .lbl-placeholder {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 32px;
+    line-height: 32px;
+    padding-left: 14px;
+    padding-right: 10px;
+    color: #aaa;
+    font-size: 12px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lbl-item {
+    border: 1px solid #f00;
+    border-radius: 2px;
+    padding: 3px 8px;
+    margin-right: 8px;
+    color: #f00;
+    position: relative;
+
+    &:hover {
+      .lbl-del {
+        display: block;
+      }
+    }
+  }
+
+  .lbl-del {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    color: #fff;
+    background: #333;
+    border-radius: 50%;
+    text-align: center;
+    cursor: pointer;
+    display: none;
   }
 
   .ticket-send-btns {
