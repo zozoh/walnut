@@ -527,7 +527,10 @@ define(function (require, exports, module) {
                             title: re.title,
                             onclick: function () {
                                 // 实现直接打开工单
-                                console.log("noti-click: " + rid);
+                                event.preventDefault();
+                                var openUrl = window.location.origin + window.location.pathname + "?" + re.link;
+                                console.log('open:' + openUrl);
+                                window.open(openUrl, '_blank');
                                 this.close();
                             }
                         });

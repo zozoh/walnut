@@ -536,8 +536,31 @@ public class ticket_record implements JvmHdl {
             log.warnf("ticket noti-ws: toUser is null");
             return;
         }
-        String fid = toUser.id();
+        // 带上打开链接
+        // ph=id:pp29hlmveghqjq1d1ks18sf4uo#edit_ticket_client_cservice::rid=xxxxx
+        String link = null;
+        if (toUser.getBoolean("isUser", false)) {
+            String cpath = Wn.normalizeFullPath("/home/"
+                                                + toUser.getString("usrDmn")
+                                                + "/.ticket_client_user",
+                                                sys);
+            WnObj sObj = sys.io.fetch(null, cpath);
+            link = String.format("ph=id:%s#edit_ticket_client_user::rid=%s",
+                                 sObj.id(),
+                                 content.getString("rid"));
+        } else {
+            String cpath = Wn.normalizeFullPath("/home/"
+                                                + toUser.getString("usrDmn")
+                                                + "/.ticket_client_cservice",
+                                                sys);
+            WnObj sObj = sys.io.fetch(null, cpath);
+            link = String.format("ph=id:%s#edit_ticket_client_cservice::rid=%s",
+                                 sObj.id(),
+                                 content.getString("rid"));
+        }
+        content.setv("link", link);
         String cJson = Json.toJson(content, JsonFormat.compact());
+        String fid = toUser.id();
         String cmd = String.format("websocket text id:%s '%s'", fid, cJson);
         log.infof("ticket noti-ws: %s", cmd);
         sys.exec(cmd);
