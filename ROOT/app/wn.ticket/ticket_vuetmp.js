@@ -4,11 +4,13 @@ define(function (require, exports, module) {
         return "v_ticket_chat_" + $z.randomInt(1, 10000);
     };
 
+
+    // 回复框
     Vue.directive('focus', {
         update: function (el) {
             el.focus()
         }
-    })
+    });
 
     var ticketReply = {
         html: function (id) {
@@ -44,7 +46,7 @@ define(function (require, exports, module) {
                                 </div>
                             </li>
                         </ul>
-                        <div class="ticket-menu step2" :class="!isMyTicket()? 'cservice': ''">
+                        <div class="ticket-menu step1 step2" :class="!isMyTicket()? 'cservice': 'user'">
                             <div class="ticket-send-input">
                                 <div class="ticket-label-edit" @click="labelFocus()">
                                     <span class="lbl-item" v-for="(lbl, bindex) in lbls">{{lbl}}<div class="lbl-del" @click="delLabel(bindex)">x</div></span>
@@ -306,18 +308,20 @@ define(function (require, exports, module) {
                     // 更新内容
                     refreshItems: function () {
                         var self = this;
+                        this.wobj.request = this.wobj.request || [];
+                        this.wobj.response = this.wobj.response || [];
                         // 准备数据
                         var ritems = [];
                         for (var i = 0; i < this.wobj.request.length; i++) {
                             this.wobj.request[i].stp = 'req';
                             this.wobj.request[i].sindex = i;
                         }
-                        ritems = ritems.concat(this.wobj.request || []);
+                        ritems = ritems.concat(this.wobj.request);
                         for (var i = 0; i < this.wobj.response.length; i++) {
                             this.wobj.response[i].stp = 'resp';
                             this.wobj.response[i].sindex = i;
                         }
-                        ritems = ritems.concat(this.wobj.response || []);
+                        ritems = ritems.concat(this.wobj.response);
                         this.items = ritems;
                         this.lbls = this.wobj.lbls || [];
                         setTimeout(function () {
@@ -480,8 +484,56 @@ define(function (require, exports, module) {
     };
 
 
+    // 页面通知
+    window._ticket_noti_ = window._ticket_noti_ || {};
+    var ticketNoti = {
+        myWS: function (nid) {
+            var wscon = window._ticket_noti_[nid];
+            if (!wscon) {
+                var WS_URL = window.location.host + "/websocket"
+                if (location.protocol == 'http:') {
+                    WS_URL = "ws://" + WS_URL;
+                } else {
+                    WS_URL = "wss://" + WS_URL;
+                }
+                var sock = new WebSocket(WS_URL);
+                sock.isAlive = true;
+                sock.onopen = function () {
+                    console.log('sock-open');
+                    sock.send(JSON.stringify({
+                        method: 'watch',
+                        user: _app.session.me,
+                        match: {id: nid}
+                    }));
+                    var sockInt = setInterval(function () {
+                        if (sock.isAlive) {
+                            sock.send(JSON.stringify({
+                                hi: nid + ", I'm live"
+                            }));
+                        } else {
+                            clearInterval(sockInt);
+                        }
+                    }, 1000 * 60);
+                };
+                sock.onmessage = function (e) {
+                    var content = e.data;
+                    console.log('sock-message', content);
+                    var re = eval('(' + content + ')');
+                };
+                sock.onclose = function () {
+                    console.log('sock-close');
+                    sock.isAlive = false;
+                    window._ticket_noti_[nid] = null;
+                };
+                wscon = sock;
+            }
+            return wscon;
+        }
+    };
+
     var methods = {
-        ticketReply: ticketReply
+        ticketReply: ticketReply,
+        ticketNoti: ticketNoti
     };
     module.exports = methods;
 });

@@ -24,6 +24,15 @@
     .ticket-chat {
       height: calc(~"100% - @{title-h}");
     }
+
+    .ticket-menu.step1.user {
+      display: block;
+      height: @menu-h-step2;
+    }
+
+    .ticket-chat {
+      height: calc(~"100% - @{title-h} - @{menu-h-step2}");
+    }
   }
 
   &.step2 {

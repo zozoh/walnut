@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -176,7 +177,6 @@ public class ticket_record implements JvmHdl {
                                    auser);
                     return;
                 }
-
                 // 已经分配需要记录到历史中
                 curRecord.setv("ticketStatus", "assign");
                 if (curRecord.containsKey("csId")) {
@@ -190,6 +190,28 @@ public class ticket_record implements JvmHdl {
                 sys.io.appendMeta(curRecord,
                                   "^csId|csAlias|csTrans|csTransTime|ticketStatus|ticketStep$");
                 sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
+
+                // 通知客服 工单分配给你了
+                notiWSClient(sys,
+                             csPeople,
+                             NutMap.NEW()
+                                   .setv("action", "noti")
+                                   .setv("tp", "assign")
+                                   .setv("title",
+                                         "工单[" + curRecord.getString("text") + "]分配给你了，请尽快处理"));
+                // 通知用户 工单已分配
+                WnObj crUsr = findTicketPeople(sys, ticketHome, true, curRecord.getString("usrId"));
+                notiWSClient(sys,
+                             crUsr,
+                             NutMap.NEW()
+                                   .setv("action", "noti")
+                                   .setv("tp", "assign")
+                                   .setv("title",
+                                         "工单["
+                                                  + curRecord.getString("text")
+                                                  + "]已分配给客服("
+                                                  + tPeople.getString("csAlias")
+                                                  + ")"));
             } else {
                 sys.err.printf("e.ticket: record[%s] not found", rid);
             }
@@ -408,6 +430,14 @@ public class ticket_record implements JvmHdl {
                           wp.skip,
                           outs.size()));
         return Json.toJson(re);
+    }
+
+    private void notiWSClient(WnSystem sys, WnObj toUser, NutMap content) {
+        String fid = toUser.id();
+        String cJson = Json.toJson(content, JsonFormat.compact());
+        String cmd = String.format("websocket text id:%s '%s'", fid, cJson);
+        log.infof("ticket noti-ws: %s", cmd);
+        sys.exec(cmd);
     }
 
 }

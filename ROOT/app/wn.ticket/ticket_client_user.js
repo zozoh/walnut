@@ -57,6 +57,13 @@
                 // 获取我的信息
                 UI.me = JSON.parse(Wn.exec("me -json"));
 
+                // 通知
+                UI.lconf = Wn.execJ("ticket my -conf");
+                UI.notiObj = UI.lconf.notiObj || null;
+                if (UI.notiObj) {
+                    UI.myWS = TkTmp.ticketNoti.myWS(UI.notiObj);
+                }
+
                 // 工单类型
                 UI.tkconf = Wn.execJ("ticket my -tkconf");
                 var tps = [];
