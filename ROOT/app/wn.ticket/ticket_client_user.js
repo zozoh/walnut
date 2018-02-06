@@ -61,7 +61,7 @@
                 UI.lconf = Wn.execJ("ticket my -conf");
                 UI.notiObj = UI.lconf.notiObj || null;
                 if (UI.notiObj) {
-                    UI.myWS = TkTmp.ticketNoti.myWS(UI.notiObj);
+                    UI.myWS = TkTmp.ticketNoti.myWS(UI, UI.notiObj);
                 }
 
                 // 工单类型

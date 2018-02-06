@@ -151,6 +151,16 @@ public class ticket_record implements JvmHdl {
             sys.io.appendMeta(reObj, tMeta);
             // 返回工单全部内容
             sys.out.printf(Json.toJson(sys.io.get(reObj.id())));
+            // 通知所有客服
+            NutMap nTk = NutMap.NEW()
+                               .setv("action", "noti")
+                               .setv("tp", "new")
+                               .setv("rid", reObj.id())
+                               .setv("title", "新工单[" + reObj.getString("text") + "]快来认领啦");
+            List<WnObj> allCs = ticketPeople(sys, ticketHome, false);
+            for (WnObj cs : allCs) {
+                notiWSClient(sys, cs, nTk);
+            }
         }
 
         // 分配/转移客服, 仅限客服
@@ -197,6 +207,7 @@ public class ticket_record implements JvmHdl {
                              NutMap.NEW()
                                    .setv("action", "noti")
                                    .setv("tp", "assign")
+                                   .setv("rid", curRecord.id())
                                    .setv("title",
                                          "工单[" + curRecord.getString("text") + "]分配给你了，请尽快处理"));
                 // 通知用户 工单已分配
@@ -206,6 +217,7 @@ public class ticket_record implements JvmHdl {
                              NutMap.NEW()
                                    .setv("action", "noti")
                                    .setv("tp", "assign")
+                                   .setv("rid", curRecord.id())
                                    .setv("title",
                                          "工单["
                                                   + curRecord.getString("text")
@@ -256,6 +268,10 @@ public class ticket_record implements JvmHdl {
             int deletIndex = params.getInt("delete", -1);
             WnObj curRecord = getRecord(sys, rid);
             if (curRecord != null) {
+
+                WnObj toUsr = findTicketPeople(sys, ticketHome, true, curRecord.getString("usrId"));
+                WnObj toCs = findTicketPeople(sys, ticketHome, false, curRecord.getString("csId"));
+
                 // 只更新meta
                 if (isMeta) {
                     NutMap meta = Lang.map(params.getString("c"));
@@ -270,6 +286,33 @@ public class ticket_record implements JvmHdl {
                     meta.setv("ticketStep", "2");
                     sys.io.appendMeta(curRecord, meta);
                     sys.out.print(Json.toJson(getRecord(sys, rid)));
+                    // 通知与工单相关用户
+                    // 客户打开的
+                    if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
+                        notiWSClient(sys,
+                                     toCs,
+                                     NutMap.NEW()
+                                           .setv("action", "noti")
+                                           .setv("tp", "reassign")
+                                           .setv("rid", curRecord.id())
+                                           .setv("title",
+                                                 "工单["
+                                                          + curRecord.getString("text")
+                                                          + "]被重新打开，请继续处理"));
+                    }
+                    // 客服打开的
+                    else {
+                        notiWSClient(sys,
+                                     toUsr,
+                                     NutMap.NEW()
+                                           .setv("action", "noti")
+                                           .setv("tp", "reassign")
+                                           .setv("rid", curRecord.id())
+                                           .setv("title",
+                                                 "工单["
+                                                          + curRecord.getString("text")
+                                                          + "]被重新打开, 客服将继续处理"));
+                    }
                 }
                 // 其他内容
                 else {
@@ -281,6 +324,16 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                                notiWSClient(sys,
+                                             toCs,
+                                             NutMap.NEW()
+                                                   .setv("action", "noti")
+                                                   .setv("tp", "close")
+                                                   .setv("rid", curRecord.id())
+                                                   .setv("title",
+                                                         "工单["
+                                                                  + curRecord.getString("text")
+                                                                  + "]已被用户关闭"));
                             }
                             // 删除某条
                             if (deletIndex > -1) {
@@ -318,6 +371,20 @@ public class ticket_record implements JvmHdl {
                             sys.io.appendMeta(curRecord,
                                               "^request|ticketStatus|ticketStep|ticketEnd$");
                             sys.out.print(Json.toJson(curRecord));
+                            // 如果是用户回复
+                            if ("ureply".equals(curRecord.getString("ticketStatus"))) {
+                                notiWSClient(sys,
+                                             toCs,
+                                             NutMap.NEW()
+                                                   .setv("action", "noti")
+                                                   .setv("tp", "close")
+                                                   .setv("rid", curRecord.id())
+                                                   .setv("title",
+                                                         "工单["
+                                                                  + curRecord.getString("text")
+                                                                  + "]用户已回复，请继续处理"));
+                            }
+
                         } else {
                             sys.err.printf("e.ticket: record[%s] current user is not you",
                                            curRecord.id());
@@ -330,6 +397,16 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                                notiWSClient(sys,
+                                             toUsr,
+                                             NutMap.NEW()
+                                                   .setv("action", "noti")
+                                                   .setv("tp", "close")
+                                                   .setv("rid", curRecord.id())
+                                                   .setv("title",
+                                                         "工单["
+                                                                  + curRecord.getString("text")
+                                                                  + "]已被客服关闭"));
                             }
                             // 删除某条
                             if (deletIndex > -1) {
@@ -366,6 +443,19 @@ public class ticket_record implements JvmHdl {
                             sys.io.appendMeta(curRecord,
                                               "^response|ticketStatus|ticketStep|ticketEnd$");
                             sys.out.print(Json.toJson(curRecord));
+                            // 如果是用户回复
+                            if ("creply".equals(curRecord.getString("ticketStatus"))) {
+                                notiWSClient(sys,
+                                             toUsr,
+                                             NutMap.NEW()
+                                                   .setv("action", "noti")
+                                                   .setv("tp", "close")
+                                                   .setv("rid", curRecord.id())
+                                                   .setv("title",
+                                                         "工单["
+                                                                  + curRecord.getString("text")
+                                                                  + "]客服已回复，请及时查看"));
+                            }
                         } else {
                             sys.err.printf("e.ticket: record[%s] current cservice is you",
                                            curRecord.id());
@@ -413,6 +503,15 @@ public class ticket_record implements JvmHdl {
         return tp;
     }
 
+    private List<WnObj> ticketPeople(WnSystem sys, WnObj ticketHome, boolean isUser) {
+        WnObj pdir = sys.io.fetch(ticketHome, (isUser ? "user" : "cservice"));
+        List<WnObj> plist = sys.io.query(Wn.Q.pid(pdir.id()));
+        for (WnObj pobj : plist) {
+            pobj.setv("isUser", isUser);
+        }
+        return plist;
+    }
+
     private WnObj myConf(WnSystem sys) {
         WnObj myHome = sys.getHome();
         return sys.io.fetch(myHome, ".ticket_my.json");
@@ -433,6 +532,10 @@ public class ticket_record implements JvmHdl {
     }
 
     private void notiWSClient(WnSystem sys, WnObj toUser, NutMap content) {
+        if (toUser == null) {
+            log.warnf("ticket noti-ws: toUser is null");
+            return;
+        }
         String fid = toUser.id();
         String cJson = Json.toJson(content, JsonFormat.compact());
         String cmd = String.format("websocket text id:%s '%s'", fid, cJson);

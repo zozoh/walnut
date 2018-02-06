@@ -487,7 +487,7 @@ define(function (require, exports, module) {
     // 页面通知
     window._ticket_noti_ = window._ticket_noti_ || {};
     var ticketNoti = {
-        myWS: function (nid) {
+        myWS: function (UI, nid) {
             var wscon = window._ticket_noti_[nid];
             if (!wscon) {
                 var WS_URL = window.location.host + "/websocket"
@@ -500,11 +500,13 @@ define(function (require, exports, module) {
                 sock.isAlive = true;
                 sock.onopen = function () {
                     console.log('sock-open');
-                    sock.send(JSON.stringify({
+                    var initCmd = JSON.stringify({
                         method: 'watch',
                         user: _app.session.me,
                         match: {id: nid}
-                    }));
+                    });
+                    console.log("initCmd: " + initCmd);
+                    sock.send(initCmd);
                     var sockInt = setInterval(function () {
                         if (sock.isAlive) {
                             sock.send(JSON.stringify({
@@ -519,6 +521,17 @@ define(function (require, exports, module) {
                     var content = e.data;
                     console.log('sock-message', content);
                     var re = eval('(' + content + ')');
+                    if (re.action == 'noti') {
+                        var rid = re.rid;
+                        UI.notification({
+                            title: re.title,
+                            onclick: function () {
+                                // 实现直接打开工单
+                                console.log("noti-click: " + rid);
+                                this.close();
+                            }
+                        });
+                    }
                 };
                 sock.onclose = function () {
                     console.log('sock-close');

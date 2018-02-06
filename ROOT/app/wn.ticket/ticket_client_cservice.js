@@ -64,7 +64,7 @@
                 UI.lconf = Wn.execJ("ticket my -conf");
                 UI.notiObj = UI.lconf.notiObj || null;
                 if (UI.notiObj) {
-                    UI.myWS = TkTmp.ticketNoti.myWS(UI.notiObj);
+                    UI.myWS = TkTmp.ticketNoti.myWS(UI, UI.notiObj);
                 }
                 // 工单类型
                 UI.tkconf = Wn.execJ("ticket my -tkconf");
@@ -221,14 +221,6 @@
                                 return tsmap[s] || "未定义状态";
                             }
                         }, {
-                            key: "lbls",
-                            title: "标签",
-                            uiType: '@label',
-                            display: function (o) {
-                                var lbls = o.lbls || [];
-                                return lbls.join(" ");
-                            }
-                        }, {
                             key: "text",
                             title: "问题概述",
                             uiType: '@label',
@@ -238,6 +230,14 @@
                                     return otext.substr(0, 20) + "..."
                                 }
                                 return otext;
+                            }
+                        }, {
+                            key: "lbls",
+                            title: "标签",
+                            uiType: '@label',
+                            display: function (o) {
+                                var lbls = o.lbls || [];
+                                return lbls.join(" ");
                             }
                         }, {
                             key: "tickerStart",
@@ -250,7 +250,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 100, 200, '*', 150]
+                            sizeHint: [80, 100, '*', 200, 150]
                         }
                     },
                     sorter: {
