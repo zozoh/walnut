@@ -269,7 +269,16 @@
             },
             //..............................................
             update: function (o) {
-                this.gasket.ticketList.refresh();
+                var UI = this;
+                UI.gasket.ticketList.refresh();
+                // 检查url是否有 ::rid=
+                var hash = window.location.hash;
+                if (hash.indexOf('::rid=') != -1) {
+                    var rid = hash.substr(hash.indexOf('::rid=') + 6);
+                    console.log("find rid: " + rid);
+                    var robj = Wn.execJ("obj id:" + rid);
+                    UI.showTicketChat(robj);
+                }
             }
             //..............................................
         });
