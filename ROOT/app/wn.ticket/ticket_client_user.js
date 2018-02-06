@@ -40,7 +40,7 @@
                 // mask显示下
                 var ticketUI = new MaskUI({
                     exec: UI.exec,
-                    width: 600,
+                    width: "75%",
                     height: "80%",
                     closer: true,
                     on_close: function () {
