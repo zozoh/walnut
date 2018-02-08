@@ -55,8 +55,6 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         'click ul>li[current]>a' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
-
-            console.log("hahah")
             
             // 仅针对激活控件有效
             if(!this.isActived())
