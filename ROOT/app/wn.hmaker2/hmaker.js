@@ -46,6 +46,12 @@ return ZUI.def("app.wn.hmaker2", {
         });
     },
     //...............................................................
+    events : {
+        "click [catch-mouse]" : function(){
+            this.alert("hmaker.msg.catch_mouse");
+        }
+    },
+    //...............................................................
     redraw : function(){
         var UI  = this;
 
@@ -122,10 +128,10 @@ return ZUI.def("app.wn.hmaker2", {
         // }
         // 重新加载主界面
         //else {
-            HmMethods(new MainUI({
+            new MainUI({
                 parent : UI,
                 gasketName : "main"
-            })).render(function(){
+            }).render(function(){
                 // 更新菜单
                 var actions = $z.invoke(this, "getActions") || [];
                 var menuSetup = Wn.extendActions(actions, false, true);
@@ -346,6 +352,14 @@ return ZUI.def("app.wn.hmaker2", {
     //...............................................................
     getCurrentTextContent : function() {
         return $z.invoke(this.gasket.main, "getCurrentTextContent", []);
+    },
+    //...............................................................
+    catchMouse : function() {
+        this.arena.attr("catch-mouse", "yes");
+    },
+    //...............................................................
+    releaseMouse : function() {
+        this.arena.removeAttr("catch-mouse");
     },
     //...............................................................
 });

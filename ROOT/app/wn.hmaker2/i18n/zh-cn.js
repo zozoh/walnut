@@ -4,6 +4,9 @@ define({
             "skin"       : '<i class="zmdi zmdi-texture"></i>',
             "ta_release" : '<i class="zmdi zmdi-globe-alt"></i>',
         },
+        "msg" : {
+            "catch_mouse" : "数据正在加载中，请等一等再点你的鼠标，拜托🙏",
+        },
         "res" : {
             "title" : '资源库',
         },

@@ -140,6 +140,7 @@ var methods = {
             window.setTimeout(function(){
                 // 移除标志
                 UI.arena.find(".hmpg-stage").removeAttr("hm-page-preparing");
+                UI.hmaker().releaseMouse();
 
                 // 确保通知一遍所有控件的 resize
                 UI.resize(true);
@@ -147,6 +148,7 @@ var methods = {
         }
         // 标识正在准备页面控件
         else {
+            UI.hmaker().catchMouse();
             UI.arena.find(".hmpg-stage").attr("hm-page-preparing", true);
         }
     },
