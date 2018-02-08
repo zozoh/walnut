@@ -55,8 +55,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         // 得到数据
         com = com || UI.getData();
 
-        
-        // console.log("I am dynamic paint:", com);
+        //console.log("I am dynamic paint:", com);
 
         // 检查显示模式
         var oApi = UI.__check_mode(com);
@@ -100,6 +99,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 清除动态标志
         UI.__clean_assists();
+        UI.__api_finger = null;  // 接口特征也清理一下
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 检查一下是否 required 的字段都已经被设置了
