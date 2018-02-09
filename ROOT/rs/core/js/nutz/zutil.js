@@ -4354,7 +4354,7 @@
                         // 得到超链
                         var href = m[16];
                         if (href && href.endsWith(".md")) {
-                            href = Files.renameSuffix(href, ".html");
+                            href = href.substring(0, href.lastIndexOf('.md')) + ".html";
                         }
                         // 得到文字
                         var text = m[15] || zUtil.getMajorName(href||"");
