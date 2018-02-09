@@ -1,5 +1,6 @@
 package org.nutz.walnut.web;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import javax.websocket.server.ServerContainer;
 import org.nutz.filepool.UU32FilePool;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -46,6 +49,16 @@ public class WnSetup implements Setup {
 
     @Override
     public void init(NutConfig nc) {
+        // 写入自身进程id
+        try {
+            String selfName = System.getenv("WL_NAME");
+            String pid = Lang.JdkTool.getProcessId(null);
+            if (!Strings.isBlank(selfName) && !Strings.isBlank(pid)) {
+                Files.write(new File("/var/run/" + selfName + ".pid"), pid);
+            }
+        }
+        catch (Throwable e1) {
+        }
         // 获取 Ioc 容器
         ioc = nc.getIoc();
 

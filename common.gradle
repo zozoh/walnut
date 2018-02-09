@@ -13,7 +13,7 @@ targetCompatibility = 1.8
 import groovy.io.FileType
 
 def version_tag = getDate()
-def nutz_version = "1.r.61-SNAPSHOT"
+def nutz_version = "1.r.66-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
@@ -206,12 +206,17 @@ cp $WUPROOT/web_local.properties classes/web_local.properties
 cp $WUPROOT/web_local.properties web_local.properties
 export JAVA_HOME=$WUPROOT/jdk
 export PATH=$JAVA_HOME/bin:$PATH
+touch web_local.properties
 ./start.sh
-	''')
+export WL_NAME=''' + rootProject.name)
 	file('build/wzip/run.sh').setExecutable(true, false)
 
    	Files.write(file('build/update'), '''#!/bin/bash
-   		killall java
+   		if [ -e /var/log/''' + rootProject.name + '''.pid]; then
+   			kill `cat /var/log/''' + rootProject.name + '''.pid`
+   		else
+   			killall java
+   		fi
    		rm -r $WUPROOT/$APPNAME.old
    		mv $WUPROOT/$APPNAME $WUPROOT/$APPNAME.old
    		mkdir $WUPROOT/$APPNAME/
