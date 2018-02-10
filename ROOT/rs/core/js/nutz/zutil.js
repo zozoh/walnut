@@ -4240,6 +4240,7 @@
 
             // 定义内容输出函数
             var __B_to_html = function (tagName, B) {
+                // 开始渲染
                 var html = "";
                 var tagNames = {};
                 for (var i = 0; i < B.content.length; i++) {
@@ -4254,16 +4255,30 @@
                     // 写入本行内容
                     html += __line_to_html(line, tagNames);
                 }
+                // 准备拼装
+                var h2 = '\n<' + tagName;
+
                 // 如果段落里只有 IMG，做一下特殊标识
                 if (_.keys(tagNames).length == 1 && tagNames["img"]) {
-                    html = '\n<' + tagName + ' md-img-only="yes">' + html;
-                }
-                // 否则仅仅输入标签内容
-                else {
-                    html = '\n<' + tagName + '>' + html;
+                    h2 += ' md-img-only="yes"';
                 }
 
-                return html;
+                // 标识一下任务列表
+                if(B.isTask) {
+                    h2 += ' class="md-task-list-item">';
+                    if(B.isChecked) {
+                        h2 += '<input disabled type="checkbox" checked>';
+                    } else {
+                        h2 += '<input disabled type="checkbox">';
+                    }
+                }
+                // 普通列表
+                else {
+                    h2 += '>';
+                }
+
+                // 返回
+                return h2 + html;
             };
 
             var __line_to_html = function (str, tagNames) {
@@ -4273,7 +4288,9 @@
                     + '|(~~([^~]+)~~)'
                     + '|(`([^`]+)`)'
                     + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
-                    + '|(\\[([^\\]]*)\\]\\(([^\\)]*)\\))'
+                    + '|(\\[('
+                        + '(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))|([^\\]]*)'
+                    + ')\\]\\(([^\\)]*)\\))'
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
                 var m;
@@ -4344,7 +4361,7 @@
                     else if (m[11]) {
                         //console.log("haha", m[13])
                         var src = opt.media.apply(context, [m[13]]);
-                        html += '<img alt="' + m[12] + '" src="' + src + '">';
+                        html += '<img alt="' + (m[12]||"") + '" src="' + src + '">';
                         // 记录标签
                         if (tagNames)
                             tagNames["img"] = true;
@@ -4352,30 +4369,42 @@
                     // A: [](xxxx)
                     else if (m[14]) {
                         // 得到超链
-                        var href = m[16];
+                        var href = m[20];
                         if (href && href.endsWith(".md")) {
                             href = href.substring(0, href.lastIndexOf('.md')) + ".html";
                         }
-                        // 得到文字
-                        var text = m[15] || zUtil.getMajorName(href||"");
-                        //console.log("A", href, text)
-                        // 锚点
-                        if (!href && /^#.+$/.test(text)) {
-                            html += '<a name="' + text.substring(1) + '"></a>';
+                        // 如果内部是一个图片
+                        if(m[16]) {
+                            var src = opt.media.apply(context, [m[18]]);
+                            html += '<a href="' + href + '">';
+                            html += '<img alt="' + (m[17]||"") + '" src="' + src + '">';
+                            html += '</a>';
+                            // 记录标签
+                            if (tagNames)
+                                tagNames["img"] = true;
                         }
-                        // 链接
+                        // 得到文字
                         else {
-                            html += '<a href="' + href + '">'
-                                    + __line_to_html(text)
-                                    + '</a>';
+                            var text = m[19] || zUtil.getMajorName(href||"");
+                            //console.log("A", href, text)
+                            // 锚点
+                            if (!href && /^#.+$/.test(text)) {
+                                html += '<a name="' + text.substring(1) + '"></a>';
+                            }
+                            // 链接
+                            else {
+                                html += '<a href="' + href + '">'
+                                        + __line_to_html(text)
+                                        + '</a>';
+                            }
                         }
                         // 记录标签
                         if (tagNames)
                             tagNames["a"] = true;
                     }
                     // A: http://xxxx
-                    else if (m[17]) {
-                        html += '<a href="' + m[17] + '">' + m[17] + '</a>';
+                    else if (m[21]) {
+                        html += '<a href="' + m[21] + '">' + m[21] + '</a>';
                         // 记录标签
                         if (tagNames)
                             tagNames["a"] = true;
@@ -4405,14 +4434,35 @@
                 c.index--;
             };
 
+            // 处理一下第一行，判断支持一下 task list
+            var __B_test_task = function(B) {
+                if(B.content && B.content.length > 0) {
+                    var line0 = B.content[0]; 
+                    var m2 = /^[ \t]*(\[[xX ]\])[ ](.+)$/.exec(line0);
+                    if(m2) {
+                        B.isTask = true;
+                        B.isChecked = m2[1] != '[ ]';
+                        B.content[0] = m2[2];
+                    }
+                }
+                return B;
+            };
+
             var __B_to_list = function (B, c) {
-                c.html += '\n<' + B.type + '>';
+                __B_test_task(B);
+                // 开始渲染
+                c.html += '\n<' + B.type
+                if(B.isTask) {
+                    c.html += ' class="md-task-list"';
+                }
+                c.html += '>';
                 c.html += __B_to_html("li", B);
                 // 循环查找后续的列表项，或者是嵌套
                 for (c.index++; c.index < c.blocks.length; c.index++) {
                     var B2 = c.blocks[c.index];
                     // 继续增加
                     if (B.type == B2.type && B2.level == B.level) {
+                        __B_test_task(B2);
                         c.html += '</li>' + __B_to_html("li", B2);
                     }
                     // 嵌套
