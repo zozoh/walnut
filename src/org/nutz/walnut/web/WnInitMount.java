@@ -1,7 +1,11 @@
 package org.nutz.walnut.web;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.log.Logs;
 
 public class WnInitMount {
 
@@ -16,10 +20,17 @@ public class WnInitMount {
         }
         path = Strings.trim(line.substring(0, pos));
         mount = Strings.trim(line.substring(pos + 1));
+        if (mount.startsWith("file://.")) {
+            try {
+                mount = "file://" + new File(mount.substring("file://".length())).getCanonicalPath();
+            }
+            catch (IOException e) {
+                Logs.get().info("bad mount path    " + line, e);
+            }
+        }
     }
 
     public String toString() {
         return path + " : " + mount;
     }
-
 }

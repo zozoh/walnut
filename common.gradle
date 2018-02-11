@@ -59,7 +59,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.61.r2'
+        classpath 'org.nutz:nutz:1.r.65'
     }
 }
 
@@ -207,8 +207,8 @@ cp $WUPROOT/web_local.properties web_local.properties
 export JAVA_HOME=$WUPROOT/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 touch web_local.properties
-./start.sh
-export WL_NAME=''' + rootProject.name)
+export WL_PID_PATH=/var/run/''' + rootProject.name + '''.pid
+./start.sh''')
 	file('build/wzip/run.sh').setExecutable(true, false)
 
    	Files.write(file('build/update'), '''#!/bin/bash

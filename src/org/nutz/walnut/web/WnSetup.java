@@ -51,13 +51,15 @@ public class WnSetup implements Setup {
     public void init(NutConfig nc) {
         // 写入自身进程id
         try {
-            String selfName = System.getenv("WL_NAME");
+            String WL_PID_PATH = System.getenv("WL_PID_PATH");
             String pid = Lang.JdkTool.getProcessId(null);
-            if (!Strings.isBlank(selfName) && !Strings.isBlank(pid)) {
-                Files.write(new File("/var/run/" + selfName + ".pid"), pid);
+            log.infof("path=%s pid=%s", WL_PID_PATH, pid);
+            if (!Strings.isBlank(WL_PID_PATH) && !Strings.isBlank(pid)) {
+                Files.write(new File(WL_PID_PATH), pid);
             }
         }
         catch (Throwable e1) {
+            log.info("something happen when writing pid file", e1);
         }
         // 获取 Ioc 容器
         ioc = nc.getIoc();

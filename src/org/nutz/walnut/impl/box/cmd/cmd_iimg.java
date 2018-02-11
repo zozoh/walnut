@@ -120,6 +120,9 @@ public class cmd_iimg extends JvmExecutor {
     private void __force_gen(WnSystem sys, ZParams params, WnObj oim) {
         // 读取图片
         BufferedImage im = sys.io.readImage(oim);
+        if (im == null) {
+            return;
+        }
 
         // 看看要不要更新图片文件的元数据
         int im_w = im.getWidth();
