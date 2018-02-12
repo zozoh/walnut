@@ -226,9 +226,14 @@ public class WnHttpResponse {
 
         // 写入Body
         if (null != ins) {
-            OutputStream ops = resp.getOutputStream();
-            Streams.write(ops, ins);
-            resp.flushBuffer();
+            try {
+                OutputStream ops = resp.getOutputStream();
+                Streams.write(ops, ins);
+                resp.flushBuffer();
+            }
+            finally {
+                Streams.safeClose(ins);
+            }
         }
     }
 
@@ -267,7 +272,7 @@ public class WnHttpResponse {
         }
         finally {
             Streams.safeFlush(ops);
-            // Streams.safeClose(ops);
+            Streams.safeClose(ins);
         }
     }
 
