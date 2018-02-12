@@ -457,8 +457,13 @@ var methods = {
                     var jAreaCon = ing.jCom.closest(".hm-area-con");
                     if(jAreaCon.length>0){
                         ing.is_in_area = true;
+                        ing.ignoreViewportScroll = true;
                         return jAreaCon;
                     }
+                }
+                // 如果是固定定位的，一定不要考虑到视口的滚动
+                else if("fix" == ing.comBlock.mode) {
+                    ing.ignoreViewportScroll = true;
                 }
                 // 其他的就用选区作为视口，即整个 <body>
                 return ing.$selection;
@@ -630,6 +635,9 @@ var methods = {
                     // 准备执行函数
                     opt.on_ing = function(){
                         // 转换
+                        // console.log($D.rect.dumpValues(this.css.current,"tl"),
+                        //             "VP:",$D.rect.dumpValues(this.rect.viewport,"tl"),
+                        //             "CU:",$D.rect.dumpValues(this.rect.current,"tl"),);
                         var css = _.extend({}, this.css.current);
                         ing.uiCom.formatBlockDimension(css, ing.comMeasureConf);
                         // 更新控件

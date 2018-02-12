@@ -311,7 +311,7 @@ return ZUI.def("app.wn.hmaker2", {
     openSiteConfPanel : function(oHome, callback) {
         var UI = this;
         var oHome = oHome || UI.getHomeObj();
-        console.log(UI.exec)
+        //console.log(UI.exec)
         POP.openUIPanel({
             title  : 'i18n:hmaker.site.conf',
             width  : 640,

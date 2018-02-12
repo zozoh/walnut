@@ -338,7 +338,7 @@ var methods = {
                 }
                 // 参数不符合的，需要进行转换
                 else if(val && "unset"!=val && !mbReg.test(val)) {
-                    console.log(key)
+                    //console.log(key)
                     var n = $D.dom.toMeasureNum(key, val, conf);
                     var s = $D.dom.toMeasureStr(key, n, conf);
                     block[key] = s;

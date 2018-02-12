@@ -139,6 +139,19 @@ rect : {
     current  : Rect,      // 目标当前跟随移动所应该的设置的矩形
 },
 //..................................................
+// 是否忽略视口的滚动信息
+// 默认为 false。如果为 true，则表示计算 css.rect 的时候
+// 不考虑 client 的 scrollTop/scrollLeft
+// 在设置 <div> 内嵌的 absolute 块时尤其需要标记为 true
+// 这个属性一般是在移动初始化的几个函数里的某个一个设置，譬如
+//  - clientRect
+//  - viewport
+//  - viewportRect
+//  - init
+//  - target
+//  - on_begin
+ignoreViewportScroll :  false,
+//..................................................
 // 根据目标矩形，计算出一个矩形，并用这个矩形来限制目标边界
 // 返回 null 或者没有这个函数定义都表示不限制
 boundaryBy : {c}F(targetRect):Rect

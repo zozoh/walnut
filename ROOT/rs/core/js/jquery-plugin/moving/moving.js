@@ -229,7 +229,11 @@ var MVs = {
 
         // 视口: 不重叠，创建新的
         if(!MVing.viewportIsClient){
-            var rrvp = $D.rect.relative(MVing.rect.viewport,MVing.rect.client);
+            var rrvp = $D.rect.relative(
+                            MVing.rect.viewport,
+                            MVing.rect.client,
+                            true,
+                            MVing.$client);
             MVing.mask.$viewport.css(_.extend({
                 "position" : "absolute"
             }, $z.pick(rrvp, ["top","left","width","height"])));
@@ -603,7 +607,10 @@ var MVs = {
         }
 
         // 计算当前目标与视口关系
-        MVing.css.rect = $D.rect.relative(rect, MVing.rect.viewport, true, MVing.$client);
+        var baseScroll = MVing.ignoreViewportScroll
+                            ? null
+                            : MVing.$client;
+        MVing.css.rect = $D.rect.relative(rect, MVing.rect.viewport, true, baseScroll);
         MVing.css.current = $z.pick(MVing.css.rect, opt.cssBy);
     },
     //.......................................................
