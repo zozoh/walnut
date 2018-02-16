@@ -23,13 +23,17 @@ public class WnPager {
         this();
         this.skip = params.getInt("skip", 0);
         this.limit = params.getInt("limit", 50);
+        boolean breakLimit = params.is("blimit", false);
 
         // 是否计算分页
         this.countPage = params.is("pager") && this.limit > 0;
 
         // 最大不能超过一千条
         if (this.limit <= 0 || this.limit > 1000) {
-            this.limit = 1000;
+            // 没有突破限制，那就按照上面的设定吧
+            if (!breakLimit) {
+                this.limit = 1000;
+            }
         }
         this.pgsz = limit > 0 ? limit : 50;
         this.pn = skip > 0 ? skip / pgsz + 1 : 1;
@@ -53,6 +57,7 @@ public class WnPager {
             q.limit(this.limit);
     }
 
+    @Override
     public WnPager clone() {
         WnPager wp = new WnPager();
         wp.skip = this.skip;
