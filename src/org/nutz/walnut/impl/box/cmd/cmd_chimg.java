@@ -80,8 +80,12 @@ public class cmd_chimg extends cmd_image {
         }
         // 否则就试图创建这个对象
         else {
-            outObj = Wn.checkObj(sys, pa_o);
-
+            String outPath = Wn.normalizeFullPath(pa_o, sys);
+            if (sys.io.exists(null, outPath)) {
+                outObj = sys.io.fetch(null, outPath);
+            } else {
+                outObj = sys.io.createIfNoExists(null, outPath, WnRace.FILE);
+            }
             // 如果是目录，就创建一个文件对象
             if (outObj.isDIR()) {
                 outObj = sys.io.createIfNoExists(outObj, inObj.name(), WnRace.FILE);
