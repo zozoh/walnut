@@ -2,6 +2,8 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +16,13 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 
 /**
  * 转换图片
@@ -41,6 +50,15 @@ public class cmd_chimg extends cmd_image {
         // 必须是图片
         if (!inObj.mime().startsWith("image/")) {
             throw Er.create("e.cmd.chimg.notimage", inObj.path());
+        }
+
+        // 修正iphone手机上传的照片 参考 http://blog.51cto.com/thatway/1627283
+        if (params.is("iosfix", false)) {
+            int fixRotate = getRotateAngleForPhoto(sys.io.getInputStream(inObj, 0));
+            if (fixRotate != 0) {
+                sys.out.print("fix-rotate: " + fixRotate);
+                params.setv("ro", fixRotate);
+            }
         }
 
         // -s 大小
@@ -114,8 +132,47 @@ public class cmd_chimg extends cmd_image {
             outImg = Images.rotate(inImg, degree);
         }
 
-        // 写入outObj中
-        Images.writeAndClose(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
+        if (outImg != null) {
+            // 写入outObj中
+            Images.writeAndClose(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
+        }
+    }
+
+    public static int getRotateAngleForPhoto(InputStream photoIn) {
+        int angle = 0;
+        Metadata metadata;
+        try {
+            metadata = ImageMetadataReader.readMetadata(photoIn);
+            ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if (directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                // Exif信息中方向
+                int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                // 原图片的方向信息
+                if (6 == orientation) {
+                    // 6旋转90
+                    angle = 90;
+                } else if (3 == orientation) {
+                    // 3旋转180
+                    angle = 180;
+                } else if (8 == orientation) {
+                    // 8旋转90
+                    angle = 270;
+                }
+            }
+        }
+        catch (JpegProcessingException e) {
+            e.printStackTrace();
+        }
+        catch (MetadataException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (ImageProcessingException e) {
+            e.printStackTrace();
+        }
+        return angle;
     }
 
 }
