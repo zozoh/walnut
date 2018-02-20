@@ -103,10 +103,10 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.nutz</groupId>
-            <artifactId>nutz-plugins-zdoc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>nutz-plugins-zdoc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-integration-json4excel</artifactId>
@@ -228,6 +228,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
 			<version>2.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 	</dependencies>
 

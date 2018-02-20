@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import org.nutz.img.Images;
 import org.nutz.json.Json;
@@ -8,7 +9,14 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.ZType;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 
 /**
  * 读取图片, 返回分辨率等信息.
@@ -17,7 +25,7 @@ import org.nutz.walnut.util.ZType;
  */
 public class cmd_image extends JvmExecutor {
 
-    protected NutMap getImgInfo(WnSystem sys, WnObj imgObj) {
+    protected NutMap getImgInfo(WnSystem sys, WnObj imgObj, boolean moreInfo) {
         NutMap imgInfo = NutMap.NEW();
         BufferedImage bimg = Images.read(sys.io.getInputStream(imgObj, 0));
         imgInfo.setv("width", bimg.getWidth());
@@ -68,11 +76,42 @@ public class cmd_image extends JvmExecutor {
             imgInfo.setv("typeName", "???");
         }
 
+        // 更多信息
+        if (moreInfo) {
+            NutMap exMap = NutMap.NEW();
+            imgInfo.setv("extra", exMap);
+            try {
+                Metadata metadata = ImageMetadataReader.readMetadata(sys.io.getInputStream(imgObj,
+                                                                                           0));
+                if (metadata != null) {
+                    for (Directory directory : metadata.getDirectories()) {
+                        for (Tag tag : directory.getTags()) {
+                            String dname = directory.getName();
+                            NutMap dMap = (NutMap) exMap.get(dname, NutMap.NEW());
+                            dMap.setv(tag.getTagName(), tag.getDescription());
+                            exMap.setv(dname, dMap);
+                        }
+                        if (directory.hasErrors()) {
+                            for (String error : directory.getErrors()) {
+                                sys.err.printlnf("exif error: %s", error);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (ImageProcessingException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return imgInfo;
     }
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
+        ZParams params = ZParams.parse(args, null);
         WnObj imgObj = getObj(sys, args);
         if (imgObj == null) {
             return;
@@ -80,7 +119,7 @@ public class cmd_image extends JvmExecutor {
         if (!ZType.isImage(imgObj.type())) {
             sys.err.printf("obj %s(%s) is not a image", imgObj.name(), imgObj.id());
         } else {
-            sys.out.println(Json.toJson(getImgInfo(sys, imgObj)));
+            sys.out.println(Json.toJson(getImgInfo(sys, imgObj, params.is("more", false))));
         }
     }
 
