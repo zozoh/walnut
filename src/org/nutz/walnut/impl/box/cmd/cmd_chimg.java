@@ -144,7 +144,7 @@ public class cmd_chimg extends cmd_image {
         try {
             metadata = ImageMetadataReader.readMetadata(photoIn);
             ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if (directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+            if (directory != null && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 // Exif信息中方向
                 int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 // 原图片的方向信息
