@@ -195,7 +195,11 @@ task wruns << {
    	file('build/wzip/start.sh').setExecutable(true, false)
 
    	Files.write(file('build/wzip/stop.sh'), '''#!/bin/bash
-		killall java
+   		if [ -e /var/log/''' + rootProject.name + '''.pid]; then
+   			kill `cat /var/log/''' + rootProject.name + '''.pid`
+   		else
+   			killall java
+   		fi
 	''')
    	file('build/wzip/stop.sh').setExecutable(true, false)
 
