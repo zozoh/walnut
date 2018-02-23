@@ -33,7 +33,7 @@
                         uiWidth: "all",
                         uiConf: {
                             width: 200,
-                            compress: "500x500",
+                            // compress: "500x500",
                             target: function () {
                                 return "~/.test/avatar.jpg";
                             },
