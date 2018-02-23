@@ -224,10 +224,10 @@ return ZUI.def("ui.form_com_image", {
         url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
 
         // 先压缩后上传
-        if(opt.compress){
+        if(opt.iosfix || opt.compress){
             $z.compressImageFile(f, function (nf) {
                 UI._exec_upload(nf, url);
-            }, opt.compress);
+            }, opt.iosfix == true, opt.compress || 100);
         }
         // 直接执行上传
         else {

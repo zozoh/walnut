@@ -1853,8 +1853,29 @@
         // 使用canvas对图片进行压缩
         // file: <input type='file'> 中获取到的file对象
         // afterCompress: 压缩后回调 afterCompress(newFile){...}
+        // iosfix：是否修正ios设备上传导致的旋转问题
         // size: 压缩的大小，默认不填则为50%  可以填写单个数字表示百分比 比如30 或者填写指定宽高 300x400
-        compressImageFile: function (file, afterCompress, size) {
+        compressImageFile: function (file, afterCompress, iosfix, size) {
+            // 旋转修正
+            if (iosfix) {
+                console.log('isofix: ' + navigator.userAgent);
+                EXIF.getData(file, function () {
+                    EXIF.getAllTags(this);
+                    var orientation = EXIF.getTag(this, 'Orientation');
+                    console.log('isofix-na: ' + navigator.userAgent);
+                    console.log('isofix-or: ' + orientation);
+                    if (orientation == '' || typeof orientation == 'undefined') {
+                        orientation = 1;
+                    }
+                    $z._compressAndFixImageFile(file, afterCompress, orientation, size);
+                });
+            }
+            // 直接压缩
+            else {
+                $z._compressAndFixImageFile(file, afterCompress, 1, size);
+            }
+        },
+        _compressAndFixImageFile: function (file, afterCompress, orientation, size) {
             // 压缩图片需要的一些元素和对象
             var reader = new FileReader();
             var img = new Image();
@@ -1887,8 +1908,13 @@
                     // 单数字百分比
                     else {
                         var per = parseInt(size);
-                        maxWidth = Math.round(originWidth * per / 100);
-                        maxHeight = Math.round(originHeight * per / 100);
+                        if (per == 100) {
+                            maxWidth = originWidth;
+                            maxHeight = originHeight;
+                        } else {
+                            maxWidth = Math.round(originWidth * (per / 100));
+                            maxHeight = Math.round(originHeight * (per / 100));
+                        }
                     }
                 }
 
