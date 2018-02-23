@@ -33,7 +33,7 @@
                         uiWidth: "all",
                         uiConf: {
                             width: 200,
-                            // compress: "500x500",
+                            compress: 30,
                             target: function () {
                                 return "~/.test/avatar.jpg";
                             },
@@ -52,13 +52,13 @@
                                     if (re) {
                                         alert(re);
                                     }
-                                    // var imgCmdText2 = "chimg -s 400x300 -iosfix ~/.test/avatar.jpg ~/.test/avatar.jpg";
-                                    // console.log(imgCmdText2);
-                                    // Wn.exec(imgCmdText2, function (re) {
-                                    //     if (re) {
-                                    //         alert(re);
-                                    //     }
-                                    // })
+                                    var imgCmdText2 = "chimg -s 400x300 -iosfix ~/.test/avatar.jpg ~/.test/avatar.jpg";
+                                    console.log(imgCmdText2);
+                                    Wn.exec(imgCmdText2, function (re) {
+                                        if (re) {
+                                            alert(re);
+                                        }
+                                    })
                                 });
                             }
                         }
