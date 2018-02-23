@@ -114,6 +114,13 @@ public class cmd_chimg extends cmd_image {
         BufferedImage inImg = Images.read(sys.io.getInputStream(inObj, 0));
         BufferedImage outImg = null;
 
+        // 旋转图片
+        if (degree != 0) {
+            outImg = Images.rotate(inImg, degree);
+            // 作为下一个输入的源
+            inImg = outImg;
+        }
+
         // 缩放图片
         if (sw > 0 && sh > 0) {
             if (scaleZoom) {
@@ -125,11 +132,6 @@ public class cmd_chimg extends cmd_image {
             }
             // 作为下一个输入的源
             inImg = outImg;
-        }
-
-        // 旋转图片
-        if (degree != 0) {
-            outImg = Images.rotate(inImg, degree);
         }
 
         if (outImg != null) {
