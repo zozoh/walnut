@@ -1850,6 +1850,86 @@
             }
             return re;
         },
+        // 使用canvas对图片进行压缩
+        // file: <input type='file'> 中获取到的file对象
+        // afterCompress: 压缩后回调 afterCompress(newFile){...}
+        // size: 压缩的大小，默认不填则为50%  可以填写单个数字表示百分比 比如30 或者填写指定宽高 300x400
+        compressImageFile: function (file, afterCompress, size) {
+            // 压缩图片需要的一些元素和对象
+            var reader = new FileReader();
+            var img = new Image();
+            // 缩放图片需要的canvas
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+
+            // base64地址图片加载完毕后
+            img.onload = function () {
+                // 图片原始尺寸
+                var originWidth = this.width;
+                var originHeight = this.height;
+
+                // 最大可接受尺寸
+                var maxWidth = 0;
+                var maxHeight = 0;
+
+                // 无配置则默认大小一半
+                if (!size) {
+                    maxWidth = Math.round(originWidth * 0.5);
+                    maxHeight = Math.round(originHeight * 0.5);
+                } else {
+                    size = ("" + size).toLowerCase();
+                    // 指定宽高
+                    if (size.indexOf("x") != -1) {
+                        var swh = size.split("x");
+                        maxWidth = parseInt(swh[0]);
+                        maxHeight = parseInt(swh[1]);
+                    }
+                    // 单数字百分比
+                    else {
+                        var per = parseInt(size);
+                        maxWidth = Math.round(originWidth * per / 100);
+                        maxHeight = Math.round(originHeight * per / 100);
+                    }
+                }
+
+                // 目标尺寸
+                var targetWidth = originWidth, targetHeight = originHeight;
+                // 图片尺寸超过最大图片限制
+                if (originWidth > maxWidth || originHeight > maxHeight) {
+                    if (originWidth / originHeight > maxWidth / maxHeight) {
+                        // 更宽，按照宽度限定尺寸
+                        targetWidth = maxWidth;
+                        targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+                    } else {
+                        targetHeight = maxHeight;
+                        targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+                    }
+                }
+
+                // canvas对图片进行缩放
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                // 清除画布
+                context.clearRect(0, 0, targetWidth, targetHeight);
+                // 图片压缩
+                context.drawImage(img, 0, 0, targetWidth, targetHeight);
+                // canvas转为blob并上传
+                canvas.toBlob(function (blob) {
+                    afterCompress(blob);
+                }, file.type || 'image/png');
+            };
+            // 文件base64化，以便获知图片原始尺寸
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            };
+
+            // 真正加载图片文件
+            if (file.type.indexOf("image") == 0) {
+                reader.readAsDataURL(file);
+            } else {
+                throw "file is not image";
+            }
+        },
         //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
         //
@@ -3861,7 +3941,7 @@
                 "zIndex": 99999,
                 "user-select" : "none",
             });
-            
+
             // 得到遮罩层的大小并生成画布
             var R_VP = $D.rect.gen(jMark);
             //console.log(R_VP)
@@ -3907,7 +3987,7 @@
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);
                 g2d.strokeRect.apply(g2d, args);
-                
+
                 // 绘制文字
                 // 看看左右两个距离哪个大
                 var css = $D.rect.asCss(rect, $D.dom.winsz(true));
@@ -4437,7 +4517,7 @@
             // 处理一下第一行，判断支持一下 task list
             var __B_test_task = function(B) {
                 if(B.content && B.content.length > 0) {
-                    var line0 = B.content[0]; 
+                    var line0 = B.content[0];
                     var m2 = /^[ \t]*(\[[xX ]\])[ ](.+)$/.exec(line0);
                     if(m2) {
                         B.isTask = true;

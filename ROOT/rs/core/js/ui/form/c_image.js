@@ -223,7 +223,23 @@ return ZUI.def("ui.form_com_image", {
         }
         url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
 
-        // 执行上传
+        // 先压缩后上传
+        if(opt.compress){
+            $z.compressImageFile(f, function (nf) {
+                UI._exec_upload(nf, url);
+            }, opt.compress);
+        }
+        // 直接执行上传
+        else {
+            UI._exec_upload(f, url);
+        }
+
+    },
+    _exec_upload: function (f, url) {
+        var UI = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
         $z.uploadFile({
             url: url,
             file: f,
@@ -263,7 +279,6 @@ return ZUI.def("ui.form_com_image", {
                 $z.invoke(opt, "complete", [re, status], context);
             }
         });
-
     },
     //...............................................................
     __update_progress : function (jq, loaded, total) {
