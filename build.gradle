@@ -95,6 +95,7 @@ dependencies {
     compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.3'
     compile group: 'commons-net', name: 'commons-net', version : '3.6'
     compile group: 'org.apache.commons', name: 'commons-pool2', version : '2.4.2'
+    compile group: 'com.drewnoakes', name: 'metadata-extractor', version : '2.11.0'
 }
 
 buildscript {
