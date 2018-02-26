@@ -22,6 +22,11 @@
     }
     .tnd-children {
         padding-left:@d5;
+        &[is-empty] {
+            border:1px dotted rgba(100,100,100,0.4);
+            color:rgba(100,100,100,0.6); font-size:@f0;
+            margin:@d1 @d6; padding:@d0; text-align: center; 
+        }
     }
 }
 
@@ -31,19 +36,21 @@
     }
 }
 
-.tree-node[ndtp=node]{
-
-}
-
-.tree-node[ndtp=leaf]{
-    .tnd-handle {visibility: hidden;}
+.tree-node[ndtp="leaf"]{
+    > .tnd-self {
+        .tnd-handle {visibility: hidden;}
+    }
 }
 
 .tree-node[collapse="yes"] {
-    .tnd-handle i:last-child{display: none;}
-    .tnd-children {display: none;}
+    > .tnd-self {
+        .tnd-handle i:last-child{display: none;}
+    }
+    > .tnd-children {display: none;}
 }
 
 .tree-node[collapse="no"] {
-    .tnd-handle i:first-child{display: none;}
+    > .tnd-self {
+        .tnd-handle i:first-child{display: none;}
+    }
 }

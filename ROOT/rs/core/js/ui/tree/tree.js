@@ -325,7 +325,13 @@ return ZUI.def("ui.tree", {
             // 重新加载
             opt.children.call(context, obj, function(list){
                 // 绘制
-                UI._draw_nodes(list, jSub);
+                if(_.isArray(list) && list.length > 0) {
+                    UI._draw_nodes(list, jSub.removeAttr("is-empty"));
+                }
+                // 否则绘制空
+                else {
+                    jSub.attr("is-empty","yes").text(UI.msg("empty"));
+                }
 
                 // 保持激活
                 if(aid)
