@@ -186,6 +186,8 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
     //...................z...........................
     clickItem : function(arg, arg1) {
         var jItem = this.highlightItem(arg, arg1);
+        var jText  = jItem.children("a");
+        $z.changeWindowTitle(jText.text())
         var iDate = this.getItemDate(jItem);
         if(iDate) {
             this.browser()

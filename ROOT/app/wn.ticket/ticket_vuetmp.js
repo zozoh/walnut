@@ -51,7 +51,7 @@ define(function (require, exports, module) {
                                 <div class="ticket-label-edit" @click="labelFocus()">
                                     <span class="lbl-item" v-for="(lbl, bindex) in lbls">{{lbl}}<div class="lbl-del" @click="delLabel(bindex)">x</div></span>
                                     <span class="lbl-input">
-                                        <input type="text" v-model="label" @change="addLabel">
+                                        <input type="text" v-model="label" @change="addLabel" spellcheck="false">
                                     </span>
                                     <span class="lbl-placeholder" v-show="lbls.length == 0 && label.trim() == ''">请输入标签</span>
                                 </div>
@@ -131,6 +131,11 @@ define(function (require, exports, module) {
                         if (val == false) {
                             this.editIndex = -1;
                             this.editSndex = -1;
+                        }
+                    },
+                    label: function (val) {
+                        if (val.indexOf(' ') != -1) {
+                            this.addLabel();
                         }
                     }
                 },
