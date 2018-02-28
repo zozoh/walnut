@@ -121,7 +121,11 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
         
         // 修改显示
         this.disHighlightItem();
-        
+
+        // 设置title
+        var jText  = jItem.children("a");
+        $z.changeWindowTitle(jText.text());
+
         // 设置高亮并返回
         return jItem.addClass("chute-actived");
     },
@@ -186,8 +190,6 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
     //...................z...........................
     clickItem : function(arg, arg1) {
         var jItem = this.highlightItem(arg, arg1);
-        var jText  = jItem.children("a");
-        $z.changeWindowTitle(jText.text())
         var iDate = this.getItemDate(jItem);
         if(iDate) {
             this.browser()

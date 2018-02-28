@@ -528,6 +528,7 @@ define(function (require, exports, module) {
                     var re = eval('(' + content + ')');
                     if (re.action == 'noti') {
                         var rid = re.rid;
+                        // 桌面通知
                         UI.notification({
                             title: re.title,
                             onclick: function () {
@@ -539,6 +540,8 @@ define(function (require, exports, module) {
                                 this.close();
                             }
                         });
+                        // 闪标题
+                        $z.changeWindowTitle(re.title, true);
                     }
                 };
                 sock.onclose = function () {

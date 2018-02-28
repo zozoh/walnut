@@ -101,7 +101,7 @@
         // title 标题名称
         // blink 是否闪烁直到有人点了屏幕
         changeWindowTitle: function (title, blink) {
-            if (typeof blinkTime == 'undefined') {
+            if (typeof blink == 'undefined') {
                 document.title = title;
             } else {
                 // 闪烁显示内容
@@ -111,7 +111,7 @@
                     timer: null,
                     //
                     init: function () {
-                        $(document).once('click', function() {
+                        $(document).one('click', function() {
                             message.clear();
                         })
                     },
