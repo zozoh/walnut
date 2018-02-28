@@ -124,9 +124,11 @@
 
     border: 1px solid @ch0_b;
     background-color: @ch1_f;
-    color: @ch0_f;
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 
+    input {
+      color: @ch0_f;
+    }
   }
 
   &.cservice {
@@ -401,7 +403,7 @@
 
     .time {
       font-size: 10px;
-      color: #d9d9d9;
+      color: @ch1_f;
     }
 
     .fa {

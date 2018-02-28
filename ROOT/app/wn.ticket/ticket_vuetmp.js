@@ -333,6 +333,36 @@ define(function (require, exports, module) {
                             self.chat2bottom(); // 200ms为了让图片，视频加载完
                         }, 200);
                     },
+                    filterStr: function (str) {
+                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_]");
+                        var result = "";
+                        var len = str.length;
+                        for (var i = 0; i < len; i++) {
+                            var cCode = str.charAt(i);
+                            if (pattern.test(cCode)) {
+                                console.log("fcode: " + cCode);
+                                cCode = this.toDBC(str.charCodeAt(i));
+                            }
+                            result += cCode;
+                        }
+                        return result;
+                    },
+                    alltoDBC: function (str) {
+                        var result = "";
+                        var len = str.length;
+                        for (var i = 0; i < len; i++) {
+                            var cCode = str.charCodeAt(i);
+                            result += this.toDBC(cCode);
+                        }
+                        return result;
+                    },
+                    toDBC: function (cCode) {
+                        //全角与半角相差（除空格外）：65248(十进制)
+                        cCode = (cCode >= 0x0021 && cCode <= 0x007E) ? (cCode + 65248) : cCode;
+                        //处理空格
+                        cCode = (cCode == 0x0020) ? 0x03000 : cCode;
+                        return String.fromCharCode(cCode);
+                    },
                     // 发送内容
                     sendText: function () {
                         var self = this;
@@ -342,6 +372,8 @@ define(function (require, exports, module) {
                             UI.toast("写点内容再提交吧");
                             return;
                         }
+                        // 替换里面的非法字符
+                        stext = self.filterStr(stext);
                         self.sending = true;
                         Wn.exec("ticket my -post '" + self.tkId + "' -c 'text: \"" + stext + "\"' -edit " + self.editSndex, function (re) {
                             var re = JSON.parse(re);
