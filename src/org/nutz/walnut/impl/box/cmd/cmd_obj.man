@@ -25,6 +25,8 @@
         [-tree {...}]
         [-treeBy {..}]
         [-treeDepth 1]
+        [-ancestor noself|noroot|nodes]
+        [-ancestorUntil {..}]
         [-hide]
     
     -new    创建一个新的对象，内容是一个 JSON 字段，可以不用 "{}" 包裹，其中:
@@ -57,6 +59,15 @@
     -tree           一个Map，匹配上的DIR项目，将会被展开子，展开子将遵守 -sort 设定，但是会无视 -limit 和 -skip
     -treeBy         展开子的条件，默认是全部子
     -treeDepth      展开深度，默认为1
+    
+    -an         找到的一个数组顺序为从根至自己: [根] [节点1] [节点2] [自己]
+                 - noself 则表示返回: [根] [节点1] [节点2]
+                 - noroot 则表示返回: [节点1] [节点2] [自己]
+                 - nodes  则表示返回: [节点1] [节点2]
+                 - full   则表示返回: [根] [节点1] [节点2] [自己]
+                默认为 noself
+    -anuntil    值为一个 Map，表示符合这个条件的节点就是根了。否则会一直寻找到 /xxx 目录
+    
     
     -limit  一页显示多少数据，默认全部数据
     -skip   分页显示时，跳过多少数据

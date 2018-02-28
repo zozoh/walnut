@@ -35,6 +35,9 @@ return ZUI.def("app.wn.hmaker_folder", {
             },
             on_blur : function(jItems, nextObj, nextItem){
                 UI.fire("blur:file", nextObj);
+            },
+            on_open : function(o){
+                UI.resourceUI().setActived(o.id);
             }
         }).render(function(){
             UI.defer_report("list");

@@ -2657,6 +2657,7 @@ readers do not read off random characters that represent icons */
 
 .far {
   font-family: 'Font Awesome 5 Free';
+  font-style: normal;
   font-weight: 400; }
 @font-face {
   font-family: 'Font Awesome 5 Free';
@@ -2667,4 +2668,5 @@ readers do not read off random characters that represent icons */
 
 .fas {
   font-family: 'Font Awesome 5 Free';
+  font-style: normal;
   font-weight: 900; }
