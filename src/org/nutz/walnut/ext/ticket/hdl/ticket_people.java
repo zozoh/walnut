@@ -49,6 +49,8 @@ public class ticket_people implements JvmHdl {
         }
 
         WnObj peoDir = sys.io.check(ticketHome, tp);
+        WnObj puserDir = sys.io.check(ticketHome, "user");
+        WnObj pcsDir = sys.io.check(ticketHome, "cservice");
 
         // 添加
         if (params.has("add")) {
@@ -57,11 +59,16 @@ public class ticket_people implements JvmHdl {
             // 检查用户是否存在
             WnObj tPeople = null;
             String pNm = "wn_" + wnUsr.id();
-            if (sys.io.exists(peoDir, pNm)) {
-                // sys.err.printf("e.ticket: has %s reg by [%s]", tp,
-                // params.getString("add"));
-                tPeople = sys.io.fetch(peoDir, pNm);
-            } else {
+            // 用户
+            if (sys.io.exists(puserDir, pNm)) {
+                tPeople = sys.io.fetch(puserDir, pNm);
+            }
+            // 客服
+            else if (sys.io.exists(pcsDir, pNm)) {
+                tPeople = sys.io.fetch(pcsDir, pNm);
+            }
+            // 新建
+            else {
                 // 新建并初始化
                 WnObj cjson = sys.io.fetch(null,
                                            Wn.normalizeFullPath("/etc/init/ticket/tmpl_"

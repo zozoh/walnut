@@ -209,6 +209,13 @@
                     },
                     list: {
                         fields: [{
+                            key: "id",
+                            title: "工单ID",
+                            uiType: '@label',
+                            display: function (o) {
+                                return o.id.substr(0, 10).toUpperCase();
+                            }
+                        }, {
                             key: "ticketTp",
                             title: "工单类型",
                             uiType: '@label'
@@ -250,7 +257,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 100, '*', 200, 150]
+                            sizeHint: [100, 80, 100, '*', 200, 150]
                         }
                     },
                     sorter: {

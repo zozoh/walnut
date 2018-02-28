@@ -97,6 +97,49 @@
             var $mybody = document.body;
             $mybody.scrollTop = $mybody.scrollHeight;
         },
+        // 修改窗口标题
+        // title 标题名称
+        // blink 是否闪烁直到有人点了屏幕
+        changeWindowTitle: function (title, blink) {
+            if (typeof blink == 'undefined') {
+                document.title = title;
+            } else {
+                // 闪烁显示内容
+                var message = {
+                    time: 0,
+                    title: document.title,
+                    timer: null,
+                    //
+                    init: function () {
+                        $(document).one('click', function() {
+                            message.clear();
+                        })
+                    },
+                    // 显示新消息提示
+                    show: function () {
+                        // 定时器，设置消息切换频率闪烁效果就此产生
+                        message.timer = setTimeout(function () {
+                            message.time++;
+                            message.show();
+                            if (message.time % 2 == 0) {
+                                document.title = "【新消息】" + title
+                            }
+                            else {
+                                document.title = "【　　　】" + title
+                            }
+                        }, 600);
+                        return [message.timer, message.title];
+                    },
+                    // 取消新消息提示
+                    clear: function () {
+                        clearTimeout(message.timer);
+                        document.title = message.title;
+                    }
+                };
+                message.init();
+                message.show();
+            }
+        },
         // 全屏幕
         toggleFullScreen: function () {
             if (!document.fullscreenElement &&    // alternative standard method
