@@ -2474,7 +2474,7 @@
             var REG;
             // 自动根据长度判断应该选取的表达式
             if (!regex) {
-                REG = /^(\d{4})-(\d{1,2})-(\d{1,2})([T ](\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?)?$/;
+                REG = /^(\d{4})[-/](\d{1,2})([-/](\d{1,2}))?([T ](\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?)?$/;
             }
             // 构建个新正则
             else {
@@ -2499,10 +2499,14 @@
             }
 
             // 格式正确
-            if (m && m.length >= 3) {
+            if (m && m.length >= 2) {
                 var d;
+                // 仅仅是月
+                if (m.length == 2) {
+                    d = new Date(m[0], m[1] - 1, 1);
+                }
                 // 仅仅是日期
-                if (m.length == 3) {
+                else if (m.length == 3) {
                     d = new Date(m[0], m[1] - 1, m[2]);
                 }
                 // 精确到分
@@ -2515,7 +2519,7 @@
                 }
                 return d;
             }
-            throw "invalid date '" + str + "' can not match : " + regex;
+            throw "invalid date '" + str + "' can not match : " + REG;
         },
         //.............................................
         // 解析日期字符串为一个日期对象
