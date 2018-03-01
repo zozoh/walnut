@@ -10,6 +10,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -135,6 +136,7 @@ public class ticket_record implements JvmHdl {
             // 组装工单内容
             NutMap tMeta = Lang.map(params.getString("c"));
             tMeta.setv("usrId", tPeople.getString("usrId"));
+            tMeta.setv("usrAlias", tPeople.getString("usrAlias"));
             tMeta.setv("tickerStart", System.currentTimeMillis());
             tMeta.setv("ticketEnd", -1);
             tMeta.setv("ticketStatus", "new");
@@ -358,6 +360,8 @@ public class ticket_record implements JvmHdl {
                                 }
                                 // 提交新贴
                                 else {
+                                    ureply.setv("usrId", tPeople.getString("usrId"));
+                                    ureply.setv("usrAlias", tPeople.getString("usrAlias"));
                                     ureply.setv("attachments", attas(sys, curRecord, params));
                                     ureply.setv("time", System.currentTimeMillis());
                                     curRecord.addv2("request", ureply);
@@ -540,20 +544,26 @@ public class ticket_record implements JvmHdl {
         // ph=id:pp29hlmveghqjq1d1ks18sf4uo#edit_ticket_client_cservice::rid=xxxxx
         String link = null;
         if (toUser.getBoolean("isUser", false)) {
-            String cpath = Wn.normalizeFullPath("/home/"
-                                                + toUser.getString("usrDmn")
-                                                + "/.ticket_client_user",
-                                                sys);
-            WnObj sObj = sys.io.fetch(null, cpath);
+            WnObj sObj = getObjByPath(sys,
+                                      "/home/"
+                                           + toUser.getString("usrDmn")
+                                           + "/.ticket_client_user");
+            if (sObj == null) {
+                log.errorf("/home/%s/.ticket_client_user not find", toUser.getString("usrDmn"));
+                return;
+            }
             link = String.format("ph=id:%s#edit_ticket_client_user::rid=%s",
                                  sObj.id(),
                                  content.getString("rid"));
         } else {
-            String cpath = Wn.normalizeFullPath("/home/"
-                                                + toUser.getString("usrDmn")
-                                                + "/.ticket_client_cservice",
-                                                sys);
-            WnObj sObj = sys.io.fetch(null, cpath);
+            WnObj sObj = getObjByPath(sys,
+                                      "/home/"
+                                           + toUser.getString("usrDmn")
+                                           + "/.ticket_client_cservice");
+            if (sObj == null) {
+                log.errorf("/home/%s/.ticket_client_cservice not find", toUser.getString("usrDmn"));
+                return;
+            }
             link = String.format("ph=id:%s#edit_ticket_client_cservice::rid=%s",
                                  sObj.id(),
                                  content.getString("rid"));
@@ -564,6 +574,18 @@ public class ticket_record implements JvmHdl {
         String cmd = String.format("websocket text id:%s '%s'", fid, cJson);
         log.infof("ticket noti-ws: %s", cmd);
         sys.exec(cmd);
+    }
+
+    private WnObj getObjByPath(WnSystem sys, String path) {
+        Proton<WnObj> proton = new Proton<WnObj>() {
+            @Override
+            protected WnObj exec() {
+                String fpath = Wn.normalizeFullPath(path, sys);
+                return sys.io.fetch(null, fpath);
+            }
+        };
+        sys.nosecurity(proton);
+        return proton.get();
     }
 
 }

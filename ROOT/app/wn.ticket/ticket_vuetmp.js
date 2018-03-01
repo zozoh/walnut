@@ -210,6 +210,16 @@ define(function (require, exports, module) {
                     userName: function (item) {
                         if (this.isCS(item)) {
                             return item.csAlias;
+                        } else {
+                            if (item.usrAlias) {
+                                return item.usrAlias;
+                            } else {
+                                if (this.wobj.usrAlias) {
+                                    return this.wobj.usrAlias;
+                                } else {
+                                    return "用户" + this.wobj.usrId.substr(0, 4);
+                                }
+                            }
                         }
                         return "用户";
                     },

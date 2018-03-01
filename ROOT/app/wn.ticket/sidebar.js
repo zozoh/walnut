@@ -15,9 +15,13 @@
         editor: 'edit_ticket_people'
     }, {
         ph: '~/.ticket/record',
-        icon: '<i class="fa fa-bell-o"></i>',
+        icon: '<i class="fa fa-list-alt"></i>',
         text: 'i18n:ticket.record',
         editor: 'edit_ticket_search'
+    }, {
+        ph: '~/.ticket/ticket.json',
+        icon: '<i class="fa fa-book"></i>',
+        text: 'i18n:ticket.setting',
     }, {
         ph: '~/.ticket_client_user',
         icon: '<i class="fa fa-bell-o"></i>',
