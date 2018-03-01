@@ -334,7 +334,7 @@ var methods = {
         
         // 文件夹
         if('DIR' == o.race)
-            return  '<i class="fa fa-folder-o"></i>';
+            return  '<i class="far fa-folder"></i><i class="far fa-folder-open"></i>';
         
         // 网页 / XML
         if(/^text\/(xml|html)$/.test(o.mime)) {

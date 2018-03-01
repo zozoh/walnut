@@ -45,6 +45,10 @@
 .tree-node[collapse="yes"] {
     > .tnd-self {
         .tnd-handle i:last-child{display: none;}
+        .tnd-icon {
+            i:last-child {display: none;}
+            i:first-child{display: inline-block;}
+        }
     }
     > .tnd-children {display: none;}
 }
@@ -52,5 +56,9 @@
 .tree-node[collapse="no"] {
     > .tnd-self {
         .tnd-handle i:first-child{display: none;}
+        .tnd-icon {
+            i:first-child{display: none;}
+            i:last-child {display: inline-block;}
+        }
     }
 }

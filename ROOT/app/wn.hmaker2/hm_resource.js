@@ -57,6 +57,12 @@ return ZUI.def("app.wn.hmaker_resource", {
                     callback(list);
                 })
             },
+            ancestor : function(id, callback) {
+                Wn.exec('obj id:'+id+' -an nodes -anuntil \'id:"'+homeId+'"\'', function(re){
+                    var list = $z.fromJson(re);
+                    callback(list);
+                })
+            },
             idKey : "id",
             nmKey : "nm",
             icon  : function(o){
@@ -171,7 +177,6 @@ return ZUI.def("app.wn.hmaker_resource", {
     //...............................................................
     reloadNode : function(o, callback){
         var UI = this;
-        console.log("reloadNode")
         // 如果有节点
         if(o) {
             UI.uiTree.reload(o.id, callback);

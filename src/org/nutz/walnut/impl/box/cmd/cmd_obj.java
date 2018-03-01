@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -168,27 +169,12 @@ public class cmd_obj extends JvmExecutor {
 
         // 返回一棵Tree, 根据指定层数递归展开
         if (params.has("tree")) {
-            List<WnObj> list2 = new LinkedList<WnObj>();
+            list = __do_tree(sys, params, sort, list);
+        }
 
-            String json = params.get("tree");
-            NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
-
-            WnQuery q = new WnQuery();
-            NutMap by = Lang.map(params.get("treeBy", "{}"));
-            q.setAll(by);
-
-            if (null != sort)
-                q.sort(sort);
-
-            int treeDepth = params.getInt("treeDepth", 1);
-
-            // 逐个展开结果列表
-            for (WnObj o : list) {
-                __do_tree(sys, list2, flt, q, o, treeDepth, 0);
-            }
-
-            // 指向新的结果
-            list = list2;
+        // 返回祖先节点
+        if (params.has("an")) {
+            list = __do_ancestor(params, list);
         }
 
         // 执行更新
@@ -230,6 +216,65 @@ public class cmd_obj extends JvmExecutor {
 
     }
 
+    private List<WnObj> __do_ancestor(ZParams params, List<WnObj> list) {
+        // 确保输出为列表
+        params.setv("l", true);
+        // 首先得到自己，然后读取自己的祖先节点
+        if (!list.isEmpty()) {
+            // 得到过滤条件
+            NutMap anuntil = null;
+            if (params.has("anuntil")) {
+                anuntil = params.getMap("anuntil");
+            }
+            // 加载
+            WnObj oSelf = list.get(0);
+            LinkedList<WnObj> ans = new LinkedList<WnObj>();
+            oSelf.loadParents(ans, false);
+            list = new LinkedList<WnObj>();
+            // 寻找到根节点
+            WnObj oTop = null;
+            if (ans.size() > 0) {
+                ListIterator<WnObj> it = ans.listIterator(ans.size());
+                WnObj oAn = it.previous();
+                // 判断一下是否到根了
+                while (true) {
+                    // 木了
+                    if (!it.hasPrevious()) {
+                        oTop = oAn;
+                        break;
+                    }
+                    // 可以被匹配
+                    if (null != anuntil && anuntil.match(oAn)) {
+                        oTop = oAn;
+                        break;
+                    }
+                    // 那就是节点咯
+                    list.add(0, oAn);
+                    oAn = it.previous();
+                }
+            }
+            // 根据条件判断一下是否增加自己
+            String anMode = params.getString("an");
+
+            // noroot 则表示返回: [节点1] [节点2] [自己]
+            if ("noroot".equals(anMode)) {
+                list.add(oSelf);
+            }
+            // nodes 则表示返回: [节点1] [节点2]
+            else if ("nodes".equals(anMode)) {}
+            // full 则表示返回: [根] [节点1] [节点2] [自己]
+            else if ("full".equals(anMode)) {
+                list.add(oSelf);
+                list.add(0, oTop);
+            }
+            // 默认 noself 则表示返回: [根] [节点1] [节点2]
+            else {
+                list.add(0, oTop);
+            }
+        }
+        return list;
+    }
+
     private void __do_extend(WnSystem sys,
                              List<WnObj> list2,
                              NutMap flt,
@@ -260,13 +305,35 @@ public class cmd_obj extends JvmExecutor {
         }
     }
 
-    private void __do_tree(WnSystem sys,
-                           List<WnObj> resultList,
-                           NutMap flt,
-                           WnQuery q,
-                           WnObj o,
-                           int wantDepth,
-                           int currDepth) {
+    private List<WnObj> __do_tree(WnSystem sys, ZParams params, NutMap sort, List<WnObj> list) {
+        List<WnObj> list2 = new LinkedList<WnObj>();
+
+        String json = params.get("tree");
+        NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
+
+        WnQuery q = new WnQuery();
+        NutMap by = Lang.map(params.get("treeBy", "{}"));
+        q.setAll(by);
+
+        if (null != sort)
+            q.sort(sort);
+
+        int treeDepth = params.getInt("treeDepth", 1);
+
+        // 逐个展开结果列表
+        for (WnObj o : list) {
+            __do_tree_in_loop(sys, list2, flt, q, o, treeDepth, 0);
+        }
+        return list2;
+    }
+
+    private void __do_tree_in_loop(WnSystem sys,
+                                   List<WnObj> resultList,
+                                   NutMap flt,
+                                   WnQuery q,
+                                   WnObj o,
+                                   int wantDepth,
+                                   int currDepth) {
         // 匹配的就展开
         if (o.isDIR() && flt.match(o) && wantDepth > currDepth) {
             // 准备子节点
@@ -278,7 +345,7 @@ public class cmd_obj extends JvmExecutor {
                 // 设置父
                 child.setParent(o);
                 // 深层递归展开
-                __do_tree(sys, children, flt, q, child, wantDepth, currDepth + 1);
+                __do_tree_in_loop(sys, children, flt, q, child, wantDepth, currDepth + 1);
             });
         }
         // 加到结果集里
