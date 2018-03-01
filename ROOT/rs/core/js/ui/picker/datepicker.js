@@ -121,6 +121,8 @@ return ZUI.def("ui.picker.datepicker", {
                 else{
                     jBody.zcal("range", obj);
                 }
+                // 最后调用一下回调通知
+                $z.invoke(opt, "on_pop", [jBody], UI);
                 
             });
         },
