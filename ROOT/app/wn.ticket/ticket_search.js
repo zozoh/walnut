@@ -8,7 +8,23 @@
         'ui/search2/search',
         'app/wn.ticket/ticket_vuetmp',
     ], function (ZUI, Wn, MaskUI, SearchUI2, TkTmp) {
-        var html = `<div class="ui-arena ticket-contaner" ui-gasket="main" ui-fitparent="true"></div>`;
+        var html = `
+        <div class="ui-code-template">
+                <div code-id="formmask">
+                    <div class="ui-arena srh-mask-form" ui-fitparent="yes">
+                        <div class="ui-mask-bg"></div>
+                        <div class="ui-mask-main"><div class="srh-mask">
+                            <div class="srh-qform" ui-gasket="main"></div>
+                            <div class="srh-qbtns">
+                                <b class="srh-qform-ok"><i class="ing fa fa-spinner fa-spin"></i>{{ok}}</b>
+                                <b class="srh-qform-cancel">{{cancel}}</b>
+                            </div>
+                        </div></div>
+                        <div class="ui-mask-closer"></div>
+                    </div>
+                </div>
+        </div>
+        <div class="ui-arena ticket-contaner" ui-gasket="ticketList" ui-fitparent="true"></div>`;
         return ZUI.def("app.wn.ticket.search", {
             dom: html,
             css: "app/wn.ticket/theme/ticket-{{theme}}.css",
@@ -38,6 +54,19 @@
                 var UI = this;
                 // 获取我的信息
                 UI.me = JSON.parse(Wn.exec("me -json"));
+
+                UI.cslist = Wn.execJ("obj ~/.ticket/cservice/*") || [];
+
+                // // 工单类型
+                // UI.tkconf = Wn.execJ("ticket my -tkconf");
+                // var tps = [];
+                // for (var i = 0; i < UI.tkconf.tps.length; i++) {
+                //     tps.push({
+                //         text: UI.tkconf.tps[i],
+                //         value: UI.tkconf.tps[i]
+                //     })
+                // }
+                // UI._tps = tps;
             },
             redraw: function () {
                 var UI = this;
@@ -78,9 +107,84 @@
                 // 加载对象编辑器
                 UI.myTicketUI = new SearchUI2({
                     parent: UI,
-                    gasketName: "main",
+                    gasketName: "ticketList",
                     data: "obj -match '<%=match%>' -skip {{skip}} -limit {{limit}} -l -json -pager -sort '<%=sort%>'",
-                    menu: ["refresh"],
+                    menu: [{
+                        text: "指派客服",
+                        handler: function () {
+                            // 先选中一个
+                            var obj = UI.myTicketUI.uiList.getActived();
+                            if (!obj) {
+                                UI.alert("请选中一个工单后再操作");
+                                return;
+                            }
+                            if (obj.ticketStep == '3') {
+                                UI.alert("该工单已经无法再进行指派操作");
+                                return;
+                            }
+                            // 默认是自己，可以选择其他人
+                            var cslist = [];
+                            for (var i = 0; i < UI.cslist.length; i++) {
+                                var c = UI.cslist[i];
+                                cslist.push({
+                                    text: c.usrNm + "(" + (c.usrId == UI.me.id ? "我" : c.usrAlias) + ")",
+                                    value: c.usrId
+                                })
+                            }
+                            new MaskUI({
+                                dom: UI.ccode("formmask").html(),
+                                i18n: UI._msg_map,
+                                exec: UI.exec,
+                                width: 600,
+                                height: 120,
+                                dom_events: {
+                                    "click .srh-qform-ok": function (e) {
+                                        var uiMask = ZUI(this);
+                                        var formData = uiMask.body.getData();
+                                        if (formData) {
+                                            console.log(JSON.stringify(formData));
+                                            var csId = formData.cservice;
+                                            Wn.exec("ticket my -assign " + obj.id + " -tu " + csId, function (re) {
+                                                var re = JSON.parse(re);
+                                                if (re.ok) {
+                                                    UI.myTicketUI.refresh();
+                                                } else {
+                                                    UI.alret(re.data);
+                                                }
+                                                uiMask.close();
+                                            });
+                                        }
+                                    },
+                                    "click .srh-qform-cancel": function (e) {
+                                        var uiMask = ZUI(this);
+                                        uiMask.close();
+                                    }
+                                },
+                                setup: {
+                                    uiType: "ui/form/form",
+                                    uiConf: {
+                                        uiWidth: "all",
+                                        title: "",
+                                        fields: [{
+                                            key: "cservice",
+                                            title: "指定客服",
+                                            tip: "默认情况选中自己",
+                                            type: "string",
+                                            editAs: "droplist",
+                                            uiWidth: "auto",
+                                            uiConf: {
+                                                items: cslist
+                                            }
+                                        }]
+                                    }
+                                }
+                            }).render(function () {
+                                this.body.setData({
+                                    cservice: obj.csId || UI.me.id
+                                });
+                            });
+                        }
+                    }, "refresh"],
                     edtCmdTmpl: {},
                     events: {
                         "dblclick .list-item": function (e) {
@@ -122,14 +226,6 @@
                                 return tsmap[s] || "未定义状态";
                             }
                         }, {
-                            key: "lbls",
-                            title: "标签",
-                            uiType: '@label',
-                            display: function (o) {
-                                var lbls = o.lbls || [];
-                                return lbls.join(" ");
-                            }
-                        }, {
                             key: "text",
                             title: "问题概述",
                             uiType: '@label',
@@ -141,8 +237,23 @@
                                 return otext;
                             }
                         }, {
+                            key: "lbls",
+                            title: "标签",
+                            uiType: '@label',
+                            display: function (o) {
+                                var lbls = o.lbls || [];
+                                return lbls.join(" ");
+                            }
+                        }, {
+                            key: "usrAlias",
+                            title: "用户",
+                            uiType: '@label',
+                            display: function (o) {
+                                return o.usrAlias || "用户" + o.usrId.substr(0, 4);
+                            }
+                        }, {
                             key: "csAlias",
-                            title: "处理客服",
+                            title: "客服",
                             uiType: '@label',
                             display: function (o) {
                                 return o.csAlias || "";
@@ -168,7 +279,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 80, 80, 200, '*', 100, 150, 150]
+                            sizeHint: [100, 80, 80, '*', 150, 100, 100, 150, 150]
                         }
                     },
                     sorter: {
@@ -191,14 +302,14 @@
                         "d1": Wn.app().session.grp,
                         "pid": rdir.id
                     });
-                    UI.defer_report("main");
+                    UI.defer_report("ticketList");
                 });
                 // 返回延迟加载
-                return ["main"];
+                return ["ticketList"];
             },
             //..............................................
             update: function (o) {
-                this.gasket.main.refresh();
+                this.gasket.ticketList.refresh();
             }
             //..............................................
         });

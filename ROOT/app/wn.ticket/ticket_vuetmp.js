@@ -19,30 +19,36 @@ define(function (require, exports, module) {
                         <div class="ticket-title" @click="editTk"><span class="tp">[{{tkTp}}]</span><span class="text">{{tkTitle}}</span></div>
                         <ul class="ticket-chat">
                             <li class="chat-no-record" v-show="timeItems.length == 0">暂无内容</li>
-                            <li class="chat-record clear" :class="isCS(item)? 'cservice': ''" v-for="(item, index) in timeItems" :key="item.time">
-                                <div class="chat-user">
-                                    <img class="chat-user-avatar" :src="userAvatar(item)" />
-                                    <div class="chat-user-name">{{userName(item)}}</div>
-                                </div>
-                                <div class="chat-content">
-                                    <div class="chat-content-text" :class="{edit: editIndex == index}">
-                                        <div class="text-con">{{item.text}}
-                                            <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
-                                                <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
-                                                <img :src="attaImage(atta)" v-if="isImage(atta)">
-                                                <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
+                            <li class="chat-record-wrap" v-for="(item, index) in timeItems" :key="item.time">
+                                <div v-if="item.stp != 'ophis'" class="chat-record clear" :class="isCS(item)? 'cservice': ''">
+                                    <div class="chat-user">
+                                        <img class="chat-user-avatar" :src="userAvatar(item)" />
+                                        <div class="chat-user-name">{{userName(item)}}</div>
+                                    </div>
+                                    <div class="chat-content">
+                                        <div class="chat-content-text" :class="{edit: editIndex == index}">
+                                            <div class="text-con">{{item.text}}
+                                                <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
+                                                    <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
+                                                    <img :src="attaImage(atta)" v-if="isImage(atta)">
+                                                    <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
+                                                </div>
+                                                <div class="chat-content-footer left" >
+                                                    <span class="time">{{timeText(item)}}</span>
+                                                    <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                                    <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
+                                                </div>
+                                                <div class="chat-content-footer right" >
+                                                    <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                                    <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
+                                                    <span class="time">{{timeText(item)}}</span>
+                                                </div>
                                             </div>
-                                        <div class="chat-content-footer left" >
-                                            <span class="time">{{timeText(item)}}</span>
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
-                                        </div>
-                                        <div class="chat-content-footer right" >
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
-                                            <span class="time">{{timeText(item)}}</span>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="chat-history" v-else>
+                                    <div class="his-time">{{timeText(item)}} {{item.content}}</div>
                                 </div>
                             </li>
                         </ul>
@@ -87,6 +93,7 @@ define(function (require, exports, module) {
                 editing: false,
                 editIndex: -1,
                 editSndex: -1,
+                expday: 2,
                 expmin: 30,
                 focusLabel: false,
                 focusStatus: false
@@ -210,6 +217,16 @@ define(function (require, exports, module) {
                     userName: function (item) {
                         if (this.isCS(item)) {
                             return item.csAlias;
+                        } else {
+                            if (item.usrAlias) {
+                                return item.usrAlias;
+                            } else {
+                                if (this.wobj.usrAlias) {
+                                    return this.wobj.usrAlias;
+                                } else {
+                                    return "用户" + this.wobj.usrId.substr(0, 4);
+                                }
+                            }
                         }
                         return "用户";
                     },
@@ -327,6 +344,8 @@ define(function (require, exports, module) {
                             this.wobj.response[i].sindex = i;
                         }
                         ritems = ritems.concat(this.wobj.response);
+                        // history
+                        ritems = ritems.concat(this.wobj.history || []);
                         this.items = ritems;
                         this.lbls = this.wobj.lbls || [];
                         setTimeout(function () {
@@ -471,7 +490,8 @@ define(function (require, exports, module) {
                     },
                     isPassTime: function (time) {
                         var ct = new Date().getTime();
-                        return ct - (this.expmin * 1000 * 60) > time;
+                        // return ct - (this.expmin * 1000 * 60) > time;
+                        return ct - (this.expday * 24 * 60 * 1000 * 60) > time;
                     },
                     editContent: function (item, index) {
                         var self = this;
@@ -483,7 +503,7 @@ define(function (require, exports, module) {
                             self.text = item.text;
                             self.focusStatus = true;
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
+                            UI.alert('提交已超过了' + this.expday + "天，不能再做修改");
                         }
                     },
                     removeContent: function (item, index) {
@@ -505,7 +525,7 @@ define(function (require, exports, module) {
                                 }
                             });
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
+                            UI.alert('提交已超过了' + this.expday + "天，不能被删除");
                         }
                     }
                 },
