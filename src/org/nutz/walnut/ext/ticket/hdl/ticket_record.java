@@ -199,8 +199,13 @@ public class ticket_record implements JvmHdl {
                 curRecord.setv("ticketStep", "2");
                 curRecord.setv("csId", csPeople.getString("usrId"));
                 curRecord.setv("csAlias", csPeople.getString("usrAlias"));
+                // 记录到历史
+                curRecord.addv2("history",
+                                opHis(String.format("工单分配给客服[%s]",
+                                                    csPeople.getString("usrAlias"))));
+
                 sys.io.appendMeta(curRecord,
-                                  "^csId|csAlias|csTrans|csTransTime|ticketStatus|ticketStep$");
+                                  "^csId|csAlias|csTrans|csTransTime|ticketStatus|ticketStep|history$");
                 sys.out.print(Json.toJson(curRecord.toMap("^id|csId|csAlias$")));
 
                 // 通知客服 工单分配给你了
@@ -282,15 +287,19 @@ public class ticket_record implements JvmHdl {
                 }
                 // 打开
                 else if (isOpen) {
-                    NutMap meta = NutMap.NEW();
-                    meta.setv("ticketStatus", "reassign"); // 算是重新指派给客服了
-                    meta.setv("ticketEnd", -1);
-                    meta.setv("ticketStep", "2");
-                    sys.io.appendMeta(curRecord, meta);
+                    boolean userOpen = tPeople.getString("usrId")
+                                              .equals(curRecord.getString("usrId"));
+                    curRecord.setv("ticketStatus", "reassign"); // 算是重新指派给客服了
+                    curRecord.setv("ticketEnd", -1);
+                    curRecord.setv("ticketStep", "2");
+                    // 记录到历史
+                    curRecord.addv2("history",
+                                    opHis(String.format("工单被%s重新打开", userOpen ? "用户" : "客服")));
+                    sys.io.appendMeta(curRecord, "^ticketEnd|ticketStatus|ticketStep|history$");
                     sys.out.print(Json.toJson(getRecord(sys, rid)));
                     // 通知与工单相关用户
                     // 客户打开的
-                    if (tPeople.getString("usrId").equals(curRecord.getString("usrId"))) {
+                    if (userOpen) {
                         notiWSClient(sys,
                                      toCs,
                                      NutMap.NEW()
@@ -326,6 +335,7 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                                curRecord.addv2("history", opHis("工单被用户关闭"));
                                 notiWSClient(sys,
                                              toCs,
                                              NutMap.NEW()
@@ -373,7 +383,7 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "new");
                             }
                             sys.io.appendMeta(curRecord,
-                                              "^request|ticketStatus|ticketStep|ticketEnd$");
+                                              "^request|ticketStatus|ticketStep|ticketEnd|history$");
                             sys.out.print(Json.toJson(curRecord));
                             // 如果是用户回复
                             if ("ureply".equals(curRecord.getString("ticketStatus"))) {
@@ -401,6 +411,7 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
+                                curRecord.addv2("history", opHis("工单被客服关闭"));
                                 notiWSClient(sys,
                                              toUsr,
                                              NutMap.NEW()
@@ -445,7 +456,7 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "creply");
                             }
                             sys.io.appendMeta(curRecord,
-                                              "^response|ticketStatus|ticketStep|ticketEnd$");
+                                              "^response|ticketStatus|ticketStep|ticketEnd|history$");
                             sys.out.print(Json.toJson(curRecord));
                             // 如果是用户回复
                             if ("creply".equals(curRecord.getString("ticketStatus"))) {
@@ -586,6 +597,14 @@ public class ticket_record implements JvmHdl {
         };
         sys.nosecurity(proton);
         return proton.get();
+    }
+
+    private NutMap opHis(String content) {
+        NutMap opHis = NutMap.NEW();
+        opHis.setv("stp", "ophis");
+        opHis.setv("time", System.currentTimeMillis());
+        opHis.setv("content", content);
+        return opHis;
     }
 
 }
