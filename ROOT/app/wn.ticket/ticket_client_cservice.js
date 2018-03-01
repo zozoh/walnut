@@ -57,7 +57,7 @@
             init: function () {
                 var UI = this;
                 // 获取所有客服信息
-                UI.cslist = Wn.execJ("obj ~/.ticket/cservice/*") || [];
+                UI.cslist = JSON.parse(Wn.exec("ticket my -cservice")) || [];
                 // 获取我的信息
                 UI.me = JSON.parse(Wn.exec("me -json"));
                 // 通知

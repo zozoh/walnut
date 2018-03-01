@@ -55,7 +55,7 @@
                 // 获取我的信息
                 UI.me = JSON.parse(Wn.exec("me -json"));
 
-                UI.cslist = JSON.parse(Wn.exec("ticket my -cservice")) || [];
+                UI.cslist = Wn.execJ("obj ~/.ticket/cservice/*") || [];
 
                 // // 工单类型
                 // UI.tkconf = Wn.execJ("ticket my -tkconf");

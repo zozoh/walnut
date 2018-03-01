@@ -93,6 +93,7 @@ define(function (require, exports, module) {
                 editing: false,
                 editIndex: -1,
                 editSndex: -1,
+                expday: 2,
                 expmin: 30,
                 focusLabel: false,
                 focusStatus: false
@@ -489,7 +490,8 @@ define(function (require, exports, module) {
                     },
                     isPassTime: function (time) {
                         var ct = new Date().getTime();
-                        return ct - (this.expmin * 1000 * 60) > time;
+                        // return ct - (this.expmin * 1000 * 60) > time;
+                        return ct - (this.expday * 24 * 60 * 1000 * 60) > time;
                     },
                     editContent: function (item, index) {
                         var self = this;
@@ -501,7 +503,7 @@ define(function (require, exports, module) {
                             self.text = item.text;
                             self.focusStatus = true;
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
+                            UI.alert('提交已超过了' + this.expday + "天，不能再做修改");
                         }
                     },
                     removeContent: function (item, index) {
@@ -523,7 +525,7 @@ define(function (require, exports, module) {
                                 }
                             });
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
+                            UI.alert('提交已超过了' + this.expday + "天，不能被删除");
                         }
                     }
                 },
