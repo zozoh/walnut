@@ -197,9 +197,10 @@ return ZUI.def("app.wn.hmaker2", {
     },
     //...............................................................
     openCreatePanel : function() {
-        var UI   = this;
+        var UI    = this;
+        var uiRes = UI.resourceUI();
         var oHome = UI.getHomeObj();
-        var oAt   = UI.resourceUI().getActived() || oHome;
+        var oAt   = uiRes.getActived() || oHome;
 
         // 如果当前选中的是一个文件，那么选择父目录
         if('DIR' != oAt.race) {
@@ -208,10 +209,9 @@ return ZUI.def("app.wn.hmaker2", {
 
         // 显示新建文件对象面板
         Wn.createPanel(oAt, function(newObj){
-            // UI.resourceUI().refresh(function(){
-            //     this.setActived(newObj.id);
-            // });
-            UI.fire("reload:folder", oAt);
+            UI.fire("reload:folder", oAt, function(){
+                uiRes.setActived(newObj.id);
+            });
         }, [{
             race : "FILE",
             tp   : "html",

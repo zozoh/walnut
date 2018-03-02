@@ -666,10 +666,10 @@ module.exports = function(uiCom){
     
     // 控件默认的布局属性
     $z.setUndefined(uiCom, "getBlockPropFields", function(block){
-        return [block.mode == 'inflow' ? "margin" : null,
-                "padding","border","borderRadius",
-                /*"color",*/ "background",
-                "boxShadow","overflow"];
+        return [
+            "margin", "padding", "border", "color", "background",
+            "borderRadius", "overflow", "boxShadow"
+        ];
     });
     
     // 控件的默认布局
