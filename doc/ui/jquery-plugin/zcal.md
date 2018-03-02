@@ -35,10 +35,10 @@ jQuery.zcal({
     // 要绘制几个日历块
     blockNumber : 3,
     
-    // 绘制日历块的方向
+    // 绘制日历块的便宜
     // 默认是 1 表示从给定 current 日期，向未来绘制
-    // 如果给 -1 则表示从给定 current 日期向过去绘制
-    blockStep : 1
+    // 如果给 -1 则表示从给定 current 向过去偏移一个块，再向未来绘制
+    blockOffset : 1
     
     // 指定日历块的宽度, 其中 * 代表均分
     blockWidth  : "100%"|.6|300|"*",

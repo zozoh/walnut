@@ -235,12 +235,12 @@ function on_click_swithcer(){
     if(val != 0){
         // 如果是按周
         if(opt.byWeek > 0){
-            d = cellD(jRoot.find(".zcal-cell-show").first());
+            d = current(jRoot);
             d.setDate(d.getDate() + (opt.byWeek*7*val));
         }
         // 那么是按月
         else{
-            d = cellD(jRoot.find('.zcal-cell[in-month="yes"]').first());
+            d = current(jRoot);
             d.setMonth(d.getMonth() + val);
         }
         // 更新日历格子
@@ -350,19 +350,25 @@ function update(jRoot, opt, d){
     var jWrapper = jRoot.find(".zcal-wrapper").empty();
 
     // 开始绘制
-    var d2 = d;
+    var d2 = new Date(d.getTime());
+
+    // 根据需求，偏移日期
+    if(opt.blockOffset > 0 || opt.blockOffset < 0) {
+        // 按周偏移
+        if(opt.byWeek > 0) {
+            $z.offsetWeekly(d2, opt.byWeek * opt.blockOffset);
+        }
+        // 按月偏移
+        else {
+            $z.offsetMonthly(d2, opt.blockOffset);
+        }
+    }
+
+    // 绘制块
     var n = opt.blockNumber || 1;
     for(var i=0;i<n;i++){
         var re = draw_block(jWrapper, opt, d2, opt.blockStep<0);
-        //console.log("re:", re[0], re[1]);
-        // 向过去绘制
-        if(opt.blockStep<0) {
-            d2 = $z.parseDate(re[0].getTime() - 86400000);
-        }
-        // 向未来绘制
-        else {
-            d2 = $z.parseDate(re[1].getTime() + 86400000);
-        }
+        d2 = $z.parseDate(re[1].getTime() + 86400000);
     }
 
     // 如果准备绘制标题
@@ -435,7 +441,7 @@ function update_head(jHead, opt, d){
 }
 //...........................................................
 // 生成一个日期的表格，返回一个二元数组，表示绘制的起止日期
-function draw_block(jWrapper, opt, d, drawAtPast){
+function draw_block(jWrapper, opt, d){
     //d.setDate(32);
     //d.setDate(0);
     //d = new Date("2015-12-21");
@@ -498,11 +504,7 @@ function draw_block(jWrapper, opt, d, drawAtPast){
 
     // 开始绘制
     var _d_cell = $z.parseDate(from.getTime());
-    var jDiv   = $('<div class="zcal-block">');
-    if(drawAtPast)
-        jDiv.prependTo(jWrapper);
-    else
-        jDiv.appendTo(jWrapper);
+    var jDiv   = $('<div class="zcal-block">').appendTo(jWrapper);
     var jTable = $('<table class="zcal-table">').appendTo(jDiv);
     // 绘制表头
     var jTHead = $('<thead class="zcal-table-head">').appendTo(jTable);
@@ -866,7 +868,7 @@ $.fn.extend({ "zcal" : function(opt, arg){
         simpleCell : true,
         blockNumber : 1,
         blockWidth  : "*",
-        blockStep   : 1,
+        blockOffset : 0,
         i18n: {
             month : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
             week  : ["S","M","T","W","T","F","S"]
