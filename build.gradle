@@ -72,12 +72,13 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zcron', version:nutz_version
     compile group: 'org.nutz', name: 'lessc4j', version:'2.7.2-SNAPSHOT'
-    compile ('org.nutz:nutz-quartz:1.r.61-SNAPSHOT') { 
+    compile ('org.nutz:nutz-quartz:1.r.63-SNAPSHOT') { 
     	exclude group:'org.nutz', module: 'nutz'
     }
     compile group: 'com.qiniu', name: 'qiniu-java-sdk', version:'7.0.8'
     compile group: 'org.apache.sshd', name: 'sshd-core', version:'1.1.1'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.22'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.25'
+    compile group: 'org.slf4j', name: 'jcl-over-slf4j', version:'1.7.25'
     compile group: 'cn.jpush.api', name: 'jpush-client', version:'3.2.8'
     compile group: 'org.brickred', name: 'socialauth', version:'4.10'
     compile group: 'org.nutz', name: 'nutz-mipush-sdk', version:'3.0.MOD'
@@ -96,6 +97,9 @@ dependencies {
     compile group: 'commons-net', name: 'commons-net', version : '3.6'
     compile group: 'org.apache.commons', name: 'commons-pool2', version : '2.4.2'
     compile group: 'com.drewnoakes', name: 'metadata-extractor', version : '2.11.0'
+    compile ('org.apache.pdfbox:pdfbox:1.8.4') {
+    	exclude group:'commons-logging', module: 'commons-logging'
+    }
 }
 
 buildscript {
