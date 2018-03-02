@@ -19,30 +19,36 @@ define(function (require, exports, module) {
                         <div class="ticket-title" @click="editTk"><span class="tp">[{{tkTp}}]</span><span class="text">{{tkTitle}}</span></div>
                         <ul class="ticket-chat">
                             <li class="chat-no-record" v-show="timeItems.length == 0">暂无内容</li>
-                            <li class="chat-record clear" :class="isCS(item)? 'cservice': ''" v-for="(item, index) in timeItems" :key="item.time">
-                                <div class="chat-user">
-                                    <img class="chat-user-avatar" :src="userAvatar(item)" />
-                                    <div class="chat-user-name">{{userName(item)}}</div>
-                                </div>
-                                <div class="chat-content">
-                                    <div class="chat-content-text" :class="{edit: editIndex == index}">
-                                        <div class="text-con">{{item.text}}
-                                            <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
-                                                <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
-                                                <img :src="attaImage(atta)" v-if="isImage(atta)">
-                                                <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
+                            <li class="chat-record-wrap" v-for="(item, index) in timeItems" :key="item.time">
+                                <div v-if="item.stp != 'ophis'" class="chat-record clear" :class="isCS(item)? 'cservice': ''">
+                                    <div class="chat-user">
+                                        <img class="chat-user-avatar" :src="userAvatar(item)" />
+                                        <div class="chat-user-name">{{userName(item)}}</div>
+                                    </div>
+                                    <div class="chat-content">
+                                        <div class="chat-content-text" :class="{edit: editIndex == index}">
+                                            <div class="text-con">{{item.text}}
+                                                <div class="atta-preview" v-for="atta in (item.attachments || [])" :class="canDownload(atta)? 'dw':''" @click="dwAtta(atta)">
+                                                    <img :src="attaOther(atta)" v-if="isOther(atta)"><span v-if="isOther(atta)" class="filenm">{{atta.nm}}</span>
+                                                    <img :src="attaImage(atta)" v-if="isImage(atta)">
+                                                    <video :src="attaVideo(atta)" controls v-if="isVideo(atta)">
+                                                </div>
+                                                <div class="chat-content-footer left" >
+                                                    <span class="time">{{timeText(item)}}</span>
+                                                    <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                                    <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
+                                                </div>
+                                                <div class="chat-content-footer right" >
+                                                    <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
+                                                    <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
+                                                    <span class="time">{{timeText(item)}}</span>
+                                                </div>
                                             </div>
-                                        <div class="chat-content-footer left" >
-                                            <span class="time">{{timeText(item)}}</span>
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
-                                        </div>
-                                        <div class="chat-content-footer right" >
-                                            <i class="fa fa-edit" @click="editContent(item, index)" v-show="isMyContent(item) && canEdit(item) && tkStep != '3'"></i>
-                                            <i class="fa fa-remove" @click="removeContent(item, index)" v-show="isMyContent(item) && tkStep != '3'"></i>
-                                            <span class="time">{{timeText(item)}}</span>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="chat-history" v-else>
+                                    <div class="his-time">{{timeText(item)}} {{item.content}}</div>
                                 </div>
                             </li>
                         </ul>
@@ -51,7 +57,7 @@ define(function (require, exports, module) {
                                 <div class="ticket-label-edit" @click="labelFocus()">
                                     <span class="lbl-item" v-for="(lbl, bindex) in lbls">{{lbl}}<div class="lbl-del" @click="delLabel(bindex)">x</div></span>
                                     <span class="lbl-input">
-                                        <input type="text" v-model="label" @change="addLabel">
+                                        <input type="text" v-model="label" @change="addLabel" spellcheck="false">
                                     </span>
                                     <span class="lbl-placeholder" v-show="lbls.length == 0 && label.trim() == ''">请输入标签</span>
                                 </div>
@@ -87,6 +93,7 @@ define(function (require, exports, module) {
                 editing: false,
                 editIndex: -1,
                 editSndex: -1,
+                expday: 2,
                 expmin: 30,
                 focusLabel: false,
                 focusStatus: false
@@ -131,6 +138,11 @@ define(function (require, exports, module) {
                         if (val == false) {
                             this.editIndex = -1;
                             this.editSndex = -1;
+                        }
+                    },
+                    label: function (val) {
+                        if (val.indexOf(' ') != -1) {
+                            this.addLabel();
                         }
                     }
                 },
@@ -205,6 +217,16 @@ define(function (require, exports, module) {
                     userName: function (item) {
                         if (this.isCS(item)) {
                             return item.csAlias;
+                        } else {
+                            if (item.usrAlias) {
+                                return item.usrAlias;
+                            } else {
+                                if (this.wobj.usrAlias) {
+                                    return this.wobj.usrAlias;
+                                } else {
+                                    return "用户" + this.wobj.usrId.substr(0, 4);
+                                }
+                            }
                         }
                         return "用户";
                     },
@@ -322,11 +344,43 @@ define(function (require, exports, module) {
                             this.wobj.response[i].sindex = i;
                         }
                         ritems = ritems.concat(this.wobj.response);
+                        // history
+                        ritems = ritems.concat(this.wobj.history || []);
                         this.items = ritems;
                         this.lbls = this.wobj.lbls || [];
                         setTimeout(function () {
                             self.chat2bottom(); // 200ms为了让图片，视频加载完
                         }, 200);
+                    },
+                    filterStr: function (str) {
+                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_]");
+                        var result = "";
+                        var len = str.length;
+                        for (var i = 0; i < len; i++) {
+                            var cCode = str.charAt(i);
+                            if (pattern.test(cCode)) {
+                                console.log("fcode: " + cCode);
+                                cCode = this.toDBC(str.charCodeAt(i));
+                            }
+                            result += cCode;
+                        }
+                        return result;
+                    },
+                    alltoDBC: function (str) {
+                        var result = "";
+                        var len = str.length;
+                        for (var i = 0; i < len; i++) {
+                            var cCode = str.charCodeAt(i);
+                            result += this.toDBC(cCode);
+                        }
+                        return result;
+                    },
+                    toDBC: function (cCode) {
+                        //全角与半角相差（除空格外）：65248(十进制)
+                        cCode = (cCode >= 0x0021 && cCode <= 0x007E) ? (cCode + 65248) : cCode;
+                        //处理空格
+                        cCode = (cCode == 0x0020) ? 0x03000 : cCode;
+                        return String.fromCharCode(cCode);
                     },
                     // 发送内容
                     sendText: function () {
@@ -337,6 +391,8 @@ define(function (require, exports, module) {
                             UI.toast("写点内容再提交吧");
                             return;
                         }
+                        // 替换里面的非法字符
+                        stext = self.filterStr(stext);
                         self.sending = true;
                         Wn.exec("ticket my -post '" + self.tkId + "' -c 'text: \"" + stext + "\"' -edit " + self.editSndex, function (re) {
                             var re = JSON.parse(re);
@@ -434,7 +490,8 @@ define(function (require, exports, module) {
                     },
                     isPassTime: function (time) {
                         var ct = new Date().getTime();
-                        return ct - (this.expmin * 1000 * 60) > time;
+                        // return ct - (this.expmin * 1000 * 60) > time;
+                        return ct - (this.expday * 24 * 60 * 1000 * 60) > time;
                     },
                     editContent: function (item, index) {
                         var self = this;
@@ -446,7 +503,7 @@ define(function (require, exports, module) {
                             self.text = item.text;
                             self.focusStatus = true;
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能再做修改");
+                            UI.alert('提交已超过了' + this.expday + "天，不能再做修改");
                         }
                     },
                     removeContent: function (item, index) {
@@ -468,7 +525,7 @@ define(function (require, exports, module) {
                                 }
                             });
                         } else {
-                            UI.alert('提交已超过了' + this.expmin + "分钟，不能被删除");
+                            UI.alert('提交已超过了' + this.expday + "天，不能被删除");
                         }
                     }
                 },
@@ -523,6 +580,7 @@ define(function (require, exports, module) {
                     var re = eval('(' + content + ')');
                     if (re.action == 'noti') {
                         var rid = re.rid;
+                        // 桌面通知
                         UI.notification({
                             title: re.title,
                             onclick: function () {
@@ -534,6 +592,8 @@ define(function (require, exports, module) {
                                 this.close();
                             }
                         });
+                        // 闪标题
+                        $z.changeWindowTitle(re.title, true);
                     }
                 };
                 sock.onclose = function () {

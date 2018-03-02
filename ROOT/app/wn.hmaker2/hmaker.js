@@ -199,12 +199,19 @@ return ZUI.def("app.wn.hmaker2", {
     openCreatePanel : function() {
         var UI   = this;
         var oHome = UI.getHomeObj();
+        var oAt   = UI.resourceUI().getActived() || oHome;
+
+        // 如果当前选中的是一个文件，那么选择父目录
+        if('DIR' != oAt.race) {
+            oAt = Wn.getById(oAt.pid, true) || oHome;
+        }
 
         // 显示新建文件对象面板
-        Wn.createPanel(oHome, function(newObj){
-            UI.resourceUI().refresh(function(){
-                this.setActived(newObj.id);
-            });
+        Wn.createPanel(oAt, function(newObj){
+            // UI.resourceUI().refresh(function(){
+            //     this.setActived(newObj.id);
+            // });
+            UI.fire("reload:folder", oAt);
         }, [{
             race : "FILE",
             tp   : "html",
@@ -229,13 +236,13 @@ return ZUI.def("app.wn.hmaker2", {
             create : function(obj, callback) {
                 // 确保 css/js 在正确的目录里
                 if(/^(css|js)$/.test(obj.tp)) {
-                    var re = Wn.exec('obj -o -race DIR -check id:'+oHome.id+"/"+obj.tp);
-                    if(/^e./.test(re)){
-                        UI.alert(re);
-                        return;
-                    }
-                    var oDir = $z.fromJson(re);
-                    obj.pid = oDir.id;
+                    // var re = Wn.exec('obj -o -race DIR -check id:'+oHome.id+"/"+obj.tp);
+                    // if(/^e./.test(re)){
+                    //     UI.alert(re);
+                    //     return;
+                    // }
+                    // var oDir = $z.fromJson(re);
+                    // obj.pid = oDir.id;
                     // 确保文件名以正确的后缀结尾
                     if(obj.tp != $z.getSuffixName(obj.nm)){
                         obj.nm += "." + obj.tp;

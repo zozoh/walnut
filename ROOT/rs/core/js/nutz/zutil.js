@@ -80,12 +80,12 @@
         keyCode: function () {
             return $.extend({}, KEY_CODE);
         },
-        getKeyCodeValue : function(codeName) {
+        getKeyCodeValue: function (codeName) {
             return KEY_CODE[codeName];
         },
-        getKeyCodeName : function(codeValue) {
-            for(var key in KEY_CODE){
-                if(KEY_CODE[key] == codeValue)
+        getKeyCodeName: function (codeValue) {
+            for (var key in KEY_CODE) {
+                if (KEY_CODE[key] == codeValue)
                     return key;
             }
         },
@@ -96,6 +96,49 @@
         bodyToBottom: function () {
             var $mybody = document.body;
             $mybody.scrollTop = $mybody.scrollHeight;
+        },
+        // 修改窗口标题
+        // title 标题名称
+        // blink 是否闪烁直到有人点了屏幕
+        changeWindowTitle: function (title, blink) {
+            if (typeof blink == 'undefined') {
+                document.title = title;
+            } else {
+                // 闪烁显示内容
+                var message = {
+                    time: 0,
+                    title: document.title,
+                    timer: null,
+                    //
+                    init: function () {
+                        $(document).one('click', function() {
+                            message.clear();
+                        })
+                    },
+                    // 显示新消息提示
+                    show: function () {
+                        // 定时器，设置消息切换频率闪烁效果就此产生
+                        message.timer = setTimeout(function () {
+                            message.time++;
+                            message.show();
+                            if (message.time % 2 == 0) {
+                                document.title = "【新消息】" + title
+                            }
+                            else {
+                                document.title = "【　　　】" + title
+                            }
+                        }, 600);
+                        return [message.timer, message.title];
+                    },
+                    // 取消新消息提示
+                    clear: function () {
+                        clearTimeout(message.timer);
+                        document.title = message.title;
+                    }
+                };
+                message.init();
+                message.show();
+            }
         },
         // 全屏幕
         toggleFullScreen: function () {
@@ -123,34 +166,34 @@
             }
         },
         //.............................................
-        isFullScreen: function() {
+        isFullScreen: function () {
             return document.fullScreenElement
                 || document.mozFullScreenElement
                 || document.webkitFullscreenElement
                 || document.msFullScreenElement;
         },
         //.............................................
-        enterFullScreen: function() {
+        enterFullScreen: function () {
             var root = document.documentElement;
-            if(_.isFunction(root.requestFullscreen))
+            if (_.isFunction(root.requestFullscreen))
                 root.requestFullscreen();
-            else if(_.isFunction(root.mozRequestFullScreen))
+            else if (_.isFunction(root.mozRequestFullScreen))
                 root.mozRequestFullScreen();
-            else if(_.isFunction(root.webkitRequestFullscreen))
+            else if (_.isFunction(root.webkitRequestFullscreen))
                 root.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-            else if(_.isFunction(root.msRequestFullscreen))
+            else if (_.isFunction(root.msRequestFullscreen))
                 root.msRequestFullscreen();
         },
         //.............................................
-        exitFullScreen: function() {
+        exitFullScreen: function () {
             var root = document;
-            if(_.isFunction(root.exitFullscreen))
+            if (_.isFunction(root.exitFullscreen))
                 root.exitFullscreen();
-            else if(_.isFunction(root.mozCancelFullScreen))
+            else if (_.isFunction(root.mozCancelFullScreen))
                 root.mozCancelFullScreen();
-            else if(_.isFunction(root.webkitExitFullscreen))
+            else if (_.isFunction(root.webkitExitFullscreen))
                 root.webkitExitFullscreen();
-            else if(_.isFunction(root.msExitFullscreen))
+            else if (_.isFunction(root.msExitFullscreen))
                 root.msExitFullscreen();
         },
         //.............................................
@@ -448,7 +491,7 @@
 
             // 如果是字符串，并且不是 ^ 开头的正则，作为半角
             // 逗号分隔的 key 列表
-            if(_.isString(regex) && !/^(!)?\^/.test(regex)){
+            if (_.isString(regex) && !/^(!)?\^/.test(regex)) {
                 regex = regex.split(/[ \t]*,[ \t]*/);
             }
 
@@ -1592,14 +1635,14 @@
          - maxNb : 最大值，通常为 100
          - minNb : 最小值，通常为 70
         */
-        do_change_root_fontSize : function(context, designWidth, maxNb, minNb){
+        do_change_root_fontSize: function (context, designWidth, maxNb, minNb) {
             designWidth = designWidth || 640;
             maxNb = maxNb || 100;
             minNb = minNb || 70;
             var size = (context.win.innerWidth / designWidth) * maxNb;
             //console.log(size, Math.max(size, minNb), Math.min(Math.max(size, minNb), maxNb))
             var px = Math.min(Math.max(size, minNb), maxNb);
-            context.root.style.fontSize = px + 'px' ;
+            context.root.style.fontSize = px + 'px';
         },
         //.............................................
         // 得到一个元素的外边距
@@ -1823,7 +1866,7 @@
             }
 
             var arr = o[key];
-            if (_.isArray(arr) && arr.length>0) {
+            if (_.isArray(arr) && arr.length > 0) {
                 o[key] = arr.concat(val);
             }
             else {
@@ -1849,6 +1892,147 @@
                     re[key] = val;
             }
             return re;
+        },
+        // 使用canvas对图片进行压缩
+        // file: <input type='file'> 中获取到的file对象
+        // afterCompress: 压缩后回调 afterCompress(newFile){...}
+        // iosfix：是否修正ios设备上传导致的旋转问题
+        // size: 压缩的大小，默认不填则为50%  可以填写单个数字表示百分比 比如30 或者填写指定宽高 300x400
+        compressImageFile: function (file, afterCompress, iosfix, size) {
+            // 旋转修正
+            if (iosfix) {
+                console.log('isofix: ' + navigator.userAgent);
+                EXIF.getData(file, function () {
+                    EXIF.getAllTags(this);
+                    var orientation = EXIF.getTag(this, 'Orientation');
+                    console.log('isofix-na: ' + navigator.userAgent);
+                    console.log('isofix-or: ' + orientation);
+                    if (orientation == '' || typeof orientation == 'undefined') {
+                        orientation = 1;
+                    }
+                    $z._compressAndFixImageFile(file, afterCompress, orientation, size);
+                });
+            }
+            // 直接压缩
+            else {
+                $z._compressAndFixImageFile(file, afterCompress, 1, size);
+            }
+        },
+        _compressAndFixImageFile: function (file, afterCompress, orientation, size) {
+            // 压缩图片需要的一些元素和对象
+            var reader = new FileReader();
+            var img = new Image();
+            // 缩放图片需要的canvas
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+
+            // 1,3不需要交换宽高
+            var needWHChange = (orientation == 6 || orientation == 8);
+
+            // base64地址图片加载完毕后
+            img.onload = function () {
+                // 图片原始尺寸
+                var originWidth = this.width;
+                var originHeight = this.height;
+
+                console.log("origin: w" + originWidth + " h" + originHeight);
+
+                // 最大可接受尺寸
+                var maxWidth = 0;
+                var maxHeight = 0;
+
+                // 无配置则默认大小一半
+                if (!size) {
+                    maxWidth = Math.round(originWidth * 0.5);
+                    maxHeight = Math.round(originHeight * 0.5);
+                } else {
+                    size = ("" + size).toLowerCase();
+                    // 指定宽高
+                    if (size.indexOf("x") != -1) {
+                        var swh = size.split("x");
+                        maxWidth = parseInt(swh[0]);
+                        maxHeight = parseInt(swh[1]);
+                        // 交换下，因为这是在旋转前的
+                        if (needWHChange) {
+                            var tmp = maxWidth;
+                            maxWidth = maxHeight;
+                            maxHeight = tmp;
+                        }
+                    }
+                    // 单数字百分比
+                    else {
+                        var per = parseInt(size);
+                        if (per == 100) {
+                            maxWidth = originWidth;
+                            maxHeight = originHeight;
+                        } else {
+                            maxWidth = Math.round(originWidth * (per / 100));
+                            maxHeight = Math.round(originHeight * (per / 100));
+                        }
+                    }
+                }
+
+                // 目标尺寸
+                var targetWidth = originWidth, targetHeight = originHeight;
+                // 图片尺寸超过最大图片限制
+                if (originWidth > maxWidth || originHeight > maxHeight) {
+                    if (originWidth / originHeight > maxWidth / maxHeight) {
+                        // 更宽，按照宽度限定尺寸
+                        targetWidth = maxWidth;
+                        targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+                    } else {
+                        targetHeight = maxHeight;
+                        targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+                    }
+                }
+
+                // canvas对图片进行缩放
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                // 清除画布
+                context.clearRect(0, 0, targetWidth, targetHeight);
+                // 图片压缩
+                context.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+                // 是否需要选择
+                if (orientation != 1) {
+                    switch (orientation) {
+                        case 6://需要顺时针（向左）90度旋转
+                            canvas.width = targetHeight;
+                            canvas.height = targetWidth;
+                            context.rotate(Math.PI / 2);
+                            // (0,-imgHeight) 从旋转原理图那里获得的起始点
+                            context.drawImage(img, 0, -targetHeight, targetWidth, targetHeight);
+                            break;
+                        case 8://需要逆时针（向右）90度旋转
+                            canvas.width = imgHeight;
+                            canvas.height = imgWidth;
+                            context.rotate(3 * Math.PI / 2);
+                            context.drawImage(img, -targetWidth, 0, targetWidth, targetHeight);
+                            break;
+                        case 3://需要180度旋转
+                            context.rotate(Math.PI);
+                            context.drawImage(img, -targetWidth, -targetHeight, targetWidth, targetHeight);
+                            break;
+                    }
+                }
+
+                // canvas转为blob并上传
+                canvas.toBlob(function (blob) {
+                    afterCompress(blob);
+                }, file.type || 'image/png');
+            };
+            // 文件base64化，以便获知图片原始尺寸
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            };
+
+            // 真正加载图片文件
+            if (file.type.indexOf("image") == 0) {
+                reader.readAsDataURL(file);
+            } else {
+                throw "file is not image";
+            }
         },
         //.............................................
         // 执行一个 HTML5 的文件上传操作，函数接受一个配置对象：
@@ -2167,8 +2351,8 @@
             // 如果回调不是函数，那么将其视为 context，同时这必定是一个同步调用
             // 那么这里会设置返回值
             if (!_.isFunction(callback)) {
-                context  = context || callback;
-                async    = false;
+                context = context || callback;
+                async = false;
                 callback = null;
                 // callback = function (objs) {
                 //     eval_re = objs;
@@ -2188,14 +2372,14 @@
                     zUtil.doCallback(callback, [objs], context);
                 });
                 // 如果有了有效的返回，那么说明函数是同步函数，不会处理 callback
-                if(!_.isUndefined(eval_re)){
+                if (!_.isUndefined(eval_re)) {
                     zUtil.doCallback(callback, [eval_re], context);
                 }
             }
             // 字符串，试图看看 context 里有没有 exec 方法
             else if (_.isString(data)) {
                 //console.log(data, params);
-                var str = ($z.tmpl(data))(params||{});
+                var str = ($z.tmpl(data))(params || {});
                 //console.log(">> exec: ", str)
                 var execFunc = context.exec || (context.options || {}).exec;
                 if (_.isFunction(execFunc)) {
@@ -2237,7 +2421,7 @@
                 }, data));
             }
             // 厄，弱弱的直接返回一下吧
-            else{
+            else {
                 // callback.apply(context, [data]);
                 eval_re = data;
                 zUtil.doCallback(callback, [data], context);
@@ -2290,7 +2474,7 @@
             var REG;
             // 自动根据长度判断应该选取的表达式
             if (!regex) {
-                REG = /^(\d{4})-(\d{1,2})-(\d{1,2})([T ](\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?)?$/;
+                REG = /^(\d{4})[-/](\d{1,2})([-/](\d{1,2}))?([T ](\d{1,2})(:(\d{1,2}))?(:(\d{1,2}))?)?$/;
             }
             // 构建个新正则
             else {
@@ -2315,10 +2499,14 @@
             }
 
             // 格式正确
-            if (m && m.length >= 3) {
+            if (m && m.length >= 2) {
                 var d;
+                // 仅仅是月
+                if (m.length == 2) {
+                    d = new Date(m[0], m[1] - 1, 1);
+                }
                 // 仅仅是日期
-                if (m.length == 3) {
+                else if (m.length == 3) {
                     d = new Date(m[0], m[1] - 1, m[2]);
                 }
                 // 精确到分
@@ -2331,7 +2519,7 @@
                 }
                 return d;
             }
-            throw "invalid date '" + str + "' can not match : " + regex;
+            throw "invalid date '" + str + "' can not match : " + REG;
         },
         //.............................................
         // 解析日期字符串为一个日期对象
@@ -2425,7 +2613,7 @@
             _t.key = _t.key_min + ":" + _t.ss;
 
             // 自动显示
-            _t.T = _t.H + (_t.m == 0 ? "" : ":" + _t.m );
+            _t.T = _t.H + (_t.m == 0 ? "" : ":" + _t.m);
             _t.TT = _t.HH + (_t.m == 0 ? "" : ":" + _t.mm);
 
             // 12小时制支持
@@ -2446,21 +2634,21 @@
         //.............................................
         // 解析时间字符串（替代 parseTime)
         parseTimeInfo: function (input, dft) {
-            var _pad = function(v, width) {
+            var _pad = function (v, width) {
                 width = width || 2;
-                if(3 == width){
-                    return v>99 ? v : (v>9 ? "0"+v : "00"+v);
+                if (3 == width) {
+                    return v > 99 ? v : (v > 9 ? "0" + v : "00" + v);
                 }
-                return v>9 ? v : "0"+v;
+                return v > 9 ? v : "0" + v;
             };
             input = (typeof input) == "number" ? input : input || dft;
             var inType = (typeof input);
-            var ms  = 0;
-            var ti  = {};
+            var ms = 0;
+            var ti = {};
             // 字符串
             if ("string" == inType) {
                 var m = /^([0-9]{1,2}):([0-9]{1,2})(:([0-9]{1,2})([.,]([0-9]{1,3}))?)?$/
-                            .exec(input);
+                    .exec(input);
                 if (!m)
                     throw "Not a Time: '" + input + "'!!";
                 // 仅仅到分钟
@@ -2488,29 +2676,29 @@
             // 数字
             else if ("number" == inType) {
                 var sec;
-                if("ms" == dft) {
+                if ("ms" == dft) {
                     sec = parseInt(input / 1000);
-                    ms  = Math.round(input - sec * 1000);
-                }else{
+                    ms = Math.round(input - sec * 1000);
+                } else {
                     sec = parseInt(input);
-                    ms  = Math.round(input*1000 - sec*1000);
+                    ms = Math.round(input * 1000 - sec * 1000);
                 }
-                ti.hour   = Math.min(23, parseInt(sec / 3600));
+                ti.hour = Math.min(23, parseInt(sec / 3600));
                 ti.minute = Math.min(59, parseInt((sec - ti.hour * 3600) / 60));
                 ti.second = Math.min(59, sec - ti.hour * 3600 - ti.minute * 60);
                 ti.millisecond = ms;
             }
             // 其他
-            else{
+            else {
                 throw "Not a Time: " + input;
             }
             // 计算其他的值
-            ti.value  = ti.hour * 3600 + ti.minute * 60 + ti.second;
+            ti.value = ti.hour * 3600 + ti.minute * 60 + ti.second;
             ti.valueInMillisecond = ti.value * 1000 + ti.millisecond;
             // 增加一个函数
             ti.toString = function (fmt) {
                 // 默认的格式化方式
-                if(!fmt) {
+                if (!fmt) {
                     fmt = "HH:mm";
                     // 到毫秒
                     if (0 != this.millisecond) {
@@ -2522,9 +2710,9 @@
                     }
                 }
                 // 自动格式化
-                else if("min" == fmt) {
+                else if ("min" == fmt) {
                     // 精确到分
-                    if(this.hour <=0) {
+                    if (this.hour <= 0) {
                         fmt = "mm:ss";
                     }
                     // 否则精确到小时
@@ -2534,7 +2722,7 @@
                 }
 
                 // 进行格式化
-                var sb  = "";
+                var sb = "";
                 var reg = /a|[HhKkms]{1,2}|S(SS)?/g;
                 var pos = 0;
                 var m;
@@ -2966,9 +3154,9 @@
         setUndefined: function (obj, key) {
             // 后面的的默认值挨个试
             if (_.isUndefined(obj[key]))
-                for(var i=2; i<arguments.length; i++) {
+                for (var i = 2; i < arguments.length; i++) {
                     var val = arguments[i];
-                    if(_.isUndefined(val)){
+                    if (_.isUndefined(val)) {
                         continue;
                     }
                     obj[key] = val;
@@ -2977,10 +3165,10 @@
         },
         //.............................................
         // 返回参数中第一个不是 undefined 的值
-        fallbackUndefined: function(){
-            for(var i=0; i<arguments.length; i++){
+        fallbackUndefined: function () {
+            for (var i = 0; i < arguments.length; i++) {
                 var val = arguments[i];
-                if(!_.isUndefined(val))
+                if (!_.isUndefined(val))
                     return val;
             }
         },
@@ -2989,19 +3177,19 @@
         // args - 「数组」备选值
         // dft  - 备选都不行，返回这个默认值
         // 返回第一个不能被 pass 的值，如果都 pass 了，返回默认值
-        fallback : function(pass, args, dft) {
-            for(var i=0; i<args.length; i++) {
+        fallback: function (pass, args, dft) {
+            for (var i = 0; i < args.length; i++) {
                 var val = args[i];
                 // 看看是否 pass
                 var isPass = false;
-                for(var x=0; x<pass.length; x++){
-                    if(pass[x] === val){
+                for (var x = 0; x < pass.length; x++) {
+                    if (pass[x] === val) {
                         isPass = true;
                         break;
                     }
                 }
                 // 是否继续通过
-                if(!isPass)
+                if (!isPass)
                     return val;
             }
             // 返回默认值
@@ -3859,9 +4047,9 @@
                 "right": 0,
                 "bottom": 0,
                 "zIndex": 99999,
-                "user-select" : "none",
+                "user-select": "none",
             });
-            
+
             // 得到遮罩层的大小并生成画布
             var R_VP = $D.rect.gen(jMark);
             //console.log(R_VP)
@@ -3876,10 +4064,10 @@
                 "position": "fixed",
                 "top": 0,
                 "left": 0,
-                "font-size"   : "14px",
-                "font-family" : "Arial",
-                "color" : "#F80",
-                "text-shadow" : "1px 1px 2px rgba(0,0,0,0.6)",
+                "font-size": "14px",
+                "font-family": "Arial",
+                "color": "#F80",
+                "text-shadow": "1px 1px 2px rgba(0,0,0,0.6)",
             });
 
             // 准备绘制项目的方法
@@ -3907,14 +4095,14 @@
                 // 绘制提示区域高亮矩形
                 g2d.clearRect.apply(g2d, args);
                 g2d.strokeRect.apply(g2d, args);
-                
+
                 // 绘制文字
                 // 看看左右两个距离哪个大
                 var css = $D.rect.asCss(rect, $D.dom.winsz(true));
-                if(css.left > css.right) {
+                if (css.left > css.right) {
                     jText.text(it.text).css({
-                        "left"  : "",
-                        "right" : css.right + css.width + 40,
+                        "left": "",
+                        "right": css.right + css.width + 40,
                     });
                     // 绘制指示线
                     g2d.beginPath();
@@ -3925,8 +4113,8 @@
                 // 默认绘制在右侧
                 else {
                     jText.text(it.text).css({
-                        "left"  : rect.right + 40,
-                        "right" : "",
+                        "left": rect.right + 40,
+                        "right": "",
                     });
                     // 绘制指示线
                     g2d.beginPath();
@@ -3935,7 +4123,7 @@
                     g2d.stroke();
                 }
                 // 设置文字 Y 轴位置
-                jText.css("top", rect.y - (jText.outerHeight()/2));
+                jText.css("top", rect.y - (jText.outerHeight() / 2));
             }
 
             // 记录绘制的项目
@@ -4246,7 +4434,7 @@
                 for (var i = 0; i < B.content.length; i++) {
                     var line = B.content[i];
                     // 忽略空行
-                    if(!line)
+                    if (!line)
                         continue;
                     // 首行以后每行前都加个换行符
                     if (i > 0) {
@@ -4264,9 +4452,9 @@
                 }
 
                 // 标识一下任务列表
-                if(B.isTask) {
+                if (B.isTask) {
                     h2 += ' class="md-task-list-item">';
-                    if(B.isChecked) {
+                    if (B.isChecked) {
                         h2 += '<input disabled type="checkbox" checked>';
                     } else {
                         h2 += '<input disabled type="checkbox">';
@@ -4289,7 +4477,7 @@
                     + '|(`([^`]+)`)'
                     + '|(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))'
                     + '|(\\[('
-                        + '(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))|([^\\]]*)'
+                    + '(!\\[([^\\]]*)\\]\\(([^\\)]+)\\))|([^\\]]*)'
                     + ')\\]\\(([^\\)]*)\\))'
                     + '|(https?:\\/\\/[^ ]+)';
                 var REG = new RegExp(reg, "g");
@@ -4343,11 +4531,11 @@
                         }
                         // fa
                         else if (/^fa-.+$/.test(s2)) {
-                            html += '<span><i class="fa '+s2+'"></i></span>';
+                            html += '<span><i class="fa ' + s2 + '"></i></span>';
                         }
                         // zmdi
                         else if (/^zmdi-.+$/.test(s2)) {
-                            html += '<span><i class="zmdi '+s2+'"></i></span>';
+                            html += '<span><i class="zmdi ' + s2 + '"></i></span>';
                         }
                         // 默认
                         else {
@@ -4361,7 +4549,7 @@
                     else if (m[11]) {
                         //console.log("haha", m[13])
                         var src = opt.media.apply(context, [m[13]]);
-                        html += '<img alt="' + (m[12]||"") + '" src="' + src + '">';
+                        html += '<img alt="' + (m[12] || "") + '" src="' + src + '">';
                         // 记录标签
                         if (tagNames)
                             tagNames["img"] = true;
@@ -4374,10 +4562,10 @@
                             href = href.substring(0, href.lastIndexOf('.md')) + ".html";
                         }
                         // 如果内部是一个图片
-                        if(m[16]) {
+                        if (m[16]) {
                             var src = opt.media.apply(context, [m[18]]);
                             html += '<a href="' + href + '">';
-                            html += '<img alt="' + (m[17]||"") + '" src="' + src + '">';
+                            html += '<img alt="' + (m[17] || "") + '" src="' + src + '">';
                             html += '</a>';
                             // 记录标签
                             if (tagNames)
@@ -4385,7 +4573,7 @@
                         }
                         // 得到文字
                         else {
-                            var text = m[19] || zUtil.getMajorName(href||"");
+                            var text = m[19] || zUtil.getMajorName(href || "");
                             //console.log("A", href, text)
                             // 锚点
                             if (!href && /^#.+$/.test(text)) {
@@ -4394,8 +4582,8 @@
                             // 链接
                             else {
                                 html += '<a href="' + href + '">'
-                                        + __line_to_html(text)
-                                        + '</a>';
+                                    + __line_to_html(text)
+                                    + '</a>';
                             }
                         }
                         // 记录标签
@@ -4435,11 +4623,11 @@
             };
 
             // 处理一下第一行，判断支持一下 task list
-            var __B_test_task = function(B) {
-                if(B.content && B.content.length > 0) {
-                    var line0 = B.content[0]; 
+            var __B_test_task = function (B) {
+                if (B.content && B.content.length > 0) {
+                    var line0 = B.content[0];
                     var m2 = /^[ \t]*(\[[xX ]\])[ ](.+)$/.exec(line0);
-                    if(m2) {
+                    if (m2) {
                         B.isTask = true;
                         B.isChecked = m2[1] != '[ ]';
                         B.content[0] = m2[2];
@@ -4452,7 +4640,7 @@
                 __B_test_task(B);
                 // 开始渲染
                 c.html += '\n<' + B.type
-                if(B.isTask) {
+                if (B.isTask) {
                     c.html += ' class="md-task-list"';
                 }
                 c.html += '>';

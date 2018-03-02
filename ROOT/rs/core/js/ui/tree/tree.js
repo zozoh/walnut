@@ -215,13 +215,72 @@ return ZUI.def("ui.tree", {
         }
     },
     //...............................................................
+    // 根据节点对象，深层展开全部给定节点
+    __open_deeply : function(index, ans, callback) {
+        var UI = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
+        if(_.isArray(ans) && ans.length > 0) {
+            // 已经到头了
+            if(index >= ans.length) {
+                $z.doCallback(callback, [], context);
+            }
+            // 否则加载
+            else {
+                var an = ans[index];
+                var nodeId = an[opt.idKey];
+                UI.openNode(nodeId, function(){
+                    UI.__open_deeply(index+1, ans, callback);
+                });
+            }
+        }
+    },
+    //...............................................................
+    // 回调的格式 callback(jNode)
+    __find_node : function(id, callback) {
+        var UI = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
+        // 首先读取一下祖先节点
+        $z.invoke(opt, "ancestor", [id, function(ans){
+            //console.log(ans)
+            UI.__open_deeply(0, ans, function(){
+                var jNode = UI.$node(id);
+                $z.doCallback(callback, [jNode], context);
+            });
+        }], context);
+    },
+    //...............................................................
     setActived : function(nd, quiet){
         var UI = this;
         var opt = UI.options;
-        var jNode = UI.$node(nd);
-        if(jNode.size()==0)
-            return;
         var context = opt.context || UI;
+
+        // 试图获取节点设置高亮
+        var jNode = UI.$node(nd);
+
+        // 没有这个节点，那么看来需要加载这个节点的祖先
+        if(jNode.size()==0) {
+            var nodeId = _.isString(nd) ? nd : nd[opt.idKey];
+            if(nodeId) {
+                UI.__find_node(nodeId, function(jNode) {
+                    UI.__active_node(jNode, quiet);
+                });
+            }
+        }
+        // 执行高亮
+        else {
+            UI.__active_node(jNode, quiet);
+        }        
+    },
+    //...............................................................
+    __active_node : function(jNode, quiet) {
+        var UI = this;
+        var opt = UI.options;
+        var context = opt.context || UI;
+
         // 已经高亮了就啥也不做
         if(jNode.hasClass("tree-node-actived")){
             return;
@@ -239,6 +298,10 @@ return ZUI.def("ui.tree", {
         if(opt.openWhenActived){
             UI.openNode(jNode);
         }
+
+        // 确保自己的祖先都被展开
+        jNode.parents(".tree-node").attr("collapse", "no");
+
 
         // 调用回调
         if(!quiet){
@@ -261,6 +324,8 @@ return ZUI.def("ui.tree", {
         return this.$node(nd).attr("ndtp") == "node";
     },
     //...............................................................
+
+    //...............................................................
     openNode : function(nd, callback) {
         var UI = this;
         var opt = UI.options;
@@ -272,6 +337,8 @@ return ZUI.def("ui.tree", {
         }
         // 已经展开了，就不用展开了
         if(UI.isOpened(jNode)){
+            var children = UI.getNodeChildren(jNode);
+            $z.doCallback(callback, [children, jNode], context);
             return;
         }
         // 标记
@@ -279,8 +346,11 @@ return ZUI.def("ui.tree", {
 
         // 如果已经有子节点了，就不用加载了
         var jSub = jNode.children(".tnd-children");
-        if(jSub.children().size()>0)
+        if(jSub.children().size()>0) {
+            var children = UI.getNodeChildren(jNode);
+            $z.doCallback(callback, [children, jNode], context);
             return;
+        }
 
         // 读取子节点
         if(jNode.size() > 0)
@@ -325,7 +395,13 @@ return ZUI.def("ui.tree", {
             // 重新加载
             opt.children.call(context, obj, function(list){
                 // 绘制
-                UI._draw_nodes(list, jSub);
+                if(_.isArray(list) && list.length > 0) {
+                    UI._draw_nodes(list, jSub.removeAttr("is-empty"));
+                }
+                // 否则绘制空
+                else {
+                    jSub.attr("is-empty","yes").text(UI.msg("empty"));
+                }
 
                 // 保持激活
                 if(aid)
@@ -555,6 +631,18 @@ return ZUI.def("ui.tree", {
     //...............................................................
     getNodeData : function(nd){
         return this.options.data.call((this.options.context||this), this.$node(nd));
+    },
+    //...............................................................
+    getNodeChildren : function(nd) {
+        var UI = this;
+        var jNode = UI.$node(nd);
+
+        var list = [];
+        jNode.find(">.tnd-children>.tree-node").each(function(){
+            list.push(UI.getNodeData(this));
+        });
+
+        return list;
     },
     //...............................................................
     has : function(nd){

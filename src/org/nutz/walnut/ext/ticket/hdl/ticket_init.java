@@ -17,6 +17,14 @@ public class ticket_init implements JvmHdl {
             cmdText += " -c 'ta_unm:\"" + params.get("u") + "\"'";
         }
         sys.exec(cmdText);
+
+        // 将自己加入到客服中
+        // String meid = sys.exec2("me id");
+        // String re = sys.exec2f("ticket people -add %s -tp cservice",
+        // meid.trim());
+        // sys.exec("touch ~/.ticket_client_cservice");
+        String re = sys.exec2("ticket my -reg -tp cservice");
+        sys.out.print(re);
     }
 
 }

@@ -92,6 +92,7 @@
   @tedit-ta-h: @tedit-h - @tedit-lbl-h - 4px;
 
   .ticket-text-edit {
+    outline: none;
     width: 100%;
     padding: 6px 12px;
     border-radius: 4px;
@@ -123,9 +124,11 @@
 
     border: 1px solid @ch0_b;
     background-color: @ch1_f;
-    color: @ch0_f;
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 
+    input {
+      color: @ch0_f;
+    }
   }
 
   &.cservice {
@@ -251,6 +254,17 @@
     text-align: center;
     font-size: 13px;
     color: #888;
+  }
+
+  .chat-record-wrap {
+
+  }
+
+  .chat-history {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
   }
 
   .chat-record {
@@ -400,7 +414,7 @@
 
     .time {
       font-size: 10px;
-      color: #d9d9d9;
+      color: @ch1_f;
     }
 
     .fa {

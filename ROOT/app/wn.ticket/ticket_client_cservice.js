@@ -209,6 +209,20 @@
                     },
                     list: {
                         fields: [{
+                            key: "id",
+                            title: "工单ID",
+                            uiType: '@label',
+                            display: function (o) {
+                                return o.id.substr(0, 10).toUpperCase();
+                            }
+                        }, {
+                            key: "usrAlias",
+                            title: "用户",
+                            uiType: '@label',
+                            display: function (o) {
+                                return o.usrAlias || "用户" + o.usrId.substr(0, 4);
+                            }
+                        }, {
                             key: "ticketTp",
                             title: "工单类型",
                             uiType: '@label'
@@ -250,7 +264,7 @@
                         checkable: false,
                         multi: false,
                         layout: {
-                            sizeHint: [80, 100, '*', 200, 150]
+                            sizeHint: [100, 100, 80, 100, '*', 200, 150]
                         }
                     },
                     sorter: {

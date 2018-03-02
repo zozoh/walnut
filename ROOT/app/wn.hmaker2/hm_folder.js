@@ -35,6 +35,9 @@ return ZUI.def("app.wn.hmaker_folder", {
             },
             on_blur : function(jItems, nextObj, nextItem){
                 UI.fire("blur:file", nextObj);
+            },
+            on_open : function(o){
+                UI.resourceUI().setActived(o.id);
             }
         }).render(function(){
             UI.defer_report("list");
@@ -74,10 +77,13 @@ return ZUI.def("app.wn.hmaker_folder", {
                 return;
 
             // 显示对象路径
+            var appName = window.wn_browser_appName || "wn.hmaker2";
             var aph = UI.getRelativePath(o);
             UI.arena.children("header").empty()
                 .append($(UI.getObjIcon(o)))
-                .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
+                .append($('<span>').text(aph));
+                // .append($('<a target="_blank" href="/a/open/'
+                //             + appName + '?ph=id:'+o.id+'">' + aph + '</a>'));
             //console.log("haha", children)
             // 更新列表
             UI.gasket.list.setData(children);
@@ -97,7 +103,7 @@ return ZUI.def("app.wn.hmaker_folder", {
     },
     //...............................................................
     getActions : function(){
-        return ["@::refresh",
+        return ["@::hmaker/hm_refresh",
                 "@::hmaker/hm_delete",
                 "::hmaker/hm_create", 
                 "~",

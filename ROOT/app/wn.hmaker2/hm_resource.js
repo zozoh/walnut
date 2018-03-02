@@ -5,7 +5,7 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/menu/menu',
     'ui/tree/tree',
-], function(ZUI, Wn, HmPanelMethods, MenuUI, TreeUI){
+], function(ZUI, Wn, HmMethods, MenuUI, TreeUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena hm-panel hm-resource" ui-fitparent="yes">
@@ -23,77 +23,10 @@ var html = function(){/*
 return ZUI.def("app.wn.hmaker_resource", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
-    reloadPage : function(aid){
-        var UI = HmPanelMethods(this);
-        
-        aid = aid || UI.uiTree.getActivedId();
+    init : function() {
+        var UI = HmMethods(this);
 
-        // 清除缓存
-        Wn.cleanCache("oid:" + UI.getHomeId());
-
-        // 重新加载 
-        UI.uiTree.showLoading();
-        UI.uiTree.reload(function(){
-            UI.uiTree.hideLoading();
-        });
-    },
-    //...............................................................
-    deletePage : function(){
-        var UI = this;
-        var Te = UI.uiTree;
-        var jNode = UI.uiTree.getActivedNode();
-        if(jNode.size() == 0){
-            alert(UI.msg("hmaker.nav.e_del_none"));
-            return;
-        }
-        
-        // 得到节点数据
-        var oPage = Te.getNodeData(jNode);
-
-        // 准备删除后高亮的节点 ID
-        var nextId;
-        // 后面还有
-        if(jNode.next().size() > 0){
-            nextId = UI.uiTree.getNodeId(jNode.next());
-        }
-        // 前面还有
-        else if(jNode.prev().size() > 0){
-            nextId = UI.uiTree.getNodeId(jNode.prev());   
-        }
-        // 都木有了 ...
-        else{
-            nextId = null;
-        }
-
-        // 执行删除
-        var re  = Wn.exec("rm id:"+oPage.id);
-        // 执行错误 
-        if(/^e.cmd/.test(re)){
-            alert(re);
-            return;
-        }
-        UI.uiTree.removeNode(jNode);
-
-        // 高亮下一个节点
-        if(nextId)
-            UI.uiTree.setActived(nextId);
-    },
-    //...............................................................
-    createPage : function() {
-        var UI = this;
-        
-        // 执行创建
-        var re = Wn.exec("hmaker id:"+UI.getHomeObjId()+" newpage '"+UI.msg("hmaker.nav.new_page")+"'")
-        // 执行错误 
-        if(/^e.cmd/.test(re)){
-            alert(re);
-            return;
-        }
-        // 解析
-        var oNP = $z.fromJson(re);
-
-        // 添加节点并高亮它
-        UI.uiTree.addNode(oNP).setActived(oNP.id);
+        UI.listenBus("reload:folder", UI.reloadNode);
     },
     //...............................................................
     update : function(o, callback, args) {
@@ -120,6 +53,12 @@ return ZUI.def("app.wn.hmaker_resource", {
             children : function(o, callback){
                 //Wn.getChildren(o, null, callback);
                 Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1" -json -l', function(re){
+                    var list = $z.fromJson(re);
+                    callback(list);
+                })
+            },
+            ancestor : function(id, callback) {
+                Wn.exec('obj id:'+id+' -an nodes -anuntil \'id:"'+homeId+'"\'', function(re){
                     var list = $z.fromJson(re);
                     callback(list);
                 })
@@ -228,8 +167,24 @@ return ZUI.def("app.wn.hmaker_resource", {
         UI.uiTree.setActived(jN2);
     },
     //...............................................................
+    getActived : function(){
+        return this.uiTree.getActived();
+    },
+    //...............................................................
     setActived : function(arg){
         this.uiTree.setActived(arg);
+    },
+    //...............................................................
+    reloadNode : function(o, callback){
+        var UI = this;
+        // 如果有节点
+        if(o) {
+            UI.uiTree.reload(o.id, callback);
+        }
+        // 否则全刷新
+        else {
+            UI.refresh(callback);
+        }
     },
     //...............................................................
     refresh : function(callback){

@@ -281,10 +281,11 @@ function on_click_title(e){
     var jTitle = jRoot.find(".zcal-title"); 
     var theD   = $z.parseDate(current(jRoot));
     $z.editIt(jTitle, {
-        text : "" + theD.getFullYear(),
+        text : theD.format("yyyy-mm"),
         after : function(newval, oldval){
-            if(newval > 0){
-                theD.setFullYear(newval);
+            var str = $.trim(newval);
+            if(/^[0-9]{4}[-\][0-9]{1,2}/.test(str)){
+                theD = $z.parseDate(newval);
                 update(jRoot, opt, theD);
             }
         }
@@ -352,9 +353,16 @@ function update(jRoot, opt, d){
     var d2 = d;
     var n = opt.blockNumber || 1;
     for(var i=0;i<n;i++){
-        var re = draw_block(jWrapper, opt, d2);
+        var re = draw_block(jWrapper, opt, d2, opt.blockStep<0);
         //console.log("re:", re[0], re[1]);
-        d2 = $z.parseDate(re[1].getTime() + 86400000);
+        // 向过去绘制
+        if(opt.blockStep<0) {
+            d2 = $z.parseDate(re[0].getTime() - 86400000);
+        }
+        // 向未来绘制
+        else {
+            d2 = $z.parseDate(re[1].getTime() + 86400000);
+        }
     }
 
     // 如果准备绘制标题
@@ -427,12 +435,12 @@ function update_head(jHead, opt, d){
 }
 //...........................................................
 // 生成一个日期的表格，返回一个二元数组，表示绘制的起止日期
-function draw_block(jWrapper, opt, d){
+function draw_block(jWrapper, opt, d, drawAtPast){
     //d.setDate(32);
     //d.setDate(0);
     //d = new Date("2015-12-21");
     var ssd = "" + d;
-    console.log("zcal.draw_block:", ssd);
+    //console.log("zcal.draw_block:", ssd);
     if("Invalid Date" == ssd) {
         console.warn("hahahahahah");
     }
@@ -490,7 +498,11 @@ function draw_block(jWrapper, opt, d){
 
     // 开始绘制
     var _d_cell = $z.parseDate(from.getTime());
-    var jDiv   = $('<div class="zcal-block">').appendTo(jWrapper);
+    var jDiv   = $('<div class="zcal-block">');
+    if(drawAtPast)
+        jDiv.prependTo(jWrapper);
+    else
+        jDiv.appendTo(jWrapper);
     var jTable = $('<table class="zcal-table">').appendTo(jDiv);
     // 绘制表头
     var jTHead = $('<thead class="zcal-table-head">').appendTo(jTable);
@@ -854,6 +866,7 @@ $.fn.extend({ "zcal" : function(opt, arg){
         simpleCell : true,
         blockNumber : 1,
         blockWidth  : "*",
+        blockStep   : 1,
         i18n: {
             month : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
             week  : ["S","M","T","W","T","F","S"]

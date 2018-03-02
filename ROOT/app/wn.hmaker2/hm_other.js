@@ -47,7 +47,8 @@ return ZUI.def("app.wn.hmaker_other", {
         var aph = UI.getRelativePath(o);
         UI.arena.children("header")
             .append($(UI.getObjIcon(o)))
-            .append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
+            .append($('<span>').text(aph));
+            //.append($('<a target="_blank" href="/a/open/browser?ph=id:'+o.id+'">' + aph + '</a>'));
 
         // 更新显示对象 
         UI.gasket.objview.update(o);
