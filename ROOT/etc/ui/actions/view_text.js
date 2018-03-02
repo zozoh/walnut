@@ -14,11 +14,13 @@
 		
 		var MaskUI = require("ui/mask/mask");
 		new MaskUI({
-			width  : "100%",
-			height : "100%"
+			width  : "95%",
+			height : "95%"
 		}).render(function(){
 			var jPre = $('<pre>').appendTo(this.$main);
 			jPre.css({
+				"margin" : 0,
+				"padding" : 10,
 				"width"  : "100%",
 				"height" : "100%",
 				"overflow" : "auto"

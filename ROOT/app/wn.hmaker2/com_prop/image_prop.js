@@ -45,13 +45,13 @@ return ZUI.def("app.wn.hm_com_image_prop", {
         var oHome = this.getHomeObj();
         return [{
             key    : "src",
-            title  : "i18n:hmaker.prop.img_src",
+            title  : "i18n:hmaker.com.image.src",
             type   : "string",
             dft    : null,
             uiType : "ui/picker/opicker",
             uiConf : {
                 base : oHome,
-                lastObjKey : "hmaker_pick_image",
+                lastBaseKey : "hmaker_pick_image",
                 mustInBase : true,
                 setup : {
                     defaultByCurrent : false,

@@ -27,7 +27,7 @@ $(function(){
         // rectWin.left = jWin.scrollLeft();
         $D.rect.count_tlwh(rectWin);
 
-        //console.log($D.rect.dumpValues(rectWin));
+        console.log($D.rect.dumpValues(rectWin));
 
         // 循环所有的组件，计算其所在矩形是否在窗口之内
         $(document.body).find(".hm-com, .hm-watch-scroll").each(function(){
@@ -36,6 +36,9 @@ $(function(){
             //console.log(" > ", jCom.attr("id")+":", $D.rect.dumpValues(rect));
             var inview = $D.rect.is_overlap(rectWin, rect);
             var once = jCom.attr("hm-once-inview") || inview ? true : false;
+            if(once) {
+                console.log(jCom)
+            }
             $(this).attr({
                 "hm-never-inview"   : (once ? null  : "yes"),
                 "hm-once-inview"    : (once ? "yes" : null),

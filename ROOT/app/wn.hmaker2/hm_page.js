@@ -64,6 +64,8 @@ var html = `
             <li class="sep"></li>
             <li ctype="image" icon="hmaker.com.image.icon" tag-name="A"
                 text="hmaker.com.image.name" tip="hmaker.com.image.tip"></li>
+            <li ctype="video" icon="hmaker.com.video.icon"
+                text="hmaker.com.video.name" tip="hmaker.com.video.tip"></li>
             <li ctype="navmenu" icon="hmaker.com.navmenu.icon" 
                 text="hmaker.com.navmenu.name" tip="hmaker.com.navmenu.tip"></li>
             <li ctype="text" icon="hmaker.com.text.icon" 
@@ -1527,6 +1529,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var headHtml = '<head>';
         headHtml += UI.getCssTheme('<link rel="stylesheet" type="text/css" href="/a/load/wn.hmaker2/theme/hmaker_editing-{{theme}}.css">');
         headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-awesome/css/font-awesome.css">';
+        headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/fontawesome-free-5.0.6/css/fontawesome-all.css">';
         headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/font-md/css/material-design-iconic-font.css">';
         headHtml += '<link rel="stylesheet" type="text/css" href="/gu/rs/core/css/normalize.css">';
         headHtml += '<link rel="stylesheet" type="text/css" d="" href="/gu/rs/core/css/balloon.min.css">';
@@ -1607,6 +1610,10 @@ return ZUI.def("app.wn.hmaker_page", {
                 "c_seq" : null,
                 "hm-actived" : null,
                 "hm-blur" : null,
+                "hm-never-inview"   : null,
+                "hm-once-inview"    : null,
+                "hm-scroll-inview"  : null,
+                "hm-scroll-outview" : null,
             });
             var jW   = jCom.children(".hm-com-W");
             
