@@ -337,7 +337,7 @@ var methods = {
         }
     },
     //...............................................................
-    invokeSkin : function(method){
+    invokeSkin : function(method, args){
         var UI = this;
         //console.log("invokeSkin", method, UI._C ? UI._C.SkinJS : "!No UI._C");
         if(UI._C && UI._C.SkinJS 
@@ -370,7 +370,7 @@ var methods = {
             }
 
             // 调用皮肤
-            $z.invoke(UI._C.SkinJS, method, [], SC);
+            $z.invoke(UI._C.SkinJS, method, args || [], SC);
         }
     },
     //...............................................................

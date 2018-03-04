@@ -34,6 +34,7 @@ var methods = {
     setComSkin : function(skin) {
         var old_skin = this.getComSkin();
         if(old_skin) {
+            this.pageUI().invokeSkin("reset", [this.$el]);
             this.$el.removeClass(old_skin);
             this.arena.removeClass(old_skin);
         }
@@ -88,6 +89,18 @@ var methods = {
         }
         this.$el.attr("selectors", selectors||null);
         this.arena.addClass(selectors);
+    },
+    //........................................................
+    // 获取组件的显示模式
+    getComDisplayMode : function() {
+        return this.$el.attr("hm-dis-mode") || "show";
+    },
+    // 设置组件的显示模式
+    setComDisplayMode : function(disMode) {
+        if(!/^(show|desktop|mobile)$/.test(disMode)){
+            disMode = "show";
+        }
+        this.$el.attr("hm-dis-mode", "show" == disMode ? null : disMode);
     },
     //........................................................
     // 获取组件的库

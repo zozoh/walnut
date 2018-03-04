@@ -10,6 +10,19 @@ $z.declare([
 var html = `
 <div class="ui-arena hm-prop-block">
     <div class="hmpb-pos">
+        <div class="hmpb-dis-mode">
+            <ul>
+                <li head="yes">
+                    <span>{{hmaker.pos.dismode}}</span>
+                </li>
+                <li v="desktop" balloon="right:hmaker.pos.d_desktop_tip">
+                    <span><i class="zmdi zmdi-laptop"></i></span>
+                </li>
+                <li v="mobile" balloon="right:hmaker.pos.d_mobile_tip">
+                    <span><i class="zmdi zmdi-smartphone-android"></i></span>
+                </li>
+            </ul>
+        </div>
         <div class="hmpb-pos-box-con"><div class="hmpb-pos-box">
             <div class="hmpb-pos-d" key="width"><span><b>{{hmaker.pos.width}}</b><em></em></span></div>
             <div class="hmpb-pos-d" key="height"><span><b>{{hmaker.pos.height}}</b><em></em></span></div>
@@ -25,7 +38,7 @@ var html = `
         <div class="hmpb-pos-mode">
             <ul>
                 <li head="yes">
-                    <span>{{hmaker.pos.mode}}</span>
+                    <span>{{hmaker.pos.posmode}}</span>
                 </li>
                 <li v="inflow" balloon="left:hmaker.pos.inflow_tip">
                     <span>{{hmaker.pos.inflow}}</span>
@@ -54,6 +67,21 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     },
     //...............................................................
     events : {
+        // 切换手机桌面显示
+        "click .hmpb-dis-mode li[v]" : function(e) {
+            var jLi = $(e.currentTarget);
+            $z.toggleAttr(jLi, "on", "yes");
+            var jDM = this.arena.find(".hmpb-dis-mode");
+            var val = [];
+            jDM.find('li[v][on]').each(function(){
+                val.push($(this).attr("v"));
+            });
+            var dm = val.length!=1 ? "show" : val[0];
+            this.uiCom.setComDisplayMode(dm);
+
+            // 通知一下回调
+            this.uiCom.notifyBlockChange();
+        },
         // 切换绝对/相对定位选择框
         "click .hmpb-pos-mode li[v]" : function(e) {
             var block = this.uiCom.getBlock();
@@ -208,10 +236,23 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
         var UI   = this;
         var jPos = UI.arena.find(".hmpb-pos");
 
+        // 标记显示模式
+        var dm = UI.uiCom.getComDisplayMode();
+        var jDMLi = jPos.find('.hmpb-dis-mode li[v]');
+        if(/^(desktop|mobile)$/.test(dm)) {
+            jDMLi.removeAttr("on").filter('[v="'+dm+'"]').attr("on","yes");
+        }
+        // 全部标绿
+        else {
+            jDMLi.attr("on","yes");
+        }
+
         // 标记定位
         var mode = block.mode || "inflow";
         jPos.attr("mode", mode);
-        jPos.find('li').removeAttr("current")
+
+        // 定位标识
+        jPos.find('.hmpb-pos-mode li').removeAttr("current")
                 .filter('[v="'+mode+'"]')
                     .attr("current", "yes");
 

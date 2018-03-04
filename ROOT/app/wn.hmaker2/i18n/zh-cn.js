@@ -132,13 +132,16 @@ define({
             "hover" : "拖拽至此，Shift键取消"
         },
         "pos" : {
-            "mode"    : "定位",
+            "dismode" : "显示",
+            "posmode" : "定位",
             "inflow"  : "默认",
             "inflow_tip" : "默认就是默认咯，不解释",
             "abs"     : "绝对",
             "abs_tip" : "相对于所在分栏的绝对位置，随页面滚动",
             "fix"     : "固定",
             "fix_tip" : "相对于页面的绝对位置，不随页面滚动",
+            "d_desktop_tip" : "桌面版显示",
+            "d_mobile_tip"  : "手机版显示",
             "TL"     : "左上顶点定位",
             "TR"     : "右上顶点定位",
             "LB"     : "左下顶点定位",
