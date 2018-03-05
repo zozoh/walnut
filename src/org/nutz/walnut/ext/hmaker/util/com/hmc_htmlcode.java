@@ -12,7 +12,7 @@ public class hmc_htmlcode extends AbstractNoneValueCom {
 
     @Override
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
-        eleArena.html(ing.propCom.getString("code"));
+        eleArena.html(ing.propCom.getString("code", ""));
         return true;
     }
 

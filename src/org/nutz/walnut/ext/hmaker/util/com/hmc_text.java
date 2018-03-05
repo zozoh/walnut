@@ -17,16 +17,18 @@ public class hmc_text extends AbstractNoneValueCom {
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         // 得到编辑的文本，并将文本转义成 HTML (markdown) 模式
         String code = ing.propCom.getString("code", "");
+        String ttp = ing.propCom.getString("contentType", "auto");
 
         String html;
 
         // 如果包括换行，则表示是 markdown 文本
-        if (code.contains("\n")) {
+        if ("markdown".equals(ttp) || ("auto".equals(ttp) && code.contains("\n"))) {
             html = Markdown.toHtml(code, null);
         }
         // 否则就是纯文本
         else {
             html = Strings.escapeHtml(code);
+            html = html.replaceAll("[\r?\n]", "<br>");
         }
 
         // 更新 HTML
@@ -69,6 +71,9 @@ public class hmc_text extends AbstractNoneValueCom {
                 br.remove();
             }
         }
+
+        // 标识标题
+        eleArena.select("h1,h2,h3,h4,h5,h6").addClass("md-header");
 
         return true;
     }

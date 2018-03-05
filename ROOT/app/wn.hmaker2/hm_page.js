@@ -1585,6 +1585,14 @@ return ZUI.def("app.wn.hmaker_page", {
         var UI = this;
         var C  = UI._C;
 
+        // 如果是保存，需要重置一下皮肤
+        if(forSave) {
+            C.iedit.$body.find('.hm-com').each(function(){
+                UI.invokeSkin("reset", [$(this)]);
+            });
+            UI.invokeSkin("ready");
+        }
+
         // 将 iedit 的内容复制到 iload 里面
         // 需要将所有的可运行的 script 都删掉
         C.iload.root.innerHTML = C.iedit.root.innerHTML;
