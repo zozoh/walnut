@@ -100,6 +100,9 @@ dependencies {
     compile ('org.apache.pdfbox:pdfbox:1.8.4') {
     	exclude group:'commons-logging', module: 'commons-logging'
     }
+    compile group: 'com.alibaba', name: 'druid', version : '1.1.8'
+    compile group: 'mysql', name: 'mysql-connector-java', version : '5.1.44'
+    compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version : '6.4.0.jre8'
 }
 
 buildscript {
