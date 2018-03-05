@@ -35,6 +35,7 @@ public class sqltool_exec implements JvmHdl {
             if (tmp instanceof Collection) {
                 for (Object ele : (Collection) tmp) {
                     sql.params().putAll(ele);
+                    sql.addBatch();
                 }
             } else {
                 sql.params().putAll(tmp);
@@ -42,14 +43,8 @@ public class sqltool_exec implements JvmHdl {
         }
         // 如果有变量,设置之
         if (hc.params.has("vars")) {
-            Object tmp = Json.fromJson(hc.params.check("vars"));
-            if (tmp instanceof Collection) {
-                for (Object ele : (Collection) tmp) {
-                    sql.vars().putAll(ele);
-                }
-            } else {
-                sql.vars().putAll(tmp);
-            }
+            NutMap tmp = Json.fromJson(NutMap.class, hc.params.check("vars"));
+            sql.vars().putAll(tmp);
         }
         if (hc.params.is("force_query")) {
             sql.forceExecQuery();
