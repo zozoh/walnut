@@ -34,6 +34,7 @@ var methods = {
     setComSkin : function(skin) {
         var old_skin = this.getComSkin();
         if(old_skin) {
+            this.pageUI().invokeSkin("reset", [this.$el]);
             this.$el.removeClass(old_skin);
             this.arena.removeClass(old_skin);
         }
@@ -88,6 +89,18 @@ var methods = {
         }
         this.$el.attr("selectors", selectors||null);
         this.arena.addClass(selectors);
+    },
+    //........................................................
+    // 获取组件的显示模式
+    getComDisplayMode : function() {
+        return this.$el.attr("hm-dis-mode") || "show";
+    },
+    // 设置组件的显示模式
+    setComDisplayMode : function(disMode) {
+        if(!/^(show|desktop|mobile)$/.test(disMode)){
+            disMode = "show";
+        }
+        this.$el.attr("hm-dis-mode", "show" == disMode ? null : disMode);
     },
     //........................................................
     // 获取组件的库
@@ -666,10 +679,10 @@ module.exports = function(uiCom){
     
     // 控件默认的布局属性
     $z.setUndefined(uiCom, "getBlockPropFields", function(block){
-        return [block.mode == 'inflow' ? "margin" : null,
-                "padding","border","borderRadius",
-                /*"color",*/ "background",
-                "boxShadow","overflow"];
+        return [
+            "margin", "padding", "border", "color", "background",
+            "borderRadius", "overflow", "boxShadow"
+        ];
     });
     
     // 控件的默认布局

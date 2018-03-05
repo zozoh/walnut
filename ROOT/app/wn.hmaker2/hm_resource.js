@@ -177,8 +177,9 @@ return ZUI.def("app.wn.hmaker_resource", {
     //...............................................................
     reloadNode : function(o, callback){
         var UI = this;
+        var homeId = UI.getHomeObjId();
         // 如果有节点
-        if(o) {
+        if(o && homeId != o.id) {
             UI.uiTree.reload(o.id, callback);
         }
         // 否则全刷新

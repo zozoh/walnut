@@ -2438,6 +2438,25 @@
             return val;
         },
         //.............................................
+        // d - 可被 parseDate 接受的日期(MS,str,Date)
+        // off - 一个整数表示要偏移几个月，负数是向过去偏移， 0 是不偏移
+        // @return 偏移后的日期对象，如果你传入的是日期对象会是同一份实例
+        offsetMonthly: function(d, off) {
+            var d2 = this.parseDate(d);
+            d2.setMonth(d2.getMonth() + off);
+            return d2;
+        },
+        //.............................................
+        // d - 可被 parseDate 接受的日期(MS,str,Date)
+        // off - 一个整数表示要偏移几周，负数是向过去偏移， 0 是不偏移
+        // @return 偏移后的日期对象，如果你传入的是日期对象会是同一份实例
+        offsetWeekly: function(d, off) {
+            var d2 = this.parseDate(d);
+            var ms = d2.getTime();
+            d2.setTime(ms + 86400000*7*off);
+            return d2;
+        },
+        //.............................................
         // 解析日期字符串为一个日期对象
         /*
          - str : 日期字符串，当然你也可以传一个绝对毫秒数或者另外一个日期对象

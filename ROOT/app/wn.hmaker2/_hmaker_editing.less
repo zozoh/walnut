@@ -453,6 +453,26 @@ ul, ol {list-style: none; margin:0; padding:0;}
 .hmc-image[tpos="top"]  section{top:0;left:0;right:0;bottom:unset;}
 .hmc-image[tpos="bottom"]  section{bottom:0;left:0;right:0;}
 //............................................................
+// video
+.hm-com-video {
+    width:4rem; height:3rem;
+}
+.hmc-video { @noselect();
+    .hmc-video-con {
+        width:100%; height:100%;
+        background: #000; position: relative;
+        > img {
+            width:100%; height:100%;
+            object-fit : contain;
+        }
+        > div {
+            position: absolute; top:0;left:0;right:0;bottom:0;
+            @flex(); justify-content: center; align-items: center;
+            font-size:.5rem; color:rgba(255,255,255,0.3);
+        }
+    }
+}
+//............................................................
 // Text
 .hmc-text {padding: @d4;}
 //............................................................
