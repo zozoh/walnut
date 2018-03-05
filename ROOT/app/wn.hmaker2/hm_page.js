@@ -693,9 +693,9 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 去掉组件所在的区域
         if(uiCom && uiCom.$el) {
-            var myArea = uiCom.$el.closest(".hm-area");
-            if(myArea.size() > 0) {
-                jAreaList = jAreaList.not(myArea);
+            var myAreas = uiCom.$el.parents(".hm-area");
+            if(myAreas.size() > 0) {
+                jAreaList = jAreaList.not(myAreas);
             }
         }
 
