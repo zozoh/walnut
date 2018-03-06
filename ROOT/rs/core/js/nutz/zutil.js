@@ -4778,6 +4778,229 @@
             // 最后返回
             return re.html;
         },
+        /*........................................................
+        解析 markdown.poster 语法:
+        +bg:media/abc.jpg        # 表示增加一个背景图
+        [css]                    # 这个会描述整个海报的 css
+        background-color:red;    # 默认的海报的背景是 cover 且居中不重复的
+        [/css]                   # 结束样式段落
+             
+        +text:广告文字             # 表示增加一个文字对象
+        支持换行                   # 换行就会增加一个 <br>
+        [css]
+        color:#FFF;
+        [/css]
+
+        +picture:media/abc.png   # 表示增加一个图片对象
+        [css]
+        border:1px solid #FFF;
+        [/css]
+
+        +video:media/xyz.mp4   # 表示增加一个视频对象
+        [attr]                 # 表示视频对象的熟悉
+        {controls : true}      # 内容是一个 JSON 与 <video> 标签的意义相当
+        [/attr]
+        [css]
+        border:1px solid #FFF;
+        [/css]
+
+        解析的结果是:
+        {
+            bg : "media/abc.jpg",
+            cssText : "background-color:red;padding:.1rem;",
+            items : [{
+                text : "广告文字\n支持换行",
+                cssText : "color:#FFF;"
+            },{
+                picture : "media/abc.png",
+                cssText : null,
+            }, {
+                video : "media/xyz.mp4",
+                attr  : {...},
+                cssText : "border:1px solid #FFF;"
+            }]
+        }
+
+        其中 opt 参数：{
+            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+            context : undefined   // 所有回调的上下文
+        }
+        */
+        parsePoster : function(str, opt){
+            str = str || "";
+            opt = opt || {};
+            // 设置默认值
+            zUtil.setUndefined(opt, "media", function (src) {
+                return src;
+            });
+            var C = opt.context || this;
+            console.log(C)
+
+            // 准备解析结果
+            var poster = {
+                items : []
+            };
+
+            // 准备追加函数
+            var __set_to_poster = function(it) {
+                if(it) {
+                    // 背景
+                    if(it.bg) {
+                        poster.bg = opt.media.apply(C, [it.bg]);
+                        poster.cssText = it.cssText;
+                    }
+                    // 其他就直接加了
+                    else {
+                        // 视频和图片，需要格式化源
+                        if(it.picture)
+                            it.picture = opt.media.apply(C, [it.picture]);;
+                        if(it.video)
+                            it.video = opt.media.apply(C, [it.video]);;
+
+                        // 计入
+                        poster.items.push(it);
+                    }
+                }
+            };
+            
+            // 按行解析
+            var it;
+            var lines  = str.split(/\r?\n/g);
+            var REG = /^\+[ \t]*(bg|text|picture|video)[ \t]*:[ \t]*(.+)$/;
+            for(var i=0; i<lines.length; i++) {
+                var line = $.trim(lines[i]);
+                var m = REG.exec(line);
+                // 遇到特殊对象开头
+                if(m) {
+                    // 添加之前的项目
+                    __set_to_poster(it);
+
+                    // 根据类型判断
+                    it = zUtil.obj(m[1], m[2]);
+
+                    // 文字的话，试图向后面读取
+                    if(it.text) {
+                        for(i++; i<lines.length; i++) {
+                            line = $.trim(lines[i]);
+                            console.log(line)
+                            if(!line)
+                                break;
+                            if(/^\[\\?(css|attr)\]$/.test(line))
+                                break;
+                            if(REG.test(line))
+                                break;
+                            it.text += "\n" + line;
+                        }
+                        i--;
+                    }
+                }
+                // 遇到标识
+                else if(it) {
+                    // 是 css
+                    if('[css]' == line) {
+                        it.cssText = "";
+                        for(i++; i<lines.length; i++) {
+                            line = $.trim(lines[i]);
+                            if('[/css]' == line)
+                                break;
+                            it.cssText += line;
+                        }
+                    }
+                    // 是属性
+                    else if('[attr]' == line) {
+                        var json = "";
+                        for(i++; i<lines.length; i++) {
+                            line = $.trim(lines[i]);
+                            if('[/attr]' == line)
+                                break;
+                            json += line;
+                        }
+                        it.attr = $z.fromJson(json);
+                    }
+                }
+            }
+            // 添加最后一个的项目
+            __set_to_poster(it);
+
+            // 返回
+            return poster;
+        },
+        //.............................................
+        // 根据 parsePoster 的解析结果，渲染一个 <div>
+        // - poster : parsePoster 的解析结果
+        // - jDiv   : 表示要渲染的目标，如果没有指定，则创建一个
+        // @return jDiv
+        renderPoster : function(poster, jDiv) {
+            jDiv = jDiv || $("<div>");
+            // 样式
+            if(poster.cssText)
+                jDiv[0].style.cssText = poster.cssText;
+            // 背景图
+            if(poster.bg)
+                jDiv.css("background-image", 'url("' + poster.bg + '")');
+
+            // 循环处理 Item
+            if(_.isArray(poster.items)) {
+                for(var i=0; i<poster.items.length; i++) {
+                    var it = poster.items[i];
+                    var jIt;
+                    // 文字
+                    if(it.text) {
+                        var txt = zUtil.escapeText(it.text);
+                        jIt = $('<span>').text(txt.replace(/\r?\n/g), '<br>');
+                    }
+                    // 图片
+                    else if(it.picture) {
+                        jIt = $('<img>').attr("src", it.picture);
+                    }
+                    // 视频
+                    else if(it.video) {
+                        jIt = $('<video>').attr("src", it.video);
+                    }
+                    // 不是合法的项目，无视
+                    if(!jIt)
+                        continue;
+                    // 增加样式
+                    if(it.cssText)
+                        jIt[0].style.cssText = it.cssText;
+                    // 增加属性
+                    if(it.attr)
+                        jIt.attr(it.attr);
+                    // 加入 DOM
+                    jIt.appendTo(jDiv);
+                } 
+            }
+
+            // 返回渲染结果
+            return jDiv;
+        },
+        /*.............................................
+        将给定的jq对象包含的元素，每个内容都解析一下 poster
+        并将其替换
+        - jq : 给定的一组 jq 对象
+        - opt : {
+            className : 生成 DIV 的类选择器名，默认为 md-code-poster
+            media   : {c}F(src)   // 计算媒体文件加载的真实 URL
+            context : undefined   // 所有回调的上下文
+        }
+        */
+        explainPoster : function(jq, opt) {
+            // 格式化输入
+            jq = $(jq);
+            opt = opt || {};
+            opt.className = opt.className || "md-code-poster";
+            if(jq.length == 0)
+                return;
+            // 循环处理
+            jq.each(function(){
+                var str    = $(this).html();
+                var poster = zUtil.parsePoster(str, opt);
+                var jDiv   = zUtil.renderPoster(poster);
+                jDiv.addClass(opt.className).insertBefore(this);
+            });
+            // 清除原始内容
+            jq.remove();
+        },
         //.............................................
         // 返回当前时间
         currentTime: function (date) {
