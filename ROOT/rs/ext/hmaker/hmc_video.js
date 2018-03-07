@@ -16,12 +16,8 @@ $.fn.extend({ "hmc_video" : function(opt){
     var jq = this.closest(".hmc-video");
     var jCon = jq.find(".hmc-video-con");
     var jVid = jq.find('video');
-
-    // 打开控制条
-    if(opt.controls)
-        jVid.attr("controls",true);
     
-    console.log("I am hmc_video!!!", opt)
+    //console.log("I am hmc_video!!!", opt)
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 捕获 video 的事件
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

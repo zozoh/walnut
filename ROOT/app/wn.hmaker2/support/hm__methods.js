@@ -453,6 +453,52 @@ var methods = {
         return _.extend({}, CSS_BASE, css);
     },
     //=========================================================
+    // 获取资源文件的 picker 配置信息
+    getObjPickerEditConf : function(lastBaseKey, mimeRegex) {
+        var oHome = this.getHomeObj();
+        return {
+            base : oHome,
+                lastBaseKey : lastBaseKey,
+                mustInBase : true,
+                setup : {
+                    defaultByCurrent : false,
+                    multi : false,
+                    filter    : function(o) {
+                        if('DIR' == o.race)
+                            return true;
+                        return mimeRegex ? mimeRegex.test(o.mime) : true;
+                    }
+                },
+                parseData : function(str){
+                    //console.log("parseData", str);
+                    if(!str)
+                        return null;
+                    // 指定了 ID
+                    var m = /id:([\w\d]+)/.exec(str);
+                    if(m)
+                        return Wn.getById(m[1]);
+
+                    // 指定了相对站点的路径
+                    if(/^\//.test(str)){
+                        return Wn.fetch(Wn.appendPath(oHome.ph, str));
+                    }
+
+                    // 默认指定了相对页面的路径
+                    var oPage = UI.pageUI().getCurrentEditObj();
+                    var pph = oPage.ph;
+                    var pos = pph.lastIndexOf("/");
+                    var aph = Wn.appendPath(pph.substring(0,pos), str);
+                    return Wn.fetch(aph);
+                },
+                formatData : function(o){
+                    if(!o)
+                        return null;
+                    //console.log("formatData:", o)
+                    return "/" + Wn.getRelativePath(oHome, o);
+                }
+        };
+    },
+    //=========================================================
     // 获取背景属性编辑控件的关于 image 编辑的配置信息
     getBackgroundImageEditConf : function(){
         var UI    = this;

@@ -467,8 +467,13 @@ ul, ol {list-style: none; margin:0; padding:0;}
         }
         > div {
             position: absolute; top:0;left:0;right:0;bottom:0;
-            @flex(); justify-content: center; align-items: center;
-            font-size:.5rem; color:rgba(255,255,255,0.3);
+            @flex(); padding:.1rem; color:rgba(255,255,255,0.3);
+            &[m="play"] {font-size:.5rem; 
+                justify-content: center; align-items: center;}
+            &[m="muted"] {font-size:.3rem; 
+                justify-content: flex-end; align-items: flex-end;}
+            &[m="autoplay"] {font-size:.3rem; 
+                justify-content: flex-start; align-items: flex-start;}
         }
     }
 }

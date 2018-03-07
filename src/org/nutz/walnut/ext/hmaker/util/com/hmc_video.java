@@ -29,6 +29,24 @@ public class hmc_video extends AbstractNoneValueCom {
             Element eleVideo = eleCon.appendElement("video");
             Element eleSource = eleVideo.appendElement("source");
 
+            // 打开控制条
+            if (ing.propCom.is("controls", "dft"))
+                eleVideo.attr("controls", true);
+
+            // 开启静音
+            if (ing.propCom.getBoolean("muted"))
+                eleVideo.attr("muted", true);
+
+            // 自动播放
+            if (ing.propCom.getBoolean("autoplay"))
+                eleVideo.attr("autoplay", true);
+
+            // 封面:这里需要预先转换一下
+            if (ing.propCom.has("poster")) {
+                String poster = ing.explainLink(ing.propCom.getString("poster"), true);
+                eleVideo.attr("poster", poster);
+            }
+
             // 预先标识一下正在加载中
             eleCon.attr("st", "loading");
 

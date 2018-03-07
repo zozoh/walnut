@@ -39,16 +39,36 @@ return ZUI.def("app.wn.hm_com_video", {
         
         // 加载预览图
         if(com.src) {
-            var oVideo = Wn.fetch(Wn.appendPath(oHome.ph, com.src));
+            var imgSrc;
+            // 预览图
+            if(com.poster) {
+                imgSrc = "/o/read/id:"+oHome.id+"/"+com.poster;
+            }
+            // 用视频的预览图
+            else {
+                var oVideo = Wn.fetch(Wn.appendPath(oHome.ph, com.src));
+                imgSrc = "/o/read/"+oVideo.videoc_dir+"/_preview.jpg";
+            }
+            // 显示图片
             var jVid = $('<img>').appendTo(jCon);
-            jVid.attr("src", "/o/read/"+oVideo.videoc_dir+"/_preview.jpg");
-            $('<div><i class="zmdi zmdi-play"></i></div>').appendTo(jCon);
+            jVid.attr("src", imgSrc);
+            // 播放图标
+            $('<div m="play"><i class="zmdi zmdi-play"></i></div>').appendTo(jCon);
         }
         // 显示空区域
         else {
             $('<div><i class="fa fa-video"></i></div>').appendTo(jCon.attr({
                 "no-src" : "yes"
             }));
+        }
+
+        // 显示静音图标
+        if(com.muted) {
+            $('<div m="muted"><i class="zmdi zmdi-volume-off"></i></div>').appendTo(jCon);
+        }
+        // 显示自动播放图标
+        if(com.autoplay) {
+            $('<div m="autoplay"><i class="zmdi zmdi-flash-auto"></i></div>').appendTo(jCon);
         }
 
     },

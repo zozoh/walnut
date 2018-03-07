@@ -60,53 +60,36 @@ return ZUI.def("app.wn.hm_com_video_prop", {
                 type   : "string",
                 dft    : null,
                 uiType : "ui/picker/opicker",
-                uiConf : {
-                    base : oHome,
-                    lastBaseKey : "hmaker_pick_image",
-                    mustInBase : true,
-                    setup : {
-                        defaultByCurrent : false,
-                        multi : false,
-                        filter    : function(o) {
-                            if('DIR' == o.race)
-                                return true;
-                            return /^video/.test(o.mime);
-                        }
-                    },
-                    parseData : function(str){
-                        //console.log("parseData", str);
-                        if(!str)
-                            return null;
-                        // 指定了 ID
-                        var m = /id:([\w\d]+)/.exec(str);
-                        if(m)
-                            return Wn.getById(m[1]);
-
-                        // 指定了相对站点的路径
-                        if(/^\//.test(str)){
-                            return Wn.fetch(Wn.appendPath(oHome.ph, str));
-                        }
-
-                        // 默认指定了相对页面的路径
-                        var oPage = UI.pageUI().getCurrentEditObj();
-                        var pph = oPage.ph;
-                        var pos = pph.lastIndexOf("/");
-                        var aph = Wn.appendPath(pph.substring(0,pos), str);
-                        return Wn.fetch(aph);
-                    },
-                    formatData : function(o){
-                        if(!o)
-                            return null;
-                        var oHome = UI.getHomeObj();
-                        //console.log("formatData:", o)
-                        return "/" + Wn.getRelativePath(oHome, o);
-                    }
-                }
+                uiConf : UI.getObjPickerEditConf("hmaker_pick_image", /^video/)
             }, {
                 key    : "controls",
                 title  : "i18n:hmaker.com.video.controls",
+                type   : "string",
+                dft    : null,
+                editAs : "switch",
+                uiConf : {
+                    singleKeepOne : false,
+                    items : [{
+                        text: 'i18n:hmaker.com.video.ctrl_dft', value:"dft"
+                    }]
+                }
+            }, {
+                key    : "autoplay",
+                title  : "i18n:hmaker.com.video.autoplay",
                 type   : "boolean",
                 editAs : "toggle",
+            }, {
+                key    : "muted",
+                title  : "i18n:hmaker.com.video.muted",
+                type   : "boolean",
+                editAs : "toggle",
+            }, {
+                key    : "poster",
+                title  : "i18n:hmaker.com.video.poster",
+                type   : "string",
+                dft    : null,
+                uiType : "ui/picker/opicker",
+                uiConf : UI.getObjPickerEditConf("hmaker_pick_image", /^image/)
             }, {
                 key    : "naturalWidth",
                 title  : "i18n:hmaker.com.video.naturalWidth",

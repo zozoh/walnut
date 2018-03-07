@@ -49,49 +49,7 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             type   : "string",
             dft    : null,
             uiType : "ui/picker/opicker",
-            uiConf : {
-                base : oHome,
-                lastBaseKey : "hmaker_pick_image",
-                mustInBase : true,
-                setup : {
-                    defaultByCurrent : false,
-                    multi : false,
-                    filter    : function(o) {
-                        if('DIR' == o.race)
-                            return true;
-                        return /^image/.test(o.mime);
-                    }
-                },
-                parseData : function(str){
-                    //console.log("parseData", str);
-                    if(!str)
-                        return null;
-                    // 指定了 ID
-                    var m = /id:([\w\d]+)/.exec(str);
-                    if(m)
-                        return Wn.getById(m[1]);
-
-                    // 指定了相对站点的路径
-                    if(/^\//.test(str)){
-                        var oHome = UI.getHomeObj();
-                        return Wn.fetch(Wn.appendPath(oHome.ph, str));
-                    }
-
-                    // 默认指定了相对页面的路径
-                    var oPage = UI.pageUI().getCurrentEditObj();
-                    var pph = oPage.ph;
-                    var pos = pph.lastIndexOf("/");
-                    var aph = Wn.appendPath(pph.substring(0,pos), str);
-                    return Wn.fetch(aph);
-                },
-                formatData : function(o){
-                    if(!o)
-                        return null;
-                    var oHome = UI.getHomeObj();
-                    //console.log("formatData:", o)
-                    return "/" + Wn.getRelativePath(oHome, o);
-                }
-            }
+            uiConf : UI.getObjPickerEditConf("hmaker_pick_image", /^image/)
         }, {
             key    : "href",
             title  : "i18n:hmaker.prop.href",

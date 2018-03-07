@@ -76,7 +76,7 @@ return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
                         }
                     }, {
                         key    : "postParamName",
-                        title  : 'i18n:hmaker.com.searcher.postTarget',
+                        title  : 'i18n:hmaker.com.searcher.postParamName',
                         dft    : "k",
                     }]
             }]
