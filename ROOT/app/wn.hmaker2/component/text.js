@@ -47,12 +47,15 @@ return ZUI.def("app.wn.hm_com_text", {
         var oPage  = UI.pageUI().getCurrentEditObj();
         var phPageDir = $z.getParentPath(oPage.ph);
 
+        // 得到内容类型
+        var ttp = com.contentType || "auto";
+
         // 解析 Markdown
         if(code){
             //console.log(phSiteHome, phPageDir);
 
             // 如果包括换行，则表示是 markdown 文本
-            if(code.indexOf('\n') >=0 ){
+            if("markdown" == ttp || ("auto" == ttp && code.indexOf('\n') >=0 )){
                 html = $z.markdownToHtml(com.code, {
                     media : function(src) {
                         return UI.__tidy_src(src, oSiteHome, phPageDir);
@@ -63,6 +66,7 @@ return ZUI.def("app.wn.hm_com_text", {
             // 否则就是纯文本
             else {
                 html = $z.escapeText(com.code);
+                html = html.replace(/\r?\n/g, '<br>');
             }
             //console.log(html)
         }
@@ -122,6 +126,9 @@ return ZUI.def("app.wn.hm_com_text", {
                 jImg.attr("src", src2);
             }
         });
+
+        // 标识标题
+        UI.arena.find("h1,h2,h3,h4,h5,h6").addClass("md-header");
     },
     //...............................................................
     __tidy_src : function(src, oSiteHome, phPageDir) {
@@ -171,13 +178,8 @@ return ZUI.def("app.wn.hm_com_text", {
     // 返回属性菜单， null 表示没有属性
     getDataProp : function(){
         return {
-            uiType : 'app/wn.hmaker2/com_prop/htmlcode_prop',
-            uiConf : {
-                contentType : "text",
-                title       : "i18n:hmaker.com.text.tt",
-                openText    : "i18n:hmaker.com.text.open",
-                editorTitle : "i18n:hmaker.com.text.edit_tt",
-            }
+            uiType : 'app/wn.hmaker2/com_prop/text_prop',
+            uiConf : {}
         };
     }
 });

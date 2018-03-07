@@ -4,34 +4,37 @@ $z.declare([
     'wn/util',
     'ui/pop/pop',
     'app/wn.hmaker2/support/hm__methods_panel',
-], function(ZUI, Wn, POP, HmMethods, FormUI){
+    'ui/form/c_switch',
+], function(ZUI, Wn, POP, HmMethods, SwitchUI ){
 //==============================================
 var html = `
-<div class="ui-arena hmc-htmlcode-prop" ui-fitparent="yes">
+<div class="ui-arena hmc-text-prop" ui-fitparent="yes">
     <header>
-        <span><b>{{hmaker.com.htmlcode.tt}}</b></span>
+        <span ui-gasket="ttp"></span>
         <a>
             <i class="zmdi zmdi-window-maximize"></i> 
-            <em>{{hmaker.com.htmlcode.open}}</em>
+            <em>{{hmaker.com.text.open}}</em>
         </a>
     </header>
-    <section><textarea spellcheck="false"></textarea></section>
-    <footer>{{hmaker.com.htmlcode.edit_tip}}</footer>
+    <section>
+        <textarea spellcheck="false"></textarea>
+    </section>
+    <footer>{{hmaker.com.text.edit_tip}}</footer>
 </div>`;
 //==============================================
-return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
+return ZUI.def("app.wn.hm_com_text_prop", HmMethods({
     dom  : html,
     //...............................................................
     events : {
         // CTRL(Command)+Enter 快速应用修改
         "keydown textarea" : function(e) {
             if(13 == e.which && (e.metaKey || e.ctrlKey)) {
-                this.applyHtmlCode();
+                this.applyContentText();
             }
         },
         // 应用修改
         "change textarea" : function(e) {
-            this.applyHtmlCode();
+            this.applyContentText();
         },
         "click header a" : function(){
             var UI  = this;
@@ -40,18 +43,44 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
 
             // 打开编辑器
             POP.openEditTextPanel({
-                i18n        : UI._msg_map,
-                title       : opt.editorTitle || "i18n:hmaker.com.htmlcode.edit_tt",
-                contentType : opt.contentType || "html",
+                title       : "i18n:hmaker.com.text.edit_tt",
+                contentType : "text",
                 data : jT.val() || "",
                 callback : function(data){
-                    UI.applyHtmlCode(data);
+                    UI.applyContentText(data);
                 }
             }, UI);
         }
     },
     //...............................................................
-    applyHtmlCode : function(code) {
+    redraw : function() {
+        var UI = this;
+
+        new SwitchUI({
+            parent : UI, 
+            gasketName : "ttp",
+            on_change : function(v){
+                UI.applyContentType(v);
+            },
+            items : [{
+                text: 'i18n:hmaker.com.text.ttp_auto', value:"auto",
+            }, {
+                text: 'i18n:hmaker.com.text.ttp_text', value:"text",
+            }, {
+                text: 'i18n:hmaker.com.text.ttp_md',   value:"markdown",
+            }]
+        }).render(function(){
+            UI.defer_report("ttp");
+        })
+
+        return ["ttp"];
+    },
+    //...............................................................
+    applyContentType : function(ttp) {
+        this.uiCom.saveData("panel", {contentType : ttp||"auto"}, true);
+    },
+    //...............................................................
+    applyContentText : function(code) {
         var UI = this;
         var jT = UI.arena.find("textarea");
 
@@ -70,6 +99,8 @@ return ZUI.def("app.wn.hm_com_htmlcode_prop", HmMethods({
     //...............................................................
     update : function(com) {
         var UI  = this;
+        // 设置文本类型
+        UI.gasket.ttp.setData(com.contentType || "auto");
         // 显示文本
         UI.arena.find("textarea").val(com.code || "");
     }
