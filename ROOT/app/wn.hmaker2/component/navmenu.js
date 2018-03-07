@@ -188,6 +188,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     },
     //...............................................................
     createItem : function(item, quiet) {
+        console.log("Abd")
         var UI = this;
 
         item = item || {
@@ -294,18 +295,18 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             item.text = m[4];
         }
         if(!item.icon) {
-            jLi.addClass("icon-hide").removeClass("icon-show")
+            jLi.attr("icon","hide")
                 .find(">a>i").prop("className", "");
         }else{
-            jLi.addClass("icon-show").removeClass("icon-hide")
+            jLi.attr("icon","show")
                 .find(">a>i").prop("className", m[2] + " " + item.icon);
         }
         // 更新文字
         if(item.text) {
-            jLi.addClass("text-show").removeClass("text-hide")
+            jLi.attr("text","show")
                 .find(">a>span").text(item.text);
         } else {
-            jLi.addClass("text-hide").removeClass("text-show")
+            jLi.attr("text","hide")
                 .find(">a>span").text("");
         }
 
