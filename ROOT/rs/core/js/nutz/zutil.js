@@ -4845,7 +4845,7 @@
             var REG = /^\+[ \t]*(bg|text|picture|video|spec|list)([ \t]*:[ \t]*(.+)?)?$/;
             for(var i=0; i<lines.length; i++) {
                 var line = $.trim(lines[i]);
-                console.log(line)
+                //console.log(line)
 
                 // 忽略注释和空行
                 if(!line || /^#/.test(line))
@@ -4985,7 +4985,7 @@
             // 添加最后一个的项目
             __set_to_poster(it);
 
-            console.log(poster)
+            //console.log(poster)
 
             // 返回
             return poster;
