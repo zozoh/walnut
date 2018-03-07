@@ -4779,49 +4779,8 @@
             return re.html;
         },
         /*........................................................
-        解析 markdown.poster 语法:
-        +bg:media/abc.jpg        # 表示增加一个背景图
-        [css]                    # 这个会描述整个海报的 css
-        background-color:red;    # 默认的海报的背景是 cover 且居中不重复的
-        [/css]                   # 结束样式段落
-             
-        +text:广告文字             # 表示增加一个文字对象
-        支持换行                   # 换行就会增加一个 <br>
-        [css]
-        color:#FFF;
-        [/css]
-
-        +picture:media/abc.png   # 表示增加一个图片对象
-        [css]
-        border:1px solid #FFF;
-        [/css]
-
-        +video:media/xyz.mp4   # 表示增加一个视频对象
-        [attr]                 # 表示视频对象的熟悉
-        {controls : true}      # 内容是一个 JSON 与 <video> 标签的意义相当
-        [/attr]
-        [css]
-        border:1px solid #FFF;
-        [/css]
-
-        解析的结果是:
-        {
-            bg : "media/abc.jpg",
-            cssText : "background-color:red;padding:.1rem;",
-            items : [{
-                text : "广告文字\n支持换行",
-                cssText : "color:#FFF;"
-            },{
-                picture : "media/abc.png",
-                cssText : null,
-            }, {
-                video : "media/xyz.mp4",
-                attr  : {...},
-                cssText : "border:1px solid #FFF;"
-            }]
-        }
-
-        其中 opt 参数：{
+        语法说明参见 doc/ext/hmaker/hm_markdown.md
+        参数：{
             media   : {c}F(src)   // 计算媒体文件加载的真实 URL
             context : undefined   // 所有回调的上下文
         }
@@ -4834,7 +4793,7 @@
                 return src;
             });
             var C = opt.context || this;
-            console.log(C)
+            //console.log(C)
 
             // 准备解析结果
             var poster = {
@@ -4848,15 +4807,32 @@
                     if(it.bg) {
                         poster.bg = opt.media.apply(C, [it.bg]);
                         poster.cssText = it.cssText;
+                        poster.attr = it.attr;
                     }
                     // 其他就直接加了
                     else {
                         // 视频和图片，需要格式化源
                         if(it.picture)
-                            it.picture = opt.media.apply(C, [it.picture]);;
+                            it.picture = opt.media.apply(C, [it.picture]);
                         if(it.video)
-                            it.video = opt.media.apply(C, [it.video]);;
-
+                            it.video = opt.media.apply(C, [it.video]);
+                        
+                        // 处理图文列表的每个项目
+                        if(it.list) {
+                            var hideText = it.attr ? it.attr.hideText : false;
+                            for(var i=0; i<it.list.length; i++) {
+                                var li = it.list[i];
+                                if(hideText && li.text) {
+                                    li.text = null;
+                                }
+                                if(li.src){
+                                    if(!li.text && !hideText) {
+                                        li.text = zUtil.getMajorName(li.src);
+                                    }
+                                    li.src = opt.media.apply(C, [li.src]);
+                                }
+                            }
+                        }
                         // 计入
                         poster.items.push(it);
                     }
@@ -4866,9 +4842,15 @@
             // 按行解析
             var it;
             var lines  = str.split(/\r?\n/g);
-            var REG = /^\+[ \t]*(bg|text|picture|video)[ \t]*:[ \t]*(.+)$/;
+            var REG = /^\+[ \t]*(bg|text|picture|video|spec|list)([ \t]*:[ \t]*(.+)?)?$/;
             for(var i=0; i<lines.length; i++) {
                 var line = $.trim(lines[i]);
+                console.log(line)
+
+                // 忽略注释和空行
+                if(!line || /^#/.test(line))
+                    continue;
+
                 var m = REG.exec(line);
                 // 遇到特殊对象开头
                 if(m) {
@@ -4876,22 +4858,88 @@
                     __set_to_poster(it);
 
                     // 根据类型判断
-                    it = zUtil.obj(m[1], m[2]);
+                    it = {type : m[1]};
 
-                    // 文字的话，试图向后面读取
-                    if(it.text) {
+                    // 试图向后面读取
+                    if(/^(text|spec|list)$/.test(it.type)) {
+                        var ss = [];
+                        // 首行不要忘记
+                        if(m[3])
+                            ss.push(m[3])
+                        // 读取内容，一直读到结束标记
                         for(i++; i<lines.length; i++) {
                             line = $.trim(lines[i]);
-                            console.log(line)
-                            if(!line)
-                                break;
-                            if(/^\[\\?(css|attr)\]$/.test(line))
+                            if(/^\[\\?(css|attr|itemCss)\]$/.test(line))
                                 break;
                             if(REG.test(line))
                                 break;
-                            it.text += "\n" + line;
+                            ss.push(line);
                         }
+                        // 不要忘记退一格
                         i--;
+                        // 来吧根据类型搞一下
+                        // 首先，文字
+                        if("text" == it.type) {
+                            it.text = ss;
+                        }
+                        // 产品说明表格
+                        else if("spec" == it.type) {
+                            var spec = {};
+                            for(var x=0; x<ss.length; x++) {
+                                var s = ss[x];
+                                if(!s)
+                                    continue;
+                                // caption
+                                if(/^@/.test(s)) {
+                                    spec.caption = $.trim(s.substring(1));
+                                }
+                                // 普通行
+                                else if(s.indexOf('|') > 0){
+                                    spec.rows = spec.rows || [];
+                                    spec.rows.push(s.split(/[ \t]*\|[ \t]*/));
+                                }
+                                // 剩下的就追加到上一行
+                                else {
+                                    // 追加到上一行最后一个单元格
+                                    if(spec.rows && spec.rows.length>0){
+                                        var cells = spec.rows[spec.rows.length-1];
+                                        if(cells.length>0){
+                                            cells[cells.length-1] += "\n"+s;
+                                        }
+                                    }
+                                    // 追加到标题里吧
+                                    else {
+                                        spec.caption = (spec.caption||"")+s;
+                                    }
+                                }
+                            }
+                            it.spec = spec;
+                        }
+                        // 图文列表
+                        else if("list" == it.type){
+                            it.list = [];
+                            for(var x=0; x<ss.length; x++) {
+                                var s = ss[x];
+                                if(!s)
+                                    continue;
+                                var m2 = /^[ \t]*-[ \t]*([^:]+)?([ \t]*:[ \t]*(.+))?$/.exec(s);
+                                if(m2) {
+                                    it.list.push({
+                                        src : m2[1],
+                                        text : m2[3]
+                                    });
+                                }
+                                // 否则追加
+                                else if(it.list.length>0){
+                                    var li = it.list[it.list.length-1];
+                                    li.text = (li.text||"") + "\n" + s;
+                                }
+                            }
+                        }
+                    }
+                    // 直接设置值
+                    else {
+                        it[it.type] = m[3];
                     }
                 }
                 // 遇到标识
@@ -4906,6 +4954,16 @@
                             it.cssText += line;
                         }
                     }
+                    // 是 itemCss
+                    else if('[itemCss]' == line) {
+                        it.itemCss = "";
+                        for(i++; i<lines.length; i++) {
+                            line = $.trim(lines[i]);
+                            if('[/itemCss]' == line)
+                                break;
+                            it.itemCss += line;
+                        }
+                    }
                     // 是属性
                     else if('[attr]' == line) {
                         var json = "";
@@ -4915,12 +4973,19 @@
                                 break;
                             json += line;
                         }
+                        json = $.trim(json);
+                        if(!/^\{/.test(json))
+                            json = "{" + json;
+                        if(!/\}$/.test(json))
+                            json = json + "}";
                         it.attr = $z.fromJson(json);
                     }
                 }
             }
             // 添加最后一个的项目
             __set_to_poster(it);
+
+            console.log(poster)
 
             // 返回
             return poster;
@@ -4938,6 +5003,9 @@
             // 背景图
             if(poster.bg)
                 jDiv.css("background-image", 'url("' + poster.bg + '")');
+            // 全局属性
+            if(poster.attr)
+                jDiv.attr(poster.attr);
 
             // 循环处理 Item
             if(_.isArray(poster.items)) {
@@ -4946,8 +5014,12 @@
                     var jIt;
                     // 文字
                     if(it.text) {
-                        var txt = zUtil.escapeText(it.text);
-                        jIt = $('<span>').text(txt.replace(/\r?\n/g), '<br>');
+                        var ts = [];
+                        for(var x=0; x<it.text.length; x++) {
+                            ts.push(zUtil.escapeText(it.text[x]));
+                        }
+                        var txt = ts.join('<br>');
+                        jIt = $('<span>').html(txt.replace(/\r?\n/g), '<br>');
                     }
                     // 图片
                     else if(it.picture) {
@@ -4956,6 +5028,49 @@
                     // 视频
                     else if(it.video) {
                         jIt = $('<video>').attr("src", it.video);
+                    }
+                    // 产品说明表格
+                    else if(it.spec) {
+                        jIt = $('<section it="spec">');
+                        var jT = $('<table>').appendTo(jIt);
+                        // 表格标题
+                        if(it.spec.caption) {
+                            $('<caption>').appendTo(jT)
+                                .html(it.spec.caption
+                                        .replace(/\r?\n/g, '<br>'));
+                        }
+                        // 表格内容
+                        var jTb = $('<tbody>').appendTo(jT);
+                        for(var y=0; y<it.spec.rows.length; y++) {
+                            var row = it.spec.rows[y];
+                            var jTr = $('<tr>').appendTo(jTb);
+                            for(var x=0; x<row.length; x++) {
+                                var cell = row[x];
+                                var jTd = $('<td>').appendTo(jTr);
+                                jTd.html(cell.replace(/\r?\n/g, '<br>'));
+                                if(it.itemCss)
+                                    jTd[0].style.cssText = it.itemCss;
+                            }
+                        }
+                    }
+                    // 图文列表
+                    else if(it.list) {
+                        jIt = $('<section it="list">');
+                        var jUl = $('<ul>').appendTo(jIt);
+                        for(var i=0; i<it.list.length; i++) {
+                            var li = it.list[i];
+                            var jLi = $('<li>').appendTo(jUl);
+                            if(li.src) {
+                                $('<img>').attr("src",li.src)
+                                    .appendTo(jLi);
+                            }
+                            if(li.text) {
+                                $('<span>').html(li.text.replace(/\r?\n/g, '<br>'))
+                                    .appendTo(jLi);
+                            }
+                            if(it.itemCss)
+                                jLi[0].style.cssText = it.itemCss;
+                        }
                     }
                     // 不是合法的项目，无视
                     if(!jIt)

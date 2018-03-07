@@ -188,7 +188,6 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     },
     //...............................................................
     createItem : function(item, quiet) {
-        console.log("Abd")
         var UI = this;
 
         item = item || {
