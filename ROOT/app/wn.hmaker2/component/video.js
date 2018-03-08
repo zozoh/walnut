@@ -57,7 +57,7 @@ return ZUI.def("app.wn.hm_com_video", {
         }
         // 显示空区域
         else {
-            $('<div><i class="fa fa-video"></i></div>').appendTo(jCon.attr({
+            $('<div m="blank"><i class="fa fa-video"></i></div>').appendTo(jCon.attr({
                 "no-src" : "yes"
             }));
         }

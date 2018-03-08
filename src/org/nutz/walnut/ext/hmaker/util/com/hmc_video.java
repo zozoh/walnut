@@ -22,7 +22,7 @@ public class hmc_video extends AbstractNoneValueCom {
 
         // 图片不存在，那么输出一个假的
         if (Strings.isBlank(src)) {
-            eleCon.attr("no-src", "yes").append("<div><i class=\"fa fa-video\"></i></div>");
+            eleCon.attr("no-src", "yes").append("<div class=\"hmcv-s-blank\"><i class=\"fa fa-video\"></i></div>");
         }
         // 否则输出视频标签
         else {
