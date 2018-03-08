@@ -132,6 +132,8 @@ task fatJar(type: Jar, dependsOn: [':wbuild']) {
     exclude "overview.html"
     exclude "LICENSE.txt"
     exclude "javadoc-overview.html"
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    exclude 'license/*'
     metadataCharset "UTF-8"
     with jar
     reproducibleFileOrder true
