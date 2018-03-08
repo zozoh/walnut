@@ -291,6 +291,8 @@ var methods = {
     // 高亮一个区域 
     highlightArea : function(aid) {
         var jArea = false === aid ? null : this.getArea(aid);
+
+        //console.log("highlightArea", aid)
         
         // 反正要取消之前高亮的区域
         this.arena.children(".hm-area[highlight]").removeAttr("highlight");

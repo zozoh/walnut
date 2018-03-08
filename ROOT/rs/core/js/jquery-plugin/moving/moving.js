@@ -974,12 +974,14 @@ $.fn.extend({ "moving" : function(opt){
         $body   : $(doc.body),
         $selection : this,
         getRectInClient : function(jq, padding) {
-            return $D.rect.gen(jq, {
+            var re = $D.rect.gen(jq, {
                 boxing   : "border",
                 scroll_c : true,
                 viewport : this.rect.client,
                 padding  : padding
             });
+            //console.log($D.rect.dumpValues(re));
+            return re;
         }
     };
 

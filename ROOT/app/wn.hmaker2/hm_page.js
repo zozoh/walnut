@@ -676,7 +676,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 取消其他高亮区域
         // this._C.iedit.$body.find(".hm-area[highlight]").removeAttr("highlight");
         // this._C.iedit.$body.find(".hm-com[highlight-mode]").removeAttr("highlight-mode");
-        this.__cancel_highlight_area(nextCom);
+        //this.__cancel_highlight_area(nextCom);
 
         // 应用皮肤
         this.invokeSkin("ready");
@@ -1450,6 +1450,11 @@ return ZUI.def("app.wn.hmaker_page", {
             var jAreaCon = $(this);
             var jArea    = jAreaCon.closest(".hm-area");
             var eArea    = jArea[0];
+
+            // 隐藏区域，无视
+            if(jArea.is(":hidden"))
+                return;
+
             // 子区域或嵌套区域，无视
             if(jAreaCon.find(".hm-area").length>0)
                 return;
@@ -1465,7 +1470,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 name : eMyArea != eArea ? "drop" : "",
                 text : jArea.attr("area-id"),
                 $ele : jAreaCon,
-                rect : 1,
+                rect : 1,    // 如果不是 Rect 对象，会根据 $ele 字段计算
+                             // 这里的 1 指代计算后矩形的边距，需要裁掉
                 disabled : eMyArea == eArea
                            || eSubs.indexOf(eArea) >= 0,
                 scope : "client",
@@ -1483,6 +1489,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 scope : "win",
             });
         }
+
+        //console.log(senList);
 
         // 返回感应器设置
         return {

@@ -206,10 +206,10 @@ var methods = {
     //...............................................................
     depose : function(){
         // 如果区域内没有激活的控件，就取消高亮
-        if(this.uiCom 
-           && this.uiCom.arena.find('.hm-com[hm-actived]').length == 0){
-            this.uiCom.highlightArea(false);
-        }
+        // if(this.uiCom 
+        //    && this.uiCom.arena.find('.hm-com[hm-actived]').length == 0){
+        //     this.uiCom.highlightArea(false);
+        // }
     },
     //...............................................................
     update : function(com) {
