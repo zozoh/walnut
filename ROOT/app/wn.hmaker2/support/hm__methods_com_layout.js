@@ -175,6 +175,10 @@ var methods = {
         // 特殊处理，如果只有一个区域，那么尽量将其撑满
         this.makeFullIfOnlyOneArea();
 
+        // 应用皮肤
+        this.pageUI().invokeSkin("ready");
+        this.pageUI().invokeSkin("resize");
+
         return this.checkAreaAssistDOM(jArea);
     },
     //...............................................................
@@ -239,6 +243,10 @@ var methods = {
         
         // 移除自身
         jArea.remove();
+
+        // 应用皮肤
+        this.pageUI().invokeSkin("ready");
+        this.pageUI().invokeSkin("resize");
 
         // 高亮下一个区域
         this.highlightArea(jA2);
@@ -306,6 +314,10 @@ var methods = {
         else {
             this.$el.removeAttr("highlight-mode");
         }
+
+        // 应用皮肤
+        this.pageUI().invokeSkin("ready");
+        this.pageUI().invokeSkin("resize");
     }
     //...............................................................
 }; // ~End methods

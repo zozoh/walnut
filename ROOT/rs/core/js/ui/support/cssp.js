@@ -67,7 +67,7 @@ var CssP = {
     */
     parseBackground : function(str) {
         // 如果本身就是背景，返回
-        if(_.isObject(str)) {
+        if(!_.isString(str)) {
             return _.extend({}, str);
         }
 

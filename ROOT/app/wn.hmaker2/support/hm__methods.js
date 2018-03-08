@@ -458,44 +458,44 @@ var methods = {
         var oHome = this.getHomeObj();
         return {
             base : oHome,
-                lastBaseKey : lastBaseKey,
-                mustInBase : true,
-                setup : {
-                    defaultByCurrent : false,
-                    multi : false,
-                    filter    : function(o) {
-                        if('DIR' == o.race)
-                            return true;
-                        return mimeRegex ? mimeRegex.test(o.mime) : true;
-                    }
-                },
-                parseData : function(str){
-                    //console.log("parseData", str);
-                    if(!str)
-                        return null;
-                    // 指定了 ID
-                    var m = /id:([\w\d]+)/.exec(str);
-                    if(m)
-                        return Wn.getById(m[1]);
-
-                    // 指定了相对站点的路径
-                    if(/^\//.test(str)){
-                        return Wn.fetch(Wn.appendPath(oHome.ph, str));
-                    }
-
-                    // 默认指定了相对页面的路径
-                    var oPage = UI.pageUI().getCurrentEditObj();
-                    var pph = oPage.ph;
-                    var pos = pph.lastIndexOf("/");
-                    var aph = Wn.appendPath(pph.substring(0,pos), str);
-                    return Wn.fetch(aph);
-                },
-                formatData : function(o){
-                    if(!o)
-                        return null;
-                    //console.log("formatData:", o)
-                    return "/" + Wn.getRelativePath(oHome, o);
+            lastBaseKey : lastBaseKey,
+            mustInBase : true,
+            setup : {
+                defaultByCurrent : false,
+                multi : false,
+                filter    : function(o) {
+                    if('DIR' == o.race)
+                        return true;
+                    return mimeRegex ? mimeRegex.test(o.mime) : true;
                 }
+            },
+            parseData : function(str){
+                //console.log("parseData", str);
+                if(!str)
+                    return null;
+                // 指定了 ID
+                var m = /id:([\w\d]+)/.exec(str);
+                if(m)
+                    return Wn.getById(m[1]);
+
+                // 指定了相对站点的路径
+                if(/^\//.test(str)){
+                    return Wn.fetch(Wn.appendPath(oHome.ph, str));
+                }
+
+                // 默认指定了相对页面的路径
+                var oPage = UI.pageUI().getCurrentEditObj();
+                var pph = oPage.ph;
+                var pos = pph.lastIndexOf("/");
+                var aph = Wn.appendPath(pph.substring(0,pos), str);
+                return Wn.fetch(aph);
+            },
+            formatData : function(o){
+                if(!o)
+                    return null;
+                //console.log("formatData:", o)
+                return "/" + Wn.getRelativePath(oHome, o);
+            }
         };
     },
     //=========================================================
@@ -509,8 +509,8 @@ var methods = {
                 uiConf : {
                     //base : UI.getFileObj("image", true) || oHome,
                     base : oHome,
-                    lastObjKey : "hmaker_pick_image",
-                    clearable  : false,
+                    lastBaseKey : "hmaker_pick_image",
+                    mustInBase : true,
                     setup : {
                         defaultByCurrent : false,
                         multi  : false,
@@ -526,7 +526,6 @@ var methods = {
                         // 看看是不是对象
                         var m = /^url\("?\/o\/read\/id:\w+\/([^"']+)"?\)$/i.exec(str);
                         if(m) {
-                            var oHome = UI.getHomeObj();
                             var rph   = m[1];
                             return Wn.fetch(Wn.appendPath(oHome.ph, rph));
                         }
@@ -537,7 +536,6 @@ var methods = {
                         if(!o)
                             return null;
                         // 得到相对路径
-                        var oHome = UI.getHomeObj();
                         var rph   = Wn.getRelativePath(oHome, o);
                         return 'url("/o/read/id:' + oHome.id + '/' + rph + '")';
                     }
@@ -719,6 +717,155 @@ var methods = {
                 }
             }
         };
+    },
+    //...............................................................
+    // 这里的 CSS 属性名，需要用驼峰
+    getCssFieldConf : function(key, dft, title, tip, fldKey) {
+        var UI = this;
+
+        // 显示简单输入框的
+        if(/^(padding|margin|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight)$/.test(key)
+            || /^(border(Top|Bottom|Left|Right)?(Width|Style|Color)?)$/.test(key)) {
+            return {
+                key    : fldKey || key,
+                title  : title || "i18n:hmaker.prop." + key,
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "input"
+            };
+        }
+        // 字体选择
+        if("fontFamily" == key) {
+            return {
+                key    : fldKey || "fontFamily",
+                title  : title || "i18n:hmaker.prop.fontFamily",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "droplist",
+                uiConf : {
+                    value : function(it){return it;},
+                    emptyItem : {},
+                    items:[
+                        "Verdana",
+                        "Arial",
+                        "Consolas",
+                        "Times New Roman",
+                        "Comic Sans MS",
+                        "Courier New",
+                    ]}
+            };
+        }
+        // 字体风格
+        if("_font" == key) {
+            return {
+                key    : fldKey || "_font",
+                title  : title || "i18n:hmaker.prop._font",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "object",
+                simpleKey : true,
+                editAs : "switch",
+                uiConf : {
+                    multi : true,
+                    singleKeepOne : false,
+                    items:[
+                        {icon:'<i class="fa fa-bold"></i>',value:"bold"},
+                        {icon:'<i class="fa fa-italic"></i>',value:"italic"},
+                        {icon:'<i class="fa fa-underline"></i>',value:"underline"},
+                    ]}
+            };
+        }
+        // 不带 justify 的 textAlign
+        if("_align" == key) {
+            return {
+                key    : fldKey || "textAlign",
+                title  : title || "i18n:hmaker.prop._align",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "switch",
+                uiConf : {
+                    singleKeepOne : false,
+                    items:[
+                        {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
+                        {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
+                        {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
+                    ]}
+            };
+        }
+        // 全本 textAlign
+        if("textAlign" == key) {
+            return {
+                key    : fldKey || "textAlign",
+                title  : title || "i18n:hmaker.prop.textAlign",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "switch",
+                uiConf : {
+                    singleKeepOne : false,
+                    items:[
+                        {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
+                        {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
+                        {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
+                        {tip:"i18n:hmaker.prop.ta_justify", value:"justify", icon:'<i class="zmdi zmdi-format-align-justify"></i>'},
+                    ]}
+            };
+        }
+        if(/^((color)|(border(Left|Right|Bottom|Top)?Color))$/.test(key)) {
+            return {
+                key    : fldKey || "color",
+                title  : title || "i18n:hmaker.prop.color",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "color",
+            };
+        }
+        if("background" == key) {
+            return {
+                key    : fldKey || "background",
+                title  : title || "i18n:hmaker.prop.background",
+                tip    : tip,
+                dft    : dft || null,
+                type   : "object",
+                simpleKey : true,
+                nullAsUndefined : true,
+                editAs : "background",
+                uiConf : UI.getBackgroundImageEditConf()
+            };
+        }
+        if("overflow" == key) {
+            return {
+                key    : fldKey || "overflow",
+                title  : title || "i18n:hmaker.prop.overflow",
+                tip    : tip,
+                dft    : dft || "",
+                type   : "string",
+                simpleKey : true,
+                editAs : "switch", 
+                uiConf : {
+                    singleKeepOne : false,
+                    items : [{
+                        text : 'i18n:hmaker.prop.overflow_visible',
+                        val  : 'visible',
+                    }, {
+                        text : 'i18n:hmaker.prop.overflow_auto',
+                        val  : 'auto',
+                    }, {
+                        text : 'i18n:hmaker.prop.overflow_hidden',
+                        val  : 'hidden',
+                    }]
+                }
+            };
+        } // end overflow
     },
     //=========================================================
 }; // ~End methods

@@ -94,6 +94,7 @@ public abstract class AbstractCom implements HmComHandler {
     }
 
     private static Pattern _P = Pattern.compile("^#([BCL])>(.+)$");
+    private static Pattern _P2 = Pattern.compile("^\\+([A-Za-z_-]+):([^\\(]+)$");
 
     @SuppressWarnings("unchecked")
     private void __prepare_block_css_and_skin_attributes(HmPageTranslating ing) {
@@ -123,9 +124,10 @@ public abstract class AbstractCom implements HmComHandler {
             // 皮肤属性
             if (key.startsWith("sa-")) {
                 ing.skinAttributes.put(key, val);
+                continue;
             }
             // _font
-            else if ("_font".equals(key)) {
+            if ("_font".equals(key)) {
                 String[] ff = Castors.me().castTo(val, String[].class);
                 if (Lang.contains(ff, "underline")) {
                     ing.cssArena.put("textDecoration", "underline");
@@ -134,41 +136,56 @@ public abstract class AbstractCom implements HmComHandler {
                 } else if (Lang.contains(ff, "italic")) {
                     ing.cssArena.put("fontStyle", "italic");
                 }
+                continue;
             }
-            // 那么必然是样式
-            else if (!key.startsWith("_")) {
-                // 自定义样式
-                Matcher m = _P.matcher(key);
-                if (m.find()) {
-                    String propType = m.group(1);
-                    String selector = m.group(2);
-                    NutMap prop;
-                    // 属性的集合
-                    if (val instanceof Map) {
-                        prop = NutMap.WRAP((Map<String, Object>) val);
-                    }
-                    // 背景
-                    else if ("B".equals(propType)) {
-                        prop = Lang.map("background", val);
-                    }
-                    // 前景色
-                    else if ("C".equals(propType)) {
-                        prop = Lang.map("color", val);
-                    }
-                    // 边线色
-                    else {
-                        prop = Lang.map("border-color", val);
-                    }
-                    ing.addMySkinRule(selector, prop);
+            // 需要无视的属性
+            if (key.startsWith("_"))
+                continue;
+
+            // 自定义颜色
+            Matcher m = _P.matcher(key);
+            if (m.find()) {
+                String propType = m.group(1);
+                String selector = m.group(2);
+                NutMap prop;
+                // 属性的集合
+                if (val instanceof Map) {
+                    prop = NutMap.WRAP((Map<String, Object>) val);
                 }
-                // 属性集合
-                else if (val instanceof Map) {
-                    ing.cssArena.putAll((Map<? extends String, ? extends Object>) val);
+                // 背景
+                else if ("B".equals(propType)) {
+                    prop = Lang.map("background", val);
                 }
-                // 其他的就属于内容区域的 CSS
+                // 前景色
+                else if ("C".equals(propType)) {
+                    prop = Lang.map("color", val);
+                }
+                // 边线色
                 else {
-                    ing.cssArena.put(key, val);
+                    prop = Lang.map("border-color", val);
                 }
+                ing.addMySkinRule(selector, prop);
+                continue;
+            }
+
+            m = _P2.matcher(key);
+            if (m.find()) {
+                String propName = m.group(1);
+                String selector = m.group(2);
+                // 得到属性名
+                String p_nm = "_align".equals(propName) ? "textAlign" : propName;
+                // 添加到自定义规则里
+                ing.addMySkinRule(selector, Lang.map(p_nm, val));
+                continue;
+            }
+
+            // 属性集合
+            if (val instanceof Map) {
+                ing.cssArena.putAll((Map<? extends String, ? extends Object>) val);
+            }
+            // 其他的就属于内容区域的 CSS
+            else {
+                ing.cssArena.put(key, val);
             }
         }
 

@@ -462,7 +462,7 @@ var methods = {
             if(_.isNull(v) || _.isUndefined(v))
                 continue;
 
-            // 自定义皮肤选择器样式
+            // 自定义快捷颜色
             var m = /^#([BCL])>(.+)$/.exec(key);
             if(m) {
                 var propType = m[1];
@@ -487,9 +487,30 @@ var methods = {
                 // 添加到自定义规则里
                 UI.addMySkinRule(selector, prop)
                 css[key] = "";
+
+                // 下一个
+                continue;
             }
+
+            // 自定义CSS属性
+            m = /^\+([A-Za-z_-]+):([^\(]+)$/.exec(key);
+            if(m) {
+                var a_tp  = m[1];
+                var a_sel = m[2];
+                // 得到属性名
+                var p_nm = "_align"==a_tp ? "textAlign" : a_tp;
+                //var p_nm = a_tp;
+
+                // 添加到自定义规则里
+                UI.addMySkinRule(a_sel, $z.obj(p_nm, v));
+                css[key] = "";
+
+                // 下一个
+                continue;
+            }
+
             // 集合属性
-            else if(_.isObject(v)) {
+            if(_.isObject(v)) {
                 css[key] = "";
                 _.extend(css, v);
             }

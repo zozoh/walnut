@@ -240,7 +240,7 @@ return ZUI.def("ui.form_com_background", {
     },
     //...............................................................
     __get_background : function(){
-        return this.$el.data("@BG") || {};
+        return _.extend({}, this.$el.data("@BG"));
     },
     //...............................................................
     __update : function(bg, mergeData) {
@@ -248,7 +248,7 @@ return ZUI.def("ui.form_com_background", {
 
         // 解析，确保是对象
         var bgo = CssP.parseBackground(bg);
-        //console.log("A:", bgo);
+        //console.log("A:", bgo, bg);
 
         // 与老的属性融合
         if(mergeData) {

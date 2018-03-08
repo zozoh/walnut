@@ -326,6 +326,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 uiWidth: "all",
                 on_change : function(key, val) {
                     var block = this.getData();
+                    //console.log("block", block)
                     UI.uiCom.saveBlock("panel", block);
                     UI.pageUI().invokeSkin("ready");
                     UI.pageUI().invokeSkin("resize");
@@ -387,256 +388,134 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             if(!_.isString(key)) {
                 re.push(_.extend({}, key));
             }
-            // 显示简单输入框的
-            else if(/^(padding|margin|border|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight)$/.test(key)) {
-                re.push({
-                    key    : key,
-                    title  : "i18n:hmaker.prop." + key,
-                    type   : "string",
-                    editAs : "input"
-                });
+
+            // 看看是不是直接就是 CSS 属性
+            var fld = UI.getCssFieldConf(key);
+            if(fld) {
+                re.push(fld);
+                continue;
             }
-            // 字体选择
-            else if("fontFamily" == key) {
-                re.push({
-                    key    : "fontFamily",
-                    title  : "i18n:hmaker.prop.fontFamily",
-                    type   : "string",
-                    dft    : "",
-                    editAs : "droplist",
-                    uiConf : {
-                        value : function(it){return it;},
-                        emptyItem : {},
-                        items:[
-                            "Verdana",
-                            "Arial",
-                            "Consolas",
-                            "Times New Roman",
-                            "Comic Sans MS",
-                            "Courier New",
-                        ]}
-                });
-            }
-            // 字体风格
-            else if("_font" == key) {
-                re.push({
-                    key    : "_font",
-                    title  : "i18n:hmaker.prop._font",
-                    type   : "object",
-                    dft    : "",
-                    editAs : "switch",
-                    uiConf : {
-                        multi : true,
-                        singleKeepOne : false,
-                        items:[
-                            {icon:'<i class="fa fa-bold"></i>',value:"bold"},
-                            {icon:'<i class="fa fa-italic"></i>',value:"italic"},
-                            {icon:'<i class="fa fa-underline"></i>',value:"underline"},
-                        ]}
-                });
-            }
-            // 不带 justify 的 textAlign
-            else if("_align" == key) {
-                re.push({
-                    key    : "textAlign",
-                    title  : "i18n:hmaker.prop._align",
-                    type   : "string",
-                    dft    : "",
-                    editAs : "switch",
-                    uiConf : {
-                        singleKeepOne : false,
-                        items:[
-                            {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
-                            {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
-                            {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
-                        ]}
-                });
-            }
-            // 全本 textAlign
-            else if("textAlign" == key) {
-                re.push({
-                    key    : "textAlign",
-                    title  : "i18n:hmaker.prop.textAlign",
-                    type   : "string",
-                    dft    : "",
-                    editAs : "switch",
-                    uiConf : {
-                        singleKeepOne : false,
-                        items:[
-                            {tip:"i18n:hmaker.prop.ta_left",    value:"left",    icon:'<i class="zmdi zmdi-format-align-left"></i>'},
-                            {tip:"i18n:hmaker.prop.ta_center",  value:"center",  icon:'<i class="zmdi zmdi-format-align-center"></i>'},
-                            {tip:"i18n:hmaker.prop.ta_right",   value:"right",   icon:'<i class="zmdi zmdi-format-align-right"></i>'},
-                            {tip:"i18n:hmaker.prop.ta_justify", value:"justify", icon:'<i class="zmdi zmdi-format-align-justify"></i>'},
-                        ]}
-                });
-            }
-            else if("color" == key) {
-                re.push({
-                    key    : "color",
-                    title  : "i18n:hmaker.prop.color",
-                    type   : "string",
-                    editAs : "color",
-                });
-            }
-            else if("background" == key) {
-                re.push({
-                    key    : "background",
-                    title  : "i18n:hmaker.prop.background",
-                    type   : "object",
-                    nullAsUndefined : true,
-                    editAs : "background",
-                    uiConf : UI.getBackgroundImageEditConf()
-                });
-            }
-            else if("overflow" == key) {
-                re.push({
-                    key    : "overflow",
-                    title  : "i18n:hmaker.prop.overflow",
-                    type   : "string",
-                    dft    : "",
-                    editAs : "switch", 
-                    uiConf : {
-                        singleKeepOne : false,
-                        items : [{
-                            text : 'i18n:hmaker.prop.overflow_visible',
-                            val  : 'visible',
-                        }, {
-                            text : 'i18n:hmaker.prop.overflow_auto',
-                            val  : 'auto',
-                        }, {
-                            text : 'i18n:hmaker.prop.overflow_hidden',
-                            val  : 'hidden',
-                        }]
-                    }
-                });
-            }
-            // 看看是否是自定义属性
-            else {
-                // 颜色选择模式
-                m = /^(#([BCL])> *[^\(=)]+)(\(([^\)]+)\))(=(.*))?/
-                        .exec(key);
-                if(m) {
-                    var a_key = m[1];
-                    var a_tp  = m[2];
-                    var a_txt = m[4] || m[1];
-                    var a_dft = m[6] || null;
-                    // 背景
-                    if("B" == a_tp) {
-                        re.push({
-                            key    : a_key,
-                            title  : a_txt,
-                            type   : "object",
-                            simpleKey : true,
-                            dft    : a_dft,
-                            nullAsUndefined : true,
-                            editAs : "background",
-                            uiConf : UI.getBackgroundImageEditConf()
-                        });
-                    }
-                    // 前景
-                    else  if("C" == a_tp) {
-                        re.push({
-                            key    : a_key,
-                            title  : a_txt,
-                            type   : "string",
-                            simpleKey : true,
-                            dft    : a_dft,
-                            editAs : "color",
-                        });
-                    }
-                    // 边框颜色
-                    else if("L" == a_tp) {
-                        re.push({
-                            key    : a_key,
-                            title  : a_txt,
-                            type   : "string",
-                            simpleKey : true,
-                            dft    : a_dft,
-                            editAs : "color",
-                        });
-                    }
-                    // 错误
-                    else {
-                        console.warn("unsupport blockField:", key, UI.uiCom);
-                    }
-                    continue;
+
+            
+            // 自定义颜色选择模式
+            var m = /^(#([BCL])> *[^\(=)]+)(\(([^\)]+)\))(=(.*))?/.exec(key);
+            if(m) {
+                var a_key = m[1];
+                var a_tp  = m[2];
+                var a_txt = m[4] || m[1];
+                var a_dft = m[6] || null;
+                // 背景
+                if("B" == a_tp) {
+                    re.push(UI.getCssFieldConf("background",a_dft,a_txt,null,a_key));
                 }
-                
-                // 布尔模式
-                m = /^@([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\{yes(\/no)?\})(=(yes|no))?/
-                        .exec(key);
-                if(m) {
-                    //console.log(m)
-                    var a_key = m[1];
-                    var a_txt = m[3] || a_key;
-                    var a_dft = m[7] || "no";
-                    // 属性指明了 yes/no
-                    if(m[5] == "/no"){
-                        re.push({
-                            key    : "sa-" + a_key,
-                            title  : a_txt,
-                            type   : "string",
-                            dft    : a_dft,
-                            editAs : "switch",
-                            uiConf : {
-                                singleKeepOne : false,
-                                items : [{
-                                    value : "no",
-                                    text  : "i18n:no"
-                                },{
-                                    value : "yes",
-                                    text  : "i18n:yes"
-                                }]
-                            }
-                        });
-                    }
-                    // 仅仅是属性开关
-                    else {
-                        re.push({
-                            key    : "sa-" + a_key,
-                            title  : a_txt,
-                            type   : "boolean",
-                            dft    : a_dft == "yes",
-                            editAs : "toggle", 
-                        });
-                    }
-                    continue;
+                // 前景
+                else  if("C" == a_tp) {
+                    re.push(UI.getCssFieldConf("color",a_dft,a_txt,null,a_key));
                 }
+                // 边框颜色
+                else if("L" == a_tp) {
+                    re.push(UI.getCssFieldConf("borderColor",a_dft,a_txt,null,a_key));
+                }
+                // 错误
+                else {
+                    console.warn("unsupport blockField:", key, UI.uiCom);
+                }
+                continue;
+            }
 
-                // 列表模式
-                m = /^([@-])([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\[([^\]]+)\])(=(.+))?/.exec(key);
-                if(m) {
-                    // console.log(m)
-                    var a_etp = m[1];
-                    var a_key = m[2];
-                    var a_txt = m[4] || a_key;
-                    var a_val = m[6];
-                    var a_dft = m[8];
+            // 尺度设置模式
+            // +[name]: [selector] ([title]/[tip])
+            // +margin: > ul > li  (内边距/按钮的内边距)
+            m = /^(\+([A-Za-z_-]+):([^\(]+))\(([^\/\)]+)(\/([^\)]+))?\)$/.exec(key);
+            if(m) {
+                var a_key = m[1];
+                var a_tp  = m[2];
+                var a_sel = m[3];
+                var a_txt = m[4];
+                var a_tip = m[6];
 
-                    // 解析值列表
-                    var items = UI.parseStringItems(a_val);
+                //console.log(m)
+                fld = UI.getCssFieldConf(a_tp, null, a_txt, a_tip, a_key);
+                if(fld)
+                    re.push(fld);
 
-                    // 默认值
-                    a_dft = a_dft || undefined;
-
-                    // 加入字段
+                continue;
+            }
+            
+            // 布尔模式
+            m = /^@([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\{yes(\/no)?\})(=(yes|no))?/
+                    .exec(key);
+            if(m) {
+                //console.log(m)
+                var a_key = m[1];
+                var a_txt = m[3] || a_key;
+                var a_dft = m[7] || "no";
+                // 属性指明了 yes/no
+                if(m[5] == "/no"){
                     re.push({
                         key    : "sa-" + a_key,
                         title  : a_txt,
                         type   : "string",
                         dft    : a_dft,
-                        editAs : a_etp == "-" ? "droplist" : "switch",
+                        editAs : "switch",
                         uiConf : {
-                            items:items,
-                        } 
+                            singleKeepOne : false,
+                            items : [{
+                                value : "no",
+                                text  : "i18n:no"
+                            },{
+                                value : "yes",
+                                text  : "i18n:yes"
+                            }]
+                        }
                     });
-
-                    continue;
                 }
-
-                // 还是搞不定，那么打印一个警告无视它
-                console.warn("unsupport blockField:", key, UI.uiCom);
+                // 仅仅是属性开关
+                else {
+                    re.push({
+                        key    : "sa-" + a_key,
+                        title  : a_txt,
+                        type   : "boolean",
+                        dft    : a_dft == "yes",
+                        editAs : "toggle", 
+                    });
+                }
+                continue;
             }
+
+            // 列表模式
+            m = /^([@-])([0-9a-zA-Z_-]+)(\(([^\)]+)\))?(\[([^\]]+)\])(=(.+))?/.exec(key);
+            if(m) {
+                // console.log(m)
+                var a_etp = m[1];
+                var a_key = m[2];
+                var a_txt = m[4] || a_key;
+                var a_val = m[6];
+                var a_dft = m[8];
+
+                // 解析值列表
+                var items = UI.parseStringItems(a_val);
+
+                // 默认值
+                a_dft = a_dft || undefined;
+
+                // 加入字段
+                re.push({
+                    key    : "sa-" + a_key,
+                    title  : a_txt,
+                    type   : "string",
+                    dft    : a_dft,
+                    editAs : a_etp == "-" ? "droplist" : "switch",
+                    uiConf : {
+                        items:items,
+                    } 
+                });
+
+                continue;
+            }
+
+            // 还是搞不定，那么打印一个警告无视它
+            console.warn("unsupport blockField:", key, UI.uiCom);
         }
         
         // 返回字段列表
