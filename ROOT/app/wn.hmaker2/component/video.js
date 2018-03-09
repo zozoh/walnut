@@ -53,7 +53,7 @@ return ZUI.def("app.wn.hm_com_video", {
             var jVid = $('<img>').appendTo(jCon);
             jVid.attr("src", imgSrc);
             // 播放图标
-            $('<div m="play"><i class="zmdi zmdi-play"></i></div>').appendTo(jCon);
+            $('<div m="play"><b><i class="zmdi zmdi-play"></i></b></div>').appendTo(jCon);
         }
         // 显示空区域
         else {

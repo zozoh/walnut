@@ -55,9 +55,9 @@ public class hmc_video extends AbstractNoneValueCom {
 
             // 增加一层覆盖层
             eleCon.append("<div class=\"hmcv-s-load\"><i class=\"zmdi zmdi-spinner zmdi-hc-spin\"></i></div>");
-            eleCon.append("<div class=\"hmcv-s-play\"><i class=\"zmdi zmdi-play\"></i></div>");
-            eleCon.append("<div class=\"hmcv-s-pause\"><i class=\"zmdi zmdi-pause\"></i></div>");
-            eleCon.append("<div class=\"hmcv-s-replay\"><i class=\"zmdi zmdi-replay\"></i></div>");
+            eleCon.append("<div class=\"hmcv-s-play\"><b><i class=\"zmdi zmdi-play\"></i></b></div>");
+            eleCon.append("<div class=\"hmcv-s-pause\"><b><i class=\"zmdi zmdi-pause\"></i></b></div>");
+            eleCon.append("<div class=\"hmcv-s-replay\"><b><i class=\"zmdi zmdi-replay\"></i></b></div>");
         }
 
         // ...........................................
