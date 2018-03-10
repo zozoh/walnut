@@ -378,6 +378,16 @@ var MVs = {
         MVing.sensorFunc = {};
         MVing.currentSensor = [];
 
+        // 加入自定义的感应器
+        if(_.isArray(opt.sensors)){
+            MVing.sensors = MVing.sensors.concat(opt.sensors);
+        }
+        // 动态计算的感应器
+        else if(_.isFunction(opt.sensors)) {
+            var ses = opt.sensors.call(MVing);
+            MVing.sensors = MVing.sensors.concat(ses);
+        }
+
         // 内置滚动感应器
         if(opt.scrollSensor) {
             var ss   = opt.scrollSensor;
@@ -436,16 +446,6 @@ var MVs = {
                     }
                 );
             }
-        }
-
-        // 加入自定义的感应器
-        if(_.isArray(opt.sensors)){
-            MVing.sensors = MVing.sensors.concat(opt.sensors);
-        }
-        // 动态计算的感应器
-        else if(_.isFunction(opt.sensors)) {
-            var ses = opt.sensors.call(MVing);
-            MVing.sensors = MVing.sensors.concat(ses);
         }
 
         // 加入自定义的感应器方法
@@ -641,7 +641,7 @@ var MVs = {
             enter : [],
             hover : [],
         };
-        for(var i=0; i<MVing.sensors.length; i++) {
+        for(var i=MVing.sensors.length-1; i>=0; i--) {
             var sen = MVing.sensors[i];
             // 目标中心点为准，看看是不是在感应区内
             if($D.rect.is_in(sen.rect, MVing.rect.current)){

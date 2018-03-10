@@ -640,6 +640,7 @@ return ZUI.def("app.wn.hmaker_page", {
     doActiveCom : function(uiCom) {
         var UI   = this;
         var jCom = uiCom.$el;
+        //console.log("doActiveCom", uiCom);
 
         // 当前已经是激活
         if(jCom.attr("hm-actived"))
@@ -654,6 +655,10 @@ return ZUI.def("app.wn.hmaker_page", {
             "hm-blur" : null,
         });
         $z.invoke(uiCom, "on_actived", [prevCom]);
+
+        // 应用皮肤
+        this.invokeSkin("ready");
+        this.invokeSkin("resize");
 
         // 确保编辑窗体是激活的
         UI._C.iedit.win.focus();
@@ -1431,6 +1436,18 @@ return ZUI.def("app.wn.hmaker_page", {
         // 准备要返回的感应器列表
         var senList = [];
 
+        // 增加 body 感应器
+        if(eMyArea || (_.isBoolean(jCom) && jCom)) {
+            var rcBody = UI.get_edit_win_rect(-30);
+            senList.push({
+                className : "drop-to-body",
+                name : "drop",
+                rect : rcBody,
+                $ele : UI._C.iedit.body,
+                scope : "win",
+            });
+        }
+
         // 增加移除 body 的选项
         // if(eMyArea) {
         //     var rcBody = $D.rect.gen(UI.arena.find(".hmpg-sbar"));
@@ -1477,18 +1494,6 @@ return ZUI.def("app.wn.hmaker_page", {
                 scope : "client",
             });
         });
-
-        // 增加 body 感应器
-        if(eMyArea || (_.isBoolean(jCom) && jCom)) {
-            var rcBody = UI.get_edit_win_rect(-30);
-            senList.push({
-                className : "drop-to-body",
-                name : "drop",
-                rect : rcBody,
-                $ele : UI._C.iedit.body,
-                scope : "win",
-            });
-        }
 
         //console.log(senList);
 

@@ -261,6 +261,7 @@ var methods = {
             // 如果控件再一个 highlight-mode 的布局里面
             var jHMLayout = jCom.closest(".hm-layout[highlight-mode]");
             if(jHMLayout.length > 0) {
+                console.log("haha")
                 // 控件不在高亮区域内
                 // 那么应该激活这个布局，
                 if(jCom.closest('.hm-area[highlight]').length == 0)

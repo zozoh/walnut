@@ -18,8 +18,9 @@ var methods = {
             // 非激活控件，取消
             if(!UI.isActived())
                 return;
-            // 设置高亮模式
-            UI.$el.attr("highlight-mode", "yes");
+            // 无视非高亮模式
+            if(!UI.$el.attr("highlight-mode"))
+                return;
 
             //console.log(jq)
 
@@ -277,6 +278,10 @@ var methods = {
                 jArea.insertAfter(jNext);
             }
         }
+
+        // 应用皮肤
+        this.pageUI().invokeSkin("ready");
+        this.pageUI().invokeSkin("resize");
 
         // 闪动一下做个标记
         $z.blinkIt(jArea);
