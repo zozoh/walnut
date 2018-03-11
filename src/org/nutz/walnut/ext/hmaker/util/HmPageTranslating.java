@@ -575,13 +575,20 @@ public class HmPageTranslating extends HmContext {
      */
     public void addMySkinRule(String selector, NutMap rule) {
         String skin = this.eleCom.attr("skin");
-        if (!Strings.isBlank(skin) && null != selector) {
-            String[] ss = Strings.splitIgnoreBlank(selector);
-            for (int i = 0; i < ss.length; i++) {
-                ss[i] = "." + skin + " " + ss[i];
+        if (!Strings.isBlank(skin)) {
+            if (!Strings.isBlank(selector)) {
+                String[] ss = Strings.splitIgnoreBlank(selector);
+                for (int i = 0; i < ss.length; i++) {
+                    ss[i] = "." + skin + " " + ss[i];
+                }
+                selector = Lang.concat(",", ss).toString();
             }
-            selector = Lang.concat(",", ss).toString();
+            // 仅仅补上皮肤的类选择器
+            else {
+                selector = "." + skin;
+            }
         }
+
         this.addMyRule(selector, rule);
     }
 
