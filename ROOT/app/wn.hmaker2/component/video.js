@@ -35,23 +35,37 @@ return ZUI.def("app.wn.hm_com_video", {
     paint : function(com) {
         var UI = this;
         var oHome = UI.getHomeObj();
-        var jCon = $('<div class="hmc-video-con">').appendTo(UI.arena.empty());
+
+        //console.log("paint", com)
+
+        // 确立 DOM
+        var jCon = UI.arena.find(".hmc-video-con");
+        if(jCon.length == 0)
+            jCon = $('<div class="hmc-video-con">').appendTo(UI.arena.empty());
+        else
+            jCon.find('>div[m]').remove();
+
+        var jImg = jCon.find('>img');
+        if(jImg.length == 0)
+            jImg = $('<img>').appendTo(jCon);
+        
         
         // 加载预览图
         if(com.src) {
-            var imgSrc;
-            // 预览图
-            if(com.poster) {
-                imgSrc = "/o/read/id:"+oHome.id+"/"+com.poster;
-            }
-            // 用视频的预览图
-            else {
-                var oVideo = Wn.fetch(Wn.appendPath(oHome.ph, com.src));
-                imgSrc = "/o/read/"+oVideo.videoc_dir+"/_preview.jpg";
-            }
+            var oVideo = Wn.fetch(Wn.appendPath(oHome.ph, com.src));
+            var vi_src = "/o/read/"+oVideo.videoc_dir+"/_preview.jpg";
+            
             // 显示图片
-            var jVid = $('<img>').appendTo(jCon);
-            jVid.attr("src", imgSrc);
+            jImg.attr("src", vi_src);
+
+            // 视频封面
+            if(com.poster) {
+                var jPoster = $('<div m="poster">').appendTo(jCon)
+                jPoster.css({
+                    "background-image" : 'url("'+("/o/read/id:"+oHome.id+"/"+com.poster)+'")'
+                })
+            }
+
             // 播放图标
             $('<div m="play"><b><i class="zmdi zmdi-play"></i></b></div>').appendTo(jCon);
         }
@@ -64,13 +78,52 @@ return ZUI.def("app.wn.hm_com_video", {
 
         // 显示静音图标
         if(com.muted) {
-            $('<div m="muted"><i class="zmdi zmdi-volume-off"></i></div>').appendTo(jCon);
+            $('<div m="muted"><b><i class="zmdi zmdi-volume-off"></i></b></div>').appendTo(jCon);
         }
         // 显示自动播放图标
         if(com.autoplay) {
-            $('<div m="autoplay"><i class="zmdi zmdi-flash-auto"></i></div>').appendTo(jCon);
+            $('<div m="autoplay"><b><i class="zmdi zmdi-flash-auto"></i></b></div>').appendTo(jCon);
         }
 
+    },
+    //...............................................................
+    // 自定义修改块布局的逻辑
+    applyBlockCss : function(cssCom, cssArena) {
+        // 处理图像的宽高
+        //console.log(cssCom)
+        var jImg = this.arena.find(".hmc-video-con > img");
+        jImg.css({
+            "width"  : $D.dom.isUnset(cssCom.width)  ? "" : "100%",
+            "height" : $D.dom.isUnset(cssCom.height) ? "" : "100%",
+        })
+
+        // 处理文字区域属性
+        this.$el.css(cssCom);
+        this.arena.css(cssArena);
+    },
+    //...............................................................
+    checkBlockMode : function(block) {
+        // 绝对定位的块，必须有宽高
+        if(/^(abs|fix)$/.test(block.mode)) {
+            // 确保定位模式正确
+            if(!block.posBy || "WH" == block.posBy)
+                block.posBy = "TLWH";
+            // 确保有必要的位置属性
+            var css = this.getMyRectCss();
+            // 设置
+            _.extend(block, this.pickCssForMode(css, block.posBy));
+        }
+        // inflow 的块，去掉 top/left/bottom/right 的约束
+        else if("inflow" == block.mode){
+            _.extend(block, {
+                top: "", left:"", bottom:"", right:"", 
+                posBy : "WH"
+            });
+        }
+        // !!! 不支持
+        else {
+            throw "unsupport block mode: '" + block.mode + "'";
+        }
     },
     //...............................................................
     getBlockPropFields : function(block) {

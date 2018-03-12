@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
@@ -22,7 +23,8 @@ public class hmc_video extends AbstractNoneValueCom {
 
         // 图片不存在，那么输出一个假的
         if (Strings.isBlank(src)) {
-            eleCon.attr("no-src", "yes").append("<div class=\"hmcv-s-blank\"><i class=\"fa fa-video\"></i></div>");
+            eleCon.attr("no-src", "yes")
+                  .append("<div class=\"hmcv-s-blank\"><i class=\"fa fa-video\"></i></div>");
         }
         // 否则输出视频标签
         else {
@@ -52,6 +54,23 @@ public class hmc_video extends AbstractNoneValueCom {
 
             // zozoh: src 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
             eleSource.attr("src", src);
+
+            // ..........................................
+            // 处理 CSS
+            NutMap cssVCon = new NutMap();
+            NutMap cssVideo = new NutMap();
+
+            // 如果设置了宽高，则需要指定视频自适应
+            if (!Hms.isUnset(ing.cssEle.getString("width"))) {
+                cssVCon.put("width", "100%");
+                cssVideo.put("width", "100%");
+            }
+            if (!Hms.isUnset(ing.cssEle.getString("height"))) {
+                cssVCon.put("height", "100%");
+                cssVideo.put("height", "100%");
+            }
+            ing.addMyRule(".hmc-video-con", cssVideo);
+            ing.addMyRule("video", cssVideo);
 
             // 增加一层覆盖层
             eleCon.append("<div class=\"hmcv-s-load\"><i class=\"zmdi zmdi-spinner zmdi-hc-spin\"></i></div>");

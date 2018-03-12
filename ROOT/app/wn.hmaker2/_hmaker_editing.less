@@ -439,7 +439,7 @@ ul, ol {list-style: none; margin:0; padding:0;}
 }
 .hmc-image { @noselect(); color:#FFF; 
     position: relative; overflow: hidden; text-decoration: none;
-    img {border:0; display:block;}
+    img {border:0; display:block; vertical-align: bottom;}
     section {
         position: absolute;padding:.08rem;
         bottom:0; left:0; right:0;
@@ -455,37 +455,47 @@ ul, ol {list-style: none; margin:0; padding:0;}
 //............................................................
 // video
 .hm-com-video {
-    width:4rem; height:3rem;
+    display: inline-block; vertical-align: bottom;
 }
 .hmc-video { @noselect();
-    width:100%; height:100%;
     .hmc-video-con {
-        width:100%; height:100%;
         background: #000; position: relative;
         > img {
-            width:100%; height:100%;
-            object-fit : contain;
+            max-width: 100%; border:0;
+            display: block; vertical-align: bottom;
+            object-fit: contain;
         }
         > div {
             position: absolute; top:0;left:0;right:0;bottom:0;
-            @flex(); padding:.1rem; color:rgba(255,255,0,0.6);
-            b {
-                display: block; padding:.1rem;
-                background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.8);
-                border:1px solid rgba(255,255,255,0.8);
-                border-radius: 50%; 
-                font-size:.3rem; width:.5rem; height:.5rem;
-                @flex(); justify-content: center; align-items: center;
+            @flex(); color:rgba(255,255,0,0.6);
+            &[m="poster"] {
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
             }
             &[m="blank"] {font-size:.32rem; 
+                position: unset;
+                width:4rem; height:3rem;
                 justify-content: center; align-items: center;}
             &[m="play"] {font-size:.5rem; 
                 justify-content: center; align-items: center;
-                b {padding-left:.15rem;}}
+                b {
+                    display: block; padding:.1rem .1rem .1rem .15rem;
+                    background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.8);
+                    border:1px solid rgba(255,255,255,0.8);
+                    border-radius: 50%;  
+                    font-size:.3rem; width:.5rem; height:.5rem;
+                    @flex(); justify-content: center; align-items: center;
+                }}
             &[m="muted"] {font-size:.3rem; 
                 justify-content: flex-end; align-items: flex-end;}
             &[m="autoplay"] {font-size:.3rem; 
                 justify-content: flex-start; align-items: flex-start;}
+            &[m="muted"], &[m="autoplay"] {
+                b {
+                    display: block; padding:.1rem;
+                    background:rgba(0,0,0,0.2); color:rgba(255,255,255,0.6);
+                }
+            }
         }
     }
 }

@@ -571,6 +571,17 @@ var methods = {
         }
         
         // 判断区域是否过小
+        UI.updateAreaSizeMark();
+        
+        // 调用控件特殊的设置
+        $z.invoke(UI, "on_apply_block", [block]);
+        
+    },
+    //...............................................................
+    updateAreaSizeMark : function(){
+        var jCom   = this.$el;
+
+        // 判断区域是否过小
         var comW = jCom.outerWidth();
         var comH = jCom.outerHeight();
 
@@ -582,10 +593,6 @@ var methods = {
         else{
             jCom.removeAttr("hmc-small");
         }
-        
-        // 调用控件特殊的设置
-        $z.invoke(UI, "on_apply_block", [block]);
-        
     },
     //...............................................................
     appendToArea : function(eArea, quiet) {
@@ -788,11 +795,11 @@ module.exports = function(uiCom){
         // 试图调用一下组件自定义的 redraw
         $z.invoke(ME, "_redraw_com", []);
         
-        // 绘制布局
-        ME.applyBlock(ME.getBlock());
-        
         // 绘制外观
         ME.paint(ME.getData());
+
+        // 绘制布局
+        ME.applyBlock(ME.getBlock());
     };
     // 判断一下是针对 Com 实例还是 Com 的定义
     if(uiCom.$ui) {

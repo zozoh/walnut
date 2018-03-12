@@ -218,7 +218,7 @@ return ZUI.def("app.wn.hm_com_image", {
             // 设置
             _.extend(block, this.pickCssForMode(css, block.posBy));
         }
-        // inflow 的块，高度应该为 auto
+        // inflow 的块，去掉 top/left/bottom/right 的约束
         else if("inflow" == block.mode){
             _.extend(block, {
                 top: "", left:"", bottom:"", right:"", 

@@ -660,6 +660,9 @@ return ZUI.def("app.wn.hmaker_page", {
         this.invokeSkin("ready");
         this.invokeSkin("resize");
 
+        // 判断区域是否过小
+        uiCom.updateAreaSizeMark();
+
         // 确保编辑窗体是激活的
         UI._C.iedit.win.focus();
     },
