@@ -436,8 +436,13 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
                 //console.log(m)
                 fld = UI.getCssFieldConf(a_tp, null, a_txt, a_tip, a_key);
-                if(fld)
+                if(fld) {
                     re.push(fld);
+                }
+                // 错误
+                else {
+                    console.warn("unsupport blockField:", key, UI.uiCom);
+                }
 
                 continue;
             }

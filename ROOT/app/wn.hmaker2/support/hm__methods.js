@@ -724,8 +724,10 @@ var methods = {
         var UI = this;
 
         // 显示简单输入框的
-        if(/^(padding|margin|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight|maxWidth|maxHeight|minWidth|minHeight)$/.test(key)
-            || /^(border(Top|Bottom|Left|Right)?(Width|Style)?)$/.test(key)) {
+        if(/^(width|height|borderRadius|boxShadow|textShadow|letterSpacing|fontSize|lineHeight|maxWidth|maxHeight|minWidth|minHeight)$/.test(key)
+            || /^(border(Top|Bottom|Left|Right)?(Width|Style)?)$/.test(key)
+            || /^(padding(Top|Bottom|Left|Right)?)$/.test(key)
+            || /^(margin(Top|Bottom|Left|Right)?)$/.test(key)) {
             return {
                 key    : fldKey || key,
                 title  : title || "i18n:hmaker.prop." + key,
