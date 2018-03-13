@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.util.List;
+
 import org.jsoup.nodes.Element;
 import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
@@ -32,5 +34,25 @@ public interface HmComHandler {
      *            要将值填充到的上下文
      */
     void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi);
+
+    /**
+     * 将自己内部锚点信息加入给定列表（不包括自己ID）
+     * 
+     * @param eleCom
+     *            控件对应的元素
+     * @param list
+     *            要填充的列表
+     */
+    void joinAnchorList(Element eleCom, List<String> list);
+
+    /**
+     * 将自己内部动态数据加入给定列表
+     * 
+     * @param eleCom
+     *            控件对应的元素
+     * @param list
+     *            要填充的列表
+     */
+    void joinParamList(Element eleCom, List<String> list);
 
 }

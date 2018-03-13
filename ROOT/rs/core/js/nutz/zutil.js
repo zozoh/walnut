@@ -4548,17 +4548,20 @@
                         if ("?" == s2) {
                             html += '<span><i class="fa fa-question-circle-o"></i></span>';
                         }
-                        // fa
-                        else if (/^fa-.+$/.test(s2)) {
-                            html += '<span><i class="fa ' + s2 + '"></i></span>';
-                        }
-                        // zmdi
-                        else if (/^zmdi-.+$/.test(s2)) {
-                            html += '<span><i class="zmdi ' + s2 + '"></i></span>';
-                        }
-                        // 默认
                         else {
-                            html += '<code>' + m[10] + '</code>';
+                            var mfa = /^(fa[rs]?)-(.+)$/.exec(s2);
+                            // fa
+                            if (mfa) {
+                                html += '<span><i class="' + mfa[1] + " fa-" + mfa[2] + '"></i></span>';
+                            }
+                            // zmdi
+                            else if (/^zmdi-.+$/.test(s2)) {
+                                html += '<span><i class="zmdi ' + s2 + '"></i></span>';
+                            }
+                            // 默认
+                            else {
+                                html += '<code>' + m[10] + '</code>';
+                            }
                         }
                         // 记录标签
                         if (tagNames)

@@ -729,6 +729,16 @@ module.exports = function(uiCom){
             blockBackground : "",
         };
     });
+
+    // 控件的默认获取页内锚点
+    $z.setUndefined(uiCom, "getMyAnchors", function(){
+        return [];
+    });
+
+    // 控件的默认获取本页接受参数
+    $z.setUndefined(uiCom, "getMyParams", function(){
+        return {};
+    });
     
     // 控件的默认数据
     $z.setUndefined(uiCom, "getDefaultData", function(){

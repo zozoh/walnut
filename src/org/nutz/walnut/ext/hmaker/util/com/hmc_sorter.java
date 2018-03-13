@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
+
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -56,4 +58,6 @@ public class hmc_sorter extends AbstractSimpleCom {
         }
     }
 
+    @Override
+    public void joinParamList(Element eleCom, List<String> list) {}
 }

@@ -107,11 +107,20 @@ return ZUI.def("ui.edit_link", {
                                             skin  : uiCom.getComSkin(),
                                             lib   : lib
                                         });
+                                        // 尝试获取控件内锚点
+                                        var ans = uiCom.getMyAnchors();
+                                        for(var x=0; x<ans.length; x++) {
+                                            list.push({
+                                                id     : uiCom.getComId(),
+                                                ctype  : uiCom.getComType(),
+                                                anchor : ans[x],
+                                            });
+                                        }
                                     }
                                     return list;
                                 }
                                 // 否则请求服务器，得到页面控件的列表
-                                Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com',
+                                Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com -dis anchor -nolib',
                                     function(re){
                                         var list = $z.fromJson(re || "[]");
                                         $z.doCallback(callback, [list]);
@@ -119,9 +128,13 @@ return ZUI.def("ui.edit_link", {
                             },
                             escapeHtml : false,
                             icon  : function(o){
+                                if(o.anchor)
+                                    return '<i class="fas fa-anchor"></i>';
                                 return UI.msg('hmaker.com.' + o.ctype + '.icon');
                             },
                             text : function(o) {
+                                if(o.anchor)
+                                    return '<em>#' + o.anchor + '</em>';
                                 var str = '<span>' + o.id + '</span>';
                                 str += '<em>' ;
                                 str += opt.anchorText(o);
@@ -132,7 +145,7 @@ return ZUI.def("ui.edit_link", {
                                 return str;
                             },
                             value : function(o) {
-                                return o.id;
+                                return o.anchor || o.id;
                             },
                         },
                     }

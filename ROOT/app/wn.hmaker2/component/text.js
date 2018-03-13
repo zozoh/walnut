@@ -131,6 +131,17 @@ return ZUI.def("app.wn.hm_com_text", {
         UI.arena.find("h1,h2,h3,h4,h5,h6").addClass("md-header");
     },
     //...............................................................
+    getMyAnchors : function() {
+        var UI = this;
+        var re = [];
+        UI.arena.find('article.md-content a[name]').each(function(){
+            var an = $.trim($(this).attr("name"));
+            if(an)
+                re.push(an);
+        });
+        return re;
+    },
+    //...............................................................
     __tidy_src : function(src, oSiteHome, phPageDir) {
         // 已经被整理过了
         if(/^\/o\/read\/id:/.test(src))

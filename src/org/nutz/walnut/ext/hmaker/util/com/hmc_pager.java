@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jsoup.nodes.Element;
@@ -64,5 +65,8 @@ public class hmc_pager extends AbstractSimpleCom {
         }
 
     }
+
+    @Override
+    public void joinParamList(Element eleCom, List<String> list) {}
 
 }

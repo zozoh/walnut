@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +8,7 @@ import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
@@ -52,16 +54,29 @@ public class hmc_searcher extends AbstractSimpleCom {
 
     @Override
     public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
-        String val = eleCom.attr("default-value");
-        Matcher m = _P.matcher(val);
-        // 动态从参数里读取
-        if (m.find()) {
-            hdsi.update.put(key, "${params." + m.group(1) + "?}");
-        }
-        // 填写默认值
-        else if (!Strings.isBlank(val)) {
-            hdsi.update.put(key, val);
+        String dfv = eleCom.attr("default-value");
+        if (!Strings.isBlank(dfv)) {
+            Matcher m = _P.matcher(dfv);
+            // 动态从参数里读取
+            if (m.find()) {
+                hdsi.update.put(key, "${params." + m.group(1) + "?}");
+            }
+            // 填写默认值
+            else {
+                hdsi.update.put(key, dfv);
+            }
         }
     }
 
+    @Override
+    public void joinParamList(Element eleCom, List<String> list) {
+        NutMap propCom = Hms.loadProp(eleCom, "hm-prop-com", false);
+        String dfv = propCom.getString("defaultValue");
+        if (!Strings.isBlank(dfv)) {
+            Matcher m = _P.matcher(dfv);
+            if (m.find()) {
+                list.add(m.group(1));
+            }
+        }
+    }
 }

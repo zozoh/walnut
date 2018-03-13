@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jsoup.nodes.Element;
@@ -58,6 +59,20 @@ public class hmc_filter extends AbstractSimpleCom {
         // 默认值
         if (!Strings.isBlank(json)) {
             hdsi.appends.add(Json.fromJson(NutMap.class, json));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void joinParamList(Element eleCom, List<String> list) {
+        if ("yes".equals(eleCom.attr("hm-loadreq"))) {
+            NutMap propCom = Hms.loadProp(eleCom, "hm-prop-com", false);
+            List<Map<String, Object>> fields = propCom.getAs("fields", List.class);
+            for (Map<String, Object> fld : fields) {
+                Object name = fld.get("name");
+                if (null != name)
+                    list.add(name.toString());
+            }
         }
     }
 }

@@ -1,16 +1,39 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
+import org.nutz.walnut.ext.hmaker.util.Hms;
 
 public class hmc_text extends AbstractNoneValueCom {
+
+    private static final Pattern P1 = Pattern.compile("\\[#(.+)\\]\\([^)]*\\)");
 
     @Override
     protected String getArenaClassName() {
         return "hmc-text";
+    }
+
+    @Override
+    public void joinAnchorList(Element eleCom, List<String> list) {
+        NutMap propCom = Hms.loadProp(eleCom, "hm-prop-com", false);
+        String code = propCom.getString("code", "");
+        String ttp = propCom.getString("contentType", "auto");
+
+        if ("markdown".equals(ttp) || ("auto".equals(ttp) && code.contains("\n"))) {
+            Pattern p = P1;
+            Matcher m = p.matcher(code);
+            while (m.find()) {
+                list.add(m.group(1));
+            }
+        }
     }
 
     @Override

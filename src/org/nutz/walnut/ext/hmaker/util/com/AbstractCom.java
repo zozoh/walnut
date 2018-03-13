@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -283,4 +284,6 @@ public abstract class AbstractCom implements HmComHandler {
 
     protected abstract void _exec(HmPageTranslating ing);
 
+    @Override
+    public void joinAnchorList(Element eleCom, List<String> list) {}
 }
