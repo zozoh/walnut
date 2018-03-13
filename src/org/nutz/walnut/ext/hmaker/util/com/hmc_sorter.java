@@ -4,8 +4,10 @@ import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public class hmc_sorter extends AbstractSimpleCom {
 
@@ -46,8 +48,12 @@ public class hmc_sorter extends AbstractSimpleCom {
     }
 
     @Override
-    public Object getValue(Element eleCom) {
-        return eleCom.attr("default-value");
+    public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
+        String json = eleCom.attr("default-value");
+        if (!Strings.isBlank(json)) {
+            NutMap map = Json.fromJson(NutMap.class, json);
+            hdsi.update.putAll(map);
+        }
     }
 
 }

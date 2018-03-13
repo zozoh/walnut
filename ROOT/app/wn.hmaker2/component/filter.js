@@ -46,7 +46,7 @@ return ZUI.def("app.wn.hm_com_filter", {
             UI.__save_defaultValue();
         },
         // 清除全部选项
-        "click .fld-info em" : function(e){
+        "click .fld-info" : function(e){
             var UI = this;
 
             // 在激活的组件内容才生效
@@ -133,7 +133,21 @@ return ZUI.def("app.wn.hm_com_filter", {
 
         // 同步折叠项的状态
         UI.__sync_folder();
-        
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 标识动态读取请求参数
+        if(com.loadreq) {
+            $('<div class="hmcf-loadreq">')
+                .text('REQ').attr({
+                    "data-balloon"     : UI.msg("hmaker.com.filter.loadreq_tip"),
+                    "data-balloon-pos" : "right",
+                }).appendTo(UI.arena);
+            UI.$el.attr("hm-loadreq", "yes");
+        }
+        // 否则去掉标识
+        else {
+            UI.$el.removeAttr("hm-loadreq");
+        }
     },
     //...............................................................
     getComValue : function() {

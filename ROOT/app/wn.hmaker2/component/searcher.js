@@ -39,7 +39,26 @@ return ZUI.def("app.wn.hm_com_searcher", {
                 icon = '<i class="zmdi zmdi-link"></i>';
             }
             $('<aside>').html(icon).appendTo(UI.arena);
-        }        
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 标识动态读取请求参数
+        var m = /^@<([^>]+)>$/.exec(com.defaultValue);
+        if(m) {
+            $('<div class="hmcs-loadreq">')
+                .text(m[1]).attr({
+                    "data-balloon"     : UI.msg("hmaker.com.searcher.loadreq_tip", {
+                            pmnm : m[1]
+                        }),
+                    "data-balloon-pos" : "right",
+                }).appendTo(UI.arena);
+            UI.$el.attr("hm-loadreq", "yes");
+        }
+        // 否则去掉标识
+        else {
+            UI.$el.removeAttr("hm-loadreq");
+        }
+
     },
     //...............................................................
     getComValue : function() {

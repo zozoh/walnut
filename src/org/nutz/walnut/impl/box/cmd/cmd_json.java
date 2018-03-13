@@ -132,8 +132,23 @@ public class cmd_json extends JvmExecutor {
         // 修改模式
         if (params.has("u")) {
             NutMap map = Lang.map(params.get("u"));
-            if (map != null && map.size() > 0) {
+            if (null == obj) {
+                obj = map;
+            }
+            // 修改
+            else if (map != null && map.size() > 0) {
                 obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map);
+            }
+        }
+        // 修改模式（默认值模式）
+        if (params.has("a")) {
+            NutMap map = Lang.map(params.get("a"));
+            if (null == obj) {
+                obj = map;
+            }
+            // 修改
+            else if (map != null && map.size() > 0) {
+                obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map, true);
             }
         }
 

@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public abstract class AbstractLayoutCom extends AbstractCom {
 
@@ -43,8 +44,6 @@ public abstract class AbstractLayoutCom extends AbstractCom {
     }
 
     @Override
-    public Object getValue(Element eleCom) {
-        return null;
-    }
+    public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {}
 
 }

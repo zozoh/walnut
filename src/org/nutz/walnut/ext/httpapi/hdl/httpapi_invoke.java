@@ -18,6 +18,7 @@ import org.nutz.walnut.ext.httpapi.HttpApis;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
 public class httpapi_invoke implements JvmHdl {
@@ -64,7 +65,11 @@ public class httpapi_invoke implements JvmHdl {
 
                 // 写入 query-string
                 if (hc.params.has("get")) {
-                    NutMap qs = hc.params.getMap("get");
+                    String get = hc.params.get("get");
+                    if ("@pipe".equals(get)) {
+                        get = sys.in.readAll();
+                    }
+                    NutMap qs = Lang.map(get);
                     if (null != qs) {
                         for (Map.Entry<String, Object> en : qs.entrySet()) {
                             String key = en.getKey();
@@ -84,7 +89,11 @@ public class httpapi_invoke implements JvmHdl {
 
                 // 写入请求体
                 if (hc.params.has("post")) {
-                    NutMap postMap = hc.params.getMap("post");
+                    String post = hc.params.get("post");
+                    if ("@pipe".equals(post)) {
+                        post = sys.in.readAll();
+                    }
+                    NutMap postMap = Lang.map(post);
                     if (null != postMap) {
                         List<String> list = new ArrayList<>(postMap.size());
                         for (Map.Entry<String, Object> en : postMap.entrySet()) {
@@ -99,7 +108,7 @@ public class httpapi_invoke implements JvmHdl {
                 }
                 // 写入请求 body
                 else if (hc.params.has("body")) {
-                    String body = hc.params.get("body");
+                    String body = Cmds.getParamOrPipe(sys, hc.params, "body", true);
                     sys.io.writeText(oReq, body);
                 }
                 // 根据文件写入 body

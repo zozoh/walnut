@@ -585,6 +585,13 @@ ul, ol {list-style: none; margin:0; padding:0;}
         padding:@d1; color:#FFF; background:rgba(0,0,0,0.3);
         border-radius: 50%; font-size:@f1;
     }
+    .hmcs-loadreq {
+        position: absolute; top:@ddsP; left:@ddsP;
+        @flex(); justify-content: center; align-items: center;
+        background-color: rgba(255,255,0,0.5); color:#000;
+        font-size:.08rem; border-radius: .04rem; padding:@d0 @d3;
+        border:1px solid rgba(0,0,0,0.2); z-index: 1;
+    }
 }
 .hmc-searcher:after {
     display: block; content: ""; background: rgba(0,0,0,0);
@@ -671,6 +678,13 @@ ul, ol {list-style: none; margin:0; padding:0;}
             display: inline-block; padding:@d0 @d4; cursor: pointer;
             border:1px solid #CCC; 
         }
+    }
+    .hmcf-loadreq {
+        position: absolute; top:@ddsP; left:@ddsP;
+        @flex(); justify-content: center; align-items: center;
+        background-color: rgba(255,255,0,0.5); color:#000;
+        font-size:.08rem; border-radius: .04rem; padding:@d0 @d3;
+        border:1px solid rgba(0,0,0,0.2);
     }
 }
 .hmc-filter[folder-show] .hmcf-folder {display: block;}
@@ -835,7 +849,7 @@ ul, ol {list-style: none; margin:0; padding:0;}
 
 //............................................................
 // objlist/objshow 的动态部分
-@ddsP : 6px;
+@ddsP : @d0;
 .hm-com[dynamic-data] {
     .dynamic-keys {
         position: absolute; top:@ddsP; left:@ddsP;

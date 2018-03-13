@@ -5,10 +5,12 @@ import java.util.Map;
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public class hmc_pager extends AbstractSimpleCom {
 
@@ -54,11 +56,13 @@ public class hmc_pager extends AbstractSimpleCom {
     }
 
     @Override
-    public Object getValue(Element eleCom) {
+    public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
         String json = eleCom.attr("default-value");
-        if (!Strings.isBlank(json))
-            return Json.fromJson(NutMap.class, json);
-        return null;
+        if (!Strings.isBlank(json)) {
+            NutMap map = Lang.map(json);
+            hdsi.update.putAll(map);
+        }
+
     }
 
 }

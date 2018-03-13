@@ -114,7 +114,7 @@ return ZUI.def("app.wn.hm_com_pager", {
         return {
             pagerType    : "button",
             freeJump     : true,
-            dftPageSize  : 50,
+            dftPageSize  : 10,
             showFirstLast: "auto",
             showPrevNext : "auto",
             btnFirst     : "|<<",

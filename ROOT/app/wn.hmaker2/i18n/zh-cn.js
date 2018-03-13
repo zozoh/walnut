@@ -371,6 +371,7 @@ define({
                 "postTarget_blank" : "新窗口",
                 "postTarget_self"  : "本窗口",
                 "postParamName" : "提交参数名",
+                "loadreq_tip" : "将从请求参数 \"{{pmnm}}\" 读取搜索关键字",
             },
             "filter" : {
                 "name"  : "筛选条件",
@@ -387,6 +388,8 @@ define({
                 "multi_cancel_txt" : "取消",
                 "fld_more_txt"     : "更多",
                 "fld_less_txt"     : "收起",
+                "loadreq"     : "读取请求参数",
+                "loadreq_tip" : "将按照请求参数表设置每个过滤字段",
                 "btnMultiText"       : "多选按钮文字",
                 "btnExtTextShow"     : "展开按钮文字",
                 "btnExtTextHide"     : "收起按钮文字",

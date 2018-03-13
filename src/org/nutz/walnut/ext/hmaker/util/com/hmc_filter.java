@@ -9,6 +9,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public class hmc_filter extends AbstractSimpleCom {
 
@@ -49,10 +50,14 @@ public class hmc_filter extends AbstractSimpleCom {
     }
 
     @Override
-    public Object getValue(Element eleCom) {
+    public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
         String json = eleCom.attr("default-value");
-        if (!Strings.isBlank(json))
-            return Json.fromJson(NutMap.class, json);
-        return null;
+        if ("yes".equals(eleCom.attr("hm-loadreq"))) {
+            hdsi.loadRequest = true;
+        }
+        // 默认值
+        if (!Strings.isBlank(json)) {
+            hdsi.appends.add(Json.fromJson(NutMap.class, json));
+        }
     }
 }

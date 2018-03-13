@@ -9,6 +9,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public class hmc_searcher extends AbstractSimpleCom {
 
@@ -50,13 +51,17 @@ public class hmc_searcher extends AbstractSimpleCom {
     private final Pattern _P = Pattern.compile("^@<([^>]+)>$");
 
     @Override
-    public Object getValue(Element eleCom) {
+    public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
         String val = eleCom.attr("default-value");
         Matcher m = _P.matcher(val);
+        // 动态从参数里读取
         if (m.find()) {
-            return "${params." + m.group(1) + "?}";
+            hdsi.update.put(key, "${params." + m.group(1) + "?}");
         }
-        return val;
+        // 填写默认值
+        else if (!Strings.isBlank(val)) {
+            hdsi.update.put(key, val);
+        }
     }
 
 }

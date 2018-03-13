@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.nutz.walnut.ext.hmaker.util.HmComHandler;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.ext.hmaker.util.bean.HmApiParamField;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public class hmc_dynamic extends AbstractNoneValueCom {
 
@@ -51,12 +53,10 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             return false;
 
         // 设置内容
-        NutMap reMap = this.__setup_dynamic_content(ing);
-        if (null == reMap)
-            return false;
+        HmcDynamicScriptInfo si = this.__setup_dynamic_content(ing);
 
         // 初始化服务器端数据
-        __add_data_script(ing, eleArena, reMap);
+        __add_data_script(ing, eleArena, si);
 
         // 采用指定的 wnml 代码模板
         if (tmpl.hasDom()) {
@@ -195,15 +195,55 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         return v;
     }
 
-    private void __add_data_script(HmPageTranslating ing, Element eleArena, NutMap reMap) {
+    /**
+     * 力图生成这样的命令结构
+     * 
+     * <pre>
+     * echo '${params(json:cqn)?-obj-}' \
+     *      | json -a '{th_cate:"A"}' \
+     *      | json -u '{pid:"vei7j2ci7mgb9qp4c6a9udm30s",pn:1,pgsz:10,skip:0}' \ 
+     *      | httpapi invoke '/thing/query' -get @pipe
+     * </pre>
+     * 
+     * @param ing
+     *            运行时
+     * @param eleArena
+     *            Arena 元素
+     * @param si
+     *            脚本信息
+     */
+    private void __add_data_script(HmPageTranslating ing,
+                                   Element eleArena,
+                                   HmcDynamicScriptInfo si) {
         String api = ing.propCom.getString("api");
         Element eleDscript = eleArena.appendElement("script");
         eleDscript.addClass("wn-datasource").attr("name", ing.comId).attr("type", "json");
 
-        // 生成命令
+        // 准备生成命令
+        List<String> cmds = new ArrayList<String>(si.appends.size() + 3);
         JsonFormat jfmt = JsonFormat.compact().setQuoteName(false).setIgnoreNull(false);
-        String paramJson = Json.toJson(reMap, jfmt);
-        eleDscript.text("httpapi invoke '" + api + "' -get '" + paramJson + "'");
+
+        // 动态读取参数
+        if (si.loadRequest)
+            cmds.add("echo '${params(json:cqn)?-obj-}'");
+
+        // 追加默认值
+        for (NutMap append : si.appends) {
+            if (null != append && append.size() > 0) {
+                cmds.add("json -a '" + Json.toJson(append, jfmt) + "'");
+            }
+        }
+
+        // 一定要更新的值
+        if (null != si.update && si.update.size() > 0) {
+            cmds.add("json -u '" + Json.toJson(si.update, jfmt) + "'");
+        }
+
+        // 最后调用命令
+        cmds.add("httpapi invoke '" + api + "' -get @pipe");
+
+        // 加入 DOM
+        eleDscript.text(Strings.join(" | ", cmds));
     }
 
     /**
@@ -211,8 +251,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
      *            运行时上下文
      * @return 格式化后用来生成服务器运行脚本的参数表, null 表示本控件内容无效
      */
-    @SuppressWarnings("unchecked")
-    private NutMap __setup_dynamic_content(HmPageTranslating ing) {
+    private HmcDynamicScriptInfo __setup_dynamic_content(HmPageTranslating ing) {
         NutMap com = ing.propCom;
         // 没模板，删掉
         String templateName = com.getString("template");
@@ -254,7 +293,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         com.put("tmplInfo", tmpl.info);
 
         // 准备返回的参数表
-        NutMap reMap = new NutMap();
+        HmcDynamicScriptInfo hdsi = new HmcDynamicScriptInfo();
 
         // 格式化参数表
         NutMap apiParams = oApi.getAs("params", NutMap.class);
@@ -286,51 +325,22 @@ public class hmc_dynamic extends AbstractNoneValueCom {
 
                         // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
                         if ("@".equals(p_tp)) {
-                            reMap.put(key, "${params." + p_val + "?" + p_arg + "}");
+                            hdsi.update.put(key, "${params." + p_val + "?" + p_arg + "}");
                         }
-                        // 来自控件 "#<filter_1>"
+                        // 来自控件，譬如 "#<filter_1>"
                         else if ("#".equals(p_tp)) {
                             // TODO 得到控件的值
-                            Object comVal = this.__get_com_val(ing, p_val);
+                            this.__load_com_val(ing, p_val, key, hdsi);
 
-                            // 合并到输出参数表里
-                            if (null != comVal) {
-                                // 控件生成一组参数，要合并
-                                if (comVal instanceof Map) {
-                                    Map<String, Object> map = (Map<String, Object>) comVal;
-
-                                    // 解析参数，得到映射信息
-                                    if (null != apiParams) {
-                                        Object apiParamField = apiParams.get(key);
-                                        HmApiParamField fld = parseParamFieldSetting(apiParamField);
-                                        if (null != fld.mapping) {
-                                            NutMap map2 = new NutMap();
-                                            for (Map.Entry<String, Object> en : fld.mapping.entrySet()) {
-                                                Object v2 = map.get(en.getValue());
-                                                map2.put(en.getKey(), v2);
-                                            }
-                                            reMap.putAll(map2);
-                                        }
-                                        // 没有映射就不映射
-                                        else {
-                                            reMap.putAll(map);
-                                        }
-                                    }
-                                    // 直接加入
-                                    else {
-                                        reMap.putAll(map);
-                                    }
-                                }
-                                // 控件只是返回一个字符串作为数据
-                                else {
-                                    reMap.put(key, comVal);
-                                }
-                            }
+                            // 解析参数，得到映射信息
+                            __do_params_mapping(apiParams, key, hdsi.update);
+                            for (NutMap append : hdsi.appends)
+                                __do_params_mapping(apiParams, key, append);
                         }
                     }
                     // 其他就是静态参数
                     else {
-                        reMap.put(key, str);
+                        hdsi.update.put(key, str);
                     }
                 }
             }
@@ -372,33 +382,40 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         com.put("options", options);
 
         // 返回成功
-        return reMap;
+        return hdsi;
     }
 
-    private Object __get_com_val(HmPageTranslating ing, String comId) {
+    private void __do_params_mapping(NutMap apiParams, String key, NutMap map) {
+        if (null != apiParams && map.size() > 0) {
+            Object apiParamField = apiParams.get(key);
+            HmApiParamField fld = parseParamFieldSetting(apiParamField);
+            if (null != fld.mapping) {
+                NutMap map2 = new NutMap();
+                for (Map.Entry<String, Object> en : fld.mapping.entrySet()) {
+                    Object v2 = map.get(en.getValue());
+                    map2.put(en.getKey(), v2);
+                }
+                map.clear();
+                map.putAll(map2);
+            }
+        }
+    }
+
+    private void __load_com_val(HmPageTranslating ing,
+                                String comId,
+                                String key,
+                                HmcDynamicScriptInfo hdsi) {
         Element taCom = ing.doc.getElementById(comId);
 
         if (null == taCom)
-            return null;
+            return;
 
         // 根据组件类型得到实例
         String ctype = taCom.attr("ctype");
         HmComHandler com = Hms.COMs.check(ctype);
 
         // 返回控件的值
-        Object val = com.getValue(taCom);
-
-        // 空值
-        if (null == val)
-            return null;
-
-        // 空字符串当做 null 来看
-        if (val instanceof CharSequence) {
-            return Strings.sBlank(val.toString(), null);
-        }
-
-        // 嗯，那么就应该是一个 Map 咯
-        return val;
+        com.loadValue(taCom, key, hdsi);
     }
 
     /**

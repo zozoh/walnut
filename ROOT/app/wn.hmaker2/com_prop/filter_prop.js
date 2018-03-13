@@ -193,6 +193,12 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
                 UI.uiCom.saveData("panel", $z.obj(key, val), true);
             },
             fields  : [{
+                key    : "loadreq",
+                title  : 'i18n:hmaker.com.filter.loadreq',
+                type   : "boolean",
+                dft    : false,
+                uiType : "@toggle"
+            }, {
                 key : "btnExtTextShow",
                 title : "i18n:hmaker.com.filter.btnExtTextShow",
                 dft   : UI.msg("hmaker.com.filter.ext_show"),

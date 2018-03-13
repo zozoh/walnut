@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util;
 
 import org.jsoup.nodes.Element;
+import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
 public interface HmComHandler {
 
@@ -22,10 +23,14 @@ public interface HmComHandler {
     /**
      * 根据当前控件的信息，获取控件的值（主要给 hmc_dynamic用）
      * 
-     * @param eleCom 控件对应的元素
-     * 
-     * @return 控件的值
+     * @param eleCom
+     *            控件对应的元素
+     * @param key
+     *            控件要填充值的 key，对于复杂值，通常 key 为 `_` 开头，譬如 `_flt`<br>
+     *            这个实现类通常应该将其融合进 si 里
+     * @param hdsi
+     *            要将值填充到的上下文
      */
-    Object getValue(Element eleCom);
+    void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi);
 
 }

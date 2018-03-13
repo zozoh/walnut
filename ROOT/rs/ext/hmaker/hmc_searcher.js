@@ -100,6 +100,7 @@ $.fn.extend({ "hmc_searcher" : function(opt){
         "placeholder" : opt.placeholder || null,
         "maxlength"   : opt.maxLen > 0 ? opt.maxLen : null,
         "trim-space"  : opt.trimSpace ? "yes" : null,
+        "spellcheck"  : false,
     }).val(kwd);
 
     // 按钮文字

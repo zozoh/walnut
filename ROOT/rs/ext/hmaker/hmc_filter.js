@@ -39,7 +39,7 @@ function __draw_fld(opt, fld, jList) {
     });
     
     // 绘制字段标题
-    var jFldInfo = $('<span class="fld-info">').appendTo(jFld);
+    var jFldInfo = $('<span class="fld-info" none-checked="yes">').appendTo(jFld);
     $('<em>').text(fld.text).appendTo(jFldInfo);
 
     // 绘制选项
@@ -137,21 +137,27 @@ function getValue(jLi) {
 var CMD = {
     // 启用一个或者多个项目
     selectItem : function(ele, reloadDynamic) {
-        var jFld = $(ele).closest(".hmcf-fld");
-        var jUl  = jFld.find(".fld-items ul");
-        var jLi  = ele ? $(ele).closest('li[it-type]') : null;
+        var jFld  = $(ele).closest(".hmcf-fld");
+        var jInfo = jFld.find(".fld-info");
+        var jUl   = jFld.find(".fld-items ul");
+        var jLi   = ele ? $(ele).closest('li[it-type]') : null;
+        //console.log(jInfo)
         // 仅仅是取消全部选择
         if(!jLi || jLi.length == 0) {
             jUl.find("li[it-type]").removeAttr("it-checked");
+            jInfo.attr("none-checked", "yes");
+            if(reloadDynamic)
+                HmRT.invokeDynamicReload(this);
         }
         // 多选模式
-        if(jUl.closest('.hmcf-fld[enable-multi]').length > 0) {
+        else if(jUl.closest('.hmcf-fld[enable-multi]').length > 0) {
             $z.toggleAttr(jLi, "multi-checked", "yes");
         }
         // 普通模式
         else {
             jUl.find("li[it-type]").removeAttr("it-checked");
             jLi.attr("it-checked", "yes");
+            jInfo.removeAttr("none-checked");
             if(reloadDynamic)
                 HmRT.invokeDynamicReload(this);
         }
@@ -201,7 +207,8 @@ var CMD = {
     },
     // 确认多选 
     applyMulti : function(ele, reloadDynamic) {
-        var jFld = $(ele).closest(".hmcf-fld");
+        var jFld  = $(ele).closest(".hmcf-fld");
+        var jInfo = jFld.find(".fld-info");
 
         // 恢复多选样式
         jFld.find("li[it-type]").each(function(){
@@ -211,6 +218,13 @@ var CMD = {
             jLi.removeAttr("org-it-checked");
         })
         jFld.removeAttr("enable-multi");
+
+        // 同步字段标题部分的样式
+        if(jFld.find("li[it-type][it-checked]").length > 0) {
+            jInfo.removeAttr("none-checked");
+        } else {
+            jInfo.attr("none-checked", "yes");
+        }
 
         // 显示更少选项
         CMD.lessItems.call(this, jFld);
@@ -368,8 +382,9 @@ var CMD = {
         // 设置某个高亮段
         //console.log("setValue:", flt);
         jFlds.each(function(){
-            var jFld = $(this);
-            var jUl  = jFld.find("ul");
+            var jFld  = $(this);
+            var jUl   = jFld.find("ul");
+            var jInfo = jFld.find(".fld-info");
             jUl.children("li[it-type]").removeAttr("it-checked");
             var key = jFld.attr("key");
             var val = flt[key];
@@ -382,6 +397,12 @@ var CMD = {
                 if(vList.indexOf(vi) >= 0)
                     jLi.attr("it-checked", "yes");
             });
+            // 同步字段标题部分的样式
+            if(jFld.find("li[it-type][it-checked]").length > 0) {
+                jInfo.removeAttr("none-checked");
+            } else {
+                jInfo.attr("none-checked", "yes");
+            }
         });
         // 返回
         return this;
@@ -389,6 +410,7 @@ var CMD = {
 }
 //...........................................................
 $.fn.extend({ "hmc_filter" : function(opt){
+    //console.log(opt)
     // 命令模式
     if(_.isString(opt)) {
         var args = Array.from(arguments);
@@ -402,9 +424,20 @@ $.fn.extend({ "hmc_filter" : function(opt){
     // 开始绘制
     __redraw(jq, opt);
 
+    // 读取默认值
+    var dftval = null;
+
+    if(opt.loadreq) {
+        dftval = window.__REQUEST || opt.defaultValue;
+    }
+
+    if(!dftval || _.isEmpty(dftval)) {
+        dftval = opt.defaultValue;
+    }
+    //console.log(dftval)
     // 设置默认值
-    if(opt.defaultValue){
-        CMD.value.apply(this, [opt.defaultValue]);
+    if(dftval){
+        CMD.value.apply(this, [dftval]);
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -421,7 +454,7 @@ $.fn.extend({ "hmc_filter" : function(opt){
             CMD.selectItem.call(jq, $(this), true);
         });
         // 清除全部选项
-        jq.on("click", ".fld-info em", function(){
+        jq.on("click", ".fld-info", function(){
             CMD.selectItem.call(jq, this, true);
         });
         // 多选开关: 启用
