@@ -92,9 +92,13 @@ function conver_params(opt) {
     return re.data;
 }
 //...........................................................
-function do_reload(jData, jumpToHead){
+function do_reload(jData, jumpToHead, callback){
     var opt = jData.data("@OPT") || {};
 
+    if(_.isFunction(jumpToHead)) {
+        callback = jumpToHead;
+        jumpToHead = false;
+    }
     // 需要强制调整相关分页条到顶部
     if(jumpToHead) {
         jump_pager_to_head(opt);
@@ -128,6 +132,7 @@ function do_reload(jData, jumpToHead){
     var method = opt.apiInfo.api_method == "POST" ? "post" : "get";
     $[method](opt.apiUrl, params||{}, function(re){
         draw_api_result(jData, re, opt);
+        $z.doCallback(callback, [re]);
     });
 
     // 返回自身以便链式赋值
@@ -168,8 +173,8 @@ function draw_api_result(jData, re, opt) {
 //...........................................................
 // 命令模式
 var CMD = {
-    reload : function(jumpToHead){
-        do_reload(this, jumpToHead);
+    reload : function(jumpToHead, callback){
+        do_reload(this, jumpToHead, callback);
     },
     update_pager : function(pager){
         var jData = this;

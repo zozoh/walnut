@@ -4,9 +4,13 @@
 本函数假设有下面格式参数输入
 
 params: {
-    pid  : "xxxx",  // 「必」商品库ID
-    cid  : "xxxx",  // 「选」商品详情库ID
-    id   : "xxxx",  // 「必」商品ID
+    pid  : "xxxx",      //「必」商品库ID
+    id   : "xxxx",      //「必」商品ID
+    con  : false,       //「选」是否归纳同类商品
+    kc   : "th_cate",   //「选」商品使用哪个字段进行归纳
+    cid  : "xxxx",      //「选」商品详情库ID
+    ks   : "th_model",  //「选」源字段, 商品使用哪个个字段进行关联
+    kd   : "th_nm",     //「选」目标字段, 与详情库哪个字段关联
 }
 
 本接口返回的数据是
@@ -43,6 +47,14 @@ function _main(params){
         sys.exec("ajaxre e.api.thing.goods.noGoodsId");
         return;
     }
+    //---------------------------------------
+    // 设置默认值
+    params.kc = params.kc || "th_cate";
+    params.ks = params.ks || "th_model";
+    params.kd = params.kd || "th_nm";
+
+    //sys.out.println(JSON.stringify(params))
+
     // 统一过滤一下不输出的字段 
     var jfmt = ' -json \'{locked:"^(_.+|c|m|g|md|race|ct|lm|d0|d1|ph)\\$", compact:false}\'';
     //---------------------------------------
@@ -58,9 +70,9 @@ function _main(params){
     //---------------------------------------
     // 获取商品的详情
     var gD = null;
-    if(params.cid) {
-        re = sys.exec2f('thing %s query \'th_nm:"%s"\' -q  -content', 
-            params.cid, go.th_model);
+    if(params.cid && go[params.ks]) {
+        re = sys.exec2f('thing %s query \'%s:"%s"\' -q  -content', 
+            params.cid, params.kd, go[params.ks]);
         var reList = JSON.parse(re);
         if(reList.length > 0) {
             gD = reList[0];
@@ -72,10 +84,10 @@ function _main(params){
     var cate = null;
     var models = [];
     var colors = [];
-    if(go.th_cate) {
+    if(params.con && go[params.kc]) {
 
         // 查询一下符合与当前产品相同类型的其他产品
-        var cnd = {th_cate:go.th_cate};
+        var cnd = {th_cate:go[params.kc]};
         if(go.lbls && go.lbls.length > 0) {
             cnd.lbls = go.lbls;
         }

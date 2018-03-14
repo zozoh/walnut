@@ -66,6 +66,9 @@ $(function(){
                             ? "desktop"
                             : "mobile";
 
+        // 保存一下，以备其他控件随时用到
+        window.__wn_skin_context = SC;
+
         // 启用皮肤
         $z.invoke(skin, "on", [], SC);
         $z.invoke(skin, "ready", [], SC);

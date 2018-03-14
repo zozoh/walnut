@@ -48,7 +48,7 @@ var do_search = function(opt, jq) {
             val = $.trim(val);
         }
 
-        console.log(target)
+        //console.log(target)
         $z.openUrl(url, target, "GET", $z.obj(key, val));
     }
     // 默认刷新与自己关联的动态数据控件

@@ -293,7 +293,15 @@ window.HmRT = {
         var jCom = jq.closest("[hm-dynamic-id]");
         var dyId = jCom.attr("hm-dynamic-id");
         if(dyId) {
-            $("#"+dyId+" > .hmc-dynamic").hmc_dynamic("reload", jumpToHead);
+            $("#"+dyId+" > .hmc-dynamic")
+                .hmc_dynamic("reload", jumpToHead, function(){
+                    // 重新调整皮肤尺寸
+                    if(window.__wn_skin_context) {
+                        var SC = window.__wn_skin_context;
+                        $z.invoke(SC.skin, "ready", [], SC);
+                        $z.invoke(SC.skin, "resize", [], SC);
+                    }        
+                });
         }
     },
     //...............................................................

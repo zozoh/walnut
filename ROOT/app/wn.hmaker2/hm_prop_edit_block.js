@@ -387,6 +387,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 如果是普通对象（即不是字符串，那么就直接用）
             if(!_.isString(key)) {
                 re.push(_.extend({}, key));
+                continue;
             }
 
             // 看看是不是直接就是 CSS 属性
