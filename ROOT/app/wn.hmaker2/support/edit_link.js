@@ -16,6 +16,8 @@ return ZUI.def("ui.edit_link", {
         var UI  = this;
         var opt = UI.options;
 
+        UI.arena.addClass("hm-link-params");
+
         var homeId = opt.homeObj.id;
 
         new FormUI({
@@ -24,9 +26,9 @@ return ZUI.def("ui.edit_link", {
             displayMode : "compact",
             uiWidth : "all",
             on_change : function(key, val) {
-                // 清除锚点的选择
+                // 改变链接时
                 if("href" == key) {
-                    this.update({anchor:null});
+                    UI.__on_href_change(val);
                 }
             },
             fields : [{
@@ -67,6 +69,16 @@ return ZUI.def("ui.edit_link", {
                     }
                 }
             }, {
+                key : "params",
+                icon : '<i class="fa fa-file"></i>',
+                title : "i18n:hmaker.link.params",
+                tip : "i18n:hmaker.link.params_tip",
+                type : "object",
+                uiType : "@pair",
+                uiConf : {
+                    templateAsDefault : false,
+                }
+            }, {
                 key : "anchor",
                 icon : '<i class="fa fa-anchor"></i>',
                 title : "i18n:hmaker.link.anchor",
@@ -79,52 +91,7 @@ return ZUI.def("ui.edit_link", {
                         uiConf : {
                             drawOnSetData : true,
                             items : function(params, callback){
-                                // 得到要选择的页面
-                                var href = UI.gasket.main.getData("href");
-                                // console.log("href", href);
-                                // console.log("opt.pagePath", opt.pagePath)
-                                // console.log(opt.pageObj.ph)
-                                // console.log(opt.homeObj.ph)
-                                
-                                // 自动获取的 href 的话，不显示页内链接，因为不知道
-                                if("@auto" == href) {
-                                    return [];
-                                }
-                                // 如果就是当前页面，那么直接在页面里搜索
-                                if(!href || opt.pagePath == href) {
-                                    var uiComs = opt.pageUI.getComList();
-                                    var list = [];
-                                    for(var i=0; i<uiComs.length; i++) {
-                                        var uiCom = uiComs[i];
-                                        var lib   = uiCom.getMyLibInfo();
-                                        // 忽略所有的组件内组件
-                                        if(lib && lib.isInLib)
-                                            continue;
-                                        // 计入
-                                        list.push({
-                                            id    : uiCom.getComId(),
-                                            ctype : uiCom.getComType(),
-                                            skin  : uiCom.getComSkin(),
-                                            lib   : lib
-                                        });
-                                        // 尝试获取控件内锚点
-                                        var ans = uiCom.getMyAnchors();
-                                        for(var x=0; x<ans.length; x++) {
-                                            list.push({
-                                                id     : uiCom.getComId(),
-                                                ctype  : uiCom.getComType(),
-                                                anchor : ans[x],
-                                            });
-                                        }
-                                    }
-                                    return list;
-                                }
-                                // 否则请求服务器，得到页面控件的列表
-                                Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com -dis anchor -nolib',
-                                    function(re){
-                                        var list = $z.fromJson(re || "[]");
-                                        $z.doCallback(callback, [list]);
-                                    });
+                                return UI.__load_anchor(callback);
                             },
                             escapeHtml : false,
                             icon  : function(o){
@@ -152,11 +119,141 @@ return ZUI.def("ui.edit_link", {
                 }
             }]
         }).render(function(){
-            UI.defer_report("form");
+            UI.defer_report("main");
         });
 
         // 返回延迟加载
-        return ["form"];
+        return ["main"];
+    },
+    //...............................................................
+    __on_href_change : function(href){
+        var UI = this;
+
+        // 获取该页面所有参数，更新参数表
+        // 同时清除原先的锚点值
+        UI.__load_param(href, function(params){
+            UI.gasket.main.update({
+                anchor: null,
+                params: params
+            });
+        });
+    },
+    //...............................................................
+    __load_param : function(href, callback) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 判断参数形态
+        if(_.isFunction(href)) {
+            callback = href;
+            href = null;
+        }
+
+        // 超链接，不做判断
+        if(!href || /^https?:\/\//.test(href)){
+            $z.doCallback(callback, [{}]);
+            return;
+        }
+
+        // 获取一个纯纯页面链接
+        href = UI._HREF(href);
+
+        // 自动获取的 href 的话，不显示参数表，因为不知道
+        if("@auto" == href) {
+            $z.doCallback(callback, [{}]);
+            return;
+        }
+        // 如果就是当前页面，那么直接在页面里搜索
+        if(!href || opt.pagePath == href) {
+            var uiComs = opt.pageUI.getComList();
+            var params = {};
+            for(var i=0; i<uiComs.length; i++) {
+                var uiCom = uiComs[i];
+                //console.log(uiCom.getComType(), uiCom.getComId())
+                var pamap = uiCom.getMyParams();
+                if(pamap) {
+                    _.extend(params, pamap);
+                }
+            }
+            $z.doCallback(callback, [params]);
+        }
+        // 否则就到服务器搜索
+        else {
+            Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com -dis param -nolib',
+                function(re){
+                    var params = $z.fromJson(re || "{}");
+                    $z.doCallback(callback, [params]);
+                });
+        }
+    },
+    //...............................................................
+    __load_anchor : function(callback) {
+        var UI  = this;
+        var opt = UI.options;
+        // 得到要选择的页面
+        var href = UI.gasket.main.getData("href");
+
+        // 获取一个纯纯页面链接
+        href = UI._HREF(href);
+        // console.log("href", href);
+        // console.log("opt.pagePath", opt.pagePath)
+        // console.log(opt.pageObj.ph)
+        // console.log(opt.homeObj.ph)
+        
+        // 自动获取的 href 的话，不显示页内链接，因为不知道
+        if("@auto" == href) {
+            return [];
+        }
+        // 如果就是当前页面，那么直接在页面里搜索
+        if(!href || opt.pagePath == href) {
+            var uiComs = opt.pageUI.getComList();
+            var list = [];
+            for(var i=0; i<uiComs.length; i++) {
+                var uiCom = uiComs[i];
+                var lib   = uiCom.getMyLibInfo();
+                // 忽略所有的组件内组件
+                if(lib && lib.isInLib)
+                    continue;
+                // 计入
+                list.push({
+                    id    : uiCom.getComId(),
+                    ctype : uiCom.getComType(),
+                    skin  : uiCom.getComSkin(),
+                    lib   : lib
+                });
+                // 尝试获取控件内锚点
+                var ans = uiCom.getMyAnchors();
+                for(var x=0; x<ans.length; x++) {
+                    list.push({
+                        id     : uiCom.getComId(),
+                        ctype  : uiCom.getComType(),
+                        anchor : ans[x],
+                    });
+                }
+            }
+            return list;
+        }
+        // 否则请求服务器，得到页面控件的列表
+        Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com -dis anchor -nolib',
+            function(re){
+                var list = $z.fromJson(re || "[]");
+                $z.doCallback(callback, [list]);
+            });
+    },
+    //...............................................................
+    // 获取一个纯纯页面链接
+    _HREF : function(href) {
+        if(!href)
+            return "";
+
+        var pos_a = href.lastIndexOf('#');
+        var pos_q = href.lastIndexOf('?');
+        var pos   = Math.min(pos_a, pos_q);
+
+        if(pos > 0)
+            return href.substring(0, pos);
+
+        return href;
     },
     //...............................................................
     getData : function() {
@@ -167,6 +264,22 @@ return ZUI.def("ui.edit_link", {
         var re = [];
         if(data.href)
             re.push(data.href);
+
+        // 参数
+        if(data.params && !_.isEmpty(data.params)) {
+            var plist = [];
+            for(var key in  data.params) {
+                var val = data.params[key];
+                if(val)
+                    plist.push(key + "=" + val);
+            }
+            if(plist.length > 0) {
+                re.push("?");
+                re.push(plist.join("&"));
+            }
+        }
+
+        // 锚点
         if(data.anchor){
             if(/^#/.test(data.anchor))
                 re.push(data.anchor);
@@ -174,19 +287,35 @@ return ZUI.def("ui.edit_link", {
                 re.push("#" + data.anchor);
         }
 
-        return re.join("");
+        return encodeURI(re.join(""));
     },
     //...............................................................
     setData : function(href) {
+        var UI = this;
+        //console.log("setData(href):", href);
         // 将其分解成一个对象 `/abc#xyz`
         var data = href;
         if(_.isString(href)){
-            var m = /^([^#]+)(#(.*))?$/.exec(href);
-            // 有锚点
+            var m = /^([^#?]+)(\?([^#]*)*)?(#(.*))?$/.exec(href);
+            // 有锚点或者链接
             if(m) {
+                // 解析一下 QueryString
+                var qs = m[3];
+                var params = {};
+                if(qs) {
+                    var pp = qs.split(/&/);
+                    for(var i=0; i<pp.length; i++) {
+                        var mp = /^([^=]+)(=(.+)?)?$/.exec(pp[i]);
+                        if(mp) {
+                            params[mp[1]] = decodeURIComponent(mp[3] || "");
+                        }
+                    }
+                }
+                // 得到数据
                 data = {
                     href   : m[1],
-                    anchor : m[3],
+                    params : params,
+                    anchor : m[5],
                 };
             }
             // 只有锚点咯
@@ -200,7 +329,17 @@ return ZUI.def("ui.edit_link", {
         }
 
         // 设置值
-        this.gasket.main.setData(data);
+        UI.__load_param(data.href, function(params){
+            // 更新参数
+            if(data.params) {
+                data.params = _.extend(params, data.params);
+            }
+            else
+                data.params = params;
+
+            // 设置值
+            UI.gasket.main.setData(data);
+        });
     }
     //...............................................................
 });

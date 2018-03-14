@@ -17,6 +17,8 @@ define({
             "select" : "站内链接快速选择",
             "href"   : "目标页面", 
             "href_tip" : '如果想编辑站外链接，请用 <code>http://</code> 或者 <code>https://</code> 开头。站内链接一律相对于站点主目录，并以 <code>/</code> 开头',
+            "params" : "页面参数",
+            "params_tip" : "页面参数会附在页面地址后面，用GET请求发出",
             "anchor" : "页内锚点",
             "anchor_tip" : "如果目标页面为空，锚点是从你正在编辑的这个页面中选出的",
         },

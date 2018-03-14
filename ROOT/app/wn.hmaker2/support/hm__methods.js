@@ -559,7 +559,7 @@ var methods = {
         POP.openUIPanel({
             title  : 'i18n:hmaker.link.edit',
             width  : 480,
-            height : 360,
+            height : 520,
             setup  : {
                 uiType : 'app/wn.hmaker2/support/edit_link',
                 uiConf : {

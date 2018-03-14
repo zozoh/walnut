@@ -65,7 +65,7 @@ return ZUI.def("ui.form_com_edit-link", {
         var jU = UI.arena.find("u");
 
         // 记录值
-        str = $.trim(str || "");
+        str = decodeURI($.trim(str || ""));
         UI.arena
             .attr("nohref", str ? null : "yes")
                 .find(".cel-href")
@@ -88,9 +88,10 @@ return ZUI.def("ui.form_com_edit-link", {
     },
     //...............................................................
     _get_data : function(){
-        return this.arena.attr("nohref") 
+        var href = this.arena.attr("nohref") 
                     ? "" 
                     : $.trim(this.arena.find(".cel-href").text());
+        return encodeURI(href);
     }
     //...............................................................
 });

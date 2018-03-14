@@ -148,6 +148,7 @@ return ZUI.def("ui.form_com_pair", {
     },
     //...............................................................
     _set_data : function(obj) {
+        //console.log("pair._set_data:", obj)
         // 如果是字符串，可能是 JSON
         if(_.isString(obj))
             obj = $z.fromJson(obj);

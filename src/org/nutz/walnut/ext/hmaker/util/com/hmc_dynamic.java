@@ -385,6 +385,34 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         return hdsi;
     }
 
+    @Override
+    public void joinParamList(Element eleCom, List<String> list) {
+        NutMap com = Hms.loadProp(eleCom, "hm-prop-com", false);
+        if (null == com || com.size() == 0)
+            return;
+
+        NutMap params = com.getAs("params", NutMap.class);
+        if (null == params || params.size() == 0)
+            return;
+
+        // 处理每个参数
+        for (String key : params.keySet()) {
+            Object val = params.get(key);
+            if (null != val && val instanceof CharSequence) {
+                String str = Strings.trim(val.toString());
+
+                // 解析参数，看看是不是动态的
+                Matcher m = Pattern.compile("^([@])(<(.+)>)?(.*)$").matcher(str);
+
+                // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
+                if (m.find()) {
+                    String p_val = m.group(3);
+                    list.add(p_val);
+                }
+            }
+        }
+    }
+
     private void __do_params_mapping(NutMap apiParams, String key, NutMap map) {
         if (null != apiParams && map.size() > 0) {
             Object apiParamField = apiParams.get(key);

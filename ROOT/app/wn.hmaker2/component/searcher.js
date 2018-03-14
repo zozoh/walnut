@@ -65,6 +65,23 @@ return ZUI.def("app.wn.hm_com_searcher", {
         return this.arena.hmc_searcher("value");
     },
     //...............................................................
+    getMyParams : function() {
+        var UI  = this;
+        var com = UI.getData();
+        var map = {};
+        var dfv = com.defaultValue;
+        if (dfv) {
+            var m = /^@<([^>]+)>$/.exec(dfv);
+            // 动态参数: "@<k>"
+            if (m) {
+                map[m[1]] = "";
+            }
+        }
+
+        // 返回
+        return map;
+    },
+    //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius",

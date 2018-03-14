@@ -251,7 +251,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         com = com || UI.getData();
         
         // 绘制动态参数键列表
-        UI.__draw_dynamic_keys(jW);
+        UI.__draw_dynamic_keys(jW, com);
 
         // 绘制重新加载按钮
         UI.__draw_dynamic_reload(jW);
@@ -341,7 +341,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         return false;
     },
     //...............................................................
-    __draw_dynamic_keys : function(jW) {
+    __draw_dynamic_keys : function(jW, com) {
         var dkeys = this.__dynamicKeys;
 
         if(!_.isArray(dkeys) || dkeys.length == 0)
@@ -351,7 +351,12 @@ return ZUI.def("app.wn.hm_com_dynamic", {
                     .appendTo(jW)
                         .find(">ul");
         for(var i=0; i<dkeys.length; i++) {
-            $('<li>').text(dkeys[i]).appendTo(jUl);
+            var key = dkeys[i];
+            var val = "?";
+            if(com.params)
+                val = com.params[key] || val;
+            $('<li>').text(dkeys[i] + ": " + val)
+                .appendTo(jUl);
         }
     },
     //...............................................................
@@ -415,7 +420,35 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         $('<aside class="dynamic-msg" m="'+mode+'">')
                 .html(UI.msg("hmaker.com.dynamic." + key))
                     .appendTo(jData);
-    }
+    },
+    //...............................................................
+    getMyParams : function() {
+        var UI  = this;
+        var com = UI.getData();
+        var map = {};
+
+        if (!com.params)
+            return map;
+
+        // 处理每个参数
+        for (var key in com.params) {
+            var val = com.params[key];
+            if (val && _.isString(val)) {
+                var str = $.trim(val);
+
+                // 解析参数，看看是不是动态的
+                var m = /^([@])(<(.+)>)?(.*)$/.exec(str);
+
+                // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
+                if (m) {
+                    map[m[3]] = "";
+                }
+            }
+        }
+
+        // 返回
+        return map;
+    },
     //...............................................................
 });
 //===================================================================

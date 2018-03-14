@@ -172,6 +172,27 @@ return ZUI.def("app.wn.hm_com_filter", {
         }
     },
     //...............................................................
+    getMyParams : function() {
+        var UI  = this;
+        var map = {};
+
+        if (!UI.$el.attr("hm-loadreq")) 
+            return map;
+
+        var com = UI.getData();
+        if(!_.isArray(com.fields) || com.fields.length == 0)
+            return map;
+
+        for (var i=0; i<com.fields.length; i++) {
+            var fld = com.fields[i];
+            if (fld.name)
+                map[fld.name] = "";
+        }
+
+        // 返回
+        return map;
+    },
+    //...............................................................
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius",
