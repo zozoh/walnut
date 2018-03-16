@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.zdoc.markdown.Markdown;
@@ -97,6 +99,15 @@ public class hmc_text extends AbstractNoneValueCom {
 
         // 标识标题
         eleArena.select("h1,h2,h3,h4,h5,h6").addClass("md-header");
+
+        // ...........................................
+        // 链入控件的 jQuery 插件
+        ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_text.js");
+        String script = String.format("$('#%s > .hmc-text').hmc_text(%s);",
+                                      ing.comId,
+                                      Json.toJson(ing.propCom,
+                                                  JsonFormat.forLook().setIgnoreNull(false)));
+        ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
 
         return true;
     }

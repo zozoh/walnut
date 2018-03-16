@@ -452,6 +452,13 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     items : UI.parseStringItems(F.arg)
                 }
             }
+            // 字段：多行文本
+            else if("text" == F.type) {
+                fld.type = "string";
+                fld.uiWidth = "all";
+                fld.uiType = "@text";
+                fld.uiConf = F.arg ? $z.fromJson('{'+F.arg+'}') : {};
+            }
             // 直接使用
             else {
                 _.extend(fld, F);

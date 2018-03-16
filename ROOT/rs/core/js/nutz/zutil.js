@@ -4570,8 +4570,17 @@
                     // IMG: ![](xxxx)
                     else if (m[11]) {
                         //console.log("haha", m[13])
-                        var src = opt.media.apply(context, [m[13]]);
-                        html += '<img alt="' + (m[12] || "") + '" src="' + src + '">';
+                        var src  = m[13];
+                        var src2 = opt.media.apply(context, [src]);
+
+                        // 如果是视频
+                        if(/[.](mp4|avi|mov)$/.test(src)) {
+                            html += '<video controls src="' + src2 + '">';
+                        }
+                        // 那就是图片咯
+                        else {
+                            html += '<img alt="' + (m[12] || "") + '" src="' + src2 + '">';
+                        }
                         // 记录标签
                         if (tagNames)
                             tagNames["img"] = true;
@@ -4807,18 +4816,24 @@
             var __set_to_poster = function(it) {
                 if(it) {
                     // 背景
-                    if(it.bg) {
-                        poster.bg = opt.media.apply(C, [it.bg]);
+                    if(it.type == 'bg') {
+                        if(it.bg)
+                            poster.bg = opt.media.apply(C, [it.bg]);
                         poster.cssText = it.cssText;
                         poster.attr = it.attr;
                     }
                     // 其他就直接加了
                     else {
                         // 视频和图片，需要格式化源
-                        if(it.picture)
+                        if(it.picture) {
                             it.picture = opt.media.apply(C, [it.picture]);
-                        if(it.video)
+                        }
+                        if(it.video) {
                             it.video = opt.media.apply(C, [it.video]);
+                            if(it.attr && it.attr.poster) {
+                                it.attr.poster = opt.media.apply(C, [it.attr.poster]);
+                            }
+                        }
                         
                         // 处理图文列表的每个项目
                         if(it.list) {
@@ -4843,7 +4858,7 @@
             };
             
             // 按行解析
-            var it;
+            var it = {type:"bg"};
             var lines  = str.split(/\r?\n/g);
             var REG = /^\+[ \t]*(bg|text|picture|video|spec|list)([ \t]*:[ \t]*(.+)?)?$/;
             for(var i=0; i<lines.length; i++) {

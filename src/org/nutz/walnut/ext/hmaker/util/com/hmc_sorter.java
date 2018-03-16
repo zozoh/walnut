@@ -5,6 +5,7 @@ import java.util.List;
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
@@ -51,10 +52,9 @@ public class hmc_sorter extends AbstractSimpleCom {
 
     @Override
     public void loadValue(Element eleCom, String key, HmcDynamicScriptInfo hdsi) {
-        String json = eleCom.attr("default-value");
-        if (!Strings.isBlank(json)) {
-            NutMap map = Json.fromJson(NutMap.class, json);
-            hdsi.update.putAll(map);
+        String dfv = eleCom.attr("default-value");
+        if (!Strings.isBlank(dfv)) {
+            hdsi.update.put(key, dfv);
         }
     }
 

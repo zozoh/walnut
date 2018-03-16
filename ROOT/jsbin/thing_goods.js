@@ -87,10 +87,11 @@ function _main(params){
     if(params.con && go[params.kc]) {
 
         // 查询一下符合与当前产品相同类型的其他产品
-        var cnd = {th_cate:go[params.kc]};
-        if(go.lbls && go.lbls.length > 0) {
-            cnd.lbls = go.lbls;
-        }
+        var cnd = {};
+        cnd[params.kc] = go[params.kc];
+        // if(go.lbls && go.lbls.length > 0) {
+        //     cnd.lbls = go.lbls;
+        // }
         
         re = sys.exec2f('thing %s query -q \'%s\'', 
                 params.pid, JSON.stringify(cnd));
@@ -111,7 +112,8 @@ function _main(params){
                 mmap[model] = mo;
 
             // 归纳颜色
-            if(model == go_model && mo.th_color) {
+            //if(model == go_model && mo.th_color) {
+            if(mo.th_color) {
                 colors.push({
                     id   : mo.id,
                     text : mo.th_color

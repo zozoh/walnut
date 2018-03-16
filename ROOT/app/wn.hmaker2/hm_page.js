@@ -1790,6 +1790,7 @@ return ZUI.def("app.wn.hmaker_page", {
     getActions : function(){
         return ["@::hmaker/hm_save",
                 "::hmaker/hm_create", 
+                "::hmaker/hm_duplicate", 
                 "::hmaker/hm_delete",
                 "~",
                 "::view_text",

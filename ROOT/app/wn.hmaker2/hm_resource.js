@@ -118,8 +118,16 @@ return ZUI.def("app.wn.hmaker_resource", {
             on_click_actived_text : function(o, jText, jNode){
                 var UI = this;
                 jNode.attr("edit-text-on", "yes");
+
+                // 准备文本
+                var text = o.nm;
+                if(o.title) {
+                    text += ": " + o.title;
+                }
+
+                // 开启编辑模式
                 $z.editIt(jText.parent(), {
-                    text : o.nm,
+                    text : text,
                     copyStyle : false,
                     after : function(newval, oldval) {
                         jNode.removeAttr("edit-text-on");
@@ -128,19 +136,42 @@ return ZUI.def("app.wn.hmaker_resource", {
                         // 如果有效就执行改名看看
                         if(newval && newval!=oldval){
                             // 去掉非法字符
-                            newval = newval.replace()
+                            newval = newval.replace(/['"&*#^`?<>\/\\]/,"");
+
+                            // 分析一下
+                            var m = /^([^:]+):(.*)$/.exec(newval);
+                            var nm, tt;
+                            if(m) {
+                                nm = $.trim(m[1]);
+                                tt = $.trim(m[2]);
+                            }
+                            // 没指定 title
+                            else {
+                                nm = newval;
+                                tt = "";
+                            }
+
+
                             // 改名咯
-                            Wn.exec("mv -oqT id:"+o.id + " 'id:"+o.pid+"/"+newval+"';", function(re){
+                            Wn.exec("mv -oqT id:"+o.id + " 'id:"+o.pid+"/"+nm+"';", function(re){
                                 // 错误
                                 if(/^e[.]/.test(re)){
                                     alert(UI.msg(re));
                                 }
                                 // 真的改名
                                 else{
-                                    var obj = $z.fromJson(re);
-                                    Wn.saveToCache(obj);
-                                    //jText.text(obj.nm);
-                                    UI.updateNode(obj.id, obj, true);
+                                    // 修改标题
+                                    var cmdText = 'obj id:'+o.id+' -u \'{title:"'+tt+'"}\' -o';
+                                    Wn.exec(cmdText, function(re){
+                                        // 错误
+                                        if(/^e[.]/.test(re)){
+                                            alert(UI.msg(re));
+                                        }
+                                        var obj = $z.fromJson(re);
+                                        Wn.saveToCache(obj);
+                                        //jText.text(obj.nm);
+                                        UI.updateNode(obj.id, obj, true);
+                                    });
                                 }
                             });
                         }

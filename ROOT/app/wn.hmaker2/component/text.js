@@ -117,18 +117,31 @@ return ZUI.def("app.wn.hm_com_text", {
             }
         });
 
-        // 修改图片和多媒体的源
-        UI.arena.find('img').each(function(){
-            var jImg = $(this); 
-            var src  = jImg.attr("src");
-            var src2 = UI.__tidy_src(src, oSiteHome, phPageDir);
-            if(src!=src2) {
-                jImg.attr("src", src2);
-            }
-        });
+        // 处理一下文章
+        var jAr = UI.arena.find("article.md-content");
+        if(jAr.size() > 0) {
+            // 修改图片和多媒体的源
+            jAr.find('img').each(function(){
+                var jImg = $(this); 
+                var src  = jImg.attr("src");
+                var src2 = UI.__tidy_src(src, oSiteHome, phPageDir);
+                if(src!=src2) {
+                    jImg.attr("src", src2);
+                }
+            });
 
-        // 标识标题
-        UI.arena.find("h1,h2,h3,h4,h5,h6").addClass("md-header");
+            // 标识标题
+            jAr.find("h1,h2,h3,h4,h5,h6").addClass("md-header");
+
+            // 解析一下海报
+            jPoster = jAr.find('pre[code-type="poster"]');
+            $z.explainPoster(jPoster, {
+                media : function(src) {
+                    return UI.__tidy_src(src, oSiteHome, phPageDir);
+                }
+            });
+        }
+
     },
     //...............................................................
     getMyAnchors : function() {
