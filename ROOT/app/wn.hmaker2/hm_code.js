@@ -65,6 +65,7 @@ return ZUI.def("app.wn.hmaker_text", {
     getActions : function(){
         return ["@::save_text",
                 "::hmaker/hm_create", 
+                "::hmaker/hm_duplicate", 
                 "::hmaker/hm_delete",
                 "~",
                 "@::hmaker/pub_site",

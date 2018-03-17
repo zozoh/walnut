@@ -10,6 +10,9 @@ define({
         "res" : {
             "title" : '资源库',
         },
+        "action" : {
+            "dup_tip" : "请输入新副本的名称"
+        },
         "link" : {
             "none"   : "无链接",
             "auto"   : "自动匹配目标页面",
