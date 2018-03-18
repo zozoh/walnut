@@ -240,6 +240,11 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var jW = UI.$el.find(">.hm-com-W");
         //var jData = UI.arena.children("section").empty();
         var jData = UI.arena.empty();
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 更新一下本地存储数据，这样 page.hm_hierarchy 会用的到
+        UI.$el.data("@WNDATA", data);
+
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 确保有数据接口
         oApi = oApi || UI.__check_mode(com);

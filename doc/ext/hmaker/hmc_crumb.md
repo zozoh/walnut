@@ -24,19 +24,17 @@ tags:
 # `hm_hierarchy` 元数据格式:
 
 ```
-hm_hierarchy : [
-        "文字:/path/to/link?qs#anchor",                   // 固定链接
-        "#dynamic_id.lbls{A:'原汁机',B:'破壁机}:/xx/xx",   // 动态数据链接
-    }]
+hm_hierarchy : "+首页:/index\n+产品中心:/product"
 ```
 
-它的文本表现形式为:
+它具体的文本语法为：
 
 ```
-+ 首页 : /index
-+ 产品中心 : /product
-+ #dynamic_0.th_cate{A:'原汁机',B:'破壁机'}
-    : /product_list_{{th_cate}}
++ 首页 : /index                       # 静态链接非常简单
++ 产品中心 : /product                 # 空格会被无视
++ #dynamic_0.th_cate                 # 从某个元素获取数据「@WNDATA」并取得某个字段
+    : /product_list_{{th_cate}}      # 链接支持动态的写法
+    : A=原汁机,B=破壁机,C=原汁破壁机     # 对于显示值的映射
 + #dynamic_0.lbls 
     : /product_list_{{th_cate}}?lbls={{lbls}}&th_cate={{th_cate}}
 + #dynamic_0.th_model

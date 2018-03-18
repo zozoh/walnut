@@ -19,6 +19,16 @@ var html = `
         </header>
         <section ui-gasket="form"></section>
     </div>
+    <div class="pp-hierarchy">
+        <header>
+            <i class="fas fa-sitemap"></i>
+            <b>{{hmaker.page.hierarchy}}</b>
+        </header>
+        <section>
+            <textarea spellcheck="false"></textarea>
+            <div class="tip">{{hmaker.page.hier_tip}}</div>
+        </section>
+    </div>
     <div class="pp-links">
         <header>
             <i class="zmdi zmdi-link"></i>
@@ -38,8 +48,18 @@ return ZUI.def("app.wn.hm_prop_page", {
     },
     //...............................................................
     events : {
+        // 编辑页面更多属性
         "click .pp-attr header a" : function(){
             this.doEditMore();
+        },
+        // 编辑页面的层级结构
+        "change .pp-hierarchy textarea" : function(){
+            this.savePageHierarchy();
+        },
+        "keydown .pp-hierarchy textarea" : function(e) {
+            if(13 == e.which && (e.metaKey || e.ctrlKey)) {
+                this.savePageHierarchy();
+            }
         }
     },
     //...............................................................
@@ -251,6 +271,36 @@ return ZUI.def("app.wn.hm_prop_page", {
         }, UI);
     },
     //...............................................................
+    setPageHierarchy : function(oPg) {
+         var UI = this;
+        var jHier = UI.arena.find(".pp-hierarchy");
+        var jText = jHier.find("textarea");
+        
+        jText.val(oPg.hm_hierarchy || "");
+    },
+    //...............................................................
+    savePageHierarchy : function() {
+        var UI = this;
+        var jHier = UI.arena.find(".pp-hierarchy");
+        var jText = jHier.find("textarea");
+        var jIcon = jHier.find('header i');
+
+        // 修改图标状态
+        var oldClassName = jIcon[0].className;
+        jIcon[0].className = "fa fa-spinner fa-pulse";
+
+        // 存储到服务器
+        var pageUI = UI.pageUI();
+        pageUI.setPageAttr({hm_hierarchy:jText.val()}, function(){
+            jIcon[0].className = oldClassName;
+            UI.refresh();
+
+            // 最后调用一下皮肤
+            pageUI.invokeSkin("ready");
+            pageUI.invokeSkin("resize");
+        });
+    },
+    //...............................................................
     doEditResources : function(){
         var UI = this;
         var homeId = UI.getHomeObjId();
@@ -308,9 +358,7 @@ return ZUI.def("app.wn.hm_prop_page", {
                 var objs   = uiBody.getChecked();
                 //console.log(objs)
                 // 设置
-                UI.pageUI().setPageAttr({
-                    links : objs
-                }, true);
+                UI.pageUI().setPageAttr({links:objs});
 
                 // 清空一下缓存
                 UI.pageUI().cleanCssSelectors();
@@ -322,24 +370,29 @@ return ZUI.def("app.wn.hm_prop_page", {
     },
     //...............................................................
     refresh : function(){
-        var pageUI = this.pageUI(true);
+        var UI = this;
+        //console.log("page refresh")
+        var pageUI = UI.pageUI(true);
         if(pageUI) {
             var attr = pageUI.getPageAttr(true);
-            this.gasket.form.setData(attr);
-            this.gasket.links.setData(attr.links);
+            UI.gasket.form.setData(attr);
+            UI.setPageHierarchy(attr);
+            UI.gasket.links.setData(attr.links);
         }
     },
     //...............................................................
     resize : function(){
         var UI = this;
         var jAttr  = UI.arena.find(">.pp-attr");
+        var jHier  = UI.arena.find(">.pp-hierarchy");
         var jLinks = UI.arena.find(">.pp-links");
         
         // 计算链接区域整体高度
         var H  = UI.arena.height();
         var H0 = jAttr.outerHeight(true);
-        var H1 = H - H0 - 2;
-        jLinks.css("height", Math.max(H1, 240));
+        var H1 = jHier.outerHeight(true);
+        var H2 = H - H0 - H1 - 4;
+        jLinks.css("height", Math.max(H2, 240));
 
         // 计算链接列表起始位置
         var jLinksHead  = jLinks.children("header");

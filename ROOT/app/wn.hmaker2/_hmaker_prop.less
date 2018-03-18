@@ -109,8 +109,8 @@
                 > em {
                     float:left; display: block; font-style: normal;
                 }
-                > .hm-skin-box {
-                    float:right;
+                > a {
+                    float: right;
                 }
             }
             // 块的 form
@@ -364,6 +364,19 @@
     > .pp-attr {
         padding:0;
         .page-form {padding:@d0 0;}
+    }
+    > .pp-hierarchy {
+        > section {
+            padding:@d1 @d0; 
+            textarea {@input();
+                width:100%; height:160px; padding:@d3;
+                resize:none;
+                &:focus {@input_focus();}
+            }
+            .tip {
+                color:@c3; font-size:@f1; padding:@d1;
+            }
+        }
     }
     > .pp-links {
         position: relative;

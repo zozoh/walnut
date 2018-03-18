@@ -4,6 +4,10 @@ function draw_data(jData, opt, data) {
     // 得到模板信息
     var tmplInfo = opt.tmplInfo;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 更新一下本地存储数据，这样 page.hm_hierarchy 会用的到
+    jData.closest(".hm-com-dynamic").data("@WNDATA", data);
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 转换数据
     //console.log("dynamic draw", data);
     var d2 = HmRT.convertDataForTmpl(data, tmplInfo.dataType);

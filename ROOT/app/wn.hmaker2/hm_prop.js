@@ -47,8 +47,6 @@ return ZUI.def("app.wn.hm_prop", {
     //...............................................................
     onActiveFolder : function(o){
         var UI = this;
-        //this.showProp("folder");
-        //this.setTitle("hmaker.prop.tt_folder");
         new PropFolderUI({
             parent : UI,
             gasketName : "form"
@@ -61,8 +59,6 @@ return ZUI.def("app.wn.hm_prop", {
     //...............................................................
     onActiveLib : function(){
         var UI = this;
-        //this.showProp("lib");
-        //this.setTitle("hmaker.prop.tt_folder");
         new PropLibUI({
             parent : UI,
             gasketName : "form"
@@ -73,8 +69,6 @@ return ZUI.def("app.wn.hm_prop", {
     //...............................................................
     onActiveCom : function(uiCom) {
         var UI = this;
-        //this.showProp("edit");
-        //this.setTitle("hmaker.prop.tt_edit");
         if(!UI.gasket.form || 'app.wn.hm_prop_edit' != UI.gasket.form.uiName) {
             new PropEditUI({
                 parent : UI,
@@ -91,20 +85,25 @@ return ZUI.def("app.wn.hm_prop", {
     //...............................................................
     onActivePage : function(){
         var UI = this;
-        //this.showProp("page");
-        //this.setTitle("hmaker.prop.tt_page");
-        new PropPageUI({
-            parent : UI,
-            gasketName : "form"
-        }).render(function(){
-            this.refresh();
-        });
+        // if(UI.gasket.form)
+        //     console.log("onActivePage", UI.gasket.form.uiName)
+        // 已经是 PageUI 了
+        if(UI.gasket.form && 'app.wn.hm_prop_page' == UI.gasket.form.uiName) {
+            UI.gasket.form.refresh();
+        }
+        // 不是的话，搞一个新的
+        else {
+            new PropPageUI({
+                parent : UI,
+                gasketName : "form"
+            }).render(function(){
+                this.refresh();
+            });
+        }
     },
     //...............................................................
     onActiveOther : function(o){
         var UI = this;
-        //this.showProp("other");
-        //this.setTitle("hmaker.prop.tt_other");
         new PropOtherUI({
             parent : UI,
             gasketName : "form"

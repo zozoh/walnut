@@ -259,35 +259,7 @@ return ZUI.def("ui.edit_link", {
     getData : function() {
         // 得到对象
         var data = this.gasket.main.getData();
-
-        // 返回拼合的字符串
-        var re = [];
-        if(data.href)
-            re.push(data.href);
-
-        // 参数
-        if(data.params && !_.isEmpty(data.params)) {
-            var plist = [];
-            for(var key in  data.params) {
-                var val = data.params[key];
-                if(val)
-                    plist.push(key + "=" + val);
-            }
-            if(plist.length > 0) {
-                re.push("?");
-                re.push(plist.join("&"));
-            }
-        }
-
-        // 锚点
-        if(data.anchor){
-            if(/^#/.test(data.anchor))
-                re.push(data.anchor);
-            else    
-                re.push("#" + data.anchor);
-        }
-
-        return encodeURI(re.join(""));
+        return $z.renderHref(data, true);
     },
     //...............................................................
     setData : function(href) {
@@ -296,36 +268,7 @@ return ZUI.def("ui.edit_link", {
         // 将其分解成一个对象 `/abc#xyz`
         var data = href;
         if(_.isString(href)){
-            var m = /^([^#?]+)(\?([^#]*)*)?(#(.*))?$/.exec(href);
-            // 有锚点或者链接
-            if(m) {
-                // 解析一下 QueryString
-                var qs = m[3];
-                var params = {};
-                if(qs) {
-                    var pp = qs.split(/&/);
-                    for(var i=0; i<pp.length; i++) {
-                        var mp = /^([^=]+)(=(.+)?)?$/.exec(pp[i]);
-                        if(mp) {
-                            params[mp[1]] = decodeURIComponent(mp[3] || "");
-                        }
-                    }
-                }
-                // 得到数据
-                data = {
-                    href   : m[1],
-                    params : params,
-                    anchor : m[5],
-                };
-            }
-            // 只有锚点咯
-            else if(/^#/.test(href)) {
-                data = {anchor:href.substring(1)};
-            }
-            // 只有链接咯
-            else {
-                data = {href:href};
-            }
+            data = $z.parseHref(href, true);
         }
 
         // 设置值

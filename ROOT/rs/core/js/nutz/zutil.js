@@ -3125,6 +3125,87 @@
             return null;
         },
         //.............................................
+        /* 解析一个链接，返回对象:
+        - href : 就是一个超链接
+        - decode : 是否要对参数值解码，默认false
+        @return {
+            href   : m[1],
+            params : params,
+            anchor : m[5],
+        }
+        */
+        parseHref : function(href, decode) {
+            var m = /^([^#?]+)(\?([^#]*)*)?(#(.*))?$/.exec(href);
+            // 有锚点或者链接
+            if(m) {
+                // 解析一下 QueryString
+                var qs = m[3];
+                var params = {};
+                if(qs) {
+                    var pp = qs.split(/&/);
+                    for(var i=0; i<pp.length; i++) {
+                        var mp = /^([^=]+)(=(.+)?)?$/.exec(pp[i]);
+                        if(mp) {
+                            var pv = mp[3] || "";
+                            if(decode)
+                                pv = decodeURIComponent(pv);
+                            params[mp[1]] = pv;
+                        }
+                    }
+                }
+                // 得到数据
+                return {
+                    href   : m[1],
+                    params : params,
+                    anchor : m[5],
+                };
+            }
+            // 只有锚点咯
+            if(/^#/.test(href)) {
+                return {
+                    anchor:href.substring(1)
+                };
+            }
+            // 只有链接咯
+            return {href:href};
+        },
+        //.............................................
+        // 将 parseHref 函数出来的结果，渲染成一个超链接
+        // - ho     : 是 parseHref 函数出来的结果
+        // - encode : 是否将返回的 URI 编码
+        // @return 一个 URI 字符串
+        renderHref : function(ho, encode) {
+            // 返回拼合的字符串
+            var re = [];
+            if(ho.href)
+                re.push(ho.href);
+
+            // 参数
+            if(ho.params && !_.isEmpty(ho.params)) {
+                var plist = [];
+                for(var key in  ho.params) {
+                    var val = ho.params[key];
+                    if(val)
+                        plist.push(key + "=" + val);
+                }
+                if(plist.length > 0) {
+                    re.push("?");
+                    re.push(plist.join("&"));
+                }
+            }
+
+            // 锚点
+            if(ho.anchor){
+                if(/^#/.test(ho.anchor))
+                    re.push(ho.anchor);
+                else    
+                    re.push("#" + ho.anchor);
+            }
+
+            return encode ? encodeURI(re.join(""))
+                          : re.join("");
+        },
+        //.............................................
         // 得到函数体的代码
         // 因为这种方法通常用来获得内嵌 HTML 文本，
         // 参数 removeComment 如果声明了，将会移除文本前后的 '/*' 和 '*/'
@@ -3527,33 +3608,51 @@
         //.............................................
         /**
          * 将两个路径比较，得出相对路径
-         *
+         * 
          * @param base
          *            基础路径，以 '/' 结束，表示目录
          * @param path
          *            相对文件路径，以 '/' 结束，表示目录
+         * @param equalPath
+         *            如果两个路径相等，返回什么，通常为 "./"。 
+         *            你也可以用 "" 或者 "." 或者随便什么字符串来表示
+         * 
          * @return 相对于基础路径对象的相对路径
          */
-        getRelativePath: function (base, path) {
-            var bb = base.split(/[\\\//]+/g);
-            var ff = path.split(/[\\\//]+/g);
+        getRelativePath: function (base, path, equalPath) {
+            if (base == path) {
+                return equalPath;
+            }
+
+            // 开始判断
+            var bc = zUtil.getCanonicalPath(base);
+            var bp = zUtil.getCanonicalPath(path);
+
+            var bb = zUtil.splitIgnoreEmpty(base, /[\\\\/]/);
+            var ff = zUtil.splitIgnoreEmpty(path, /[\\\\/]/);
             var len = Math.min(bb.length, ff.length);
             var pos = 0;
             for (; pos < len; pos++)
-                if (bb[pos] != (ff[pos]))
+                if (bb[pos] != ff[pos])
                     break;
 
-            if (len == pos && bb.length == ff.length)
-                return "./";
+            // 证明路径是相等的
+            if (len == pos && bb.length == ff.length) {
+                return equalPath;
+            }
 
-            // 如果 base 表示一个 DIR，那么相对路径应该从它计算
-            // 否则从它的父计算
-            var off = /\/$/.test(base) ? 0 : 1;
+            // 开始查找不同
+            var dir = 1;
+            if (/\/$/.test(base))
+                dir = 0;
 
+            //console.log("the dir=", dir)
 
-            var sb = zUtil.dupString("../", bb.length - pos - 1);
-            ff.splice(0, pos - off);
-            return sb + ff.join("/");
+            var sb = zUtil.dupString("../", bb.length - pos - dir);
+            var pss = ff.splice(pos);
+            var rph = sb + pss.join("/");
+            //console.log(base, path, "=", rph);
+            return rph;
         },
         //.............................................
         /**

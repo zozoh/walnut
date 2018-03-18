@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -422,6 +423,9 @@ public class HmPageTranslating extends HmContext {
         // 输出本页的一些有用元数据
         this.scripts.add("window.__PAGE_PATH = '" + rph + "';");
         this.scripts.add("window.__ROOT_PATH = '" + rootPath + "';");
+        this.scripts.add("window.__HM_HIERARCHY = "
+                         + Json.toJson(this.oSrc.getString("hm_hierarchy"))
+                         + ";");
 
         // 链接站点地图
         this.jsLinks.add(Wn.appendPath(rootPath, "js/_sitemap.js"));

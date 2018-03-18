@@ -54,7 +54,7 @@ var html = `
     </div>
     <div class="hmpb-skin">
         <em>{{hmaker.prop.block_skin}}</em>
-        <!--div class="hm-skin-box" box-enabled="yes"></div-->
+        <a>{{hmaker.prop.block_reset}}</em>
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;
@@ -176,6 +176,16 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
             });
 
+        },
+        // 重置外观
+        "click .hmpb-skin a" : function(e) {
+            // 得到外观数据，清除除了尺寸以外其他的设置
+            var block = this.uiCom.getBlock();
+            var b2 = $z.pick(block, /^(mode|posBy|width|height|top|left|right|bottom)$/);
+
+            // 保存数据并通知
+            this.uiCom.setBlock(null, b2);
+            this.uiCom.notifyBlockChange(null, b2);
         }
     },
     //...............................................................

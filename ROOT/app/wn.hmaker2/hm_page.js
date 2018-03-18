@@ -179,37 +179,48 @@ return ZUI.def("app.wn.hmaker_page", {
         var attr = $z.getJsonFromSubScriptEle(this._C.iedit.$body, "hm-page-attr");
         // 还要读取 page 的 title 属性
         if(includePageMeta) {
-            attr.title = UI.getCurrentEditObj().title || null;
+            var oPg = UI.getCurrentEditObj();
+            attr.title        = oPg.title        || null;
+            attr.hm_hierarchy = oPg.hm_hierarchy || null;
         }
         // 返回
         return attr;
     },
-    setPageAttr : function(attr, merge){
+    setPageAttr : function(attr, callback){
         var UI = this;
-        
-        // 是不是与旧属性合并
-        if(merge) {
-            attr = _.extend(UI.getPageAttr(true), attr);
-        }
+       
+        // 与旧属性合并
+        attr = _.extend(UI.getPageAttr(true), attr);
 
         // 更新一下 page 的 title 属性
         var oPg = UI.getCurrentEditObj();
-        if(oPg.title != attr.title) {
-            Wn.execf('obj id:{{id}} -u \'title:"{{title}}"\' -o', {
+        if(oPg.title != attr.title 
+            || oPg.hm_hierarchy != attr.hm_hierarchy) {
+            Wn.execf('obj id:{{id}} -u \'title:"{{title}}",hm_hierarchy:<%=hier%>\' -o', {
                 id    : oPg.id,
-                title : attr.title || null
+                title : attr.title || null,
+                hier  : $z.toJson(attr.hm_hierarchy || null)
             }, function(re) {
                 // 处理错误
                 if(/^e./.test(re)) {
                     UI.alert(re);
+                    $z.doCallback(callback);
                     return;
                 }
                 // 将最新结果计入缓存
                 oPg = $z.fromJson(re);
                 Wn.saveToCache(oPg);
                 // 最后刷新一下资源
-                UI.resourceUI().refresh();
+                // UI.resourceUI().refresh(function(){
+                //     $z.doCallback(callback, [oPg]);
+                // });
+                UI.resourceUI().updateNode(oPg);
+                $z.doCallback(callback, [oPg]);
             });
+        }
+        // 否则直接回调了 
+        else {
+            $z.doCallback(callback, [oPg]);
         }
 
         // 应用样式
@@ -218,7 +229,7 @@ return ZUI.def("app.wn.hmaker_page", {
         // 保存到 DOM
         $z.setJsonToSubScriptEle(this._C.iedit.$body, 
             "hm-page-attr", 
-            $z.pick(attr, "!^title$"), 
+            $z.pick(attr, "!^(title|hm_hierarchy)$"), 
             true);
     },
     applyPageAttr : function(attr){
@@ -1384,7 +1395,7 @@ return ZUI.def("app.wn.hmaker_page", {
         var UI = this;
 
         // 记录
-        UI._page_obj = o;
+        UI._page_obj_id = o.id;
 
         // 标识编辑加载状态
         UI.markReadyForEdit(false);
@@ -1584,10 +1595,7 @@ return ZUI.def("app.wn.hmaker_page", {
     },
     //...............................................................
     getCurrentEditObj : function(force) {
-        if(force) {
-            this._page_obj = Wn.getById(this._page_obj.id, false, true);
-        }
-        return this._page_obj;
+        return Wn.getById(this._page_obj_id, false, force);
     },
     getCurrentTextContent : function(forSave) {
         return this.getHtml(null, null, forSave);

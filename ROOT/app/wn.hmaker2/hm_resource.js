@@ -101,6 +101,10 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             on_actived : function(o, jNode){
                 //console.log("nav actived", o, this);
+                // 如果当前就正在编辑这个页，啥也表做了
+                // if(UI.local("last_open_obj_id") == o.id)
+                //     return;
+
                 // 记录一下上次激活的 ID
                 UI.local("last_open_obj_id", o.id);
 
@@ -204,6 +208,10 @@ return ZUI.def("app.wn.hmaker_resource", {
     //...............................................................
     setActived : function(arg){
         this.uiTree.setActived(arg);
+    },
+    //...............................................................
+    updateNode : function(o) {
+        this.uiTree.updateNode(o.id, o, true);
     },
     //...............................................................
     reloadNode : function(o, callback){
