@@ -293,6 +293,9 @@ var methods = {
             if('lib' == o.nm) {
                 return this.msg("hmaker.lib.title");
             }
+            if('resource' == o.nm) {
+                return this.msg("hmaker.res.resource");
+            }
         }
 
         // 其他

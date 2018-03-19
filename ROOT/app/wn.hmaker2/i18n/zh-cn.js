@@ -9,6 +9,7 @@ define({
         },
         "res" : {
             "title" : '资源库',
+            "resource" : "素材库",
         },
         "action" : {
             "dup_tip" : "请输入新副本的名称"
