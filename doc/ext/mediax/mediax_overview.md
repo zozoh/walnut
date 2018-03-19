@@ -1,5 +1,5 @@
 ---
-title  : 媒体服务Mediax
+title  : MediaX概述
 author : zozoh
 tags:
 - 扩展
@@ -35,6 +35,9 @@ MediaXAPI api = mx.create("touziao_zozoh");
 MxPost obj = ...
 
 // 执行发送
+// 抽象类 AbstractMediaXAPI 提供了 checkTicket 方法
+// 发送前需要登录的子类，调用这个方法，取回自己的连接票据
+// 这个函数会保证票据只会被生成一次
 MxRePost re = api.post(obj);
 
 // 搜刮最多100条数据
@@ -105,7 +108,6 @@ ZHIHU      | 知乎
 ZHZL       | 知乎专栏
 EMAIL      | 电子邮箱
 SMS        | 手机短信
-
 
 
 

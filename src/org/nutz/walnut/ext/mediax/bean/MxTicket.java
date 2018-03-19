@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.mediax.bean;
 
-import org.nutz.lang.util.NutMap;
-
 /**
  * 存放各个媒体平台的登录验证信息。
  * <p>
@@ -9,6 +7,6 @@ import org.nutz.lang.util.NutMap;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class MxTicket extends NutMap {
+public class MxTicket {
 
 }
