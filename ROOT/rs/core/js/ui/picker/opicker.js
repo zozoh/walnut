@@ -41,16 +41,21 @@ return ZUI.def("ui.picker.opicker", {
 
             // 准备数据，没有的话，采用上一次本对话框选择的数据
             var o = UI.getObj();
-            //console.log(o)
-
-            // 如果要求选择的对象在不给定目录内，相当于 null
-            if(opt.mustInBase && o) {
-                if(!Wn.isInDir(base, o))
-                    o = null;
-            }
+            console.log(o)
             
             // 重新定义一下 base
-            base = Wn.getBaseDirPath(o, UI, opt.lastBaseKey) || base;
+            var lastPath = Wn.getBaseDirPath(o, UI, opt.lastBaseKey);
+            var oLast = lastPath ? Wn.fetch(lastPath, true) : null;
+            // 如果有上次打开的目录
+            if(oLast) {
+                if(opt.mustInBase && !Wn.isInDir(base, oLast)){
+                    // 什么也不做，就用给定的 base 咯
+                }
+                // 否则，更新一下 base 咯
+                else {
+                    base = oLast;
+                }
+            }
 
             // 打开对话框
             POP.browser({
