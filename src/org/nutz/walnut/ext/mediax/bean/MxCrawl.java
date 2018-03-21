@@ -8,10 +8,19 @@ public class MxCrawl {
         this.limit = 0;
     }
 
+    /**
+     * 指定 URI
+     */
     public String uri;
 
+    /**
+     * 指定一个日期，仅爬取这个日期之后的数据
+     */
     public Date lastDate;
 
+    /**
+     * 限制最多爬取数量
+     */
     public int limit;
 
     public MxCrawl uri(String uri) {

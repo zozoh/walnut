@@ -25,11 +25,11 @@ Mediax 是一个工具类库，可以用它来对接其他的媒体资源，譬�
 # `MediaX` 的工作流程
 
 ```java
-// 得到实例
+// 得到工厂类实例
 MediaXService mx = ...
 
 // 创建接口
-MediaXAPI api = mx.create("touziao_zozoh");
+MediaXAPI api = mx.create("www.toutiao.com");
 
 // 准备发送数据
 MxPost obj = ...
@@ -65,14 +65,6 @@ List<MxReCrawl> list = api.crawl("http://xxxxx?id=xxx", "2018-03-22", 100);
 文件的内容为空，必要的信息全部存在元数据上：
 
 ```js
-// 这个为目标媒体的类型，必须固定。下面我们会给出一个全媒体所有键的表
-mtype  : "JRTT"
-
-// 某些媒体，譬如某个小 Discuz 论坛需要一个地址
-// 但是其他的媒体，譬如知乎，地址是固定的
-// 所以 Discuz 的实现类需要这个字段，而知乎的实现类就不需要
-host   : "127.0.0.1"
-
 // 验证用的账号密码，当然对于今日头条，微信公众号，这个相当于是
 // AppID/SecretKey
 login  : "xxxx"
