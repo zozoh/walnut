@@ -42,7 +42,7 @@ public class thing_import implements JvmHdl {
         }
 
         // 判断clz是否为导入接口的实现类
-        if (!tarClz.isAssignableFrom(ThingFill.class)) {
+        if (!ThingFill.class.isAssignableFrom(tarClz)) {
             sys.err.printf("clz [%s] is not assignable from ThingFill.class", tarImportClzName);
             return;
         }
