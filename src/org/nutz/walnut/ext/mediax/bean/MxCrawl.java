@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.mediax.bean;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
+
+import org.nutz.lang.Times;
 
 public class MxCrawl {
 
@@ -11,7 +15,7 @@ public class MxCrawl {
     /**
      * 指定 URI
      */
-    public String uri;
+    public URI uri;
 
     /**
      * 指定一个日期，仅爬取这个日期之后的数据
@@ -23,13 +27,22 @@ public class MxCrawl {
      */
     public int limit;
 
-    public MxCrawl uri(String uri) {
+    public MxCrawl uri(String uri) throws URISyntaxException {
+        return uri(new URI(uri));
+    }
+
+    public MxCrawl uri(URI uri) {
         this.uri = uri;
         return this;
     }
 
-    public MxCrawl lastDate(Date last) {
-        this.lastDate = last;
+    public MxCrawl lastDate(String last) {
+        this.lastDate = Times.D(last);
+        return this;
+    }
+    
+    public MxCrawl lastDate(long ms) {
+        this.lastDate = Times.D(ms);
         return this;
     }
 

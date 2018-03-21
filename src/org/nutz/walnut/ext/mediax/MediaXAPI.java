@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.mediax;
 
-import java.util.Date;
 import java.util.List;
 
 import org.nutz.walnut.ext.mediax.bean.MxAccount;
@@ -26,11 +25,5 @@ public interface MediaXAPI {
     MxRePost post(MxPost obj);
 
     List<MxReCrawl> crawl(MxCrawl cr);
-
-    List<MxReCrawl> crawl(String uri, int limit);
-
-    List<MxReCrawl> crawl(String uri, Date last);
-
-    List<MxReCrawl> crawl(String uri, Date last, int limit);
 
 }

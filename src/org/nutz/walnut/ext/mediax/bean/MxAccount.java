@@ -16,6 +16,6 @@ public class MxAccount {
     // 下面的信息对于查找比较有帮助
     public String nickname;
     public int alvl;
-    public String thumb;
+    public String avatar;
 
 }

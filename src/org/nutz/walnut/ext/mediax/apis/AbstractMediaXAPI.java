@@ -1,12 +1,7 @@
 package org.nutz.walnut.ext.mediax.apis;
 
-import java.util.Date;
-import java.util.List;
-
 import org.nutz.walnut.ext.mediax.MediaXAPI;
 import org.nutz.walnut.ext.mediax.bean.MxAccount;
-import org.nutz.walnut.ext.mediax.bean.MxCrawl;
-import org.nutz.walnut.ext.mediax.bean.MxReCrawl;
 import org.nutz.walnut.ext.mediax.bean.MxTicket;
 
 /**
@@ -33,21 +28,6 @@ public abstract class AbstractMediaXAPI implements MediaXAPI {
     @Override
     public MxAccount getAccount() {
         return account;
-    }
-
-    @Override
-    public List<MxReCrawl> crawl(String uri, int limit) {
-        return this.crawl(new MxCrawl().uri(uri).limit(limit));
-    }
-
-    @Override
-    public List<MxReCrawl> crawl(String uri, Date last) {
-        return this.crawl(new MxCrawl().uri(uri).lastDate(last));
-    }
-
-    @Override
-    public List<MxReCrawl> crawl(String uri, Date last, int limit) {
-        return this.crawl(new MxCrawl().uri(uri).lastDate(last).limit(limit));
     }
 
     /**
