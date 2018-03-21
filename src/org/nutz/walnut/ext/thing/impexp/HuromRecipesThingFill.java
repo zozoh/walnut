@@ -1,5 +1,9 @@
 package org.nutz.walnut.ext.thing.impexp;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +42,10 @@ public class HuromRecipesThingFill implements ThingFill {
                     imgNms.add(ele.name());
                 } else if (ele.isType("txt")) {
                     String tnm = ele.name().replaceAll(".txt", "");
-                    String content = sys.io.readText(ele);
+                    InputStream cin = sys.io.getInputStream(ele, 0);
+                    String content = getStrFromInsByCode(cin, "GBK");
                     content = content.replace("食材", "# 食材");
+                    content = content.replace(tnm, "# " + tnm);
                     impInfo.setv("nm", tnm);
                     impInfo.setv("content", content);
                 }
@@ -75,6 +81,31 @@ public class HuromRecipesThingFill implements ThingFill {
             sys.exec2(addMedia);
         }
         return true;
+    }
+
+    public static String getStrFromInsByCode(InputStream is, String code) {
+        StringBuilder builder = new StringBuilder();
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new InputStreamReader(is, code));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line + "\n");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                reader.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.toString();
     }
 
     @Override
