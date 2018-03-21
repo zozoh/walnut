@@ -75,62 +75,19 @@ return ZUI.def("app.wn.hm_com_image", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 更新图片的样式
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        var src  = '';
-        if(com.src) {
-            // 指定了绝对路径
-            if(/^https?:\/\//i.test(com.src)) {
-                src = com.src
-            }
-            // 指定了文件对象
-            else if(/^id:[\w\d]+/.test(com.src)) {
-                // 试图检查一下这个对象是否存在
-                var re = Wn.exec('obj ' + com.src);
-                // 不存在
-                if(/^e./.test(re)) {
-                    src = BLANK_IMG;
-                    com.src = null;
-                }
-                // 读取 src
-                else {
-                    src = '/o/read/' + com.src;
-                }
-            }
-            // 指定了相对站点的路径
-            else if(/^\//.test(com.src)){
-                var oHome = this.getHomeObj();
-                var src = "id:" + oHome.id + com.src;
-                // 试图检查一下这个对象是否存在
-                var re = Wn.exec('obj ' + src);
-                // 不存在
-                if(/^e./.test(re)) {
-                    src = BLANK_IMG;
-                    com.src = null;
-                }
-                // 读取 src
-                else {
-                    src = '/o/read/' + src;
-                }
-            }
-            // 默认是指定了相对页面的路径
-            else {
-                var oPage = this.pageUI().getCurrentEditObj();
-                var src = "id:" + oPage.pid + com.src;
-                // 试图检查一下这个对象是否存在
-                var re = Wn.exec('obj ' + src);
-                // 不存在
-                if(/^e./.test(re)) {
-                    src = BLANK_IMG;
-                    com.src = null;
-                }
-                // 读取 src
-                else {
-                    src = '/o/read/' + src;
-                }
-            }
-            //  如果归零了 com.src 更新一下
-            if(!com.src)
-                this.setData(com);
+        // 得到视频对象
+        var oImg = com.src ? UI.explain_src(com.src) : null;
+
+        var src  = _.isString(oImg)
+                        ? oImg
+                        : (oImg ? "/o/read/id:"+oImg.id : BLANK_IMG);
+        
+        //  如果归零了 com.src 更新一下
+        if(!oImg) {
+            com.src = null;
+            this.setData(com);
         }
+        
         //console.log(jImg.attr("src"), src)
         // 如果 src 发生变更，重新加载图片后，应该重新设置图片控件宽高
         if(src != jImg.attr("src")) {

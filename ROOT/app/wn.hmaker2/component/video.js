@@ -44,20 +44,29 @@ return ZUI.def("app.wn.hm_com_video", {
             jCon = $('<div class="hmc-video-con">').appendTo(UI.arena.empty());
         else
             jCon.find('>div[m]').remove();
-
-        var jImg = jCon.find('>img');
-        if(jImg.length == 0)
-            jImg = $('<img>').appendTo(jCon);
         
+        // 得到视频对象
+        var oVideo = com.src ? UI.explain_src(com.src) : null;
         
-        // 加载预览图
-        if(com.src) {
-            var oVideo = Wn.fetch(Wn.appendPath(oHome.ph, com.src));
-            var vi_src = "/o/read/"+oVideo.videoc_dir+"/_preview.jpg";
-            
-            // 显示图片
-            jImg.attr("src", vi_src);
-
+        // 显示视频预览
+        if(oVideo) {
+            // 站外视频
+            if(_.isString(oVideo)) {
+                $('<div m="blank"><i class="fa fa-video"></i></div>').appendTo(jCon.attr({
+                    "no-src" : "yes"
+                }));
+            }
+            // 站内视频
+            else if(oVideo) {
+                var jImg = jCon.find('>img');
+                if(jImg.length == 0)
+                    jImg = $('<img>').appendTo(jCon);
+                
+                var vi_src = "/o/read/"+oVideo.videoc_dir+"/_preview.jpg";
+                
+                // 显示图片
+                jImg.attr("src", vi_src);
+            }
             // 视频封面
             if(com.poster) {
                 var jPoster = $('<div m="poster">').appendTo(jCon)
@@ -71,6 +80,12 @@ return ZUI.def("app.wn.hm_com_video", {
         }
         // 显示空区域
         else {
+            // 确保 src 为空
+            if(com.src) {
+                com.src = null;
+                UI.setData(com);
+            }
+
             $('<div m="blank"><i class="fa fa-video"></i></div>').appendTo(jCon.attr({
                 "no-src" : "yes"
             }));

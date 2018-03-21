@@ -694,6 +694,51 @@ var methods = {
 
     },
     //...............................................................
+    // 将 SRC 变成 /o/read/xxx 的模式
+    // 可能返回三个种值:
+    //  - "http:/xxx"   : 字符串表示外链
+    //  - null          : 表示文件不存在
+    //  - {...}         : 对应的 Obj
+    explain_src : function(src) {
+        var UI = this;
+        // 指定了绝对路径
+        if(/^https?:\/\//i.test(src)) {
+            return src;
+        }
+        // 指定了文件对象
+        if(/^id:[\w\d]+/.test(src)) {
+            return Wn.get(src, true);
+        }
+        // 指定了相对站点的路径
+        else if(/^\//.test(src)){
+            var oHome = UI.getHomeObj();
+            src = "id:" + oHome.id + src;
+            // 试图检查一下这个对象是否存在
+            var re = Wn.exec('obj ' + src);
+            // 不存在
+            if(/^e./.test(re)) {
+                return null;
+            }
+            // 返回对象
+            var o = $z.fromJson(re);
+            Wn.saveToCache(o);
+            return o;
+        }
+        // 默认是指定了相对页面的路径
+        var oPage = UI.pageUI().getCurrentEditObj();
+        src = "id:" + oPage.pid + src;
+        // 试图检查一下这个对象是否存在
+        var re = Wn.exec('obj ' + src);
+        // 不存在
+        if(/^e./.test(re)) {
+            return null;
+        }
+        // 返回对象
+        var o = $z.fromJson(re);
+        Wn.saveToCache(o);
+        return o;
+    },
+    //...............................................................
     __form_fld_pick_folder : function(fld) {
         var UI = this;
         return {

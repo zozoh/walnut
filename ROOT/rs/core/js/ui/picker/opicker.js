@@ -41,7 +41,7 @@ return ZUI.def("ui.picker.opicker", {
 
             // 准备数据，没有的话，采用上一次本对话框选择的数据
             var o = UI.getObj();
-            console.log(o)
+            //console.log(o)
             
             // 重新定义一下 base
             var lastPath = Wn.getBaseDirPath(o, UI, opt.lastBaseKey);
