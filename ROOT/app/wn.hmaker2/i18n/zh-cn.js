@@ -308,10 +308,12 @@ define({
                 "naturalWidth"  : "原始宽度",
                 "naturalHeight" : "原始高度",
                 "text"     : "图片文本",
+                "text_tip" : "支持Markdown语法",
                 "tpos"   : "文字位置",
                 "tpos_top"    : "顶部",
                 "tpos_bottom" : "底部",
                 "tpos_center" : "居中",
+                "hovershow"   : "悬停显示",
             },
             "video" : {
                 "name"  : "视频",

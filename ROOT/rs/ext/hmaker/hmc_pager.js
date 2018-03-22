@@ -28,6 +28,7 @@ html += '<div class="pg_ele pg_btn"><a key="next"></a><a key="last"></a></div>';
 html += '<div class="pg_ele pg_brief"></div>';
 //...........................................................
 function __redraw(jq, opt) {
+    //console.log(opt)
     // 重置 DOM
     jq.html(html);
 

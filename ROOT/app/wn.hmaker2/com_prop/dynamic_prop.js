@@ -459,6 +459,22 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fld.uiType = "@text";
                 fld.uiConf = F.arg ? $z.fromJson('{'+F.arg+'}') : {};
             }
+            // 字段：JSON
+            else if("json" == F.type) {
+                fld.type = "object";
+                fld.uiWidth = "all";
+                fld.uiType = "@text";
+                fld.uiConf = _.extend({
+                        height: 90
+                    }, (F.arg ? $z.fromJson('{'+F.arg+'}') : {}), {
+                        formatData : function(val) {
+                            return $z.map(val);
+                        },
+                        parseData : function(val) {
+                            return $z.toJson(val, null, '  ');
+                        }
+                    });
+            }
             // 直接使用
             else {
                 _.extend(fld, F);

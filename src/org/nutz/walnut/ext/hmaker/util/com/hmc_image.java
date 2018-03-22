@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.Hms;
 
@@ -30,6 +31,11 @@ public class hmc_image extends AbstractNoneValueCom {
         if (ing.propCom.has("textPos")) {
             eleArena.attr("tpos", ing.propCom.getString("textPos"));
         }
+        if (ing.propCom.getBoolean("hoverShow")) {
+            eleArena.attr("hover-show", "yes");
+        } else {
+            eleArena.removeAttr("hover-show");
+        }
 
         // zozoh: src 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
         eleArena.appendElement("img").attr("src", src);
@@ -43,7 +49,11 @@ public class hmc_image extends AbstractNoneValueCom {
         // 文字属性
         String text = ing.propCom.getString("text");
         if (!Strings.isBlank(text)) {
-            eleArena.appendElement("section").text(text);
+            String html = Markdown.toHtml(text, null);
+            eleArena.appendElement("section")
+                    .appendElement("article")
+                    .addClass("md-content")
+                    .html(html);
         }
 
         // ..........................................

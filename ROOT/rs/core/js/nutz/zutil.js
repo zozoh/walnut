@@ -1886,10 +1886,18 @@
             for (var key in mapping) {
                 var val = mapping[key];
                 var m = /^=(.+)$/.exec(val);
-                if (m)
+                // 直接等于某个值
+                if (m) {
                     re[key] = obj[m[1]];
-                else
+                }
+                // 进行模板替换
+                else if(val.indexOf('{{') >= 0) {
+                    re[key] = zUtil.tmpl(val)(obj);
+                }
+                // 静态值
+                else {
                     re[key] = val;
+                }
             }
             return re;
         },
@@ -4285,6 +4293,23 @@
             str = $.trim(str);
             if (!str)
                 return null;
+            try {
+                return JSON.parse(str, fltFunc);
+            } catch (e1) {
+                try {
+                    return eval('(' + str + ')');
+                } catch (e2) {
+                    throw e2 + " \n" + str;
+                }
+            }
+        },
+        //............................................
+        map : function(str, fltFunc) {
+            str = $.trim(str);
+            if(!/^\{/.test(str))
+                str = "{" + str;
+            if(!/\}$/.test(str))
+                str = str + "}";
             try {
                 return JSON.parse(str, fltFunc);
             } catch (e1) {

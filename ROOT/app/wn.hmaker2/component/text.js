@@ -45,7 +45,6 @@ return ZUI.def("app.wn.hm_com_text", {
 
         // 得到当前网页路径
         var oPage  = UI.pageUI().getCurrentEditObj();
-        var phPageDir = $z.getParentPath(oPage.ph);
 
         // 得到内容类型
         var ttp = com.contentType || "auto";
@@ -58,7 +57,7 @@ return ZUI.def("app.wn.hm_com_text", {
             if("markdown" == ttp || ("auto" == ttp && code.indexOf('\n') >=0 )){
                 html = $z.markdownToHtml(com.code, {
                     media : function(src) {
-                        return UI.__tidy_src(src, oSiteHome, phPageDir);
+                        return UI.tidy_src(src, oSiteHome, oPage);
                     }
                 });
                 html = '<article class="md-content">' + html + '</article>';
@@ -124,7 +123,7 @@ return ZUI.def("app.wn.hm_com_text", {
             jAr.find('img').each(function(){
                 var jImg = $(this); 
                 var src  = jImg.attr("src");
-                var src2 = UI.__tidy_src(src, oSiteHome, phPageDir);
+                var src2 = UI.tidy_src(src, oSiteHome, oPage);
                 if(src!=src2) {
                     jImg.attr("src", src2);
                 }
@@ -137,7 +136,7 @@ return ZUI.def("app.wn.hm_com_text", {
             jPoster = jAr.find('pre[code-type="poster"]');
             $z.explainPoster(jPoster, {
                 media : function(src) {
-                    return UI.__tidy_src(src, oSiteHome, phPageDir);
+                    return UI.tidy_src(src, oSiteHome, oPage);
                 }
             });
         }
@@ -153,34 +152,6 @@ return ZUI.def("app.wn.hm_com_text", {
                 re.push(an);
         });
         return re;
-    },
-    //...............................................................
-    __tidy_src : function(src, oSiteHome, phPageDir) {
-        // 已经被整理过了
-        if(/^\/o\/read\/id:/.test(src))
-            return src;
-
-        // 找到对应的媒体文件
-        var phMedia;
-
-        // 绝对路径是相对于站点的根
-        if(/^\//.test(src)){
-            phMedia = Wn.appendPath(oSiteHome.ph, src);
-        }
-        // 相对路径的话
-        else {
-            phMedia = Wn.appendPath(phPageDir, src);
-        }
-
-        // 合并路径中的 ..
-        phMedia = $z.getCanonicalPath(phMedia);
-
-        // 如果存在这个文件，则转换为 /o/read 的形式
-        var oMedia = Wn.fetch(phMedia, true);
-        if(oMedia){
-            return "/o/read/id:" + oMedia.id;
-        }
-        return src;
     },
     //...............................................................
     getBlockPropFields : function(block) {

@@ -109,13 +109,21 @@ return ZUI.def("app.wn.hm_com_image_prop", {
                 }]
             }
         }, {
+            key    : "hoverShow",
+            title  : "i18n:hmaker.com.image.hovershow",
+            type   : "boolean",
+            dft    : false,
+            editAs : "toggle", 
+        }, {
             key    : "text",
             title  : "i18n:hmaker.com.image.text",
+            tip    : "i18n:hmaker.com.image.text_tip",
             type   : "string",
             dft    : null,
             emptyAsNull : true,
+            uiWidth : "all",
             editAs : "text",
-            uiConf : {height:100}
+            uiConf : {height:200}
         }];
     },
     //...............................................................

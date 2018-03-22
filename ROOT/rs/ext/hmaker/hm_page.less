@@ -116,10 +116,17 @@ ul, ol {list-style: none; margin:0; padding:0;}
 .hmc-image[tpos="center"] section{
     top:0;bottom:0;left:0;right:0;
     @flex(); flex-wrap:wrap; align-items:center;
+    justify-content: center;
 }
 .hmc-image[tpos="top"]  section{top:0;left:0;right:0;}
 .hmc-image[tpos="bottom"]  section{bottom:0;left:0;right:0;}
 
+.hmc-image[hover-show] {
+    section{opacity: 0; transition: opacity .5s;}
+    &:hover {
+        section{opacity: 1;}
+    }
+}
 /**
  * 控件: video
  */

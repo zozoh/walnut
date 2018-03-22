@@ -103,7 +103,7 @@ function do_reload(jData, jumpToHead, callback){
         callback = jumpToHead;
         jumpToHead = false;
     }
-    // 需要强制调整相关分页条到顶部
+    // 需要强制调整相关分页条到第一页
     if(jumpToHead) {
         jump_pager_to_head(opt);
     }

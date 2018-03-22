@@ -120,7 +120,7 @@ window.HmRT = {
             // 字符串形式
             if(_.isString(val)) {
                 // 分析一下
-                var m = /^([*])?(\(([^\)]+)\))?@(input|text|TSS|thingset|site|com|link|toggle|switch|droplist|fields)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
+                var m = /^([*])?(\(([^\)]+)\))?@(input|text|json|TSS|thingset|site|com|link|toggle|switch|droplist|fields)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
                 // 指定了类型
                 if(m) {
                     fld.required = m[1] ? true : false;
@@ -204,6 +204,13 @@ window.HmRT = {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // 得到值
             var val = result[key];
+
+            // 如果是一个名值对，那么直接融合了
+            if(_.isObject(val)) {
+                _.extend(re.data, val);
+                continue;
+            }
+
             if(opt.trimValue)
                 val = $.trim(val);
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -213,10 +220,15 @@ window.HmRT = {
             })(opt.context);
             //console.log(key, val, v2);
 
+            // 忽略空值
+            if(!v2)
+                continue;
+
             // 特殊类型的值
             // TODO Session 变量
             // TODO Cookie 的值
             var m = /^([@#])(<(.+)>)?(.*)$/.exec(v2);
+            //console.log(m);
             if(m && m[2]) {
                 var p_tp  = m[1];
                 var p_val = m[3];

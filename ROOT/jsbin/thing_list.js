@@ -56,15 +56,19 @@ function _main(params){
     }
 
     // 设置页大小
-    var pgsz = 10;
-    if((typeof params.pgsz) == "number") {
+    var pgsz = parseInt(params.pgsz);
+    if(isNaN(pgsz)) {
+        pgsz = 10;
+    }
+    // 数字的话检查一下
+    else {
         // 最多一千条记录
-        if(params.pgsz > 1000) {
+        if(pgsz > 1000) {
             pgsz = 1000;
         }
         // 比1大才有意义
-        else if(params.pgsz >= 1) {
-            pgsz = params.pgsz;
+        else if(pgsz < 1) {
+            pgsz = 10;
         }
 
     }

@@ -699,7 +699,7 @@ var methods = {
     //  - "http:/xxx"   : 字符串表示外链
     //  - null          : 表示文件不存在
     //  - {...}         : 对应的 Obj
-    explain_src : function(src) {
+    explain_src : function(src, oHome, oPage) {
         var UI = this;
         // 指定了绝对路径
         if(/^https?:\/\//i.test(src)) {
@@ -711,7 +711,7 @@ var methods = {
         }
         // 指定了相对站点的路径
         else if(/^\//.test(src)){
-            var oHome = UI.getHomeObj();
+            oHome = oHome || UI.getHomeObj();
             src = "id:" + oHome.id + src;
             // 试图检查一下这个对象是否存在
             var re = Wn.exec('obj ' + src);
@@ -725,8 +725,8 @@ var methods = {
             return o;
         }
         // 默认是指定了相对页面的路径
-        var oPage = UI.pageUI().getCurrentEditObj();
-        src = "id:" + oPage.pid + src;
+        oPage = oPage || UI.pageUI().getCurrentEditObj();
+        src = "id:" + oPage.pid + "/" + src;
         // 试图检查一下这个对象是否存在
         var re = Wn.exec('obj ' + src);
         // 不存在
@@ -737,6 +737,20 @@ var methods = {
         var o = $z.fromJson(re);
         Wn.saveToCache(o);
         return o;
+    },
+    //...............................................................
+    tidy_src : function(src, oHome, oPage) {
+        // 已经被整理过了
+        if(/^\/o\/read\/id:/.test(src))
+            return src;
+
+        // 找到对应的媒体文件
+        console.log(src);
+        var oMedia = this.explain_src(src, oHome, oPage);
+        if(oMedia){
+            return "/o/read/id:" + oMedia.id;
+        }
+        return src;
     },
     //...............................................................
     __form_fld_pick_folder : function(fld) {

@@ -10,7 +10,6 @@ params: {
     k    : "搜索关键字",                    // 关键字
     s    : "price:-1,vvv:1",              // 排序字段
     detail : "yes",      // 如果为 "yes" 表示读取数据详情
-    cb   : "th_cate",  // 标识了分类字段，如果有这个字段的对象，会读取一下分类对象详情
     jfmt : true,       // 输出的结果是否需要 JSON 格式化  
     pn   : 8,          // 要跳转的页码
     pgsz : 12,         // 页大小，默认 100
@@ -99,41 +98,6 @@ function _main(params){
         sys.exec("ajaxre '" + reJson + "'");
         return;
     }
-
-    // 看看是否需要再次读取分类信息
-    if(params.cb) {
-        var reo = JSON.parse(reJson);
-        // 准备得到列表
-        var list = reo.list && reo.list.length > 0 
-                    ? reo.list
-                    : reo;
-        // 处理结果
-        if(list && list.length > 0) {
-            // 准备缓存
-            var cache = {};
-            // 循环
-            for(var i=0; i<list.length; i++) {
-                var th = list[i];
-                var cid = th[params.cb];
-                if(cid) {
-                    var oCate = cache[cid];
-                    if(!oCate) {
-                        var str = sys.exec2('obj -cqn id:' + cid);
-                        if(!/^e./.test(str)){
-                            oCate = JSON.parse(str);
-                            cache[cid] = oCate;
-                        }
-                    }
-                    // 记录
-                    th._obj_cate = oCate;
-                }
-            } // 结束循环
-            // 重新输出结果
-            reJson = params.jfmt
-                        ? JSON.stringify(reo, null, '    ')
-                        : JSON.stringify(reo);
-        } // ~ if(reo.list && reo.list.length > 0)
-    } // ~ if(params.cb)
 
     // 最后输出结果
     sys.out.println(reJson);

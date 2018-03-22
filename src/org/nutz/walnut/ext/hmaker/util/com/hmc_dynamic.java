@@ -251,6 +251,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
      *            运行时上下文
      * @return 格式化后用来生成服务器运行脚本的参数表, null 表示本控件内容无效
      */
+    @SuppressWarnings("unchecked")
     private HmcDynamicScriptInfo __setup_dynamic_content(HmPageTranslating ing) {
         NutMap com = ing.propCom;
         // 没模板，删掉
@@ -306,10 +307,20 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             // 处理每个参数
             for (String key : params.keySet()) {
                 Object val = params.get(key);
-                if (null != val && val instanceof CharSequence) {
+
+                // 忽略空值
+                if (null == val)
+                    continue;
+
+                // 处理字符串
+                if (val instanceof CharSequence) {
                     String str = Strings.trim(val.toString());
                     // 所有 ${xxx} 进行静态替换
                     str = Tmpl.exec(str, pc);
+
+                    // 忽略空值
+                    if (Strings.isBlank(str))
+                        continue;
 
                     // 加入参数表
                     params.put(key, str);
@@ -341,6 +352,13 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                     // 其他就是静态参数
                     else {
                         hdsi.update.put(key, str);
+                    }
+                }
+                // 处理 Map
+                else if (val instanceof Map) {
+                    Map<String, Object> map = (Map<String, Object>) val;
+                    for (Map.Entry<String, Object> en : map.entrySet()) {
+                        hdsi.update.put(en.getKey(), en.getValue());
                     }
                 }
             }
@@ -480,7 +498,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         else {
             fld = new HmApiParamField();
 
-            Pattern p = Pattern.compile("^([*])?(\\(([^\\)]+)\\))?@(input|thingset|site|com|link)(=([^:#{]*))?(:([^#{]*))?(\\{[^}]*\\})?(#(.*))?$");
+            Pattern p = Pattern.compile("^([*])?(\\(([^\\)]+)\\))?@(input|text|json|TSS|thingset|site|com|link|toggle|switch|droplist|fields)(=([^:#{]*))?(:([^#{]*))?(\\{[^}]*\\})?(#(.*))?$");
             Matcher m = p.matcher(value.toString());
 
             if (m.find()) {

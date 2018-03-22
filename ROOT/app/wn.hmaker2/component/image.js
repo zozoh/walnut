@@ -54,6 +54,7 @@ return ZUI.def("app.wn.hm_com_image", {
         // 更新属性
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         UI.arena.attr("tpos", com.textPos || null);
+        UI.arena.attr("hover-show", com.hoverShow ? "yes" : null);
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接: 要显示链接提示图标
@@ -130,12 +131,21 @@ return ZUI.def("app.wn.hm_com_image", {
         // 准备更新文本样式
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(com.text) {
+            var oSiteHome  = UI.getHomeObj();
+            var oPage      = UI.pageUI().getCurrentEditObj();
+            var html = $z.markdownToHtml(com.text, {
+                    media : function(src) {
+                        return UI.tidy_src(src, oSiteHome, oPage);
+                    }
+                });
             // 设置文本显示
-            var jTxt = UI.arena.children("section");
+            var jTxt = UI.arena.children("section").empty();
             if(jTxt.length == 0) {
                 jTxt = $('<section>').appendTo(UI.arena);
             }
-            jTxt.text(com.text);
+            $('<article class="md-content">')
+                .html(html)
+                    .appendTo(jTxt);
         }
         // 标记不显示文本
         else {
@@ -148,7 +158,7 @@ return ZUI.def("app.wn.hm_com_image", {
     applyBlockCss : function(cssCom, cssArena) {
         // 处理图像的宽高
         //console.log(cssCom)
-        var jImg = this.arena.find("img");
+        var jImg = this.arena.find(">img");
         jImg.css({
             "width"  : $D.dom.isUnset(cssCom.width)  ? "" : "100%",
             "height" : $D.dom.isUnset(cssCom.height) ? "" : "100%",
@@ -192,7 +202,7 @@ return ZUI.def("app.wn.hm_com_image", {
         return [
             "margin", "padding",
             "border","color", "background",
-            "textAlign", "fontFamily", "fontSize", "_font",
+            "fontFamily", "fontSize", "_font",
             "lineHeight", "letterSpacing",
             "textShadow","boxShadow","borderRadius"
         ];

@@ -147,7 +147,7 @@ var CMD = {
             jUl.find("li[it-type]").removeAttr("it-checked");
             jInfo.attr("none-checked", "yes");
             if(reloadDynamic)
-                HmRT.invokeDynamicReload(this);
+                HmRT.invokeDynamicReload(this, true);
         }
         // 多选模式
         else if(jUl.closest('.hmcf-fld[enable-multi]').length > 0) {
@@ -159,7 +159,7 @@ var CMD = {
             jLi.attr("it-checked", "yes");
             jInfo.removeAttr("none-checked");
             if(reloadDynamic)
-                HmRT.invokeDynamicReload(this);
+                HmRT.invokeDynamicReload(this, true);
         }
     },
     // 切换折叠项的显示
@@ -230,7 +230,7 @@ var CMD = {
         CMD.lessItems.call(this, jFld);
 
         if(reloadDynamic)
-            HmRT.invokeDynamicReload(this);
+            HmRT.invokeDynamicReload(this, true);
     },
     // 重新计算选项们的行号
     recountItemsRowNb : function(ele) {
