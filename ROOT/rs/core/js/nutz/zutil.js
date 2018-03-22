@@ -5259,6 +5259,106 @@
             jq.remove();
         },
         //.............................................
+        /* 将一个视频包裹成一个简单控制的播放
+         - opt : {
+            icons : {
+                "pause"   : '<i class="zmdi zmdi-pause">',
+                "play"    : '<i class="zmdi zmdi-play">',
+                "loading" : '<i class="zmdi zmdi-spinner zmdi-hc-spin">',
+                "replay"  : '<i class="zmdi zmdi-replay">',
+            },
+            autoFitHeight : true,
+         }
+        */
+        wrapVideoSimplePlayCtrl : function(jVideo, opt) {
+            jVideo = $(jVideo);
+            // 防空
+            if(!jVideo || jVideo.length == 0)
+                return;
+            // 已经设置过了
+            if(jVideo.parent().hasClass(".z-video-con"))
+                return;
+
+            // 多个视频
+            if(jVideo.length > 1) {
+                for(var i=0; i<jVideo.length; i++) {
+                    this.wrapVideoSimplePlayCtrl(jVideo.eq(i), opt);
+                }
+                return;
+            }
+
+            // 来吧
+            opt = opt || {};
+            this.setUndefined(opt, "autoFitHeight", true);
+            var jCon = $('<div class="z-video-con">').insertBefore(jVideo);
+            jCon.append(jVideo);
+            if(opt.autoFitHeight)
+                jCon.css("height", "100%");
+            //................................................
+            // Copy Video 的宽高属性
+            console.log($D.dom.getProp(jVideo, ["width", "height"]));
+            //................................................
+            // 包裹一下控制层
+            var jCtrl = $('<div class="z-video-ctrl">').appendTo(jCon);
+            var jB    = $('<b>').appendTo(jCtrl);
+            //................................................
+            // 设置默认 Icon
+            var icons = _.extend({
+                    "pause"   : '<i class="zmdi zmdi-pause">',
+                    "play"    : '<i class="zmdi zmdi-play">',
+                    "loading" : '<i class="zmdi zmdi-spinner zmdi-hc-spin">',
+                    "replay"  : '<i class="zmdi zmdi-replay">',
+                }, opt.icons);
+
+            // 先显示 Loading
+            jCtrl.attr("st", "loading");
+            jB.html(icons.loading);
+            //................................................
+            // 设置事件
+            jVideo.on("canplay", function(){
+                jCtrl.attr("st", "pause");
+                jB.html(icons.play);
+            });
+
+            // 事件:暂停时
+            jVideo.on("pause", function(){
+                jCtrl.attr("st", "pause");
+                jB.html(icons.play);
+            });
+
+            // 事件:播放时
+            jVideo.on("playing", function(){
+                jCtrl.attr("st", "playing");
+                jB.html(icons.pause);
+            });
+
+            // 事件:完成时
+            jVideo.on("ended", function(){
+                jCtrl.attr("st", "ended");
+                jB.html(icons.replay);
+            });
+            //................................................
+            // 事件:点击播放
+            jCon.on("click", ".z-video-ctrl", function(){
+                var st = $(this).attr("st");
+
+                // 暂停 -> 播放
+                if("pause" == st) {
+                    jVideo[0].play();
+                }
+                // 播放 -> 暂停
+                else if("playing" == st) {
+                    jVideo[0].pause();
+                }
+                // 结束 -> 重播
+                else if("ended" == st) {
+                    jVideo[0].currentTime = 0;
+                    jVideo[0].play();
+                }
+            });
+
+        },
+        //.............................................
         // 返回当前时间
         currentTime: function (date) {
             if (typeof date == "number") {

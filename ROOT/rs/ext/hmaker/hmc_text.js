@@ -18,6 +18,9 @@ $.fn.extend({ "hmc_text" : function(opt){
                 return src;
             }
         });
+
+        // 处理一下视频
+        $z.wrapVideoSimplePlayCtrl(jAr.find('video'));
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

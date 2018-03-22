@@ -681,7 +681,7 @@ var zDom = {
         if(_.isArray(key)){
             var re = {};
             for(var i=0;i<key.length;i++) {
-                re[key[i]] = stl[key[i]];
+                re[key[i]] = sty[key[i]];
             }
             return re;
         }
