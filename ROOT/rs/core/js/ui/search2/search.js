@@ -124,7 +124,7 @@ return ZUI.def("ui.search2", {
                 })).render(function(){
                     UI.defer_report("filter");
                     UI.listenUI(UI.gasket.filter, "filter:change", function(flt){
-                        UI.refresh();
+                        UI.refresh(true);
                     });
                 });
             });
@@ -142,7 +142,7 @@ return ZUI.def("ui.search2", {
                 })).render(function(){
                     UI.defer_report("sorter");
                     UI.listenUI(UI.gasket.sorter, "sorter:change", function(flt){
-                        UI.refresh();
+                        UI.refresh(true);
                     });
                 });
             });
@@ -300,19 +300,30 @@ return ZUI.def("ui.search2", {
         });
     },
     //...............................................................
-    refresh : function(callback){
+    refresh : function(callback, jumpToHead){
         var UI  = this;
         var opt = UI.options;
-         //console.log("refresh!!!!")
+
+        // 容忍参数类型
+        if(_.isBoolean(callback)) {
+            jumpToHead = callback;
+            callback = undefined;
+        }
+
+        //console.log("refresh", jumpToHead)
         // zozoh@20151026:
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
         var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
         var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
-        var pgr = UI.uiPager  ? UI.uiPager.getData()  : {
-                                    skip : 0, limit: 0
-                                };
+        var pgr = UI.uiPager  ? UI.uiPager.getData()  
+                              : {skip : 0, limit: 0};
+
+        // 确保跳转到第一页
+        if(jumpToHead && pgr.skip > 1) {
+            pgr.skip = 1;
+        }
 
         // console.log(pgr)
 

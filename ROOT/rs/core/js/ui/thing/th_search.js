@@ -197,9 +197,15 @@ return ZUI.def("ui.th_search", {
         return this;
     },
     //..............................................
-    refresh : function(callback) {
+    refresh : function(callback, jumpToHead) {
+        // 容忍参数类型
+        if(_.isBoolean(callback)) {
+            jumpToHead = callback;
+            callback = undefined;
+        }
+
         $z.invoke(this.bus(), "showBlank");
-        this.gasket.main.refresh(callback);
+        this.gasket.main.refresh(callback, jumpToHead);
     }
     //..............................................
 });

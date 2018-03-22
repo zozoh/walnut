@@ -226,7 +226,7 @@ var DATA_MODE = {
             tip  : "i18n:thing.refresh_tip",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
             asyncHandler : function(jq, mi, callback) {
-                this.uis("search").refresh(callback);
+                this.uis("search").refresh(callback, true);
             }
         }, {
             // 命令: 删除
@@ -251,7 +251,7 @@ var DATA_MODE = {
                             var cmdText = "thing " + UI.getHomeObjId() + " clean";
                             Wn.logpanel(cmdText, function(){
                                 $z.invoke(UI.bus(), "showBlank");
-                                UI.uis("search").refresh();
+                                UI.uis("search").refresh(true);
                             });
                         }
                     });
@@ -296,7 +296,7 @@ var DATA_MODE = {
                     // 执行命令后清空对象显示，并刷新列表
                     Wn.exec(cmdText, function(re) {
                         $z.invoke(UI.bus(), "showBlank");
-                        UI.uis("search").refresh();
+                        UI.uis("search").refresh(true);
                     });
                 }
             }, {
@@ -484,7 +484,7 @@ var DATA_MODE = {
             tip  : "i18n:thing.refresh_tip",
             asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
             asyncHandler : function(jq, mi, callback) {
-                this.uis("search").refresh(callback);
+                this.uis("search").refresh(callback, true);
             }
         }, {
             // 命令: 删除

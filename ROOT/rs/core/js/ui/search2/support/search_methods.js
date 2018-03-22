@@ -38,7 +38,7 @@ var methods = {
                 icon  : '<i class="zmdi zmdi-refresh"></i>',
                 text  : "i18n:refresh",
                 handler : function(){
-                    this.refresh();
+                    this.refresh(true);
                 }
             },
             "delete" : {
