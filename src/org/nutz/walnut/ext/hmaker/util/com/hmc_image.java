@@ -49,11 +49,19 @@ public class hmc_image extends AbstractNoneValueCom {
         // 文字属性
         String text = ing.propCom.getString("text");
         if (!Strings.isBlank(text)) {
-            String html = Markdown.toHtml(text, null);
-            eleArena.appendElement("section")
-                    .appendElement("article")
-                    .addClass("md-content")
-                    .html(html);
+            // 如果包括换行，则表示是 markdown 文本
+            if (text.contains("\n")) {
+                String html = Markdown.toHtml(text, null);
+                eleArena.appendElement("section")
+                        .appendElement("article")
+                        .addClass("md-content")
+                        .html(html);
+            }
+            // 否则就是纯文本
+            else {
+                eleArena.appendElement("section").text(text);
+            }
+
         }
 
         // ..........................................
