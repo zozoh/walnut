@@ -17,7 +17,9 @@ $.fn.extend({ "hmc_video" : function(opt){
     var jVid = jq.find('video');
 
     // 包裹简单控制器
-    $z.wrapVideoSimplePlayCtrl(jVid);
+    $z.wrapVideoSimplePlayCtrl(jVid, {
+        autoFitHeight : true
+    });
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 返回自身以便链式赋值

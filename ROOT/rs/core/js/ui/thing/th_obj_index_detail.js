@@ -82,7 +82,8 @@ return ZUI.def("ui.th_obj_index_detail", {
             }, {type : "separator"}, "preview"],
             preview : conf.detail.markdown || {
                 media : function(src) {
-                    var m = /^(media|attacument)\/(.+)$/.exec(src);
+                    var m = /^(media|attachment)\/(.+)$/.exec(src);
+                    console.log(m)
                     if(m) {
                         return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
                             thset : UI.getHomeObjId(),

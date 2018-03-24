@@ -145,9 +145,14 @@ return ZUI.def("app.wn.hm_com_image", {
                             return UI.tidy_src(src, oSiteHome, oPage);
                         }
                     });
-                $('<article class="md-content">')
+                var jAr = $('<article class="md-content">')
                     .html(html)
                         .appendTo(jTxt);
+                
+                // 处理一下视频
+                $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
+                    watchClick : false
+                });
             }
             // 显示纯文字
             else {

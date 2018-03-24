@@ -5267,7 +5267,9 @@
                 "loading" : '<i class="zmdi zmdi-spinner zmdi-hc-spin">',
                 "replay"  : '<i class="zmdi zmdi-replay">',
             },
-            autoFitHeight : true,
+            autoFitHeight : false,
+            watchClick    : true,
+            copyAttrs     : ["pos","itfree","ithide","itfull","itshadow"]
          }
         */
         wrapVideoSimplePlayCtrl : function(jVideo, opt) {
@@ -5287,16 +5289,24 @@
                 return;
             }
 
-            // 来吧
+            // 来吧准备初始化配置
             opt = opt || {};
-            this.setUndefined(opt, "autoFitHeight", true);
+            this.setUndefined(opt, "autoFitHeight", false);
+            this.setUndefined(opt, "watchClick", true);
+            this.setUndefined(opt, "copyAttrs", ["pos","itfree","ithide","itfull","itshadow"]);
+
+            // 创建包裹
             var jCon = $('<div class="z-video-con">').insertBefore(jVideo);
             jCon.append(jVideo);
             if(opt.autoFitHeight)
                 jCon.css("height", "100%");
-            //................................................
-            // Copy Video 的宽高属性
-            console.log($D.dom.getProp(jVideo, ["width", "height"]));
+            if(opt.copyAttrs) {
+                for(var i=0; i<opt.copyAttrs.length;i++) {
+                    var key = opt.copyAttrs[i];
+                    var val = jVideo.attr(key) || null;
+                    jCon.attr(key, val);
+                }
+            }
             //................................................
             // 包裹一下控制层
             var jCtrl = $('<div class="z-video-ctrl">').appendTo(jCon);
@@ -5339,24 +5349,25 @@
             });
             //................................................
             // 事件:点击播放
-            jCon.on("click", ".z-video-ctrl", function(){
-                var st = $(this).attr("st");
+            if(opt.watchClick) {
+                jCon.on("click", ".z-video-ctrl", function(){
+                    var st = $(this).attr("st");
 
-                // 暂停 -> 播放
-                if("pause" == st) {
-                    jVideo[0].play();
-                }
-                // 播放 -> 暂停
-                else if("playing" == st) {
-                    jVideo[0].pause();
-                }
-                // 结束 -> 重播
-                else if("ended" == st) {
-                    jVideo[0].currentTime = 0;
-                    jVideo[0].play();
-                }
-            });
-
+                    // 暂停 -> 播放
+                    if("pause" == st) {
+                        jVideo[0].play();
+                    }
+                    // 播放 -> 暂停
+                    else if("playing" == st) {
+                        jVideo[0].pause();
+                    }
+                    // 结束 -> 重播
+                    else if("ended" == st) {
+                        jVideo[0].currentTime = 0;
+                        jVideo[0].play();
+                    }
+                });
+            }
         },
         //.............................................
         // 返回当前时间

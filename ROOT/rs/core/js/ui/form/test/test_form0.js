@@ -81,7 +81,17 @@ return ZUI.def("ui.test_form0", {
                     nativeAs : "string",
                     format : "yyyy-mm-dd",
                     editAs: "datepicker",
-                    uiConf: {setup : {mode : "range"}} 
+                    uiConf: {
+                        setup : {
+                            mode : "range",
+                            blockNumber : 3,
+                            switcher : {
+                                today : "今天",
+                                prev  : "&lt;",
+                                next  : "&gt;",
+                            }
+                        }
+                    } 
                 },{
                     key   : "x",
                     title : "X轴",

@@ -83,7 +83,16 @@ return ZUI.def("ui.edit-markdown", {
         var str  = UI.getData();
         var html = str ? $z.markdownToHtml(str, opt.preview)
                        : UI.compactHTML('<div class="edmd-empty"><%=markdown.emptyPreview%></div>');
-        UI.arena.find("> section.edmd-preview > article").html(html);
+        var jAr = UI.arena.find("> section.edmd-preview > article").html(html);
+
+        // 解析一下海报
+        jPoster = jAr.find('pre[code-type="poster"]');
+        $z.explainPoster(jPoster, opt.preview);
+
+        // 处理一下视频
+        $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
+            watchClick : false,
+        });
     },
     //..............................................
     _set_markdown : function(str){

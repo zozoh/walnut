@@ -3,6 +3,8 @@ package org.nutz.walnut.ext.hmaker.util.com;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.plugins.zdoc.markdown.Markdown;
@@ -86,6 +88,15 @@ public class hmc_image extends AbstractNoneValueCom {
         // 增加图片的规则
         ing.addMyRule("img", cssImg);
         ing.addMyRule("section", cssTxt);
+
+        // ...........................................
+        // 链入控件的 jQuery 插件
+        ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_image.js");
+        String script = String.format("$('#%s > .hmc-image').hmc_image(%s);",
+                                      ing.comId,
+                                      Json.toJson(ing.propCom,
+                                                  JsonFormat.forLook().setIgnoreNull(false)));
+        ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
 
         // 返回成功吧
         return true;

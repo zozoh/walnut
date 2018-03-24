@@ -139,6 +139,38 @@ div[ui-id][ui-loading] > .ui-arena{
 
 .z-edit-it input {padding:0 6px;}
 
+.z-video-con {
+    display: block; vertical-align: bottom;
+    position: relative;
+    .z-video-ctrl {
+        transition: 0.5s; opacity: 0;
+        position: absolute; top:0;left:0;right:0;bottom:30px;
+        @flex();
+        justify-content: center; align-items: center;
+        font-size:.5rem; color:rgba(255,255,255,0.6);
+        cursor: pointer; 
+        &:hover{opacity: 1;}
+        b {
+            display: block; padding:.1rem;
+            background:rgba(0,0,0,0.4); color:rgba(255,255,255,0.8);
+            border:1px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            font-size:.3rem; width:.5rem; height:.5rem;
+            @flex(); justify-content: center; align-items: center;
+        }
+        &[st="loading"] {
+            opacity: 1;
+            b {border:0;}
+        }
+        &[st="playing"]:hover {opacity: 1;}
+        &[st="pause"] {
+            opacity: 1;
+            b {padding-left:.15rem;}
+        }
+        &[st="ended"] {opacity: 1;}
+    }
+}
+
 /*--------------------------------------------------- SPAN做的单选框 --------*/
 .ui-radio {
     font-family:'Material-Design-Iconic-Font'; display: inline-block; cursor: pointer; margin:0 2px;

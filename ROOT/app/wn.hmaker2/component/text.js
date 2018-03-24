@@ -139,6 +139,11 @@ return ZUI.def("app.wn.hm_com_text", {
                     return UI.tidy_src(src, oSiteHome, oPage);
                 }
             });
+
+            // 处理一下视频
+            $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
+                watchClick : false
+            });
         }
 
     },
