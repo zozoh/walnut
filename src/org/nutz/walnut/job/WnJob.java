@@ -47,8 +47,10 @@ public class WnJob extends WnRun implements Callable<Object> {
     }
 
     public void depose() {
-        if (es != null)
+        if (es != null) {
             es.shutdown();
+            es = null;
+        }
 
         if (null != _se) {
             this.sess.logout(_se.id());
@@ -69,7 +71,7 @@ public class WnJob extends WnRun implements Callable<Object> {
 
         _se = this.creatSession("root");
 
-        if (es.isTerminated())
+        if (es == null || es.isTerminated())
             es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
     }

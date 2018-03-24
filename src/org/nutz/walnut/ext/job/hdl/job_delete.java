@@ -19,7 +19,7 @@ public class job_delete extends job_abstract{
                 if (jobDir == null)
                     continue;
                 if (!"root".equals(sys.me.name())) {
-                    if (!jobDir.equals(sys.me.name())) {
+                    if (!jobDir.getString("job_create_user").equals(sys.me.name())) {
                         sys.err.println("not your job id="+id);
                         continue;
                     }
