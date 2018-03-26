@@ -30,7 +30,7 @@ import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
-import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.job.WnJobService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
 import org.nutz.web.handler.JettyHandlerHook;
@@ -129,7 +129,7 @@ public class WnSetup implements Setup {
         }
 
         if (conf.getBoolean("service-wnjob", true)) {
-            ioc.get(WnJob.class);
+            ioc.get(WnJobService.class);
         }
         ioc.get(WnSshdServer.class);
         ioc.get(WnFtpServer.class);
