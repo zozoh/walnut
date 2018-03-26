@@ -9,13 +9,13 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.job.WnJobService;
 
 public class job_next implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         WnQuery query = new WnQuery();
-        query.setv("pid", sys.io.check(null, WnJob.root).id());
+        query.setv("pid", sys.io.check(null, WnJobService.root).id());
         query.limit(1);
         query.sortBy("job_ava", 1);
         query.setv("job_st", "wait");

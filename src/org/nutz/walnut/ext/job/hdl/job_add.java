@@ -6,15 +6,11 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.lang.util.NutMap;
 import org.nutz.repo.Base64;
-import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.job.WnJobService;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
@@ -24,11 +20,10 @@ public class job_add extends job_abstract {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        if (!WnJob.me.isRunning()) {
+        if (!WnJobService.me.isRunning()) {
             sys.err.println("job service isn't running");
             return;
         }
-        WnIo io = sys.io;
         ZParams params;
         if (hc.args.length == 0) {
             params = ZParams.parse(new String[0], null);
@@ -61,20 +56,9 @@ public class job_add extends job_abstract {
 
         // 用根用户权限执行
         String cmdText = cmd;
+        String runByUser ="root".equals(sys.me.name()) ? hc.params.get("user", "root") : sys.me.name();
         WnRun.sudo(sys, () -> {
-                WnObj jobDir = io.create(null, WnJob.root + "/" + id, WnRace.DIR);
-                WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
-                io.writeText(cmdFile, cmdText);
-                NutMap metas = new NutMap();
-                metas.put("job_name", name);
-                metas.put("job_cron", cron);
-                metas.put("job_ava", System.currentTimeMillis());
-                metas.put("job_st", "wait");
-                metas.put("job_user", user(sys.me.name(), params.get("user")));
-                metas.put("job_create_user", sys.me.name());
-                metas.put("job_st", "wait");
-                metas.put("job_env", sys.se.vars());
-                io.appendMeta(jobDir, metas);
+            WnJobService.me.addJob(id, cmdText, name, cron, sys.me.name(), runByUser, sys.se.vars());
         });
 
         // 打印任务的 ID
