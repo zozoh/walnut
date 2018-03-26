@@ -261,6 +261,10 @@ JsDateRange.prototype.toNumber = function(){
 
 };
 JsDateRange.prototype.toNative = function(){
+    if(!_.isArray(this.__val))
+            return this.__fld.nullAsUndefined
+                    ? undefined
+                    : null;
     var re = [];
     for(var i=0; i<this.__val.length;i++){
         var d = this.__val[i];

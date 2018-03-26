@@ -10,7 +10,7 @@ var html = function(){/*
     <div class="tcc-btns" style="padding:10px; background:rgba(0,0,0,0.5);">
         <button>getData</button>
     </div>
-    <div ui-gasket="com0" style="width:300px;"></div>
+    <div ui-gasket="com0" style="width:100%;"></div>
 </div>
 */};
 //===================================================================
@@ -22,7 +22,7 @@ return ZUI.def("ui.form_test_combotable", {
         'click .tcc-btns > button' : function(e){
             var jB = $(e.currentTarget);
             var data = this.gasket.com0[jB.text()]();
-            console.log($z.toJson(data));
+            console.log(data);
             //this.alert($z.toJson(data));
         }
     },
@@ -44,22 +44,38 @@ return ZUI.def("ui.form_test_combotable", {
                 }, {
                     title  : "名称",
                     key    : "nm",
-                    width  : "60%",
+                    width  : "30%",
                     uiType : "@label",
+                // }, {
+                //     title  : "价格",
+                //     key    : "price",
+                //     type   : "int",
+                //     dft    : 3,
+                //     width  : "20%",
+                //     uiType : "@input",
+                // }, {
+                //     title  : "数量",
+                //     key    : "amont",
+                //     type   : "int",
+                //     dft    : 1,
+                //     width  : "20%",
+                //     uiType : "@input",
                 }, {
-                    title  : "价格",
-                    key    : "price",
-                    type   : "int",
-                    dft    : 3,
-                    width  : "20%",
-                    uiType : "@input",
+                    key   : "the_range",
+                    title : "日期范围",
+                    type  : "daterange",
+                    uiType : "@datepicker",
+                    uiConf : {
+                        setup : {
+                            mode : "range"
+                        }
+                    }
                 }, {
-                    title  : "数量",
-                    key    : "amont",
-                    type   : "int",
-                    dft    : 1,
-                    width  : "20%",
-                    uiType : "@input",
+                    key   : "the_date",
+                    title : "一个日期",
+                    type  : "datetime",
+                    uiType : "@datepicker",
+                    uiConf : {}
                 }],
             combo : {
                 items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',

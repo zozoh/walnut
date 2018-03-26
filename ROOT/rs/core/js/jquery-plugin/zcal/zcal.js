@@ -106,7 +106,7 @@ function get_range(ele, selector) {
 }
 //...........................................................
 function __format_array(list, mode) {
-    if(!_.isArray(list) && list.length > 0)
+    if(_.isArray(list) && list.length > 0)
         return list;
 
     if(mode && _.isString(mode)){
