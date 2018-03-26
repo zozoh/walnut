@@ -79,6 +79,55 @@ var methods = {
         return Wn.fetch(aph, quiet);
     },
     //=========================================================
+    moveTo : function(oTa, objs, callback) {
+        var UI = this;
+        var resUI = UI.resourceUI();
+
+        // 无需移动
+        if(!oTa || !_.isArray(objs) || objs.length == 0)
+            return;
+        // 准备命令吧
+
+        var cmds = [];
+        for(var i=0; i<objs.length; i++) {
+            var obj = objs[i];
+            cmds.push('mv id:' + obj.id + ' id:' + oTa.id);
+            cmds.push('echo "%[' + (i+1) + '/' + objs.length
+                        +'] move ' + obj.nm + ' => ' + oTa.nm + '"');
+        }
+        cmds.push('echo "%[-1/0] ' + objs.length + ' objs done!"');
+        // 执行命令
+        var cmdText = cmds.join(";\n");
+        console.log(cmdText)
+        Wn.processPanel(cmdText, function(){
+            //console.log("-------------All Done");
+            this.close();
+
+            // 准备恢复的 ID
+            var aid = resUI.getActivedId();
+
+            // 整站刷新
+            if(oTa.id == UI.getHomeObjId()){
+                resUI.refresh(function(){
+                    if(aid)
+                        resUI.setActived(aid, callback);
+                    else
+                        $z.doCallback(callback);
+                });
+            }
+            // 首先重新刷一下当前节点
+            else if(aid) {
+                resUI.reloadNode(aid, function(){
+                    resUI.openNode(oTa.id, callback, true);
+                });
+            }
+            // 直接打开目标
+            else {
+                resUI.openNode(oTa.id, callback, true);
+            }
+        });
+    },
+    //=========================================================
     // 得到站点的皮肤设定， null 表示没有设定皮肤
     getSkinInfo : function() {
         var UI = this;
@@ -302,7 +351,7 @@ var methods = {
         return o.nm;
     },
     // 得到一个对象在 HMaker 里表示的 Icon HTML
-    getObjIcon : function(o) {
+    getObjIcon : function(o, onlyOne) {
         // 有了自定义
         if(o.icon)
             return o.icon;
@@ -339,8 +388,12 @@ var methods = {
         // }
         
         // 文件夹
-        if('DIR' == o.race)
-            return  '<i class="far fa-folder"></i><i class="far fa-folder-open"></i>';
+        if('DIR' == o.race) {
+            var re = '<i class="far fa-folder"></i>';
+            if(!onlyOne)
+                return re + '<i class="far fa-folder-open"></i>';
+            return re;
+        }
         
         // 网页 / XML
         if(/^text\/(xml|html)$/.test(o.mime)) {

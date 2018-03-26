@@ -30,7 +30,11 @@ return ZUI.def("app.wn.hmaker_resource", {
     },
     //...............................................................
     getDropSensors : function(conf) {
-        return this.uiTree.getDropSensors(conf);
+        var UI = this;
+        return UI.uiTree.getDropSensors(_.extend({
+            $root : UI.$el,
+            oRoot : UI.getHomeObj(),
+        },conf));
     },
     //...............................................................
     update : function(o, callback, args) {
@@ -56,7 +60,7 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             children : function(o, callback){
                 //Wn.getChildren(o, null, callback);
-                Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "race:1" -json -l', function(re){
+                Wn.exec('obj -match \'pid:"'+o.id+'"\' -sort "nm:1" -json -l', function(re){
                     var list = $z.fromJson(re);
                     callback(list);
                 })
@@ -126,67 +130,16 @@ return ZUI.def("app.wn.hmaker_resource", {
             //     UI.fire("rs:blur");
             // },
             on_click_actived_text : function(o, jText, jNode){
-                var UI = this;
-                jNode.attr("edit-text-on", "yes");
-
-                // 准备文本
-                var text = o.nm;
-                if(o.title) {
-                    text += ": " + o.title;
-                }
-
-                // 开启编辑模式
-                $z.editIt(jText.parent(), {
-                    text : text,
-                    copyStyle : false,
-                    after : function(newval, oldval) {
-                        jNode.removeAttr("edit-text-on");
-                        // 去掉空白
-                        newval = $.trim(newval);
-                        // 如果有效就执行改名看看
-                        if(newval && newval!=oldval){
-                            // 去掉非法字符
-                            newval = newval.replace(/['"&*#^`?<>\/\\]/,"");
-
-                            // 分析一下
-                            var m = /^([^:]+):(.*)$/.exec(newval);
-                            var nm, tt;
-                            if(m) {
-                                nm = $.trim(m[1]);
-                                tt = $.trim(m[2]);
-                            }
-                            // 没指定 title
-                            else {
-                                nm = newval;
-                                tt = "";
-                            }
-
-
-                            // 改名咯
-                            Wn.exec("mv -oqT id:"+o.id + " 'id:"+o.pid+"/"+nm+"';", function(re){
-                                // 错误
-                                if(/^e[.]/.test(re)){
-                                    alert(UI.msg(re));
-                                }
-                                // 真的改名
-                                else{
-                                    // 修改标题
-                                    var cmdText = 'obj id:'+o.id+' -u \'{title:"'+tt+'"}\' -o';
-                                    Wn.exec(cmdText, function(re){
-                                        // 错误
-                                        if(/^e[.]/.test(re)){
-                                            alert(UI.msg(re));
-                                        }
-                                        var obj = $z.fromJson(re);
-                                        Wn.saveToCache(obj);
-                                        //jText.text(obj.nm);
-                                        UI.updateNode(obj.id, obj, true);
-                                    });
-                                }
-                            });
-                        }
-                    }
-                });
+                UI.do_rename(o, jText, jNode);
+            },
+            // 启用拖拽
+            drag : {
+                sensors : function() {
+                    var hmaker = UI.hmaker();
+                    var list = $z.invoke(hmaker.gasket.main, "getDropSensors")
+                    console.log("list", list);
+                    return list;
+                },
             }
         }).render(function(){
             var lastOpenId = args || UI.local("last_open_obj_id");
@@ -196,6 +149,70 @@ return ZUI.def("app.wn.hmaker_resource", {
             $z.doCallback(callback, [], UI);
         });
         
+    },
+    //...............................................................
+    do_rename : function(o, jText, jNode) {
+        var UI = this;
+        jNode.attr("edit-text-on", "yes");
+
+        // 准备文本
+        var text = o.nm;
+        if(o.title) {
+            text += ": " + o.title;
+        }
+
+        // 开启编辑模式
+        $z.editIt(jText.parent(), {
+            text : text,
+            copyStyle : false,
+            after : function(newval, oldval) {
+                jNode.removeAttr("edit-text-on");
+                // 去掉空白
+                newval = $.trim(newval);
+                // 如果有效就执行改名看看
+                if(newval && newval!=oldval){
+                    // 去掉非法字符
+                    newval = newval.replace(/['"&*#^`?<>\/\\]/,"");
+
+                    // 分析一下
+                    var m = /^([^:]+):(.*)$/.exec(newval);
+                    var nm, tt;
+                    if(m) {
+                        nm = $.trim(m[1]);
+                        tt = $.trim(m[2]);
+                    }
+                    // 没指定 title
+                    else {
+                        nm = newval;
+                        tt = "";
+                    }
+
+
+                    // 改名咯
+                    Wn.exec("mv -oqT id:"+o.id + " 'id:"+o.pid+"/"+nm+"';", function(re){
+                        // 错误
+                        if(/^e[.]/.test(re)){
+                            alert(UI.msg(re));
+                        }
+                        // 真的改名
+                        else{
+                            // 修改标题
+                            var cmdText = 'obj id:'+o.id+' -u \'{title:"'+tt+'"}\' -o';
+                            Wn.exec(cmdText, function(re){
+                                // 错误
+                                if(/^e[.]/.test(re)){
+                                    alert(UI.msg(re));
+                                }
+                                var obj = $z.fromJson(re);
+                                Wn.saveToCache(obj);
+                                //jText.text(obj.nm);
+                                UI.updateNode(obj.id, obj, true);
+                            });
+                        }
+                    });
+                }
+            }
+        });
     },
     //...............................................................
     remove : function(oid) {
@@ -232,16 +249,22 @@ return ZUI.def("app.wn.hmaker_resource", {
         this.uiTree.updateNode(o.id, o, true);
     },
     //...............................................................
-    openNode : function(nd, callback){
-        this.uiTree.openNode(nd, callback);
+    openNode : function(nd, callback, forceReload){
+        this.uiTree.openNode(nd, callback, forceReload);
+    },
+    //...............................................................
+    closeNode : function(nd){
+        this.uiTree.closeNode(nd);
     },
     //...............................................................
     reloadNode : function(o, callback){
         var UI = this;
         var homeId = UI.getHomeObjId();
+        var jNode  = UI.uiTree.findNode(o);
+
         // 如果有节点
-        if(o && homeId != o.id) {
-            UI.uiTree.reload(o.id, callback);
+        if(jNode && jNode.length > 0) {
+            UI.uiTree.reload(jNode, callback);
         }
         // 否则全刷新
         else {

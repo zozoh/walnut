@@ -73,11 +73,89 @@ return ZUI.def("ui.tree", {
     //...............................................................
     redraw : function(){
         var UI = this;
+        var opt = UI.options;
+
+        // 开始重绘前，重新加载所有子节点
         UI.__reload_tops(function(){
             UI.defer_report("load_tops");
         })
+
+        // 启用拖拽
+        if(opt.drag) {
+            UI.arena.moving({
+                trigger    : '.tnd-self',
+                maskClass  : 'wn-dragging',
+                init : function() {
+                    this.Event.preventDefault();
+                },
+                sensors  : function() {
+                    // 准备自己的内部可 drop 目标
+                    var senList = UI.getDropSensors(opt.drag);
+
+                    // 合并外部的 sensor
+                    if(_.isArray(opt.drag.sensors)){
+                        senList = senList.concat(opt.drag.sensors);
+                    }
+                    // 动态调用的
+                    else if(_.isFunction(opt.drag.sensors)){
+                        var sl2 = opt.drag.sensors.call(UI);
+                        if(_.isArray(sl2) && sl2.length>0) {
+                            senList = senList.concat(sl2);
+                        }
+                    }
+
+                    // 最后返回
+                    return senList;
+                },
+                sensorFunc : {
+                    "drag" : {
+                        "enter" : function(sen){this.dropInSensor = sen;},
+                        "leave" : function(sen){this.dropInSensor = null;}
+                    }
+                },
+                on_begin : function() {
+                    var ing   = this;
+                    console.log("hahahah", ing.$target.length, ing.$trigger.length)
+
+                    // 将选中的对象复制，然后变虚
+                    ing.mask.$target.append(ing.$target.clone());
+                    ing.mask.$target.find(".tnd-handle").remove();
+                    ing.mask.$target.find(".tnd-icon i:nth-child(2)").remove();
+
+                    // 修改拖拽目标样式
+                    ing.mask.$target.css("overflow", "visible");
+
+                    // 调用回调
+                    $z.invoke(opt.drag, "on_begin", [], UI);
+                },
+                on_end : function() {
+                    var ing   = this;
+                    
+                    console.log(ing.dropInSensor);
+                    var args = [];
+                    if(ing.dropInSensor) {
+                        args.push(ing.dropInSensor.data);
+                        args.push(ing.dropInSensor.$ele);
+                    }
+
+                    // 调用回调
+                    $z.invoke(opt.drag, "on_end", args, UI);
+                }
+            });
+        }
+
         // 返回延迟加载
         return  ["load_tops"];
+    },
+    //...............................................................
+    depose : function() {
+        var UI = this;
+        var opt = UI.options;
+
+        // 启用拖拽
+        if(opt.drag) {
+            UI.arena.moving("destroy");
+        }
     },
     //...............................................................
     /* 获取自己可以被 drop 的传感器
@@ -90,10 +168,19 @@ return ZUI.def("ui.tree", {
             ignoreChecked : true,
             
             // true 表示忽略所有叶子节点
-            ignoreLeaf : true;
+            ignoreLeaf : true,
             
             // 表示过滤方法, 返回 false 表示无视
-            filter : F(o, jItem):Boolean 
+            filter : F(o, jItem):Boolean,
+            
+            // 表示这些节点下都不许移动
+            checkeds : {ID : {...}, ..}
+
+            // 表示一个虚的根节点
+            oRoot : {..}
+
+            // 表示虚的根节点对应的 DOM
+            $root : jQuery
         }                       
     */
     getDropSensors : function(conf) {
@@ -107,31 +194,59 @@ return ZUI.def("ui.tree", {
         // 准备返回值
         var senList = [];
 
+        // 增加根
+        if(conf.oRoot) {
+            senList.push({
+                name : "drag",
+                rect : 1,
+                text : "HOME",
+                $ele : conf.$root || UI.$el,
+                data : conf.oRoot,
+            });
+        }
+
         // 搜索自己的 sensor
         UI.arena.find(".tree-node").each(function(){
             var jNode = $(this);
             var obj   = UI.getNodeData(jNode);
 
-            if(conf.ignoreChecked && UI.isActived(jNode))
-                return;
+            var disabled;
 
-            if(conf.ignoreLeaf && UI.isLeaf(jNode))
-                return;
-
-            if(_.isFunction(conf.filter) 
-                && !conf.filter(obj, jNode))
-                return;
-            
+            // 叶子节点要搞一下
+            if(conf.ignoreLeaf && UI.isLeaf(jNode)){
+                disabled = true;
+            }
+            // 自定义函数了
+            else if(_.isFunction(conf.filter) 
+                && !conf.filter(obj, jNode)){
+                disabled = true;   
+            }
+            // 自己不能在选中的 ID 里
+            else if(conf.ignoreChecked){
+                disabled = UI.isActived(jNode);
+                // 找到自己所有的祖先，也都不能在选中的 ID 里
+                if(!disabled && conf.checkeds) {
+                    var jPs = jNode.parents(".tree-node");
+                    for(var i=0; i<jPs.length; i++) {
+                        var pid = jPs.eq(i).attr("oid");
+                        if(conf.checkeds[pid]) {
+                            disabled = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            // 推入传感器
             senList.push(_.extend({
                     name  : conf.name || "drag",
-                    rect  : _.isNumber(conf.rect) ? conf.rect : 1,
+                    rect  : _.isNumber(conf.rect) ? conf.rect : -.5,
                     scope : conf.scope,
+                    disabled : disabled,
                 }, {
                     text : obj.nm,
                     $ele : jNode.find(">.tnd-self"),
                     data : obj,
                 }));
-            
         });
 
         // 返回
@@ -144,6 +259,8 @@ return ZUI.def("ui.tree", {
         var opt = UI.options;
         var jW  = UI.arena.children(".tree-wrapper");
         var context = opt.context || UI;
+
+        //console.log("__reload_tops");
         
         // 确保有 jW
         if(jW.size() == 0 ) {
@@ -355,7 +472,7 @@ return ZUI.def("ui.tree", {
             else {
                 var an = ans[index];
                 var nodeId = an[opt.idKey];
-                UI.openNode(nodeId, function(){
+                UI.__open_node(nodeId, function(){
                     UI.__open_deeply(index+1, ans, callback);
                 });
             }
@@ -382,6 +499,12 @@ return ZUI.def("ui.tree", {
         var UI = this;
         var opt = UI.options;
         var context = opt.context || UI;
+
+        // 参数形式
+        if(_.isFunction(quiet)) {
+            callback = quiet;
+            quiet = undefined;
+        }
 
         // 试图获取节点设置高亮
         var jNode = UI.$node(nd);
@@ -427,7 +550,7 @@ return ZUI.def("ui.tree", {
 
         // 是否确保自己被展开
         if(opt.openWhenActived){
-            UI.openNode(jNode);
+            UI.__open_node(jNode);
         }
 
         // 确保自己的祖先都被展开
@@ -488,11 +611,17 @@ return ZUI.def("ui.tree", {
         }
     },
     //...............................................................
-    openNode : function(nd, callback) {
+    openNode : function(nd, callback, forceReload) {
         var UI = this;
         var opt = UI.options;
         var jNode = UI.$node(nd);
         var context = opt.context || UI;
+
+        // 参数形式
+        if(_.isBoolean(callback)) {
+            forceReload = callback;
+            callback = null;
+        }
 
         // 没有这个节点，那么看来需要加载这个节点的祖先
         if(jNode.length==0) {
@@ -500,7 +629,7 @@ return ZUI.def("ui.tree", {
             if(nodeId) {
                 UI.__find_node(nodeId, function(jNode) {
                     // 尝试打开自己
-                    UI.openNode(jNode, function(children){
+                    UI.__open_node(jNode, function(children){
                         // 确保自己的祖先都被展开
                         jNode.parents(".tree-node").attr("collapse", "no");
                         // 回调
@@ -510,6 +639,22 @@ return ZUI.def("ui.tree", {
             }
             return;
         }
+        // 存在的话，就直接打开一下
+        else {
+            UI.__open_node(nd, callback, forceReload);
+        }
+    },
+    //...............................................................
+    __open_node : function(nd, callback, forceReload) {
+        var UI = this;
+        var opt = UI.options;
+        var jNode = UI.$node(nd);
+        var context = opt.context || UI;
+
+        // 没有这个节点，那么看来需要加载这个节点的祖先
+        if(jNode.length==0) {
+            return;
+        }
 
         // 叶子节点不能展开
         if(UI.isLeaf(jNode)){
@@ -517,25 +662,30 @@ return ZUI.def("ui.tree", {
             $z.doCallback(callback, [children, jNode], context);
             return;
         }
-        // 已经展开了，就不用展开了
-        if(UI.isOpened(jNode)
-            && jNode.find(">.tnd-children>.tree-node").length>0){
-            //console.log("already opened");
-            var children = UI.getNodeChildren(jNode);
-            $z.doCallback(callback, [children, jNode], context);
-            return;
-        }
+
         // 标记
         jNode.attr("collapse", "no");
 
-        // 如果已经有子节点了，就不用加载了
-        var jSub = jNode.children(".tnd-children");
-        if(jSub.children().size()>0) {
-            //var children = UI.getNodeChildren(jNode);
-            if(children && children.length > 0) {
-                console.log("already has children");
+        // 看看能不能利用缓存
+        if(!forceReload) {
+            // 已经展开了，就不用展开了
+            if(UI.isOpened(jNode)
+                && jNode.find(">.tnd-children>.tree-node").length>0){
+                //console.log("already opened");
+                var children = UI.getNodeChildren(jNode);
                 $z.doCallback(callback, [children, jNode], context);
                 return;
+            }
+
+            // 如果已经有子节点了，就不用加载了
+            var jSub = jNode.children(".tnd-children");
+            if(jSub.children().size()>0) {
+                var children = UI.getNodeChildren(jNode);
+                if(children && children.length > 0) {
+                    console.log("already has children");
+                    $z.doCallback(callback, [children, jNode], context);
+                    return;
+                }
             }
         }
 
@@ -579,6 +729,7 @@ return ZUI.def("ui.tree", {
             var jSub = jNode.children(".tnd-children");
             jSub.text(UI.msg("loadding"));
             var obj = opt.data.call(context, jNode);
+            //console.log("__reload_children", obj.ph);
             // 重新加载
             opt.children.call(context, obj, function(list){
                 // 绘制

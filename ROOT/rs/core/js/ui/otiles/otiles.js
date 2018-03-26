@@ -72,7 +72,7 @@ return ZUI.def("ui.otiles", {
         if(opt.drag) {
             UI.arena.moving({
                 trigger    : '.wnobj[li-checked]',
-                maskClass  : 'wn-thumbnail',
+                maskClass  : 'wn-dragging',
                 // target     : function() {
                 //     console.log(this.$selection.find(".wnobj[li-checked]"))
                 //     return this.$selection.find(".wnobj[li-checked]");
@@ -161,6 +161,15 @@ return ZUI.def("ui.otiles", {
             
             // 表示过滤方法, 返回 false 表示无视
             filter : F(o, jItem):Boolean 
+
+            // 表示这些节点下都不许移动
+            checkeds : {ID : {...}, ..}
+
+            // 表示一个虚的根节点
+            oRoot : {..}
+
+            // 表示虚的根节点对应的 DOM
+            $root : jQuery
         }                       
     */
     getDropSensors : function(conf) {
@@ -174,25 +183,48 @@ return ZUI.def("ui.otiles", {
         // 准备返回值
         var senList = [];
 
+        // 增加根
+        if(conf.oRoot) {
+            senList.push({
+                name : "drag",
+                rect : 1,
+                text : "HOME",
+                $ele : conf.$root || UI.$el,
+                data : conf.oRoot,
+            });
+        }
+
         // 搜索自己的 sensor
-        UI.findItem(function(o, jItem){
-            if(conf.ignoreChecked && UI.isChecked(o))
-                return false;
-
-            if(conf.ignoreLeaf && 'DIR' != o.race)
-                return false;
-
-            if(_.isFunction(conf.filter))
-                return conf.filter(o, jItem);
-            
-            return true;
-        }).each(function(){
-            var jThumb = $(this).find(".wnobj-thumbnail");
+        UI.findItem().each(function(){
+            var jItem  = $(this);
+            var jThumb = jItem.find(".wnobj-thumbnail");
             var obj    = UI.getObj(jThumb);
+
+            var disabled;
+
+            // 叶子节点要搞一下
+            if(conf.ignoreLeaf && 'DIR' != obj.race){
+                disabled = true;
+            }
+            // 自定义函数了
+            else if(_.isFunction(conf.filter) 
+                && !conf.filter(obj, jItem)){
+                disabled = true;   
+            }
+            // 自己不能在选中的 ID 里
+            else if(conf.ignoreChecked){
+                disabled = UI.isChecked(jItem);
+                // 找到自己所有的祖先，也都不能在选中的 ID 里
+                if(!disabled && conf.checkeds) {
+                    disabled = conf.checkeds[obj.id] ? true : false;
+                }
+            }
+
             senList.push(_.extend({
                     name  : conf.name || "drag",
                     rect  : _.isNumber(conf.rect) ? conf.rect : 1,
                     scope : conf.scope,
+                    disabled : disabled,
                 }, {
                     text : obj.nm,
                     $ele : jThumb,
