@@ -29,6 +29,10 @@ return ZUI.def("app.wn.hmaker_resource", {
         UI.listenBus("reload:folder", UI.reloadNode);
     },
     //...............................................................
+    getDropSensors : function(conf) {
+        return this.uiTree.getDropSensors(conf);
+    },
+    //...............................................................
     update : function(o, callback, args) {
         var UI = this;
         var oHome  = UI.getHomeObj();
@@ -100,6 +104,8 @@ return ZUI.def("app.wn.hmaker_resource", {
                     return Wn.getById(jNode.attr("oid"));
             },
             on_actived : function(o, jNode){
+                if(!o)
+                    return;
                 //console.log("nav actived", o, this);
                 // 如果当前就正在编辑这个页，啥也表做了
                 // if(UI.local("last_open_obj_id") == o.id)
@@ -197,6 +203,7 @@ return ZUI.def("app.wn.hmaker_resource", {
 
         // 移除
         var jN2 = UI.uiTree.removeNode(oid);
+        console.log("jN2", jN2)
 
         // 高亮下一个节点
         UI.uiTree.setActived(jN2);
@@ -205,13 +212,28 @@ return ZUI.def("app.wn.hmaker_resource", {
     getActived : function(){
         return this.uiTree.getActived();
     },
+    getActivedId : function(){
+        return this.uiTree.getActivedId();
+    },
     //...............................................................
-    setActived : function(arg){
-        this.uiTree.setActived(arg);
+    setActived : function(nd, quiet, callback){
+        this.uiTree.setActived(nd, quiet, callback);
+    },
+    //...............................................................
+    enableNode : function(nd, deeply) {
+        this.uiTree.enableNode(nd, deeply);
+    },
+    //...............................................................
+    disableNode : function(nd, deeply) {
+        this.uiTree.disableNode(nd, deeply);
     },
     //...............................................................
     updateNode : function(o) {
         this.uiTree.updateNode(o.id, o, true);
+    },
+    //...............................................................
+    openNode : function(nd, callback){
+        this.uiTree.openNode(nd, callback);
     },
     //...............................................................
     reloadNode : function(o, callback){

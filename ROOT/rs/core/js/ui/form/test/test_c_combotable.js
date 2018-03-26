@@ -61,21 +61,23 @@ return ZUI.def("ui.form_test_combotable", {
                 //     width  : "20%",
                 //     uiType : "@input",
                 }, {
+                    key   : "the_date",
+                    title : "一个日期",
+                    type  : "datetime",
+                    nativeAs : "string",
+                    uiType : "@datepicker",
+                    uiConf : {}
+                }, {
                     key   : "the_range",
                     title : "日期范围",
                     type  : "daterange",
+                    nativeAs : "string",
                     uiType : "@datepicker",
                     uiConf : {
                         setup : {
                             mode : "range"
                         }
                     }
-                }, {
-                    key   : "the_date",
-                    title : "一个日期",
-                    type  : "datetime",
-                    uiType : "@datepicker",
-                    uiConf : {}
                 }],
             combo : {
                 items : 'obj ~ -match \'race:"DIR", nm:"^{{val}}"\' -limit 10 -json -l -e "^(id|tp|race|nm)$"',

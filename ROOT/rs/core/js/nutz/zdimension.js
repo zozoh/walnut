@@ -50,6 +50,10 @@ var zRect = {
         if(_.isBoolean(opt)) {
             opt = {scroll_c : opt};
         }
+        // 如果是数字
+        else if(_.isNumber(opt)) {
+            opt = {padding : opt};
+        }
         // 如果是矩形
         else if(this.isRect(opt)) {
             opt = {viewport : opt};

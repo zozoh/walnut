@@ -101,6 +101,7 @@
                 }
             }
         }
+        // rename 编辑框
         .z-edit-it {
             border:1px solid @cborder0;
         }
@@ -118,4 +119,89 @@
     .wnobj-actived, .wnobj[li-actived] {
         .wnobj-nm {border-color:@cborder1;}
     }
+    //-----------------------------------------
+    // 拖拽的遮罩层
+    //-----------------------------------------
+    // 当前拖拽对象
+    .z-mvm-target {
+        .wnobj-checked, .wnobj[li-checked] {
+            .wnobj-thumbnail{background: transparent;}
+        }
+    }
+    // 感应器
+    @saS   : 3px;
+    @saC   : transparent;
+    @saT   : .2s ease;
+    @saC_a : rgba(0,128,255,0.8);
+    @saB_a : rgba(0,128,255,0.4);
+    @saT_a : -2;
+    @saW   : 3;
+    .z-mvm-sit {
+        margin-left:-1px; margin-top:-1px;
+        section {
+            position:relative; width:100%; height:100%; border:1px solid transparent;
+            > aside {position: absolute; top:0;left:0;right:0;bottom:0; border:0;}
+            > aside[md="x"]:before {
+                transition:@saT;
+                display: block; content: ""; border:@saS solid @saC;
+                position: absolute; width:@saS * @saW; height:@saS * @saW;
+                top:@saS * -1; left:@saS * -1;
+                border-right-color:transparent;
+                border-bottom-color:transparent;
+            }
+            > aside[md="x"]:after {
+                transition:@saT;
+                display: block; content: ""; border:@saS solid @saC;
+                position: absolute; width:@saS * @saW; height:@saS * @saW;
+                top:@saS * -1; right:@saS * -1;
+                border-left-color:transparent;
+                border-bottom-color:transparent;
+            }
+            > aside[md="y"]:before {
+                transition:@saT;
+                display: block; content: ""; border:@saS solid @saC;
+                position: absolute; width:@saS * @saW; height:@saS * @saW;
+                bottom:@saS * -1; left:@saS * -1;
+                border-top-color:transparent;
+                border-right-color:transparent;
+            }
+            > aside[md="y"]:after {
+                transition:@saT;
+                display: block; content: ""; border:@saS solid @saC;
+                position: absolute; width:@saS * @saW; height:@saS * @saW;
+                bottom:@saS * -1; right:@saS * -1;
+                border-top-color:transparent;
+                border-left-color:transparent;
+            }
+            > span {display: none;}
+        }
+        &[se-actived] {
+            section {
+                background: @saB_a; border:1px dotted @saC_a;
+                > aside[md="x"]:before {
+                    border-left-color:@saC_a;
+                    border-top-color:@saC_a;
+                    top:@saS * @saT_a; left:@saS * @saT_a;
+                }
+                > aside[md="x"]:after {
+                    border-right-color:@saC_a;
+                    border-top-color:@saC_a;
+                    top:@saS * @saT_a; right:@saS * @saT_a;
+                }
+                > aside[md="y"]:before {
+                    border-left-color:@saC_a;
+                    border-bottom-color:@saC_a;
+                    bottom:@saS * @saT_a; left:@saS * @saT_a;
+                }
+                > aside[md="y"]:after {
+                    border-right-color:@saC_a;
+                    border-bottom-color:@saC_a;
+                    bottom:@saS * @saT_a; right:@saS * @saT_a;
+                }
+            }
+        }
+    } // ~ .z-mvm-sit
+    //-----------------------------------------
+    // 以上：拖拽的遮罩层
+    //-----------------------------------------
 }

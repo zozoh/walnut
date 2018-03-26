@@ -380,11 +380,11 @@ var MVs = {
 
         // 加入自定义的感应器
         if(_.isArray(opt.sensors)){
-            MVing.sensors = MVing.sensors.concat(opt.sensors);
+            MVing.sensors = MVing.sensors.concat(opt.sensors || []);
         }
         // 动态计算的感应器
         else if(_.isFunction(opt.sensors)) {
-            var ses = opt.sensors.call(MVing);
+            var ses = opt.sensors.call(MVing) || [];
             MVing.sensors = MVing.sensors.concat(ses);
         }
 
@@ -498,6 +498,8 @@ var MVs = {
                 var padding = sen.rect;
                 if("win"==sen.scope || !MVing.isCusorRelativeClient){
                     sen.rect = $D.rect.gen(sen.$ele, padding);
+                    // console.log("sen", i, sen.text, sen.data.mime, padding,
+                    //         $D.rect.dumpValues(sen.rect));
                 }
                 // 否则取一下相对
                 else {
@@ -888,7 +890,7 @@ function on_mousedown(e){
     if(!MVing.rect.client) {
         //console.log("count default")
         MVing.rect.client = $D.rect.gen(MVing.$client, {
-            boxing   : "content",
+            boxing   : "border",
             scroll_c : true,
         });
     }

@@ -116,7 +116,8 @@ var methods = {
 
         // 没指定内容，为空
         if(_.isUndefined(arg)){
-            return $([]);
+            // return $([]);
+            return UI.arena.find(".list-item");
         }
         // 如果是字符串表示 ID
         if(_.isString(arg)){
@@ -152,8 +153,9 @@ var methods = {
         if(_.isFunction(arg)){
             var re = [];
             UI.arena.find('.list-item').each(function(){
-                var obj = opt.getItemData.call(UI, $(this));
-                if(arg.call(UI, obj))
+                var jItem = $(this);
+                var obj = opt.getItemData.call(UI, jItem);
+                if(arg.call(UI, obj, jItem))
                     re.push(this);
             });
             return $(re);
@@ -305,6 +307,21 @@ var methods = {
             objs.push(obj);
         });
         return objs;
+    },
+    getCheckedIds : function(){
+        var UI = this;
+        var ids = [];
+        UI.$checked().each(function(){
+            ids.push($(this).attr("oid"));
+        });
+        return ids;
+    },
+    getCheckedMap : function(){
+        var UI = this;
+        var opt = UI.options;
+
+        var objs = UI.getChecked();
+        return $z.arrayToMap(objs, opt.idKey);
     },
     isChecked : function(arg){
         var jItem = this.$item(arg);
@@ -598,6 +615,11 @@ var methods = {
 
         // 子类后续处理
         $z.invoke(UI, "__after_remove", []);
+
+        // 如果都删光了，绘制空
+        if(UI.arena.find(".list-item").length == 0) {
+            $z.invoke(UI, "_draw_empty");
+        }
 
         // 返回下一个要激活的节点，由调用者来决定是否激活它
         return jN2;
