@@ -78,16 +78,27 @@ return ZUI.def("ui.otiles", {
                 //     return this.$selection.find(".wnobj[li-checked]");
                 // },
                 sensors  : function() {
+                    var ing = this;
                     // 准备自己的内部可 drop 目标
-                    var senList = UI.getDropSensors(opt.drag);
+                    var conf = _.extend({ignoreAncestorMap:{}}, opt.drag);
+                    if(_.isArray(ing.data)) {
+                        for(var i=0; i<ing.data.length; i++) {
+                            var obj = ing.data[i];
+                            conf.ignoreAncestorMap[obj.id] = obj;
+                        }
+                    }
+                    else if(ing.data) {
+                        conf.ignoreAncestorMap[ing.data.id] = ing.data;
+                    }
+                    var senList = UI.getDropSensors(conf);
 
                     // 合并外部的 sensor
-                    if(_.isArray(opt.drag.sensors)){
-                        senList = senList.concat(opt.drag.sensors);
+                    if(_.isArray(opt.drag.moreDragSensors)){
+                        senList = senList.concat(opt.drag.moreDragSensors);
                     }
                     // 动态调用的
-                    else if(_.isFunction(opt.drag.sensors)){
-                        var sl2 = opt.drag.sensors.call(UI);
+                    else if(_.isFunction(opt.drag.moreDragSensors)){
+                        var sl2 = opt.drag.moreDragSensors.call(ing, UI);
                         if(_.isArray(sl2) && sl2.length>0) {
                             senList = senList.concat(sl2);
                         }
@@ -104,9 +115,10 @@ return ZUI.def("ui.otiles", {
                 },
                 on_begin : function() {
                     var ing   = this;
-                    //console.log("hahahah", ing.$target.length, ing.$trigger.length)
+                    // 记录正在拖拽的数据
+                    ing.data = UI.getChecked();
 
-                    // 将选中的对象复制，然后变虚
+                    // 复制对象以便显示拖拽
                     UI.$checked().each(function(index){
                         // 最多弄六个就成了吧
                         if(index >= 6) 
@@ -120,18 +132,19 @@ return ZUI.def("ui.otiles", {
                             "left"     : index * 4,
                             "opacity"  : (1 - index * 0.1),
                         }).prependTo(ing.mask.$target);
-                    }).css("opacity", 0.1);
+                    });
 
-                    // 修改拖拽目标样式
+                    // 拖拽目标不要裁掉
                     ing.mask.$target.css("overflow", "visible");
 
                     // 调用回调
-                    $z.invoke(opt.drag, "on_begin", [], UI);
+                    $z.invoke(opt.drag, "on_begin", [], ing);
+                },
+                on_ready : function(){
+                    $z.invoke(opt.drag, "on_ready", [], this);
                 },
                 on_end : function() {
                     var ing   = this;
-                    // 恢复原始对象
-                    UI.$checked().css("opacity", ""); 
 
                     //console.log(ing.dropInSensor);
                     var args = [];
@@ -141,7 +154,7 @@ return ZUI.def("ui.otiles", {
                     }
 
                     // 调用回调
-                    $z.invoke(opt.drag, "on_end", args, UI);
+                    $z.invoke(opt.drag, "on_end", args, ing);
                 }
             });
         }
@@ -153,6 +166,9 @@ return ZUI.def("ui.otiles", {
             rect  : 1,
             scope : null,           // null 表示自动判断
 
+            // 拖拽传感器类型
+            drag_sen_type : "folder"
+
             // true 表示忽略所有选中的项目
             ignoreChecked : true,
             
@@ -162,8 +178,11 @@ return ZUI.def("ui.otiles", {
             // 表示过滤方法, 返回 false 表示无视
             filter : F(o, jItem):Boolean 
 
-            // 表示这些节点下都不许移动
-            checkeds : {ID : {...}, ..}
+            // 表示这些节点不许移动
+            ignoreIdMap : {ID : {...}, ..},
+            
+            // 表示这些节点以及其下节点下都不许移动
+            ignoreAncestorMap : {ID : {...}, ..},
 
             // 表示一个虚的根节点
             oRoot : {..}
@@ -186,6 +205,7 @@ return ZUI.def("ui.otiles", {
         // 增加根
         if(conf.oRoot) {
             senList.push({
+                drag_sen_type : conf.drag_sen_type || "folder",
                 name : "drag",
                 rect : 1,
                 text : "HOME",
@@ -209,27 +229,45 @@ return ZUI.def("ui.otiles", {
             // 自定义函数了
             else if(_.isFunction(conf.filter) 
                 && !conf.filter(obj, jItem)){
-                disabled = true;   
+                disabled = true;
             }
             // 自己不能在选中的 ID 里
-            else if(conf.ignoreChecked){
-                disabled = UI.isChecked(jItem);
+            else if(conf.ignoreChecked && UI.isChecked(jItem)) {
+                disabled = true;
+            }
+            // 防止自己
+            else if(conf.ignoreIdMap && conf.ignoreIdMap[obj.id]) {
+                disabled = true;
+            }
+            // 防止祖先
+            else if(conf.ignoreAncestorMap && !_.isEmpty(conf.ignoreAncestorMap)) {
+                // 首先自己不能在列表中
+                if(conf.ignoreAncestorMap[obj.id]){
+                    disabled = true;
+                }
                 // 找到自己所有的祖先，也都不能在选中的 ID 里
-                if(!disabled && conf.checkeds) {
-                    disabled = conf.checkeds[obj.id] ? true : false;
+                else {
+                    var ans = Wn.getAncestors(obj);
+                    for(var i=0; i<ans.length; i++) {
+                        var an = ans[i];
+                        if(conf.ignoreAncestorMap[an.id]) {
+                            disabled = true;
+                            break;
+                        }
+                    }
                 }
             }
-
-            senList.push(_.extend({
+            // 推入传感器
+            senList.push({
+                    drag_sen_type : conf.drag_sen_type || "folder",
                     name  : conf.name || "drag",
                     rect  : _.isNumber(conf.rect) ? conf.rect : 1,
                     scope : conf.scope,
                     disabled : disabled,
-                }, {
                     text : obj.nm,
                     $ele : jThumb,
                     data : obj,
-                }));
+                });
         });
 
         // 返回
@@ -285,6 +323,7 @@ return ZUI.def("ui.otiles", {
                         var newObj = $z.fromJson(re);
                         Wn.saveToCache(newObj);
                         UI.update(newObj);
+                        $z.invoke(opt, "on_rename", [newObj], UI);
                     });
                 }
             });

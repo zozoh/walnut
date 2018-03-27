@@ -26,15 +26,25 @@ return ZUI.def("app.wn.hmaker_resource", {
     init : function() {
         var UI = HmMethods(this);
 
+        UI.listenBus("update:obj", UI.updateNode);
         UI.listenBus("reload:folder", UI.reloadNode);
+        UI.listenBus("items:disable_by_sensors", UI.disableBySensors);
+        UI.listenBus("items:disable_leafs", UI.disableLeafs);
+        UI.listenBus("items:enable", UI.enableAll);
     },
     //...............................................................
-    getDropSensors : function(conf) {
+    getDropSensors : function(conf, ing) {
         var UI = this;
-        return UI.uiTree.getDropSensors(_.extend({
-            $root : UI.$el,
-            oRoot : UI.getHomeObj(),
-        },conf));
+        var oHome = UI.getHomeObj();
+
+        // 不是拖拽顶级节点，把站点根也放进去
+        conf = conf || {};
+        if(ing.data && ing.data.id != oHome.id && ing.data.pid != oHome.id) {
+            conf.$root = UI.$el;
+            conf.oRoot = oHome;
+        }
+
+        return UI.uiTree.getDropSensors(conf);
     },
     //...............................................................
     update : function(o, callback, args) {
@@ -64,6 +74,11 @@ return ZUI.def("app.wn.hmaker_resource", {
                     var list = $z.fromJson(re);
                     callback(list);
                 })
+            },
+            filter : function(o) {
+                if(/^[.]/.test(o.nm))
+                    return null;
+                return o;
             },
             ancestor : function(id, callback) {
                 Wn.exec('obj id:'+id+' -an nodes -anuntil \'id:"'+homeId+'"\'', function(re){
@@ -134,12 +149,36 @@ return ZUI.def("app.wn.hmaker_resource", {
             },
             // 启用拖拽
             drag : {
-                sensors : function() {
+                moreDragSensors : function() {
+                    var ing    = this;
                     var hmaker = UI.hmaker();
-                    var list = $z.invoke(hmaker.gasket.main, "getDropSensors")
-                    console.log("list", list);
+                    // 得到当前操作的节点
+                    var ao    = UI.uiTree.getNodeData(ing.$target);
+                    var anMap = $z.obj(ao.id, ao);
+
+                    // 调用主界面
+                    var list = $z.invoke(hmaker.gasket.main, "getDropSensors", [{
+                        ignoreLeaf        : true,
+                        ignoreChecked     : false,
+                        ignoreAncestorMap : anMap,
+                    }, ing]);
                     return list;
                 },
+                on_ready : function() {
+                    var ing = this;
+                    UI.fire("items:disable_by_sensors", ing.sensors);
+                    UI.fire("items:disable_leafs");
+                },
+                on_end : function(oTa) {
+                    // 恢复节点
+                    UI.fire("items:enable");
+
+                    // 嗯，要开始移动了
+                    var objs = this.data;
+                    UI.moveTo(oTa, objs, function(){
+                        UI.fire("reload:folder");
+                    });
+                }
             }
         }).render(function(){
             var lastOpenId = args || UI.local("last_open_obj_id");
@@ -171,8 +210,11 @@ return ZUI.def("app.wn.hmaker_resource", {
                 newval = $.trim(newval);
                 // 如果有效就执行改名看看
                 if(newval && newval!=oldval){
-                    // 去掉非法字符
-                    newval = newval.replace(/['"&*#^`?<>\/\\]/,"");
+                    // 不支持特殊字符
+                    if(/['"\\\\\/$%*]/.test(newval)) {
+                        alert(UI.msg("e.fnm.invalid"));
+                        return;
+                    }
 
                     // 分析一下
                     var m = /^([^:]+):(.*)$/.exec(newval);
@@ -204,9 +246,10 @@ return ZUI.def("app.wn.hmaker_resource", {
                                     alert(UI.msg(re));
                                 }
                                 var obj = $z.fromJson(re);
+                                console.log(obj);
                                 Wn.saveToCache(obj);
                                 //jText.text(obj.nm);
-                                UI.updateNode(obj.id, obj, true);
+                                UI.fire("update:obj", obj);
                             });
                         }
                     });
@@ -237,12 +280,23 @@ return ZUI.def("app.wn.hmaker_resource", {
         this.uiTree.setActived(nd, quiet, callback);
     },
     //...............................................................
-    enableNode : function(nd, deeply) {
-        this.uiTree.enableNode(nd, deeply);
+    disableBySensors : function(sens) {
+        for(var i=0; i<sens.length; i++) {
+            var sen = sens[i];
+            if(sen.visible && sen.disabled && "tree"==sen.drag_sen_type) {
+                this.uiTree.disableNode(sen.$ele);
+            }
+        }
     },
     //...............................................................
-    disableNode : function(nd, deeply) {
-        this.uiTree.disableNode(nd, deeply);
+    disableLeafs : function() {
+        this.uiTree.disableNode(function(o, jNode){
+            return 'leaf' == jNode.attr("ndtp");
+        });
+    },
+    //...............................................................
+    enableAll : function() {
+        this.uiTree.enableNode();
     },
     //...............................................................
     updateNode : function(o) {
@@ -260,7 +314,9 @@ return ZUI.def("app.wn.hmaker_resource", {
     reloadNode : function(o, callback){
         var UI = this;
         var homeId = UI.getHomeObjId();
-        var jNode  = UI.uiTree.findNode(o);
+        var jNode  = o ? UI.uiTree.findNode(o) : null;
+
+        //console.log("hahah")
 
         // 如果有节点
         if(jNode && jNode.length > 0) {

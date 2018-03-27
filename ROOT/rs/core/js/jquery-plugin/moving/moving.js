@@ -787,6 +787,9 @@ function on_mousemove(e) {
         // 更新目标的遮罩替身 css 位置
         MVs.updateTargetCss.call(MVing);
 
+        // 回调: on_ready
+        $z.invoke(opt, "on_ready", [], MVing);
+
         // 回调: on_ing
         $z.invoke(opt, "on_ing", [], MVing);
 

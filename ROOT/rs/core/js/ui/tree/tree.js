@@ -89,20 +89,48 @@ return ZUI.def("ui.tree", {
                     this.Event.preventDefault();
                 },
                 sensors  : function() {
+                    var ing = this;
                     // 准备自己的内部可 drop 目标
-                    var senList = UI.getDropSensors(opt.drag);
+                    var conf = _.extend({
+                        ignoreIdMap : {},
+                        ignoreAncestorMap : {},
+                    }, opt.drag);
+                    if(_.isArray(ing.data)) {
+                        for(var i=0; i<ing.data.length; i++) {
+                            var obj = ing.data[i];
+                            conf.ignoreAncestorMap[obj.id]  = obj;
+                        }
+                    }
+                    else if(ing.data) {
+                        conf.ignoreIdMap[ing.data.pid] = Wn.getById(ing.data.pid);
+                        conf.ignoreAncestorMap[ing.data.id] = ing.data;
+                    }
+
+                    // 因为考虑到可能要增加自己的父节点，那么看看自己的父控件是否
+                    // 定义了 getDropSensors，如果有就调它
+                    var senList;
+                    if(UI.parent && _.isFunction(UI.parent.getDropSensors)) {
+                        senList = UI.parent.getDropSensors(conf, ing);
+                    }
+                    // 否则直接用自己的
+                    else {
+                        senList = UI.getDropSensors(conf);
+                    }
+                    //console.log("tree", senList);
 
                     // 合并外部的 sensor
-                    if(_.isArray(opt.drag.sensors)){
-                        senList = senList.concat(opt.drag.sensors);
+                    if(_.isArray(opt.drag.moreDragSensors)){
+                        senList = senList.concat(opt.drag.moreDragSensors);
                     }
                     // 动态调用的
-                    else if(_.isFunction(opt.drag.sensors)){
-                        var sl2 = opt.drag.sensors.call(UI);
+                    else if(_.isFunction(opt.drag.moreDragSensors)){
+                        var sl2 = opt.drag.moreDragSensors.call(ing, UI);
+                        //console.log("sl2", sl2);
                         if(_.isArray(sl2) && sl2.length>0) {
                             senList = senList.concat(sl2);
                         }
                     }
+                    //console.log("senList", senList);
 
                     // 最后返回
                     return senList;
@@ -115,23 +143,27 @@ return ZUI.def("ui.tree", {
                 },
                 on_begin : function() {
                     var ing   = this;
-                    console.log("hahahah", ing.$target.length, ing.$trigger.length)
+                    // 记录正在拖拽的数据
+                    ing.data = UI.getNodeData(ing.$target);
 
-                    // 将选中的对象复制，然后变虚
+                    // 复制对象以便显示拖拽
                     ing.mask.$target.append(ing.$target.clone());
                     ing.mask.$target.find(".tnd-handle").remove();
                     ing.mask.$target.find(".tnd-icon i:nth-child(2)").remove();
 
-                    // 修改拖拽目标样式
+                    // 拖拽目标不要裁掉
                     ing.mask.$target.css("overflow", "visible");
 
                     // 调用回调
-                    $z.invoke(opt.drag, "on_begin", [], UI);
+                    $z.invoke(opt.drag, "on_begin", [], ing);
+                },
+                on_ready : function(){
+                    $z.invoke(opt.drag, "on_ready", [], this);
                 },
                 on_end : function() {
                     var ing   = this;
                     
-                    console.log(ing.dropInSensor);
+                    //console.log(ing.dropInSensor);
                     var args = [];
                     if(ing.dropInSensor) {
                         args.push(ing.dropInSensor.data);
@@ -139,7 +171,7 @@ return ZUI.def("ui.tree", {
                     }
 
                     // 调用回调
-                    $z.invoke(opt.drag, "on_end", args, UI);
+                    $z.invoke(opt.drag, "on_end", args, ing);
                 }
             });
         }
@@ -164,6 +196,9 @@ return ZUI.def("ui.tree", {
             rect  : 1,
             scope : null,           // null 表示自动判断
 
+            // 拖拽传感器类型
+            drag_sen_type : "tree"
+
             // true 表示忽略所有选中的项目
             ignoreChecked : true,
             
@@ -173,8 +208,11 @@ return ZUI.def("ui.tree", {
             // 表示过滤方法, 返回 false 表示无视
             filter : F(o, jItem):Boolean,
             
-            // 表示这些节点下都不许移动
-            checkeds : {ID : {...}, ..}
+            // 表示这些节点不许移动
+            ignoreIdMap : {ID : {...}, ..},
+            
+            // 表示这些节点以及其下节点下都不许移动
+            ignoreAncestorMap : {ID : {...}, ..},
 
             // 表示一个虚的根节点
             oRoot : {..}
@@ -188,7 +226,7 @@ return ZUI.def("ui.tree", {
 
         // 准备默认值
         conf = conf || {};
-        $z.setUndefined(conf, "ignoreChecked", true);
+        $z.setUndefined(conf, "ignoreChecked", false);
         $z.setUndefined(conf, "ignoreLeaf",    true);
 
         // 准备返回值
@@ -197,6 +235,7 @@ return ZUI.def("ui.tree", {
         // 增加根
         if(conf.oRoot) {
             senList.push({
+                drag_sen_type : conf.drag_sen_type || "tree",
                 name : "drag",
                 rect : 1,
                 text : "HOME",
@@ -204,6 +243,8 @@ return ZUI.def("ui.tree", {
                 data : conf.oRoot,
             });
         }
+
+        console.log("conf.ignoreAncestorMap", conf.ignoreAncestorMap)
 
         // 搜索自己的 sensor
         UI.arena.find(".tree-node").each(function(){
@@ -217,19 +258,29 @@ return ZUI.def("ui.tree", {
                 disabled = true;
             }
             // 自定义函数了
-            else if(_.isFunction(conf.filter) 
-                && !conf.filter(obj, jNode)){
+            else if(_.isFunction(conf.filter) && !conf.filter(obj, jNode)){
                 disabled = true;   
             }
-            // 自己不能在选中的 ID 里
-            else if(conf.ignoreChecked){
-                disabled = UI.isActived(jNode);
+            // 选中的节点
+            else if(conf.ignoreChecked && UI.isActived(jNode)) {
+                disabled = true;
+            }
+            // 防止自己
+            else if(conf.ignoreIdMap && conf.ignoreIdMap[obj.id]) {
+                disabled = true;
+            }
+            // 防止祖先
+            else if(conf.ignoreAncestorMap && !_.isEmpty(conf.ignoreAncestorMap)) {
+                // 首先自己不能在列表中
+                if(conf.ignoreAncestorMap[obj.id]){
+                    disabled = true;
+                }
                 // 找到自己所有的祖先，也都不能在选中的 ID 里
-                if(!disabled && conf.checkeds) {
-                    var jPs = jNode.parents(".tree-node");
-                    for(var i=0; i<jPs.length; i++) {
-                        var pid = jPs.eq(i).attr("oid");
-                        if(conf.checkeds[pid]) {
+                else {
+                    var ans = Wn.getAncestors(obj);
+                    for(var i=0; i<ans.length; i++) {
+                        var an = ans[i];
+                        if(conf.ignoreAncestorMap[an.id]) {
                             disabled = true;
                             break;
                         }
@@ -237,16 +288,16 @@ return ZUI.def("ui.tree", {
                 }
             }
             // 推入传感器
-            senList.push(_.extend({
-                    name  : conf.name || "drag",
-                    rect  : _.isNumber(conf.rect) ? conf.rect : -.5,
-                    scope : conf.scope,
-                    disabled : disabled,
-                }, {
-                    text : obj.nm,
-                    $ele : jNode.find(">.tnd-self"),
-                    data : obj,
-                }));
+            senList.push({
+                drag_sen_type : conf.drag_sen_type || "tree",
+                name  : conf.name || "drag",
+                rect  : _.isNumber(conf.rect) ? conf.rect : -.5,
+                scope : conf.scope,
+                disabled : disabled,
+                text : obj.nm,
+                $ele : jNode.find(">.tnd-self"),
+                data : obj,
+            });
         });
 
         // 返回
@@ -583,7 +634,7 @@ return ZUI.def("ui.tree", {
 
         // 木有的话，就搞全部
         var jNodes = UI.findNode(nd);
-        //console.log(jNodes.length)
+        //console.log(nd, jNodes.length)
 
         // 标识
         jNodes.attr("nd-disabled", "yes");
@@ -829,13 +880,20 @@ return ZUI.def("ui.tree", {
         if(list && !_.isArray(list)){
             list = [list];
         }
-        // 遍历数组进行绘制
+        // 清空一下节点
         jP.empty();
 
         // 如果列表有内容才遍历吧
         if(list){
             list.forEach(function(obj){
-                UI.__gen_node(obj).appendTo(jP);
+                //console.log(obj.nm);
+                // 如果有过滤函数，过滤一下
+                if(_.isFunction(opt.filter)) {
+                    obj = opt.filter(obj);
+                }
+                // 绘制
+                if(obj)
+                    UI.__gen_node(obj).appendTo(jP);
             });
         }
     },

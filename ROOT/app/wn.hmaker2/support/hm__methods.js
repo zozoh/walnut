@@ -84,10 +84,16 @@ var methods = {
         var resUI = UI.resourceUI();
 
         // 无需移动
-        if(!oTa || !_.isArray(objs) || objs.length == 0)
+        if(!oTa || !objs)
             return;
-        // 准备命令吧
 
+        if(!_.isArray(objs))
+            objs = [objs];
+
+        if(objs.length == 0)
+            return;
+
+        // 准备命令吧
         var cmds = [];
         for(var i=0; i<objs.length; i++) {
             var obj = objs[i];
@@ -98,33 +104,20 @@ var methods = {
         cmds.push('echo "%[-1/0] ' + objs.length + ' objs done!"');
         // 执行命令
         var cmdText = cmds.join(";\n");
-        console.log(cmdText)
-        Wn.processPanel(cmdText, function(){
-            //console.log("-------------All Done");
-            this.close();
-
-            // 准备恢复的 ID
-            var aid = resUI.getActivedId();
-
-            // 整站刷新
-            if(oTa.id == UI.getHomeObjId()){
-                resUI.refresh(function(){
-                    if(aid)
-                        resUI.setActived(aid, callback);
-                    else
-                        $z.doCallback(callback);
-                });
+        //console.log(cmdText)
+        Wn.processPanel(cmdText, function(res, jMsg, re){
+            // 发现错误了
+            if(/^e.cmd.mv.dupname :/.test(re)) {
+                UI.alert("有重名文件，请看日志获取详情");
             }
-            // 首先重新刷一下当前节点
-            else if(aid) {
-                resUI.reloadNode(aid, function(){
-                    resUI.openNode(oTa.id, callback, true);
-                });
-            }
-            // 直接打开目标
+            // 关闭对话框
             else {
-                resUI.openNode(oTa.id, callback, true);
+                Wn.cleanCache();  // 还是要清一下，否则缓存的pid可能导致诡异
+                this.close();
             }
+
+            // 调用回调
+            $z.doCallback(callback);
         });
     },
     //=========================================================

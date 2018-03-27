@@ -869,6 +869,9 @@ public class cmd_obj extends JvmExecutor {
 
     private void __do_update(WnSystem sys, NutMap u_map, List<WnObj> list) {
         u_map.remove("id");
+        
+        // TODO 这里是不是要检查一下重名啊!
+        
         // 将日期的字符串，搞一下
         for (Map.Entry<String, Object> en : u_map.entrySet()) {
             Object v = en.getValue();

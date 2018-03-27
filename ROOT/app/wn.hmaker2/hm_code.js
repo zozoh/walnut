@@ -17,6 +17,8 @@ return ZUI.def("app.wn.hmaker_text", {
     //...............................................................
     init : function() {
         var UI = HmMethods(this);
+
+        UI.listenBus("update:obj", UI.updatePathBar);
     },
     //...............................................................
     redraw : function(){
@@ -34,24 +36,37 @@ return ZUI.def("app.wn.hmaker_text", {
         return ["content"];
     },
     //...............................................................
-    update : function(o) {
+    update : function(obj) {
         var UI = this;
 
         // 记录数据
-        UI.__my_obj = o;
+        UI.__my_obj = obj;
 
         // 通知其他部分激活某个对象的属性
-        UI.fire("active:other", o);
+        UI.fire("active:other", obj);
 
         // 显示对象路径
-        var aph = UI.getRelativePath(o);
-        UI.arena.children("header")
-            .append($(UI.getObjIcon(o)))
-            .append($('<span>').text(aph));
-            //.append($('<a target="_blank" href="/a/open/'+window.wn_browser_appName+'?ph=id:'+o.id+'">' + aph + '</a>'));
+        UI.updatePathBar(obj);
 
         // 更新显示对象 
-        UI.gasket.content.update(o);
+        UI.gasket.content.update(obj);
+    },
+    //...............................................................
+    updatePathBar : function(obj) {
+        var UI = this;
+        var jH = UI.arena.children("header").empty();
+        if(!obj) {
+            jH.text("empty!");
+        }
+        // 显示对象路径
+        else {
+            //var appName = window.wn_browser_appName || "wn.hmaker2";
+            var aph = UI.getRelativePath(obj);
+            jH.append($(UI.getObjIcon(obj, true)))
+              .append($('<span>').text(aph));
+                // .append($('<a target="_blank" href="/a/open/'
+                //             + appName + '?ph=id:'+obj.id+'">' + aph + '</a>'));
+        }
     },
     //...............................................................
     getCurrentEditObj : function(){

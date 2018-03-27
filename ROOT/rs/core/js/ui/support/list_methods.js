@@ -199,6 +199,26 @@ var methods = {
         this.options.setItemData.call(this, jItem, obj);
     },
     //...............................................................
+    disableItem : function(arg) {
+        var UI = this;
+
+        // 木有的话，就搞全部
+        var jItems = UI.findItem(arg);
+
+        // 标识一下
+        jItems.attr("it-disabled", "yes");
+    },
+    //...............................................................
+    enableItem : function(arg) {
+        var UI = this;
+
+        // 木有的话，就搞全部
+        var jItems = UI.findItem(arg);
+
+        // 标识
+        jItems.removeAttr("it-disabled");
+    },
+    //...............................................................
     getActived : function(){
         return this.getObj(this.$item());
     },

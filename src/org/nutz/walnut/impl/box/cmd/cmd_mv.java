@@ -47,6 +47,24 @@ public class cmd_mv extends JvmExecutor {
             }
         }
 
+        // 逐个检查重名的可能性
+        if (null != oDest) {
+            for (WnObj o : list) {
+                // 目标是文件的话，看看是否重名
+                if (oDest.isFILE()) {
+                    if (oDest.name().equals(o.name())) {
+                        throw Er.create("e.cmd.mv.dupname", o);
+                    }
+                }
+                // 如果目标是文件夹的话
+                else {
+                    if (sys.io.exists(oDest, o.name())) {
+                        throw Er.create("e.cmd.mv.dupname", o);
+                    }
+                }
+            }
+        }
+
         // 计算移动模式
         int mode = 0;
         if (!params.is("T"))

@@ -197,10 +197,10 @@ sensors : [{
     scope     : true,    // 范围，win|client|viewport，
                          // 如果指定了 $ele 则自动计算
                          // 默认为 win
-    visibility : true,   // 是否要在绘制层显示感应区
+    visible    : true,   // 是否要在绘制层显示感应区
     matchBreak : true,   // 如果匹配上了，是否继续匹配后续感应器，默认 true
     disabled   : false,  // 如果设置，这个感应器将永远不被激活，只用来显示
-                         // 当然，如果都没有 visibility，这个感应器相当于没用
+                         // 当然，如果都没有 visible，这个感应器相当于没用
     actived    : false   // 感应器状态，true 表示激活的感应器
                          // 「这个会自动生成，你设置也没用」
 }],
@@ -355,10 +355,11 @@ $(ele).moving({
     
     //..................................................
     // 全局回调函数
-    init      : {c}F()   // 鼠标按下时，上下文对象生成，有了$trigger
-    on_begin  : {c}F()  // 移动开始时
-    on_ing    : {c}F()  // 移动时
-    on_end    : {c}F()  // 移动结束时
+    init      : {c}F()   // 鼠标按下时，上下文对象刚刚生成，有了$trigger
+    on_begin  : {c}F()   // 确定这是一个拖拽之后，还未设置传感器和计算目标尺寸之前
+    on_reday  : {c}F()   // 设置好了拖拽上下文之后
+    on_ing    : {c}F()   // 移动时
+    on_end    : {c}F()   // 移动结束时
 });
 ```
 

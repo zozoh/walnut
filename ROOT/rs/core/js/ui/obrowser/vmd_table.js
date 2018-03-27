@@ -33,7 +33,7 @@ return ZUI.def("ui.obrowser_vmd_table", {
             },
             // 标记一下标准属性
             on_draw_item : function(jRow, o){
-                jRow.addClass("wnobj");
+                //jRow.addClass("wnobj");
                 if(/^[.].+/.test(o.nm)){
                     jRow.addClass("wnobj-hide");
                 }
