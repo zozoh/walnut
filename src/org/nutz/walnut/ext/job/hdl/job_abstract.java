@@ -4,7 +4,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.job.WnJob;
+import org.nutz.walnut.job.WnJobService;
 
 public abstract class job_abstract implements JvmHdl {
 
@@ -19,7 +19,7 @@ public abstract class job_abstract implements JvmHdl {
     }
     
     public static WnObj jobRootDir(WnSystem sys) {
-        return sys.io.check(null, WnJob.root);
+        return sys.io.check(null, WnJobService.root);
     }
     
     public static String user(String me, String param) {

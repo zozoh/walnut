@@ -191,7 +191,7 @@ var CMD = {
 $.fn.extend({ "hmc_dynamic" : function(opt, arg){
     // 命令模式
     if(_.isString(opt)) {
-        var args = Array.from(arguments);
+        var args = $z.toArgs(arguments);
         return CMD[opt].apply(this, args.slice(1));
     }
 

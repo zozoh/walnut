@@ -32,8 +32,6 @@ import org.nutz.walnut.util.Wn;
  */
 public final class Hms {
 
-    private static final Pattern P_BACKGROUND = Pattern.compile("^.*(url\\(\"?/o/read/id:([0-9a-z]+)(/([^)\"]*))?\"?\\)).*$");
-
     /**
      * 控件处理类工厂的单例
      */
@@ -53,6 +51,8 @@ public final class Hms {
      * 生成从 CSS 文本为多行
      */
     public static final int RULE_MULTILINE = 1 << 2;
+
+    private static final Pattern P_BACKGROUND = Pattern.compile("^.*(url\\(\"?/o/read/id:([0-9a-z]+)(/(.+))?\"?\\)).*$");
 
     /**
      * 根据一个 Map 描述的CSS规则，生成 CSS 文本，
@@ -106,12 +106,12 @@ public final class Hms {
             // 对于背景的特殊处理 /o/read/id:xxxx 要改成相对路径
             /**
              * <pre>
-            0/106  Regin:0/106
-            0:[  0,106) rgba(255,191,0,0.6) url("/o/read/id:ua5mc772m4hhvov4ullptj2nla/image/H05.jpg") no-repeat scroll left/cover
-            1:[ 20, 78) url("/o/read/id:ua5mc772m4hhvov4ullptj2nla/image/H05.jpg")
-            2:[ 36, 62) ua5mc772m4hhvov4ullptj2nla
-            3:[ 62, 76) /image/H05.jpg
-            4:[ 63, 76) image/H05.jpg
+            0/62  Regin:0/62
+            0:[  0, 62) #000 url(/o/read/id:xxxx/images/bg(1).gif) no-repeat top right
+            1:[  5, 42) url(/o/read/id:xxxx/images/bg(1).gif)
+            2:[ 20, 24) xxxx
+            3:[ 24, 41) /images/bg(1).gif
+            4:[ 25, 41) images/bg(1).gif
              * </pre>
              */
             if ("background".equals(key) || "backgroundImage".equals(key)) {
@@ -125,6 +125,14 @@ public final class Hms {
 
                     // 是其内的图片
                     if (!Strings.isBlank(bgImgPh)) {
+                        // TODO 这个正则有问题，图片名在 url("xxx") 形式下
+                        // 后面会有一个 "，懒得把它弄复杂了，这里字符串截断一下吧
+                        if (bgImgPh.endsWith("\"")) {
+                            bgImgPh = bgImgPh.substring(0, bgImgPh.length() - 1);
+                        }
+                        // 确保去掉前后空白
+                        bgImgPh = Strings.trim(bgImgPh);
+                        // 来吧
                         oBgImg = ing.io.check(oBgImg, bgImgPh);
                     }
 

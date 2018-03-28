@@ -27,14 +27,14 @@ import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
-@IocBean(create = "init", depose = "depose")
-public class WnJob extends WnRun implements Callable<Object> {
+@IocBean(create = "init", depose = "depose", name="wnJob")
+public class WnJobService extends WnRun implements Callable<Object> {
 
     private static final Log log = Logs.get();
     protected static ThreadPoolExecutor es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
     public static String root = "/sys/job";
     protected String tmpRoot = "/sys/job/tmp";
-    public static WnJob me;
+    public static WnJobService me;
 
     @Inject
     protected WnHookService hookService;
@@ -61,7 +61,7 @@ public class WnJob extends WnRun implements Callable<Object> {
         return es.toString();
     }
 
-    public WnJob() {
+    public WnJobService() {
         me = this;
     }
 
@@ -186,7 +186,7 @@ public class WnJob extends WnRun implements Callable<Object> {
                     String cmdText = io.readText(cmdFile);
                     WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
                     if (usr != null) {
-                       WnJob.this.runWithHook(usr, jobDir.getString("job_group"), 
+                       WnJobService.this.runWithHook(usr, jobDir.getString("job_group"), 
                                               jobDir.getAs("job_env", NutMap.class), 
                                               (se) -> exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText));
                     }
@@ -202,5 +202,22 @@ public class WnJob extends WnRun implements Callable<Object> {
     
     public long now() {
         return System.currentTimeMillis();
+    }
+    
+    //----------------------------------------
+    public void addJob(String id, String cmdText, String name, String cron, String createByUser, String runByUser, Map<String, Object> env) {
+        WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
+        WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
+        io.writeText(cmdFile, cmdText);
+        NutMap metas = new NutMap();
+        metas.put("job_name", name);
+        metas.put("job_cron", cron);
+        metas.put("job_ava", System.currentTimeMillis());
+        metas.put("job_st", "wait");
+        metas.put("job_user", runByUser);
+        metas.put("job_create_user", createByUser);
+        metas.put("job_st", "wait");
+        metas.put("job_env", env);
+        io.appendMeta(jobDir, metas);
     }
 }

@@ -79,6 +79,48 @@ var methods = {
         return Wn.fetch(aph, quiet);
     },
     //=========================================================
+    moveTo : function(oTa, objs, callback) {
+        var UI = this;
+        var resUI = UI.resourceUI();
+
+        // 无需移动
+        if(!oTa || !objs)
+            return;
+
+        if(!_.isArray(objs))
+            objs = [objs];
+
+        if(objs.length == 0)
+            return;
+
+        // 准备命令吧
+        var cmds = [];
+        for(var i=0; i<objs.length; i++) {
+            var obj = objs[i];
+            cmds.push('mv id:' + obj.id + ' id:' + oTa.id);
+            cmds.push('echo "%[' + (i+1) + '/' + objs.length
+                        +'] move ' + obj.nm + ' => ' + oTa.nm + '"');
+        }
+        cmds.push('echo "%[-1/0] ' + objs.length + ' objs done!"');
+        // 执行命令
+        var cmdText = cmds.join(";\n");
+        //console.log(cmdText)
+        Wn.processPanel(cmdText, function(res, jMsg, re){
+            // 发现错误了
+            if(/^e.cmd.mv.dupname :/.test(re)) {
+                UI.alert("有重名文件，请看日志获取详情");
+            }
+            // 关闭对话框
+            else {
+                Wn.cleanCache();  // 还是要清一下，否则缓存的pid可能导致诡异
+                this.close();
+            }
+
+            // 调用回调
+            $z.doCallback(callback);
+        });
+    },
+    //=========================================================
     // 得到站点的皮肤设定， null 表示没有设定皮肤
     getSkinInfo : function() {
         var UI = this;
@@ -302,7 +344,7 @@ var methods = {
         return o.nm;
     },
     // 得到一个对象在 HMaker 里表示的 Icon HTML
-    getObjIcon : function(o) {
+    getObjIcon : function(o, onlyOne) {
         // 有了自定义
         if(o.icon)
             return o.icon;
@@ -339,8 +381,12 @@ var methods = {
         // }
         
         // 文件夹
-        if('DIR' == o.race)
-            return  '<i class="far fa-folder"></i><i class="far fa-folder-open"></i>';
+        if('DIR' == o.race) {
+            var re = '<i class="far fa-folder"></i>';
+            if(!onlyOne)
+                return re + '<i class="far fa-folder-open"></i>';
+            return re;
+        }
         
         // 网页 / XML
         if(/^text\/(xml|html)$/.test(o.mime)) {

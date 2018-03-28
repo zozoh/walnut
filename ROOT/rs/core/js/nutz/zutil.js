@@ -475,7 +475,13 @@
         //  - flatten : 表示展平嵌套数组
         //  - deeply  : 表示深层展开，否则只展开一层
         toArgs: function (list, flatten, deeply) {
-            var args = Array.from(list);
+            // 靠! IE 不支持，用传统方法吧
+            //var args = Array.from(list);
+            var args = [];
+            if(list && _.isNumber(list.length))
+                for(var i=0; i<list.length; i++) {
+                    args.push(list[i]);
+                }
             if (flatten)
                 return _.flatten(args, !deeply);
             return args;
@@ -3381,7 +3387,7 @@
                     jIt.css(styles);
                 }
                 return jIt;
-            }
+            },
         },
         //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视
@@ -4319,6 +4325,22 @@
                     throw e2 + " \n" + str;
                 }
             }
+        },
+        //............................................
+        // [{id:"a",n:9}, {id:"b",n:10}]
+        //  => {a: {id:"a",n:9}, b: {id:"b",n:10}}
+        arrayToMap : function(ary, key) {
+            var map = {};
+            if(_.isArray(ary) && ary.length > 0) {
+                for(var i=0; i<ary.length; i++) {
+                    var ele = ary[i];
+                    var kv  = ele[key];
+                    if(kv) {
+                        map[kv] = ele;
+                    }
+                }
+            }
+            return map;
         },
         //............................................
         // 计算一个字符串开头有几个缩进，

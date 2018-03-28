@@ -495,62 +495,63 @@
         i {vertical-align: middle;}
         b {display: inline-block; vertical-align: middle;margin:0 @d2;}
     }
-}
 
-// 拖拽感应器部分
-@sitPad : 6px;
-.z-mvm-sit {
-    margin-left:-1px; margin-top:-1px;
-    section {
-        position:relative; width:100%; height:100%; 
-        background: rgba(255,255,255,0);
-        > * {
-            transition:0.3s;
-            position: absolute; top:0;left:0;right:0;bottom:0;
-        }
-        > aside {border:1px solid #F0F;}
-        > span {
-            padding:@d1;
-            text-shadow: 0px  1px 0px #FFF,
-                         1px  0px 0px #FFF,
-                        -1px  0px 0px #FFF,
-                         0px -1px 0px #FFF;
-            font-family: @f_fixed; font-size:@f1; opacity: 0.6; color:#000;
+    // 拖拽感应器部分
+    @sitPad : 6px;
+    .z-mvm-sit {
+        margin-left:-1px; margin-top:-1px;
+        section {
+            position:relative; width:100%; height:100%; 
+            background: rgba(255,255,255,0);
+            > * {
+                transition:0.3s;
+                position: absolute; top:0;left:0;right:0;bottom:0;
+            }
+            > aside {border:1px solid #F0F;}
+            > span {
+                padding:@d1;
+                text-shadow: 0px  1px 0px #FFF,
+                             1px  0px 0px #FFF,
+                            -1px  0px 0px #FFF,
+                             0px -1px 0px #FFF;
+                font-family: @f_fixed; font-size:@f1; opacity: 0.6; color:#000;
+            }
         }
     }
-}
 
-// 拖拽到 body 的感应器
-.drop-to-body {
-    section {
-        background: rgba(255,255,255,0.2);
-    }
-}
-
-// 禁止的可视化感应器样式
-.z-mvm-sit[se-disabled] {
-    section {
-        background: rgba(0,0,0,0.1);
-        > aside {border:1px dashed rgba(255,0,255,0.3);}
-        > aside[md="y"] {display: none;}
-        > span {
-            color:#888; text-decoration: line-through;
-            text-shadow:unset;
+    // 拖拽到 body 的感应器
+    .drop-to-body {
+        section {
+            background: rgba(255,255,255,0.2);
         }
     }
-}
 
-// 激活的拖拽感应器
-.z-mvm-sit[se-actived] {
-    section {
-        > aside[md="x"]{
-            border-style:dashed;
-            top:@sitPad; left:@sitPad; right:@sitPad; bottom:@sitPad;
-            background: rgba(255,255,0,0.2);
-        }
-        > span {
-            padding:@d2; text-shadow:unset;
-            opacity: 1.0; color:#000;
+    // 禁止的可视化感应器样式
+    .z-mvm-sit[se-disabled] {
+        section {
+            background: rgba(0,0,0,0.1);
+            > aside {border:1px dashed rgba(255,0,255,0.3);}
+            > aside[md="y"] {display: none;}
+            > span {
+                color:#888; text-decoration: line-through;
+                text-shadow:unset;
+            }
         }
     }
-}
+
+    // 激活的拖拽感应器
+    .z-mvm-sit[se-actived] {
+        section {
+            > aside[md="x"]{
+                border-style:dashed;
+                top:@sitPad; left:@sitPad; right:@sitPad; bottom:@sitPad;
+                background: rgba(255,255,0,0.2);
+            }
+            > span {
+                padding:@d2; text-shadow:unset;
+                opacity: 1.0; color:#000;
+            }
+        }
+    }
+
+}  // ~.hm-page-move-mask
