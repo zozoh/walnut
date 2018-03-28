@@ -359,7 +359,7 @@ define(function (require, exports, module) {
                         }, 200);
                     },
                     filterStr: function (str) {
-                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_]");
+                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_\\\\]");
                         var result = "";
                         var len = str.length;
                         for (var i = 0; i < len; i++) {
