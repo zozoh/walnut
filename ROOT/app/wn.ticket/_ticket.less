@@ -30,7 +30,7 @@
       height: @menu-h-step2;
     }
 
-    .ticket-chat {
+    .ticket-chat.user {
       height: calc(~"100% - @{title-h} - @{menu-h-step2}");
     }
   }
@@ -59,12 +59,17 @@
   }
 }
 
+@pT: 40px;
+@pB: 48px;
 // 标题部分
 .ticket-title {
-  height: @title-h;
-  line-height: @title-h;
   text-align: center;
   cursor: pointer;
+  height: @pT;
+  line-height: @pT;
+  padding: 0 @d4;
+  font-size: @f3;
+  border-bottom: 1px solid @cborder1;
 
   // 标题内容
   .text {
@@ -84,8 +89,9 @@
 // 修改状态菜单
 .ticket-menu {
   display: none;
-  padding: 8px 4px;
+  padding: 8px 6px;
   width: 100%;
+  border-top: 1px solid @cborder1;
 
   @tedit-h: 126px;
   @tedit-lbl-h: 32px;
@@ -113,6 +119,7 @@
 
   .ticket-label-edit {
     position: relative;
+    outline: none;
     display: none;
     margin-bottom: 4px;
     height: @tedit-lbl-h;
@@ -121,13 +128,15 @@
     font-size: 13px;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
     width: 100%;
-
-    border: 1px solid @ch0_b;
-    background-color: @ch1_f;
+    border: 1px solid @cinput_l;
+    background-color: @cinput_b;
+    color: @cinput_f;
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 
-    input {
-      color: @ch0_f;
+    &:focus {
+      border: 1px solid @cinput_lF;
+      background-color: @cinput_bF;
+      color: @cinput_fF;
     }
   }
 
@@ -178,7 +187,8 @@
     line-height: 32px;
     padding-left: 14px;
     padding-right: 10px;
-    color: #aaa;
+    color: #999;
+    font-weight: 100;
     font-size: 12px;
     max-width: 100%;
     overflow: hidden;
@@ -249,6 +259,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 4px;
+  background: @cb1;
+  color: @cf1;
 
   .chat-no-record {
     text-align: center;

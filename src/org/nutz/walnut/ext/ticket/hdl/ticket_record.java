@@ -229,7 +229,7 @@ public class ticket_record implements JvmHdl {
                                          "工单["
                                                   + curRecord.getString("text")
                                                   + "]已分配给客服("
-                                                  + tPeople.getString("csAlias")
+                                                  + tPeople.getString("usrAlias")
                                                   + ")"));
             } else {
                 sys.err.printf("e.ticket: record[%s] not found", rid);
@@ -294,7 +294,9 @@ public class ticket_record implements JvmHdl {
                     curRecord.setv("ticketStep", "2");
                     // 记录到历史
                     curRecord.addv2("history",
-                                    opHis(String.format("工单被%s重新打开", userOpen ? "用户" : "客服")));
+                                    opHis(String.format("工单被%s[%s]重新打开",
+                                                        userOpen ? "用户" : "客服",
+                                                        tPeople.getString("usrAlias"))));
                     sys.io.appendMeta(curRecord, "^ticketEnd|ticketStatus|ticketStep|history$");
                     sys.out.print(Json.toJson(getRecord(sys, rid)));
                     // 通知与工单相关用户
@@ -335,7 +337,10 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
-                                curRecord.addv2("history", opHis("工单被用户关闭"));
+                                curRecord.addv2("history",
+                                                opHis("工单被用户["
+                                                      + tPeople.getString("usrAlias")
+                                                      + "]关闭"));
                                 notiWSClient(sys,
                                              toCs,
                                              NutMap.NEW()
@@ -411,7 +416,10 @@ public class ticket_record implements JvmHdl {
                                 curRecord.setv("ticketStatus", "done");
                                 curRecord.setv("ticketEnd", System.currentTimeMillis());
                                 curRecord.setv("ticketStep", "3");
-                                curRecord.addv2("history", opHis("工单被客服关闭"));
+                                curRecord.addv2("history",
+                                                opHis("工单被客服["
+                                                      + tPeople.getString("usrAlias")
+                                                      + "]关闭"));
                                 notiWSClient(sys,
                                              toUsr,
                                              NutMap.NEW()

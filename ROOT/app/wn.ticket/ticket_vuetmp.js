@@ -17,7 +17,7 @@ define(function (require, exports, module) {
             return `
                     <div class="ticket-reply" id="` + id + `"  :class="tkStatusClass" >
                         <div class="ticket-title" @click="editTk"><span class="tp">[{{tkTp}}]</span><span class="text">{{tkTitle}}</span></div>
-                        <ul class="ticket-chat">
+                        <ul class="ticket-chat" :class="{'user': isMyTicket()}">
                             <li class="chat-no-record" v-show="timeItems.length == 0">暂无内容</li>
                             <li class="chat-record-wrap" v-for="(item, index) in timeItems" :key="item.time">
                                 <div v-if="item.stp != 'ophis'" class="chat-record clear" :class="isCS(item)? 'cservice': ''">
@@ -154,11 +154,17 @@ define(function (require, exports, module) {
                     addLabel: function () {
                         var clbl = this.label.trim();
                         var clblarr = clbl.split(/\s+/);
-                        if (clblarr.length == 1) {
-                            this.lbls.push(clbl);
-                        } else {
-                            this.lbls = this.lbls.concat(clblarr);
+                        var larr = [];
+                        for (let i = 0; i < clblarr.length; i++) {
+                            if (clblarr[i] != '') {
+                                larr.push(clblarr[i])
+                            }
                         }
+                        if (larr.length == 0) {
+                            this.label = '';
+                            return;
+                        }
+                        this.lbls = this.lbls.concat(clblarr);
                         this.label = '';
                         this.updatelbls();
                     },
@@ -353,7 +359,7 @@ define(function (require, exports, module) {
                         }, 200);
                     },
                     filterStr: function (str) {
-                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_]");
+                        var pattern = new RegExp("[\"'`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？%+_\\\\]");
                         var result = "";
                         var len = str.length;
                         for (var i = 0; i < len; i++) {
@@ -546,14 +552,14 @@ define(function (require, exports, module) {
     var ticketNoti = {
         myWS: function (UI, nid) {
             var wscon = window._ticket_noti_[nid];
-            if (!wscon) {
+            if (!wscon || !wscon.isAlive) {
                 var WS_URL = window.location.host + "/websocket"
                 if (location.protocol == 'http:') {
                     WS_URL = "ws://" + WS_URL;
                 } else {
                     WS_URL = "wss://" + WS_URL;
                 }
-                var sock = new WebSocket(WS_URL);
+                var sock = new ReconnectingWebSocket(WS_URL);
                 sock.isAlive = true;
                 sock.onopen = function () {
                     console.log('sock-open');
@@ -572,7 +578,7 @@ define(function (require, exports, module) {
                         } else {
                             clearInterval(sockInt);
                         }
-                    }, 1000 * 60);
+                    }, 1000 * 30);
                 };
                 sock.onmessage = function (e) {
                     var content = e.data;
