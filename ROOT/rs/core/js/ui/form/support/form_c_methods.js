@@ -6,7 +6,7 @@ var methods = {
     __on_change : function(){
         var UI  = this;
         var opt = UI.options;
-        var context = opt.context || UI.parent;
+        var context = opt.context || UI;
         var v = UI.getData();
 
         // 和旧值比较一下，有更新才通知

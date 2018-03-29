@@ -238,14 +238,18 @@ return ZUI.def("ui.form", {
             }
 
             // 渲染 UI 控件: 每个控件都要监控 on_change 事件
-            var theUI = new TheUI(_.extend(theConf, uiConf, {
+            var fldConf = _.extend(theConf, uiConf, {
                 gasketName : fld.key,
                 $pel       : fld.$ui,
                 context    : fld,
-                on_change  : function(v){
-                    UI.__on_change(this, v);
-                }
-            })).render(function(){
+            });
+            // 捕捉一下 on_change 事件
+            $z.addValue(fldConf, "on_change", function(v){
+                UI.__on_change(this, v);
+            });
+
+            // 加载并且渲染控件
+            var theUI = new TheUI(fldConf).render(function(){
                 //console.log("UI.defer_report:", fld.uiType, fld._defer_key);
                 // 记录字段对应的 UI 对象
                 fld.UI = this;

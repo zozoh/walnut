@@ -247,14 +247,32 @@ return ZUI.def("ui.form_com_combotable", {
 
             // 绘制控件
             (function(jTd, val){
+                // 处理一下配置项目
+                var fldConf = _.extend({}, fld.uiConf, {
+                    parent : UI,
+                    $pel   : jTd,
+                });
+                // 附加一个获取本行值的方法
+                // 这里的 this 表示每行的 UI 控件
+                $z.addValue(fldConf, "on_init", function(){
+                    this.getRowData = function() {
+                        var jTr = this.$el.closest('tr');
+                        return this.parent._get_row_data(jTr);
+                    }
+                    this.setRowData = function(obj) {
+                        var jTr = this.$el.closest('tr');
+                        this.parent._set_row_data(jTr, obj);
+                    }
+                });
+                // 捕捉一下 on_change 事件
+                $z.addValue(fldConf, "on_change", function(){
+                    UI.__on_change();
+                });
+                console.log(i, fldConf)
+
+                // 加载控件
                 seajs.use(fld.uiType, function(FldUI){
-                    new FldUI(_.extend({}, fld.uiConf, {
-                        parent : UI,
-                        $pel   : jTd,
-                        on_change : function(){
-                            UI.__on_change();
-                        }
-                    })).render(function(){
+                    new FldUI(fldConf).render(function(){
                         this.setData(val);
                     });
                 });
@@ -273,6 +291,42 @@ return ZUI.def("ui.form_com_combotable", {
         return jTr;
     },
     //...............................................................
+    _set_row_data : function(jTr, obj) {
+        var UI = this;
+        jTr = $(jTr);
+
+        jTr.children('[fld-key]').each(function(){
+            var jTd = $(this);
+            var index = jTd.attr("fld-index") * 1;
+            var fld = UI.__fields[index];
+            var fui = ZUI(jTd.children());
+            var v   = obj[fld.key];
+            fui.setData(v);
+        });
+    },
+    //...............................................................
+    _get_row_data : function(jTr) {
+        var UI = this;
+        jTr = $(jTr);
+
+        var obj = _.extend({}, jTr.data("@OBJ"));
+        jTr.children('[fld-key]').each(function(){
+            var jTd = $(this);
+            var index = jTd.attr("fld-index") * 1;
+            var fld = UI.__fields[index];
+            var fui = ZUI(jTd.children());
+            var jso = fld.JsObjType;
+            var v   = fui.getData();
+            //console.log(v);
+            var v2  = jso.parse(v).setToObj(obj);
+            // 看看是否有必要重设一下值
+            if(v != v2)
+                fui.setData(v2);
+        });
+
+        return obj;
+    },
+    //...............................................................
     _get_data : function(){
         var UI    = this;
 
@@ -281,21 +335,7 @@ return ZUI.def("ui.form_com_combotable", {
 
         // 循环读取字段
         UI.arena.find(">.cct-list>table>tbody>tr").each(function(){
-            var jTr = $(this);
-            var obj = jTr.data("@OBJ");
-            jTr.children('[fld-key]').each(function(){
-                var jTd = $(this);
-                var index = jTd.attr("fld-index") * 1;
-                var fld = UI.__fields[index];
-                var fui = ZUI(jTd.children());
-                var jso = fld.JsObjType;
-                var v   = fui.getData();
-                //console.log(v);
-                var v2  = jso.parse(v).setToObj(obj);
-                // 看看是否有必要重设一下值
-                if(v != v2)
-                    fui.setData(v2);
-            });
+            var obj = UI._get_row_data(this);
             re.push(obj);
         });
 

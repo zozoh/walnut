@@ -1850,12 +1850,15 @@
             return true;
         },
         //.............................................
-        // 向普通对象里添加值
-        // 如果已经有值了，则变成 array，就是处理后，值一定是一个数组
+        // 将一个值加入对象的某个键，如果已经存在，则变数组
         //   obj : 对象
         //   key : 键值，支持 "."
         //   val : 值
-        pushValue: function (obj, key, val) {
+        //   forceArray : 经过处理的值是否一定是个数组，默认true
+        pushValue: function (obj, key, val, forceArray) {
+            if(_.isUndefined(forceArray))
+                forceArray = true;
+
             var ks = _.isArray(key) ? key : key.split(".");
             var o = obj;
             if (ks.length > 1) {
@@ -1871,12 +1874,39 @@
                 key = ks[lastIndex];
             }
 
-            var arr = o[key];
-            if (_.isArray(arr) && arr.length > 0) {
-                o[key] = arr.concat(val);
+            var ov = o[key];
+            // 加入
+            if(_.isUndefined(ov)) {
+                o[key] = forceArray ? [val] : val;
             }
+            // 本来就是数组
+            else if(_.isArray(ov)){
+                o.push(val);
+            }
+            // 创建新数组
             else {
-                o[key] = [].concat(val);
+                o[key] = [ov, val];
+            }
+        },
+        //.............................................
+        // 将一个值加入对象的某个键，如果已经存在，则变数组
+        //   obj : 对象
+        //   key : 键值
+        //   val : 值
+        //   forceArray : 经过处理的值是否一定是个数组，默认false
+        addValue: function(obj, key, val, forceArray) {
+            var ov = obj[key];
+            // 加入
+            if(_.isUndefined(ov)) {
+                obj[key] = forceArray ? [val] : val;
+            }
+            // 本来就是数组
+            else if(_.isArray(ov)){
+                ov.push(val);
+            }
+            // 创建新数组
+            else {
+                obj[key] = [ov, val];
             }
         },
         //.............................................
@@ -3391,11 +3421,24 @@
         },
         //.............................................
         // 调用某对象的方法，如果方法不存在或者不是函数，无视
+        // 如果对象的键是一个数组，会依次调用，但是返回的是最后一个
+        // 函数的返回
         invoke: function (obj, funcName, args, me) {
             if (obj) {
                 var func = obj[funcName];
-                if (typeof func == 'function') {
+                if (_.isFunction(func)) {
                     return func.apply(me || obj, args || []);
+                }
+                // 如果是数组，那么遍历一下
+                else if(_.isArray(func)) {
+                    var re;
+                    for(var i=0; i<func.length; i++) {
+                        var f2 = func[i];
+                        if(_.isFunction(f2)){
+                            re = f2.apply(me || obj, args || []);
+                        }
+                    }
+                    return re;
                 }
             }
         },

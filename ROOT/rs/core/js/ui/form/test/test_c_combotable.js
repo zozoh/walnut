@@ -10,7 +10,9 @@ var html = function(){/*
     <div class="tcc-btns" style="padding:10px; background:rgba(0,0,0,0.5);">
         <button>getData</button>
     </div>
-    <div ui-gasket="com0" style="width:100%;"></div>
+    <div ui-gasket="com0" style="width:100%; max-width:800px;"></div>
+    <hr>
+    <div ui-gasket="com1" style="width:100%; max-width:800px;"></div>
 </div>
 */};
 //===================================================================
@@ -21,7 +23,7 @@ return ZUI.def("ui.form_test_combotable", {
     events : {
         'click .tcc-btns > button' : function(e){
             var jB = $(e.currentTarget);
-            var data = this.gasket.com0[jB.text()]();
+            var data = this.gasket.com1[jB.text()]();
             console.log(data);
             //this.alert($z.toJson(data));
         }
@@ -31,6 +33,7 @@ return ZUI.def("ui.form_test_combotable", {
         var UI = this;
 
         //...........................................................
+        /*
         new ComboTableUI({
             parent : UI,
             gasketName : "com0",
@@ -121,8 +124,141 @@ return ZUI.def("ui.form_test_combotable", {
 
             UI.defer_report("com0");
         });
+        */
         //...........................................................
-        return ["com0"];
+        new ComboTableUI({
+            parent : UI,
+            gasketName : "com1",
+            on_change : function(val) {
+                console.log("new value::", val);
+            },
+            fields : [{
+                    key    : "country",
+                    title  : "国家",
+                    width  : "30%",
+                    uiType : "@input",
+                    uiConf : {
+                        // 变更后，清空后面的选项
+                        on_change : function(val){
+                            // 得到本行原始数据，并清空 city/zone
+                            var row = this.getRowData();
+                            row.city = "";
+                            row.zone = "";
+                            // 更新本行数据
+                            this.setRowData(row)
+                        },
+                        assist : {
+                            text   : "选择",
+                            uiType : "ui/form/c_list",
+                            uiConf : {
+                                textAsValue : true,
+                                items : ["中国","美国","英国","俄国","法国"]
+                            }
+                        }
+                    }
+                }, {
+                    key   : "city",
+                    title : "城市",
+                    uiType : "@input",
+                    uiConf : {
+                        // 变更后，清空后面的选项
+                        on_change : function(val){
+                            // 得到本行原始数据，并清空 zone
+                            var row = this.getRowData();
+                            row.zone = "";
+                            // 更新本行数据
+                            this.setRowData(row)
+                        },
+                        assist : {
+                            text   : "选择",
+                            uiType : "ui/form/c_list",
+                            uiConf : {
+                                textAsValue : true,
+                                items : function(val, callback) {
+                                    // 得到本行原始数据
+                                    var row = this.parent.getRowData();
+
+                                    // 准备伪造数据
+                                    var mockMap = {
+                                        "中国" : ["北京","上海","广州","深圳"],
+                                        "美国" : ["纽约","华盛顿","洛杉矶","费城"],
+                                        "英国" : ["伦敦","利物浦"],
+                                        "俄国" : ["莫斯科","列宁格勒"],
+                                        "法国" : ["巴黎","马赛"],
+                                    };
+                                    var list = mockMap[row.country] || [];
+
+                                    // 如果是异步的话，总之调用这个 callback 就好
+                                    callback(list);
+                                }
+                            }
+                        }                        
+                    }
+                }, {
+                    key   : "zone",
+                    title : "区",
+                    uiType : "@input",
+                    uiConf : {
+                        assist : {
+                            text   : "选择",
+                            uiType : "ui/form/c_list",
+                            uiConf : {
+                                textAsValue : true,
+                                items : function(val, callback) {
+                                    // 得到本行原始数据
+                                    var row = this.parent.getRowData();
+
+                                    // 准备伪造数据
+                                    var mockMap = {
+                                        "北京" : ["西城区","东城区","宣武区","崇文区","海淀区","朝阳区","丰台区","石景山区"],
+                                        "上海" : ["浦东新区","黄浦区","卢湾区","徐汇区","长宁","静安区","普陀区","闸北","虹口区","杨浦","宝山区","闵行","嘉定","金山区","松江区","青浦区","南汇","奉贤"],
+                                        "广州" : ["越秀区","荔湾区","增城区","海珠区","天河区","白云区","黄埔区","番禺区","花都区","南沙区","从化市","萝岗区"],
+                                        "深圳" : ["福田区","罗湖区","南山区","盐田区","宝安区","龙岗区","光明新区","坪山新区","龙华新区","大鹏新区"]
+                                    };
+                                    var list = mockMap[row.city] || [];
+
+                                    // 如果是异步的话，总之调用这个 callback 就好
+                                    callback(list);
+                                }
+                            }
+                        } 
+                    }
+                }],
+            combo : {
+                drawOnSetData : false,
+                items : ["中国","美国","英国","俄国","法国"],
+                icon  : '<i class="fas fa-globe"></i>',
+                text : function(o) {
+                    return o;
+                },
+                filter : function(o, dataList) {
+                    console.log("filter", o, dataList)
+                    for(var i=0; i<dataList.length; i++) {
+                        if(o == dataList[i].country)
+                            return false;
+                    }
+                    return true;
+                }
+            },
+            getObj : function(val) {
+                var nm = $.trim(val);
+                if(!nm)
+                    return null;
+                return {
+                    country : nm
+                };
+            }
+        }).render(function(){
+            this.setData([{
+                    "country" : "中国",
+                    "city"    : "北京",
+                    "zone"    : "海淀区",
+                }]);
+
+            UI.defer_report("com1");
+        });
+        //...........................................................
+        return ["com1"];
     },
     //...............................................................
 });
