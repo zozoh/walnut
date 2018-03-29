@@ -3269,6 +3269,84 @@
             return re;
         },
         //.............................................
+        /*
+        对一段行分隔的文本解析，形成一组数据
+         - str:  输入的文本，一行表示一个对象
+         - sep:  字符串分隔符，也可以是一个正则表达式
+         - keys: 无论是字符串分隔符，还是正则，最后都会解析成一个数组，
+                 这里说明每个下标表示的键
+                 如果不指定，则直接返回数组
+         - format: 一个函数 F(obj)，最后对解析出来的值进行格式化
+        @return 对象数组
+        */
+        parseLine : function(str, sep, keys, format) {
+            str = $.trim(str);
+            // 空字符串
+            if(!str)
+                return [];
+
+            // 准备行解析函数
+            var _do_line;
+            // 字符串分隔
+            if(_.isString(sep)) {
+                _do_line = function(line, sep, keys) {
+                    var m = line.split(sep);
+                    if(m) {
+                        var obj = {};
+                        var len = Math.min(m.length, keys.length);
+                        for(var i=0; i<len; i++) {
+                            var key = keys[i];
+                            var val = m[i];
+                            obj[key] = $.trim(val);
+                        }
+                        return obj;
+                    }
+                }
+            }
+            // 正则表达式分隔
+            else if(_.isRegExp(sep)) {
+                _do_line = function(line, sep, keys) {
+                    var m = sep.exec(line);
+                    if(m) {
+                        var obj = {};
+                        var len = Math.min(m.length-1, keys.length);
+                        for(var i=0; i<len; i++) {
+                            var key = keys[i];
+                            var val = m[i+1];
+                            obj[key] = $.trim(val);
+                        }
+                        return obj;
+                    }
+                }
+            }
+            // 简直无法分隔
+            else {
+                _do_line = function(line, sep, keys) {
+                    return _.isArray(keys) && keys.length>0
+                            ? zUtil.obj(keys[0], line)
+                            : line;
+                };
+            }
+
+            // 准备返回值
+            var list = [];
+            // 逐行解析
+            var lines = (str || "").split(/\r?\n/);
+            for(var i=0; i<lines.length; i++) {
+                var line = $.trim(lines[i]);
+                if(line) {
+                    var obj = _do_line(line, sep, keys);
+                    if(obj) {
+                        obj = $z.doCallback(format, [obj]) || obj;
+                        list.push(obj);
+                    }
+                }
+            }
+
+            // 返回
+            return list;
+        },
+        //.............................................
         // 循环将参数拼合成一个数组
         concat: function () {
             if (arguments.length > 0) {
@@ -3394,8 +3472,9 @@
         //............................................
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
-        escapeText: function (str) {
-            return str ? str.replace("<", "&lt;") : str;
+        escapeText: function (str, trim) {
+            var re = str ? str.replace("<", "&lt;") : str;
+            return trim ? $.trim(re) : re;
         },
         //.............................................
         // SVG 相关
