@@ -506,9 +506,16 @@ function draw_block(jWrapper, opt, d){
     var _d_cell = $z.parseDate(from.getTime());
     var jDiv   = $('<div class="zcal-block">').appendTo(jWrapper);
     var jTable = $('<table class="zcal-table">').appendTo(jDiv);
+
     // 绘制表头
     var jTHead = $('<thead class="zcal-table-head">').appendTo(jTable);
     var jTr    = $('<tr>').appendTo(jTHead);
+    // 绘制标题
+    if(_.isFunction(opt.blockTitle)) {
+        var ttHtml = opt.blockTitle(d);
+        $('<th class="zcal-block-title" colspan="7">').html(ttHtml).appendTo(jTr);
+        jTr = $('<tr>').appendTo(jTHead);
+    }
     for(var i=0;i<7;i++){
         var jTh = $('<th class="zcal-th">').appendTo(jTr);
         var n;
@@ -836,7 +843,7 @@ function do_resize(jRoot, opt){
     var jHead      = jRoot.children(".zcal-head");
     var jSelection = jRoot.parent();
     var jWrapper   = jRoot.find(".zcal-wrapper");
-    var W = jSelection.width();
+    var W = jWrapper.width();
     var H = jSelection.height() - jHead.outerHeight(true);
 
     // 计算每个块的高度
@@ -894,6 +901,15 @@ $.fn.extend({ "zcal" : function(opt, arg){
     // 默认，根据每块的行，觉得块的高度
     if(!opt.blockHeight) {
         opt.blockHeight = 36 * (opt.byWeek || 6);
+    }
+
+    // 块标题
+    if(opt.blockTitle) {
+        if("month" == opt.blockTitle) {
+            opt.blockTitle = function(date, i18n){
+                return date.format("yyyy-mm");
+            };
+        }
     }
 
     // 重绘基础 dom 结构，同时这会保存配置信息

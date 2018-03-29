@@ -34,6 +34,14 @@ jQuery.zcal({
     
     // 要绘制几个日历块
     blockNumber : 3,
+
+    // 绘制每个月历块的标题
+    // 如果为 "month" 则显示本块所在月（开始）
+    // 否则一个函数，则自动输出标题 HTML
+    // 函数参数为一个日期对象
+    blockTitle : "month" | function(date){
+        return date.format("yyyy-MM");
+    },
     
     // 绘制日历块的便宜
     // 默认是 1 表示从给定 current 日期，向未来绘制
