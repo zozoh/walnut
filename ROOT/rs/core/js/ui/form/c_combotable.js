@@ -268,7 +268,7 @@ return ZUI.def("ui.form_com_combotable", {
                 $z.addValue(fldConf, "on_change", function(){
                     UI.__on_change();
                 });
-                console.log(i, fldConf)
+                //console.log(i, fldConf)
 
                 // 加载控件
                 seajs.use(fld.uiType, function(FldUI){
@@ -306,23 +306,47 @@ return ZUI.def("ui.form_com_combotable", {
     },
     //...............................................................
     _get_row_data : function(jTr) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         jTr = $(jTr);
 
+        // 得到原始对象
         var obj = _.extend({}, jTr.data("@OBJ"));
-        jTr.children('[fld-key]').each(function(){
-            var jTd = $(this);
-            var index = jTd.attr("fld-index") * 1;
-            var fld = UI.__fields[index];
-            var fui = ZUI(jTd.children());
+
+        // 初始化字段类型
+        for(var i=0; i < UI.__fields.length; i++) {
+            var fld = UI.__fields[i];
             var jso = fld.JsObjType;
-            var v   = fui.getData();
-            //console.log(v);
+            var fui, v;
+            // 有控件从控件里拿
+            var jTd = jTr.children('[fld-key="'+fld.key+'"]');
+            if(jTd.length > 0) {
+                fui = ZUI(jTd.children());
+                v   = fui.getData();
+            }
+            // 否则直接从对象里取值
+            else {
+                v = obj[fld.key];
+            }
             var v2  = jso.parse(v).setToObj(obj);
+
             // 看看是否有必要重设一下值
-            if(v != v2)
+            if(v != v2 && fui)
                 fui.setData(v2);
-        });
+        }
+        // jTr.children('[fld-key]').each(function(){
+        //     var jTd = $(this);
+        //     var index = jTd.attr("fld-index") * 1;
+        //     var fld = UI.__fields[index];
+        //     var fui = ZUI(jTd.children());
+        //     var jso = fld.JsObjType;
+        //     var v   = fui.getData();
+        //     //console.log(v);
+        //     var v2  = jso.parse(v).setToObj(obj);
+        //     // 看看是否有必要重设一下值
+        //     if(v != v2)
+        //         fui.setData(v2);
+        // });
 
         return obj;
     },

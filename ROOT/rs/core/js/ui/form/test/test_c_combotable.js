@@ -23,7 +23,7 @@ return ZUI.def("ui.form_test_combotable", {
     events : {
         'click .tcc-btns > button' : function(e){
             var jB = $(e.currentTarget);
-            var data = this.gasket.com1[jB.text()]();
+            var data = this.gasket.com0[jB.text()]();
             console.log(data);
             //this.alert($z.toJson(data));
         }
@@ -33,7 +33,6 @@ return ZUI.def("ui.form_test_combotable", {
         var UI = this;
 
         //...........................................................
-        /*
         new ComboTableUI({
             parent : UI,
             gasketName : "com0",
@@ -66,6 +65,7 @@ return ZUI.def("ui.form_test_combotable", {
                 }, {
                     key   : "the_date",
                     title : "一个日期",
+                    hide : true,
                     type  : "datetime",
                     nativeAs : "string",
                     uiType : "@datepicker",
@@ -114,17 +114,12 @@ return ZUI.def("ui.form_test_combotable", {
             this.setData([{
                 "id":"vnt8bmelr4g9mp5tsus5hpsfts",
                 "nm":".hmaker",
-                "price":null,
-                "amont":null
-            },{
-                "id":"7jtsk47i5ghbuqiggn9c8grgjf",
-                "nm":".thumbnail",
-                "price":null,
-                "amont":null}]);
+                "the_date"  :new Date(),
+                "the_range" :null
+            }]);
 
             UI.defer_report("com0");
         });
-        */
         //...........................................................
         new ComboTableUI({
             parent : UI,
@@ -258,7 +253,7 @@ return ZUI.def("ui.form_test_combotable", {
             UI.defer_report("com1");
         });
         //...........................................................
-        return ["com1"];
+        return ["com0", "com1"];
     },
     //...............................................................
 });
