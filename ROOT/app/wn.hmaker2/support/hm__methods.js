@@ -354,9 +354,9 @@ var methods = {
             if('lib' == o.nm) {
                 return this.msg('hmaker.lib.icon');
             }
-            // if('image' == o.nm){
-            //     return '<i class="zmdi zmdi-collection-image-o"></i>';
-            // }
+            if('image' == o.nm){
+                return '<i class="zmdi zmdi-collection-image-o"></i>';
+            }
             if('resource' == o.nm){
                 return '<i class="zmdi zmdi-collection-item"></i>';
             }

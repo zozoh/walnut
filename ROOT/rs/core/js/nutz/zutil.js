@@ -4841,14 +4841,39 @@
                         var src  = m[13];
                         var src2 = opt.media.apply(context, [src]);
 
-                        // 如果是视频
-                        if(/[.](mp4|avi|mov)$/.test(src)) {
-                            html += '<video controls src="' + src2 + '">';
+                        // 处理一下 alt
+                        var alt = $.trim(m[12]);
+                        var m2 = /^([0-9]*(px|%|rem|em)?)[|\/]?([0-9]*(px|%|rem|em)?)$/.exec(alt);
+                        var iW, iH;
+                        if(m2){
+                            iW = m2[1];
+                            iH = m2[3];
+                            alt = "";
                         }
-                        // 那就是图片咯
-                        else {
-                            html += '<img alt="' + (m[12] || "") + '" src="' + src2 + '">';
+                        // 宽高
+                        var cssImg = [];
+                        if(iW){
+                            cssImg.push("width:"+iW + (/[0-9]$/.test(iW)?"px;":";"));
                         }
+                        if(iH)
+                            cssImg.push("height:"+iH + (/[0-9]$/.test(iW)?"px;":";"));
+
+                        // 准备输出头
+                        html += /[.](mp4|avi|mov)$/.test(src)
+                                    ? '<video controls '
+                                    : '<img ';
+                        // 源
+                        html += ' src="' + src2 + '" ';
+                        // 宽高
+                        if(cssImg.length > 0)
+                            html += ' style="' + cssImg.join("") + '"';
+                        
+                        // 提示信息
+                        if(alt)
+                            html += ' title="' + alt + '"';
+                        // 结束
+                        html += '>';
+
                         // 记录标签
                         if (tagNames)
                             tagNames["img"] = true;
@@ -4880,7 +4905,16 @@
                             }
                             // 链接
                             else {
-                                html += '<a href="' + href + '">'
+                                // 判断一下是否是新窗口打开
+                                var newtab = false;
+                                if(/^[+]/.test(text)) {
+                                    text = $.trim(text.substring(1));
+                                    newtab = true;
+                                }
+                                // 生成 DOM
+                                html += '<a '
+                                    + (newtab ? 'target="_blank' : "")
+                                    + ' href="' + href + '">'
                                     + __line_to_html(text)
                                     + '</a>';
                             }
