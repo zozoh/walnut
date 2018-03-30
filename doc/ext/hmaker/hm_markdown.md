@@ -10,6 +10,35 @@ tags:
 
  - 兼容 `GFM`
 
+# 链接打开新窗口
+
+```bash
+# 利用 + 表示新开一个窗口
+[+官网](http://nutzam.com)  
+
+#如果就是想加一个 + 前面加个空格
+[ +官网](http://nutzam.com)  
+```
+
+# 指定图片/视频宽高
+
+语法 `宽[/|]高`  分隔线，可以是 `|` 也可以是 `/` 都一样
+
+```bash
+# 指定宽高
+![800/600](logo.png)    # 相当于 800px/600px
+![8rem/6rem](logo.png)
+![50%/300px](logo.png)
+
+# 仅仅指定宽度
+![8rem](logo.png)
+![60%](logo.png)
+
+# 仅仅指定高度
+![/6rem](logo.png)
+![|30%](logo.png)
+```
+
 # 对于 code 的定制
 
 ## poster 语法
