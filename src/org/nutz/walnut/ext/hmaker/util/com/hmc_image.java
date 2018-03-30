@@ -45,8 +45,14 @@ public class hmc_image extends AbstractNoneValueCom {
         // zozoh: href 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
         String href = ing.propCom.getString("href");
         // href = ing.explainLink(href, false);
-        if (!Strings.isBlank(href))
+        if (!Strings.isBlank(href)) {
             ing.eleCom.attr("href", href);
+        }
+
+        // 处理打开新窗口
+        if (ing.propCom.getBoolean("newtab")) {
+            ing.eleCom.attr("target", "_blank");
+        }
 
         // 文字属性
         String text = ing.propCom.getString("text");
