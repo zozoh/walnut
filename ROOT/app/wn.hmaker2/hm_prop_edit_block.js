@@ -409,7 +409,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
             
             // 自定义颜色选择模式
-            var m = /^(#([BCL])> *[^\(=)]+)(\(([^\)]+)\))(=(.*))?/.exec(key);
+            var m = /^(#([BCL])> *[^{}]+)(\{([^}]+)\})(=(.*))?/.exec(key);
             if(m) {
                 var a_key = m[1];
                 var a_tp  = m[2];
@@ -437,7 +437,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 尺度设置模式
             // +[name]: [selector] ([title]/[tip])
             // +margin: > ul > li  (内边距/按钮的内边距)
-            m = /^(\+([A-Za-z_-]+):([^\(]+))\(([^\/\)]+)(\/([^\)]+))?\)$/.exec(key);
+            m = /^(\+([A-Za-z_-]+):([^{}]+))\{([^\/\)]+)(\/([^\)]+))?\}$/.exec(key);
             if(m) {
                 var a_key = m[1];
                 var a_tp  = m[2];

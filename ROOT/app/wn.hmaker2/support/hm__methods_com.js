@@ -493,7 +493,7 @@ var methods = {
             }
 
             // 自定义CSS属性
-            m = /^\+([A-Za-z_-]+):([^\(]+)$/.exec(key);
+            m = /^\+([A-Za-z_-]+):(.+)$/.exec(key);
             if(m) {
                 var a_tp  = m[1];
                 var a_sel = m[2];

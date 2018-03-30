@@ -95,7 +95,7 @@ public abstract class AbstractCom implements HmComHandler {
     }
 
     private static Pattern _P = Pattern.compile("^#([BCL])>(.+)$");
-    private static Pattern _P2 = Pattern.compile("^\\+([A-Za-z_-]+):([^\\(]+)$");
+    private static Pattern _P2 = Pattern.compile("^\\+([A-Za-z_-]+):(.+)$");
 
     @SuppressWarnings("unchecked")
     private void __prepare_block_css_and_skin_attributes(HmPageTranslating ing) {
