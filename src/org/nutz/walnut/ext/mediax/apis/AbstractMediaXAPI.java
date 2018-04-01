@@ -1,8 +1,15 @@
 package org.nutz.walnut.ext.mediax.apis;
 
+import java.io.File;
+import java.util.Arrays;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Files;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.mediax.MediaXAPI;
 import org.nutz.walnut.ext.mediax.bean.MxAccount;
 import org.nutz.walnut.ext.mediax.bean.MxTicket;
+import org.nutz.walnut.ext.mediax.util.MxURITarget;
 
 /**
  * 所有媒体接口都要继承的父类
@@ -21,8 +28,42 @@ public abstract class AbstractMediaXAPI implements MediaXAPI {
      */
     private MxTicket ticket;
 
+    /**
+     * 缓存目标
+     */
+    private MxURITarget target;
+
     public AbstractMediaXAPI(MxAccount account) {
         this.account = account;
+        // 看看是否提供了 target
+        String ph = this.getClass().getPackage().getName().replace('.', '/');
+        File f = Files.findFile(ph + "/targets.js");
+        if (null != f) {
+            this.target = Json.fromJsonFile(MxURITarget.class, f);
+        }
+    }
+
+    @Override
+    public String dumpTarget(String actionName) {
+        if (null == target) {
+            throw Er.create("e.mediax.explain.targetWithoutDefine");
+        }
+        return target.dump(actionName, false);
+    }
+
+    @Override
+    public String explain(String actionName, String[] path) {
+        if (null == target) {
+            throw Er.create("e.mediax.explain.targetWithoutDefine");
+        }
+        if (null == path || path.length == 0) {
+            throw Er.create("e.mediax.explain.nopath");
+        }
+        // 第一个元素为键，譬如 "最新备案/京/3"
+        String key = path[0];
+        String[] args = Arrays.copyOfRange(path, 1, path.length);
+        // 得到返回结果
+        return target.getPath(actionName, key, args);
     }
 
     @Override

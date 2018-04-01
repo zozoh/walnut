@@ -9,8 +9,11 @@
 
 ```
 # 匿名爬取
-demo@~$ mediax crawl http://path/to/resource
+demo@~$ mediax crawl http://host/path/to/resource
 
 # 指定一个用户名爬取
-demo@~$ mediax zozoh crawl http://path/to/resource  
+demo@~$ mediax zozoh crawl http://host/path/to/resource
+
+# 采用快捷目录爬取
+demo@~$ mediax crawl http://icp.chinaz.com 最新备案/京/3  
 ```

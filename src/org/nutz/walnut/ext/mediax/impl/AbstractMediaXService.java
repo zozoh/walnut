@@ -12,13 +12,12 @@ import org.nutz.lang.born.Borning;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.resource.Scans;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.mediax.MediaXAPI;
 import org.nutz.walnut.ext.mediax.MediaXService;
 import org.nutz.walnut.ext.mediax.MxAPIKey;
 import org.nutz.walnut.ext.mediax.apis.AbstractMediaXAPI;
 import org.nutz.walnut.ext.mediax.bean.MxAccount;
-import org.nutz.walnut.ext.mediax.exception.NullURIException;
-import org.nutz.walnut.ext.mediax.exception.UnsupportApiKeyException;
 
 /**
  * 作为所有 MeidaXService 的父类。主要提供一些便捷的 MediaXAPI 的创建帮助函数等
@@ -83,7 +82,7 @@ public abstract class AbstractMediaXService implements MediaXService {
     public MediaXAPI create(URI uri, String account) {
         // 必须要有 URI 啊
         if (null == uri)
-            throw new NullURIException();
+            throw Er.create("e.mediax.NullURI");
 
         // 根据 uri 得到 apiKey，如果是http/https 协议看 host
         String pro = uri.getScheme();
@@ -105,7 +104,7 @@ public abstract class AbstractMediaXService implements MediaXService {
         // 得到创建器
         Borning<MediaXAPI> borning = this.map.get(apiKey);
         if (null == borning) {
-            throw new UnsupportApiKeyException(apiKey);
+            throw Er.create("e.mediax.UnsupportApiKey", apiKey);
         }
 
         // 来，创建吧

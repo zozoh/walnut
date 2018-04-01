@@ -21,8 +21,46 @@ Mediax 是一个工具类库，可以用它来对接其他的媒体资源，譬�
     - 该实现将登录信息存放在某个文件夹下
 3. `cmd_mediax` 是对 `WnMediaXService` 的封装，用来测试或者单独执行
 
+# MediaX 的抽象动作
 
-# `MediaX` 的工作流程
+由于 MediaX 是一个抽象的库，它假想你会对某个指定的媒体平台做相同逻辑的操作：
+
+1. 提交 `post`，譬如自媒体发稿，论坛发帖，等行为，你会投递图文混合的素材
+2. 爬取 `crawal`，相当于浏览列表，得到数据的概要信息等
+3. 获取 `fetch`，得到某个指定资源尽可能详细的信息，即一个 JSON 对象
+4. 下载 `download`，某个指定资源，譬如一个PDF，视频，ZIP 包等
+
+为了保证抽象性，譬如，你想从 http://icp.chinaz.com/ 爬取一批北京地区的最新备案信息
+
+```bash
+mediax crawal http://icp.chinaz.com/provinces?prov=京&domain=10
+```
+
+我们支持你这么写
+
+```
+mediax crawal http://icp.chinaz.com 最新备案/京
+```
+
+每个接口都支持一些这样抽象指定资源的方式，可以执行帮助命令，了解每个媒体平台我们支持的快捷目标
+
+```bash
+mediax target http://icp.chinaz.com
+crawl:
+    最新备案/${prov}/${page} : 最新备案/京/3
+fetch:
+    --
+```
+
+同时，为了更容易测试，支持输出测试 URL 的方法
+
+```bash
+mediax explain crawl http://icp.chinaz.com 最新备案域名/京
+http://icp.chinaz.com/provinces?prov=京&domain=10      # <- 将会输出真实URL
+```
+
+
+# MediaX 的工作流程
 
 ```java
 // 得到工厂类实例

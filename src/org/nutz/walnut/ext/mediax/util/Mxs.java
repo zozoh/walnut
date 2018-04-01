@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.mediax.util;
 
+import java.net.URI;
+
 import org.nutz.http.Header;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
@@ -27,6 +29,29 @@ public abstract class Mxs {
         String path = "org/nutz/walnut/ext/mediax/util/httpheader/" + name + ".properties";
         PropertiesProxy pp = new PropertiesProxy(path);
         return Header.create(pp.toMap());
+    }
+
+    /**
+     * @param path
+     *            路径，可以是一个完整 URL 或者是一个路径
+     * @return 完整的 URL
+     */
+    public static String normalizePath(URI uri, String ph) {
+        if (null == ph)
+            return uri.toString();
+
+        if (ph.matches("^https?://.+$"))
+            return ph;
+
+        String url;
+        url = uri.getScheme() + "://" + uri.getHost();
+        int port = uri.getPort();
+        if (port > 0) {
+            url += ":" + port;
+        }
+        url += ph;
+
+        return url;
     }
 
 }

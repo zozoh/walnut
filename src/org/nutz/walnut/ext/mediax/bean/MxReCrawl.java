@@ -9,4 +9,13 @@ import org.nutz.lang.util.NutMap;
  */
 public class MxReCrawl extends NutMap {
 
+    public MxReCrawl index(int index) {
+        this.put("__I", index);
+        return this;
+    }
+
+    public int index() {
+        return this.getInt("__I");
+    }
+
 }

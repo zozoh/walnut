@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.mediax;
 
 import java.util.List;
-
 import org.nutz.walnut.ext.mediax.bean.MxAccount;
 import org.nutz.walnut.ext.mediax.bean.MxCrawl;
 import org.nutz.walnut.ext.mediax.bean.MxPost;
@@ -25,5 +24,9 @@ public interface MediaXAPI {
     MxRePost post(MxPost obj);
 
     List<MxReCrawl> crawl(MxCrawl cr);
+
+    String dumpTarget(String actionName);
+
+    String explain(String actionName, String[] path);
 
 }

@@ -40,7 +40,7 @@ public class MxCrawl {
         this.lastDate = Times.D(last);
         return this;
     }
-    
+
     public MxCrawl lastDate(long ms) {
         this.lastDate = Times.D(ms);
         return this;

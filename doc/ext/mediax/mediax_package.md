@@ -12,7 +12,9 @@ tags:
 apis
   + AbstractMediaXAPI     # 抽象类：所有的API父类
   + NoTicketMediaXAPI     # 抽象类：所有不需要票据的API父类
-  + ChinaZMeidaXAPI       # 实现类：ChinaZ
+  + chinaz                # 某个服务类实现的包
+    + ChinaZMeidaXAPI     # 实现类：ChinaZ
+    + targets.js          # 快捷目标配置文件
 #--------------------------------------------
 # 有用的 Bean
 bean
@@ -23,16 +25,13 @@ bean
   + MxRePost       # 对象: 提交结果
   + MxTicket       # 对象: 票据
 #--------------------------------------------
-# 异常
-exception
-  NullURIException            # 空 URI
-  UnsupportApiKeyException    # 不支持的 apiKey
-#--------------------------------------------
 # 子命令
 hdl
   + mediax_crawl
   + mediax_download
   + mediax_post
+  + mediax_target
+  + mediax_explain
 #--------------------------------------------
 # 服务实现类
 impl
@@ -43,7 +42,9 @@ impl
 util
   httpheader                # 存放 HTTP 头的模板
     mac_chrome.properties   # 苹果下模拟 Chrome 的模板
-  + Mxs
+  + Mxs                     # 帮助函数集
+  + MxURI                   # 快捷目标对象
+  + MxURITarget             # 快捷目标解析结构
 #--------------------------------------------
 MediaXAPI              # 操作接口
 MediaXService          # 服务接口
