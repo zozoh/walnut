@@ -141,6 +141,92 @@ Server: Walnut HTTPAPI
 Wn.WC.getString("SEID");
 ```
 
+# 路径参数
+
+考虑到兼容世界上大多数 REST API，必须支持路径参数啊。
+
+- `.regapi/api` 目录下的 名字为 `_ANY` 文件或者目录表示 `?`
+- 如果 `_ANY` 是目录，则相当于 `?` 其内的 `_action` 文件表示具体的操作
+- 如果 `_ANY` 是文件，则相当于 `*`
+- `_ANY` 目录/文件支持元数据: `api-param-name:"id"`，以便为路径参数指定形参名称
+
+## 匹配 `?`
+
+```
+API:  ~/.regapi/api/post/_ANY/_action
+        其中 _ANY {"api-param-name" : "id"}
+URL: http://host/api/yourdomain/post/9827
+请求对象会多出元数据: 
+{
+    ...
+    args : ["9827"]
+    params : {       // 只有声明了 "api-param-name" 才会有
+        "id" : "9827"
+    }
+    ...
+}
+---------------------------------------------
+API:  ~/.regapi/api/post/_ANY/_action
+如果URL: http://host/api/yourdomain/post/9827/xyz
+那么就会 404
+---------------------------------------------
+API:  ~/.regapi/api/post/_ANY/get
+URL: http://host/api/yourdomain/post/9827/get
+请求对象会多出元数据: 
+{
+    ...
+    args : ["9827"]
+    ...
+}
+---------------------------------------------
+如果URL: http://host/api/yourdomain/post/9827
+那么就会 404
+```
+
+## 匹配 `*`
+
+```
+API:  ~/.regapi/api/post/_ANY
+        其中 _ANY {"api-param-name" : "ph"}
+URL: http://host/api/yourdomain/post/cat/409681
+请求对象会多出元数据: 
+{
+    ...
+    args : ["cat/409681"]
+    params : {       // 只有声明了 "api-param-name" 才会有
+        "ph" : "cat/409681"
+    }
+    ...
+}
+---------------------------------------------
+如果URL: http://host/api/yourdomain/xyz/9827
+那么就会 404
+```
+
+## 组合两种通配符
+
+
+```
+API:  ~/.regapi/api/post/_ANY/_ANY/_action
+        其中
+            _ANY[0] {"api-param-name" : "type"}
+            _ANY[1] {"api-param-name" : "id"}
+URL: http://host/api/yourdomain/post/pet/cat/409681
+请求对象会多出元数据: 
+{
+    ...
+    args : ["pet", "cat/40981"]
+    params : {       // 只有声明了 "api-param-name" 才会有
+        "type" : "cat",
+        "id" : "cat/409681"
+    }
+    ...
+}
+```
+
+
+
+
 
 
 

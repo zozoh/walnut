@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,7 @@ import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.module.AppRespOutputStreamWrapper;
 import org.nutz.walnut.web.module.HttpRespStatusSetter;
 import org.nutz.walnut.web.util.WnWeb;
+import org.nutz.web.WebException;
 
 @IocBean
 @At("/api")
@@ -72,7 +75,7 @@ public class HttpApiModule extends AbstractWnModule {
             oHome = io.check(null, homePath);
 
             // 找到 API 对象
-            oApi = io.fetch(oHome, Wn.appendPath(".regapi/api", api));
+            oApi = __find_api_obj(oHome, api);
 
             // 如果没有这个 API 文件，就 404 吧
             if (null == oApi) {
@@ -140,15 +143,85 @@ public class HttpApiModule extends AbstractWnModule {
             }
         }
         catch (Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Fail to handle API", e);
+            // 根据类型，设置 HTTP 错误码
+            if (e instanceof WebException) {
+                String ek = ((WebException) e).getKey();
+                if ("e.io.obj.noexists".equals(ek)) {
+                    respCode = 404;
+                }
             }
-            resp.setStatus(respCode);
-            e.printStackTrace(resp.getWriter());
+            resp.sendError(respCode);
+            // 不是 404 的话，打印的详细一点
+            if (respCode != 404) {
+                if (log.isWarnEnabled()) {
+                    log.warn("Fail to handle API", e);
+                }
+                e.printStackTrace(resp.getWriter());
+            }
+
             resp.flushBuffer();
             return;
         }
 
+    }
+
+    private WnObj __find_api_obj(final WnObj oHome, String api) {
+        // 准备返回值
+        WnObj oApi = null;
+
+        // 首先准备路径参数
+        List<String> args = new LinkedList<>();
+        NutMap params = new NutMap();
+
+        // 得到 api 的主目录，分解要获取的路径
+        WnObj oApiHome = io.fetch(oHome, ".regapi/api");
+        String[] phs = Strings.splitIgnoreBlank(api, "/");
+
+        // 依次取得
+        for (int i = 0; i < phs.length; i++) {
+            String ph = phs[i];
+
+            // 直接找一下看看有没有
+            oApi = io.fetch(oApiHome, ph);
+            if (null != oApi) {
+                oApiHome = oApi;
+                continue;
+            }
+
+            // 嗯，那就找 _ANY 咯
+            oApi = io.fetch(oApiHome, "_ANY");
+
+            // 没有的话就是 null 咯
+            if (null == oApi)
+                return null;
+
+            oApiHome = oApi;
+
+            // 目录的话，继续
+            if (oApi.isDIR()) {
+                args.add(ph);
+                String pnm = oApi.getString("api-param-name");
+                if (!Strings.isBlank(pnm)) {
+                    params.put(pnm, ph);
+                }
+            }
+            // 文件，表示的是 * 嘛，那就不要继续了
+            else {
+                String arg = Strings.join(i, phs.length - i, "/", phs);
+                args.add(arg);
+                String pnm = oApi.getString("api-param-name");
+                if (!Strings.isBlank(pnm)) {
+                    params.put(pnm, arg);
+                }
+            }
+        }
+
+        // 最后附加一下值
+        oApi.put("args", args);
+        oApi.put("params", params);
+
+        // 搞定，收工
+        return oApi;
     }
 
     private void _do_api(WnObj oReq,
@@ -163,7 +236,16 @@ public class HttpApiModule extends AbstractWnModule {
         String mimeType = oReq.getString("http-qs-mime");
 
         // 解析命令
-        String cmdPattern = io.readText(oApi);
+        String cmdPattern;
+        // 如果 oApi 是个路径参数
+        if (oApi.isDIR() && oApi.name().equals("_ANY")) {
+            WnObj oAA = io.check(oApi, "_action");
+            cmdPattern = io.readText(oAA);
+        }
+        // 否则直接使用
+        else {
+            cmdPattern = io.readText(oApi);
+        }
         String cmdText = Tmpl.exec(cmdPattern, oReq);
 
         // 如果是 API 的执行是自动决定的文本
@@ -210,6 +292,10 @@ public class HttpApiModule extends AbstractWnModule {
         map.setv("http-remote-addr", req.getRemoteAddr());
         map.setv("http-remote-host", req.getRemoteHost());
         map.setv("http-remote-port", req.getRemotePort());
+
+        // 更新路径参数
+        map.setv("args", oApi.get("args"));
+        map.setv("params", oApi.get("params"));
 
         // 保存 QueryString，同时，看看有没必要更改 mime-type
         String qs = req.getQueryString();
