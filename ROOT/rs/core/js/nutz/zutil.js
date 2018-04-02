@@ -1877,15 +1877,15 @@
             var ov = o[key];
             // 加入
             if(_.isUndefined(ov)) {
-                o[key] = forceArray ? [val] : val;
+                o[key] = forceArray ? [].concat(val) : val;
             }
             // 本来就是数组
-            else if(_.isArray(ov)){
-                o.push(val);
+            else if(_.isArray(ov) && ov.length > 0){
+                o[key] = ov.concat(val);
             }
             // 创建新数组
             else {
-                o[key] = [ov, val];
+                o[key] = [].concat(val);
             }
         },
         //.............................................
@@ -1898,15 +1898,15 @@
             var ov = obj[key];
             // 加入
             if(_.isUndefined(ov)) {
-                obj[key] = forceArray ? [val] : val;
+                obj[key] = forceArray ? [].concat(val) : val;
             }
             // 本来就是数组
-            else if(_.isArray(ov)){
-                ov.push(val);
+            else if(_.isArray(ov) && ov.length > 0){
+                obj[key] = ov.concat(val);
             }
             // 创建新数组
             else {
-                obj[key] = [ov, val];
+                obj[key] = [].concat(val);
             }
         },
         //.............................................
