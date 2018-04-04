@@ -94,7 +94,13 @@ public abstract class AbstractMediaXService implements MediaXService {
         else {
             apiKey = uri.getScheme();
         }
+        
+        // 根据键值获取 API 实例
+        return create(apiKey, account);
+    }
 
+    @Override
+    public MediaXAPI create(String apiKey, String account) {
         // 得到平台的账号文件
         MxAccount ac = null;
         if (!Strings.isBlank(account) && !Strings.isBlank(apiKey)) {

@@ -24,12 +24,21 @@ public class mediax_crawl implements JvmHdl {
         // 分析参数
         String url = hc.params.val_check(0);
         URI uri = new URI(url);
+        String apiKey = hc.params.get("api");
+        String account = hc.getString("account");
 
         // 准备服务类
         MediaXService mxs = new WnMediaXService(sys.io, hc.oRefer);
 
         // 创建接口
-        MediaXAPI api = mxs.create(uri, hc.getString("account"));
+        MediaXAPI api;
+        if (Strings.isBlank(apiKey)) {
+            api = mxs.create(uri, account);
+        }
+        // 直接指定 Key
+        else {
+            api = mxs.create(apiKey, account);
+        }
 
         // 是否指定了快捷路径
         String path = hc.params.val(1);
