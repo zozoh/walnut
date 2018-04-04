@@ -30,8 +30,15 @@ public class lessc_compile implements JvmHdl {
         List<WnObj> bases = new ArrayList<>();
         // 支持一下include-path试试
         if (hc.params.has("include-path")) {
-            for (String _path : Strings.splitIgnoreBlank(hc.params.get("include-path"))) {
+            for (String _path : Strings.splitIgnoreBlank(hc.params.get("include-path"), "[; ]")) {
                 bases.add(sys.io.check(null, Wn.normalizeFullPath(_path, sys)));
+            }
+        }
+        // 支持一下pri-path试试
+        List<WnObj> pris = new ArrayList<>();
+        if (hc.params.has("pri-path")) {
+            for (String _path : Strings.splitIgnoreBlank(hc.params.get("pri-path"), "[; ]")) {
+                pris.add(sys.io.check(null, Wn.normalizeFullPath(_path, sys)));
             }
         }
         // 来吧,渲染之
@@ -40,7 +47,7 @@ public class lessc_compile implements JvmHdl {
             lessc = pool.borrowObject();
             if (lessc.getIo() == null)
                 lessc.setIo(sys.io);
-            sys.out.print(lessc.renderWnObj(wobj, bases));
+            sys.out.print(lessc.renderWnObj(wobj, bases, pris));
         }
         finally {
             if (lessc != null)

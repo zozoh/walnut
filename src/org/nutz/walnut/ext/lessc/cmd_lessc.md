@@ -6,7 +6,10 @@
 =======
 
 ```
-lessc compile           # 编译less文件
+lessc compile  /path/to/less     # 要编译的less文件，所在目录为当前目录
+            [-include-path xxx]  # 一组;分隔路径，当@import文件在当前目录没有，从这里找
+            [-pri-path xxx]      # 一组;分隔路径，当@import文件优先从这里找
+    
 ```
 
 实例

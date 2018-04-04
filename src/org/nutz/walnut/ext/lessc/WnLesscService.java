@@ -14,9 +14,24 @@ public class WnLesscService extends LesscService {
     protected WnIo io;
     protected List<WnObj> bases;
 
-    public synchronized String renderWnObj(WnObj wobj, List<WnObj> bases) throws ScriptException {
+    /**
+     * @param wobj
+     *            要渲染的 less 文件对象
+     * @param bases
+     *            基础引入路径
+     * @param pris
+     *            高优先级引入路径
+     * @return 渲染的 css 结果
+     * @throws ScriptException
+     */
+    public synchronized String renderWnObj(WnObj wobj, List<WnObj> bases, List<WnObj> pris)
+            throws ScriptException {
         int size = null == bases ? 0 : bases.size();
+        if (null != pris)
+            size += pris.size();
         this.bases = new ArrayList<>(size + 1);
+        if (null != pris && pris.size() > 0)
+            this.bases.addAll(pris);
         this.bases.add(wobj.parent());
         if (null != bases && bases.size() > 0)
             this.bases.addAll(bases);

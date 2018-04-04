@@ -213,6 +213,7 @@ public class HttpApiModule extends AbstractWnModule {
                 if (!Strings.isBlank(pnm)) {
                     params.put(pnm, arg);
                 }
+                break;
             }
         }
 
