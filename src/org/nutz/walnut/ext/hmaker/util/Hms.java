@@ -21,6 +21,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -373,6 +374,58 @@ public final class Hms {
      */
     public static boolean isUnset(String val) {
         return Strings.isBlank(val) || "unset".equals(val);
+    }
+
+    public static WnObj copy_skin_var(WnSystem sys, WnObj oSiteHome, String skin) {
+        WnObj oSkinVar;
+        String ls_ph = Wn.appendPath("~/.hmaker/skin/", skin, "_skin_var.less");
+        WnObj oSkinVarSrc = Wn.checkObj(sys, ls_ph);
+        oSkinVar = sys.io.create(oSiteHome, ".skin/_skin_var.less", WnRace.FILE);
+        Wn.Io.copyFile(sys.io, oSkinVarSrc, oSkinVar);
+        return oSkinVar;
+    }
+
+    /**
+     * 会看看站点的皮肤 skin.css 有没有必要重新生成
+     * 
+     * @param sys
+     *            系统上下文
+     * @param oSiteHome
+     *            站点主目录
+     * @param skinName
+     *            皮肤名称
+     * @return 生成的皮肤 css
+     */
+    public static WnObj genSiteSkinCssObj(WnSystem sys, WnObj oSiteHome, String skinName) {
+        WnObj oSkinVar = sys.io.fetch(oSiteHome, ".skin/_skin_var.less");
+        // 当然，如果没有这个文件，就从皮肤目录 copy 一个过来
+        if (null == oSkinVar) {
+            oSkinVar = copy_skin_var(sys, oSiteHome, skinName);
+        }
+        // 如果 ETag 与 .cache/skin.css 文件里面的记录的一样
+        // 那么就用 skin.css 来下载
+        String etagSkinVar = Wn.getEtag(oSkinVar);
+        WnObj oSkinCss = sys.io.fetch(oSiteHome, ".cache/skin.css");
+        if (null != oSkinCss
+            && !Strings.isBlank(etagSkinVar)
+            && oSkinCss.is("skin_var_etag", etagSkinVar)) {
+            // 嗯，我看啥也不用做了
+        }
+        // 否则的话，就执行命令，生成一个 skin.css
+        else {
+            // lessc compile ~/.hmaker/skin/default/skin.less -pri-path
+            // id:siteId/.skin
+            String cmdStr = "lessc compile ~/.hmaker/skin/%s/skin.less -pri-path id:%s/.skin > id:%2$s/.cache/skin.css";
+            sys.exec2f(cmdStr, skinName, oSiteHome.id());
+
+            // 得到这个 skin.css
+            oSkinCss = sys.io.fetch(oSiteHome, ".cache/skin.css");
+
+            // 重新标记 ETag 后
+            oSkinCss.setv("skin_var_etag", etagSkinVar);
+            sys.io.set(oSkinCss, "^skin_var_etag$");
+        }
+        return oSkinCss;
     }
 
     /**

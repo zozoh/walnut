@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -167,6 +168,10 @@ public class WnHttpResponse {
         headers.put("Content-Length", buf.length);
     }
 
+    public void prepare(String content) {
+        this.prepare(content.getBytes(Encoding.CHARSET_UTF8));
+    }
+
     public void prepare(InputStream ins, int len) throws IOException {
         this.ins = ins;
         if (len > 0)
@@ -269,6 +274,8 @@ public class WnHttpResponse {
             // 写入Body
             if (null != ins)
                 Streams.write(ops, ins);
+            else
+                Streams.write(ops, " ".getBytes());
         }
         finally {
             Streams.safeFlush(ops);

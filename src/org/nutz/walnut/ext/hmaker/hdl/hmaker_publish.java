@@ -79,7 +79,7 @@ public class hmaker_publish implements JvmHdl {
         if (!Strings.isBlank(skinName)) {
             hpc.oSkinHome = Wn.checkObj(sys, "~/.hmaker/skin/" + skinName);
             hpc.oSkinJs = sys.io.fetch(hpc.oSkinHome, "skin.js");
-            hpc.oSkinCss = sys.io.check(hpc.oSkinHome, "skin.css");
+            hpc.oSkinCss = Hms.genSiteSkinCssObj(sys, hpc.oHome, skinName);
             WnObj oSkinInfo = sys.io.check(hpc.oSkinHome, "skin.info.json");
             hpc.skinInfo = sys.io.readJson(oSkinInfo, HmSkinInfo.class);
         }
