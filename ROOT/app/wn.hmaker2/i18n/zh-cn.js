@@ -186,6 +186,8 @@ define({
             "meta_hm_pg_api"   : "显示接口",
             "meta_hm_api_method"   : "显示接口方法",
             "meta_hm_api_return"   : "显示接口返回",
+            "setup" : "页面设置",
+            "skin"  : "站点皮肤", 
         },
         "com" : {
             "_" : {

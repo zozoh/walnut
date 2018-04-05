@@ -3110,8 +3110,11 @@
             str = str.replace(/[ \t\r\n]+/g, "").toUpperCase();
 
             // 解析吧
+            if("UNSET" == str) {
+                return null;
+            }
             // RGB: #FFF
-            if (m = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
+            else if (m = /^#?([0-9A-F])([0-9A-F])([0-9A-F]);?$/.exec(str)) {
                 color.red = parseInt(m[1] + m[1], 16);
                 color.green = parseInt(m[2] + m[2], 16);
                 color.blue = parseInt(m[3] + m[3], 16);

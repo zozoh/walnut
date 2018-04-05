@@ -745,10 +745,10 @@ return ZUI.def("app.wn.hmaker_page", {
         var jHead = UI._C.iedit.$head;
         var jLink = jHead.children('link[skin]');
         var sHref = !skinName ? null
-            : $z.tmpl('/o/read/home/{{d1}}/.hmaker/skin/{{skinName}}/skin.css?aph=true')({
-                d1       : oHome.d1,
-                skinName : skinName,
-            })
+            : $z.tmpl('/api/{{d1}}/hmaker/load/{{siteId}}/skin.css')({
+                d1     : oHome.d1, 
+                siteId : oHome.id,
+            });
         // 增加一个样式链接
         if(sHref && jLink.length == 0) {
             jLink = $('<link skin="yes" rel="stylesheet" type="text/css">');

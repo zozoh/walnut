@@ -217,6 +217,87 @@ var methods = {
 
         return null;
     },
+    // 得到当前站点的皮肤变量 less 文件内容
+    reloadSkinVarSet : function(callback){
+        var UI = this;
+        var oHome = UI.getHomeObj();
+
+        // 准备 API 的 URL
+        var url = $z.tmpl('/api/{{d1}}/hmaker/load/{{siteId}}/_skin_var.less')({
+                d1     : oHome.d1, 
+                siteId : oHome.id,
+            });
+
+        $.get(url, function(re){
+            $z.doCallback(callback, [re]);
+        });
+    },
+    // 将 _skin_var.less 转换成 form fields 格式
+    parseSkinVar : function(str) {
+        var UI   = this;
+        var data = {};
+        var form = {fields:[]};
+        if(!str)
+            return null;
+        // 开始的字段组
+        var fldgrp = form;
+        // 逐行解析
+        var lines = str.split(/\r?\n/g);
+        var REG = /^@([0-9a-zA-Z_]+) *: *([^;]+) *; *\/\/ *([0-9a-zA-Z_]+) *: *(.+)$/;
+        for (var i = 0; i < lines.length; i++) {
+            var line = $.trim(lines[i]);
+            // 无视空行
+            if(!line)
+                continue;
+            //....................................
+            // 开启一个新的字段组
+            var m = /^\/\/ *#(.+)$/.exec(line);
+            if(m) {
+                // 将之前的字段组推入
+                if(fldgrp != form && fldgrp.fields.length > 0) {
+                    form.fields.push(fldgrp);
+                }
+                // 开启一个新的字段组
+                fldgrp = {
+                    title  : m[1],
+                    fields : []
+                };
+                continue;
+            }
+            //....................................
+            // 加入当前字段组
+            m = REG.exec(line);
+            if(m) {
+                // 先解析出来
+                var a_key = m[1];
+                var a_val = m[2];
+                var a_tp  = m[3];
+                var a_txt = m[4];
+
+                // 记录数据
+                data[a_key] = a_val;
+
+                // 计算 UI 控件
+                var fld = UI.getCssFieldConf(a_tp, null, a_txt, null, a_key);
+                
+                // 计入
+                fldgrp.fields.push(fld);
+            }
+            // 显示一个警告吧
+            else {
+                console.warn("invalid line in _skin_var.less:", line);
+            }
+        }
+        // 处理最后一行
+        if(fldgrp != form && fldgrp.fields.length > 0) {
+            form.fields.push(fldgrp);
+        }
+        // 嗯，返回
+        return {
+            form : form,
+            data : data
+        };
+    },
     //=========================================================
     // 得到站点 api 的前缀
     //  - path 为 api 的路径

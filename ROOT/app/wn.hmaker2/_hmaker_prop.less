@@ -349,10 +349,17 @@
     }
 }
 //............................................................
-// 页面编辑面板
+// 页面属性编辑面板
 //............................................................
 .hm-prop-page {
-    overflow: auto; padding:@d2;
+    padding:@d1;
+    .tabs[mode="top"] > section {
+        padding-left:@d1;
+        padding-right:@d1;
+    }
+}
+.hm-prop-page-meta {
+    overflow: auto; padding:0;
     > div > header {
         margin:1px; padding:@d2; background: @cb2; color:@cf2;
         border:0; font-weight: bold;

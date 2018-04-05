@@ -46,8 +46,9 @@ return ZUI.def("ui.tabs", {
             }
 
             // 文字
+            var text = UI.text(tli.text) || key;
             $('<span class="tabs-li-text">')
-                .html(tli.text || key).appendTo(jLi);
+                .html(text).appendTo(jLi);
         }
 
         // 寻找第一个显示的标签
