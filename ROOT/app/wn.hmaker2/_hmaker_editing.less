@@ -241,7 +241,7 @@ ul, ol {list-style: none; margin:0; padding:0;}
         min-height: 30px;
     }
     &[area-align="NW"] > .hm-area-con{@flexWrap(); justify-content:flex-start;}
-    &[area-align="N"]  > .hm-area-con{@flexWrap(); justify-content:center}
+    &[area-align="N"]  > .hm-area-con{@flexWrap(); justify-content:center;}
     &[area-align="NE"] > .hm-area-con{@flexWrap(); justify-content:flex-end;}
     &[area-align="W"]  > .hm-area-con{@flexWrap(); align-items:center;}
     &[area-align="P"]  > .hm-area-con{@flexWrap(); align-items:center; justify-content:center;}
@@ -443,7 +443,10 @@ ul, ol {list-style: none; margin:0; padding:0;}
     section {
         position: absolute;padding:.08rem;
         bottom:0; left:0; right:0;
-        text-align: center;
+        text-align: center; letter-spacing: .2em;
+        article.md-content p {
+            margin:.05rem 0;
+        }
     }
 }
 .hmc-image[tpos="center"] section{

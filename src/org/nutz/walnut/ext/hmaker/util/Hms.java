@@ -398,10 +398,16 @@ public final class Hms {
      */
     public static WnObj genSiteSkinCssObj(WnSystem sys, WnObj oSiteHome, String skinName) {
         WnObj oSkinVar = sys.io.fetch(oSiteHome, ".skin/_skin_var.less");
-        // 当然，如果没有这个文件，就从皮肤目录 copy 一个过来
+        // 如果没有这个文件，就采用皮肤目录里的 skin.css
         if (null == oSkinVar) {
+            WnObj oSkinCss = Wn.getObj(sys, "~/.hmaker/skin/" + skinName + "/skin.css");
+            if (null != oSkinCss)
+                return oSkinCss;
+
+            // 还没有的话，就试图生成一个
             oSkinVar = copy_skin_var(sys, oSiteHome, skinName);
         }
+
         // 如果 ETag 与 .cache/skin.css 文件里面的记录的一样
         // 那么就用 skin.css 来下载
         String etagSkinVar = Wn.getEtag(oSkinVar);

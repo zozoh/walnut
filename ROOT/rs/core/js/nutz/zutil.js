@@ -4846,7 +4846,7 @@
 
                         // 处理一下 alt
                         var alt = $.trim(m[12]);
-                        var m2 = /^([0-9]*(px|%|rem|em)?)[|\/]?([0-9]*(px|%|rem|em)?)$/.exec(alt);
+                        var m2 = /^([0-9.]*(px|%|rem|em)?)[|\/]?([0-9.]*(px|%|rem|em)?)$/.exec(alt);
                         var iW, iH;
                         if(m2){
                             iW = m2[1];
