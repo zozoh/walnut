@@ -187,7 +187,14 @@ define({
             "meta_hm_api_method"   : "显示接口方法",
             "meta_hm_api_return"   : "显示接口返回",
             "setup" : "页面设置",
-            "skin"  : "站点皮肤", 
+            "skin"  : "站点皮肤",
+            "skin_apply"     : "保存并应用",
+            "skin_apply_ing" : "正在保存并应用皮肤的修改，这可能要花上几秒钟...",
+            "skin_reset"     : "恢复默认值",
+            "skin_reset_ing" : "正在恢复并应用皮肤的默认设置，这可能要花上几秒钟...",
+            "skin_reset_tip" : "即将丢弃你对皮肤所有的自定义设置，你确定要继续吗？",
+            "skin_collapse"  : "收起",
+            "skin_spread"    : "展开",
         },
         "com" : {
             "_" : {

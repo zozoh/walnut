@@ -726,7 +726,7 @@ return ZUI.def("app.wn.hmaker_page", {
 
     },
     //...............................................................
-    doChangeSkin : function(){
+    doChangeSkin : function(forceReload){
         var UI = this;
 
         // 得到皮肤的信息
@@ -744,11 +744,15 @@ return ZUI.def("app.wn.hmaker_page", {
         // 更新样式
         var jHead = UI._C.iedit.$head;
         var jLink = jHead.children('link[skin]');
-        var sHref = !skinName ? null
-            : $z.tmpl('/api/{{d1}}/hmaker/load/{{siteId}}/skin.css')({
-                d1     : oHome.d1, 
-                siteId : oHome.id,
-            });
+        var sHref = null;
+        if(skinName) {
+            sHref = $z.tmpl('/api/{{d1}}/hmaker/load/{{siteId}}/skin.css')({
+                    d1     : oHome.d1, 
+                    siteId : oHome.id,
+                });
+            if(forceReload)
+                sHref += "?_t=" + Date.now();
+        }
         // 增加一个样式链接
         if(sHref && jLink.length == 0) {
             jLink = $('<link skin="yes" rel="stylesheet" type="text/css">');

@@ -124,6 +124,24 @@ return ZUI.def("ui.form", {
         }
     },
     //...............................................................
+    __find_field_grp : function(jq) {
+        var UI = this;
+        // 指定的组
+        var jG;
+        if(jq && jq.length>0) {
+            return jq.closest(".form-group");
+        }
+        // 全部的组
+        return UI.arena.find("> .form-body > .form-body-wrapper > .form-group");
+    },
+    //...............................................................
+    collapseGroup : function(jq) {
+        this.__find_field_grp(jq).addClass("form-group-hide");
+    },
+    spreadGroup : function(jq) {
+        this.__find_field_grp(jq).removeClass("form-group-hide");
+    },
+    //...............................................................
     _draw_field : function(jG, fld, grp){
         var UI  = this;
         var opt = UI.options;

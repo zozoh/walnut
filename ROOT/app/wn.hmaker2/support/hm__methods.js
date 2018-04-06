@@ -1,9 +1,9 @@
 define(function (require, exports, module) {
 // 依赖
 require("/gu/rs/ext/hmaker/hm_runtime.js");
-var MaskUI = require("ui/mask/mask");
-var Wn  = require('wn/util');
-var POP = require('ui/pop/pop');
+var Wn   = require('wn/util');
+var POP  = require('ui/pop/pop');
+var CssP = require("ui/support/cssp");
 // ....................................
 // 块的 CSS 属性基础对象
 var CSS_BASE = {
@@ -279,6 +279,7 @@ var methods = {
 
                 // 计算 UI 控件
                 var fld = UI.getCssFieldConf(a_tp, null, a_txt, null, a_key);
+                fld.__vtype = a_tp;
                 
                 // 计入
                 fldgrp.fields.push(fld);
@@ -297,6 +298,52 @@ var methods = {
             form : form,
             data : data
         };
+    },
+    // 将 parseSkinVar 的结果，转换为  _skin_var.less 的文本格式
+    renderSkinVar : function(skinVar) {
+        var str = "";
+        var grps = skinVar.form.fields;
+        var data = skinVar.data;
+        for(var i=0; i<grps.length; i++) {
+            var grp = grps[i];
+
+            // 输出标题
+            if(grp.title) {
+                str += "//# " + grp.title + "\n";
+            }
+            // 输出字段
+            for(var x=0; x<grp.fields.length; x++) {
+                var fld = grp.fields[x];
+                var val = data[fld.key];
+                var vtp = fld.__vtype;
+                // 如果为空，那么就设置成 unset
+                if(!val) {
+                    val = "unset";
+                }
+                // 如果为对象
+                else if(!_.isString(val)) {
+                    // 背景
+                    if("background" == vtp) {
+                        val = CssP.strBackground(val);
+                    }
+                    // 其他的暂不支持
+                    else {
+                        console.warn("unsupport object css", vtp, val);
+                        val = "unset";
+                    }
+                }
+
+                str += "@" + fld.key;
+                str += ": " + val + ";";
+                str += " //" + fld.__vtype + ": ";
+                str += fld.title;
+                str += "\n";
+            }
+
+            // 加个空行
+            str += "\n";
+        }
+        return str;
     },
     //=========================================================
     // 得到站点 api 的前缀

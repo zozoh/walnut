@@ -358,6 +358,7 @@
         padding-right:@d1;
     }
 }
+// 页面数据
 .hm-prop-page-meta {
     overflow: auto; padding:0;
     > div > header {
@@ -403,7 +404,7 @@
             }
         }
     }
-}
+} // ~.hm-prop-page-meta
 // 页面链接资源加载列表
 .hm-rs-list {
     .list-item {
@@ -418,6 +419,21 @@
         font-size: @f1; font-family: @f_fixed;
         border-bottom:1px dashed @cborder1;
         > i {width: 24px; margin-right: @d0;}
+    }
+}
+// 站点皮肤
+.hm-prop-page-skin {
+    > header {
+        border-bottom:1px solid @cborder1;
+        @flex(); justify-content: flex-end;
+        .menu {
+            padding:@d0 @d1;
+        }
+    }
+    .form {
+        .fg-title {
+            background:@cb2;
+        }
     }
 }
 //............................................................

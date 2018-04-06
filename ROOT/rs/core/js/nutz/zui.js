@@ -1075,9 +1075,10 @@ define(function (require, exports, module) {
             }
         },
         // 在某区域显示读取中，如果没有指定区域，则为整个 arena
-        showLoading: function (selector) {
+        showLoading: function (msg) {
             var html = '<div class="ui-loading"><aside>';
-            html += '<i class="fa fa-spinner fa-pulse"></i> <span>' + this.msg("loading") + '</span>';
+            html += '<i class="fa fa-spinner fa-pulse"></i> <span>'
+                        + this.msg(msg || "loading") + '</span>';
             html += '</aside></div>';
             var rect = $D.rect.gen(this.$el);
             $(html).appendTo(this.$el).css(_.extend({
