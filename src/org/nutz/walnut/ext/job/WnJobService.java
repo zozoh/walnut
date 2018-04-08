@@ -1,4 +1,4 @@
-package org.nutz.walnut.job;
+package org.nutz.walnut.ext.job;
 
 import java.util.Calendar;
 import java.util.Date;

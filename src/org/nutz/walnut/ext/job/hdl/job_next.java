@@ -6,10 +6,10 @@ import java.util.List;
 import org.nutz.lang.Times;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.ext.job.WnJobService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.job.WnJobService;
 
 public class job_next implements JvmHdl {
 
