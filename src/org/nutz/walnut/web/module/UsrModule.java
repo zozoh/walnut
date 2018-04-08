@@ -1,5 +1,6 @@
 package org.nutz.walnut.web.module;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -48,6 +49,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.util.WnWeb;
+import org.nutz.walnut.web.view.WnImageView;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
@@ -662,12 +664,17 @@ public class UsrModule extends AbstractWnModule {
     public Object usrAvatar() {
         WnSession se = sess.check(Wn.WC().SEID(), true);
         String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
-        WnObj avatarObj = io.fetch(null, avatarPath);
-        if (avatarObj != null) {
-            return io.getInputStream(avatarObj, 0);
-        } else {
-            return this.getClass().getResourceAsStream("/avatar.png");
+        WnObj oAvatar = io.fetch(null, avatarPath);
+        // 有自定义的
+        if (oAvatar != null) {
+            InputStream ins = io.getInputStream(oAvatar, 0);
+            String atype = oAvatar.type();
+            String amime = oAvatar.mime();
+            return new ViewWrapper(new WnImageView(atype, amime), ins);
         }
+        // 否则用默认的
+        InputStream ins = this.getClass().getResourceAsStream("/avatar.png");
+        return new ViewWrapper(new WnImageView("png", "image/png"), ins);
     }
 
     @At("/avatar/usr")

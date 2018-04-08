@@ -36,6 +36,7 @@ return ZUI.def("ui.th_obj_index_meta", {
                 //console.log("update key=", key);
                 var uiForm = this;
                 var obj    = uiForm.getData();
+                obj.__force_update = true;
                 uiForm.showPrompt(key, "spinning");
                 UI.invokeConfCallback("meta", "update", [obj, key, function(){
                     uiForm.hidePrompt(key);

@@ -2,6 +2,7 @@ package org.nutz.walnut.web.view;
 
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,8 @@ public class WnImageView implements View {
     private static byte[] dft_img;
 
     static {
-        dft_img = Streams.readBytesAndClose(WnImageView.class.getClassLoader().getResourceAsStream("org/nutz/walnut/web/view/unknown_image_type.jpg"));
+        dft_img = Streams.readBytesAndClose(WnImageView.class.getClassLoader()
+                                                             .getResourceAsStream("org/nutz/walnut/web/view/unknown_image_type.jpg"));
     }
 
     private String type;
@@ -41,6 +43,17 @@ public class WnImageView implements View {
                 RenderedImage im = (RenderedImage) obj;
                 ImageIO.write(im, type, output);
                 buf = output.toByteArray();
+            }
+            // 如果是一个输入流
+            else if (obj instanceof InputStream) {
+                InputStream ins = (InputStream) obj;
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                Streams.writeAndClose(output, ins);
+                buf = output.toByteArray();
+            }
+            // 根本就是一个字节数组
+            else if (obj instanceof byte[]) {
+                buf = (byte[]) obj;
             }
         }
         catch (Exception e) {

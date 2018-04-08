@@ -19,9 +19,13 @@ var __format_thing_fld = function(UI, fld) {
             editAs : "input",
             escapeHtml : false,
             display : function(o) {
+                //console.log(o.__force_update, o.th_nm)
                 var html = "";
                 if(o.thumb){
-                    html += '<img src="/o/thumbnail/id:'+o.id+'?_t='+$z.timestamp()+'">';
+                    var src = "/o/thumbnail/id:"+o.id;
+                    if(o.__force_update)
+                        src += "?_t="+Date.now();
+                    html += '<img src="' + src + '">';
                 }else{
                     html += '<i class="fa fa-cube th_thumb"></i>';
                 }
