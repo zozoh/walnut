@@ -9,10 +9,6 @@ public class job_stop implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        if (!sys.se.me().equals("root")) {
-            sys.err.println("only root can stop job service");
-            return;
-        }
         if (!WnJobService.me.isRunning()) {
             sys.out.println("job service isn't running");
             return;
