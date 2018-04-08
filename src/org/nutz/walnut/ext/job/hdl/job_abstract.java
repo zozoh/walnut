@@ -2,9 +2,9 @@ package org.nutz.walnut.ext.job.hdl;
 
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.ext.job.WnJobService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.job.WnJobService;
 
 public abstract class job_abstract implements JvmHdl {
 
