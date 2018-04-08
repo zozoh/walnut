@@ -2,7 +2,141 @@
 提供运行时的帮助函数集合，IDE 也会用的到
 */
 (function($, $z){
+//===================================================================
+function ___layout_size (sz, dft) {
+    if("?" == sz)
+        return undefined;
+    if("-" == sz)
+        return "hidden";
+    if(!sz)
+        return dft;
+    return parseInt(sz);
+}
+function __set_layout_item_size (it, s) {
+    m = /^([0-9?-]+)(\/([0-9?-]+))?$/.exec($.trim(s));
+    if(!m) {
+        console.warn("invalid layout sizing:", s);
+        return;
+    }
+    it.w_desktop = ___layout_size(m[1]);
+    it.w_mobile  = ___layout_size(m[3], it.w_desktop);
+    return it;
+}
+//===================================================================
 window.HmRT = {
+    //...............................................................
+    // @see doc/ext/hmaker/hm_layout.md 《字段布局语法》
+    parseLayout : function(str) {
+        // 准备返回结果
+        var layout = {data:[]};
+
+        // 拆分行
+        var lines = str.split(/\r?\n/g);
+        
+        // 逐行解析
+        var grp, m;
+        for (var i = 0; i < lines.length; i++) {
+            var line = $.trim(lines[i]);
+
+            // 忽略空行
+            if(!line)
+                continue;
+
+            // 强制退出组
+            if("~~~" == line) {
+                if(grp && grp.items.length > 0)
+                    layout.data.push(grp);
+                grp = undefined;
+            }
+
+            // 组
+            if(/^@/.test(line)) {
+                // 推入前组
+                if(grp && grp.items.length > 0)
+                    layout.data.push(grp);
+                // 建立新组
+                grp = __set_layout_item_size({
+                        type:"group", items:[]
+                    }, line.substring(1));
+                continue;
+            }
+
+            // 字段
+            m = /^[.]([0-9a-zA-Z_]+)(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
+            if(m) {
+                var fld = {type:"field", display:"string", key:m[1]};
+                // 链接
+                if(m[3]){
+                    fld.link = "+"==m[3] ? "_blank" : "_self";
+                }
+                // 尺寸
+                if(m[5]){
+                    if(!__set_layout_item_size(fld, m[5]))
+                        continue;
+                }
+                // 推入
+                if(grp)
+                    grp.items.push(fld);
+                else
+                    layout.data.push(fld);
+
+                // 类型
+                if(m[7]) {
+                    var ts = m[7];
+                    // UL
+                    if("UL" == ts){
+                        fld.display = "UL";
+                        continue;
+                    }
+                    // markdown
+                    if("markdown" == ts){
+                        fld.display = "markdown";
+                        continue;
+                    }
+                    // thumbnail
+                    if("thumbnail" == ts){
+                        fld.display = "thumbnail";
+                        continue;
+                    }
+                    // 映射: .th_cate={A:"猫",B:"狗"}
+                    if(/^\{.+\}$/.test(ts)) {
+                        fld.display = "mapping";
+                        fld.config = $z.fromJson(ts);
+                        continue;
+                    }
+                    // 日期时间: .th_birthday=date("yyyy-MM-dd")
+                    var m2 = /^date\(([^)]+)\)$/.exec(ts);
+                    if(m2){
+                        fld.display = "date";
+                        fld.config = m2[1];
+                        continue;
+                    }
+                    // 尺寸: .len:100/?=size(2)
+                    m2 = /^size\(([0-9]*)\)$/.exec(ts);
+                    if(m2) {
+                        fld.display = "size";
+                        fld.config  = m2[1]? parseInt(m2[1]) : 2;
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // 推入最后一组
+        if(grp && grp.items.length > 0)
+            layout.data.push(grp);
+
+        // 返回结果
+        return layout;    
+    },
+    //...............................................................
+    // 将 parseLayout 的结果宣传成 DOM 结构
+    //  - layout : @see parseLayout 返回的结果
+    //  - obj    : 需要渲染的对象
+    //  - href   : 在需要的地方，放置的链接
+    renderLayout : function(layout, obj, href) {
+
+    },
     //...............................................................
     // 自动寻找一个合适的详情页面
     // - obj 表示要渲染的数据
@@ -120,7 +254,7 @@ window.HmRT = {
             // 字符串形式
             if(_.isString(val)) {
                 // 分析一下
-                var m = /^([*])?(\(([^\)]+)\))?@(input|text|json|TSS|thingset|site|com|link|toggle|switch|droplist|fields)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
+                var m = /^([*])?(\(([^\)]+)\))?@(input|text|json|TSS|thingset|site|com|link|toggle|switch|droplist|fields|layout)(=([^:#{]*))?(:([^#{]*))?(\{[^}]*\})?(#(.*))?$/.exec(val);
                 // 指定了类型
                 if(m) {
                     fld.required = m[1] ? true : false;
@@ -320,8 +454,8 @@ window.HmRT = {
     // 将一个 Thing 格式的对象的 markdown 内容转换成 html
     // - API : 一个 regapi 的前缀
     // - th  : Thing 对象，里面需要有 content, th_set, id 这几个字段
-    thContentToHtml : function(API, th){
-        return $z.markdownToHtml(th.content||"", {
+    thContentToHtml : function(API, th, key){
+        return $z.markdownToHtml(th[key || "content"] || "", {
             media : function(src){
                 // 看看是否是媒体
                 var m = /^media\/(.+)$/.exec(src);

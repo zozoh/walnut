@@ -5797,8 +5797,9 @@
             return forceLower ? sfnm.toLowerCase() : sfnm;
         },
         //============== 计算文件大小
-        sizeText: function (sz) {
-            sz = parseInt(sz) || 0;
+        sizeText: function (sz, fix) {
+            sz  = parseInt(sz) || 0;
+            fix = fix || 2;
             // KB
             var ckb = sz / 1024;
             if (ckb > 1024) {
@@ -5807,12 +5808,12 @@
                 if (cmb > 1024) {
                     // GB
                     var cgb = cmb / 1024;
-                    return (cgb == parseInt(cgb) ? cgb : cgb.toFixed(2)) + " GB";
+                    return (cgb == parseInt(cgb) ? cgb : cgb.toFixed(fix)) + " GB";
                 }
-                return (cmb == parseInt(cmb) ? cmb : cmb.toFixed(2)) + " MB";
+                return (cmb == parseInt(cmb) ? cmb : cmb.toFixed(fix)) + " MB";
             }
 
-            return (ckb == parseInt(ckb) ? ckb : ckb.toFixed(2)) + " KB";
+            return (ckb == parseInt(ckb) ? ckb : ckb.toFixed(fix)) + " KB";
         },
         //.............................................
         // 评估一个密码，看看其强度如何，强度得分: 1-5

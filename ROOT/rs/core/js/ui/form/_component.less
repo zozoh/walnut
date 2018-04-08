@@ -409,7 +409,7 @@
     * {cursor: pointer;}
     .com-box {
         min-width: 100px; width: 100%; border: 1px solid @cborder1;
-        border-radius: @d1; position: relative; padding: 0 @cdlIW 0 @d3;
+        border-radius: @d1; position: relative; padding: 0 @cdlIW 0 @d1;
         background: @cb0; color: @cf0; overflow: hidden;
         .com-box-drop {
             position: absolute; top: 0; right: 0; bottom: 0;
@@ -452,6 +452,11 @@
         display: inline-block; vertical-align: middle;
         padding-left: @d1; font-weight: normal; font-size: @f2;
         font-family: @f_fixed;
+    }
+    em[it="tip"] {
+        font-style: normal; font-size:.85em; 
+        color:@c2; margin-left:@d2; 
+        font-family: @f_fixed; opacity: 0.6;
     }
 }
 

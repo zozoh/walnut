@@ -11,6 +11,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs("cqnl")
@@ -23,15 +24,20 @@ public class hmaker_syncmeta implements JvmHdl {
         hpc.oConfHome = Wn.checkObj(sys, "~/.hmaker");
         hpc.oApiHome = Wn.getObj(sys, "~/.regapi/api");
 
+        // 准备要处理的文件对象
+        List<WnObj> oPageList = new LinkedList<>();
+        Cmds.evalCandidateObjs(sys, hc.oRefer, hc.params.vals, oPageList, Wn.Cmd.NOEXISTS_IGNORE);
+
         // 得到处理的页面
         List<WnObj> list = new LinkedList<>();
 
         // 开始循环处理页面
-        for (String pgnm : hc.args) {
-            WnObj oPage = sys.io.check(hc.oRefer, pgnm);
-            String content = sys.io.readText(oPage);
-            Hms.syncPageMeta(hpc, sys, oPage, content);
-            list.add(oPage);
+        for (WnObj oPage : oPageList) {
+            if (oPage.isFILE() && Hms.isNeedTranslate(oPage)) {
+                String content = sys.io.readText(oPage);
+                Hms.syncPageMeta(hpc, sys, oPage, content);
+                list.add(oPage);
+            }
         }
 
         // 输出结果

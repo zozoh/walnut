@@ -10,6 +10,7 @@ import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -46,7 +47,7 @@ public class cmd_hook extends JvmExecutor {
         else if (params.has("do") && params.vals.length > 0) {
             String action = _check_action_name(params);
             String str = params.get("do");
-            List<WnObj> objs = this.evalCandidateObjs(sys, Lang.array(str), 0);
+            List<WnObj> objs = Cmds.evalCandidateObjs(sys, Lang.array(str), 0);
             for (WnObj o : objs) {
                 if (params.is("v"))
                     sys.out.printlnf("redo hook -> %s", o.path());

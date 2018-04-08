@@ -8,6 +8,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_cat extends JvmExecutor {
@@ -23,7 +24,7 @@ public class cmd_cat extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         // 计算要列出的要处理的对象
-        List<WnObj> list = evalCandidateObjsNoEmpty(sys, params.vals, 0);
+        List<WnObj> list = Cmds.evalCandidateObjsNoEmpty(sys, params.vals, 0);
 
         // 没内容
         if (list.isEmpty()) {

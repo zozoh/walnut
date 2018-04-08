@@ -50,10 +50,14 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             gasketName : "api",
             emptyItem : {},
             items : [],
-            icon  : '<i class="fa fa-plug"></i>',
-            text  : null,
-            value : function(o){
-                return "/" + Wn.getRelativePath(oApiHome, o);
+            itemData : function(o) {
+                var ph = "/" + Wn.getRelativePath(oApiHome, o);
+                return {
+                    icon  : '<i class="fa fa-plug"></i>',
+                    text  : o.title,
+                    value : ph,
+                    tip   : ph,
+                };
             },
             on_change : function(v){
                 UI.uiCom.saveData(null, {api:v, params:{}}, true);
@@ -246,7 +250,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 $pel       : setting.$pel,
                 mergeData  : false,
                 fitparent  : false,
-                uiWidth    : "all",
+                uiWidth :"all",
                 fields     : setting.fields,
                 on_update  : function(){
                     var data = this.getData();
@@ -291,6 +295,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
 
             // 字段: thingset
             if("thingset" == F.type) {
+                fld.uiWidth = "all";
                 fld.uiType = "@droplist";
                 fld.uiConf = {
                     emptyItem : {},
@@ -306,6 +311,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: TSS
             else if("TSS" == F.type) {
+                fld.uiWidth = "all";
                 fld.uiType = "@droplist";
                 fld.uiConf = {
                     multi : true,
@@ -324,8 +330,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: sites
             else if("site" == F.type) {
+                fld.uiWidth = "all";
                 fld.uiType = "@droplist";
-                fld.valueKey = F.arg,
+                fld.valueKey = F.arg;
                 fld.uiConf = {
                     emptyItem : {
                         icon  : '<i class="zmdi zmdi-flash"></i>',
@@ -344,6 +351,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: com
             else if("com" == F.type) {
+                fld.uiWidth = "all";
                 fld.uiType = "@droplist";
                 fld.uiConf = {
                     emptyItem : {
@@ -353,18 +361,16 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                     items : function(ctype, callback){
                         callback(UI.pageUI().getComList(ctype));
                     },
-                    icon  : function(uiCom){
-                        if(uiCom)
-                            return uiCom.getIconHtml();
+                    itemData : function(uiCom) {
+                        if(uiCom) {
+                            return {
+                                icon  : uiCom.getIconHtml(),
+                                text  : uiCom.getComDisplayText(false),
+                                value : "#<" + uiCom.getComId() + ">",
+                                tip   : "#" + uiCom.getComId(),
+                            }
+                        }
                     },
-                    text  : function(uiCom){
-                        if(uiCom)
-                            return uiCom.getComDisplayText(true);
-                    },
-                    value : function(uiCom){
-                        if(uiCom)
-                            return "#<" + uiCom.getComId() + ">";
-                    }
                 };
             }
             // 字段: link
@@ -380,6 +386,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: 映射表
             else if("mapping" == F.type) {
+                fld.uiWidth = "all";
                 fld.type = "object";
                 fld.uiType = "@pair";
                 fld.uiConf = {
@@ -390,6 +397,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             }
             // 字段: 字段列表
             else if("fields" == F.type) {
+                fld.uiWidth = "all";
                 fld.type = "object";
                 fld.uiType = "@text";
                 fld.uiConf = {
@@ -423,6 +431,16 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                         }
                         return re;
                     }
+                };
+            }
+            // 字段：字段布局
+            else if("layout" == F.type) {
+                fld.uiWidth = "all";
+                fld.type = "string";
+                fld.uiWidth = "all";
+                fld.uiType = "@text";
+                fld.uiConf = F.arg ? $z.fromJson('{'+F.arg+'}') : {
+                    height: 200
                 };
             }
             // 字段：开关

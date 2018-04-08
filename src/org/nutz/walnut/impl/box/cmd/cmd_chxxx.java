@@ -7,6 +7,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -31,7 +32,7 @@ abstract class cmd_chxxx extends JvmExecutor {
         for (int i = 0; i < paths.length; i++) {
             paths[i] = Wn.normalizeFullPath(paths[i], sys);
         }
-        cc.current = evalCandidateObjsNoEmpty(sys, paths, cc.list, 0);
+        cc.current = Cmds.evalCandidateObjsNoEmpty(sys, paths, cc.list, 0);
         return cc;
     }
 

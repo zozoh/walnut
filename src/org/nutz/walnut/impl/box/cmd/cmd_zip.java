@@ -23,6 +23,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.ZParams;
@@ -84,7 +85,7 @@ public class cmd_zip extends JvmExecutor {
                     }
                 }
             } else {
-                srclist.addAll(evalCandidateObjsNoEmpty(sys, srcArr, 0));
+                srclist.addAll(Cmds.evalCandidateObjsNoEmpty(sys, srcArr, 0));
             }
         }
         if (params.is("list")) {

@@ -30,10 +30,10 @@ public class cmd_mv extends JvmExecutor {
         // 得到源
         String[] srcPaths = Arrays.copyOfRange(params.vals, 0, params.vals.length - 1);
         List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, srcPaths, list, 0);
+        WnObj p = Cmds.evalCandidateObjs(sys, srcPaths, list, 0);
 
         // 检查是否候选对象列表为空
-        checkCandidateObjsNoEmpty(args, list);
+        Cmds.checkCandidateObjsNoEmpty(args, list);
 
         // 检查目标
         String dest = params.vals[params.vals.length - 1];

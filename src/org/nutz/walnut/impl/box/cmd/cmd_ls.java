@@ -10,6 +10,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnObjTable;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -23,10 +24,10 @@ public class cmd_ls extends JvmExecutor {
 
         // 计算要列出的目录并得到当前目录
         List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, params.vals, list, Wn.Cmd.JOIN_CURRENT);
+        WnObj p = Cmds.evalCandidateObjs(sys, params.vals, list, Wn.Cmd.JOIN_CURRENT);
 
         // 检查是否候选对象列表为空
-        checkCandidateObjsNoEmpty(args, list);
+        Cmds.checkCandidateObjsNoEmpty(args, list);
 
         // 准备要显示的表格
         String keys = "";

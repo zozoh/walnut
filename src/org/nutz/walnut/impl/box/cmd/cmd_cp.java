@@ -12,6 +12,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
@@ -29,7 +30,7 @@ public class cmd_cp extends JvmExecutor {
         ph_dst = Disks.getCanonicalPath(ph_dst);
 
         // 得到源
-        List<WnObj> oSrcList = this.evalCandidateObjsNoEmpty(sys, Lang.array(ph_src), 0);
+        List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Lang.array(ph_src), 0);
 
         // 准备 copy 模式
         int mode = 0;

@@ -10,6 +10,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -29,7 +30,7 @@ public class cmd_count extends JvmExecutor {
         }
 
         List<WnObj> list = new LinkedList<WnObj>();
-        WnObj p = evalCandidateObjs(sys, new String[]{path}, list, Wn.Cmd.JOIN_CURRENT);
+        WnObj p = Cmds.evalCandidateObjs(sys, new String[]{path}, list, Wn.Cmd.JOIN_CURRENT);
         String ph;
         if (list.isEmpty()) {
             if (args.length > 0) {

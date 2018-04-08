@@ -216,27 +216,47 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
         var hasIcon = false;
         for(var i=0; i<items.length; i++){
             var item = items[i];
+            var it;
 
-            // 准备绘制项目
-            var it = {
-                value : opt.value.call(context, item, i, multi, UI)
-            };
-
-            // 图标
-            it.icon = _.isString(opt.icon)
-                        ? $z.tmpl(opt.icon)(item)
-                        : opt.icon.call(context, item, i, UI);
-            hasIcon = _.isString(it.icon);
-
-            // 文字
-            it.text = it.value;
-            // 指定了文字模板
-            if(_.isString(opt.text)){
-                it.text = $z.tmpl(opt.text)(item);
+            // 如果声明了全部绘制的方法
+            if(_.isFunction(opt.itemData)) {
+                it = opt.itemData.call(context, item, i, multi, UI);
+                if(!it)
+                    continue;
+                hasIcon = hasIcon || it.icon;
             }
-            // 指定了文字回调函数
-            else if(_.isFunction(opt.text)){
-                it.text = opt.text.call(context, item, i, UI);
+            // 否则，逐个绘制
+            else {
+                // 准备绘制项目
+                it = {
+                    value : opt.value.call(context, item, i, multi, UI)
+                };
+
+                // 图标
+                it.icon = _.isString(opt.icon)
+                            ? $z.tmpl(opt.icon)(item)
+                            : opt.icon.call(context, item, i, UI);
+                hasIcon = hasIcon || it.icon;
+
+                // 文字
+                it.text = it.value;
+                // 指定了文字模板
+                if(_.isString(opt.text)){
+                    it.text = $z.tmpl(opt.text)(item);
+                }
+                // 指定了文字回调函数
+                else if(_.isFunction(opt.text)){
+                    it.text = opt.text.call(context, item, i, UI);
+                }
+
+                // 提示信息
+                if(_.isString(opt.tip)){
+                    it.tip = $z.tmpl(opt.tip)(item);
+                }
+                // 指定了文字回调函数
+                else if(_.isFunction(opt.tip)){
+                    it.tip = opt.tip.call(context, item, i, UI);
+                }
             }
 
             // 追加项目
@@ -285,6 +305,16 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
                 jText.html(UI.text(it.text));
             }
         }
+
+        // 提示
+        if(it.tip) {
+            var jTip = $('<em it="tip">').appendTo(jLi);
+            if(opt.escapeHtml) {
+                jTip.text(UI.text(it.tip));
+            }else {
+                jTip.html(UI.text(it.tip));
+            }
+        }
     },
     //...............................................................
     // limit 参数表示是否为限定数量的多选
@@ -319,7 +349,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     _set_data : function(val){
         var UI  = this;
         var opt = UI.options;
-        console.log(val)
+        // console.log(val)
 
         // 清空显示框
         UI.arena.find(".com-box-show").empty();

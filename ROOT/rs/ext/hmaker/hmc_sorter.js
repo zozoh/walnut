@@ -71,7 +71,7 @@ function __redraw(jq, opt) {
 }
 //...........................................................
 function getValue(jLi) {
-    console.log(jLi)
+    //console.log(jLi)
     var re = jLi.attr("key") + ":" + (jLi.attr("or-val")||1); 
     var or_fixed = jLi.attr("or-fixed");
     re += (or_fixed ? "," + or_fixed : "");

@@ -1835,6 +1835,7 @@ define(function (require, exports, module) {
         var base = {lang: window.$zui_i18n || "zh-cn"};
         path = $z.tmpl(path)(base);
         require.async(path, function (mm) {
+            // 保存自己
             ZUI.g_msg_map = _.extend(mm || {}, base);
             callback();
         });

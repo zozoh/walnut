@@ -1061,7 +1061,7 @@
     > section[hide-me]:after {display: inline;content: "...";}
     > aside {
         padding:@d2; color:@c3; font-family: @f_fixed;
-        background: @cb3; color:@cf3;
+        color:@c2;
         > span {float: left;}
         > b {
             float: right;
@@ -1073,7 +1073,7 @@
     }
     > aside:after{@clr();}
     > header {
-        padding: @d1 0;
+        padding: @d1 @d1 @d1 0;
     }
     > section[no-setting] {
         padding:@d3; text-align: center; color:@c2;
@@ -1102,7 +1102,7 @@
                             padding:0; 
                             > .ffv-ui {
                                 padding:@d0;
-                                .com-edit-link {padding:1px @d2;}
+                                .com-edit-link {}
                                 .com-pair > section.pairs table {
                                     background: @cb2;
                                     td.cp-key {font-size: @f1; padding:@d1;}

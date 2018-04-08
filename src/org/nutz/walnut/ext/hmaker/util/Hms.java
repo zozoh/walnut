@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.hmaker.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -461,6 +462,9 @@ public final class Hms {
         Set<String> apiList = new HashSet<String>();
         Set<String> tsidList = new HashSet<String>();
         Set<String> tmplList = new HashSet<String>();
+        List<String> palist = new LinkedList<>();
+        List<String> anchors = new LinkedList<>();
+        List<String> comIds = new LinkedList<>();
 
         // 有内容的话开始分析
         if (!Strings.isBlank(content)) {
@@ -468,15 +472,28 @@ public final class Hms {
             Document doc = Jsoup.parse(content);
             Elements eleComs = doc.body().select(".hm-com");
 
-            for (Element eleCom : eleComs) {
+            for (Element ele : eleComs) {
                 // 存储关联的组件
-                String libName = eleCom.attr("lib");
-                if (!Strings.isBlank(libName))
+                String libName = ele.attr("lib");
+                String comType = ele.attr("ctype");
+                String comId = ele.attr("id");
+
+                // 组件的话记录一下
+                if (!Strings.isBlank(libName)) {
                     libNames.add(libName);
+                }
+                // 普通控件的话，看看是否接受什么动态参数以及内部支持的锚点
+                else {
+                    HmComHandler hmCom = Hms.COMs.check(comType);
+
+                    comIds.add(comId);
+                    hmCom.joinParamList(ele, palist);
+                    hmCom.joinAnchorList(ele, anchors);
+                }
 
                 // 分析动态控件
-                if ("dynamic".equals(eleCom.attr("ctype"))) {
-                    NutMap com = loadProp(eleCom, "hm-prop-com", false);
+                if ("dynamic".equals(comType)) {
+                    NutMap com = loadProp(ele, "hm-prop-com", false);
 
                     // 记录模板
                     String template = com.getString("template");
@@ -489,9 +506,9 @@ public final class Hms {
                         apiList.add(api);
 
                     // 得到 params.pid
-                    NutMap params = com.getAs("params", NutMap.class);
-                    if (null != params) {
-                        String[] tsids = params.getAs("pid", String[].class);
+                    NutMap apiParams = com.getAs("params", NutMap.class);
+                    if (null != apiParams) {
+                        String[] tsids = apiParams.getAs("pid", String[].class);
                         if (null != tsids && tsids.length > 0) {
                             for (String tsid : tsids) {
                                 tsidList.add(tsid);
@@ -527,6 +544,9 @@ public final class Hms {
         oPage.setv("hm_list_tsid", tsidList);
         oPage.setv("hm_list_api", apiList);
         oPage.setv("hm_list_tmpl", tmplList);
+        oPage.setv("hm_pg_anchors", anchors);
+        oPage.setv("hm_pg_params", palist);
+        oPage.setv("hm_pg_coms", comIds);
         // .................................................
         // 保存元数据索引
         oPage.setv("hm_libs", libNames);

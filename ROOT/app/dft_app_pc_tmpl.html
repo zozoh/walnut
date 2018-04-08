@@ -66,6 +66,14 @@
 
     seajs.use("zui", function (ZUI) {
         ZUI.loadi18n("ui/i18n/{{lang}}.js", function () {
+        	    // 修改一下 dataFormat
+            if(dateFormat && dateFormat.i18n) {
+                console.log(dateFormat.i18n)
+                dateFormat.i18n.dayNames = ZUI.g_msg_map.dt.dayNames;
+                dateFormat.i18n.monthNames = ZUI.g_msg_map.dt.month;
+                console.log(dateFormat.i18n)
+            }
+            // 加载一下主函数
             seajs.use("app/" + _app.name + "/main.js", function (main) {
                 main.init();
             });

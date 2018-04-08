@@ -14,6 +14,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_grep extends JvmExecutor {
@@ -35,10 +36,10 @@ public class cmd_grep extends JvmExecutor {
 
             // 计算要列出的要处理的对象
             List<WnObj> list = new LinkedList<WnObj>();
-            evalCandidateObjs(sys, Lang.array(filePath), list, 0);
+            Cmds.evalCandidateObjs(sys, Lang.array(filePath), list, 0);
 
             // 检查是否候选对象列表为空
-            checkCandidateObjsNoEmpty(args, list);
+            Cmds.checkCandidateObjsNoEmpty(args, list);
 
             // 输出内容
             for (WnObj o : list) {
