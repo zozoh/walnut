@@ -13,6 +13,7 @@ import org.nutz.walnut.ext.hmaker.util.Hms;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.web.WebException;
 
@@ -121,16 +122,16 @@ public class hmaker_read implements JvmHdl {
                                     String range,
                                     WnHttpResponse resp,
                                     WnObj oSiteHome) {
-        String skin = oSiteHome.getString("hm_site_skin");
+        String skinName = oSiteHome.getString("hm_site_skin");
         WnObj oSkinVar = sys.io.fetch(oSiteHome, ".skin/_skin_var.less");
 
         // 如果没有皮肤，那么输出个空吧
-        if (Strings.isBlank(skin)) {
+        if (Strings.isBlank(skinName)) {
             resp.prepare(new byte[0]);
         }
-        // 有皮肤，但是没有变量，Copy 一个咯
+        // 有皮肤，但是没有变量，直接使用全局皮肤里的
         else if (null == oSkinVar) {
-            oSkinVar = Hms.copy_skin_var(sys, oSiteHome, skin);
+            oSkinVar = Wn.getObj(sys, "~/.hmaker/skin/" + skinName + "/_skin_var.less");
             resp.prepare(sys.io, oSkinVar, range);
         }
         // 直接使用

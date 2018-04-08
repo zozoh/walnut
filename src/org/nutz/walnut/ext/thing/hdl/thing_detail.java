@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.thing.hdl;
 
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.thing.Things;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;

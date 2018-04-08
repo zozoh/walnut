@@ -130,17 +130,17 @@ return ZUI.def("app.wn.hm_com_image", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 准备更新文本样式
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if(com.text && com.text.content) {
+        if(com.text) {
             // 设置文本显示
             var jTxt = UI.arena.children("section").empty();
             if(jTxt.length == 0) {
                 jTxt = $('<section>').appendTo(UI.arena);
             }
             // 如果包括换行，则表示是 markdown 文本
-            if(com.text.content.indexOf('\n') >=0 ){
+            if(com.text.indexOf('\n') >=0 ){
                 var oSiteHome  = UI.getHomeObj();
                 var oPage      = UI.pageUI().getCurrentEditObj();
-                var html = $z.markdownToHtml(com.text.content, {
+                var html = $z.markdownToHtml(com.text, {
                         media : function(src) {
                             return UI.tidy_src(src, oSiteHome, oPage);
                         }
@@ -156,7 +156,7 @@ return ZUI.def("app.wn.hm_com_image", {
             }
             // 显示纯文字
             else {
-                jTxt.text(com.text.content);
+                jTxt.text(com.text);
             }
         }
         // 标记不显示文本

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -33,7 +34,7 @@ public class cmd_json extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only)$");
+        ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only|str)$");
 
         // 读取输入
         String json = Streams.read(sys.in.getReader()).toString();
@@ -157,8 +158,12 @@ public class cmd_json extends JvmExecutor {
             obj = Lang.map(params.get("put"), obj);
         }
 
+        // 作为字符串输出
+        if (params.is("str")) {
+            sys.out.println(null == obj ? "" : Castors.me().castToString(obj));
+        }
         // 模板方式输出
-        if (params.has("out")) {
+        else if (params.has("out")) {
             String out = params.get("out");
             Tmpl tmpl = Tmpl.parse(out, "@");
             // 如果是 Map 则直接渲染

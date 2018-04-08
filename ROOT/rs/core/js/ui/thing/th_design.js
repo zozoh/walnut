@@ -179,6 +179,7 @@ return ZUI.def("app.wn.thdesign", {
                             {value : "all",    text : "显示属性和内容"},
                             {value : "meta",   text : "仅显示属性"},
                             {value : "detail", text : "仅显示内容"},
+                            {value : "hide",   text : "全部隐藏"},
                         ]
                     }
                 }, {
@@ -193,6 +194,7 @@ return ZUI.def("app.wn.thdesign", {
                             {value : "all",        text : "显示多媒体和附件"},
                             {value : "media",      text : "仅显示多媒体"},
                             {value : "attachment", text : "仅显示附件"},
+                            {value : "hide",   text : "全部隐藏"},
                         ]
                     }
                 }]
@@ -584,21 +586,28 @@ return ZUI.def("app.wn.thdesign", {
             searchMenuFltWidthHint : thConf.searchMenuFltWidthHint,
         };
         // thIndex
-        if(thConf.meta && thConf.detail || (!thConf.meta && !thConf.detail)) {
+        if(thConf.meta && thConf.detail 
+            || (_.isUndefined(thConf.meta) && _.isUndefined(thConf.detail))) {
             setupObj.thIndex = "all";
         } else if(thConf.meta) {
             setupObj.thIndex = "meta";
-        } else {
+        } else if(thConf.detail){
             setupObj.thIndex = "detail";
+        } else {
+            setupObj.thIndex = "hide";
         }
         // thData
-        if(thConf.media && thConf.attachment || (!thConf.media && !thConf.attachment)) {
+        if(thConf.media && thConf.attachment 
+            || (_.isUndefined(thConf.media) && _.isUndefined(thConf.attachment))) {
             setupObj.thData = "all";
         } else if(thConf.media) {
             setupObj.thData = "media";
-        } else {
+        } else if(thConf.attachment){
             setupObj.thData = "attachment";
+        } else {
+            setupObj.thData = "hide";
         }
+        console.log(setupObj)
         // 设置
         UI.gasket.setup.setData(setupObj);
 
@@ -646,6 +655,7 @@ return ZUI.def("app.wn.thdesign", {
             attachment : /^(all|attachment)$/.test(setupObj.thData),
             fields: fields,
         };
+        console.log(thConf)
         if(setupObj.searchMenuFltWidthHint)
             thConf.searchMenuFltWidthHint = setupObj.searchMenuFltWidthHint;
 

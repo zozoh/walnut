@@ -6,7 +6,7 @@ import org.nutz.lang.ExitLoop;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Mirror;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.thing.Things;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.ext.thing.impexp.ThingFill;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;

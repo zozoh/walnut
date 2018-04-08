@@ -319,6 +319,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     _set_data : function(val){
         var UI  = this;
         var opt = UI.options;
+        console.log(val)
 
         // 清空显示框
         UI.arena.find(".com-box-show").empty();
