@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.whoisx;
 
+import java.util.Date;
+
 /**
  * 记录了一个域名的摘要信息
  * 
@@ -42,6 +44,35 @@ public class WhoInfo {
     private String city;
 
     private String street;
+
+    /**
+     * 联系人
+     */
+    private String registrant;
+
+    /**
+     * 注册商
+     */
+    private String registrar;
+
+    /**
+     * DNS服务器
+     */
+    private String[] dnsServers;
+
+    /**
+     * 域名状态
+     */
+    private String domainStatus;
+
+    /**
+     * 备案号
+     */
+    private String icpNo;
+
+    private Date creationDate;
+
+    private Date expirationDate;
 
     public String getHost() {
         return host;
@@ -113,6 +144,62 @@ public class WhoInfo {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public String getRegistrar() {
+        return registrar;
+    }
+
+    public void setRegistrar(String registrar) {
+        this.registrar = registrar;
+    }
+
+    public String[] getDnsServers() {
+        return dnsServers;
+    }
+
+    public void setDnsServers(String[] dnsServers) {
+        this.dnsServers = dnsServers;
+    }
+
+    public String getDomainStatus() {
+        return domainStatus;
+    }
+
+    public void setDomainStatus(String domainStatus) {
+        this.domainStatus = domainStatus;
+    }
+
+    public String getIcpNo() {
+        return icpNo;
+    }
+
+    public void setIcpNo(String icpNo) {
+        this.icpNo = icpNo;
+    }
+
+    public String getRegistrant() {
+        return registrant;
+    }
+
+    public void setRegistrant(String registrant) {
+        this.registrant = registrant;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
 }
