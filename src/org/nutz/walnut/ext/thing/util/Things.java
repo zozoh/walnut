@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.thing;
+package org.nutz.walnut.ext.thing.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;

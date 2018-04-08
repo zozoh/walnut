@@ -611,6 +611,7 @@ var methods = {
 
         // 首次的话，初始化配置信息
         if(!conf){
+            //console.log("init")
             conf = {
                 bus : bus,
                 dataMode : opt.dataMode || "thing"
@@ -620,15 +621,17 @@ var methods = {
             conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
                                           || conf.searchMenuFltWidthHint
                                           || "50%";
-            conf.searchFilter = opt.searchFilter || conf.searchFilter;
+            conf.searchFilter = opt.searchFilter || conf.searchFilter || {};
             conf.searchList   = opt.searchList   || conf.searchList;
             conf.searchSorter = opt.searchSorter || conf.searchSorter;
             conf.searchPager  = opt.searchPager  || conf.searchPager;
             conf.objMenu = opt.objMenu || conf.objMenu;
 
-
             // 按照模式处理各个配置项
             DATA_MODE[conf.dataMode].call(UI, conf, opt);
+
+            // 设置默认
+            $z.setUndefined(conf.searchFilter, "keyField", ["th_nm"]);
 
             // 标识处理完成
             bus.__CONF = conf;

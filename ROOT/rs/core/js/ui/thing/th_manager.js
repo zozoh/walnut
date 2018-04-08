@@ -71,6 +71,7 @@ return ZUI.def("ui.th_manager", {
     update : function(oDir, callback) {
         var UI  = this;
         var opt = UI.options;
+        //console.log(opt)
 
         // 设置主目录
         UI.setHomeObj(oDir);

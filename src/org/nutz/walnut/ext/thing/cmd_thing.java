@@ -12,6 +12,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
