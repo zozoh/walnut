@@ -11,6 +11,7 @@ import org.nutz.http.Response;
 import org.nutz.http.Sender;
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -19,7 +20,18 @@ import org.nutz.walnut.ext.mediax.util.Mxs;
 public abstract class WhoisX {
 
     public static WhoInfo query(String host) {
-        return queryByChinaz(host);
+        for (int i = 0; i < 3; i++) {
+            try {
+                WhoInfo info = queryByChinaz(host);
+                if (info != null)
+                    return info;
+            }
+            catch (Throwable e) {
+                // 稍等,再查一查
+                Lang.quiteSleep(300);
+            }
+        }
+        return null;
     }
 
     protected static WhoInfo queryByChinaz(String host) {
