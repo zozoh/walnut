@@ -1,10 +1,7 @@
 package org.nutz.walnut.web.view;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -12,25 +9,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.util.ByteInputStream;
 import org.nutz.mvc.View;
 
 public class WnImageView implements View {
 
-    private static BufferedImage dft_img;
+    private static byte[] dft_img;
 
-    {
-        try {
-            InputStream ins = Streams.fileIn("org/nutz/walnut/web/view/unknown_image_type.jpg");
-            try {
-                dft_img = ImageIO.read(ins);
-            }
-            finally {
-                Streams.safeClose(ins);
-            }
-        }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
+    static {
+        dft_img = Streams.readBytesAndClose(WnImageView.class.getClassLoader().getResourceAsStream("org/nutz/walnut/web/view/unknown_image_type.jpg"));
     }
 
     private String type;
@@ -45,31 +32,31 @@ public class WnImageView implements View {
     @Override
     public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
             throws Exception {
-        OutputStream output = resp.getOutputStream();
+        byte[] buf = dft_img;
         try {
             // 如果是个图片
             if (obj instanceof RenderedImage) {
-                // 标记响应头
-                resp.setContentType(mime);
                 // 写入响应体
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
                 RenderedImage im = (RenderedImage) obj;
                 ImageIO.write(im, type, output);
-            }
-            // 否则就用默认的
-            else {
-                // 标记响应头
-                resp.setContentType(mime);
-                // 写入响应体
-                ImageIO.write(dft_img, "image/jpeg", output);
+                buf = output.toByteArray();
             }
         }
         catch (Exception e) {
             throw e;
         }
-        finally {
-            resp.flushBuffer();
-            Streams.safeClose(output);
+        // 标记响应头
+        String _etag = req.getHeader("If-None-Match");
+        String etag = Lang.sha1(new ByteInputStream(buf)).substring(0, 12);
+        if (etag.equals(_etag)) {
+            resp.setStatus(304);
+            return;
         }
+        resp.setContentType(mime);
+        resp.setHeader("ETag", etag);
+        resp.setContentLength(buf.length);
+        resp.getOutputStream().write(buf);
     }
 
 }
