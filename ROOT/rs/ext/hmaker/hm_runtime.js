@@ -62,16 +62,18 @@ window.HmRT = {
             }
 
             // 字段
-            m = /^[.]([0-9a-zA-Z_]+)(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
+            m = /^([.>])([0-9a-zA-Z_]+)(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
             if(m) {
-                var fld = {type:"field", display:"string", key:m[1]};
+                var fld = {type:"field", display:"string", key:m[2]};
+                // 标识标题
+                fld.isTitle = m[1] == ">";
                 // 链接
-                if(m[3]){
-                    fld.linkTarget = "+"==m[3] ? "_blank" : "_self";
+                if(m[4]){
+                    fld.linkTarget = "+"==m[4] ? "_blank" : "_self";
                 }
                 // 尺寸
-                if(m[5]){
-                    if(!__set_layout_item_size(fld, m[5]))
+                if(m[6]){
+                    if(!__set_layout_item_size(fld, m[6]))
                         continue;
                 }
                 // 推入
@@ -81,8 +83,8 @@ window.HmRT = {
                     layout.data.push(fld);
 
                 // 类型
-                if(m[7]) {
-                    var ts = m[7];
+                if(m[8]) {
+                    var ts = m[8];
                     // Markdown
                     if("Markdown" == ts){
                         fld.display = "Markdown";
@@ -185,6 +187,7 @@ window.HmRT = {
             }
             // 增加一下属性
             return jFld.attr({
+                "fld-title"            : fld.isTitle ? "yes" : null,
                 "fld-key"              : fld.key,
                 "layout-desktop-width" : fld.w_desktop,
                 "layout-mobile-width"  : fld.w_mobile,
