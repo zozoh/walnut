@@ -51,7 +51,7 @@ function _main(params){
 
     // 读取详情
     if("yes" == params.detail) {
-            cmdText += " -content";
+        cmdText += " -content";
     }
 
     // 搜索关键字

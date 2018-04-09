@@ -67,7 +67,7 @@ window.HmRT = {
                 var fld = {type:"field", display:"string", key:m[1]};
                 // 链接
                 if(m[3]){
-                    fld.link = "+"==m[3] ? "_blank" : "_self";
+                    fld.linkTarget = "+"==m[3] ? "_blank" : "_self";
                 }
                 // 尺寸
                 if(m[5]){
@@ -83,40 +83,53 @@ window.HmRT = {
                 // 类型
                 if(m[7]) {
                     var ts = m[7];
-                    // UL
-                    if("UL" == ts){
-                        fld.display = "UL";
+                    // Markdown
+                    if("Markdown" == ts){
+                        fld.display = "Markdown";
                         continue;
                     }
-                    // markdown
-                    if("markdown" == ts){
-                        fld.display = "markdown";
-                        continue;
-                    }
-                    // thumbnail
-                    if("thumbnail" == ts){
-                        fld.display = "thumbnail";
+                    // Thumbnail
+                    if("Preview" == ts){
+                        fld.display = "Preview";
                         continue;
                     }
                     // 映射: .th_cate={A:"猫",B:"狗"}
                     if(/^\{.+\}$/.test(ts)) {
-                        fld.display = "mapping";
+                        fld.display = "Mapping";
                         fld.config = $z.fromJson(ts);
                         continue;
                     }
-                    // 日期时间: .th_birthday=date("yyyy-MM-dd")
-                    var m2 = /^date\(([^)]+)\)$/.exec(ts);
+                    // 日期时间: .th_birthday=Date("yyyy-MM-dd")
+                    var m2 = /^Date\(([^)]*)\)$/.exec(ts);
                     if(m2){
-                        fld.display = "date";
+                        fld.display = "Date";
                         fld.config = m2[1];
                         continue;
                     }
-                    // 尺寸: .len:100/?=size(2)
-                    m2 = /^size\(([0-9]*)\)$/.exec(ts);
+                    // 尺寸: .len:100/?=Size(2)
+                    m2 = /^Size\(([0-9]*)\)$/.exec(ts);
                     if(m2) {
-                        fld.display = "size";
+                        fld.display = "Size";
                         fld.config  = m2[1]? parseInt(m2[1]) : 2;
                         continue;
+                    }
+                    // 链接: .href=Link(Buy Now)
+                    m2 = /^Link\(([^)]*)\)$/.exec(ts);
+                    if(m2) {
+                        fld.display = "Link";
+                        fld.config  = m2[1];
+                        $z.setUndefined(fld, "linkTarget", "_blank");
+                        continue;
+                    }
+                    // 列表: .lbls:100=UL(text)->.thumb
+                    m2 = /^UL\(((!(media|image):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
+                    if(m2) {
+                        fld.display = "UL",
+                        fld.config = {
+                            itemType : m2[3] || "text",
+                            itemKey  : m2[4],
+                            target   : m2[6],
+                        };
                     }
                 }
             }
@@ -131,11 +144,217 @@ window.HmRT = {
     },
     //...............................................................
     // 将 parseLayout 的结果宣传成 DOM 结构
+    //  - jq     : 将结果渲染到的选区
     //  - layout : @see parseLayout 返回的结果
     //  - obj    : 需要渲染的对象
     //  - href   : 在需要的地方，放置的链接
-    renderLayout : function(layout, obj, href) {
+    renderLayout : function(opt, jq, layout, obj, href) {
+        //----------------------------------
+        var __fld_ele_content = function(fld, str, href) {
+            var jFi;
+            // 链接
+            if(fld.linkTarget && href) {
+                jFi = $('<a>').attr({
+                        "href"   : href,
+                        "target" : "_blank"==fld.linkTarget ? "_blank" : null,
+                    }).text(str);
+            }
+            // 普通文字咯
+            else {
+                jFi = $('<span>').text(str);
+            }
+            // 增加内容
+            if($z.isjQuery(str)) {
+                return jFi.append(str);
+            }
+            // 否则作为文本
+            return jFi.text(str);
+        }
+        //----------------------------------
+        // 准备一个帮助函数
+        var __fld_ele = function(fld, str, href) {
+            var jFld;
+            //----------------------------------
+            // 已经是弄好的东东了
+            if($z.isjQuery(str)) {
+                jFld = str;
+            }
+            // 否则当做文本搞一下
+            else {
+                jFld = __fld_ele_content(fld, str, href);
+            }
+            // 增加一下属性
+            return jFld.attr({
+                "fld-key"              : fld.key,
+                "layout-desktop-width" : fld.w_desktop,
+                "layout-mobile-width"  : fld.w_mobile,
+            });
+        }
+        //----------------------------------
+        // 准备字段渲染函数
+        var __render_fld = function(jP, fld, obj, href) {
+            var val  = $z.getValue(obj, fld.key);
 
+            // 这个比较优先，因为无论如何都要显示出预览区嘛
+            // .thumb=Preview
+            if("Preview" == fld.display) {
+                var jThumb;
+                // 缩略图
+                if(val) {
+                    jThumb = $('<div class="wn-obj-preview">').css({
+                        "background-image" : 'url("' + opt.API + "/thumb?" + val + '")'
+                    });
+                }
+                // 仅仅显示一个空的产品图标
+                else {
+                    jThumb = $('<div class="wn-obj-preview" empty="yes">')
+                        .html('<i class="fa fa-birthday-cake"></i>');
+                }
+                // 搞定返回
+                return __fld_ele(fld, jThumb).appendTo(jP);
+            }
+
+            // 无效的值无视
+            if(_.isNull(val) || _.isUndefined(val))
+                return null;
+
+            // .th_cate={A:"猫",B:"狗"}
+            if("Mapping" == fld.display) {
+                var s = fld.config[val] || val;
+                return __fld_ele(fld, s, href).appendTo(jP);
+            }
+            // .th_birthday=Date(yyyy-mm-dd)
+            if("Date" == fld.display) {
+                var d = $z.parseDate(val);
+                var s = d.format(fld.config || "yyyy-mm-dd");
+                return __fld_ele(fld, s, href).appendTo(jP);
+            }
+            // .len:100/?=Size(2)
+            if("Size" == fld.display) {
+                var s = $z.sizeText(val, fld.config);
+                return __fld_ele(fld, s, href).appendTo(jP);
+            }
+            // .lbls:100=UL(!image:src)->thumb
+            if("UL" == fld.display) {
+                console.log(fld)
+                var list   = _.isArray(val)?val:[val];
+                var liType = fld.config.itemType || "text";
+                var jUl  = $('<ul>').attr({
+                        "li-type"   : liType,
+                        "li-target" : fld.config.target,
+                    });
+                for(var i=0; i<list.length; i++) {
+                    var jLi = $('<li>').appendTo(jUl);
+                    var li  = list[i];
+                    var liv = li;
+                    // 得到真实的值
+                    if(fld.config.itemKey) {
+                        liv = li[fld.config.itemKey];
+                    }
+                    // 无视无效的值
+                    if(!liv)
+                        continue;
+                    // Media/Image
+                    if("media" == liType || "image" == liType) {
+                        // 首先得到图片的源
+                        var src = liv;
+                        if("media" == liType) {
+                            src = opt.API
+                                + "/thing/media?pid=" + obj.th_set
+                                + "&id="  + obj.id
+                                + "&fnm=" + liv;
+                        }
+                        // 然后输出这个图片
+                        __fld_ele_content(fld, $('<span>').css({
+                                "background-image" : 'url("' + src + '")',
+                            })).appendTo(jLi);
+                    }
+                    // 普通文字
+                    else {
+                        __fld_ele_content(fld, liv, href)
+                            .appendTo(jLi);
+                    }
+                }
+                return __fld_ele(fld, jUl).appendTo(jP);
+            }
+            // .content=Markdown
+            if("Markdown" == fld.display) {
+                // 解析媒体的回调
+                var formatMedia = function(src){
+                    var obj = this;
+                    // 看看是否是媒体
+                    var m = /^(media|attachment)\/(.+)$/.exec(src);
+                    //console.log(m)
+                    if(m){
+                        return opt.API + "/thing/"+m[1]
+                                + "?pid=" + obj.th_set
+                                + "&id="  + obj.id
+                                + "&fnm=" + m[2];
+                    }
+                    // 原样返回
+                    return src;
+                };
+                // 转换 markdown 内容
+                var jAr = $('<article class="md-content">')
+                    .html($z.markdownToHtml(val, {
+                        media : formatMedia,
+                        context : obj,
+                    }));
+                // 标识标题
+                jAr.find("h1,h2,h3,h4,h5,h6").addClass("md-header");
+
+                // 解析一下海报
+                jPoster = jAr.find('pre[code-type="poster"]');
+                $z.explainPoster(jPoster, {
+                    media : formatMedia,
+                    context : obj,
+                });
+
+                // 处理一下视频
+                $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
+                    watchClick : $('html[hmaker-runtime]').size() > 0
+                });
+                // 搞定返回
+                return __fld_ele(fld, jAr).appendTo(jP);
+            }
+            // .href=Link[Buy Now]
+            if("Link" == fld.display) {
+                var s = fld.config || val;
+                return __fld_ele(fld, s, val).appendTo(jP);
+            }
+            // 默认就是文字咯
+            return __fld_ele(fld, val, href).appendTo(jP);
+        };
+        //----------------------------------
+        // 准备父元素
+        var jLayout = $('<div class="wn-obj-layout">');
+        //----------------------------------
+        // 开始生成
+        for(var i=0; i<layout.data.length; i++) {
+            var it = layout.data[i];
+            // 字段组
+            if('group' == it.type) {
+                var jGrp = $('<section>');
+                // 循环渲染字段
+                for(var x=0; x<it.items.length; x++) {
+                    var fld  = it.items[x];
+                    __render_fld(jGrp, fld, obj, href)
+                }
+                // 设置属性，并加入 DOM
+                jGrp.attr({
+                    "layout-desktop-width" : it.w_desktop,
+                    "layout-mobile-width"  : it.w_mobile,
+                });
+                jGrp.appendTo(jLayout);
+            }
+            // 字段
+            else {
+                __render_fld(jLayout, it, obj, href)
+            }
+        }
+        //----------------------------------
+        // 返回
+        return jLayout.appendTo(jq);
     },
     //...............................................................
     // 自动寻找一个合适的详情页面

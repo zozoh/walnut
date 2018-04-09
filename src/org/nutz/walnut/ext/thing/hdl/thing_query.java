@@ -35,7 +35,7 @@ public class thing_query implements JvmHdl {
             tq.sort = Lang.map(hc.params.check("sort"));
         }
 
-        tq.needContent = hc.params.is("obj");
+        tq.needContent = hc.params.is("content");
         tq.autoObj = hc.params.is("obj");
 
         QueryThingAction TA = new QueryThingAction();

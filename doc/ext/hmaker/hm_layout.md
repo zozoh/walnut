@@ -42,18 +42,29 @@ tags:
 # 字段语法 ={..} 表示对字段值的映射，即如果是"A"就显示猫，支持HTML
 # 这里没有指定宽度，因此表示显示多宽就多宽
 .th_cate={A:"猫",B:"狗"}
-# 字段语法 =date("xxx") 将用来格式化日期或者毫秒数为一个具体的时间
-.th_birthday=date(yyyy-mm-dd)
-# 字段语法 =size(2) 则会显示友好的大小，譬如 1.5G, 37.2M 等，
+# 字段语法 =Date("xxx") 将用来格式化日期或者毫秒数为一个具体的时间
+.th_birthday=Date(yyyy-mm-dd)
+# 字段语法 =Size(2) 则会显示友好的大小，譬如 1.5G, 37.2M 等，
 # `2` 表示小数点后面几位
-.len:100/?=size(2)
-# 字段语法 =ul 会将字段值强制转换为数组
+.len:100/?=Size(2)
+# 字段语法 =UL 会将字段值强制转换为数组
 # 每个数组元素会依次生成 <li>
-.lbls:100=ul
-# 字段语法 =markdown 将会将字段内容转换为markdown显示
-.content=markdown
-# 字段语法 =thumb 字段内容应该为 /api/thumb 可接受的 QueryString
-.thumb=thumbnail
+# UL(text) 表示要用 lbls[i].text 来显示内容
+# UL(!media:fnm) 表示用 lbls[i].fnm 来显示一张图片（obj必须有 th_set和id 字段）
+# UL(!image:src) 表示用 lbls[i].src 来显示一张图片
+# UL(!image:src)->thumb 会自动与 .thumb字段联动，用自己的图片源为其设置值
+# .lbls[-]=UL(text) 这样的写法，会自动为每个项目设置超链接
+#                   链接的值，用 libs[i] 来替换，而不是 obj
+.lbls:100=UL(!image:src)->thumb
+# 字段语法 =Markdown 将会将字段内容转换为Markdown显示
+.content=Markdown
+# 字段语法 =Preview 字段内容应该为 /api/thumb 可接受的 QueryString
+.thumb=Preview
+# 字段语法 =Link(HTML) 字段内容为一个链接
+#  - Link(HTML) 表示链接文字
+#  - Link() 则会显示链接本身的内容
+# 这种字段会无视全局链接
+.href=Link[Buy Now]
 # 如果一定要结束一个组，后面的字段则不会加入任何组
 # 可以用三个波浪线强制表示组的结束
 ~~~
@@ -66,9 +77,9 @@ tags:
 
 @50/100
  .th_cate={A:"猫",B:"狗"}
- .th_birthday=date(yyyy-mm-dd)
- .len:100/?=size(2)
- .lbls:100=ul
+ .th_birthday=Date(yyyy-mm-dd)
+ .len:100/?=Size(2)
+ .lbls:100=UL
 ```
 
 
@@ -85,27 +96,46 @@ tags:
                     "key"     : "th_nm",    // 字段键值是什么
                     "display" : "string",   // 字段值如何显示，默认 string
                     "config"  : undefined,  // 显示配置参数
-                    "link"    : "_self",    // 表示可以插入链接，_blank 表示新窗口
+                    "linkTarget" : "_self",    // 表示可以插入链接，_blank 表示新窗口
                     "w_desktop" : 100,      // 不解释
                     "w_mobile"  : "hidden", // hidden 表示隐藏
                 }, {
                     "key"     : "th_cate",
-                    "display" : "mapping",
+                    "display" : "Mapping",
                     "config"  : {A:"猫",B:"狗"},
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {
                     "key"     : "th_birthday",
-                    "display" : "date",
+                    "display" : "Date",
                     "config"  : "yyyy-MM-dd",
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {
                     "key"     : "len",
-                    "display" : "size",
+                    "display" : "Size",
                     "config"  : 2,
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {
                     "key"     : "lbls",
-                    "display" : "ul",
+                    "display" : "UL",
+                    "config"  : {
+                        "itemType" : "media",  // media|image|*text
+                        "itemKey"  : "fnm",    // 空表示 lbls[i]
+                        "target"   : "thumb",  // 连接的目标字段
+                                               // text类型下无效
+                    }
+                    ...  // 我就懒得写 w_desktop | w_mobile 了
+                }, {
+                    "key"     : "content",
+                    "display" : "Markdown",
+                    ...  // 我就懒得写 w_desktop | w_mobile 了
+                }, {
+                    "key"     : "thumb",
+                    "display" : "Preview",
+                    ...  // 我就懒得写 w_desktop | w_mobile 了
+                }, {
+                    "key"     : "href",
+                    "display" : "Link",
+                    "config"  : "Buy Now"
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }]
         }]
@@ -114,7 +144,7 @@ tags:
 
 # 字段布局的渲染
 
-- 字段组会生成 `<div>`
+- 字段组会生成 `<section>`
 - 字段会生成 `<span>`
 - 有链接的字段，会生成 `<a>`
 
