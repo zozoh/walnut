@@ -497,12 +497,20 @@ var methods = {
             if(m) {
                 var a_tp  = m[1];
                 var a_sel = m[2];
-                // 得到属性名
-                var p_nm = "_align"==a_tp ? "textAlign" : a_tp;
-                //var p_nm = a_tp;
+                // 字符串型的，得到属性名
+                if(_.isString(v)) {
+                    // 得到属性名
+                    var p_nm = "_align"==a_tp ? "textAlign" : a_tp;
+                    //var p_nm = a_tp;
 
-                // 添加到自定义规则里
-                UI.addMySkinRule(a_sel, $z.obj(p_nm, v));
+                    // 添加到自定义规则里
+                    UI.addMySkinRule(a_sel, $z.obj(p_nm, v));
+                }
+                // 本身就是一个属性集合
+                else {
+                    UI.addMySkinRule(a_sel, v)
+                }
+                // 清除一下
                 css[key] = "";
 
                 // 下一个

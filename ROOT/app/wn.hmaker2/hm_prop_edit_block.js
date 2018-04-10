@@ -345,6 +345,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             }).render(function(){
                 // 设置数据
                 UI.gasket.form.setData(block);
+                // 收起全部组
+                UI.gasket.form.collapseGroup();
                 // 记录最后的修改
                 UI.__current_block_fields = bf_finger;
                 // 调用回调
@@ -388,7 +390,8 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
     //...............................................................
     __gen_block_fields : function(blockFields) {
         var UI = this;
-        var re = [];
+        var form = {fields: []};
+        var grp  = form;
         for(var i=0; i<blockFields.length; i++) {
             var key = blockFields[i];
             if(!key)
@@ -396,20 +399,31 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
             // 如果是普通对象（即不是字符串，那么就直接用）
             if(!_.isString(key)) {
-                re.push(_.extend({}, key));
+                grp.fields.push(_.extend({}, key));
                 continue;
             }
+
+            // 如果是标题，则重开一组
+            var m = /^[-]{3,}(.+)$/.exec(key);
+            if(m) {
+                if(grp != form && grp.fields.length > 0) {
+                    form.fields.push(grp);
+                }
+                grp = {title:$.trim(m[1]), fields:[]};
+                continue;
+            }
+
 
             // 看看是不是直接就是 CSS 属性
             var fld = UI.getCssFieldConf(key);
             if(fld) {
-                re.push(fld);
+                grp.fields.push(fld);
                 continue;
             }
 
             
             // 自定义颜色选择模式
-            var m = /^(#([BCL])> *[^{}]+)(\{([^}]+)\})(=(.*))?/.exec(key);
+            m = /^(#([BCL])> *[^{}]+)(\{([^}]+)\})(=(.*))?/.exec(key);
             if(m) {
                 var a_key = m[1];
                 var a_tp  = m[2];
@@ -417,15 +431,15 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 var a_dft = m[6] || null;
                 // 背景
                 if("B" == a_tp) {
-                    re.push(UI.getCssFieldConf("background",a_dft,a_txt,null,a_key));
+                    grp.fields.push(UI.getCssFieldConf("background",a_dft,a_txt,null,a_key));
                 }
                 // 前景
                 else  if("C" == a_tp) {
-                    re.push(UI.getCssFieldConf("color",a_dft,a_txt,null,a_key));
+                    grp.fields.push(UI.getCssFieldConf("color",a_dft,a_txt,null,a_key));
                 }
                 // 边框颜色
                 else if("L" == a_tp) {
-                    re.push(UI.getCssFieldConf("borderColor",a_dft,a_txt,null,a_key));
+                    grp.fields.push(UI.getCssFieldConf("borderColor",a_dft,a_txt,null,a_key));
                 }
                 // 错误
                 else {
@@ -448,7 +462,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 //console.log(m)
                 fld = UI.getCssFieldConf(a_tp, null, a_txt, a_tip, a_key);
                 if(fld) {
-                    re.push(fld);
+                    grp.fields.push(fld);
                 }
                 // 错误
                 else {
@@ -468,7 +482,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 var a_dft = m[7] || "no";
                 // 属性指明了 yes/no
                 if(m[5] == "/no"){
-                    re.push({
+                    grp.fields.push({
                         key    : "sa-" + a_key,
                         title  : a_txt,
                         type   : "string",
@@ -488,7 +502,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 }
                 // 仅仅是属性开关
                 else {
-                    re.push({
+                    grp.fields.push({
                         key    : "sa-" + a_key,
                         title  : a_txt,
                         type   : "boolean",
@@ -516,7 +530,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
                 a_dft = a_dft || undefined;
 
                 // 加入字段
-                re.push({
+                grp.fields.push({
                     key    : "sa-" + a_key,
                     title  : a_txt,
                     type   : "string",
@@ -533,9 +547,14 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 还是搞不定，那么打印一个警告无视它
             console.warn("unsupport blockField:", key, UI.uiCom);
         }
+
+        // 处理最后一组
+        if(grp != form && grp.fields.length > 0) {
+            form.fields.push(grp);
+        }
         
         // 返回字段列表
-        return re;
+        return form.fields;
     },
     //...............................................................
     resize : function() {

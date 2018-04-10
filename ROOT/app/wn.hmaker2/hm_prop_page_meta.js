@@ -66,6 +66,10 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
     redraw : function(){
         var UI = this;
 
+        // 防守一下，有时候 hmaker 没加载
+        if(!UI.hmaker())
+            return;
+
         // 页面设置
         new FormUI({
             parent : UI,

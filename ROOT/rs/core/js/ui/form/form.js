@@ -117,7 +117,11 @@ return ZUI.def("ui.form", {
     events : {
         "click .fg-title" : function(e){
             var jG = $(e.currentTarget).closest(".form-group");
-            jG.toggleClass("form-group-hide");
+            if(jG.hasClass("form-group-hide")){
+                this.spreadGroup(jG);
+            }else{
+                this.collapseGroup(jG);
+            }
         },
         "click .form-fld .ff-tmpl" : function(e){
             $z.toggleAttr($(e.currentTarget).closest(".form-fld"), "tmpl-on", "yes", "no");
@@ -125,21 +129,23 @@ return ZUI.def("ui.form", {
     },
     //...............................................................
     __find_field_grp : function(jq) {
-        var UI = this;
+        if(_.isString(jq))
+            jq = this.arena.find(jq);
         // 指定的组
-        var jG;
         if(jq && jq.length>0) {
             return jq.closest(".form-group");
         }
         // 全部的组
-        return UI.arena.find("> .form-body > .form-body-wrapper > .form-group");
+        return this.arena.find("> .form-body > .form-body-wrapper > .form-group");
     },
     //...............................................................
     collapseGroup : function(jq) {
-        this.__find_field_grp(jq).addClass("form-group-hide");
+        var selector = jq || '>.form-body>.form-body-wrapper>.form-group[grp-title="yes"]';
+        this.__find_field_grp(selector).addClass("form-group-hide");
     },
     spreadGroup : function(jq) {
         this.__find_field_grp(jq).removeClass("form-group-hide");
+        this.resize(true);
     },
     //...............................................................
     _draw_field : function(jG, fld, grp){
@@ -343,10 +349,12 @@ return ZUI.def("ui.form", {
                 $('<span class="fg-tt-icon">').html(grp.icon).appendTo(jGtt);
             if(grp.title)
                 $('<span class="fg-tt-text">').html(UI.text(grp.title)).appendTo(jGtt);
+            jG.attr("grp-title", "yes");
         }
         // 移除标题
         else{
             jGtt.remove();
+            jG.attr("grp-title", "no");
         }
 
         // 绘制每个字段

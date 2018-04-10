@@ -440,7 +440,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
                 fld.uiWidth = "all";
                 fld.uiType = "@text";
                 fld.uiConf = F.arg ? $z.fromJson('{'+F.arg+'}') : {
-                    height: 200
+                    height: 230
                 };
             }
             // 字段：开关

@@ -173,10 +173,19 @@ public abstract class AbstractCom implements HmComHandler {
             if (m.find()) {
                 String propName = m.group(1);
                 String selector = m.group(2);
-                // 得到属性名
-                String p_nm = "_align".equals(propName) ? "textAlign" : propName;
-                // 添加到自定义规则里
-                ing.addMySkinRule(selector, Lang.map(p_nm, val));
+
+                // 属性的集合
+                if (val instanceof Map) {
+                    ing.addMySkinRule(selector, NutMap.WRAP((Map<String, Object>) val));
+                }
+                // 字符串型的，得到属性名
+                else {
+                    // 得到属性名
+                    String p_nm = "_align".equals(propName) ? "textAlign" : propName;
+                    // 添加到自定义规则里
+                    ing.addMySkinRule(selector, Lang.map(p_nm, val));
+                }
+
                 continue;
             }
 

@@ -146,15 +146,15 @@ return ZUI.def("app.wn.hm_prop_page_skin", {
     //...............................................................
     refresh : function(callback){
         var UI = this;
-        console.log("I am page skin refresh");
+        //console.log("I am page skin refresh");
 
         UI.showLoading();
         UI.reloadSkinVarSet(function(str){
             var skinVar = UI.parseSkinVar(str);
-            console.log(skinVar);
+            //console.log(skinVar);
             UI.__draw_skin_var(skinVar, function(){
                 UI.hideLoading();
-                console.log("all done");
+                //console.log("all done");
                 $z.doCallback(callback);
             });
         });
