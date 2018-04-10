@@ -1,6 +1,11 @@
 package org.nutz.walnut.ext.whoisx;
 
+import java.io.BufferedReader;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,17 +17,22 @@ import org.nutz.http.Sender;
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.ext.mediax.util.Mxs;
 
 public abstract class WhoisX {
+    
+    private static final Log log = Logs.get();
 
     public static WhoInfo query(String host) {
         for (int i = 0; i < 3; i++) {
             try {
-                WhoInfo info = queryByChinaz(host);
+                WhoInfo info = queryByWhois(host);
                 if (info != null)
                     return info;
             }
@@ -113,14 +123,98 @@ public abstract class WhoisX {
         }
         return null;
     }
+    
+    public static WhoInfo queryByWhois(String host) {
+        return queryByWhois(host, "whois.iana.org");
+    }
+    
+    public static WhoInfo queryByWhois(String host, String whoisName) {
+        try {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(whoisName, 43), 3000);
+                OutputStream out = socket.getOutputStream();
+                out.write((host+"\r\n").getBytes());
+                out.flush();
+                byte[] buf = Streams.readBytesAndClose(socket.getInputStream());
+                String str = new String(buf, "UTF-8");
+                //System.out.println(buf.length);
+                //System.out.println(str);
+                WhoInfo info = new WhoInfo();
+                BufferedReader br = new BufferedReader(new StringReader(str));
+                while (br.ready()) {
+                    String line = br.readLine();
+                    if (line == null)
+                        break;
+                    if (line.isEmpty())
+                        continue;
+                    if (line.startsWith(">>>"))
+                        break;
+                    if (!line.contains(":"))
+                        continue;
+                    if (line.endsWith(":") || line.startsWith("%"))
+                        continue;
+                    String key = line.substring(0, line.indexOf(':')).trim().toLowerCase();
+                    String value = line.substring(line.indexOf(':')+1).trim();
+                    //System.out.println(key +":" + value);
+                    if ("Registrar WHOIS Server".equalsIgnoreCase(key) || "whois".equals(key)) {
+                        if (!value.equals(whoisName)) {
+                            log.debugf("[%s] whois forward to %s", host, value);
+                            return queryByWhois(host, value);
+                        }
+                    }
+                    switch (key) {
+                    case "registrant name":
+                    case "registrant":
+                        info.setRegistrant(value);
+                        break;
+                    case "registrant organization":
+                        //info.setRegistrant(value);
+                        break;
+                    case "registrant phone":
+                    case "phone":
+                        info.setMobile(value);
+                        break;
+                    case "registrant email":
+                    case "registrant contact email":
+                        info.setEmail(value);
+                        break;
+                    case "registrar":
+                    case "sponsoring registrar":
+                        info.setRegistrar(value);
+                        break;
+                    case "creation date":
+                    case "registration time":
+                        //info.setCreationDate(Times.parse(Times., s));
+                        break;
+                    case "domain status":
+                        info.setDomainStatus(value);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                return info;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         // queryByNameBright("site0.cn");
-        System.out.println(Json.toJson(queryByChinaz("nutz.cn")));
-        System.out.println(Json.toJson(queryByChinaz("site0.cn")));
-        System.out.println(Json.toJson(queryByChinaz("nutz.io")));
-        System.out.println(Json.toJson(queryByChinaz("hurom.com.cn")));
-        System.out.println(Json.toJson(queryByChinaz("hope.org.cn")));
-        System.out.println(Json.toJson(queryByChinaz("chinaz.com")));
+//        System.out.println(Json.toJson(queryByChinaz("nutz.cn")));
+//        System.out.println(Json.toJson(queryByChinaz("site0.cn")));
+//        System.out.println(Json.toJson(queryByChinaz("nutz.io")));
+//        System.out.println(Json.toJson(queryByChinaz("hurom.com.cn")));
+//        System.out.println(Json.toJson(queryByChinaz("hope.org.cn")));
+//        System.out.println(Json.toJson(queryByChinaz("chinaz.com")));
+        System.out.println(Json.toJson(queryByWhois("nutz.cn")));
+        System.out.println(Json.toJson(queryByWhois("site0.cn")));
+        System.out.println(Json.toJson(queryByWhois("nutz.io")));
+        System.out.println(Json.toJson(queryByWhois("hurom.com.cn")));
+        System.out.println(Json.toJson(queryByWhois("hope.org.cn")));
+        System.out.println(Json.toJson(queryByWhois("chinaz.com")));
     }
 }
