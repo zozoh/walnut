@@ -94,7 +94,7 @@ tags:
 
 # 字段布局解析结果
 
-```json
+```js
 {
     "data" : [{
             "type" : "group",        // 表示字段组
