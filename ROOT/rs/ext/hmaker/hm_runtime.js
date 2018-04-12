@@ -133,7 +133,7 @@ window.HmRT = {
                         continue;
                     }
                     // 列表: .lbls:100=UL(text)->.thumb
-                    m2 = /^UL\(((!(media|image):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
+                    m2 = /^UL\(((!(media|attachment|img):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
                     if(m2) {
                         fld.display = "UL",
                         fld.config = {
@@ -160,37 +160,50 @@ window.HmRT = {
     //  - obj    : 需要渲染的对象
     //  - href   : 在需要的地方，放置的链接
     renderLayout : function(opt, jq, layout, obj, href) {
+        // 首先解析一下链接
+        var hrefVMap, objHref, hrefTmpl;
+        if(href) {
+            href = decodeURI(href);
+            // hrefVMap = {};
+            // var vmREG = /\{\{(.+)\}\}/g;
+            // var m;
+            // while(m=vmREG.exec(hrefs)){
+            //     var key = m[1];
+            //     hrefVMap[key] = obj[key] || "";
+            // }
+            // 得到 OBJ HREF
+            hrefTmpl = $z.tmpl(href);
+            objHref  = hrefTmpl(obj);
+            href = {
+                tmpl   : hrefTmpl,
+                obj    : obj,
+                result : hrefTmpl(obj),
+            }
+        }
+        //console.log(hrefVMap);
         //----------------------------------
         var __fld_ele_content = function(fld, str, href) {
             var jFi;
-            // 链接
-            if(fld.linkTarget && href) {
-                href = "N/A" == href ? null : href;
-                jFi = $('<a>').attr({
-                        "href"   : href,
-                        "target" : "_blank" == fld.linkTarget && href 
-                                        ? "_blank" : null,
-                    }).html(str);
+            // 已经准备好了内容
+            if($z.isjQuery(str)) {
+                jFi = str;
             }
             // 普通文字咯
             else {
                 jFi = $('<span>').text(str);
             }
-            // 增加内容
-            if($z.isjQuery(str)) {
-                jFi.append(str);
-            }
-            // 否则作为文本
-            else {
-                jFi.text(str);
+            // 如果是链接的话，包裹一层
+            if(fld.linkTarget && href) {
+                var hs = _.isString(href) ? href : href.tmpl(href.obj);
+                jFi = $('<a>').attr({
+                        "href"   : hs,
+                        "target" : "_blank" == fld.linkTarget && href 
+                                        ? "_blank" : null,
+                    }).append(jFi);
             }
             // 如果是按钮的话，包裹一层
             if('Button' == fld.display) {
                 jFi = $('<b>').append(jFi);
-            }
-            // 如果是链接的话，也包一层吧
-            else if('Link' == fld.display) {
-                jFi = $('<u>').append(jFi);
             }
             // 如果是标题的话，再包裹一层
             if(fld.isTitle) {
@@ -252,7 +265,7 @@ window.HmRT = {
             // .th_cate={A:"猫",B:"狗"}
             if("Mapping" == fld.display) {
                 var s = fld.config[val] || val;
-                return __fld_ele(fld, s, href).appendTo(jP);
+                return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .th_birthday=Date(yyyy-mm-dd)
             if("Date" == fld.display) {
@@ -261,7 +274,7 @@ window.HmRT = {
                     var d = $z.parseDate(val);
                     s = d.format(fld.config || "yyyy-mm-dd");
                 }
-                return __fld_ele(fld, s, href).appendTo(jP);
+                return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .len:100/?=Size(2)
             if("Size" == fld.display) {
@@ -269,20 +282,23 @@ window.HmRT = {
                 if(val) {
                     s = $z.sizeText(val, fld.config);
                 }
-                return __fld_ele(fld, s, href).appendTo(jP);
+                return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .lbls:100=UL(!image:src)->thumb
             if("UL" == fld.display) {
+                console.log(fld)
+                var liType = fld.config.itemType || "text";
                 var jUl  = $('<ul>').attr({
                         "li-type"   : liType,
                         "li-target" : fld.config.target,
                     });
                 if(!_.isNull(val) && !_.isUndefined(val)) {
                     var list   = _.isArray(val)?val:[val];
-                    var liType = fld.config.itemType || "text";
                     for(var i=0; i<list.length; i++) {
-                        var jLi = $('<li>').appendTo(jUl);
                         var li  = list[i];
+                        var jLi = $('<li>').attr({
+                                    "current" : li.current ? "yes" : null
+                                }).appendTo(jUl);
                         var liv = li;
                         // 得到真实的值
                         if(fld.config.itemKey) {
@@ -291,16 +307,21 @@ window.HmRT = {
                         // 无视无效的值
                         if(!liv)
                             continue;
+                        // IMG
+                        if("img" == liType) {
+                            __fld_ele_content(fld, $('<span>').css({
+                                    "background-image" : 'url("' + liv + '")',
+                                })).appendTo(jLi);
+                        }
                         // Media/Image
-                        if("media" == liType || "image" == liType) {
+                        else if( /^(media|attachment)$/.test(liType)) {
                             // 首先得到图片的源
-                            var src = liv;
-                            if("media" == liType) {
-                                src = opt.API
-                                    + "/thing/media?pid=" + obj.th_set
-                                    + "&id="  + obj.id
-                                    + "&fnm=" + liv;
-                            }
+                            var th_set = obj.th_set;
+                            var th_id  = obj.id;
+                            var src = opt.API
+                                + "/thing/"+liType+"?pid=" + th_set
+                                + "&id="  + th_id
+                                + "&fnm=" + liv;
                             // 然后输出这个图片
                             __fld_ele_content(fld, $('<span>').css({
                                     "background-image" : 'url("' + src + '")',
@@ -308,7 +329,8 @@ window.HmRT = {
                         }
                         // 普通文字
                         else {
-                            __fld_ele_content(fld, liv, href)
+                            var liHref = href.tmpl(li);
+                            __fld_ele_content(fld, liv, liHref)
                                 .appendTo(jLi);
                         }
                     }
@@ -324,9 +346,11 @@ window.HmRT = {
                     var m = /^(media|attachment)\/(.+)$/.exec(src);
                     //console.log(m)
                     if(m){
+                        var th_set = obj.go_detail_th_set || obj.th_set;
+                        var th_id  = obj.go_detail_th_id  || obj.id;
                         return opt.API + "/thing/"+m[1]
-                                + "?pid=" + obj.th_set
-                                + "&id="  + obj.id
+                                + "?pid=" + th_set
+                                + "&id="  + th_id
                                 + "&fnm=" + m[2];
                     }
                     // 原样返回
@@ -361,7 +385,7 @@ window.HmRT = {
                 return __fld_ele(fld, s, val||"N/A").appendTo(jP);
             }
             // 默认就是文字咯
-            return __fld_ele(fld, val, href).appendTo(jP);
+            return __fld_ele(fld, val, href.result).appendTo(jP);
         };
         //----------------------------------
         // 准备父元素
@@ -393,6 +417,26 @@ window.HmRT = {
         //----------------------------------
         // 返回
         return jLayout.appendTo(jq);
+    },
+    //...............................................................
+    setupLayoutEvents : function(win) {
+        win = win || window;
+        if(!win.__layout_event_binded) {
+            $(win.document.body).on("click", ".wn-obj-layout ul[li-target] li",
+                function(){
+                    var jLi = $(this);
+                    var jSpan = jLi.find("span");
+                    var jUl = jLi.closest("ul");
+                    var jTa = jUl.closest(".wn-obj-layout");
+                    var jPr = jTa.find(".wn-obj-preview span");
+                    jPr.css("background-image", jSpan[0].style.backgroundImage);
+                    jUl.find("li").removeAttr("current");
+                    jLi.attr("current", "yes");
+                });
+
+            // 标识一下
+            win.__layout_event_binded = true;
+        }
     },
     //...............................................................
     // 自动寻找一个合适的详情页面

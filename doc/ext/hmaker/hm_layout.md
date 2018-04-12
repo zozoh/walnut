@@ -54,12 +54,13 @@ tags:
 # 字段语法 =UL 会将字段值强制转换为数组
 # 每个数组元素会依次生成 <li>
 # UL(text) 表示要用 lbls[i].text 来显示内容
-# UL(!media:fnm) 表示用 lbls[i].fnm 来显示一张图片（obj必须有 th_set和id 字段）
-# UL(!image:src) 表示用 lbls[i].src 来显示一张图片
-# UL(!image:src)->thumb 会自动与 .thumb字段联动，用自己的图片源为其设置值
+# UL(!media:nm) 表示用 th_media_list[i].nm 来显示一张图片（obj必须有 th_set和id 字段）
+# UL(!attachment:nm) 表示用 th_attachment_list[i].nm 来显示一张图片
+# UL(!img:src) 表示用 lbls[i].src 来显示一张图片
+# UL(!img:src)->thumb 会自动与 .thumb字段联动，用自己的图片源为其设置值
 # .lbls[-]=UL(text) 这样的写法，会自动为每个项目设置超链接
 #                   链接的值，用 libs[i] 来替换，而不是 obj
-.lbls:100=UL(!image:src)->thumb
+.lbls:100=UL(!media:src)->thumb
 # 字段语法 =Markdown 将会将字段内容转换为Markdown显示
 .content=Markdown
 # 字段语法 =Preview 字段内容应该为 /api/thumb 可接受的 QueryString
