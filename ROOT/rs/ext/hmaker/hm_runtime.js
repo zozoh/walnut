@@ -25,6 +25,143 @@ function __set_layout_item_size (it, s) {
 //===================================================================
 window.HmRT = {
     //...............................................................
+    __parse_layout_fld : function(line) {
+        if(!line)
+            return;
+
+        // 字段
+        var m = /^([.>!])([0-9a-zA-Z_]+)(<(.+)>)?(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
+        if(m) {
+            var fld = {type:"field", display:"String", key:m[2]};
+            // 标识标题
+            fld.isTitle = m[1] == ">";
+            fld.show = m[1]=="!" ? "always" : "auto";
+            // 选择器
+            if(m[4]){
+                fld.selector = $.trim(m[4]);
+            }
+            // 链接
+            if(m[6]){
+                fld.linkTarget = "+"==m[6] ? "_blank" : "_self";
+            }
+            // 尺寸
+            if(m[8]){
+                if(!__set_layout_item_size(fld, m[8]))
+                    return;
+            }
+            // 获取值的函数
+            fld.getText = function(obj){
+                var val = $z.getValue(obj, this.key);
+                // 空值
+                if(_.isNull(val) || _.isUndefined(val))
+                    return val;
+                // .th_cate={A:"猫",B:"狗"}
+                if("Mapping" == this.display && this.config) {
+                    return this.config[val] || val;
+                }
+                // .th_birthday=Date(yyyy-mm-dd)
+                if("Date" == this.display) {
+                    var s = "N/A";
+                    if(val) {
+                        var d = $z.parseDate(val);
+                        s = d.format(this.config || "yyyy-mm-dd");
+                    }
+                    return s;
+                }
+                // .len:100/?=Size(2)
+                if("Size" == this.display) {
+                    var s = "0Byte";
+                    if(val) {
+                        s = $z.sizeText(val, this.config);
+                    }
+                    return s;
+                }
+                // 默认直接返回咯
+                return val;
+            };
+
+            // 类型
+            if(m[10]) {
+                var ts = m[10];
+                // Markdown
+                if("Markdown" == ts){
+                    fld.display = "Markdown";
+                    return fld;
+                }
+                // Thumbnail
+                if("Preview" == ts){
+                    fld.display = "Preview";
+                    return fld;
+                }
+                // Em
+                if("Em" == ts){
+                    fld.display = "Em";
+                    return fld;
+                }
+                // Block
+                if("Block" == ts){
+                    fld.display = "Block";
+                    return fld;
+                }
+                // 映射: .th_cate={A:"猫",B:"狗"}
+                if(/^\{.+\}$/.test(ts)) {
+                    fld.display = "Mapping";
+                    fld.config = $z.fromJson(ts);
+                    return fld;
+                }
+                // 日期时间: .th_birthday=Date("yyyy-MM-dd")
+                var m2 = /^Date\(([^)]*)\)$/.exec(ts);
+                if(m2){
+                    fld.display = "Date";
+                    fld.config = m2[1];
+                    return fld;
+                }
+                // 尺寸: .len:100/?=Size(2)
+                m2 = /^Size\(([0-9]*)\)$/.exec(ts);
+                if(m2) {
+                    fld.display = "Size";
+                    fld.config  = m2[1]? parseInt(m2[1]) : 2;
+                    return fld;
+                }
+                // 链接: .href=Link(Buy Now)
+                m2 = /^Link\(([^)]*)\)$/.exec(ts);
+                if(m2) {
+                    fld.display = "Link";
+                    fld.config  = m2[1];
+                    $z.setUndefined(fld, "linkTarget", "_blank");
+                    return fld;
+                }
+                // 链接: .href=Button(Buy Now)
+                m2 = /^Button\(([^)]*)\)$/.exec(ts);
+                if(m2) {
+                    fld.display = "Button";
+                    fld.config  = m2[1];
+                    $z.setUndefined(fld, "linkTarget", "_blank");
+                    return fld;
+                }
+                // 列表: .lbls:100=UL(text)->.thumb
+                m2 = /^UL\(((!(media|attachment|img):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
+                if(m2) {
+                    fld.display = "UL",
+                    fld.config = {
+                        itemType : m2[3] || "text",
+                        itemKey  : m2[4],
+                        target   : m2[6],
+                    };
+                    return fld;
+                }
+            }
+            // 普通字段咯
+            return fld;
+        }
+        // 那么看看是否是一个 HR
+        else if(/^[-]{3,}$/.test(line)) {
+            return {type:"hr"};
+        }
+        // 默认就是静态文字咯
+        return {type:"text", value:line};
+    },
+    //...............................................................
     // @see doc/ext/hmaker/hm_layout.md 《字段布局语法》
     parseLayout : function(str) {
         // 准备返回结果
@@ -34,7 +171,7 @@ window.HmRT = {
         var lines = str.split(/\r?\n/g);
         
         // 逐行解析
-        var grp, m;
+        var grp, m, fld;
         for (var i = 0; i < lines.length; i++) {
             var line = $.trim(lines[i]);
 
@@ -47,109 +184,114 @@ window.HmRT = {
                 if(grp && grp.items.length > 0)
                     layout.data.push(grp);
                 grp = undefined;
+                continue;
             }
 
             // 组
-            if(/^@/.test(line)) {
+            m = /^@(\((.+)\))?(.+)?/.exec(line)
+            if(m) {
                 // 推入前组
                 if(grp && grp.items.length > 0)
                     layout.data.push(grp);
                 // 建立新组
                 grp = __set_layout_item_size({
-                        type:"group", items:[]
-                    }, line.substring(1));
+                        type:"group", name:$.trim(m[2]) ,items:[]
+                    }, m[3]);
+                continue;
+            }
+
+            // 表格
+            m = /^T(\((.+)\))?(.+)?/.exec(line)
+            if(m) {
+                var tbl = __set_layout_item_size({
+                        type:"table", name:$.trim(m[2]) ,rows:[]
+                    }, m[3]);
+                for (i++; i < lines.length; i++) {
+                    line = $.trim(lines[i]);
+                    m = /^-([^|]+)[|](.+)$/.exec(line);
+                    if(m) {
+                        var s2 = $.trim(m[2]);
+                        fld = this.__parse_layout_fld(s2);
+                        if(fld) {
+                            tbl.rows.push({
+                                title : $.trim(m[1]),
+                                value : fld,
+                            });
+                        }
+                    }
+                    // 不是行了，退出
+                    else {
+                        i--;
+                        break;
+                    }
+                }
+                // 加入
+                if(tbl.rows.length > 0) {
+                    if(grp)
+                        grp.items.push(tbl);
+                    else
+                        layout.data.push(tbl);
+                }
+                continue;
+            }
+
+            // HTML 片段
+            m = /^(>)? *HTML(\((Block|Em)\))?(<(.+)>)?(\[([+-])\])?([^=]+)?(=(.+))$/.exec(line)
+            if(m) {
+                var fHTML = __set_layout_item_size({
+                        type       : "HTML", 
+                        isTitle    : m[1] == ">",
+                        display    : m[3] || "String",
+                        selector   : $.trim(m[5]), 
+                        tmpl       : $z.tmpl(m[10]),
+                        config     : {},
+                    }, m[8]);
+                // 链接
+                if(m[7]){
+                    fHTML.linkTarget = "+"==m[7] ? "_blank" : "_self";
+                }
+
+                for (i++; i < lines.length; i++) {
+                    line = $.trim(lines[i]);
+                    m = /^-([^:]+)[:](.+)$/.exec(line);
+                    if(m) {
+                        var sk = $.trim(m[1]);
+                        var s2 = $.trim(m[2]);
+                        fld = this.__parse_layout_fld(s2);
+                        if(fld) {
+                            fHTML.config[sk] = fld;
+                        }
+                    }
+                    // 不是行了，退出
+                    else {
+                        i--;
+                        break;
+                    }
+                }
+                // 加入
+                if(grp)
+                    grp.items.push(fHTML);
+                else
+                    layout.data.push(fHTML);
                 continue;
             }
 
             // 字段
-            m = /^([.>!])([0-9a-zA-Z_]+)(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
-            if(m) {
-                var fld = {type:"field", display:"String", key:m[2]};
-                // 标识标题
-                fld.isTitle = m[1] == ">";
-                fld.show = m[1]=="!" ? "always" : "auto";
-                // 链接
-                if(m[4]){
-                    fld.linkTarget = "+"==m[4] ? "_blank" : "_self";
-                }
-                // 尺寸
-                if(m[6]){
-                    if(!__set_layout_item_size(fld, m[6]))
-                        continue;
-                }
-                // 推入
+            fld = this.__parse_layout_fld(line);
+            if(fld) {
                 if(grp)
                     grp.items.push(fld);
                 else
                     layout.data.push(fld);
-
-                // 类型
-                if(m[8]) {
-                    var ts = m[8];
-                    // Markdown
-                    if("Markdown" == ts){
-                        fld.display = "Markdown";
-                        continue;
-                    }
-                    // Thumbnail
-                    if("Preview" == ts){
-                        fld.display = "Preview";
-                        continue;
-                    }
-                    // 映射: .th_cate={A:"猫",B:"狗"}
-                    if(/^\{.+\}$/.test(ts)) {
-                        fld.display = "Mapping";
-                        fld.config = $z.fromJson(ts);
-                        continue;
-                    }
-                    // 日期时间: .th_birthday=Date("yyyy-MM-dd")
-                    var m2 = /^Date\(([^)]*)\)$/.exec(ts);
-                    if(m2){
-                        fld.display = "Date";
-                        fld.config = m2[1];
-                        continue;
-                    }
-                    // 尺寸: .len:100/?=Size(2)
-                    m2 = /^Size\(([0-9]*)\)$/.exec(ts);
-                    if(m2) {
-                        fld.display = "Size";
-                        fld.config  = m2[1]? parseInt(m2[1]) : 2;
-                        continue;
-                    }
-                    // 链接: .href=Link(Buy Now)
-                    m2 = /^Link\(([^)]*)\)$/.exec(ts);
-                    if(m2) {
-                        fld.display = "Link";
-                        fld.config  = m2[1];
-                        $z.setUndefined(fld, "linkTarget", "_blank");
-                        continue;
-                    }
-                    // 链接: .href=Button(Buy Now)
-                    m2 = /^Button\(([^)]*)\)$/.exec(ts);
-                    if(m2) {
-                        fld.display = "Button";
-                        fld.config  = m2[1];
-                        $z.setUndefined(fld, "linkTarget", "_blank");
-                        continue;
-                    }
-                    // 列表: .lbls:100=UL(text)->.thumb
-                    m2 = /^UL\(((!(media|attachment|img):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
-                    if(m2) {
-                        fld.display = "UL",
-                        fld.config = {
-                            itemType : m2[3] || "text",
-                            itemKey  : m2[4],
-                            target   : m2[6],
-                        };
-                    }
-                }
             }
+            
         }
 
         // 推入最后一组
         if(grp && grp.items.length > 0)
             layout.data.push(grp);
 
+        //console.log(layout)
         // 返回结果
         return layout;    
     },
@@ -162,6 +304,7 @@ window.HmRT = {
     renderLayout : function(opt, jq, layout, obj, href) {
         // 首先解析一下链接
         var hrefVMap, objHref, hrefTmpl;
+        href = href || "";   // 确保是假，且还不是undefined
         if(href) {
             href = decodeURI(href);
             // hrefVMap = {};
@@ -182,11 +325,24 @@ window.HmRT = {
         }
         //console.log(hrefVMap);
         //----------------------------------
-        var __fld_ele_content = function(fld, str, href) {
+        var __fld_ele_content = function(fld, str, href, forceHTML) {
             var jFi;
             // 已经准备好了内容
             if($z.isjQuery(str)) {
                 jFi = str;
+            }
+            // Em
+            else if("Em" == fld.display) {
+                jFi = $('<em>').text(str);
+            }
+            // Block
+            else if("Block" == fld.display) {
+                jFi = $('<div>').text(str);
+                jFi = $('<blockquote>').append(jFi);
+            }
+            // 用 HTML
+            else if(forceHTML){
+                jFi = $('<span>').html(str);
             }
             // 普通文字咯
             else {
@@ -213,7 +369,7 @@ window.HmRT = {
         }
         //----------------------------------
         // 准备一个帮助函数
-        var __fld_ele = function(fld, str, href) {
+        var __fld_ele = function(fld, str, href, forceHTML) {
             var jFld;
             //----------------------------------
             // 已经是弄好的东东了
@@ -222,10 +378,14 @@ window.HmRT = {
             }
             // 否则当做文本搞一下
             else {
-                jFld = __fld_ele_content(fld, str, href);
+                jFld = __fld_ele_content(fld, str, href, forceHTML);
             }
+            // 增加类选择器
+            if(fld.selector)
+                jFld.addClass(fld.selector);
             // 增加一下属性
             return jFld.attr({
+                "fld-type"             : fld.type || "text",
                 "fld-display"          : fld.display,
                 "fld-key"              : fld.key,
                 "layout-desktop-width" : fld.w_desktop,
@@ -236,6 +396,51 @@ window.HmRT = {
         // 准备字段渲染函数
         var __render_fld = function(jP, fld, obj, href) {
             var val  = $z.getValue(obj, fld.key);
+
+            // 普通文字
+            if('text' == fld.type) {
+                return $('<em class="wn-obj-text">').text(fld.value).appendTo(jP);
+            }
+            // HR
+            else if('hr' == fld.type) {
+                return $('<div class="wn-obj-hr"><hr></div>').appendTo(jP);
+            }
+            // 表格
+            else if('table' == fld.type) {
+                var jTable = $('<table>').attr("table-name", fld.name||null);
+                for(var i=0; i<fld.rows.length; i++) {
+                    var row = fld.rows[i];
+                    if(row.value) {
+                        var jTr = $('<tr>').appendTo(jTable);
+                        $('<td class="tbl-col-name">')
+                            .html(row.title)
+                                .appendTo(jTr);
+                        var jTd = $('<td class="tbl-col-value">')
+                                    .appendTo(jTr);
+                        __render_fld(jTd, row.value, obj, href);
+                    }
+                }
+                return __fld_ele(fld, jTable).appendTo(jP);
+            }
+            // HTML
+            else if('HTML' == fld.type) {
+                // 准备上下文
+                var map = _.extend({}, obj);
+
+                // 替换一下
+                if(fld.config) {
+                    for(var key in fld.config) {
+                        var f2 = fld.config[key];
+                        map[key] = f2.getText(obj);
+                    }
+                }
+
+                // 渲染
+                var html = fld.tmpl(map);
+
+                // 加入DOM
+                return __fld_ele(fld, html, href, true).appendTo(jP);
+            }
 
             // 这个比较优先，因为无论如何都要显示出预览区嘛
             // .thumb=Preview
@@ -264,33 +469,28 @@ window.HmRT = {
 
             // .th_cate={A:"猫",B:"狗"}
             if("Mapping" == fld.display) {
-                var s = fld.config[val] || val;
+                var s = fld.getText(obj);
                 return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .th_birthday=Date(yyyy-mm-dd)
             if("Date" == fld.display) {
-                var s = "N/A";
-                if(val) {
-                    var d = $z.parseDate(val);
-                    s = d.format(fld.config || "yyyy-mm-dd");
-                }
+                var s = fld.getText(obj);
                 return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .len:100/?=Size(2)
             if("Size" == fld.display) {
-                var s = "0K";
-                if(val) {
-                    s = $z.sizeText(val, fld.config);
-                }
+                var s = fld.getText(obj);
                 return __fld_ele(fld, s, href.result).appendTo(jP);
             }
             // .lbls:100=UL(!image:src)->thumb
             if("UL" == fld.display) {
-                console.log(fld)
+                //console.log(fld)
                 var liType = fld.config.itemType || "text";
                 var jUl  = $('<ul>').attr({
                         "li-type"   : liType,
                         "li-target" : fld.config.target,
+                        "li-img"    : /^(media|attachment|img)$/.test(liType)
+                                        ? "yes" : null  
                     });
                 if(!_.isNull(val) && !_.isUndefined(val)) {
                     var list   = _.isArray(val)?val:[val];
@@ -404,6 +604,7 @@ window.HmRT = {
                 }
                 // 设置属性，并加入 DOM
                 jGrp.attr({
+                    "group-name" : it.name,
                     "layout-desktop-width" : it.w_desktop,
                     "layout-mobile-width"  : it.w_mobile,
                 });

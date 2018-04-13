@@ -10,14 +10,14 @@ $z.declare([
 //==============================================
 var html = `
 <div class="ui-arena hmc-dynamic-prop" ui-fitparent="yes">
-    <h4>{{hmaker.com.dynamic.api}}</h4>
+    <h4 l-key="hide_part_api_info">{{hmaker.com.dynamic.api}}</h4>
     <header  class="api" ui-gasket="api"></header>
     <aside class="api-info">
         <span>{{hmaker.com.dynamic.params}}</span>
         <b></b>
     </aside>
     <section class="api-params" ui-gasket="params"></section>
-    <h4>{{hmaker.com.dynamic.template}}</h4>
+    <h4 l-key="hide_part_tmpl_opt">{{hmaker.com.dynamic.template}}</h4>
     <!--header  class="tmpl" ui-gasket="template"></header-->
     <section class="tmpl-options" ui-gasket="options"></section>
 </div>`;
@@ -31,15 +31,31 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
     //...............................................................
     events : {
         "click .hmc-dynamic-prop > h4" : function(e){
-            var jH4 = $(e.currentTarget);
-            var jPart = jH4.nextUntil("h4");
-            $z.toggleAttr(jH4, "hide-part", "yes");
-            jPart.attr("hide-me", jH4.attr("hide-part") || null);
+            this.showHidePart($(e.currentTarget));
         }
+    },
+    //...............................................................
+    showHidePart : function(jH4, asHidden) {
+        if(!_.isBoolean(asHidden)) {
+            asHidden = jH4.attr("hide-part") ? false : true;
+        }
+        // 记录本地状态
+        this.local(jH4.attr("l-key"), asHidden);
+        // 切换显示模式
+        var jPart = jH4.nextUntil("h4[l-key]");
+        jH4.attr("hide-part", asHidden ? "yes" : null);
+        jPart.attr("hide-me", jH4.attr("hide-part") || null);
+        this.resize(true);
     },
     //...............................................................
     redraw : function() {
         var UI = this;
+
+        // 初始化两个部分的本地状体
+        var jH4Api = UI.arena.find('> h4[l-key="hide_part_api_info"]');
+        var jH4Opt = UI.arena.find('> h4[l-key="hide_part_tmpl_opt"]');
+        UI.showHidePart(jH4Api, UI.local(jH4Api.attr("l-key"))? true : false);
+        UI.showHidePart(jH4Opt, UI.local(jH4Opt.attr("l-key"))? true : false);
 
         // 得到 API 的主目录
         var oApiHome = Wn.fetch("~/.regapi/api");
@@ -65,23 +81,6 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         }).render(function(){
             UI.defer_report("api");
         });
-
-        // 模板列表
-        // new DroplistUI({
-        //     parent : UI,
-        //     gasketName : "template",
-        //     emptyItem : {},
-        //     items : [],
-        //     icon  : '<i class="fa fa-html5"></i>',
-        //     text  : function(o){
-        //         return o.title || o.value;
-        //     },
-        //     on_change : function(v) {
-        //         UI.uiCom.saveData(null, {template:v, options:{}}, true);
-        //     }
-        // }).render(function(){
-        //     UI.defer_report("template");
-        // });
         
         // 返回延迟加载
         return ["api"];
@@ -172,14 +171,14 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         var jB = jApiInfo.children("b");
         if(oApi) {
             // 更新 api info 部分
-            jApiInfo.show();
+            //jApiInfo.show();
             jB.empty();
             $('<u>').text(oApi.api_method  || "GET").appendTo(jB);
             $('<em>').text(oApi.api_return || "obj").appendTo(jB);
 
             // 更新 params 的 form
             // 并设置 data
-            jParams.show();
+            //jParams.show();
             var fields = UI.__eval_form_fields_by(oApi.params);
             UI.__draw_form({
                 cacheKey : "_finger_api_form",
@@ -192,8 +191,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         }
         // 没有参数，清空显示
         else {
-            jApiInfo.hide();
-            jParams.hide();
+            jApiInfo.attr("is-empty", "yes");
+            jParams.attr("is-empty", "yes");
         }
 
         //-----------------------------------------------------
