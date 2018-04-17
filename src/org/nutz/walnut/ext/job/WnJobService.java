@@ -205,19 +205,24 @@ public class WnJobService extends WnRun implements Callable<Object> {
     }
     
     //----------------------------------------
-    public void addJob(String id, String cmdText, String name, String cron, String createByUser, String runByUser, Map<String, Object> env) {
-        WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
+    public void addJob(String id, String cmdText, String name, String cron, String createByUser, String runByUser, NutMap env) {
+        addJob(new JobData(name, cmdText, cron, createByUser, runByUser, env));
+    }
+    
+    public void addJob(JobData jobData) {
+    	String id = R.UU32();
+    	WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
         WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
-        io.writeText(cmdFile, cmdText);
+        io.writeText(cmdFile, jobData.cmdText);
         NutMap metas = new NutMap();
-        metas.put("job_name", name);
-        metas.put("job_cron", cron);
+        metas.put("job_name", jobData.name);
+        metas.put("job_cron", jobData.cron);
         metas.put("job_ava", System.currentTimeMillis());
         metas.put("job_st", "wait");
-        metas.put("job_user", runByUser);
-        metas.put("job_create_user", createByUser);
+        metas.put("job_user", jobData.runByUser);
+        metas.put("job_create_user", jobData.createByUser);
         metas.put("job_st", "wait");
-        metas.put("job_env", env);
+        metas.put("job_env", jobData.env);
         io.appendMeta(jobDir, metas);
     }
 }
