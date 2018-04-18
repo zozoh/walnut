@@ -33,6 +33,10 @@ tags:
 # :100 表示宽度 100% 这个会设在 css 里
 >th_nm<selector>[-]:100
 #-------------------------------------------------
+# 你可以声明多个字段，如果一个字段没有值，会用另外一个字段代替
+# 分隔多个字段的用 `|` 中间不能带空格
+.th_price|th_nb<selector>[-]:100
+#-------------------------------------------------
 # @表示开始一组，直到新组，所有的字段都会归纳在组内
 # `@(abc)` 表示一个特殊的组名，这个会渲染成 `group-name` 属性
 #          它是可选的，即你可以不写括和里面的东西
@@ -98,7 +102,7 @@ xxxx
 # UL(!img:src)->thumb 会自动与 .thumb字段联动，用自己的图片源为其设置值
 # .lbls[-]=UL(text) 这样的写法，会自动为每个项目设置超链接
 #                   链接的值，用 libs[i] 来替换，而不是 obj
-.lbls:100=UL(!media:src)->thumb
+.th_media_list:100=UL(!media:src)->thumb
 # 字段语法 =Markdown 将会将字段内容转换为Markdown显示
 .content=Markdown
 # 字段语法 =Preview 字段内容应该为 /api/thumb 可接受的 QueryString
@@ -117,6 +121,11 @@ xxxx
 .brief=Block
 # 字段语法 =Em 显示一段重点文字
 .th_price=Em
+# 字段语法 =List(分隔符)[连接符] 显示一个逻辑上的列表
+# (分隔符) 譬如 (\r\n) 默认是 \r?\n
+# [连接符] 譬如 [,] 
+# 当然，如果值本来就是一个数组，则不分隔
+.lbls=List(\r\n)[,]
 ```
 
 下面我给一个布局语法的例子:
@@ -157,7 +166,7 @@ xxxx
                         }]
                 }, {
                     "type"    : "field",    // 表示是一个字段，不写也成
-                    "key"     : "th_nm",    // 字段键值是什么
+                    "key"     : "th_nm",    // 字段键值是什么，多个字段的话会是数组
                     "display" : "String",   // 字段值如何显示，默认 String
                     "config"  : undefined,  // 显示配置参数
                     "selector"   : "",      // 为字段特殊声明的类选择器
@@ -182,13 +191,21 @@ xxxx
                     "config"  : 2,
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {
-                    "key"     : "lbls",
+                    "key"     : "th_media_list",
                     "display" : "UL",
                     "config"  : {
                         "itemType" : "media",  // media|image|*text
                         "itemKey"  : "fnm",    // 空表示 lbls[i]
                         "target"   : "thumb",  // 连接的目标字段
                                                // text类型下无效
+                    }
+                    ...  // 我就懒得写 w_desktop | w_mobile 了
+                }, {
+                    "key"     : "lbls",
+                    "display" : "List",
+                    "config"  : {
+                        "sep"    : /\r?\n/,  // 依靠什么拆分字符串
+                        "joinBy" : ",",      // 依靠什么合并字符串
                     }
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {

@@ -30,9 +30,15 @@ window.HmRT = {
             return;
 
         // 字段
-        var m = /^([.>!])([0-9a-zA-Z_]+)(<(.+)>)?(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
+        var m = /^([.>!])([0-9a-zA-Z_|]+)(<(.+)>)?(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
         if(m) {
-            var fld = {type:"field", display:"String", key:m[2]};
+            var fkey = m[2].split("|");
+            var fld = {
+                type    : "field", 
+                display : "String", 
+                key     : fkey.length>1 ? fkey : fkey[0]
+            };
+            //console.log(fld)
             // 标识标题
             fld.isTitle = m[1] == ">";
             fld.show = m[1]=="!" ? "always" : "auto";
@@ -51,7 +57,15 @@ window.HmRT = {
             }
             // 获取值的函数
             fld.getText = function(obj){
-                var val = $z.getValue(obj, this.key);
+                var val;
+                var ks = _.isArray(this.key) ? this.key : [this.key];
+                for(var i=0; i<ks.length; i++){
+                    val = $z.getValue(obj, ks[i]);
+                    if(!_.isNull(val) && !_.isUndefined(val)){
+                        break;
+                    }
+                }
+                //console.log(val)
                 // 空值
                 if(_.isNull(val) || _.isUndefined(val))
                     return val;
@@ -109,8 +123,21 @@ window.HmRT = {
                     fld.config = $z.fromJson(ts);
                     return fld;
                 }
+                // List
+                var m2 = /^List(\(([^)]*)\))?(\[([^)]*)\])?$/.exec(ts);
+                if(m2) {
+                    fld.display = "List";
+                    fld.config = {
+                        sep    : m2[2] || /\r?\n/,
+                        joinBy : m2[4] || ", ",
+                    };
+                    if(fld.config.sep) {
+                        fld.config.sep = new RegExp(fld.config.sep);
+                    }
+                    return fld;
+                }
                 // 日期时间: .th_birthday=Date("yyyy-MM-dd")
-                var m2 = /^Date\(([^)]*)\)$/.exec(ts);
+                m2 = /^Date\(([^)]*)\)$/.exec(ts);
                 if(m2){
                     fld.display = "Date";
                     fld.config = m2[1];
@@ -340,6 +367,20 @@ window.HmRT = {
                 jFi = $('<div>').text(str);
                 jFi = $('<blockquote>').append(jFi);
             }
+            // .lbls=List(\r\n)[,]
+            else if("List" == fld.display) {
+                if(str && !_.isArray(str)){
+                    str = str.split(fld.config.sep);
+                }
+                jFi = $('<span>');
+                for(var i=0; i<str.length; i++) {
+                    var s = str[i];
+                    if(i>0) {
+                        $('<em>').text(fld.config.joinBy).appendTo(jFi);
+                    }
+                    $('<u>').text(s).appendTo(jFi);
+                }
+            }
             // 用 HTML
             else if(forceHTML){
                 jFi = $('<span>').html(str);
@@ -395,7 +436,7 @@ window.HmRT = {
         //----------------------------------
         // 准备字段渲染函数
         var __render_fld = function(jP, fld, obj, href) {
-            var val  = $z.getValue(obj, fld.key);
+            var val  = fld.getText(obj);
 
             // 普通文字
             if('text' == fld.type) {
@@ -468,20 +509,12 @@ window.HmRT = {
                     return null;
 
             // .th_cate={A:"猫",B:"狗"}
-            if("Mapping" == fld.display) {
-                var s = fld.getText(obj);
-                return __fld_ele(fld, s, href.result).appendTo(jP);
-            }
             // .th_birthday=Date(yyyy-mm-dd)
-            if("Date" == fld.display) {
-                var s = fld.getText(obj);
-                return __fld_ele(fld, s, href.result).appendTo(jP);
-            }
             // .len:100/?=Size(2)
-            if("Size" == fld.display) {
-                var s = fld.getText(obj);
-                return __fld_ele(fld, s, href.result).appendTo(jP);
+            if(/^(Mapping|Date|Size|List)$/.test(fld.display)) {
+                return __fld_ele(fld, val, href.result).appendTo(jP);
             }
+            
             // .lbls:100=UL(!image:src)->thumb
             if("UL" == fld.display) {
                 //console.log(fld)

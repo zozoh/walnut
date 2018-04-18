@@ -141,7 +141,6 @@ return ZUI.def("ui.form", {
     //...............................................................
     collapseGroup : function(jq) {
         var selector = jq || '>.form-body>.form-body-wrapper>.form-group[grp-title="yes"]';
-        console.log(selector)
         this.__find_field_grp(selector).addClass("form-group-hide");
     },
     spreadGroup : function(jq) {
