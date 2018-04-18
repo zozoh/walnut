@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -38,6 +39,9 @@ public class WnJobService extends WnRun implements Callable<Object> {
 
     @Inject
     protected WnHookService hookService;
+    
+    @Inject
+    protected WnRun wnRun;
 
     // 保持一个 root 会话
     private WnSession _se;
@@ -74,6 +78,23 @@ public class WnJobService extends WnRun implements Callable<Object> {
         if (es == null || es.isTerminated())
             es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
+        es.submit(new Runnable(){
+			public void run() {
+				long count = 0;
+				while (es != null && !es.isShutdown()) {
+					count ++;
+					Lang.quiteSleep(1000);
+					if (count % 60 != 0)
+						continue;
+					try {
+						wnRun.exec("job_clean", "root", "job clean");
+					} catch (Throwable e) {
+						log.debug("something happen when job clean");
+					}
+				}
+			}
+        	
+        });
     }
 
     public WnObj next() {

@@ -4,7 +4,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.WnRun;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
 public class job_delete extends job_abstract{
@@ -13,12 +13,12 @@ public class job_delete extends job_abstract{
         if (hc.args.length == 0) {
             throw Err.create("e.cmds.need_args");
         }
-        WnRun.sudo(sys, () -> {
+        sys.nosecurity(() -> {
             for (String id : hc.args) {
                 WnObj jobDir = sys.io.get(id);
                 if (jobDir == null)
                     continue;
-                if (!"root".equals(sys.me.name())) {
+                if (!Wn.WC().isAdminOf(sys.usrService, "root", "job")) {
                     if (!jobDir.getString("job_create_user").equals(sys.me.name())) {
                         sys.err.println("not your job id="+id);
                         continue;

@@ -26,7 +26,7 @@ public class job_list extends job_abstract {
                 
                 query.limit(params.getInt("limit", 20));
                 query.setv("job_create_user", user);
-                query.setv("job_pid", null);
+                query.exists("job_pid", false);
                 
                 List<WnObj> list = sys.io.query(query);
                 if (list == null || list.isEmpty())
