@@ -140,13 +140,13 @@ window.HmRT = {
                     return fld;
                 }
                 // 列表: .lbls:100=UL(text)->.thumb
-                m2 = /^UL\(((!(media|attachment|img):)?([^)]*))\)([-][>](.+))?$/.exec(ts);
+                m2 = /^UL(\(((!(media|attachment|img):)?([^)]*))\))?([-][>](.+))?$/.exec(ts);
                 if(m2) {
                     fld.display = "UL",
                     fld.config = {
-                        itemType : m2[3] || "text",
-                        itemKey  : m2[4],
-                        target   : m2[6],
+                        itemType : m2[4] || "text",
+                        itemKey  : m2[5],
+                        target   : m2[7],
                     };
                     return fld;
                 }
@@ -456,7 +456,7 @@ window.HmRT = {
                 // 仅仅显示一个空的产品图标
                 else {
                     jThumb = $('<div class="wn-obj-preview" empty="yes">')
-                        .html('<i class="fa fa-birthday-cake"></i>');
+                        .html('<span><i class="fas fa-image"></i></span>');
                 }
                 // 搞定返回
                 return __fld_ele(fld, jThumb).appendTo(jP);
@@ -529,7 +529,12 @@ window.HmRT = {
                         }
                         // 普通文字
                         else {
-                            var liHref = href.tmpl(li);
+                            var liHref = null;
+                            if(href && fld.linkTarget) {
+                                try{
+                                    liHref = href.tmpl(li);
+                                }catch(E){}
+                            }
                             __fld_ele_content(fld, liv, liHref)
                                 .appendTo(jLi);
                         }

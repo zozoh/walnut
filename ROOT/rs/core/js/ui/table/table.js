@@ -303,7 +303,9 @@ return ZUI.def("ui.table", {
             if(fld.hide)
                 return;
             // 表头
-            var jTd = $('<td class="tbl-col">').appendTo(jHeadRow);
+            var jTd = $('<td class="tbl-col">').attr({
+                "fld-key" : fld.key
+            }).appendTo(jHeadRow);
             jTd.append(UI.ccode("thead.cell"));
             jTd.find(".tbl-col-tt").text(UI.text(fld.title || fld.key));
 

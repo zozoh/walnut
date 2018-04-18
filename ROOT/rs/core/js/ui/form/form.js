@@ -130,7 +130,7 @@ return ZUI.def("ui.form", {
     //...............................................................
     __find_field_grp : function(jq) {
         if(_.isString(jq))
-            jq = this.arena.find(jq);
+            return this.arena.find(jq);
         // 指定的组
         if(jq && jq.length>0) {
             return jq.closest(".form-group");
@@ -141,6 +141,7 @@ return ZUI.def("ui.form", {
     //...............................................................
     collapseGroup : function(jq) {
         var selector = jq || '>.form-body>.form-body-wrapper>.form-group[grp-title="yes"]';
+        console.log(selector)
         this.__find_field_grp(selector).addClass("form-group-hide");
     },
     spreadGroup : function(jq) {
