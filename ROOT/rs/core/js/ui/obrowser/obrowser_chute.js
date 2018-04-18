@@ -21,12 +21,6 @@ return ZUI.def("ui.obrowser_chute", {
     },
     //..............................................
     events : {
-        "click .chute-show-nav" : function(e){
-            this.hideOutline();
-        },
-        "click .chute-show-outline" : function(e){
-            this.showOutline();
-        },
         "click .chute-btn b" : function(e) {
             this.browser().toogleChuteMode();
         }

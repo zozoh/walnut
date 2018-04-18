@@ -4,7 +4,7 @@ define(function (require, exports, module) {
 var methods = {
     browser : function(){
         var UI = this;
-        while(!UI.__browser__ && UI) {
+        while(UI && !UI.__browser__) {
             UI = UI.parent;
         }
         return UI;

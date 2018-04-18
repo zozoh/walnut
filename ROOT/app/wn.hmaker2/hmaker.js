@@ -84,6 +84,9 @@ return ZUI.def("app.wn.hmaker2", {
             UI.hideLoading();
             $z.doCallback(callback, []);
         }, args);
+
+        // 表示自己是异步加载
+        return true;
     },
     //...............................................................
     changeMain : function(o) {

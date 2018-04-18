@@ -99,6 +99,9 @@ return ZUI.def("ui.th_manager", {
         UI.showBlank(function(){
             UI.defer_report("blank");
         });
+
+        // 表示自己是异步加载
+        return true;
     },
     //..............................................
     openSetup : function() {

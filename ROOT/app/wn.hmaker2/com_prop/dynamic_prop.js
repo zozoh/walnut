@@ -170,6 +170,8 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         // 显示 API
         var jB = jApiInfo.children("b");
         if(oApi) {
+            jApiInfo.removeAttr("is-empty");
+            jParams.removeAttr("is-empty");
             // 更新 api info 部分
             //jApiInfo.show();
             jB.empty();

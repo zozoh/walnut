@@ -1377,7 +1377,9 @@ return ZUI.def("app.wn.hmaker_page", {
     depose : function() {
         this.arena.find(".hmpg-frame-load").unbind();
         this.arena.find(".hmpg-ibar").moving("destroy");
-        this._C.iedit.$body.moving("destroy");
+        if(this._C && this._C.iedit) {
+            this._C.iedit.$body.moving("destroy");
+        }
     },
     //...............................................................
     resize : function() {

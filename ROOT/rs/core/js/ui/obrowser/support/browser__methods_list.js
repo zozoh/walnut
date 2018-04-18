@@ -38,6 +38,9 @@ var methods = {
             // 调用回调
             $z.doCallback(callback, [objs]);
         }, true);
+
+        // 表示自己是异步加载
+        return true;
     },
     //..............................................
     getData : function(arg){

@@ -132,13 +132,19 @@ return ZUI.def("ui.obrowser_main", {
 
                 // 更新编辑器内容
                 if(_.isFunction(this.update)){
-                    this.update(o, function(){
+                    // 更新主区域
+                    var async = this.update(o, function(){
                         $z.doCallback(callback, [], UIBrowser);
-                        UI.resize();
+                        UI.resize(true);
+                        UIBrowser.__main_is_ing = false;
                     }, asetup ? asetup.args : null);
+                    // 如果是异步，则标识一下
+                    if(async) {
+                        UIBrowser.__main_is_ing = true;
+                    }
                 }
                 this.parent.trigger("browser:show", o);
-                UI.resize();
+                UI.resize(true);
             });
         });
         //}

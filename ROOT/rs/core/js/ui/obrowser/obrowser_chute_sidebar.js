@@ -189,11 +189,19 @@ return ZUI.def("ui.obrowser_chute_sidebar", {
     },
     //...................z...........................
     clickItem : function(arg, arg1) {
+        var UIBrowser = this.browser();
+
+        // 正在加载中
+        if(UIBrowser.__main_is_ing) {
+            alert("Loading data, please wait!");
+            return;
+        }
+
+        // 更新 Browser
         var jItem = this.highlightItem(arg, arg1);
         var iDate = this.getItemDate(jItem);
         if(iDate) {
-            this.browser()
-                .setData(iDate.ph, iDate.editor);
+            UIBrowser.setData(iDate.ph, iDate.editor);
         }
     },
     //...................z...........................
