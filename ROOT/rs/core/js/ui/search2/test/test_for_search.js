@@ -119,7 +119,7 @@ return ZUI.def("ui.test_for_search", {
                 tabsStatusKey : "test_pet_search_tab",
                 dhideInputBox : true,
             }, 
-            dsorter : {
+            sorter : {
                 setup : [{
                     icon : 'asc',
                     text : "按最后修改日期",
@@ -175,6 +175,7 @@ return ZUI.def("ui.test_for_search", {
     },
     //..............................................
     update : function(o) {
+        this.gasket.main.uiSorter.setData({nm:-1});
         this.gasket.main.refresh();
     }
     //..............................................

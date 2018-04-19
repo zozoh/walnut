@@ -123,7 +123,7 @@ return ZUI.def("ui.search_sorter", {
         // 依次查找 
         for(var i=0; i<opt.setup.length; i++) {
             var srt = opt.setup[i];
-            if(_.isEqual(srt, obj)){
+            if(_.isEqual(srt.value, obj)){
                 return i;
             }
         }
