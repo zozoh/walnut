@@ -3476,7 +3476,7 @@
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str, trim) {
-            var re = str ? str.replace("<", "&lt;") : str;
+            var re = _.isString(str) ? str.replace("<", "&lt;") : str;
             return trim ? $.trim(re) : re;
         },
         //.............................................

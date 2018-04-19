@@ -67,12 +67,12 @@ function __draw_fld(opt, fld, jList) {
 
     // 绘制可多选
     if(fld.multi){
-        $('<span class="fld-multi"><b></b></span>').appendTo(jFld)
+        $('<span class="fld-multi fld-btn"><b></b></span>').appendTo(jFld)
             .find("b").text(opt.btnMultiText || "Multi");
     }
 
     // 绘制更多
-    $('<span class="fld-more"><b><em></em><i></i></b></span>').appendTo(jFld)
+    $('<span class="fld-more fld-btn"><b><em></em><i></i></b></span>').appendTo(jFld)
             .find("b").attr({
                 "msg-more" : opt.btnFldMoreText || "More",
                 "msg-less" : opt.btnFldLessText || "Less",
@@ -443,8 +443,6 @@ $.fn.extend({ "hmc_filter" : function(opt){
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 监控事件
     if(!opt.forIDE) {
-        // 非 IDE 环境，显示更少选项
-        CMD.lessAllItem.call(jq, true);
         // 展开收起折叠项目
         jq.on("click", ".hmcf-exts b", function(){
             CMD.toggleFolder.call(jq);
@@ -474,10 +472,15 @@ $.fn.extend({ "hmc_filter" : function(opt){
             CMD.toggleItems.call(jq, this);
         });
     }
-    // IDE 环境，显示更多选项
-    else {
-        CMD.moreAllItem.call(jq, true);
-    }
+    // // IDE 环境，显示更多选项
+    // else {
+    //     CMD.moreAllItem.call(jq, true);
+    // }
+
+    // 非 IDE 环境，显示更少选项
+    window.setTimeout(function(){
+        CMD.lessAllItem.call(jq, true);
+    }, 100);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 返回自身以便链式赋值

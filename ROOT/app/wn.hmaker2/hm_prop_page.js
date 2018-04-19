@@ -51,11 +51,11 @@ return ZUI.def("app.wn.hm_prop_page", {
     },
     //...............................................................
     refresh : function(){
-        // var UI = this;
-        // if(UI.gasket.tabs) {
-        //     var tabMainUI = UI.gasket.tabs.getCurrentUI();
-        //     $z.invoke(tabMainUI, "refresh");
-        // }
+        var UI = this;
+        if(UI.gasket.tabs) {
+            var tabMainUI = UI.gasket.tabs.getCurrentUI();
+            $z.invoke(tabMainUI, "refresh");
+        }
     }
     //...............................................................
 });

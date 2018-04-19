@@ -279,6 +279,12 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
                         UI.moveDownField(index);
                     }
                 }
+            }, {
+                icon : '<i class="zmdi zmdi-edit"></i>',
+                text : 'i18n:hmaker.com.filter.quickedit',
+                handler : function(){
+                    UI.openFieldsQuickEditor();
+                }
             }]
         }).render(function(){
             UI.defer_report("menu");
@@ -324,6 +330,29 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
 
         // 通知修改
         UI.uiCom.saveData(null, com, true);
+    },
+    //...............................................................
+    openFieldsQuickEditor : function() {
+        var UI = this;
+        var com = UI.getComData();
+
+        // 打开编辑界面
+        POP.openEditTextPanel({
+            title    : "i18n:hmaker.com.navmenu.quickedit",
+            data     : $z.toJson(com.fields, null, '   '),
+            callback : function(str){
+                //console.log(str)
+                console.log(str);
+                try{
+                    com.fields = $z.fromJson(str);
+                    UI.uiCom.saveData(null, com, true);
+                }
+                // 格式错误
+                catch(E) {
+                    alert("非法的JSON格式");
+                }
+            }
+        }, UI);
     },
     //...............................................................
     saveField : function(index, fld, com) {

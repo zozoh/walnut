@@ -131,17 +131,29 @@ xxxx
 下面我给一个布局语法的例子:
 
 ```
->th_nm:100
-
-@50/100
+@(abc)40/100
 .thumb=Preview
+.th_cate={A:"原汁机"}
+.lbls=UL()
+----
+.th_media_list:100=UL(!media:nm)->thumb
+.data=Em
+.brief=Block
+>HTML(Em)<xyz>[-]100/?={{th_nm}}_{{th_cate}}
+  - th_cate : .th_cate={A:"原汁机"}
+~~~
 
-@50/100
- .lbls:100=UL
- T(xyz):100
- - 分类 | .th_cate={A:"猫",B:"狗"}
- - 生日 | .th_birthday=Date(yyyy-mm-dd)
- - 大小 | .len:100/?=Size(2)
+@60/100
+>th_nm<my-name>[-]:100
+T(info)100
+- 价格 | .th_price
+- 日期 | .lm=Date()
+- 大小 | .ct=Size()
+.go_models[-]=UL(text)
+!th_link:100=Button(原文链接)
+
+@100
+.content=Markdown
  
 ```
 
