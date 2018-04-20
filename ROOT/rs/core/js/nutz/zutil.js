@@ -1359,11 +1359,11 @@
             //console.log("viewport:", viewport);
             /*
              看看这个位置在页面的那个区域
-             +---+---+
-             | A | B |
-             +---+---+
-             | C | D |
-             +---+---+
+             +----+----+
+             | A [N] B |
+             +----+----+
+             | C [S] D |
+             +----+----+
              */
             var off = {
                 "top": "",
@@ -1373,7 +1373,7 @@
             };
 
             // 分析模式
-            var m = /^([VH])([ABCD])?$/.exec((mode || "H").toUpperCase());
+            var m = /^([VH])([ABCDNS])?$/.exec((mode || "H").toUpperCase());
             var mode = m ? m[1] : "H";
             // 分析一下视口所在网页的区域
             var area = (m ? m[2] : null) || (
@@ -1418,11 +1418,11 @@
             }
             // 停靠在上水平边
             /*
-             +---+---+
-             | A | B |
-             +---+---+
-             | C | D |
-             +---+---+
+             +----+----+
+             | A [N] B |
+             +----+----+
+             | C [S] D |
+             +----+----+
              */
             else {
                 // A : 左下角对齐
@@ -1447,9 +1447,23 @@
                     });
                 }
                 // D : 右上角对齐
-                else {
+                else if ("D" == area) {
                     _.extend(off, {
                         "left": rect.right - sub.width,
+                        "top": rect.top - sub.height
+                    });
+                }
+                // N : 下边中对齐
+                else if ("N" == area) {
+                    _.extend(off, {
+                        "left": rect.left - (sub.width-rect.width)/2,
+                        "top": rect.bottom
+                    });
+                }
+                // S : 上边中对齐
+                else {
+                    _.extend(off, {
+                        "left": rect.left - (sub.width-rect.width)/2,
                         "top": rect.top - sub.height
                     });
                 }
@@ -1482,6 +1496,11 @@
                 jq.css("position", "relative");
                 jTa.css("position", "absolute");
             }
+            // 得到浮动元素大小
+            var sub = {
+                width: jTa.outerWidth(true),
+                height: jTa.outerHeight(true)
+            };
             // 得到被停靠元素的矩形信息
             var rect = $z.rect(jq);
             //console.log(" rect  :", rect);
@@ -1490,11 +1509,11 @@
             //console.log("viewport:", viewport);
             /*
              看看这个位置在页面的那个区域
-             +---+---+
-             | A | B |
-             +---+---+
-             | C | D |
-             +---+---+
+             +----+----+
+             | A [N] B |
+             +----+----+
+             | C [S] D |
+             +----+----+
              */
             var off = {
                 "top": "",
@@ -1504,7 +1523,7 @@
             };
 
             // 分析模式
-            var m = /^([VH])([ABCD])?$/.exec((mode || "H").toUpperCase());
+            var m = /^([VH])([ABCDNS])?$/.exec((mode || "H").toUpperCase());
             var mode = m ? m[1] : "H";
             // 分析一下视口所在网页的区域
             var area = (m ? m[2] : null) || (
@@ -1548,11 +1567,11 @@
             }
             // 停靠在上水平边
             /*
-             +---+---+
-             | A | B |
-             +---+---+
-             | C | D |
-             +---+---+
+             +----+----+
+             | A [N] B |
+             +----+----+
+             | C [S] D |
+             +----+----+
              */
             else {
                 // A : 左下角对齐
@@ -1577,9 +1596,23 @@
                     });
                 }
                 // D : 右上角对齐
-                else {
+                else if ("D" == area) {
                     _.extend(off, {
                         "right": 0,
+                        "bottom": 0 - rect.height
+                    });
+                }
+                // N : 下边中对齐
+                else if ("N" == area) {
+                    _.extend(off, {
+                        "left": (rect.width - sub.width)/2,
+                        "top": rect.height,
+                    });
+                }
+                // S : 上边中对齐
+                else {
+                    _.extend(off, {
+                        "left": (rect.width - sub.width)/2,
                         "bottom": 0 - rect.height
                     });
                 }

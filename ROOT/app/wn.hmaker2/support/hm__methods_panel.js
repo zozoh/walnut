@@ -182,12 +182,14 @@ var methods = {
             if(text) {
                 $('<em>').text(text).appendTo(jLi);
             }
-            var pos = path.lastIndexOf('/');
-            var fnm = pos > 0 ? path.substring(pos+1) : path;
-            jLi.attr("fnm", fnm);
-            // $('<span class="del"><i class="zmdi zmdi-close"></i></span>')
-            //     .appendTo(jLi);
-            return jLi;
+            if(path) {
+                var pos = path.lastIndexOf('/');
+                var fnm = pos > 0 ? path.substring(pos+1) : path;
+                jLi.attr("fnm", fnm);
+                // $('<span class="del"><i class="zmdi zmdi-close"></i></span>')
+                //     .appendTo(jLi);
+                return jLi;
+            }
         };
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 循环添加
@@ -198,7 +200,9 @@ var methods = {
                 var s = selectors[i];
                 var t = pageUI.getCssSelectorText(s);
                 var p = pageUI.getCssSelectorPath(s);
-                gen_LI(s,t,p).appendTo(jUl);
+                var jLi = gen_LI(s,t,p);
+                if(jLi)
+                    jLi.appendTo(jUl);
             }
         }
         // 显示没有内容
@@ -246,7 +250,9 @@ var methods = {
                         var so = list[i];
                         // 没有被使用的选择器会被加入
                         if(selectors.indexOf(so.selector)<0) {
-                            gen_LI(so.selector, so.text, key).appendTo(jUl);
+                            var jLi = gen_LI(so.selector, so.text, key);
+                            if(jLi)
+                                jLi.appendTo(jUl);
                             count ++;
                         }
                     }

@@ -62,6 +62,7 @@ var methods = {
     // 绘制皮肤内置开关
     syncComSkinAttributes : function(skin){
         var UI = this;
+        //console.log(skin)
         var sattrs = $z.invoke(UI, "getSkinAttributes");
         if(_.isArray(sattrs) && sattrs.length > 0) {
             var ctype = UI.getComType();

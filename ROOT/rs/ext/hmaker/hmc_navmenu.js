@@ -77,12 +77,13 @@ var CMD = {
 
         // 自动停靠
         if(autoDock){
+            console.log("haha")
             // 得到子菜单项
             var jUl = jLi.children("ul");
 
             // 除非明确指定，否则默认顶级菜单停靠在水平边
-            if(jLi.hasClass("li-top") && "H" == autoDock){
-                $z.dockIn(jLi, jUl, "H", true);
+            if(jLi.hasClass("li-top") && /^H/.test(autoDock)){
+                $z.dockIn(jLi, jUl, autoDock, true);
             }
             // 其他子菜单一律停靠在垂直边
             else {

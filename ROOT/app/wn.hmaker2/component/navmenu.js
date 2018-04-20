@@ -37,8 +37,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
             // 激活当前项目
             this.selectItem(jLi);
 
+            // 确保皮肤被重新 resize 一下
+            this.pageUI().invokeSkin("resize");
+
             // 如果当前模式是区域选择，还需要同时高亮当前区域
-            this.fire("show:prop", "com");
+            //this.fire("show:prop", "com");
 
         },
         // 取消高亮
@@ -169,11 +172,17 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var jLi = this.$item(index);
         // 把 ICON 变成文字形式
         var icon = jLi.find(">a>i").prop("className");
-        var text = jLi.find(">a>span").text();
+        var text = jLi.find(">a>span").html();
+
+        // 将文字里的 <br> 替换回 "\n"
+        text = text.replace(/<br>/g, "\\n");
+
+        // 合并一下
         var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(icon);
         if(m) {
             text = '<' + m[2] + '>' + text;
         }
+
         // 返回对象
         return {
             index     : jLi.attr("index") * 1,
@@ -302,8 +311,11 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         }
         // 更新文字
         if(item.text) {
+            // 将文字里面的 '\n' 改成 <br>
+            var str  = $z.escapeText(item.text);
+            var html = str.replace(/(\\r)?\\n/g, "<br>");
             jLi.attr("text","show")
-                .find(">a>span").text(item.text);
+                .find(">a>span").html(html);
         } else {
             jLi.attr("text","hide")
                 .find(">a>span").text("");
@@ -605,8 +617,8 @@ return ZUI.def("app.wn.hm_com_navmenu", {
                     var jMe = $(this);
                     var jUl = jMe.children("ul");
                     if(autoDock) {
-                        if(jMe.hasClass("li-top") && "H" == autoDock){
-                            $z.dockIn(jMe, jUl, "H", true);
+                        if(jMe.hasClass("li-top") && /^H/.test(autoDock)){
+                            $z.dockIn(jMe, jUl, autoDock, true);
                         }
                         // 其他子菜单一律停靠在垂直边
                         else {
