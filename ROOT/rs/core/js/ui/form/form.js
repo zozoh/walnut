@@ -414,6 +414,7 @@ return ZUI.def("ui.form", {
     resize : function(){
         var UI  = this;
         var opt = UI.options;
+        //console.log("I am form resize")
 
         // 得到整体的宽度
         var jTitle = UI.arena.children(".form-title");
@@ -480,6 +481,8 @@ return ZUI.def("ui.form", {
         // 然后依次计算每个组宽度，和其内的字段的宽度
         jGrps.each(function(index){
             var jG    = $(this).css("width", col_widths[index % colNb]);
+            if(jG.hasClass("form-group-hide"))
+                return;
             var grp   = jG.data("@GRP");
             // zozoh: 不知道为啥有时候会有错，防守一道先，反正这个方法以后也要被重构掉 ^_^!
             if(!grp)

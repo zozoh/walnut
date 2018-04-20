@@ -365,12 +365,27 @@ var methods = {
         var UI = this;
         UI.css_style = UI.css_style || {};
         skin = skin || UI.getComSkin();
-        if(skin && selector) {
-            var ss = selector.split(/ *, */g);
-            for(var i=0; i<ss.length; i++){
-                ss[i] = "." + skin + " " + ss[i];
+        selector = $.trim(selector);
+        if(skin) {
+            if(selector) {
+                var ss = selector.split(/ *, */g);
+                for(var i=0; i<ss.length; i++){
+                    var sel = ss[i];
+                    // 替换掉自己
+                    if(/^&/.test(sel)){
+                        ss[i] = "." + skin + sel.substring(1);
+                    }
+                    // 否则拼接
+                    else {
+                        ss[i] = "." + skin + " " + sel;
+                    }
+                }
+                selector = ss.join(", ");
             }
-            selector = ss.join(", ");
+            // 仅仅补上皮肤的类选择器
+            else {
+                select = "."+skin;
+            }
         }
         if(UI.css_style[selector]){
             _.extend(UI.css_style[selector], rule);

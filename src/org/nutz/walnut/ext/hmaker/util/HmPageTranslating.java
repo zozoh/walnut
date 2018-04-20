@@ -579,11 +579,20 @@ public class HmPageTranslating extends HmContext {
      */
     public void addMySkinRule(String selector, NutMap rule) {
         String skin = this.eleCom.attr("skin");
+        selector = Strings.trim(selector);
         if (!Strings.isBlank(skin)) {
             if (!Strings.isBlank(selector)) {
                 String[] ss = Strings.splitIgnoreBlank(selector);
                 for (int i = 0; i < ss.length; i++) {
-                    ss[i] = "." + skin + " " + ss[i];
+                    String sel = ss[i];
+                    // 替换掉自己
+                    if (sel.startsWith("&")) {
+                        ss[i] = "." + skin + sel.substring(1);
+                    }
+                    // 否则拼接
+                    else {
+                        ss[i] = "." + skin + " " + sel;
+                    }
                 }
                 selector = Lang.concat(",", ss).toString();
             }
