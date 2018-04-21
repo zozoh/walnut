@@ -94,6 +94,13 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
                 emptyAsNull : false,
                 editAs : "input"
             }, {
+                key    : "seokwd",
+                title  : "i18n:hmaker.page.seokwd",
+                type   : "string",
+                dft    : "",
+                emptyAsNull : false,
+                editAs : "input"
+            }, {
                 key    : "color",
                 title  : "i18n:hmaker.prop.color",
                 type   : "string",

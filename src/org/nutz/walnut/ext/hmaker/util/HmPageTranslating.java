@@ -294,6 +294,7 @@ public class HmPageTranslating extends HmContext {
         // 解析页面
         String html = io.readText(oSrc);
         this.doc = Jsoup.parse(html);
+        this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
         // ---------------------------------------------------
         // 标识一下运行环境
         this.doc.body().parent().attr("hmaker-runtime", "yes");
@@ -303,6 +304,12 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 添加页面标题
         doc.head().appendElement("title").text(this.oSrc.getString("title", this.oSrc.name()));
+        // ---------------------------------------------------
+        // 添加 SEO 搜索关键字
+        if (this.propPage.has("seokwd")) {
+            String seokwd = this.propPage.getString("seokwd");
+            doc.head().appendElement("meta").attr("name", "keywords").attr("content", seokwd);
+        }
         // ---------------------------------------------------
         // 删除自己和下属所有节点的 style 属性
         doc.body().getElementsByAttribute("style").removeAttr("style");
@@ -355,8 +362,7 @@ public class HmPageTranslating extends HmContext {
             this.cssLinks.add(rootPath + "skin/skin.css");
         }
         // ---------------------------------------------------
-        // TODO 处理整个页面的 body
-        this.propPage = Hms.loadPropAndRemoveNode(doc.body(), "hm-page-attr");
+        // 处理整个页面的 body
         doc.body().removeAttr("assisted-off").removeAttr("assisted-on");
         // ---------------------------------------------------
         // 添加页面皮肤过滤器
