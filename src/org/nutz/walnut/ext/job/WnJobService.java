@@ -231,6 +231,11 @@ public class WnJobService extends WnRun implements Callable<Object> {
     }
     
     public void addJob(JobData jobData) {
+        if (!Strings.isBlank(jobData.cron)) {
+            // 校验cron
+            Quartz quartz = Quartz.NEW(jobData.cron);
+            log.debug("quartz cron=" + quartz);
+        }
     	String id = R.UU32();
     	WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
         WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);

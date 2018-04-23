@@ -19,10 +19,10 @@ job add [-Q] [-base64 true] [-cron $cron] [-name name] cmds
 7cq04f9lf6i6aof1a8p3vhgq57
 ```
 
-添加一个计划任务, 每天00:30分发个邮件, "秒,分,时,日,月,年,星期"
+添加一个计划任务, 每天00:30分发个邮件, "秒,分,时,日,月,年"
 
 ```
->: job add -name '定时发邮件' -cron '0 30 * * * * ?' 'email send xxxxx'
+>: job add -name '定时发邮件' -cron '0 30 * * * ?' 'email send xxxxx'
 7cq04f9lf6i6aof1a8p3vhgq57
 ```
 
