@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.lang.random.R;
 import org.nutz.repo.Base64;
 import org.nutz.walnut.ext.job.WnJobService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -52,18 +51,18 @@ public class job_add extends job_abstract {
         }
         String cron = params.get("cron");
         String name = params.get("name");
-        String id = R.UU32();
+        String[] id = new String[1];
 
         // 用根用户权限执行
         String cmdText = cmd;
         String runByUser ="root".equals(sys.me.name()) ? hc.params.get("user", "root") : sys.me.name();
         WnRun.sudo(sys, () -> {
-            WnJobService.me.addJob(id, cmdText, name, cron, sys.me.name(), runByUser, sys.se.vars());
+            id[0] = WnJobService.me.addJob(cmdText, name, cron, sys.me.name(), runByUser, sys.se.vars());
         });
 
         // 打印任务的 ID
         if (!params.is("Q"))
-            sys.out.print(id);
+            sys.out.print(id[0]);
 
         return;
     }

@@ -24,11 +24,11 @@ public class job_delete extends job_abstract{
                         continue;
                     }
                 }
-                sys.exec("rm -r id:"+jobDir.id());
+                sys.io.delete(jobDir, true);
                 WnQuery query = new WnQuery().setv("pid", jobRootDir(sys).id());
                 query.setv("job_pid", id);
                 for (WnObj ele : sys.io.query(query)) {
-                    sys.exec("rm -r id:" + ele.id());
+                    sys.io.delete(ele, true);
                 }
             }
         });

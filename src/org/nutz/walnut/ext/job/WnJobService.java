@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -226,11 +225,11 @@ public class WnJobService extends WnRun implements Callable<Object> {
     }
     
     //----------------------------------------
-    public void addJob(String id, String cmdText, String name, String cron, String createByUser, String runByUser, NutMap env) {
-        addJob(new JobData(name, cmdText, cron, createByUser, runByUser, env));
+    public String addJob(String cmdText, String name, String cron, String createByUser, String runByUser, NutMap env) {
+        return addJob(new JobData(name, cmdText, cron, createByUser, runByUser, env));
     }
     
-    public void addJob(JobData jobData) {
+    public String addJob(JobData jobData) {
         if (!Strings.isBlank(jobData.cron)) {
             // 校验cron
             Quartz quartz = Quartz.NEW(jobData.cron);
@@ -250,5 +249,6 @@ public class WnJobService extends WnRun implements Callable<Object> {
         metas.put("job_st", "wait");
         metas.put("job_env", jobData.env);
         io.appendMeta(jobDir, metas);
+        return jobDir.id();
     }
 }
