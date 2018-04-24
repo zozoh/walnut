@@ -29,6 +29,7 @@ public class WnLaunchNotiSetup implements Setup {
                     List<String> receivers = conf.getList("noti-receivers", ",");
                     for (String to : receivers) {
                         log.infof("send startup-noti email to %s", to);
+                        String serverName = conf.get("noti-server", "未命名");
                         try {
                             HtmlEmail email = new HtmlEmail();
                             email.setHostName(conf.get("noti-host"));
@@ -37,8 +38,11 @@ public class WnLaunchNotiSetup implements Setup {
                                                     conf.get("noti-password"));
                             email.setSSLOnConnect(conf.getBoolean("noti-ssl"));
                             email.setCharset(Encoding.UTF8);
-                            email.setSubject("WalnutServer is started");
-                            email.setHtmlMsg("WalnutServer is started on " + Times.sDT(new Date()));
+                            email.setSubject("WalnutServer[" + serverName + "] Restart!");
+                            email.setHtmlMsg("WalnutServer["
+                                             + serverName
+                                             + "] is started on "
+                                             + Times.sDT(new Date()));
                             email.setFrom(conf.get("noti-account"), "NutzTeam");
                             email.addTo(to);
                             email.buildMimeMessage();
