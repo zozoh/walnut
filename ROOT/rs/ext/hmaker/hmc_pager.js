@@ -139,6 +139,8 @@ var CMD = {
         // 获取值
         var pn = this.attr("pn") * 1;
         var pgsz = this.attr("pgsz") * 1;
+        if(isNaN(pn) || pn<=0)
+            pn = 1;
         return {
             pn : pn, 
             pgsz : pgsz,

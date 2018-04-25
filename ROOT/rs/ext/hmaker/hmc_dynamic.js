@@ -12,7 +12,8 @@ function draw_data(jData, opt, data) {
     //console.log("dynamic draw", data);
     var d2 = HmRT.convertDataForTmpl(data, tmplInfo.dataType);
     if(HmRT.isDataEmptyForTmpl(d2, tmplInfo.dataType)) {
-         $('<div class="msg-info">').text("No Data").appendTo(jData);
+        var str = opt.tipNoData || "No Data";
+        $('<div class="msg-info">').text(str).appendTo(jData);
         return;
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,6 +58,7 @@ function each_pager(opt, callback){
 }
 //...........................................................
 function do_update_pager(opt, pager) {
+    //console.log("do_update_pager")
     if(pager){
         each_pager(opt, function(jPager){
             jPager.hmc_pager("value", pager);
@@ -124,7 +126,7 @@ function do_reload(jData, jumpToHead, callback){
     // 将参数处理成可向数据接口提交的形式
     var params;
     try{
-        params = conver_params(opt);
+        params = conver_params(opt) || {};
     }
     // 处理参数解析的错误
     catch(errMsg){
@@ -132,6 +134,24 @@ function do_reload(jData, jumpToHead, callback){
         throw errMsg;
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 检查一下，如果没有过滤参数，则不进行加载
+    // console.log(opt)
+    if(opt.apiInfo.pa_cnd_keys) {
+        var cnd = $z.pick(params, opt.apiInfo.pa_cnd_keys);
+        // console.log("CND:", cnd);
+        if(_.isEmpty(cnd)) {
+            // 更新一下本地存储数据，这样 page.hm_hierarchy 会用的到
+            jData.closest(".hm-com-dynamic").data("@WNDATA", null);
+
+            // 显示信息
+            var str = opt.tipNoCnd || "&nbsp;";
+            $('<div class="msg-info">').html(str).appendTo(jData.empty());
+            return;
+        }
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 请求
     var method = opt.apiInfo.api_method == "POST" ? "post" : "get";
     $[method](opt.apiUrl, params||{}, function(re){
@@ -158,6 +178,24 @@ function draw_api_result(jData, re, opt) {
     try {
         // 记录数据
         var data = $z.fromJson(re);
+
+        // API 返回的还是错误
+        if(_.isBoolean(data.ok) && !data.ok && data.errCode) {
+            // 条件不足
+            if("e.cmd.httpapi.invoke.nocnd" == data.errCode) {
+                var str = opt.tipNoCnd || "&nbsp;";
+                $('<div class="msg-info">')
+                    .html(str)
+                        .appendTo(jData);
+            }
+            // 其他错误
+            else {
+                $('<div class="msg-error">')
+                    .text(data.errCode)
+                        .appendTo(jData);
+            }
+            return jData;
+        }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 如果数据是翻页信息，那么还需要找到翻页控件，并更新它的值

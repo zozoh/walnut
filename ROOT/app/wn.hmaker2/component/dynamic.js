@@ -150,6 +150,26 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 检查一下，如果没有过滤参数，则不进行加载
+        // console.log(opt)
+        if(oApi.pa_cnd_keys) {
+            var cnd = $z.pick(params, oApi.pa_cnd_keys);
+            // console.log("CND:", cnd);
+            if(_.isEmpty(cnd)) {
+                // 更新一下本地存储数据，这样 page.hm_hierarchy 会用的到
+                UI.$el.data("@WNDATA", null);
+
+                // 显示信息
+                var str = com.tipNoCnd || "&nbsp;";
+                $('<div class="msg-info">').html(str).appendTo(jData);
+
+                // 绘制重新加载按钮
+                UI.__draw_dynamic_reload();
+                return;
+            }
+        }     
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 显示正在加载
         UI.__tip("api_loading", "api-loading", jData);
 
@@ -301,7 +321,10 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         var d2 = HmRT.convertDataForTmpl(data, tmplInfo.dataType);
         //console.log(d2);
         if(HmRT.isDataEmptyForTmpl(d2, tmplInfo.dataType)) {
-            UI.__tip("api_empty", "api-no-data", jData);
+            // UI.__tip("api_empty", "api-no-data", jData);
+            // 显示信息
+            var str = com.tipNoData || "No Data";
+            $('<div class="msg-info">').html(str).appendTo(jData);
             return;
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

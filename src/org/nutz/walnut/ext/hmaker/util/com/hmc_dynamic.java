@@ -270,7 +270,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
             return null;
 
         // 记入 API 信息
-        com.put("apiInfo", oApi.pick("params", "api_method", "api_return"));
+        com.put("apiInfo", oApi.pick("params", "api_method", "api_return", "pa_cnd_keys"));
 
         // 得到 api 的URL
         String API = "/api";

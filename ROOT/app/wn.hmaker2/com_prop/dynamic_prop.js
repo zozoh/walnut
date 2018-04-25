@@ -17,8 +17,11 @@ var html = `
         <b></b>
     </aside>
     <section class="api-params" ui-gasket="params"></section>
+
+    <h4 l-key="hide_part_behavior">{{hmaker.com.dynamic.behavior}}</h4>
+    <section class="behavior" ui-gasket="behavior"></section>
+    
     <h4 l-key="hide_part_tmpl_opt">{{hmaker.com.dynamic.template}}</h4>
-    <!--header  class="tmpl" ui-gasket="template"></header-->
     <section class="tmpl-options" ui-gasket="options"></section>
 </div>`;
 //==============================================
@@ -81,9 +84,44 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         }).render(function(){
             UI.defer_report("api");
         });
+
+        // 行为配置
+        new FormUI({
+            parent : UI,
+            gasketName : "behavior",
+            uiWidth : "all",
+            mergeData : false,
+            on_change : function(){
+                var data = this.getData();
+                UI.uiCom.saveData(null, data, true);
+            },
+            fields : [{
+                key : "tipNoData",
+                title : "i18n:hmaker.com.dynamic.tip_nodata",
+                tip : "i18n:hmaker.com.dynamic.tip_nodata_tip",
+                dft : "",
+                uiConf : {
+                    placeholder : "No Data"
+                }
+            }, {
+                key : "needCondition",
+                title  : "i18n:hmaker.com.dynamic.need_cnd",
+                tip    : "i18n:hmaker.com.dynamic.need_cnd_tip",
+                uiWidth : "auto",
+                type   : "boolean",
+                uiType : "@toggle",
+            }, {
+                key : "tipNoCnd",
+                title : "i18n:hmaker.com.dynamic.tip_need_cnd",
+                tip : "i18n:hmaker.com.dynamic.tip_need_cnd_tip",
+                dft : "",
+            }]
+        }).render(function(){
+            UI.defer_report("behavior");
+        });
         
         // 返回延迟加载
-        return ["api"];
+        return ["api", "behavior"];
     },
     //...............................................................
     isAsyncUpdate : function(){
@@ -97,6 +135,9 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
         var jOptions = UI.arena.find(">.tmpl-options");
 
         //console.log("prop update", UI.uiCom.getComSkin(), com)
+        //-----------------------------------------------------
+        // 更新 behavior
+        UI.gasket.behavior.setData(com);
 
         // 如果发现属性有不正确的，会标记这个变量，以便通知组件重绘
         var raw_com_json = $z.toJson(com);
