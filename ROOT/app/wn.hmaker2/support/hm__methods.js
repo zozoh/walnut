@@ -361,23 +361,30 @@ var methods = {
 
         // 重新读取
         if(!_.isArray(list)) {
-            var re = Wn.exec("obj -mine -match \"api_return:'^([a-z]+)$'\""
-                             + " -json -l -sort 'pid:1,nm:1'");
+            // var re = Wn.exec("obj -mine -match \"api_return:'^([a-z]+)$'\""
+            //                  + " -json -l -sort 'pid:1,nm:1'");
+            // list = $z.fromJson(re);
+            var re = Wn.exec("obj ~/.regapi/api -tree -treeFlat -treeDepth 0 -sort 'nm:1' -json -l");
             list = $z.fromJson(re);
         }
-
+        //console.log(list)
         // 准备返回过滤结果
-        if(_.isFunction(filter)) {
-            var list2 = [];
-            for(var i=0; i<list.length; i++){
-                var oApi = list[i];
-                if(filter(oApi))
-                    list2.push(oApi);
-            }
-            return list2;
+        var hasFilter = _.isFunction(filter);
+        var list2 = [];
+        for(var i=0; i<list.length; i++){
+            var oApi = list[i];
+            if('FILE' != oApi.race)
+                continue;
+
+            if(!oApi.api_return)
+                continue;
+
+            if(hasFilter && !filter(oApi))
+                continue;
+
+            list2.push(oApi);
         }
-        // 直接返回
-        return list;
+        return list2;
     },
     //=========================================================
     // 站点的模板

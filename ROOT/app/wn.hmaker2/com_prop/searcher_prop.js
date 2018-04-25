@@ -4,9 +4,16 @@ $z.declare([
     'wn/util',
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/form/form',
-], function(ZUI, Wn, HmMethods, FormUI){
+    'ui/form/c_droplist',
+], function(ZUI, Wn, HmMethods, FormUI, DroplistUI){
 //==============================================
-var html = '<div class="ui-arena hmc-searcher-prop" ui-fitparent="yes" ui-gasket="form"></div>';
+var html = `
+<div class="ui-arena hmc-searcher-prop" ui-fitparent="yes" >
+    <section class="hmcs-form" ui-gasket="form"></section>
+    <h4>{{hmaker.com.searcher.tip_by}}</h4>
+    <section class="hmcs-tip-api" ui-gasket="tip_api"></section>
+    <section class="hmcs-tip-opt" ui-gasket="tip_opt"></section>
+</div>`;
 //==============================================
 return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
     dom  : html,
@@ -14,11 +21,15 @@ return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
     redraw : function() {
         var UI  = this;
 
+        // 得到 API 的主目录
+        var oApiHome = Wn.fetch("~/.regapi/api");
+
         // 通用样式设定
         new FormUI({
             parent : UI,
             gasketName : "form",
             uiWidth : "all",
+            fitparent : false,
             on_update : function(com) {
                 UI.uiCom.saveData("panel", com);
             },
@@ -84,13 +95,88 @@ return ZUI.def("app.wn.hm_com_searcher_prop", HmMethods({
             UI.defer_report("form");
         });
 
+        // 显示提示列表
+        new DroplistUI({
+            parent : UI,
+            gasketName : "tip_api",
+            emptyItem : {},
+            items : function(){
+                return UI.getHttpApiList(function(oApi){
+                    return HmRT.isMatchDataType(oApi.api_return, "StringArray");
+                })
+            },
+            itemData : function(o) {
+                var ph = "/" + Wn.getRelativePath(oApiHome, o);
+                return {
+                    icon  : '<i class="fa fa-plug"></i>',
+                    text  : o.title,
+                    value : ph,
+                    tip   : ph,
+                };
+            },
+            on_change : function(v){
+                UI.uiCom.saveData(null, {tipApi:v, tipParams:{}}, true);
+            }
+        }).render(function(){
+            UI.defer_report("tip_api");
+        });
+
         // 返回延迟加载
-        return ["form"];
+        return ["form", "tip_api"];
     },
     //...............................................................
     update : function(com) {
-        this.gasket.form.setData(com);
+        var UI = this;
+        UI.gasket.form.setData(com);
+        UI.gasket.tip_api.setData(com.tipApi);
+
+        // 得到 api 对象
+        var oApi = com.tipApi ? Wn.fetch("~/.regapi/api" + com.tipApi)
+                              : null;
+
+        // 如果有了 api，那么显示一下 api 的表单
+        if(oApi) {
+            // 更新就好
+            if(UI.gasket.tip_opt) {
+                UI.gasket.tip_opt.setData(com.tipParams || {});
+            }
+            // 生成新的表单
+            else {
+                var fields = UI._eval_form_fields_by_dsetting(oApi.params);
+                new FormUI({
+                    parent     : UI,
+                    gasketName : "tip_opt",
+                    mergeData  : false,
+                    fitparent  : false,
+                    uiWidth :"all",
+                    fields     : fields,
+                    on_update  : function(){
+                        var data = this.getData();
+                        UI.uiCom.saveData("panel", $z.obj("tipParams", data), true);
+                    }
+                }).render(function(){
+                    this.setData(com.tipParams || {});
+                });
+            }
+        }
+        // 否则，注销表单
+        else if(UI.gasket.tip_opt) {
+            UI.gasket.tip_opt.destroy();
+        }
     },
+    //...............................................................
+    resize : function() {
+        var UI = this;
+        var jForm = UI.arena.find(">.hmcs-form");
+        var jH4   = UI.arena.find(">h4");
+        var jTipApi = UI.arena.find(">.hmcs-tip-api");
+        var jTipOpt = UI.arena.find(">.hmcs-tip-opt");
+        var H = UI.arena.height();
+        var h0 = jForm.outerHeight(true);
+        var h1 = jH4.outerHeight(true);
+        var h2 = jTipApi.outerHeight(true);
+        jTipOpt.css("height", H - h0 - h1 - h2);
+    }
     //...............................................................
 }));
 //===================================================================

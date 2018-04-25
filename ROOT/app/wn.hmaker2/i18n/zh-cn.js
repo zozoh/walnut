@@ -414,6 +414,7 @@ define({
                 "postTarget_self"  : "本窗口",
                 "postParamName" : "提交参数名",
                 "loadreq_tip" : "将从请求参数 \"{{pmnm}}\" 读取搜索关键字",
+                "tip_by"    : "提示接口",
             },
             "filter" : {
                 "name"  : "筛选条件",

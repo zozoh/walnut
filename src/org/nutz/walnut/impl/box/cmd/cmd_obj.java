@@ -36,7 +36,7 @@ public class cmd_obj extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) {
         ZParams params = ZParams.parse(args,
                                        "iocnqhbslAVNPHQ",
-                                       "^(IfNoExists|mine|pager|ExtendDeeply|hide)$");
+                                       "^(IfNoExists|mine|pager|ExtendDeeply|hide|treeFlat)$");
 
         WnPager wp = new WnPager(params);
 
@@ -324,7 +324,29 @@ public class cmd_obj extends JvmExecutor {
         for (WnObj o : list) {
             __do_tree_in_loop(sys, list2, flt, q, o, treeDepth, 0);
         }
+
+        // 是否抹平 Tree
+        if (params.is("treeFlat")) {
+            List<WnObj> list3 = new LinkedList<>();
+            for (WnObj o : list2) {
+                __flat_tree_in_loop(o, list3);
+            }
+            list2 = list3;
+        }
+
+        // 搞定返回
         return list2;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void __flat_tree_in_loop(WnObj o, List<WnObj> output) {
+        List<WnObj> children = (List<WnObj>) o.remove("children");
+        output.add(o);
+        if (null != children && children.size() > 0) {
+            for (WnObj child : children) {
+                __flat_tree_in_loop(child, output);
+            }
+        }
     }
 
     private void __do_tree_in_loop(WnSystem sys,
@@ -335,7 +357,7 @@ public class cmd_obj extends JvmExecutor {
                                    int wantDepth,
                                    int currDepth) {
         // 匹配的就展开
-        if (o.isDIR() && flt.match(o) && wantDepth > currDepth) {
+        if (o.isDIR() && flt.match(o) && (0 == wantDepth || wantDepth > currDepth)) {
             // 准备子节点
             List<WnObj> children = new ArrayList<WnObj>();
             o.setv("children", children);
@@ -869,9 +891,9 @@ public class cmd_obj extends JvmExecutor {
 
     private void __do_update(WnSystem sys, NutMap u_map, List<WnObj> list) {
         u_map.remove("id");
-        
+
         // TODO 这里是不是要检查一下重名啊!
-        
+
         // 将日期的字符串，搞一下
         for (Map.Entry<String, Object> en : u_map.entrySet()) {
             Object v = en.getValue();
