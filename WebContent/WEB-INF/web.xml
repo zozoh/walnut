@@ -3,7 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-	
+	<!-- access log -->
+    <filter>
+        <filter-name>alog</filter-name>
+        <filter-class>org.nutz.walnut.jetty.AccessLogFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>alog</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 	<!-- walnut domain 转换 -->
     <filter>
         <filter-name>walnutFilter</filter-name>
