@@ -19,6 +19,7 @@ define(function (require, exports, module) {
 
             // 展开内嵌的 DOM 节点
             jCon.find('[hm-inner-html]').each(function () {
+                //console.log("haha")
                 var jq = $(this);
                 var ph = jq.attr("hm-inner-html");
                 seajs.use(ph, function (re) {
@@ -1701,6 +1702,7 @@ define(function (require, exports, module) {
 
 // 这个函数用来定义一个 UI 模块，返回一个 Backbone.View 的类用来实例化
     ZUI.def = function (uiName, conf) {
+        //console.log("def", uiName)
         var uiDef = this.definitions[uiName];
         if (!uiDef) {
             // 准备配置对象的默认属性

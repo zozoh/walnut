@@ -172,10 +172,21 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var jLi = this.$item(index);
         // 把 ICON 变成文字形式
         var icon = jLi.find(">a>i").prop("className");
-        var text = jLi.find(">a>span").html();
-
-        // 将文字里的 <br> 替换回 "\n"
-        text = text.replace(/<br>/g, "\\n");
+        
+        // 处理文本
+        var jSpan = jLi.find(">a>span");
+        var jEms  = jSpan.find('em');
+        if(jEms.length > 0) {
+            var ss = [];
+            for(var i=0; i<jEms.length; i++){
+                ss.push(jEms.eq(i).text());
+            }
+            text = ss.join('\\n');
+        }
+        // 否则直接用文本
+        else {
+            text = jSpan.text();
+        }
 
         // 合并一下
         var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(icon);
@@ -300,7 +311,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         //console.log(m, item)
         if(m){
             item.icon = m[1];
-            item.text = m[4];
+            item.text = $.trim(m[4]);
         }
         if(!item.icon) {
             jLi.attr("icon","hide")
@@ -313,7 +324,19 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         if(item.text) {
             // 将文字里面的 '\n' 改成 <br>
             var str  = $z.escapeText(item.text);
-            var html = str.replace(/(\\r)?\\n/g, "<br>");
+            var ss   = str.split(/\\n/g);
+            console.log(ss)
+            var html;
+            if(ss.length == 1) {
+                html = ss[0];
+            }
+            // 否则一行一个
+            else {
+                for(var i=0; i<ss.length;i++){
+                    ss[i] = '<em>' + ss[i] + '</em>';
+                }
+                html = ss.join('');
+            }
             jLi.attr("text","show")
                 .find(">a>span").html(html);
         } else {

@@ -14,6 +14,17 @@ define({
         "action" : {
             "dup_tip" : "请输入新副本的名称"
         },
+        "menu" : {
+            "create"       : "新建 ...",
+            "site_new"     : "新建站点...",
+            "site_dup"     : "复制当前站点...",
+            "site_del"     : "删除当前站点",
+            "site_conf"    : "站点设置",
+            "pub_site"     : "整站发布",
+            "pub_site_tip" : "将站点全部内容发布你预先设置好的目录(可以在站点配置动设置)。",
+            "pub_current_page" : "发布当前页",
+            "rename_lib"   : "重命名库组件 ...",
+        },
         "link" : {
             "none"   : "无链接",
             "auto"   : "自动匹配目标页面",
@@ -25,6 +36,9 @@ define({
             "params_tip" : "页面参数会附在页面地址后面，用GET请求发出",
             "anchor" : "页内锚点",
             "anchor_tip" : "如果目标页面为空，锚点是从你正在编辑的这个页面中选出的",
+        },
+        "welcome" : {
+            "quick_help" : "快速介绍"
         },
         "edit" : {
             "pick_area" : "选择一个目标区域",

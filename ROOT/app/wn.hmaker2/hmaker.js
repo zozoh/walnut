@@ -6,6 +6,7 @@ $z.declare([
     'ui/pop/pop',
     'app/wn.hmaker2/support/hm__methods',
     'app/wn.hmaker2/support/hm__methods_panel',
+    'app/wn.hmaker2/hm_welcome',
     'app/wn.hmaker2/hm_resource',
     'app/wn.hmaker2/hm_page',
     'app/wn.hmaker2/hm_prop',
@@ -14,7 +15,8 @@ $z.declare([
     'app/wn.hmaker2/hm_code',
     'app/wn.hmaker2/hm_other',
 ], function(ZUI, Wn, MaskUI, POP,
-    HmMethods, HmPanelMethods, 
+    HmMethods, HmPanelMethods,
+    HmWelcomeUI,
     HmResourceUI, 
     HmPageUI, 
     HmPropUI,
@@ -56,25 +58,33 @@ return ZUI.def("app.wn.hmaker2", {
         var UI  = this;
 
         UI.showLoading();
+
+        // 欢迎页
+        new HmWelcomeUI({
+            parent : UI,
+            gasketName : "main"
+        }).render(function(){
+            UI.defer_report("welcome");
+        });
         
         // 资源面板
-        HmPanelMethods(new HmResourceUI({
+        new HmResourceUI({
             parent : UI,
             gasketName : "resource"
-        })).render(function(){
+        }).render(function(){
             UI.defer_report("resource");
         });
 
         // 属性面板
-        HmPanelMethods(new HmPropUI({
+        new HmPropUI({
             parent : UI,
             gasketName : "prop"
-        })).render(function(){
+        }).render(function(){
             UI.defer_report("prop");
         });
 
         // 返回延迟加载
-        return ["resource", "prop"];
+        return ["welcome", "resource", "prop"];
     },
     //...............................................................
     update : function(o, callback, args) {
@@ -116,7 +126,7 @@ return ZUI.def("app.wn.hmaker2", {
             }
         }
         // 如果是 css 或者 js 也是用代码视图
-        else if(/^(css|js)$/.test(o.tp)) {
+        else if(/^(css|js|txt|json|xml)$/.test(o.tp)) {
             MainUI = HmCodeUI;
         }
         // 其他的显示预览界面

@@ -48,6 +48,41 @@
         }
     }
     //.............................................................
+    // 欢迎信息
+    .hm-welcome {
+        padding:@d7;
+        > header {
+            width:100%; padding:@d5;
+            border-bottom:1px dashed @cborder1;
+            text-align: center;
+        }
+        > .hmwe-art {
+            width:6.4rem; font-size:.16rem; line-height: 1.8em;
+            letter-spacing: .1em; color:@c2;
+            margin:.3rem auto;
+            article {
+                h1 {
+                    font-size: 1.5em; font-weight: normal; 
+                    margin:0; padding:.2rem;
+                    text-align: center;
+                }
+                ul{list-style: circle;}
+                ol{list-style: decimal;}
+                ul, ol {
+                    padding:.2rem; margin:.1rem .1rem .1rem .3rem;
+                    li {padding:.1rem;}
+                }
+                blockquote {
+                    text-align: center; padding:0 .1rem; marign:0;
+                    color:@c3;
+                }
+            }
+        }
+        > .hmwe-opt {
+            width:2rem;
+        }
+    }
+    //.............................................................
     // 属性面板
     .hm-con-prop {
         .hm-panel {
