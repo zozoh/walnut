@@ -33,6 +33,11 @@ public class hmc_searcher extends AbstractSimpleCom {
         if (!Strings.isBlank(dfv))
             ing.eleCom.attr("default-value", dfv);
 
+        // 增加 API 选项
+        String API = "/api";
+        ing.propCom.put("API", API);
+        ing.propCom.put("apiDomain", ing.domainName);
+
         // ...........................................
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_searcher.js");

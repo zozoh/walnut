@@ -266,6 +266,26 @@ ul, ol {list-style: none; margin:0; padding:0;}
             padding:@d2 @d4; font-size:@f3; border:1px solid @cborder1;
         }
     }
+    ul.search-tip {
+        z-index: 99;
+        background:#FFF; color:#888; 
+        border:1px solid rgba(30,30,30,0.6);
+        padding:0; margin:0;
+        li {
+            border-top:1px dashed rgba(0,0,0,0.1);
+            line-height: 2.6em; cursor: pointer;
+            padding:0 .1rem;
+            &:first-child{border:0};
+            &:hover,
+            &[current]{
+                background:rgba(0,0,0,0.06);
+            }
+            em {
+                font-weight: bold; color:#003; font-style: normal;
+                margin:0 .1em;
+            }
+        }
+    }
 }
 
 /**

@@ -234,7 +234,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt, arg){
     }
 
     // 当本机测试环境下，修改 apiUrl
-    if(opt.apiUrl && /https?:\/\/(localhost|127.0.0.1)/.test(window.location.href)){
+    if(opt.apiUrl && /^https?:\/\/(localhost|127.0.0.1)/.test(window.location.href)){
         opt.apiUrl = "/api/" + opt.apiDomain + opt.api;
         if(opt.options && opt.options.API) {
             opt.options.API += "/" + opt.apiDomain;
