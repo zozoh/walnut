@@ -162,7 +162,7 @@ return ZUI.def("app.wn.hm_com_text", {
     getBlockPropFields : function(block) {
         return [block.mode == 'inflow' ? "margin" : null,
                 "padding","border","borderRadius", "textAlign",
-                "fontFamily","_font","fontSize",
+                "fontFamily","fontSize",
                 "lineHeight","letterSpacing","textShadow",
                 "color", "background",
                 "boxShadow","overflow"];
