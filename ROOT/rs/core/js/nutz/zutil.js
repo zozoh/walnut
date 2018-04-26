@@ -1353,7 +1353,7 @@
             };
             // 得到被停靠元素的矩形信息
             var rect = $D.rect.gen(jq);
-            console.log(" rect  :", rect);
+            //console.log(" rect  :", rect);
             // 计算页面的中点
             var viewport = $z.winsz();
             //console.log("viewport:", viewport);

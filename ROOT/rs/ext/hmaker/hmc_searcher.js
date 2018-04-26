@@ -235,15 +235,24 @@ $.fn.extend({ "hmc_searcher" : function(opt){
                 return;
             on_show_tip(opt, jq);
         });
-        // jq.on("blur", ".kwd-input input", function(e){
-        //     window.setTimeout(function(){
-        //         do_hide_tip(opt, jq);
-        //     }, 500);
-        // });
+        jq.on("blur", ".kwd-input input", function(e){
+            window.setTimeout(function(){
+                do_hide_tip(opt, jq);
+            }, 500);
+        });
         // 点击选择输入
         jq.on("click", ".search-tip li", function(e){
             jInput.val($(this).text());
             do_hide_tip(opt, jq);
+            do_search(opt, jq);
+        });
+        // 增加 scroll 事件监听，以便确保停靠
+        window.addEventListener("scroll", function(){
+            var jUl = jq.find('.search-tip');
+            if(jUl.length > 0) {
+                var jInput = jq.find(".kwd-input input");
+                $z.dock(jInput, jUl, "H");        
+            }
         });
         // 上下方向键
         jq.on("keydown", ".kwd-input input", function(e){
