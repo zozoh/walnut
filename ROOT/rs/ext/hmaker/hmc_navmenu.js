@@ -77,7 +77,7 @@ var CMD = {
 
         // 自动停靠
         if(autoDock){
-            console.log("haha")
+            //console.log("haha")
             // 得到子菜单项
             var jUl = jLi.children("ul");
 

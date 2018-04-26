@@ -240,7 +240,10 @@ public class hmc_dynamic extends AbstractNoneValueCom {
         }
 
         // 最后调用命令
-        cmds.add("httpapi invoke '" + api + "' -get @pipe");
+        String cmdText = "httpapi invoke '" + api + "' -get @pipe";
+        if (ing.propCom.getBoolean("needCondition"))
+            cmdText += " -ncnd pa_cnd_keys";
+        cmds.add(cmdText);
 
         // 加入 DOM
         eleDscript.text(Strings.join(" | ", cmds));

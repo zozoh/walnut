@@ -46,8 +46,9 @@ public class httpapi_invoke implements JvmHdl {
 
                 // .....................................................
                 // 如果 api 声明了 pa_cnd_keys
-                if (oApi.has("pa_cnd_keys")) {
-                    String pa_cnd_keys = oApi.getString("pa_cnd_keys");
+                String cndKey = hc.params.get("ncnd");
+                if (!Strings.isBlank(cndKey) && oApi.has(cndKey)) {
+                    String pa_cnd_keys = oApi.getString(cndKey);
                     NutMap qs_cnd = qs.pickBy(pa_cnd_keys);
                     NutMap po_cnd = postMap.pickBy(pa_cnd_keys);
                     if (qs_cnd.isEmpty() && po_cnd.isEmpty()) {

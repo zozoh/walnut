@@ -137,7 +137,7 @@ function do_reload(jData, jumpToHead, callback){
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 检查一下，如果没有过滤参数，则不进行加载
     // console.log(opt)
-    if(opt.apiInfo.pa_cnd_keys) {
+    if(opt.needCondition && opt.apiInfo.pa_cnd_keys) {
         var cnd = $z.pick(params, opt.apiInfo.pa_cnd_keys);
         // console.log("CND:", cnd);
         if(_.isEmpty(cnd)) {

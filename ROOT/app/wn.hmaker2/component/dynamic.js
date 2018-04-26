@@ -152,7 +152,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 检查一下，如果没有过滤参数，则不进行加载
         // console.log(opt)
-        if(oApi.pa_cnd_keys) {
+        if(com.needCondition && oApi.pa_cnd_keys) {
             var cnd = $z.pick(params, oApi.pa_cnd_keys);
             // console.log("CND:", cnd);
             if(_.isEmpty(cnd)) {

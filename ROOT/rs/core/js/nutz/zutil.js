@@ -1352,8 +1352,8 @@
                 height: jTa.outerHeight(true)
             };
             // 得到被停靠元素的矩形信息
-            var rect = $z.rect(jq);
-            //console.log(" rect  :", rect);
+            var rect = $D.rect.gen(jq);
+            console.log(" rect  :", rect);
             // 计算页面的中点
             var viewport = $z.winsz();
             //console.log("viewport:", viewport);
@@ -1443,14 +1443,14 @@
                 else if ("C" == area) {
                     _.extend(off, {
                         "left": rect.left,
-                        "top": rect.top - sub.height
+                        "bottom": viewport.height - rect.top
                     });
                 }
                 // D : 右上角对齐
                 else if ("D" == area) {
                     _.extend(off, {
                         "left": rect.right - sub.width,
-                        "top": rect.top - sub.height
+                        "bottom": viewport.height - rect.top
                     });
                 }
                 // N : 下边中对齐
@@ -1464,7 +1464,7 @@
                 else {
                     _.extend(off, {
                         "left": rect.left - (sub.width-rect.width)/2,
-                        "top": rect.top - sub.height
+                        "bottom": viewport.height - rect.top
                     });
                 }
             }

@@ -235,11 +235,11 @@ $.fn.extend({ "hmc_searcher" : function(opt){
                 return;
             on_show_tip(opt, jq);
         });
-        jq.on("blur", ".kwd-input input", function(e){
-            window.setTimeout(function(){
-                do_hide_tip(opt, jq);
-            }, 500);
-        });
+        // jq.on("blur", ".kwd-input input", function(e){
+        //     window.setTimeout(function(){
+        //         do_hide_tip(opt, jq);
+        //     }, 500);
+        // });
         // 点击选择输入
         jq.on("click", ".search-tip li", function(e){
             jInput.val($(this).text());

@@ -54,10 +54,12 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
     redraw : function() {
         var UI = this;
 
-        // 初始化两个部分的本地状体
+        // 初始化各个部分的本地状体
         var jH4Api = UI.arena.find('> h4[l-key="hide_part_api_info"]');
+        var jH4Beh = UI.arena.find('> h4[l-key="hide_part_behavior"]');
         var jH4Opt = UI.arena.find('> h4[l-key="hide_part_tmpl_opt"]');
         UI.showHidePart(jH4Api, UI.local(jH4Api.attr("l-key"))? true : false);
+        UI.showHidePart(jH4Beh, UI.local(jH4Beh.attr("l-key"))? true : false);
         UI.showHidePart(jH4Opt, UI.local(jH4Opt.attr("l-key"))? true : false);
 
         // 得到 API 的主目录
@@ -91,6 +93,7 @@ return ZUI.def("app.wn.hm_com_dynamic_prop", {
             gasketName : "behavior",
             uiWidth : "all",
             mergeData : false,
+            fitparent : false,
             on_change : function(){
                 var data = this.getData();
                 UI.uiCom.saveData(null, data, true);
