@@ -5,7 +5,8 @@ $z.declare([
     'app/wn.hmaker2/support/hm__methods_panel',
     'ui/form/form',
     'ui/form/c_switch',
-], function(ZUI, Wn, HmMethods, FormUI, SwitchUI){
+    'ui/pop/pop'
+], function(ZUI, Wn, HmMethods, FormUI, SwitchUI, POP){
 //==============================================
 var html = `
 <div class="ui-arena hm-prop-block">
@@ -54,7 +55,8 @@ var html = `
     </div>
     <div class="hmpb-skin">
         <em>{{hmaker.prop.block_skin}}</em>
-        <a>{{hmaker.prop.block_reset}}</em>
+        <a m="reset">{{hmaker.prop.block_reset}}</a>
+        <a m="quickedit">{{hmaker.prop.quickedit}}</a>
     </div>
     <div class="hmpb-form" ui-gasket="form"></div>
 </div>`;
@@ -178,7 +180,7 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
 
         },
         // 重置外观
-        "click .hmpb-skin a" : function(e) {
+        'click .hmpb-skin a[m="reset"]' : function(e) {
             // 得到外观数据，清除除了尺寸以外其他的设置
             var block = this.uiCom.getBlock();
             var b2 = $z.pick(block, /^(mode|posBy|width|height|top|left|right|bottom)$/);
@@ -186,6 +188,30 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 保存数据并通知
             this.uiCom.setBlock(null, b2);
             this.uiCom.notifyBlockChange(null, b2);
+        },
+        // 快速编辑
+        'click .hmpb-skin a[m="quickedit"]' : function(e) {
+            var UI = this;
+            var block = this.uiCom.getBlock();
+
+            // 打开编辑界面
+            POP.openEditTextPanel({
+                title    : "i18n:hmaker.prop.quickedit",
+                data     : $z.toJson(block, null, '   '),
+                width    : "80%",
+                height   : "90%",
+                callback : function(str){
+                    //console.log(str)
+                    try{
+                        var block = $z.fromJson(str);
+                        UI.uiCom.saveBlock(null, block, {});
+                    }
+                    // 格式错误
+                    catch(E) {
+                        alert("非法的JSON格式");
+                    }
+                }
+            }, UI);
         }
     },
     //...............................................................

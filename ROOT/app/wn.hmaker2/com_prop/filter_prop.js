@@ -342,7 +342,6 @@ return ZUI.def("app.wn.hm_com_filter_prop", HmMethods({
             data     : $z.toJson(com.fields, null, '   '),
             callback : function(str){
                 //console.log(str)
-                console.log(str);
                 try{
                     com.fields = $z.fromJson(str);
                     UI.uiCom.saveData(null, com, true);

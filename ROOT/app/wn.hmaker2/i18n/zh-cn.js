@@ -147,6 +147,7 @@ define({
             "css_edit_ok"     : "确认修改",
             "css_edit_cancel" : "放弃",
             "css_nolinks" : "您的页面没有链接任何 CSS 文件",
+            "quickedit"  : "快速编辑",
         }, 
         "drag" : {
             "com_tip" : "拖拽移动到任意分栏",
