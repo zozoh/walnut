@@ -436,8 +436,6 @@ window.HmRT = {
         //----------------------------------
         // 准备字段渲染函数
         var __render_fld = function(jP, fld, obj, href) {
-            var val  = fld.getText(obj);
-
             // 普通文字
             if('text' == fld.type) {
                 return $('<em class="wn-obj-text">').text(fld.value).appendTo(jP);
@@ -446,8 +444,12 @@ window.HmRT = {
             else if('hr' == fld.type) {
                 return $('<div class="wn-obj-hr"><hr></div>').appendTo(jP);
             }
+
+            // 动态值，获取一下
+            var val  = fld.getText(obj);
+
             // 表格
-            else if('table' == fld.type) {
+            if('table' == fld.type) {
                 var jTable = $('<table>').attr("table-name", fld.name||null);
                 for(var i=0; i<fld.rows.length; i++) {
                     var row = fld.rows[i];

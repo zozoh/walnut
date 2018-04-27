@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,25 @@ public class cmd_json extends JvmExecutor {
         if (null != getKey) {
             Object val = Mapl.cell(obj, getKey);
             obj = val;
+        }
+
+        // 兼容集合的取值模式
+        String valKey = params.get("val");
+        if (null != obj && null != valKey) {
+            // 如果对象是个集合或者数组
+            if (obj.getClass().isArray() || obj instanceof Collection<?>) {
+                List<Object> list = new LinkedList<>();
+                Lang.each(obj, (index, ele, len) -> {
+                    Object val = Mapl.cell(ele, valKey);
+                    list.add(val);
+                });
+                obj = list;
+            }
+            // 否则直接取值
+            else {
+                Object val = Mapl.cell(obj, valKey);
+                obj = val;
+            }
         }
 
         // 过滤一层 key
