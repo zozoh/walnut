@@ -512,6 +512,7 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 确保控件内任意一个元素均等效
         jCom = jCom.closest(".hm-com");
+        jCom[0].tabIndex = -1;
 
         // console.log(jCom[0])
 
@@ -575,14 +576,17 @@ return ZUI.def("app.wn.hmaker_page", {
             //console.log(html);
             $z.copyToClipboard(html);
             UI.__clipboard_content = html;
+            // 闪一下表示 copy
+            $z.blinkIt(uiCom.$el);
+            uiCom.$el.focus();
         }
     },
     //...............................................................
     do_paste : function() {
         var UI = this;
-        console.log("enter do_paste");
+        //console.log("enter do_paste");
         if(UI.__clipboard_content) {
-            console.log("It will paste");
+            //console.log("It will paste");
             var html = UI.__clipboard_content;
             var jNewCom = $(html).attr({
                 "id" : null,
@@ -624,6 +628,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 this.invokeSkin("ready");
                 this.invokeSkin("resize");
                 
+                // 闪一下表示 paste
+                $z.blinkIt(uiCom.$el);
             });
         }
     },
