@@ -114,9 +114,9 @@ var methods = {
         UI.doChangeSkin();
 
         // 模拟点击
-        window.setTimeout(function(){
-            UI._C.iedit.$body.find(".hm-com").first().click();
-        }, 600);
+        // window.setTimeout(function(){
+        //     UI._C.iedit.$body.find(".hm-com").first().click();
+        // }, 600);
     },
     //...............................................................
     // 标识自己是否可以被编辑（即所有的组件都加载完毕）
@@ -308,11 +308,30 @@ var methods = {
         UI._C.iedit.$body.on("keydown", function(e){
             // 删除
             if(8 == e.which || 46 == e.which) {
-                UI.deleteCom(UI.getActivedCom());
-                UI.fire("active:page", UI._page_obj);
+                UI.onDeleteCom();
+            }
+            // Tab 键
+            else if(9 == e.which) {
+                e.preventDefault();
+                UI.doActiveNextCom(e.shiftKey ? "prev" : "next");
+            }
+            // COPY
+            else if(67 == e.which && (($z.os.mac && e.metaKey) || e.ctrlKey)){
+                UI.do_copy();
+            }
+            // PASTER
+            else if(86 == e.which && (($z.os.mac && e.metaKey) || e.ctrlKey)){
+                UI.do_paste();
             }
         });
+        //----------------------------------------------
+        // 顶级监控
+        // 根据操作系统，设置不同的功能键
+        //var fnKey = $z.os.mac ? "meta" : "ctrl";
+        // UI.watchKey(67, fnKey, UI.do_copy);
+        // UI.watchKey(86, fnKey, UI.do_paste);
 
+        
         // 阻止页面的 form 提交
         UI._C.iedit.$body.on("submit", "form", function(e){
             e.preventDefault();

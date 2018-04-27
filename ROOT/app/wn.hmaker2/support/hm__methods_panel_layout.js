@@ -351,7 +351,6 @@ var methods = {
     },
     //...............................................................
     resize : function(){
-        console.log("haha")
         var UI = this;
         var jA = UI.arena.find(">.clp-actions");
         var jL = UI.arena.find(">.clp-layout");

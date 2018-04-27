@@ -20,6 +20,8 @@ define({
     "clear"      : "清除",
     "close"      : "关闭",
     "confirm"    : "询问",
+    "copy"       : "复制",
+    "paste"      : "粘贴",
     "info"       : "信息",
     "prompt"     : "输入",
     "ok"         : "确定",

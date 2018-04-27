@@ -567,6 +567,67 @@ return ZUI.def("app.wn.hmaker_page", {
         });
     },
     //...............................................................
+    do_copy : function() {
+        var UI = this;
+        var uiCom = UI.getActivedCom();
+        if(uiCom) {
+            var html = uiCom.$el[0].outerHTML;
+            //console.log(html);
+            $z.copyToClipboard(html);
+            UI.__clipboard_content = html;
+        }
+    },
+    //...............................................................
+    do_paste : function() {
+        var UI = this;
+        console.log("enter do_paste");
+        if(UI.__clipboard_content) {
+            console.log("It will paste");
+            var html = UI.__clipboard_content;
+            var jNewCom = $(html).attr({
+                "id" : null,
+                "ui-id" : null,
+                "hm-actived" : null
+            });
+
+            // 有一个激活的控件
+            var uiCom = UI.getActivedCom();
+            if(uiCom) {
+                // 如果是布局控件，看看里面有没有激活的区域，有的话粘到后面
+                if(uiCom.$el.hasClass("hm-layout") 
+                    && uiCom.$el.attr("highlight-mode")
+                    && uiCom.arena.find(">.hm-area[highlight]").length>0) {
+                    uiCom.arena.find(">.hm-area[highlight]>.hm-area-con").append(jNewCom);
+                }
+                // 否则粘贴到当前控件后面
+                else {
+                    jNewCom.insertAfter(uiCom.$el);
+                }
+            }
+            // 没有激活控件，粘贴到 body
+            else {
+                jNewCom.appendTo(UI._C.iedit.body);
+            }
+
+            // 对控件进行格式
+            UI.bindComUI(jNewCom, function(uiCom){
+                // 通知激活控件
+                uiCom.notifyActived(null);
+
+                // 通知控件更改
+                uiCom.notifyBlockChange("panel");
+
+                // 确保切换了皮肤
+                uiCom.setComSkin(uiCom.getComSkin());
+
+                // 通知皮肤
+                this.invokeSkin("ready");
+                this.invokeSkin("resize");
+                
+            });
+        }
+    },
+    //...............................................................
     // ctype   : 控件类型，"libitem" 表示组件
     // tagName : 插入的元素名，默认 DIV
     // val     : 控件皮肤或者组件名
@@ -646,6 +707,39 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 返回
         return jCom;
+    },
+    //...............................................................
+    doActiveNextCom: function(direction) {
+        var UI = this;
+        var uiCom = UI.getActivedCom();
+        var jNextCom;
+
+        // 向前
+        if("prev" == direction) {
+            // 默认选最后一个
+            if(!uiCom) {
+                jNextCom = UI._C.iedit.$body.find(">.hm-com").last();
+            }
+            // 选择
+            else {
+                jNextCom = uiCom.$el.prev();
+            }
+        }
+        // 向后
+        else if("next" == direction) {
+            // 默认选第一个
+            if(!uiCom) {
+                jNextCom = UI._C.iedit.$body.find(">.hm-com").first();
+            }
+            // 选择
+            else {
+                jNextCom = uiCom.$el.next();
+            }
+        }
+        // 激活
+        if(jNextCom && jNextCom.length > 0){
+            jNextCom.click();
+        }
     },
     //...............................................................
     doActiveCom : function(uiCom) {
@@ -1004,6 +1098,34 @@ return ZUI.def("app.wn.hmaker_page", {
         }
     },
     //...............................................................
+    onDeleteCom : function() {
+        var UI = this;
+        // 寻找下一个激活的控件
+        var uiCom = UI.getActivedCom();
+        if(uiCom) {
+            var jNextCom = uiCom.$el.next();
+            if(jNextCom.length == 0) {
+                jNextCom = uiCom.$el.prev();
+            }
+            if(jNextCom.length == 0) {
+                jNextCom = uiCom.$el.parent().closest(".hm-com");
+            }
+            if(jNextCom.length == 0) {
+                jNextCom = null;
+            }
+            // 删除
+            UI.deleteCom(uiCom);
+            // 激活
+            if(jNextCom) {
+                jNextCom.click();
+            }
+            // 那么就激活页面咯
+            else {
+                UI.fire("active:page", UI._page_obj);
+            }
+        }
+    },
+    //...............................................................
     // 更新一下所有的组件是否在窗口内
     updateComScrollInfo : function(){
         var UI = this;
@@ -1352,6 +1474,22 @@ return ZUI.def("app.wn.hmaker_page", {
                                 UI.invokeSkin("resize");
                             }
                         }
+                    },{
+                        type:"separator"
+                    },{
+                        icon : '<i class="fas fa-copy"></i>',
+                        text : 'i18n:copy',
+                        handler : function() {
+                            UI.do_copy();
+                        }
+                    },{
+                        icon : '<i class="fas fa-paste"></i>',
+                        text : 'i18n:paste',
+                        handler : function() {
+                            UI.do_paste();
+                        }
+                    },{
+                        type:"separator"
                     },{
                         key      : 'assisted_showhide',
                         text     : "i18n:hmaker.page.assisted_showhide",

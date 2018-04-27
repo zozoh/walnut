@@ -4437,6 +4437,17 @@
 
         },
         //.............................................
+        copyToClipboard : function(str) {
+          var jEle = $("<input>").css({
+                    "position" : "fixed",
+                    "top"  : "-100000px",
+                    "left" : "-100000px",
+                }).appendTo(document.body);
+          jEle.val(str).select();
+          document.execCommand("copy");
+          jEle.remove();
+        },
+        //.............................................
         // json : function(obj, fltFunc, tab){
         //     // toJson
         //     if(typeof obj == "object"){

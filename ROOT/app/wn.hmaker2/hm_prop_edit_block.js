@@ -197,7 +197,10 @@ return ZUI.def("app.wn.hm_prop_edit_block", {
             // 打开编辑界面
             POP.openEditTextPanel({
                 title    : "i18n:hmaker.prop.quickedit",
-                data     : $z.toJson(block, null, '   '),
+                data     : $z.toJson(block, function(k, v){
+                                if(!_.isNull(v))
+                                    return v;
+                           }, '   '),
                 width    : "80%",
                 height   : "90%",
                 callback : function(str){
