@@ -570,12 +570,13 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     do_copy : function() {
         var UI = this;
+        var uiHMaker = UI.hmaker();
         var uiCom = UI.getActivedCom();
-        if(uiCom) {
+        if(uiHMaker && uiCom) {
             var html = uiCom.$el[0].outerHTML;
             //console.log(html);
             $z.copyToClipboard(html);
-            UI.__clipboard_content = html;
+            uiHMaker.__clipboard_content = html;
             // 闪一下表示 copy
             $z.blinkIt(uiCom.$el);
             uiCom.$el.focus();
@@ -584,10 +585,11 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     do_paste : function() {
         var UI = this;
+        var uiHMaker = UI.hmaker();
         //console.log("enter do_paste");
-        if(UI.__clipboard_content) {
+        if(uiHMaker && uiHMaker.__clipboard_content) {
             //console.log("It will paste");
-            var html = UI.__clipboard_content;
+            var html = uiHMaker.__clipboard_content;
             var jNewCom = $(html).attr({
                 "id" : null,
                 "ui-id" : null,
