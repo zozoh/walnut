@@ -89,7 +89,7 @@ var methods = {
             this.arena.removeClass(old_selectors);
         }
         this.$el.attr("selectors", selectors||null);
-        this.arena.addClass(selectors);
+        this.$el.addClass(selectors);
     },
     //........................................................
     // 获取组件的显示模式
@@ -420,6 +420,10 @@ var methods = {
         
         // 确保更新了皮肤
         UI.useComSkin();
+
+        // 确保 selectors 加入了选择器
+        var selectors = UI.getComSelectors();
+        UI.$el.addClass(selectors);
         
         // 准备 css 对象
         var css = {};

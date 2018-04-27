@@ -51,7 +51,8 @@ public abstract class AbstractSimpleCom extends AbstractCom {
         // 设置自定义皮肤选择器
         String selectors = ing.eleCom.attr("selectors");
         if(!Strings.isBlank(selectors)) {
-            eleArena.addClass(selectors);
+            // eleArena.addClass(selectors);
+            ing.eleCom.addClass(selectors);
         }
 
         // 同步皮肤属性开关
