@@ -40,7 +40,7 @@ var methods = {
             }
 
             // 点在了 Area 布局里
-            if(jq.closest(".clp-layout").length > 0) {
+            if(jq.closest(".clp-layout li").length > 0) {
                 return;
             }
 
@@ -349,6 +349,15 @@ var methods = {
             jBox.remove();
         });
     },
+    //...............................................................
+    resize : function(){
+        console.log("haha")
+        var UI = this;
+        var jA = UI.arena.find(">.clp-actions");
+        var jL = UI.arena.find(">.clp-layout");
+
+        jL.css("height", UI.arena.height() - jA.outerHeight(true));
+    }
     //...............................................................
 }; // ~End methods
 //====================================================================

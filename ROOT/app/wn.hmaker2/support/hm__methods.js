@@ -63,20 +63,31 @@ var methods = {
     // 得到站点主目录
     getHomeObj : function() {
         var homeId = this.getHomeObjId();
-        return Wn.getById(homeId);
+        if(homeId)
+            return Wn.getById(homeId);
+        return null;
     },
     // 得到站点主目录 ID
     getHomeObjId : function() {
-        return this.hmaker().__home_id;
+        var uiHMaker = this.hmaker();
+        if(uiHMaker)
+            return uiHMaker.__home_id;
+        return null;
     },
     // 得到站点主目录名称
     getHomeObjName : function() {
-        return this.getHomeObj().nm;
+        var oHome = this.getHomeObj();
+        if(oHome)
+            return oHome.nm;
+        return null;
     },
     getFileObj : function(path, quiet) {
         var oHome = this.getHomeObj();
-        var aph = Wn.appendPath(oHome.ph, path);
-        return Wn.fetch(aph, quiet);
+        if(oHome) {
+            var aph = Wn.appendPath(oHome.ph, path);
+            return Wn.fetch(aph, quiet);
+        }
+        return null;
     },
     //=========================================================
     moveTo : function(oTa, objs, callback) {
@@ -221,6 +232,9 @@ var methods = {
     reloadSkinVarSet : function(callback){
         var UI = this;
         var oHome = UI.getHomeObj();
+
+        if(!oHome)
+            return;
 
         // 准备 API 的 URL
         var url = $z.tmpl('/api/{{d1}}/hmaker/load/{{siteId}}/_skin_var.less')({

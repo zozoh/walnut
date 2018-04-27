@@ -54,7 +54,7 @@ public abstract class AbstractCom implements HmComHandler {
 
         // 最后统一清除一些属性
         ing.eleCom.getElementsByAttribute("del-attrs").removeAttr("del-attrs");
-        ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
+        //ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
 
     }
 
