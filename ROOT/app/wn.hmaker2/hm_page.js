@@ -898,9 +898,16 @@ return ZUI.def("app.wn.hmaker_page", {
             $z.invoke(uiCom, "on_actived");
     },
     //...............................................................
-    __after_iframe_loaded : function(name) {
+    __after_iframe_loaded : function(name, ifm) {
         var UI = this;
 
+        //console.log("__after_iframe_loaded", UI._need_load, ifm.contentDocument);
+        //console.log(ifm.contentWindow.location.href);
+        // Firefox 这货会调用两遍，第一遍 contentDocument 是 undefiend
+        if(!ifm.contentDocument || "about:blank"==ifm.contentWindow.location.href)
+            return;
+
+        //console.log("__after_iframe_loaded remove!", UI._need_load);
         // 移除加载完毕的项目
         UI._need_load = _.without(UI._need_load, name);
 
@@ -1394,14 +1401,14 @@ return ZUI.def("app.wn.hmaker_page", {
         UI._need_load = ["iedit", "iload"];
 
         // 监听加载完毕的事件
-        jIfmLoad.one("load", function(e) {
+        jIfmLoad.load(function(e) {
             //console.log("AAAAA")
-            UI.__after_iframe_loaded("iload");
+            UI.__after_iframe_loaded("iload", jIfmLoad[0]);
         });
 
-        jIfmEdit.one("load", function(e) {
+        jIfmEdit.load(function(e) {
             //console.log("BBBBBB")
-            UI.__after_iframe_loaded("iedit");
+            UI.__after_iframe_loaded("iedit", jIfmEdit[0]);
         });
 
         // 组件条
