@@ -589,7 +589,8 @@ return ZUI.def("app.wn.hmaker_page", {
         if(uiHMaker && uiHMaker.__clipboard_content) {
             //console.log("It will paste");
             var html = uiHMaker.__clipboard_content;
-            var jNewCom = $(html).attr({
+            var jNewCom = $(html);
+            jNewCom.find(".hm-com").andSelf().attr({
                 "id" : null,
                 "ui-id" : null,
                 "hm-actived" : null
@@ -631,6 +632,11 @@ return ZUI.def("app.wn.hmaker_page", {
                 
                 // 闪一下表示 paste
                 $z.blinkIt(uiCom.$el);
+            });
+
+            // 处理所有的子控件
+            jNewCom.find(".hm-com").each(function(){
+                UI.bindComUI($(this));
             });
         }
     },
