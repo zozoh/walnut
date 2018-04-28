@@ -1340,7 +1340,8 @@
         // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
         //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
         // @ignoreSetCss - true 表示不强制设置 position
-        dock: function (ele, ta, mode, ignoreSetCss) {
+        // @viewport - Rect 获取矩形的时候，是否要对视口做补偿
+        dock: function (ele, ta, mode, ignoreSetCss, viewport) {
             var jq = $(ele);
             var jTa = $(ta);
             if (!ignoreSetCss) {
@@ -1352,10 +1353,10 @@
                 height: jTa.outerHeight(true)
             };
             // 得到被停靠元素的矩形信息
-            var rect = $D.rect.gen(jq);
+            var rect = $D.rect.gen(jq, viewport);
             //console.log(" rect  :", rect);
             // 计算页面的中点
-            var viewport = $z.winsz();
+            var viewport = $D.dom.winsz(jq[0].ownerDocument.defaultView);
             //console.log("viewport:", viewport);
             /*
              看看这个位置在页面的那个区域
