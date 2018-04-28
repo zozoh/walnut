@@ -355,7 +355,7 @@ define({
                 "duration" : "时长(秒)",
             },
             "htmlcode" : {
-                "name"  : "HTML代码片段",
+                "name"  : "代码片段",
                 "tip"   : "你可以添加任意HTML片段，甚至包括 script 和 style",
                 "icon"  : '<i class="fa fa-code"></i>',
                 "tt"    : "编辑HTML代码",

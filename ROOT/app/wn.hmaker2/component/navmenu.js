@@ -170,28 +170,38 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     getItemData : function(index) {
         var jLi = this.$item(index);
+        var jSp = jLi.find("> a > span");
         
         // 查询内容
         var list = [];
-        jLi.find("> a > span > *").each(function(){
-            //console.log(this.tagName)
-            // 图标
-            if('I' == this.tagName) {
-                var iconClass = this.className;
-                var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(iconClass);
-                if(m) {
-                    list.push('<' + m[2] + '>');
+        var jLiEles = jSp.children();
+        // 应该是崭新新的 DOM 结构了
+        if(jLiEles.length > 0) {
+            jLiEles.each(function(){
+                //console.log(this.tagName)
+                // 图标
+                if('I' == this.tagName) {
+                    var iconClass = this.className;
+                    var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(iconClass);
+                    if(m) {
+                        list.push('<' + m[2] + '>');
+                    }
                 }
-            }
-            // 图片
-            else if('IMG' == this.tagName) {
-                list.push('<!' + $(this).attr("src") + '>');
-            }
-            // 文字
-            else if('EM' == this.tagName) {
-                list.push($(this).text());
-            }
-        });
+                // 图片
+                else if('IMG' == this.tagName) {
+                    list.push('<!' + $(this).attr("src") + '>');
+                }
+                // 文字
+                else if('EM' == this.tagName) {
+                    list.push($(this).text());
+                }
+            });
+        }
+        // 否则就用旧的方式，以便兼容
+        else {
+            list.push(jSp.text());
+        }
+
 
         // 得到文字内容
         var text = jLi.attr("li-multi") ? list.join("\\n") : list.join("");
