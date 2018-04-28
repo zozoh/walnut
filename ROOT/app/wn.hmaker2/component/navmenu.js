@@ -170,29 +170,31 @@ return ZUI.def("app.wn.hm_com_navmenu", {
     //...............................................................
     getItemData : function(index) {
         var jLi = this.$item(index);
-        // 把 ICON 变成文字形式
-        var icon = jLi.find(">a>i").prop("className");
         
-        // 处理文本
-        var jSpan = jLi.find(">a>span");
-        var jEms  = jSpan.find('em');
-        if(jEms.length > 0) {
-            var ss = [];
-            for(var i=0; i<jEms.length; i++){
-                ss.push(jEms.eq(i).text());
+        // 查询内容
+        var list = [];
+        jLi.find("> a > span > *").each(function(){
+            //console.log(this.tagName)
+            // 图标
+            if('I' == this.tagName) {
+                var iconClass = this.className;
+                var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(iconClass);
+                if(m) {
+                    list.push('<' + m[2] + '>');
+                }
             }
-            text = ss.join('\\n');
-        }
-        // 否则直接用文本
-        else {
-            text = jSpan.text();
-        }
+            // 图片
+            else if('IMG' == this.tagName) {
+                list.push('<!' + $(this).attr("src") + '>');
+            }
+            // 文字
+            else if('EM' == this.tagName) {
+                list.push($(this).text());
+            }
+        });
 
-        // 合并一下
-        var m = /^(fa|zmdi) +((fa|zmdi)-.+)$/.exec(icon);
-        if(m) {
-            text = '<' + m[2] + '>' + text;
-        }
+        // 得到文字内容
+        var text = jLi.attr("li-multi") ? list.join("\\n") : list.join("");
 
         // 返回对象
         return {
@@ -217,7 +219,7 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         };
 
         // 用 A 包裹文字是因为考虑到以后可能增加 icon 之类的前缀修饰元素
-        var jLi = $('<li><a><i></i><span></span></a></li>');
+        var jLi = $('<li><a><span></span></a></li>');
         var jCurrentItem = UI.getActivedItem();
         // 插入到当前项的后面
         if(jCurrentItem) {
@@ -305,43 +307,48 @@ return ZUI.def("app.wn.hm_com_navmenu", {
         var UI  = this;
         var jLi = UI.$item(index);
         var old = UI.getItemData(jLi);
+        var jA  = jLi.find(">a").empty();
+        var jSp = $('<span>').appendTo(jA);
+
+        //console.log(item)
 
         // 格式化文字图标
-        var m = /^<((fa|zmdi)-([a-z-]+))>(.*)$/.exec(item.text);
+        //var m = /^<((fa|zmdi)-([a-z-]+))>(.*)$/.exec(item.text);
+        var m = /^<([^>]+)>(.*)$/.exec(item.text);
         //console.log(m, item)
         if(m){
             item.icon = m[1];
-            item.text = $.trim(m[4]);
+            item.text = $.trim(m[2]);
         }
-        if(!item.icon) {
-            jLi.attr("icon","hide")
-                .find(">a>i").prop("className", "");
-        }else{
-            jLi.attr("icon","show")
-                .find(">a>i").prop("className", m[2] + " " + item.icon);
+        // 加入图标
+        if(item.icon) {
+            // 是icon
+            var m2 = /^(fa|zmdi)-([a-z-]+)$/.exec(item.icon);
+            if(m2) {
+                var iconClass = m2[1] + " " + item.icon;
+                $('<i>').addClass(iconClass).appendTo(jSp);
+            }
+            // 如果是图片
+            else if(/^!/.test(item.icon)) {
+                $('<img>').attr("src", item.icon.substring(1)).appendTo(jSp);
+            }
         }
         // 更新文字
         if(item.text) {
             // 将文字里面的 '\n' 改成 <br>
             var str  = $z.escapeText(item.text);
             var ss   = str.split(/\\n/g);
-            console.log(ss)
-            var html;
-            if(ss.length == 1) {
-                html = ss[0];
-            }
-            // 否则一行一个
-            else {
-                for(var i=0; i<ss.length;i++){
-                    ss[i] = '<em>' + ss[i] + '</em>';
+            
+            // 标识多行
+            jLi.attr("li-multi", ss.length>1 ? "yes" : null);
+
+            // 输出文字
+            for(var i=0; i<ss.length;i++){
+                var is = $.trim(ss[i]);
+                if(is) {
+                    $('<em>').text(is).appendTo(jSp);
                 }
-                html = ss.join('');
             }
-            jLi.attr("text","show")
-                .find(">a>span").html(html);
-        } else {
-            jLi.attr("text","hide")
-                .find(">a>span").text("");
         }
 
         // 更新属性
