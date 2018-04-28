@@ -449,9 +449,22 @@ public class HmPageTranslating extends HmContext {
                 WnObj oLink = this.io.fetch(null, link.getString("ph"));
                 if (null != oLink) {
                     String rph2 = this.getRelativePath(oSrc, oLink);
-                    Element eleLink = doc.head().appendElement("link");
-                    eleLink.attr("rel", "stylesheet").attr("type", "text/css").attr("href", rph2);
+                    // CSS
+                    if (oLink.isType("css")) {
+                        Element eleLink = doc.head().appendElement("link");
+                        eleLink.attr("rel", "stylesheet");
+                        eleLink.attr("type", "text/css");
+                        eleLink.attr("href", rph2);
+                    }
+                    // Javascript
+                    else if (oLink.isType("js")) {
+                        Element eleLink = doc.head().appendElement("script");
+                        eleLink.attr("type", "text/javascript");
+                        eleLink.attr("src", rph2);
+                    }
                 }
+                // 确保链接的资源被 copy
+                this.resources.add(oLink);
             }
         }
 

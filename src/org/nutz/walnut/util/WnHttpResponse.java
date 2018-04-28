@@ -164,12 +164,33 @@ public class WnHttpResponse {
     }
 
     public void prepare(byte[] buf) {
-        ins = new ByteInputStream(buf);
-        headers.put("Content-Length", buf.length);
+        prepare(buf, null);
+    }
+
+    public void prepare(byte[] buf, String bufEtag) {
+        // 记录 ETag
+        if (!Strings.isBlank(bufEtag)) {
+            headers.put("ETag", bufEtag);
+        }
+
+        // 304
+        if (null != etag && etag.equalsIgnoreCase(bufEtag)) {
+            this.status = 304;
+
+        }
+        // 否则就准备写吧
+        else {
+            ins = new ByteInputStream(buf);
+            headers.put("Content-Length", buf.length);
+        }
+    }
+
+    public void prepare(String content, String contentETag) {
+        this.prepare(content.getBytes(Encoding.CHARSET_UTF8), contentETag);
     }
 
     public void prepare(String content) {
-        this.prepare(content.getBytes(Encoding.CHARSET_UTF8));
+        this.prepare(content, Lang.sha1(content));
     }
 
     public void prepare(InputStream ins, int len) throws IOException {

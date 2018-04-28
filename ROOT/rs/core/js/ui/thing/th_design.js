@@ -607,7 +607,7 @@ return ZUI.def("app.wn.thdesign", {
         } else {
             setupObj.thData = "hide";
         }
-        console.log(setupObj)
+        //console.log(setupObj)
         // 设置
         UI.gasket.setup.setData(setupObj);
 

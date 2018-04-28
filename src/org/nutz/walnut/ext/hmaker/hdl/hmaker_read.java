@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.hmaker.hdl;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -21,6 +23,10 @@ public class hmaker_read implements JvmHdl {
 
     private Tmpl t_404;
 
+    private String loadingPageHtml;
+
+    private String loadingPageHtml_ETag;
+
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 懒加载必要的模板资源
@@ -34,6 +40,12 @@ public class hmaker_read implements JvmHdl {
         // 不允许 ph 里写 "id:xxx"，这可能是个漏洞
         if (ph.indexOf("id:") >= 0)
             throw Er.create("e.cmd.hmaker.read.DangerousPath", ph);
+        // 如果是绝对链接开头，则过滤掉
+        Matcher m = Pattern.compile("^([/]+)(.*)$").matcher(ph);
+        if (m.find()) {
+            ph = Strings.trim(m.group(2));
+        }
+
         // ..................................................
         // 准备响应对象头部
         String range = hc.params.getString("range");
@@ -56,8 +68,23 @@ public class hmaker_read implements JvmHdl {
 
         // ..................................................
         try {
+            // 如果是 __hmaker_page.loading
+            if ("__hmaker_page.loading".equals(ph)) {
+                // 确保加载了 loading page
+                if (null == this.loadingPageHtml) {
+                    File fl = Files.findFile("org/nutz/walnut/ext/hmaker/hdl/__hmaker_page_loading.html");
+                    if (null == fl)
+                        this.loadingPageHtml = "Page Loading ...";
+                    else
+                        this.loadingPageHtml = Strings.sBlank(Files.read(fl), "Page Loading ...");
+                    this.loadingPageHtml_ETag = Lang.sha1(this.loadingPageHtml);
+                }
+                // 输出吧
+                resp.prepare(this.loadingPageHtml, this.loadingPageHtml_ETag);
+                resp.setContentType("text/html");
+            }
             // 如果是 _skin_var.less 则懒加载
-            if ("_skin_var.less".equals(ph)) {
+            else if ("_skin_var.less".equals(ph)) {
                 __do_skin_var_less(sys, range, resp, oSiteHome);
             }
             // 如果是 skin.css 则动态编译

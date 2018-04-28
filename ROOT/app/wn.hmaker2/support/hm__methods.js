@@ -940,7 +940,7 @@ var methods = {
             return src;
 
         // 找到对应的媒体文件
-        console.log(src);
+        //console.log(src);
         var oMedia = this.explain_src(src, oHome, oPage);
         if(oMedia){
             return "/o/read/id:" + oMedia.id;

@@ -251,8 +251,7 @@ return ZUI.def("app.wn.hmaker_page", {
             // 无视 js，因为编辑时不能加入
             if("js" == lnk.tp)
                 continue;
-            var aph = "/o/read"+lnk.ph+"?aph=true";
-            map[aph] = lnk;
+            map[lnk.rph] = lnk;
         }
         // 查看已有链接项目看看是否需要删除
         UI._C.iedit.$head.find('[page-link]').each(function(){
@@ -1545,6 +1544,8 @@ return ZUI.def("app.wn.hmaker_page", {
     //...............................................................
     update : function(o) {
         var UI = this;
+        var homeId = UI.getHomeObjId();
+        var domain = Wn.app().session.grp;
 
         // 记录
         UI._page_obj_id = o.id;
@@ -1553,9 +1554,10 @@ return ZUI.def("app.wn.hmaker_page", {
         UI.markReadyForEdit(false);
 
         // 开始加载初始页面
+        var loadSrc = "/api/"+domain+"/hmaker/load/"+homeId+"/__hmaker_page.loading";
         var jIfmEdit = UI.arena.find(".hmpg-frame-edit");
         jIfmEdit.css("visibility", "hidden");
-        jIfmEdit.prop("src", "/a/load/wn.hmaker2/page_loading.html");
+        jIfmEdit.prop("src", loadSrc);
 
         // 加载真正的页面，然后等待着两个 iframe 都加载完毕的事件
         var jIfmLoad = UI.arena.find(".hmpg-frame-load");
