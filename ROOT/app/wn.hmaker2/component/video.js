@@ -43,7 +43,7 @@ return ZUI.def("app.wn.hm_com_video", {
         if(jCon.length == 0)
             jCon = $('<div class="hmc-video-con">').appendTo(UI.arena.empty());
         else
-            jCon.find('>div[m]').remove();
+            jCon.empty();
         
         // 得到视频对象
         var oVideo = com.src ? UI.explain_src(com.src) : null;
@@ -100,21 +100,28 @@ return ZUI.def("app.wn.hm_com_video", {
             $('<div m="autoplay"><b><i class="zmdi zmdi-flash-auto"></i></b></div>').appendTo(jCon);
         }
 
+        // 确保应用了属性修改
+        UI.applyBlock();
+
     },
     //...............................................................
     // 自定义修改块布局的逻辑
     applyBlockCss : function(cssCom, cssArena) {
+        var UI = this;
         // 处理图像的宽高
         //console.log(cssCom)
-        var jImg = this.arena.find(".hmc-video-con > img");
-        jImg.css({
+        var cssSize = {
             "width"  : $D.dom.isUnset(cssCom.width)  ? "" : "100%",
             "height" : $D.dom.isUnset(cssCom.height) ? "" : "100%",
-        })
+        };
+
+        // 同步内容区域宽高
+        UI.arena.find('.hmc-video-con > img').css(cssSize);
+        UI.arena.find('.hmc-video-con > div[m="blank"]').css(cssSize);
 
         // 处理文字区域属性
-        this.$el.css(cssCom);
-        this.arena.css(cssArena);
+        UI.$el.css(cssCom);
+        UI.arena.css(cssArena);
     },
     //...............................................................
     checkBlockMode : function(block) {

@@ -135,7 +135,7 @@ ul, ol {list-style: none; margin:0; padding:0;}
  * 控件: video
  */
 .hm-com-video {
-    display: block;
+    display: inline-block; vertical-align: bottom;
 }
 .hmc-video { @noselect();
     .hmc-video-con {
@@ -146,7 +146,9 @@ ul, ol {list-style: none; margin:0; padding:0;}
             object-fit: contain;
         }
         div.hmcv-s-blank {
-            @flex(); opacity: 1; font-size:.32rem; 
+            opacity: 1; font-size:.32rem; 
+            width:4rem; height:3rem; 
+            @flex(); justify-content: center; align-items: center;
         }
     }
 }

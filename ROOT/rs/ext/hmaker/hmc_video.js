@@ -21,6 +21,17 @@ $.fn.extend({ "hmc_video" : function(opt){
         autoFitHeight : true
     });
 
+    // 运行时，仅仅允许一个视频播放
+    jVid.on("play", function(){
+        //console.log("I am play", this);
+        var me = this;
+        $(this.ownerDocument.body).find("video").each(function(){
+            if(me !== this) {
+                this.pause();
+            }
+        });
+    });
+
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 返回自身以便链式赋值
     return jq;
