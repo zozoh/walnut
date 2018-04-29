@@ -96,6 +96,9 @@ public class AccessLogFilter implements Filter, Runnable {
                     es.submit(this);
                 }
             }
+            else {
+                log.info("access log is disabled");
+            }
         }
         // 如果未启用或者已关机,直接下一个
         if (!enable || stoped) {
@@ -171,7 +174,7 @@ public class AccessLogFilter implements Filter, Runnable {
                 alog.setUserAgent(req.getHeader("User-Agent"));
                 queue.offer(alog, 10, TimeUnit.MILLISECONDS);
             }
-            catch (InterruptedException e) {
+            catch (Throwable e) {
                 log.debug("something happen", e);
             }
         }
@@ -191,7 +194,7 @@ public class AccessLogFilter implements Filter, Runnable {
                     continue;
                 dao.fastInsert(alog);
             }
-            catch (Exception e) {
+            catch (Throwable e) {
                 log.debug("something happen", e);
                 Lang.quiteSleep(1000);
             }
