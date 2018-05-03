@@ -23,6 +23,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.mvc.View;
 import org.nutz.mvc.adaptor.JsonAdaptor;
 import org.nutz.mvc.adaptor.QueryStringAdaptor;
@@ -192,7 +193,7 @@ public class ObjModule extends AbstractWnModule {
 
         // 是否要缩放
         if (null != im && null != scale) {
-            Matcher m = Pattern.compile("^(\\d+)[xX](\\d+)$").matcher(scale);
+            Matcher m = Regex.getPattern("^(\\d+)[xX](\\d+)$").matcher(scale);
             if (m.find()) {
                 int w = Integer.parseInt(m.group(1));
                 int h = Integer.parseInt(m.group(2));
