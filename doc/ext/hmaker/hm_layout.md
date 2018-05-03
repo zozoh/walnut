@@ -111,12 +111,12 @@ xxxx
 #  - Link(HTML) 表示链接文字
 #  - Link() 则会显示链接本身的内容
 # 这种字段会无视全局链接
-.href=Link[Buy Now]
+.href=Link(Buy Now)
 # 字段语法 =Button(HTML) 显示一个按钮，行为和 Link 一致
 #  - Button(HTML) 表示链接文字
 #  - Button() 则会显示链接本身的内容
 # 这种字段会无视全局链接
-.href=Button[Buy Now]
+.href=Button(Buy Now)
 # 字段语法 =Block 显示一个文字块
 .brief=Block
 # 字段语法 =Em 显示一段重点文字

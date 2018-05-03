@@ -43,7 +43,7 @@ tags:
     //................................ 采用微信公众号的 openid
     // 键的格式为 wx_公众号ID
     // 值为 OpenID
-    wxgh_xxxx : OpenId
+    wx_gh_xxxx : OpenId
     
     //................................ 其他信息
     home : "/home/xiaobai"      // 用户的登录主目录

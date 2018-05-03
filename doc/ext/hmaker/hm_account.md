@@ -46,12 +46,173 @@ tags:
 - 这个应该写在 api 文件的配置元数据里，表示是否要验证权限
 - 嗯，细节稍后再想
 
+API 文件支持元数据
+
+```
+secur_check : true
+```
+
+表示本 API 必须经过安全检查，因此对上传的请求有下面的要求：
+
+1. 必须是 POST，请求体的内容必须是一个 JSON，稍后会给出结构规范
+   - @see [请求体的Json结构规范](#请求体的Json结构规范)
+2. Cookie 必须带有会话信息 `ST=xxxx`, 以便接口确认用户
+   - @see [使用访问票据](#使用访问票据)
+
+## 请求的Json结构规范
+
+```js
+{
+    api      : "/thing/update",    // 「必」指明要调用的API路径
+    appId    : "45fd..fq8a",       // 「必」指明站点 ID (工程目录)
+    ticket   : "69v7..t3a6",       // 「必」指明当前的用户的访问票据
+    salt     : "xxx",              // 「必」盐，不长于32位，譬如一个随机的UUID
+    time     : "1498..",           // 「必」时间戳
+    signType : "MD5",              // 「选」签名类型，支持 MD5|SHA1，默认MD5
+    sign     : "xxx",              // 「必」请求签名 @see 签名算法
+    data     : {..}                // 「必」是一个 JSON 对象，表示提交的数据
+}
+```
+
+## 签名算法
+
+```
+1. 将请求的键值拿来排序(ASC)，无视 `signType 和 sign`
+2. 将这些键对应的值拼接起来，data因为是个JSON，要变字符串（双引号紧凑模式）
+3. 执行签名，譬如 MD5
+```
+
+- 这个签名算法，保证了 ticket 与提交的 data 是唯一相关的
+- 除非你能得到一个用户的 ticket，否则你不可能用TA权限提交数据
+- 如果拦截数据包，你得到了一个用户的 ticket，你也不能修改 data 再度提交
+- 服务会保证，ticket 每次执行都会变化，并作为 cookie 下发下去
+
+Java 代码例子
+
+```java
+// TODO ...
+```
+
+在浏览器端，你可以通过给定的帮助函数生成签名并调用 REGAPI：
+
+```js
+WnApi.invoke({
+        api : "/thing/update"
+        //...
+        //不需要写 sign 字段
+        //signType 不指明的话，默认用 MD5
+        //不需要写 ticket，因为会自动从 Cookie 里读
+        //...
+    }, functiton(re) {
+        // TODO 这里是 API 的返回，通常是个JSON字符串
+        // 自己 $z.fromJson 即可
+    });
+```
+
+## 使用访问票据
+
+只要用户执行过登录操作 `/www/u/login/?`，服务器会下发一个Cookie:
+
+```
+ST=54b9dud3uqhr7pln6qm59hgu8m
+```
+
+服务器可以根据 `ST(ServiceTicket)` 在路径 `.hmaker/session/站点ID/会话ID` 得到一个会话的元数据：
+
+## 会话元数据
+
+```js
+{
+    id     : "45..8a",    // 会话唯一ID
+    ticket : "54..8m",    // 会话的票据，会定期变化
+    expi   : 159..,       // 过期时间点
+    uid    : "u6..8r",    // 会话的用户ID
+    unm    : "xxx",       // 用户的名称（冗余）
+    rid    : "hg..33",    // 用户的角色ID
+    rnm    : "xxx",       // 用户的角色名称（冗余）
+}
+```
+
+## 站点元数据
+
+如果后续接口要做安全验证，必然要传上来 `appId(即 siteId)`，那么我们可以得到站点的元数据
+
+```js
+{
+    // 站点的文件对象类型，必须是 hmaker_site
+    tp: "hmaker_site",
+
+    // 指向了站点对应的账号数据集（ThingSet）
+    hm_account_set: "84..2c",
+
+    // 指向了站点对应的角色数据集（ThingSet）
+    hm_role_set: "yt..2q",
+
+    // 下面两个元数据是发布目标和站点皮肤，基本只会和发布有关，在这里我们无视就好
+    hm_target_release: "~/www/zozoh.site0.cn/",
+    hm_site_skin: "默认",
+}
+```
+
+## 账号元数据
+
+那么根据 `hm_account_set`，以及会话中的 `uid`，我们可以得到一个账号的元数据：
+
+```js
+{
+    id : "u6..8r",    // 会话用户的 ID
+    nm : "u6..8r",    // 用户的登录名，通常为 id
+
+    //................................ 用户信息
+    aa     : "小白",       // 用户昵称
+    thumb  : "id:xxx",    // 头像存储的位置
+    city   : "BEIJING",   // BEIJING
+    gender : "male",      // 性别 male | female
+
+    //................................ 采用密码登录
+    passwd : "$SHA1",          // 加盐密码
+    salt   : "xxxx",           // 盐值
+
+    //................................ 其他可登录字段
+    phone  : "18501211985",           // 手机号码
+    email  : "zozoh@nutzam.com",   // 邮箱
+
+    //................................ 采用 oauth 认证
+    // 字段以 oauth_ 开头
+    oauth_github  : "xxxxxxx",
+    oauth_wxlogin : "oSQW..cYq"
+
+    //................................ 采用微信公众号的 openid
+    // 键的格式为 wx_公众号ID
+    // 值为 OpenID
+    wx_gh_xxxx : OpenId
+}
+```
 
 
+# 内置接口
 
+## 登录
 
+POST 请求 `/www/u/login`：
 
+**账号名密码登录:**
 
+```bash
+# POST 参数:
+sid : xxx        # 站点 ID
+unm : xxx        # 用户登录名
+pwd : xxx        # 密码，6位以上数字字母组合
+```
+
+**手机短信动态密码:**
+
+```bash
+# POST 参数:
+sid : xxx        # 站点 ID
+unm : 139..      # 手机号
+pwd : 6847       # 动态短息密码，4-6位数字
+```
 
 
 

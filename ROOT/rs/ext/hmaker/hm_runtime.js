@@ -29,6 +29,8 @@ window.HmRT = {
         if(!line)
             return;
 
+        console.log(line)
+
         // 字段
         var m = /^([.>!])([0-9a-zA-Z_|]+)(<(.+)>)?(\[([+-])\])?(:([^=]+))?(=(.+))?$/.exec(line);
         if(m) {
