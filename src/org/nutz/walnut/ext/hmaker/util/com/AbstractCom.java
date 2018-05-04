@@ -91,17 +91,17 @@ public abstract class AbstractCom implements HmComHandler {
                         eleArena.attr(sa, val);
                 }
             }
+        }
 
-            // 添加皮肤属性
-            for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
-                Object val = en.getValue();
-                if (null != val) {
-                    if (val instanceof Boolean) {
-                        if (!(Boolean) val)
-                            continue;
-                    }
-                    eleArena.attr(en.getKey(), en.getValue().toString());
+        // 添加皮肤属性
+        for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+            Object val = en.getValue();
+            if (null != val) {
+                if (val instanceof Boolean) {
+                    if (!(Boolean) val)
+                        continue;
                 }
+                eleArena.attr(en.getKey(), en.getValue().toString());
             }
         }
 
