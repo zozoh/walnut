@@ -5515,6 +5515,21 @@
                 return;
             }
 
+            // iPhone 手机版过于二逼，所以直接显示原生的 control 好了
+            var userAgent = window.navigator.userAgent;
+            // alert(userAgent);
+            var is_iPhone = userAgent.indexOf("iPhone OS") >= 0;
+            if(is_iPhone) {
+                // alert("fuck iphone!!!");
+                jVideo.prop("controls", true);
+                jVideo.attr("type", "video/mp4");
+                jVideo.css({
+                   "width"  : "100%",
+                   "margin" : "0 auto"
+                });  
+                return;
+            }
+
             // 来吧准备初始化配置
             opt = opt || {};
             this.setUndefined(opt, "autoFitHeight", false);
