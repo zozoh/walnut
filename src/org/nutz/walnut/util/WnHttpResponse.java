@@ -121,44 +121,35 @@ public class WnHttpResponse {
 
         // 准备记录 ETag
         String objETag = Wn.getEtag(wobj);
-        headers.put("ETag", objETag);
-
-        // 没给 ETag 那么就直接写咯
-        if (Strings.isBlank(etag)) {
-            headers.put("Content-Length", "" + wobj.len());
-            ins = io.getInputStream(wobj, 0);
+        
+        // etag存在且相等, 304搞定
+        if (objETag.equalsIgnoreCase(etag)) {
+            this.status = 304;
+            this.headers.put("Walnut-Object-Id", wobj.id());
+            return;
         }
-        // 看看 ETag 和 Range 的逻辑
+        headers.put("ETag", objETag);
+        
+        if (Strings.isBlank(range)) {
+            ins = io.getInputStream(wobj, 0);
+            headers.put("Content-Length", wobj.len());
+        }
         else {
-            // 304
-            if (null != etag && etag.equalsIgnoreCase(objETag)) {
-                this.status = 304;
-                this.headers.put("Walnut-Object-Id", wobj.id());
+            // 解析 Range
+            List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
+            if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1) {
+                this.status = 400;
+                this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
             }
-            // 断点续传
-            else if (!Strings.isBlank(range)) {
-                // 解析 Range
-                List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
-                if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1) {
-                    this.status = 400;
-                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
-                }
-                // 解析成功
-                else {
-                    RangeRange rr = rs.get(0);
-                    headers.put("Content-Length", rr.end - rr.start);
-                    headers.put("Accept-Ranges", "bytes");
-                    headers.put("Content-Range",
-                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
-                    status = 206;
-                    ins = io.getInputStream(wobj, rr.start);
-                    ins = new LimitInputStream(ins, rr.end - rr.start);
-                }
-            }
-            // 写全部的流
+            // 解析成功
             else {
-                ins = io.getInputStream(wobj, 0);
-                headers.put("Content-Length", wobj.len());
+                RangeRange rr = rs.get(0);
+                headers.put("Content-Length", rr.end - rr.start);
+                headers.put("Accept-Ranges", "bytes");
+                headers.put("Content-Range", String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
+                status = 206;
+                ins = io.getInputStream(wobj, rr.start);
+                ins = new LimitInputStream(ins, rr.end - rr.start);
             }
         }
     }
