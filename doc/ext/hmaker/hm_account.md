@@ -189,6 +189,10 @@ ST=54b9dud3uqhr7pln6qm59hgu8m
 }
 ```
 
+# 注册登录的流程图
+
+![](hm_account_login.png)
+
 
 # 内置接口
 

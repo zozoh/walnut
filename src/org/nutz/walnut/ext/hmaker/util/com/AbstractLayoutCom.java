@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 import org.nutz.walnut.ext.hmaker.util.bean.HmcDynamicScriptInfo;
 
@@ -34,6 +35,18 @@ public abstract class AbstractLayoutCom extends AbstractCom {
         Element eleArena = ing.eleCom.child(0).child(0);
         String skin = ing.eleCom.attr("skin");
         this.syncComSkinAttributes(ing, eleArena, skin);
+
+        // 设置皮肤
+        if (!Strings.isBlank(skin)) {
+            eleArena.addClass(skin);
+        }
+
+        // 设置自定义皮肤选择器
+        String selectors = ing.eleCom.attr("selectors");
+        if (!Strings.isBlank(selectors)) {
+            // eleArena.addClass(selectors);
+            ing.eleCom.addClass(selectors);
+        }
     }
 
     protected abstract boolean _is_defined_size_max_value(HmPageTranslating ing);

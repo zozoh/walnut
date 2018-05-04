@@ -47,10 +47,10 @@ public abstract class AbstractSimpleCom extends AbstractCom {
         if (!Strings.isBlank(skin)) {
             eleArena.addClass(skin);
         }
-        
+
         // 设置自定义皮肤选择器
         String selectors = ing.eleCom.attr("selectors");
-        if(!Strings.isBlank(selectors)) {
+        if (!Strings.isBlank(selectors)) {
             // eleArena.addClass(selectors);
             ing.eleCom.addClass(selectors);
         }
@@ -59,16 +59,16 @@ public abstract class AbstractSimpleCom extends AbstractCom {
         this.syncComSkinAttributes(ing, eleArena, skin);
 
         // 添加皮肤属性
-        for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
-            Object val = en.getValue();
-            if (null != val) {
-                if (val instanceof Boolean) {
-                    if (!(Boolean) val)
-                        continue;
-                }
-                eleArena.attr(en.getKey(), en.getValue().toString());
-            }
-        }
+        // for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+        // Object val = en.getValue();
+        // if (null != val) {
+        // if (val instanceof Boolean) {
+        // if (!(Boolean) val)
+        // continue;
+        // }
+        // eleArena.attr(en.getKey(), en.getValue().toString());
+        // }
+        // }
 
         // 子类的处理成功: 设置 css
         if (this.doArena(ing, eleArena)) {
