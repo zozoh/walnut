@@ -247,6 +247,14 @@ public class WnHttpResponse {
             resp.setHeader(key, val);
         });
 
+        // 解决iphone读取视频失败的问题
+        String cntType = resp.getContentType();
+        if (cntType != null) {
+            if (cntType.startsWith("video/") || cntType.startsWith("image/") || cntType.startsWith("audio")) {
+                resp.setCharacterEncoding(null);
+            }
+        }
+
         // 来个空行准备写 Body
         resp.flushBuffer();
 
