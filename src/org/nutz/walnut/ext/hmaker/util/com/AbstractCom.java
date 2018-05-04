@@ -54,7 +54,7 @@ public abstract class AbstractCom implements HmComHandler {
 
         // 最后统一清除一些属性
         ing.eleCom.getElementsByAttribute("del-attrs").removeAttr("del-attrs");
-        //ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
+        // ing.eleCom.getElementsByClass("ui-arena").removeClass("ui-arena");
 
     }
 
@@ -91,6 +91,30 @@ public abstract class AbstractCom implements HmComHandler {
                         eleArena.attr(sa, val);
                 }
             }
+
+            // 添加皮肤属性
+            for (Map.Entry<String, Object> en : ing.skinAttributes.entrySet()) {
+                Object val = en.getValue();
+                if (null != val) {
+                    if (val instanceof Boolean) {
+                        if (!(Boolean) val)
+                            continue;
+                    }
+                    eleArena.attr(en.getKey(), en.getValue().toString());
+                }
+            }
+        }
+
+        // 设置皮肤
+        if (!Strings.isBlank(skin)) {
+            eleArena.addClass(skin);
+        }
+
+        // 设置自定义皮肤选择器
+        String selectors = ing.eleCom.attr("selectors");
+        if (!Strings.isBlank(selectors)) {
+            // eleArena.addClass(selectors);
+            ing.eleCom.addClass(selectors);
         }
     }
 
