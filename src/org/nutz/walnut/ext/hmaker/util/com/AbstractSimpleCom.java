@@ -1,9 +1,6 @@
 package org.nutz.walnut.ext.hmaker.util.com;
 
-import java.util.Map;
-
 import org.jsoup.nodes.Element;
-import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.hmaker.util.HmPageTranslating;
 
 /**
