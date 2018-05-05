@@ -1,12 +1,14 @@
 package org.nutz.walnut.web.processor;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Lang;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
+import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
@@ -21,6 +23,10 @@ public class CreateWnContext extends AbstractProcessor {
 
         WnContext wc = Wn.WC();
         HttpServletRequest req = ac.getRequest();
+        HttpServletResponse resp = ac.getResponse();
+
+        // 标识一下响应
+        resp.addHeader("X-Powered-By", WnVersion.getName());
 
         // 设置上下文，主要是从 Cookie 里恢复 SEID
         setupWnContext(wc, req);

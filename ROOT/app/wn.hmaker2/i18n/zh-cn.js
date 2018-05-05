@@ -1,8 +1,8 @@
 define({
     "hmaker" : {
         "icon" : {
-            "skin"       : '<i class="zmdi zmdi-texture"></i>',
-            "ta_release" : '<i class="zmdi zmdi-globe-alt"></i>',
+            "skin"        : '<i class="zmdi zmdi-texture"></i>',
+            "ta_release"  : '<i class="zmdi zmdi-globe-alt"></i>',
         },
         "msg" : {
             "catch_mouse" : "数据正在加载中，请等一等再点你的鼠标，拜托🙏",
@@ -50,6 +50,9 @@ define({
             "hm_target_release" : "在线发布目标",
             "hm_target_debug"   : "调试发布目标",
             "skin" : "站点皮肤",
+            "account_set"  : "用户库",
+            "role_set"     : "角色库",
+            "hm_wxmp"      : "关联公众号",
             "del_confirm"  : "删除站点是不可撤销的操作，你现在取消还来得及！点击「确定」将会把这个站点彻底删除。（当然已经发布的内容不会受到影响）",
             "new_site_dir" : "新站点所在目录",
             "newsite_nm"   : "我的新站点",

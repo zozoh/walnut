@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www;
 
+import java.net.URI;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -333,12 +334,32 @@ public class WWWModule extends AbstractWnModule {
 
                 // 从请求对象得到上下文
                 NutMap context = _gen_context_by_req(req);
-                context.put("SITE_HOME", oROOT.path());
-                context.put("CURRENT_PATH", o.path());
-                context.put("CURRENT_DIR", o.parent().path());
+
+                // 计算路径
+                String rootPath = oROOT.path();
+                String currentPath = o.path();
+                String currentDir = o.parent().path();
+                String pagePath = currentPath.substring(rootPath.length());
+                String url = req.getRequestURL().toString();
+                URI uri = new URI(url);
+                String uriPath = uri.getPath();
+                String basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
+
+                context.put("SITE_HOME", rootPath);
+                context.put("CURRENT_PATH", currentPath);
+                context.put("CURRENT_DIR", currentDir);
+                context.put("PAGE_PATH", pagePath);
+                context.put("URL", url);
+                context.put("URI_PATH", uriPath);
+                context.put("URI_BASE", basePath);
+
+                // 得到一些关键接口
                 context.put("grp", se.group());
                 context.put("fnm", o.name());
                 context.put("rs", "/gu/rs");
+
+                // 放置一些上下文的接口
+                context.put("API", new WWWPageAPI(io, oHome, oROOT, context));
 
                 // 创建一下解析服务
                 // WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);

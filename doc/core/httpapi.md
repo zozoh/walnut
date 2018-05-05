@@ -34,6 +34,7 @@ $usr        >> "http-usr"
 $api        >> "http-api"
 QueryString >> "http-qs-" 为前缀的属性，属性名大小写敏感
 HEADER      >> "http-header-" 为前缀的属性，属性名全为大写
+Cookie      >> "http-cookie-" 为前缀的属性，属性名全为大写
 HTTP Body   >> 存放为文件的内容，如果为 GET 请求，那么文件为空
 
 这个文件的类型为 "httpreq"，名字无后缀

@@ -248,6 +248,7 @@ return ZUI.def("ui.table", {
     _draw_item : function(jRow, obj, index){
         var UI  = this;
         var opt = UI.options;
+        //console.log(obj)
         
         // 循环输出每一列
         opt.__jsos.forEach(function(jso, colIndex){

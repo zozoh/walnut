@@ -21,13 +21,30 @@ var __format_thing_fld = function(UI, fld) {
             display : function(o) {
                 //console.log(o.__force_update, o.th_nm)
                 var html = "";
+                // 自定义了缩略图
                 if(o.thumb){
                     var src = "/o/thumbnail/id:"+o.id;
                     if(o.__force_update)
                         src += "?_t="+Date.now();
                     html += '<img src="' + src + '">';
-                }else{
-                    html += '<i class="fa fa-cube th_thumb"></i>';
+                }
+                // 那么采用默认的
+                else{
+                    // 试图找到自己的 thing_set
+                    var uiThSearch = this.parent ? this.parent.parent : null;
+                    var oHome = null;
+                    if(uiThSearch){
+                        oHome = uiThSearch.getHomeObj();
+                    }
+                    // 采用 oHome 的 icon
+                    if(oHome && oHome.icon) {
+                        html += oHome.icon;
+                        //html += '<i class="fa fa-cube th_thumb"></i>';
+                    }
+                    // 一个默认图标
+                    else {
+                        html += '<i class="fa fa-cube"></i>';
+                    }
                 }
                 html += $z.escapeText(o.th_nm);
                 if(o.len > 0) {

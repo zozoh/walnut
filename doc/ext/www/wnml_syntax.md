@@ -74,6 +74,15 @@ ${xyz(json:n)?-obj-}
 </div>
 ```
 
+如果你想在文本占位符处执行表达式，可以这么写
+
+```
+<div class="my_${=EL}">
+    文本任意地方都可以插入占位符 ${=EL} 
+</div>
+```
+
+
 * 只有属性和文本节点支持占位符
 * 占位符支持 `${obj.type(类型:格式)?默认值}` 的写法
 * 占位符的类型包括:
@@ -121,7 +130,13 @@ ${xyz(json:n)?-obj-}
 
 ```
 <if test="$EL">
-    <redirect code="302" text="Found">/path/to/new</redirect>
+    <redirect code="302" text="Found">
+        <url>/login.html</url>
+        <http-resp-header>
+            <Set-Cookie>AAAAA; path=/; </Set-Cookie>
+            <Set-Cookie>BBBBB; path=/www; </Set-Cookie>
+        </http-resp-header>
+    </redirect>
 </if>
 ```
 

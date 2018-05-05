@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -326,6 +327,15 @@ public class HttpApiModule extends AbstractWnModule {
             String hnm = hnms.nextElement();
             String hval = req.getHeader(hnm);
             map.setv("http-header-" + hnm.toUpperCase(), hval);
+        }
+
+        // .........................................
+        // 计入请求 Cookie
+        Cookie[] coos = req.getCookies();
+        if (null != coos && coos.length > 0) {
+            for (Cookie coo : coos) {
+                map.setv("http-cookie-" + coo.getName(), coo.getValue());
+            }
         }
 
         // 更新头信息

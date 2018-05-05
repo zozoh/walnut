@@ -24,6 +24,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Tag;
 import org.nutz.mapl.Mapl;
@@ -70,12 +71,9 @@ public class WnmlService {
         }
         // 看看是否会有 redirect 的错误
         catch (WebException e) {
+            // 输出 HTTP 重定向
             if (e.isKey("redirect.www.wnml")) {
-                Element eRe = (Element) e.getReason();
-                int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
-                String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code));
-                String url = Strings.sBlank(eRe.text(), "/");
-                return String.format("HTTP/1.1 %d %s\nLocation: %s\n", code, text, url);
+                return __gen_redirect_response((Element) e.getReason());
             }
             // 其他的错误，抛出去吧
             else {
@@ -93,6 +91,44 @@ public class WnmlService {
 
         // 返回 HTML
         return doc.toString();
+    }
+
+    private String __gen_redirect_response(Element eRe) {
+        // 得到响应码
+        int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
+        String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code)).trim();
+        // 获取重定向的目标
+        String url;
+        Elements eList = eRe.getElementsByTag("url");
+        if (eList.size() > 0) {
+            url = eList.first().text();
+        }
+        // 直接取子节点内容吧
+        else {
+            url = eRe.text();
+        }
+        url = Strings.trim(url);
+        if (Strings.isEmpty(url)) {
+            url = "/";
+        }
+        // 输出 HTML 响应
+        String re = "";
+        re += String.format("HTTP/1.1 %d %s\n", code, text);
+        re += String.format("Location: %s\n", url);
+
+        // 看看是否要输出自定义的其他头部
+        eList = eRe.getElementsByTag("http-resp-header");
+        if (eList.size() > 0) {
+            Elements eHeaders = eList.first().children();
+            for (Element eH : eHeaders) {
+                String tKey = eH.tagName();
+                String tVal = Strings.trim(eH.text());
+                re += String.format("%s: %s\n", tKey, tVal);
+            }
+        }
+
+        // 嗯搞定
+        return re;
     }
 
     private void __do_special_attr_wn_drop(Element ele) {
@@ -116,7 +152,7 @@ public class WnmlService {
             String txt = tnd.text();
             // 只有大于 3 个字符，才有可能是占位符
             if (null != txt && txt.length() > 3 && txt.indexOf("${") >= 0) {
-                String str = Tmpl.exec(txt, c);
+                String str = __process_text(c, txt, true);
                 tnd.text(str);
             }
         }
@@ -169,11 +205,41 @@ public class WnmlService {
 
     }
 
+    /**
+     * 渲染文本，支持 `${xxx}` 和 `${=EL}` 形式的动态文本
+     * 
+     * @param c
+     *            上下文
+     * @param txt
+     *            文本模板
+     * @param showKey
+     *            空占位符是否要显示键
+     * @return 渲染后结果
+     */
+    private String __process_text(NutMap c, String txt, boolean showKey) {
+        Tmpl tmpl = Tmpl.parse(txt);
+        NutMap c2 = c.duplicate();
+        Context context = Lang.context(c2);
+
+        // 如果有对应的占位符为 = 开头，则标识 EL 表达式，要预先执行一下
+        // TODO 如果 Tmpl 支持了内置的 TmplElEle，这个就木有必要了
+        for (String key : tmpl.keys()) {
+            if (key.startsWith("=")) {
+                String el = key.substring(1);
+                Object re = El.eval(context, el);
+                c2.put(key, re);
+            }
+        }
+
+        // 执行占位符替换
+        return Tmpl.exec(txt, c2, showKey);
+    }
+
     private void __do_data_node_text(DataNode dnd, NutMap c) {
         String txt = dnd.getWholeData();
         // 只有大于 3 个字符，才有可能是占位符
         if (null != txt && txt.length() > 3 && txt.indexOf("${") > 3) {
-            String str = Tmpl.exec(txt, c);
+            String str = __process_text(c, txt, true);
             dnd.setWholeData(str);
         }
     }
@@ -182,7 +248,7 @@ public class WnmlService {
         String txt = ele.text();
         // 只有大于 3 个字符，才有可能是占位符
         if (null != txt && txt.length() > 3 && txt.indexOf("${") > 3) {
-            String str = Tmpl.exec(txt, c);
+            String str = __process_text(c, txt, true);
             ele.text(str);
         }
     }
@@ -357,14 +423,14 @@ public class WnmlService {
             String val = attr.getValue();
             // 只有长度大于 3 才有可能是占位符
             if (null != val && val.length() > 3 && val.indexOf("${") >= 0) {
-                String str = Tmpl.exec(val, c);
+                String str = __process_text(c, val, true);
                 attr.setValue(str);
             }
         }
     }
 
     private void __do_include(WnmlRuntime wrt, Element ele, NutMap c) {
-        String path = Tmpl.exec(ele.attr("path"), c);
+        String path = __process_text(c, ele.attr("path"), true);
 
         // 如果是绝对路径
         if (path.startsWith("/")) {
@@ -421,7 +487,7 @@ public class WnmlService {
 
         // 解析命令模板
         String cmdTmpl = Strings.trim(ele.data());
-        String cmdText = Tmpl.exec(cmdTmpl, c, false);
+        String cmdText = this.__process_text(c, cmdTmpl, false);
 
         // 按照 JSC 方式执行
         if ("jsc".equals(ele.attr("run"))) {

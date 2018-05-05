@@ -69,6 +69,63 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     },
                     emptyItem : {}
                 }
+            }, {
+                key   : "hm_account_set",
+                title : UI.msg("hmaker.site.account_set"),
+                icon  : '<i class="zmdi zmdi-account"></i>',
+                type  : "string",
+                uiWidth : "auto",
+                editAs : "droplist",
+                uiConf : {
+                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1'",
+                    icon  : function(o){
+                        return o.icon || '<i class="fa fa-cube"></i>';
+                    },
+                    text  : function(o){
+                        return o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    },
+                    emptyItem : {}
+                }
+            }, {
+                key   : "hm_role_set",
+                title : "i18n:hmaker.site.role_set",
+                icon  : '<i class="zmdi zmdi-account-box-o"></i>',
+                type  : "string",
+                uiWidth : "auto",
+                editAs : "droplist",
+                uiConf : {
+                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1'",
+                    icon  : function(o){
+                        return o.icon || '<i class="fa fa-cube"></i>';
+                    },
+                    text  : function(o){
+                        return o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    },
+                    emptyItem : {}
+                }
+            }, {
+                key   : "hm_wxmp",
+                title : "i18n:hmaker.site.hm_wxmp",
+                icon  : '<i class="fab fa-weixin"></i>',
+                type  : "string",
+                uiWidth : "auto",
+                editAs : "droplist",
+                uiConf : {
+                    emptyItem : {},
+                    items : "obj ~/.weixin -match 'race:\"DIR\"' -json -l",
+                    text  : function(o){
+                        return o.nm;
+                    },
+                    value : function(o){
+                        return "~/" + Wn.getRelativePathToHome(o);
+                    },
+                }
             }],
             on_change : function(key, val) {
                 var uiForm = this;

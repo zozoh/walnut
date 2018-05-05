@@ -238,6 +238,14 @@ public class hmaker_publish implements JvmHdl {
         Object wwwObj = hpc.oDest.get("www");
         final String protocol = "http";
 
+        // 如果目标是个 www 目录，顺便也把 `hm_account_set` 和 `hm_role_set` 等属性也弄过去
+        if (null != wwwObj) {
+            hpc.oDest.put("hm_account_set", hpc.oHome.get("hm_account_set"));
+            hpc.oDest.put("hm_role_set", hpc.oHome.get("hm_role_set"));
+            hpc.oDest.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
+            sys.io.set(hpc.oDest, "^hm_(account_set|role_set|wxmp)$");
+        }
+
         // 分析配置文件
         NutMap hmConf = hpc.getConf();
         String dftHost = "localhost";
