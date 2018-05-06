@@ -38,11 +38,11 @@ public class AccessLogFilter implements Filter, Runnable {
     /**
      * 是否启用本filter
      */
-    protected Boolean enable;
+    protected static Boolean enable;
     /**
      * 通往ORM的神器
      */
-    protected Dao dao;
+    public static Dao dao;
     /**
      * 执行插入的线程池
      */
@@ -58,7 +58,7 @@ public class AccessLogFilter implements Filter, Runnable {
     /**
      * 数据源
      */
-    protected DruidDataSource dataSource;
+    protected static DruidDataSource dataSource;
     /**
      * 跟踪id,跟随浏览器进程
      */
@@ -71,34 +71,18 @@ public class AccessLogFilter implements Filter, Runnable {
     public void init(FilterConfig filterConfig) throws ServletException {
         queue = new ArrayBlockingQueue<>(8192);
         es = Executors.newSingleThreadExecutor();
+
+        // 本实例就是worker,默认5线程工作
+        for (int i = 0; i < 5; i++) {
+            es.submit(this);
+        }
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (enable == null) {
             // 检查是否启用,并创建连接池
             PropertiesProxy conf = Mvcs.ctx().getDefaultIoc().get(PropertiesProxy.class, "conf");
-            enable = conf.getBoolean("access-log-enable", false);
-            if (enable) {
-                String jdbcUrl = conf.check("access-log-jdbc-url");
-                String jdbcUserName = conf.check("access-log-jdbc-username");
-                String jdbcPassword = conf.check("access-log-jdbc-password");
-                dataSource = new DruidDataSource();
-                dataSource.setUrl(jdbcUrl);
-                dataSource.setUsername(jdbcUserName);
-                dataSource.setPassword(jdbcPassword);
-                dataSource.setMaxActive(10);
-                dataSource.setMaxWait(1000);
-                dao = new NutDao(dataSource);
-                dao.create(AccessLog.class, false);
-                Daos.migration(dao, AccessLog.class, true, false, false);
-                // 本实例就是worker,默认5线程工作
-                for (int i = 0; i < conf.getInt("access-log-threads", 5); i++) {
-                    es.submit(this);
-                }
-            }
-            else {
-                log.info("access log is disabled");
-            }
+            setup(conf);
         }
         // 如果未启用或者已关机,直接下一个
         if (!enable || stoped) {
@@ -188,6 +172,10 @@ public class AccessLogFilter implements Filter, Runnable {
     @Override
     public void run() {
         while (!stoped) {
+            if (enable == null) {
+                Lang.quiteSleep(1000);
+                continue;
+            }
             try {
                 AccessLog alog = queue.poll(1, TimeUnit.SECONDS);
                 if (alog == null)
@@ -198,6 +186,29 @@ public class AccessLogFilter implements Filter, Runnable {
                 log.debug("something happen", e);
                 Lang.quiteSleep(1000);
             }
+        }
+    }
+    
+    public static final void setup(PropertiesProxy conf) {
+        if (enable != null)
+            return;
+        enable = conf.getBoolean("access-log-enable", false);
+        if (enable) {
+            String jdbcUrl = conf.check("access-log-jdbc-url");
+            String jdbcUserName = conf.check("access-log-jdbc-username");
+            String jdbcPassword = conf.check("access-log-jdbc-password");
+            dataSource = new DruidDataSource();
+            dataSource.setUrl(jdbcUrl);
+            dataSource.setUsername(jdbcUserName);
+            dataSource.setPassword(jdbcPassword);
+            dataSource.setMaxActive(10);
+            dataSource.setMaxWait(1000);
+            dao = new NutDao(dataSource);
+            dao.create(AccessLog.class, false);
+            Daos.migration(dao, AccessLog.class, true, false, false);
+        }
+        else {
+            log.info("access log is disabled");
         }
     }
 }
