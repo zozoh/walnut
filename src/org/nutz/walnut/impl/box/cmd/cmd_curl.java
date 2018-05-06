@@ -44,7 +44,7 @@ public class cmd_curl extends JvmExecutor {
         Sender sender = Sender.create(req);
         // 处理connect-timeout
         if (params.has("connect-timeout")) {
-            sender.setTimeout(params.getInt("connect-timeout"));
+            sender.setConnTimeout(params.getInt("connect-timeout"));
         }
         Response resp = sender.send();
         if (resp.isOK()) {
