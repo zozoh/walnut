@@ -1,0 +1,90 @@
+.hm-com-dynamic[skin="skin-dynamic-hurom-recipes_cateA"] {
+    padding:0;
+}
+
+.skin-dynamic-hurom-recipes_cateA {
+    a{transition:transform 0.5s;}
+    a:hover {text-decoration: none;}
+}
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+    .skin-dynamic-hurom-recipes_cateA {
+        background-position:center bottom;
+        background-repeat: no-repeat;
+        
+        ul {
+            max-width: @d_page_maxW; margin:0 auto;
+            @flex(); justify-content:center; align-items:stretch;
+            li.rcA-item {
+                flex: 1 1 auto;
+                padding:.15rem; 
+                @flex();
+                a {
+                    display: block; max-width: 2.5rem;
+                    margin:0 auto; background: #FFF;
+                    box-shadow:.01rem .01rem .04rem rgba(0,0,0,0.6);
+                }
+                a:hover {
+                    transform:translateY(-.12rem);
+                    background:#F0F0F0;
+                    article.md-content {
+                        p {color:#000;}
+                    }
+                }
+                div.rcAi-thumb {
+                    img {width:100%; min-height: 1rem;}
+                }
+                article.md-content {
+                    padding:.12rem .24rem;
+                    h1, h2, h3, h4, h5, h6 {
+                        font-size:.18rem; margin:0; padding:.05rem 0;
+                        color:@c_main;
+                    }
+                    p {
+                        margin:.05rem 0; padding:0; 
+                        letter-spacing: 0; text-align:justify;
+                        font-size:.12rem; color:#888;
+                        line-height: .24rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+    .skin-dynamic-hurom-recipes_cateA {
+        background-size:0% 0%;
+        background-repeat: no-repeat;
+        
+        ul {
+            li.rcA-item {
+                padding:.08rem; border-top:1px dashed rgba(0,0,0,0.1);
+                &:first-child {border-top:0;}
+                a {
+                    display: block; @flex(); padding:.08rem;
+                }
+                div.rcAi-thumb {
+                    flex:0 0 auto; width:34%; padding:.05rem 0;
+                    img {width:100%; min-height: 1rem;}
+                }
+                article.md-content {
+                    flex:1 1 auto;
+                    padding:0 0 0 .2rem;
+                    h1, h2, h3, h4, h5, h6 {
+                        font-size:.24rem; margin:0; padding:0 0 .05rem 0;
+                        color:@c_main;
+                    }
+                    p {
+                        margin:.05rem 0; padding:0; 
+                        letter-spacing: 1px; text-align:justify;
+                        font-size:.18rem; color:#888;
+                        line-height: .28rem;
+                    }
+                }
+            }
+        }
+    }
+}

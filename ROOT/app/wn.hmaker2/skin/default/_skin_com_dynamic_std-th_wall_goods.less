@@ -1,0 +1,148 @@
+.skin-dynamic-_std-th_wall_goods {
+    background:#F5F5F5; padding:.1rem;
+
+    .wg-list {
+        @flex(); flex-wrap:wrap; 
+        padding:0;
+    } // ~div.wg-list
+
+    .wg-item {
+        flex: 0 0 auto; @flex();
+        padding:.1rem;
+    }
+    .wg-item > a { transition:.3s;
+        width:100%; overflow: hidden;
+        display:block; position: relative;
+        background:#FFF;
+        padding:.4rem .2rem .2rem; text-align: center; 
+        &[href] { cursor: pointer;}
+
+        // 标签
+        .wgi-lbls {
+            position: absolute; top:0; left:0; right:0;
+            padding:0 .04rem; font-size:.12rem;
+            @flex(); justify-content:center;
+            li {
+                background:#ACF; color:#FFF; margin:0 .02rem;
+                padding:.02rem .06rem;
+                border-radius: 0 0 .02rem .02rem;
+            }
+        }
+
+        // 缩略图
+        .wgi-thumb {
+            height:1.8rem;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .wgi-thumb-icon {
+            height:1.8rem; text-align: center;
+            color:rgba(0,0,0,0.2); background:#EEE;
+            @flex(); align-items:center; justify-content:center;
+        }
+
+        // 标题
+        h4 {
+            margin:0; padding:.1rem 0; 
+            color:#444; font-weight: normal;
+            font-size:.16rem; letter-spacing: .02rem;
+            * {display: inline-block; vertical-align: middle;}
+            span {opacity: 0.5; font-size: .7em; padding:0 .03rem;}
+        }
+
+
+        // 摘要
+        blockquote {
+            width:100%; word-wrap:break-word;
+            margin:0 0 .1rem 0; padding:0;
+            font-size:.12rem; color:#AAA;
+            line-height: .18rem;
+            min-height: .18rem;
+        }
+
+        // 价格
+        .wgi-price {
+            color:#F80; font-size:.16rem; letter-spacing:.01rem;
+            em {
+                font-size:.18rem; font-style: normal; font-weight: normal;
+                margin:0 .04rem 0 0;
+            }
+            u {text-decoration: none; font-size:.12rem;}
+        }
+
+        // 查看详情
+        .wgi-more { 
+            span {display: none;}
+            ul {
+                @flex(); justify-content: center;
+                flex-wrap: wrap;
+                padding:.05rem; font-size: .8em;
+                a {
+                    display: block; padding:.05rem .08rem; margin:.01rem;
+                    border:1px solid rgba(255,255,255,0.3);
+                    background: rgba(0,0,0,0.6);
+                    color:#EEE;
+                }
+                a[href]:hover {color: #FFF; background:#000; border-color:#CCC;}
+            }
+        }
+    } // ~ .wg-item
+
+    .wg-item > a:hover {
+        transform:translateY(-0.03rem); text-decoration: none;
+        box-shadow: .05rem .1rem .5rem rgba(0,0,0,0.1);
+        .wgi-lbls li {
+            background:#6AF; text-shadow:1px 1px 3px rgba(0,0,0,0.2);
+        }
+        h4 {color:#000;}
+    }
+
+    //-----------------------------------------------------
+    // 皮肤开关
+    //-----------------------------------------------------
+    &[more-hover] div.wg-list {
+        div.wg-item > a {
+            .wgi-more {
+                transition:.4s;
+                position: absolute; bottom:0; left:0; right:0;
+                background:rgba(0,0,0,0.5);
+                padding:.2rem 0; 
+                transform: translateY(500px); opacity: 0;
+                span {
+                    display: block; text-align: center;
+                    padding:.05rem; color:#FFF;
+                }
+            }
+            &:hover {
+                .wgi-more {
+                    transform:unset; opacity: 1;
+                }
+            }
+        }
+    }
+
+} // ~ .skin-dynamic-_std-th_wall_goods
+
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+    .skin-dynamic-_std-th_wall_goods {
+        div.wg-list {
+            div.wg-item {
+                width: 25%;
+            }
+        }
+    }
+}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+    .skin-dynamic-_std-th_wall_goods {
+        div.wg-list {
+            div.wg-item {
+                width: 50%;
+            }
+        }
+    }
+}

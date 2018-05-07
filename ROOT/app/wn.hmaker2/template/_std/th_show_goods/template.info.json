@@ -1,0 +1,20 @@
+{
+    "name"     : "_std_th_show_goods",
+    "title"    : "展示商品",
+    "dataType" : "goods",
+    "options"  : {
+        "href" : "(商品页面)@link",
+        "disTitle"  : "(商品标题)@text:#默认采用 \"{{th_nm}}\"",
+        "buybtn"    : "(购买按钮)@switch=auto:自动=auto,总是=always",
+        "displayText" : {
+            "title"    : "显示文字",
+            "type"     : "mapping",
+            "required" : true,
+            "mapping"  : {
+                "model"  : "选择型号",
+                "color"  : "选择颜色",
+                "buy"    : "购买",
+            },
+        }
+    }
+}

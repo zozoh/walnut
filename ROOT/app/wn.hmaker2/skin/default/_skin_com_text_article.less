@@ -1,0 +1,16 @@
+.skin-text-article:extend(.wn-text-content) {
+    padding:.12rem;
+    // 对内容排列的定制
+    &[sa-h-align="left"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: left;}
+    }
+    &[sa-h-align="center"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: center;}
+    }
+    &[sa-h-align="right"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: right;}
+    }
+    &[sa-p-align="left"] article.md-content p {text-align: left;}
+    &[sa-p-align="center"] article.md-content p {text-align: center;}
+    &[sa-p-align="right"] article.md-content p {text-align: right;}
+}

@@ -1,0 +1,162 @@
+// 为 IDE 设置的
+html[hmaker-ide] {
+    .hm-com-navmenu[hm-actived] > .hm-com-W {
+        > .skin-navmenu-sky {
+            li[current] {
+                > a {background: rgba(255,255,0,0.4); color:#000;}
+            }
+        }
+    }
+}
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+// 桌面版，限制一下默认高度
+.hm-com[skin="skin-navmenu-sky"] {
+    height:.5rem;
+    > .hm-com-W {
+        width:100%; height: 100%;
+        .skin-navmenu-sky {
+            width:100%; height: 100%;
+        }
+    }
+}
+.skin-navmenu-sky {
+    font-size: .16rem;
+    a {
+        text-decoration: none;
+        display: inline-block; vertical-align: middle; 
+        white-space: nowrap; cursor: pointer;
+    }
+    a[href]:hover {
+        text-decoration: none;
+    }
+    li {position: relative;}
+    li[open-sub]{
+        > .ul-sub {z-index: 9; display: block;}
+    }
+    .ul-top {@flex(); width:100%; height:100%;}
+    .li-top {
+        flex: 1 1 auto; margin:0; padding:0 .1rem; text-align: center;
+        > a {
+            display: block; width: 100%; height:100%;
+            @flex(); justify-content:center; align-items:center;
+        }
+    }
+    .ul-sub { 
+        position: absolute; display:none;
+        padding: 0; min-width: 1.4rem;
+        background: rgba(255,255,255, .8);
+        text-align: left; 
+        border:1px solid rgba(0,0,0,0.3);
+        border-top:0;
+        .li-sub {
+            padding:.08rem .2rem; 
+            &:hover {
+                background: rgba(0,0,0,0.7);
+                a {color:#FFF}
+            }
+        }
+        a {color:#2F2F2F}
+    }
+    .ul-sub-0 {margin:0;}
+    .ul-sub-n {margin:0 1px;}
+
+    // 桌面版隐藏子菜单
+    &[sa-submenu="mobile"] {
+        > .ul-sub, li[open-sub] > .ul-sub {display: none;}
+    }
+
+    // 桌面版，隐藏标记
+    .nmi-icon {
+        display: none;
+    }
+
+    // 分割线: sa-sep
+    &[sa-sep="none"] ul li,
+    &[sa-sep="top"] ul .li-sub,
+    &[sa-sep="sub"] ul .li-top{
+        border:0;
+    }
+    &[sa-sep="all"],
+    &[sa-sep="top"] {
+        .li-top {border-left:1px dotted rgba(0,0,0,0.2);}
+        .li-top:first-child{border:0;}
+    }
+    &[sa-sep="all"],
+    &[sa-sep="sub"] {
+        .li-sub {border-top:1px dotted rgba(0,0,0,0.2);}
+        .li-sub:first-child{border:0;}
+    }
+    // 分割线样式: sa-sep-style
+    &[sa-sep-style="solid"] {
+        .li-top {border-left-style:solid;}
+        .li-sub {border-top-style:solid;}
+    }
+    &[sa-sep-style="dashed"] {
+        .li-top {border-left-style:dashed;}
+        .li-sub {border-top-style:dashed;}
+    }
+    &[sa-sep-style="dotted"] {
+        .li-top {border-left-style:dotted;}
+        .li-sub {border-top-style:dotted;}
+    }
+}}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+.hm-com[skin="skin-navmenu-sky"] {
+    font-size:.24rem;
+}
+.skin-navmenu-sky {
+    @flex(); justify-content: flex-end;
+    //-------------------------------------------------------
+    @nisL   : .40rem;
+    @nilM   : .06rem;
+    //-------------------------------------------------------
+    // 按钮
+    > .nmi-icon {
+        padding:.2rem; @flex(); justify-content: center; align-items: center;
+        > span {
+            display:block; width: @nisL; height: @nisL; cursor: pointer;
+            @flex(); flex-direction: column; justify-content:space-between;
+            b {
+                transition: .5s; display: block; 
+                width:100%; height:@nilM; background:#888;
+            }
+        }
+    }
+    //-------------------------------------------------------
+    // 显示内容
+    > .ul-top {transition: .5s;
+        position: fixed; top:0; bottom:0; right:0; left:0; 
+        background: rgba(0,0,0,0.9); color:#EEE; display: none;
+        overflow: auto; padding:.1rem;
+        flex-wrap: wrap; align-content: center; text-align: center;
+        a, a:hover {color:#EEE}
+    }
+    .li-top {width:100%; padding:.2rem; font-size:1.4em;}
+    .li-sub {font-size: .7em; padding:.1rem; white-space: nowrap;}
+    .ul-sub-0 {margin:.1rem;}
+    //-------------------------------------------------------
+    // 移动隐藏子菜单
+    &[sa-submenu="desktop"] {
+        .ul-sub {display: none;}
+    }
+    //-------------------------------------------------------
+    // 打开的状态
+    &[open] {
+        > .ul-top {@flex(); z-index: 998;}
+        > .nmi-icon{
+            position: fixed; top:0; right:0; z-index: 999;
+            > span {
+                b:nth-child(1){transform:translateY(sqrt(pow(@nisL,2))/2-@nilM/2) rotate(405deg);}
+                b:nth-child(2){opacity: 0; width:1px; margin-left:@nisL/2;}
+                b:nth-child(3){transform:translateY(sqrt(pow(@nisL,2))/-2+@nilM/2) rotate(-405deg);}
+            }
+        }
+    }
+}}
+
+
+

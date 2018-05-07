@@ -1,0 +1,36 @@
+.skin-text-copyright {
+    color: #DDD; padding:.12rem;
+    // 对内容排列的定制
+    &[sa-h-align="left"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: left;}
+    }
+    &[sa-h-align="center"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: center;}
+    }
+    &[sa-h-align="right"] article.md-content {
+        h1,h2,h3,h4,h5,h6 {text-align: right;}
+    }
+    &[sa-p-align="left"] article.md-content p {text-align: left;}
+    &[sa-p-align="center"] article.md-content p {text-align: center;}
+    &[sa-p-align="right"] article.md-content p {text-align: right;}
+
+    // 对文章的定制
+    article.md-content {
+        padding:0; 
+        h1,h2,h3,h4,h5,h6 {
+            margin:.05rem 0; padding:.05rem 0; font-size:1.2em;
+        }
+        p {
+            margin:.02rem 0; font-size:.14rem; line-height: .24rem;
+        }
+    }
+}
+
+// // 手机版
+// @media screen and (max-width: @d_page_minW) {
+// .skin-text-copyright {
+//     article.md-content {
+//         p {text-align: center;}
+//     }
+// }
+// } // ~@media

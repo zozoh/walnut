@@ -346,7 +346,6 @@ public class HttpApiModule extends AbstractWnModule {
         try (OutputStream ops = io.getOutputStream(oReq, 0)) {
             Streams.write(ops, ins);
         }
-        ;
 
         // 将请求的对象设置一下清除标志（缓存 30 分钟)
         oReq.expireTime(System.currentTimeMillis() + 1800000L);

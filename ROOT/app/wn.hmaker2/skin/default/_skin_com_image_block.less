@@ -1,0 +1,96 @@
+a.hm-com-image[skin="skin-image-block"] {
+    width:100%; height:100%; display:block;
+}
+
+.skin-image-block {
+    width:100%; height:100%;
+    > img {width:100%; height:100%; object-fit: cover;}
+}
+
+.hm-com-image[skin="skin-image-block"][hmaker-rt] .skin-image-block,
+.hm-com-image[skin="skin-image-block"][hm-actived] .skin-image-block{
+    // 开启了效果
+    &[sa-effect] img {
+        animation-iteration-count: infinite;
+        animation-duration:12s;
+    }
+    // ----------------------------------- 集中速度
+    &[sa-speed="fast"] img {animation-duration:6s;}
+    &[sa-speed="slow"] img {animation-duration:20s;}
+    // ----------------------------------- P:中心
+    &[sa-effect="P"] img {animation-name: effect_P;}
+    &[sa-effect="P"][sa-distance="short"] img{animation-name:effect_P_short;}
+    &[sa-effect="P"][sa-distance="long"]  img{animation-name:effect_P_long;}
+    // ----------------------------------- WN:左上
+    &[sa-effect="WN"] img {animation-name: effect_WN;}
+    &[sa-effect="WN"][sa-distance="short"] img{animation-name:effect_WN_short;}
+    &[sa-effect="WN"][sa-distance="long"]  img{animation-name:effect_WN_long;}
+    // ----------------------------------- WS:左下
+    &[sa-effect="WS"] img {animation-name: effect_WS;}
+    &[sa-effect="WS"][sa-distance="short"] img{animation-name:effect_WS_short;}
+    &[sa-effect="WS"][sa-distance="long"]  img{animation-name:effect_WS_long;}
+    // ----------------------------------- RN:右上
+    &[sa-effect="EN"] img {animation-name: effect_EN;}
+    &[sa-effect="EN"][sa-distance="short"] img{animation-name:effect_EN_short;}
+    &[sa-effect="EN"][sa-distance="long"]  img{animation-name:effect_EN_long;}
+    // ----------------------------------- RS:右下
+    &[sa-effect="ES"] img {animation-name: effect_ES;}
+    &[sa-effect="ES"][sa-distance="short"] img{animation-name:effect_ES_short;}
+    &[sa-effect="ES"][sa-distance="long"]  img{animation-name:effect_ES_long;}
+    // -----------------------------------
+}
+
+@ibdANssho : 1.03;
+@ibdANsnor : 1.06;
+@ibdANslon : 1.1;
+// ----------------------------------- P:中心
+@keyframes effect_P {
+  0%{}50%{transform:scale(@ibdANsnor);}100%{} 
+}
+@keyframes effect_P_short {
+  0%{}50%{transform:scale(@ibdANssho);}100%{} 
+}
+@keyframes effect_P_long {
+  0%{}50%{transform:scale(@ibdANslon);}100%{} 
+}
+// ----------------------------------- RN:左上
+@keyframes effect_WN {
+  0%{}50%{transform:scale(@ibdANsnor);transform-origin:top left;}100%{} 
+}
+@keyframes effect_WN_short {
+  0%{}50%{transform:scale(@ibdANssho);transform-origin:top left;}100%{} 
+}
+@keyframes effect_WN_long {
+  0%{}50%{transform:scale(@ibdANslon);transform-origin:top left;}100%{} 
+}
+// ----------------------------------- RS:左下
+@keyframes effect_WS {
+  0%{}50%{transform:scale(@ibdANsnor);transform-origin:bottom left;}100%{} 
+}
+@keyframes effect_WS_short {
+  0%{}50%{transform:scale(@ibdANssho);transform-origin:bottom left;}100%{} 
+}
+@keyframes effect_WS_long {
+  0%{}50%{transform:scale(@ibdANslon);transform-origin:bottom left;}100%{} 
+}
+// ----------------------------------- RN:右上
+@keyframes effect_EN {
+  0%{}50%{transform:scale(@ibdANsnor);transform-origin:top right;}100%{} 
+}
+@keyframes effect_EN_short {
+  0%{}50%{transform:scale(@ibdANssho);transform-origin:top right;}100%{} 
+}
+@keyframes effect_EN_long {
+  0%{}50%{transform:scale(@ibdANslon);transform-origin:top right;}100%{} 
+}
+// ----------------------------------- RS:右下
+@keyframes effect_ES {
+  0%{}50%{transform:scale(@ibdANsnor);transform-origin:bottom right;}100%{} 
+}
+@keyframes effect_ES_short {
+  0%{}50%{transform:scale(@ibdANssho);transform-origin:bottom right;}100%{} 
+}
+@keyframes effect_ES_long {
+  0%{}50%{transform:scale(@ibdANslon);transform-origin:bottom right;}100%{} 
+}
+

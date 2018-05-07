@@ -1,0 +1,72 @@
+.skin-dynamic-hurom-recipes_show {
+    div.rcit-title {
+        width:100%; height:1rem;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-color: #DDD;
+        position: relative;
+        box-shadow: 0 .04rem .08rem rgba(0,0,0,0.4);
+        border-radius: 0 0 50% 50%;
+        border-top:4px solid @c_main;
+        span {
+            position: absolute; display: block;
+            bottom:0; left:0; right:0; padding:.1rem;
+            text-align: right; 
+            font-size:.3rem; letter-spacing: .02rem;
+            color:rgba(255,255,255,0.8); font-weight: bold;
+            text-shadow:.02rem .02rem .04rem rgba(0,0,0,0.6);
+        }
+    }
+    article.md-content {
+        padding:.4rem .2rem;
+        &:after{@clr();}
+        > * {float:left; width:60%;}
+        > hr{@clr(); width:100%; margin:0 0 .15rem 0;}
+        p[md-img-only]{
+            float:left; text-align: left;
+            width: 40%; padding:0 .2rem .2rem 0;
+            img {
+                width:100%; margin:0; display: block;
+                border-radius: .04rem; border:1px solid rgba(0,0,0,0.1);
+                box-shadow: .02rem .02rem .04rem rgba(0,0,0,0.3);
+            }
+        }
+        ul {
+            padding:.1rem; margin:0;
+            list-style: none;
+        }
+        >ul {
+            ul {
+                padding:0 0 .1rem .2rem; margin:0;
+                color:#AAA; font-size:.16rem;
+                line-height: .22rem;
+            }
+        }
+        h1,h2,h3,h4,h5,h6 {
+            color:@c_main; font-size:.2rem;
+            padding:0; margin:0;
+        }
+        p {margin:0; padding:0;}
+        b {color:#F80;}
+        ol {
+            width:100%;
+            list-style: none; counter-reset:li;
+            color:#888; font-size:.16rem;
+            margin:0; padding:.1rem 0 .1rem .2rem;
+            > li {
+                counter-increment: li; line-height: .32rem;
+                &:before {
+                    content: counter(li); 
+                    display: inline-block; margin-left: -1em;
+                    min-width: .18rem; height:.18rem;
+                    line-height: .18rem;
+                    text-align: center; font-size:.1rem;
+                    background: #F80; color:#FFF;
+                    border-radius: 50%;
+                    margin-right:.08rem; 
+                } 
+            }
+        }
+    } // ~article.md-content
+}

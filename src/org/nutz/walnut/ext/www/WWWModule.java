@@ -215,7 +215,7 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 准备起始查询条件: 要找 www 的目录，复制给 oROOT
-        WnObj oROOT = null;
+        WnObj oWWW = null;
         WnQuery q = new WnQuery();
         q.setv("d0", oHome.d0());
         if (!"root".equals(usr))
@@ -228,35 +228,35 @@ public class WWWModule extends AbstractWnModule {
         Object host = req.getAttribute("wn_www_host");
         if (null != host) {
             q.setv("www", host.toString());
-            oROOT = io.getOne(q);
+            oWWW = io.getOne(q);
         }
         if (log.isDebugEnabled())
-            log.debugf(" - www:regHost: %s -> %s", host, oROOT);
+            log.debugf(" - www:regHost: %s -> %s", host, oWWW);
 
-        // 实在找不到用 ROOT
-        if (null == oROOT) {
-            oROOT = io.getOne(q.setv("www", "ROOT"));
+        // 实在找不到用 www 目录
+        if (null == oWWW) {
+            oWWW = io.getOne(q.setv("www", "ROOT"));
         }
 
         if (log.isDebugEnabled())
-            log.debugf(" - www:=ROOT: %s -> %s", host, oROOT);
+            log.debugf(" - www:=ROOT: %s -> %s", host, oWWW);
 
         // 发布目录不存在
-        if (null == oROOT) {
+        if (null == oWWW) {
             return gen_errpage(tmpl_404, a_path);
         }
 
         // ..............................................
-        // 通过 ROOT 找到文件对象
+        // 通过 www 目录找到文件对象
         WnObj o = null;
 
         // 空路径的话，那么意味着对象是 ROOT
         if (Strings.isBlank(a_path)) {
-            o = oROOT;
+            o = oWWW;
         }
         // 否则如果有 ROOT 再其内查找
-        else if (null != oROOT) {
-            o = io.fetch(oROOT, a_path);
+        else if (null != oWWW) {
+            o = io.fetch(oWWW, a_path);
         }
 
         if (log.isDebugEnabled())
@@ -274,8 +274,8 @@ public class WWWModule extends AbstractWnModule {
         if (o.isDIR()) {
             // 获取入口网页的可能列表
             String[] entries = ENTRIES;
-            if (null != oROOT) {
-                entries = oROOT.getArray("www_entry", String.class, ENTRIES);
+            if (null != oWWW) {
+                entries = oWWW.getArray("www_entry", String.class, ENTRIES);
             }
             // 依次尝试入口对象
             for (String entry : entries) {
@@ -336,7 +336,7 @@ public class WWWModule extends AbstractWnModule {
                 NutMap context = _gen_context_by_req(req);
 
                 // 计算路径
-                String rootPath = oROOT.path();
+                String rootPath = oWWW.path();
                 String currentPath = o.path();
                 String currentDir = o.parent().path();
                 String pagePath = currentPath.substring(rootPath.length());
@@ -352,6 +352,7 @@ public class WWWModule extends AbstractWnModule {
                 context.put("URL", url);
                 context.put("URI_PATH", uriPath);
                 context.put("URI_BASE", basePath);
+                context.put("WWW", oWWW.pickBy("^hm_.+$"));
 
                 // 得到一些关键接口
                 context.put("grp", se.group());
@@ -359,7 +360,7 @@ public class WWWModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 放置一些上下文的接口
-                context.put("API", new WWWPageAPI(io, oHome, oROOT, context));
+                context.put("API", new WWWPageAPI(io, oHome, oWWW, context));
 
                 // 创建一下解析服务
                 // WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);

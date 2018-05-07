@@ -340,6 +340,9 @@ return ZUI.def("ui.menu", {
         var opt = UI.options;
         var context = UI.options.context || UI.parent || UI;
 
+        // 首先清空所有的事件监听
+        UI.unwatchKey();
+
         // 没啥可绘制的 ...
         if(!_.isArray(items) || items.length == 0)
             return;
@@ -540,6 +543,17 @@ return ZUI.def("ui.menu", {
                     "data-balloon-pos" : opt.tipDirection || "down"
                 });
             }
+        }
+
+        // 如果有快捷性，做一下监听
+        if(_.isArray(mi.shortcut) && mi.shortcut.length > 0) {
+            var args = [].concat(mi.shortcut);
+            args.push(function(e){
+                e.preventDefault();
+                //console.log(mi, jItem)
+                UI.fireButton(jItem);
+            });
+            UI.watchKey.apply(UI, args);
         }
     }
     //..............................................

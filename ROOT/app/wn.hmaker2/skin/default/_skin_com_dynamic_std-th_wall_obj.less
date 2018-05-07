@@ -1,0 +1,54 @@
+.skin-dynamic-_std-th_wall_obj {
+padding:.1rem;
+@flex(); flex-wrap:wrap; align-content: stretch;
+.wn-li-obj {
+    padding:.1rem; 
+    @flex(); align-items: stretch;
+}
+// 重置 layout
+.wn-obj-layout {
+    width:100%;
+    // 标题
+    h4[fld-type] {font-size:1em; text-align: center;}
+    // 列表
+    ul[fld-display="UL"] {
+        justify-content: center;
+        padding:0;
+    }
+    ul[li-type=text] li span {
+        font-size:.1rem; padding:.04rem .08rem;
+        border-radius: 1px;
+    }
+}
+//...............................................
+}
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+.skin-dynamic-_std-th_wall_obj {
+
+//...............................................
+// 皮肤开关：列数
+.wn-li-obj {width:25%;}
+&[sa-it-nb-desktop="1"] .wn-li-obj {width:100%;}
+&[sa-it-nb-desktop="2"] .wn-li-obj {width:50%;}
+&[sa-it-nb-desktop="3"] .wn-li-obj {width:33.3%;}
+&[sa-it-nb-desktop="5"] .wn-li-obj {width:20%;}
+&[sa-it-nb-desktop="6"] .wn-li-obj {width:16.6%;}
+//...............................................
+}
+} // ~@media
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+.skin-dynamic-_std-th_wall_obj {
+//...............................................
+// 皮肤开关：列数
+.wn-li-obj {width:50%;}
+&[sa-it-nb-mobile="1"] .wn-li-obj {width:100%;}
+&[sa-it-nb-mobile="2"] .wn-li-obj {width:50%;}
+&[sa-it-nb-mobile="3"] .wn-li-obj {width:33.3%;}
+&[sa-it-nb-mobile="4"] .wn-li-obj {width:25%;}
+//...............................................
+}
+} // ~@media

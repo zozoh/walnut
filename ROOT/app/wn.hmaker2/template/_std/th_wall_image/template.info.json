@@ -1,0 +1,11 @@
+{
+    "name"     : "_std_th_wall_image",
+    "title"    : "图片墙",
+    "dataType" : ["page", "list"],
+    "options"  : {
+        "href" : "(详情页面)@link",
+        "paramName" : "(详情页面参数)@input=id#详情页面接受什么参数来指明媒体",
+        "showKeys"  : "(显示字段)@input#显示哪些数据字段，半角逗号分隔",
+        "linkText"  : "(链接文字)@input#数据中指定了链接时显示的文字",
+    }
+}

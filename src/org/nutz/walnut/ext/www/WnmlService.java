@@ -73,7 +73,7 @@ public class WnmlService {
         catch (WebException e) {
             // 输出 HTTP 重定向
             if (e.isKey("redirect.www.wnml")) {
-                return __gen_redirect_response((Element) e.getReason());
+                return __gen_redirect_response(context, (Element) e.getReason());
             }
             // 其他的错误，抛出去吧
             else {
@@ -93,7 +93,7 @@ public class WnmlService {
         return doc.toString();
     }
 
-    private String __gen_redirect_response(Element eRe) {
+    private String __gen_redirect_response(NutMap c, Element eRe) {
         // 得到响应码
         int code = Integer.parseInt(Strings.sBlank(eRe.attr("code"), "302"));
         String text = Strings.sBlank(eRe.attr("text"), Http.getStatusText(code)).trim();
@@ -111,6 +111,10 @@ public class WnmlService {
         if (Strings.isEmpty(url)) {
             url = "/";
         }
+        // 否则解析一下内容
+        else {
+            url = this.__process_text(c, url, true);
+        }
         // 输出 HTML 响应
         String re = "";
         re += String.format("HTTP/1.1 %d %s\n", code, text);
@@ -123,7 +127,8 @@ public class WnmlService {
             for (Element eH : eHeaders) {
                 String tKey = eH.tagName();
                 String tVal = Strings.trim(eH.text());
-                re += String.format("%s: %s\n", tKey, tVal);
+                String str = this.__process_text(c, tVal, true);
+                re += String.format("%s: %s\n", tKey, str);
             }
         }
 

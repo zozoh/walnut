@@ -10,6 +10,7 @@ $(function(){
                             : "mobile";
         // 修改顶级元素 <HTML> 的 fontSize 以便适用 rem
         $z.do_change_root_fontSize(SC);
+        console.log(SC)
 
         // 重新应用滚动
         on_page_scroll(SC);

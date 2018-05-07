@@ -1,0 +1,16 @@
+a.hm-com-image[skin="skin-image-icon"] {
+    display:inline-block;
+}
+
+.skin-image-icon {
+    @flex(); 
+    > img {flex:0 0 auto;}
+    > section {
+        flex:1 1 auto;
+        position: unset; color:#888; font-size:.14rem;
+        white-space: nowrap; padding:0 .04rem;
+        @flex(); align-items:center;
+    }
+}
+
+a.hm-com[skin="skin-image-icon"]:hover {text-decoration: none;}

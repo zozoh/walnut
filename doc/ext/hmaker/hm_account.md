@@ -105,6 +105,9 @@ www=45tr..3we1/er43..23vd
     // 站点的文件对象类型，必须是 hmaker_site
     tp: "hmaker_site",
 
+    // 指向站点的工程目录
+    hm_site_id: "79..r2",
+
     // 指向了站点对应的账号数据集（ThingSet）
     hm_account_set: "84..2c",
 

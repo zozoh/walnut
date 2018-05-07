@@ -1,0 +1,77 @@
+.hm-com-navmenu[skin="skin-navmenu-icon"] {
+    display: inline-block; font-size:.18rem;
+}
+
+// 编辑器
+html[hmaker-ide] {
+    .skin-navmenu-icon {
+        li[current] > a {
+            background: #FF0; color:#000;
+        }       
+    }
+}
+
+.skin-navmenu-icon {
+    @nisL   : .40rem;
+    @nilM   : .05rem;
+    
+    //-------------------------------------------------------
+    // 按钮
+    > .nmi-icon {
+        padding:.2rem;
+        > span {
+            display:block; width: @nisL; height: @nisL; cursor: pointer;
+            @flex(); flex-direction: column; justify-content:space-between;
+            b {
+                transition: .5s; display: block; 
+                width:100%; height:@nilM; background:#CCC;
+            }
+        }
+    }
+
+    //-------------------------------------------------------
+    // 显示内容
+    > .ul-top {transition: .5s;
+        position: fixed; top:0; bottom:0; right:0; left:0; 
+        background: rgba(0,0,0,0.9); color:#EEE; display: none;
+        overflow: auto; padding:.1rem;
+        flex-wrap: wrap; align-content: center; text-align: center;
+        a, a:hover {color:#EEE}
+    }
+    .li-top {width:100%; padding:.2rem; font-size:1.4em;}
+    .li-sub {font-size: .7em; padding:.04rem .08rem; white-space: nowrap;}
+    .ul-sub {display: none;}
+    .ul-sub-0 {justify-content: center; flex-wrap: wrap;}
+    //-------------------------------------------------------
+    // 总是显示子菜单
+    &[sa-submenu="always"] .ul-sub-0 {@flex();}
+
+    //-------------------------------------------------------
+    // 打开的状态
+    &[open] {
+        > .ul-top {@flex(); z-index: 998;}
+        > .nmi-icon{
+            position: fixed; top:0; right:0; z-index: 999;
+            > span {
+                b:nth-child(1){transform:translateY(sqrt(pow(@nisL,2))/2-@nilM/2) rotate(405deg);}
+                b:nth-child(2){opacity: 0; width:1px; margin-left:@nisL/2;}
+                b:nth-child(3){transform:translateY(sqrt(pow(@nisL,2))/-2+@nilM/2) rotate(-405deg);}
+            }
+        }
+    }
+}
+
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+    .skin-navmenu-icon[sa-submenu="desktop"] .ul-sub-0 {@flex();}
+}
+
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+    .hm-com-navmenu[skin="skin-navmenu-icon"] {
+        font-size:.24rem;
+    }
+    .skin-navmenu-icon[sa-submenu="mobile"] .ul-sub-0 {@flex();}
+}

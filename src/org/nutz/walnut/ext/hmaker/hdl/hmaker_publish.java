@@ -243,7 +243,8 @@ public class hmaker_publish implements JvmHdl {
             hpc.oDest.put("hm_account_set", hpc.oHome.get("hm_account_set"));
             hpc.oDest.put("hm_role_set", hpc.oHome.get("hm_role_set"));
             hpc.oDest.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
-            sys.io.set(hpc.oDest, "^hm_(account_set|role_set|wxmp)$");
+            hpc.oDest.put("hm_site_id", hpc.oHome.id());
+            sys.io.set(hpc.oDest, "^hm_(account_set|role_set|wxmp|site_id)$");
         }
 
         // 分析配置文件

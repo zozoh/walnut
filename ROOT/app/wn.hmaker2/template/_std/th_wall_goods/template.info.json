@@ -1,0 +1,24 @@
+{
+    "name"     : "_std_th_wall_goods",
+    "title"    : "商品墙",
+    "dataType" : ["page", "list"],
+    "options"  : {
+        "href" : "(详情页面)@link",
+        "paramName" : "(详情页面参数)@input=id#详情页面接受什么参数来指明媒体",
+        "moreHover" : "(悬停效果)@toggle:yes",
+        "displayText" : {
+            "title"    : "显示字段",
+            "tip"      : "用 '=th_nm' 表示这个值来自 th_nm 字段。否则就相当于是填写固定文本",
+            "type"     : "mapping",
+            "required" : true,
+            "mapping"  : {
+                "title"    : "=th_nm",
+                "labels"   : "=lbls",
+                "thumb"    : "=thumb",
+                "slogan"   : "=th_slogan",
+                "price"    : "=th_price",
+                "refers"   : "=th_refers",
+            }
+        }
+    }
+}

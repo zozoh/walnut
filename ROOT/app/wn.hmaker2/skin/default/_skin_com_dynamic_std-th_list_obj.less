@@ -1,0 +1,59 @@
+.skin-dynamic-_std-th_list_obj {
+padding:.1rem;
+.wn-li-obj {
+    padding:.1rem; 
+}
+//...............................................
+// 卡片式
+&[sa-obj-s="card"] {
+    padding:1px;
+
+    > .wn-li-obj {
+        margin:.2rem;
+        box-shadow: .02rem .02rem .06rem rgba(0,0,0,0.4);
+    }
+
+    &[sa-obj-sl] >.wn-li-obj{border-width:1px; border-color:rgba(0,0,0,0.3);}
+
+    &[sa-obj-sl="solid"]  >.wn-li-obj {border-style:solid;}
+    &[sa-obj-sl="dashed"] >.wn-li-obj {border-style:dashed;}
+    &[sa-obj-sl="dotted"] >.wn-li-obj {border-style:dotted;}
+
+    &[sa-obj-sw="tiny"]   >.wn-li-obj{border-width:1px;}
+    &[sa-obj-sw="normal"] >.wn-li-obj{border-width:.03rem;}
+    &[sa-obj-sw="bold"]   >.wn-li-obj{border-width:.05rem;}
+
+    
+}
+//...............................................
+// 分隔线  
+&[sa-obj-s="line"] {
+
+    &[sa-obj-sl] >.wn-li-obj{border-top-width:1px; border-top-color:rgba(0,0,0,0.1);}
+    
+    &[sa-obj-sl="solid"]  >.wn-li-obj{border-top-style:solid;}
+    &[sa-obj-sl="dashed"] >.wn-li-obj{border-top-style:dashed;}
+    &[sa-obj-sl="dotted"] >.wn-li-obj{border-top-style:dotted;}
+
+    &[sa-obj-sw="tiny"]   >.wn-li-obj{border-top-width:1px;}
+    &[sa-obj-sw="normal"] >.wn-li-obj{border-top-width:.03rem;}
+    &[sa-obj-sw="bold"]   >.wn-li-obj{border-top-width:.06rem;}
+
+    &[sa-obj-sl][sa-obj-sw] >.wn-li-obj:first-child{border-top-width: 0;}
+}
+//...............................................
+}
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+.skin-dynamic-_std-th_list_obj {
+    
+}
+} // ~@media
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+.skin-dynamic-_std-th_list_obj {
+    
+}
+} // ~@media

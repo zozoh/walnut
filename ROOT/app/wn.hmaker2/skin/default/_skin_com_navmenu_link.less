@@ -1,0 +1,39 @@
+.skin-navmenu-link {
+padding:.1rem;
+.ul-sub {display:none;}
+.ul-top {
+    padding:0; @flex(); flex-wrap: wrap;
+}
+.li-top {
+    padding:0 .1rem;
+    
+    @flex(); justify-content: center; align-items: center;
+    &:first-child {border:0;}
+    a{display: block; text-align: center;}
+}
+//...............................................
+// 分隔线  
+&[sa-sep-line-s] .li-top {
+    border-left-color:#DDD;
+}
+
+&[sa-sep-line-s="solid"]  .li-top{border-left-style:solid;}
+&[sa-sep-line-s="dashed"] .li-top{border-left-style:dashed;}
+&[sa-sep-line-s="dotted"] .li-top{border-left-style:dotted;}
+
+&[sa-sep-line-w="tiny"]   .li-top{border-left-width:1px;}
+&[sa-sep-line-w="normal"] .li-top{border-left-width:.03rem;}
+&[sa-sep-line-w="bold"]   .li-top{border-left-width:.06rem;}
+
+&[sa-sep-line-s] .li-top:first-child{border-left: 0;}
+//...............................................
+}
+
+// IDE 的优先显示
+html[hmaker-ide] {
+    .skin-navmenu-link {
+        .li-top[current] {
+            background:#FF0;
+        }
+    }
+}
