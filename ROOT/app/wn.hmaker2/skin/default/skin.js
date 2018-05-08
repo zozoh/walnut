@@ -66,6 +66,18 @@ function setupSlider(ME, SC, jCom, quiet) {
     // 创建滑动指示器
     ME.__create_dotted(jCom);
 
+    // 准备切换函数
+    var do_switch = function(SC, jCom, index){
+        // 手机
+        if("mobile" == SC.screen) {
+            ME.__mobile_switch_current(SC, jCom, index);
+        }
+        // 桌面
+        else {
+            ME.__desktop_switch_current(SC, jCom, index);
+        }
+    };
+
     // 确保当前高亮项目为当前项目
     var hIndex = 0;
     // IDE 里面看一下当前高亮模式高亮了哪个区域
@@ -84,16 +96,39 @@ function setupSlider(ME, SC, jCom, quiet) {
             "left"  : -1,
             "right" : 1
         })[dire];
-        ME.__desktop_switch_current(SC, jCom, index + off);
+
+        index = index + off;
+
+        // 要操作的两个元素集合
+        var jRows = jCom.find(">.hm-com-W>.hmc-rows");
+        var jAs   = jRows.find('>.hm-area');
+        var jDs   = jRows.find(">.skin-rows-slider-dots>ul>li");
+
+        // 如果超过最后一个，选第一个
+        if(index >= jAs.size()) {
+            index = 0;
+        }
+        // 如果比0小，选最后一个
+        else if(index < 0) {
+            index = jAs.size() - 1;
+        }
+
+        // 切换
+        do_switch(SC, jCom, index);
     });
     jCom.on("click", ">.hm-com-W>.hmc-rows>.skin-rows-slider-dots>ul>li", function(){
         var index = $(this).attr("area-index")*1;
-        ME.__desktop_switch_current(SC, jCom, index);
+        // 切换
+        do_switch(SC, jCom, index);
     });
     //console.log(SC)
+
+    // 得到自动切换方式
+    var autorun = jCom.find(">.hm-com-W>[sa-autorun]").attr("sa-autorun");
+    console.log("autorun", autorun);
     
     // 运行时:启用自动切换
-    if("runtime" == SC.mode) {
+    if("runtime" == SC.mode && ("both"==autorun || SC.screen==autorun)) {
         // 注册一个 Timer，默认时间间隔为 3 秒
         var interval = ({
             "never"  : -1,
@@ -117,8 +152,24 @@ function setupSlider(ME, SC, jCom, quiet) {
                 }
 
                 // 嗯，执行切换吧
-                var index = ME.__get_index(jCom);
-                runtime.slider.ready.__desktop_switch_current(SC, jCom, index+1);
+                var index = ME.__get_index(jCom) + 1;
+
+                // 要操作的两个元素集合
+                var jRows = jCom.find(">.hm-com-W>.hmc-rows");
+                var jAs   = jRows.find('>.hm-area');
+                var jDs   = jRows.find(">.skin-rows-slider-dots>ul>li");
+
+                // 如果超过最后一个，选第一个
+                if(index >= jAs.size()) {
+                    index = 0;
+                }
+                // 如果比0小，选最后一个
+                else if(index < 0) {
+                    index = jAs.size() - 1;
+                }
+
+                //runtime.slider.ready.__desktop_switch_current(SC, jCom, index+1);
+                do_switch(SC, jCom, index);
 
                 // 准备执行下一次
                 window.setTimeout(auto_switch, interval);
@@ -971,14 +1022,19 @@ var runtime = {
                 var jAs   = jRows.find('>.hm-area');
                 var jDs   = jRows.find(">.skin-rows-slider-dots>ul>li");
 
-                // 如果超过最后一个，选第一个
-                if(index >= jAs.size()) {
-                    index = 0;
+                // index 不能超过限制
+                if(index >= jAs.size() || index < 0) {
+                    return;
                 }
-                // 如果比0小，选最后一个
-                else if(index < 0) {
-                    index = jAs.size() - 1;
-                }
+
+                // // 如果超过最后一个，选第一个
+                // if(index >= jAs.size()) {
+                //     index = 0;
+                // }
+                // // 如果比0小，选最后一个
+                // else if(index < 0) {
+                //     index = jAs.size() - 1;
+                // }
 
                 // 找到要高亮的元素和圆点
                 var jA = jAs.eq(index);
@@ -1029,7 +1085,7 @@ var runtime = {
                 setupSlider(this, SC, jCom, true);                
             },
             // 手机版:执行切换
-            __mobile_switch_current : function(jCom, index) {
+            __mobile_switch_current : function(SC, jCom, index) {
                 // 确保下标是数字
                 index = parseInt(index);
 
@@ -1061,20 +1117,30 @@ var runtime = {
                         "transform" : "translateX("+off+"px)"
                     });
                 });
+
+                // 如果是编辑环境下，则用标识高亮模式的方法，切换当前区域
+                if("IDE" == SC.mode && !quiet) {
+                    var uiCom = ZUI(jCom);
+                    if(uiCom) {
+                        uiCom.highlightArea(jA);
+                        uiCom.notifyDataChange("page", uiCom);
+                    }
+                }
             },
             // 手持设备版
             "mobile" : function(SC, jCom) {
                 // console.log("slider setup mobile", this);               
                 // 运行时，才启用手持版特性
                 if("runtime" == SC.mode) {
-                    var ME = this;
-                    // 创建滑动指示器
-                    this.__create_dotted(jCom);
+                    setupSlider(this, SC, jCom);
+                    // // 创建滑动指示器
+                    // this.__create_dotted(jCom);
 
-                    // 确保第一个是当前的
-                    this.__mobile_switch_current(jCom, 0);
+                    // // 确保第一个是当前的
+                    // this.__mobile_switch_current(jCom, 0);
 
                     // 运行时:启用手势监控
+                    var ME = this;
                     new AlloyFinger(jCom[0], {
                         swipe: function (e) {
                             //console.log("swipe" + e.direction, e);
@@ -1084,7 +1150,7 @@ var runtime = {
                                 "Right" : -1
                             })[e.direction];
                             if(_.isNumber(off)) {
-                                ME.__mobile_switch_current(jCom, index + off);
+                                ME.__mobile_switch_current(SC, jCom, index + off);
                             }
                         }
                     });

@@ -196,13 +196,18 @@ public class hmaker_publish implements JvmHdl {
             log.infof("copy %d resources:", hpc.resources.size());
 
             for (WnObj o : hpc.resources) {
+                log.infof("  ++%s", o);
+                if (null == o) {
+                    log.info("    -> ignore null");
+                    continue;
+                }
                 // 在目标处创建
                 WnObj oTa = hpc.createTarget(o);
 
+                log.infof("    -> %s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
+
                 // 执行内容的 copy
                 Wn.Io.copyFile(sys.io, o, oTa);
-
-                log.infof("  ++%s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
             }
         }
         // 没有需要 copy 的资源，啥也不做

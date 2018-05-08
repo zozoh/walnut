@@ -54,6 +54,7 @@
                     "margin", "padding", "border", "color", "background",
                     "borderRadius", "overflow", "boxShadow",
                     "--- 交互行为",
+                    "@autorun(自动切换)[关闭=none,桌面=desktop,手机=mobile,总是=both]=none",
                     "@speed(切换速度)[较慢=slow,普通=normal,较快=fast]=normal",
                     "@interval(自动切换间隔)[较短=short,正常=normal,较长=long,永不=never]=normal",
                     "--- 切换按钮",
