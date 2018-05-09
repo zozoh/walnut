@@ -447,9 +447,6 @@ window.HmRT = {
                 return $('<div class="wn-obj-hr"><hr></div>').appendTo(jP);
             }
 
-            // 动态值，获取一下
-            var val  = fld.getText(obj);
-
             // 表格
             if('table' == fld.type) {
                 var jTable = $('<table>').attr("table-name", fld.name||null);
@@ -486,6 +483,9 @@ window.HmRT = {
                 // 加入DOM
                 return __fld_ele(fld, html, href, true).appendTo(jP);
             }
+
+            // 动态值，获取一下
+            var val  = fld.getText(obj);
 
             // 这个比较优先，因为无论如何都要显示出预览区嘛
             // .thumb=Preview
