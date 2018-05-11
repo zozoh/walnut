@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.aclog.hdl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +17,7 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.jetty.AccessLogFilter;
 import org.nutz.walnut.jetty.log.AccessLog;
@@ -79,21 +83,35 @@ public class aclog_analysis implements JvmHdl {
             sys.out.println("count: " + count);
             sys.out.println("group: " + groupByFields);
             sys.out.println("### Data");
-            String[] groupNames = Strings.splitIgnoreBlank(groupByFields);
-            sys.out.println("|id|count|" + Strings.join("|", groupByFields) + "|");
-            sys.out.println("|--|-----|" + Strings.dup("--|", groupByFields.length()));
+            String[] groupNames = Strings.splitIgnoreBlank(groupByFields, ",");
+            TextTable table = new TextTable(2+groupNames.length);
+            List<String> headers = new ArrayList<>();
+            headers.add("id");
+            headers.add("count");
+            headers.addAll(Arrays.asList(groupNames));
+            table.addRow(headers);
+            table.addHr();
+            table.setShowBorder(true);
             List<NutMap> datas = sql.getList(NutMap.class);
+            datas.stream().sorted(Comparator.comparingInt((map)->map.getInt("count(*)")));
             int index = 0;
             for (NutMap data : datas) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(index).append('|');
-                sb.append(data.get("count(*)")).append('|');
+                List<String> row = new ArrayList<>();
+                row.add(""+index);
+                row.add(""+data.getInt("count(*)"));
                 for (String groupName : groupNames) {
-                    sb.append(data.get(groupName)).append('|');
+                    String value = ""+data.get(groupName);
+                    if ("ua".equals(groupName)) {
+                        if (value.length() > 65) {
+                            value = value.substring(0, 30) + "..." + value.substring(value.length() - 30);
+                        }
+                    }
+                    row.add(value);
                 }
-                sys.out.println(sb.toString());
+                table.addRow(row);
                 index ++;
             }
+            sys.out.println(table.toString());
         }
     }
 }
