@@ -121,7 +121,7 @@ public class WnHttpResponse {
 
         // 准备记录 ETag
         String objETag = Wn.getEtag(wobj);
-        
+
         // etag存在且相等, 304搞定
         if (objETag.equalsIgnoreCase(etag)) {
             this.status = 304;
@@ -129,12 +129,11 @@ public class WnHttpResponse {
             return;
         }
         headers.put("ETag", objETag);
-        
+
         if (Strings.isBlank(range)) {
             ins = io.getInputStream(wobj, 0);
             headers.put("Content-Length", wobj.len());
-        }
-        else {
+        } else {
             // 解析 Range
             List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
             if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1) {
@@ -146,7 +145,8 @@ public class WnHttpResponse {
                 RangeRange rr = rs.get(0);
                 headers.put("Content-Length", rr.end - rr.start);
                 headers.put("Accept-Ranges", "bytes");
-                headers.put("Content-Range", String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
+                headers.put("Content-Range",
+                            String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
                 status = 206;
                 ins = io.getInputStream(wobj, rr.start);
                 ins = new LimitInputStream(ins, rr.end - rr.start);
@@ -241,7 +241,9 @@ public class WnHttpResponse {
         // 解决iphone读取视频失败的问题
         String cntType = resp.getContentType();
         if (cntType != null) {
-            if (cntType.startsWith("video/") || cntType.startsWith("image/") || cntType.startsWith("audio")) {
+            if (cntType.startsWith("video/")
+                || cntType.startsWith("image/")
+                || cntType.startsWith("audio")) {
                 resp.setCharacterEncoding(null);
             }
         }

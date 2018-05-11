@@ -1131,7 +1131,7 @@ public abstract class Wn {
         }
         return etag;
     }
-    
+
     public static void checkRootRole(WnSystem sys) {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {

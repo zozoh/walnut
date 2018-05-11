@@ -873,7 +873,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 如果指明了本域查询
         if (params.is("mine"))
-            q.setv("d0", "home").setv("d1", sys.me.group());
+            q.setv("d0", "home").setv("d1", sys.me.mainGroup());
 
         // 添加更多条件
         // if (!"root".equals(sys.se.group()))

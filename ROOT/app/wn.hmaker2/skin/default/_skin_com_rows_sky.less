@@ -1,0 +1,19 @@
+.skin-rows-sky {
+    background:rgba(255,255,255,0.8); color:#222; 
+
+    > .hm-area > .hm-area-con {
+        max-width: @d_page_maxW; margin:0 auto;
+    }
+
+    // 分隔线
+    &[sa-h-line-s="solid"]  {border-bottom:1px solid @c_main;}
+    &[sa-h-line-s="dashed"] {border-bottom:1px dashed @c_main;}
+    &[sa-h-line-s="dotted"] {border-bottom:1px dotted @c_main;}
+
+    &[sa-h-line-w="normal"] {border-bottom-width:.03rem;}
+    &[sa-h-line-w="bold"]   {border-bottom-width:.06rem;}
+}
+
+.hm-com-rows[skin="skin-rows-sky"][enable-dock] {
+    position: fixed; top:0; left:0; right:0; z-index: 99;
+}

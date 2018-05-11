@@ -1,0 +1,20 @@
+{
+    "name"     : "_std_th_show_article",
+    "title"    : "展示文章",
+    "dataType" : "obj",
+    "options"  : {
+        "displayText" : {
+            "title"    : "显示字段",
+            "tip"      : "用 '=th_nm' 表示这个值来自 th_nm 字段。否则就相当于是填写固定文本",
+            "type"     : "mapping",
+            "required" : true,
+            "mapping"  : {
+                "title"   : "=th_nm",
+                "brief"   : "=brief",
+                "content" : "=content",
+                "date"    : "=th_date",
+                "source"  : "=th_source",
+            }
+        }
+    }
+}

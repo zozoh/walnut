@@ -2,6 +2,7 @@
 	icon : '<i class="fa fa-save"></i>',
 	text : "i18n:save",
 	type : "button",
+	shortcut : [83, "command"],
 	handler : function($ele, a) {
 		var UI = this;
 		

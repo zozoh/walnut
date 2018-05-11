@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -328,6 +329,15 @@ public class HttpApiModule extends AbstractWnModule {
             map.setv("http-header-" + hnm.toUpperCase(), hval);
         }
 
+        // .........................................
+        // 计入请求 Cookie
+        Cookie[] coos = req.getCookies();
+        if (null != coos && coos.length > 0) {
+            for (Cookie coo : coos) {
+                map.setv("http-cookie-" + coo.getName(), coo.getValue());
+            }
+        }
+
         // 更新头信息
         io.appendMeta(oReq, map);
 
@@ -336,7 +346,6 @@ public class HttpApiModule extends AbstractWnModule {
         try (OutputStream ops = io.getOutputStream(oReq, 0)) {
             Streams.write(ops, ins);
         }
-        ;
 
         // 将请求的对象设置一下清除标志（缓存 30 分钟)
         oReq.expireTime(System.currentTimeMillis() + 1800000L);

@@ -1,0 +1,10 @@
+{
+    "name"     : "_std_th_list_any",
+    "title"    : "通用数据列表",
+    "dataType" : ["list", "page"],
+    "options"  : {
+        "href" : "(详情页面)@link#不指定详情页面，会自动根据内容选择合适的目标页面",
+        "paramName" : "(详情页面参数)@input=id#详情页面接受什么参数来指明媒体",
+        "more" : "(参数值字段)@text:height:150#补充信息，支持Markdown语法，{{xxx}} 为占位符"
+    }
+}

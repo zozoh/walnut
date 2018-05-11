@@ -1,0 +1,31 @@
+.skin-filter-advanced {
+    // 字段标题
+    .fld-info {
+        padding:.08rem;
+    }
+    // 选项
+    .fld-items {
+        li {
+            padding:.06rem .12rem; border-radius: 2px;
+            margin:.02rem;
+        }
+        li[multi-checked] {color:#000;}
+    }
+    // 按钮
+    .fld-btn {
+        padding:.1rem .04rem; font-size:.12rem;
+        b {border-radius: 2px; padding:.02rem .06rem;}
+    }
+}
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+.skin-filter-advanced {
+    font-size:.14rem;
+}}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+.skin-filter-advanced {
+    font-size:.16rem;
+}}

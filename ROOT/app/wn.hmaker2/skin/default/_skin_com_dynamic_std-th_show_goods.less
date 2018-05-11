@@ -1,0 +1,315 @@
+.skin-dynamic-_std-th_show_goods {
+//...................................................
+// 头部介绍部分
+//...................................................
+.go-intro {
+    padding-bottom:.5rem;
+    //------------------------- 预览信息
+    > .go-preview { @noselect();
+        padding:.1rem; position: relative;
+        .go-photo {
+            width:100%; height: 5rem;
+            padding:0;
+            &[photo="none"] {
+                color:rgba(0,0,0,0.4); font-size:.4rem;
+                @flex(); justify-content:center; align-items:center;
+                background:rgba(10,10,0,0.08);
+            }
+            &[photo="yes"] {
+                @flex();
+                span {
+                    display: block; 
+                    width:100%;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                }
+            }
+        }
+    }
+    //------------------------- 摘要信息
+    > .go-info {
+        padding:.1rem; 
+        .go-tags {
+            font-size:1.2em;
+            ul {
+                padding:.02rem 0;
+                &:after{@clr();}
+                li {margin-right:.1rem;}
+            }
+        }
+        .go-title {
+            font-size:1.5em; font-weight: bold;
+            padding:0 0 .1rem 0;
+            span {}
+            em{
+                font-style: normal; margin-left:.1rem;
+                &:before{display:inline;content:"(";}
+                &:after{display:inline;content:")";}
+            }
+        }
+        .go-slogan {
+            padding:0 0 .1rem 0; font-size:.8em; color:#F80;
+        }
+        .go-brief {
+            background:rgba(0,0,0,0.05); letter-spacing: 0.01rem;
+            color:#888; line-height: .26rem;
+            padding:.1rem;
+        }
+        .go-price {
+            font-size:1.2em; color:#F80; 
+            padding:.2rem; border:1px solid rgba(0,0,0,0.05);
+            em {font-weight: bold; font-style: normal; letter-spacing: 0.02rem;}
+        }
+        .go-buy {
+            padding:.1rem 0; letter-spacing: .02rem;
+            a { transition:.3s;
+                display:inline-block; padding:.15rem .4rem;
+                font-size:1.1em; font-weight: normal;
+                text-align: center; cursor: pointer;
+                background:rgba(0,0,0,0.6); color:#EEE;
+                border-radius: .02rem;
+                i {margin-right:.06rem;}
+            }
+            a:hover {
+                text-decoration: none;
+                background:rgba(0,0,0,0.8); color:#FFF;
+            }
+        }
+        .go-row {
+            @flex(); padding:.1rem 0;
+            border-bottom:1px dotted rgba(0,0,0,0.2);
+            > span {
+                display: block; flex:0 0 auto; 
+                color:#888; 
+                min-width:.7rem; padding:.06rem 0;
+                text-align:justify;
+                text-justify:distribute-all-lines;/*ie6-8*/
+                text-align-last:justify;/* ie9*/
+                -moz-text-align-last:justify;/*ff*/
+                -webkit-text-align-last:justify;/*chrome 20+*/
+            }
+            > ul {
+                flex:1 1 auto; padding:0 0 0 .2rem;
+                @flex(); flex-wrap: wrap;
+                li {
+                    border:1px solid rgba(0,0,0,0.2);
+                    padding:.08rem .2rem; margin:.02rem;
+                    border-radius: .02rem;
+                    a[href] {
+                        color:rgba(0,0,0,0.6);
+                        &:hover {text-decoration: none;}
+                    }
+                    &[current] {
+                        background:rgba(0,0,0,0.8); color:#FFF;
+                        border-color:rgba(0,0,0,0.8);
+                        a[href] {color:#FFF;}
+                    }
+                }
+            }
+        }
+        .go-list {
+            padding:.1rem; width:100%;
+            ul {
+                padding:0; margin:0; list-style: none;
+                @flex(); flex-wrap: wrap;
+                li {
+                    margin:.02rem; padding:.04rem;
+                    border:.02rem solid transparent; cursor: pointer;
+                    opacity: 0.6;
+                    &[current] {
+                        border-color:#CCC; opacity: 1;
+                    }
+                    span {
+                        display: block; width:100%; height:100%;
+                        width:.6rem; height:.6rem;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: center center;
+                    }
+                }
+            }
+        }
+    }
+} // ~.go-intro
+
+//...................................................
+// 详情部分
+//...................................................
+.go-detail {
+    padding:.1rem 0;
+    article.md-content {
+        &[float-tabs] {
+            > .go-detail-tabs {
+                position: fixed; top:0;
+                box-shadow: 0 1px 0px rgba(0,0,0,0.05),
+                            0 2px 0px rgba(0,0,0,0.05),
+                            0 3px 0px rgba(0,0,0,0.05),
+                            0 4px 0px rgba(0,0,0,0.05),
+                            0 5px 0px rgba(0,0,0,0.05),
+                            0 6px 0px rgba(0,0,0,0.05),
+                            0 7px 0px rgba(0,0,0,0.05),
+                            0 8px 0px rgba(0,0,0,0.05);
+                z-index: 9;
+            }    
+        }
+        > .go-detail-tabs {
+            ul {
+                list-style: none; padding:0 .1rem; margin:0;
+                border-bottom:2px solid rgba(0,0,0,0.6);
+                background:#F0F0F0;
+                letter-spacing: .01rem;
+                @flex(); flex-wrap:wrap;
+                li {
+                    padding:.1rem .3rem; cursor: pointer;
+                    color:rgba(0,0,0,0.6);
+                    &:hover {color:#000;}
+                    &[current]{
+                        background:rgba(0,0,0,0.6); color:#FFF;
+                    }
+                }
+            }
+        }
+        > .go-detail-block {
+            padding:1px; display: none;
+            &[current] {display: block;}
+            p {color:#888;}
+        }
+        .md-header {
+            padding:.1rem .3rem;
+        }
+        ul,ol {
+            padding: .1rem .06rem .1rem .4rem;
+            ul, ol {
+                padding-left:.15rem;
+            }
+        }
+        blockquote, pre {
+            margin:.1rem .3rem;
+        }
+        p {
+            margin:.2rem .3rem;
+        }
+        p[md-img-only] {
+            margin:0;
+        }
+    }
+} // ~.go-detail
+//...................................................
+// 皮肤开关
+//...................................................
+&[sa-block-p-align="center"] {
+    .go-detail article.md-content > .go-detail-block {
+        p,h1,h2,h3,h4,h5,h6 {text-align: center;}
+    }
+}
+&[sa-block-p-align="right"] {
+    .go-detail article.md-content > .go-detail-block {
+        p,h1,h2,h3,h4,h5,h6 {text-align: right;}
+    }
+}
+&[sa-hr-hide="poster"] article.md-content hr.poster-sep{display: none;}
+&[sa-hr-hide="always"] article.md-content hr{display: none;}
+
+&[sa-hide-row-title] .go-intro > .go-info .go-row {
+     > span{display: none;}
+     > ul {padding:0;}
+}
+//...................................................
+} // ~.skin-dynamic-_std-th_show_goods
+
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+.skin-dynamic-_std-th_show_goods {
+//...................................................
+// 头部介绍部分
+//...................................................
+.go-intro {
+    @flex(); align-items: flex-start;
+    //------------------------- 预览信息
+    > .go-preview {
+        flex:0 0 auto; 
+        @flex(); flex-direction:column; align-items:flex-end;
+        .go-photo {}
+    }
+    //------------------------- 摘要信息
+    > .go-info {
+        flex:1 1 auto; min-height: 4rem;
+    }
+} // ~.go-intro
+}}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+.skin-dynamic-_std-th_show_goods {
+//...................................................
+// 头部介绍部分
+//...................................................
+.go-intro {
+    font-size: 1.5em;
+    //------------------------- 预览信息
+    > .go-preview {
+        padding:.1rem .1rem 0 .1rem;
+        .go-tags {
+            position: absolute; top:0; left:0; right:0;
+            @flex(); justify-content: center;
+        }
+        .go-photo {height:4rem; padding-bottom: .3rem;}
+    }
+    //------------------------- 摘要信息
+    > .go-info {
+        padding:0 .1rem .1rem .1rem;
+        text-align: center;
+        .go-row {padding:.1rem .24rem;}
+        .go-list ul {justify-content: center;}
+    }
+} // ~.go-intro
+//...................................................
+// 详情部分
+//...................................................
+.go-detail {
+    font-size: 1.5em;
+    article.md-content {
+        &[float-tabs] {
+            > .go-detail-tabs {left:0; right:0;}    
+        }
+        > .go-detail-tabs {
+            ul {
+                li {
+                    padding:.06rem .2rem; cursor: pointer;
+                    font-size: .18rem;
+                }
+            }
+        }
+        > .go-detail-tabs {
+            ul {
+                li {padding:.2rem .25rem;}
+            }
+        }
+    }
+} // ~.go-detail
+//...................................................
+// 皮肤开关
+//...................................................
+&[sa-hide-row-title] .go-intro > .go-info .go-row {
+     > ul {justify-content: center;}
+}
+}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

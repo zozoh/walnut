@@ -196,13 +196,18 @@ public class hmaker_publish implements JvmHdl {
             log.infof("copy %d resources:", hpc.resources.size());
 
             for (WnObj o : hpc.resources) {
+                log.infof("  ++%s", o);
+                if (null == o) {
+                    log.info("    -> ignore null");
+                    continue;
+                }
                 // 在目标处创建
                 WnObj oTa = hpc.createTarget(o);
 
+                log.infof("    -> %s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
+
                 // 执行内容的 copy
                 Wn.Io.copyFile(sys.io, o, oTa);
-
-                log.infof("  ++%s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
             }
         }
         // 没有需要 copy 的资源，啥也不做
@@ -237,6 +242,15 @@ public class hmaker_publish implements JvmHdl {
         // 开始输出吧
         Object wwwObj = hpc.oDest.get("www");
         final String protocol = "http";
+
+        // 如果目标是个 www 目录，顺便也把 `hm_account_set` 和 `hm_role_set` 等属性也弄过去
+        if (null != wwwObj) {
+            hpc.oDest.put("hm_account_set", hpc.oHome.get("hm_account_set"));
+            hpc.oDest.put("hm_role_set", hpc.oHome.get("hm_role_set"));
+            hpc.oDest.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
+            hpc.oDest.put("hm_site_id", hpc.oHome.id());
+            sys.io.set(hpc.oDest, "^hm_(account_set|role_set|wxmp|site_id)$");
+        }
 
         // 分析配置文件
         NutMap hmConf = hpc.getConf();

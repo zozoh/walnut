@@ -1,0 +1,91 @@
+.hm-com-rows[skin="skin-rows-slider"] {
+    width:100%; height: 3rem; position: relative;
+    > .hm-com-W {
+        width:100%; height:100%;
+        > .hmc-rows {
+            width: 100%; height:100%;
+            > .hm-area {
+                > .hm-area-con {width:100%; height:100%;}
+            }
+        }
+    }
+}
+.skin-rows-slider{
+    // 切换位置指示器
+    > .skin-rows-slider-dots {
+        position: absolute; bottom: .1rem; left:.1rem; right:.1rem;
+        padding:.1rem; z-index: 2;
+        ul {
+            @flex(); justify-content:center; 
+            li {
+                width:.4rem; height:.08rem;
+                border: 1px solid rgba(0,0,0,0.3);
+                background: rgba(255,255,255,0.2);
+                margin:0 0.05rem; cursor: pointer;
+            }
+            li[current] {
+                background: #000;
+                border: 1px solid rgba(255,255,255,0.5);
+            }
+        }
+    }
+    // 桌面版:左右切换按钮
+    > .skin-rows-slider-btn {
+        transition:0.2s; cursor: pointer; 
+        @flex(); justify-content: center; align-items: center;
+        position: absolute; top:50%; z-index: 2;
+        width:.5rem; height:.5rem; margin: -.25rem 0 0 0;
+        font-size:.4rem;
+        background: rgba(255,255,255,0.1); 
+        color: rgba(220,220,220,0.4);
+        border:1px solid rgba(220,220,220,0.2);
+    }
+    > .skin-rows-slider-btn:hover {
+        background: rgba(255,255,255,0.6); 
+        color: rgba(255,255,255,0.9);
+        border:1px solid rgba(255,255,255,0.9);
+    }
+    > .skin-rows-slider-btn[direction="left"]  {left:.1rem;}
+    > .skin-rows-slider-btn[direction="right"] {right:.1rem;}
+}
+
+// 控件内部样式
+.skin-rows-slider {
+    position: relative; overflow: hidden;
+    > .hm-area {
+        position: absolute; top:0; left:0; right:0; bottom:0;
+    }
+}
+
+// 运行时环境
+html[hmaker-runtime] {
+    .skin-rows-slider {
+        > .hm-area {transition:0.5s; opacity: 0; z-index:-1;}
+        > .hm-area[current]{opacity: 1.0; z-index: 0;}
+    }
+    .skin-rows-slider[sa-speed="fast"] > .hm-area{transition:0.3s;}
+    .skin-rows-slider[sa-speed="slow"] > .hm-area{transition:0.8s;}
+}
+
+// IDE 环境
+html[hmaker-ide] {
+    // 高亮模式下，所有的区域都是不显示的，只有高亮的区域显示
+    .hm-com-rows[skin="skin-rows-slider"]{
+        // 默认的，只有第一个区域显示，其他的不显示
+        > .hm-com-W > .hmc-rows {
+            > .hm-area {display: none;}
+            > .hm-area:first-child {display: block;}
+        }
+        // 高亮模式下，所有的区域都是不显示的，只有高亮的区域显示
+        &[highlight-mode] {
+            > .hm-com-W > .hmc-rows {
+                > .hm-area {
+                    z-index: 0; opacity: 0; display: none;
+                }
+                > .hm-area[highlight] {
+                    z-index: 1; opacity: 1; display: block;
+                }
+            }
+        }
+    }
+}

@@ -112,6 +112,7 @@ public class app_init implements JvmHdl {
             hostAndPort += ":" + port;
         c.put("hostAndPort", hostAndPort);
         c.put("sys", sysconf);
+        c.put("me", sys.me);
 
         // 优先处理文件结构
         WnObj oFileS = sys.io.fetch(oTmpl, "_files");

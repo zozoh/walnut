@@ -38,6 +38,91 @@ tags:
     + WWWModuel 上会提供 login 之类的接口，处理相关会话等
 - `regapi` 机制将提升安全性 @see 后面章节的描述
 
+
+# 注册登录流程
+
+![](hm_account_login.png)
+
+## 如何保护页面
+
+在页面中，嵌入：
+
+```
+<if test="!API.checkMyPhone()">
+    <redirect code="302" text="Found">
+        <url>/login.html</url>
+        <http-resp-header>
+            <Set-Cookie>www=45tr..3we1/er43..23vd; path=/; </Set-Cookie>
+        </http-resp-header>
+    </redirect>
+</if>
+```
+
+- `API` 对象是上下文的一个调用接口 `WWWPageAPI`
+- `checkMyPhone` 函数将会依次检查是否登录，以及用户是否有手机号
+- `<url>` 表示要转移的路径
+    + 如果是绝对路径，表示相对于站点的路径
+    - 如果是相对路径，表示相对于当前的地址
+
+## 如何记录登录信息
+
+在 Cookie 中记录这样两个值:
+
+```
+# 格式为  www=站点ID/会话票据
+www=45tr..3we1/er43..23vd
+```
+
+每个站点对应的会话，存放的位置在:
+
+```
+~/.hmaker/session/站点ID/会话票据
+```
+
+- 根据站点和会话的票据可以得到各自的元数据，并且能得到用户的全部元数据
+- `checkMyPhone` 会根据这个线索，在上下文创建 `me` 这个键，表示用户的元数据
+
+## 会话元数据
+
+```js
+{
+    id   : "45..8a",    // 会话唯一ID
+    nm   : "54..8m",    // 会话的票据，会定期变化
+    expi : 159..,       // 过期时间点
+    uid  : "u6..8r",    // 会话的用户ID
+    unm  : "xxx",       // 用户的名称（冗余）
+    rid  : "hg..33",    // 用户的角色ID
+    rnm  : "xxx",       // 用户的角色名称（冗余）
+}
+```
+
+## 站点元数据
+
+如果后续接口要做安全验证，必然要传上来 `appId(即 siteId)`，那么我们可以得到站点的元数据
+
+```js
+{
+    // 站点的文件对象类型，必须是 hmaker_site
+    tp: "hmaker_site",
+
+    // 指向站点的工程目录
+    hm_site_id: "79..r2",
+
+    // 指向了站点对应的账号数据集（ThingSet）
+    hm_account_set: "84..2c",
+
+    // 指向了站点对应的角色数据集（ThingSet）
+    hm_role_set: "yt..2q",
+
+    // 指向本站点关联的微信公号目录
+    hm_wxmp : "~/.weixin/gh_xxx",
+
+    // 下面两个元数据是发布目标和站点皮肤，基本只会和发布有关，在这里我们无视就好
+    hm_target_release: "~/www/zozoh.site0.cn/",
+    hm_site_skin: "默认",
+}
+```
+
 # REGAPI 支持
 
 - 如何搞定 API 的安全性
@@ -55,9 +140,9 @@ secur_check : true
 表示本 API 必须经过安全检查，因此对上传的请求有下面的要求：
 
 1. 必须是 POST，请求体的内容必须是一个 JSON，稍后会给出结构规范
-   - @see [请求体的Json结构规范](#请求体的Json结构规范)
-2. Cookie 必须带有会话信息 `ST=xxxx`, 以便接口确认用户
-   - @see [使用访问票据](#使用访问票据)
+    - @see [请求体的Json结构规范](#请求体的Json结构规范)
+2. 请求必须是已经登录的的有效会话
+    - @see [如何记录登录信息](#如何记录登录信息)
 
 ## 请求的Json结构规范
 
@@ -109,51 +194,6 @@ WnApi.invoke({
     });
 ```
 
-## 使用访问票据
-
-只要用户执行过登录操作 `/www/u/login/?`，服务器会下发一个Cookie:
-
-```
-ST=54b9dud3uqhr7pln6qm59hgu8m
-```
-
-服务器可以根据 `ST(ServiceTicket)` 在路径 `.hmaker/session/站点ID/会话ID` 得到一个会话的元数据：
-
-## 会话元数据
-
-```js
-{
-    id     : "45..8a",    // 会话唯一ID
-    ticket : "54..8m",    // 会话的票据，会定期变化
-    expi   : 159..,       // 过期时间点
-    uid    : "u6..8r",    // 会话的用户ID
-    unm    : "xxx",       // 用户的名称（冗余）
-    rid    : "hg..33",    // 用户的角色ID
-    rnm    : "xxx",       // 用户的角色名称（冗余）
-}
-```
-
-## 站点元数据
-
-如果后续接口要做安全验证，必然要传上来 `appId(即 siteId)`，那么我们可以得到站点的元数据
-
-```js
-{
-    // 站点的文件对象类型，必须是 hmaker_site
-    tp: "hmaker_site",
-
-    // 指向了站点对应的账号数据集（ThingSet）
-    hm_account_set: "84..2c",
-
-    // 指向了站点对应的角色数据集（ThingSet）
-    hm_role_set: "yt..2q",
-
-    // 下面两个元数据是发布目标和站点皮肤，基本只会和发布有关，在这里我们无视就好
-    hm_target_release: "~/www/zozoh.site0.cn/",
-    hm_site_skin: "默认",
-}
-```
-
 ## 账号元数据
 
 那么根据 `hm_account_set`，以及会话中的 `uid`，我们可以得到一个账号的元数据：
@@ -164,7 +204,7 @@ ST=54b9dud3uqhr7pln6qm59hgu8m
     nm : "u6..8r",    // 用户的登录名，通常为 id
 
     //................................ 用户信息
-    aa     : "小白",       // 用户昵称
+    th_nm  : "小白",       // 用户昵称
     thumb  : "id:xxx",    // 头像存储的位置
     city   : "BEIJING",   // BEIJING
     gender : "male",      // 性别 male | female
@@ -182,17 +222,12 @@ ST=54b9dud3uqhr7pln6qm59hgu8m
     oauth_github  : "xxxxxxx",
     oauth_wxlogin : "oSQW..cYq"
 
-    //................................ 采用微信公众号的 openid
+    //................................ 采用微信公众号的 openId
     // 键的格式为 wx_公众号ID
     // 值为 OpenID
     wx_gh_xxxx : OpenId
 }
 ```
-
-# 注册登录的流程图
-
-![](hm_account_login.png)
-
 
 # 内置接口
 

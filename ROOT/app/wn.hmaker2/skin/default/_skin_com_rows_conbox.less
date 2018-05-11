@@ -1,0 +1,52 @@
+.hm-com-rows[skin="skin-rows-conbox"] {
+    width:2rem; height:3rem;
+}
+
+.skin-rows-conbox {
+    @flex(); flex-direction: column;
+    overflow: hidden; 
+    width:100%; height:100%;
+    > .hm-area {
+        flex:1 1 auto; width:100%; height:100%;
+        @flex(); 
+        > .hm-area-con {width:100%; height:100%;}
+        // 无论如何，最后一栏不要撑满高度
+        &[cb-last] {
+            flex:0 0 auto; height:unset;
+            > .hm-area-con {height:unset;transition: 0.3s;}
+        }
+    }
+    // 浮动末栏
+    &[sa-float-last] {
+        > .hm-area[cb-last] {
+            flex:0 0 auto; padding:0;margin:0; position: relative;
+            height: unset;
+            > .hm-area-con {
+                position: absolute; bottom:-2000px; left:0; right:0;
+                height:unset;
+                background:rgba(0,0,0,0.6); color:#EEE;
+            }
+        }
+    }
+    //...............................................
+    // 分隔线  
+    &[last-line-s] >.hm-area[cb-last] > .hm-area-con {
+        border-top-width:1px; border-top-color:rgba(0,0,0,0.3);
+    }
+    
+    &[sa-last-line-s="solid"]  >.hm-area[cb-last] > .hm-area-con {
+        border-top-style:solid;}
+    &[sa-last-line-s="dashed"] >.hm-area[cb-last] > .hm-area-con {
+        border-top-style:dashed;}
+    &[sa-last-line-s="dotted"] >.hm-area[cb-last] > .hm-area-con {
+        border-top-style:dotted;}
+
+    &[sa-last-line-w="tiny"]   >.hm-area[cb-last] > .hm-area-con {
+        border-top-width:1px;}
+    &[sa-last-line-w="normal"] >.hm-area[cb-last] > .hm-area-con {
+        border-top-width:.03rem;}
+    &[sa-last-line-w="bold"]   >.hm-area[cb-last] > .hm-area-con {
+        border-top-width:.06rem;}
+
+}
+

@@ -38,7 +38,9 @@ public abstract class Things {
      */
     public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
         WnObj oIndex = dirTsIndex(io, oRefer);
-        return io.fetch(oIndex, id);
+        WnQuery q = Wn.Q.pid(oIndex);
+        q.setv("id", id);
+        return io.getOne(q);
     }
 
     /**

@@ -1,0 +1,14 @@
+{
+    "name"     : "_std_th_table_any",
+    "title"    : "通用数据表格",
+    "dataType" : ["list", "page"],
+    "options"  : {
+        "href" : "(详情页面)@link",
+        "paramName" : "(页面参数)@input=id",
+        "newtab"    : "(新窗口打开)@toggle:true",
+        "caption"   : "(表格标题)@input",
+        "showTHead" : "(表头)@toggle:true",
+        "rowNumber" : "(行编号)@switch=none:无=none,数字=nb",
+        "flds" : "(表格字段)@text:height:200#表格字段，一行一个，`|` 分隔，例如 `th_nm|名称|默认值`。`-` 开头的行表示移动版不显示"
+    }
+}

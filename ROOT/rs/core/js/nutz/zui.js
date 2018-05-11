@@ -910,17 +910,31 @@ define(function (require, exports, module) {
             // 记录到自身以便可以快速索引
             this._watch_keys[key] = true;
         },
+        // 根据要监听的键，得到一个唯一固定的字符串键值
+        // 对于功能键的 keys，可以是数组或者字符串
+        // 无论哪个，都会对 "command" 进行自动处理，发现是mac就用 "meta"，否则用 "ctrl"
         __keyboard_watch_key: function (which, keys) {
             // 直接就是字符串
             if (_.isString(which)) {
                 return which;
             }
             // 组合的key
-            if (_.isArray(keys)) {
-                return keys.sort().join("+") + "+" + which;
+            if (_.isArray(keys) && keys.length > 0) {
+                var ks2 = [];
+                for(var i=0; i<keys.length; i++) {
+                    var k = keys[i];
+                    if("command" == k) {
+                        k = $z.os.mac ? "meta" : "ctrl";
+                    }
+                    ks2.push(k);
+                }
+                return ks2.sort().join("+") + "+" + which;
             }
             // 字符串
             if (_.isString(keys)) {
+                if("command" == keys) {
+                    keys = $z.os.mac ? "meta" : "ctrl";
+                }
                 return keys + "+" + which;
             }
             // 没有特殊键
@@ -943,7 +957,7 @@ define(function (require, exports, module) {
                 return;
             }
             // 注销指定事件监听
-            var key = this.__keyboard_watch_key(which, key);
+            var key = this.__keyboard_watch_key(which, keys);
             // console.log("unwatchKey : '" + key + "' : " + this.cid);
             // 删除全局索引
             var wkm = ZUI.keymap[key];

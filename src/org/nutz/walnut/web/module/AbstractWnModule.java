@@ -1,7 +1,9 @@
 package org.nutz.walnut.web.module;
 
+import java.util.Enumeration;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
@@ -47,8 +49,35 @@ public abstract class AbstractWnModule extends WnRun {
     }
 
     protected NutMap _gen_context_by_req(HttpServletRequest req) {
-        NutMap context = new NutMap();
         // 生成上下文
+        NutMap context = new NutMap();
+
+        // .........................................
+        // 计入请求头
+        NutMap header = new NutMap();
+
+        Enumeration<String> hnms = req.getHeaderNames();
+        while (hnms.hasMoreElements()) {
+            String hnm = hnms.nextElement();
+            String hval = req.getHeader(hnm);
+            header.put(hnm.toUpperCase(), hval);
+        }
+        context.put("header", header);
+
+        // .........................................
+        // 计入请求 Cookie
+        NutMap cookie = new NutMap();
+
+        Cookie[] coos = req.getCookies();
+        if (null != coos && coos.length > 0) {
+            for (Cookie coo : coos) {
+                cookie.put(coo.getName(), coo.getValue());
+            }
+            context.put("cookies", cookie);
+        }
+
+        // .........................................
+        // 计入参数
         NutMap params = new NutMap();
 
         // 寻找一个请求里的所有参数
@@ -67,7 +96,7 @@ public abstract class AbstractWnModule extends WnRun {
         }
         context.put("params", params);
 
-        // 得到会话 ID
+        // 得到 duser 会话 ID (TODO zozoh:这个最后会被抛弃掉)
         context.put("sessionId", Wn.WC().getString(WWW.AT_SEID));
 
         // 返回
