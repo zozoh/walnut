@@ -1152,8 +1152,8 @@ return ZUI.def("app.wn.hmaker_page", {
 
         // 得到窗口的矩形
         var rectWin = $D.dom.winsz(UI._C.iedit.win);
-        rectWin.top = UI._C.iedit.$win.scrollTop();
-        rectWin.left = UI._C.iedit.$win.scrollLeft();
+        // rectWin.top = UI._C.iedit.$win.scrollTop();
+        // rectWin.left = UI._C.iedit.$win.scrollLeft();
         $D.rect.count_tlwh(rectWin);
 
         //console.log($D.rect.dumpValues(rectWin));

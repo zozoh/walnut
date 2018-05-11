@@ -4437,6 +4437,345 @@
             });
 
         },
+        /*.............................................
+         归纳 Markdown 内部的标题，将其作为标签
+          - jAr : 文章信息
+          - isTab : F(jq, index):int 
+                判断指定下标是否是标签。返回新下标
+                @return null 表示不是标签
+                否则返回 {
+                    nextIndex : 0,  // 下一个迭代下标（以便跳过）
+                    title : "xxx",  // 标题
+                    html  : "<..>"  // 原始HTML，恢复用
+                }
+        */
+        tabArticle : function(jAr, isTab) {
+            var is_first_level = false;
+            // 标记过的，就不要标记了
+            if(jAr.attr("z-article-tab-already"))
+                return;
+            // 默认用 H1 判断
+            if(!isTab) {
+                is_first_level = true;
+                isTab = function(jq, index) {
+                    if(index>= (jq.length - 1))
+                        return null;
+                    var ele = jq[index];
+                    var el2 = jq[index+1];
+                    if('HR' == ele.tagName && 'H1' == el2.tagName){
+                        return {
+                            nextIndex : index + 1,
+                            title : $(el2).text(),
+                            html  : ele.outerHTML + el2.outerHTML,
+                            eles  : $([ele, el2]),
+                        };
+                    }
+                };
+            }
+            // 来吧，搞一个格式化，把所有 hr 后面有 H1 的都缩起来
+            var jq = jAr.children();
+            var block;
+            var blist = [];
+            var lastIndex = jq.length - 1;
+            for(var i=0; i<jq.length; i++) {
+                var ele = jq[i];
+                var blo = isTab(jq, i);
+                // 当前是 Hr 且前面是一个 H1，准备收缩的块
+                if(blo) {
+                    // 先看看之前的块要不要推入
+                    if(block) {
+                        blist.push(block);
+                    }
+                    // 开始一个新块
+                    block = blo;
+                    block.children = [];
+                    i = block.nextIndex;
+                    // 嗯，标识一下
+                    block.eles.attr("z-article-tab-source", "yes");
+                }
+                // 增加到当前块里
+                else if(block) {
+                    block.children.push(ele);
+                }
+            }
+            // 推入最后一个块
+            if(block) {
+                blist.push(block);
+            }
+            // 将所有有标题的块生成一下索引
+            if(blist.length > 0) {
+                var jStub = blist[0].eles.first();
+                var jTabs = $('<div class="z-article-tabs">')
+                                .insertBefore(jStub);
+                var jUl = $('<ul>').appendTo(jTabs);
+                for(var i=0; i<blist.length; i++) {
+                    var b   = blist[i];
+                    var str = b.title;
+                    var m = /^([^:：]+)[:：]/.exec(str);
+                    if(m)
+                        str = m[1];
+                    $('<li>').text(str).attr({
+                        "b": i,
+                        "title" : b.title
+                    }).appendTo(jUl);
+                }
+
+                // 如果是二级，所有的块外面再包裹一层
+                var jBlockCon;
+                if(!is_first_level) {
+                    jBlockCon = $('<div class="z-article-blcon">').appendTo(jAr);
+                }
+
+                // 依次将块缩入一个 DIV
+                for(var i=0; i<blist.length; i++) {
+                    var b = blist[i];
+                    var jStub = b.eles.first();
+                    if(b.children.length > 0) {
+                        var jBlock = $('<div class="z-article-block">').attr("b", i);
+                        if(jBlockCon){
+                            jBlockCon.append(jBlock);
+                        } else {
+                            jBlock.insertAfter(jStub);
+                        }
+                        jBlock.append(b.eles);
+                        jBlock.append($(b.children));
+                        // 针对每个块进行第二级缩进
+                        if(is_first_level) {
+                            //console.log("in level 2")
+                            $z.tabArticle(jBlock, function(jq, index){
+                                if(index>= (jq.length - 1))
+                                    return null;
+                                var ele = jq[index];
+                                if('H2' == ele.tagName){
+                                    var jCode = $(ele).find('code');
+                                    if(jCode.length == 0)
+                                        return null;
+                                    return {
+                                        nextIndex : index,
+                                        title : jCode.text(),
+                                        html  : ele.outerHTML,
+                                        eles  : $(ele),
+                                    };
+                                }
+                            });  // ~ $z.tabArticle
+                        }
+                    } // ~ if(b.children.length > 0) {
+                }
+            } // ~ if(blist.length > 0) 
+            // 最后标识一下，以防止重复标识
+            jAr.attr("z-article-tab-already", true);
+        },
+        //.............................................
+        // 寻找所有的符合给定选择器的对象，
+        // 根据与窗口相交的面积判断应该高亮那个标签
+        tabArticleMarkCurrent : function(jAr, selector){
+            var bIndex = 0;
+            var bArea  = 0;
+            var viewport = $D.dom.winsz(jAr[0].ownerDocument.defaultView);
+            //console.log("haha")
+            jAr.find(selector).each(function(){
+                var jBlock = $(this);
+                var rect = $D.rect.gen(jBlock);
+                var area = $D.rect.overlap_area(viewport, rect);
+                if(area > bArea) {
+                    bArea  = area;
+                    bIndex = jBlock.attr("b") * 1;
+                }
+            });
+            // 得到标签
+            jAr.find('> .z-article-tabs li[current]').removeAttr("current");
+            jAr.find('> .z-article-tabs li[b="'+bIndex+'"]').attr("current", "yes");
+        },
+        //.............................................
+        // 处理页面自动停靠相关的功能
+        pageDock : {
+            unmark : function(ele) {
+                // 确保是个 jQuery
+                var jq = $(ele);
+
+                // 删除属性和标识
+                jq.removeData("z-dock-info")
+                    .removeAttr("z-dock-ele")
+                        .css({
+                            "position" : "",
+                            "top"   : "",
+                            "left"  : "",
+                            "right" : "",
+                            "z-index" : "",
+                        });
+            },
+            /*
+            标识指定元素，以备 scroll 时调整之用。
+             - ele : Element      // 元素
+             - opt : {
+                fitpage : true     // 停靠时自适应页面宽度，默认 true
+                zIndex  : 10       // 停靠时设置的 zIndex，默认 10
+                pos : "top|bottom" // 停靠位置，默认top
+                // 当滚动到停靠元素消失了多少个自身高度时，才发生停靠
+                // 默认 3
+                factor : 3,
+                // 自己是否停靠，要依靠自己的父元素是否与视口有足够的相交面积
+                // 默认 false
+                detectParent : false,
+                // 停靠的时候，是否取消掉前面的停靠
+                // 默认 false
+                reset : false,
+            }
+            */
+            mark : function(ele, opt){
+                // 确保是个 jQuery
+                ele = $(ele);
+
+                // 处理参数形式
+                if(_.isBoolean(opt)){
+                    opt = {fitpage : opt};
+                }
+                // 数字默认当做 zIndex
+                else if(_.isNumber(opt)){
+                    opt = {zIndex : opt};
+                }
+
+                // 确保参数
+                opt = opt || {};
+                $z.setUndefined(opt, "pos", "top");
+                $z.setUndefined(opt, "fitpage", true);
+                $z.setUndefined(opt, "zIndex", 10);
+                $z.setUndefined(opt, "factor", 3);
+                $z.setUndefined(opt, "detectParent", false);
+                $z.setUndefined(opt, "reset", false);
+
+                // 没内容无视
+                if(ele.length == 0)
+                    return;
+                // 多个元素，逐个标记
+                if(ele.length > 1) {
+                    for(var i=0; i<ele.length; i++) {
+                        this.mark(ele[i], opt);
+                    }
+                    return;
+                }
+                // 得到元素和对应列表
+                ele = ele[0];
+                doc = ele.ownerDocument;
+                if(!_.isArray(doc.__dock_list_top)) {
+                    doc.__dock_list_top = [];
+                }
+                var list = doc.__dock_list_top;                    
+
+                // 查找一下
+                var theEle;
+                // 如果存在就无视吧
+                for(var i=0; i<list.length; i++) {
+                    if(list[i] === ele){
+                        theEle = list[i];
+                        break;
+                    }
+                }
+                // 计入堆栈
+                if(!theEle) {
+                    list.push(ele);
+                    theEle= ele;
+                }
+                // 补充一下值
+                var jq = $(theEle);
+                var t = jq.offset().top;
+                var h = jq.outerHeight();
+                jq.data("z-dock-info", {
+                    fitpage      : opt.fitpage,
+                    zIndex       : opt.zIndex,
+                    factor       : opt.factor,
+                    detectParent : opt.detectParent,
+                    reset        : opt.reset,
+                    primerTop    : t,
+                    primerHeight : h,
+                }).attr({
+                    "z-dock-ele" : "yes"
+                });
+            },
+            /*
+            如果发生了页面滚动，调用这个函数，会自动处理排列
+            */
+            adjust : function(doc) {
+                // 堆叠顶部
+                var docScrollTop = $(doc).scrollTop();
+                var viewport = $D.dom.winsz(doc);
+                var topH  = 0;   // 已堆叠的控件占据的高度
+                
+                // 准备一个停靠列表
+                var dockList = [];
+                $(doc.body).find('[z-dock-ele]').each(function(index){
+                    var jq = $(this);
+                    var dt = jq.data("z-dock-info");
+                    if(dt.reset) {
+                        $(dockList).css({
+                            "position" : "",
+                            "top"   : "",
+                            "left"  : "",
+                            "right" : "",
+                            "z-index" : "",
+                        }).removeAttr("z-dock-enabled");
+                        dockList = [];
+                    }
+                    dockList.push(this);
+                });
+
+                // 处理这个停靠列表
+                for(var i=0; i<dockList.length; i++) {
+                    var jq = $(dockList[i]);
+                    var dt = jq.data("z-dock-info");
+                    var threshold = dt.primerTop + dt.primerHeight * dt.factor - topH;
+                    //console.log("scroll",index, docScrollTop, threshold);
+
+                    // 超过了就停靠，或者自己所在的块并未移出屏幕
+                    var is_should_dock = false;
+                    if(docScrollTop > threshold) {
+                        // 要看看自己所在块是否有足够的空间 doc
+                        if(dt.detectParent) {
+                            // 计算自己所在的块
+                            var jMyPaOut = jq.closest('[hm-scroll-outview]');
+                            if(jMyPaOut.length == 0) {
+                                var jMyPaIn = jq.closest('[hm-scroll-inview]');
+                                var inRect  = $D.rect.gen(jMyPaIn);
+                                var ovRect  = $D.rect.overlap(viewport, inRect);
+                                // 自己所在块与视口重叠的面积必须要能放置自身的高度
+                                if(ovRect.height > jq.outerHeight()){
+                                    is_should_dock = true;
+                                }
+                            }
+                        }
+                        // 嗯一定要 dock 咯
+                        else {
+                            is_should_dock = true;
+                        }
+                    }
+
+                    if(is_should_dock) {
+                        var css = {
+                            "position" : "fixed",
+                            "top" : topH,
+                            "z-index" : dt.zIndex,
+                        };
+                        if(dt.fitpage) {
+                            css.left = 0;
+                            css.right = 0;
+                        }
+                        jq.css(css).attr("z-dock-enabled", "yes");
+                        // 累计下一个堆叠起点
+                        topH += dt.primerHeight;
+                    }
+                    // 否则取消停靠
+                    else {
+                        jq.css({
+                            "position" : "",
+                            "top"   : "",
+                            "left"  : "",
+                            "right" : "",
+                            "z-index" : "",
+                        }).removeAttr("z-dock-enabled");
+                    }
+                };
+            }
+        },
         //.............................................
         copyToClipboard : function(str) {
           var jEle = $("<input>").css({
