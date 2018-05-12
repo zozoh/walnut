@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.www;
 
 import java.net.URI;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
-import org.nutz.trans.Atom;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -271,6 +272,17 @@ public class WWWModule extends AbstractWnModule {
         return true;
     }
 
+    /**
+     * 根据手机号登录。如果用户不存在，则创建一个（相当于注册）
+     * 
+     * @param wwwId
+     *            WWW 目录 ID
+     * @param phone
+     *            手机号
+     * @param vcode
+     *            手机验证码
+     * @return 创建成功的会话信息
+     */
     @At("/www/u/login/phone/?")
     @Ok("++cookie>>:www=${obj.siteId}/${obj.ticket}")
     @Fail("ajax")
@@ -289,15 +301,26 @@ public class WWWModule extends AbstractWnModule {
             throw Er.create("e.www.login.invalid_vcode");
         }
 
-        // 切换上下文权限
+        // 采用 domain 用户的权限，执行会话的创建等逻辑
         WnUsr me = usrs.check(domain);
         WnObj oHome = io.check(null, me.home());
-        Wn.WC().su(me, new Atom() {
-            public void run() {
-
+        return Wn.WC().su(me, new Proton<NutMap>() {
+            protected NutMap exec() {
+                return __do_login_by_phone_as_domain_user(phone, oWWW, siteId, oHome);
             }
         });
 
+    }
+
+    /**
+     * 执行手机号登录的主要逻辑
+     * 
+     * @see #do_login_by_phone(String, String, String)
+     */
+    private NutMap __do_login_by_phone_as_domain_user(String phone,
+                                                      WnObj oWWW,
+                                                      String siteId,
+                                                      WnObj oHome) {
         // 找到用户表，看看有没有这个用户
         String tsId = oWWW.getString("hm_account_set");
         if (Strings.isBlank(tsId)) {
@@ -315,9 +338,19 @@ public class WWWModule extends AbstractWnModule {
             oU = ths.createThing("anonymous", meta);
         }
 
-        // 然后登陆，创建会话
+        // 得到会话主目录
         String path = Wn.appendPath(".hmaker/session/", siteId);
         WnObj oSset = io.createIfNoExists(oHome, path, WnRace.DIR);
+
+        // 看看是否已经存在了这个用户，如果存在那么删掉这个会会话
+        WnQuery q = Wn.Q.pid(oSset);
+        q.setv("uid", oU.id());
+        List<WnObj> oSothers = io.query(q);
+        for (WnObj oSother : oSothers) {
+            io.delete(oSother);
+        }
+
+        // 嗯嗯，登陆，创建会话
         String ticket = R.UU64(); // 准备一个票据
         WnObj oSe = io.create(oSset, ticket, WnRace.FILE);
 
