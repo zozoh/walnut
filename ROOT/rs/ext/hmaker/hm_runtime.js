@@ -666,13 +666,14 @@ window.HmRT = {
         win = win || window;
         if(!win.__layout_event_binded) {
             $(win.document.body).on("click", ".wn-obj-layout ul[li-target] li",
-                function(){
+                function(e){
+                    e.stopPropagation();
                     var jLi = $(this);
                     var jSpan = jLi.find("span");
                     var jUl = jLi.closest("ul");
                     var jTa = jUl.closest(".wn-obj-layout");
                     var jPr = jTa.find(".wn-obj-preview span");
-                    jPr.css("background-image", jSpan[0].style.backgroundImage);
+                    jPr.empty().css("background-image", jSpan[0].style.backgroundImage);
                     jUl.find("li").removeAttr("current");
                     jLi.attr("current", "yes");
                 });

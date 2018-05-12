@@ -4563,7 +4563,36 @@
                 }
             } // ~ if(blist.length > 0) 
             // 最后标识一下，以防止重复标识
-            jAr.attr("z-article-tab-already", true);
+            jAr.attr("z-article-tab-already", "yes");
+        },
+        //.............................................
+        untabArticle : function(jAr) {
+            // 未标识过，无需释放
+            if(!jAr.attr("z-article-tab-already"))
+                return;
+
+            // 首先移除所有标签
+            jAr.find('.z-article-tabs').remove();
+
+            // 循环块
+            jAr.find('>.z-article-block').each(function(){
+                var jBlock = $(this);
+                
+                // 解开二级包裹标签
+                var jBlcon = jBlock.find(".z-article-blcon");
+                jBlcon.find('>.z-article-block').each(function(){
+                    $(this).children().insertBefore(jBlcon);
+                });
+                jBlcon.remove();
+
+                // 解开当前块
+                jBlock.children().insertAfter(jBlock);
+                jBlock.remove();
+            });
+
+            // 移除标记
+            jAr.find('[z-article-tab-source]').removeAttr('z-article-tab-source');
+            jAr.removeAttr("z-article-tab-already")
         },
         //.............................................
         // 寻找所有的符合给定选择器的对象，
