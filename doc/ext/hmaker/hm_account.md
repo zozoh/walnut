@@ -41,7 +41,7 @@ tags:
 
 # 注册登录流程
 
-![](hm_account_login.png)
+![](hm_account_login_overview.png)
 
 ## 如何保护页面
 
@@ -253,8 +253,9 @@ unm : 139..      # 手机号
 pwd : 6847       # 动态短息密码，4-6位数字
 ```
 
+# 登录页面推荐操作逻辑
 
-
+![](hm_account_login_page.png)
 
 
 
