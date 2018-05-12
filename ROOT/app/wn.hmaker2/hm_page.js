@@ -1813,6 +1813,9 @@ return ZUI.def("app.wn.hmaker_page", {
                 "hm-once-inview"    : null,
                 "hm-scroll-inview"  : null,
                 "hm-scroll-outview" : null,
+                "enable-dock" : null,
+                "primer-top"  : null,
+
             });
             var jW   = jCom.children(".hm-com-W");
             
@@ -1851,6 +1854,8 @@ return ZUI.def("app.wn.hmaker_page", {
         
         // 删除所有的皮肤以及页面动态添加的 css/js 节点
         //C.iload.$head.find('[skin],[page-link]').remove();
+        // 删除一些属性
+        C.iload.$root.find('[z-dock-ele]').removeAttr("z-dock-ele");
         
         // 所有的分栏和组件前面都加入一个回车
         C.iload.$root.find(".hm-com, .hm-area, meta, link, body").each(function(){

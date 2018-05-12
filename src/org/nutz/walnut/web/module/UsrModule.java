@@ -74,6 +74,12 @@ public class UsrModule extends AbstractWnModule {
     private String page_login;
 
     /**
+     * 图形验证码的有效期(分钟）默认 1 分钟
+     */
+    @Inject("java:$conf.getInt('vcode-du-phone',1)")
+    private int vcodeDuCaptcha;
+
+    /**
      * 手机验证码的有效期(分钟）默认 10 分钟
      */
     @Inject("java:$conf.getInt('vcode-du-phone',10)")
@@ -239,7 +245,7 @@ public class UsrModule extends AbstractWnModule {
         String code = R.captchaNumber(4);
 
         // 保存:图形验证码只有一次机会
-        vcodes.save(vcodePath, code, this.vcodeDuPhone, 1);
+        vcodes.save(vcodePath, code, this.vcodeDuCaptcha, 1);
 
         // 返回成功
         return Captchas.genPng(code, 100, 50, Captchas.NOISE);

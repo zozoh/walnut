@@ -13,6 +13,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -36,9 +37,13 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.ext.captcha.Captchas;
+import org.nutz.walnut.ext.vcode.VCodes;
+import org.nutz.walnut.ext.vcode.WnVCodeService;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -58,6 +63,21 @@ public class WWWModule extends AbstractWnModule {
     private Tmpl tmpl_400;
     private Tmpl tmpl_404;
     private Tmpl tmpl_500;
+
+    @Inject
+    private WnVCodeService vcodes;
+
+    /**
+     * 图形验证码的有效期(分钟）默认 1 分钟
+     */
+    @Inject("java:$conf.getInt('vcode-du-phone',1)")
+    private int vcodeDuCaptcha;
+
+    /**
+     * 手机验证码的有效期(分钟）默认 10 分钟
+     */
+    @Inject("java:$conf.getInt('vcode-du-phone',10)")
+    private int vcodeDuPhone;
 
     public WWWModule() {
         tmpl_400 = Tmpl.parse(Files.read("html/400.wnml"));
@@ -176,6 +196,94 @@ public class WWWModule extends AbstractWnModule {
         // 记录密码
         u.put("passwd", passwd);
         return u;
+    }
+
+    @At("/vcode/captcha/?/?")
+    @Ok("raw:image/png")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public byte[] vcode_captcha_get(String wwwId, String accountName) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW= io.checkById(wwwId);
+        String domain = oWWW.d1();
+
+        // 获取
+        String vcodePath = VCodes.getCaptchaPath(domain, accountName);
+        String code = R.captchaNumber(4);
+
+        // 保存:图形验证码只有一次机会
+        vcodes.save(vcodePath, code, this.vcodeDuCaptcha, 1);
+
+        // 返回成功
+        return Captchas.genPng(code, 100, 50, Captchas.NOISE);
+    }
+
+    @At("/vcode/phone/?/?")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public boolean vcode_phone_get(String wwwId,
+                                   String phone,
+                                   @Param("s") String scene,
+                                   @Param("t") String token) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+
+        // 默认场景就是 login
+        scene = Strings.sBlank(scene, "login");
+
+        // 首先验证一下图片验证码
+        String vcodePath = VCodes.getCaptchaPath(domain, phone);
+        if (!vcodes.checkAndRemove(vcodePath, token)) {
+            return false;
+        }
+
+        // 生成手机验证码
+        vcodePath = VCodes.getPathBy(domain, scene, phone);
+        String code = R.captchaNumber(6);
+
+        // 手机短信验证码最多重试 5 次
+        vcodes.save(vcodePath, code, this.vcodeDuPhone, 5);
+
+        // 发送短信
+        String cmdText = String.format("sms -r '%s' -t 'i18n:%s' 'min:%d,code:\"%s\"'",
+                                       phone,
+                                       scene,
+                                       this.vcodeDuPhone,
+                                       code);
+        // String re = this.exec("vcode_phone_get", domain, cmdText);
+        //
+        // // 出现意外
+        // if (!Strings.isBlank(re))
+        // throw Er.create("e.vcode.phone.get", re);
+
+        // 成功
+        return true;
+    }
+
+    @At("/www/u/login/?")
+    @Ok("++cookie>>:www=${obj.siteId}/${obj.ticket}")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public NutMap do_login(String wwwId, @Param("a") String phone, @Param("t") String passwd) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW= io.checkById(wwwId);
+        String domain = oWWW.d1();
+        String siteId = oWWW.getString("hm_site_id");
+        
+        // 首先验证手机的短信密码是否正确
+        
+        
+        // 找到用户表，看看有没有这个用户
+        
+        // 如果没有的话，就创建一个
+        
+        // 然后登陆，创建会话
+        
+        // 准备返回对象
+        NutMap re = new NutMap();
+        re.put("siteId", siteId);
+        return re;
     }
 
     @At("/?/**")
@@ -352,7 +460,7 @@ public class WWWModule extends AbstractWnModule {
                 context.put("URL", url);
                 context.put("URI_PATH", uriPath);
                 context.put("URI_BASE", basePath);
-                context.put("WWW", oWWW.pickBy("^hm_.+$"));
+                context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
 
                 // 得到一些关键接口
                 context.put("grp", se.group());

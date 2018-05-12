@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.vcode;
 
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -11,9 +12,17 @@ import org.nutz.walnut.util.Wn;
 public abstract class VCodes {
 
     public static String getPathBy(String domain, String scene, String accountName) {
+        // 危险字符串
+        if (domain.indexOf('/') >= 0 || domain.indexOf("..") >= 0) {
+            throw Er.create("e.vocde.invalid.domain", domain);
+        }
+        if (accountName.indexOf('/') >= 0 || accountName.indexOf("..") >= 0) {
+            throw Er.create("e.vocde.invalid.accountName", accountName);
+        }
+        // 来吧
         return Wn.appendPath("/var/vcode", Strings.sBlank(domain, "walnut"), scene, accountName);
     }
-    
+
     public static String getBookingPath(String domain, String accountName) {
         return getPathBy(domain, "booking", accountName);
     }
