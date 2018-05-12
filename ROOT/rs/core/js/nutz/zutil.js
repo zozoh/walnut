@@ -4450,6 +4450,8 @@
                 }
         */
         tabArticle : function(jAr, isTab) {
+            if(!jAr || jAr.length == 0)
+                return;
             var is_first_level = false;
             // 标记过的，就不要标记了
             if(jAr.attr("z-article-tab-already"))
@@ -4567,6 +4569,8 @@
         },
         //.............................................
         untabArticle : function(jAr) {
+            if(!jAr || jAr.length == 0)
+                return;
             // 未标识过，无需释放
             if(!jAr.attr("z-article-tab-already"))
                 return;
@@ -4598,6 +4602,8 @@
         // 寻找所有的符合给定选择器的对象，
         // 根据与窗口相交的面积判断应该高亮那个标签
         tabArticleMarkCurrent : function(jAr, selector){
+            if(!jAr || jAr.length == 0)
+                return;
             var bIndex = 0;
             var bArea  = 0;
             var viewport = $D.dom.winsz(jAr[0].ownerDocument.defaultView);

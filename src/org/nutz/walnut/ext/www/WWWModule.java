@@ -31,13 +31,17 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.trans.Atom;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.captcha.Captchas;
+import org.nutz.walnut.ext.thing.WnThingService;
+import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.vcode.VCodes;
 import org.nutz.walnut.ext.vcode.WnVCodeService;
 import org.nutz.walnut.impl.box.Jvms;
@@ -78,6 +82,12 @@ public class WWWModule extends AbstractWnModule {
      */
     @Inject("java:$conf.getInt('vcode-du-phone',10)")
     private int vcodeDuPhone;
+
+    /**
+     * 手机验证码的有效期(分钟）默认 86400 秒
+     */
+    @Inject("java:$conf.getLong('session-du',86400)")
+    private long sessionDu;
 
     public WWWModule() {
         tmpl_400 = Tmpl.parse(Files.read("html/400.wnml"));
@@ -203,7 +213,7 @@ public class WWWModule extends AbstractWnModule {
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public byte[] vcode_captcha_get(String wwwId, String accountName) {
         // 根据 siteId 获取一下对应域名
-        WnObj oWWW= io.checkById(wwwId);
+        WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
 
         // 获取
@@ -261,29 +271,67 @@ public class WWWModule extends AbstractWnModule {
         return true;
     }
 
-    @At("/www/u/login/?")
+    @At("/www/u/login/phone/?")
     @Ok("++cookie>>:www=${obj.siteId}/${obj.ticket}")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public NutMap do_login(String wwwId, @Param("a") String phone, @Param("t") String passwd) {
+    public NutMap do_login_by_phone(String wwwId,
+                                    @Param("a") String phone,
+                                    @Param("v") String vcode) {
         // 根据 siteId 获取一下对应域名
-        WnObj oWWW= io.checkById(wwwId);
+        WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
         String siteId = oWWW.getString("hm_site_id");
-        
+
         // 首先验证手机的短信密码是否正确
-        
-        
+        String vcodePath = VCodes.getSignupPath(domain, phone);
+        if (!vcodes.checkAndRemove(vcodePath, vcode)) {
+            throw Er.create("e.www.login.invalid_vcode");
+        }
+
+        // 切换上下文权限
+        WnUsr me = usrs.check(domain);
+        WnObj oHome = io.check(null, me.home());
+        Wn.WC().su(me, new Atom() {
+            public void run() {
+
+            }
+        });
+
         // 找到用户表，看看有没有这个用户
-        
+        String tsId = oWWW.getString("hm_account_set");
+        if (Strings.isBlank(tsId)) {
+            throw Er.create("e.www.login.no_account_set");
+        }
+        WnObj oUset = io.checkById(tsId);
+        WnThingService ths = new WnThingService(io, oUset);
+
         // 如果没有的话，就创建一个
-        
+        ThQuery tq = new ThQuery();
+        NutMap meta = Lang.map("phone", phone);
+        tq.qStr = Json.toJson(meta);
+        WnObj oU = ths.getOne(tq);
+        if (null == oU) {
+            oU = ths.createThing("anonymous", meta);
+        }
+
         // 然后登陆，创建会话
-        
+        String path = Wn.appendPath(".hmaker/session/", siteId);
+        WnObj oSset = io.createIfNoExists(oHome, path, WnRace.DIR);
+        String ticket = R.UU64(); // 准备一个票据
+        WnObj oSe = io.create(oSset, ticket, WnRace.FILE);
+
+        // 更新会话
+        NutMap map = new NutMap();
+        map.put("expi", System.currentTimeMillis() + (this.sessionDu * 1000));
+        map.put("uid", oU.id());
+        map.put("unm", oU.name());
+        io.appendMeta(oSe, map);
+
         // 准备返回对象
-        NutMap re = new NutMap();
-        re.put("siteId", siteId);
-        return re;
+        map.put("siteId", siteId);
+        map.put("ticket", oSe.name());
+        return map;
     }
 
     @At("/?/**")

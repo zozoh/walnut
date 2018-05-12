@@ -47,6 +47,17 @@ public class WnThingService {
         return null != list && list.size() > 0 ? list.get(0) : null;
     }
 
+    public WnObj getOne(ThQuery tq) {
+        if (null == tq.wp) {
+            tq.wp = new WnPager();
+        }
+        tq.wp.set(1, 0);
+        List<WnObj> list = this.queryList(tq);
+        if (list.isEmpty())
+            return null;
+        return list.get(0);
+    }
+
     public WnObj createThing(String th_nm, NutMap meta) {
         return _A(new CreateThingAction()).setName(th_nm).setMeta(meta).invoke();
     }
