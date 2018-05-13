@@ -3899,6 +3899,17 @@
             // 剩下的部分， path 必须以 '/' 开头
             return '/' == path.charAt(len);
         },
+        //..............................................
+        // 将一堆字符串合并成一个路径
+        appendPath : function() {
+            var paths = Array.from(arguments);
+            if (paths && paths.length > 0) {
+                var str = paths.join("/").toString();
+                var ss  = str.split(/\/+/);
+                return ss.join("/");
+            }
+            return null;
+        },
         //----------------------------------------------------
         /**
          * jq - 要闪烁的对象

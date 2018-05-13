@@ -1484,6 +1484,7 @@ var Wn = {
     },
     //..............................................
     // 将一堆字符串合并成一个路径
+    // @deprecated 请使用 $z.appendPath
     appendPath : function() {
         var paths = Array.from(arguments);
         if (paths && paths.length > 0) {

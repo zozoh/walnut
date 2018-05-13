@@ -59,12 +59,12 @@ public class WnMainModule extends AbstractWnModule {
     @At("/")
     @Ok(">>:${obj}")
     public String doCheck(@Attr(value = "wn_www_host", scope = Scope.REQUEST) String host) {
-        String seid = Wn.WC().SEID();
-        if (null == seid) {
+        if (!Wn.WC().hasSEID()) {
             return this._get_entry_page_url(host);
         }
 
         try {
+            String seid = Wn.WC().SEID();
             WnSession se = sess.check(seid, true);
             Wn.WC().SE(se);
             Wn.WC().me(se.me(), se.group());

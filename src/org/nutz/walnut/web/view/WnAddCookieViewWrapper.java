@@ -36,6 +36,19 @@ public class WnAddCookieViewWrapper implements View {
         this.view = view;
     }
 
+    public WnAddCookieViewWrapper(View view, String value) {
+        // 默认 cookie 模板
+        if (Strings.isBlank(value)) {
+            this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+            this.view = view;
+        }
+        // 指定了 cookie 模板
+        else {
+            this.cookie = Tmpl.parsef(value);
+            this.view = view;
+        }
+    }
+
     @Override
     public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
             throws Throwable {

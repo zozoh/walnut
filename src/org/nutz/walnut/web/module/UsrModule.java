@@ -99,9 +99,9 @@ public class UsrModule extends AbstractWnModule {
     @Fail(">>:/")
     public View show_login(String rph, @Attr("wn_www_host") String host) {
         // 确保没有登录过
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
             try {
+                String seid = Wn.WC().SEID();
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
             }
@@ -122,9 +122,9 @@ public class UsrModule extends AbstractWnModule {
                           @ReqHeader("Range") String range,
                           HttpServletRequest req) {
         // 确保没有登录过
-        String seid = Wn.WC().SEID();
-        if (null != seid && "login.html".equals(rph)) {
+        if (Wn.WC().hasSEID() && "login.html".equals(rph)) {
             try {
+                String seid = Wn.WC().SEID();
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
             }
@@ -189,6 +189,7 @@ public class UsrModule extends AbstractWnModule {
                 if ("rename.html".equals(o.name())) {
 
                     // 得到会话信息
+                    String seid = Wn.WC().SEID();
                     WnSession se = sess.check(seid, false);
                     Wn.WC().SE(se);
                     Wn.WC().me(se.me(), se.group());
@@ -446,8 +447,8 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("--cookie>>:/")
     public NutMap do_logout() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
+            String seid = Wn.WC().SEID();
             WnSession pse = sess.logout(seid);
             if (null != pse)
                 return pse.toMapForClient();
@@ -461,8 +462,8 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
     public boolean do_logout_ajax() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
+            String seid = Wn.WC().SEID();
             sess.logout(seid);
             return true;
         }

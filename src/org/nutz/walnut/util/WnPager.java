@@ -47,8 +47,8 @@ public class WnPager {
 
     public WnPager set(int limit, int skip) {
         this.countPage = true;
-        this.skip = limit;
-        this.limit = skip;
+        this.skip = skip;
+        this.limit = limit;
         this.pgsz = limit > 0 ? limit : DEAULT_LIMIT;
         this.pn = skip > 0 ? skip / pgsz + 1 : 1;
         return this;

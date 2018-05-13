@@ -213,7 +213,7 @@ public class IoWnSessionService implements WnSessionService {
     }
 
     private WnObj __fetch_seobj(String seid) {
-        if (null == seid)
+        if (Strings.isBlank(seid))
             return null;
         return io.fetch(oSessions, seid);
     }

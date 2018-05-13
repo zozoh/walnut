@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -217,17 +216,23 @@ public class IoWnUsrService implements WnUsrService {
         if (null == u || Strings.isBlank(passwd))
             return false;
 
-        if (log.isDebugEnabled())
-            log.debugf("read u: %s :: %s :: %s ", u.name(), u.password(), u.salt());
+        // 首先取出盐和密码
+        String salt = u.salt();
+        String db_passwd = u.password();
 
-        if (u.salt() == null) { // 没有加盐? 加盐之
-            setPassword(u, Strings.sBlank(u.password(), "123456"));
+        if (log.isDebugEnabled())
+            log.debugf("read u: %s :: %s :: %s ", u.name(), db_passwd, salt);
+
+        // 没有加盐? 加盐之
+        if (Strings.isBlank(salt)) {
+            setPassword(u, Strings.sBlank(db_passwd, "123456"));
         }
 
         if (log.isDebugEnabled())
-            log.debugf(" -- Lang.sha1('%s', '%s') == %s", passwd, u.salt(), u.password());
+            log.debugf(" -- Lang.sha1('%s', '%s') == %s", passwd, salt, db_passwd);
 
-        return Lang.sha1(passwd + u.salt()).equals(u.password());
+        String salt_pass = Wn.genSaltPassword(passwd, salt);
+        return salt_pass.equals(db_passwd);
     }
 
     @Override
@@ -238,11 +243,10 @@ public class IoWnUsrService implements WnUsrService {
         if (passwd.length() < 6)
             throw Er.create("e.usr.passwd.tooshort");
 
-        // 先加盐
-        u.salt(R.UU32());
-
-        // 然后设置加盐后的密码
-        u.password(Lang.sha1(passwd + u.salt()));
+        // 设置加盐后的密码
+        String salt = R.UU32();
+        u.password(Wn.genSaltPassword(passwd, salt));
+        u.salt(salt);
 
         // 存吧
         io.set(u, "^(passwd|salt)$");

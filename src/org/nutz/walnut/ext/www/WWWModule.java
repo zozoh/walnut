@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.www;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -11,6 +13,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -63,7 +66,7 @@ public class WWWModule extends AbstractWnModule {
 
     // private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
 
-    private static final String[] ENTRIES = Lang.array("index.wnml", "index.html");
+    private static final List<String> ENTRIES = Lang.list("index.wnml", "index.html");
 
     private Tmpl tmpl_400;
     private Tmpl tmpl_404;
@@ -96,6 +99,7 @@ public class WWWModule extends AbstractWnModule {
         tmpl_500 = Tmpl.parse(Files.read("html/500.wnml"));
     }
 
+    @Deprecated
     @At("/?/_usr/do/login")
     @Ok("++cookie>>:" + WWW.AT_SEID + "=${dseid},${obj.url}")
     @Fail(">>:${obj.url}")
@@ -132,6 +136,7 @@ public class WWWModule extends AbstractWnModule {
         return re;
     }
 
+    @Deprecated
     @At("/?/_usr/do/logout")
     @Ok("--cookie>>:" + WWW.AT_SEID + ",${obj}")
     @Fail(">>:${obj}")
@@ -184,6 +189,7 @@ public class WWWModule extends AbstractWnModule {
         return conf.getString("create_ok", "/");
     }
 
+    @Deprecated
     private NutMap __gen_u_map(String str, String passwd) {
         NutMap u = new NutMap();
 
@@ -239,9 +245,10 @@ public class WWWModule extends AbstractWnModule {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
+        String siteId = oWWW.getString("hm_site_id");
 
         // 默认场景就是 login
-        scene = Strings.sBlank(scene, "login");
+        scene = Strings.sBlank(scene, "login_" + siteId);
 
         // 首先验证一下图片验证码
         String vcodePath = VCodes.getCaptchaPath(domain, phone);
@@ -262,11 +269,11 @@ public class WWWModule extends AbstractWnModule {
                                        scene,
                                        this.vcodeDuPhone,
                                        code);
-        // String re = this.exec("vcode_phone_get", domain, cmdText);
-        //
-        // // 出现意外
-        // if (!Strings.isBlank(re))
-        // throw Er.create("e.vcode.phone.get", re);
+        String re = this.exec("vcode_phone_get", domain, cmdText);
+
+        // 出现意外
+        if (!Strings.isBlank(re))
+            throw Er.create("e.vcode.phone.get", re);
 
         // 成功
         return true;
@@ -283,11 +290,12 @@ public class WWWModule extends AbstractWnModule {
      *            手机验证码
      * @return 创建成功的会话信息
      */
-    @At("/www/u/login/phone/?")
-    @Ok("++cookie>>:www=${obj.siteId}/${obj.ticket}")
+    @At("/u/login/phone/?")
+    @Ok("++cookie->ajax:www=${siteId}/${ticket}")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
     public NutMap do_login_by_phone(String wwwId,
+                                    @Param("s") String scene,
                                     @Param("a") String phone,
                                     @Param("v") String vcode) {
         // 根据 siteId 获取一下对应域名
@@ -295,8 +303,11 @@ public class WWWModule extends AbstractWnModule {
         String domain = oWWW.d1();
         String siteId = oWWW.getString("hm_site_id");
 
+        // 默认场景就是 login
+        scene = Strings.sBlank(scene, "login_" + siteId);
+
         // 首先验证手机的短信密码是否正确
-        String vcodePath = VCodes.getSignupPath(domain, phone);
+        String vcodePath = VCodes.getPathBy(domain, scene, phone);
         if (!vcodes.checkAndRemove(vcodePath, vcode)) {
             throw Er.create("e.www.login.invalid_vcode");
         }
@@ -309,11 +320,10 @@ public class WWWModule extends AbstractWnModule {
                 return __do_login_by_phone_as_domain_user(phone, oWWW, siteId, oHome);
             }
         });
-
     }
 
     /**
-     * 执行手机号登录的主要逻辑
+     * 执行手机短信密码登录的主要逻辑
      * 
      * @see #do_login_by_phone(String, String, String)
      */
@@ -322,22 +332,37 @@ public class WWWModule extends AbstractWnModule {
                                                       String siteId,
                                                       WnObj oHome) {
         // 找到用户表，看看有没有这个用户
+        WnThingService ths = __gen_account_service(oWWW);
+
+        // 如果没有的话，就创建一个
+        WnObj oU = __get_usr_by_phone(ths, phone);
+        if (null == oU) {
+            oU = ths.createThing("anonymous", Lang.map("phone", phone));
+        }
+
+        // 创建会话
+        return __create_session(siteId, oHome, oU);
+    }
+
+    private WnObj __get_usr_by_phone(WnThingService ths, String phone) {
+        ThQuery tq = new ThQuery();
+        NutMap meta = Lang.map("phone", phone);
+        tq.qStr = Json.toJson(meta);
+        WnObj oU = ths.getOne(tq);
+        return oU;
+    }
+
+    private WnThingService __gen_account_service(WnObj oWWW) {
         String tsId = oWWW.getString("hm_account_set");
         if (Strings.isBlank(tsId)) {
             throw Er.create("e.www.login.no_account_set");
         }
         WnObj oUset = io.checkById(tsId);
         WnThingService ths = new WnThingService(io, oUset);
+        return ths;
+    }
 
-        // 如果没有的话，就创建一个
-        ThQuery tq = new ThQuery();
-        NutMap meta = Lang.map("phone", phone);
-        tq.qStr = Json.toJson(meta);
-        WnObj oU = ths.getOne(tq);
-        if (null == oU) {
-            oU = ths.createThing("anonymous", meta);
-        }
-
+    private NutMap __create_session(String siteId, WnObj oHome, WnObj oU) {
         // 得到会话主目录
         String path = Wn.appendPath(".hmaker/session/", siteId);
         WnObj oSset = io.createIfNoExists(oHome, path, WnRace.DIR);
@@ -361,10 +386,160 @@ public class WWWModule extends AbstractWnModule {
         map.put("unm", oU.name());
         io.appendMeta(oSe, map);
 
+        // 修改用户的最后登录时间
+        oU.setv("login", oSe.lastModified());
+        io.set(oU, "^login$");
+
         // 准备返回对象
         map.put("siteId", siteId);
         map.put("ticket", oSe.name());
         return map;
+    }
+
+    /**
+     * 根据手机号登录。如果用户不存在，则创建一个（相当于注册）
+     * 
+     * @param wwwId
+     *            WWW 目录 ID
+     * @param phone
+     *            手机号
+     * @param passwd
+     *            登录密码
+     * @return 创建成功的会话信息
+     */
+    @At("/u/login/passwd/?")
+    @Ok("++cookie->ajax:www=${siteId}/${ticket}")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public NutMap do_login_by_passwd(String wwwId,
+                                     @Param("a") String phone,
+                                     @Param("w") String passwd) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+        String siteId = oWWW.getString("hm_site_id");
+
+        // 采用 domain 用户的权限，执行会话的创建等逻辑
+        WnUsr me = usrs.check(domain);
+        WnObj oHome = io.check(null, me.home());
+        return Wn.WC().su(me, new Proton<NutMap>() {
+            protected NutMap exec() {
+                return __do_login_by_passwd_as_domain_user(phone, passwd, oWWW, siteId, oHome);
+            }
+        });
+    }
+
+    /**
+     * 执行用户名密码登录的主要逻辑
+     * 
+     * @see #do_login_by_passwd(String, String, String)
+     */
+    private NutMap __do_login_by_passwd_as_domain_user(String phone,
+                                                       String passwd,
+                                                       WnObj oWWW,
+                                                       String siteId,
+                                                       WnObj oHome) {
+        // 找到用户表，看看有没有这个用户
+        WnThingService ths = __gen_account_service(oWWW);
+
+        // 如果没有的话，不行啊，抛一个错
+        WnObj oU = __get_usr_by_phone(ths, phone);
+        if (null == oU) {
+            throw Er.create("e.www.login.account_noexists");
+        }
+
+        // 验证一下用户名和密码
+        String db_passwd = oU.getString("passwd");
+        String salt = oU.getString("salt");
+        String salt_pass = Wn.genSaltPassword(passwd, salt);
+        if (!salt_pass.equals(db_passwd)) {
+            throw Er.create("e.www.login.invalid_passwd");
+        }
+
+        // 创建会话
+        return __create_session(siteId, oHome, oU);
+    }
+
+    /**
+     * 取消当前会话的登录
+     * 
+     * @param wwwId
+     *            WWW 目录 ID
+     * @param theURL
+     *            取消登录后，要重定向到哪个地址，默认为 "/"
+     * @return 重定向的地址
+     * @throws URISyntaxException
+     */
+    @At("/u/logout/?")
+    @Ok("--cookie>>:www,${obj}")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public String do_logout(String wwwId, @Param("url") String theURL, HttpServletRequest req)
+            throws URISyntaxException {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+
+        // 获取主目录
+        WnObj oHome = io.check(null, "/home/" + domain);
+
+        // 从请求对象得到上下文
+        NutMap context = __gen_www_context(req, oWWW, null);
+
+        // 准备操作接口并删除会话
+        WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+        api.deleteMySession();
+
+        // 得到要返回的 URL
+        return Strings.sBlank(theURL, "/");
+    }
+
+    @At("/u/check/phone/?")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public boolean is_logined_and_has_phone(String wwwId, HttpServletRequest req)
+            throws URISyntaxException {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+
+        // 获取主目录
+        WnObj oHome = io.check(null, "/home/" + domain);
+
+        // 从请求对象得到上下文
+        NutMap context = __gen_www_context(req, oWWW, null);
+
+        // 准备操作接口
+        WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+        return api.checkMyPhone();
+    }
+
+    /**
+     * 判断某手机号是否存在
+     * 
+     * @param wwwId
+     *            WWW 目录 ID
+     * @param phone
+     *            手机号
+     * @return true 存在； false 不存在
+     */
+    @At("/u/exists/phone/?/?")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public boolean is_phone_exists(String wwwId, String phone) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+
+        // 找到用户表，看看有没有这个用户
+        WnThingService ths = __gen_account_service(oWWW);
+
+        // 如果没有的话，就创建一个
+        WnObj oU = __get_usr_by_phone(ths, phone);
+
+        // 返回
+        return null != oU;
     }
 
     @At("/?/**")
@@ -415,7 +590,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 请求里带了 host 了吗
         Object host = req.getAttribute("wn_www_host");
-        if (null != host) {
+        if (null != host && !"localhost".equals(host) && !"127.0.0.1".equals(host)) {
             q.setv("www", host.toString());
             oWWW = io.getOne(q);
         }
@@ -462,9 +637,18 @@ public class WWWModule extends AbstractWnModule {
         // 目录的话，依次上传入口
         if (o.isDIR()) {
             // 获取入口网页的可能列表
-            String[] entries = ENTRIES;
+            List<String> entries = ENTRIES;
             if (null != oWWW) {
-                entries = oWWW.getArray("www_entry", String.class, ENTRIES);
+                Object eno = oWWW.get("www_entry");
+                List<String> en_list = new ArrayList<String>(6);
+                Lang.each(eno, new Each<String>() {
+                    public void invoke(int index, String ele, int length) {
+                        if (!Strings.isBlank(ele))
+                            en_list.add(ele);
+                    }
+                });
+                if (en_list.size() > 0)
+                    entries = en_list;
             }
             // 依次尝试入口对象
             for (String entry : entries) {
@@ -515,33 +699,25 @@ public class WWWModule extends AbstractWnModule {
                 isDynamic = o.isType("wnml");
             // 执行命令
             if (isDynamic) {
+                if (log.isDebugEnabled())
+                    log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
+
                 // 首先创建一个会话
                 WnSession se = this.creatSession(usr);
 
                 // 得到文件内容
                 String input = io.readText(o);
 
-                // 从请求对象得到上下文
-                NutMap context = _gen_context_by_req(req);
-
                 // 计算路径
                 String rootPath = oWWW.path();
                 String currentPath = o.path();
                 String currentDir = o.parent().path();
                 String pagePath = currentPath.substring(rootPath.length());
-                String url = req.getRequestURL().toString();
-                URI uri = new URI(url);
-                String uriPath = uri.getPath();
-                String basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
 
-                context.put("SITE_HOME", rootPath);
+                // 从请求对象得到上下文
+                NutMap context = __gen_www_context(req, oWWW, pagePath);
                 context.put("CURRENT_PATH", currentPath);
                 context.put("CURRENT_DIR", currentDir);
-                context.put("PAGE_PATH", pagePath);
-                context.put("URL", url);
-                context.put("URI_PATH", uriPath);
-                context.put("URI_BASE", basePath);
-                context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
 
                 // 得到一些关键接口
                 context.put("grp", se.group());
@@ -549,7 +725,11 @@ public class WWWModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 放置一些上下文的接口
-                context.put("API", new WWWPageAPI(io, oHome, oWWW, context));
+                WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+                context.put("API", api);
+
+                // 看看是否是已经登录的会话，如果已经登录了，那么要偷偷改一下会话的票据
+                String seph = api.updateSessionTicket();
 
                 // 创建一下解析服务
                 // WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
@@ -563,16 +743,28 @@ public class WWWModule extends AbstractWnModule {
                 // 执行转换
                 String html = ws.invoke(wrt, context, input);
 
-                // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
-                if (html.startsWith("HTTP/1.")) {
-                    HttpServerResponse hsr = new HttpServerResponse();
-                    hsr.updateBy(html);
-                    return new HttpStatusView(hsr);
+                // 准备输出响应内容
+                HttpServerResponse hsr = new HttpServerResponse();
+                hsr.updateBy(html);
+
+                // 默认的内容类型
+                hsr.header().putDefault("CONTENT-TYPE", "text/html");
+
+                // 更新客户端的 cookie 以便匹配上新的 session
+                if (!Strings.isBlank(seph)) {
+                    hsr.header().addv("SET-COOKIE", "www=" + seph + "; Path=/;");
                 }
-                if (log.isDebugEnabled())
-                    log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
-                // 返回网页
-                return new ViewWrapper(new RawView("text/html"), html);
+
+                return new HttpStatusView(hsr);
+
+                // // 如果以 HTTP/1.x 开头，则认为是要输出 HTTP 头
+                // if (html.startsWith("HTTP/1.")) {
+                //
+                // }
+                // if (log.isDebugEnabled())
+                // log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
+                // // 返回网页
+                // return new ViewWrapper(new RawView("text/html"), html);
             }
             // 其他的都是静态资源，就直接下载了
             if (log.isDebugEnabled())
@@ -588,7 +780,30 @@ public class WWWModule extends AbstractWnModule {
         catch (Exception e) {
             return gen_errpage(tmpl_500, a_path, e.toString());
         }
+    }
 
+    private NutMap __gen_www_context(HttpServletRequest req, WnObj oWWW, String pagePath)
+            throws URISyntaxException {
+        NutMap context = _gen_context_by_req(req);
+        String rootPath = oWWW.path();
+        String url = req.getRequestURL().toString();
+        URI uri = new URI(url);
+        String uriPath = uri.getPath();
+        String basePath;
+        if (!Strings.isBlank(pagePath) && uriPath.endsWith(pagePath)) {
+            basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
+        } else {
+            basePath = uriPath;
+        }
+
+        context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
+        context.put("SITE_HOME", rootPath);
+        context.put("PAGE_PATH", pagePath);
+        context.put("URL", url);
+        context.put("URI_PATH", uriPath);
+        context.put("URI_BASE", basePath);
+
+        return context;
     }
 
     private View gen_errpage(Tmpl tmpl, String path) {

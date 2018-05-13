@@ -1142,4 +1142,8 @@ public abstract class Wn {
             }
         });
     }
+
+    public static String genSaltPassword(String passwd, String salt) {
+        return Lang.sha1(passwd + salt);
+    }
 }

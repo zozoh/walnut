@@ -84,7 +84,7 @@ www=45tr..3we1/er43..23vd
 
 ## 会话元数据
 
-```js
+```
 {
     id   : "45..8a",    // 会话唯一ID
     nm   : "54..8m",    // 会话的票据，会定期变化
@@ -100,7 +100,7 @@ www=45tr..3we1/er43..23vd
 
 如果后续接口要做安全验证，必然要传上来 `appId(即 siteId)`，那么我们可以得到站点的元数据
 
-```js
+```
 {
     // 站点的文件对象类型，必须是 hmaker_site
     tp: "hmaker_site",
@@ -114,8 +114,18 @@ www=45tr..3we1/er43..23vd
     // 指向了站点对应的角色数据集（ThingSet）
     hm_role_set: "yt..2q",
 
+    // 当访问站点，但是没有指明入口页时，默认跳转到哪个页面，
+    // 默认是 index.wnml | index.html
+    www_entry: "enter.html",
+
+    // 如果本站点登录后，默认跳转的连接
+    // 当然这通常是直接访问登录界面的调整
+    // 其他页面跳转到登录页的时候会在 cookie 里指明要调整的目标
+    // 如果这个值不设置，将采用 entry 的设置
+    hm_login_entry: "index.html",
+
     // 指向本站点关联的微信公号目录
-    hm_wxmp : "~/.weixin/gh_xxx",
+    hm_wxmp : "gh_xxx",   
 
     // 下面两个元数据是发布目标和站点皮肤，基本只会和发布有关，在这里我们无视就好
     hm_target_release: "~/www/zozoh.site0.cn/",
@@ -146,7 +156,7 @@ secur_check : true
 
 ## 请求的Json结构规范
 
-```js
+```
 {
     api      : "/thing/update",    // 「必」指明要调用的API路径
     appId    : "45fd..fq8a",       // 「必」指明站点 ID (工程目录)
@@ -180,7 +190,7 @@ Java 代码例子
 
 在浏览器端，你可以通过给定的帮助函数生成签名并调用 REGAPI：
 
-```js
+```
 WnApi.invoke({
         api : "/thing/update"
         //...
@@ -198,10 +208,13 @@ WnApi.invoke({
 
 那么根据 `hm_account_set`，以及会话中的 `uid`，我们可以得到一个账号的元数据：
 
-```js
+```
 {
     id : "u6..8r",    // 会话用户的 ID
     nm : "u6..8r",    // 用户的登录名，通常为 id
+
+    //................................ 登录信息
+    login  : 158..,      // 绝对毫秒数，表示上一次登录
 
     //................................ 用户信息
     th_nm  : "小白",       // 用户昵称

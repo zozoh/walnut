@@ -40,7 +40,7 @@ public class CreateWnContext extends AbstractProcessor {
     }
 
     public static void setupWnContext(WnContext wc, HttpServletRequest req) {
-        if (null == wc.SEID()) {
+        if (!wc.hasSEID()) {
             // 从 cookie 里获取 Session 的 ID
             if (null != req) {
                 wc.copyCookieItems(req, Lang.array(Wn.AT_SEID));

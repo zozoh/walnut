@@ -263,7 +263,7 @@ return ZUI.def("app.wn.hmaker_resource", {
 
         // 移除
         var jN2 = UI.uiTree.removeNode(oid);
-        console.log("jN2", jN2)
+        //console.log("jN2", jN2)
 
         // 高亮下一个节点
         UI.uiTree.setActived(jN2);
