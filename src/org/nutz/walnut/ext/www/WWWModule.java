@@ -786,7 +786,9 @@ public class WWWModule extends AbstractWnModule {
             throws URISyntaxException {
         NutMap context = _gen_context_by_req(req);
         String rootPath = oWWW.path();
-        String url = req.getRequestURL().toString();
+        String url = (String) req.getAttribute("wn_www_url");
+        if (url == null)
+            url = req.getRequestURL().toString();
         URI uri = new URI(url);
         String uriPath = uri.getPath();
         String basePath;
