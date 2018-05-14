@@ -1,8 +1,12 @@
 package org.nutz.walnut.ext.www;
 
+import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
@@ -14,6 +18,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.util.Wn;
 
@@ -22,17 +27,7 @@ import org.nutz.walnut.util.Wn;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WWWPageAPI {
-
-    /**
-     * IO 接口
-     */
-    private WnIo io;
-
-    /**
-     * 当前用户操作的主目录，通常为 `/home/xxx`
-     */
-    private WnObj oHome;
+public class WWWPageAPI extends WWWAPI {
 
     /**
      * 当前页面所在的 www 目录
@@ -45,14 +40,9 @@ public class WWWPageAPI {
     private NutMap context;
 
     /**
-     * 内部缓存一下会话主目录
-     */
-    private WnObj __o_session_home;
-
-    /**
      * 创建时检查一下 oWWW 有没有指定 `hm_site_id`
      */
-    private String __site_id;
+    private String siteId;
 
     private WnIoWeixinApi wxApi;
 
@@ -62,17 +52,16 @@ public class WWWPageAPI {
     private NutBean header;
     private NutBean params;
 
-    public WWWPageAPI(WnIo io, WnObj oHome, WnObj oWWW, NutMap context) {
-        this.io = io;
-        this.oHome = oHome;
+    public WWWPageAPI(WnIo io, WnObj oHome, long sessionDu, WnObj oWWW, NutMap context) {
+        super(io, oHome, sessionDu);
         this.oWWW = oWWW;
         this.context = context;
         this.header = context.getAs("header", NutBean.class);
         this.params = context.getAs("params", NutBean.class);
 
         // 检查一下
-        this.__site_id = oWWW.getString("hm_site_id");
-        if (Strings.isBlank(this.__site_id)) {
+        this.siteId = oWWW.getString("hm_site_id");
+        if (Strings.isBlank(this.siteId)) {
             throw Er.create("e.www.page.api_without_siteId", oWWW);
         }
 
@@ -96,98 +85,109 @@ public class WWWPageAPI {
      * 那么会试图用微信公众号的OpenId来注册一个新用户，并生成 Session，再执行后面的逻辑<br>
      * 当然，通常没有手机号，也是要被踢掉的
      * 
+     * @param newSeAttrName
+     *            如果发现当前会话是微信客户端，会自动登录。但是必须声明这个属性。如果不声明则无视。<br>
+     *            声明这个属性后，如果当前会话没登录，会根据微信的 code 创建用户（如果不存在openid的话）和会话。<br>
+     *            同时会在上下文里设置一个 cookie 的内容，以便重定向场景下，可以设置 cookie。<br>
+     *            所以如果你传这个属性，就相当于是说，你不希望自动创建用户和会话。
+     * @param redirectPath
+     *            在 newSeAttrName 有值的时候才有效，相当于要指定 cookie 的作用路径为:<br>
+     *            <code>Path=${URI_BASE}/@redirectPath; </code> <br>
+     *            如果你的值是以 "/" 开头的，则相当于 <code>Path=@redirectPath; </code><br>
+     *            如果不指定这个值，则相当于 <code>Path=/; </code> <br>
+     * 
      * @return true: 当前会话登录，并且用户有phone字段. false: 当前会话没有登录,或者没有 phone 字段
      */
-    public boolean checkMyPhone() {
+    public boolean checkMyPhone(String newSeAttrName, String redirectPath) {
+        // 如果上下文中已经检查过了
+        if (context.getBoolean("me_without_phone"))
+            return false;
+
         // 确保可以正确的找到用户库
         WnObj oAcsSet = checkAccountSet();
-        WnThingService ths = new WnThingService(io, oAcsSet);
-        WnObj oMe;
+        WnThingService accS = new WnThingService(io, oAcsSet);
+        WnObj oMe = null;
 
         // 确保有会话
-        NutBean se = getSession();
-        /**
-         * 如果没有会话，分析一下上下文，如果请求里表明是来自微信的，那么就尝试创建用户
-         * 
-         * <pre>
-        {
-            "header": {
-               ...
-               "USER-AGENT": ".. MicroMessenger/6.6.6.1300(0x26060637) ..",
-               ..
-            },
-            "params": {
-               "code": "021r2QkP0Dq82c2O4BkP0x98lP0r2QkG",
-               "state": ""
-            },
-            ..
-         * </pre>
-         */
-        if (null == se) {
-            if (null != wxApi) {
-                String userAgent = header.getString("USER-AGENT");
-                boolean is_weixin = userAgent.indexOf("MicroMessenger/") > 0;
-                String code = params.getString("code");
-                if (is_weixin && !Strings.isBlank(code)) {
-                    // 试图获取用户 openid 信息
-                    String openid = wxApi.user_openid_by_code(code);
-                    if (!Strings.isBlank(openid)) {
-                        // 查一下是否存在这个用户
-                        String key = "wx_" + wxmp;
-                        ThQuery tq = new ThQuery(key, openid);
-                        oMe = ths.getOne(tq);
+        WnObj oSe = this.getSessionObj();
 
-                        // 如果用户不存在，那么试图获取他的信息，并创建一个
-                        NutMap re = wxApi.user_info(openid, null);
-                        /**
-                         * 得到的返回信息格式为：
-                         * 
-                         * <pre>
-                         {
-                            subscribe: 1,
-                            openid: "xxx",
-                            nickname: "小白",
-                            sex: 1,
-                            language: "zh_CN",
-                            city: "海淀",
-                            province: "北京",
-                            country: "中国",
-                            headimgurl: "http://..",
-                            subscribe_time: 1474388443,
-                            remark: "",
-                            groupid: 0,
-                            tagid_list: [],
-                            subscribe_scene: "ADD_SCENE_OTHERS",
-                            qr_scene: 0,
-                            qr_scene_str: ""
-                         }
-                         * </pre>
-                         */
-                        // 创建用户
-                        String myName = re.getString("nickname", "anonymous");
-                        NutMap meta = re.pickBy("^(city|province|country)$");
-                        oMe = ths.createThing(myName, meta);
-                        
-                        // 如果有头像的话，搞一下
-                        String headimgurl= re.getString("headimgurl");
-                        if(!Strings.isBlank(headimgurl)) {
-                            
-                        }
+        // 尝试用微信搞一下
+        if (null == oSe) {
+            if (!Strings.isBlank(newSeAttrName)) {
+                oMe = __create_user_by_wxcode(accS);
+                // 如果没有会话，说明刚才是通过微信 code 搞的，那么搞一个会话
+                if (null != oMe) {
+                    // 首先看看是否有会话
+                    oSe = this.fetchSessionObj(siteId, oMe);
+
+                    // 木有的话，创建一个
+                    if (null == oSe)
+                        oSe = this.createSessionObj(siteId, oMe);
+
+                    // 设置一下上下文属性，以便调用者发送 cookie
+                    String seph = siteId + "/" + oSe.name();
+                    String coph = "/";
+                    if (!Strings.isBlank(redirectPath)) {
+                        if (redirectPath.startsWith("/"))
+                            coph = redirectPath;
+                        else
+                            coph = context.getString("URI_BASE") + "/" + redirectPath;
+
                     }
+                    String cookie = String.format("www=%s; Path=%s; ", seph, coph);
+                    context.put(newSeAttrName, cookie);
                 }
             }
-            // 开来没戏，拒绝它!
-            return false;
         }
         // 那么让我们看看我们可爱的用户
         else {
-            String uid = se.getString("uid");
-            oMe = ths.getThing(uid, false);
+            String uid = oSe.getString("uid");
+            oMe = accS.getThing(uid, false);
+
+            // 如果用户被删了，那么用微信的 code 再看看
+            if (null == oMe && !Strings.isBlank(newSeAttrName)) {
+                oMe = __create_user_by_wxcode(accS);
+                // 如果搞出一个用户，那么更新当前 Session 吧
+                if (null != oMe) {
+                    this.chownSession(oSe, oMe);
+                }
+            }
         }
+
+        // 有会话
+        if (null != oSe)
+            this.setSessionObjToContext(oSe);
 
         // 用户不存在？被删了？
         if (null == oMe)
             return false;
+
+        // 如果用户没有角色，试图为其分配一个默认角色
+        WnObj oRosSet = this.getRoleSet();
+        WnObj oRole = null;
+        if (null != oRosSet) {
+            WnThingService roS = new WnThingService(io, oRosSet);
+            // 没有角色，给搞一个
+            if (!oMe.has("role")) {
+                ThQuery tq = new ThQuery("isdft", true);
+                oRole = roS.getOne(tq);
+                if (null != oRole) {
+                    oMe.put("role", oRole.name());
+                    io.set(oMe, "^role$");
+                }
+            }
+            // 如果有角色的话，试图获取
+            else {
+                ThQuery tq = new ThQuery("nm", oMe.getString("role"));
+                oRole = roS.getOne(tq);
+            }
+        }
+
+        // 记录一下用户和角色，嗯，就算全过了哦
+        context.put("me", this.genUserMap(oMe));
+        if (null != oRole) {
+            context.put("role", this.genRoleMap(oRole));
+        }
 
         // 它有手机号吗？
         if (!oMe.has("phone")) {
@@ -196,9 +196,106 @@ public class WWWPageAPI {
             return false;
         }
 
-        // 记录一下用户，嗯，就算全过了哦
-        context.put("me", oMe.pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|passwd|salt|_.*)$"));
         return true;
+    }
+
+    /**
+     * @see #checkMyPhone(String, String)
+     */
+    public boolean checkMyPhone() {
+        return this.checkMyPhone(null, null);
+    }
+
+    /**
+     * 如果没有会话，分析一下上下文，如果请求里表明是来自微信的，那么就尝试创建用户
+     * 
+     * <pre>
+    {
+        "header": {
+           ...
+           "USER-AGENT": ".. MicroMessenger/6.6.6.1300(0x26060637) ..",
+           ..
+        },
+        "params": {
+           "code": "021r2QkP0Dq82c2O4BkP0x98lP0r2QkG",
+           "state": ""
+        },
+        ..
+     * </pre>
+     */
+    private WnObj __create_user_by_wxcode(WnThingService ths) {
+        if (null == wxApi)
+            return null;
+
+        WnObj oMe = null;
+        String userAgent = header.getString("USER-AGENT");
+        boolean is_weixin = userAgent.indexOf("MicroMessenger/") > 0;
+        String code = params.getString("code");
+        if (is_weixin && !Strings.isBlank(code)) {
+            // 试图获取用户 openid 信息
+            String openid = wxApi.user_openid_by_code(code);
+            if (!Strings.isBlank(openid)) {
+                // 查一下是否存在这个用户
+                String key = "wx_" + wxmp;
+                ThQuery tq = new ThQuery(key, openid);
+                oMe = ths.getOne(tq);
+
+                // 嗯，已经有这个用户了
+                if (null != oMe)
+                    return oMe;
+
+                // 如果用户不存在，那么试图获取他的信息，并创建一个
+                NutMap re = wxApi.user_info(openid, null);
+                /**
+                 * 得到的返回信息格式为：
+                 * 
+                 * <pre>
+                 {
+                    subscribe: 1,
+                    openid: "xxx",
+                    nickname: "小白",
+                    sex: 1,
+                    language: "zh_CN",
+                    city: "海淀",
+                    province: "北京",
+                    country: "中国",
+                    headimgurl: "http://..",
+                    subscribe_time: 1474388443,
+                    remark: "",
+                    groupid: 0,
+                    tagid_list: [],
+                    subscribe_scene: "ADD_SCENE_OTHERS",
+                    qr_scene: 0,
+                    qr_scene_str: ""
+                 }
+                 * </pre>
+                 */
+                // 创建用户
+                String myName = re.getString("nickname", "anonymous");
+                NutMap meta = re.pickBy("^(city|province|country|sex)$");
+                meta.put(key, openid);
+                oMe = ths.createThing(myName, meta);
+
+                // 如果有头像的话，搞一下
+                String headimgurl = re.getString("headimgurl");
+                if (!Strings.isBlank(headimgurl)) {
+                    WnObj oData = Things.dirTsData(io, oMe);
+                    WnObj oThumb = io.createIfNoExists(oData, oMe.id() + "/thumb.jpg", WnRace.FILE);
+                    // 读取 Image
+                    try {
+                        URL thumb_url = new URL(headimgurl);
+                        BufferedImage im = Images.read(thumb_url);
+                        io.writeImage(oThumb, im);
+                        oMe.thumbnail("id:" + oThumb.id());
+                        io.set(oMe, "^(thumb)$");
+                    }
+                    catch (MalformedURLException e) {
+                        throw Er.wrap(e);
+                    }
+                }
+            }
+        }
+        return oMe;
     }
 
     /**
@@ -210,25 +307,18 @@ public class WWWPageAPI {
         NutBean se = this.getSession();
         if (null != se && se.has("nm")) {
             // 得到会话路径
-            String seph = Wn.appendPath(this.__site_id, se.getString("nm"));
+            String seph = Wn.appendPath(this.siteId, se.getString("nm"));
             // 得到会话的目录
-            WnObj oSeHome = this.__session_home();
+            WnObj oSeHome = this.getSessionHome();
             // 得到会话对象
             WnObj oSe = io.fetch(oSeHome, seph);
             if (null != oSe) {
                 String ticket = R.UU64();
                 io.rename(oSe, ticket);
-                se = oSe.pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|_.*)$");
-                context.put("session", se);
-
-                // // 更新一下上下文中的 cookies 记录，以便页面渲染的后续指令能得到正确的会话信息
-                // NutBean cookies = context.getAs("cookies", NutBean.class);
-                // if (null != cookies) {
-                // cookies.put("www", seph);
-                // }
+                se = setSessionObjToContext(oSe);
             }
             // 返回 Session 的路径
-            return Wn.appendPath(this.__site_id, se.getString("nm"));
+            return Wn.appendPath(this.siteId, se.getString("nm"));
         }
         return null;
     }
@@ -243,12 +333,18 @@ public class WWWPageAPI {
         WnObj oSe = getSessionObj();
 
         if (null != oSe) {
-            // OK，让我会话先放到上下文里
-            se = oSe.pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|_.*)$");
+            return setSessionObjToContext(oSe);
+        }
+
+        return null;
+    }
+
+    public NutBean setSessionObjToContext(WnObj oSe) {
+        if (null != oSe) {
+            NutBean se = genSessionMap(oSe);
             context.put("session", se);
             return se;
         }
-
         return null;
     }
 
@@ -263,7 +359,7 @@ public class WWWPageAPI {
             return null;
 
         // 得到会话的目录
-        WnObj oSeHome = this.__session_home();
+        WnObj oSeHome = this.getSessionHome();
 
         // 得到会话并返回
         return io.fetch(oSeHome, seph);
@@ -273,19 +369,10 @@ public class WWWPageAPI {
         // 上下文里已经有会话了
         NutBean se = context.getAs("session", NutBean.class);
         if (null != se && se.has("nm")) {
-            return Wn.appendPath(this.__site_id, se.getString("nm"));
+            return Wn.appendPath(this.siteId, se.getString("nm"));
         }
         // 那么，让我们来获得一下 cookies 对应的会话吧
         return (String) Mapl.cell(context, "cookies.www");
-    }
-
-    private WnObj __session_home() {
-        if (null == this.__o_session_home) {
-            this.__o_session_home = io.createIfNoExists(oHome, ".hmaker/session", WnRace.DIR);
-        }
-        if (null == this.__o_session_home)
-            throw Er.create("e.www.page.session_home_fail");
-        return this.__o_session_home;
     }
 
     public WnObj deleteMySession() {
@@ -306,6 +393,19 @@ public class WWWPageAPI {
             throw Er.create("e.www.session.check.AccountSetNoExists", acsId);
         }
         return oAcsSet;
+    }
+
+    public WnObj getRoleSet() {
+        // 首先，www 目录必须是有用户库的，否则抛错，因为这肯定是开发者的锅
+        if (null == oWWW || !oWWW.has("hm_role_set")) {
+            return null;
+        }
+        String rosId = oWWW.getString("hm_role_set");
+        WnObj oRoSet = io.get(rosId);
+        if (null == oRoSet || !oRoSet.isType("thing_set")) {
+            return null;
+        }
+        return oRoSet;
     }
 
     public NutMap getContext() {

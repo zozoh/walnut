@@ -18,6 +18,10 @@ public abstract class ThingAction<T> {
         return Things.checkThIndex(io, oTs, id);
     }
 
+    public WnObj getThIndex(String id) {
+        return Things.getThIndex(io, oTs, id);
+    }
+
     public WnObj checkDirTsIndex() {
         return Things.dirTsIndex(io, oTs);
     }

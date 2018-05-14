@@ -169,7 +169,14 @@ public class WnThingService {
     // .....................................................................
 
     public WnObj getThing(String id, boolean isFull) {
-        return _A(new GetThingAction()).setFull(isFull).setId(id).invoke();
+        GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
+        a.setQuiet(true);
+        return a.invoke();
+    }
+
+    public WnObj checkThing(String id, boolean isFull) {
+        GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
+        return a.invoke();
     }
 
     public WnObj fetchThing(String th_nm, boolean isFull) {

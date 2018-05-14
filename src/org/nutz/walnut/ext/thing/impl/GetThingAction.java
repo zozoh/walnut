@@ -17,6 +17,8 @@ public class GetThingAction extends ThingAction<WnObj> {
 
     private boolean isFull;
 
+    private boolean quiet;
+
     public GetThingAction setId(String id) {
         this.id = id;
         return this;
@@ -27,13 +29,20 @@ public class GetThingAction extends ThingAction<WnObj> {
         return this;
     }
 
+    public GetThingAction setQuiet(boolean quiet) {
+        this.quiet = quiet;
+        return this;
+    }
+
     public WnObj invoke() {
         // 得到对应对 Thing
-        WnObj oT = this.checkThIndex(id);
+        WnObj oT = this.getThIndex(id);
 
         // 这个 Thing 必须是有效的
-        if (oT.getInt("th_live") == Things.TH_DEAD) {
-            throw Er.create("e.cmd.thing.gone", oT.id());
+        if (null == oT || oT.getInt("th_live") == Things.TH_DEAD) {
+            if (quiet)
+                return null;
+            throw Er.create("e.thing.get.noexists", oT.id());
         }
 
         // 补充上 ThingSet 的集合名称
