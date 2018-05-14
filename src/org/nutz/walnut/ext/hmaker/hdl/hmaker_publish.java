@@ -245,11 +245,14 @@ public class hmaker_publish implements JvmHdl {
 
         // 如果目标是个 www 目录，顺便也把 `hm_account_set` 和 `hm_role_set` 等属性也弄过去
         if (null != wwwObj) {
-            hpc.oDest.put("hm_account_set", hpc.oHome.get("hm_account_set"));
-            hpc.oDest.put("hm_role_set", hpc.oHome.get("hm_role_set"));
-            hpc.oDest.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
-            hpc.oDest.put("hm_site_id", hpc.oHome.id());
-            sys.io.set(hpc.oDest, "^hm_(account_set|role_set|wxmp|site_id)$");
+            NutMap meta = new NutMap();
+            meta.put("hm_account_set", hpc.oHome.get("hm_account_set"));
+            meta.put("hm_role_set", hpc.oHome.get("hm_role_set"));
+            meta.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
+            meta.put("hm_site_id", hpc.oHome.id());
+            meta.put("hm_login_entry", hpc.oHome.get("hm_login_entry"));
+            meta.put("www_entry", hpc.oHome.get("www_entry"));
+            sys.io.appendMeta(hpc.oDest, meta);
         }
 
         // 分析配置文件

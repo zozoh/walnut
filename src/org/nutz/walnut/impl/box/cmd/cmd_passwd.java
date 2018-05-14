@@ -1,9 +1,11 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -17,13 +19,13 @@ import org.nutz.walnut.util.ZParams;
  *
  */
 public class cmd_passwd extends JvmExecutor {
-    
+
     private static StringGenerator sg = R.sg(6);
 
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, null);
         String passwd;
-
+        // .....................................................
         // 没有密码，则从标准输入读取
         if (params.vals.length == 0) {
             passwd = Strings.trim(sys.in.readAll());
@@ -32,7 +34,7 @@ public class cmd_passwd extends JvmExecutor {
         else {
             passwd = params.val(0);
         }
-        
+
         boolean printOut = false;
         if (passwd.length() < 4) {
             throw Er.create("e.cmd.passwd.tooshort");
@@ -40,25 +42,55 @@ public class cmd_passwd extends JvmExecutor {
             passwd = sg.next().toLowerCase();
             printOut = true;
         }
-
+        // .....................................................
         // 确定用户
-        WnUsr u = sys.me;
-        if (params.has("u")) {
-            u = sys.usrService.check(params.get("u"));
-        }
-
-        // 只有 root 组的管理员才能修改其他人的密码
-        if (!u.isSameId(sys.me)) {
-            int role = sys.usrService.getRoleInGroup(sys.me, "root");
-            if (Wn.ROLE.ADMIN != role) {
-                throw Er.create("e.cmd.passwd.nopvg");
+        String unm = params.get("u");
+        WnUsr u = null;
+        WnObj oUsr = null;
+        if (!Strings.isBlank(unm)) {
+            // 随便指定的一个用户对象
+            if (unm.startsWith("id:")) {
+                oUsr = sys.io.checkById(unm.substring(3));
+            }
+            // Walnut 的用户对象
+            else {
+                u = sys.usrService.check(unm);
             }
         }
+        // 否则就用当前会话
+        else {
+            u = sys.me;
+        }
+        // .....................................................
+        // 修改随便的用户
+        if (null != oUsr) {
+            // 设置加盐后的密码
+            String salt = R.UU32();
+            String salt_pass = Wn.genSaltPassword(passwd, salt);
+            oUsr.put("salt", salt);
+            oUsr.put("passwd", salt_pass);
+            sys.io.set(oUsr, "^(passwd|salt)$");
+        }
+        // .....................................................
+        // 修改 walnut 用户
+        else if (null != u) {
+            // 只有 root 组的管理员才能修改其他人的密码
+            if (!u.isSameId(sys.me)) {
+                int role = sys.usrService.getRoleInGroup(sys.me, "root");
+                if (Wn.ROLE.ADMIN != role) {
+                    throw Er.create("e.cmd.passwd.nopvg");
+                }
+            }
 
-        // 执行密码修改
-        sys.usrService.setPassword(u, passwd);
-        if (printOut)
-            sys.out.print(passwd);
+            // 执行密码修改
+            sys.usrService.setPassword(u, passwd);
+            if (printOut)
+                sys.out.print(passwd);
+        }
+        // 不可能
+        else {
+            throw Lang.impossible();
+        }
     }
 
 }

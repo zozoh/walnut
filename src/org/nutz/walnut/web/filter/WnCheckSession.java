@@ -45,11 +45,11 @@ public class WnCheckSession implements ActionFilter {
             return se;
 
         // 获取 SessionID
-        String seid = wc.SEID();
-        if (null == seid)
+        if (!wc.hasSEID())
             return null;
 
         // 看看有没有合法的 Session 对象
+        String seid = wc.SEID();
         return _sess(ioc).fetch(seid);
 
     }

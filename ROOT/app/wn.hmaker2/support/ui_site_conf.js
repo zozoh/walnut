@@ -70,6 +70,13 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     emptyItem : {}
                 }
             }, {
+                key   : "www_entry",
+                title : "i18n:hmaker.site.www_entry",
+                icon  : '<i class="zmdi zmdi-globe"></i>',
+                tip   : "i18n:hmaker.site.www_entry_tip",
+                type  : "string",
+                uiWidth : "all",
+            }, {
                 key   : "hm_account_set",
                 title : UI.msg("hmaker.site.account_set"),
                 icon  : '<i class="zmdi zmdi-account"></i>',
@@ -110,6 +117,13 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     emptyItem : {}
                 }
             }, {
+                key   : "hm_login_entry",
+                title : "i18n:hmaker.site.login_entry",
+                icon  : '<i class="zmdi zmdi-globe-lock"></i>',
+                tip   : "i18n:hmaker.site.login_entry_tip",
+                type  : "string",
+                uiWidth : "all",
+            }, {
                 key   : "hm_wxmp",
                 title : "i18n:hmaker.site.hm_wxmp",
                 icon  : '<i class="fab fa-weixin"></i>',
@@ -120,10 +134,10 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     emptyItem : {},
                     items : "obj ~/.weixin -match 'race:\"DIR\"' -json -l",
                     text  : function(o){
-                        return o.nm;
+                        return o.title || o.nm;
                     },
                     value : function(o){
-                        return "~/" + Wn.getRelativePathToHome(o);
+                        return o.nm;
                     },
                 }
             }],

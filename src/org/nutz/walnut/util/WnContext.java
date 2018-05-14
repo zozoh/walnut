@@ -409,6 +409,10 @@ public class WnContext extends NutMap {
         return seid;
     }
 
+    public boolean hasSEID() {
+        return !Strings.isBlank(this.seid);
+    }
+
     public String checkSEID() {
         if (null == seid) {
             throw Er.create("e.wc.null.seid");

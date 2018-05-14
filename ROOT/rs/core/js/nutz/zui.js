@@ -509,6 +509,9 @@ define(function (require, exports, module) {
                     list.push(top)
             }, UI);
             ZUI.tops = list;
+
+            // 标识自己的实例，是删除的
+            UI.__i_am_dead = true;
         },
         //............................................
         // 渲染自身
@@ -528,6 +531,11 @@ define(function (require, exports, module) {
                 }
                 // 用户自定义 redraw 执行完毕的处理
                 var do_after_redraw = function () {
+                    // 确保是有效 UI
+                    if(UI.__i_am_dead){
+                        return;
+                    }
+
                     // 触发事件
                     $z.invoke(UI.options, "on_redraw", [], UI);
                     UI.trigger("ui:redraw", UI);

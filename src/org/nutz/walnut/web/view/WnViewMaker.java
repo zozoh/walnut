@@ -18,10 +18,10 @@ public class WnViewMaker implements ViewMaker {
             return new WnDelCookieViewWrapper(value);
         }
         // 设置 cookie 并输出 AJAX 返回
-        else if("++cookie->ajax".equals(type)){
-            return new WnAddCookieViewWrapper(new AjaxView(value));
+        else if ("++cookie->ajax".equals(type)) {
+            return new WnAddCookieViewWrapper(new AjaxView(), value);
         }
-        
+
         // 呃，不认识了 ...
         return null;
     }

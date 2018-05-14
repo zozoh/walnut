@@ -407,6 +407,8 @@ var methods = {
     // forceReload : 是否强制从服务器读取
     evalTemplate : function(templateName, ignoreJS, forceReload) {
         var oHome = this.getHomeObj();
+        if(!oHome)
+            return null;
         var phTmplHome = "/home/" + oHome.d1 + "/.hmaker/template/" + templateName;
 
         // 加载 jQuery 控件

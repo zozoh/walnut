@@ -74,6 +74,12 @@ public class UsrModule extends AbstractWnModule {
     private String page_login;
 
     /**
+     * 图形验证码的有效期(分钟）默认 1 分钟
+     */
+    @Inject("java:$conf.getInt('vcode-du-phone',1)")
+    private int vcodeDuCaptcha;
+
+    /**
      * 手机验证码的有效期(分钟）默认 10 分钟
      */
     @Inject("java:$conf.getInt('vcode-du-phone',10)")
@@ -93,9 +99,9 @@ public class UsrModule extends AbstractWnModule {
     @Fail(">>:/")
     public View show_login(String rph, @Attr("wn_www_host") String host) {
         // 确保没有登录过
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
             try {
+                String seid = Wn.WC().SEID();
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
             }
@@ -116,9 +122,9 @@ public class UsrModule extends AbstractWnModule {
                           @ReqHeader("Range") String range,
                           HttpServletRequest req) {
         // 确保没有登录过
-        String seid = Wn.WC().SEID();
-        if (null != seid && "login.html".equals(rph)) {
+        if (Wn.WC().hasSEID() && "login.html".equals(rph)) {
             try {
+                String seid = Wn.WC().SEID();
                 sess.check(seid, true);
                 throw Lang.makeThrow("already login, go to /");
             }
@@ -183,6 +189,7 @@ public class UsrModule extends AbstractWnModule {
                 if ("rename.html".equals(o.name())) {
 
                     // 得到会话信息
+                    String seid = Wn.WC().SEID();
                     WnSession se = sess.check(seid, false);
                     Wn.WC().SE(se);
                     Wn.WC().me(se.me(), se.group());
@@ -239,7 +246,7 @@ public class UsrModule extends AbstractWnModule {
         String code = R.captchaNumber(4);
 
         // 保存:图形验证码只有一次机会
-        vcodes.save(vcodePath, code, this.vcodeDuPhone, 1);
+        vcodes.save(vcodePath, code, this.vcodeDuCaptcha, 1);
 
         // 返回成功
         return Captchas.genPng(code, 100, 50, Captchas.NOISE);
@@ -440,8 +447,8 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("--cookie>>:/")
     public NutMap do_logout() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
+            String seid = Wn.WC().SEID();
             WnSession pse = sess.logout(seid);
             if (null != pse)
                 return pse.toMapForClient();
@@ -455,8 +462,8 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
     public boolean do_logout_ajax() {
-        String seid = Wn.WC().SEID();
-        if (null != seid) {
+        if (Wn.WC().hasSEID()) {
+            String seid = Wn.WC().SEID();
             sess.logout(seid);
             return true;
         }
