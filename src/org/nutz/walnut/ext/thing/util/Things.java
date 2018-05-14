@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.thing.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
@@ -249,22 +251,72 @@ public abstract class Things {
         return meta;
     }
 
-    // ..........................................................
-    // 纯帮助函数集合
-    private Things() {}
+    public static void doFileObj2(WnSystem sys,
+                                  JvmHdlContext hc,
+                                  WnObj oTs,
+                                  WnObj oT,
+                                  String dirName) {
+        WnThingService ths = new WnThingService(sys.io, oTs);
 
-    /**
-     * @param sys
-     *            系统
-     * @param hc
-     *            命令控制器调用上下文
-     * @param oDir
-     *            文件的所在目录
-     * @param oT
-     *            Thing 的索引对象
-     * @param key
-     *            计数的键值
-     */
+        // 添加
+        if (hc.params.has("add")) {
+            String read = hc.params.get("read");
+            String fnm = hc.params.get("add");
+            String dupp = hc.params.get("dupp");
+            boolean overwrite = hc.params.is("overwrite");
+            Object src = null;
+            // 从输出流中读取
+            if ("true".equals(read)) {
+                src = sys.in.getInputStream();
+            }
+            // 从文件读取
+            else if (!Strings.isBlank(read)) {
+                src = Wn.getObj(sys, read);
+            }
+
+            // 最后计入输出
+            hc.output = ths.fileAdd(dirName, oT, fnm, src, dupp, overwrite);
+        }
+        // 仅仅是更新计数
+        else if (hc.params.is("ufc")) {
+            hc.output = ths.fileUpdateCount(dirName, oT);
+        }
+        // 删除
+        else if (hc.params.is("del")) {
+            String[] fnms;
+            if (hc.params.vals.length > 1) {
+                fnms = Arrays.copyOfRange(hc.params.vals, 1, hc.params.vals.length);
+            } else {
+                fnms = new String[0];
+            }
+
+            // 最后计入输出
+            hc.output = ths.fileDelete(dirName, oT, fnms);
+        }
+        // 获取某指定文件
+        else if (hc.params.has("get")) {
+            String fnm = hc.params.get("get");
+            boolean quiet = hc.params.is("quiet");
+
+            // 最后计入输出
+            hc.output = ths.fileGet(dirName, oT, fnm, quiet);
+        }
+        // 获取某指定文件内容
+        else if (hc.params.has("cat")) {
+            String fnm = hc.params.get("cat");
+            String etag = hc.params.getString("etag");
+            String range = hc.params.getString("range");
+            String userAgent = hc.params.getString("UserAgent");
+            boolean quiet = hc.params.is("quiet");
+            hc.output = ths.fileRead(dirName, oT, fnm, etag, range, userAgent, quiet);
+        }
+        // 那么就是查询咯
+        else {
+            NutMap sort = Lang.map(hc.params.get("sort", "nm:1"));
+            hc.output = ths.fileQuery(dirName, oT, sort);
+        }
+    }
+
     public static void doFileObj(WnSystem sys, JvmHdlContext hc, WnObj oDir, WnObj oT, String key) {
         // 判断是否静默输出
         boolean isQ = hc.params.is("quiet");
@@ -345,14 +397,14 @@ public abstract class Things {
             }
 
             // 更新计数
-            __update_file_count(sys, oT, key, q);
+            update_file_count(sys, oT, key, q);
 
             // 最后计入输出
             hc.output = oM;
         }
         // 仅仅是更新计数
         else if (hc.params.is("ufc")) {
-            __update_file_count(sys, oT, key, q);
+            update_file_count(sys, oT, key, q);
             // 更新计数的话，就返回 Thing 数据本身咯
             hc.output = oT;
         }
@@ -374,7 +426,7 @@ public abstract class Things {
             }
             // 更新计数
             if (list.size() > 0)
-                __update_file_count(sys, oT, key, q);
+                update_file_count(sys, oT, key, q);
 
             // 最后计入输出
             hc.output = list;
@@ -447,14 +499,21 @@ public abstract class Things {
         }
     }
 
-    private static void __update_file_count(WnSystem sys, WnObj oT, String countKey, WnQuery q) {
-        List<WnObj> oFiles = sys.io.query(q.asc("nm"));
+    public static void update_file_count(WnSystem sys, WnObj oT, String countKey, WnQuery q) {
+        update_file_count(sys.io, oT, countKey, q);
+    }
+
+    public static void update_file_count(WnIo io, WnObj oT, String countKey, WnQuery q) {
+        List<WnObj> oFiles = io.query(q.asc("nm"));
         oT.setv(String.format("th_%s_nb", countKey), oFiles.size());
         List<String> fIds = new ArrayList<String>(oFiles.size());
         for (WnObj oF : oFiles)
             fIds.add(oF.id());
         oT.setv(String.format("th_%s_ids", countKey), fIds);
-        sys.io.set(oT, "^(th_" + countKey + "_(nb|ids))$");
+        io.set(oT, "^(th_" + countKey + "_(nb|ids))$");
     }
 
+    // ..........................................................
+    // 纯帮助函数集合
+    private Things() {}
 }

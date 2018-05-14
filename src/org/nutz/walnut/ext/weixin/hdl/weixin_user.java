@@ -1,11 +1,9 @@
 package org.nutz.walnut.ext.weixin.hdl;
 
-import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.ext.weixin.WxConf;
 import org.nutz.walnut.ext.weixin.WxUtil;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -44,64 +42,40 @@ public class weixin_user implements JvmHdl {
         // 读取微信配置信息
         WnIoWeixinApi wxApi = WxUtil.genWxApi(sys, hc);
 
+        // 准备参数和返回值
+        String openid = hc.params.get("openid");
         String code = hc.params.get("code");
+        String lang = hc.params.get("lang");
+        String infoLevel = hc.params.get("infol");
+        WxResp resp;
 
         // 直接通过 OpenId 获取
-        if (Strings.isBlank(code)) {
-            String openid = hc.params.check("openid");
-            String lang = hc.params.get("lang", "zh_CN");
-
-            WxResp resp = wxApi.user_info(openid, lang);
-
-            sys.out.println(Json.toJson(resp, hc.jfmt));
+        if (!Strings.isBlank(openid)) {
+            resp = wxApi.user_info(openid, lang);
         }
         // 通过 Code 获取
-        else {
-            // 读取微信配置信息
-            WxConf wxConf = wxApi.getConfig();
-
-            String fmt = "https://api.weixin.qq.com/sns/oauth2/access_token"
-                         + "?appid=%s"
-                         + "&secret=%s"
-                         + "&code=%s"
-                         + "&grant_type=authorization_code";
-
-            String url = String.format(fmt, wxConf.appID, wxConf.appsecret, code);
-
-            String json = Http.get(url).getContent();
-            NutMap map = Json.fromJson(NutMap.class, json);
-
-            // 如果想进一步获取用户完整的信息
-            // 根据参数 infol :
-            // - openid: 到此为止
-            // - follower: 根据 openid 获取信息
-            // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
-            String infoLevel = hc.params.get("infol", "openid");
-            String openid = map.getString("openid");
-            String lang = hc.params.get("lang", "zh_CN");
+        else if (!Strings.isBlank(code)) {
             // follower: 根据 openid 获取信息
             if ("follower".equals(infoLevel)) {
-                WxResp resp = wxApi.user_info(openid, lang);
-                map = resp;
+                openid = wxApi.user_openid_by_code(code);
+                resp = wxApi.user_info(openid, lang);
             }
-            // others
+            // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
             else if ("others".equals(infoLevel)) {
-                // 根据网页授权access_token获取用户信息
-                String web_access_token = map.getString("access_token");
-                // String web_refresh_token = map.getString("refresh_token");
-                // int web_expires_in = map.getInt("expires_in");
-                String uinfoUrl = String.format("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=%s",
-                                                web_access_token,
-                                                openid,
-                                                lang);
-                String uinfoJson = Http.get(uinfoUrl).getContent();
-                NutMap uinfo = Json.fromJson(NutMap.class, uinfoJson);
-                map = uinfo;
+                resp = wxApi.user_info_by_code(code, lang);
             }
-
-            // 最后打印结果
-            sys.out.println(Json.toJson(map, hc.jfmt));
+            // 默认的，就是仅仅获取 openid 咯
+            else {
+                resp = wxApi.user_code_info(code);
+            }
         }
+        // 什么都没有，那么抛错
+        else {
+            throw Er.create("e.cmd.weixin.user.need_openid_or_code");
+        }
+
+        // 最后打印结果
+        sys.out.println(Json.toJson(resp, hc.jfmt));
 
     }
 

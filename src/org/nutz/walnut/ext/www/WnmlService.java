@@ -127,8 +127,10 @@ public class WnmlService {
             for (Element eH : eHeaders) {
                 String tKey = eH.tagName();
                 String tVal = Strings.trim(eH.text());
-                String str = this.__process_text(c, tVal, true);
-                re += String.format("%s: %s\n", tKey, str);
+                String str = Strings.trim(this.__process_text(c, tVal, true));
+                if (!Strings.isBlank(str)) {
+                    re += String.format("%s: %s\n", tKey, str);
+                }
             }
         }
 

@@ -10,7 +10,7 @@ public abstract class ThingAction<T> {
 
     protected WnObj oTs;
 
-    protected T output;
+    // protected T output;
 
     public abstract T invoke();
 
@@ -40,13 +40,13 @@ public abstract class ThingAction<T> {
         return this;
     }
 
-    public T getOutput() {
-        return output;
-    }
-
-    public ThingAction<T> setOutput(T output) {
-        this.output = output;
-        return this;
-    }
+    // public T getOutput() {
+    // return output;
+    // }
+    //
+    // public ThingAction<T> setOutput(T output) {
+    // this.output = output;
+    // return this;
+    // }
 
 }

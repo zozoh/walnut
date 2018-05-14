@@ -34,7 +34,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
     @Override
     public List<WnObj> invoke() {
 
-        output = new LinkedList<>();
+        List<WnObj> output = new LinkedList<>();
 
         for (String id : ids) {
             // 得到对应对 Thing

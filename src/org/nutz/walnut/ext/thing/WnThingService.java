@@ -10,11 +10,18 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.impl.CreateThingAction;
 import org.nutz.walnut.ext.thing.impl.DeleteThingAction;
+import org.nutz.walnut.ext.thing.impl.FileAddAction;
+import org.nutz.walnut.ext.thing.impl.FileDeleteAction;
+import org.nutz.walnut.ext.thing.impl.FileGetAction;
+import org.nutz.walnut.ext.thing.impl.FileQueryAction;
+import org.nutz.walnut.ext.thing.impl.FileReadAction;
+import org.nutz.walnut.ext.thing.impl.FileUpdateCountAction;
 import org.nutz.walnut.ext.thing.impl.GetThingAction;
 import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.walnut.util.WnPager;
 
 public class WnThingService {
@@ -28,10 +35,138 @@ public class WnThingService {
         this.oTs = oTs;
     }
 
+    // .....................................................................
+
     private <T extends ThingAction<?>> T _A(T a) {
         a.setIo(io).setThingSet(oTs);
         return a;
     }
+
+    private <T extends ThingDataAction<?>> T _AD(T a, String dirName, WnObj oT) {
+        a.setIo(io).setThingSet(oTs);
+        a.setDirName(dirName).setThing(oT);
+        return a;
+    }
+
+    // .....................................................................
+
+    public WnObj fileAdd(String dirName,
+                         WnObj oT,
+                         String fnm,
+                         Object src,
+                         String dupp,
+                         boolean overwrite) {
+        FileAddAction a = _AD(new FileAddAction(), dirName, oT);
+        a.fnm = fnm;
+        a.dupp = dupp;
+        a.overwrite = overwrite;
+        a.src = src;
+        return a.invoke();
+    }
+
+    public List<WnObj> fileDelete(String dirName, WnObj oT, String... fnms) {
+        FileDeleteAction a = _AD(new FileDeleteAction(), dirName, oT);
+        a.fnms = fnms;
+        return a.invoke();
+    }
+
+    public WnObj fileGet(String dirName, WnObj oT, String fnm, boolean quiet) {
+        FileGetAction a = _AD(new FileGetAction(), dirName, oT);
+        a.fnm = fnm;
+        a.quiet = quiet;
+        return a.invoke();
+    }
+
+    public List<WnObj> fileQuery(String dirName, WnObj oT, NutMap sort) {
+        FileQueryAction a = _AD(new FileQueryAction(), dirName, oT);
+        a.sort = sort;
+        return a.invoke();
+    }
+
+    public WnHttpResponse fileRead(String dirName,
+                                   WnObj oT,
+                                   String fnm,
+                                   String etag,
+                                   String range,
+                                   String userAgent,
+                                   boolean quiet) {
+        FileReadAction a = _AD(new FileReadAction(), dirName, oT);
+        a.fnm = fnm;
+        a.etag = etag;
+        a.range = range;
+        a.userAgent = userAgent;
+        a.quiet = quiet;
+        return a.invoke();
+    }
+
+    public WnObj fileUpdateCount(String dirName, WnObj oT) {
+        FileUpdateCountAction a = _AD(new FileUpdateCountAction(), dirName, oT);
+        return a.invoke();
+    }
+
+    // .....................................................................
+
+    public WnObj mediaAdd(WnObj oT, String fnm, Object src, String dupp, boolean overwrite) {
+        return this.fileAdd("media", oT, fnm, src, dupp, overwrite);
+    }
+
+    public List<WnObj> mediaDelete(WnObj oT, String... fnms) {
+        return this.fileDelete("media", oT, fnms);
+    }
+
+    public WnObj mediaGet(WnObj oT, String fnm, boolean quiet) {
+        return this.fileGet("media", oT, fnm, quiet);
+    }
+
+    public List<WnObj> mediaQuery(WnObj oT, NutMap sort) {
+        return this.fileQuery("media", oT, sort);
+    }
+
+    public WnHttpResponse mediaRead(WnObj oT,
+                                    String fnm,
+                                    String etag,
+                                    String range,
+                                    String userAgent,
+                                    boolean quiet) {
+        return this.fileRead("media", oT, fnm, etag, range, userAgent, quiet);
+    }
+
+    public WnObj mediaUpdateCount(WnObj oT) {
+        return this.fileUpdateCount("media", oT);
+    }
+
+    // .....................................................................
+
+    public WnObj attachmentAdd(WnObj oT, String fnm, Object src, String dupp, boolean overwrite) {
+        return this.fileAdd("attachment", oT, fnm, src, dupp, overwrite);
+    }
+
+    public List<WnObj> attachmentDelete(WnObj oT, String... fnms) {
+        return this.fileDelete("attachment", oT, fnms);
+    }
+
+    public WnObj attachmentGet(WnObj oT, String fnm, boolean quiet) {
+        return this.fileGet("attachment", oT, fnm, quiet);
+    }
+
+    public List<WnObj> attachmentQuery(WnObj oT, NutMap sort) {
+        return this.fileQuery("attachment", oT, sort);
+    }
+
+    public WnHttpResponse attachmentRead(WnObj oT,
+                                         String fnm,
+                                         String etag,
+                                         String range,
+                                         String userAgent,
+                                         boolean quiet) {
+        return this.fileRead("attachment", oT, fnm, etag, range, userAgent, quiet);
+    }
+
+    public WnObj attachmentUpdateCount(WnObj oT) {
+        return this.fileUpdateCount("attachment", oT);
+    }
+
+    // .....................................................................
 
     public WnObj getThing(String id, boolean isFull) {
         return _A(new GetThingAction()).setFull(isFull).setId(id).invoke();
@@ -59,11 +194,13 @@ public class WnThingService {
     }
 
     public WnObj createThing(String th_nm, NutMap meta) {
-        return _A(new CreateThingAction()).setName(th_nm).setMeta(meta).invoke();
+        CreateThingAction a = _A(new CreateThingAction()).setName(th_nm).setMeta(meta);
+        return a.invoke();
     }
 
     public ThQr queryThing(ThQuery tq) {
-        return _A(new QueryThingAction()).setQuery(tq).invoke();
+        QueryThingAction a = _A(new QueryThingAction()).setQuery(tq);
+        return a.invoke();
     }
 
     @SuppressWarnings("unchecked")
@@ -76,15 +213,18 @@ public class WnThingService {
     }
 
     public List<WnObj> deleteThing(boolean quiet, Collection<String> ids) {
-        return _A(new DeleteThingAction()).setQuiet(quiet).setIds(ids).invoke();
+        DeleteThingAction a = _A(new DeleteThingAction()).setQuiet(quiet).setIds(ids);
+        return a.invoke();
     }
 
     public List<WnObj> deleteThing(boolean quiet, String... ids) {
-        return _A(new DeleteThingAction()).setQuiet(quiet).setIds(Lang.list(ids)).invoke();
+        DeleteThingAction a = _A(new DeleteThingAction()).setQuiet(quiet).setIds(Lang.list(ids));
+        return a.invoke();
     }
 
     public WnObj updateThing(String id, NutMap meta, String th_nm) {
-        return _A(new UpdateThingAction()).setId(id).setMeta(meta).setName(th_nm).invoke();
+        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta).setName(th_nm);
+        return a.invoke();
     }
 
 }
