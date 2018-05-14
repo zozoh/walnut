@@ -28,7 +28,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
     @Override
     public ThQr invoke() {
         WnQuery q = new WnQuery();
-        output = new ThQr();
+        ThQr output = new ThQr();
 
         // ..............................................
         // 准备查询条件

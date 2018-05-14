@@ -219,8 +219,10 @@ WnApi.invoke({
     //................................ 用户信息
     th_nm  : "小白",       // 用户昵称
     thumb  : "id:xxx",    // 头像存储的位置
-    city   : "BEIJING",   // BEIJING
-    gender : "male",      // 性别 male | female
+    city     : "海淀",
+    province : "北京", 
+    country  : "中国",
+    sex      : "male",     // 性别 男:1,女:2
 
     //................................ 采用密码登录
     passwd : "$SHA1",          // 加盐密码

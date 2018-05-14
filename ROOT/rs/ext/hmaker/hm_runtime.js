@@ -16,9 +16,9 @@ function __set_layout_item_size (it, s) {
     m = /^([0-9?-]+)(\/([0-9?-]+))?$/.exec($.trim(s));
     if(!m) {
         console.warn("invalid layout sizing:", s);
-        return;
+        return it;
     }
-    it.w_desktop = ___layout_size(m[1]);
+    it.w_desktop = ___layout_size(m[1], '?');
     it.w_mobile  = ___layout_size(m[3], it.w_desktop);
     return it;
 }

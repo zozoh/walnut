@@ -1,10 +1,5 @@
 package org.nutz.walnut.ext.weixin.hdl;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import org.nutz.lang.Strings;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.weixin.WxUtil;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -33,44 +28,25 @@ public class weixin_oauth2 implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        try {
-            // 读取微信配置信息
-            WnIoWeixinApi wxApi = WxUtil.genWxApi(sys, hc);
+        // 读取微信配置信息
+        WnIoWeixinApi wxApi = WxUtil.genWxApi(sys, hc);
 
-            String url = hc.params.vals[0];
-            String state = hc.params.get("state");
+        String url = hc.params.val_check(0);
+        String state = hc.params.get("state");
 
-            // 得到转发的 url
-            String wx_url, scope;
-            // 开放平台
-            if (hc.params.is("wxopen")) {
-                wx_url = "https://open.weixin.qq.com/connect/qrconnect";
-                scope = hc.params.get("scope", "snsapi_login");
-            }
-            // 公众号平台
-            else {
-                wx_url = "https://open.weixin.qq.com/connect/oauth2/authorize";
-                scope = hc.params.get("scope", "snsapi_base");
-            }
-
-            String fmt = wx_url
-                         + "?appid=%s"
-                         + "&redirect_uri=%s"
-                         + "&response_type=code"
-                         + "&scope=%s"
-                         + "%s"
-                         + "#wechat_redirect";
-
-            sys.out.println(String.format(fmt,
-                                          wxApi.getConfig().appID,
-                                          URLEncoder.encode(url, "UTF-8"),
-                                          scope,
-                                          Strings.isBlank(state) ? "" : "&state=" + state));
+        // 得到转发的 url
+        String wx_url;
+        // 开放平台
+        if (hc.params.is("wxopen")) {
+            wx_url = wxApi.oauth2_wxopen(url, state);
         }
-        catch (UnsupportedEncodingException e) {
-            throw Er.wrap(e);
+        // 公众号平台
+        else {
+            wx_url = wxApi.oauth2_wxmp(url, state, hc.params.get("scope"));
         }
 
+        // 输出
+        sys.out.println(wx_url);
     }
 
 }

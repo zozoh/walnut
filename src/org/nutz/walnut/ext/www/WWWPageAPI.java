@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.www;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
@@ -12,6 +13,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
+import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -51,14 +54,35 @@ public class WWWPageAPI {
      */
     private String __site_id;
 
+    private WnIoWeixinApi wxApi;
+
+    private String wxmp;
+
+    /* 下面的变量来自上下文，以便成员函数可以方便的访问 */
+    private NutBean header;
+    private NutBean params;
+
     public WWWPageAPI(WnIo io, WnObj oHome, WnObj oWWW, NutMap context) {
         this.io = io;
         this.oHome = oHome;
         this.oWWW = oWWW;
         this.context = context;
+        this.header = context.getAs("header", NutBean.class);
+        this.params = context.getAs("params", NutBean.class);
+
+        // 检查一下
         this.__site_id = oWWW.getString("hm_site_id");
         if (Strings.isBlank(this.__site_id)) {
             throw Er.create("e.www.page.api_without_siteId", oWWW);
+        }
+
+        // 试图生成微信接口
+        wxmp = oWWW.getString("hm_wxmp");
+        if (!Strings.isBlank(wxmp)) {
+            WnObj oWxConf = io.fetch(oHome, ".weixin/" + wxmp + "/wxconf");
+            if (null != oWxConf) {
+                wxApi = new WnIoWeixinApi(io, oWxConf);
+            }
         }
     }
 
@@ -77,16 +101,89 @@ public class WWWPageAPI {
     public boolean checkMyPhone() {
         // 确保可以正确的找到用户库
         WnObj oAcsSet = checkAccountSet();
+        WnThingService ths = new WnThingService(io, oAcsSet);
+        WnObj oMe;
 
         // 确保有会话
         NutBean se = getSession();
-        if (null == se)
-            return false;
+        /**
+         * 如果没有会话，分析一下上下文，如果请求里表明是来自微信的，那么就尝试创建用户
+         * 
+         * <pre>
+        {
+            "header": {
+               ...
+               "USER-AGENT": ".. MicroMessenger/6.6.6.1300(0x26060637) ..",
+               ..
+            },
+            "params": {
+               "code": "021r2QkP0Dq82c2O4BkP0x98lP0r2QkG",
+               "state": ""
+            },
+            ..
+         * </pre>
+         */
+        if (null == se) {
+            if (null != wxApi) {
+                String userAgent = header.getString("USER-AGENT");
+                boolean is_weixin = userAgent.indexOf("MicroMessenger/") > 0;
+                String code = params.getString("code");
+                if (is_weixin && !Strings.isBlank(code)) {
+                    // 试图获取用户 openid 信息
+                    String openid = wxApi.user_openid_by_code(code);
+                    if (!Strings.isBlank(openid)) {
+                        // 查一下是否存在这个用户
+                        String key = "wx_" + wxmp;
+                        ThQuery tq = new ThQuery(key, openid);
+                        oMe = ths.getOne(tq);
 
+                        // 如果用户不存在，那么试图获取他的信息，并创建一个
+                        NutMap re = wxApi.user_info(openid, null);
+                        /**
+                         * 得到的返回信息格式为：
+                         * 
+                         * <pre>
+                         {
+                            subscribe: 1,
+                            openid: "xxx",
+                            nickname: "小白",
+                            sex: 1,
+                            language: "zh_CN",
+                            city: "海淀",
+                            province: "北京",
+                            country: "中国",
+                            headimgurl: "http://..",
+                            subscribe_time: 1474388443,
+                            remark: "",
+                            groupid: 0,
+                            tagid_list: [],
+                            subscribe_scene: "ADD_SCENE_OTHERS",
+                            qr_scene: 0,
+                            qr_scene_str: ""
+                         }
+                         * </pre>
+                         */
+                        // 创建用户
+                        String myName = re.getString("nickname", "anonymous");
+                        NutMap meta = re.pickBy("^(city|province|country)$");
+                        oMe = ths.createThing(myName, meta);
+                        
+                        // 如果有头像的话，搞一下
+                        String headimgurl= re.getString("headimgurl");
+                        if(!Strings.isBlank(headimgurl)) {
+                            
+                        }
+                    }
+                }
+            }
+            // 开来没戏，拒绝它!
+            return false;
+        }
         // 那么让我们看看我们可爱的用户
-        String uid = se.getString("uid");
-        WnThingService ths = new WnThingService(io, oAcsSet);
-        WnObj oMe = ths.getThing(uid, false);
+        else {
+            String uid = se.getString("uid");
+            oMe = ths.getThing(uid, false);
+        }
 
         // 用户不存在？被删了？
         if (null == oMe)

@@ -48,9 +48,8 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         // 更新这个 Thing
         io.appendMeta(oT, meta);
 
-        // 记录输出
-        this.output = oT;
-        return output;
+        // 返回
+        return oT;
     }
 
 }

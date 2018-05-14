@@ -13,16 +13,13 @@ public class thing_media implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 找到集合
-        WnObj oTS = Things.checkThingSet(hc.oRefer);
+        WnObj oTs = Things.checkThingSet(hc.oRefer);
 
         // 得到对应对 Thing
         WnObj oT = Things.checkThIndex(sys, hc);
 
-        // 得到媒体目录
-        WnObj oDir = Things.dirThMedia(sys.io, oTS, oT);
-
         // 执行处理
-        Things.doFileObj(sys, hc, oDir, oT, "media");
+        Things.doFileObj2(sys, hc, oTs, oT, "media");
 
     }
 

@@ -55,8 +55,7 @@ public class GetThingAction extends ThingAction<WnObj> {
             __set_file_map(oT, "attachment");
         }
 
-        // 记录输出
-        output = oT;
+        // 返回
         return oT;
     }
 
