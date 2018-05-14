@@ -175,6 +175,7 @@ public class WalnutFilter implements Filter {
                 // 将一些必要的信息都记录到 req 对象里，便于 WWW 模块处理
                 req.setAttribute("wn_www_path_new", newPath);
                 req.setAttribute("wn_www_grp", grp);
+                req.setAttribute("wn_www_url", req.getRequestURL().toString());
 
                 // 这个通常还是要记录一下日志的
                 if (log.isDebugEnabled()) {

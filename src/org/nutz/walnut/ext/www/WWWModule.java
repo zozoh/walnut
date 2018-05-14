@@ -574,7 +574,7 @@ public class WWWModule extends AbstractWnModule {
             log.debugf(" - www:usrHome: %s : [%s]", homePath, oHome);
 
         if (null == oHome) {
-            return gen_errpage(tmpl_404, a_path, "Home not exists!");
+            return gen_errpage(tmpl_404, a_path, "Home not exists!", 404);
         }
 
         // ..............................................
@@ -778,7 +778,7 @@ public class WWWModule extends AbstractWnModule {
 
         }
         catch (Exception e) {
-            return gen_errpage(tmpl_500, a_path, e.toString());
+            return gen_errpage(tmpl_500, a_path, e.toString(), 500);
         }
     }
 
@@ -786,7 +786,9 @@ public class WWWModule extends AbstractWnModule {
             throws URISyntaxException {
         NutMap context = _gen_context_by_req(req);
         String rootPath = oWWW.path();
-        String url = req.getRequestURL().toString();
+        String url = (String) req.getAttribute("wn_www_url");
+        if (url == null)
+            url = req.getRequestURL().toString();
         URI uri = new URI(url);
         String uriPath = uri.getPath();
         String basePath;
@@ -808,22 +810,32 @@ public class WWWModule extends AbstractWnModule {
 
     private View gen_errpage(Tmpl tmpl, String path) {
         String msg;
+        int code;
         if (tmpl_400 == tmpl) {
             msg = "Invalid Request";
+            code = 400;
         } else if (tmpl_404 == tmpl) {
             msg = "Page NoFound";
+            code = 404;
         } else {
             msg = "Server Error";
+            code = 500;
         }
 
-        return gen_errpage(tmpl, path, msg);
+        return gen_errpage(tmpl, path, msg, code);
     }
 
-    private View gen_errpage(Tmpl tmpl, String path, String msg) {
+    private View gen_errpage(Tmpl tmpl, String path, String msg, int code) {
         NutMap map = Lang.map("url", path);
         map.setv("msg", msg);
         String html = tmpl.render(map, false);
-        return new ViewWrapper(new RawView("text/html"), html);
+        return new ViewWrapper(new RawView("text/html") {
+            @Override
+            public void render(HttpServletRequest req, HttpServletResponse resp, Object obj) throws Throwable {
+                resp.setStatus(code);
+                super.render(req, resp, obj);
+            }
+        }, html);
     }
 
 }
