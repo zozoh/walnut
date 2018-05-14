@@ -80,7 +80,7 @@ public class cmd_mount extends JvmExecutor {
         if (mnt.startsWith("file://")) {
             PropertiesProxy conf = ioc.get(PropertiesProxy.class, "conf");
             List<String> allows = conf.getList("mnt-file-allow");
-            if (allows != null) {
+            if (allows != null && allows.size() > 0) {
                 boolean flag = false;
                 for (String allow : allows) {
                     if (mnt.startsWith("file://" + allow)) {
