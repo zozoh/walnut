@@ -172,6 +172,10 @@ public class WnmlService {
             if ("redirect".equals(tagName)) {
                 __do_redirect(wrt, ele, c);
             }
+            // 调用API
+            else if ("set".equals(tagName)) {
+                __do_set(wrt, ele, c);
+            }
             // 处理数据源
             else if ("script".equals(tagName) && ele.hasClass("wn-datasource")) {
                 __do_datasource(wrt, ele, c);
@@ -210,6 +214,17 @@ public class WnmlService {
             __do_data_node_text((DataNode) nd, c);
         }
 
+    }
+
+    private void __do_set(WnmlRuntime wrt, Element ele, NutMap c) {
+        String el = ele.text();
+        NutMap c2 = c.duplicate();
+        Context context = Lang.context(c2);
+        Object re = El.eval(context, el);
+        String key = ele.attr("key");
+        if (!Strings.isBlank(key) && null != re)
+            c.put(key, re);
+        ele.remove();
     }
 
     /**

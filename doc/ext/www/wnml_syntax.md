@@ -66,6 +66,15 @@ ${xyz(json:n)?-obj-}
 * 可以写在网页的任意地方，它都将引入目标文件
 * 目标加入 DOM 后，将统一执行替换
 
+## 调用 `<set>`
+
+```
+<set key="abc">API.getSomeThing()</set>
+```
+
+* 将会调用上下文中 `API` 对象的 `getSomeThing()` 方法，并把返回值写入上下文的 `abc` 键
+* 如果不指定 `key` 那么仅仅是调用 API
+
 ## 文本占位符
 
 ```

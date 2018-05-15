@@ -84,7 +84,7 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                 uiWidth : "auto",
                 editAs : "droplist",
                 uiConf : {
-                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1'",
+                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1' -l",
                     icon  : function(o){
                         return o.icon || '<i class="fa fa-cube"></i>';
                     },
@@ -104,7 +104,7 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                 uiWidth : "auto",
                 editAs : "droplist",
                 uiConf : {
-                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1'",
+                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1' -l",
                     icon  : function(o){
                         return o.icon || '<i class="fa fa-cube"></i>';
                     },

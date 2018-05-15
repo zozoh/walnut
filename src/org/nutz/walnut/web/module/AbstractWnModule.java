@@ -71,7 +71,7 @@ public abstract class AbstractWnModule extends WnRun {
         Cookie[] coos = req.getCookies();
         if (null != coos && coos.length > 0) {
             for (Cookie coo : coos) {
-                cookie.put(coo.getName(), coo.getValue());
+                cookie.putDefault(coo.getName(), coo.getValue());
             }
             context.put("cookies", cookie);
         }

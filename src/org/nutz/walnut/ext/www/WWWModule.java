@@ -19,6 +19,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -46,10 +47,12 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.ext.vcode.VCodes;
 import org.nutz.walnut.ext.vcode.WnVCodeService;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
@@ -245,10 +248,9 @@ public class WWWModule extends AbstractWnModule {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
-        String siteId = oWWW.getString("hm_site_id");
 
         // 默认场景就是 login
-        scene = Strings.sBlank(scene, "login_" + siteId);
+        scene = Strings.sBlank(scene, "login");
 
         // 首先验证一下图片验证码
         String vcodePath = VCodes.getCaptchaPath(domain, phone);
@@ -288,23 +290,27 @@ public class WWWModule extends AbstractWnModule {
      *            手机号
      * @param vcode
      *            手机验证码
+     * @param ticket
+     *            会话的票据，null 表示当前不在一个会话里
      * @return 创建成功的会话信息
      */
     @At("/u/login/phone/?")
-    @Ok("++cookie->ajax:www=${siteId}/${ticket}")
+    @Ok("++cookie->ajax:www=${sid}/${nm}")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public NutMap do_login_by_phone(String wwwId,
-                                    @Param("s") String scene,
-                                    @Param("a") String phone,
-                                    @Param("v") String vcode) {
+    public NutBean do_login_by_phone(String wwwId,
+                                     @Param("s") String scene,
+                                     @Param("a") String phone,
+                                     @Param("v") String vcode,
+                                     @Param("t") String ticket,
+                                     HttpServletRequest req) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
         String siteId = oWWW.getString("hm_site_id");
 
         // 默认场景就是 login
-        scene = Strings.sBlank(scene, "login_" + siteId);
+        scene = Strings.sBlank(scene, "login");
 
         // 首先验证手机的短信密码是否正确
         String vcodePath = VCodes.getPathBy(domain, scene, phone);
@@ -315,9 +321,9 @@ public class WWWModule extends AbstractWnModule {
         // 采用 domain 用户的权限，执行会话的创建等逻辑
         WnUsr me = usrs.check(domain);
         WnObj oHome = io.check(null, me.home());
-        return Wn.WC().su(me, new Proton<NutMap>() {
-            protected NutMap exec() {
-                return __do_login_by_phone_as_domain_user(phone, oWWW, siteId, oHome);
+        return Wn.WC().su(me, new Proton<NutBean>() {
+            protected NutBean exec() {
+                return __do_login_by_phone_as_domain_user(phone, oWWW, siteId, ticket, oHome, req);
             }
         });
     }
@@ -327,21 +333,41 @@ public class WWWModule extends AbstractWnModule {
      * 
      * @see #do_login_by_phone(String, String, String)
      */
-    private NutMap __do_login_by_phone_as_domain_user(String phone,
-                                                      WnObj oWWW,
-                                                      String siteId,
-                                                      WnObj oHome) {
+    private NutBean __do_login_by_phone_as_domain_user(String phone,
+                                                       WnObj oWWW,
+                                                       String siteId,
+                                                       String ticket,
+                                                       WnObj oHome,
+                                                       HttpServletRequest req) {
         // 找到用户表，看看有没有这个用户
         WnThingService ths = __gen_account_service(oWWW);
 
-        // 如果没有的话，就创建一个
+        // 根据手机号获取用户
         WnObj oU = __get_usr_by_phone(ths, phone);
+
+        // 查看一下当前，如果已经有一个会话了，那么可能是微信那套逻辑，自动创建的会话
+        NutMap context = this.__gen_www_context(req, oWWW, null);
+        WWWPageAPI api = _api_page(oHome, oWWW, context);
+
+        // 如果没有用户，就传一个手机号进去
+        WnObj obj = oU;
+        if (null == obj) {
+            obj = new WnBean();
+            obj.setv("phone", phone);
+        }
+        WnObj oSe = __try_merge_with_session_user(api, obj, siteId, ticket);
+
+        // 嗯，不用创建会话了
+        if (null != oSe)
+            return api.genSessionMap(oSe);
+
+        // 嗯，那么就创建一个用户咯
         if (null == oU) {
             oU = ths.createThing("anonymous", Lang.map("phone", phone));
         }
 
-        // 创建会话
-        return __create_session(siteId, oHome, oU);
+        // 为创建会话
+        return __create_session(oHome, siteId, oU);
     }
 
     private WnObj __get_usr_by_phone(WnThingService ths, String phone) {
@@ -362,38 +388,9 @@ public class WWWModule extends AbstractWnModule {
         return ths;
     }
 
-    private NutMap __create_session(String siteId, WnObj oHome, WnObj oU) {
-        // 得到会话主目录
-        String path = Wn.appendPath(".hmaker/session/", siteId);
-        WnObj oSset = io.createIfNoExists(oHome, path, WnRace.DIR);
-
-        // 看看是否已经存在了这个用户，如果存在那么删掉这个会会话
-        WnQuery q = Wn.Q.pid(oSset);
-        q.setv("uid", oU.id());
-        List<WnObj> oSothers = io.query(q);
-        for (WnObj oSother : oSothers) {
-            io.delete(oSother);
-        }
-
-        // 嗯嗯，登陆，创建会话
-        String ticket = R.UU64(); // 准备一个票据
-        WnObj oSe = io.create(oSset, ticket, WnRace.FILE);
-
-        // 更新会话
-        NutMap map = new NutMap();
-        map.put("expi", System.currentTimeMillis() + (this.sessionDu * 1000));
-        map.put("uid", oU.id());
-        map.put("unm", oU.name());
-        io.appendMeta(oSe, map);
-
-        // 修改用户的最后登录时间
-        oU.setv("login", oSe.lastModified());
-        io.set(oU, "^login$");
-
-        // 准备返回对象
-        map.put("siteId", siteId);
-        map.put("ticket", oSe.name());
-        return map;
+    private NutBean __create_session(WnObj oHome, String siteId, WnObj oU) {
+        WWWAPI api = _api(oHome);
+        return api.createSession(siteId, oU);
     }
 
     /**
@@ -405,15 +402,19 @@ public class WWWModule extends AbstractWnModule {
      *            手机号
      * @param passwd
      *            登录密码
+     * @param ticket
+     *            会话的票据，null 表示当前不在一个会话里
      * @return 创建成功的会话信息
      */
     @At("/u/login/passwd/?")
-    @Ok("++cookie->ajax:www=${siteId}/${ticket}")
+    @Ok("++cookie->ajax:www=${sid}/${nm}")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public NutMap do_login_by_passwd(String wwwId,
-                                     @Param("a") String phone,
-                                     @Param("w") String passwd) {
+    public NutBean do_login_by_passwd(String wwwId,
+                                      @Param("a") String phone,
+                                      @Param("w") String passwd,
+                                      @Param("t") String ticket,
+                                      HttpServletRequest req) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
@@ -422,9 +423,15 @@ public class WWWModule extends AbstractWnModule {
         // 采用 domain 用户的权限，执行会话的创建等逻辑
         WnUsr me = usrs.check(domain);
         WnObj oHome = io.check(null, me.home());
-        return Wn.WC().su(me, new Proton<NutMap>() {
-            protected NutMap exec() {
-                return __do_login_by_passwd_as_domain_user(phone, passwd, oWWW, siteId, oHome);
+        return Wn.WC().su(me, new Proton<NutBean>() {
+            protected NutBean exec() {
+                return __do_login_by_passwd_as_domain_user(phone,
+                                                           passwd,
+                                                           oWWW,
+                                                           siteId,
+                                                           ticket,
+                                                           oHome,
+                                                           req);
             }
         });
     }
@@ -432,13 +439,17 @@ public class WWWModule extends AbstractWnModule {
     /**
      * 执行用户名密码登录的主要逻辑
      * 
+     * @throws URISyntaxException
+     * 
      * @see #do_login_by_passwd(String, String, String)
      */
-    private NutMap __do_login_by_passwd_as_domain_user(String phone,
-                                                       String passwd,
-                                                       WnObj oWWW,
-                                                       String siteId,
-                                                       WnObj oHome) {
+    private NutBean __do_login_by_passwd_as_domain_user(String phone,
+                                                        String passwd,
+                                                        WnObj oWWW,
+                                                        String siteId,
+                                                        String ticket,
+                                                        WnObj oHome,
+                                                        HttpServletRequest req) {
         // 找到用户表，看看有没有这个用户
         WnThingService ths = __gen_account_service(oWWW);
 
@@ -456,8 +467,78 @@ public class WWWModule extends AbstractWnModule {
             throw Er.create("e.www.login.invalid_passwd");
         }
 
+        // 查看一下当前，如果已经有一个会话了，那么可能是微信那套逻辑，自动创建的会话
+        NutMap context = this.__gen_www_context(req, oWWW, null);
+        WWWPageAPI api = _api_page(oHome, oWWW, context);
+        WnObj oSe = __try_merge_with_session_user(api, oU, siteId, ticket);
+
+        // 嗯，不用创建会话了
+        if (null != oSe)
+            return api.genSessionMap(oSe);
+
         // 创建会话
-        return __create_session(siteId, oHome, oU);
+        return __create_session(oHome, siteId, oU);
+    }
+
+    private WnObj __try_merge_with_session_user(WWWPageAPI api,
+                                                WnObj oU,
+                                                String siteId,
+                                                String ticket) {
+        WnObj oSe = api.getSessionObj(siteId, ticket);
+        if (null != oSe) {
+            // 准备接口
+            WnObj oAcsSet = api.checkAccountSet();
+            WnThingService accS = new WnThingService(io, oAcsSet);
+            // 那么我们就应该从这个会话中找到对应的微信用户
+            String uid2 = oSe.getString("uid");
+            WnObj oU2 = accS.getThing(uid2, false);
+
+            // 怎么回事？没有对应的用户，嗯，无视吧
+            if (null == oU2)
+                return null;
+
+            // 根本就没有用户，只有一个手机号的话
+            if (oU.has("phone") && !oU.has("id") && oU.size() == 1) {
+                String phone = oU.getString("phone");
+                oU = oU2;
+                oU.put("phone", phone);
+                io.set(oU, "^phone$");
+            }
+            // 将他信息（openID 之类的）复制到本用户里，然后删掉这个微信用户
+            else if (!oU2.isSameId(oU)) {
+                NutMap meta = new NutMap();
+                for (String key : oU2.keySet()) {
+                    // 除了头像，统统补一下，因为头像后面要处理
+                    if (!"thumb".equals(key) && !oU.has(key)) {
+                        meta.put(key, oU2.get(key));
+                    }
+                    // 匿名也要改
+                    else if ("th_nm".equals(key) && oU.is(key, "anonymous")) {
+                        meta.put(key, oU2.get(key));
+                    }
+                }
+                // 如果有头像的话，搞一下
+                if (oU2.has("thumb") && !oU.has("thumb")) {
+                    WnObj oThumb2 = Wn.getObj(io, oU2.thumbnail());
+                    if (null != oThumb2) {
+                        WnObj oData = Things.dirTsData(io, oU);
+                        String thumb = oU.id() + "/thumb.jpg";
+                        WnObj oThumb = io.createIfNoExists(oData, thumb, WnRace.FILE);
+                        io.copyData(oThumb2, oThumb);
+                        meta.put("thumb", "id:" + oThumb.id());
+                    }
+                }
+                // 更新一下本用户
+                io.appendMeta(oU, meta);
+
+                // 删除一下微信用户
+                accS.deleteThing(true, oU2.id());
+            }
+
+            // 最后复用当前会话
+            api.chownSession(oSe, oU);
+        }
+        return oSe;
     }
 
     /**
@@ -487,7 +568,7 @@ public class WWWModule extends AbstractWnModule {
         NutMap context = __gen_www_context(req, oWWW, null);
 
         // 准备操作接口并删除会话
-        WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+        WWWPageAPI api = _api_page(oHome, oWWW, context);
         api.deleteMySession();
 
         // 得到要返回的 URL
@@ -510,8 +591,7 @@ public class WWWModule extends AbstractWnModule {
         // 从请求对象得到上下文
         NutMap context = __gen_www_context(req, oWWW, null);
 
-        // 准备操作接口
-        WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+        WWWPageAPI api = _api_page(oHome, oWWW, context);
         return api.checkMyPhone();
     }
 
@@ -725,11 +805,11 @@ public class WWWModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 放置一些上下文的接口
-                WWWPageAPI api = new WWWPageAPI(io, oHome, oWWW, context);
+                WWWPageAPI api = new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
                 context.put("API", api);
 
                 // 看看是否是已经登录的会话，如果已经登录了，那么要偷偷改一下会话的票据
-                String seph = api.updateSessionTicket();
+                // String seph = api.updateSessionTicket();
 
                 // 创建一下解析服务
                 // WnmlModuleRuntime wrt = new WnmlModuleRuntime(this, se);
@@ -751,9 +831,9 @@ public class WWWModule extends AbstractWnModule {
                 hsr.header().putDefault("CONTENT-TYPE", "text/html");
 
                 // 更新客户端的 cookie 以便匹配上新的 session
-                if (!Strings.isBlank(seph)) {
-                    hsr.header().addv("SET-COOKIE", "www=" + seph + "; Path=/;");
-                }
+                // if (!Strings.isBlank(seph)) {
+                // hsr.header().addv("SET-COOKIE", "www=" + seph + "; Path=/;");
+                // }
 
                 return new HttpStatusView(hsr);
 
@@ -782,30 +862,34 @@ public class WWWModule extends AbstractWnModule {
         }
     }
 
-    private NutMap __gen_www_context(HttpServletRequest req, WnObj oWWW, String pagePath)
-            throws URISyntaxException {
-        NutMap context = _gen_context_by_req(req);
-        String rootPath = oWWW.path();
-        String url = (String) req.getAttribute("wn_www_url");
-        if (url == null)
-            url = req.getRequestURL().toString();
-        URI uri = new URI(url);
-        String uriPath = uri.getPath();
-        String basePath;
-        if (!Strings.isBlank(pagePath) && uriPath.endsWith(pagePath)) {
-            basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
-        } else {
-            basePath = uriPath;
+    private NutMap __gen_www_context(HttpServletRequest req, WnObj oWWW, String pagePath) {
+        try {
+            NutMap context = _gen_context_by_req(req);
+            String rootPath = oWWW.path();
+            String url = (String) req.getAttribute("wn_www_url");
+            if (url == null)
+                url = req.getRequestURL().toString();
+            URI uri = new URI(url);
+            String uriPath = uri.getPath();
+            String basePath;
+            if (!Strings.isBlank(pagePath) && uriPath.endsWith(pagePath)) {
+                basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
+            } else {
+                basePath = uriPath;
+            }
+
+            context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
+            context.put("SITE_HOME", rootPath);
+            context.put("PAGE_PATH", pagePath);
+            context.put("URL", url);
+            context.put("URI_PATH", uriPath);
+            context.put("URI_BASE", basePath);
+
+            return context;
         }
-
-        context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
-        context.put("SITE_HOME", rootPath);
-        context.put("PAGE_PATH", pagePath);
-        context.put("URL", url);
-        context.put("URI_PATH", uriPath);
-        context.put("URI_BASE", basePath);
-
-        return context;
+        catch (URISyntaxException e) {
+            throw Er.wrap(e);
+        }
     }
 
     private View gen_errpage(Tmpl tmpl, String path) {
@@ -831,11 +915,19 @@ public class WWWModule extends AbstractWnModule {
         String html = tmpl.render(map, false);
         return new ViewWrapper(new RawView("text/html") {
             @Override
-            public void render(HttpServletRequest req, HttpServletResponse resp, Object obj) throws Throwable {
+            public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
+                    throws Throwable {
                 resp.setStatus(code);
                 super.render(req, resp, obj);
             }
         }, html);
     }
 
+    private WWWPageAPI _api_page(WnObj oHome, WnObj oWWW, NutMap context) {
+        return new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
+    }
+
+    private WWWAPI _api(WnObj oHome) {
+        return new WWWAPI(io, oHome, sessionDu);
+    }
 }
