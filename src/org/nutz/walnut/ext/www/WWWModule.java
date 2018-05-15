@@ -642,7 +642,7 @@ public class WWWModule extends AbstractWnModule {
         }
 
         if (log.isInfoEnabled())
-            log.infof("www(%s): /%s/%s", req.getRemoteAddr(), usr, a_path);
+            log.infof("www(%s): /%s/%s", Lang.getIP(req), usr, a_path);
 
         // ..............................................
         // 找到用户
