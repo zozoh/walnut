@@ -97,13 +97,13 @@ public class mgadmin_index implements JvmHdl {
                     if (!re) {
                         log.debugf("| %s | %s | %s |", pid, nm, id);
                         if (doFix)
-                            renameMap.put("id", R.UU32().substring(0, 4) + "_" + nm);
+                            renameMap.put(id, R.UU32().substring(0, 4) + "_" + nm);
                         count ++;
                     }
                 }
                 log.debug("count=" + count);
                 cur.close();
-                if (hc.params.vals.length > 1 && hc.params.vals[1].equals("fix")) {
+                if (doFix) {
                     for (Entry<String, String> en : renameMap.entrySet()) {
                         log.debugf("fix id=%s as nm=%s", en.getKey(), en.getValue());
                         co.update(new BasicDBObject("id", en.getKey()), new BasicDBObject("$set", new BasicDBObject("nm", en.getValue()).append("nm_dup", 1)));
