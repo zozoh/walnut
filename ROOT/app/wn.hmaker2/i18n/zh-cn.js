@@ -218,6 +218,12 @@ define({
             "skin_reset_tip" : "即将丢弃你对皮肤所有的自定义设置，你确定要继续吗？",
             "skin_collapse"  : "收起",
             "skin_spread"    : "展开",
+            "guard"      : "页面保护设置",
+            "gu_enable"  : "启用保护",
+            "gu_nologin" : "未登录跳转",
+            "gu_nophone" : "未绑定手机",
+            "guard_save" : "保存保护设置",
+            "guard_saving" : '<i class="fa fa-spinner fa-pulse"></i> 正在保存保护设置 ...',
         },
         "com" : {
             "_" : {

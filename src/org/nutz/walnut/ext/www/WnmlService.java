@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.www;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -90,7 +91,52 @@ public class WnmlService {
         }
 
         // 返回 HTML
-        return doc.toString();
+        String html = doc.toString();
+
+        // 需要设置 Cookies
+        Object setCookies = context.get(WWWPageAPI.CK_SET_COOKIE);
+        NutMap header = context.getAs(WWWPageAPI.CK_SET_HTTP_HEADER, NutMap.class);
+        List<String> cookies = new LinkedList<>();
+        if (null != setCookies) {
+            Lang.each(setCookies, (index, co, len) -> {
+                if (null != co)
+                    cookies.add(co.toString());
+            });
+        }
+        // 需要输出特殊的 HTTP 头部
+        if (cookies.size() > 0 || (null != header && header.size() > 0)) {
+            // 输出 HTML 响应
+            StringBuilder sb = new StringBuilder();
+            sb.append("HTTP/1.1 200 OK\n");
+
+            // 输出 Header
+            if (null != header && header.size() > 0) {
+                for (String key : header.keySet()) {
+                    Object val = header.get(key);
+                    Lang.each(val, (index, ele, len) -> {
+                        if (null != ele) {
+                            String s = ele.toString();
+                            if (!Strings.isBlank(s)) {
+                                sb.append(String.format("%s: %s\n", key, s));
+                            }
+                        }
+                    });
+                }
+            }
+
+            // 输出 Cookies
+            for (String co : cookies) {
+                sb.append(String.format("Set-Cookie: %s\n", co));
+            }
+
+            // 输入内容
+            sb.append("\n");
+            sb.append(html);
+            return sb.toString();
+        }
+
+        // 直接返回就好
+        return html;
     }
 
     private String __gen_redirect_response(NutMap c, Element eRe) {
@@ -196,6 +242,14 @@ public class WnmlService {
             else if ("markdown".equals(tagName)) {
                 __do_markdown(wrt, ele, c);
             }
+            // <set-cookie>
+            else if ("set-cookie".equals(tagName)) {
+                __do_set_cookie(wrt, ele, c);
+            }
+            // <http-resp-header>
+            else if ("http-resp-header".equals(tagName)) {
+                __do_http_resp_header(wrt, ele, c);
+            }
             // 普通的元素
             else {
                 // 属性
@@ -214,6 +268,36 @@ public class WnmlService {
             __do_data_node_text((DataNode) nd, c);
         }
 
+    }
+
+    private void __do_http_resp_header(WnmlRuntime wrt, Element ele, NutMap c) {
+        Elements eList = ele.children();
+        if (eList.size() > 0) {
+            // 首先拿出 HEADER 来
+            NutMap header = c.getAs(WWWPageAPI.CK_SET_HTTP_HEADER, NutMap.class);
+            if (null == header) {
+                header = new NutMap();
+                c.put(WWWPageAPI.CK_SET_HTTP_HEADER, header);
+            }
+            for (Element eH : eList) {
+                String tKey = eH.tagName().toUpperCase();
+                String tVal = Strings.trim(eH.text());
+                String str = Strings.trim(this.__process_text(c, tVal, true));
+                if (!Strings.isBlank(str)) {
+                    header.addv(tKey, str);
+                }
+            }
+        }
+        ele.remove();
+    }
+
+    private void __do_set_cookie(WnmlRuntime wrt, Element ele, NutMap c) {
+        String str = ele.text();
+        str = Strings.trim(this.__process_text(c, str, false));
+        if (!Strings.isBlank(str)) {
+            c.addv2(WWWPageAPI.CK_SET_COOKIE, str);
+        }
+        ele.remove();
     }
 
     private void __do_set(WnmlRuntime wrt, Element ele, NutMap c) {

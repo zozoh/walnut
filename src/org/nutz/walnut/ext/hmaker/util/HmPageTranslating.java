@@ -16,6 +16,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
@@ -26,6 +27,11 @@ import org.nutz.walnut.util.Wn;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class HmPageTranslating extends HmContext {
+
+    /**
+     * 网页守护的模板代码
+     */
+    private static Tmpl pageGuardTmpl;
 
     private static final Map<String, String> JS_LIB = new HashMap<>();
 
@@ -39,6 +45,8 @@ public class HmPageTranslating extends HmContext {
         JS_LIB.put("@zdimension", "/gu/rs/core/js/nutz/zdimension.js");
         JS_LIB.put("@dateformat", "/gu/rs/core/js/ui/dateformat.js");
         JS_LIB.put("@seajs", "#seajsnode!/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
+
+        pageGuardTmpl = Tmpl.parse(Files.read("org/nutz/walnut/ext/hmaker/util/tmpl_guard.html"));
     }
 
     /**
@@ -304,6 +312,27 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 添加页面标题
         doc.head().appendElement("title").text(this.oSrc.getString("title", this.oSrc.name()));
+        // ---------------------------------------------------
+        // 添加页面保护设置
+        NutMap pgGuard = this.oSrc.getAs("hm_pg_guard", NutMap.class);
+        if (null != pgGuard && pgGuard.size() > 0) {
+            this.markPageAsWnml();
+            // 确保检查手机
+            if (pgGuard.has("nophone")) {
+                String coPath = pgGuard.getString("nophone");
+                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMyPhone");
+                String guCode = pageGuardTmpl.render(c2);
+                doc.head().prepend(guCode);
+            }
+            // 确保登录检查
+            if (pgGuard.has("nologin")) {
+                String coPath = pgGuard.getString("nologin");
+                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMe");
+                String guCode = pageGuardTmpl.render(c2);
+                doc.head().prepend(guCode);
+            }
+
+        }
         // ---------------------------------------------------
         // 添加 SEO 搜索关键字
         if (this.propPage.has("seokwd")) {

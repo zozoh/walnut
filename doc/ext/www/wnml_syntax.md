@@ -162,6 +162,30 @@ ${xyz(json:n)?-obj-}
 * 307 Temporary Redirect (since HTTP/1.1)
 * 308 Permanent Redirect
 
+## 自定义HTTP头 `<http-resp-header>`
+
+```
+<http-resp-header>
+  <x-powered-by>i am zozoh</x-powered-by>
+</http-resp-header>
+```
+
+- 下面的子标签，标签名就是头，内容就是值
+- 名称大小写无所谓，反正会强制转大写
+- 值会被强制去掉两侧空白
+- 可以在网页多个地方随意写，最后会统一汇总的
+
+## 设置Cookie `<set-cookie>`
+
+```
+<set-cookie>abc=xyz; Path=/; </set-cookie>
+```
+
+- 这个标签可以写在 `<http-resp-header>` 也可以拿出来随便什么地方写
+- 为的是可以比较方便的随时随地设置 Cookie
+- 值会被强制去掉两侧空白
+- 可以在网页多个地方随意写，最后会统一汇总的
+
 ## Markdown `<markdown>`
 
 读取某个上下文对象的值，并将其内容作为 markdown 格式，转换成 HTML

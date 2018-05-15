@@ -15,7 +15,13 @@ var html = `
         <header>
             <i class="zmdi zmdi-alert-circle-o"></i>
             <b>{{hmaker.page.attr}}</b>
-            <a>{{hmaker.page.meta}}</a>
+            <a class="hppm-meta">
+                {{hmaker.page.meta}}
+            </a>
+            <a class="hppm-lock">
+                <i class="zmdi zmdi-lock-open"></i>
+                <span>{{hmaker.page.guard}}</span>
+            </a>
         </header>
         <section ui-gasket="form"></section>
     </div>
@@ -49,8 +55,12 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
     //...............................................................
     events : {
         // 编辑页面更多属性
-        "click .pp-attr header a" : function(){
+        "click .pp-attr header a.hppm-meta" : function(){
             this.doEditMore();
+        },
+        // 编辑页面保护
+        "click .pp-attr header a.hppm-lock" : function(){
+            this.doEditPageGuard();
         },
         // 编辑页面的层级结构
         "change .pp-hierarchy textarea" : function(){
@@ -207,6 +217,123 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
             });
         }
         return list;
+    },
+    //...............................................................
+    doEditPageGuard : function() {
+        var UI = this;
+        var homeId = this.getHomeObjId();
+        var oPage  = this.pageUI().getCurrentEditObj(true);
+
+        // 准备 input 的 assist
+        var inAss = {
+            icon : '<i class="zmdi zmdi-caret-down"></i>',
+            uiType : "ui/form/c_list",
+            uiConf : {
+                drawOnSetData : true,
+                items : 'hmaker id:'+homeId+' links -key "rph,nm,tp,title" -site',
+                escapeHtml : false,
+                icon  : function(o){
+                    // 页面
+                    if('html' == o.tp && !$z.getSuffixName(o.nm)) {
+                        return  '<i class="fa fa-file"></i>';
+                    }
+                    // 其他遵守 walnut 的图标规范
+                    return Wn.objIconHtml(o);
+                },
+                text : function(o) {
+                    var str = '<span>/' + o.rph + '</span>';
+                    if(o.title) {
+                        str += '<em>' + o.title + '</em>';
+                    }
+                    return str;
+                },
+                value : function(o) {
+                    return "${URI_BASE}/" + o.rph;
+                },
+            },
+        };
+
+        // 准备数据
+        var guard = _.extend({enabled : !_.isEmpty(oPage.hm_pg_guard)}, oPage.hm_pg_guard);
+
+        // 准备一个同步函数
+        var sync_form_status = function(uiForm, data) {
+            if(data.enabled) {
+                uiForm.enableField("nologin", "nophone");
+            } else {
+                uiForm.disableField("nologin", "nophone");
+            }
+        };
+
+        // 打开对话框
+        POP.openUIPanel({
+            title  : "i18n:hmaker.page.guard",
+            escape : false,
+            width  : 640,
+            height : 480,
+            setup : {
+                uiType : "ui/form/form",
+                uiConf : {
+                    mergeData : false,
+                    hideDisabled : false,
+                    uiWidth : "all",
+                    on_change : function(key, val){
+                        var data = this.getData();
+                        if("enabled" == key && val) {
+                            data.nologin = data.nologin || '${URI_BASE}';
+                            data.nophone = data.nophone || '${URI_BASE}';
+                            this.setData(data);
+                        }
+                        sync_form_status(this, data);
+                    },
+                    fields : [{
+                        key    : "enabled",
+                        title  : "i18n:hmaker.page.gu_enable",
+                        type   : "boolean",
+                        uiType : "@toggle",
+                    }, {
+                        key : "nologin",
+                        title : "i18n:hmaker.page.gu_nologin",
+                        dft : "",
+                        uiType : "@input",
+                        uiConf : {
+                            assist : inAss
+                        }
+                    }, {
+                        key : "nophone",
+                        title : "i18n:hmaker.page.gu_nophone",
+                        dft : "",
+                        uiType : "@input",
+                        uiConf : {
+                            assist : inAss
+                        }
+                    }]
+                }
+            },
+            ready : function(uiBody) {
+                uiBody.setData(guard);
+                //console.log(guard)
+                sync_form_status(uiBody, guard);
+            },
+            btnOk : 'i18n:hmaker.page.guard_save',
+            ingOk : 'i18n:hmaker.page.guard_saving',
+            ok : function(uiBody, jBtn, uiMask) {
+                var data = uiBody.getData();
+                var d2 = data.enabled ? $z.pick(data,["nologin","nophone"]) : null;
+                var json = $z.toJson({hm_pg_guard:d2});
+
+                Wn.execf('obj id:{{id}} -u \'<%=json%>\' -o', {
+                    id : oPage.id,
+                    json : json
+                }, function(re){
+                    var oP2 = $z.fromJson(re);
+                    Wn.saveToCache(oP2);
+                    UI.fire("update:obj", oP2);
+                    uiMask.close();
+                });
+                return false;
+            }
+        }, UI);
     },
     //...............................................................
     doEditMore : function() {

@@ -858,6 +858,8 @@ public class WWWModule extends AbstractWnModule {
 
         }
         catch (Exception e) {
+            if (log.isWarnEnabled())
+                log.warn("Server Error!", e);
             return gen_errpage(tmpl_500, a_path, e.toString(), 500);
         }
     }

@@ -35,18 +35,19 @@ return ZUI.def("ui.form", {
             "ui/form/theme/component-{{theme}}.css"],
     i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
-    init : function(options){
+    init : function(opt){
         var UI = FormMethods(this);
-        //$z.evalFunctionField(options);
-        $z.setUndefined(options, "mergeData", true);
-        $z.setUndefined(options, "idKey", "id");
-        $z.setUndefined(options, "uiWidth", "auto");
-        $z.setUndefined(options, "fields", []);
-        $z.setUndefined(options, "prompts", {
+        //$z.evalFunctionField(opt);
+        $z.setUndefined(opt, "mergeData", true);
+        $z.setUndefined(opt, "idKey", "id");
+        $z.setUndefined(opt, "uiWidth", "auto");
+        $z.setUndefined(opt, "fields", []);
+        $z.setUndefined(opt, "prompts", {
             spinning : '<i class="fa fa-spinner fa-spin"></i>',
             warn     : '<i class="zmdi zmdi-alert-triangle"></i>',
             ok       : '<i class="zmdi zmdi-check-circle"></i>',
         });
+        $z.setUndefined(opt, "hideDisabled", true);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 整理 fields 字段
         var grpList = [];
@@ -55,7 +56,7 @@ return ZUI.def("ui.form", {
             fields : []
         };
         // 将所有字段归纳为组为单位的列表
-        options.fields.forEach(function(fld){
+        opt.fields.forEach(function(fld){
             // 是字段组，考虑创建新组
             if(!_.isString(fld.key)){
                 // 将之前的收集字段用组添加进列表

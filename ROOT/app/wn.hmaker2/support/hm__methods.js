@@ -543,6 +543,11 @@ var methods = {
         if(/^text\/(xml|html)$/.test(o.mime)) {
             // 无后缀的用编辑器编辑
             if(!$z.getSuffixName(o.nm)) {
+                // 如果是受保护的页面，显示一个特殊保护标志
+                if(!_.isEmpty(o.hm_pg_guard)) {
+                    return '<i class="fas fa-lock"></i>';
+                }
+                // 显示普通文件
                 return  '<i class="fa fa-file"></i>';
             }
             // 其他的用文本编辑

@@ -48,13 +48,13 @@ tags:
 在页面中，嵌入：
 
 ```
-<if test="!API.checkMyPhone()">
-    <redirect code="302" text="Found">
-        <url>/login.html</url>
-        <http-resp-header>
-            <Set-Cookie>www=45tr..3we1/er43..23vd; path=/; </Set-Cookie>
-        </http-resp-header>
-    </redirect>
+<if test="!API.checkMyPhone('${URI_BASE}/login.wnml')">
+  <redirect code="302" text="Found">
+    <url>${URI_BASE}/login.wnml</url>
+    <http-resp-header>
+      <set-cookie>taph=${URI_PATH}; Path=${URI_BASE}/login.wnml;</set-cookie>
+     </http-resp-header>
+  </redirect>
 </if>
 ```
 
@@ -63,6 +63,22 @@ tags:
 - `<url>` 表示要转移的路径
     + 如果是绝对路径，表示相对于站点的路径
     - 如果是相对路径，表示相对于当前的地址
+
+## 在 hMaker 里的标识
+
+在 hMaker 编辑器，每个页面都有元数据属性
+
+```
+// 提供一个保护的逻辑
+hm_pg_guard : {
+    // 当前会话未登陆，重定向到何地址
+    "nologin" : "login.wnml",
+    // 当前会话用户没绑定手机，重定向到何地址
+    "nophone" : "login.wnml",
+}
+```
+
+发布后，会在页面首部插入对应的保护指令
 
 ## 如何记录登录信息
 

@@ -367,7 +367,12 @@
         text-align: left; font-size: @f2;
         &:after{@clr();}
         > i {margin-right: @d1;}
-        > a {float:right; cursor: pointer; font-size:@f1;}
+        > a {
+            float:right; cursor: pointer; font-size:@f1;
+            display: block; padding:0 @d2;
+            border-left:1px solid @cborder0;
+            i {margin-right:@d1;}
+        }
     }
     > .pp-attr {
         padding:0;

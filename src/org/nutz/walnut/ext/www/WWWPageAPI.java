@@ -9,6 +9,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -28,6 +29,12 @@ import org.nutz.walnut.util.Wn;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WWWPageAPI extends WWWAPI {
+
+    public static final String CK_ME_WITHOUT_PHONE = "%WWW::ME_WITHOUT_PHONE";
+
+    public static final String CK_SET_COOKIE = "%WWW::DO_SET_COOKIE";
+
+    public static final String CK_SET_HTTP_HEADER = "%WWW::DO_SET_HEADER";
 
     /**
      * 当前页面所在的 www 目录
@@ -76,7 +83,50 @@ public class WWWPageAPI extends WWWAPI {
     }
 
     /**
-     * 根据上下文中的 `cookies.www` 来检查一下会话是否登录 <br>
+     * @see #getMe(String)
+     */
+    public boolean checkMyPhone(String cookiePath) {
+        // 如果上下文中已经检查过了
+        if (context.getBoolean(CK_ME_WITHOUT_PHONE))
+            return false;
+
+        // 得到当前会话的用户
+        NutBean me = this.getMe(cookiePath);
+
+        // 没有用户，返回吧
+        if (null == me)
+            return false;
+
+        // 它有手机号吗？
+        if (!me.has("phone")) {
+            // 记录一下上下文，以便后面渲染重定向时，能知道要绑定手机，而不是“注册用户”
+            context.put(CK_ME_WITHOUT_PHONE, true);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @see #checkMyPhone(String)
+     */
+    public boolean checkMyPhone() {
+        return this.checkMyPhone(null);
+    }
+
+    public NutBean getMe() {
+        return this.getMe(null);
+    }
+
+    /**
+     * 根据当前的会话，找到会话对应的用户，确保设置如下上下文:
+     * <ul>
+     * <li><code>session</code> : 这个是会话对象
+     * <li><code>me</code> : 当前用户
+     * <li><code>role</code> : 当前用户的角色（如果设置了的话）
+     * </ul>
+     * 
+     * 如果会话中已经有 session，那么复用。否则根据上下文中的 `cookies.www` 来检查一下会话是否登录 <br>
      * 如果登录，则会在上下文中增加 `me` 这个对象表示用户（当然会去掉密码和盐） <br>
      * 然后再检查用户是否有有效的 `phone` 字段
      * 
@@ -84,24 +134,38 @@ public class WWWPageAPI extends WWWAPI {
      * 如果请求虽然未登录，发现有微信公众号的返回码，且本网站也关联了一个微信公众号`hm_wxmp`。<br>
      * 那么会试图用微信公众号的OpenId来注册一个新用户，并生成 Session，再执行后面的逻辑<br>
      * 当然，通常没有手机号，也是要被踢掉的
+     * <p>
+     * 如果你没有指定 cookiePath，则不会执行这个逻辑。因为创建了 Session 也没用，没法下发 Cookie 呀
      * 
-     * @param newSeAttrName
-     *            如果发现当前会话是微信客户端，会自动登录。但是必须声明这个属性。如果不声明则无视。<br>
-     *            声明这个属性后，如果当前会话没登录，会根据微信的 code 创建用户（如果不存在openid的话）和会话。<br>
-     *            同时会在上下文里设置一个 cookie 的内容，以便重定向场景下，可以设置 cookie。<br>
-     *            所以如果你传这个属性，就相当于是说，你不希望自动创建用户和会话。
-     * @param redirectPath
-     *            在 newSeAttrName 有值的时候才有效，相当于要指定 cookie 的作用路径为:<br>
-     *            <code>Path=${URI_BASE}/@redirectPath; </code> <br>
-     *            如果你的值是以 "/" 开头的，则相当于 <code>Path=@redirectPath; </code><br>
-     *            如果不指定这个值，则相当于 <code>Path=/; </code> <br>
      * 
-     * @return true: 当前会话登录，并且用户有phone字段. false: 当前会话没有登录,或者没有 phone 字段
+     * <h4>一个专属上下文键值，指明需要下发 Cookie</h4>
+     * 
+     * 当本函数创建了一个 cookies，它并不负责下发，也没法下发的。<br>
+     * 它只是把要下发的 cookies 放到上下文一个特殊的键里。常量<code>CK_SET_COOKIE</code>定义了这个键
+     * 
+     * 调用者，通常是 `WWWModule` 会负责这个 cookies 的下发。
+     * 
+     * @param cookiePath
+     *            指定了一个路径，表示，如果当前操作创建了一个Cookie，那么这个 Cookie 的作用路径是什么
+     *            <ul>
+     *            <li>如果你的值是以 "/" 开头的，则相当于 <code>Path=@cookiePath; </code>
+     *            <li><code>Path=${URI_BASE}/@cookiePath; </code>
+     *            </ul>
+     *            其中 <code>${URI_BASE}</code> 来自上下文。 如果为空，则表示不要自动创建会话
+     * 
+     * @return 当前会话对应的用户对象
+     * 
+     * @see #CK_SET_COOKIE
      */
-    public boolean checkMyPhone(String newSeAttrName, String redirectPath) {
-        // 如果上下文中已经检查过了
-        if (context.getBoolean("me_without_phone"))
-            return false;
+    public NutBean getMe(String cookiePath) {
+        // 已经有了
+        NutBean me = context.getAs("me", NutBean.class);
+        if (null != me)
+            return me;
+
+        // 替换一下
+        if (null != cookiePath)
+            cookiePath = Tmpl.exec(cookiePath, context);
 
         // 确保可以正确的找到用户库
         WnObj oAcsSet = checkAccountSet();
@@ -113,7 +177,7 @@ public class WWWPageAPI extends WWWAPI {
 
         // 尝试用微信搞一下
         if (null == oSe) {
-            if (!Strings.isBlank(newSeAttrName)) {
+            if (!Strings.isBlank(cookiePath)) {
                 oMe = __create_user_by_wxcode(accS);
                 // 如果没有会话，说明刚才是通过微信 code 搞的，那么搞一个会话
                 if (null != oMe) {
@@ -126,16 +190,14 @@ public class WWWPageAPI extends WWWAPI {
 
                     // 设置一下上下文属性，以便调用者发送 cookie
                     String seph = siteId + "/" + oSe.name();
-                    String coph = "/";
-                    if (!Strings.isBlank(redirectPath)) {
-                        if (redirectPath.startsWith("/"))
-                            coph = redirectPath;
-                        else
-                            coph = context.getString("URI_BASE") + "/" + redirectPath;
+                    String coph;
+                    if (cookiePath.startsWith("/"))
+                        coph = cookiePath;
+                    else
+                        coph = context.getString("URI_BASE") + "/" + cookiePath;
 
-                    }
                     String cookie = String.format("www=%s; Path=%s; ", seph, coph);
-                    context.put(newSeAttrName, cookie);
+                    context.addv2(CK_SET_COOKIE, cookie);
                 }
             }
         }
@@ -145,7 +207,7 @@ public class WWWPageAPI extends WWWAPI {
             oMe = accS.getThing(uid, false);
 
             // 如果用户被删了，那么用微信的 code 再看看
-            if (null == oMe && !Strings.isBlank(newSeAttrName)) {
+            if (null == oMe && !Strings.isBlank(cookiePath)) {
                 oMe = __create_user_by_wxcode(accS);
                 // 如果搞出一个用户，那么更新当前 Session 吧
                 if (null != oMe) {
@@ -154,13 +216,12 @@ public class WWWPageAPI extends WWWAPI {
             }
         }
 
-        // 有会话
-        if (null != oSe)
-            this.setSessionObjToContext(oSe);
-
         // 用户不存在？被删了？
-        if (null == oMe)
-            return false;
+        if (null == oMe || null == oSe)
+            return null;
+
+        // 保存会话到上下文
+        this.setSessionObjToContext(oSe);
 
         // 如果用户没有角色，试图为其分配一个默认角色
         WnObj oRosSet = this.getRoleSet();
@@ -184,26 +245,14 @@ public class WWWPageAPI extends WWWAPI {
         }
 
         // 记录一下用户和角色，嗯，就算全过了哦
-        context.put("me", this.genUserMap(oMe));
+        me = this.genUserMap(oMe);
+        context.put("me", me);
         if (null != oRole) {
             context.put("role", this.genRoleMap(oRole));
         }
 
-        // 它有手机号吗？
-        if (!oMe.has("phone")) {
-            // 记录一下上下文，以便后面渲染重定向时，能知道要绑定手机，而不是“注册用户”
-            context.put("me_without_phone", true);
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @see #checkMyPhone(String, String)
-     */
-    public boolean checkMyPhone() {
-        return this.checkMyPhone(null, null);
+        // 搞定收工
+        return me;
     }
 
     /**
@@ -296,6 +345,14 @@ public class WWWPageAPI extends WWWAPI {
             }
         }
         return oMe;
+    }
+
+    public boolean checkMe() {
+        return this.checkMe(null);
+    }
+
+    public boolean checkMe(String cookiePath) {
+        return this.getMe(cookiePath) != null;
     }
 
     /**
