@@ -1,9 +1,14 @@
 package org.nutz.walnut.ext.mgadmin.hdl;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.log.Log;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -76,17 +81,32 @@ public class mgadmin_index implements JvmHdl {
                 Set<String> keys = new HashSet<>();
                 Cursor cur = co.find(toDBO("{}"), toDBO("{id:1,pid:1,nm:1}")).batchSize(128);
                 Log log = sys.getLog("debug", null);
+                Map<String, String> renameMap = new LinkedHashMap<>();
+                boolean doFix = hc.params.vals.length > 1 && hc.params.vals[1].equals("fix");
+                int count = 0;
                 while (cur.hasNext()) {
                     DBObject dbo = cur.next();
                     String pid = (String) dbo.get("pid");
                     String nm = (String)dbo.get("nm");
-                    if (pid == null || nm == null) {
-                        log.debug("FUCK(pid or nm == null) id=" + dbo.get("id"));
+                    String id = (String)dbo.get("id");
+                    if (Strings.isBlank(pid) || Strings.isBlank(nm) || Strings.isBlank(id)) {
+                        log.debug("FUCK(pid or nm or id is blank) id=" + dbo.get("id"));
                         continue;
                     }
                     boolean re = keys.add(pid + "," + nm);
                     if (!re) {
-                        log.debugf("| %s | %s | %s |", pid, nm, dbo.get("id"));
+                        log.debugf("| %s | %s | %s |", pid, nm, id);
+                        if (doFix)
+                            renameMap.put("id", R.UU32().substring(0, 4) + "_" + nm);
+                        count ++;
+                    }
+                }
+                log.debug("count=" + count);
+                cur.close();
+                if (hc.params.vals.length > 1 && hc.params.vals[1].equals("fix")) {
+                    for (Entry<String, String> en : renameMap.entrySet()) {
+                        log.debugf("fix id=%s as nm=%s", en.getKey(), en.getValue());
+                        co.update(new BasicDBObject("id", en.getKey()), new BasicDBObject("$set", new BasicDBObject("nm", en.getValue()).append("nm_dup", 1)));
                     }
                 }
                 break;
