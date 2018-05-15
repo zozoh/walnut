@@ -446,7 +446,8 @@ public class HmPageTranslating extends HmContext {
         this.propPage.remove("links");
         if (null != list && list.size() > 0) {
             for (NutMap link : list) {
-                WnObj oLink = this.io.fetch(null, link.getString("ph"));
+                String ln_rph = link.getString("rph");
+                WnObj oLink = this.io.fetch(this.oSrc, ln_rph);
                 if (null != oLink) {
                     String rph2 = this.getRelativePath(oSrc, oLink);
                     // CSS

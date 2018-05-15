@@ -327,7 +327,7 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
                     checkable  : true,
                     escapeHtml : false,
                     arenaClass : "hm-rs-list",
-                    idKey : "ph",
+                    idKey : "rph",
                     icon : function(o) {
                         return UI.getObjIcon(o);
                     },
@@ -360,7 +360,7 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
                     // 标识已经选中的
                     var links = (UI.pageUI().getPageAttr().links || []);
                     for(var i=0; i<links.length; i++) {
-                        uiBody.check(links[i].ph);
+                        uiBody.check(links[i].rph);
                     }
                 });
             },
