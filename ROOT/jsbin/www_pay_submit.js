@@ -98,7 +98,7 @@ function _main(params){
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback domain -meta '%s'";
     re = sys.exec2f(cmdText, 
                     order.th_nm, 
-                    order.uid, 
+                    "%"+order.uid, 
                     order.fee,
                     //params.coupon ? params.coupon + " -scope traffic" : "",
                     params.payType, 
