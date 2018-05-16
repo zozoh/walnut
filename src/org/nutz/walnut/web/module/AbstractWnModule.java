@@ -6,7 +6,9 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.nutz.castor.Castors;
 import org.nutz.ioc.loader.annotation.Inject;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -75,6 +77,22 @@ public abstract class AbstractWnModule extends WnRun {
             }
             context.put("cookies", cookie);
         }
+
+        // .........................................
+        // 计入请求属性
+        NutMap attrs = new NutMap();
+        Enumeration<String> anms = req.getAttributeNames();
+        while (hnms.hasMoreElements()) {
+            String key = hnms.nextElement();
+            Object val = req.getAttribute(key);
+            if (null != val) {
+                if (Mirror.me(val).isNumber()) {
+                    String str = Castors.me().castToString(val);
+                    attrs.put(key, val);
+                }
+            }
+        }
+        context.put("attrs", attrs);
 
         // .........................................
         // 计入参数
