@@ -128,6 +128,9 @@ www=45tr..3we1/er43..23vd
     // 指向了站点对应的角色数据集（ThingSet）
     hm_role_set: "yt..2q",
 
+    // 指向了站点对应的订单数据集（ThingSet）
+    hm_order_set: "84..2c",
+
     // 当访问站点，但是没有指明入口页时，默认跳转到哪个页面，
     // 默认是 index.wnml | index.html
     www_entry: "enter.html",
