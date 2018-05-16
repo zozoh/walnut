@@ -96,7 +96,7 @@ function _main(params){
                                 uid : params.buyer,
                                 goods : _goods,
                                 fee : fee,
-                                cur : params.cur ? params.cur : 'rmb',
+                                cur : params.cur ? params.cur : 'RMB',
                                 price : price
                             }));
         order = JSON.parse(reJson);
