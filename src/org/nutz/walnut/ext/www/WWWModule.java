@@ -825,6 +825,7 @@ public class WWWModule extends AbstractWnModule {
 
                 // 准备输出响应内容
                 HttpServerResponse hsr = new HttpServerResponse();
+                hsr.setUpperHeaderName(true);
                 hsr.updateBy(html);
 
                 // 默认的内容类型
