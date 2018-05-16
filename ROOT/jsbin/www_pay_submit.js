@@ -101,12 +101,12 @@ function _main(params){
         var reJson = sys.exec2f(cmdText, params.pid, params.brief,
                             JSON.stringify({
                                 uid : params.buyer,
-                                unm : params.unm
+                                unm : params.unm,
                                 goods : _goods,
                                 fee : fee,
                                 cur : params.cur ? params.cur : 'RMB',
                                 price : price,
-                                comment : param.comment
+                                comment : params.comment
                             }));
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
