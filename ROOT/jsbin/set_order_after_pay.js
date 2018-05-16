@@ -8,21 +8,27 @@ jsc /mnt/site0/jsbin/set_order_after_pay.js -vars {
 //........................................
 // 声明一些用到的变量
 var id = (id || "").trim();
-var st = (st || "FAIL").trim();
+
 //........................................
-function _main(params){
+function _main(params) {
     if (!params.id) {
-        sys.exec("ajaxre -qe site0.e.pay.submit.noOrderId");
+        sys.exec("ajaxre -qe e.pay.callback.noPoId");
         return;
     }
-    if (params.st == "OK") {
+    var re = sys.exec2('obj -cqn id:' + params.id);
+    if (/^e./.test(re)) {
+        sys.exec("ajaxre -qe e.pay.callback.poNoExists");
+        return;
+    }
+    var po = JSON.parse(re);
+    if (po.st == "OK") {
         sys.exec("obj id:" + params.id + " -u 'pay_tp:\"OK\"'");
     }
 }
+
 //........................................
 // 执行
 _main({
-    id : id,
-    st : st
+    id: id
 });
 //........................................
