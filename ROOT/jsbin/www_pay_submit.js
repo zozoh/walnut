@@ -14,15 +14,16 @@
 */
 //........................................
 // 声明一些用到的变量
-var bu = (bu || "").trim();
-var go = (go || "").trim();
-var pt = (pt || "").trim();
-var ta = (ta || "").trim();
-var ho = (ho || "").trim();
-var la = (la || "").trim();
-var co = (co || "").trim();
-var sc = (sc || "").trim();
-var br = (br || "").trim();
+var paramStr = sys.json(params) || "{}";
+var paramObj = JSON.parse(paramStr);
+paramObj = {
+	pid       : paramObj["pid"],
+    buyer     : paramObj["bu"],
+    goods     : paramObj["go"],
+    payType   : paramObj["pt"],
+    payTarget : paramObj["pa"],
+	brief     : paramObj["br"]
+};
 //........................................
 function _main(params){
 	var order = {};
@@ -69,8 +70,8 @@ function _main(params){
 	    	var count = parseInt(tmp2[1]);
 	    	var cmdText = 'obj id:' + id + ' -cqn';// 准备生成命令
 	    	var reJson = sys.exec2(cmdText);
-	    	var gd = JSON.parse(reJson);
-	    	gd["count"] = count;
+	    	var goo = JSON.parse(reJson);
+	    	goo["count"] = count;
 	    	// 商品必须有价格
 	    	if(!goo.fee || goo.fee < 0 || count < 1) {
 	    		sys.execf("ajaxre -qe 'site0.e.pay.submit.noFee : %s'", goo.nm);
@@ -78,9 +79,10 @@ function _main(params){
 	    	}
 	    	fee += goo.fee * count;
 	    	price += goo.price * count;
+			_goods.push(goo);
 	    }
-	    var cmdText = "thing %s create '%s' -fields '%s'";
-        var reJson = sys.exec2f(cmdText, params.pid, params.brief
+	    var cmdText = "thing %s create '%s' -fields '%s' -cqn";
+        var reJson = sys.exec2f(cmdText, params.pid, params.brief,
 	    					JSON.stringify({
 	    						uid : params.buyer,
 	    						goods : _goods,
@@ -89,6 +91,7 @@ function _main(params){
 	    						price : price
 	    					}));
 		order = JSON.parse(reJson);
+		log.warn("order=" + reJson);
 	}
 
     // 准备提交支付单
@@ -111,12 +114,5 @@ function _main(params){
 }
 //........................................
 // 执行
-_main({
-	pid       : pid,
-    buyer     : bu,
-    goods     : go,
-    payType   : pt,
-    payTarget : ta,
-	brief     : br,
-});
+_main(paramObj);
 //........................................
