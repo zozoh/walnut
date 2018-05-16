@@ -7,6 +7,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -75,6 +76,23 @@ public abstract class AbstractWnModule extends WnRun {
             }
             context.put("cookies", cookie);
         }
+
+        // .........................................
+        // 计入请求属性
+        NutMap attrs = new NutMap();
+        Enumeration<String> anms = req.getAttributeNames();
+        while (anms.hasMoreElements()) {
+            String key = anms.nextElement();
+            Object val = req.getAttribute(key);
+            if (null != val) {
+                Mirror<Object> mi = Mirror.me(val);
+                // 简单的值才记录，以防止可怕的事情发生
+                if (mi.isNumber() || mi.isStringLike()) {
+                    attrs.put(key, val);
+                }
+            }
+        }
+        context.put("attrs", attrs);
 
         // .........................................
         // 计入参数

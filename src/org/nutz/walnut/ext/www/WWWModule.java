@@ -799,10 +799,19 @@ public class WWWModule extends AbstractWnModule {
                 context.put("CURRENT_PATH", currentPath);
                 context.put("CURRENT_DIR", currentDir);
 
-                // 得到一些关键接口
+                // 得到一些当前域账号的关键信息
                 context.put("grp", se.group());
                 context.put("fnm", o.name());
                 context.put("rs", "/gu/rs");
+
+                // 如果上下文中有 "wn_www_path_new" 表示 WalnutFilter 已经修改了路径，那么
+                if (context.has("wn_www_path_new")) {
+                    context.put("REGAPI_BASE", "/api");
+                }
+                // 否则没有修改过路径，则应该本地环境，那么 api 要补全域
+                else {
+                    context.put("REGAPI_BASE", "/api/" + se.group());
+                }
 
                 // 放置一些上下文的接口
                 WWWPageAPI api = new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
