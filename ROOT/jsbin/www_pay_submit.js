@@ -9,7 +9,8 @@
     goods     : 'xxx',        // 「必」商品名称, 参数名是go
     payType   : 'zfb.qrcode'  // 「必」支付类型, 参数名是pt
     payTarget : 'woodpeax'    // 「必」支付目标商户,参数名是pa
-	brief     : '夏令营ABC'    //  [必] 订单命名, 参数名是br
+	brief     : '夏令营ABC'   //  [必] 订单命名, 参数名是br
+	callback  : '回调'        //  [必] 回调名称, 参数名是ca, 对应 ~/.payment/${callback}
 }
 */
 //........................................
@@ -22,7 +23,8 @@ paramObj = {
     goods     : paramObj["go"],
     payType   : paramObj["pt"],
     payTarget : paramObj["pa"],
-	brief     : paramObj["br"]
+	brief     : paramObj["br"],
+	callback  : paramObj["ca"]
 };
 //........................................
 function _main(params){
@@ -56,6 +58,11 @@ function _main(params){
 	    // 支付方式为空
         if(!params.brief){
             sys.exec("ajaxre -qe site0.e.pay.submit.noBrief");
+            return;
+        }
+	    // 支付方式为空
+        if(!params.callback){
+            sys.exec("ajaxre -qe site0.e.pay.submit.noCallback");
             return;
         }
         
@@ -95,7 +102,7 @@ function _main(params){
 	}
 
     // 准备提交支付单
-    var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback domain -meta '%s'";
+    var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s'";
     re = sys.exec2f(cmdText, 
                     order.th_nm, 
                     "%"+order.uid, 
@@ -103,9 +110,9 @@ function _main(params){
                     //params.coupon ? params.coupon + " -scope traffic" : "",
                     params.payType, 
                     params.payTarget,
+                    params.callback,
                     JSON.stringify({
-                        order_id   : order.id,
-                        buy_for    : order.th_nm,
+                        buy_for    : order.id,
                         client_ip  : params.clientIp,
                     }));
     
