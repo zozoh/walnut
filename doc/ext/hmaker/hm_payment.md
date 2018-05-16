@@ -124,7 +124,12 @@ brief : "xxx"      # 商品简单描述
 
 也可以看 `site库:/ROOT/site0/etc/init/payment/_files` 里面有创建这些支付接口的细节脚本
 
+-----------------------------------------------
+# 关于三个页面
 
+- `页:订单确认` : `site0库:/ROOT/site0/www/example/order_show.wnml`
+- `页:扫码支付` : `site0库:/ROOT/site0/www/example/pay_scan.wnml`
+- `页:支付成功` : `site0库:/ROOT/site0/www/example/pay_ok.wnml`
 
 
 
