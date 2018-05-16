@@ -487,7 +487,9 @@ public class WWWModule extends AbstractWnModule {
         WnObj oSe = api.getSessionObj(siteId, ticket);
         if (null != oSe) {
             // 准备接口
-            WnObj oAcsSet = api.checkAccountSet();
+            WnObj oAcsSet = api.getAccountSet();
+            if (null == oAcsSet)
+                return null;
             WnThingService accS = new WnThingService(io, oAcsSet);
             // 那么我们就应该从这个会话中找到对应的微信用户
             String uid2 = oSe.getString("uid");

@@ -248,6 +248,7 @@ public class hmaker_publish implements JvmHdl {
             NutMap meta = new NutMap();
             meta.put("hm_account_set", hpc.oHome.get("hm_account_set"));
             meta.put("hm_role_set", hpc.oHome.get("hm_role_set"));
+            meta.put("hm_order_set", hpc.oHome.get("hm_order_set"));
             meta.put("hm_wxmp", hpc.oHome.get("hm_wxmp"));
             meta.put("hm_site_id", hpc.oHome.id());
             meta.put("hm_login_entry", hpc.oHome.get("hm_login_entry"));

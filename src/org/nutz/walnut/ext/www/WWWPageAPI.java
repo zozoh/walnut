@@ -168,7 +168,9 @@ public class WWWPageAPI extends WWWAPI {
             cookiePath = Tmpl.exec(cookiePath, context);
 
         // 确保可以正确的找到用户库
-        WnObj oAcsSet = checkAccountSet();
+        WnObj oAcsSet = getAccountSet();
+        if (null == oAcsSet)
+            return null;
         WnThingService accS = new WnThingService(io, oAcsSet);
         WnObj oMe = null;
 
@@ -439,13 +441,13 @@ public class WWWPageAPI extends WWWAPI {
         return se;
     }
 
-    public WnObj checkAccountSet() {
+    public WnObj getAccountSet() {
         // 首先，www 目录必须是有用户库的，否则抛错，因为这肯定是开发者的锅
         if (null == oWWW || !oWWW.has("hm_account_set")) {
             throw Er.create("e.www.session.check.NoAccountSet", oWWW);
         }
         String acsId = oWWW.getString("hm_account_set");
-        WnObj oAcsSet = io.checkById(acsId);
+        WnObj oAcsSet = io.get(acsId);
         if (null == oAcsSet || !oAcsSet.isType("thing_set")) {
             throw Er.create("e.www.session.check.AccountSetNoExists", acsId);
         }
