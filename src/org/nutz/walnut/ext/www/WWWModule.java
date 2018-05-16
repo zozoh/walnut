@@ -805,7 +805,7 @@ public class WWWModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 如果上下文中有 "wn_www_path_new" 表示 WalnutFilter 已经修改了路径，那么
-                if (context.has("wn_www_path_new")) {
+                if (req.getAttribute("wn_www_path_new") != null) {
                     context.put("REGAPI_BASE", "/api");
                 }
                 // 否则没有修改过路径，则应该本地环境，那么 api 要补全域

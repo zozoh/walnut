@@ -30,18 +30,17 @@ public abstract class WnPays {
         // 买家类型
         if (bu.startsWith("%")) {
             wpi.asDusr();
-            bu = Strings.trim(bu.substring(1));
+            wpi.buyer_id = Strings.trim(bu.substring(1));
         } else {
             wpi.asWnUsr();
-        }
-
-        // 填充 ID
-        if (bu.startsWith("id:")) {
-            wpi.buyer_id = bu.substring(3);
-        }
-        // 填充名称或其他可登陆信息
-        else {
-            wpi.buyer_nm = bu;
+            // 填充 ID
+            if (bu.startsWith("id:")) {
+                wpi.buyer_id = bu.substring(3);
+            }
+            // 填充名称或其他可登陆信息
+            else {
+                wpi.buyer_nm = bu;
+            }
         }
     }
 

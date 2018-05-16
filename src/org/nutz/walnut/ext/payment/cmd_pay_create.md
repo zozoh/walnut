@@ -10,7 +10,7 @@
 ```    
 pay create 
     [-br brief]           # 「选」简介，如果没有则会根据字段生成
-    [-bu [%]xxx]          # 「必」买家查询字符串，%开头表示为域用户(dusr)
+    [-bu [%]xxx]          # 「必」买家查询字符串，%开头表示为域用户，这个必须要 ID
     [-se xxx]             # 「必」服务商查询字符串
     [-fee 2300[RMB]]      # 「必」支付金额，结尾三个大写字母表示货币单位(分)，默认为 RMB
     [-co xxxx]            # 「选」支付用到的优惠券代码，这个优惠券必须是服务商创建，且属于买家的
@@ -33,7 +33,7 @@ demo@~$ pay create -br 测试支付 -bu id:xxx -fee 99
 demo@~$ pay create -br 测试支付 -bu xiaobai -se 13910330036 -fee 199USD
 
 # 创建一个卖家域的支付单
-demo@~$ pay create -br 测试卖家域支付 -bu %xiaobai -se id:xxx -fee 199USD
+demo@~$ pay create -br 测试卖家域支付 -bu %4567..35 -se id:xxx -fee 199USD
 
 # 创建一个带后续任务的支付单
 demo@~$ pay create -br 测试支付 -bu xiaobai -fee 99 -callback abc

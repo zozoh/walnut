@@ -15,7 +15,6 @@ import org.nutz.walnut.ext.payment.WnPays;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Cmds;
 
 public class pay_create implements JvmHdl {
@@ -117,40 +116,21 @@ public class pay_create implements JvmHdl {
         boolean noBuId = Strings.isBlank(wpi.buyer_id);
         boolean noBuNm = Strings.isBlank(wpi.buyer_nm);
 
+        // 没有设置买家
+        if (noBuId) {
+            throw Er.create("e.pay.craete.nobuyer");
+        }
+
         // 补足
-        if (noBuId || noBuNm) {
+        if (noBuNm) {
             // 没有设置买家
             if (noBuId && noBuNm) {
                 throw Er.create("e.pay.craete.nobuyer");
             }
-            // 补足 ID
-            if (noBuId) {
-                WnObj u = __check_domain_usr(sys, wpi);
-                wpi.buyer_id = u.id();
-                wpi.buyer_nm = u.name();
-            }
-            // 补足名称
-            else {
-                WnObj u = __check_domain_usr(sys, wpi);
-                wpi.buyer_nm = u.name();
-            }
+            WnObj u = sys.io.checkById(wpi.buyer_id);
+            wpi.buyer_nm = u.getString("th_nm", u.name());
         }
-        // 如果两个都有，则比较一下是否匹配
-        else {
-            WnObj u = __check_domain_usr(sys, wpi);
-            if (!u.isSameId(wpi.buyer_id)) {
-                throw Er.create("e.pay.create.noMatchBuyer", wpi.buyer_id + " not " + wpi.buyer_nm);
-            }
-        }
-    }
 
-    private WnObj __check_domain_usr(WnSystem sys, WnPayInfo wpi) {
-        String re = sys.exec2("dusr '" + wpi.buyer_nm + "'");
-        if (re.startsWith("e.")) {
-            throw Er.wrap(re);
-        }
-        WnObj u = Json.fromJson(WnBean.class, re);
-        return u;
     }
 
     private void __check_buyer_as_wn(WnSystem sys, WnPayInfo wpi) {
