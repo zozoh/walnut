@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.nutz.castor.Castors;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -82,12 +81,13 @@ public abstract class AbstractWnModule extends WnRun {
         // 计入请求属性
         NutMap attrs = new NutMap();
         Enumeration<String> anms = req.getAttributeNames();
-        while (hnms.hasMoreElements()) {
-            String key = hnms.nextElement();
+        while (anms.hasMoreElements()) {
+            String key = anms.nextElement();
             Object val = req.getAttribute(key);
             if (null != val) {
-                if (Mirror.me(val).isNumber()) {
-                    String str = Castors.me().castToString(val);
+                Mirror<Object> mi = Mirror.me(val);
+                // 简单的值才记录，以防止可怕的事情发生
+                if (mi.isNumber() || mi.isStringLike()) {
                     attrs.put(key, val);
                 }
             }
