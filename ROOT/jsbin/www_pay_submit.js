@@ -6,12 +6,14 @@
 {
     id        : 'dadfsfdsf'   //  [可] 订单id,可选
     pid       : 'xxxzzz'      // 「可」thingSet id
-    bu        : 'xxxx',       // 「必」买家的 walnut 账号
+    bu        : 'xxxx',       // 「必」买家识别号
+    unm       : '卖家昵称'    //  [可] 买家的昵称,默认是买家识别号
     go        : 'xxx',        // 「必」商品名称
     pt        : 'zfb.qrcode'  // 「必」支付类型
     pa        : 'woodpeax'    // 「必」支付目标商户
     br        : '夏令营ABC'   //  [必] 订单命名
     ca        : '回调'        //  [必] 回调名称, 对应 ~/.payment/${callback}
+    cm        : '备注'        //  [可] 订单备注
 }
 */
 //........................................
@@ -26,7 +28,9 @@ paramObj = {
     payType   : paramObj["pt"],
     payTarget : paramObj["pa"],
     brief     : paramObj["br"],
-    callback  : paramObj["ca"]
+    callback  : paramObj["ca"],
+    unm       : paramObj["unm"],
+    comment   : paramObj["cm"] || ""
 };
 //........................................
 function _main(params){
@@ -67,6 +71,9 @@ function _main(params){
             sys.exec("ajaxre -qe site0.e.pay.submit.noCallback");
             return;
         }
+        if(!params.unm) {
+            params.unm = params.buyer;
+        }
         
         // 查询商品以及其价格
         var tmp = params.goods.split(",");
@@ -94,17 +101,19 @@ function _main(params){
         var reJson = sys.exec2f(cmdText, params.pid, params.brief,
                             JSON.stringify({
                                 uid : params.buyer,
+                                unm : params.unm
                                 goods : _goods,
                                 fee : fee,
                                 cur : params.cur ? params.cur : 'RMB',
-                                price : price
+                                price : price,
+                                comment : param.comment
                             }));
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
     }
 
     // 准备提交支付单
-    var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s'";
+    var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s' -cqn";
     re = sys.exec2f(cmdText, 
                     order.th_nm, 
                     "%"+order.uid, 
@@ -117,7 +126,10 @@ function _main(params){
                         buy_for    : order.id,
                         client_ip  : params.clientIp,
                     }));
-    
+    var payment = JSON.parse(re);
+    //log.warn(re);
+    payment["order_id"] = order.id;
+    re = JSON.stringify(payment);
     // 输出成功内容
     sys.exec("ajaxre -q", re);
 }
