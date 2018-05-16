@@ -4,13 +4,14 @@
 
 需要如下参数:
 {
-	pid       : 'xxxzzz'      // 「必」thingSet id
-    buyer     : 'xxxx',       // 「必」买家的 walnut 账号, 参数名是bu
-    goods     : 'xxx',        // 「必」商品名称, 参数名是go
-    payType   : 'zfb.qrcode'  // 「必」支付类型, 参数名是pt
-    payTarget : 'woodpeax'    // 「必」支付目标商户,参数名是pa
-	brief     : '夏令营ABC'   //  [必] 订单命名, 参数名是br
-	callback  : '回调'        //  [必] 回调名称, 参数名是ca, 对应 ~/.payment/${callback}
+    id        : 'dadfsfdsf'   //  [可] 订单id,可选
+    pid       : 'xxxzzz'      // 「可」thingSet id
+    bu        : 'xxxx',       // 「必」买家的 walnut 账号
+    go        : 'xxx',        // 「必」商品名称
+    pt        : 'zfb.qrcode'  // 「必」支付类型
+    pa        : 'woodpeax'    // 「必」支付目标商户
+    br        : '夏令营ABC'   //  [必] 订单命名
+    ca        : '回调'        //  [必] 回调名称, 对应 ~/.payment/${callback}
 }
 */
 //........................................
@@ -18,23 +19,24 @@
 var paramStr = sys.json(params) || "{}";
 var paramObj = JSON.parse(paramStr);
 paramObj = {
-	pid       : paramObj["pid"],
+    orderId   : paramObj["id"],
+    pid       : paramObj["pid"],
     buyer     : paramObj["bu"],
     goods     : paramObj["go"],
     payType   : paramObj["pt"],
     payTarget : paramObj["pa"],
-	brief     : paramObj["br"],
-	callback  : paramObj["ca"]
+    brief     : paramObj["br"],
+    callback  : paramObj["ca"]
 };
 //........................................
 function _main(params){
-	var order = {};
-	// 如果传了order的id, 直接找订单查出来
-	if (params.id) {
-		var reJson = sys.exec("obj id:" + params.id + " -cqn");
-		order = JSON.parse(reJson);
-	}
-	else {
+    var order = {};
+    // 如果传了order的id, 直接找订单查出来
+    if (params.orderId) {
+        var reJson = sys.exec("obj id:" + params.orderId + " -cqn");
+        order = JSON.parse(reJson);
+    }
+    else {
         // thingSet pid为空
         if(!params.pid){
             sys.exec("ajaxre -qe site0.e.pay.submit.noThingSet");
@@ -55,12 +57,12 @@ function _main(params){
             sys.exec("ajaxre -qe site0.e.pay.submit.noPayType");
             return;
         }
-	    // 支付方式为空
+        // 支付方式为空
         if(!params.brief){
             sys.exec("ajaxre -qe site0.e.pay.submit.noBrief");
             return;
         }
-	    // 支付方式为空
+        // 支付方式为空
         if(!params.callback){
             sys.exec("ajaxre -qe site0.e.pay.submit.noCallback");
             return;
@@ -68,38 +70,38 @@ function _main(params){
         
         // 查询商品以及其价格
         var tmp = params.goods.split(",");
-	    var _goods = [];
-	    var fee = 0;
-	    var price = 0;
-	    for (var i = 0; i < tmp.length; i++) {
-	    	var tmp2 = tmp[i].split(":");
-	    	var id = tmp2[0];
-	    	var count = parseInt(tmp2[1]);
-	    	var cmdText = 'obj id:' + id + ' -cqn';// 准备生成命令
-	    	var reJson = sys.exec2(cmdText);
-	    	var goo = JSON.parse(reJson);
-	    	goo["count"] = count;
-	    	// 商品必须有价格
-	    	if(!goo.fee || goo.fee < 0 || count < 1) {
-	    		sys.execf("ajaxre -qe 'site0.e.pay.submit.noFee : %s'", goo.nm);
-	    		return;
-	    	}
-	    	fee += goo.fee * count;
-	    	price += goo.price * count;
-			_goods.push(goo);
-	    }
-	    var cmdText = "thing %s create '%s' -fields '%s' -cqn";
+        var _goods = [];
+        var fee = 0;
+        var price = 0;
+        for (var i = 0; i < tmp.length; i++) {
+            var tmp2 = tmp[i].split(":");
+            var id = tmp2[0];
+            var count = parseInt(tmp2[1]);
+            var cmdText = 'obj id:' + id + ' -cqn';// 准备生成命令
+            var reJson = sys.exec2(cmdText);
+            var goo = JSON.parse(reJson);
+            goo["count"] = count;
+            // 商品必须有价格
+            if(!goo.fee || goo.fee < 0 || count < 1) {
+                sys.execf("ajaxre -qe 'site0.e.pay.submit.noFee : %s'", goo.nm);
+                return;
+            }
+            fee += goo.fee * count;
+            price += goo.price * count;
+            _goods.push(goo);
+        }
+        var cmdText = "thing %s create '%s' -fields '%s' -cqn";
         var reJson = sys.exec2f(cmdText, params.pid, params.brief,
-	    					JSON.stringify({
-	    						uid : params.buyer,
-	    						goods : _goods,
-	    						fee : fee,
-	    						cur : params.cur ? params.cur : 'rmb',
-	    						price : price
-	    					}));
-		order = JSON.parse(reJson);
-		log.warn("order=" + reJson);
-	}
+                            JSON.stringify({
+                                uid : params.buyer,
+                                goods : _goods,
+                                fee : fee,
+                                cur : params.cur ? params.cur : 'rmb',
+                                price : price
+                            }));
+        order = JSON.parse(reJson);
+        log.warn("order=" + reJson);
+    }
 
     // 准备提交支付单
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s'";
