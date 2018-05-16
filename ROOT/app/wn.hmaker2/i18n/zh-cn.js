@@ -52,6 +52,7 @@ define({
             "skin" : "站点皮肤",
             "account_set"  : "用户库",
             "role_set"     : "角色库",
+            "order_set"    : "订单库",
             "hm_wxmp"      : "关联公众号",
             "www_entry"    : "默认入口页",
             "www_entry_tip": "访问站点默认打开的页面，默认为 \"index\"",

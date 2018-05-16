@@ -335,7 +335,7 @@ return ZUI.def("app.wn.hmaker2", {
         POP.openUIPanel({
             title  : 'i18n:hmaker.site.conf',
             width  : 640,
-            height : 640,
+            height : 700,
             escape : false,
             closer : false,
             setup : {

@@ -116,6 +116,26 @@ return ZUI.def("app.wn.hmaker_ui_new_site", {
                     },
                     emptyItem : {}
                 }
+             }, {
+                key   : "hm_order_set",
+                title : "i18n:hmaker.site.order_set",
+                icon  : '<i class="zmdi zmdi-assignment"></i>',
+                type  : "string",
+                uiWidth : "auto",
+                editAs : "droplist",
+                uiConf : {
+                    items : "obj ~/thing -match 'tp:\"thing_set\"' -sort 'th_nm:1' -l",
+                    icon  : function(o){
+                        return o.icon || '<i class="fa fa-cube"></i>';
+                    },
+                    text  : function(o){
+                        return o.nm;
+                    },
+                    value : function(o){
+                        return o.id;
+                    },
+                    emptyItem : {}
+                }
             }, {
                 key   : "hm_login_entry",
                 title : "i18n:hmaker.site.login_entry",
