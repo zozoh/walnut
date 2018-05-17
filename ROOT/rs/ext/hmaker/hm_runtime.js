@@ -553,16 +553,19 @@ window.HmRT = {
                         // Media/Image
                         else if( /^(media|attachment)$/.test(liType)) {
                             // 首先得到图片的源
-                            var th_set = obj.th_set;
-                            var th_id  = obj.id;
-                            var src = opt.API
-                                + "/thing/"+liType+"?pid=" + th_set
-                                + "&id="  + th_id
-                                + "&fnm=" + liv;
+                            //console.log(li)
+                            // 嗯，稍微记录一下，事件里面用的到
+                            li.liType = liType;
+                            li.th_set = obj.th_set;
+                            li.th_id  = obj.id;
+                            // 得到缩略图链接
+                            var src = opt.API + "/thumb?" + li.thumb
                             // 然后输出这个图片
                             __fld_ele_content(fld, $('<span>').css({
                                     "background-image" : 'url("' + src + '")',
                                 })).appendTo(jLi);
+                            // 保存数据
+                            jLi.data("@LI-DATA", li);
                         }
                         // 普通文字
                         else {
@@ -662,18 +665,47 @@ window.HmRT = {
         return jLayout.appendTo(jq);
     },
     //...............................................................
-    setupLayoutEvents : function(win) {
+    setupLayoutEvents : function(opt, win) {
         win = win || window;
+        console.log(opt)
         if(!win.__layout_event_binded) {
             $(win.document.body).on("click", ".wn-obj-layout ul[li-target] li",
                 function(e){
                     e.stopPropagation();
                     var jLi = $(this);
-                    var jSpan = jLi.find("span");
                     var jUl = jLi.closest("ul");
                     var jTa = jUl.closest(".wn-obj-layout");
                     var jPr = jTa.find(".wn-obj-preview span");
-                    jPr.empty().css("background-image", jSpan[0].style.backgroundImage);
+
+                    // 分析数据准备媒体源
+                    var li   = jLi.data("@LI-DATA");
+                    //console.log(li)
+                    var mime = li.mime;
+                    var src  = opt.API
+                                + "/thing/"+li.liType+"?pid=" + li.th_set
+                                + "&id="  + li.th_id
+                                + "&fnm=" + li.nm;
+
+                    jPr.empty();
+
+                    // 视频
+                    if(/^video\//.test(mime)) {
+                        //console.log("aaaa")
+                        var jV = $('<video controls>').attr({
+                            "src" : src,
+                        }).appendTo(jPr);
+                        // $z.wrapVideoSimplePlayCtrl(jV, {
+                        //     watchClick : true
+                        // });
+                    }
+                    // 图片
+                    else {
+                        $('<img>').attr({
+                            "src" : src,
+                        }).appendTo(jPr);
+                    }
+
+                    // 更新当前
                     jUl.find("li").removeAttr("current");
                     jLi.attr("current", "yes");
                 });
