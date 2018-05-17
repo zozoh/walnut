@@ -30,7 +30,7 @@ import org.nutz.walnut.util.Wn;
  */
 public class WWWPageAPI extends WWWAPI {
 
-    public static final String CK_ME_WITHOUT_PHONE = "%WWW::ME_WITHOUT_PHONE";
+    //public static final String CK_ME_WITHOUT_PHONE = "me_without_phone";
 
     public static final String CK_SET_COOKIE = "%WWW::DO_SET_COOKIE";
 
@@ -86,10 +86,6 @@ public class WWWPageAPI extends WWWAPI {
      * @see #getMe(String)
      */
     public boolean checkMyPhone(String cookiePath) {
-        // 如果上下文中已经检查过了
-        if (context.getBoolean(CK_ME_WITHOUT_PHONE))
-            return false;
-
         // 得到当前会话的用户
         NutBean me = this.getMe(cookiePath);
 
@@ -99,8 +95,6 @@ public class WWWPageAPI extends WWWAPI {
 
         // 它有手机号吗？
         if (!me.has("phone")) {
-            // 记录一下上下文，以便后面渲染重定向时，能知道要绑定手机，而不是“注册用户”
-            context.put(CK_ME_WITHOUT_PHONE, true);
             return false;
         }
 

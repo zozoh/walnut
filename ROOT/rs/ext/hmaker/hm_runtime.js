@@ -686,7 +686,7 @@ window.HmRT = {
                                 + "&id="  + li.th_id
                                 + "&fnm=" + li.nm;
 
-                    jPr.empty();
+                    jPr.css("background-image", "").empty();
 
                     // 视频
                     if(/^video\//.test(mime)) {
