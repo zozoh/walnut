@@ -30,7 +30,7 @@ import org.nutz.walnut.util.Wn;
  */
 public class WWWPageAPI extends WWWAPI {
 
-    //public static final String CK_ME_WITHOUT_PHONE = "me_without_phone";
+    // public static final String CK_ME_WITHOUT_PHONE = "me_without_phone";
 
     public static final String CK_SET_COOKIE = "%WWW::DO_SET_COOKIE";
 
@@ -396,6 +396,7 @@ public class WWWPageAPI extends WWWAPI {
         if (null != oSe) {
             NutBean se = genSessionMap(oSe);
             context.put("session", se);
+            context.put("SEPH", oSe.getString("sid") + "/" + oSe.name());
             return se;
         }
         return null;
@@ -403,12 +404,9 @@ public class WWWPageAPI extends WWWAPI {
 
     public WnObj getSessionObj() {
         String seph = getSessionPath();
-        // 非法的会话路径格式，必须 `站点ID/会话票据`
-        if (Strings.isBlank(seph) || seph.indexOf('/') <= 0 || seph.endsWith("/"))
-            return null;
 
-        // 如果会话路径包括 ".." 或者 "id:"，好死不死，一定是一小撮别有用心的人在搞破坏，干掉丫的！
-        if (seph.indexOf("..") >= 0 || seph.indexOf("id:") >= 0)
+        // 检查会话路径格式
+        if (!isValidSessionPath(seph))
             return null;
 
         // 得到会话的目录
@@ -418,14 +416,35 @@ public class WWWPageAPI extends WWWAPI {
         return io.fetch(oSeHome, seph);
     }
 
+    public boolean isValidSessionPath(String seph) {
+        // 非法的会话路径格式，必须 `站点ID/会话票据`
+        if (Strings.isBlank(seph) || seph.indexOf('/') <= 0 || seph.endsWith("/"))
+            return false;
+
+        // 如果会话路径包括 ".." 或者 "id:"，好死不死，一定是一小撮别有用心的人在搞破坏，干掉丫的！
+        if (seph.indexOf("..") >= 0 || seph.indexOf("id:") >= 0)
+            return false;
+
+        return true;
+    }
+
     public String getSessionPath() {
         // 上下文里已经有会话了
         NutBean se = context.getAs("session", NutBean.class);
         if (null != se && se.has("nm")) {
             return Wn.appendPath(this.siteId, se.getString("nm"));
         }
+        // 参数里指定了
+        String seph = (String) Mapl.cell(context, "params.www");
+        if (this.isValidSessionPath(seph)) {
+            return seph;
+        }
         // 那么，让我们来获得一下 cookies 对应的会话吧
-        return (String) Mapl.cell(context, "cookies.www");
+        seph = (String) Mapl.cell(context, "cookies.www");
+        if (this.isValidSessionPath(seph)) {
+            return seph;
+        }
+        return null;
     }
 
     public WnObj deleteMySession() {
