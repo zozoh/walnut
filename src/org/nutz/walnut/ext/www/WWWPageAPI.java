@@ -187,8 +187,7 @@ public class WWWPageAPI extends WWWAPI {
                     // 设置一下上下文属性，以便调用者发送 cookie
                     String seph = siteId + "/" + oSe.name();
                     context.addv2(CK_SET_COOKIE, "www=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
-                    context.addv2(CK_SET_COOKIE, "taph=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
-                    context.addv2(CK_SET_COOKIE, "www="+seph);
+                    context.addv2(CK_SET_COOKIE, "www="+seph + "; path=/; Max-Age=1800");
                 }
             }
         }
