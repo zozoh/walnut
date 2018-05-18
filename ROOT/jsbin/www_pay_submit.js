@@ -111,6 +111,7 @@ function _main(params){
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
     }
+	
 
     // 准备提交支付单
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s' -cqn";
@@ -126,7 +127,9 @@ function _main(params){
                         buy_for    : order.id,
                         client_ip  : params.clientIp,
                     }));
+    log.warn(re);
     var payment = JSON.parse(re);
+	sys.exec2f("obj -u '%s' id:%s", JSON.stringify({pay_tp : params.payType,pay_st : "WAIT", pay_id:payment.payObjId}), order.id);
     //log.warn(re);
     payment["order_id"] = order.id;
     re = JSON.stringify(payment);

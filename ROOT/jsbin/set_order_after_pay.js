@@ -21,8 +21,9 @@ function _main(params) {
         return;
     }
     var po = JSON.parse(re);
+	log.warn(re);
     if (po.st == "OK") {
-        sys.exec("obj id:" + params.id + " -u 'pay_tp:\"OK\"'");
+		sys.exec("obj id:" + po.buy_for + " -u 'pay_st:\"OK\"'");
     }
 }
 
