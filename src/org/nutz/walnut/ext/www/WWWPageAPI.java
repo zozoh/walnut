@@ -186,14 +186,9 @@ public class WWWPageAPI extends WWWAPI {
 
                     // 设置一下上下文属性，以便调用者发送 cookie
                     String seph = siteId + "/" + oSe.name();
-                    String coph;
-                    if (cookiePath.startsWith("/"))
-                        coph = cookiePath;
-                    else
-                        coph = context.getString("URI_BASE") + "/" + cookiePath;
-
-                    String cookie = String.format("www=%s; Path=%s; ", seph, coph);
-                    context.addv2(CK_SET_COOKIE, cookie);
+                    context.addv2(CK_SET_COOKIE, "www=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                    context.addv2(CK_SET_COOKIE, "taph=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                    context.addv2(CK_SET_COOKIE, "www="+seph);
                 }
             }
         }
