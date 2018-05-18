@@ -31,7 +31,7 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
-import org.nutz.mvc.view.HttpServerResponse;
+import org.nutz.mvc.view.HttpEnhanceResponse;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
@@ -835,7 +835,7 @@ public class WWWModule extends AbstractWnModule {
                 String html = ws.invoke(wrt, context, input);
 
                 // 准备输出响应内容
-                HttpServerResponse hsr = new HttpServerResponse();
+                HttpEnhanceResponse hsr = new HttpEnhanceResponse();
                 hsr.setUpperHeaderName(true);
                 hsr.updateBy(html);
 
