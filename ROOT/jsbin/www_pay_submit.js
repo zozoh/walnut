@@ -97,6 +97,15 @@ function _main(params){
             price += goo.price * count;
             _goods.push(goo);
         }
+        var re = sys.exec2f("obj id:" + params.buyer);
+        var buyer = {};
+        if (/^e./.test(re)) {
+            //sys.exec("ajaxre -qe e.pay.callback.poNoExists");
+            //return;
+        }
+        else {
+            buyer = JSON.parse(re);
+        }
         var cmdText = "thing %s create '%s' -fields '%s' -cqn";
         var reJson = sys.exec2f(cmdText, params.pid, params.brief,
                             JSON.stringify({
@@ -106,12 +115,13 @@ function _main(params){
                                 fee : fee,
                                 cur : params.cur ? params.cur : 'RMB',
                                 price : price,
-                                comment : params.comment
+                                comment : params.comment,
+                                phone : buyer.phone
                             }));
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
     }
-	
+    
 
     // 准备提交支付单
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s' -cqn";
@@ -129,7 +139,7 @@ function _main(params){
                     }));
     log.warn(re);
     var payment = JSON.parse(re);
-	sys.exec2f("obj -u '%s' id:%s", JSON.stringify({pay_tp : params.payType,pay_st : "WAIT", pay_id:payment.payObjId}), order.id);
+    sys.exec2f("obj -u '%s' id:%s", JSON.stringify({pay_tp : params.payType,pay_st : "WAIT", pay_id:payment.payObjId}), order.id);
     //log.warn(re);
     payment["order_id"] = order.id;
     re = JSON.stringify(payment);

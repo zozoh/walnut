@@ -10,7 +10,7 @@ params: {
 }
 
 用法
-> httpparam -in id:${id} -map params | jsc /jsbin/thing_list.js -vars 
+> httpparam -in id:${id} -map params | jsc /jsbin/www_goods.js -vars 
 */
 //........................................
 // 处理请求参数
