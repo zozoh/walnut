@@ -23,6 +23,7 @@ import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.web.Webs.Err;
 
 public abstract class AbstractWnTree implements WnTree {
 
@@ -439,6 +440,9 @@ public abstract class AbstractWnTree implements WnTree {
 
         // 展开名字
         o.name(Wn.evalName(name, id));
+        if (Strings.isBlank(o.name())) {
+            throw Err.create("e.cmd.create_emtry_filename");
+        }
         Wn.set_type(mimes, o, null);
 
         // 文件设置类型
