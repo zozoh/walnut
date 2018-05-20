@@ -57,7 +57,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         map.setv("total_fee", po.getInt(WnPayObj.KEY_FEE));
 
         // 填充用户 openid
-        if (null != openid)
+        if (!Strings.isBlank(openid))
             map.setv("openid", openid);
 
         // 填充客户端 IP
@@ -74,7 +74,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         map.setv("mch_id", conf.pay_mch_id);
         map.setv("device_info", "WEB");
         map.setv("notify_url", conf.pay_notify_url);
-        map.setv("trade_type", "NATIVE");
+        map.setv("trade_type", po.getString("wx_trade_type", "NATIVE"));
 
         // 对 Map 进行签名
         Wxs.fillPayMap(map, conf.pay_key);

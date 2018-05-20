@@ -14,6 +14,7 @@
     br        : '夏令营ABC'   //  [必] 订单命名
     ca        : '回调'        //  [必] 回调名称, 对应 ~/.payment/${callback}
     cm        : '备注'        //  [可] 订单备注
+	oid       : '用户的Openid'//  [可] 微信公众号支付时必填
 }
 */
 //........................................
@@ -30,7 +31,8 @@ paramObj = {
     brief     : paramObj["br"],
     callback  : paramObj["ca"],
     unm       : paramObj["unm"],
-    comment   : paramObj["cm"] || ""
+    comment   : paramObj["cm"] || "",
+	openid    : paramObj["oid"] || ""
 };
 //........................................
 function _main(params){
@@ -97,7 +99,7 @@ function _main(params){
             price += goo.price * count;
             _goods.push(goo);
         }
-        var re = sys.exec2f("obj id:" + params.buyer);
+        var re = sys.exec2f("obj id:" + params.buyer + " -cqn");
         var buyer = {};
         if (/^e./.test(re)) {
             //sys.exec("ajaxre -qe e.pay.callback.poNoExists");
@@ -136,6 +138,7 @@ function _main(params){
                     JSON.stringify({
                         buy_for    : order.id,
                         client_ip  : params.clientIp,
+						wx_openid : params.openid
                     }));
     log.warn(re);
     var payment = JSON.parse(re);
