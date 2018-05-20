@@ -841,6 +841,7 @@ public class WWWModule extends AbstractWnModule {
 
                 // 默认的内容类型
                 hsr.header().putDefault("CONTENT-TYPE", "text/html");
+                hsr.setIfNoneMatch(etag);
 
                 // 更新客户端的 cookie 以便匹配上新的 session
                 // if (!Strings.isBlank(seph)) {
