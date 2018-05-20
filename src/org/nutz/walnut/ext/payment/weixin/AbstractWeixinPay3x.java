@@ -115,6 +115,18 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
             // 其他的
             else {
                 re.setDataType(WnPay3xDataType.JSON);
+                if ("JSAPI".equals(po.getString("wx_trade_type", "NATIVE"))) {
+                    // js api需要下面的参数, 签名并返回之
+                    NutMap params = new NutMap();
+                    params.put("appid", conf.appID);
+                    params.put("timeStamp", System.currentTimeMillis() / 1000);
+                    params.put("nonceStr", R.UU32());
+                    params.put("package", "prepay_id=" + respMap.get("prepay_id"));
+                    String sign = Wxs.genPaySign(params, conf.pay_key, "MD5");
+                    params.put("paySign", sign);
+                    params.put("signType", "MD5");
+                    respMap.putAll(params);
+                }
                 re.setData(respMap);
             }
         }
