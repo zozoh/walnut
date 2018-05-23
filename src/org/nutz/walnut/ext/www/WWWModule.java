@@ -925,6 +925,7 @@ public class WWWModule extends AbstractWnModule {
     }
 
     private View gen_errpage(Tmpl tmpl, String path, String msg, int code) {
+        path = Strings.escapeHtml(path);
         NutMap map = Lang.map("url", path);
         map.setv("msg", msg);
         String html = tmpl.render(map, false);
