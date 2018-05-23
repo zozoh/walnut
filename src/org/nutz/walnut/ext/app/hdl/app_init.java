@@ -80,7 +80,7 @@ public class app_init implements JvmHdl {
         }
     }
 
-    private void __exec_init(WnSystem sys, JvmHdlContext hc) {
+    protected void __exec_init(WnSystem sys, JvmHdlContext hc) {
         // 得到关键目录
         String ph_tmpl = hc.params.val_check(0);
         String ph_dest = Strings.sBlank(hc.params.val(1), "~");
@@ -108,9 +108,18 @@ public class app_init implements JvmHdl {
         NutMap sysconf = sys.getSysConf();
         String hostAndPort = sysconf.getString("mainHost", "localhost");
         int port = sysconf.getInt("mainPort", 80);
-        if (port > 80)
+        if (port > 80 && port != 443)
             hostAndPort += ":" + port;
-        c.put("hostAndPort", hostAndPort);
+        String scheme = sysconf.getString("mainScheme");
+        if (Strings.isBlank(scheme)) {
+            if (port == 443 || port == 8443)
+                scheme = "https";
+            else
+                scheme = "http";
+        }
+        c.putDefault("hostAndPort", hostAndPort);
+        c.putDefault("scheme", scheme);
+        c.putDefault("urlbase", scheme + "://" + hostAndPort);
         c.put("sys", sysconf);
         c.put("me", sys.me);
 
