@@ -1,12 +1,12 @@
 /*
-提供了 Thing 对象的 update 功能
+提供了 Thing 对象的 create 功能
 
 本函数假设有下面格式参数输入
 
 params: {
-    th_set : th_set,   // 数据集
-    th_nm  : th_nm,    // 数据名称,可选
-    data   : data      // 要更新的字段数据
+    th_set : th_set,   // 「必」数据集
+    th_nm  : th_nm,    // 「选」数据名称
+    data   : data      // 「选」要更新的字段数据
 }
 
 用法
