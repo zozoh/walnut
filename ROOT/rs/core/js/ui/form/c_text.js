@@ -16,6 +16,7 @@ return ZUI.def("ui.form_com_text", {
         FormMethods(this);
 
         $z.setUndefined(opt, "trimData", true);
+        $z.setUndefined(opt, "asJson", false);
     },
     //...............................................................
     events : {
@@ -48,12 +49,33 @@ return ZUI.def("ui.form_com_text", {
         var val = UI.arena.find("textarea").val();
         if(opt.trimData)
             val = $.trim(val);
+
+        if(opt.asJson) {
+            val = $z.fromJson(val);
+        }
+        //console.log("_get_data", val)
+
         return val || null;
     },
     //...............................................................
     _set_data : function(s, jso){
+        var UI  = this;
+        var opt = UI.options;
+
         if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
             s = "";
+        
+        // 对于 JSON 数据的解析
+        if(opt.asJson) {
+            var obj;
+            if(_.isString(s)){
+                obj = $z.fromJson(s);
+            }else{
+                obj = s;
+            }
+            s = $z.toJson(obj, null, '   ');
+        }
+
         this.arena.find("textarea").val(s);
     },
     //...............................................................

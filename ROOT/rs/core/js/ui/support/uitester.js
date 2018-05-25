@@ -90,6 +90,7 @@ return ZUI.def("ui.support.uitester", {
         $('<option>ui/form/test/test_form1</option>').appendTo(jList);
         $('<option>ui/form/test/test_form2</option>').appendTo(jList);
         $('<option>ui/form/test/test_form3</option>').appendTo(jList);
+        $('<option>ui/form/test/test_form_textarea_obj</option>').appendTo(jList);
         $('<option>ui/form/test/test_form_range</option>').appendTo(jList);
         $('<option>ui/form/test/test_form_address</option>').appendTo(jList);
         $('<option>ui/form/test/test_c_input</option>').appendTo(jList);
