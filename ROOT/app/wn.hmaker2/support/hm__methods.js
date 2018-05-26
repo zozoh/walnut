@@ -460,6 +460,29 @@ var methods = {
         return re;
     },
     //=========================================================
+    // 获取一个超链接编辑器可以用到的动作列表
+    getLinkActionList : function(){
+        var UI = this;
+        return [{
+            name : '$z.doAnimatDocumentScrollTop',
+            text : 'i18n:hmaker.link.ac.scroll_doc_to_top',
+            params : [{
+                key    : "du",
+                title  : "i18n:hmaker.link.ac.sdtt_du",
+                type   : "int",
+                dft    : 500,
+                uiConf : {
+                    unit : 'MS'
+                }
+            }, {
+                key   : "scrollTop",
+                title : "i18n:hmaker.link.ac.sdtt_st",
+                type  : "int",
+                dft   : 0
+            }]
+        }];
+    },
+    //=========================================================
     // 监听消息
     listenBus : function(event, handler){
         var uiHMaker = this.hmaker();
@@ -779,7 +802,8 @@ var methods = {
                     pagePath   : "/" + Wn.getRelativePath(homeObj, pageObj),
                     anchorText : function(o) {
                         return UI.get_com_display_text(o.ctype, o.id, o.skin);
-                    }
+                    },
+                    actionList : UI.getLinkActionList()
                 }
             },
             ready : function(){

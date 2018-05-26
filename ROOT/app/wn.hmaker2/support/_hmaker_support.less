@@ -32,8 +32,15 @@
     }
 }
 
-
+//.........................................................
+// 编辑链接/动作的集成控件
 .edit-link {
+    padding:@d2;
+}
+
+//.........................................................
+// 编辑超链接
+.edit-link-href {
     padding:@d3;
     > header {
         padding: @d4 @d3 @d0 @d3;
@@ -56,7 +63,21 @@
         code:after  {display:inline; content:'"';}
     }
 }
+//.........................................................
+// 编辑动作
+.edit-link-action {
+    > section {
+        padding:@d2 0;
+        div.ai-tip {
+            padding:@d3; color:@c3; font-size:@f3; 
+        }
+        .form-title {
+            text-align: left; color:@c2;
+        }
+    }
+}
 
+//.........................................................
 // 重新定义一下 .com-pair 的显示尺寸
 .hm-link-params {
     .com-pair > section.pairs{
@@ -69,6 +90,7 @@
     }
 }
 
+//.........................................................
 .edit-pick-area { @noselect();
     padding:@d3;
     .list-item {

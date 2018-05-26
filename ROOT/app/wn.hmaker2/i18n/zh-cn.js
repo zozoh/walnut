@@ -36,6 +36,16 @@ define({
             "params_tip" : "页面参数会附在页面地址后面，用GET请求发出",
             "anchor" : "页内锚点",
             "anchor_tip" : "如果目标页面为空，锚点是从你正在编辑的这个页面中选出的",
+            "ac" : {
+                "select" : "选择或输入一个动作",
+                "noact"      : "没有选择任何动作",
+                "unknownact" : "自定义动作",
+                "noparams" : "本动作没有任何参数",
+                "pa_title" : "动作参数表",
+                "scroll_doc_to_top" : "滚动至顶部",
+                "sdtt_du" : "动画时长",
+                "sdtt_st" : "终点位置",
+            }
         },
         "welcome" : {
             "quick_help" : "快速介绍"

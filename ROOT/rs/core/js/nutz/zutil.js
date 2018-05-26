@@ -1765,6 +1765,56 @@
             var h = jq[0].scrollHeight;
             jq.scrollTop(h);
         },
+        //...............................................................
+        // 跳转到顶部
+        // - el: 文档对象，可以是 document|window|element|jQuery 总之会找到一个对应文档
+        // - du: 滚动动画的时间，默认 500（毫秒），0 表示不显示动画
+        // - scrollTop: 滚动到哪里， 默认为 0
+        doAnimatDocumentScrollTop: function(el, du, scrollTop) {
+            // 首先找到文档
+            var doc;
+            if(_.isElement(el)){
+                doc = el.ownerDocument;
+            }
+            // jQuery
+            else if(this.isjQuery(el)){
+                doc = el[0].ownerDocument;
+            }
+            // 就是文档
+            else if(el.defaultView) {
+                doc = el;
+            }
+            // 窗口
+            else if(el.document) {
+                doc = el.document;
+            }
+            // 其他的不支持
+            else {
+                throw "Unsupport target for doAnimatDocumentScrollTop";
+            }
+
+            // 确定滚动动画时间
+            if(!_.isNumber(du) || du<0){
+                du = 500;
+            }
+
+            // 确定滚动位置
+            if(!_.isNumber(scrollTop)){
+                scrollTop = 0;
+            }
+
+            // 动画
+            if(du>0) {
+                $([doc.documentElement, doc.body]).animate({
+                    scrollTop : scrollTop
+                }, du);
+            }
+            // 直接设置
+            else {
+                doc.documentElement.scrollTop = scrollTop;
+                doc.body.scrollTop = scrollTop;
+            }
+        },
         //.............................................
         // 从数组里获取值
         //   arr   : 数组
