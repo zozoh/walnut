@@ -3259,14 +3259,30 @@
         /* 解析一个链接，返回对象:
         - href : 就是一个超链接
         - decode : 是否要对参数值解码，默认false
-        @return {
-            href   : m[1],
-            params : params,
-            anchor : m[5],
-        }
+        @return 可能两种形式
+            a. 超链接:
+                {
+                    href   : "/xxx",
+                    params : {..},
+                    anchor : "xxx",
+                }
+            b. 函数调用
+                {
+                    invoke : "$z.xxx",
+                    args   : [..],
+                }
         */
         parseHref : function(href, decode) {
-            var m = /^([^#?]+)(\?([^#]*)*)?(#(.*))?$/.exec(href);
+            // 首先按照 javascript 来理解
+            var m = /^javascript:([^(]+)\(([^)]*)\);?$/.exec(href);
+            if(m) {
+                return {
+                    invoke : m[1],
+                    args   : $z.fromJson('[' + m[2] + ']')
+                };
+            }
+            // 尝试按超链接理解
+            m = /^([^#?]+)(\?([^#]*)*)?(#(.*))?$/.exec(href);
             // 有锚点或者链接
             if(m) {
                 // 解析一下 QueryString

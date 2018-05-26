@@ -20,7 +20,6 @@ return ZUI.def("ui.edit_link", {
         new TabsUI({
             parent : UI,
             gasketName : "main",
-            //defaultKey : "asAction",
             setup : {
                 "asHref" : {
                     text : "超链接",
@@ -46,7 +45,24 @@ return ZUI.def("ui.edit_link", {
     },
     //...............................................................
     setData : function(href) {
-        this.gasket.main.getCurrentUI().setData(href);
+        var UI = this;
+        // 确保解析参数对象
+        var data = href || {};
+        if(_.isString(href)){
+            data = $z.parseHref(href, true);
+        }
+        // 根据数据类型决定切换的 UI
+        if(data.invoke) {
+            UI.gasket.main.changeUI("asAction", function(subUI) {
+                subUI.setData(data);
+            });
+        }
+        // 否则用链接
+        else {
+            UI.gasket.main.changeUI("asHref", function(subUI) {
+                subUI.setData(data);
+            });
+        }
     }
     //...............................................................
 });

@@ -71,7 +71,7 @@ return ZUI.def("ui.edit_link_action", {
         return null;
     },
     //...............................................................
-    __show_action_params : function(actionName) {
+    __show_action_params : function(actionName, args) {
         var UI = this;
         var ai = UI.getActionInfo(actionName);
         var jPa = UI.arena.find('>section');
@@ -84,6 +84,16 @@ return ZUI.def("ui.edit_link_action", {
         // 显示对应的表单
         if(ai) {
             if(_.isArray(ai.params) && ai.params.length > 0) {
+                // 根据参数数组获取参数对象
+                var params = {};
+                if(_.isArray(args) && args.length>0) {
+                    var len = Math.min(ai.params.length, args.length);
+                    for(var i=0; i<len; i++) {
+                        var pa = ai.params[i];
+                        params[pa.key] = args[i];
+                    }
+                }
+                // 初始化表单，并设置值
                 new FormUI({
                     parent : UI,
                     gasketName : "params",
@@ -93,7 +103,7 @@ return ZUI.def("ui.edit_link_action", {
                     uiWidth   : "all",
                     fields : ai.params
                 }).render(function(){
-                    this.setData({});  // 确保设置了默认值
+                    this.setData(params);
                 });
             }
             // 动作不需要参数
@@ -115,12 +125,72 @@ return ZUI.def("ui.edit_link_action", {
     },
     //...............................................................
     getData : function() {
-        
+        var UI = this;
+
+        // 得到动作名
+        var actionName = $.trim(UI.gasket.actions.getData());
+        if(!actionName)
+            return null;
+
+        // 准备调用参数
+        var args = [];
+
+        // 得到动作参数
+        if(UI.gasket.params){
+            var params = UI.gasket.params.getData();
+
+            // 得到动作配置信息
+            var ai = UI.getActionInfo(actionName);
+
+            // 根据配置获取参数数组
+            if(params && ai && _.isArray(ai.params) && ai.params.length>0) {
+                for(var i=0; i<ai.params.length; i++) {
+                    var pa  = ai.params[i];
+                    var val = params[pa.key];
+                    args.push($z.toJson(val));
+                }
+            }
+        }
+
+        // 拼装成调用函数并返回
+        var re = "javascript:" + actionName;
+        if(actionName.indexOf('(') < 0)
+            re += '(' + args.join(',') + ')';
+        console.log(re);
+
+        // 返回
+        return re;
     },
     //...............................................................
-    setData : function(href) {
+    /*
+     - data 格式为:
+    {
+        invoke : "$z.xxx",
+        args   : [..],
+    }
+    */
+    setData : function(data) {
         var UI = this;
-        UI.__show_action_params(null);
+        // 有数据
+        if(data && data.invoke) {
+            var ai = UI.getActionInfo(data.invoke);
+            // 有标准动作
+            if(ai) {
+                UI.gasket.actions.setData(data.invoke);
+                UI.__show_action_params(data.invoke, data.args);
+            }
+            // 自定义动作
+            else {
+                var call = data.invoke + '(' + (data.args||[]).join(',') + ')';
+                UI.gasket.actions.setData(call);
+                UI.__show_action_params(null);   
+            }
+        }
+        // 清空数据
+        else {
+            UI.gasket.actions.setData("");
+            UI.__show_action_params(null);
+        }
     },
     //...............................................................
     resize : function() {

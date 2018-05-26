@@ -261,14 +261,16 @@ return ZUI.def("ui.edit_link_href", {
         return $z.renderHref(data, true);
     },
     //...............................................................
-    setData : function(href) {
+    /*
+     - data 格式为:
+    {
+        href       : "/xxx",
+        params     : {..},
+        anchor     : "xxx",
+    }
+    */
+    setData : function(data) {
         var UI = this;
-        //console.log("setData(href):", href);
-        // 将其分解成一个对象 `/abc#xyz`
-        var data = href;
-        if(_.isString(href)){
-            data = $z.parseHref(href, true);
-        }
 
         // 设置值
         UI.__load_param(data.href, function(params){
