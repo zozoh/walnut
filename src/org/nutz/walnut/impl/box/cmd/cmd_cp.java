@@ -150,7 +150,7 @@ public class cmd_cp extends JvmExecutor {
 
             // 元数据 copy
             if (isP) {
-                NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len)$");
+                NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
                 // meta.put("mode", oSrc.mode());
                 // meta.put("group", oSrc.group());
                 // meta.put("tp", oSrc.type());
