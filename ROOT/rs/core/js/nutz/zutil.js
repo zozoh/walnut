@@ -3262,21 +3262,30 @@
         @return 可能两种形式
             a. 超链接:
                 {
+                    primer : "/xxx?xx#xx",
+                    value  : "/xxx?xx#xx",
                     href   : "/xxx",
                     params : {..},
                     anchor : "xxx",
                 }
             b. 函数调用
                 {
+                    primer : "javascript:$z.xxx(true,200)",
+                    value  : "$z.xxx(true,200)",
                     invoke : "$z.xxx",
                     args   : [..],
                 }
         */
         parseHref : function(href, decode) {
+            href = $.trim(href);
+            if(!href)
+                return null;
             // 首先按照 javascript 来理解
             var m = /^javascript:([^(]+)\(([^)]*)\);?$/.exec(href);
             if(m) {
                 return {
+                    primer : href,
+                    value  : href.substring('javascript:'.length),
                     invoke : m[1],
                     args   : $z.fromJson('[' + m[2] + ']')
                 };
@@ -3302,6 +3311,8 @@
                 }
                 // 得到数据
                 return {
+                    primer : href,
+                    value  : href,
                     href   : m[1],
                     params : params,
                     anchor : m[5],
@@ -3310,11 +3321,17 @@
             // 只有锚点咯
             if(/^#/.test(href)) {
                 return {
-                    anchor:href.substring(1)
+                    primer : href,
+                    value  : href,
+                    anchor : href.substring(1)
                 };
             }
             // 只有链接咯
-            return {href:href};
+            return {
+                primer : href,
+                value  : href,
+                href   : href
+            };
         },
         //.............................................
         // 将 parseHref 函数出来的结果，渲染成一个超链接

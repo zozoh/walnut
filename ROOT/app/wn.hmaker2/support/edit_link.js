@@ -51,6 +51,7 @@ return ZUI.def("ui.edit_link", {
         if(_.isString(href)){
             data = $z.parseHref(href, true);
         }
+        data = data || {};
         // 根据数据类型决定切换的 UI
         if(data.invoke) {
             UI.gasket.main.changeUI("asAction", function(subUI) {

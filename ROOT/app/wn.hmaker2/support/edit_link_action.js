@@ -156,7 +156,7 @@ return ZUI.def("ui.edit_link_action", {
         var re = "javascript:" + actionName;
         if(actionName.indexOf('(') < 0)
             re += '(' + args.join(',') + ')';
-        console.log(re);
+        //console.log(re);
 
         // 返回
         return re;

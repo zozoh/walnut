@@ -8,12 +8,9 @@ $z.declare([
 function(ZUI, Wn, FormCtrlMethods, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena com-edit-link" nohref="yes">
-    <span class="cel-icon">
-        <i class="fa fa-link"></i>
-        <i class="fa fa-unlink"></i>
-    </span>
-    <span class="cel-href">{{hmaker.link.none}}</span>
+<div class="ui-arena com-edit-link">
+    <span class="cel-icon"></span>
+    <span class="cel-href"></span>
     <span class="cel-del" balloon="down:clear">
         <i class="zmdi zmdi-close"></i>
     </span>
@@ -53,23 +50,12 @@ return ZUI.def("ui.form_com_edit-link", {
         this.balloon();
     },
     //...............................................................
-    setData : function(link){
-        this.ui_parse_data(link, function(str){
-            this._set_data(str);
-        });
-    },
-    //...............................................................
     // 只接受 Date 对象或者 Date 对象的数组
     _set_data : function(str, showBlink){
         var UI = this;
-        var jU = UI.arena.find("u");
-
-        // 记录值
-        str = decodeURI($.trim(str || ""));
-        UI.arena
-            .attr("nohref", str ? null : "yes")
-                .find(".cel-href")
-                    .text(str || UI.msg("hmaker.link.none"));
+        
+        // 设置
+        UI.setLinkToBox(UI.arena, str);
 
         // 效果
         if(showBlink){
@@ -80,19 +66,22 @@ return ZUI.def("ui.form_com_edit-link", {
         }
     },
     //...............................................................
+    _get_data : function(){
+        return this.getLinkFromBox(this.arena);
+    },
+    //...............................................................
+    setData : function(link){
+        this.ui_parse_data(link, function(str){
+            this._set_data(str);
+        });
+    },
+    //...............................................................
     getData : function(){
         var UI = this;
         return this.ui_format_data(function(opt){
             return UI._get_data();
         });
     },
-    //...............................................................
-    _get_data : function(){
-        var href = this.arena.attr("nohref") 
-                    ? "" 
-                    : $.trim(this.arena.find(".cel-href").text());
-        return encodeURI(href);
-    }
     //...............................................................
 });
 //===================================================================

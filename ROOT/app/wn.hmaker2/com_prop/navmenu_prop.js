@@ -18,7 +18,10 @@ var html = `
             </span>
             <span key="text"></span>
         </span>
-        <span key="href"></span>
+        <span key="link">
+            <span class="cel-icon"></span>
+            <span class="cel-href"></span>
+        </span>
         <span key="skin" class="hm-skin-box" box-enabled="yes"></span>
     </div>
     <div code-id="empty" class="cnavmp-empty">
@@ -78,7 +81,7 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
             });
         },
         // 编辑链接
-        'click .cnavmp-item[current] span[key="href"]' : function(e) {
+        'click .cnavmp-item[current] span[key="link"]' : function(e) {
             var UI = this;
             var jq = $(e.currentTarget);
             var jItem = jq.closest(".cnavmp-item");
@@ -532,10 +535,13 @@ return ZUI.def("app.wn.hm_com_navmenu_prop", {
                     "current" : item.current ? "yes" : null,
                     "newtab"  : item.newtab ? "yes"  : null,
                 });
+
+                // 显示文字项目
                 jItem.find('[key="text"]').text(item.text);
-                jItem.children('[key="href"]')
-                    .text(item.href || this.msg("hmaker.com.navmenu.nohref"))
-                    .attr("nohref", item.href ? null : "yes");
+
+                // 显示链接
+                var jLink = jItem.children('[key="link"]');
+                UI.setLinkToBox(jLink, item.href);
 
                 // 显示皮肤
                 var jBox = jItem.children('[key="skin"]');

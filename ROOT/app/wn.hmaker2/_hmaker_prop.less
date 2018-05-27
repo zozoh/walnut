@@ -914,19 +914,9 @@
                     flex:1 1 auto;
                 }
             }
-            > span[key="href"]{ opacity: 0.7; flex:1 1 auto;
+            > span[key="link"]{ opacity: 0.7; flex:1 1 auto;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
                 color:@c2; font-family: @f_fixed; font-size:@f1; 
-            }
-            > span[key="href"]:before {
-                font-family: 'FontAwesome'; display: inline; content: "\f0c1";
-                letter-spacing: @d0; 
-            }
-            > span[key="href"][nohref] {
-                font-style: italic;
-            }
-            > span[key="href"][nohref]:before {
-                content: "\f127"; 
             }
             > span[key="skin"]{}
         }

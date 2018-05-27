@@ -5,6 +5,39 @@ var methods = {
         this.arena.find(">header .hmpn-tt").html(this.msg(titleKey));
     },
     /*..............................................
+    更新链接编辑框
+    */
+    setLinkToBox : function(jBox, str) {
+        var jIcon = jBox.find('.cel-icon');
+        var jHref = jBox.find('.cel-href');
+
+        // 记录值
+        str = $.trim(str);
+        jBox.data("@LINK", str);
+
+        // 解析值
+        var data = $z.parseHref(str, true);
+
+        // 无数据
+        if(!data) {
+            jIcon.html('<i class="fa fa-unlink"></i>');
+            jHref.text(this.msg('hmaker.link.none'));
+        }
+        // 动作
+        else if(data.invoke) {
+            jIcon.html('<i class="zmdi zmdi-flash"></i>');
+            jHref.text(data.value);
+        }
+        // 超链接
+        else {
+            jIcon.html('<i class="fa fa-link"></i>');
+            jHref.text(data.value);
+        }
+    },
+    getLinkFromBox : function(jBox) {
+        return jBox.data("@LINK");
+    },
+    /*..............................................
      更新皮肤选择框
       - jBox : 选择器盒子
       - opt : {
