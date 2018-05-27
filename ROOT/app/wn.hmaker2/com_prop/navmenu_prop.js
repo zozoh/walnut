@@ -18,7 +18,7 @@ var html = `
             </span>
             <span key="text"></span>
         </span>
-        <span key="link">
+        <span key="link" class="hm-link-box">
             <span class="cel-icon"></span>
             <span class="cel-href"></span>
         </span>

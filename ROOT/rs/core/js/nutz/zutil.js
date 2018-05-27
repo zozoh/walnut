@@ -3283,6 +3283,12 @@
             // 首先按照 javascript 来理解
             var m = /^javascript:([^(]+)\(([^)]*)\);?$/.exec(href);
             if(m) {
+                // 如果是 xx(this, true, 200) 形式的函数，this 就不要显示了
+                var args = m[2];
+                var m2 = /^([ \t]*this[ \t]*,?[ \t]*)(.*)$/.exec(m[2]);
+                if(m2) {
+                    args = m2[2];
+                }
                 return {
                     primer : href,
                     value  : href.substring('javascript:'.length),

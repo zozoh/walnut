@@ -133,7 +133,7 @@ return ZUI.def("ui.edit_link_action", {
             return null;
 
         // 准备调用参数
-        var args = [];
+        var args = ['this'];
 
         // 得到动作参数
         if(UI.gasket.params){
@@ -156,7 +156,7 @@ return ZUI.def("ui.edit_link_action", {
         var re = "javascript:" + actionName;
         if(actionName.indexOf('(') < 0)
             re += '(' + args.join(',') + ')';
-        //console.log(re);
+        console.log(re);
 
         // 返回
         return re;

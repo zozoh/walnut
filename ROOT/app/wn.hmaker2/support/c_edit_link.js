@@ -8,7 +8,7 @@ $z.declare([
 function(ZUI, Wn, FormCtrlMethods, HmMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena com-edit-link">
+<div class="ui-arena com-edit-link hm-link-box">
     <span class="cel-icon"></span>
     <span class="cel-href"></span>
     <span class="cel-del" balloon="down:clear">

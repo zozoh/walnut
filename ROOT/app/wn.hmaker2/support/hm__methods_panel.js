@@ -17,21 +17,26 @@ var methods = {
 
         // 解析值
         var data = $z.parseHref(str, true);
-
+        
         // 无数据
         if(!data) {
             jIcon.html('<i class="fa fa-unlink"></i>');
             jHref.text(this.msg('hmaker.link.none'));
+            jBox.attr('link-type', "none");
         }
         // 动作
         else if(data.invoke) {
-            jIcon.html('<i class="zmdi zmdi-flash"></i>');
+            //jIcon.html('<i class="fas fa-i-cursor"></i>');
+            //jIcon.html('<i class="fab fa-js"></i>');
+            jIcon.html('<i class="zmdi zmdi-turning-sign"></i>');
             jHref.text(data.value);
+            jBox.attr('link-type', "action");
         }
         // 超链接
         else {
             jIcon.html('<i class="fa fa-link"></i>');
             jHref.text(data.value);
+            jBox.attr('link-type', "href");
         }
     },
     getLinkFromBox : function(jBox) {
