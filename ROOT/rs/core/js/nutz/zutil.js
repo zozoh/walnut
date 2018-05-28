@@ -3318,7 +3318,7 @@
                 // 得到数据
                 return {
                     primer : href,
-                    value  : href,
+                    value  : decodeURI(href),
                     href   : m[1],
                     params : params,
                     anchor : m[5],
@@ -3328,14 +3328,14 @@
             if(/^#/.test(href)) {
                 return {
                     primer : href,
-                    value  : href,
+                    value  : decodeURI(href),
                     anchor : href.substring(1)
                 };
             }
             // 只有链接咯
             return {
                 primer : href,
-                value  : href,
+                value  : decodeURI(href),
                 href   : href
             };
         },
