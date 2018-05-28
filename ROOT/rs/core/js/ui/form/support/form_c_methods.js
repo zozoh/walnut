@@ -8,22 +8,40 @@ var methods = {
         var opt = UI.options;
         var context = opt.context || UI;
         var v = UI.getData();
+        var v_old = UI.__old_val;
+        console.log(v, v_old)
 
         // 和旧值比较一下，有更新才通知
         if(_.isFunction(UI.__equals)){
-            if(UI.__equals(v, UI.__old_val))
+            if(UI.__equals(v, v_old))
                 return;
         }
         // 直接比较: undefined
-        else if(_.isUndefined(v) && _.isUndefined(UI.__old_val)) {
-            return;
+        else if(_.isUndefined(v)) {
+            if(_.isUndefined(v_old))
+                return;
         }
         // 直接比较: null
-        else if(_.isNull(v) && _.isNull(UI.__old_val)) {
-            return;
+        else if(_.isNull(v)) {
+            if(_.isNull(v_old))
+                return;
+        }
+        // 比较数组
+        else if(_.isArray(v) && _.isArray(v_old)) {
+            if(v.length == v_old.length) {
+                var is_equals = true;
+                for(var i=0; i<v.length; i++) {
+                    if(v[i] != v_old[i]){
+                        is_equals = false;
+                        break;
+                    }
+                }
+                if(is_equals)
+                    return;
+            }
         }
         // 直接比较
-        else if(v == UI.__old_val){
+        else if(v == v_old){
             return;
         }
 

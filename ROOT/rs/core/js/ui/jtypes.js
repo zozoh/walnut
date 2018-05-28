@@ -107,7 +107,7 @@ JsObj.prototype = {
     },
     parse : function(v) {
         // 准备要解析的值
-        var val = _.isUndefined(v)||_.isNull(v)?this.__fld.dft:v;
+        var val = _.isUndefined(v) ? this.__fld.dft : v;
         // 调用子类的实现
         this.__val = this._parse_and_return(val);      
         // 返回自身以便链式复制

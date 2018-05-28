@@ -99,6 +99,7 @@ return ZUI.def("ui.th_search", {
     },
     //..............................................
     setObj : function(obj) {
+        //console.log("setObj", obj);
         return this.gasket.main.uiList.update(obj);
     },
     //..............................................

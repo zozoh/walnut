@@ -2,9 +2,10 @@
 $z.declare([
     'zui', 
     'wn/util',
-    'ui/pop/pop'
+    'ui/form/support/form_ctrl',
+    'ui/pop/pop',
 ], 
-function(ZUI, Wn, POP){
+function(ZUI, Wn, FormMethods, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-code-template">
@@ -24,10 +25,12 @@ return ZUI.def("ui.picker.opicker", {
     css  : "ui/picker/theme/picker-{{theme}}.css",
     //...............................................................
     init : function(opt) {
+        FormMethods(this);
         $z.setUndefined(opt, "mustInBase", true);
         $z.setUndefined(opt, "setup", {});
         $z.setUndefined(opt, "clearable", true);
         $z.setUndefined(opt, "keeyAppend", true);
+        $z.setUndefined(opt, "dataAsId", false);
     },
     //...............................................................
     events : {
@@ -78,26 +81,29 @@ return ZUI.def("ui.picker.opicker", {
                 ok : function(){
                     // 得到数据
                     var objs   = this.getChecked();
+
                     // 支持当前目录作为默认
                     if(objs.length == 0 && opt.defaultByCurrent){
                         objs = [this.getCurrentObj()];
                     }
 
                     if(objs && objs.length > 0){
-                        //console.log(objs)
+                        console.log(objs)
                         // 记录第一个对象所在目录
                         if(opt.lastBaseKey) {
                             UI.local(opt.lastBaseKey, "id:" + objs[0].pid);
                         }
-                        // 执行更新
-                        UI._update(objs);
+                        // 执行更新并通知
+                        UI._set_data(objs);
+                        UI.__on_change();
                     }
                 }
             }, UI);
         },
         // 清除
         "click .picker-clear" : function(){
-            this._update();
+            this._set_data();
+            this.__on_change();
         }
     },
     //...............................................................
@@ -117,14 +123,8 @@ return ZUI.def("ui.picker.opicker", {
             UI.arena.attr("wrap-button", "yes");
     },
     //...............................................................
-    setData : function(obj){
-        this.ui_parse_data(obj, function(o){
-            this._update(o, true);
-        });
-    },
-    //...............................................................
     // 接受标准的 WnObj
-    _update : function(o, quit){
+    __draw_items : function(o){
         var UI  = this;
         var opt = UI.options;
         var jBox = UI.arena.find(".picker-box");
@@ -159,18 +159,6 @@ return ZUI.def("ui.picker.opicker", {
             // 添加
             UI.__append_item(o, jBox);
         }
-        // 回调事件
-        if(!quit)
-            UI.__on_change();
-    },
-    //...............................................................
-    __on_change : function(){
-        var UI  = this;
-        var opt = UI.options;
-        var context = opt.context || UI;
-        var v = UI.getData();
-        $z.invoke(opt, "on_change", [v], context);
-        UI.trigger("change", v);
     },
     //...............................................................
     __append_item : function(o, jBox){
@@ -203,21 +191,92 @@ return ZUI.def("ui.picker.opicker", {
         var UI  = this;
         var opt = opt || this.options;
 
-        var re  = [];
-        UI.arena.find(".picker-obj").each(function(){
-            re.push($(this).data("@OBJ"));
-        });
-        if(!opt.setup.checkable){
-            re = re.length > 0 ? re[0] : null;
+        // 重新取得一个对象列表
+        if(_.isArray(UI.__my_value)) {
+            var list = [];
+            for(var i=0; i<UI.__my_value.length; i++) {
+                var oid = UI.__my_value[i];
+                list.push(Wn.getById(oid));
+            }
+            // 不是多选的话，只取一个
+            if(!opt.setup.checkable){
+                return list.length > 0 ? list[0] : null;
+            }
+            return list;
         }
-        return re;
+        // 就一个对象
+        else if(UI.__my_value){
+            var o = Wn.getById(UI.__my_value);
+            // 多选的话，变数组
+            if(opt.setup.checkable){
+                return [o];
+            }
+            return o;
+        }
+        // 木有
+        return opt.setup.checkable ? [] : null;
     },
     //...............................................................
-    getData : function(){
+    __ID : function(obj) {
+        return _.isString(obj) ? obj : obj.id;
+    },
+    //...............................................................
+    // 可以接受对象ID, 对象，对象ID数组，对象数组
+    _set_data : function(obj){
         var UI = this;
-        return UI.ui_format_data(function(opt){
-            return UI.getObj(opt);
-        });
+        var opt = opt || this.options;
+
+        // 首先分析一下，如果是数组，则变成对象 ID 数组
+        if(_.isArray(obj)) {
+            var list = [];
+            for(var i=0; i<obj.length; i++) {
+                list.push(this.__ID(obj[i]));
+            }
+            // 不是多选的话，只取一个
+            if(!opt.setup.checkable){
+                UI.__my_value = list.length > 0 ? list[0] : null;
+            }
+            // 存成 ID 列表
+            else {
+                UI.__my_value = list;
+            }
+        }
+        // 否则就存一个对象的 ID
+        else if(obj){
+            var oid = this.__ID(obj);
+            if(!oid) {
+                UI.__my_value = null;
+            }
+            // 多选的话，变数组
+            else if(opt.setup.checkable){
+                UI.__my_value = [oid];
+            }
+            // 存成 ID
+            else {
+                UI.__my_value = oid;
+            }
+        }
+        // 默认删除 val
+        else {
+            UI.__my_value = null;
+        }
+
+        // 重新取得一个对象列表
+        var o = UI.getObj();
+        console.log("getObj", o)
+        UI.__draw_items(o);
+    },
+    //...............................................................
+    _get_data : function(){
+        var UI  = this;
+        var opt = opt || this.options;
+
+        // 只是 ID
+        if(opt.dataAsId) {
+            return UI.__my_value;
+        }
+        // 返回对象
+        return UI.getObj();
     }
     //...............................................................
 });

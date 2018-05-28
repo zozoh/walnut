@@ -452,7 +452,7 @@ return ZUI.def("app.wn.thdesign", {
             editAs : "input",
             uiConf : {
                 formatData : function(val) {
-                    //console.log("parse", val)
+                    console.log("parse", val)
                     if("null" == val)
                         return null;
                     if("undefined" == val)
@@ -460,7 +460,7 @@ return ZUI.def("app.wn.thdesign", {
                     return val;
                 },
                 parseData : function(val) {
-                    //console.log("format", val, this);
+                    console.log("format", val, this);
                     if(_.isNull(val))
                         return "null";
                     if(_.isUndefined(val))

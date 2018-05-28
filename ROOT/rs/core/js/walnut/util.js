@@ -1560,6 +1560,13 @@ var Wn = {
     //  - UI : 相关的 UI，主要使用 local 接口
     //  - localKey : 如果给定对象为空，那么尝试读取 localKey 作为返回
     getBaseDirPath : function(o, UI, localKey) {
+        // 如果是数组，那么取第一个
+        if(_.isArray(o)){
+            if(o.length<=0)
+                return;
+            o = o[0];
+        }
+        
         // 支持字符串形式 
         if(_.isString(o))
             o = this.get(o, true);
