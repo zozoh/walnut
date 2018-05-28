@@ -31,6 +31,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -80,7 +81,7 @@ public abstract class Wn {
     public static boolean matchs(String str, String pattern) {
         Pattern p = patterns.get(pattern);
         if (p == null) {
-            p = Pattern.compile(pattern);
+            p = Regex.getPattern(pattern);
             patterns.put(pattern, p);
         }
         return p.matcher(str).matches();
@@ -214,7 +215,7 @@ public abstract class Wn {
             return null;
         // TODO zozoh: 应该考虑一些特殊字符 ...
         String s = wildcard.replace("*", ".*");
-        return Pattern.compile("^" + s + "$");
+        return Regex.getPattern("^" + s + "$");
     }
 
     public static boolean matchWildcard(String s, String wildcard) {
@@ -559,7 +560,7 @@ public abstract class Wn {
             }
 
             // 如果是 Mount 就傻傻的写流
-            if (src.isMount()) {
+            if (src.isMount() || src.isLink()) {
                 io.writeAndClose(dst, io.getInputStream(src, 0));
             }
             // 执行快速 copy
