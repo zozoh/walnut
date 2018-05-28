@@ -9,7 +9,7 @@ var methods = {
         var context = opt.context || UI;
         var v = UI.getData();
         var v_old = UI.__old_val;
-        console.log(v, v_old)
+        //console.log(v, v_old)
 
         // 和旧值比较一下，有更新才通知
         if(_.isFunction(UI.__equals)){

@@ -47,7 +47,7 @@ return ZUI.def("app.wn.thdesign", {
             var tsPh = UI.__oTS.ph;
 
             // 生成命令
-            var cmdText = 'json > "' + tsPh + '/thing.js"; obj id:'+tsId;
+            var cmdText = 'json -n > "' + tsPh + '/thing.js"; obj id:'+tsId;
 
             // 执行命令
             jB.parent().attr("mode", "ing");
@@ -452,7 +452,7 @@ return ZUI.def("app.wn.thdesign", {
             editAs : "input",
             uiConf : {
                 formatData : function(val) {
-                    console.log("parse", val)
+                    //console.log("parse", val)
                     if("null" == val)
                         return null;
                     if("undefined" == val)
@@ -460,7 +460,7 @@ return ZUI.def("app.wn.thdesign", {
                     return val;
                 },
                 parseData : function(val) {
-                    console.log("format", val, this);
+                    //console.log("format", val, this);
                     if(_.isNull(val))
                         return "null";
                     if(_.isUndefined(val))
@@ -655,7 +655,7 @@ return ZUI.def("app.wn.thdesign", {
             attachment : /^(all|attachment)$/.test(setupObj.thData),
             fields: fields,
         };
-        console.log(thConf)
+        //console.log(thConf)
         if(setupObj.searchMenuFltWidthHint)
             thConf.searchMenuFltWidthHint = setupObj.searchMenuFltWidthHint;
 

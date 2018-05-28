@@ -263,7 +263,7 @@ return ZUI.def("ui.picker.opicker", {
 
         // 重新取得一个对象列表
         var o = UI.getObj();
-        console.log("getObj", o)
+        //console.log("getObj", o)
         UI.__draw_items(o);
     },
     //...............................................................
