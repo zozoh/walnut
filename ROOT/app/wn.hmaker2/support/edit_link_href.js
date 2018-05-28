@@ -32,7 +32,7 @@ return ZUI.def("ui.edit_link_href", {
             },
             fields : [{
                 key : "href",
-                icon : '<i class="fa fa-file"></i>',
+                icon : '<i class="fas fa-bullseye"></i>',
                 title : "i18n:hmaker.link.href",
                 tip : "i18n:hmaker.link.href_tip",
                 uiType : "@input",
@@ -69,7 +69,7 @@ return ZUI.def("ui.edit_link_href", {
                 }
             }, {
                 key : "params",
-                icon : '<i class="fa fa-file"></i>',
+                icon : '<i class="zmdi zmdi-developer-board"></i>',
                 title : "i18n:hmaker.link.params",
                 tip : "i18n:hmaker.link.params_tip",
                 type : "object",

@@ -97,34 +97,46 @@ xxxx
 # 字段语法 =Size(2) 则会显示友好的大小，譬如 1.5G, 37.2M 等，
 # `2` 表示小数点后面几位
 .len:100/?=Size(2)
+#-------------------------------------------------
 # 字段语法 =UL 会将字段值强制转换为数组
 # 每个数组元素会依次生成 <li>
 # UL(text) 表示要用 lbls[i].text 来显示内容
-# UL(!media:nm) 表示用 th_media_list[i].nm 来显示一张图片（obj必须有 th_set和id 字段）
-# UL(!attachment:nm) 表示用 th_attachment_list[i].nm 来显示一张图片
+# UL(!media:nm) 表示用 /api/thing/media 来显示一张图片（obj必须有 th_set和id 字段）
+# UL(!attachment:nm) 表示用 /api/thing/attachment 来显示一张图片
 # UL(!img:src) 表示用 lbls[i].src 来显示一张图片
 # UL(!img:src)->thumb 会自动与 .thumb字段联动，用自己的图片源为其设置值
 # .lbls[-]=UL(text) 这样的写法，会自动为每个项目设置超链接
 #                   链接的值，用 libs[i] 来替换，而不是 obj
 .th_media_list:100=UL(!media:src)->thumb
+# UL(-media:nm)->下载文件{{nm}} 表示用 /api/thing/media 来下载一个文件
+# UL(+attachment:nm) 表示用 /api/thing/attachment 来下载一个文件
+# 后面的 ->xxx 表示显示的下载链接文字，如果没有声明，则显示文件名
+.th_attachment_list=UL(+attachment)->下载文件{{nb}}
+#-------------------------------------------------
 # 字段语法 =Markdown 将会将字段内容转换为Markdown显示
 .content=Markdown
+#-------------------------------------------------
 # 字段语法 =Preview 字段内容应该为 /api/thumb 可接受的 QueryString
 .thumb=Preview
+#-------------------------------------------------
 # 字段语法 =Link(HTML) 字段内容为一个链接
 #  - Link(HTML) 表示链接文字
 #  - Link() 则会显示链接本身的内容
 # 这种字段会无视全局链接
 .href=Link(Buy Now)
+#-------------------------------------------------
 # 字段语法 =Button(HTML) 显示一个按钮，行为和 Link 一致
 #  - Button(HTML) 表示链接文字
 #  - Button() 则会显示链接本身的内容
 # 这种字段会无视全局链接
 .href=Button(Buy Now)
 # 字段语法 =Block 显示一个文字块
+#-------------------------------------------------
 .brief=Block
 # 字段语法 =Em 显示一段重点文字
+#-------------------------------------------------
 .th_price=Em
+#-------------------------------------------------
 # 字段语法 =List(分隔符)[连接符] 显示一个逻辑上的列表
 # (分隔符) 譬如 (\r\n) 默认是 \r?\n
 # [连接符] 譬如 [,] 
