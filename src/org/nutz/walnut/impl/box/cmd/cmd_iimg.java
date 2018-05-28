@@ -10,6 +10,7 @@ import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Regex;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -152,7 +153,7 @@ public class cmd_iimg extends JvmExecutor {
             return;
         }
 
-        Pattern p = Pattern.compile("^(\\d+)[xX](\\d+)$");
+        Pattern p = Regex.getPattern("^(\\d+)[xX](\\d+)$");
         Matcher m = p.matcher(params.check("thumb"));
         if (m.find()) {
             int w = Integer.parseInt(m.group(1));
