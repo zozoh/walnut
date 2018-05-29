@@ -112,13 +112,16 @@ public class AccessLogFilter implements Filter, Runnable {
         // 如果没有跟踪id,添加对应的cookie
         if (wntid == null) {
             wntid = R.UU32();
-            resp.addCookie(new Cookie(AT_WN_TRACE_ID, wntid));
+            Cookie cookie = new Cookie(AT_WN_TRACE_ID, wntid);
+            cookie.setPath("/");
+            resp.addCookie(cookie);
         }
         // 如果没有用户跟踪信息,添加对应的cookie
         if (wnuid == null) {
             wnuid = R.UU32();
             Cookie cookie = new Cookie(AT_WN_TRACE_UID, wnuid);
             cookie.setMaxAge(365 * 24 * 60 * 60);// 30天
+            cookie.setPath("/");
             resp.addCookie(cookie);
         }
         alog.setTraceId(wntid);
