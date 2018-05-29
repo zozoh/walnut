@@ -751,23 +751,25 @@ public class WWWModule extends AbstractWnModule {
             // 如果不是目录，那么应该返回一个重定向
             // 否则在访问 http://zozoh.com/abc 这样路径的时候，
             // 路径对应的网页里面如果有相对的图片链接，会有问题
-            String redirectPath;
-            Object orgPath = req.getAttribute("wn_www_path_org");
+            if (!req.getRequestURI().endsWith("/")) {
+                String redirectPath;
+                Object orgPath = req.getAttribute("wn_www_path_org");
 
-            // 嗯，不是从 WalnutFilter 过来的
-            if (null == orgPath) {
-                redirectPath = Wn.appendPath("/www", usr, a_path, o.name());
+                // 嗯，不是从 WalnutFilter 过来的
+                if (null == orgPath) {
+                    redirectPath = Wn.appendPath("/www", usr, a_path) + "/";
+                }
+                // 从 WalnutFilter 过来的，直接使用原始路径
+                else {
+                    redirectPath = orgPath.toString() + "/";
+                }
+
+                if (log.isDebugEnabled())
+                    log.debugf(" - www:redirect-> %s", redirectPath);
+
+                // 重定向吧
+                return new ServerRedirectView(redirectPath);
             }
-            // 从 WalnutFilter 过来的，直接使用原始路径
-            else {
-                redirectPath = Wn.appendPath(orgPath.toString(), o.name());
-            }
-
-            if (log.isDebugEnabled())
-                log.debugf(" - www:redirect-> %s", redirectPath);
-
-            // 重定向吧
-            return new ServerRedirectView(redirectPath);
         }
 
         // 确保可读，同时处理链接文件
