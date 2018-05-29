@@ -23,8 +23,10 @@ import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -35,6 +37,7 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.JspView;
+import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -73,11 +76,14 @@ public class AppModule extends AbstractWnModule {
 
     public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$",
                                                              Pattern.DOTALL);
+    
+    public static View V_304 = new HttpStatusView(304);
 
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
-    public View open(String appName, @Param("ph") String str, @Param("m") boolean meta)
+    public View open(String appName, @Param("ph") String str, @Param("m") boolean meta, 
+                     @ReqHeader("If-None-Match") String etag)
             throws UnsupportedEncodingException {
 
         if (Strings.isBlank(appName))
@@ -131,14 +137,14 @@ public class AppModule extends AbstractWnModule {
         // 如果 null 表示过了许可证检查
         // 后续正常的 APP 打开逻辑
         if (null == reView) {
-            reView = __open_page(app, oAppHome, se);
+            reView = __open_page(app, oAppHome, se, etag);
         }
 
         // 返回输出
         return reView;
     }
 
-    private View __open_page(WnApp app, WnObj oAppHome, WnSession se) {
+    private View __open_page(WnApp app, WnObj oAppHome, WnSession se, String etag) {
         NutMap c = new NutMap();
         String appName = app.getName();
         WnObj o = app.getObj();
@@ -191,7 +197,13 @@ public class AppModule extends AbstractWnModule {
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
         // 渲染视图
-        return new ViewWrapper(new JspView("jsp." + page_app), Tmpl.exec(tmpl, c));
+        String cnt = Tmpl.exec(tmpl, c);
+        String sha1 = Lang.sha1(cnt);
+        if (etag != null && sha1.equals(etag)) {
+            return V_304;
+        }
+        Mvcs.getResp().setHeader("ETag", sha1);
+        return new ViewWrapper(new RawView("html"), cnt);
     }
 
     private View __check_licence(WnApp app, WnSession se, WnAppLicenceInfo ali) {
@@ -387,7 +399,7 @@ public class AppModule extends AbstractWnModule {
 
         // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
         cmdText = cmdText.trim();
-        Matcher sudoM = Pattern.compile("^wndo[ ]+(.+)$").matcher(cmdText);
+        Matcher sudoM = Regex.getPattern("^wndo[ ]+(.+)$").matcher(cmdText);
         boolean isSudo = sudoM.find();
         if (isSudo) {
             cmdText = sudoM.group(1);
