@@ -34,6 +34,7 @@ return ZUI.def("ui.th_obj_data_media", {
     //..............................................
     redraw : function(){
         var UI   = this;
+        var opt  = UI.options;
         var conf = UI.getBusConf();
 
         // 创建默认 Preview 视图
@@ -49,7 +50,17 @@ return ZUI.def("ui.th_obj_data_media", {
             objTagName : "SPAN",
             renameable : true,
             on_open : function(o) {
-                console.log("open", o);
+                //console.log("open", o);
+                var url = "/a/open/"+(window.wn_browser_appName||"wn.browser");
+                $z.openUrl(url, "_blank", "GET", {
+                    "ph" : "id:" + o.id
+                });
+            },
+            on_rename : function(o) {
+                var obj = UI.__OBJ;
+                UI.invokeConfCallback(opt.folderName, "on_rename", [obj, o, function(obj2){
+                    Wn.saveToCache(obj2);
+                }]);
             },
             on_actived : function(o) {
                 UI.showPreview(o);

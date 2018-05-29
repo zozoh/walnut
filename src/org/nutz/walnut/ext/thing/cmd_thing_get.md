@@ -4,7 +4,8 @@
 
 # 用法
 
-    thing [TsID] get ID
+    thing [TsID] get ID 
+       [-full]  表示获取 thing 的全部数据，包括 detail
 
 # 示例
 

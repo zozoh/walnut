@@ -555,6 +555,7 @@ var methods = {
             }
             // 字段: link
             else if("link" == F.type) {
+                fld.uiWidth = "all";
                 fld.uiType = "app/wn.hmaker2/support/c_edit_link";
                 fld.uiConf = {
                     emptyItem : {
@@ -562,7 +563,7 @@ var methods = {
                         text  : '<span>@auto</span><em>{{hmaker.link.auto}}</em>',
                         value : '@auto'
                     }
-                }
+                };
             }
             // 字段: 映射表
             else if("mapping" == F.type) {
