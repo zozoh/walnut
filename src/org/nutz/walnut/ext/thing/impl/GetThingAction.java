@@ -1,11 +1,9 @@
 package org.nutz.walnut.ext.thing.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
@@ -69,29 +67,16 @@ public class GetThingAction extends ThingAction<WnObj> {
     }
 
     private void __set_file_map(WnObj oT, String mode) {
-        String key = "th_" + mode + "_ids";
+        String key = "th_" + mode + "_list";
         if (oT.has(key)) {
-            String[] ids = oT.getArray(key, String.class);
+            NutMap[] fs = oT.getArray(key, NutMap.class);
             Map<String, String> map = new TreeMap<String, String>();
-            List<NutBean> list = new ArrayList<>(ids.length);
-            for (String id : ids) {
-                WnObj o = io.get(id);
-                if (null != o) {
-                    map.put(o.name(), o.id());
-                    list.add(o.pick("id",
-                                    "nm",
-                                    "thumb",
-                                    "mime",
-                                    "tp",
-                                    "duration",
-                                    "width",
-                                    "height",
-                                    "video_frame_count",
-                                    "video_frame_rate"));
+            for (NutMap f : fs) {
+                if (null != f) {
+                    map.put(f.getString("nm"), f.getString("id"));
                 }
             }
             oT.put("th_" + mode + "_map", map);
-            oT.put("th_" + mode + "_list", list);
         }
     }
 

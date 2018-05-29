@@ -1,15 +1,13 @@
 package org.nutz.walnut.ext.thing.util;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
@@ -21,7 +19,6 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
@@ -317,200 +314,35 @@ public abstract class Things {
         }
     }
 
-    public static void doFileObj(WnSystem sys, JvmHdlContext hc, WnObj oDir, WnObj oT, String key) {
-        // 判断是否静默输出
-        boolean isQ = hc.params.is("quiet");
-
-        // 如何写入内容
-        String read = hc.params.get("read");
-        WnObj oSrc = null;
-        if (null != read && !"true".equals(read)) {
-            oSrc = Wn.getObj(sys, read);
-        }
-
-        // 准备查询条件
-        WnQuery q = Wn.Q.pid(oDir);
-        q.setv("race", WnRace.FILE);
-
-        // 添加
-        if (hc.params.has("add")) {
-            String fnm = hc.params.get("add");
-            // 首先判断文件是否存在
-            WnObj oM = sys.io.fetch(oDir, fnm);
-
-            // 不存在，创建一个
-            if (null == oM) {
-                oM = sys.io.create(oDir, fnm, WnRace.FILE);
-            }
-            // 如果存在 ...
-            else {
-                // 如果存在，并且还要 -read 自己，那么就直接过
-                if (null != oSrc && oSrc.isSameId(oM)) {
-                    hc.output = oM;
-                    return;
-                }
-
-                // 是否生成一个新的
-                String dupp = hc.params.get("dupp");
-                if (!Strings.isBlank(dupp)) {
-                    // 准备默认的模板
-                    if ("true".equals(dupp)) {
-                        dupp = "@{major}(@{nb})@{suffix}";
-                    }
-                    // 准备文件名模板
-                    NutMap c = new NutMap();
-                    c.put("major", Files.getMajorName(fnm));
-                    c.put("suffix", Files.getSuffix(fnm));
-                    Tmpl seg = Cmds.parse_tmpl(dupp);
-                    // 挨个尝试新的文件名
-                    int i = 1;
-                    do {
-                        c.put("nb", i++);
-                        fnm = seg.render(c);
-                    } while (sys.io.exists(oDir, fnm));
-                    // 创建
-                    oM = sys.io.create(oDir, fnm, WnRace.FILE);
-                }
-                // 不能生成一个新的，并且还不能覆盖就抛错
-                else if (!hc.params.is("overwrite")) {
-                    throw Er.create("e.cmd.thing." + key + ".exists", oDir.path() + "/" + fnm);
-                }
-            }
-
-            // 嗯得到一个空文件了，那么看看怎么写入内容呢？
-            if (null != read) {
-                // 从输出流中读取
-                if ("true".equals(read)) {
-                    InputStream ins = sys.in.getInputStream();
-                    sys.io.writeAndClose(oM, ins);
-                }
-                // 否则试图从指定的文件里读取
-                else if (null != oSrc) {
-                    sys.io.copyData(oSrc, oM);
-                    // 因为 copyData 是快速命令，所以要重新执行一下钩子
-                    oM = Wn.WC().doHook("write", oM);
-                }
-                // 那么源文件必然不存在
-                else {
-                    throw Er.create("e.cmd.thing." + key + ".readNone", read);
-                }
-            }
-
-            // 更新计数
-            update_file_count(sys, oT, key, q);
-
-            // 最后计入输出
-            hc.output = oM;
-        }
-        // 仅仅是更新计数
-        else if (hc.params.is("ufc")) {
-            update_file_count(sys, oT, key, q);
-            // 更新计数的话，就返回 Thing 数据本身咯
-            hc.output = oT;
-        }
-        // 删除
-        else if (hc.params.is("del")) {
-            List<WnObj> list = new ArrayList<>(hc.params.vals.length);
-            // 从第二个参数开始循环都是要删除的名称，因为第一个参数是 ThObj 的 ID
-            for (int i = 1; i < hc.params.vals.length; i++) {
-                String fnm = hc.params.val(i);
-                WnObj oM = sys.io.fetch(oDir, fnm);
-                if (null != oM) {
-                    sys.io.delete(oM);
-                    list.add(oM);
-                }
-                // 否则判断一下是否需要抛错
-                else if (!isQ) {
-                    throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
-                }
-            }
-            // 更新计数
-            if (list.size() > 0)
-                update_file_count(sys, oT, key, q);
-
-            // 最后计入输出
-            hc.output = list;
-        }
-        // 获取某指定文件
-        else if (hc.params.has("get")) {
-            String fnm = hc.params.get("get");
-            WnObj oM = sys.io.fetch(oDir, fnm);
-            if (null == oM && !isQ) {
-                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
-            }
-
-            // 最后计入输出
-            hc.output = oM;
-        }
-        // 获取某指定文件内容
-        else if (hc.params.has("cat")) {
-            String fnm = hc.params.get("cat");
-            WnObj oM = sys.io.fetch(oDir, fnm);
-            if (null == oM && !isQ) {
-                throw Er.create("e.cmd.thing." + key + ".noexists", oDir.path() + "/" + fnm);
-            }
-
-            // 看看是否 HTTP 方式输出
-            String etag = hc.params.getString("etag");
-            if (!Strings.isBlank(etag)) {
-                String range = hc.params.getString("range");
-
-                WnHttpResponse resp = new WnHttpResponse();
-                resp.setEtag(etag);
-
-                // 准备下载
-                if (hc.params.is("download")) {
-                    resp.setUserAgent(hc.params.getString("UserAgent"));
-                }
-
-                resp.prepare(sys.io, oM, range);
-                hc.output = resp;
-            }
-            // 输出文本
-            else if (oM.isMime("^text/.+$")) {
-                hc.output = sys.io.readText(oM);
-            }
-            // 输出二进制内容
-            else {
-                hc.output = sys.io.getInputStream(oM, 0);
-            }
-        }
-        // 那么就是查询咯
-        else {
-            if (hc.params.has("sort")) {
-                q.sort(Lang.map(hc.params.check("sort")));
-            }
-            // 默认按名称排序
-            else {
-                q.asc("nm");
-            }
-
-            // 得到查询记过
-            List<WnObj> list = sys.io.query(q);
-
-            // 如果声明了键，看看是否需要更新计数
-            if (!Strings.isBlank(key) && oT.getInt(key) != list.size()) {
-                oT.setv(key, sys.io.count(q));
-                sys.io.set(oT, "^" + key + "$");
-            }
-
-            // 记录到输出中
-            hc.output = list;
-        }
-    }
-
-    public static void update_file_count(WnSystem sys, WnObj oT, String countKey, WnQuery q) {
-        update_file_count(sys.io, oT, countKey, q);
-    }
-
     public static void update_file_count(WnIo io, WnObj oT, String countKey, WnQuery q) {
+        // 首先查询一下相关的文件
         List<WnObj> oFiles = io.query(q.asc("nm"));
-        oT.setv(String.format("th_%s_nb", countKey), oFiles.size());
+
+        // 设置: 计数
+        oT.put(String.format("th_%s_nb", countKey), oFiles.size());
+
+        // 准备统计
         List<String> fIds = new ArrayList<String>(oFiles.size());
-        for (WnObj oF : oFiles)
+        List<NutBean> list = new ArrayList<>(oFiles.size());
+        for (WnObj oF : oFiles) {
             fIds.add(oF.id());
-        oT.setv(String.format("th_%s_ids", countKey), fIds);
-        io.set(oT, "^(th_" + countKey + "_(nb|ids))$");
+            list.add(oF.pick("id",
+                             "nm",
+                             "thumb",
+                             "mime",
+                             "tp",
+                             "duration",
+                             "width",
+                             "height",
+                             "video_frame_count",
+                             "video_frame_rate"));
+        }
+        // 设置
+        oT.put(String.format("th_%s_ids", countKey), fIds);
+        oT.put(String.format("th_%s_list", countKey), list);
+
+        // 持久化
+        io.set(oT, "^(th_" + countKey + "_(nb|ids|map|list))$");
     }
 
     // ..........................................................

@@ -389,6 +389,15 @@ var DATA_MODE = {
                         $z.doCallback(callback, [list]);
                     });
                 },
+                on_rename : function(th, o, callback) {
+                    Wn.execf('thing {{th_set}} '+mode+' {{id}} -ufc', {
+                        th_set : th.th_set,
+                        id     : th.id,
+                    }, function(re){
+                        var reo = $z.fromJson(re);
+                        $z.doCallback(callback, [reo]);
+                    });
+                },
                 upload : function(setup) {
                     var th = setup.obj;
                     var ph = "id:"+th.th_set+"/data/"+th.id+"/"+mode+"/";
