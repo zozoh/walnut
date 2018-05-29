@@ -176,12 +176,17 @@ window.HmRT = {
                 // 列表: .lbls:100=UL(text)->.thumb
                 m2 = /^UL(\(((!(media|attachment|img):)?([^)]*))\))?([-][>](.+))?$/.exec(ts);
                 if(m2) {
-                    fld.display = "UL",
+                    fld.display = "UL";
                     fld.config = {
                         itemType : m2[4] || "text",
-                        itemKey  : m2[5],
                         target   : m2[7],
                     };
+                    var itKey = m2[5];
+                    if(/^=/.test(itKey)) {
+                        fld.config.itemTmpl = $z.tmpl(itKey.substring(1));
+                    } else {
+                        fld.config.itemKey = itKey;
+                    }
                     return fld;
                 }
             }
@@ -525,10 +530,17 @@ window.HmRT = {
             var liType = fld.config.itemType || "text";
             var jUl  = $('<ul>').attr({
                     "li-type"   : liType,
-                    "li-target" : fld.config.target,
                     "li-img"    : /^(media|attachment|img)$/.test(liType)
                                     ? "yes" : null  
                 });
+            // 分析一下目标是不是指定的下载链接
+            var m_down = /^([+]?)(media|attachment)$/.exec(fld.config.target);
+
+            // 如果不是下载，那么就是连接咯
+            if(fld.config.target && !m_down) {
+                jUl.attr('li-target', fld.config.target);
+            }
+
             if(!_.isNull(val) && !_.isUndefined(val)) {
                 var list   = _.isArray(val)?val:[val];
                 for(var i=0; i<list.length; i++) {
@@ -536,20 +548,50 @@ window.HmRT = {
                     var jLi = $('<li>').attr({
                                 "current" : li.current ? "yes" : null
                             }).appendTo(jUl);
-                    var liv = li;
+                    // 保存数据
+                    jLi.data("@LI-DATA", li);
+
+                    //--------------------
                     // 得到真实的值
-                    if(fld.config.itemKey) {
+                    var liv = li;
+                    if(fld.config.itemTmpl) {
+                        liv = fld.config.itemTmpl(li);
+                    }
+                    // 用 key
+                    else if(fld.config.itemKey) {
                         liv = li[fld.config.itemKey];
                     }
+                    //--------------------
                     // 无视无效的值
                     if(!liv)
                         continue;
+                    //--------------------
+                    // 计算链接
+                    var liHref = null;
+                    // 下载
+                    if(m_down) {
+                        var dirName = m_down[2];
+                        liHref = opt.API + "/thing/" + dirName 
+                                    + '?pid=' + obj.th_set
+                                    + '&id='  + obj.id
+                                    + '&fnm=' + li.nm
+                                    + '&d=true';
+                        fld.linkTarget = '+' == m_down[1] ? "_blank" : '_self';
+                    }
+                    // 全局链接
+                    else if(oHref && fld.linkTarget) {
+                        try{
+                            liHref = oHref.tmpl(li);
+                        }catch(E){}
+                    }
+                    //--------------------
                     // IMG
                     if("img" == liType) {
                         this.renderLayoutFieldElementContent(fld, $('<span>').css({
                                 "background-image" : 'url("' + liv + '")',
-                            })).appendTo(jLi);
+                            }), liHref).appendTo(jLi);
                     }
+                    //--------------------
                     // Media/Image
                     else if( /^(media|attachment)$/.test(liType)) {
                         // 首先得到图片的源
@@ -563,18 +605,11 @@ window.HmRT = {
                         // 然后输出这个图片
                         this.renderLayoutFieldElementContent(fld, $('<span>').css({
                                 "background-image" : 'url("' + src + '")',
-                            })).appendTo(jLi);
-                        // 保存数据
-                        jLi.data("@LI-DATA", li);
+                            }), liHref).appendTo(jLi);
                     }
+                    //--------------------
                     // 普通文字
                     else {
-                        var liHref = null;
-                        if(oHref && fld.linkTarget) {
-                            try{
-                                liHref = oHref.tmpl(li);
-                            }catch(E){}
-                        }
                         this.renderLayoutFieldElementContent(fld, liv, liHref)
                             .appendTo(jLi);
                     }
@@ -676,7 +711,7 @@ window.HmRT = {
     //...............................................................
     setupLayoutEvents : function(opt, win) {
         win = win || window;
-        console.log(opt)
+        //console.log(opt)
         if(!win.__layout_event_binded) {
             $(win.document.body).on("click", ".wn-obj-layout ul[li-target] li",
                 function(e){

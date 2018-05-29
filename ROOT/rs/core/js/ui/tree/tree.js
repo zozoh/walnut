@@ -244,7 +244,7 @@ return ZUI.def("ui.tree", {
             });
         }
 
-        console.log("conf.ignoreAncestorMap", conf.ignoreAncestorMap)
+        //console.log("conf.ignoreAncestorMap", conf.ignoreAncestorMap)
 
         // 搜索自己的 sensor
         UI.arena.find(".tree-node").each(function(){

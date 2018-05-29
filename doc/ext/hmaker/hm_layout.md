@@ -108,10 +108,9 @@ xxxx
 # .lbls[-]=UL(text) 这样的写法，会自动为每个项目设置超链接
 #                   链接的值，用 libs[i] 来替换，而不是 obj
 .th_media_list:100=UL(!media:src)->thumb
-# UL(-media:nm)->下载文件{{nm}} 表示用 /api/thing/media 来下载一个文件
-# UL(+attachment:nm) 表示用 /api/thing/attachment 来下载一个文件
-# 后面的 ->xxx 表示显示的下载链接文字，如果没有声明，则显示文件名
-.th_attachment_list=UL(+attachment)->下载文件{{nb}}
+# -> 后面的链接目标如果为 media|attachment 这两个关键字，则表示下载
+# UL(=xx) 表示显示字符串模板，上下文用列表的元素进行渲染
+.th_attachment_list=UL(=下载{{nm}})->attachment#下载
 #-------------------------------------------------
 # 字段语法 =Markdown 将会将字段内容转换为Markdown显示
 .content=Markdown
