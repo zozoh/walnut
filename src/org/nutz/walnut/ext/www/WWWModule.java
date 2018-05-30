@@ -244,7 +244,8 @@ public class WWWModule extends AbstractWnModule {
     public boolean vcode_phone_get(String wwwId,
                                    String phone,
                                    @Param("s") String scene,
-                                   @Param("t") String token) {
+                                   @Param("t") String token,
+                                   @Param("c") int c) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
@@ -260,7 +261,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 生成手机验证码
         vcodePath = VCodes.getPathBy(domain, scene, phone);
-        String code = R.captchaNumber(6);
+        String code = R.captchaNumber(c >= 4 ? 4 : 6);
 
         // 手机短信验证码最多重试 5 次
         vcodes.save(vcodePath, code, this.vcodeDuPhone, 5);
