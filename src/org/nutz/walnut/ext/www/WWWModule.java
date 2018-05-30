@@ -322,6 +322,7 @@ public class WWWModule extends AbstractWnModule {
         WnUsr me = usrs.check(domain);
         WnObj oHome = io.check(null, me.home());
         return Wn.WC().su(me, new Proton<NutBean>() {
+            @Override
             protected NutBean exec() {
                 return __do_login_by_phone_as_domain_user(phone, oWWW, siteId, ticket, oHome, req);
             }
@@ -364,6 +365,10 @@ public class WWWModule extends AbstractWnModule {
         // 嗯，那么就创建一个用户咯
         if (null == oU) {
             oU = ths.createThing("anonymous", Lang.map("phone", phone));
+            // 设置默认密码 123456
+            // 根据 siteId 获取一下对应域名
+            String domain = oWWW.d1();
+            exec("setpasswd", domain, "passwd -u id:" + oU.id() + " 123456");
         }
 
         // 为创建会话
@@ -424,6 +429,7 @@ public class WWWModule extends AbstractWnModule {
         WnUsr me = usrs.check(domain);
         WnObj oHome = io.check(null, me.home());
         return Wn.WC().su(me, new Proton<NutBean>() {
+            @Override
             protected NutBean exec() {
                 return __do_login_by_passwd_as_domain_user(phone,
                                                            passwd,
@@ -724,6 +730,7 @@ public class WWWModule extends AbstractWnModule {
                 Object eno = oWWW.get("www_entry");
                 List<String> en_list = new ArrayList<String>(6);
                 Lang.each(eno, new Each<String>() {
+                    @Override
                     public void invoke(int index, String ele, int length) {
                         if (!Strings.isBlank(ele))
                             en_list.add(ele);
