@@ -363,6 +363,7 @@ window.HmRT = {
     // 渲染字段内容
     renderLayoutFieldElementContent : function(fld, str, oHref, forceHTML) {
         var jFi;
+        //console.log("abc")
         // 已经准备好了内容
         if($z.isjQuery(str)) {
             jFi = str;
@@ -665,7 +666,7 @@ window.HmRT = {
         // .href=Link[Buy Now]
         if("Link" == fld.display || "Button" == fld.display) {
             var s = fld.config || val || fld.display;
-            return this.renderLayoutFieldElement(fld, s, val||"N/A").appendTo(jP);
+            return this.renderLayoutFieldElement(fld, s, val||oHref).appendTo(jP);
         }
         // 默认就是文字咯
         return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);
