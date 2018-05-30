@@ -689,7 +689,7 @@ window.HmRT = {
                 // 循环渲染字段
                 for(var x=0; x<it.items.length; x++) {
                     var fld  = it.items[x];
-                    this.renderLayoutField(opt, jGrp, fld, obj, href)
+                    this.renderLayoutField(opt, jGrp, fld, obj, oHref)
                 }
                 // 设置属性，并加入 DOM
                 jGrp.attr({
