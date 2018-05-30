@@ -13,6 +13,9 @@ function ___layout_size (sz, dft) {
     return parseInt(sz);
 }
 function __set_layout_item_size (it, s) {
+    s = $.trim(s);
+    if(!s)
+        return it;
     m = /^([0-9?-]+)(\/([0-9?-]+))?$/.exec($.trim(s));
     if(!m) {
         console.warn("invalid layout sizing:", s);
