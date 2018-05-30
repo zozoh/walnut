@@ -1784,9 +1784,38 @@ return ZUI.def("app.wn.hmaker_page", {
             UI.invokeSkin("ready");
         }
 
+        // 按行解析 HTML，如果遇到了 `<head>` 则将内容全部去掉
+        var theHtml = C.iedit.root.innerHTML;
+        var lines = theHtml.split(/\r?\n/);
+        var lines2 = [];
+        var is_in_head = false;
+        var is_done_for_head = false;
+        for(var i=0; i<lines.length; i++) {
+            var line = lines[i];
+            // 判断进入 <head>
+            if(!is_done_for_head && !is_in_head) {
+                if(line.indexOf('<head>') >= 0) {
+                    is_in_head = true;
+                    lines2.push('<head></head>');
+                }
+            }
+            // 判断退出 <head>
+            if(is_in_head) {
+                if(line.indexOf('</head>') >= 0) {
+                    is_in_head = false;
+                    is_done_for_head = true;
+                }
+            }
+            // 不在 head 里，那么就加入
+            else {
+                lines2.push(line);
+            }
+        }
+        theHtml = lines2.join('\n');
+
         // 将 iedit 的内容复制到 iload 里面
         // 需要将所有的可运行的 script 都删掉
-        C.iload.root.innerHTML = C.iedit.root.innerHTML;
+        C.iload.root.innerHTML = theHtml;
         C.iload = UI._reset_context_vars(".hmpg-frame-load");
 
         // 清空 iload 的头部
