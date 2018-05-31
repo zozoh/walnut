@@ -733,7 +733,7 @@ return ZUI.def("app.wn.pvg", {
 
         // 得到路径列表
         UI.gasket.pathsList.showLoading();
-        Wn.exec('obj -match \'d1:"'+grp+'", pvg:{"\\$ne":null}\' -json -l -P', function(re){
+        Wn.exec('obj -mine -match \'pvg:{"\\$ne":null}\' -json -l -P', function(re){
             UI.gasket.pathsList.hideLoading();
             var list = $z.fromJson(re);
             UI.gasket.pathsList.setData(list);
