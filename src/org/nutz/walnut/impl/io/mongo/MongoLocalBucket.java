@@ -384,6 +384,8 @@ public class MongoLocalBucket extends AbstractBucket {
     @Override
     public void update() {
         ZMoDoc doc = ZMoDoc.SET(ZMo.me().toDoc(this));
+        doc.removeField("id");
+        doc.removeField("ct");
         _co.update(WnMongos.qID(id), doc, true, false);
     }
 
