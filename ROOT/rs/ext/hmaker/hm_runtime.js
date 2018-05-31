@@ -13,6 +13,9 @@ function ___layout_size (sz, dft) {
     return parseInt(sz);
 }
 function __set_layout_item_size (it, s) {
+    s = $.trim(s);
+    if(!s)
+        return it;
     m = /^([0-9?-]+)(\/([0-9?-]+))?$/.exec($.trim(s));
     if(!m) {
         console.warn("invalid layout sizing:", s);
@@ -360,6 +363,7 @@ window.HmRT = {
     // 渲染字段内容
     renderLayoutFieldElementContent : function(fld, str, oHref, forceHTML) {
         var jFi;
+        //console.log("abc")
         // 已经准备好了内容
         if($z.isjQuery(str)) {
             jFi = str;
@@ -662,7 +666,7 @@ window.HmRT = {
         // .href=Link[Buy Now]
         if("Link" == fld.display || "Button" == fld.display) {
             var s = fld.config || val || fld.display;
-            return this.renderLayoutFieldElement(fld, s, val||"N/A").appendTo(jP);
+            return this.renderLayoutFieldElement(fld, s, val||oHref).appendTo(jP);
         }
         // 默认就是文字咯
         return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);
@@ -689,7 +693,7 @@ window.HmRT = {
                 // 循环渲染字段
                 for(var x=0; x<it.items.length; x++) {
                     var fld  = it.items[x];
-                    this.renderLayoutField(opt, jGrp, fld, obj, href)
+                    this.renderLayoutField(opt, jGrp, fld, obj, oHref)
                 }
                 // 设置属性，并加入 DOM
                 jGrp.attr({

@@ -1783,10 +1783,28 @@ return ZUI.def("app.wn.hmaker_page", {
             });
             UI.invokeSkin("ready");
         }
+        // 按行解析 HTML，如果遇到了 `<head>` 则将内容全部去掉
+        var theHtml = C.iedit.root.innerHTML;
+        var lines = theHtml.split(/\r?\n/);
+        for(var i=0; i<lines.length; i++) {
+            var line = lines[i];
+            // 判断进入 <head>
+            if(line.indexOf('<head>') >= 0) {
+                var pos = line.lastIndexOf('</head>');
+                if(pos>0){
+                    lines[i] = line.substring(pos + '</head>'.length);
+                }
+                // 否则来一个空的头
+                else {
+                    lines[i] = '<head></head>';
+                }
+            }
+        }
+        theHtml = lines.join('\n');
 
         // 将 iedit 的内容复制到 iload 里面
         // 需要将所有的可运行的 script 都删掉
-        C.iload.root.innerHTML = C.iedit.root.innerHTML;
+        C.iload.root.innerHTML = theHtml;
         C.iload = UI._reset_context_vars(".hmpg-frame-load");
 
         // 清空 iload 的头部

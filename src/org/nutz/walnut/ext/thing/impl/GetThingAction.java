@@ -6,8 +6,11 @@ import java.util.TreeMap;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.ThingAction;
 import org.nutz.walnut.ext.thing.util.Things;
+import org.nutz.walnut.util.Wn;
 
 public class GetThingAction extends ThingAction<WnObj> {
 
@@ -68,6 +71,21 @@ public class GetThingAction extends ThingAction<WnObj> {
 
     private void __set_file_map(WnObj oT, String mode) {
         String key = "th_" + mode + "_list";
+        // 没有的话，如果还是有媒体的，就搞一下同步
+        if (!oT.has(key) && oT.getInt("th_" + mode + "_nb") > 0) {
+            WnObj oData = Things.dirTsData(io, this.oTs);
+            WnObj oDir = io.fetch(oData, oT.id() + "/" + mode);
+            if (null != oDir) {
+                WnQuery q = Wn.Q.pid(oDir);
+                q.setv("race", WnRace.FILE);
+                Things.update_file_count(io, oT, mode, q);
+            }
+            // 没有媒体目录的的话，就表搞了
+            else {
+                return;
+            }
+        }
+        // 有的话就用
         if (oT.has(key)) {
             NutMap[] fs = oT.getArray(key, NutMap.class);
             Map<String, String> map = new TreeMap<String, String>();
