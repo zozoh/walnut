@@ -23,12 +23,12 @@ public class WobjLine {
 
 
     public WobjLine(String line) {
-        String[] tmp = line.split("[\\:]");
-        id = tmp[0];
-        path = tmp[1];
-        obj_sha1 = tmp[2];
+        String[] tmp = Strings.splitIgnoreBlank(line.trim(), "[\\:]");
+        id = tmp[0].trim();
+        path = tmp[1].trim();
+        obj_sha1 = tmp[2].trim();
         if (tmp.length > 3)
-            fdata_sha1 = tmp[3];
+            fdata_sha1 = tmp[3].trim();
     }
     
     public String toString() {

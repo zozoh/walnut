@@ -297,12 +297,17 @@ public abstract class backup_xxx {
                 }
             });
             // 遍历文件夹, 先把文件夹统统建起了
+            NutMap backup_config = pkgWobj.getAs("backup_config", NutMap.class);
+            if (backup_config == null) {
+                backup_config = new NutMap();
+                backup_config.put("base", "");
+            }
             for (WnObj wobj : main.objs) {
                 String sha1 = wobj.sha1();
                 // 原本的路径
                 String originPath = wobj.path();
                 // 相对路径
-                String rpath = originPath.substring(pkgWobj.getAs("backup_config", NutMap.class).getString("base").length());
+                String rpath = originPath.substring(backup_config.getString("base").length());
                 String dstPath = ctx.target + rpath;
                 WnObj dstWnObj = io.fetch(null, dstPath);
                 // 确保父文件夹存在
@@ -337,7 +342,7 @@ public abstract class backup_xxx {
                         log.debugf("restore data   : %s : %s", rpath, wobj.sha1());
                         if (!readAndWrite(pkg, sha1, io, dstWnObj, log)) {
                             log.warnf("miss data   : %s : %s", rpath, wobj.sha1());
-                        };
+                        }
                     }
                 }
                 log.debugf("restore meta   : %s -> %s", rpath, dstPath);
@@ -366,6 +371,7 @@ public abstract class backup_xxx {
         ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
         BackupPackage bzip = new BackupPackage();
         ZipEntry en;
+        long time_for_expired = System.currentTimeMillis() + 30000;
         while (true) {
             en = zis.getNextEntry();
             if (en == null)
@@ -386,7 +392,11 @@ public abstract class backup_xxx {
                 }
             } else if (readObjs && en.getName().startsWith("objs/")) {
                 WnObj wobj = Json.fromJson(WnBean.class, new InputStreamReader(zis, Encoding.CHARSET_UTF8));
+                if (wobj.isExpiredBy(time_for_expired))
+                    continue;
                 bzip.objs.add(wobj);
+            } else {
+                break;
             }
         }
         return bzip;
@@ -404,25 +414,29 @@ public abstract class backup_xxx {
     }
     
     public static boolean readAndWrite(BackupPackage pkg, String sha1, WnIo io, WnObj wobj, Log log) {
-        try (InputStream ins = io.getInputStream(pkg.self, 0)) {
-            ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
-            ZipEntry en;
+        if (sha1.equals(wobj.sha1()))
+            return true;
+        File tmp = checkZipTmpFile(pkg.self, io, log);
+        try (ZipFile zip = new ZipFile(tmp)) {
             String path = "bucket/" + sha1.substring(0, 2) + "/" + sha1.substring(2);
-            while (true) {
-                en = zis.getNextEntry();
-                if (en == null)
-                    break;
-                if (en.getName().equals(path)) {
-                    try (OutputStream out = io.getOutputStream(wobj, 0)) {
-                        Streams.write(out, zis);
-                        out.flush();
-                    }
-                    return true;
-                }
-            }
+            io.writeAndClose(wobj, zip.getInputStream(zip.getEntry(path)));
+            return true;
         } catch (Throwable e) {
             log.warn("something happen!!", e);
         }
         return false;
+    }
+    
+    public static File checkZipTmpFile(WnObj wobj, WnIo io, Log log) {
+        File tmp = new File("/tmp/bk/" + wobj.id() + ".zip");
+        if (!tmp.exists()) {
+            try (InputStream ins = io.getInputStream(wobj, 0)) {
+                Files.write(Files.createFileIfNoExists(tmp), ins);
+            } catch (Throwable e) {
+                log.warn("something happen!!", e);
+            }
+            //ctx.tmpFiles.add(tmp.getAbsolutePath());
+        }
+        return tmp;
     }
 }

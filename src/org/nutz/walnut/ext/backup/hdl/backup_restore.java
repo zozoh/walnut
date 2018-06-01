@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.backup.hdl;
 
 import java.util.ArrayList;
 
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.backup.BackupRestoreContext;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -21,6 +23,7 @@ public class backup_restore extends backup_xxx implements JvmHdl {
         ctx.se = sys.se;
 
         ctx.main = Wn.normalizeFullPath(hc.params.val_check(0), sys);
+        WnObj mainWnObj = sys.io.check(null, ctx.main);
         ctx.target = Wn.normalizeFullPath(params.check("target"), sys);
         if (!ctx.target.endsWith("/"))
             ctx.target += "/";
@@ -31,6 +34,17 @@ public class backup_restore extends backup_xxx implements JvmHdl {
         ctx.force_id = hc.params.is("force_id");
         ctx.debug = hc.params.is("debug");
         ctx.overwrite = hc.params.is("overwrite");
+        ctx.base = hc.params.get("base");
+        if (ctx.base == null) {
+            NutMap backup_config = mainWnObj.getAs("backup_config", NutMap.class);
+            if (backup_config == null) {
+                sys.err.print("备份文件没有backup_config,需要指定base参数!!");
+            }
+            ctx.base = backup_config.getString("base");
+            if (ctx.base == null) {
+                sys.err.print("备份文件有backup_config但没有base属性,需要指定base参数!!");
+            }
+        }
 
         ctx.prevs = new ArrayList<>();
         ctx.prevPackages = new ArrayList<>();

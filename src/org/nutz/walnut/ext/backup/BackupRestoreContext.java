@@ -15,6 +15,8 @@ public class BackupRestoreContext {
      * 根路径
      */
     public String target;
+    
+    public String base;
 
     public boolean force_id;
     public boolean ignore_sha1_miss;

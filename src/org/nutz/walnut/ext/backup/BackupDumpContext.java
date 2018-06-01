@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.backup;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -74,4 +75,5 @@ public class BackupDumpContext {
     public transient Set<String> sha1Set;
     public transient List<Pattern> _includePatterns = new ArrayList<>();
     public transient List<Pattern> _excludePatterns = new ArrayList<>();
+    public Set<String> tmpFiles = new HashSet<>();
 }
