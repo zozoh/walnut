@@ -84,7 +84,8 @@ public class ChinaZMeidaXAPI extends NoTicketMediaXAPI {
     private Date __fill_list_by_doc(MxCrawl cr, Document doc, List<MxReCrawl> list) {
         // 寻找主要表格
         Element eleTable = doc.getElementsByClass("Tool-batchTable").first();
-
+        if (eleTable == null)
+            return new Date();
         // 得到表头
         Element eleTHead = eleTable.getElementsByTag("thead").first();
         Elements eleThs = eleTHead.getElementsByTag("th");
