@@ -21,7 +21,7 @@ public class wup_pkg_build implements JvmHdl {
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String app = hc.params.val_check(0);
-        if (!app.matches("^([\\w]+)$")) {
+        if (!app.matches("^([\\w]+)$") && !app.equals("all-site0")) {
             sys.err.println("not allow : " + app);
             return;
         }
