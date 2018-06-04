@@ -717,7 +717,10 @@ public class WWWModule extends AbstractWnModule {
 
         // 文件对象不存在，直接 404 咯
         if (null == o) {
-            return gen_errpage(tmpl_404, a_path);
+            o = io.fetch(oWWW, oWWW.getString("hm_page_404", "404.html"));
+            resp.setStatus(404);
+            if (o == null)
+                return gen_errpage(tmpl_404, a_path);
         }
 
         // ..............................................
