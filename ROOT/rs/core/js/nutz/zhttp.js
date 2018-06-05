@@ -45,7 +45,7 @@
     _ajaxDone = function (re, callback) {
         if (http.constant.ajax.useJson) {
             if (typeof re === 'string') {
-                re = JSON.parse(re);
+                re = eval('(' + re + ')')
             } else if (typeof re == "object") {
                 // TODO Nothing
             } else {
