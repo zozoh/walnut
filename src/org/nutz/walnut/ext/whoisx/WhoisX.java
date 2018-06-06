@@ -132,6 +132,7 @@ public abstract class WhoisX {
         try {
             try (Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress(whoisName, 43), 3000);
+                socket.setSoTimeout(15000);
                 OutputStream out = socket.getOutputStream();
                 out.write((host+"\r\n").getBytes());
                 out.flush();
@@ -158,6 +159,8 @@ public abstract class WhoisX {
                     //System.out.println(key +":" + value);
                     if ("Registrar WHOIS Server".equalsIgnoreCase(key) || "whois".equals(key)) {
                         if (!value.equals(whoisName)) {
+                            if (value.contains("/"))
+                                value = value.substring(0, value.indexOf('/'));
                             log.debugf("[%s] whois forward to %s", host, value);
                             return queryByWhois(host, value);
                         }
