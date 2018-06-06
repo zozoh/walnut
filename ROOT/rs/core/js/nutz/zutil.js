@@ -5637,197 +5637,211 @@
             };
 
             // 准备追加函数
-            var __set_to_poster = function(it) {
-                if(it) {
-                    // 背景
-                    if(it.type == 'bg') {
-                        if(it.bg)
-                            poster.bg = opt.media.apply(C, [it.bg]);
-                        poster.cssText = it.cssText;
-                        poster.attr = it.attr;
-                    }
-                    // 其他就直接加了
-                    else {
-                        // 视频和图片，需要格式化源
-                        if(it.picture) {
-                            it.picture = opt.media.apply(C, [it.picture]);
-                        }
-                        if(it.video) {
-                            it.video = opt.media.apply(C, [it.video]);
-                            if(it.attr && it.attr.poster) {
-                                it.attr.poster = opt.media.apply(C, [it.attr.poster]);
-                            }
-                        }
-                        
-                        // 处理图文列表的每个项目
-                        if(it.list) {
-                            var hideText = it.attr ? it.attr.hideText : false;
-                            for(var i=0; i<it.list.length; i++) {
-                                var li = it.list[i];
-                                if(hideText && li.text) {
-                                    li.text = null;
-                                }
-                                if(li.src){
-                                    if(!li.text && !hideText) {
-                                        li.text = zUtil.getMajorName(li.src);
-                                    }
-                                    li.src = opt.media.apply(C, [li.src]);
-                                }
-                            }
-                        }
-                        // 计入
-                        poster.items.push(it);
-                    }
+            var __join_poster_item = function(it, poItem, m_attr, m_css) {
+                // 必须有 poItem
+                if(!poItem) {
+                    throw "__join_poster_item no poItem!!!";
                 }
+                // 设置通用属性
+                poItem.cssText = m_css;
+                poItem.attr    = m_attr ? zUtil.fromJson(m_attr) : null;
+
+                // 如果 it 是组，且给定项目的 depth 深
+                if(it && 'group' == it.type && poItem.depth > 0) {
+                    // 寻找最接近自己 depth 的组
+                    var grp = it;
+                    while(grp.items.length>0) {
+                        var g2 = grp.items[grp.items.length-1];
+                        if('group'!=g2.type || g2.depth >= poItem.depth) {
+                            break;
+                        }
+                        grp = g2;
+                    }
+                    grp.items.push(poItem);
+                    // 继续返回自己
+                    return it;
+                }
+                // 如果有前序组
+                if(it) {
+                    poster.items.push(it);
+                }
+                // 加入到全局
+                poster.items.push(poItem);
+                // 如果是组，那么就返回
+                if('group' == poItem.type) {
+                    return poItem;
+                }
+                // 不是组
+                return null;
             };
             
             // 按行解析
-            var it = {type:"bg"};
+            var it = null;
             var lines  = str.split(/\r?\n/g);
-            var REG = /^\+[ \t]*(bg|text|picture|video|spec|list)([ \t]*:[ \t]*(.+)?)?$/;
+            var m;
             for(var i=0; i<lines.length; i++) {
-                var line = $.trim(lines[i]);
-                //console.log(line)
+                var line = lines[i];
+                var trim = $.trim(line);
+                console.log(line)
+
+                // 计算缩进级别
+                var depth = zUtil.countStrHeadIndent(line, 2);
 
                 // 忽略注释和空行
-                if(!line || /^#/.test(line))
+                if(!trim || /^#/.test(trim))
                     continue;
 
-                var m = REG.exec(line);
-                // 遇到特殊对象开头
+                //....................................
+                // 全局属性
+                m = /^@ *(bg|bgcolor|color|layout|height|width)( *: *(.+)?)?$/.exec(trim);
                 if(m) {
-                    // 添加之前的项目
-                    __set_to_poster(it);
+                    // 分析正则表达式
+                    var m_tp  = m[1];
+                    var m_str = m[3];
 
-                    // 根据类型判断
-                    it = {type : m[1]};
+                    if('bg' == m_tp) {
+                        poster[m_tp] = opt.media.apply(C, [m_str]);
+                    }else{
+                        poster[m_tp] = m_str;
+                    }
+                    continue;
+                }
+                //....................................
+                // 分析组
+                m = /^- *(group)([.]([^\[\{ :]+))? *(\{[^}]*\})? *(\[([^\]]*)\])?$/.exec(trim);
+                if(m) {
+                    // 分析正则表达式
+                    var m_tp   = m[1];
+                    var m_sel  = m[3];
+                    var m_attr = m[4];
+                    var m_css  = m[6];
 
-                    // 试图向后面读取
-                    if(/^(text|spec|list)$/.test(it.type)) {
-                        var ss = [];
-                        // 首行不要忘记
-                        if(m[3])
-                            ss.push(m[3])
-                        // 读取内容，一直读到结束标记
-                        for(i++; i<lines.length; i++) {
-                            line = $.trim(lines[i]);
-                            if(/^\[\\?(css|attr|itemCss)\]$/.test(line))
-                                break;
-                            if(REG.test(line))
-                                break;
-                            ss.push(line);
-                        }
-                        // 不要忘记退一格
-                        i--;
-                        // 来吧根据类型搞一下
-                        // 首先，文字
-                        if("text" == it.type) {
-                            it.text = ss;
-                        }
-                        // 产品说明表格
-                        else if("spec" == it.type) {
-                            var spec = {};
-                            for(var x=0; x<ss.length; x++) {
-                                var s = ss[x];
-                                if(!s)
-                                    continue;
-                                // caption
-                                if(/^@/.test(s)) {
-                                    spec.caption = $.trim(s.substring(1));
+                    // 加入项目
+                    it = __join_poster_item(it, {
+                        type  : "group",
+                        depth : depth,
+                        selector : m_sel,
+                        items : []
+                    }, m_attr, m_css);
+                }
+                //....................................
+                // 判断海报的元素
+                m = /^\+ *(text|picture|video|spec|list)([.]([^\[\{ :]+))? *(\{[^}]*\})? *(\[([^\]]*)\])?( *: *(.+)?)?$/.exec(trim);
+                if(!m) 
+                    continue
+
+                // 分析正则表达式
+                var m_tp   = m[1];
+                var m_sel  = m[3];
+                var m_attr = m[4];
+                var m_css  = m[6];
+                var m_str  = m[8];
+
+                // 根据类型判断
+                var poItem = {
+                    type     : m_tp,
+                    selector : m_sel,
+                    depth    : depth
+                };
+
+                // 试图向后面读取
+                if(/^(text|spec|list)$/.test(poItem.type)) {
+                    var ss = [];
+                    // 首行不要忘记
+                    if(m_str)
+                        ss.push(m_str)
+                    // 读取内容，一直读到结束标记
+                    for(i++; i<lines.length; i++) {
+                        line = $.trim(lines[i]);
+                        // 遇到组，或者其他元素结束
+                        if(/^((- *group)|(\+ *(text|picture|video|spec|list)))/.test(line))
+                            break;
+                        ss.push(line);
+                    }
+                    // 不要忘记退一格
+                    i--;
+                    // 来吧根据类型搞一下
+                    // 产品说明表格
+                    if("spec" == poItem.type) {
+                        var spec = {};
+                        for(var x=0; x<ss.length; x++) {
+                            var s = ss[x];
+                            if(!s)
+                                continue;
+                            // caption
+                            if(/^@/.test(s)) {
+                                spec.caption = $.trim(s.substring(1));
+                            }
+                            // 普通行
+                            else if(s.indexOf('|') > 0){
+                                spec.rows = spec.rows || [];
+                                spec.rows.push(s.split(/[ \t]*\|[ \t]*/));
+                            }
+                            // 剩下的就追加到上一行
+                            else {
+                                // 追加到上一行最后一个单元格
+                                if(spec.rows && spec.rows.length>0){
+                                    var cells = spec.rows[spec.rows.length-1];
+                                    if(cells.length>0){
+                                        cells[cells.length-1] += "\n"+s;
+                                    }
                                 }
-                                // 普通行
-                                else if(s.indexOf('|') > 0){
-                                    spec.rows = spec.rows || [];
-                                    spec.rows.push(s.split(/[ \t]*\|[ \t]*/));
-                                }
-                                // 剩下的就追加到上一行
+                                // 追加到标题里吧
                                 else {
-                                    // 追加到上一行最后一个单元格
-                                    if(spec.rows && spec.rows.length>0){
-                                        var cells = spec.rows[spec.rows.length-1];
-                                        if(cells.length>0){
-                                            cells[cells.length-1] += "\n"+s;
-                                        }
-                                    }
-                                    // 追加到标题里吧
-                                    else {
-                                        spec.caption = (spec.caption||"")+s;
-                                    }
+                                    spec.caption = (spec.caption||"")+s;
                                 }
                             }
-                            it.spec = spec;
                         }
-                        // 图文列表
-                        else if("list" == it.type){
-                            it.list = [];
-                            for(var x=0; x<ss.length; x++) {
-                                var s = ss[x];
-                                if(!s)
-                                    continue;
-                                var m2 = /^[ \t]*-[ \t]*([^:]+)?([ \t]*:[ \t]*(.+))?$/.exec(s);
-                                if(m2) {
-                                    it.list.push({
-                                        src : m2[1],
-                                        text : m2[3]
-                                    });
-                                }
-                                // 否则追加
-                                else if(it.list.length>0){
-                                    var li = it.list[it.list.length-1];
-                                    li.text = (li.text||"") + "\n" + s;
-                                }
+                        poItem.spec = spec;
+                    }
+                    // 图文列表
+                    else if("list" == poItem.type){
+                        poItem.list = [];
+                        for(var x=0; x<ss.length; x++) {
+                            var s = ss[x];
+                            if(!s)
+                                continue;
+                            var m2 = /^[ \t]*-[ \t]*([^:]+)?([ \t]*:[ \t]*(.+))?$/.exec(s);
+                            if(m2) {
+                                poItem.list.push({
+                                    src  : opt.media.apply(C, [m2[1]]),
+                                    text : m2[3]
+                                });
+                            }
+                            // 否则追加
+                            else if(poItem.list.length>0){
+                                var li = poItem.list[poItem.list.length-1];
+                                li.text = (li.text||"") + "\n" + s;
                             }
                         }
                     }
-                    // 直接设置值
+                    // 文字
+                    else if('text' == poItem.type) {
+                        poItem.text = ss;
+                    }
+                    // 没可能
                     else {
-                        it[it.type] = m[3];
+                        throw "Unknown poItem: " + poItem.type;
                     }
                 }
-                // 遇到标识
-                else if(it) {
-                    // 是 css
-                    if('[css]' == line) {
-                        it.cssText = "";
-                        for(i++; i<lines.length; i++) {
-                            line = $.trim(lines[i]);
-                            if('[/css]' == line)
-                                break;
-                            it.cssText += line;
-                        }
-                    }
-                    // 是 itemCss
-                    else if('[itemCss]' == line) {
-                        it.itemCss = "";
-                        for(i++; i<lines.length; i++) {
-                            line = $.trim(lines[i]);
-                            if('[/itemCss]' == line)
-                                break;
-                            it.itemCss += line;
-                        }
-                    }
-                    // 是属性
-                    else if('[attr]' == line) {
-                        var json = "";
-                        for(i++; i<lines.length; i++) {
-                            line = $.trim(lines[i]);
-                            if('[/attr]' == line)
-                                break;
-                            json += line;
-                        }
-                        json = $.trim(json);
-                        if(!/^\{/.test(json))
-                            json = "{" + json;
-                        if(!/\}$/.test(json))
-                            json = json + "}";
-                        it.attr = $z.fromJson(json);
-                    }
+                // 视频
+                else if('video' == poItem.type) {
+                    poItem.video = opt.media.apply(C, [m_str]);
                 }
-            }
-            // 添加最后一个的项目
-            __set_to_poster(it);
+                // 图片
+                else if('picture' == poItem.type) {
+                    poItem.picture = opt.media.apply(C, [m_str]);
+                }
+                // 没可能
+                else {
+                    throw "Unknown poItem: " + poItem.type;
+                }
 
-            //console.log(poster)
+                // 加入到项目
+                it = __join_poster_item(it, poItem, m_attr, m_css);
+            }
+
+            console.log(poster)
 
             // 返回
             return poster;
@@ -5839,92 +5853,145 @@
         // @return jDiv
         renderPoster : function(poster, jDiv) {
             jDiv = jDiv || $("<div>");
+            //----------------------------
             // 样式
             if(poster.cssText)
                 jDiv[0].style.cssText = poster.cssText;
-            // 背景图
-            if(poster.bg)
-                jDiv.css("background-image", 'url("' + poster.bg + '")');
             // 全局属性
             if(poster.attr)
                 jDiv.attr(poster.attr);
+            //----------------------------
+            // 宽度属性
+            if(poster.width) {
+                var lw = $z.parseLayoutSize(poster.width);
+                jDiv.attr({
+                    "layout-desktop-width" : lw.desktop,
+                    "layout-mobile-width"  : lw.mobile,
+                });
+            }
+            //----------------------------
+            // 高度属性
+            if(poster.height) {
+                var lh = $z.parseLayoutSize(poster.height);
+                jDiv.attr({
+                    "layout-desktop-height" : lh.desktop,
+                    "layout-mobile-height"  : lh.mobile,
+                });
+            }
+            //----------------------------
+            // 布局属性
+            if(poster.layout)
+                jDiv.attr("poster-layout", poster.layout);
+            //----------------------------
+            // 优先 CSS
+            var css = {};
+            // 背景图
+            if(poster.bg)
+                css.backgroundImage = 'url("' + poster.bg + '")';
+            // 背景颜色
+            if(poster.bgcolor)
+                css.backgroundColor = poster.bgcolor;
+            // 前景颜色
+            if(poster.color)
+                css.color = poster.color;
+            // 设置 CSS
+            jDiv.css(css);
+            //----------------------------
+            // 设置内胆
+            var jInner = $('<div class="md-code-poster-con">').appendTo(jDiv);
 
+            //----------------------------
+            // 声明处理函数
+            var __do_item = function(jP, it) {
+                var jIt;
+                // 组
+                if('group' == it.type) {
+                    jIt = $('<div it="group">');
+                    for(var i=0; i<it.items.length; i++) {
+                        __do_item(jIt, it.items[i]);
+                    }
+                }
+                // 文字
+                else if(it.text) {
+                    var ts = [];
+                    for(var x=0; x<it.text.length; x++) {
+                        ts.push(zUtil.escapeText(it.text[x]));
+                    }
+                    var txt = ts.join('<br>');
+                    jIt = $('<span>').html(txt.replace(/\r?\n/g), '<br>');
+                }
+                // 图片
+                else if(it.picture) {
+                    jIt = $('<img>').attr("src", it.picture);
+                }
+                // 视频
+                else if(it.video) {
+                    jIt = $('<video>').attr("src", it.video);
+                }
+                // 产品说明表格
+                else if(it.spec) {
+                    jIt = $('<div it="spec">');
+                    var jT = $('<table>').appendTo(jIt);
+                    // 表格标题
+                    if(it.spec.caption) {
+                        $('<caption>').appendTo(jT)
+                            .html(it.spec.caption
+                                    .replace(/\r?\n/g, '<br>'));
+                    }
+                    // 表格内容
+                    var jTb = $('<tbody>').appendTo(jT);
+                    for(var y=0; y<it.spec.rows.length; y++) {
+                        var row = it.spec.rows[y];
+                        var jTr = $('<tr>').appendTo(jTb);
+                        for(var x=0; x<row.length; x++) {
+                            var cell = row[x];
+                            var jTd = $('<td>').appendTo(jTr);
+                            jTd.html(cell.replace(/\r?\n/g, '<br>'));
+                            if(it.itemCss)
+                                jTd[0].style.cssText = it.itemCss;
+                        }
+                    }
+                }
+                // 图文列表
+                else if(it.list) {
+                    jIt = $('<div it="list">');
+                    var jUl = $('<ul>').appendTo(jIt);
+                    for(var i=0; i<it.list.length; i++) {
+                        var li = it.list[i];
+                        var jLi = $('<li>').appendTo(jUl);
+                        if(li.src) {
+                            $('<img>').attr("src",li.src)
+                                .appendTo(jLi);
+                        }
+                        if(li.text) {
+                            $('<span>').html(li.text.replace(/\r?\n/g, '<br>'))
+                                .appendTo(jLi);
+                        }
+                        if(it.itemCss)
+                            jLi[0].style.cssText = it.itemCss;
+                    }
+                }
+                // 不是合法的项目，无视
+                if(!jIt)
+                    return;
+                // 增加类选择器
+                if(it.selector)
+                    jIt.addClass(it.selector);
+                // 增加样式
+                if(it.cssText)
+                    jIt[0].style.cssText = it.cssText;
+                // 增加属性
+                if(it.attr)
+                    jIt.attr(it.attr);
+                // 加入 DOM
+                jIt.appendTo(jP);
+            };
+            //----------------------------
             // 循环处理 Item
             if(_.isArray(poster.items)) {
                 for(var i=0; i<poster.items.length; i++) {
                     var it = poster.items[i];
-                    var jIt;
-                    // 文字
-                    if(it.text) {
-                        var ts = [];
-                        for(var x=0; x<it.text.length; x++) {
-                            ts.push(zUtil.escapeText(it.text[x]));
-                        }
-                        var txt = ts.join('<br>');
-                        jIt = $('<span>').html(txt.replace(/\r?\n/g), '<br>');
-                    }
-                    // 图片
-                    else if(it.picture) {
-                        jIt = $('<img>').attr("src", it.picture);
-                    }
-                    // 视频
-                    else if(it.video) {
-                        jIt = $('<video>').attr("src", it.video);
-                    }
-                    // 产品说明表格
-                    else if(it.spec) {
-                        jIt = $('<section it="spec">');
-                        var jT = $('<table>').appendTo(jIt);
-                        // 表格标题
-                        if(it.spec.caption) {
-                            $('<caption>').appendTo(jT)
-                                .html(it.spec.caption
-                                        .replace(/\r?\n/g, '<br>'));
-                        }
-                        // 表格内容
-                        var jTb = $('<tbody>').appendTo(jT);
-                        for(var y=0; y<it.spec.rows.length; y++) {
-                            var row = it.spec.rows[y];
-                            var jTr = $('<tr>').appendTo(jTb);
-                            for(var x=0; x<row.length; x++) {
-                                var cell = row[x];
-                                var jTd = $('<td>').appendTo(jTr);
-                                jTd.html(cell.replace(/\r?\n/g, '<br>'));
-                                if(it.itemCss)
-                                    jTd[0].style.cssText = it.itemCss;
-                            }
-                        }
-                    }
-                    // 图文列表
-                    else if(it.list) {
-                        jIt = $('<section it="list">');
-                        var jUl = $('<ul>').appendTo(jIt);
-                        for(var i=0; i<it.list.length; i++) {
-                            var li = it.list[i];
-                            var jLi = $('<li>').appendTo(jUl);
-                            if(li.src) {
-                                $('<img>').attr("src",li.src)
-                                    .appendTo(jLi);
-                            }
-                            if(li.text) {
-                                $('<span>').html(li.text.replace(/\r?\n/g, '<br>'))
-                                    .appendTo(jLi);
-                            }
-                            if(it.itemCss)
-                                jLi[0].style.cssText = it.itemCss;
-                        }
-                    }
-                    // 不是合法的项目，无视
-                    if(!jIt)
-                        continue;
-                    // 增加样式
-                    if(it.cssText)
-                        jIt[0].style.cssText = it.cssText;
-                    // 增加属性
-                    if(it.attr)
-                        jIt.attr(it.attr);
-                    // 加入 DOM
-                    jIt.appendTo(jDiv);
+                    __do_item(jInner, it);
                 } 
             }
 
@@ -5957,6 +6024,57 @@
             });
             // 清除原始内容
             jq.remove();
+        },
+        /*.............................................
+        解析一种尺寸格式
+        
+         `1rem/.4rem`   表示 `PC/手机` 的宽度
+    
+        如果只有一种值，譬如 `1rem` 则相当于 `1rem/1rem`
+        尺寸的值:
+         - `50`  : 整数表示像素，与 50px 等效
+         - `50%` : 可以支持各种 CSS 尺寸，譬如 50rem, 50vw 等  
+         - `?`   : 返回的对象会是 undefined，表示不设置
+         - `-`   : 返回的对象会是 "hidden" 表示隐藏
+
+        返回对象 {desktop:"1rem", mobile:".04rem"}
+        */ 
+        parseLayoutSize : function(str) {
+            s = $.trim(str);
+            if(!s)
+                return {};
+
+            // 准备解析函数
+            var ___layout_size = function(sz, dft) {
+                if("?" == sz)
+                    return undefined;
+                if("-" == sz)
+                    return "hidden";
+                if(_.isNumber(sz))
+                    return sz + "px";
+
+                sz = $.trim(sz);
+                if(!sz)
+                    return dft;
+
+                if(/^[0-9]+$/.test(sz))
+                    return parseInt(sz);
+                return sz;
+            };
+
+            var pos = s.indexOf('/');
+            var desktop, mobile;
+            if(pos>=0) {
+                desktop = ___layout_size(s.substring(0,pos), "?");
+                mobile  = ___layout_size(s.substring(pos+1), desktop);
+            }
+            // 否则用一样的
+            else {
+                desktop = ___layout_size(s, "?");
+                mobile  = desktop;
+            }
+            // 搞定
+            return {desktop:desktop, mobile:mobile};
         },
         //.............................................
         /* 将一个视频包裹成一个简单控制的播放

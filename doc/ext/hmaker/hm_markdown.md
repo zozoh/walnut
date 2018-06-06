@@ -45,43 +45,28 @@ tags:
 
 对于 <code>```poster</code> 声明的代码块，将会自动进行解析
 
-```
+```bash
 # hMaker poster 语法
 # 注释行用 # 开头
 #----------------------------------------
-# 背景
-+bg:media/abc.jpg        # 表示增加一个背景图
-[css]                    # 这个会描述整个海报的 css
-background-color:red;    # 默认的海报的背景是 cover 且居中不重复的
-[/css]                   # 结束样式段落
+# 全局设定
+@layout:t1               # 布局名称，默认没有布局
+@bg:media/abc.jpg        # 表示整个海报块的背景图，比css里面的优先
+@bgcolor:#FFF            # 背景颜色，比 css 里面的优先
+@color:#000              # 前景颜色，比 css 里面的优先
+@height:1rem/?           # 海报块的高度: PC/手机
 #----------------------------------------
 # 文字
-# 支持 [css] 和 [attr]
 +text:广告文字             # 表示增加一个文字对象
 支持换行                   # 换行就会增加一个 <br>
-[css]
-color:#FFF;
-[/css]
 #----------------------------------------
 # 图片
-# 支持 [css] 和 [attr]
 +picture:media/abc.png   # 表示增加一个图片对象
-[css]
-border:1px solid #FFF;
-[/css]
 #----------------------------------------
 # 视频
-# 支持 [css] 和 [attr]
-+video:media/xyz.mp4   # 表示增加一个视频对象
-[attr]                 # 表示视频对象的熟悉
-{controls : true}      # 内容是一个 JSON 与 <video> 标签的意义相当
-[/attr]
-[css]
-border:1px solid #FFF;
-[/css]
++video{controls:true}:media/xyz.mp4   # 表示增加一个视频对象
 #----------------------------------------
 # 产品说明表格
-# 支持 [css] 和 [attr]
 # 每行由 | 分作两列，没有 | 的列，会自动加入前行
 +spec
 @ 大于号开头的行，表示表头
@@ -101,7 +86,6 @@ border:1px solid #FFF;
 额定使用时间 | (连续使用)30分钟以下
 #----------------------------------------
 # 图文列表
-# 支持 [css] 和 [attr]
 # 如果不指明 `: xxx` 则用图片文件名作为文字
 # 除非属性里，明确指定了 hideText:true 
 # [itemCss] 表示每个项目（<li>）的 css
@@ -118,52 +102,88 @@ border:1px solid #FFF;
 - attachment/冰淇淋网.png
 - attachment/前体置物架.png
 - attachment/螺旋推进器.png
-[attr]
-{hideText:true}
-[/attr]
-[itemCss]
-width:20%;
-[/itemCss]
+#----------------------------------------
+# 组
+-group
+  +text:xxxx
+  +picture:xxxx
+  +list
+    - attachment/xxx
+    - attachment/xxx
+  -group
+#----------------------------------------
+# 自定义属性
+# 任何元素都支持自定义属性，写法是在类型后面来个大括弧
+# 表示一个属性集的 JSON 对象（必须在同一行）
++text{align:"right"}
++video{controls:true}
+#----------------------------------------
+# 自定义CSS
+# 任何元素都支持自定义CSS属性，写法是在类型后面来个中括号
+# 如果与自定义属性联用，必须放在自定义属性后面
++text[color:red;font-size:12px;]
++video{controls:true}[width:100%;]
+```
+
+总之 poster 的元素声明格式为
+
+```
+[+-]元素类型.selector{Attributes}[CSS Style]
 ```
 
 ## poster 解析结果
 
 ```
 {
-    bg : "media/abc.jpg",
+    bg : "media/abc.jpg",        //「选」背景图片
+    bgcolor : "#FFF",            //「选」背景颜色
+    color   : "#FFF",            //「选」前景颜色
+    height  : "2rem/?",          //「选」海报块的高度: PC/手机
+    layout  : "t1",              //「选」布局名称
+    attr    : {..}               //「选」属性
     cssText : "background-color:red;padding:.1rem;",
     items : [{
-        type : "text",
-        text : ["广告文字","一行一个"],
-        cssText : "color:#FFF;"
-    },{
+        type     : "text",            //「通用」类型为 text
+        depth    : 0,                 //「通用」 缩进级别，每两个空格算一个缩进
+        selector : "xxx",             //「通用」表示一个特殊的类选择器
+        cssText : "color:#FFF;",      //「通用」元素的 style
+        text : ["广告文字", "一行一个"]  // 文字内容
+    }, {
         type    : "picture",
-        picture : "media/abc.png",
         cssText : null,
+        picture : "media/abc.png",
     }, {
         type  : "video",
-        video : "media/xyz.mp4",
         attr  : {...},
         cssText : "border:1px solid #FFF;"
+        video : "media/xyz.mp4",
     }, {
         type  : "spec",
+        attr  : {...},
+        cssText : "border:1px solid #FFF;"
         spec : {
                 caption : "XXX",
                 rows : [["前体类型", "α(阿尔法)前体，调味阀，果汁盖"],
                         ["速度"],["螺旋推进器:43转 / 旋转刷:17转"]],
             },
-        attr  : {...},
-        cssText : "border:1px solid #FFF;"
     },{
-        type : "list",
+        type    : "list",
+        attr    : {...},
+        cssText : "border:1px solid #FFF;"
         list : [{
                 src: "attachment/前体.png", text:"前体组件"
             },{
                 src: "attachment/果汁杯+接渣杯.png", text:null
             }],
-        attr  : {...},
-        cssText : "border:1px solid #FFF;"
         itemCss : "width:25%;"
+    }, {
+        type  : "group",
+        depth : 0,
+        selector : "xxx",
+        attr : {...},
+        items : [
+            // 这里是对象，可以再嵌套组
+        ]
     }]
 }
 ```

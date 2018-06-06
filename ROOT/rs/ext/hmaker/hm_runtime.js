@@ -3,26 +3,10 @@
 */
 (function($, $z){
 //===================================================================
-function ___layout_size (sz, dft) {
-    if("?" == sz)
-        return undefined;
-    if("-" == sz)
-        return "hidden";
-    if(!sz)
-        return dft;
-    return parseInt(sz);
-}
 function __set_layout_item_size (it, s) {
-    s = $.trim(s);
-    if(!s)
-        return it;
-    m = /^([0-9?-]+)(\/([0-9?-]+))?$/.exec($.trim(s));
-    if(!m) {
-        console.warn("invalid layout sizing:", s);
-        return it;
-    }
-    it.w_desktop = ___layout_size(m[1], '?');
-    it.w_mobile  = ___layout_size(m[3], it.w_desktop);
+    var ls = $z.parseLayoutSize(s);
+    it.w_desktop = ls.desktop;
+    it.w_mobile  = ls.mobile;
     return it;
 }
 //===================================================================
@@ -400,7 +384,9 @@ window.HmRT = {
             jFi = $('<span>').text(str);
         }
         // 如果是链接的话，包裹一层
-        if(fld.linkTarget && oHref) {
+        if((fld.linkTarget && oHref)
+            || 'Button' == fld.display
+            || 'Link'   == fld.display) {
             var hs = _.isString(oHref) ? oHref : oHref.tmpl(oHref.obj);
             jFi = $('<a>').attr({
                     "href"   : hs,
