@@ -201,7 +201,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         if (result.is("return_code", "SUCCESS") && result.is("result_code", "SUCCESS")) {
             String ts = result.getString("trade_state");
             // 等待
-            if ("USERPAYING".equals(ts)) {
+            if ("USERPAYING".equals(ts) || "NOTPAY".equals(ts)) {
                 // 超时的话，就撤销订单，并标识
                 long ms = System.currentTimeMillis() - po.getLong("send_at", 0);
                 if (ms > 60000L) {

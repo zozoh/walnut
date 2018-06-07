@@ -39,7 +39,7 @@ function _main(params){
     var order = {};
     // 如果传了order的id, 直接找订单查出来
     if (params.orderId) {
-        var reJson = sys.exec("obj id:" + params.orderId + " -cqn");
+        var reJson = sys.exec2("obj id:" + params.orderId + " -cqn");
         order = JSON.parse(reJson);
     }
     else {
@@ -76,7 +76,7 @@ function _main(params){
         if(!params.unm) {
             params.unm = params.buyer;
         }
-        
+
         // 查询商品以及其价格
         var tmp = params.goods.split(",");
         var _goods = [];
@@ -123,16 +123,16 @@ function _main(params){
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
     }
-    
+
 
     // 准备提交支付单
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s' -cqn";
-    re = sys.exec2f(cmdText, 
-                    order.th_nm, 
-                    "%"+order.uid, 
+    re = sys.exec2f(cmdText,
+                    order.th_nm,
+                    "%"+order.uid,
                     order.fee,
                     //params.coupon ? params.coupon + " -scope traffic" : "",
-                    params.payType, 
+                    params.payType,
                     params.payTarget,
                     params.callback,
                     JSON.stringify({
