@@ -493,7 +493,7 @@ return ZUI.def("app.wn.thdesign", {
                 items : [null, "input", "text", "label", "color", "background",
                     "switch", "toggle", "droplist", "checklist", "radiolist",
                     "pair", "date_range", "number_range",
-                    "opicker", "datepicker"]
+                    "opicker", "datepicker","combotable"]
             }
         }, {
             key : "uiConf",

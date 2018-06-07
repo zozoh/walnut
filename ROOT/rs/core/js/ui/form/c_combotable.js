@@ -12,6 +12,7 @@ var html = function(){/*
         <div class="cct-empty">{{empty}}</div>
     </div>
     <div class="cct-input" ui-gasket="input"></div>
+    <div class="cct-adder"></div>
 </div>
 */};
 //===================================================================
@@ -42,6 +43,16 @@ return ZUI.def("ui.form_com_combotable", {
     },
     //...............................................................
     events : {
+        // 新增
+        'click .cct-adder > b' : function(){
+            var UI = this;
+            var opt = UI.options;
+
+            if(opt.adder) {
+                var obj = _.extend({}, opt.adder.data);
+                UI.__do_add_obj(obj);
+            }
+        },
         // 删除
         'click .cct-list td[opt="del"] span' : function(e) {
             var UI = this;
@@ -123,7 +134,7 @@ return ZUI.def("ui.form_com_combotable", {
             });
         }
         
-        // 绘制输入框
+        // 绘制组合输入框输入框
         if(opt.combo) {
             // 转换过滤器为 c_list 的合法过滤器
             var assistConf = $z.pick(opt.combo, "!^filter$");
@@ -154,6 +165,21 @@ return ZUI.def("ui.form_com_combotable", {
             // 返回以便延迟加载
             defer_keys.push("combo");
         }
+        // 绘制添加按钮
+        var jAdder = UI.arena.find('.cct-adder');
+        if(opt.adder) {
+            var jBtn = $('<b>').appendTo(jAdder.empty());
+            if(opt.adder.icon){
+                $(opt.adder.icon).appendTo(jBtn);
+            }
+            if(opt.adder.text){
+                $('<span>').text(UI.text(opt.adder.text)).appendTo(jBtn);
+            }
+        }
+        // 移除添加按钮
+        else{
+            jAdder.remove();
+        }
         // 延迟加载了
         //console.log("return:", defer_keys)
         return defer_keys;
@@ -178,17 +204,28 @@ return ZUI.def("ui.form_com_combotable", {
         }
         // 否则追加，并清空输入框
         else {
+            // 清空输入框
+            UI.gasket.input.setData("");
+
+            // 新增对象
+            UI.__do_add_obj(obj);
+        }
+    },
+    //...............................................................
+    __do_add_obj : function(obj) {
+        var UI  = this;
+        var opt = UI.options;
+
+        if(obj) {
             // 清除空数据提示文字
             UI.arena.find(" .cct-list > .cct-empty").remove();
             // 确保是数组
             var list = [].concat(obj);
             // 加入内容
             for(var i=0; i<list.length; i++) {
-                var jTr = UI.__add_obj(list[i]);
+                var jTr = UI.__add_one_obj(list[i]);
                 $z.blinkIt(jTr);
             }
-            // 清空输入框
-            UI.gasket.input.setData("");
             // 通知更新
             UI.__on_change();
         }
@@ -209,7 +246,7 @@ return ZUI.def("ui.form_com_combotable", {
         
     },
     //...............................................................
-    __add_obj : function(obj) {
+    __add_one_obj : function(obj) {
         var UI  = this;
         var opt = UI.options;
         var jList  = UI.arena.find(">.cct-list");
@@ -386,7 +423,7 @@ return ZUI.def("ui.form_com_combotable", {
         else {
             for(var i=0; i<objs.length; i++) {
                 var obj = objs[i];
-                UI.__add_obj(obj);
+                UI.__add_one_obj(obj);
             }
         }
     }

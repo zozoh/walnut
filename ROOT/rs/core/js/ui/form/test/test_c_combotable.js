@@ -6,26 +6,30 @@ $z.declare([
 ], function(ZUI, Wn, ComboTableUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena">
+<div class="ui-arena form-test-con">
     <div class="tcc-btns" style="padding:10px; background:rgba(0,0,0,0.5);">
         <button>getData</button>
     </div>
-    <div ui-gasket="com0" style="width:100%; max-width:800px;"></div>
-    <hr>
-    <div ui-gasket="com1" style="width:100%; max-width:800px;"></div>
+    <h2>简单输入多个数据</h2>
+    <div ui-gasket="com2"></div>
+    <h2>一次增加多个数据</h2>
+    <div ui-gasket="com0"></div>
+    <h2>选择多个地址</h2>
+    <div ui-gasket="com1"></div>
 </div>
 */};
 //===================================================================
 return ZUI.def("ui.form_test_combotable", {
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "ui/form/test/test_c.css",
     //...............................................................
     events : {
         'click .tcc-btns > button' : function(e){
             var jB = $(e.currentTarget);
-            var data = this.gasket.com0[jB.text()]();
+            var data = this.gasket.com2[jB.text()]();
             console.log(data);
-            //this.alert($z.toJson(data));
+            console.log($z.toJson(data, null, '  '));
         }
     },
     //...............................................................
@@ -253,7 +257,43 @@ return ZUI.def("ui.form_test_combotable", {
             UI.defer_report("com1");
         });
         //...........................................................
-        return ["com0", "com1"];
+        new ComboTableUI({
+            parent : UI,
+            gasketName : "com2",
+            on_change : function(val) {
+                console.log("new value::", val);
+            },
+            fields : [{
+                    title  : "名称",
+                    key    : "nm",
+                    width  : "30%",
+                    uiType : "@input",
+                }, {
+                    key   : "the_range",
+                    title : "日期范围",
+                    type  : "daterange",
+                    nativeAs : "string",
+                    uiType : "@datepicker",
+                    uiConf : {
+                        setup : {
+                            mode : "range"
+                        }
+                    }
+                }],
+            adder : {
+                icon : '<i class="zmdi zmdi-plus"></i>',
+                text : "新增数据",
+                data : {}
+            }
+        }).render(function(){
+            this.setData([{
+                "nm":"第一期",
+                "the_range" :null
+            }]);
+            UI.defer_report("com2");
+        });
+        //...........................................................
+        return ["com0", "com1", "com2"];
     },
     //...............................................................
 });

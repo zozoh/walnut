@@ -79,6 +79,7 @@ define({
                 "number_range" : "数字范围",
                 "opicker"      : "对象选择器",
                 "datepicker"   : "日期选择器",
+                "combotable"   : "组合列表",
             },
             "cicon" : {
                 "input"        : '<i class="fa fa-square-o"></i>',
@@ -96,6 +97,7 @@ define({
                 "number_range" : '<i class="zmdi zmdi-collection-item-9"></i>',
                 "opicker"      : '<i class="zmdi zmdi-toys"></i>',
                 "datepicker"   : '<i class="fa fa-calendar"></i>',
+                "combotable"   : '<i class="zmdi zmdi-dns"></i>',
             },
             "blank"          : "请选择一个字段进行设置",
             "saveflds"       : "保存字段修改",
