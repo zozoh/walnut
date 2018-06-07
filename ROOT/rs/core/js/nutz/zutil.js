@@ -4212,19 +4212,23 @@
 
             };
             var __on_keydown = function (e) {
+                e.stopPropagation();
                 var jInput = $(this);
                 var jDiv = jInput.parent();
                 var opt = jDiv.data("@OPT");
-                //console.log(e.which)
+                console.log(e.which)
                 // Esc
                 if (27 == e.which) {
-                    e.stopPropagation();
                     var old = jDiv.data("@OLD");
                     jInput.val(old).blur();
                     return;
                 }
-                // Ctrl + Enter
-                else if (e.which == 13) {
+                // Del
+                else if( 46 == e.which) {
+                    //e.stopPropagation();
+                }
+                // Enter
+                else if ( 13 == e.which) {
                     // 多行的话，必须加 ctrl 才算确认
                     if (opt.multi) {
                         if (($z.os.mac && e.metaKey) || e.ctrlKey || opt.enterAsConfirm) {
