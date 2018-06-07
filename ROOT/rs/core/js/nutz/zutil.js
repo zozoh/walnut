@@ -4216,7 +4216,7 @@
                 var jInput = $(this);
                 var jDiv = jInput.parent();
                 var opt = jDiv.data("@OPT");
-                console.log(e.which)
+                //console.log(e.which)
                 // Esc
                 if (27 == e.which) {
                     var old = jDiv.data("@OLD");
