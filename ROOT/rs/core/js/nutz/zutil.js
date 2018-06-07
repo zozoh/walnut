@@ -5665,10 +5665,7 @@
                     // 继续返回自己
                     return it;
                 }
-                // 如果有前序组
-                if(it) {
-                    poster.items.push(it);
-                }
+                
                 // 加入到全局
                 poster.items.push(poItem);
                 // 如果是组，那么就返回
@@ -5697,16 +5694,22 @@
 
                 //....................................
                 // 全局属性
-                m = /^@ *(bg|bgcolor|color|layout|height|width)( *: *(.+)?)?$/.exec(trim);
+                m = /^([@%]) *(bg|bgcolor|color|layout|height|width)( *: *(.+)?)?$/.exec(trim);
                 if(m) {
                     // 分析正则表达式
-                    var m_tp  = m[1];
-                    var m_str = m[3];
+                    var m_ta  = m[1];
+                    var m_tp  = m[2];
+                    var m_str = m[4];
+
+                    // 如果是 >bg 或者 >bgcolor ...
+                    var key = m_tp;
+                    if('%' == m_ta)
+                        key = "con_" + m_tp;
 
                     if('bg' == m_tp) {
-                        poster[m_tp] = opt.media.apply(C, [m_str]);
+                        poster[key] = opt.media.apply(C, [m_str]);
                     }else{
-                        poster[m_tp] = m_str;
+                        poster[key] = m_str;
                     }
                     continue;
                 }
@@ -5727,6 +5730,7 @@
                         selector : m_sel,
                         items : []
                     }, m_attr, m_css);
+                    continue;
                 }
                 //....................................
                 // 判断海报的元素
@@ -5903,7 +5907,15 @@
             //----------------------------
             // 设置内胆
             var jInner = $('<div class="md-code-poster-con">').appendTo(jDiv);
-
+            css = {};
+            // 背景图
+            if(poster.con_bg)
+                css.backgroundImage = 'url("' + poster.con_bg + '")';
+            // 背景颜色
+            if(poster.con_bgcolor)
+                css.backgroundColor = poster.con_bgcolor;
+            // 设置 CSS
+            jInner.css(css);
             //----------------------------
             // 声明处理函数
             var __do_item = function(jP, it) {
@@ -5922,7 +5934,7 @@
                         ts.push(zUtil.escapeText(it.text[x]));
                     }
                     var txt = ts.join('<br>');
-                    jIt = $('<span>').html(txt.replace(/\r?\n/g), '<br>');
+                    jIt = $('<span>').html(txt.replace(/\r?\n/g, '<br>') || "&nbsp;");
                 }
                 // 图片
                 else if(it.picture) {

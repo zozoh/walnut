@@ -51,7 +51,6 @@ tags:
 @layout:t3
 @bgcolor:#060606
 @color:#D0D0D0
-@width:8rem/?
 +picture:media/03.jpg
 -group
   +text:更美味的营养原汁
@@ -65,16 +64,20 @@ tags:
 
 ```bash
 @layout:t4
-@bgcolor:#000
+@bgcolor:#060606
+@color:#D0D0D0
++text:不需要再因为费时费力而犹豫不定
++text:创新科技让你简单拥有健康和美味
 -group
-  +text:01.新奇的使用体验
-  +picture:media/04-a.jpg
--group
-  +text:02.简单快速的清洗
-  +picture:media/04-b.jpg
--group
-  +text:03.不论何处都能安静优雅地榨汁
-  +picture:media/04-c.jpg
+  -group
+    +text:01.新奇的使用体验
+    +picture:media/04-a.jpg
+  -group
+    +text:02.简单快速的清洗
+    +picture:media/04-b.jpg
+  -group
+    +text:03.不论何处都能安静优雅地榨汁
+    +picture:media/04-c.jpg
 ```
 
 ## `mdp_06`
@@ -84,6 +87,8 @@ tags:
 ```bash
 @layout:t1
 @bgcolor:#FFF
+@color:#000
+@height:2rem/1.6rem
 +text.small:Different Hurom
 +text.big:生而不同，创造不凡
 +text:惠人将大自然的馈赠分享给每一个人
@@ -95,12 +100,15 @@ tags:
 
 ```bash
 @layout:t7
-@bg:media/07.jpg
-+text.small:Different Hurom 01
-+text.large:慢榨
-+text:每秒43转的优雅转速
-+text:减少了热量和营养流失
-+text.big:温和地保留了大自然的馈赠
+@color:#E0E0E0
++picture:media/07.jpg
+-group.t-left
+  +text.small:Different Hurom 01
+  +text.big:慢榨
+  +text.small:
+  +text.small:每秒43转的优雅转速
+  +text.small:减少了热量和营养流失
+  +text.bold:温和地保留了大自然的馈赠
 ```
 
 ## `mdp_08`
@@ -108,13 +116,16 @@ tags:
 ![](md_ptemplate/mdp_08.jpg)
 
 ```bash
-@layout:t8
-@bg:media/08.jpg
-+text.small:Different Hurom 02
-+text.large:无刀
-+text:没有刀片，慢速挤压
-+text:减少氧化和果蔬伤害
-+text.big:天然色彩，自然美味
+@layout:t7
+@color:#444
++picture:media/08.jpg
+-group.t-right
+  +text.small:Different Hurom 02
+  +text.big:无刀
+  +text.small:
+  +text.small:没有刀片，慢速挤压
+  +text.small:减少氧化和果蔬伤害
+  +text.bold:天然色彩，自然美味
 ```
 
 ## `mdp_09`
@@ -123,12 +134,15 @@ tags:
 
 ```bash
 @layout:t7
-@bg:media/09.jpg
-+text.small:Different Hurom 03
-+text.large:美味
-+text:无需加水，没有添加剂和色素
-+text:纯粹的顺滑果汁
-+text.big:美味难以抵挡
+@color:#E0E0E0
++picture:media/09.jpg
+-group.t-left
+  +text.small:Different Hurom 03
+  +text.big:美味
+  +text.small:
+  +text.small:无需加水，没有添加剂和色素
+  +text.small:纯粹的顺滑果汁
+  +text.bold:美味难以抵挡
 ```
 
 ## `mdp_10`
