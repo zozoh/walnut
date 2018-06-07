@@ -489,9 +489,10 @@ window.HmRT = {
             // 缩略图
             if(val) {
                 jThumb = $('<div class="wn-obj-preview">');
-                $('<span>').css({
-                    "background-image" : 'url("' + opt.API + "/thumb?" + val + '")'
-                }).appendTo(jThumb);
+                var jPr = $('<span>').appendTo(jThumb);
+                $('<img>').attr({
+                    "src" : opt.API + "/thumb?" + val
+                }).appendTo(jPr);
             }
             // 仅仅显示一个空的产品图标
             else {
