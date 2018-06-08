@@ -63,12 +63,12 @@ function _main(params){
             sys.exec("ajaxre -qe site0.e.pay.submit.noPayType");
             return;
         }
-        // 支付方式为空
+        // 支付内容
         if(!params.brief){
             sys.exec("ajaxre -qe site0.e.pay.submit.noBrief");
             return;
         }
-        // 支付方式为空
+        // 支付回调
         if(!params.callback){
             sys.exec("ajaxre -qe site0.e.pay.submit.noCallback");
             return;
