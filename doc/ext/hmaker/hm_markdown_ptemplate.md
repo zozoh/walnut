@@ -333,9 +333,12 @@ tags:
 +text.big:超凡魅力，低调优雅
 +text.small:精致高雅的气息结合现代设计感，追求品味的惠人原汁榨汁机不仅仅是一台电器，更是您对生活品质的一份声明
 -group.m2
-  +picture:media/29-a.jpg
-  +picture:media/29-b.jpg
-  +picture:media/29-c.jpg
+  -group
+    +picture:media/29-a.jpg
+  -group
+    +picture:media/29-b.jpg
+  -group
+    +picture:media/29-c.jpg
 ```
 
 ## `mdp_30`
