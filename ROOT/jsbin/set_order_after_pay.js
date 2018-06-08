@@ -21,9 +21,18 @@ function _main(params) {
         return;
     }
     var po = JSON.parse(re);
-	log.warn(re);
+	//log.warn(re);
     if (po.st == "OK") {
 		sys.exec("obj id:" + po.buy_for + " -u 'pay_st:\"OK\"'");
+		var reJson = sys.exec2("obj -cqn id:" + po.buy_for);
+		if (/^e./.test(reJson)) {
+		}
+		else {
+			var order = JSON.parse(reJson);
+			if (order && order.od_phone) {
+				sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s' &", order.phone, JSON.stringify(order));
+			}
+		}
     }
 }
 
