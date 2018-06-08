@@ -5683,7 +5683,7 @@
             for(var i=0; i<lines.length; i++) {
                 var line = lines[i];
                 var trim = $.trim(line);
-                console.log(line)
+                //console.log(line)
 
                 // 计算缩进级别
                 var depth = zUtil.countStrHeadIndent(line, 2);
@@ -5776,10 +5776,6 @@
                             var s = ss[x];
                             if(!s)
                                 continue;
-                            // caption
-                            if(/^@/.test(s)) {
-                                spec.caption = $.trim(s.substring(1));
-                            }
                             // 普通行
                             else if(s.indexOf('|') > 0){
                                 spec.rows = spec.rows || [];
@@ -5794,9 +5790,9 @@
                                         cells[cells.length-1] += "\n"+s;
                                     }
                                 }
-                                // 追加到标题里吧
+                                // 无法处理，干！
                                 else {
-                                    spec.caption = (spec.caption||"")+s;
+                                    break;
                                 }
                             }
                         }
@@ -5849,7 +5845,7 @@
                 it = __join_poster_item(it, poItem, m_attr, m_css);
             }
 
-            console.log(poster)
+            //console.log(poster)
 
             // 返回
             return poster;
@@ -5947,26 +5943,18 @@
                 // 产品说明表格
                 else if(it.spec) {
                     jIt = $('<div it="spec">');
-                    var jT = $('<table>').appendTo(jIt);
-                    // 表格标题
-                    if(it.spec.caption) {
-                        $('<caption>').appendTo(jT)
-                            .html(it.spec.caption
-                                    .replace(/\r?\n/g, '<br>'));
-                    }
+                    var jT = $('<div class="spec-body">').appendTo(jIt);
                     // 表格内容
-                    var jTb = $('<tbody>').appendTo(jT);
-                    for(var y=0; y<it.spec.rows.length; y++) {
-                        var row = it.spec.rows[y];
-                        var jTr = $('<tr>').appendTo(jTb);
-                        for(var x=0; x<row.length; x++) {
-                            var cell = row[x];
-                            var jTd = $('<td>').appendTo(jTr);
-                            jTd.html(cell.replace(/\r?\n/g, '<br>'));
-                            if(it.itemCss)
-                                jTd[0].style.cssText = it.itemCss;
+                    if(_.isArray(it.spec.rows))
+                        for(var y=0; y<it.spec.rows.length; y++) {
+                            var row = it.spec.rows[y];
+                            var jTr = $('<ul>').appendTo(jT);
+                            for(var x=0; x<row.length; x++) {
+                                var cell = row[x];
+                                var jTd = $('<li>').appendTo(jTr);
+                                jTd.html(cell.replace(/\r?\n/g, '<br>'));
+                            }
                         }
-                    }
                 }
                 // 图文列表
                 else if(it.list) {
@@ -5975,16 +5963,15 @@
                     for(var i=0; i<it.list.length; i++) {
                         var li = it.list[i];
                         var jLi = $('<li>').appendTo(jUl);
+                        var jLiCon = $('<div class="li-con">').appendTo(jLi);
                         if(li.src) {
                             $('<img>').attr("src",li.src)
-                                .appendTo(jLi);
+                                .appendTo(jLiCon);
                         }
                         if(li.text) {
                             $('<span>').html(li.text.replace(/\r?\n/g, '<br>'))
-                                .appendTo(jLi);
+                                .appendTo(jLiCon);
                         }
-                        if(it.itemCss)
-                            jLi[0].style.cssText = it.itemCss;
                     }
                 }
                 // 不是合法的项目，无视

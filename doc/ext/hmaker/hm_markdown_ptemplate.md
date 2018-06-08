@@ -354,11 +354,11 @@ tags:
 +text.small:我们始终将健康视为重中之重，
 +text:根据用户体验，不断研究和实践。
 -group.m2
-  -group
+  -group.t-left
     +picture:media/30-a.jpg
     +text.bold:惠人生物食品研究所
     +text.small:为了改善现代人的饮食习惯，帮助人们维持健康的生活，惠人对水果和蔬菜进行了功效测试，制定了食谱，并坚持进行各种果汁和健康的研究。
-  -group
+  -group.t-left
     +picture:media/30-b.jpg
     +text.bold:惠人产品实验室
     +text.small:坚持不懈地从事产品研究工作。 我们利用专利原创技术制造健康果汁，并不断研发创新，评估和改进我们的产品。
