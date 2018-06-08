@@ -83,7 +83,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 				while (es != null && !es.isShutdown()) {
 					count ++;
 					Lang.quiteSleep(1000);
-					if (count % 15*60 != 0)
+					if (count % (15*60) != 0)
 						continue;
 					try {
 						wnRun.exec("job_clean", "root", "job clean");
