@@ -200,41 +200,6 @@ tags:
 </div>
 ```
 
-## poster 自身的属性
-
-```
-# 这个属性仅仅作用在 +bg 项目上，是设置给整个 poster 的属性
-# 指当前对象适用的背景
-# 默认为适用于深色背景图，即前景为浅色
-bgtype : "light"     # light 表示适用于浅色背景
-
-# 指定了对象什么时候去掉高度的限制
-hightfree : "mobile|desktop|both"
-```
-
-## poster 的项目属性
-
-对应所有的项目（除了+bg），都可以通过 `[attr]` 设置下面的通用属性
-
-```
-# 指定了当前对象所在的区域
-pos : "top|bottom|left|right|center|NW|NE|SW|SE|N|W|S|E"
-
-# 指定了对象什么时候隐藏
-ithide : "mobile|desktop|both"
-
-# 指定了对象什么时候去掉绝对位置，采用自己的自然宽高
-itfree : "mobile|desktop|both"
-
-# 指定了对象什么时候去掉绝对位置，并用宽高撑满全部区域
-itfull : "mobile|desktop|both"
-
-# 指定对象文字的阴影
-itshadow : "light|dark"
-```
-
-
-
 
 
 
