@@ -1,23 +1,4 @@
----
-title:hMaker Markdown Poster Template
-author:zozoh
-tags:
-- 扩展
-- hmaker
----
-
-# 什么是 Markdown Poster Template
-
-与 Markdown 支持的 <code>```poster</code> 代码，为了能让输入者更加简单，这里给出一些可穷举的布局模板
-
----------------------------------------------
-# 模板例子列表
-
-## `mdp_01`
-
-![](md_ptemplate/mdp_01.jpg)
-
-```bash
+```poster
 @layout:t1
 @bg:media/01.jpg
 @color:#000
@@ -26,11 +7,7 @@ tags:
 +text.big:简单而不凡
 ```
 
-## `mdp_02`
-
-![](md_ptemplate/mdp_02.jpg)
-
-```bash
+```poster
 @layout:t2
 @bgcolor:#060606
 @color:#D0D0D0
@@ -42,11 +19,7 @@ tags:
   +text:创新升级无网结构
 ```
 
-## `mdp_03`
-
-![](md_ptemplate/mdp_03.jpg)
-
-```bash
+```poster
 @layout:t3
 @bgcolor:#060606
 @color:#D0D0D0
@@ -58,11 +31,7 @@ tags:
   +text:一冲即净
 ```
 
-## `mdp_04`
-
-![](md_ptemplate/mdp_04.jpg)
-
-```bash
+```poster
 @layout:t4
 @bgcolor:#060606
 @color:#D0D0D0
@@ -80,11 +49,7 @@ tags:
     +picture:media/04-c.jpg
 ```
 
-## `mdp_06`
-
-![](md_ptemplate/mdp_06.jpg)
-
-```bash
+```poster
 @layout:t1
 @bgcolor:#FFF
 @color:#000
@@ -93,11 +58,7 @@ tags:
 +text:惠人将大自然的馈赠分享给每一个人
 ```
 
-## `mdp_07`
-
-![](md_ptemplate/mdp_07.jpg)
-
-```bash
+```poster
 @layout:t3
 @color:#E0E0E0
 +picture:media/07.jpg
@@ -110,11 +71,7 @@ tags:
   +text.bold:温和地保留了大自然的馈赠
 ```
 
-## `mdp_08`
-
-![](md_ptemplate/mdp_08.jpg)
-
-```bash
+```poster
 @layout:t2
 @color:#444
 +picture:media/08.jpg
@@ -127,11 +84,7 @@ tags:
   +text.bold:天然色彩，自然美味
 ```
 
-## `mdp_09`
-
-![](md_ptemplate/mdp_09.jpg)
-
-```bash
+```poster
 @layout:t3
 @color:#E0E0E0
 +picture:media/09.jpg
@@ -144,13 +97,10 @@ tags:
   +text.bold:美味难以抵挡
 ```
 
-## `mdp_10`
-
-![](md_ptemplate/mdp_10.jpg)
-
-```bash
+```poster
 @layout:t5
 @bgcolor:#444
+@color:#EEE
 +text.small:为什么选择Hurom惠人？
 +text.large:简单，美味，健康。
 +text.large:照顾自己和家人，
@@ -164,11 +114,7 @@ tags:
     +picture:media/10-c.jpg
 ```
 
-## `mdp_11`
-
-![](md_ptemplate/mdp_11.jpg)
-
-```bash
+```poster
 @layout:t1
 @bgcolor:#444
 @color:#EEE
@@ -177,11 +123,7 @@ tags:
 +picture:media/11.jpg
 ```
 
-## `mdp_12`
-
-![](md_ptemplate/mdp_12.jpg)
-
-```bash
+```poster
 @layout:t6
 @bgcolor:#444
 @color:#EEE
@@ -198,11 +140,7 @@ tags:
     +text.small:让所有部件的安装一目了然
 ```
 
-## `mdp_14`
-
-![](md_ptemplate/mdp_14.jpg)
-
-```bash
+```poster
 @layout:t6
 @bgcolor:#FFF
 +text.small:惠人的魅力02
@@ -217,11 +155,7 @@ tags:
     +picture:media/14-b.jpg
 ```
 
-## `mdp_15`
-
-![](md_ptemplate/mdp_15.jpg)
-
-```bash
+```poster
 @layout:t7
 @bgcolor:#1c1d1d
 @color:#EEE
@@ -251,11 +185,7 @@ tags:
       +text.small:只为不断追求更好的使用体验
 ```
 
-## `mdp_20`
-
-![](md_ptemplate/mdp_20.jpg)
-
-```bash
+```poster
 @layout:t8
 @bgcolor:#444
 @color:#EEE
@@ -283,11 +213,7 @@ tags:
 +text.small:*请参阅说明书及食谱了解详细使用方法
 ```
 
-## `mdp_25`
-
-![](md_ptemplate/mdp_25.jpg)
-
-```bash
+```poster
 @layout:t6
 @bgcolor:#FFF
 @color:#444
@@ -305,11 +231,7 @@ tags:
       +text.big:简单如我
 ```
 
-## `mdp_27`
-
-![](md_ptemplate/mdp_27.jpg)
-
-```bash
+```poster
 @layout:t1
 +text.small:Everyday Hurom
 +text.big:与惠人一起乐享色彩斑斓的美味营养
@@ -320,13 +242,7 @@ tags:
  - :本产品不承诺任何治疗效果。
 ```
 
-## `mdp_29`
-
-![](md_ptemplate/mdp_29.jpg)
-
-和原来不同！！！就是三张图并排就好
-
-```bash
+```poster
 @layout:t6
 @bgcolor:#444
 @color:#EEE
@@ -341,11 +257,7 @@ tags:
     +picture:media/29-c.jpg
 ```
 
-## `mdp_30`
-
-![](md_ptemplate/mdp_30.jpg)
-
-```bash
+```poster
 @layout:t7
 @bgcolor:#444
 @color:#EEE
@@ -364,31 +276,58 @@ tags:
     +text.small:坚持不懈地从事产品研究工作。 我们利用专利原创技术制造健康果汁，并不断研发创新，评估和改进我们的产品。
 ```
 
+```poster
+@layout:t9
+@bgcolor:#f3f3f4
+@color:#444
++text.big:设备组件
++list
+- attachment/01主体.png : 主体
+- attachment/02投料口.png : 投料口
+- attachment/03前体.png : 前体
+- attachment/04螺旋推进器.png : 螺旋推进器
+- attachment/05内层过滤组件.png : 内层过滤组件
+- attachment/06纯果汁过滤组件.png : 纯果汁过滤组件
+- attachment/07果粒果汁过滤组件.png : 果粒果汁过滤组件
+- attachment/08冰淇淋过滤组件.png : 冰淇淋过滤组件
+- attachment/09残渣杯.png : 残渣杯
+- attachment/10果汁杯.png : 果汁杯
+- attachment/11推压棒.png : 推压棒
+- attachment/12清洗刷.png : 清洗刷
+- attachment/13食谱.png : 食谱
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```poster
+@layout:t10
+@bgcolor:#FFF
+@color:#444
++text.big:参数
++spec.full
+大小          | 292(W) x 210(D) x 462(H)mm
+重量          | 5.3Kg
+前体类型       | 创新无网前体
+前体容量       | 350ml
+投料口类型     | 双口投料口
+调节阀        | 上下调节阀
+速度          | 43RPM
+螺旋推进器     | 双叶
+果汁盖        | 方形
+过滤网        | 内层过滤组件/纯果汁组件/果粒果汁组件
+电机          | A/C, 90Ø
+电压/频率     | 100-230V / 50-60Hz
+功率          | 150W
+额定使用时间   | Less than 30min continuously
+电源线长度     | 1.4M
+安全感应器类型  | 微传感器
+配件          | 主体、前体、果汁杯、接榨杯、清洁刷
++text.big:材质
++spec
+投料口       | ABS
+前体        | Tritan
+主体        | ABS / SUS304
+螺旋推进器   | PEI(Ultem)
+内层过滤组件  | PEI(Ultem)
+果汁组件     | MMA(Acryl)
+推压棒       | ABS
+清洁刷       | ABS
+```

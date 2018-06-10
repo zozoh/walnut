@@ -204,12 +204,18 @@ window.HmRT = {
             // 忽略空行
             if(!line)
                 continue;
-
+            console.log(line)
             // 强制退出组
             if("~~~" == line) {
-                if(grp && grp.items.length > 0)
-                    layout.data.push(grp);
-                grp = undefined;
+                if(grp) {
+                    // 顶级组直接加入
+                    if(!grp.__parent) {
+                        layout.data.push(grp);
+                    }
+                    // 当前组指向父组，如果是顶级组，则自然是 undefined 咯
+                    grp = grp.__parent;
+                }
+                // 嗯，继续下一行吧
                 continue;
             }
 
@@ -217,12 +223,17 @@ window.HmRT = {
             m = /^@(\((.+)\))?(.+)?/.exec(line)
             if(m) {
                 // 推入前组
-                if(grp && grp.items.length > 0)
-                    layout.data.push(grp);
+                // if(grp && grp.items.length > 0)
+                //     layout.data.push(grp);
                 // 建立新组
-                grp = __set_layout_item_size({
+                var grp2 = __set_layout_item_size({
                         type:"group", name:$.trim(m[2]) ,items:[]
                     }, m[3]);
+                if(grp) {
+                    grp2.__parent = grp;
+                    grp.items.push(grp2);
+                }
+                grp = grp2;
                 continue;
             }
 
@@ -313,11 +324,15 @@ window.HmRT = {
             
         }
 
-        // 推入最后一组
-        if(grp && grp.items.length > 0)
+        // 推入最后一组所在的父组
+        if(grp) {
+            while(grp.__parent) {
+                grp = grp.__parent;
+            }
             layout.data.push(grp);
+        }
 
-        //console.log(layout)
+        console.log(layout)
         // 返回结果
         return layout;    
     },
@@ -659,6 +674,29 @@ window.HmRT = {
         return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);
     },
     //...............................................................
+    renderLayoutDataItem : function(opt, jP, it, obj, oHref) {
+        // 字段组
+        if('group' == it.type) {
+            var jGrp = $('<section>');
+            // 循环渲染字段
+            for(var x=0; x<it.items.length; x++) {
+                var fld  = it.items[x];
+                this.renderLayoutDataItem(opt, jGrp, fld, obj, oHref);
+            }
+            // 设置属性，并加入 DOM
+            jGrp.attr({
+                "group-name" : it.name,
+                "layout-desktop-width" : it.w_desktop,
+                "layout-mobile-width"  : it.w_mobile,
+            });
+            jGrp.appendTo(jP);
+        }
+        // 字段
+        else {
+            this.renderLayoutField(opt, jP, it, obj, oHref)
+        }
+    },
+    //...............................................................
     // 将 parseLayout 的结果宣传成 DOM 结构
     //  - jq     : 将结果渲染到的选区
     //  - layout : @see parseLayout 返回的结果
@@ -674,26 +712,7 @@ window.HmRT = {
         // 开始生成
         for(var i=0; i<layout.data.length; i++) {
             var it = layout.data[i];
-            // 字段组
-            if('group' == it.type) {
-                var jGrp = $('<section>');
-                // 循环渲染字段
-                for(var x=0; x<it.items.length; x++) {
-                    var fld  = it.items[x];
-                    this.renderLayoutField(opt, jGrp, fld, obj, oHref)
-                }
-                // 设置属性，并加入 DOM
-                jGrp.attr({
-                    "group-name" : it.name,
-                    "layout-desktop-width" : it.w_desktop,
-                    "layout-mobile-width"  : it.w_mobile,
-                });
-                jGrp.appendTo(jLayout);
-            }
-            // 字段
-            else {
-                this.renderLayoutField(opt, jLayout, it, obj, oHref)
-            }
+            this.renderLayoutDataItem(opt, jLayout, it, obj, oHref);
         }
         //----------------------------------
         // 返回
