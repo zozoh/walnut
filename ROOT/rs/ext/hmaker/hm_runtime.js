@@ -471,7 +471,7 @@ window.HmRT = {
     //----------------------------------
     // 渲染字段
     renderLayoutField : function(opt, jP, fld, obj, oHref) {
-        console.log(fld)
+        //console.log(fld)
         var theHref = oHref ? oHref.result : null;
         // 普通文字
         if('text' == fld.type) {
@@ -551,6 +551,7 @@ window.HmRT = {
         // 日期范围
         if('DateRange' == fld.display) {
             var jRange = $('<div class="wn-obj-daterange">');
+            var jDrCon = $('<div class="wn-obj-drcon">').appendTo(jRange);
             if(_.isArray(val) && val.length > 0) {
                 for(var i=0; i<val.length; i++) {
                     var v = val[i];
@@ -592,7 +593,7 @@ window.HmRT = {
                     
 
                     // 输出 DOM
-                    var jUl = $('<ul>').appendTo(jRange);
+                    var jUl = $('<ul>').appendTo(jDrCon);
                     if(dr_text){
                         $('<li class="dr-text">').text(dr_text).appendTo(jUl);
                     }
