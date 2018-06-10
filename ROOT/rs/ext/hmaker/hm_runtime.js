@@ -21,7 +21,17 @@ window.HmRT = {
         // 字段
         var m = /^([.>!])([0-9a-zA-Z_|]+)(<(.+)>)?(\[([+-])\])?(:([^=]+))?(=([^#]+))?(#(.+))?$/.exec(line);
         if(m) {
-            var fkey = m[2].split("|");
+            // 分析正则表达式
+            var m_pp  = m[1];       // `.>!` 表示字段的显示属性，是普通，标题，还是必显
+            var m_key = m[2];
+            var m_sel = m[4];
+            var m_lnk = m[6];
+            var m_sz  = m[8];
+            var m_tp  = m[10];
+            var m_tt  = m[12];      // 当字段作为表格时使用。譬如 th_table_obj 会用到
+
+            // 得到键并创建字段对象
+            var fkey = m_key.split("|");
             var fld = {
                 type    : "field", 
                 display : "String", 
@@ -29,24 +39,24 @@ window.HmRT = {
             };
             //console.log(fld)
             // 标识标题
-            fld.isTitle = m[1] == ">";
-            fld.show = m[1]=="!" ? "always" : "auto";
+            fld.isTitle = m_pp == ">";
+            fld.show = m_pp=="!" ? "always" : "auto";
             // 选择器
-            if(m[4]){
-                fld.selector = $.trim(m[4]);
+            if(m_sel){
+                fld.selector = $.trim(m_sel);
             }
             // 链接
-            if(m[6]){
-                fld.linkTarget = "+"==m[6] ? "_blank" : "_self";
+            if(m_lnk){
+                fld.linkTarget = "+"==m_lnk ? "_blank" : "_self";
             }
             // 尺寸
-            if(m[8]){
-                if(!__set_layout_item_size(fld, m[8]))
+            if(m_sz){
+                if(!__set_layout_item_size(fld, m_sz))
                     return;
             }
             // 标题
-            if(m[12]) {
-                fld.title = m[12];
+            if(m_tt) {
+                fld.title = m_tt;
             }
 
             // 获取值的函数
@@ -89,8 +99,8 @@ window.HmRT = {
             };
 
             // 类型
-            if(m[10]) {
-                var ts = m[10];
+            if(m_tp) {
+                var ts = m_tp;
                 // Markdown
                 if("Markdown" == ts){
                     fld.display = "Markdown";
@@ -130,11 +140,25 @@ window.HmRT = {
                     }
                     return fld;
                 }
-                // 日期时间: .th_birthday=Date("yyyy-MM-dd")
+                // 日期时间: .th_birthday=Date("yyyy-mm-dd")
                 m2 = /^Date\(([^)]*)\)$/.exec(ts);
                 if(m2){
                     fld.display = "Date";
                     fld.config = m2[1];
+                    return fld;
+                }
+                // 日期范围: .th_section=DateRange(yyyy-mm-dd)[the_range,nm]
+                m2 = /^DateRange\(([^|]+)[|]([^|]+)[|]([^\)]+)\)(\[([^,]+)(,(.+)?)?\])?("([^"]+)")?$/.exec(ts);
+                if(m2){
+                    fld.display = "DateRange";
+                    fld.config = {
+                        dfmt_yy  : m2[1] || "yyyy-mm-dd",
+                        dfmt_mm  : m2[2] || "mm-dd",
+                        dfmt_dd  : m2[3] || "dd",
+                        rangeKey : m2[5],
+                        textKey  : m2[7],
+                        tmpl : $z.tmpl(m2[9]||"{{from}} -> {{to}}")
+                    };
                     return fld;
                 }
                 // 尺寸: .len:100/?=Size(2)
@@ -204,7 +228,7 @@ window.HmRT = {
             // 忽略空行
             if(!line)
                 continue;
-            console.log(line)
+            //console.log(line)
             // 强制退出组
             if("~~~" == line) {
                 if(grp) {
@@ -332,7 +356,7 @@ window.HmRT = {
             layout.data.push(grp);
         }
 
-        console.log(layout)
+        // console.log(layout)
         // 返回结果
         return layout;    
     },
@@ -447,6 +471,7 @@ window.HmRT = {
     //----------------------------------
     // 渲染字段
     renderLayoutField : function(opt, jP, fld, obj, oHref) {
+        console.log(fld)
         var theHref = oHref ? oHref.result : null;
         // 普通文字
         if('text' == fld.type) {
@@ -522,6 +547,65 @@ window.HmRT = {
         if("always" != fld.show)
             if(_.isNull(val) || _.isUndefined(val))
                 return null;
+
+        // 日期范围
+        if('DateRange' == fld.display) {
+            var jRange = $('<div class="wn-obj-daterange">');
+            if(_.isArray(val) && val.length > 0) {
+                for(var i=0; i<val.length; i++) {
+                    var v = val[i];
+                    var dr_range, dr_text;
+                    // 直接使用范围
+                    if(_.isArray(v) && v.length == 2) {
+                        dr_range = v;
+                    }
+                    // 从对象里获取
+                    else if(fld.config.rangeKey) {
+                        dr_range = v[fld.config.rangeKey];
+                    }
+                    // 得到显示文本
+                    dr_text = v[fld.config.textKey];
+
+                    // 计算日期范围
+                    var d1 = $z.parseDate(dr_range[0]);
+                    var d2 = $z.parseDate(dr_range[1]);
+                    // 开始日期为完整日期
+                    var ds1 = d1.format(fld.config.dfmt_yy);
+                    
+                    // 简约化结束日期
+                    var ds2;
+                    // 同年
+                    if(d1.getYear() == d2.getYear()) {
+                        // 同月
+                        if(d1.getMonth() == d2.getMonth()) {
+                            ds2 = d2.format(fld.config.dfmt_dd);
+                        }
+                        // 不同月
+                        else {
+                            ds2 = d2.format(fld.config.dfmt_mm);    
+                        }
+                    }
+                    // 不同年
+                    else {
+                        ds2 = d2.format(fld.config.dfmt_yy);
+                    }
+                    
+
+                    // 输出 DOM
+                    var jUl = $('<ul>').appendTo(jRange);
+                    if(dr_text){
+                        $('<li class="dr-text">').text(dr_text).appendTo(jUl);
+                    }
+                    // 输出日期范围
+                    $('<li class="dr-range">').html(fld.config.tmpl({
+                            "from" : ds1,
+                            "to"   : ds2
+                        })).appendTo(jUl);
+                }
+            }
+            // 搞定返回
+            return this.renderLayoutFieldElement(fld, jRange).appendTo(jP);
+        }
 
         // .th_cate={A:"猫",B:"狗"}
         // .th_birthday=Date(yyyy-mm-dd)
