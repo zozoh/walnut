@@ -5363,7 +5363,7 @@
                     }
                     // IMG: ![](xxxx)
                     else if (m[11]) {
-                        console.log("haha", m[13])
+                        //console.log("haha", m[13])
                         var src  = m[13];
                         var src2 = opt.media.apply(context, [src]);
 
