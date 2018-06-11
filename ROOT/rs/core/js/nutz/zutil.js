@@ -6184,8 +6184,18 @@
             jVideo.on("playing", function(){
                 jCtrl.attr("st", "playing");
                 jB.html(icons.pause);
+                
             });
-
+            // 事件:运行时，仅仅允许一个视频播放
+            jVideo.on("play", function(){
+                //console.log("I am play", this);
+                var me = this;
+                $(this.ownerDocument.body).find("video").each(function(){
+                    if(me !== this) {
+                        this.pause();
+                    }
+                });
+            });
             // 事件:完成时
             jVideo.on("ended", function(){
                 jCtrl.attr("st", "ended");
