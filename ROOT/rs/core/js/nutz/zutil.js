@@ -5363,7 +5363,7 @@
                     }
                     // IMG: ![](xxxx)
                     else if (m[11]) {
-                        //console.log("haha", m[13])
+                        console.log("haha", m[13])
                         var src  = m[13];
                         var src2 = opt.media.apply(context, [src]);
 
@@ -5384,8 +5384,11 @@
                         if(iH)
                             cssImg.push("height:"+iH + (/[0-9]$/.test(iW)?"px;":";"));
 
+                        // 判断是否是视频
+                        var isVideo = /[.](mp4|avi|mov)$/.test(src);
+
                         // 准备输出头
-                        html += /[.](mp4|avi|mov)$/.test(src)
+                        html += isVideo
                                     ? '<video controls '
                                     : '<img ';
                         // 源
@@ -5399,6 +5402,11 @@
                             html += ' title="' + alt + '"';
                         // 结束
                         html += '>';
+
+                        // 视频还要加结束标记
+                        if(isVideo) {
+                            html += '</video>';
+                        }
 
                         // 记录标签
                         if (tagNames)
