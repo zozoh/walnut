@@ -168,7 +168,8 @@ return ZUI.def("ui.form_com_list", EnumListSupport({
         }
         // 否则输出 HTML
         else {
-            $('<b it="text">').html(UI.compactHTML(it.text)).appendTo(jLi);
+            //$('<b it="text">').html(UI.compactHTML(it.text)).appendTo(jLi);
+            $('<b it="text">').html(it.text).appendTo(jLi);
         }
     },
     //...............................................................

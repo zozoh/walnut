@@ -329,7 +329,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                     params.put(key, str);
 
                     // 解析参数表，生成服务器端 httpapi invoke 调用参数
-                    Matcher m = Pattern.compile("^([@#])(<(.+)>)?(.*)$").matcher(str);
+                    Matcher m = Pattern.compile("^([@#%])(<(.+)>)?(.*)$").matcher(str);
 
                     // 特殊格式的参数
                     if (m.find()) {
@@ -340,6 +340,10 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                         // 动态参数: "@<id>qcpb4e7l72h09p9na2hpo8vcue"
                         if ("@".equals(p_tp)) {
                             hdsi.update.put(key, "${params." + p_val + "?" + p_arg + "}");
+                        }
+                        // 网页路径参数: "%<arg0>qcpb4e7l72h09p9na2hpo8vcue"
+                        else if ("%".equals(p_tp)) {
+                            hdsi.update.put(key, "${args." + p_val + "?" + p_arg + "}");
                         }
                         // 来自控件，譬如 "#<filter_1>"
                         else if ("#".equals(p_tp)) {

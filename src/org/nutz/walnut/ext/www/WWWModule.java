@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.View;
@@ -701,16 +703,8 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 通过 www 目录找到文件对象
-        WnObj o = null;
-
-        // 空路径的话，那么意味着对象是 ROOT
-        if (Strings.isBlank(a_path)) {
-            o = oWWW;
-        }
-        // 否则如果有 ROOT 再其内查找
-        else if (null != oWWW) {
-            o = io.fetch(oWWW, a_path);
-        }
+        NutMap args = new NutMap();
+        WnObj o = __find_opage_in_www(a_path, oWWW, args);
 
         if (log.isDebugEnabled())
             log.debugf(" - www:findObj: %s -> %s", a_path, o);
@@ -755,9 +749,12 @@ public class WWWModule extends AbstractWnModule {
             if (log.isDebugEnabled())
                 log.debugf(" - www:findEntry: %s", o);
 
-            // 还是目录，那就抛错吧
+            // 还是目录，那请求一定是错的
             if (o.isDIR()) {
-                return gen_errpage(tmpl_400, a_path);
+                o = io.fetch(oWWW, oWWW.getString("hm_page_400", "400.html"));
+                resp.setStatus(400);
+                if (o == null)
+                    return gen_errpage(tmpl_400, a_path);
             }
             // 如果不是目录，那么应该返回一个重定向
             // 否则在访问 http://zozoh.com/abc 这样路径的时候，
@@ -813,6 +810,9 @@ public class WWWModule extends AbstractWnModule {
                 NutMap context = __gen_www_context(req, oWWW, pagePath);
                 context.put("CURRENT_PATH", currentPath);
                 context.put("CURRENT_DIR", currentDir);
+
+                // 加入路径参数
+                context.put("args", args);
 
                 // 得到一些当前域账号的关键信息
                 context.put("grp", se.group());
@@ -888,6 +888,88 @@ public class WWWModule extends AbstractWnModule {
                 log.warn("Server Error!", e);
             return gen_errpage(tmpl_500, a_path, e.toString(), 500);
         }
+    }
+
+    private WnObj __find_opage_in_www(String a_path, WnObj oWWW, NutMap args) {
+        WnObj o = null;
+
+        // 空路径的话，那么意味着对象是 ROOT
+        if (Strings.isBlank(a_path)) {
+            o = oWWW;
+        }
+        // 否则如果有 ROOT 在其内查找
+        else if (null != oWWW) {
+            WnObj oDir;
+            // 首先查到路径所在的目录
+            String p_ph = Files.getParent(a_path);
+            String pgnm = Files.getName(a_path);
+            if ("/".equals(p_ph))
+                oDir = oWWW;
+            else
+                oDir = io.fetch(oWWW, p_ph);
+
+            // 如果有所在目录，来一下
+            if (null != oDir) {
+                o = io.fetch(oDir, pgnm);
+                // 如果没有的话，那么依次找找 `hm_pg_args` 声明的网页能不能匹配上
+                if (null == o) {
+                    WnQuery q2 = Wn.Q.pid(oDir);
+                    q2.setv("hm_pg_args", true);
+                    List<WnObj> oCas = io.query(q2);
+                    for (WnObj oCa : oCas) {
+                        // 首先先获取一下页面的正则表达式和名称
+                        String regex = oCa.getString("hm_pg_args_regex");
+                        List<String> argNames = oCa.getList("hm_pg_args_names", String.class);
+
+                        Pattern p;
+                        Matcher m;
+
+                        // 看来没有缓存，或者缓存不正确，那么就分析一下咯
+                        if (Strings.isBlank(regex) || null == argNames || argNames.isEmpty()) {
+                            // 首先处理一下占位符，将其变成一个正则表达式
+                            String fnm = oCa.name();
+                            regex = "^";
+                            int pos = 0;
+                            p = Regex.getPattern("\\{\\{([^\\}]+)\\}\\}");
+                            m = p.matcher(fnm);
+                            argNames = new ArrayList<>(3);
+                            while (m.find()) {
+                                argNames.add(m.group(1));
+                                if (m.start() > pos) {
+                                    regex += fnm.substring(pos, m.start());
+                                }
+                                pos = m.end();
+                                regex += "(.+)";
+                            }
+                            if (pos < fnm.length()) {
+                                regex += fnm.substring(pos);
+                            }
+                            regex += "$";
+                            // 来吧，缓存一下
+                            NutMap meta = new NutMap();
+                            meta.put("hm_pg_args_regex", regex);
+                            meta.put("hm_pg_args_names", argNames);
+                            io.appendMeta(oCa, meta);
+                        }
+                        // 木有占位符，那么放弃吧
+                        if (argNames.isEmpty())
+                            continue;
+                        // 用正则表达式匹配一下
+                        p = Regex.getPattern(regex);
+                        m = p.matcher(pgnm);
+                        if (m.find()) {
+                            o = oCa;
+                            for (int i = 0; i < m.groupCount(); i++) {
+                                String argName = argNames.get(i);
+                                args.put(argName, m.group(i + 1));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return o;
     }
 
     private NutMap __gen_www_context(HttpServletRequest req, WnObj oWWW, String pagePath) {

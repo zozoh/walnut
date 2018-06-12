@@ -180,8 +180,15 @@ return ZUI.def("ui.edit_link_href", {
         else {
             Wn.exec('hmaker "id:' + opt.homeObj.id + href + '" com -dis param -nolib',
                 function(re){
-                    var params = $z.fromJson(re || "{}");
-                    $z.doCallback(callback, [params]);
+                    // 错误
+                    if(/^e./.test(re)) {
+                        $z.doCallback(callback, [{}]);
+                    }
+                    // 返回了正确内容
+                    else {
+                        var params = $z.fromJson(re || "{}");
+                        $z.doCallback(callback, [params]);
+                    }
                 });
         }
     },

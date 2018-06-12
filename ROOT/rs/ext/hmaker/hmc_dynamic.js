@@ -270,7 +270,7 @@ $.fn.extend({ "hmc_dynamic" : function(opt, arg){
         // 采用裸数据首次绘制
         var json = $.trim(jData.children(".dynamic-raw-data").html());
         //console.log(json)
-        if(json) {
+        if(json && !/^\{ *\}$/.test(json)) {
             draw_api_result(jData, json, opt);
         }
         // 自己啥内容都木有，那么动态请求一下

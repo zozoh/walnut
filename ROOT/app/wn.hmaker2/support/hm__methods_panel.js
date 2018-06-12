@@ -560,7 +560,7 @@ var methods = {
                 fld.uiConf = {
                     emptyItem : {
                         icon  : '<i class="zmdi zmdi-flash-auto"></i>',
-                        text  : '<span>@auto</span><em>{{hmaker.link.auto}}</em>',
+                        text  : UI.compactHTML('<span>@auto</span><em>{{hmaker.link.auto}}</em>'),
                         value : '@auto'
                     }
                 };

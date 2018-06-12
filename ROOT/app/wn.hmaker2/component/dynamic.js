@@ -371,6 +371,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
     //...............................................................
     __draw_dynamic_keys : function(jW, com) {
         var dkeys = this.__dynamicKeys;
+        //console.log(dkeys)
 
         if(!_.isArray(dkeys) || dkeys.length == 0)
             return;

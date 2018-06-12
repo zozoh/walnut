@@ -373,10 +373,15 @@ window.HmRT = {
             // }
             // 得到 OBJ HREF
             var hrefTmpl = $z.tmpl(href);
+            var result = obj ? href : null;
+            if(obj)
+                try{
+                    result = hrefTmpl(obj);
+                }catch(E){}
             return {
                 tmpl   : hrefTmpl,
                 obj    : obj,
-                result : obj ? hrefTmpl(obj) : null,
+                result : result,
             };
         }
         // 确保是假，且还不是undefined
@@ -1047,6 +1052,7 @@ window.HmRT = {
         opt.trimValue = opt.trimValue === false ? false : true;
         opt.context = opt.context || {};
         opt.request = opt.request || {};
+        opt.pg_args = opt.pg_args || {};
         opt.setting = opt.setting || {};
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 循环处理 ...
@@ -1077,7 +1083,7 @@ window.HmRT = {
             // 特殊类型的值
             // TODO Session 变量
             // TODO Cookie 的值
-            var m = /^([@#])(<(.+)>)?(.*)$/.exec(v2);
+            var m = /^([@#%])(<(.+)>)?(.*)$/.exec(v2);
             //console.log(m);
             if(m && m[2]) {
                 var p_tp  = m[1];
@@ -1089,6 +1095,17 @@ window.HmRT = {
                 if("@" == p_tp) {
                     re.dynamicKeys.push(key);
                     p_val = opt.request[p_val] || p_arg;
+                    if(p_val) {
+                        re.data[key] = p_val;
+                    }
+                    // 继续吧
+                    continue;
+                }
+                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                // 网页路径参数
+                if("%" == p_tp) {
+                    re.dynamicKeys.push(key);
+                    p_val = opt.pg_args[p_val] || p_arg;
                     if(p_val) {
                         re.data[key] = p_val;
                     }

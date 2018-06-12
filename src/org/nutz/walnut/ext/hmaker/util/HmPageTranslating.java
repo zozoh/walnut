@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.hmaker.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -18,6 +20,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
@@ -508,11 +511,20 @@ public class HmPageTranslating extends HmContext {
         // 在目标处创建
         this.oTa = createTarget(rph, o.race());
 
-        // 标识目标为动态处理
-        if (this.isWnml) {
-            this.oTa.setv("as_wnml", true);
-            io.set(this.oTa, "^as_wnml$");
-        }
+        // 更新目标的元数据
+        NutMap meta = new NutMap();
+        meta.put("as_wnml", this.isWnml);
+
+        // 标识目标为支持动态路径参数
+        Pattern p = Regex.getPattern("\\{\\{([^\\}]+)\\}\\}");
+        Matcher m = p.matcher(this.oTa.name());
+        meta.put("hm_pg_args", m.find());
+        meta.put("hm_pg_args_regex", null);
+        meta.put("hm_pg_args_names", null);
+
+        // 更新元数据
+        io.appendMeta(this.oTa, meta);
+
         // ---------------------------------------------------
         // 将处理后的文档写入目标
         html = Hms.unescapeJsoupHtml(doc.html());
@@ -689,6 +701,14 @@ public class HmPageTranslating extends HmContext {
 
         if ("@auto".equals(link))
             return link;
+
+        // 确保解码链接
+        try {
+            link = URLDecoder.decode(link, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw Lang.wrapThrow(e);
+        }
 
         // 一个绝对链接
         if (link.matches("^(https?://|javascript:).+$")) {

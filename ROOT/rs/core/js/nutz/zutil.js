@@ -3319,9 +3319,9 @@
                 return {
                     primer : href,
                     value  : decodeURI(href),
-                    href   : m[1],
+                    href   : decodeURI(m[1]),
                     params : params,
-                    anchor : m[5],
+                    anchor : m[5] ? decodeURIComponent(m[5]) : null,
                 };
             }
             // 只有锚点咯
@@ -3336,7 +3336,7 @@
             return {
                 primer : href,
                 value  : decodeURI(href),
-                href   : href
+                href   : decodeURI(href)
             };
         },
         //.............................................
