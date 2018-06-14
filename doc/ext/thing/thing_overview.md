@@ -26,14 +26,14 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 # 带有 thing_set 类型的目录被认为是一个 ThingSet
 @DIR {tp:"thing_set"} # 特殊类型目录
     thing.js          # 每个 Thing 的定义
-    index             # 索引表，存放 thing 的所有元数据
+    index/            # 索引表，存放 thing 的所有元数据
         $ThingID      # 每个都是文件，nm==id
                       # tp 为 'th_index'
-    comment           # 存放所有的评论信息
+    comment/          # 存放所有的评论信息
         $CommentID    # 每个都是一个文件
                       # tp 为 'th_cmt'
-    data              # 存放每个 thing 的负数数据 
-        $ThingID           # 每个子目录对应一个 thing, nm与索引对象同名
+    data/             # 存放每个 thing 的负数数据 
+        $ThingID/          # 每个子目录对应一个 thing, nm与索引对象同名
                            # tp 为 'th_data'
             thumb.jpg      # 对象的缩略图
             media          # 目录，存放相关的一组媒体
@@ -65,12 +65,13 @@ th_thumb : ID    // Thing 的默认缩略图
 
 ```
 {
-     name : "xxx",         // 东东的类型名称
-     text : "i18n:xxx".    // 东东的多国语言显示
-     icon : "<...>",       // 东东的图标 HTML
+  meta: true,          // 是否显示元数据
+  detail: false,       // 是否显示详情编辑
+  media: false,        // 是否显示媒体面板
+  attachment: false,   // 是否显示附件面板
      
-     // 物品的字段，这个遵守 ui/form/form 控件的 field 字段定义规范
-     fields : [...]
+  // 物品的字段，这个遵守 ui/form/form 控件的 field 字段定义规范
+  fields : [...]
 }
 ```
 
@@ -136,4 +137,12 @@ th_ow     : "xxx"     // 所属者，通常表示 dusr 指定的账号系统，�
 ``
 
 * 评论发出，不能删除，只能修改?
+
+# 对于 thing 的操作
+
+- `man thing` 是对于数据操作全部的命令
+- `org.nutz.walnut.ext.thing.WnThingService` 提供了操作类
+
+
+
 
