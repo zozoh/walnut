@@ -23,23 +23,38 @@ tags:
 ## 导入的组合命令
 
 ```
-sheet -in id:xxx -mapping ~/.sheet/mapping_a.js -json | thing xxx create -fields -unique phone
+sheet id:xxx -flds ~/.sheet/mapping -s json -\
+        | thing xxx create -fields -unique phone
 ```
 
-- `sheet` 命令读取 `id:xxx` 文件，它会根据文件的 `mime` 自动决定用那种解析类
-- `-mapping` 将读取一个映射的 `json` 文件，这个文件的格式就是一个名值对的JSON
+- `sheet` 命令使用详情参看 `man sheet`
+    + 也可以直接将这个文件的内容
 - `-json` 表示输出的是一个 JSON 数组，以便后续命令 `thing create` 读入
 - `thing create -unique` 表示数据用 `phone` 字段去除重复，如果发现重复就替换，而不是新增
 
-映射文件 `mapping.js`
+映射文件 `mapping`例子
 
 ```
-{
-    "名称" : "th_nm",
-    "电话" : "phone",
-    ...
-} 
+th_nm:名称
+phone:电话
+lm[$date%yyyy-MM-dd HH:mm:ss]:最后修改日期
+lbls[$n]:标签
+th_media_list[$n.id]:媒体
 ```
+
+- 字段之间可以用半角逗号分隔，也可以用换行符分隔
+- `$date` 表示日期，`%` 后面的表示日期格式，不写的话，默认 `yyyy-MM-dd HH:mm:ss`
+- `$n` 表示数组，会用半角逗号连接
+- `$n.id` 表示对象数组，输出的值为每个对象的 `id`，用半角逗号连接
+
+Key 的全部写法为：
+- 子对象   :  `a.b.c`
+- 多重获取 : `key1||key2`
+- 数组    : `key[$n]`
+- 数组值   : `key[$n.name]`
+- 日期    : `key[$date]`
+- 日期    : `key[$date%yyyy-MM-dd HH:mm]`
+
 
 ## 导入的界面
 

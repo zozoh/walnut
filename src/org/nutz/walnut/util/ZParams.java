@@ -261,7 +261,7 @@ public class ZParams {
     public NutMap getMap(String key, NutMap dft) {
         Object val = map.get(key);
         if (null == val)
-            return null;
+            return dft;
 
         if (val instanceof Map)
             return NutMap.WRAP((Map) val);

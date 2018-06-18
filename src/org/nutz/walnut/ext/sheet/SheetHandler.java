@@ -8,8 +8,8 @@ import org.nutz.lang.util.NutMap;
 
 public interface SheetHandler {
 
-    List<NutMap> read(NutMap opt, InputStream ins);
+    List<NutMap> read(InputStream ins, NutMap conf);
 
-    void write(NutMap opt, OutputStream ops, List<NutMap> list);
+    void write(OutputStream ops, List<NutMap> list, NutMap conf);
 
 }

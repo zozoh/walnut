@@ -12,6 +12,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sheet.impl.CsvSheetHandler;
+import org.nutz.walnut.ext.sheet.impl.JsonSheetHandler;
 
 public class WnSheetService {
 
@@ -20,6 +21,7 @@ public class WnSheetService {
     static {
         handlers = new HashMap<String, SheetHandler>();
         handlers.put("csv", new CsvSheetHandler());
+        handlers.put("json", new JsonSheetHandler());
     }
 
     private static SheetHandler __check_handler(String type) {
@@ -36,32 +38,33 @@ public class WnSheetService {
         this.io = io;
     }
 
-    public List<NutMap> read(NutMap opt, WnObj oSheet) {
+    public List<NutMap> read(WnObj oSheet, NutMap conf) {
         InputStream ins = io.getInputStream(oSheet, 0);
         String type = oSheet.type();
-        return readAndClose(opt, ins, type);
+        return readAndClose(ins, type, conf);
     }
 
-    public List<NutMap> readAndClose(NutMap opt, InputStream ins, String type) {
+    public List<NutMap> readAndClose(InputStream ins, String type, NutMap conf) {
         SheetHandler sh = __check_handler(type);
         try {
-            return sh.read(opt, ins);
+            return sh.read(ins, conf);
         }
         finally {
             Streams.safeClose(ins);
         }
     }
 
-    public void write(NutMap opt, WnObj oSheet, List<NutMap> list) {
+    public void write(WnObj oSheet, List<NutMap> list, NutMap conf) {
         OutputStream ops = io.getOutputStream(oSheet, 0);
         String type = oSheet.type();
-        this.writeAndClose(opt, ops, type, list);
+        this.writeAndClose(ops, type, list, conf);
     }
 
-    public void writeAndClose(NutMap opt, OutputStream ops, String type, List<NutMap> list) {
+    public void writeAndClose(OutputStream ops, String type, List<NutMap> list, NutMap conf) {
         SheetHandler sh = __check_handler(type);
         try {
-            sh.write(opt, ops, list);
+            sh.write(ops, list, conf);
+            Streams.safeFlush(ops);
         }
         finally {
             Streams.safeClose(ops);
