@@ -23,7 +23,7 @@ tags:
 ## 导入的组合命令
 
 ```
-sheet id:xxx -flds ~/.sheet/mapping -s json -\
+sheet id:xxx -mapping ~/.sheet/mapping -tpo json \
         | thing xxx create -fields -unique phone
 ```
 

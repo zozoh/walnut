@@ -7,6 +7,7 @@ import java.util.Map;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -88,7 +89,13 @@ public class SheetField {
             return Times.format(Strings.sBlank(this.arg, "yyyy-MM-dd HH:mm:ss"), d);
         }
 
-        // 普通值
+        // 普通值，就直接使用
+        Mirror<?> mi = Mirror.me(val);
+        if (mi.isSimple()) {
+            return val;
+        }
+
+        // 其他值变字符串
         return Castors.me().castToString(val);
     }
 

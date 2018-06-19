@@ -13,6 +13,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sheet.impl.CsvSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.JsonSheetHandler;
+import org.nutz.walnut.ext.sheet.impl.XlsSheetHandler;
+import org.nutz.walnut.ext.sheet.impl.XlsxSheetHandler;
 
 public class WnSheetService {
 
@@ -22,6 +24,8 @@ public class WnSheetService {
         handlers = new HashMap<String, SheetHandler>();
         handlers.put("csv", new CsvSheetHandler());
         handlers.put("json", new JsonSheetHandler());
+        handlers.put("xls", new XlsSheetHandler());
+        handlers.put("xlsx", new XlsxSheetHandler());
     }
 
     private static SheetHandler __check_handler(String type) {
@@ -45,8 +49,8 @@ public class WnSheetService {
     }
 
     public List<NutMap> readAndClose(InputStream ins, String type, NutMap conf) {
-        SheetHandler sh = __check_handler(type);
         try {
+            SheetHandler sh = __check_handler(type);
             return sh.read(ins, conf);
         }
         finally {
@@ -61,8 +65,8 @@ public class WnSheetService {
     }
 
     public void writeAndClose(OutputStream ops, String type, List<NutMap> list, NutMap conf) {
-        SheetHandler sh = __check_handler(type);
         try {
+            SheetHandler sh = __check_handler(type);
             sh.write(ops, list, conf);
             Streams.safeFlush(ops);
         }

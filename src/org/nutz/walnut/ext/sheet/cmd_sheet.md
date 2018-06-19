@@ -76,7 +76,10 @@ Key 的全部写法为：
 ```
 {
     sheetIndex : 0,        //「选」指明工作标签下标，默认0
-    sheetName  : "xxx",    //「选」指明工作标签名称，比 sheetIndex 优先    
+    sheetName  : "xxx",    //「选」指明工作标签名称，比 sheetIndex 优先
+    noheader   : false,    // 是否输出标题栏，默认 false
+    rowOffset  : 0,        // 起始行，默认 0
+    colOffset  : 0,        // 起始列，默认 0
 }
 ```
 

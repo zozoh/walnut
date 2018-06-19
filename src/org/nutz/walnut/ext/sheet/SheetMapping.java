@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
@@ -94,8 +95,14 @@ public class SheetMapping {
                 for (Map.Entry<String, Object> en : obj.entrySet()) {
                     String key = en.getKey();
                     Object val = en.getValue();
-                    if (null != val)
-                        val = Castors.me().castToString(val);
+                    if (null != val) {
+                        Mirror<?> mi = Mirror.me(val);
+                        // 原生的话，保留
+                        // 其他的变字符串
+                        if (!mi.isSimple()) {
+                            val = Castors.me().castToString(val);
+                        }
+                    }
                     map.put(key, val);
                 }
                 outputList.add(map);
