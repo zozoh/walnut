@@ -74,7 +74,7 @@ public abstract class Wn {
     // }
     // }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([0-9]+)([smhd])?$");
+    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhd])?$");
     private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
     protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
 

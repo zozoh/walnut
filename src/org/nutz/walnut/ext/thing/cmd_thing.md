@@ -3,26 +3,14 @@
     `thing` 用来管理数据，当然你也可以用更底层一些的 `obj`
     但是很多时候用这个命令会更加方便
 
+-------------------------------------------------------------
 # 用法
 
-    thing [ThingSetID] 
-          ACTION [options] 
+    thing [ThingSetID] ACTION [options] 
           [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
         
     - ThingSetID 「选」指代 ThingSet 的ID，默认为当前目录
-    - ACTION     可以是
-                 * get
-                 * init
-                 * create
-                 * detail
-                 * delete
-                 * update
-                 * query
-                 * comment
-                 * clean
-                 * media
-                 * attachment
-                 默认为 "get"
+    - ACTION     默认为 "get"，具体支持的 Action 看后续列表
     - options    根据不同的 ACTION 意义不同
         
     下面是所有子命令都支持的参数:
@@ -52,6 +40,22 @@
     -tmpl   表示每个对象按照一个模板输出，上下文为 obj 本身
            模板占位符为 `@{xxx}` 的格式
        
-    > thing 命令会将第一个参数对应的 WnObj 临时设置为当前会话的 PWD
-     就是说，如果不指定第一个参数，那么当前的目录就作为所在的 ThingSet 或者 Thing
-    > 执行任何命令，默认是输出 JSON
+ - 执行任何命令，默认是输出 JSON
+ 
+ -------------------------------------------------------------
+ # 子命令列表
+ 
+
+    thing init          # 初始化数据集
+    thing get           # 获取数据完整信息
+    thing create        # 创建数据
+    thing detail        # 获取数据详情
+    thing delete        # 删除数据
+    thing update        # 更新数据
+    thing query         # 查询数据
+    thing comment       # 操作数据的评论
+    thing clean         # 清理数据集回收站
+    thing media         # 操作数据的媒体
+    thing attachment    # 操作数据的附件
+    thing tmpfile       # 在数据集创建一个临时文件
+
