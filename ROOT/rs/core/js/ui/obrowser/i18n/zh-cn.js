@@ -20,6 +20,7 @@ define({
         }
     },
     "ui" : {
-        "view_text" : "查看源代码"
+        "view_text" : "查看源代码",
+        "view_preview" : "预览播放",
     }
 });
