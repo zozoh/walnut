@@ -116,13 +116,13 @@ public abstract class Things {
 
     // ..................................... ThingSet 的关键目录
 
-    public static WnObj dirTsConf(WnIo io, WnObj oRefer) {
+    public static WnObj fileTsConf(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
         return io.check(oTS, "thing.js");
     }
 
-    public static WnObj dirTsConf(WnSystem sys, JvmHdlContext hc) {
-        return dirTsConf(sys.io, hc.oRefer);
+    public static WnObj fileTsConf(WnSystem sys, JvmHdlContext hc) {
+        return fileTsConf(sys.io, hc.oRefer);
     }
 
     public static WnObj dirTsIndex(WnIo io, WnObj oRefer) {
@@ -140,6 +140,15 @@ public abstract class Things {
     }
 
     public static WnObj dirTsComment(WnSystem sys, JvmHdlContext hc) {
+        return dirTsComment(sys.io, hc.oRefer);
+    }
+
+    public static WnObj dirTsTmpFile(WnIo io, WnObj oRefer) {
+        WnObj oTS = checkThingSet(oRefer);
+        return io.createIfNoExists(oTS, "tmp", WnRace.DIR);
+    }
+
+    public static WnObj dirTsTmpFile(WnSystem sys, JvmHdlContext hc) {
         return dirTsComment(sys.io, hc.oRefer);
     }
 

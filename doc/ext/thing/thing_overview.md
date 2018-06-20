@@ -26,6 +26,7 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
 # 带有 thing_set 类型的目录被认为是一个 ThingSet
 @DIR {tp:"thing_set"} # 特殊类型目录
     thing.js          # 每个 Thing 的定义
+    tmp/              # 临时文件夹，存放所有上传下载的临时文件
     index/            # 索引表，存放 thing 的所有元数据
         $ThingID      # 每个都是文件，nm==id
                       # tp 为 'th_index'

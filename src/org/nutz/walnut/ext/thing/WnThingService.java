@@ -8,6 +8,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.thing.impl.CreateTmpFileAction;
+import org.nutz.walnut.ext.thing.impl.CleanTmpFileAction;
 import org.nutz.walnut.ext.thing.impl.CreateThingAction;
 import org.nutz.walnut.ext.thing.impl.DeleteThingAction;
 import org.nutz.walnut.ext.thing.impl.FileAddAction;
@@ -231,6 +233,19 @@ public class WnThingService {
 
     public WnObj updateThing(String id, NutMap meta, String th_nm) {
         UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta).setName(th_nm);
+        return a.invoke();
+    }
+
+    public WnObj createTmpFile(String fnm, String du) {
+        CreateTmpFileAction a = _A(new CreateTmpFileAction());
+        a.fileName = fnm;
+        a.duration = du;
+        return a.invoke();
+    }
+
+    public List<WnObj> cleanTmpFile(int limit) {
+        CleanTmpFileAction a = _A(new CleanTmpFileAction());
+        a.limit = limit;
         return a.invoke();
     }
 
