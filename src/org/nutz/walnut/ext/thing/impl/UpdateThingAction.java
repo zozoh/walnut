@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.thing.impl;
 
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -13,8 +12,6 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     private NutMap meta;
 
-    private String th_nm;
-
     public UpdateThingAction setId(String id) {
         this.id = id;
         return this;
@@ -22,11 +19,6 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     public UpdateThingAction setMeta(NutMap meta) {
         this.meta = meta;
-        return this;
-    }
-
-    public UpdateThingAction setName(String th_nm) {
-        this.th_nm = th_nm;
         return this;
     }
 
@@ -38,11 +30,6 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         // 确保 Thing 是可用的
         if (oT.getInt("th_live") != Things.TH_LIVE) {
             throw Er.create("e.cmd.thing.updateDead", oT.id());
-        }
-
-        // 名称
-        if (!Strings.isBlank(th_nm)) {
-            meta.put("th_nm", th_nm);
         }
 
         // 更新这个 Thing

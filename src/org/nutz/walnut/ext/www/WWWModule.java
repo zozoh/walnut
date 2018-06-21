@@ -367,7 +367,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 嗯，那么就创建一个用户咯
         if (null == oU) {
-            oU = ths.createThing("anonymous", Lang.map("phone", phone));
+            oU = ths.createThing(Lang.map("phone", phone).setv("th_nm", "anonymous"));
             // 设置默认密码 123456
             // 根据 siteId 获取一下对应域名
             String domain = oWWW.d1();

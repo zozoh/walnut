@@ -313,7 +313,8 @@ public class WWWPageAPI extends WWWAPI {
                 String myName = re.getString("nickname", "anonymous");
                 NutMap meta = re.pickBy("^(city|province|country|sex)$");
                 meta.put(key, openid);
-                oMe = ths.createThing(myName, meta);
+                meta.put("th_nm", myName);
+                oMe = ths.createThing(meta);
 
                 // 如果有头像的话，搞一下
                 String headimgurl = re.getString("headimgurl");

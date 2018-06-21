@@ -17,7 +17,6 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -202,18 +201,20 @@ public abstract class Things {
     /**
      * 根据参数填充元数据
      * 
-     * @param sys
-     *            系统接口
+     * @param meta
+     *            元数据
      * 
      * @param params
      *            参数表
      * 
      * @return 填充完毕的元数据
      */
-    public static NutMap fillMeta(WnSystem sys, ZParams params) {
-        // 得到所有字段
-        String json = Cmds.getParamOrPipe(sys, params, "fields", false);
-        NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
+    public static NutMap fillMetaByParams(NutMap meta, ZParams params) {
+        // 设置名称
+        String th_nm = params.val(0);
+        if (!Strings.isBlank(th_nm)) {
+            meta.put("th_nm", th_nm);
+        }
 
         // 摘要
         if (params.has("brief")) {
@@ -235,14 +236,11 @@ public abstract class Things {
             meta.put("tp", params.get("tp"));
         }
 
-        // 确保类型变成内容类型
-        if (meta.has("tp")) {
-            String tp = meta.getString("tp");
-            meta.remove("tp");
-            String mime = sys.io.mimes().getMime(tp, "text/plain");
-            meta.put("mime", mime);
-        }
+        // 返回传入的元数据
+        return formatMeta(meta);
+    }
 
+    public static NutMap formatMeta(NutMap meta) {
         // 将日期的字符串，搞一下
         for (Map.Entry<String, Object> en : meta.entrySet()) {
             Object v = en.getValue();
@@ -252,8 +250,7 @@ public abstract class Things {
                 en.setValue(v2);
             }
         }
-
-        // 返回传入的元数据
+        // 返回元数据
         return meta;
     }
 

@@ -79,13 +79,14 @@ public class cmd_bp_org extends JvmExecutor {
 
             // 没有的话，增加
             if (null == oT) {
+                map.put("th_nm", nm);
                 sys.out.printlnf(" %04d) + create: %s : %s", i, nm, Json.toJson(map, jfmt));
-                tsOrg.createThing(nm, map);
+                tsOrg.createThing(map);
             }
             // 有的话，更新一下它的信息
             else {
                 sys.out.printlnf(" %04d) = update: %s : %s", i, nm, Json.toJson(map, jfmt));
-                tsOrg.updateThing(oT.id(), map, null);
+                tsOrg.updateThing(oT.id(), map);
             }
 
             // 很好，那么最后试图弄一下头像

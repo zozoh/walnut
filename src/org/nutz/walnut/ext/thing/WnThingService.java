@@ -202,8 +202,23 @@ public class WnThingService {
         return list.get(0);
     }
 
-    public WnObj createThing(String th_nm, NutMap meta) {
-        CreateThingAction a = _A(new CreateThingAction()).setName(th_nm).setMeta(meta);
+    public WnObj createThing(NutMap meta) {
+        return createThing(meta, null);
+    }
+
+    public List<WnObj> createThings(List<NutMap> metaList) {
+        return createThings(metaList, null);
+    }
+
+    public WnObj createThing(NutMap meta, String uniqueKey) {
+        CreateThingAction a = _A(new CreateThingAction());
+        a.addMeta(meta).setUniqueKey(uniqueKey);
+        return a.invoke().get(0);
+    }
+
+    public List<WnObj> createThings(List<NutMap> metaList, String uniqueKey) {
+        CreateThingAction a = _A(new CreateThingAction());
+        a.addAllMeta(metaList).setUniqueKey(uniqueKey);
         return a.invoke();
     }
 
@@ -231,8 +246,8 @@ public class WnThingService {
         return a.invoke();
     }
 
-    public WnObj updateThing(String id, NutMap meta, String th_nm) {
-        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta).setName(th_nm);
+    public WnObj updateThing(String id, NutMap meta) {
+        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
         return a.invoke();
     }
 
