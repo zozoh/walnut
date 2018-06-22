@@ -228,7 +228,7 @@
 @thcFldMH : 48px;
 @thcFldLW : 40%;
 .th-design {
-    background: @cb2;
+    background: @cb2; 
     // 头部标题
     .thd-info {
         @flex(); 
@@ -264,32 +264,14 @@
             em {display: inline-block;}
         }
     }
+    .thd-tabs {
+        padding:0 @d2 @d2 @d2;
+    }
     // 全局设置 
-    .thd-setup {
-        height: 80px;
-        .form .form-body {
-            overflow: hidden;
-            .form-group {
-                padding:0 @d2;
-                .fg-title {
-                    border:1px solid @cborder1; font-size:@f2;
-                }
-                .fg-fields {
-                    padding:@d2 @d1 @d1 0;
-                    .form-fld {
-                        padding: 0;
-                        > .ff-txt {padding:@d2 @d1;}
-                        > .ff-val {padding:0;}
-                        .com-input > .box input {
-                            padding:@d1 @d2;
-                        }
-                    }
-                }
-            }
-        }
+    .th-design-general {
     }
     // 字段编辑器
-    .thd-flds {
+    .th-design-flds {
         position: relative;
         > div {position: absolute;}
         > .thd-menu { 
