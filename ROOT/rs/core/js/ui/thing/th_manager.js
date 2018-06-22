@@ -136,11 +136,15 @@ return ZUI.def("ui.th_manager", {
         var oHome = UI.getHomeObj();
         
         POP.openUIPanel({
-            title : "i18n:thing.import.title",
-            width : 640,
+            title  : "i18n:thing.import.title",
+            width  : 640,
+            height : 480,
             arenaClass : "th-wizard-mask",
             setup : {
                 uiType : "ui/thing/support/th_import",
+                uiConf : {
+                    thingSetId : oHome.id
+                }
             },
             close : function(uiImport){
                 console.log("done")

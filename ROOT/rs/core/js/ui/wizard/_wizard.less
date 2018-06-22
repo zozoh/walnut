@@ -1,9 +1,8 @@
 .wizard {
-    @flex(); flex-direction:column;
     font-size: @f3; font-family: @f_fixed;
 
     // 全局标题
-    > .wz-title { flex:0 0 auto;
+    > .wz-title { 
         padding:@d3 @d4; background: @cb3; color:@cf3;
         font-size: @f2;
     }
@@ -32,12 +31,12 @@
     }
 
     // 步骤内容
-    > section { flex:1 1 auto;
+    > section { 
         padding:@d3; background: @cb0;
     }
 
     // 底部按钮区
-    > footer { flex:0 0 auto;
+    > footer { 
         padding:@d3; background: @cb1; color:@cf1;
         @flex(); justify-content: flex-end;
         > b {@btn(); padding:@d3 @d5; font-size:@f3; 

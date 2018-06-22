@@ -153,7 +153,16 @@ define({
             "thumb" : "只能上传 jpeg 或者 jpg 格式的图片",
         },
         "import" : {
-            "title" : "导入数据"
+            "title" : "导入数据",
+            "cf_tip1" : "将文件拖拽到这里，或者你可以",
+            "cf_tip2" : "支持的文件类型",
+            "cf_all"  : "任何格式",
+            "e_fmulti" : "您只能选择一个文件导入",
+            "e_fnone"  : "请选择一个文件导入，谢谢 -_-!",
+            "e_accept" : "文件「{{fname}}」不能被接受，只能接受「{{accept}}」",
+            "up_title"  : '上传文件',
+            "up_ing"    : '已经写入了 {{loaded}} 字节',
+            "up_finish" : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i> 正在做数据导入前的准备工作...',
         },
         "meta"   : "属性",
         "detail" : {

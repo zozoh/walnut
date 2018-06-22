@@ -18,36 +18,46 @@ return ZUI.def("ui.th_import", {
     redraw : function() {
         var UI  = this;
         var opt = UI.options;
-        var thintSetId = opt.thingSetId;
         var cmdText = opt.cmdText;
+
+        /*
+        向导收集的对象为:
+        {
+            theFile  : File   // 本地文件对象,
+            oTmpFile : {..}   // 服务器端的临时文件
+        }
+        */
 
         new WizardUI({
             parent : UI,
             gasketName : "wizard",
             headMode : "all",
+            startPoint : "step3",
             steps : {
                 // Step1:选择文件
                 "step1" : {
                     text : "选择文件",
-                    next : true,
+                    next : false,
                     uiType : "ui/thing/support/import/step1_choose_file",
                     uiConf : {
-
+                        accept: ".csv, .xls"
                     }
                 },
                 // Step2:上传进度
                 "step2" : {
                     text : "上传",
-                    next : true,
+                    prev : false,
+                    next : false,
                     uiType : "ui/thing/support/import/step2_uploading",
                     uiConf : {
-                        
+                        thingSetId : opt.thingSetId
                     }
                 },
                 // Step3: 分析数据执行命令
                 "step3" : {
                     text : "执行导入",
-                    next : true,
+                    prev : false,
+                    next : false,
                     uiType : "ui/thing/support/import/step3_import",
                     uiConf : {
                         

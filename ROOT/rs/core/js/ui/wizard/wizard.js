@@ -296,6 +296,8 @@ return ZUI.def("ui.wizard", {
         }else{
             jFooter.show();
         }
+        // 设置完毕以后重新改变一下尺寸
+        UI.resize();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
         // 显示界面
         seajs.use(step.uiType, function(TheUI){
@@ -367,6 +369,20 @@ return ZUI.def("ui.wizard", {
     setData : function(data) {
         this.__data = _.extend({}, data);
     },
+    //...............................................................
+    resize : function() {
+        var UI = this;
+        var jH = UI.arena.find('>header');
+        var jS = UI.arena.find('>section');
+        var jF = UI.arena.find('>footer');
+
+        if(UI.isFitParent()) {
+            var H  = UI.arena.height();
+            var hh = jH.outerHeight(true);
+            var hf = jF.outerHeight(true);
+            jS.css('height', H-hh-hf);
+        }
+    }
     //...............................................................
 });
 //===================================================================

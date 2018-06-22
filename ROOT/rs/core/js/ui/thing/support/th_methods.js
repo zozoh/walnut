@@ -289,7 +289,8 @@ var DATA_MODE = {
         };
         // 更多菜单项:导入
         if(conf.cmd_import) {
-            miMore.items.push({
+            //miMore.items.push({
+            conf.searchMenu.push({
                 text : "导入数据..",
                 cmdText : conf.cmd_import,
                 handler : function(jBtn, mi){

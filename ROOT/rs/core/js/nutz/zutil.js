@@ -2208,7 +2208,7 @@
                         return {re: ajaxRe, status: "fail"};
                     }
                     // 否则一定是错误
-                    return {re: xhr, status: "fail"};
+                    return {re:xhr.responseText, status: "fail"};
                 };
             }
             // 默认的处理方式
@@ -3831,6 +3831,20 @@
         },
         isBlankString: function (str) {
             return "" === $.trim(str);
+        },
+        isEndsWith: function(str, sub) {
+            if(!str || !sub)
+                return false;
+            if(sub.length> str.length)
+                return false;
+            return str.substring(str.length-sub.length) == sub;
+        },
+        isStartsWith: function(str, sub) {
+            if(!str || !sub)
+                return false;
+            if(sub.length> str.length)
+                return false;
+            return str.substring(0, sub.length) == sub;
         },
         //.............................................
         // 对 HTML 去掉空格等多余内容，并进行多国语言替换

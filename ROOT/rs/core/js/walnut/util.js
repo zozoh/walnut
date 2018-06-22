@@ -345,7 +345,7 @@ var Wn = {
        // msgShow,msgError,msgEnd 会被本函数覆盖，你设置了也木用
     });
     */
-    __fmt_cmd_panel_opt : function(cmdText, maskConf, callback) {
+    __fmt_cmd_panel_opt : function(cmdText, maskConf, callback, referUI) {
         var opt;
         // 给入命令文本 
         if(_.isString(cmdText)){
@@ -354,6 +354,7 @@ var Wn = {
             if(_.isFunction(maskConf)){
                 opt.maskConf = {};
                 opt.complete = maskConf;
+                opt.referUI = callback;
             }
             // 第二个参数就是预先显示的信息
             else if(_.isString(maskConf)) {
@@ -361,68 +362,100 @@ var Wn = {
                     welcome : maskConf
                 };
                 opt.complete = callback;
+                opt.referUI  = referUI;
             }
             // 第二个参数是弹出层配置
             else{
                 opt.maskConf = maskConf || {};
                 opt.complete = callback;
+                opt.referUI  = referUI;
             }
         }
         // 直接就是配置项
         else{
             opt = cmdText;
+            $z.setUndefined(opt, "referUI", maskConf);
         }
         // 返回
         return opt;
     },
     //................................................................
+    // 一个假名，用来兼容
+    logpanel : function(cmdText, maskConf, callback){
+        //this.logPanel(cmdText, maskConf, callback);
+        // 格式化参数
+        // var opt = Wn.__fmt_cmd_panel_opt(cmdText, maskConf, callback);
+        // // 显示遮罩
+        // var MaskUI = require('ui/mask/mask');
+        // new MaskUI(_.extend({
+        //     width : "60%"
+        // }, opt.maskConf)).render(function(){
+        //     // 得到遮罩实例
+        //     var uiMask = this;
+
+        //     // 准备输出 DOM
+        //     var jPre = $('<pre class="wn-log-panel">').appendTo(this.$main);
+            
+        //     // 预先显示信息
+        //     if(opt.maskConf.welcome) {
+        //         $('<div>').html(opt.maskConf.welcome).appendTo(jPre);
+        //     }
+        //     // 执行命令
+        //     Wn.exec(opt.cmdText, {
+        //         msgShow : function(str){
+        //             $('<div class="msg-info">')
+        //                 .text(str)
+        //                 .appendTo(jPre)[0].scrollIntoView({
+        //                     block: "end", behavior: "smooth"
+        //                 });
+        //         },
+        //         msgError : function(str){
+        //             $('<div class="msg-err">')
+        //                 .text(str)
+        //                 .appendTo(jPre)[0].scrollIntoView({
+        //                     block: "end", behavior: "smooth"
+        //                 });
+        //         },
+        //         done : function(re){
+        //             $z.invoke(opt, "done", [re], uiMask);
+        //         },
+        //         fail : function(re){
+        //             $z.invoke(opt, "fail", [re], uiMask);
+        //         },
+        //         complete : function(re){
+        //             $z.invoke(opt, "complete", [re], uiMask);
+        //         }
+        //     });
+        // });
+        this.loggingPanel(cmdText, maskConf, callback);
+    },
+    //................................................................
     // 执行一个命令，并且在一个弹出的日志窗口显示命令的返回情况
     // 参数 See #__fmt_cmd_panel_opt
-    logpanel : function(cmdText, maskConf, callback){
+    loggingPanel : function(cmdText, maskConf, callback, referUI){
+        //this.logPanel(cmdText, maskConf, callback);
         // 格式化参数
         var opt = Wn.__fmt_cmd_panel_opt(cmdText, maskConf, callback);
+        referUI = referUI || {};
         // 显示遮罩
         var MaskUI = require('ui/mask/mask');
         new MaskUI(_.extend({
             width : "60%"
-        }, opt.maskConf)).render(function(){
-            // 得到遮罩实例
-            var uiMask = this;
-
-            // 准备输出 DOM
-            var jPre = $('<pre class="wn-log-panel">').appendTo(this.$main);
-            
-            // 预先显示信息
-            if(opt.maskConf.welcome) {
-                $('<div>').html(opt.maskConf.welcome).appendTo(jPre);
-            }
-            // 执行命令
-            Wn.exec(opt.cmdText, {
-                msgShow : function(str){
-                    $('<div class="msg-info">')
-                        .text(str)
-                        .appendTo(jPre)[0].scrollIntoView({
-                            block: "end", behavior: "smooth"
-                        });
-                },
-                msgError : function(str){
-                    $('<div class="msg-err">')
-                        .text(str)
-                        .appendTo(jPre)[0].scrollIntoView({
-                            block: "end", behavior: "smooth"
-                        });
-                },
-                done : function(re){
-                    $z.invoke(opt, "done", [re], uiMask);
-                },
-                fail : function(re){
-                    $z.invoke(opt, "fail", [re], uiMask);
-                },
-                complete : function(re){
-                    $z.invoke(opt, "complete", [re], uiMask);
+        }, opt.maskConf, {
+            i18n  : referUI._msg_map,
+            exec  : referUI.exec,
+            app   : referUI.app,
+            setup : {
+                uiType : 'ui/support/cmd_log',
+                uiConf : {
+                    welcome  : opt.maskConf.welcome,
+                    cmdText  : opt.cmdText,
+                    done     : opt.done,
+                    fail     : opt.fail,
+                    complete : opt.complete,
                 }
-            });
-        });
+            }
+        })).render();
     },
     //................................................................
     // 执行一个命令，并且在一个弹出的日志窗口显示命令的进度情况

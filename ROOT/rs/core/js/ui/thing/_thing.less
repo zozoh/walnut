@@ -322,6 +322,58 @@
 .th-wizard {
 
 } // ~End of .th-wizard
+.th-wizard-mask {
+    .pm-body {
+        border-radius: 0 0 @d2 @d2;
+        overflow: hidden;
+    }
+}
+.th-import-1-choose-file {
+    input[type="file"]{display: none;}
+    .thiw-main {
+        width:100%; height:100%;
+        @flex(); justify-content: center; align-content: center;
+        flex-wrap:wrap;
+        border:3px dashed transparent;
+        padding-bottom:10%;
+        section {
+            padding:@d4; font-size:@f3; color:@c2;
+            width:100%; text-align: center;
+        }
+        &[ui-drag] {
+            border-color:@cborder1; background: @cb1; color:@cf1;
+        }
+    }
+}
+.th-import-2-uploading {
+    h4 {
+        margin:0; padding:@d2 @d4; color:@c2; font-size:@f3;
+        code {color:@c3; margin:0 @d2;}
+    }
+    .thiw-ing {
+        padding:@d5;
+        .thiw-ing-nb {
+            padding:@d3; text-align: center; color:@c4;
+        }
+        .thiw-ing-bar {
+            border:1px solid @cborder1; background: #FFF;
+            span {
+                height:4px; display: block; background: #0F0;
+            }
+        }
+        .thiw-ing-msg {
+            padding:@d3; text-align: center; color:@c2;
+            font-size: @f3;
+        }
+    }
+}
+.th-import-3-import {
+    .cmd-log pre {
+        background: transparent; color:#888;
+        .msg-info {color:#666;}
+        .msg-err {color:#F00;}
+    }
+}
 
 
 
