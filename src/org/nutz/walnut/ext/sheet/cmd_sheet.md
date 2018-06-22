@@ -91,11 +91,3 @@ Key 的全部写法为：
 obj * -json | sheet -tpo csv -flds "key1:title1:dft1,key2:title2:dft2..."
 ```
 
-
-
-
-
-
-
-
-    

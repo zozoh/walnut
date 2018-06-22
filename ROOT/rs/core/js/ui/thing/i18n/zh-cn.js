@@ -8,7 +8,6 @@ define({
         "refresh_tip" : "重新加载列表",
         "clean_do"    : "清空回收站",
         "clean_confirm"  : "清空回收站将导致所有回收站内数据不可恢复，你确定要继续吗？",
-        "clean_show"  : "显示回收站",
         "clean_restore" : "从回收站中恢复",
         "conf_setup" : "数据集配置...",
         "conf" : {
@@ -112,7 +111,22 @@ define({
             "e_fld_nkey"     : "字段键值不能为空",
             "e_fld_invalid"  : "字段键值非法，只能是数字，小写字母，和下划线的组合",
             "e_fld_exists"   : "字段键值已存在",
-        },
+            "tab_general"    : "基本",
+            "tab_fields"     : "字段",
+            "general" : {
+                "t_display" : "显示设定",
+                "t_imex"    : "导入/导出设定",
+                "k_smfwh"   : "菜单收缩",
+                "k_thIndex" : "显示索引",
+                "k_thIndex_m" : "对象属性",
+                "k_thIndex_d" : "详情内容",
+                "k_thData"  : "显示数据",
+                "cmd_import"    : "导入命令",
+                "cmd_import_t"  : "请输入导入命令",
+                "cmd_export"    : "导出命令",
+                "cmd_export_t"  : "请输入导出命令",
+            },
+        },  // end `thing.conf`
         "key" : {
             "id" : "ID",
             "lbls" : "标签",
@@ -137,6 +151,9 @@ define({
         },
         "keytip" : {
             "thumb" : "只能上传 jpeg 或者 jpg 格式的图片",
+        },
+        "import" : {
+            "title" : "导入数据"
         },
         "meta"   : "属性",
         "detail" : {

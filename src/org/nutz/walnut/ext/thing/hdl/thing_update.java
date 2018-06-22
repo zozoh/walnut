@@ -29,6 +29,12 @@ public class thing_update implements JvmHdl {
         // 分析参数
         String id = hc.params.val_check(0);
 
+        // 设置名称
+        String th_nm = hc.params.val(1);
+        if (!Strings.isBlank(th_nm)) {
+            meta.put("th_nm", th_nm);
+        }
+
         // 准备调用接口
         hc.output = wts.updateThing(id, meta);
     }

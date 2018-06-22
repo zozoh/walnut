@@ -197,6 +197,7 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         // 空的
         if (null == val) {
             cell.setCellType(CellType.BLANK);
+            return;
         }
         // 开始判断吧
         Mirror<?> mi = Mirror.me(val);
@@ -233,7 +234,11 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         CellType cellType = cell.getCellTypeEnum();
         switch (cellType) {
         case NUMERIC:
-            return cell.getNumericCellValue();
+            double n = cell.getNumericCellValue();
+            long ni = (long) n;
+            if (ni == n)
+                return ni;
+            return n;
         case STRING:
             return cell.getStringCellValue();
         case FORMULA:

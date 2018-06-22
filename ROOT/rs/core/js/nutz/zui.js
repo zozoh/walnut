@@ -4,6 +4,16 @@ define(function (require, exports, module) {
     require("ui/dateformat.js");
     seajs.use("nutz/theme/zui-" + window.$zui_theme + ".css");
 //====================================================
+// 侦测操作系统
+    // 苹果
+    if($z.os.mac) {
+        $('html').attr("z-os", "mac");
+    }
+    // 其他的都作为 windows
+    else {
+        $('html').attr("z-os", "windows");
+    }
+//====================================================
     var parse_dom = function (html) {
         var UI = this;
 

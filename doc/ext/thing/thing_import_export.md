@@ -23,8 +23,8 @@ tags:
 ## 导入的组合命令
 
 ```
-sheet id:xxx -mapping ~/.sheet/mapping -tpo json \
-        | thing xxx create -fields -unique phone
+sheet id:{{f.id}} -mapping ~/.sheet/测试数据_import -tpo json \
+    | thing {{tsId}} create -fields -unique phone
 ```
 
 - `sheet` 命令使用详情参看 `man sheet`
@@ -80,7 +80,7 @@ Key 的全部写法为：
 ## 导出的组合命令
 
 ```
-thing xxx query {..} | sheet -f id:xxx -process
+thing {{tsId}} query <%=query%> | sheet -out id:{{f.id}} -process
 ```
 
 - `sheet -f` 表示输出到一个文件里

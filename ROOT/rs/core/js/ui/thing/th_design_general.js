@@ -36,10 +36,10 @@ return ZUI.def("app.wn.thdesign_general", {
                 UI.notifyChanged();
             },
             fields : [{
-                title : "显示设定",
+                title : "i18n:thing.conf.general.t_display",
                 fields : [{
                     key : "searchMenuFltWidthHint",
-                    title : "菜单收缩",
+                    title : "i18n:thing.conf.general.k_smfwh",
                     type : "string",
                     dft : "",
                     editAs : "input",
@@ -48,29 +48,58 @@ return ZUI.def("app.wn.thdesign_general", {
                     }
                 }, {
                     key : "thIndex",
-                    title : "显示索引",
+                    title : "i18n:thing.conf.general.k_thIndex",
                     type : "object",
                     dft : [],
                     editAs : "switch",
                     uiConf : {
                         multi : true,
-                        items : [
-                            {value : "meta",   text : "对象属性"},
-                            {value : "detail", text : "详情内容"},
-                        ]
+                        items : [{
+                                value : "meta",
+                                text : "i18n:thing.conf.general.k_thIndex_m"
+                            }, {
+                                value : "detail",
+                                text : "i18n:thing.conf.general.k_thIndex_d"
+                            }]
                     }
                 }, {
                     key : "thData",
-                    title : "显示数据",
+                    title : "i18n:thing.conf.general.k_thData",
                     type : "object",
                     dft : [],
                     editAs : "switch",
                     uiConf : {
                         multi : true,
-                        items : [
-                            {value : "media",      text : "多媒体"},
-                            {value : "attachment", text : "附件"},
-                        ]
+                        items : [{
+                                value : "media",
+                                text  : "i18n:thing.data.media"
+                            }, {
+                                value : "attachment", 
+                                text : "i18n:thing.data.attachment"
+                            }]
+                    }
+                }]
+            }, {
+                title : "i18n:thing.conf.general.t_imex",
+                fields : [{
+                    key : "cmd_import",
+                    title : "i18n:thing.conf.general.cmd_import",
+                    type : "string",
+                    dft : "",
+                    editAs : "text",
+                    uiConf : {
+                        placeholder : "i18n:thing.conf.general.cmd_import_t",
+                        height: 100,
+                    }
+                }, {
+                    key : "cmd_export",
+                    title : "i18n:thing.conf.general.cmd_export",
+                    type : "string",
+                    dft : "",
+                    editAs : "text",
+                    uiConf : {
+                        placeholder : "i18n:thing.conf.general.cmd_import_d",
+                        height: 100,
                     }
                 }]
             }],
@@ -88,6 +117,8 @@ return ZUI.def("app.wn.thdesign_general", {
         //console.log(setupObj)
         return {
             searchMenuFltWidthHint : setupObj.searchMenuFltWidthHint,
+            cmd_import : setupObj.cmd_import,
+            cmd_export : setupObj.cmd_export,
             meta       : setupObj.thIndex.indexOf("meta")>=0,
             detail     : setupObj.thIndex.indexOf("detail")>=0,
             media      : setupObj.thData.indexOf("media")>=0,
@@ -107,6 +138,8 @@ return ZUI.def("app.wn.thdesign_general", {
         // 更新通用全局配置
         var setupObj = {
             searchMenuFltWidthHint : thConf.searchMenuFltWidthHint,
+            cmd_import : thConf.cmd_import,
+            cmd_export : thConf.cmd_export,
             thIndex : [],
             thData  : []
         };

@@ -25,6 +25,7 @@ return ZUI.def("ui.th_manager", {
         ThMethods(this);
 
         this.listenBus("setup", this.openSetup, true);
+        this.listenBus("do:import", this.openImport, true);
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -123,6 +124,26 @@ return ZUI.def("ui.th_manager", {
                 if(uiDesign.isChanged()) {
                     window.location.reload();
                 }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
+    },
+    //..............................................
+    openImport : function() {
+        var UI = this;
+        var conf  = UI.getBusConf();
+        var oHome = UI.getHomeObj();
+        
+        POP.openUIPanel({
+            title : "i18n:thing.import.title",
+            width : 640,
+            arenaClass : "th-wizard-mask",
+            setup : {
+                uiType : "ui/thing/support/th_import",
+            },
+            close : function(uiImport){
+                console.log("done")
             },
             btnOk : null,
             btnCancel : null,

@@ -154,11 +154,11 @@ return ZUI.def("app.wn.thdesign", {
             defaultKey : UI.local('tabsKey') || "general",
             setup : {
                 "general" : {
-                    text : "通用设置",
+                    text : "i18n:thing.conf.tab_general",
                     uiType : "ui/thing/th_design_general",
                 },
                 "fields" : {
-                    text : "字段设置",
+                    text : "i18n:thing.conf.tab_fields",
                     uiType : "ui/thing/th_design_fields",
                 }
             },

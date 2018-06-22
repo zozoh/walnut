@@ -66,13 +66,46 @@ th_thumb : ID    // Thing 的默认缩略图
 
 ```
 {
+  // 布局显示
+  searchMenuFltWidthHint : "50%", // 搜素面板菜单全部缩起的宽度阀值
   meta: true,          // 是否显示元数据
   detail: false,       // 是否显示详情编辑
   media: false,        // 是否显示媒体面板
   attachment: false,   // 是否显示附件面板
-     
+  //......................................
+  /* 导入导出设定
+  导入导出命令模板接受下面的上下文
+  {
+    f : {..}        // 临时文件对象，一个 WnObj
+    tsId  : ID      // 数据集的 ID
+    query : ".."    // 导出时给定的过滤参数，要拼在 thing query 后面
+  }
+  命令模板的占位符，{{xxx}} 表示替换，但是会逃逸 HTML 字符
+  如果不逃逸，一般用 <%=xxx%>
+  */ 
+  cmd_import : "xxx",     // 导入命令模板
+  cmd_export : "xxx",     // 导出命令模板
+  //......................................
+  // 过滤器设定 @see ui/search/search_filter.md
+  searchFilter : {}
+  //......................................
+  // 列表批量对象操作菜单
+  searchMenu : [..]
+  //......................................
+  // 列表设定 @see ui/search/search_list.md
+  searchList : {}
+  //......................................
+  // 排序器设定 @see ui/search/search_sorter.md
+  searchSorter : {}
+  //......................................
+  // 翻页条设定 @see ui/search/search_pager.md
+  searchPager : {}
+  //......................................
+  // 单个对象操作菜单
+  objMenu : [..]
+  //......................................
   // 物品的字段，这个遵守 ui/form/form 控件的 field 字段定义规范
-  fields : [...]
+  fields : [..]
 }
 ```
 

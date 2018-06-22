@@ -233,102 +233,148 @@ var DATA_MODE = {
                 }
             }
         }, opt.actions);
+        // ----------------- searchFilter
+        conf.searchFilter = opt.searchFilter || conf.searchFilter || {
+            tabsPosition : "drop",
+            tabsKeepChecked : true,
+            tabs : [{
+                    icon : '<i class="fas fa-database"></i>',
+                    text : "数据",
+                    value   : {th_live : 1},
+                    checked : true
+                }, {
+                    icon : '<i class="fas fa-trash"></i>',
+                    text : "回收站",
+                    color      : "#C44",
+                    background : "#F88",
+                    value   : {th_live : -1},
+                }]
+        };
+        // 设置默认
+        $z.setUndefined(conf.searchFilter, "keyField", ["th_nm"]);
         // ----------------- searchMenu
-        conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
-            // 命令: 创建
-            icon : '<i class="zmdi zmdi-flare"></i>',
-            text : "i18n:thing.create",
+        conf.searchMenu = opt.searchMenu || conf.searchMenu;
+        // 设置默认菜单
+        if(!_.isArray(conf.searchMenu)) {
+            conf.searchMenu = [{
+                    // 命令: 创建
+                    icon : '<i class="zmdi zmdi-flare"></i>',
+                    text : "i18n:thing.create",
+                    handler : function() {
+                        this.uis("search").createObj();
+                    }
+                }, {
+                    // 命令: 刷新
+                    icon : '<i class="zmdi zmdi-refresh"></i>',
+                    tip  : "i18n:thing.refresh_tip",
+                    asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
+                    asyncHandler : function(jq, mi, callback) {
+                        this.uis("search").refresh(callback, true);
+                    }
+                }, {
+                    // 命令: 删除
+                    icon : '<i class="fa fa-trash"></i>',
+                    tip  : "i18n:thing.rm_tip",
+                    handler : function() {
+                        this.uis("search").removeChecked(null, function(o){
+                            return o.th_live >= 0 ? o : null;
+                        });
+                    }
+                }];
+        }
+        // 准备更多项目
+        var miMore = {
+            icon  : '<i class="zmdi zmdi-more-vert"></i>',
+            items : []
+        };
+        // 更多菜单项:导入
+        if(conf.cmd_import) {
+            miMore.items.push({
+                text : "导入数据..",
+                cmdText : conf.cmd_import,
+                handler : function(jBtn, mi){
+                    UI.fire("do:import");
+                }
+            });
+        }
+        if(conf.cmd_export) {
+            miMore.items.push({
+                text : "导出数据..",
+                cmdText : conf.cmd_export,
+                handler : function(jBtn, mi){
+                    UI.fire("do:export");
+                }
+            });
+        }
+        // 更多菜单项:清空回收站
+        miMore.items.push({type:"separator"});
+        miMore.items.push({
+            icon : '<i class="fa fa-eraser"></i>',
+            text : "i18n:thing.clean_do",
             handler : function() {
-                this.uis("search").createObj();
-            }
-        }, {
-            // 命令: 刷新
-            icon : '<i class="zmdi zmdi-refresh"></i>',
-            tip  : "i18n:thing.refresh_tip",
-            asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
-            asyncHandler : function(jq, mi, callback) {
-                this.uis("search").refresh(callback, true);
-            }
-        }, {
-            // 命令: 删除
-            icon : '<i class="fa fa-trash"></i>',
-            tip  : "i18n:thing.rm_tip",
-            handler : function() {
-                this.uis("search").removeChecked(null, function(o){
-                    return o.th_live >= 0 ? o : null;
+                var UI = this;
+                UI.confirm("thing.clean_confirm", {
+                    icon : "warn",
+                    ok : function(){
+                        var cmdText = "thing " + UI.getHomeObjId() + " clean";
+                        Wn.logpanel(cmdText, function(){
+                            $z.invoke(UI.bus(), "showBlank");
+                            UI.uis("search").refresh(true);
+                        });
+                    }
                 });
             }
-        }, {
-            icon  : '<i class="zmdi zmdi-more-vert"></i>',
-            items : [{
-                // 命令: 清空回收站
-                icon : '<i class="fa fa-eraser"></i>',
-                text : "i18n:thing.clean_do",
-                handler : function() {
-                    var UI = this;
-                    UI.confirm("thing.clean_confirm", {
-                        icon : "warn",
-                        ok : function(){
-                            var cmdText = "thing " + UI.getHomeObjId() + " clean";
-                            Wn.logpanel(cmdText, function(){
-                                $z.invoke(UI.bus(), "showBlank");
-                                UI.uis("search").refresh(true);
-                            });
-                        }
-                    });
-                }
-            }, {
-                // 命令: 显示回收站
-                icon : '<i class="fa fa-trash-o"></i>',
-                text : "i18n:thing.clean_show",
-                handler : function() {
-                    this.uis("search").setKeyword("th_live=-1");
-                }
-            }, {
-                // 命令: 从回收站中恢复
-                icon : '<i class="zmdi zmdi-window-minimize"></i>',
-                text : "i18n:thing.clean_restore",
-                handler : function() {
-                    var UI  = this;
+        });
+        // 更多菜单项:从回收站恢复
+        miMore.items.push({
+            icon : '<i class="zmdi zmdi-window-minimize"></i>',
+            text : "i18n:thing.clean_restore",
+            handler : function() {
+                var UI  = this;
 
-                    // 得到选中的对象们
-                    var list = UI.uis("search").getChecked();
-                    // 判断 th_live == -1 的对象
-                    var checkedObjs = [];
-                    for(var i=0; i<list.length; i++) {
-                        var obj = list[i];
-                        if(obj.th_live < 0)
-                            checkedObjs.push(obj);
-                    }
-
-                    // 没有对象，显示警告
-                    if(checkedObjs.length == 0){
-                        UI.alert("thing.err.restore_none", "warn");
-                        return;
-                    }
-
-                    // 组装命令
-                    var cmdText = "thing " + UI.getHomeObjId() + " restore -l";
-                    for(var i=0; i<checkedObjs.length; i++) {
-                        var obj = checkedObjs[i];
-                        cmdText += " " + obj.id;
-                    }
-
-                    // 执行命令后清空对象显示，并刷新列表
-                    Wn.exec(cmdText, function(re) {
-                        $z.invoke(UI.bus(), "showBlank");
-                        UI.uis("search").refresh(true);
-                    });
+                // 得到选中的对象们
+                var list = UI.uis("search").getChecked();
+                // 判断 th_live == -1 的对象
+                var checkedObjs = [];
+                for(var i=0; i<list.length; i++) {
+                    var obj = list[i];
+                    if(obj.th_live < 0)
+                        checkedObjs.push(obj);
                 }
-            }, {
-                // 命令: 弹出配置界面
-                icon : '<i class="fa fa-gears"></i>',
-                text : "i18n:thing.conf_setup",
-                handler : function() {
-                    this.fire("setup");
+
+                // 没有对象，显示警告
+                if(checkedObjs.length == 0){
+                    UI.alert("thing.err.restore_none", "warn");
+                    return;
                 }
-            }]
-        }];
+
+                // 组装命令
+                var cmdText = "thing " + UI.getHomeObjId() + " restore -l";
+                for(var i=0; i<checkedObjs.length; i++) {
+                    var obj = checkedObjs[i];
+                    cmdText += " " + obj.id;
+                }
+
+                // 执行命令后清空对象显示，并刷新列表
+                Wn.exec(cmdText, function(re) {
+                    $z.invoke(UI.bus(), "showBlank");
+                    UI.uis("search").refresh(true);
+                });
+            }
+        });
+        // 更多菜单项:配置界面
+        miMore.items.push({type:"separator"});
+        miMore.items.push({
+            icon : '<i class="fa fa-gears"></i>',
+            text : "i18n:thing.conf_setup",
+            handler : function() {
+                this.fire("setup");
+            }
+        });
+        // 加入到菜单
+        if(miMore.items.length > 0) {
+            conf.searchMenu.push(miMore);
+        }
         // ----------------- meta
         conf.meta = $z.fallback([undefined, true], [opt.meta, conf.meta], {
             update : function(th, key, callback) {
@@ -500,6 +546,8 @@ var DATA_MODE = {
                 }
             }
         }, opt.actions);
+        // ----------------- searchFilter
+        conf.searchFilter = opt.searchFilter || conf.searchFilter || {};
         // ----------------- searchMenu
         conf.searchMenu = opt.searchMenu || conf.searchMenu || [{
             // 命令: 创建
@@ -651,7 +699,6 @@ var methods = {
             conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
                                           || conf.searchMenuFltWidthHint
                                           || "50%";
-            conf.searchFilter = opt.searchFilter || conf.searchFilter || {};
             conf.searchList   = opt.searchList   || conf.searchList;
             conf.searchSorter = opt.searchSorter || conf.searchSorter;
             conf.searchPager  = opt.searchPager  || conf.searchPager;
@@ -659,9 +706,6 @@ var methods = {
 
             // 按照模式处理各个配置项
             DATA_MODE[conf.dataMode].call(UI, conf, opt);
-
-            // 设置默认
-            $z.setUndefined(conf.searchFilter, "keyField", ["th_nm"]);
 
             // 标识处理完成
             bus.__CONF = conf;

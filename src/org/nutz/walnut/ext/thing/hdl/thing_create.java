@@ -37,6 +37,12 @@ public class thing_create implements JvmHdl {
         else {
             NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
             Things.fillMetaByParams(meta, hc.params);
+            // 设置名称
+            String th_nm = hc.params.val(0);
+            if (!Strings.isBlank(th_nm)) {
+                meta.put("th_nm", th_nm);
+            }
+            // 执行创建
             hc.output = wts.createThing(meta, ukey);
         }
 

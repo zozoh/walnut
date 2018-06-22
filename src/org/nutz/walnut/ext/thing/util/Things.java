@@ -210,12 +210,6 @@ public abstract class Things {
      * @return 填充完毕的元数据
      */
     public static NutMap fillMetaByParams(NutMap meta, ZParams params) {
-        // 设置名称
-        String th_nm = params.val(0);
-        if (!Strings.isBlank(th_nm)) {
-            meta.put("th_nm", th_nm);
-        }
-
         // 摘要
         if (params.has("brief")) {
             meta.put("brief", params.get("brief"));
