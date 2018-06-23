@@ -25,7 +25,7 @@ return ZUI.def("app.wn.thi_1_choose_file", {
     events : {
         // 模拟输入框点击
         'click b.ui-btn' : function() {
-            console.log(this.arena.find('input[type="file"]').length)
+            //console.log(this.arena.find('input[type="file"]').length)
             this.arena.find('input[type="file"]').click();
         },
         // 监控文件选择输入框

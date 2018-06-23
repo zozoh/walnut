@@ -34,8 +34,8 @@ return ZUI.def("app.wn.thi_3_import", {
     setData : function(data) {
         var UI  = this;
         var opt = UI.options;
-        console.log(data);
-        console.log(opt.cmdText)
+        // console.log(data);
+        // console.log(opt.cmdText)
         
         var cmd = $z.tmpl(opt.cmdText)({
             f    : data.oTmpFile,
