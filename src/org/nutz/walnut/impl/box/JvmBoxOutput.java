@@ -1,7 +1,5 @@
 package org.nutz.walnut.impl.box;
 
-import java.io.Closeable;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +14,9 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.Outable;
 
-public class JvmBoxOutput implements Flushable, Closeable {
+public class JvmBoxOutput implements Outable {
 
     private static final Log log = Logs.get();
 
@@ -52,6 +51,7 @@ public class JvmBoxOutput implements Flushable, Closeable {
         return _w;
     }
 
+    @Override
     public void write(InputStream ins) {
         try {
             Streams.write(ops, ins);
@@ -66,6 +66,7 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    @Override
     public void writeAndClose(InputStream ins) {
         try {
             Streams.write(ops, ins);
@@ -83,10 +84,12 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    @Override
     public void write(byte[] b) {
         write(b, 0, b.length);
     }
 
+    @Override
     public void write(byte[] b, int off, int len) {
         try {
             ops.write(b, off, len);
@@ -101,10 +104,12 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    @Override
     public void println() {
         print("\n");
     }
 
+    @Override
     public void println(Object obj) {
         if (null == obj) {
             print("null\n");
@@ -119,10 +124,12 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    @Override
     public void printlnf(String fmt, Object... args) {
         print(String.format(fmt, args) + "\n");
     }
 
+    @Override
     public void writeJson(Object o, JsonFormat fmt) {
         try {
             Writer w = getWriter();
@@ -138,14 +145,17 @@ public class JvmBoxOutput implements Flushable, Closeable {
         }
     }
 
+    @Override
     public void writeJson(Object o) {
         writeJson(o, JsonFormat.forLook());
     }
 
+    @Override
     public void printf(String fmt, Object... args) {
         print(String.format(fmt, args));
     }
 
+    @Override
     public void print(CharSequence msg) {
         try {
             Writer w = getWriter();

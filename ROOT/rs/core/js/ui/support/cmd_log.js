@@ -13,6 +13,15 @@ var html = function(){/*
 return ZUI.def("app.wn.cmd_log", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
+    init : function(opt) {
+        var UI = this;
+
+        // 处理信息字符串
+        $z.setUndefined(opt, "formatMessage", function(str){
+            return str;
+        });
+    },
+    //...............................................................
     redraw : function(){
         var UI   = this;
         var opt  = UI.options;
@@ -35,18 +44,20 @@ return ZUI.def("app.wn.cmd_log", {
         }
 
         // 执行
-        console.log(cmdText)
+        //console.log(cmdText)
         Wn.exec(cmdText, {
             msgShow : function(str){
+                var s = opt.formatMessage(str);
                 $('<div class="msg-info">')
-                    .text(str)
+                    .text(s)
                     .appendTo(jPre)[0].scrollIntoView({
                         block: "end", behavior: "smooth"
                     });
             },
             msgError : function(str){
+                var s = opt.formatMessage(str);
                 $('<div class="msg-err">')
-                    .text(str)
+                    .text(s)
                     .appendTo(jPre)[0].scrollIntoView({
                         block: "end", behavior: "smooth"
                     });

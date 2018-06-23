@@ -18,7 +18,6 @@ return ZUI.def("ui.th_import", {
     redraw : function() {
         var UI  = this;
         var opt = UI.options;
-        var cmdText = opt.cmdText;
 
         /*
         向导收集的对象为:
@@ -32,7 +31,7 @@ return ZUI.def("ui.th_import", {
             parent : UI,
             gasketName : "wizard",
             headMode : "all",
-            startPoint : "step3",
+            startPoint : "step1",
             steps : {
                 // Step1:选择文件
                 "step1" : {
@@ -60,7 +59,8 @@ return ZUI.def("ui.th_import", {
                     next : false,
                     uiType : "ui/thing/support/import/step3_import",
                     uiConf : {
-                        
+                        thingSetId : opt.thingSetId,
+                        cmdText    : opt.cmdText
                     }
                 },
                 // Step4: 显示上传成功

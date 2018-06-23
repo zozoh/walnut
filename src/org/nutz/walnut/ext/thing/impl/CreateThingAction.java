@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.Outable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -19,12 +21,28 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     private List<NutMap> metas;
 
+    private Tmpl process;
+
+    private Outable out;
+
     public CreateThingAction() {
         this.metas = new LinkedList<>();
     }
 
     public CreateThingAction setUniqueKey(String uniqueKey) {
         this.uniqueKey = uniqueKey;
+        return this;
+    }
+
+    public CreateThingAction setProcess(Outable out, String process) {
+        this.out = out;
+        this.process = Tmpl.parse(process);
+        return this;
+    }
+
+    public CreateThingAction setProcess(Outable out, Tmpl process) {
+        this.out = out;
+        this.process = process;
         return this;
     }
 
@@ -43,18 +61,33 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     public List<WnObj> invoke() {
         // 找到索引
         WnObj oIndex = this.checkDirTsIndex();
+        int len = metas.size();
 
-        // 准备返回值
-        List<WnObj> list = new ArrayList<>(metas.size());
-
-        // 来吧，循环生成
-        for (NutMap meta : metas) {
-            WnObj oT = __create_one(oIndex, meta);
-            list.add(oT);
+        // 进度模式
+        if (null != process && null != out) {
+            int i = 1;
+            for (NutMap meta : metas) {
+                String P = String.format("%%[%d/%d]", i++, len);
+                WnObj oT = __create_one(oIndex, meta);
+                String msg = process.render(oT.setv("P", P).setv("I", i));
+                out.println(msg);
+            }
+            return null;
         }
+        // 普通创建模式
+        else {
+            // 准备返回值
+            List<WnObj> list = new ArrayList<>(len);
 
-        // 返回
-        return list;
+            // 来吧，循环生成
+            for (NutMap meta : metas) {
+                WnObj oT = __create_one(oIndex, meta);
+                list.add(oT);
+            }
+
+            // 返回
+            return list;
+        }
     }
 
     private WnObj __create_one(WnObj oIndex, NutMap meta) {

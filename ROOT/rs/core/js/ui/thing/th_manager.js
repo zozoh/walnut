@@ -143,7 +143,8 @@ return ZUI.def("ui.th_manager", {
             setup : {
                 uiType : "ui/thing/support/th_import",
                 uiConf : {
-                    thingSetId : oHome.id
+                    thingSetId : oHome.id,
+                    cmdText    : conf.cmd_import,
                 }
             },
             close : function(uiImport){

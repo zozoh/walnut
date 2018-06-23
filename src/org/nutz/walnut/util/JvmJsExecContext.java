@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.Outable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -23,15 +24,15 @@ public class JvmJsExecContext implements JsExecContext {
 
     private WnSystem sys;
 
-    public JvmBoxOutput out;
+    public Outable out;
 
-    public JvmBoxOutput err;
+    public Outable err;
 
     public WnSession se;
 
     public JvmBoxInput in;
 
-    public JvmJsExecContext(WnSystem sys, JvmBoxOutput out) {
+    public JvmJsExecContext(WnSystem sys, Outable out) {
         this.sys = sys;
         this.in = sys.in;
         this.out = out;

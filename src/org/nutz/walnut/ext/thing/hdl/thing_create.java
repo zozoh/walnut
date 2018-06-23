@@ -27,11 +27,12 @@ public class thing_create implements JvmHdl {
         // 得到字段
         String ukey = hc.params.get("unique");
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
+        String process = hc.params.get("process");
 
         // 数组：那么就表示创建多条数据咯
         if (Strings.isQuoteBy(json, '[', ']')) {
             List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
-            hc.output = wts.createThings(list, ukey);
+            hc.output = wts.createThings(list, ukey, sys.out, process);
         }
         // 普通对象: 表示创建一条数据
         else {

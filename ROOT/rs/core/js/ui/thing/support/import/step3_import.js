@@ -21,7 +21,7 @@ return ZUI.def("app.wn.thi_3_import", {
             parent : UI,
             gasketName : "log",
             done : function(){
-                console.log("I am done")
+                
             }
         }).render(function(){
             UI.defer_report("log");
@@ -35,11 +35,17 @@ return ZUI.def("app.wn.thi_3_import", {
     },
     //...............................................................
     setData : function(data) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
         console.log(data);
+        console.log(opt.cmdText)
         
+        var cmd = $z.tmpl(opt.cmdText)({
+            f    : data.oTmpFile,
+            tsId : opt.thingSetId,
+        });
 
-        UI.gasket.log.runCommand("output hello -n 100 -ti -interval 10");
+        UI.gasket.log.runCommand(cmd);
     },
     //...............................................................
 });
