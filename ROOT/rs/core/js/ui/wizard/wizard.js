@@ -103,9 +103,8 @@ return ZUI.def("ui.wizard", {
             else if("done" == btnMode) {
                 // 保存数据
                 UI.saveData();
-
                 // 执行回调
-                $z.invoke(step, "done",    [data, UI], context);
+                $z.invoke(step.done, "action", [data, UI], context);
                 $z.invoke(opt,  "on_done", [data, UI], context);
             }
         },

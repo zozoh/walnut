@@ -40,7 +40,7 @@ return ZUI.def("app.wn.cmd_log", {
 
         // 预先显示信息
         if(opt.welcome) {
-            $('<div>').html(opt.welcome).appendTo(jPre);
+            $('<div>').html(UI.text(opt.welcome)).appendTo(jPre);
         }
 
         // 执行

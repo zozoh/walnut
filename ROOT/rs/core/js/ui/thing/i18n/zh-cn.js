@@ -163,6 +163,8 @@ define({
             "up_title"  : '上传文件',
             "up_ing"    : '已经写入了 {{loaded}} 字节',
             "up_finish" : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i> 正在做数据导入前的准备工作...',
+            "in_welcome" : "正在分析导入数据...",
+            "in_done" : "导入数据成功"
         },
         "meta"   : "属性",
         "detail" : {

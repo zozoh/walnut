@@ -72,6 +72,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
                 String msg = process.render(oT.setv("P", P).setv("I", i));
                 out.println(msg);
             }
+            out.println(Strings.dup('-', 20));
+            out.printlnf("All done for %d records", i);
             return null;
         }
         // 普通创建模式

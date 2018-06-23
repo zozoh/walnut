@@ -20,18 +20,15 @@ return ZUI.def("app.wn.thi_3_import", {
         new CmdLogUI({
             parent : UI,
             gasketName : "log",
+            welcome : 'i18n:thing.import.in_welcome',
             done : function(){
-                
+               UI.parent.gotoStep(1);
             }
         }).render(function(){
             UI.defer_report("log");
         });
 
         return ["log"];
-    },
-    //...............................................................
-    getData : function(){
-        
     },
     //...............................................................
     setData : function(data) {

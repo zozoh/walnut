@@ -67,7 +67,7 @@ return ZUI.def("ui.th_import", {
                 "step4" : {
                     text : "成功",
                     done : function(){
-                        console.log("I am done");
+                        $z.invoke(opt, "done");
                     },
                     uiType : "ui/thing/support/import/step4_done",
                     uiConf : {

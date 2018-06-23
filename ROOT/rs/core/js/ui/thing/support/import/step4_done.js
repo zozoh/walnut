@@ -6,32 +6,15 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-import-4-done" ui-fitparent="yes">
-    I am import DONE!
+    <header>
+        <i class="zmdi zmdi-check-circle"></i>
+    </header>
+    <section>{{thing.import.in_done}}</section>
 </div>
 */};
 //==============================================
 return ZUI.def("app.wn.thi_4_done", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    //...............................................................
-    redraw : function() {
-        var UI  = this;
-        var opt = UI.options;
-        
-
-    },
-    //...............................................................
-    isDataReady : function() {
-        return true;
-    },
-    //...............................................................
-    getData : function(){
-        
-    },
-    //...............................................................
-    setData : function() {
-        
-    },
-    //...............................................................
 });
 //===================================================================
 });

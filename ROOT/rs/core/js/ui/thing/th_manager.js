@@ -139,16 +139,20 @@ return ZUI.def("ui.th_manager", {
             title  : "i18n:thing.import.title",
             width  : 640,
             height : 480,
+            closer : false,
             arenaClass : "th-wizard-mask",
             setup : {
                 uiType : "ui/thing/support/th_import",
                 uiConf : {
                     thingSetId : oHome.id,
                     cmdText    : conf.cmd_import,
+                    done : function() {
+                        // 关闭窗口
+                        this.parent.close();
+                        // 刷新数据
+                        UI.invokeUI("search", "refresh", [true]);
+                    }
                 }
-            },
-            close : function(uiImport){
-                console.log("done")
             },
             btnOk : null,
             btnCancel : null,
