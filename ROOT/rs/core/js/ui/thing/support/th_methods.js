@@ -289,8 +289,7 @@ var DATA_MODE = {
         };
         // 更多菜单项:导入
         if(conf.cmd_import) {
-            //miMore.items.push({
-            conf.searchMenu.push({
+            miMore.items.push({
                 text : "导入数据..",
                 cmdText : conf.cmd_import,
                 handler : function(jBtn, mi){
@@ -299,6 +298,7 @@ var DATA_MODE = {
             });
         }
         if(conf.cmd_export) {
+            //conf.searchMenu.push({
             miMore.items.push({
                 text : "导出数据..",
                 cmdText : conf.cmd_export,
