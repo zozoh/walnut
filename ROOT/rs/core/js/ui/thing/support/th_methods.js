@@ -120,7 +120,8 @@ var __format_thing_fld = function(UI, fld) {
             },
             editAs : "image",
             uiConf : {
-                dataType : "idph"
+                dataType : "idph",
+                height : 180
             }
         });
     }
