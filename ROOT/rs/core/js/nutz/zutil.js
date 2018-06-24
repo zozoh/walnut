@@ -1676,6 +1676,11 @@
          - minNb : 最小值，通常为 70
         */
         do_change_root_fontSize: function (context, designWidth, maxNb, minNb) {
+            context = context || {
+                doc    : document,
+                win    : window,
+                root   : document.documentElement,
+            };
             designWidth = designWidth || 640;
             maxNb = maxNb || 100;
             minNb = minNb || 70;

@@ -751,56 +751,51 @@
 
 //----------------------------------------------------------------
 .com-image { @noselect();
+    &[ui-drag] {
+        .comi-image {
+            border-color: @c6;
+            img {opacity: 0.4;}
+        }
+    }
+    input[type="file"] {display: none;}
     .comi-image {
-        padding: 2px; display: inline-block; border: 2px dashed transparent;
+        padding: 2px; border: 2px dashed transparent;
+        position: relative; cursor: pointer;
         img {
-            margin: 0; float: left; border-radius: @d2; border: 2px solid @cborder1;
-            max-width: 100%; 
+            border-radius: @d2; border: 2px solid @cborder1;
+            max-width: 100%; display: block; vertical-align: bottom;
         }
     }
-    .comi-image[drag-show] {
-        border-color: @c0;
-        img {opacity: 0.4;}
-    }
-    .comi-image:after {@clr();}
     .comi-select {
-        input[type="file"] {display: none;}
+        position: absolute; top:0; left: 0; right:0; bottom: 0;
+        border-radius: @d2; padding:@d3;
+        visibility: hidden; background: rgba(0,0,0,0.6); color:#FFF;
+        @flex(); justify-content: center; align-items: center;
+        flex-direction: column;
         > * {
-            vertical-align: middle;display: inline-block;margin-right: @d3;
+            vertical-align: middle;display: inline-block;
         }
-        > b {@btn();}
-        > b:hover {@btn_hover();}
+        > b {
+            display: block; font-size:@f4;
+        }
         > .comi-process-con {
-            display: none; border: 1px solid @cborder0; background: @cb0; width: 100px;
+            display: none; border: 1px solid @cborder0; background: @cb0; 
+            width: 100%; margin:@d3 0;
             > .comi-process-inner {
-                display: block; background: @c3; height: 2px; width: 0%;
+                display: block; background: @c3; height: 2px; width: 20%;
             }
         }
         > .comi-process-info {display: none;color: @c2;}
-        > .comi-msg {margin: 0 @d2;display: none;
-            > i {font-size: 1.2em;}
-        }
-        > .comi-msg[st="done"] {color: @c7;}
-        > .comi-msg[st="fail"] {
-            color: @c6;
-            > em {margin-left: @d1;font-style: normal;}
-        }
     } // ~ .comi-select
+    &:hover {
+        .comi-select {visibility: visible;}
+    }
 } // .com-image
 
 .com-image[ing] .comi-select {
+    visibility: visible;
     > b {display: none;}
     > .comi-process-con {display: inline-block;}
     > .comi-process-info {display: inline-block;}
     > .comi-msg {display: none;}
-}
-
-.com-image[upload-status="done"] .comi-select {
-    > .comi-msg[st="done"] {display: inline-block;}
-    > .comi-msg[st="fail"] {display: none;}
-}
-
-.com-image[upload-status="fail"] .comi-select {
-    > .comi-msg[st="done"] {display: none;}
-    > .comi-msg[st="fail"] {display: inline-block;}
 }

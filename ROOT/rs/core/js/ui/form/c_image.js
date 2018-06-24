@@ -41,16 +41,16 @@ $z.declare([
 //==============================================
 var dft_src = "/gu/rs/core/js/ui/form/img_blank.jpg";
 var html = `<div class="ui-arena com-image">
-    <div class="comi-image"><img></div>
-    <div class="comi-select">
-        <input type="file">
-        <b>{{com.image.select}}</b>
-        <span class="comi-process-con">
-            <span class="comi-process-inner"></span>
-        </span>
-        <span class="comi-process-info">0%</span>
-        <span class="comi-msg" st="done"><i class="zmdi zmdi-check-circle"></i></span>
-        <span class="comi-msg" st="fail"><i class="zmdi zmdi-alert-triangle"></i><em>abddd</em></span>
+    <div class="comi-image">
+        <img>
+        <input type="file" accept=".jpg, .jpeg">
+        <div class="comi-select">
+            <b>{{com.image.select}}</b>
+            <span class="comi-process-con">
+                <span class="comi-process-inner"></span>
+            </span>
+            <span class="comi-process-info">0%</span>
+        </div>
     </div>
 </div>`;
 //===================================================================
@@ -94,45 +94,29 @@ return ZUI.def("ui.form_com_image", {
     },
     //...............................................................
     events : {
-        'click .comi-select b' : function(){
-            this.arena.find('.comi-select input[type="file"]').click();
+        'click .comi-select' : function(){
+            this.arena.find('input[type="file"]').click();
         },
-        'change .comi-select input[type="file"]' : function(e) {
+        'change input[type="file"]' : function(e) {
             if(e.currentTarget.files.length > 0){
                 this.__do_upload(e.currentTarget.files[0]);
                 // 清除文件选择框的记忆
                 this.arena.find('input[type="file"]').val('');
             }
         },
-        'dragover .comi-image' : function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $(e.currentTarget).attr("drag-show", "yes");
-        },
-        'dragleave .comi-image' : function(e) {
-            $(e.currentTarget).removeAttr("drag-show");
-        },
-        'drop .comi-image' : function(e) {
-            e.stopPropagation();
-            e.preventDefault();
+    },
+    //...............................................................
+    dragAndDrop : true,
+    on_drop : function(fs) {
+        var UI = this;
 
-            var UI = this;
-
-            // 只能允许一个文件
-            if (e.originalEvent.dataTransfer.files.length != 1) {
-                alert(UI.msg("com.image.err_multi"));
-                return;
-            }
-
-            // 移除属性
-            $(e.currentTarget).removeAttr("drag-show");
-
-            // 执行上传
-            UI.__do_upload(e.originalEvent.dataTransfer.files[0]);
-        },
-        // "click img" : function(){
-        //     alert(this.options.target)
-        // }
+        // 只能允许一个文件
+        if (fs.length != 1) {
+            UI.alert(UI.msg("com.image.err_multi"));
+            return;
+        }
+        // 执行上传
+        UI.__do_upload(fs[0]);
     },
     //...............................................................
     redraw : function(){
@@ -152,10 +136,16 @@ return ZUI.def("ui.form_com_image", {
         //     alert("haha")
         // });
 
-        UI.arena.find("img").css({
-            width  : opt.width,
-            height : opt.height
-        });
+        // 限制宽度
+        if(!_.isUndefined(opt.width)) {
+            UI.arena.find(">.comi-image").css('width', opt.width);
+            UI.arena.find(">.comi-image img").css('width', "100%");
+        }
+        // 限制高度
+        if(!_.isUndefined(opt.height)) {
+            UI.arena.find(">.comi-image").css('height', opt.height);
+            UI.arena.find(">.comi-image img").css('height', "100%");
+        }
 
         UI._set_data();
     },
@@ -265,10 +255,6 @@ return ZUI.def("ui.form_com_image", {
                 $z.invoke(opt, "done", [re], context);
             },
             fail: function (re) {
-                // 标记错误信息
-                UI.arena.attr({
-                    "upload-status" : "fail"
-                }).find('.comi-msg[st="fail"] em').text(re.msg);
                 // 调用回调
                 $z.invoke(opt, "fail", [re], context);
             },
