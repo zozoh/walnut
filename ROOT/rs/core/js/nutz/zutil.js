@@ -3605,6 +3605,94 @@
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str, trim) {
             var re = _.isString(str) ? str.replace("<", "&lt;") : str;
+            re = this.__escape_ele.text(str).text();
+        },
+        // 对 HTML 代码逃逸
+        escapeHtml: function (str, trim) {
+            // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
+            //re = this.__escape_ele.text(str).text();
+            if(!str || !_.isString(str))
+                return str;
+
+            var re = "";
+            var REG = /[<&>]/g;
+            var pos = 0;
+            var m = REG.exec(str);
+            while(m) {
+                var ms = m[0];
+                var bg = m.index;
+                var ed = m.index + ms.length;
+                // 补充前面的
+                if(pos < bg) {
+                    re += str.substring(pos, bg);
+                }
+                // `<`
+                if('<' == ms) {
+                    re += '&lt;';
+                }
+                // `&`
+                else if('&' == ms) {
+                    re += '&amp;';
+                }
+                // `>`
+                else if('>' == ms) {
+                    re += '&gt;';
+                }
+
+                // 继续执行
+                pos = ed;
+                m = REG.exec(str);
+            }
+            // 补足最后一个
+            if(pos < str.length) {
+                re += str.substring(pos);
+            }
+
+            // 返回吧
+            return trim ? $.trim(re) : re;
+        },
+        // 对 HTML 代码逃逸的结果，反逃逸
+        unescapeHtml: function (str, trim) {
+            // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
+            //re = this.__escape_ele.text(str).text();
+            if(!str || !_.isString(str))
+                return str;
+
+            var re = "";
+            var REG = /&lt;|&amp;|&gt;/g;
+            var pos = 0;
+            var m = REG.exec(str);
+            while(m) {
+                var ms = m[0];
+                var bg = m.index;
+                var ed = m.index + ms.length;
+                // 补充前面的
+                if(pos < bg) {
+                    re += str.substring(pos, bg);
+                }
+                // `<`
+                if('&lt;' == ms) {
+                    re += '<';
+                }
+                // `&`
+                else if('&amp;' == ms) {
+                    re += '&';
+                }
+                // `>`
+                else if('&gt;' == ms) {
+                    re += '>';
+                }
+
+                // 继续执行
+                pos = ed;
+                m = REG.exec(str);
+            }
+            // 补足最后一个
+            if(pos < str.length) {
+                re += str.substring(pos);
+            }
+
+            // 返回吧
             return trim ? $.trim(re) : re;
         },
         //.............................................
@@ -3867,11 +3955,17 @@
             if (jPropEle.length == 0) {
                 jPropEle = $('<script type="text/x-template" class="' + className + '">').prependTo(jq);
             }
+
+            // 这里有个危险，如果内容中含有 '<script>' 那么这个解析基本就 over 了
+            // 所以要对所有的值进行编码，即 '<' 要变 '&lt;' 等
             var RP = function (key, val) {
                 if (/^__/.test(key))
                     return undefined;
-                return val;
+                return zUtil.escapeHtml(val);
+                //return val;
             };
+
+
             var json = needFormatJson ? "\n" + $z.toJson(prop, RP, '    ') + "\n" : $z.toJson(prop, RP);
             jPropEle.text(json);
             //console.log(jPropEle.text())
@@ -3881,7 +3975,10 @@
             var jPropEle = jq.children("script." + className);
             if (jPropEle.length > 0) {
                 var json = jPropEle.text();
-                return $z.fromJson(json);
+                return $z.fromJson(json, function(key, val) {
+                    return zUtil.unescapeHtml(val);
+                    //return val;
+                });
             }
             // 返回默认或者空
             return dft || {};

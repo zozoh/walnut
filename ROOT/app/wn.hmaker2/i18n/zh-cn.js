@@ -388,6 +388,7 @@ define({
                 "edit_tip" : "CTRL(Command)+Enter 快速应用修改",
                 "edit_tt"  : "HTML 代码编辑器",
                 "blank_content" : "没有任何 HTML 代码",
+                "script" : "脚本",
             },
             "dynamic" : {
                 "name"  : "动态数据",

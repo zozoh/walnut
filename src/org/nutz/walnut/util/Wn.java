@@ -1147,4 +1147,92 @@ public abstract class Wn {
     public static String genSaltPassword(String passwd, String salt) {
         return Lang.sha1(passwd + salt);
     }
+
+    // 对 HTML 代码逃逸
+    public static String escapeHtml(String str, boolean trim) {
+        // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
+        // re = this.__escape_ele.text(str).text();
+        if (Strings.isBlank(str))
+            return str;
+
+        StringBuilder re = new StringBuilder();
+        Pattern REG = Regex.getPattern("[<&>]");
+        int pos = 0;
+        Matcher m = REG.matcher(str);
+        while (m.find()) {
+            String ms = m.group(0);
+            int bg = m.start();
+            int ed = m.end();
+            // 补充前面的
+            if (pos < bg) {
+                re.append(str.substring(pos, bg));
+            }
+            // `<`
+            if ("<".equals(ms)) {
+                re.append("&lt;");
+            }
+            // `&`
+            else if ("&".equals(ms)) {
+                re.append("&amp;");
+            }
+            // `>`
+            else if (">".equals(ms)) {
+                re.append("&gt;");
+            }
+
+            // 继续执行
+            pos = ed;
+        }
+        // 补足最后一个
+        if (pos < str.length()) {
+            re.append(str.substring(pos));
+        }
+
+        // 返回吧
+        return trim ? Strings.trim(re) : re.toString();
+    }
+
+    // 对 HTML 代码逃逸的结果，反逃逸
+    public static String unescapeHtml(String str, boolean trim) {
+        // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
+        // re = this.__escape_ele.text(str).text();
+        if (Strings.isBlank(str))
+            return str;
+
+        StringBuilder re = new StringBuilder();
+        Pattern REG = Regex.getPattern("&lt;|&amp;|&gt;");
+        int pos = 0;
+        Matcher m = REG.matcher(str);
+        while (m.find()) {
+            String ms = m.group(0);
+            int bg = m.start();
+            int ed = m.end();
+            // 补充前面的
+            if (pos < bg) {
+                re.append(str.substring(pos, bg));
+            }
+            // `<`
+            if ("&lt;".equals(ms)) {
+                re.append("<");
+            }
+            // `&`
+            else if ("&amp;".equals(ms)) {
+                re.append("&");
+            }
+            // `>`
+            else if ("&gt;".equals(ms)) {
+                re.append(">");
+            }
+
+            // 继续执行
+            pos = ed;
+        }
+        // 补足最后一个
+        if (pos < str.length()) {
+            re.append(str.substring(pos));
+        }
+
+        // 返回吧
+        return trim ? Strings.trim(re) : re.toString();
+    }
 }
