@@ -111,6 +111,16 @@ return ZUI.def("app.wn.hm_prop_page_meta", {
                 emptyAsNull : false,
                 editAs : "input"
             }, {
+                key    : "seodescription",
+                title  : "i18n:hmaker.page.seodescription",
+                type   : "string",
+                dft    : "",
+                emptyAsNull : false,
+                editAs : "text",
+                uiConf : {
+                    height: 100
+                }
+            }, {
                 key    : "color",
                 title  : "i18n:hmaker.prop.color",
                 type   : "string",

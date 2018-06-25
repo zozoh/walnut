@@ -316,31 +316,16 @@ public class HmPageTranslating extends HmContext {
         // 添加页面标题
         doc.head().appendElement("title").text(this.oSrc.getString("title", this.oSrc.name()));
         // ---------------------------------------------------
-        // 添加页面保护设置
-        NutMap pgGuard = this.oSrc.getAs("hm_pg_guard", NutMap.class);
-        if (null != pgGuard && pgGuard.size() > 0) {
-            this.markPageAsWnml();
-            // 确保检查手机
-            if (pgGuard.has("nophone")) {
-                String coPath = pgGuard.getString("nophone");
-                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMyPhone");
-                String guCode = pageGuardTmpl.render(c2);
-                doc.head().prepend(guCode);
-            }
-            // 确保登录检查
-            if (pgGuard.has("nologin")) {
-                String coPath = pgGuard.getString("nologin");
-                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMe");
-                String guCode = pageGuardTmpl.render(c2);
-                doc.head().prepend(guCode);
-            }
-
-        }
-        // ---------------------------------------------------
         // 添加 SEO 搜索关键字
         if (this.propPage.has("seokwd")) {
             String seokwd = this.propPage.getString("seokwd");
             doc.head().appendElement("meta").attr("name", "keywords").attr("content", seokwd);
+        }
+        // 添加 SEO 描述
+        if (this.propPage.has("seodescription")) {
+            String seodescription = this.propPage.getString("seodescription");
+            doc.head().appendElement("meta").attr("name", "description").attr("content",
+                                                                              seodescription);
         }
         // ---------------------------------------------------
         // 删除自己和下属所有节点的 style 属性
@@ -447,6 +432,27 @@ public class HmPageTranslating extends HmContext {
             href = this.explainLink(href, false);
             if (null != href)
                 eleAnchor.attr("href", href);
+        }
+        // ---------------------------------------------------
+        // 添加页面保护设置
+        NutMap pgGuard = this.oSrc.getAs("hm_pg_guard", NutMap.class);
+        if (null != pgGuard && pgGuard.size() > 0) {
+            this.markPageAsWnml();
+            // 确保检查手机
+            if (pgGuard.has("nophone")) {
+                String coPath = pgGuard.getString("nophone");
+                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMyPhone");
+                String guCode = pageGuardTmpl.render(c2);
+                doc.head().prepend(guCode);
+            }
+            // 确保登录检查
+            if (pgGuard.has("nologin")) {
+                String coPath = pgGuard.getString("nologin");
+                NutMap c2 = Lang.map("path", coPath).setv("method", "checkMe");
+                String guCode = pageGuardTmpl.render(c2);
+                doc.head().prepend(guCode);
+            }
+
         }
         // ---------------------------------------------------
         // 如果控件们决定当前页是一个 wnml，那么增加一个动态占位符，用来为 JS 脚本们

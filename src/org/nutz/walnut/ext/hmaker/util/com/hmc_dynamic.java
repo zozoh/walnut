@@ -216,7 +216,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                                    Element eleArena,
                                    HmcDynamicScriptInfo si) {
         String api = ing.propCom.getString("api");
-        Element eleDscript = eleArena.appendElement("script");
+        Element eleDscript = ing.doc.head().prependElement("script");
         eleDscript.addClass("wn-datasource").attr("name", ing.comId).attr("type", "json");
 
         // 准备生成命令

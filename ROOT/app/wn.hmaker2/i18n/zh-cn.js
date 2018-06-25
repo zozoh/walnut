@@ -210,6 +210,7 @@ define({
             "noLibName"   : "组件名称为空，咋插入啊大哥 -_-!",
             "ireload"     : "重新加载插入项",
             "seokwd"      : "SEO关键字",
+            "seodescription"      : "SEO描述",
             "hierarchy"   : "页面层级",
             "hier_tip"    : "一行一个，格式为 “+ 文字 : 链接”。譬如“+ 首页 : /index”",
             "links_edit"  : "编辑资源列表",
