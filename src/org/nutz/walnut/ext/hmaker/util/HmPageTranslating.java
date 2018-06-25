@@ -318,8 +318,10 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 添加 SEO 搜索关键字
         if (this.propPage.has("seokwd")) {
-            String seokwd = this.propPage.getString("seokwd");
-            doc.head().appendElement("meta").attr("name", "keywords").attr("content", seokwd);
+            String seokwd = Strings.trim(this.propPage.getString("seokwd"));
+            if (!Strings.isBlank(seokwd)) {
+                doc.head().appendElement("meta").attr("name", "keywords").attr("content", seokwd);
+            }
         }
         // 添加 SEO 描述
         if (this.propPage.has("seodescription")) {

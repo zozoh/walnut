@@ -535,14 +535,25 @@ window.HmRT = {
             if(val) {
                 jThumb = $('<div class="wn-obj-preview">');
                 var jPr = $('<span>').appendTo(jThumb);
+                if(theHref) {
+                    jPr = $('<a>').appendTo(jPr).attr("href", theHref);
+                }
                 $('<img>').attr({
                     "src" : opt.API + "/thumb?" + val
                 }).appendTo(jPr);
             }
             // 仅仅显示一个空的产品图标
             else {
-                jThumb = $('<div class="wn-obj-preview" empty="yes">')
-                    .html('<span><i class="fas fa-image"></i></span>');
+                if(theHref) {
+                    jThumb = $('<div class="wn-obj-preview" empty="yes">')
+                        .html('<a><i class="fas fa-image"></i></a>');
+                    jThumb.find('a').attr("href", theHref);
+                }
+                // 木有链接
+                else {
+                    jThumb = $('<div class="wn-obj-preview" empty="yes">')
+                        .html('<span><i class="fas fa-image"></i></span>');
+                }
             }
             // 搞定返回
             return this.renderLayoutFieldElement(fld, jThumb).appendTo(jP);
