@@ -29,8 +29,9 @@ function _main(params) {
 		}
 		else {
 			var order = JSON.parse(reJson);
-			if (order && order.od_phone) {
-				sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s' &", order.phone, JSON.stringify(order));
+			var phone = order.phone || order.od_phone
+			if (phone) {
+				sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s' &", phone, JSON.stringify(order));
 				sys.exec2f("obj -u 'sms_payok:true' id:" + order.id);
 			}
 		}
