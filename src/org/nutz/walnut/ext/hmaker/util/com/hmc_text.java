@@ -103,7 +103,7 @@ public class hmc_text extends AbstractNoneValueCom {
         // ...........................................
         // 链入控件的 jQuery 插件
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_text.js");
-        String script = String.format("$('#%s > .hmc-text').hmc_text(%s);",
+        String script = String.format("$('#%s').hmc_text(%s);",
                                       ing.comId,
                                       Json.toJson(ing.propCom,
                                                   JsonFormat.forLook().setIgnoreNull(false)));

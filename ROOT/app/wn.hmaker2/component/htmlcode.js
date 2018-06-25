@@ -25,6 +25,9 @@ return ZUI.def("app.wn.hm_com_htmlcode", {
 
         // 应用 HTML
         UI.arena.html(html || '<div class="empty-content"><i class="zmdi zmdi-info-outline"></i>' + UI.msg("hmaker.com.htmlcode.blank_content") + "</div>");
+
+        // 记录一下 Code
+        UI.$el.data("@code", com.code);
     },
     //...............................................................
     getBlockPropFields : function(block) {
