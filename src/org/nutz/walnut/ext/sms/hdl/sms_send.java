@@ -100,9 +100,7 @@ public class sms_send implements JvmHdl {
         for (String mobile : Strings.splitIgnoreBlank(mobiles, ",")) {
             s.receiver = mobile;
             String re = provider.send(conf, s);
-            if (isDebug) {
-                sys.out.printf("%s %s\n", mobile, re);
-            }
+            sys.out.printf("{'%s': %s}\n", mobile, re);
         }
     }
 

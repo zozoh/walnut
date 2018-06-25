@@ -21,18 +21,26 @@ function _main(params) {
         return;
     }
     var po = JSON.parse(re);
-	//log.warn(re);
+    //log.warn(re);
     if (po.st == "OK") {
-		sys.exec("obj id:" + po.buy_for + " -u 'pay_st:\"OK\"'");
-		var reJson = sys.exec2("obj -cqn id:" + po.buy_for);
-		if (/^e./.test(reJson)) {
-		}
-		else {
-			var order = JSON.parse(reJson);
-			if (order && order.od_phone) {
-				sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s' &", order.phone, JSON.stringify(order));
-			}
-		}
+        sys.exec("obj id:" + po.buy_for + " -u 'pay_st:\"OK\"'");
+        var reJson = sys.exec2("obj -cqn id:" + po.buy_for);
+        if (/^e./.test(reJson)) {
+        }
+        else {
+            var order = JSON.parse(reJson);
+            var phone = order.phone || order.od_phone
+            log.info("set_order_after_pay, sms to " + phone);
+            if (phone) {
+                order.th_nm_s = order.th_nm;
+                order.id_s = order.id.toUpperCase();
+                if (order.id_s.length > 5) {
+                    order.id_s = order.id_s.substr(0, 5);
+                }
+                sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s'", phone, JSON.stringify(order));
+                sys.exec2f("obj -u 'sms_payok:true' id:" + order.id);
+            }
+        }
     }
 }
 

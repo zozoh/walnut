@@ -171,7 +171,7 @@ public class WalnutFilter implements Filter {
             }
 
             // 正常情况得到修订的 URL，那么 ...
-            if (null != newPath) {
+            if (null != newPath && !newPath.startsWith("/websocket")) {
                 // 将一些必要的信息都记录到 req 对象里，便于 WWW 模块处理
                 req.setAttribute("wn_www_path_new", newPath);
                 req.setAttribute("wn_www_grp", grp);
