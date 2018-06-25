@@ -33,11 +33,11 @@ function _main(params) {
             log.info("set_order_after_pay, sms to " + phone);
             if (phone) {
                 order.th_nm_s = order.th_nm;
-                order.id_s = order.id;
+                order.id_s = order.id.toUpperCase();
                 if (order.id_s.length > 5) {
                     order.id_s = order.id_s.substr(0, 5);
                 }
-                sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s' &", phone, JSON.stringify(order));
+                sys.exec2f("sms -r '%s' -t 'i18n:payok' '%s'", phone, JSON.stringify(order));
                 sys.exec2f("obj -u 'sms_payok:true' id:" + order.id);
             }
         }
