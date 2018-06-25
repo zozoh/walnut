@@ -300,6 +300,7 @@ public final class Hms {
 
         // 读取
         String json = eleProp.html();
+        json = Wn.unescapeHtml(json, false);
 
         // 删除属性
         if (removeNode)

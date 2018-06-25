@@ -3604,8 +3604,8 @@
         // 对一个字符串进行转换，相当于 $(..).text(str) 的效果
         __escape_ele: $(document.createElement("b")),
         escapeText: function (str, trim) {
-            var re = _.isString(str) ? str.replace("<", "&lt;") : str;
-            re = this.__escape_ele.text(str).text();
+            return _.isString(str) ? str.replace("<", "&lt;") : str;
+            //re = this.__escape_ele.text(str).text();
         },
         // 对 HTML 代码逃逸
         escapeHtml: function (str, trim) {
@@ -3961,12 +3961,17 @@
             var RP = function (key, val) {
                 if (/^__/.test(key))
                     return undefined;
-                return zUtil.escapeHtml(val);
+                return val;
                 //return val;
             };
 
 
-            var json = needFormatJson ? "\n" + $z.toJson(prop, RP, '    ') + "\n" : $z.toJson(prop, RP);
+            var json = needFormatJson 
+                            ? "\n" + $z.toJson(prop, RP, '    ') + "\n" 
+                            : $z.toJson(prop, RP);
+            // 逃逸一下 HTML
+            json = this.escapeHtml(json);
+            // 存储
             jPropEle.text(json);
             //console.log(jPropEle.text())
         },
@@ -3975,10 +3980,9 @@
             var jPropEle = jq.children("script." + className);
             if (jPropEle.length > 0) {
                 var json = jPropEle.text();
-                return $z.fromJson(json, function(key, val) {
-                    return zUtil.unescapeHtml(val);
-                    //return val;
-                });
+                // 反逃逸 HTML
+                json = this.unescapeHtml(json);
+                return $z.fromJson(json);
             }
             // 返回默认或者空
             return dft || {};
