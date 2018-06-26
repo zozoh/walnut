@@ -262,6 +262,9 @@ return ZUI.def("ui.search2", {
             opt.edtCmdTmpl["edit"],
             function(newObj){
                 UI.uiList.update(newObj);
+
+                UI.trigger("search:update", newObj);
+                $z.invoke(opt, "on_update", [newObj], UI);
             });
     },
     //...............................................................
