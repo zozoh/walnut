@@ -546,7 +546,7 @@ window.HmRT = {
             else {
                 if(theHref) {
                     jThumb = $('<div class="wn-obj-preview" empty="yes">')
-                        .html('<a><i class="fas fa-image"></i></a>');
+                        .html('<span><a><i class="fas fa-image"></i></a></span>');
                     jThumb.find('a').attr("href", theHref);
                 }
                 // 木有链接

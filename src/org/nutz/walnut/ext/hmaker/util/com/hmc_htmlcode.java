@@ -18,19 +18,15 @@ public class hmc_htmlcode extends AbstractNoneValueCom {
     protected boolean doArena(HmPageTranslating ing, Element eleArena) {
         String code = ing.propCom.getString("code", "");
 
-        // 转换为 HTML 代码
-        String html = Wn.unescapeHtml(code, false);
-
         // 设置内容
-        eleArena.html(html);
+        eleArena.html(code);
 
         // ...........................................
         // 链入控件的 jQuery 插件
+        String json = Json.toJson(ing.propCom, JsonFormat.forLook().setIgnoreNull(false));
+        json = Wn.escapeHtml(json, true);
         ing.jsLinks.add("/gu/rs/ext/hmaker/hmc_htmlcode.js");
-        String script = String.format("$('#%s').hmc_htmlcode(%s);",
-                                      ing.comId,
-                                      Json.toJson(ing.propCom,
-                                                  JsonFormat.forLook().setIgnoreNull(false)));
+        String script = String.format("$('#%s').hmc_htmlcode(%s);", ing.comId, json);
         ing.scripts.add(Hms.wrapjQueryDocumentOnLoad(script));
 
         return true;

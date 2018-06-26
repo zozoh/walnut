@@ -9,7 +9,7 @@ $.fn.extend({ "hmc_htmlcode" : function(opt){
 
     // 如果有 code，记录到 jQuery Data
     if(opt.code) {
-        jq.data("@code", opt.code);
+        jq.data("@code", $z.unescapeHtml(opt.code));
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
