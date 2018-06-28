@@ -134,6 +134,9 @@ define({
                 "enabled" : "允许导入",
                 "accept"  : "文件格式",
                 "accept_tip" : "可以导入哪些文件格式，请用半角逗号分隔，输入文件格式后缀，譬如 `.csv, .xls`",
+                "processTmpl" : "输出模板",
+                "processTmpl_tip" : "导入命令输出的模板，默认为 `${P}` 表示导入进度",
+                "processTmpl_placeholder" :"${P} ${th_nm?-未知-} : ${phone?-未设定-}",
                 "accept_placeholder" : ".csv, .xls",
                 "unikey"  : "唯一键",
                 "unikey_tip" : "导入时用这个字段来去重复，请输入数据表中的键值",
@@ -187,7 +190,8 @@ define({
             "up_ing"    : '已经写入了 {{loaded}} 字节',
             "up_finish" : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i> 正在做数据导入前的准备工作...',
             "in_welcome" : "正在分析导入数据...",
-            "in_done" : "导入数据成功"
+            "in_done" : "导入数据完毕",
+            "viewlog" : "查看日志"
         },
         "meta"   : "属性",
         "detail" : {

@@ -92,6 +92,9 @@ th_thumb : ID    // Thing 的默认缩略图
     uniqueKey : "phone",    // 唯一数据键
     mapping   : "~/.sheet/测试数据_import"  // 映射数据
     accept    : ".csv, .xls"  // 可以接受的导入文件格式
+    // 执行导入命令时每条记录的输出模板
+    // 其中特殊占位符 `${P}` 表示进度，其他的占位符为数据字段键名
+    processTmpl : "${P} ${th_nm?-未知-} : ${phone?-未设定-}",
     // 上传前设置所有数据的固定字段
     fixedForm : "~/.sheet/xxx.js",  // 一个表单form的 config JS
     // 导入一条数据后的后续处理

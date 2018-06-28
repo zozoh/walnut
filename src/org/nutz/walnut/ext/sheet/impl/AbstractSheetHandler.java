@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -159,6 +160,17 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         }
         List<String> keyList = new LinkedList<>();
         Row row = itRow.next();
+
+        // 跳过空行
+        while (null != row && __is_empty_row(row)) {
+            row = itRow.next();
+        }
+
+        // 根本啥都木有
+        if (null == row) {
+            return;
+        }
+
         int i = 0;
         short lc = row.getLastCellNum();
         for (i = 0; i <= lc; i++) {
@@ -171,6 +183,11 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         // 读取后续的数据
         while (itRow.hasNext()) {
             row = itRow.next();
+
+            // 如果是空行，则跳过
+            if (__is_empty_row(row))
+                continue;
+
             // 准备对象
             NutMap obj = new NutMap();
             // 分析行
@@ -184,6 +201,9 @@ public abstract class AbstractSheetHandler implements SheetHandler {
                 // 得到键
                 String key = keys[i];
 
+                if (Strings.isBlank(key))
+                    continue;
+
                 // 得到值
                 Object val = __get_cell_value(cell);
 
@@ -193,6 +213,18 @@ public abstract class AbstractSheetHandler implements SheetHandler {
             // 计入结果
             list.add(obj);
         }
+    }
+
+    private boolean __is_empty_row(Row row) {
+        Iterator<Cell> it = row.cellIterator();
+        while (it.hasNext()) {
+            Cell cell = it.next();
+            Object val = __get_cell_value(cell);
+            if (null != val)
+                return false;
+        }
+        return true;
+        // return !row.cellIterator().hasNext();
     }
 
     private void __set_cell_val(Cell cell, Object val) {
@@ -236,13 +268,16 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         CellType cellType = cell.getCellTypeEnum();
         switch (cellType) {
         case NUMERIC:
+            if(DateUtil.isCellDateFormatted(cell)) {
+                return cell.getDateCellValue();
+            }
             double n = cell.getNumericCellValue();
             long ni = (long) n;
             if (ni == n)
                 return ni;
             return n;
         case STRING:
-            return cell.getStringCellValue();
+            return Strings.trim(cell.getStringCellValue());
         case FORMULA:
             return cell.getCellFormula();
         case BLANK:

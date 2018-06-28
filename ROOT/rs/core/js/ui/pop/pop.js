@@ -152,7 +152,6 @@ module.exports = {
         //--------------------------------
         // 设定初始化函数
         opt.ready = function(body, jBody){
-            console.log("hahaha")
             var jPre = $('<pre>').appendTo(jBody);
             jPre.css({
                 "margin" : 0,

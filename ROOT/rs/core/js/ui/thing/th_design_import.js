@@ -42,6 +42,15 @@ return ZUI.def("app.wn.thdesign_import", {
                     uiConf : {
                         placeholder : UI.msg("thing.conf.dimport.accept_placeholder")
                     }
+                }, {
+                    key : "processTmpl",
+                    title : "i18n:thing.conf.dimport.processTmpl",
+                    tip   : "i18n:thing.conf.dimport.processTmpl_tip",
+                    uiType : "@text",
+                    uiConf : {
+                        placeholder : UI.msg("thing.conf.dimport.processTmpl_placeholder"),
+                        height: 60
+                    }
                 },{
                     key : "uniqueKey",
                     title : "i18n:thing.conf.dimport.unikey",
@@ -60,7 +69,7 @@ return ZUI.def("app.wn.thdesign_import", {
                     tip   : "i18n:thing.conf.dimport.afterCommand_tip",
                     uiType : "@text",
                     uiConf : {
-                        height: 100
+                        height: 120
                     }
                 }],
         }).render(function(){

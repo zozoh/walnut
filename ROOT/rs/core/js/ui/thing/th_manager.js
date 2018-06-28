@@ -146,6 +146,7 @@ return ZUI.def("ui.th_manager", {
                 uiConf : {
                     thingSetId   : oHome.id,
                     accept       : conf.dataImport.accept,
+                    processTmpl  : conf.dataImport.processTmpl,
                     uniqueKey    : conf.dataImport.uniqueKey,
                     mapping      : conf.dataImport.mapping,
                     fixedForm    : conf.dataImport.fixedForm,
@@ -157,6 +158,9 @@ return ZUI.def("ui.th_manager", {
                         UI.invokeUI("search", "refresh", [true]);
                     }
                 }
+            },
+            close : function(){
+                UI.uis("search").refresh(true);
             },
             btnOk : null,
             btnCancel : null,

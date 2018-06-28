@@ -17,18 +17,33 @@ return ZUI.def("app.wn.thi_3_import", {
     redraw : function(){
         var UI = this;
 
+        UI.__log_list = [];
+
         new CmdLogUI({
             parent : UI,
             gasketName : "log",
             welcome : 'i18n:thing.import.in_welcome',
+            // 偷偷记录一下日志给 done 用
+            formatMessage : function(str) {
+                UI.__log_list.push(str);
+                return str;
+            },
             done : function(){
-               UI.parent.gotoStep(1);
+                UI.parent.saveData();
+                UI.parent.gotoStep(1);
             }
         }).render(function(){
             UI.defer_report("log");
         });
 
         return ["log"];
+    },
+    //...............................................................
+    getData : function() {
+        、、console.log("step3.getData")
+        return {
+            importLog : this.__log_list
+        };
     },
     //...............................................................
     setData : function(data) {
@@ -46,7 +61,10 @@ return ZUI.def("app.wn.thi_3_import", {
         var str = 'sheet id:{{f.id}} -tpo json';
         if(opt.mapping)
             str += ' -mapping \'' + opt.mapping + '\'';
-        str += ' | thing {{tsId}} create -fields -process "${P} ${th_nm?-未知-} : ${phone?-未设定-}"';
+        str += ' | thing {{tsId}} create -fields';
+        if(opt.processTmpl) {
+            str += ' -process \'' + opt.processTmpl + '\'';
+        }
         if(opt.uniqueKey) {
             str += ' -unique ' + opt.uniqueKey;
         }

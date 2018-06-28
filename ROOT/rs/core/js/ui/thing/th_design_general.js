@@ -35,72 +35,46 @@ return ZUI.def("app.wn.thdesign_general", {
                 UI.notifyChanged();
             },
             fields : [{
-                title : "i18n:thing.conf.general.t_display",
-                fields : [{
-                    key : "searchMenuFltWidthHint",
-                    title : "i18n:thing.conf.general.k_smfwh",
-                    type : "string",
-                    dft : "",
-                    editAs : "input",
-                    uiConf : {
-                        placeholder : "50%"
-                    }
-                }, {
-                    key : "thIndex",
-                    title : "i18n:thing.conf.general.k_thIndex",
-                    type : "object",
-                    dft : [],
-                    editAs : "switch",
-                    uiConf : {
-                        multi : true,
-                        items : [{
-                                value : "meta",
-                                text : "i18n:thing.conf.general.k_thIndex_m"
-                            }, {
-                                value : "detail",
-                                text : "i18n:thing.conf.general.k_thIndex_d"
-                            }]
-                    }
-                }, {
-                    key : "thData",
-                    title : "i18n:thing.conf.general.k_thData",
-                    type : "object",
-                    dft : [],
-                    editAs : "switch",
-                    uiConf : {
-                        multi : true,
-                        items : [{
-                                value : "media",
-                                text  : "i18n:thing.data.media"
-                            }, {
-                                value : "attachment", 
-                                text : "i18n:thing.data.attachment"
-                            }]
-                    }
-                }]
+                key : "searchMenuFltWidthHint",
+                title : "i18n:thing.conf.general.k_smfwh",
+                type : "string",
+                dft : "",
+                editAs : "input",
+                uiConf : {
+                    placeholder : "50%"
+                }
             }, {
-                title : "i18n:thing.conf.general.t_imex",
-                fields : [{
-                    key : "cmd_import",
-                    title : "i18n:thing.conf.general.cmd_import",
-                    type : "string",
-                    dft : "",
-                    editAs : "text",
-                    uiConf : {
-                        placeholder : "i18n:thing.conf.general.cmd_import_t",
-                        height: 100,
-                    }
-                }, {
-                    key : "cmd_export",
-                    title : "i18n:thing.conf.general.cmd_export",
-                    type : "string",
-                    dft : "",
-                    editAs : "text",
-                    uiConf : {
-                        placeholder : "i18n:thing.conf.general.cmd_import_d",
-                        height: 100,
-                    }
-                }]
+                key : "thIndex",
+                title : "i18n:thing.conf.general.k_thIndex",
+                type : "object",
+                dft : [],
+                editAs : "switch",
+                uiConf : {
+                    multi : true,
+                    items : [{
+                            value : "meta",
+                            text : "i18n:thing.conf.general.k_thIndex_m"
+                        }, {
+                            value : "detail",
+                            text : "i18n:thing.conf.general.k_thIndex_d"
+                        }]
+                }
+            }, {
+                key : "thData",
+                title : "i18n:thing.conf.general.k_thData",
+                type : "object",
+                dft : [],
+                editAs : "switch",
+                uiConf : {
+                    multi : true,
+                    items : [{
+                            value : "media",
+                            text  : "i18n:thing.data.media"
+                        }, {
+                            value : "attachment", 
+                            text : "i18n:thing.data.attachment"
+                        }]
+                }
             }],
         }).render(function(){
             UI.defer_report("setup");

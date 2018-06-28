@@ -26,6 +26,7 @@ return ZUI.def("ui.th_import", {
         $z.setUndefined(opt, "mapping", null);
         $z.setUndefined(opt, "fixedForm", null);
         $z.setUndefined(opt, "afterCommand", null);
+        $z.setUndefined(opt, "processTmpl", "${P} ${th_nm?-未知-} : ${phone?-未设定-}");
 
         // 必须有 thingSetId
         if(!opt.thingSetId) {
