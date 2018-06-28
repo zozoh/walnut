@@ -17,8 +17,6 @@ var html = function(){/*
 //==============================================
 return ZUI.def("app.wn.thdesign_general", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
     //...............................................................
     events : {
         
@@ -30,6 +28,7 @@ return ZUI.def("app.wn.thdesign_general", {
         new FormUI({
             parent : UI,
             gasketName : "main",
+            mergeData : false,
             uiWidth : "all",
             displayMode : "compact",
             on_change : function(){

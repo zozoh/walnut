@@ -139,13 +139,17 @@ return ZUI.def("ui.th_manager", {
             title  : "i18n:thing.import.title",
             width  : 640,
             height : 480,
-            closer : false,
+            closer : true,
             arenaClass : "th-wizard-mask",
             setup : {
                 uiType : "ui/thing/support/th_import",
                 uiConf : {
-                    thingSetId : oHome.id,
-                    cmdText    : conf.cmd_import,
+                    thingSetId   : oHome.id,
+                    accept       : conf.dataImport.accept,
+                    uniqueKey    : conf.dataImport.uniqueKey,
+                    mapping      : conf.dataImport.mapping,
+                    fixedForm    : conf.dataImport.fixedForm,
+                    afterCommand : conf.dataImport.afterCommand,
                     done : function() {
                         // 关闭窗口
                         this.parent.close();

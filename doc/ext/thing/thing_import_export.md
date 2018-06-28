@@ -25,6 +25,12 @@ tags:
 ```
 sheet id:{{f.id}} -mapping ~/.sheet/测试数据_import -tpo json \
     | thing {{tsId}} create -fields -unique phone
+# 这个命令的上下文模板:
+{
+    f : {..}        // 临时文件对象，一个 WnObj
+    tsId  : ID      // 数据集的 ID
+    query : ".."    // 导出时给定的过滤参数，要拼在 thing query 后面
+}
 ```
 
 - `sheet` 命令使用详情参看 `man sheet`
@@ -81,6 +87,11 @@ Key 的全部写法为：
 
 ```
 thing {{tsId}} query <%=query%> | sheet -out id:{{f.id}} -process
+# 这个命令的上下文模板:
+{
+    f : {..}        // 临时文件对象，一个 WnObj
+    tsId  : ID      // 数据集的 ID
+}
 ```
 
 - `sheet -f` 表示输出到一个文件里

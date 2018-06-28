@@ -289,20 +289,19 @@ var DATA_MODE = {
             items : []
         };
         // 更多菜单项:导入
-        if(conf.cmd_import) {
-            miMore.items.push({
+        if(conf.dataImport && conf.dataImport.enabled) {
+            conf.searchMenu.push({
+            //miMore.items.push({
                 text : "导入数据..",
-                cmdText : conf.cmd_import,
                 handler : function(jBtn, mi){
                     UI.fire("do:import");
                 }
             });
         }
-        if(conf.cmd_export) {
+        if(conf.dataExport && conf.dataExport.enabled) {
             //conf.searchMenu.push({
             miMore.items.push({
                 text : "导出数据..",
-                cmdText : conf.cmd_export,
                 handler : function(jBtn, mi){
                     UI.fire("do:export");
                 }

@@ -160,6 +160,10 @@ return ZUI.def("app.wn.thdesign", {
                 "fields" : {
                     text : "i18n:thing.conf.tab_fields",
                     uiType : "ui/thing/th_design_fields",
+                },
+                "import" : {
+                    text : "i18n:thing.conf.tab_import",
+                    uiType : "ui/thing/th_design_import",
                 }
             },
             on_changeUI : function(key, theUI) {

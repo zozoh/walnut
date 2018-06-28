@@ -19,11 +19,68 @@ return ZUI.def("ui.th_import", {
         var UI  = this;
         var opt = UI.options;
 
+        // 准备参数
+        $z.setUndefined(opt, "thingSetId", null);
+        $z.setUndefined(opt, "accept", ".csv, .xls");
+        $z.setUndefined(opt, "uniqueKey", null);
+        $z.setUndefined(opt, "mapping", null);
+        $z.setUndefined(opt, "fixedForm", null);
+        $z.setUndefined(opt, "afterCommand", null);
+
+        // 必须有 thingSetId
+        if(!opt.thingSetId) {
+            alert("opt.thingSetId without defined!");
+            return;
+        }
+
+        // 准备步骤的配置文件
+        var steps = {};
+        if(opt.fixedForm) {
+            steps["step0"] = {
+                text : "i18n:thing.import.step0",
+                next : true,
+                uiType : "ui/thing/support/import/step0_fixed_form",
+                uiConf : opt
+            }
+        }
+        // Step1:选择文件
+        steps["step1"] = {
+            text : "i18n:thing.import.step1",
+            next : false,
+            uiType : "ui/thing/support/import/step1_choose_file",
+            uiConf : opt
+        };
+        // Step2:上传进度
+        steps["step2"] = {
+            text : "i18n:thing.import.step2",
+            prev : false,
+            next : false,
+            uiType : "ui/thing/support/import/step2_uploading",
+            uiConf : opt
+        };
+        // Step3: 分析数据执行命令
+        steps["step3"] = {
+            text : "i18n:thing.import.step3",
+            prev : false,
+            next : false,
+            uiType : "ui/thing/support/import/step3_import",
+            uiConf : opt
+        };
+        // Step4: 显示上传成功
+        steps["step4"] = {
+            text : "i18n:thing.import.step4",
+            done : function(){
+                $z.invoke(opt, "done");
+            },
+            uiType : "ui/thing/support/import/step4_done",
+        },
+
         /*
         向导收集的对象为:
         {
-            theFile  : File   // 本地文件对象,
-            oTmpFile : {..}   // 服务器端的临时文件
+            theFile   : File   // 本地文件对象,
+            oTmpFile  : {..}   // 服务器端的临时文件
+            fixedData : {..}   // 固定字段值
         }
         */
 
@@ -31,51 +88,8 @@ return ZUI.def("ui.th_import", {
             parent : UI,
             gasketName : "wizard",
             headMode : "all",
-            startPoint : "step1",
-            steps : {
-                // Step1:选择文件
-                "step1" : {
-                    text : "选择文件",
-                    next : false,
-                    uiType : "ui/thing/support/import/step1_choose_file",
-                    uiConf : {
-                        accept: ".csv, .xls"
-                    }
-                },
-                // Step2:上传进度
-                "step2" : {
-                    text : "上传",
-                    prev : false,
-                    next : false,
-                    uiType : "ui/thing/support/import/step2_uploading",
-                    uiConf : {
-                        thingSetId : opt.thingSetId
-                    }
-                },
-                // Step3: 分析数据执行命令
-                "step3" : {
-                    text : "执行导入",
-                    prev : false,
-                    next : false,
-                    uiType : "ui/thing/support/import/step3_import",
-                    uiConf : {
-                        thingSetId : opt.thingSetId,
-                        cmdText    : opt.cmdText
-                    }
-                },
-                // Step4: 显示上传成功
-                "step4" : {
-                    text : "成功",
-                    done : function(){
-                        $z.invoke(opt, "done");
-                    },
-                    uiType : "ui/thing/support/import/step4_done",
-                    uiConf : {
-                        
-                    }
-                },
-
-            }
+            startPoint : "step0",
+            steps : steps
         }).render(function(){
             UI.defer_report("wizard")
         });
