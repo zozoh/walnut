@@ -2,125 +2,93 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/c_icon',
-    'ui/form/c_name',
     'ui/form/form',
-    'ui/menu/menu',
-    'ui/list/list',
-    'ui/support/dom',
-], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
+], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-import" ui-fitparent="yes" ui-gasket="main">
+<div class="ui-arena th-design-import" ui-fitparent="yes" ui-gasket="form">
 </div>
 */};
 //==============================================
 return ZUI.def("app.wn.thdesign_import", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
-    events : {
-        
-    },
-    //...............................................................
     redraw : function() {
-        var UI  = this;       
-        //--------------------------------------- 集合通用设置
+        var UI  = this;
+        //--------------------------------------- 
         new FormUI({
             parent : UI,
-            gasketName : "main",
+            gasketName : "form",
             uiWidth : "all",
             displayMode : "compact",
-            on_change : function(){
+            fitparent : false,
+            mergeData : false,
+            on_change : function(key, val){
+                console.log(key, val)
+                // 设置字段状态
+                UI.syncFormFieldsStatus();
+                // 通知一下同步保存按钮状态
                 UI.notifyChanged();
             },
             fields : [{
-                title : "i18n:thing.conf.general.t_display",
-                fields : [{
-                    key : "searchMenuFltWidthHint",
-                    title : "i18n:thing.conf.general.k_smfwh",
-                    type : "string",
-                    dft : "",
-                    editAs : "input",
-                    uiConf : {
-                        placeholder : "50%"
-                    }
+                    key : "enabled",
+                    title : "i18n:thing.conf.dimport.enabled",
+                    type   : "boolean",
+                    uiType : "@switch",
                 }, {
-                    key : "thIndex",
-                    title : "i18n:thing.conf.general.k_thIndex",
-                    type : "object",
-                    dft : [],
-                    editAs : "switch",
+                    key : "accept",
+                    title : "i18n:thing.conf.dimport.accept",
+                    tip   : "i18n:thing.conf.dimport.accept_tip",
                     uiConf : {
-                        multi : true,
-                        items : [{
-                                value : "meta",
-                                text : "i18n:thing.conf.general.k_thIndex_m"
-                            }, {
-                                value : "detail",
-                                text : "i18n:thing.conf.general.k_thIndex_d"
-                            }]
+                        placeholder : UI.msg("thing.conf.dimport.accept_placeholder")
                     }
+                },{
+                    key : "uniqueKey",
+                    title : "i18n:thing.conf.dimport.unikey",
+                    tip   : "i18n:thing.conf.dimport.unikey_tip",
                 }, {
-                    key : "thData",
-                    title : "i18n:thing.conf.general.k_thData",
-                    type : "object",
-                    dft : [],
-                    editAs : "switch",
-                    uiConf : {
-                        multi : true,
-                        items : [{
-                                value : "media",
-                                text  : "i18n:thing.data.media"
-                            }, {
-                                value : "attachment", 
-                                text : "i18n:thing.data.attachment"
-                            }]
-                    }
-                }]
-            }, {
-                title : "i18n:thing.conf.general.t_imex",
-                fields : [{
-                    key : "cmd_import",
-                    title : "i18n:thing.conf.general.cmd_import",
-                    type : "string",
-                    dft : "",
-                    editAs : "text",
-                    uiConf : {
-                        placeholder : "i18n:thing.conf.general.cmd_import_t",
-                        height: 100,
-                    }
+                    key : "mapping",
+                    title : "i18n:thing.conf.dimport.mapping",
+                    tip   : "i18n:thing.conf.dimport.mapping_tip",
                 }, {
-                    key : "cmd_export",
-                    title : "i18n:thing.conf.general.cmd_export",
-                    type : "string",
-                    dft : "",
-                    editAs : "text",
+                    key : "fixedForm",
+                    title : "i18n:thing.conf.dimport.fixedForm",
+                    tip   : "i18n:thing.conf.dimport.fixedForm_tip",
+                }, {
+                    key : "afterCommand",
+                    title : "i18n:thing.conf.dimport.afterCommand",
+                    tip   : "i18n:thing.conf.dimport.afterCommand_tip",
+                    uiType : "@text",
                     uiConf : {
-                        placeholder : "i18n:thing.conf.general.cmd_import_d",
-                        height: 100,
+                        height: 100
                     }
-                }]
-            }],
+                }],
         }).render(function(){
-            UI.defer_report("setup");
+            UI.defer_report("form");
         });
 
         // 返回延迟加载
-        return ["setup"];
+        return ["form"];
+    },
+    //...............................................................
+    syncFormFieldsStatus : function(){
+        var UI = this;
+        var data = UI.gasket.form.getData();
+        if(data.enabled) {
+            UI.gasket.form.enableField();
+        }
+        // 禁止
+        else {
+            UI.gasket.form.disableFieldNot("enabled");
+        }
     },
     //...............................................................
     getData : function() {
         var UI = this;
-        var setupObj = UI.gasket.main.getData();
+        var data = UI.gasket.form.getData();
         //console.log(setupObj)
         return {
-            searchMenuFltWidthHint : setupObj.searchMenuFltWidthHint,
-            cmd_import : setupObj.cmd_import,
-            cmd_export : setupObj.cmd_export,
-            meta       : setupObj.thIndex.indexOf("meta")>=0,
-            detail     : setupObj.thIndex.indexOf("detail")>=0,
-            media      : setupObj.thData.indexOf("media")>=0,
-            attachment : setupObj.thData.indexOf("attachment")>=0
+            dataImport : data
         };
     },
     //...............................................................
@@ -134,27 +102,13 @@ return ZUI.def("app.wn.thdesign_import", {
             thConf = $z.fromJson(thConf);
 
         // 更新通用全局配置
-        var setupObj = {
-            searchMenuFltWidthHint : thConf.searchMenuFltWidthHint,
-            cmd_import : thConf.cmd_import,
-            cmd_export : thConf.cmd_export,
-            thIndex : [],
-            thData  : []
-        };
-        // thIndex
-        if(thConf.meta)
-            setupObj.thIndex.push("meta");
-        if(thConf.detail)
-            setupObj.thIndex.push("detail");
-        
-        // thData
-        if(thConf.media)
-            setupObj.thData.push("media");
-        if(thConf.attachment)
-            setupObj.thData.push("attachment");
+        var data = thConf.dataImport || {};
 
         // 更新
-        UI.gasket.main.setData(setupObj);
+        UI.gasket.form.setData(data);
+
+        // 设置字段状态
+        UI.syncFormFieldsStatus();
     }
     //...............................................................
 });

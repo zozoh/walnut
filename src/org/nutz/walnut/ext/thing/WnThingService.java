@@ -6,7 +6,8 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.Outable;
+import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.impl.CreateTmpFileAction;
@@ -218,13 +219,15 @@ public class WnThingService {
     }
 
     public List<WnObj> createThings(List<NutMap> metaList, String uniqueKey) {
-        return createThings(metaList, uniqueKey, null, null);
+        return createThings(metaList, uniqueKey, null, null, null, null);
     }
 
     public List<WnObj> createThings(List<NutMap> metaList,
                                     String uniqueKey,
-                                    Outable out,
-                                    String process) {
+                                    WnOutputable out,
+                                    String process,
+                                    WnExecutable executor,
+                                    String cmdTmpl) {
         CreateThingAction a = _A(new CreateThingAction());
         a.addAllMeta(metaList).setUniqueKey(uniqueKey).setProcess(out, process);
         return a.invoke();

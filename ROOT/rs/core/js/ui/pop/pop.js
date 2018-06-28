@@ -90,7 +90,6 @@ module.exports = {
         arenaClass  : "xxx",        // 弹出框主题的类选择器
         width       : 900           // 弹出框宽度
         height      : "90%"         // 弹出框高度
-        i18n        : i18n          // 弹出框控件组的 i18n 设定
         contentType : "text"        // 编辑内容类型
         data        : 要编辑的值
         callback    : 回调函数接受 callback(href)
@@ -99,51 +98,6 @@ module.exports = {
     referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
     */
     openEditTextPanel : function(opt, referUI){
-        // opt = opt || {};
-        // referUI  = referUI  || {};
-
-        // // 填充默认值
-        // $z.setUndefined(opt, "width", 900);
-        // $z.setUndefined(opt, "height", "90%");
-        // $z.setUndefined(opt, "escape", true);
-        // $z.setUndefined(opt, "closer", true);
-        // $z.setUndefined(opt, "title", 'i18n:edit');
-        // $z.setUndefined(opt, "contentType", "text");
-
-        // // 打开编辑器
-        // new MaskUI({
-        //     i18n : referUI._msg_map,
-        //     exec : referUI.exec,
-        //     app  : referUI.app,
-        //     dom : 'ui/pop/pop.html',
-        //     css : 'ui/pop/theme/pop-{{theme}}.css',
-        //     arenaClass : opt.arenaClass,
-        //     width  : opt.width,
-        //     height : opt.height,
-        //     escape : opt.escape,
-        //     closer : opt.closer,
-        //     events : {
-        //         "click .pm-btn-ok" : function(){
-        //             var context = opt.context || this;
-        //             var html = this.body.getData();
-        //             $z.invoke(opt, "callback", [html], context);
-        //             this.close();
-        //         },
-        //         "click .pm-btn-cancel" : function(){
-        //             this.close();
-        //         }
-        //     }, 
-        //     setup : {
-        //         uiType : 'ui/zeditor/zeditor',
-        //         uiConf : {
-        //             contentType : opt.contentType
-        //         }
-        //     }
-        // }).render(function(){
-        //     this.arena.find(".pm-title").html(this.text(opt.title));
-        //     this.body.setData(opt.data);
-        // });
-
         // opt 直接就是一个回调
         if(_.isFunction(opt)){
             opt = {ok : opt};
@@ -170,6 +124,47 @@ module.exports = {
             var data = opt.data || "";
             uiEditor.setData(data);
         };
+
+        // 打开界面面板
+        this.openUIPanel(opt, referUI);
+    },
+    //...............................................................
+    // 打开一个文本查看界面
+    /*
+    opt : {
+        title       : "i18n:xxx"    // 弹出框标题
+        arenaClass  : "xxx",        // 弹出框主题的类选择器
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        data        : 要查看的值
+    }
+    referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
+    */
+    openViewTextPanel : function(opt, referUI){
+        // opt 直接就是内容
+        if(_.isString(opt)){
+            opt = {data : opt};
+        }
+        // 确保配置非空
+        else {
+            opt = opt || {};
+        }
+        //--------------------------------
+        // 设定初始化函数
+        opt.ready = function(body, jBody){
+            console.log("hahaha")
+            var jPre = $('<pre>').appendTo(jBody);
+            jPre.css({
+                "margin" : 0,
+                "padding" : 10,
+                "width"  : "100%",
+                "height" : "100%",
+                "overflow" : "auto"
+            }).text(opt.data);
+        };
+        opt.btnOk = "i18n:close";
+        opt.btnCancel = null;
+        $z.setUndefined(opt, "title", "i18n:view");
 
         // 打开界面面板
         this.openUIPanel(opt, referUI);
@@ -337,7 +332,7 @@ module.exports = {
             
             // 调用回调，回调如果没有明确返回 false，表示
             // 它不是同步的，则自动调用关闭函数
-            var context = opt.context || uiMask.body;
+            var context = opt.context || uiMask.body || uiMask;
             if(false !== $z.invoke(opt, mode, [uiMask.body, jBtn, uiMask], context)){
                 uiMask.close();
             }
@@ -357,8 +352,9 @@ module.exports = {
             closer : opt.closer,
             on_close : function(){
                 var uiMask = this;
-                var context = opt.context || uiMask.body;
-                $z.invoke(opt, "close", [uiMask.body], context);
+                var context = opt.context || uiMask.body || uiMask;
+                var jBody = this.arena.find('.pm-body');
+                $z.invoke(opt, "close", [uiMask.body, jBody], context);
             },
             events : {
                 "click .pm-btn-ok" : function(e){
@@ -402,8 +398,9 @@ module.exports = {
             this.resetBtns();
 
             // 调用回调
-            var context = opt.context || this.body;
-            $z.invoke(opt, "ready", [this.body], context);
+            var context = opt.context || this.body || this;
+            var jBody = this.arena.find('.pm-body');
+            $z.invoke(opt, "ready", [this.body, jBody], context);
         });
     },
     //...............................................................

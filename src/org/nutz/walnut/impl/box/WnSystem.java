@@ -11,6 +11,7 @@ import org.nutz.log.Logs;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -23,7 +24,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
-public class WnSystem {
+public class WnSystem implements WnExecutable{
 
     private static final Log log = Logs.get();
 

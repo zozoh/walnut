@@ -6,6 +6,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.Things;
@@ -29,10 +30,14 @@ public class thing_create implements JvmHdl {
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
         String process = hc.params.get("process");
 
+        // 准备后续执行
+        String afterCmd = hc.params.get("after");
+        WnExecutable exec = Strings.isBlank(afterCmd) ? null : sys;
+
         // 数组：那么就表示创建多条数据咯
         if (Strings.isQuoteBy(json, '[', ']')) {
             List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
-            hc.output = wts.createThings(list, ukey, sys.out, process);
+            hc.output = wts.createThings(list, ukey, sys.out, process, exec, afterCmd);
         }
         // 普通对象: 表示创建一条数据
         else {

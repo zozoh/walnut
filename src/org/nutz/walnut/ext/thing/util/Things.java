@@ -335,7 +335,9 @@ public abstract class Things {
                              "width",
                              "height",
                              "video_frame_count",
-                             "video_frame_rate"));
+                             "video_frame_rate",
+                             "lm",
+                             "ct"));
         }
         // 设置
         oT.put(String.format("th_%s_ids", countKey), fIds);

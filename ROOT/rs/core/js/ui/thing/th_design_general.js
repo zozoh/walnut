@@ -28,6 +28,7 @@ return ZUI.def("app.wn.thdesign_general", {
         new FormUI({
             parent : UI,
             gasketName : "main",
+            mergeData : false,
             uiWidth : "all",
             displayMode : "compact",
             on_change : function(){

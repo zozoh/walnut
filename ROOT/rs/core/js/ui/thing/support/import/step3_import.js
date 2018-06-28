@@ -36,6 +36,27 @@ return ZUI.def("app.wn.thi_3_import", {
         var opt = UI.options;
         // console.log(data);
         // console.log(opt.cmdText)
+
+        // 准备上下文
+        var c = {
+            f       : data.oTmpFile,
+            tsId    : opt.thingSetId,
+            mapping : opt.mapping,
+        };
+
+        var str = 'sheet id:{{f.id}} -tpo json';
+        if(opt.mapping)
+            str += ' -mapping \'' + opt.mapping + '\'';
+        str += ' | thing {{tsId}} create -fields -process "${P} ${th_nm?-未知-} : ${phone?-未设定-}"';
+        if(opt.uniqueKey) {
+            str += ' -unique ' + opt.uniqueKey;
+        }
+        if(opt.fixedForm) {
+            str += ' -fixed \'' + $z.toJson(opt.fixedForm) + '\'';
+        }
+        if(opt.afterCommand) {
+            str += ' -after \'' + opt.afterCommand + '\'';
+        }
         
         var cmd = $z.tmpl(opt.cmdText)({
             f    : data.oTmpFile,

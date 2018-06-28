@@ -5,11 +5,12 @@ $z.declare([
     'ui/tabs/tabs',
     'ui/form/c_icon',
     'ui/form/c_name',
+    'ui/pop/pop',
     'ui/form/form',
     'ui/menu/menu',
     'ui/list/list',
     'ui/support/dom',
-], function(ZUI, Wn, TabsUI, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
+], function(ZUI, Wn, TabsUI, CIconUI, CNameUI, POP, FormUI, MenuUI, ListUI, DomUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-design" ui-fitparent="yes">
@@ -17,6 +18,7 @@ var html = function(){/*
         <div class="thd-icon" ui-gasket="icon"></div>
         <div class="thd-name" ui-gasket="name"></div>
         <div class="thd-id"></div>
+        <div class="thd-vc"><a>{{thing.conf.viewsource}}</a></div>
         <div class="thd-btns" mode="loaded">
             <a>{{thing.conf.cancel}}</a>
             <b><i class="fa fa-save"></i> {{thing.conf.saveflds}}</b>
@@ -82,6 +84,11 @@ return ZUI.def("app.wn.thdesign", {
             // 闪一下表示放弃
             $z.blinkIt(UI.arena.find('.thd-tabs'));
         },
+        // 查看 thing.js
+        "click .thd-vc a" : function() {
+            var json = this.getDataJson();
+            POP.openViewTextPanel(json);
+        }
     },
     //...............................................................
     redraw : function() {
@@ -160,6 +167,10 @@ return ZUI.def("app.wn.thdesign", {
                 "fields" : {
                     text : "i18n:thing.conf.tab_fields",
                     uiType : "ui/thing/th_design_fields",
+                },
+                "import" : {
+                    text : "i18n:thing.conf.tab_import",
+                    uiType : "ui/thing/th_design_import",
                 }
             },
             on_changeUI : function(key, theUI) {
