@@ -139,7 +139,7 @@ return ZUI.def("ui.th_manager", {
             title  : "i18n:thing.import.title",
             width  : 640,
             height : 480,
-            closer : false,
+            closer : true,
             arenaClass : "th-wizard-mask",
             setup : {
                 uiType : "ui/thing/support/th_import",

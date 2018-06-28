@@ -11,11 +11,11 @@ $z.declare([
 ], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-general" ui-fitparent="yes" ui-gasket="main">
+<div class="ui-arena th-design-import" ui-fitparent="yes" ui-gasket="main">
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_general", {
+return ZUI.def("app.wn.thdesign_import", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {

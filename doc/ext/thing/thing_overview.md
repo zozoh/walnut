@@ -86,6 +86,48 @@ th_thumb : ID    // Thing 的默认缩略图
   cmd_import : "xxx",     // 导入命令模板
   cmd_export : "xxx",     // 导出命令模板
   //......................................
+  // 导入段的设置
+  dataImport : {
+    uniqueKey : "phone",    // 唯一数据键
+    mapping   : "~/.sheet/测试数据_import"  // 映射数据
+    accept    : ".csv, .xls"  // 可以接受的导入文件格式
+    // 上传前设置所有数据的固定字段
+    fixFields : "~/.sheet/xxx.js",  // 一个表单form的 config JS
+    // 导入一条数据后的后续处理
+    // 每当创建一个数据，数据会变成 JSON 经过管道，传递给
+    // 这个命令，当这个命令执行出错，后续执行将被阻断
+    callback : "jsc /jsbin/xxxx.js -vars"
+  },
+  //......................................
+  // 导出段的设置
+  dataExport : {
+    exportType : "xls",   // 默认导出类型。支持 csv|xls
+    pageRange  : false,   // 导出页码，false 表示全部导出
+    pageBegin  : 1,       // 默认起始导出页码
+    pageEnd    : 10,      // 默认结束页码
+    audoDownload : true,  // 导出完毕后自动下载
+  },
+  //......................................
+  // 扩展的命令菜单
+  extendCommand : {
+    // 扩展命令的 JS 文件，是一个列表
+    actions : [
+      "~/xxx/action1.js",
+      "~/xxx/action2.js",
+    ],
+    // 搜索列表的扩展命令菜单
+    search : [{
+      text : "按钮名称",
+      icon : '<i ...>',
+      cmdText : '命令模板',      // 指定要执行的命令
+      handlerName : "doSomething"   // 调用的函数
+    }, {
+      type : "seperator"   // 表示分隔符
+    }],
+    // 搜索列表的扩展命令菜单
+    obj : [..]
+  }
+  //......................................
   // 过滤器设定 @see ui/search/search_filter.md
   searchFilter : {}
   //......................................
