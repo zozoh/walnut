@@ -34,10 +34,13 @@ public class thing_create implements JvmHdl {
         String afterCmd = hc.params.get("after");
         WnExecutable exec = Strings.isBlank(afterCmd) ? null : sys;
 
+        // 得到固定数据
+        NutMap fixedMeta = hc.params.getMap("fixed");
+
         // 数组：那么就表示创建多条数据咯
         if (Strings.isQuoteBy(json, '[', ']')) {
             List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
-            hc.output = wts.createThings(list, ukey, sys.out, process, exec, afterCmd);
+            hc.output = wts.createThings(list, ukey, fixedMeta, sys.out, process, exec, afterCmd);
         }
         // 普通对象: 表示创建一条数据
         else {

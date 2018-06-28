@@ -219,17 +219,22 @@ public class WnThingService {
     }
 
     public List<WnObj> createThings(List<NutMap> metaList, String uniqueKey) {
-        return createThings(metaList, uniqueKey, null, null, null, null);
+        return createThings(metaList, uniqueKey, null, null, null, null, null);
     }
 
     public List<WnObj> createThings(List<NutMap> metaList,
                                     String uniqueKey,
+                                    NutMap fixedMeta,
                                     WnOutputable out,
                                     String process,
                                     WnExecutable executor,
                                     String cmdTmpl) {
         CreateThingAction a = _A(new CreateThingAction());
-        a.addAllMeta(metaList).setUniqueKey(uniqueKey).setProcess(out, process);
+        a.addAllMeta(metaList);
+        a.setUniqueKey(uniqueKey);
+        a.setProcess(out, process);
+        a.setFixedMeta(fixedMeta);
+        a.setExecutor(executor, cmdTmpl);
         return a.invoke();
     }
 

@@ -89,18 +89,15 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 找到索引
         WnObj oIndex = this.checkDirTsIndex();
         int len = metas.size();
+        int i = 1;
 
         // 进度模式
         if (null != process && null != out) {
-            int i = 1;
             for (NutMap meta : metas) {
-                String P = String.format("%%[%d/%d]", i++, len);
-                WnObj oT = __create_one(oIndex, meta);
-                String msg = process.render(oT.setv("P", P).setv("I", i));
-                out.println(msg);
+                __create_one(oIndex, meta, i++, len);
             }
             out.println(Strings.dup('-', 20));
-            out.printlnf("All done for %d records", i);
+            out.printlnf("All done for %d records", i - 1);
             return null;
         }
         // 普通创建模式
@@ -110,7 +107,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
             // 来吧，循环生成
             for (NutMap meta : metas) {
-                WnObj oT = __create_one(oIndex, meta);
+                WnObj oT = __create_one(oIndex, meta, i++, len);
                 list.add(oT);
             }
 
@@ -119,7 +116,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         }
     }
 
-    private WnObj __create_one(WnObj oIndex, NutMap meta) {
+    private WnObj __create_one(WnObj oIndex, NutMap meta, int i, int len) {
+        String P = String.format("%%[%d/%d]", i++, len);
         // 创建或者取得一个一个 Thing
         WnObj oT = null;
 
@@ -163,6 +161,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 更新这个 Thing
         io.appendMeta(oT, meta);
 
+        if (null != process && null != out) {
+            String msg = process.render(oT.setv("P", P).setv("I", i));
+            out.println(msg);
+        }
+
         // 执行完毕的回调
         if (null != this.executor && null != this.cmdTmpl) {
             String cmdText = cmdTmpl.render(oT);
@@ -177,7 +180,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
             // 正常输出
             if (null != out) {
-                out.printf("  - after OK: %s", stdOut);
+                out.printlnf("  - after OK: %s", stdOut);
             }
         }
 

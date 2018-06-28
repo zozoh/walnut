@@ -232,17 +232,23 @@
     // 头部标题
     .thd-info {
         @flex(); 
-        > div {flex:0 0 auto; padding:@d2 0;}
+        > div {
+            flex:0 0 auto; padding:@d2 0;
+            @flex(); align-items: center;
+        }
         > .thd-icon {
            padding-left:@d2; 
         }
         > .thd-id {
-            flex:1 1 auto; color:@c3; padding:@d3+@d2 0;
+            flex:0 0 auto; color:@c3; padding:@d3+@d2 0;
             font-family: @f_fixed; font-size:@f2; 
         }
         > .thd-id:before {display: inline; content:"(";}
         > .thd-id:after  {display: inline; content:")";}
         > .thd-vc {
+            flex:1 1 auto; color:@c3; padding:@d0 @d1;
+            font-family: @f_fixed; font-size:@f1; 
+            @flex(); align-items: center;
             a {cursor: pointer;}
         }
         > .thd-btns { @noselect();

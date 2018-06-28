@@ -10,7 +10,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thi_4_done", {
+return ZUI.def("app.wn.thi_0_fixed_form", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {

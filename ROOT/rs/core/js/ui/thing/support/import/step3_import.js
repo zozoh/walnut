@@ -40,8 +40,7 @@ return ZUI.def("app.wn.thi_3_import", {
         // 准备上下文
         var c = {
             f       : data.oTmpFile,
-            tsId    : opt.thingSetId,
-            mapping : opt.mapping,
+            tsId    : opt.thingSetId
         };
 
         var str = 'sheet id:{{f.id}} -tpo json';
@@ -51,19 +50,19 @@ return ZUI.def("app.wn.thi_3_import", {
         if(opt.uniqueKey) {
             str += ' -unique ' + opt.uniqueKey;
         }
-        if(opt.fixedForm) {
-            str += ' -fixed \'' + $z.toJson(opt.fixedForm) + '\'';
+        if(data.fixedData && !_.isEmpty(data.fixedData)) {
+            str += ' -fixed \'' + $z.toJson(data.fixedData, function(k, v){
+                if(!/^__/.test(k))
+                    return v;
+
+            }) + '\'';
         }
         if(opt.afterCommand) {
             str += ' -after \'' + opt.afterCommand + '\'';
         }
         
-        var cmd = $z.tmpl(opt.cmdText)({
-            f    : data.oTmpFile,
-            tsId : opt.thingSetId,
-        });
-
-        UI.gasket.log.runCommand(cmd);
+        var cmdText = $z.tmpl(str)(c);
+        UI.gasket.log.runCommand(cmdText);
     },
     //...............................................................
 });

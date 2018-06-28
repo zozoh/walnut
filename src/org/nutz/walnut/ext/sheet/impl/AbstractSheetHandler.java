@@ -12,6 +12,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.castor.Castors;
@@ -158,9 +159,10 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         }
         List<String> keyList = new LinkedList<>();
         Row row = itRow.next();
-        Iterator<Cell> itCell = row.cellIterator();
-        while (itCell.hasNext()) {
-            Cell cell = itCell.next();
+        int i = 0;
+        short lc = row.getLastCellNum();
+        for (i = 0; i <= lc; i++) {
+            Cell cell = row.getCell(i, MissingCellPolicy.CREATE_NULL_AS_BLANK);
             String key = cell.getStringCellValue();
             keyList.add(key);
         }
@@ -172,17 +174,17 @@ public abstract class AbstractSheetHandler implements SheetHandler {
             // 准备对象
             NutMap obj = new NutMap();
             // 分析行
-            itCell = row.cellIterator();
-            int i = 0;
-            while (itCell.hasNext()) {
+            lc = row.getLastCellNum();
+            for (i = 0; i <= lc; i++) {
+                Cell cell = row.getCell(i, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
                 // 确保没有超出范围
                 if (i >= keys.length)
                     break;
                 // 得到键
-                String key = keys[i++];
+                String key = keys[i];
 
                 // 得到值
-                Cell cell = itCell.next();
                 Object val = __get_cell_value(cell);
 
                 // 计入
