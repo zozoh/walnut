@@ -88,19 +88,21 @@ th_thumb : ID    // Thing 的默认缩略图
   //......................................
   // 导入段的设置
   dataImport : {
+    enabled    : true,      // 如果此项为 true 则开启导入
     uniqueKey : "phone",    // 唯一数据键
     mapping   : "~/.sheet/测试数据_import"  // 映射数据
     accept    : ".csv, .xls"  // 可以接受的导入文件格式
     // 上传前设置所有数据的固定字段
-    fixFields : "~/.sheet/xxx.js",  // 一个表单form的 config JS
+    fixedForm : "~/.sheet/xxx.js",  // 一个表单form的 config JS
     // 导入一条数据后的后续处理
     // 每当创建一个数据，数据会变成 JSON 经过管道，传递给
     // 这个命令，当这个命令执行出错，后续执行将被阻断
-    callback : "jsc /jsbin/xxxx.js -vars"
+    afterCommand : "jsc /jsbin/xxxx.js -vars"
   },
   //......................................
   // 导出段的设置
   dataExport : {
+    enabled    : true,    // 如果此项为 true 则开启导出
     exportType : "xls",   // 默认导出类型。支持 csv|xls
     pageRange  : false,   // 导出页码，false 表示全部导出
     pageBegin  : 1,       // 默认起始导出页码

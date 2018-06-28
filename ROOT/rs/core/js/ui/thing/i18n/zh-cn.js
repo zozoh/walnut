@@ -113,6 +113,9 @@ define({
             "e_fld_exists"   : "字段键值已存在",
             "tab_general"    : "基本",
             "tab_fields"     : "字段",
+            "tab_import"     : "导入",
+            "tab_export"     : "导出",
+            "tab_cmds"       : "命令",
             "general" : {
                 "t_display" : "显示设定",
                 "t_imex"    : "导入/导出设定",
@@ -126,6 +129,20 @@ define({
                 "cmd_export"    : "导出命令",
                 "cmd_export_t"  : "请输入导出命令",
             },
+            "dimport" : {
+                "enabled" : "允许导入",
+                "accept"  : "文件格式",
+                "accept_tip" : "可以导入哪些文件格式，请用半角逗号分隔，输入文件格式后缀，譬如 `.csv, .xls`",
+                "accept_placeholder" : ".csv, .xls",
+                "unikey"  : "唯一键",
+                "unikey_tip" : "导入时用这个字段来去重复，请输入数据表中的键值",
+                "mapping" : "映射文件",
+                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/mapping.txt`",
+                "fixedForm" : "预设字段",
+                "fixedForm_tip" : "导入前可以为所有数据预先设置一些字段值，请输入字段设置js文件全路径",
+                "afterCommand" : "后续处理命令",
+                "afterCommand_tip" : "每个导入的数据都会变成 JSON，经由管道传入被这个命令进行后续处理",
+            }
         },  // end `thing.conf`
         "key" : {
             "id" : "ID",
@@ -154,6 +171,11 @@ define({
         },
         "import" : {
             "title" : "导入数据",
+            "step0" : "预设",
+            "step1" : "选择文件",
+            "step2" : "上传",
+            "step3" : "执行导入",
+            "step4" : "成功",
             "cf_tip1" : "将文件拖拽到这里，或者你可以",
             "cf_tip2" : "支持的文件类型",
             "cf_all"  : "任何格式",

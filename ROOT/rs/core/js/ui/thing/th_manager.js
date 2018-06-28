@@ -144,8 +144,12 @@ return ZUI.def("ui.th_manager", {
             setup : {
                 uiType : "ui/thing/support/th_import",
                 uiConf : {
-                    thingSetId : oHome.id,
-                    cmdText    : conf.cmd_import,
+                    thingSetId   : oHome.id,
+                    accept       : conf.dataImport.accept,
+                    uniqueKey    : conf.dataImport.uniqueKey,
+                    mapping      : conf.dataImport.mapping,
+                    fixedForm    : conf.dataImport.fixedForm,
+                    afterCommand : conf.dataImport.afterCommand,
                     done : function() {
                         // 关闭窗口
                         this.parent.close();

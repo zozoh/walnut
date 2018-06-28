@@ -863,6 +863,38 @@ return ZUI.def("ui.form", {
         }
     },
     //...............................................................
+    // 指定忽略字段，可以输入多个字段，不属于这些字段的都会被 disabled
+    disableFieldNot : function() {
+        var UI  = this;
+
+        // 得到处理字段
+        var keys = Array.from(arguments);
+
+        // 处理内嵌数组
+        keys = _.flatten(keys);
+
+        // 全部
+        if(keys.length > 0) {
+            var sel = '>.form-body>div>.form-group>.fg-fields>.form-fld';
+            this.arena.find(sel).each(function(){
+                var jFld = $(this);
+                var key  = jFld.attr('fld-key');
+                if(keys.indexOf(key) >= 0)
+                    return;
+                jFld.attr("fld-disabled", "yes");
+            });
+        }
+        // 逐个
+        else {
+            for(var key of keys) {
+                UI.$fld(key).attr("fld-disabled", "yes");
+            }
+        }
+
+        // 返回自身以便链式赋值
+        return this;
+    },
+    //...............................................................
     // 指定忽略字段，可以输入多个字段
     disableField : function() {
         var UI  = this;
@@ -875,8 +907,8 @@ return ZUI.def("ui.form", {
 
         // 全部
         if(keys.length == 0) {
-            this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld')
-                .attr("fld-disabled", "yes");
+            var sel = '>.form-body>div>.form-group>.fg-fields>.form-fld';
+            UI.arena.find(sel).attr("fld-disabled", "yes");
         }
         // 逐个
         else {
@@ -901,8 +933,8 @@ return ZUI.def("ui.form", {
 
         // 全部
         if(keys.length == 0) {
-            this.arena.find('>.form-body>div>.form-group>.fg-fields>.form-fld')
-                .removeAttr("fld-disabled");
+            var sel = '>.form-body>div>.form-group>.fg-fields>.form-fld';
+            UI.arena.find(sel).removeAttr("fld-disabled");
         }
         // 逐个
         else {
