@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 import org.nutz.json.JsonFormat;
 
-public interface Outable extends Flushable, Closeable {
+public interface WnOutputable extends Flushable, Closeable {
 
     void write(InputStream ins);
 

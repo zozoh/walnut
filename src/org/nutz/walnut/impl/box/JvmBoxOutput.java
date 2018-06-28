@@ -14,9 +14,9 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.walnut.api.Outable;
+import org.nutz.walnut.api.WnOutputable;
 
-public class JvmBoxOutput implements Outable {
+public class JvmBoxOutput implements WnOutputable {
 
     private static final Log log = Logs.get();
 

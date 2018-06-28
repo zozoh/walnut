@@ -13,6 +13,7 @@ define({
         "conf" : {
             "title" : "设置数据集「{{nm}}」",
             "icon_modify" : "修改数据集的图标",
+            "viewsource"  : "查看源",
             "fnm" : {
                 "id"      : 'ID',
                 "thumb"   : '缩略图',

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Streams;
-import org.nutz.walnut.api.Outable;
+import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -71,7 +71,7 @@ public class cmd_hex extends JvmExecutor {
         }
     }
 
-    protected void __do_hex(Outable out,
+    protected void __do_hex(WnOutputable out,
                             int width,
                             InputStream ins,
                             long read,

@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.Outable;
+import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.WnOutputable;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -23,7 +27,13 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     private Tmpl process;
 
-    private Outable out;
+    private WnOutputable out;
+
+    private WnExecutable executor;
+
+    private Tmpl cmdTmpl;
+
+    private NutMap fixedMeta;
 
     public CreateThingAction() {
         this.metas = new LinkedList<>();
@@ -34,13 +44,13 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
-    public CreateThingAction setProcess(Outable out, String process) {
+    public CreateThingAction setProcess(WnOutputable out, String process) {
         this.out = out;
         this.process = Tmpl.parse(process);
         return this;
     }
 
-    public CreateThingAction setProcess(Outable out, Tmpl process) {
+    public CreateThingAction setProcess(WnOutputable out, Tmpl process) {
         this.out = out;
         this.process = process;
         return this;
@@ -54,6 +64,23 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     public CreateThingAction addAllMeta(List<NutMap> metas) {
         this.metas.addAll(metas);
+        return this;
+    }
+
+    public CreateThingAction setExecutor(WnExecutable executor, String cmdTmpl) {
+        this.executor = executor;
+        this.cmdTmpl = Tmpl.parse(cmdTmpl);
+        return this;
+    }
+
+    public CreateThingAction setExecutor(WnExecutable executor, Tmpl cmdTmpl) {
+        this.executor = executor;
+        this.cmdTmpl = cmdTmpl;
+        return this;
+    }
+
+    public CreateThingAction setFixedMeta(NutMap fixedMeta) {
+        this.fixedMeta = fixedMeta;
         return this;
     }
 
@@ -119,6 +146,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         if (!meta.has("mime") && meta.has("tp"))
             meta.put("mime", io.mimes().getMime(meta.getString("tp"), "text/plain"));
 
+        // 默认增加固定字段
+        if (null != this.fixedMeta && this.fixedMeta.size() > 0) {
+            meta.putAll(this.fixedMeta);
+        }
+
         // zozoh: 不知道下面几行代码动机是啥，没有就不设置呗。靠，先注释掉
         // // 图标
         // if (!meta.has("icon") && !oT.has("icon"))
@@ -130,6 +162,24 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 更新这个 Thing
         io.appendMeta(oT, meta);
+
+        // 执行完毕的回调
+        if (null != this.executor && null != this.cmdTmpl) {
+            String cmdText = cmdTmpl.render(oT);
+            String json = Json.toJson(oT, JsonFormat.full().setQuoteName(true));
+            StringBuilder stdOut = new StringBuilder();
+            StringBuilder stdErr = new StringBuilder();
+            this.executor.exec(cmdText, stdOut, stdErr, json);
+
+            // 出错就阻止后续执行
+            if (stdErr.length() > 0)
+                throw Er.create("e.cmd.thing.after_create", stdErr);
+
+            // 正常输出
+            if (null != out) {
+                out.printf("  - after OK: %s", stdOut);
+            }
+        }
 
         // 返回
         return oT;

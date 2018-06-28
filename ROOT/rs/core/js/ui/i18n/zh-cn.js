@@ -55,6 +55,7 @@ define({
     "hide"       : "隐藏",
     "selectFile" : "选择文件对象",
     "preview"    : "预览",
+    "view"       : "查看",
     "zui_debug"  : "UI调试器",
     "console"    : "控制台",
     "acode_manager" : "激活码管理",

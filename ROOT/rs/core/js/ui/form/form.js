@@ -300,6 +300,8 @@ return ZUI.def("ui.form", {
         var opt = UI.options;
         var context = opt.context || UI;
 
+        // console.log("form.__on_change")
+
         // 准备 update 要用的参数
         var obj;
 
@@ -792,6 +794,8 @@ return ZUI.def("ui.form", {
         var data  = UI.getData();
         var lacks = [];
 
+        console.log("checkData")
+
         // 检查所有必选字段
         UI.$myfields().each(function(){
             var jF  = $(this);
@@ -810,7 +814,7 @@ return ZUI.def("ui.form", {
             var fld = jF.data("@FLD");
             
             // TODO 有时候异步加载有问题，先防守一下
-            if(!fld || !fld.UI)
+            if(!fld || !fld.UI || fld.virtual)
                 return;
 
             // 判断一下必选字段

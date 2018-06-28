@@ -28,7 +28,7 @@ return ZUI.def("app.wn.thi_4_done", {
             new FormUI(_.extend(formSetup, {
                 parent : UI,
                 gasketName : "form",
-                on_change : function() {
+                on_update : function() {
                     UI.parent.checkNextBtnStatus();
                 }
             })).render(function(){
@@ -40,13 +40,9 @@ return ZUI.def("app.wn.thi_4_done", {
     },
     //...............................................................
     isDataReady : function() {
-        var isReady = false;
-        this.gasket.form.checkData({
-            ok : function(){
-                isReady = true;
-            }
-        })
-        return isReady;
+        var fd = this.gasket.form.getData();
+        //console.log(fd)
+        return fd.yq_id && fd.yq_nm && fd.yq_section;
     },
     //...............................................................
     getData : function(){
@@ -56,6 +52,7 @@ return ZUI.def("app.wn.thi_4_done", {
     },
     //...............................................................
     setData : function(data) {
+        //console.log("step0", data)
         this.gasket.form.setData(data.fixedData || {});
     },
 });
