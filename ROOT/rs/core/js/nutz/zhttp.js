@@ -103,6 +103,18 @@
         _ajax(http.constant.method.POST, url, form, callback);
     };
 
+    http.uploadBody = function (url, file, callback) {
+        var xhr = http.xhr();
+        xhr.onreadystatechange = function (e) {
+            if (xhr.readyState == 4) {
+                _ajaxDone(xhr.responseText, callback);
+            }
+        };
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded; charset=utf-8");
+        xhr.send(file);
+    };
+
     http.getText = function (url, form, callback) {
         if (typeof form == "function") {
             callback = form;
