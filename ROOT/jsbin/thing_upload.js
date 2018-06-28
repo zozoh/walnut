@@ -39,8 +39,7 @@ function _main(params){
         return;
     }
     if(!params.name){
-        sys.exec("ajaxre e.api.thing.update.noName");
-        return;
+        params.name = new Date().getTime();
     }
 
     // 准备生成命令
