@@ -119,22 +119,18 @@ define({
             "tab_cmds"       : "命令",
             "general" : {
                 "t_display" : "显示设定",
-                "t_imex"    : "导入/导出设定",
+                "t_query"   : "查询设定",
                 "k_smfwh"   : "菜单收缩",
                 "k_thIndex" : "显示索引",
                 "k_thIndex_m" : "对象属性",
                 "k_thIndex_d" : "详情内容",
                 "k_thData"  : "显示数据",
-                "cmd_import"    : "导入命令",
-                "cmd_import_t"  : "请输入导入命令",
-                "cmd_export"    : "导出命令",
-                "cmd_export_t"  : "请输入导出命令",
             },
             "import" : {
                 "enabled" : "允许导入",
                 "accept"  : "文件格式",
                 "accept_tip" : "可以导入哪些文件格式，请用半角逗号分隔，输入文件格式后缀，譬如 `.csv, .xls`",
-                "processTmpl" : "输出模板",
+                "processTmpl" : "命令输出模板",
                 "processTmpl_tip" : "导入命令输出的模板，默认为 `${P}` 表示导入进度",
                 "processTmpl_placeholder" :"${P} ${th_nm?-未知-} : ${phone?-未设定-}",
                 "accept_placeholder" : ".csv, .xls",
@@ -160,7 +156,10 @@ define({
                 "audoDownload" : "默认自动下载",
                 "audoDownload_tip" : "导出完毕后自动下载到本地",
                 "mapping" : "映射文件",
-                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/导出映射.txt`"
+                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/导出映射.txt`",
+                "processTmpl" : "命令输出模板",
+                "processTmpl_tip" : "导出命令输出的模板，默认为 `${P}` 表示导出进度",
+                "processTmpl_placeholder" :"${P} ${th_nm?-未知-} : ${phone?-未设定-}",
             }
         },  // end `thing.conf`
         "key" : {
@@ -204,9 +203,9 @@ define({
             "up_title"  : '上传文件',
             "up_ing"    : '已经写入了 {{loaded}} 字节',
             "up_finish" : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i> 正在做数据导入前的准备工作...',
-            "in_welcome" : "正在分析导入数据...",
-            "in_done" : "导入数据完毕",
-            "viewlog" : "查看日志"
+            "welcome" : "正在分析导入数据...",
+            "done" : "导入数据完毕，请点击文件名下载",
+            "viewlog" : "查看导入日志"
         },
         "export" : {
             "title" : "导出数据",
@@ -218,7 +217,9 @@ define({
             "pageBegin"  : "起始页码",
             "pageEnd"    : "结束页码",
             "audoDownload" : "自动下载",
-            "out_welcome"  : "正在准备要导出的数据列表...",
+            "welcome"  : "正在准备要导出的数据列表...",
+            "viewlog" : "查看导出日志",
+            "done" : "导出完毕"
         },
         "meta"   : "属性",
         "detail" : {

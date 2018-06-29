@@ -107,7 +107,6 @@ return ZUI.def("app.wn.the_1_setup", {
     },
     //...............................................................
     setData : function(data) {
-        console.log("setData")
         this.gasket.form.setData(data.setup || {});
         this.syncFormFieldsStatus();
     },

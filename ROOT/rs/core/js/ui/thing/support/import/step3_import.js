@@ -22,7 +22,7 @@ return ZUI.def("app.wn.thi_3_import", {
         new CmdLogUI({
             parent : UI,
             gasketName : "log",
-            welcome : 'i18n:thing.import.in_welcome',
+            welcome : 'i18n:thing.import.welcome',
             // 偷偷记录一下日志给 done 用
             formatMessage : function(str) {
                 UI.__log_list.push(str);

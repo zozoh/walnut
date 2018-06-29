@@ -12,9 +12,8 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.sheet.SheetHandler;
 
-public class JsonSheetHandler implements SheetHandler {
+public class JsonSheetHandler extends AbstractSheetHandler {
 
     @Override
     public List<NutMap> read(InputStream ins, NutMap conf) {

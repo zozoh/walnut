@@ -8,9 +8,15 @@ $z.declare([
 var html = function(){/*
 <div class="ui-arena th-export-3-done" ui-fitparent="yes">
     <header>
-        <i class="zmdi zmdi-check-circle"></i>
+        <i class="far fa-check-circle"></i>
+        <span>{{thing.export.done}}</span>
     </header>
-    <section>{{thing.import.in_done}}</section>
+    <section>
+        <a href="#">
+            <i class="fas fa-download"></i>
+            <span></span>
+        </a>
+    </section>
     <footer></footer>
 </div>
 */};
@@ -21,7 +27,7 @@ return ZUI.def("app.wn.the_3_done", {
     events : {
         "click footer a" : function() {
             var UI = this;
-            var logs = UI.parent.getData().importLog || [];
+            var logs = UI.parent.getData().exportLog || [];
             var logStr = logs.join("\n");
             POP.openViewTextPanel({
                 width  : "90%",
@@ -34,9 +40,20 @@ return ZUI.def("app.wn.the_3_done", {
     setData : function(data) {
         var UI = this;
         //console.log(data)
-        if(data.importLog && data.importLog.length > 0) {
-            $('<a>').text(UI.msg("thing.import.viewlog"))
+        // 显示日志
+        if(data.exportLog && data.exportLog.length > 0) {
+            $('<a>').text(UI.msg("thing.export.viewlog"))
                 .appendTo(UI.arena.find('footer'));
+        }
+        // 显示下载文件
+        if(data.oTmpFile) {
+            var href = '/o/read/id:' + data.oTmpFile.id;
+            var jA = UI.arena.find('section a');
+            jA.find('span').text(data.oTmpFile.nm);
+            jA.attr('href', href);
+            if(data.setup.audoDownload) {
+                $z.openUrl(href, "_self");
+            }
         }
     }
 });

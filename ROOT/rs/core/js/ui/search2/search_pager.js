@@ -197,11 +197,10 @@ return ZUI.def("ui.search_pager", {
     },
     //..............................................
     getData : function(){
-        var pg = this.__DATA;
-        return {
-            limit : pg.pgsz,
-            skip  : (pg.pn - 1) * pg.pgsz
-        };
+        var pg = _.extend({}, this.__DATA)
+        pg.limit = pg.pgsz;
+        pg.skip  = (pg.pn - 1) * pg.pgsz;
+        return pg;
     }
     //..............................................
 });

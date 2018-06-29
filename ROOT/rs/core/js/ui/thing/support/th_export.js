@@ -27,6 +27,7 @@ return ZUI.def("ui.th_export", {
         $z.setUndefined(opt, "pageEnd", -1);
         $z.setUndefined(opt, "audoDownload", false);
         $z.setUndefined(opt, "mapping", null);
+        $z.setUndefined(opt, "processTmpl", "${P} ${th_nm?-未知-} : ${phone?-未设定-}");
 
         // 必须有 thingSetId
         if(!opt.thingSetId) {
@@ -52,19 +53,20 @@ return ZUI.def("ui.th_export", {
             uiConf : opt
         };
         // Step3: 导出完成
-        steps["step4"] = {
+        steps["step3"] = {
             text : "i18n:thing.import.step3",
             done : function(){
                 $z.invoke(opt, "done");
             },
-            uiType : "ui/thing/support/import/step3_done",
+            uiType : "ui/thing/support/export/step3_done",
         },
 
         /*
         向导收集的对象为:
         {
-            setup    : {..}   // 导出的设定
-            oTmpFile : {..}   // 服务器端的临时文件
+            setup     : {..}   // 导出的设定
+            oTmpFile  : {..}   // 服务器端的临时文件
+            exportLog : [..]   // 记录导出的日志输出
         }
         */
 
@@ -72,7 +74,7 @@ return ZUI.def("ui.th_export", {
             parent : UI,
             gasketName : "wizard",
             headMode : "all",
-            //startPoint : "step1",
+            //startPoint : "step3",
             steps : steps
         }).render(function(){
             UI.defer_report("wizard")

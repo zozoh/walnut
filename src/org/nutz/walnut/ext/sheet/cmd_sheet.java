@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -57,11 +58,20 @@ public class cmd_sheet extends JvmExecutor {
         // 处理输出
         String fout = params.get("out");
         if (!Strings.isBlank(fout)) {
+            // 因为输出到文件，所以可以指定想标准输出输出日志
+            String process = params.get("process");
+            WnOutputable out = null;
+            if (!Strings.isBlank(process)) {
+                out = sys.out;
+            } else {
+                process = null;
+            }
+
             String aph = Wn.normalizeFullPath(fout, sys);
             WnObj oOut = sys.io.createIfNoExists(null, aph, WnRace.FILE);
             String typeOutput = params.get("tpo", oOut.type());
             OutputStream ops = sys.io.getOutputStream(oOut, 0);
-            wss.writeAndClose(ops, typeOutput, outputList, confOutput);
+            wss.writeAndClose(ops, typeOutput, outputList, confOutput, out, process);
         }
         // 输入到标准输出
         else {

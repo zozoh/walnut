@@ -15,6 +15,15 @@ public enum SheetFieldType {
     /**
      * 数组，会自动拼合成一个半角逗号分隔的字符串
      */
-    ARRAY
+    ARRAY,
 
+    /**
+     * 布尔
+     */
+    BOOLEAN,
+
+    /**
+     * 映射
+     */
+    MAPPING
 }

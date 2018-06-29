@@ -180,12 +180,18 @@ return ZUI.def("ui.th_manager", {
                 uiType : "ui/thing/support/th_export",
                 uiConf : {
                     thingSetId   : oHome.id,
+                    thingSetNm   : oHome.nm,
                     exportType   : conf.dataExport.exportType,
                     pageRange    : conf.dataExport.pageRange,
                     pageBegin    : conf.dataExport.pageBegin,
                     pageEnd      : conf.dataExport.pageEnd,
                     audoDownload : conf.dataExport.audoDownload,
                     mapping      : conf.dataExport.mapping,
+                    processTmpl  : conf.dataExport.processTmpl,
+                    queryContext : UI.uis("search").getQueryContext(),
+                    done : function() {
+                        this.parent.close();
+                    }
                 }
             },
             btnOk : null,
