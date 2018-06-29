@@ -529,6 +529,8 @@ public class HmPageTranslating extends HmContext {
         meta.put("hm_pg_args", m.find());
         meta.put("hm_pg_args_regex", null);
         meta.put("hm_pg_args_names", null);
+        if (meta.has("hm_list_tsid")) // add by wendal, for hmaker sitemap
+            meta.put("hm_pg_args_tsid", o.get("hm_list_tsid"));
 
         // 更新元数据
         io.appendMeta(this.oTa, meta);

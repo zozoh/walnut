@@ -19,4 +19,5 @@ hmaker css           # 给出指定的 CSS 文件界面上可用的选择器
 hmaker links         # 列出站内所有可用的页面链接，包括编辑页面和 html
 hmaker com           # 列出某页面所有的组件信息，ID/锚点/参数
 hmaker syncmeta      # 同步指定页面元数据
+hmaker sitemap       # 生成各种形式的网站地址,供SEO使用
 ```
