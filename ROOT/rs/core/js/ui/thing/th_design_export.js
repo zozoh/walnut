@@ -6,11 +6,11 @@ $z.declare([
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-import" ui-fitparent="yes" ui-gasket="form">
+<div class="ui-arena th-design-export" ui-fitparent="yes" ui-gasket="form">
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_import", {
+return ZUI.def("app.wn.thdesign_export", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {
@@ -36,41 +36,53 @@ return ZUI.def("app.wn.thdesign_import", {
                     type   : "boolean",
                     uiType : "@switch",
                 }, {
-                    key : "accept",
-                    title : "i18n:thing.conf.import.accept",
-                    tip   : "i18n:thing.conf.import.accept_tip",
+                    key : "exportType",
+                    title : "i18n:thing.conf.export.exportType",
+                    type   : "string",
+                    dft    : "csv",
+                    uiType : "@droplist",
                     uiConf : {
-                        placeholder : UI.msg("thing.conf.import.accept_placeholder")
+                        items : [{
+                                value : "csv",
+                                text  : "i18n:thing.conf.export.etp_csv"
+                            }, {
+                                value : "xls", 
+                                text  : "i18n:thing.conf.export.etp_xls"
+                            }]
                     }
                 }, {
-                    key : "processTmpl",
-                    title : "i18n:thing.conf.import.processTmpl",
-                    tip   : "i18n:thing.conf.import.processTmpl_tip",
-                    uiType : "@text",
+                    key : "pageRange",
+                    title : "i18n:thing.conf.export.pageRange",
+                    tip   : "i18n:thing.conf.export.pageRange_tip",
+                    type  : "boolean",
+                    dft   : false,
+                    uiWidth : "auto",
+                    uiType : "@toggle",
+                }, {
+                    key : "pageBegin",
+                    title : "i18n:thing.conf.export.pageBegin",
+                    type  : "int",
+                    dft   : 1,
+                    uiWidth : 100,
                     uiConf : {
-                        placeholder : UI.msg("thing.conf.import.processTmpl_placeholder"),
-                        height: 60
+                        valueType : "int"
                     }
-                },{
-                    key : "uniqueKey",
-                    title : "i18n:thing.conf.import.unikey",
-                    tip   : "i18n:thing.conf.import.unikey_tip",
                 }, {
-                    key : "mapping",
-                    title : "i18n:thing.conf.import.mapping",
-                    tip   : "i18n:thing.conf.import.mapping_tip",
-                }, {
-                    key : "fixedForm",
-                    title : "i18n:thing.conf.import.fixedForm",
-                    tip   : "i18n:thing.conf.import.fixedForm_tip",
-                }, {
-                    key : "afterCommand",
-                    title : "i18n:thing.conf.import.afterCommand",
-                    tip   : "i18n:thing.conf.import.afterCommand_tip",
-                    uiType : "@text",
+                    key : "pageEnd",
+                    title : "i18n:thing.conf.export.pageEnd",
+                    tip   : "i18n:thing.conf.export.pageEnd_tip",
+                    type  : "int",
+                    dft   : -1,
+                    uiWidth : 100,
                     uiConf : {
-                        height: 120
+                        valueType : "int"
                     }
+                }, {
+                    key : "audoDownload",
+                    title : "i18n:thing.conf.export.audoDownload",
+                    type  : "boolean",
+                    dft   : false,
+                    uiType : "@toggle",
                 }],
         }).render(function(){
             UI.defer_report("form");
@@ -84,7 +96,13 @@ return ZUI.def("app.wn.thdesign_import", {
         var UI = this;
         var data = UI.gasket.form.getData();
         if(data.enabled) {
-            UI.gasket.form.enableField();
+            if(data.pageRange) {
+                UI.gasket.form.enableField();
+            }
+            else {
+                UI.gasket.form.disableField("pageBegin", "pageEnd");
+                UI.gasket.form.enableFieldNot("pageBegin", "pageEnd");
+            }
         }
         // 禁止
         else {
@@ -97,7 +115,7 @@ return ZUI.def("app.wn.thdesign_import", {
         var data = UI.gasket.form.getData();
         //console.log(setupObj)
         return {
-            dataImport : data
+            dataExport : data
         };
     },
     //...............................................................
@@ -111,7 +129,7 @@ return ZUI.def("app.wn.thdesign_import", {
             thConf = $z.fromJson(thConf);
 
         // 更新通用全局配置
-        var data = thConf.dataImport || {};
+        var data = thConf.dataExport || {};
 
         // 更新
         UI.gasket.form.setData(data);

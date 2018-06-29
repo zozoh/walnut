@@ -130,7 +130,7 @@ define({
                 "cmd_export"    : "导出命令",
                 "cmd_export_t"  : "请输入导出命令",
             },
-            "dimport" : {
+            "import" : {
                 "enabled" : "允许导入",
                 "accept"  : "文件格式",
                 "accept_tip" : "可以导入哪些文件格式，请用半角逗号分隔，输入文件格式后缀，譬如 `.csv, .xls`",
@@ -146,6 +146,19 @@ define({
                 "fixedForm_tip" : "导入前可以为所有数据预先设置一些字段值，请输入字段设置js文件全路径",
                 "afterCommand" : "后续处理命令",
                 "afterCommand_tip" : "每个导入的数据都会变成 JSON，经由管道传入被这个命令进行后续处理",
+            },
+            "export" : {
+                "enabled" : "允许导出",
+                "exportType" : "输出类型",
+                "etp_xls" : "电子表格文件(.xls)",
+                "etp_csv" : "通用数据文本(.csv)",
+                "pageRange"  : "输出多页",
+                "pageRange_tip"  : "默认的，将只会输出你看到的当前页的数据，如果你想输出多页数据，可以打开这个选项，并指定页码范围",
+                "pageBegin"  : "起始页码",
+                "pageEnd"    : "结束页码",
+                "pageEnd_tip" : "如果输入小于等于 0 的整数，则表示最后一页",
+                "audoDownload" : "自动下载",
+                "audoDownload_tip" : "导出完毕后自动下载到本地",
             }
         },  // end `thing.conf`
         "key" : {

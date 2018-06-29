@@ -388,16 +388,37 @@ return ZUI.def("ui.form_com_input", {
     _get_data : function(){
         var UI  = this;
         var opt = UI.options;
-        var val = UI.arena.find(">.box>input").val();
+        var jIn = UI.arena.find(">.box>input");
+        var val = jIn.val();
         if(opt.trimData)
             val = $.trim(val);
+
+        if("int" == opt.valueType) {
+            var n = parseInt(val);
+            if(isNaN(n)) {
+                n = UI.__old_val || 0;
+                jIn.val(n);
+                return n;
+            }
+        }
+
         return val;
     },
     //...............................................................
     _set_data : function(s, jso){
+        var UI  = this;
+        var opt = UI.options;
+        var jIn = UI.arena.find(">.box>input");
         if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
             s = "";
-        this.arena.find(">.box>input").val(s);
+        if("int" == opt.valueType) {
+            var n = parseInt(s);
+            if(isNaN(n)) {
+                n = UI.__old_val || jIn.val() || 0;
+            }
+            s = n;
+        }
+        jIn.val(s);
     }
     //...............................................................
 });

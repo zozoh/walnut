@@ -40,7 +40,7 @@ return ZUI.def("app.wn.thi_3_import", {
     },
     //...............................................................
     getData : function() {
-        、、console.log("step3.getData")
+        //console.log("step3.getData")
         return {
             importLog : this.__log_list
         };

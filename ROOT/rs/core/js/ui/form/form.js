@@ -925,6 +925,38 @@ return ZUI.def("ui.form", {
         return this;
     },
     //...............................................................
+    // 指定启动字段，可以输入多个字段，不属于这些字段的都会被 enabled
+    enableFieldNot : function() {
+        var UI  = this;
+
+        // 得到处理字段
+        var keys = Array.from(arguments);
+
+        // 处理内嵌数组
+        keys = _.flatten(keys);
+
+        // 全部
+        if(keys.length > 0) {
+            var sel = '>.form-body>div>.form-group>.fg-fields>.form-fld';
+            this.arena.find(sel).each(function(){
+                var jFld = $(this);
+                var key  = jFld.attr('fld-key');
+                if(keys.indexOf(key) >= 0)
+                    return;
+                jFld.removeAttr("fld-disabled");;
+            });
+        }
+        // 逐个
+        else {
+            for(var key of keys) {
+                UI.$fld(key).removeAttr("fld-disabled");;
+            }
+        }
+
+        // 返回自身以便链式赋值
+        return this;
+    },
+    //...............................................................
     // 指定启用字段，可以输入多个字段
     enableField : function() {
         var UI  = this;

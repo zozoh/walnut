@@ -171,6 +171,10 @@ return ZUI.def("app.wn.thdesign", {
                 "import" : {
                     text : "i18n:thing.conf.tab_import",
                     uiType : "ui/thing/th_design_import",
+                },
+                "export" : {
+                    text : "i18n:thing.conf.tab_export",
+                    uiType : "ui/thing/th_design_export",
                 }
             },
             on_changeUI : function(key, theUI) {

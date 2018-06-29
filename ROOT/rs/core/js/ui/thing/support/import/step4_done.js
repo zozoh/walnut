@@ -33,7 +33,7 @@ return ZUI.def("app.wn.thi_4_done", {
     //...............................................................
     setData : function(data) {
         var UI = this;
-        、、console.log(data)
+        //console.log(data)
         if(data.importLog && data.importLog.length > 0) {
             $('<a>').text(UI.msg("thing.import.viewlog"))
                 .appendTo(UI.arena.find('footer'));
