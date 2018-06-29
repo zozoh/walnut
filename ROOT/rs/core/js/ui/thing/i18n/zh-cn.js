@@ -141,7 +141,7 @@ define({
                 "unikey"  : "唯一键",
                 "unikey_tip" : "导入时用这个字段来去重复，请输入数据表中的键值",
                 "mapping" : "映射文件",
-                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/mapping.txt`",
+                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/导入映射.txt`",
                 "fixedForm" : "预设字段",
                 "fixedForm_tip" : "导入前可以为所有数据预先设置一些字段值，请输入字段设置js文件全路径",
                 "afterCommand" : "后续处理命令",
@@ -149,16 +149,18 @@ define({
             },
             "export" : {
                 "enabled" : "允许导出",
-                "exportType" : "输出类型",
+                "exportType" : "默认输出类型",
                 "etp_xls" : "电子表格文件(.xls)",
                 "etp_csv" : "通用数据文本(.csv)",
-                "pageRange"  : "输出多页",
-                "pageRange_tip"  : "默认的，将只会输出你看到的当前页的数据，如果你想输出多页数据，可以打开这个选项，并指定页码范围",
-                "pageBegin"  : "起始页码",
-                "pageEnd"    : "结束页码",
+                "pageRange"  : "默认输出多页",
+                "pageRange_tip"  : "默认将只会输出你看到的当前页的数据，如果你想输出多页数据，可以打开这个选项，并指定页码范围",
+                "pageBegin"  : "默认起始页码",
+                "pageEnd"    : "默认结束页码",
                 "pageEnd_tip" : "如果输入小于等于 0 的整数，则表示最后一页",
-                "audoDownload" : "自动下载",
+                "audoDownload" : "默认自动下载",
                 "audoDownload_tip" : "导出完毕后自动下载到本地",
+                "mapping" : "映射文件",
+                "mapping_tip" : "请输入映射文件全路径，譬如 `~/.sheet/导出映射.txt`"
             }
         },  // end `thing.conf`
         "key" : {
@@ -205,6 +207,17 @@ define({
             "in_welcome" : "正在分析导入数据...",
             "in_done" : "导入数据完毕",
             "viewlog" : "查看日志"
+        },
+        "export" : {
+            "title" : "导出数据",
+            "step1" : "导出设置",
+            "step2" : "执行导出",
+            "step3" : "完成",
+            "exportType" : "输出类型",
+            "pageRange"  : "输出多页",
+            "pageBegin"  : "起始页码",
+            "pageEnd"    : "结束页码",
+            "audoDownload" : "自动下载",
         },
         "meta"   : "属性",
         "detail" : {

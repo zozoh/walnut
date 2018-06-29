@@ -26,6 +26,7 @@ return ZUI.def("ui.th_manager", {
 
         this.listenBus("setup", this.openSetup, true);
         this.listenBus("do:import", this.openImport, true);
+        this.listenBus("do:export", this.openExport, true);
     },
     //..............................................
     _fill_context : function(uiSet) {
@@ -159,8 +160,33 @@ return ZUI.def("ui.th_manager", {
                     }
                 }
             },
-            close : function(){
-                UI.uis("search").refresh(true);
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
+    },
+    //..............................................
+    openExport : function() {
+        var UI = this;
+        var conf  = UI.getBusConf();
+        var oHome = UI.getHomeObj();
+        
+        POP.openUIPanel({
+            title  : "i18n:thing.export.title",
+            width  : 640,
+            height : 480,
+            closer : true,
+            arenaClass : "th-wizard-mask",
+            setup : {
+                uiType : "ui/thing/support/th_export",
+                uiConf : {
+                    thingSetId   : oHome.id,
+                    exportType   : conf.dataExport.exportType,
+                    pageRange    : conf.dataExport.pageRange,
+                    pageBegin    : conf.dataExport.pageBegin,
+                    pageEnd      : conf.dataExport.pageEnd,
+                    audoDownload : conf.dataExport.audoDownload,
+                    mapping      : conf.dataExport.mapping,
+                }
             },
             btnOk : null,
             btnCancel : null,

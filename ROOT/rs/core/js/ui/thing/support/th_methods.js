@@ -299,8 +299,8 @@ var DATA_MODE = {
             });
         }
         if(conf.dataExport && conf.dataExport.enabled) {
-            //conf.searchMenu.push({
-            miMore.items.push({
+            conf.searchMenu.push({
+            //miMore.items.push({
                 text : "导出数据..",
                 handler : function(jBtn, mi){
                     UI.fire("do:export");

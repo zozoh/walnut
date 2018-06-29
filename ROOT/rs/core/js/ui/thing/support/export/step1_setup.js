@@ -2,44 +2,35 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/form',
+    'ui/form/form'
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-export" ui-fitparent="yes" ui-gasket="form">
+<div class="ui-arena th-export-1-setup" ui-fitparent="yes" ui-gasket="form">
+    
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_export", {
+return ZUI.def("app.wn.the_1_setup", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {
         var UI  = this;
-        //--------------------------------------- 
+        var opt = UI.options;
+
         new FormUI({
             parent : UI,
             gasketName : "form",
             uiWidth : "all",
-            displayMode : "compact",
-            fitparent : false,
             mergeData : false,
-            on_change : function(key, val){
-                //console.log(key, val)
-                // 设置字段状态
+            on_change : function(){
                 UI.syncFormFieldsStatus();
-                // 通知一下同步保存按钮状态
-                UI.notifyChanged();
             },
             fields : [{
-                    key : "enabled",
-                    title : "i18n:thing.conf.import.enabled",
-                    type   : "boolean",
-                    uiType : "@switch",
-                }, {
                     key : "exportType",
-                    title : "i18n:thing.conf.export.exportType",
+                    title : "i18n:thing.export.exportType",
                     type   : "string",
-                    dft    : "csv",
+                    dft    : opt.exportType,
                     uiType : "@droplist",
                     uiConf : {
                         items : [{
@@ -52,97 +43,74 @@ return ZUI.def("app.wn.thdesign_export", {
                     }
                 }, {
                     key : "pageRange",
-                    title : "i18n:thing.conf.export.pageRange",
+                    title : "i18n:thing.export.pageRange",
                     tip   : "i18n:thing.conf.export.pageRange_tip",
                     type  : "boolean",
-                    dft   : false,
+                    dft   : opt.pageRange,
                     uiWidth : "auto",
                     uiType : "@toggle",
                 }, {
                     key : "pageBegin",
-                    title : "i18n:thing.conf.export.pageBegin",
+                    title : "i18n:thing.export.pageBegin",
                     type  : "int",
-                    dft   : 1,
+                    dft   : opt.pageBegin,
                     uiWidth : 100,
                     uiConf : {
                         valueType : "int"
                     }
                 }, {
                     key : "pageEnd",
-                    title : "i18n:thing.conf.export.pageEnd",
+                    title : "i18n:thing.export.pageEnd",
                     tip   : "i18n:thing.conf.export.pageEnd_tip",
                     type  : "int",
-                    dft   : -1,
+                    dft   : opt.pageEnd,
                     uiWidth : 100,
                     uiConf : {
                         valueType : "int"
                     }
                 }, {
                     key : "audoDownload",
-                    title : "i18n:thing.conf.export.audoDownload",
+                    title : "i18n:thing.export.audoDownload",
                     tip   : "i18n:thing.conf.export.audoDownload_tip",
                     type  : "boolean",
-                    dft   : false,
+                    dft   : opt.audoDownload,
                     uiWidth : "auto",
                     uiType : "@toggle",
-                }, {
-                    key : "mapping",
-                    title : "i18n:thing.conf.export.mapping",
-                    tip   : "i18n:thing.conf.export.mapping_tip"
                 }],
         }).render(function(){
             UI.defer_report("form");
         });
-
-        // 返回延迟加载
+        
         return ["form"];
     },
     //...............................................................
     syncFormFieldsStatus : function(){
         var UI = this;
         var data = UI.gasket.form.getData();
-        if(data.enabled) {
-            if(data.pageRange) {
-                UI.gasket.form.enableField();
-            }
-            else {
-                UI.gasket.form.disableField("pageBegin", "pageEnd");
-                UI.gasket.form.enableFieldNot("pageBegin", "pageEnd");
-            }
+        if(data.pageRange) {
+            UI.gasket.form.enableField();
         }
-        // 禁止
         else {
-            UI.gasket.form.disableFieldNot("enabled");
+            UI.gasket.form.disableField("pageBegin", "pageEnd");
+            UI.gasket.form.enableFieldNot("pageBegin", "pageEnd");
         }
     },
     //...............................................................
-    getData : function() {
-        var UI = this;
-        var data = UI.gasket.form.getData();
-        //console.log(setupObj)
+    isDataReady : function(){
+        return true;
+    },
+    //...............................................................
+    getData : function(){
         return {
-            dataExport : data
+            setup : this.gasket.form.getData()
         };
     },
     //...............................................................
-    setData : function(thConf) {
-        var UI = this;
-
-        thConf = thConf || {};
-
-        // 确保是对象
-        if(_.isString(thConf))
-            thConf = $z.fromJson(thConf);
-
-        // 更新通用全局配置
-        var data = thConf.dataExport || {};
-
-        // 更新
-        UI.gasket.form.setData(data);
-
-        // 设置字段状态
-        UI.syncFormFieldsStatus();
-    }
+    setData : function(data) {
+        console.log("setData")
+        this.gasket.form.setData(data.setup || {});
+        this.syncFormFieldsStatus();
+    },
     //...............................................................
 });
 //===================================================================
