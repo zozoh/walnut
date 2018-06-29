@@ -22,7 +22,7 @@ return ZUI.def("app.wn.the_2_export", {
         new CmdLogUI({
             parent : UI,
             gasketName : "log",
-            welcome : 'i18n:thing.import.in_welcome',
+            welcome : 'i18n:thing.export.out_welcome',
             // 偷偷记录一下日志给 done 用
             formatMessage : function(str) {
                 UI.__log_list.push(str);
@@ -80,7 +80,7 @@ return ZUI.def("app.wn.the_2_export", {
         }
         
         var cmdText = $z.tmpl(str)(c);
-        UI.gasket.log.runCommand(cmdText);
+        //UI.gasket.log.runCommand(cmdText);
     },
     //...............................................................
 });

@@ -218,6 +218,7 @@ define({
             "pageBegin"  : "起始页码",
             "pageEnd"    : "结束页码",
             "audoDownload" : "自动下载",
+            "out_welcome"  : "正在准备要导出的数据列表...",
         },
         "meta"   : "属性",
         "detail" : {
