@@ -160,6 +160,10 @@ define({
                 "processTmpl" : "命令输出模板",
                 "processTmpl_tip" : "导出命令输出的模板，默认为 `${P}` 表示导出进度",
                 "processTmpl_placeholder" :"${P} ${th_nm?-未知-} : ${phone?-未设定-}",
+            },
+            "filter" : {
+                "data" : "数据",
+                "recycle" : "回收站"
             }
         },  // end `thing.conf`
         "key" : {
