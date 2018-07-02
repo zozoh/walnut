@@ -61,12 +61,13 @@ return ZUI.def("ui.form_com_text", {
     _set_data : function(s, jso){
         var UI  = this;
         var opt = UI.options;
+        //console.log(s)
 
         if((_.isNumber(s) && isNaN(s)) || _.isUndefined(s) || _.isNull(s))
             s = "";
         
         // 对于 JSON 数据的解析
-        if(opt.asJson) {
+        if(opt.asJson && s) {
             var obj;
             if(_.isString(s)){
                 obj = $z.fromJson(s);

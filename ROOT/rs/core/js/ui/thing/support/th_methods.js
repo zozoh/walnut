@@ -240,12 +240,12 @@ var DATA_MODE = {
             tabsKeepChecked : true,
             tabs : [{
                     icon : '<i class="fas fa-database"></i>',
-                    text : "数据",
+                    text : "i18n:thing.conf.filter.data",
                     value   : {th_live : 1},
                     checked : true
                 }, {
                     icon : '<i class="fas fa-trash"></i>',
-                    text : "回收站",
+                    text : "i18n:thing.conf.filter.recycle",
                     color      : "#C44",
                     background : "#F88",
                     value   : {th_live : -1},
