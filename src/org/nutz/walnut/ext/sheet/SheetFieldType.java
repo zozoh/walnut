@@ -25,5 +25,15 @@ public enum SheetFieldType {
     /**
      * 映射
      */
-    MAPPING
+    MAPPING,
+
+    /**
+     * 整数
+     */
+    INT,
+
+    /**
+     * 字符串
+     */
+    STR
 }

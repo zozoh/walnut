@@ -23,6 +23,8 @@ public class SheetMapping {
     private static final Pattern P_KEY_DATE = Regex.getPattern("^[$@]date(%(.+))?$");
     private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean$");
     private static final Pattern P_KEY_MAPPING = Regex.getPattern("^[$@][{]([^}]+)[}]$");
+    private static final Pattern P_KEY_INT = Regex.getPattern("^[$@]int(=(.+))?$");
+    private static final Pattern P_KEY_STR = Regex.getPattern("^[$@]str(=(.+))?$");
 
     public void parse(String flds) {
         // 空字段
@@ -67,6 +69,23 @@ public class SheetMapping {
 
             // 看看有木有特殊配置
             if (!Strings.isBlank(kconf)) {
+                // 是整数吗？
+                m = P_KEY_INT.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.INT;
+                    String arg = m.group(2);
+                    if(!Strings.isBlank(arg)) {
+                        sf.arg = Integer.parseInt(arg);
+                    }
+                    continue;
+                }
+                // 是字符串吗？（要强制转换的）
+                m = P_KEY_STR.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.STR;
+                    sf.arg = m.group(2);
+                    continue;
+                }
                 // 是布尔吗
                 m = P_KEY_BOOLEAN.matcher(kconf);
                 if (m.find()) {

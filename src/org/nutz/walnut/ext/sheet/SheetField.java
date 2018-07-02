@@ -56,6 +56,16 @@ public class SheetField {
             return null == val ? Boolean.FALSE : Castors.me().castTo(val, Boolean.class);
         }
 
+        // 字符串
+        if (SheetFieldType.STR == this.type) {
+            return null == val ? this.arg : Castors.me().castToString(val);
+        }
+
+        // 整数
+        if (SheetFieldType.INT == this.type) {
+            return null == val ? this.arg : Castors.me().castTo(val, Integer.class);
+        }
+
         // 空值
         if (null == val)
             return null;

@@ -66,7 +66,7 @@ return ZUI.def("app.wn.thi_3_import", {
             str += ' -process \'' + opt.processTmpl + '\'';
         }
         if(opt.uniqueKey) {
-            str += ' -unique ' + opt.uniqueKey;
+            str += ' -unique "' + opt.uniqueKey + '"';
         }
         if(data.fixedData && !_.isEmpty(data.fixedData)) {
             str += ' -fixed \'' + $z.toJson(data.fixedData, function(k, v){

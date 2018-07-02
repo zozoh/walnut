@@ -46,6 +46,10 @@ lbls[$n]:标签
 th_media_list[$n.id]:媒体
 sex[${1=男;2=女}]:性别
 th_enabled[$boolean]:生效
+phone[$str]:电话
+email[$str=未设置]:电子邮件
+th_price[$int]:价格
+th_price[$int=-1]:价格
 ```
 
 - 字段之间可以用半角逗号分隔，也可以用换行符分隔
