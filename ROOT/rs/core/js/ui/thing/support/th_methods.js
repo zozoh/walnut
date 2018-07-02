@@ -290,8 +290,8 @@ var DATA_MODE = {
         };
         // 更多菜单项:导入
         if(conf.dataImport && conf.dataImport.enabled) {
-            conf.searchMenu.push({
-            //miMore.items.push({
+            //conf.searchMenu.push({
+            miMore.items.push({
                 text : "导入数据..",
                 handler : function(jBtn, mi){
                     UI.fire("do:import");
@@ -299,8 +299,8 @@ var DATA_MODE = {
             });
         }
         if(conf.dataExport && conf.dataExport.enabled) {
-            conf.searchMenu.push({
-            //miMore.items.push({
+            //conf.searchMenu.push({
+            miMore.items.push({
                 text : "导出数据..",
                 handler : function(jBtn, mi){
                     UI.fire("do:export");
