@@ -317,6 +317,6 @@ public class MemoryBucket extends AbstractBucket {
     @Override
     protected void finalize() throws Throwable {
         clearFile();
-        super.finalize();
+        // super.finalize();
     }
 }

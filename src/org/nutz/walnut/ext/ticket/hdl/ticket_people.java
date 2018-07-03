@@ -5,8 +5,6 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -29,7 +27,7 @@ import com.beust.jcommander.Strings;
  */
 public class ticket_people implements JvmHdl {
 
-    private Log log = Logs.get();
+    // private Log log = Logs.get();
 
     private static String ADD_GRP = "grp %s -a %s -role 10";
 

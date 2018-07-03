@@ -12,7 +12,6 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -49,8 +48,8 @@ public class cmd_sitesucker extends JvmExecutor {
 
         // 下载指定网站
         if (params.has("url")) {
-            String crawlStorageFolder = Disks.normalize("~/tmp/crawler4j");
-            int numberOfCrawlers = 7;
+            // String crawlStorageFolder = Disks.normalize("~/tmp/crawler4j");
+            // int numberOfCrawlers = 7;
 
             // CrawlConfig config = new CrawlConfig();
             // config.setCrawlStorageFolder(crawlStorageFolder);
