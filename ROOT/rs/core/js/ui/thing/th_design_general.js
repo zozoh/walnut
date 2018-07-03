@@ -95,7 +95,7 @@ return ZUI.def("app.wn.thdesign_general", {
                     dft   : null,
                     uiType : "@text",
                     uiConf : {
-                        height : 140,
+                        height : 150,
                         asJson : true,
                         placeholder : "JSON格式的配置信息"
                     }
@@ -106,7 +106,7 @@ return ZUI.def("app.wn.thdesign_general", {
                     dft   : null,
                     uiType : "@text",
                     uiConf : {
-                        height : 140,
+                        height : 100,
                         asJson : true,
                         placeholder : "JSON格式的配置信息"
                     }

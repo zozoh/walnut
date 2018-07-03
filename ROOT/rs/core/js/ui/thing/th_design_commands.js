@@ -2,18 +2,14 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/c_icon',
-    'ui/form/c_name',
-    'ui/form/form',
-    'ui/menu/menu',
     'ui/list/list',
-    'ui/support/dom',
-], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
+    'ui/thing/support/th_design_command_list'
+], function(ZUI, Wn, ListUI, ThDesignCommandListUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-design-commands" ui-fitparent="yes">
     <section class="thdc-actions">
-        <div class="thdca-list"></div>
+        <div class="thdca-list" ui-gasket="list"></div>
         <div class="thdca-opt">
             <ul>
                 <li><a m="add">添加函数集</a></li>
@@ -36,9 +32,33 @@ return ZUI.def("app.wn.thdesign_commands", {
     redraw : function() {
         var UI  = this;       
         
+        // 列表
+        new ListUI({
+            parent : UI,
+            gasketName : "list",
 
+        }).render(function(){
+            UI.defer_report("list");
+        });
+
+        // 搜索命令菜单
+        new ThDesignCommandListUI({
+            parent : UI,
+            gasketName : "search",
+        }).render(function(){
+            UI.defer_report("search");
+        });
+
+        // 对象命令菜单
+        new ThDesignCommandListUI({
+            parent : UI,
+            gasketName : "obj",
+        }).render(function(){
+            UI.defer_report("obj");
+        });
+        
         // 返回延迟加载
-        return ["form"];
+        return ["list", "search", "obj"];
     },
     //...............................................................
     getData : function() {
@@ -55,7 +75,13 @@ return ZUI.def("app.wn.thdesign_commands", {
         if(_.isString(thConf))
             thConf = $z.fromJson(thConf);
 
-        
+        // 设置扩展命令
+        var extcmds = thConf.extendCommand || {};
+
+        // 设置数据
+        UI.gasket.list.setData(extcmds.actions);
+        UI.gasket.search.setData(extcmds.search);
+        UI.gasket.obj.setData(extcmds.obj);
     }
     //...............................................................
 });

@@ -2,13 +2,9 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/form/c_icon',
-    'ui/form/c_name',
-    'ui/form/form',
     'ui/menu/menu',
-    'ui/list/list',
-    'ui/support/dom',
-], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
+    'ui/list/list'
+], function(ZUI, Wn, MenuUI, ListUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena thdc-list" ui-fitparent="yes">
@@ -16,7 +12,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_commands", {
+return ZUI.def("app.wn.thdesign_commands_list", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {
@@ -27,8 +23,7 @@ return ZUI.def("app.wn.thdesign_commands", {
         var UI  = this;       
         
 
-        // 返回延迟加载
-        return ["form"];
+        
     },
     //...............................................................
     getData : function() {

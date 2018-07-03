@@ -116,7 +116,7 @@ define({
             "tab_fields"     : "字段",
             "tab_import"     : "导入",
             "tab_export"     : "导出",
-            "tab_cmds"       : "命令",
+            "tab_commands"   : "命令",
             "general" : {
                 "t_display" : "显示设定",
                 "t_query"   : "查询设定",

@@ -421,6 +421,49 @@
         a {cursor: pointer; color:@c2;}
     }
 }
+//......................................... 以上是导入/导出数据
+
+//......................................... 
+// 扩展命令界面
+@THDC_AH : 160px;
+.th-design-commands {
+    position: relative;
+    > section {position: absolute;}
+    .thdc-search { top:0; bottom:@THDC_AH; left:0;  width:50%;}
+    .thdc-obj    { top:0; bottom:@THDC_AH; right:0; width:50%;}
+    .thdc-actions {
+        left:0; right:0; bottom:0; height:@THDC_AH;
+        @flex(); padding:@d2 @d3;
+        .thdca-list {
+            flex:1 1 auto; border:1px solid @cborder1;
+        }
+        .thdca-opt {
+            flex:0 0 auto; padding:@d4;
+
+        }
+    }
+    .thdc-list {
+        padding:@d4;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
