@@ -9,12 +9,16 @@
             border-top:1px solid rgba(0,0,0,0.2);
         }
     }
+    // 组
+    section {
+        &:after{@clr();}
+    }
     // 标题
     h4[fld-type] {
         padding:.1rem; margin:0; font-size:1.6em; font-weight: normal;
     }
     // 表格
-    table {
+    table[fld-type] {
         margin:.1rem; 
         td {padding:.08rem;}
         td.tbl-col-name {white-space: nowrap; }
@@ -61,14 +65,20 @@
     .wn-obj-preview {
         width:100%;  padding:.1rem;
         span {
-            display: block; 
+            display: block; overflow: hidden;
             width:100%; height: 1rem;
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center center;
             border:1px solid rgba(0,0,0,0.1);
             @flex(); justify-content: center; align-items: center;
             font-size:1.2em;
+            > a {width:100%; height:100%;}
+            img, video {
+                width:100%; height:100%;
+            }
+        }
+    }
+    .wn-obj-preview[empty="yes"] {
+        span a {
+            @flex(); justify-content: center; align-items: center;
         }
     }
     // 列表项目
@@ -122,6 +132,23 @@
             }
         }
     }
+    // 日期范围
+    .wn-obj-daterange {
+        > .wn-obj-drcon {
+            display: table;
+            > ul {
+                display: table-row;
+                > li {
+                    display: table-cell;
+                    padding:.04rem .06rem;
+                    em {
+                        opacity: .8; color:#AAA;
+                        font-size:.9em; font-style: normal;
+                    }
+                }
+            }
+        }
+    }
     // Markdown
     article.md-content {
         width:100%; padding:.2rem;
@@ -130,14 +157,14 @@
 
 //...............................................
 // 剪裁方式
-[sa-obj-it-preview-clip="full"] {
-    .wn-obj-layout .wn-obj-preview span {
-        background-size: 100% 100%;
+[sa-obj-it-preview-clip="contain"] {
+    .wn-obj-layout .wn-obj-preview span img{
+        object-fit: contain;
     }
 }
 [sa-obj-it-preview-clip="cover"] {
-    .wn-obj-layout .wn-obj-preview span {
-        background-size: cover;
+    .wn-obj-layout .wn-obj-preview span img{
+        object-fit: cover;
     }
 }
 //...............................................
@@ -167,10 +194,10 @@
 // 内容浮动
 [sa-ele-float="desktop"] {
     .wn-obj-layout {
-         > * {float:left; display: block;}
+        > * {float:left; }
         section {
             &:after {@clr();}
-            > * {float:left; display: block;}
+            > * {float:left; }
         }
     }
 }

@@ -4,11 +4,8 @@ $z.declare([
     'wn/util',
     'ui/form/c_icon',
     'ui/form/c_name',
-    'ui/form/form',
-    'ui/menu/menu',
-    'ui/list/list',
-    'ui/support/dom',
-], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
+    'ui/form/form'
+], function(ZUI, Wn, CIconUI, CNameUI, FormUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-design-general" ui-fitparent="yes" ui-gasket="form">

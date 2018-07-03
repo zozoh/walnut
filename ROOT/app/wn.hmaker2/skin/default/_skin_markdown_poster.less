@@ -1,0 +1,275 @@
+article.md-content .md-code-poster {
+    width: 100%; min-height:1rem;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    
+    .md-code-poster-con {
+        max-width:@d_page_maxW;
+        margin:0 auto; position: relative;
+        position: relative; overflow: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+    }
+
+    // 对象的特殊设置
+    span {
+        display: block; text-align: center;
+        font-size:1.2em; line-height: 2em;
+        &.small {font-size:1em; opacity: 0.6;}
+        &.bold  {font-weight:bold; opacity: 0.9;}
+        &.big   {font-size:1.8em; line-height: 1.6em;}
+        &.large {font-size:2em; line-height: 1.4em;}
+    }
+    img, video {
+        display: block; vertical-align: bottom;
+        margin:0;
+    }
+    video {background-color: #000;}
+    //-----------------------------------------------------
+    // 布局
+    &[poster-layout="t1"] > .md-code-poster-con {
+        @flex(); flex-direction: column; justify-content: center;
+        max-width: unset;
+        padding:.4rem 0;
+        > img {
+            margin:.3rem auto;
+            &.full {width:100%;}
+        }
+        > div[it="list"] {
+            max-width:@d_page_maxW; margin:0 auto;
+            ul{
+                display:block;
+                list-style: disc; margin-left:.2rem;
+                li {padding:0;}
+                span{text-align: left; font-size:.8em; opacity: 0.7;}
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 左右布局幻灯片:文右图左
+    &[poster-layout="t2"] > .md-code-poster-con  {
+        span {text-align: left;}
+        > div[it="group"] {
+            position: absolute;top:0;bottom:0; right:0;
+            @flex(); flex-direction: column; justify-content: center;
+            padding:0 1rem 0 0; 
+        }
+    }
+    //-----------------------------------------------------
+    // 左右布局幻灯片:文左图右
+    &[poster-layout="t3"] > .md-code-poster-con  {
+        > img {
+            margin:0 0 0 auto;
+        }
+        span {text-align: left;}
+        > div[it="group"] {
+            position: absolute;top:0;bottom:0; left:0;
+            @flex(); flex-direction: column; justify-content: center;
+            padding:0 0 0 1rem; 
+        }
+    }
+    //-----------------------------------------------------
+    // 标题与并排图叠文字
+    &[poster-layout="t4"] > .md-code-poster-con  {
+        padding:.5rem 0; 
+        > div[it="group"] {
+            @flex(); align-items:flex-start;
+            padding:.3rem 0 0 0;
+            > div[it="group"] {
+                flex:1 1 auto; padding:.05rem;
+                position: relative;
+                > span {
+                    position: absolute; top:0; left:0; right:0;
+                    padding:.06rem; background: rgba(0,0,0,0.4);
+                    color:#EEE;
+                }
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 标题与满屏并排图文
+    &[poster-layout="t5"] > .md-code-poster-con  {
+        padding:.3rem 0; max-width: unset;
+        > div[it="group"] {
+            padding:.3rem 0;
+            @flex(); align-items:flex-start;
+            > div[it="group"] {
+                flex:1 1 auto; padding-left:.03rem;
+                @flex(); flex-direction: column; 
+                > img {margin-bottom:.2rem;}
+                &:first-child {padding-left:0};
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 标题或并排图文
+    &[poster-layout="t6"] > .md-code-poster-con  {
+        padding:.1rem; 
+        > span:first-child {margin-top:.5rem;}
+        > div[it="group"] {
+            @flex(); align-items:flex-start;
+            > div[it="group"] {
+                flex:1 1 auto; padding:.05rem;
+                @flex(); flex-direction: column; 
+                > img {margin-bottom:.2rem;}
+            }
+        }
+        > div.m2[it="group"] {
+            padding:.4rem 0;
+            > div[it="group"] {padding:0;}
+        }
+    }
+    //-----------------------------------------------------
+    // 标题与两列多行图文
+    &[poster-layout="t7"] > .md-code-poster-con  {
+        padding:.1rem; 
+        > span:first-child {margin-top:.5rem;}
+        > div[it="group"] {
+            @flex(); flex-wrap:wrap; padding:.2rem 0;
+            > div[it="group"] {
+                flex:0 0 auto; padding:.2rem .05rem;
+                width:50%;
+                @flex(); flex-direction: column; 
+                > img {margin-bottom:.2rem;}
+                > span {padding:0 .2rem;}
+                &.t-left {
+                    > span {text-align: left;}
+                }
+                &.t-right {
+                    > span {text-align: right;}
+                }
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 标题与三列多行图文
+    &[poster-layout="t8"] > .md-code-poster-con  {
+        padding:.6rem 0; 
+        > div[it="group"] {
+            @flex(); flex-wrap:wrap; margin:.2rem 0;
+            > div[it="group"] {
+                flex:1 0 auto; padding-bottom:.2rem;
+                width:33%; background: #FFF; color:#444;
+                @flex(); flex-direction: column; 
+                > div.it-title {
+                    padding:.2rem; 
+                    @flex(); align-items: center;
+                    > span {flex:1 1 auto;}
+                    > img {margin:.1rem; flex:0 0 auto; width:30%;}
+                }
+                > span {
+                    padding:0 .2rem; text-align: left;
+                }
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 四列附件列表
+    &[poster-layout="t9"] > .md-code-poster-con  {
+        padding:.3rem .1rem;
+        > div[it="list"] {
+            padding:.2rem 0;
+            ul {
+                @flex(); flex-wrap:wrap;
+                list-style: none; padding:0; margin:0;
+                li {
+                    width:25%; padding:.05rem;
+                    @flex();
+                    > .li-con {
+                        flex:1 1 auto; position: relative;
+                        background: #FFF; color:#000;
+                        text-align: center; cursor: pointer;
+                        padding:.6rem .2rem .2rem .2rem; 
+                        > img {margin:0 auto;}
+                        > span { transition: .3s;
+                            position: absolute; top:0; left:0; right:0;
+                            padding:.06rem .2rem; background: rgba(0,0,0,0);
+                            height:10%;
+                        }
+                    }
+                    > .li-con:hover {
+                        > span {
+                            background: rgba(0,0,0,0.9); height:100%;
+                            color:#EEE; z-index: 1;
+                            @flex(); justify-content: center; align-items: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //-----------------------------------------------------
+    // 产品规格表格
+    &[poster-layout="t10"] > .md-code-poster-con  {
+        padding:.3rem;
+        > div[it="spec"] {
+            display: table; border-collapse: collapse;
+            margin:.2rem auto;
+            > .spec-body {
+                
+                display: table-row-group;
+                > ul {
+                    display: table-row;
+                    padding:0; margin:0; list-style: none;
+                    li {
+                        display: table-cell;
+                        border:1px solid rgba(50,50,50,0.3);
+                        padding:.1rem;
+                    }
+                }
+            }
+            &.full {width:100%;}
+        }
+    }
+    //-----------------------------------------------------
+} // ~ 海报
+
+// 桌面版
+@media screen and (min-width: @d_page_minW) {
+    
+}
+
+// 手机版
+@media screen and (max-width: @d_page_minW) {
+article.md-content .md-code-poster {
+    span {
+        font-size:1em; line-height: 1.5em;
+        &.small {font-size:.8em;}
+        &.bold  {font-weight:bold;}
+        &.big   {font-size:1.4em; line-height: 1.6em;}
+        &.large {font-size:1.8em; line-height: 1.8em;}
+    }
+    //-----------------------------------------------------
+    &[poster-layout="t2"] > .md-code-poster-con  {
+        > div[it="group"] {padding:0 .5rem 0 0; }
+    }
+    //-----------------------------------------------------
+    &[poster-layout="t3"] > .md-code-poster-con  {
+        > div[it="group"] {padding:0 0 0 .5rem; }
+    }
+    //-----------------------------------------------------
+    &[poster-layout="t4"] > .md-code-poster-con  {
+        padding:.2rem 0;
+    }
+    //-----------------------------------------------------
+}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

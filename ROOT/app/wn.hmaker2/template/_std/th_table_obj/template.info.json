@@ -1,0 +1,12 @@
+{
+    "name"     : "_std_th_table_obj",
+    "title"    : "图文表格",
+    "dataType" : ["list", "page"],
+    "options"  : {
+        "href" : "(详情页面)@link",
+        "caption"   : "(表格标题)@input",
+        "showTHead" : "(表头)@toggle:true",
+        "rowNumber" : "(行编号)@switch=none:无=none,数字=nb",
+        "flds" : "(表格字段)@text:height:200"
+    }
+}

@@ -69,7 +69,7 @@ function setupSlider(ME, SC, jCom, quiet) {
     // 准备切换函数
     var do_switch = function(SC, jCom, index){
         // 手机
-        if("mobile" == SC.screen) {
+        if("mobile" == SC.screen && "runtime" == SC.mode) {
             ME.__mobile_switch_current(SC, jCom, index);
         }
         // 桌面
@@ -125,7 +125,7 @@ function setupSlider(ME, SC, jCom, quiet) {
 
     // 得到自动切换方式
     var autorun = jCom.find(">.hm-com-W>[sa-autorun]").attr("sa-autorun");
-    console.log("autorun", autorun);
+    //console.log("autorun", autorun);
     
     // 运行时:启用自动切换
     if("runtime" == SC.mode && ("both"==autorun || SC.screen==autorun)) {
@@ -188,7 +188,7 @@ var runtime = {
             if(!com)
                 return;
             var methods = com[eventName];
-            var jCom = $(this).closest(".hm-com, .hm-area, .wn-obj-layout");
+            var jCom = $(this).closest(".hm-com, .hm-area, .wn-obj-layout, .md-code-poster");
             // 如果是函数，直接调用
             if(_.isFunction(methods)){
                 methods.apply(runtime, [SC, jCom]);
@@ -200,8 +200,180 @@ var runtime = {
         });
     },
     //.....................................................
+    // 海报
+    poster : {
+        resize : {
+            desktop : function(SC, jCom) {
+                var w = jCom.attr('layout-desktop-width');
+                var h = jCom.attr('layout-desktop-height');
+                if('hidden' == h || 'hidden' == w) {
+                    jCom.hide();
+                }
+                // 否则显示
+                else {
+                    jCom.show().find('>.md-code-poster-con').css({
+                        "width" : w || "",
+                        'height': h || ""
+                    });
+                }
+            },
+            mobile : function(SC, jCom) {
+                var w = jCom.attr('layout-mobile-width');
+                var h = jCom.attr('layout-mobile-height');
+                if('hidden' == h || 'hidden' == w) {
+                    jCom.hide();
+                }
+                // 否则显示
+                else {
+                    jCom.show().find('>.md-code-poster-con').css({
+                        "width" : w || "",
+                        'height': h || ""
+                    });
+                }
+            }
+        }
+    },
+    //.....................................................
     // 布局
     layout : {
+        __ar_mode_jump : function(jAr) {
+            // 修改 DOM
+            $z.tabArticle(jAr);
+
+            // 所有归纳块，都要搞一下滚动感知
+            jAr.find('.hm-watch-scroll').removeClass("hm-watch-scroll");
+            jAr.find('.z-article-block').addClass("hm-watch-scroll");
+
+            // 事件
+            jAr.off().on("click", ".z-article-tabs li", function(){
+                var jLi = $(this);
+                var index = jLi.attr("b") * 1;
+                var jAr = jLi.closest("article, .z-article-block");
+                var jArena = jAr.closest(".hmc-dynamic");
+                var jStub;
+
+                console.log("I am click")
+
+                var jCon = jLi.closest('.z-article-block');
+                // 嗯，顶级标签
+                if(jCon.length == 0) {
+                    jStub = jAr.find('>.z-article-block[b="'+index+'"]');
+                }
+                // 二级标签的话
+                else {
+                    jStub = jCon.find('>.z-article-blcon > .z-article-block[b="'+index+'"]');
+                }
+                
+                // 跳转
+                if(jStub.length > 0) {
+                    var doc = jAr[0].ownerDocument;
+                    var off = jStub.offset();
+                    $([doc.documentElement, doc.body]).animate({
+                        scrollTop : off.top - 150
+                    }, 500);
+                }
+            });
+        },
+        __ar_mode_tabs : function(jAr) {
+            // 得到所有的子
+            var jq = jAr.children('hr');
+
+            // 分析分隔线的类型
+            for(var i=0; i<jq.length; i++) {
+                var ele = jq[i];
+                var jHr = $(ele);
+                // 如果是分隔线
+                if(ele.tagName == "HR") {
+                    // 前后都是海报
+                    if(jHr.prev().hasClass("md-code-poster")
+                        && jHr.next().hasClass("md-code-poster")){
+                        jHr.addClass("poster-sep");
+                    }
+                }
+            }
+
+            // 修改 DOM
+            $z.tabArticle(jAr);
+
+            // 事件
+            jAr.off().on("click", ">.z-article-tabs li", function(){
+                var jLi = $(this);
+                var index = jLi.attr("b");
+                jLi.closest("ul").find("li").removeAttr("current");
+                jLi.attr("current", "yes");
+                jLi.closest("article")
+                    .find('div.z-article-block')
+                        .removeAttr("current")
+                            .filter('[b="'+index+'"]')
+                                .attr("current", "yes");
+            });
+
+            // 设置一下初始的状态
+            jAr.find('>.z-article-tabs li').first().attr("current", "yes");
+            jAr.find('>.z-article-block').first().attr("current", "yes");
+        },
+        ready : function(SC, jLayout) {
+            var jAr = jLayout.find("article.md-content");
+            var jArena = jAr.closest(".hmc-dynamic");
+            //console.log("hahah", jArena.attr("sa-docktabs"));
+
+            // 标识一下自动停靠
+            if(jArena.attr("sa-docktabs")) {
+                window.setTimeout(function(){
+                    $z.pageDock.mark(jAr.find('>.z-article-tabs'),
+                        {factor:0, reset:true});
+                    $z.pageDock.mark(
+                        jAr.find('>.z-article-block >.z-article-tabs'), 
+                        {factor:-.5, fitpage:false, detectParent:true}
+                    );
+                }, 500);
+            } else {
+                $z.pageDock.unmark(jAr.find('.z-article-tabs'));
+            }    
+
+            // 如果不是要自动归纳标签，确保释放
+            var autotabs = jArena.attr("sa-autotabs");
+            var tabsmode = jArena.attr("sa-tabsmode") || "jump";
+            //console.log(autotabs)
+            if("both"!=autotabs && SC.screen != autotabs) {
+                runtime.layout.destroy.apply(this, [SC, jLayout]);
+                return;
+            }
+            // 已经标识过了，就不要再标识了
+            if(jAr.attr("ar-tabs-mode") == tabsmode){
+                return;
+            }
+
+            // 首先清理一下
+            runtime.layout.destroy.apply(this, [SC, jLayout]);
+
+            // 先标识一下
+            jAr.attr("ar-tabs-mode", tabsmode);
+
+            // 归纳标签
+            if("tabs" == tabsmode) {
+                runtime.layout.__ar_mode_tabs(jAr);
+            }
+            // 生成索引
+            else if("jump" == tabsmode) {
+                runtime.layout.__ar_mode_jump(jAr);
+            }       
+        },
+        destroy : function(SC, jLayout) {
+            var jAr = jLayout.find("article.md-content");
+            jAr.removeAttr("ar-tabs-mode");
+            $z.untabArticle(jAr);
+        },
+        scroll : function(SC, jLayout) {
+            var jAr = jLayout.find("article.md-content");
+            if(jAr.length == 0)
+                return;
+            $z.tabArticleMarkCurrent(jAr, ">[b][hm-scroll-inview]");
+            jAr.find('.z-article-block[z-article-tab-already]').each(function(){
+                var jBlock = $(this);
+                $z.tabArticleMarkCurrent(jBlock, ">.z-article-blcon >[b][hm-scroll-inview]");
+            });
+        },
         resize : function(SC, jLayout){
             //console.log(SC)
             var jArena = jLayout.closest(".hmc-dynamic");
@@ -228,7 +400,7 @@ var runtime = {
             
             // 逐个处理字段项
             //window.setTimeout(function(){
-                jLayout.find('section, [fld-display]').each(function(){
+                jLayout.find('section, [fld-display], [fld-type]').each(function(){
                     var jIt = $(this);
 
                     // 更新一下宽度
@@ -314,6 +486,11 @@ var runtime = {
                 hierarchy = window.__HM_HIERARCHY || "";
                 pagePath  = "/" + window.__PAGE_PATH;
             }
+            //...........................................
+            // 如果设置了控件自己的代码
+            var code = jCom.data("@code");
+            if(code)
+                hierarchy = $z.unescapeHtml(code);
             //...........................................
             // 分析合并逻辑行
             var str   = $.trim(hierarchy);
@@ -525,38 +702,13 @@ var runtime = {
     //.....................................................
     // 自动停靠页眉
     rowsSky : {
-        // 标识自己所在页面的位置，以便滚动的时候判断是否需要停靠
         ready : function(SC, jCom) {
-            //console.log("I am ready", jCom.offset())
-            jCom.removeAttr("enable-dock");
-            if(jCom.find('.hmc-rows[sa-autodock]').size() > 0){
-                jCom.attr("primer-top", jCom.offset().top);
-                var docST = $(SC.doc).scrollTop();
-                var theT  = jCom.attr("primer-top")*1 + jCom.outerHeight()*3;
-                if(docST > theT) {
-                    jCom.attr("enable-dock", "yes");
-                }
+            if(jCom.find('.hmc-rows[sa-autodock]').length > 0) {
+                $z.pageDock.mark(jCom, true);
+            } else {
+                $z.pageDock.unmark(jCom);
             }
         },
-        scroll : function(SC, jCom) {
-            if(jCom.find('.hmc-rows[sa-autodock]').size() > 0){
-                var docST = $(SC.doc).scrollTop();
-                var theT  = jCom.attr("primer-top")*1 + jCom.outerHeight()*2;
-                //console.log("scroll", docST, theT)
-                // 超过了就停靠
-                if(docST > theT) {
-                    jCom.attr("enable-dock", "yes");
-                }
-                // 否则取消停靠
-                else {
-                    jCom.removeAttr("enable-dock");
-                }
-            }
-            // 取消
-            else {
-                jCom.removeAttr("enable-dock");
-            }
-        }
     },
     //.....................................................
     // 顶级菜单
@@ -662,10 +814,7 @@ var runtime = {
 
             // 滚动到顶部
             jCom.on('click', 'li[a="top"]', function(){
-                var doc = jCom[0].ownerDocument;
-                $([doc.documentElement, doc.body]).animate({
-                    scrollTop : 0
-                }, 500);
+                $z.doAnimatDocumentScrollTop(jCom, 500, 0);
             });
             // 展开隐藏项
             jCom.on("mouseenter", '.hmc-htmlcode > ul > li', function(){
@@ -717,15 +866,21 @@ var runtime = {
     showMedia : {
         ready : {
             desktop : function(SC, jCom) {
-                jCom.find(".skin-dynamic-_std-th_show_image").attr({
-                    "show-plist" : "yes"
-                });
-                jCom.find(".tm-play").removeAttr("click-hide-plist");
+                var jPlist = jCom.find(".tm-play-list");
+                if(jPlist.length > 0) {
+                    jCom.find(".skin-dynamic-_std-th_show_image").attr({
+                        "show-plist" : "yes"
+                    });
+                    jCom.find(".tm-play").removeAttr("click-hide-plist");
+                }
             },
             mobile : function(SC, jCom) {
-                jCom.find(".skin-dynamic-_std-th_show_image")
-                    .removeAttr("show-plist");
-                jCom.find(".tm-play").attr("click-hide-plist", "yes");
+                var jPlist = jCom.find(".tm-play-list");
+                if(jPlist.length > 0) {
+                    jCom.find(".skin-dynamic-_std-th_show_image")
+                        .removeAttr("show-plist");
+                    jCom.find(".tm-play").attr("click-hide-plist", "yes");
+                }
             },
         },
     },
@@ -1196,6 +1351,7 @@ module.exports = {
     ready : function(){
         var SC = this;
         //console.log("skin ready", SC);
+        runtime.__invoke("ready", SC, "layout", ".wn-obj-layout");
         runtime.__invoke("ready", SC, "slider", ".skin-rows-slider");
         runtime.__invoke("ready", SC, "rowsSky", ".skin-rows-sky");
         runtime.__invoke("ready", SC, "crumb", ".skin-htmlcode-crumb");
@@ -1204,6 +1360,9 @@ module.exports = {
         runtime.__invoke("ready", SC, "goodsDetail", ".skin-dynamic-_std-th_show_goods");
         runtime.__invoke("ready", SC, "showMedia", ".skin-dynamic-_std-th_show_image");
         runtime.__invoke("ready", SC, "fixbar", ".skin-htmlcode-fixbar");
+
+        // 处理自动停靠
+        $z.pageDock.adjust(SC.doc);
     },
     // 需要幂等
     scroll : function(){
@@ -1213,6 +1372,11 @@ module.exports = {
         runtime.__invoke("scroll", SC, "rowsSky", ".skin-rows-sky");
         // 修正产品详情的 DOM 结构
         runtime.__invoke("scroll", SC, "goodsDetail", ".skin-dynamic-_std-th_show_goods");
+        // 布局控件对于滚动的感知
+        runtime.__invoke("scroll", SC, "layout", ".wn-obj-layout");
+
+        // 处理自动停靠
+        $z.pageDock.adjust(SC.doc);
     },
     // 需要幂等
     off : function(){
@@ -1241,6 +1405,7 @@ module.exports = {
         runtime.__invoke("resize", SC, "navmenuIcon", ".skin-navmenu-icon");
         runtime.__invoke("resize", SC, "layout", ".wn-obj-layout");
         runtime.__invoke("resize", SC, "video", ".hm-com-video");
+        runtime.__invoke("resize", SC, "poster", ".md-code-poster");
 
         // 确保商品的详情图片是方的
         window.setTimeout(function(){

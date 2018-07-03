@@ -385,7 +385,8 @@ var output_dom = function(jData, obj, opt) {
     // 中间的分隔符号
     $('<span class="abar-space">').appendTo(jABar);
     // 选集按钮
-    if("hide" != opt.plist) {
+    //console.log(plist)
+    if("hide" != opt.plist && plist.length>1) {
         jAb = $('<a a="plist">')
                     .html('<i class="zmdi zmdi-format-list-bulleted"></i>')
                         .appendTo(jABar);
@@ -416,6 +417,10 @@ var output_dom = function(jData, obj, opt) {
     else {
         jContent.remove();
     }
+
+    //-------------------------------------------
+    // 返回第一个要显示的媒体
+    return plist.length > 0 ? plist[0] : null;
 };
 //..........................................................
 $.fn.extend({ "_std_th_show_image" : function(obj, opt){
@@ -427,7 +432,7 @@ $.fn.extend({ "_std_th_show_image" : function(obj, opt){
 
     //.........................................
     // 输出 DOM
-    output_dom(jData, obj, opt)
+    var currentMedia = output_dom(jData, obj, opt)
     
     //.........................................
     // 监控事件
@@ -464,7 +469,7 @@ $.fn.extend({ "_std_th_show_image" : function(obj, opt){
 
     //-------------------------------------------
     // 最后: 播放内容
-    var currentMedia = jData.find('.tm-play-list li').eq(0).data("MO");
+    //var currentMedia = jData.find('.tm-play-list li').eq(0).data("MO");
     if(currentMedia)
         play_media(jData, opt, obj, currentMedia);
 

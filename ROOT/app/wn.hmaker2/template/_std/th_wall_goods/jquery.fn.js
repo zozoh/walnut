@@ -63,11 +63,16 @@ $.fn.extend({ "_std_th_wall_goods" : function(list, opt){
         //................................................
         // 链接
         var href = HmRT.explainHref(opt.href, obj, isIDE);
+        // 首先解析一下链接
+        var oHref = HmRT.prepareHrefObj(href, obj);
+        href = oHref.result;
+
+        // 来吧
         if(href) {
             var taId = obj.id;
             if(taId) {
                 jA.attr({
-                    "href"   : href + "?" + panm + "=" + taId,
+                    "href"   : href,
                     "target" : "_blank",
                 });
             }
@@ -143,9 +148,9 @@ $.fn.extend({ "_std_th_wall_goods" : function(list, opt){
                     var ref = refList[x];
                     var jLi = $('<li>').appendTo(jRefer);
                     var jAn = $('<a>').text(ref.text).appendTo(jLi);
-                    if(href && ref.id) {
+                    if(oHref && ref.id) {
                         jAn.attr({
-                            "href"   : href + "?" + panm + "=" + ref.id,
+                            "href"   : oHref.tmpl(ref),
                             "target" : "_blank",
                         });
                     }
