@@ -830,17 +830,17 @@ public class WWWModule extends AbstractWnModule {
                 }
 
                 // 放置一些上下文的接口
-				try {
-					WWWPageAPI api = new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
-					context.put("API", api);
-				}
-				// 如果 oWWW 没有 hm_site_id, 会构建失败的那么上下文中就不会放置 API 这个对象
-				// 但是后续逻辑还是可以继续执行的，页面中如果调用了 API 则通常会失败
-				catch (WebException e) {
-					if (log.isDebugEnabled()) {
-						log.debugf("wihtout 'hm_site_id' in %s", oWWW.path());
-					}
-				}
+                try {
+                    WWWPageAPI api = new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
+                    context.put("API", api);
+                }
+                // 如果 oWWW 没有 hm_site_id, 会构建失败的那么上下文中就不会放置 API 这个对象
+                // 但是后续逻辑还是可以继续执行的，页面中如果调用了 API 则通常会失败
+                catch (WebException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debugf("wihtout 'hm_site_id' in %s", oWWW.path());
+                    }
+                }
 
                 // 看看是否是已经登录的会话，如果已经登录了，那么要偷偷改一下会话的票据
                 // String seph = api.updateSessionTicket();
