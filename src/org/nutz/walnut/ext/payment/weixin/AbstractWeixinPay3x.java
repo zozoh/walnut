@@ -118,7 +118,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
                 if ("JSAPI".equals(po.getString("wx_trade_type", "NATIVE"))) {
                     // js api需要下面的参数, 签名并返回之
                     NutMap params = new NutMap();
-                    params.put("appid", conf.appID);
+                    params.put("appId", conf.appID);
                     params.put("timeStamp", System.currentTimeMillis() / 1000);
                     params.put("nonceStr", R.UU32());
                     params.put("package", "prepay_id=" + respMap.get("prepay_id"));
