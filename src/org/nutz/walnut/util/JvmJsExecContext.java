@@ -152,4 +152,16 @@ public class JvmJsExecContext implements JsExecContext {
     public String path(String path) {
         return Wn.normalizeFullPath(path, se);
     }
+
+    /**
+     * 抹除单引号,双引号,换行,变量
+     * @param val
+     * @return
+     */
+    public String safe(Object val) {
+        if (val == null)
+            return "null";
+        String value = val.toString();
+        return value.replaceAll("[\"\'\\n\\r\\$]", "").trim();
+    }
 }
