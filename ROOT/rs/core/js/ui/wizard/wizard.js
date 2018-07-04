@@ -44,6 +44,7 @@ return ZUI.def("ui.wizard", {
             UI.__normalize_step_btn(step, "prev", true);
             UI.__normalize_step_btn(step, "next");
             UI.__normalize_step_btn(step, "done");
+            //console.log(step)
 
             // 加入列表
             UI.__steps.push(step);
@@ -53,7 +54,7 @@ return ZUI.def("ui.wizard", {
         UI.__index = -1;
 
         // 设置默认数据
-        UI.setData(opt.data);
+        UI.setData(opt.data, true);
 
     },
     //...............................................................
@@ -243,7 +244,17 @@ return ZUI.def("ui.wizard", {
         if(step.done) {
             noDoneBtn = false;
             var jBtn = $('<b m="done" enabled="yes">').appendTo(jFooter);
-            $('<span>').text(UI.text("i18n:done")).appendTo(jBtn);
+            // 图标
+            if(step.done.icon) {
+                $('<span class="btn-icon">')
+                    .html(step.done.icon)
+                        .appendTo(jBtn);
+            }
+            // 文字
+            var btnText  = UI.text(step.done.text || "i18n:done");
+            $('<span class="btn-text">')
+                .text(btnText)
+                    .appendTo(jBtn);
         }
         // 中间步骤的话 ...
         else {
@@ -263,7 +274,7 @@ return ZUI.def("ui.wizard", {
                             .appendTo(jBtn);
                 }
                 // 文字
-                var btnText  = UI.text(step.next.text || "i18n:prev");
+                var btnText  = UI.text(step.prev.text || "i18n:prev");
                 $('<span class="btn-text">')
                     .text(btnText)
                         .appendTo(jBtn);
@@ -365,8 +376,19 @@ return ZUI.def("ui.wizard", {
         return this.__data;
     },
     //...............................................................
-    setData : function(data) {
+    setData : function(data, notUpdateCurrentStepUI) {
+        var UI = this;
+
+        // 更新数据
         this.__data = _.extend({}, data);
+
+        // 同时要更新当前 stepUI
+        if(!notUpdateCurrentStepUI) {
+            if(UI.gasket.main) 
+                $z.invoke(UI.gasket.main, 'setData', [this.__data]);
+            // 因为重新设置了数据，那么就需要重新检查数据
+            UI.checkNextBtnStatus();
+        }
     },
     //...............................................................
     resize : function() {

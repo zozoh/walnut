@@ -12,7 +12,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_general", {
+return ZUI.def("ui.thing.thdesign_general", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {

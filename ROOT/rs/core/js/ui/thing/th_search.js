@@ -11,7 +11,7 @@ var html = function(){/*
     ui-gasket="main"></div>
 */};
 //==============================================
-return ZUI.def("ui.th_search", {
+return ZUI.def("ui.thing.th_search", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
     i18n : "ui/thing/i18n/{{lang}}.js",

@@ -1,0 +1,25 @@
+.smswizard {
+	> .notarget {
+		width:100%; height:100%;
+		@flex(); justify-content: center; align-items: center;
+		font-size:@f4;
+	}
+    .smsw-step1-picktmpl {
+    	> section {
+    		border:1px solid @cborder1;
+    		padding:@d0;
+    		.com-pair > section.pairs table td.cp-val input{
+    			padding:@d2;
+    		}
+    	}
+    	> footer {
+    		background: @cb1; color:@cf1;
+    		padding:@d3; height:37%;
+    		overflow: auto;
+    		pre {
+    			padding:0; margin:0;
+    			white-space: pre-wrap;
+    		}
+    	}
+    }
+}

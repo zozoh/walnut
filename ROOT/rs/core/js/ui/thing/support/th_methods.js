@@ -1,5 +1,6 @@
 define(function (require, exports, module) {
-var Wn = require("wn/util");
+var Wn  = require("wn/util");
+var POP = require('ui/pop/pop');
 // ....................................
 var __format_thing_fld = function(UI, fld) {
     // id
@@ -167,7 +168,14 @@ var __format_extend_command = function(cmd) {
         btn.handler = function(jq, mi) {
             var bus  = this.bus();
             var data = $z.invoke(this, "getData");
-            $z.invoke(bus, mi.handlerName, [data, jq, mi], this);
+            $z.invoke(bus, mi.handlerName, [data], {
+                UI  : this,
+                jBtn : jq,
+                menuItem : mi,
+                bus : bus,
+                POP : POP,
+                Wn  : Wn
+            });
         }
         return btn;
     }
@@ -340,7 +348,8 @@ var DATA_MODE = {
                     var cmd = conf.extendCommand.search[i];
                     var btn = __format_extend_command(cmd);
                     // 计入
-                    miMore.items.push(btn);
+                    //miMore.items.push(btn);
+                    conf.searchMenu.push(btn);
                 }
             }
             // 对于 meta 对象的自定义菜单

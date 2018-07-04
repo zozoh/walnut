@@ -36,6 +36,8 @@ var html = function(){/*
 return ZUI.def("ui.form_com_droplist", EnumListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "ui/form/theme/component-{{theme}}.css",
+    //...............................................................
     init : function(opt){
         var UI = this;
 

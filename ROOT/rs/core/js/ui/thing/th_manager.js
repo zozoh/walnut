@@ -16,7 +16,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("ui.th_manager", {
+return ZUI.def("ui.thing.th_manager", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
     i18n : "ui/thing/i18n/{{lang}}.js",

@@ -12,7 +12,7 @@ var html = function(){/*
     ui-fitparent="true" ui-gasket="form"></div>
 */};
 //==============================================
-return ZUI.def("ui.th_obj_index_meta", {
+return ZUI.def("ui.thing.th_obj_index_meta", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
     i18n : "ui/thing/i18n/{{lang}}.js",

@@ -10,7 +10,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_export", {
+return ZUI.def("ui.thing.thdesign_export", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {

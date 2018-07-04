@@ -23,7 +23,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thdesign_commands", {
+return ZUI.def("ui.thing.thdesign_commands", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {

@@ -247,6 +247,62 @@
                 escape: /\{\{([\s\S]+?)\}\}/g
             });
         },
+        /*.............................................
+        解析模板，得到一个对象，既有模板，又有占位符名称
+        {
+            obj  : {..}  // 模板的占位符
+            tmpl : F()   // 模板渲染函数
+        }
+        本函数默认占位符形式为 ${xxx}
+        */
+        parseTmpl: function(str, regex, genKey) {
+            if(!regex) {
+                regex = /\$\{([\s\S]+?)\}/g;
+                genKey = function(key) {
+                    return '${' + key + '}';
+                }
+            }
+            else if(_.isString(regex)){
+                regex = new RegExp(regex, "g");
+            }
+            else {
+                throw "Invalid param regex: " + regex;
+            }
+            // 首先先搜索一遍
+            var R1 = new RegExp(regex, "g");
+            var m = R1.exec(str);
+            var obj = {};
+            var list = [];
+            var pos = 0;
+            while(m) {
+                var beg = R1.lastIndex - m[0].length;
+                if(pos < beg) {
+                    list.push(str.substring(pos, beg));
+                }
+                var s   = m[1];
+                var m2  = /^([^?]+)(\?(.*))?$/.exec(s);
+                var key = m2[1];
+                var val = m2[3] || key;
+                obj[key] = val;
+
+                // 推入变量
+                list.push(genKey(key));
+
+                // 继续执行
+                pos = R1.lastIndex;
+                m = R1.exec(str);
+            }
+            // 再编译一下
+            var s2 = list.join('');
+            var tmpl = _.template(s2, {
+                escape: new RegExp(regex, "g")
+            });
+            // 得到返回结果
+            return {
+                obj  : obj,
+                tmpl : tmpl
+            };
+        },
         //.............................................
         // 本地存储保存某用户的某个界面的设置
         // appName : 应用名称

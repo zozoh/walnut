@@ -42,6 +42,7 @@
         @flex(); justify-content: flex-end;
         > b {@btn(); padding:@d3 @d5; font-size:@f3; 
             opacity: 0.3; cursor: default;
+            .btn-text {margin:0 @d2;}
         }
         > b[enabled]{opacity: 1; cursor: pointer;}
         > b[enabled]:hover{@btn_hover();}

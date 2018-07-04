@@ -13,6 +13,7 @@ var html = function(){/*
 return ZUI.def("ui.form_com_switch", EnumListSupport({
     //...............................................................
     dom  : $z.getFuncBodyAsStr(html.toString()),
+    css  : "ui/form/theme/component-{{theme}}.css",
     //...............................................................
     init : function(opt){
         
@@ -91,13 +92,18 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
                 .data("@VAL", val);
 
             // 图标
-            var icon = opt.icon.call(context, item, i, UI);
-            jIcon = $('<span it="icon">').appendTo(jLi);
-            if(_.isString(icon)){
-                jIcon.html(icon);
-                hasIcon = true;
-            }else{
-                jIcon.remove();
+            if(opt.icon) {
+                var icon;
+                if(_.isString(opt.icon)) {
+                    icon = opt.icon;
+                }
+                // 函数调用
+                else if(_.isFunction(opt.icon)) {
+                    icon = opt.icon.call(context, item, i, UI);
+                }
+                if(icon) {
+                    $('<span it="icon">').html(icon).appendTo(jLi);
+                }
             }
 
             // 文字

@@ -21,7 +21,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("ui.th_obj_index_detail", {
+return ZUI.def("ui.thing.th_obj_index_detail", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
     i18n : "ui/thing/i18n/{{lang}}.js",
