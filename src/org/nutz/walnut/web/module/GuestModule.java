@@ -181,6 +181,6 @@ public class GuestModule extends AbstractWnModule {
 
     public void setConf(PropertiesProxy conf) {
 		this.conf = conf;
-		this.enableSecurity = conf.getBoolean("gu-security", true);
+		this.enableSecurity = conf.getBoolean("gu-security", false);
 	}
 }
