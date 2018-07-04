@@ -7,6 +7,8 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -31,6 +33,8 @@ public class JvmJsExecContext implements JsExecContext {
     public WnSession se;
 
     public JvmBoxInput in;
+
+    private static final Log _log = Logs.get();
 
     public JvmJsExecContext(WnSystem sys, WnOutputable out) {
         this.sys = sys;
@@ -155,6 +159,7 @@ public class JvmJsExecContext implements JsExecContext {
 
     /**
      * 抹除单引号,双引号,换行,变量
+     * 
      * @param val
      * @return
      */
@@ -163,5 +168,12 @@ public class JvmJsExecContext implements JsExecContext {
             return "null";
         String value = val.toString();
         return value.replaceAll("[\"\'\\n\\r\\$]", "").trim();
+    }
+
+    /**
+     * 获取底层log对象,通过这个Log对象写入的日志,会写到文件系统
+     */
+    public Log nlog() {
+        return _log;
     }
 }
