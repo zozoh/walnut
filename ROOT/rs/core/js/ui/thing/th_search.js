@@ -88,6 +88,7 @@ return ZUI.def("ui.th_search", {
                 }),
             pager : conf.searchPager,
         })).render(function(){
+            // 刷新数据吧
             this.refresh(function(){
                 //this.uiList.setActived(0);
                 var args = Array.from(arguments);

@@ -67,6 +67,7 @@ JsObj.prototype = {
     __init__ : function(fld){
         fld.type = fld.type || "string";
         this.__fld = fld;
+        this.__jso_type = "1.0";
     },
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     type : function(){

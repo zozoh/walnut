@@ -765,7 +765,7 @@ var methods = {
                 }
                 
                 // 激活项目在自己以前
-                var selector = "[oid=" + jA.attr("oid") + "]";
+                var selector = '[oid="' + jA.attr("oid") + '"]';
                 if(jItem.prevAll(selector).size() > 0){
                     jItems = jItem.prevUntil(jA).addBack().add(jA);
                 }

@@ -106,6 +106,11 @@ return ZUI.def("ui.th_manager", {
         return true;
     },
     //..............................................
+    // 做一个 search.getChecked 的假名，因为自定义命令菜单会调用到
+    getData : function() {
+        return this.uis("search").getChecked();
+    },
+    //..............................................
     openSetup : function() {
         var UI = this;
         var conf  = UI.getBusConf();

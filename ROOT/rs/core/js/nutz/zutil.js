@@ -2394,7 +2394,11 @@
                 // 啥都木有，直接显示吧
                 else {
                     func = function (o, jso, UI) {
-                        return UI.text(jso.parseByObj(o).toText());
+                        // 指定了类型转换，以及 UI
+                        if(jso && jso.__jso_type && UI)
+                            return UI.text(jso.parseByObj(o).toText());
+                        // 否则直接变字符串
+                        return zUtil.toJson(o);
                     }
                 }
             }

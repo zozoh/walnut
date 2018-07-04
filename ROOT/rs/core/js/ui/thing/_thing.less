@@ -15,7 +15,7 @@
 }
 .th-manager[dis-mode="only-search"] {
     > .th-search-con {
-        height:100%; width:100%; border-right:0;
+        height:100%; width:100%; border-right:0; 
         position: unset; top:unset; bottom:unset;
     }
     > .th-obj-con {display: none;}
@@ -436,14 +436,31 @@
         @flex(); padding:@d2 @d3;
         .thdca-list {
             flex:1 1 auto; border:1px solid @cborder1;
+            padding:@d1 @d0;
         }
         .thdca-opt {
             flex:0 0 auto; padding:@d4;
-
+            li {
+                padding:@d2;
+                a[m] {cursor: pointer;}
+            }
         }
     }
     .thdc-list {
         padding:@d4;
+        @flex(); flex-direction: column;
+        h4 {
+            flex:0 0 auto;
+            padding:@d2 @d3; margin:0;
+            font-size:@f2; background: @cb4; color:@cf4;
+        }
+        textarea {
+            @input(); flex:1 1 auto;
+            padding:@d3; resize:none;
+            &:focus {
+                @input_focus();
+            }
+        }
     }
 }
 

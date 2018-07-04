@@ -154,6 +154,29 @@ var __format_thing_fld = function(UI, fld) {
     // 最后返回
     return fld;
 };
+// 格式化扩展命令的函数
+var __format_extend_command = function(cmd) {
+    var btn = _.extend({
+        icon : null,
+        text : 'SomeCommand'
+    }, cmd);
+    // 如果是调用方法
+    if(btn.handlerName) {
+        // 修改方法名前缀，因为初始化时，会将这个函数加入前缀增加到 bus 上
+        btn.handlerName = "__ext_" + btn.handlerName;
+        btn.handler = function(jq, mi) {
+            var bus  = this.bus();
+            var data = $z.invoke(this, "getData");
+            $z.invoke(bus, mi.handlerName, [data, jq, mi], this);
+        }
+        return btn;
+    }
+    // 指定命令的话，应该是异步调用
+    else if(cmd.cmdText) {
+        // TODO 这个看以后后没有必要实现
+    }
+    // 不是一个合法的结构的话，就无视吧
+};
 // ....................................
 // 处理不同数据模式的初始化方法
 var DATA_MODE = {
@@ -298,6 +321,7 @@ var DATA_MODE = {
                 }
             });
         }
+        // 更多菜单项目：导出
         if(conf.dataExport && conf.dataExport.enabled) {
             //conf.searchMenu.push({
             miMore.items.push({
@@ -306,6 +330,31 @@ var DATA_MODE = {
                     UI.fire("do:export");
                 }
             });
+        }
+        // 更多用户自定义的菜单项
+        if(conf.extendCommand) {
+            // 对于搜索列表的自定义菜单
+            if(_.isArray(conf.extendCommand.search) && conf.extendCommand.search.length>0) {
+                miMore.items.push({type:"separator"});
+                for(var i=0; i<conf.extendCommand.search.length; i++) {
+                    var cmd = conf.extendCommand.search[i];
+                    var btn = __format_extend_command(cmd);
+                    // 计入
+                    miMore.items.push(btn);
+                }
+            }
+            // 对于 meta 对象的自定义菜单
+            if(_.isArray(conf.extendCommand.obj) && conf.extendCommand.obj.length > 0) {
+                if(!_.isArray(conf.objMenu)){
+                    conf.objMenu = [];
+                }
+                for(var i=0; i<conf.extendCommand.obj.length; i++) {
+                    var cmd = conf.extendCommand.obj[i];
+                    var btn = __format_extend_command(cmd);
+                    // 计入
+                    conf.objMenu.push(btn);
+                }
+            }
         }
         // 更多菜单项:清空回收站
         miMore.items.push({type:"separator"});
@@ -704,9 +753,29 @@ var methods = {
             conf.searchSorter = opt.searchSorter || conf.searchSorter;
             conf.searchPager  = opt.searchPager  || conf.searchPager;
             conf.objMenu = opt.objMenu || conf.objMenu;
+            conf.extendCommand = opt.extendCommand || conf.extendCommand;
 
             // 按照模式处理各个配置项
             DATA_MODE[conf.dataMode].call(UI, conf, opt);
+
+            // 如果声明了扩展方法，将其合并到 bus 里
+            if(conf.extendCommand && _.isArray(conf.extendCommand.actions)) {
+                for(var i=0; i<conf.extendCommand.actions.length; i++) {
+                    var aph = conf.extendCommand.actions[i];
+                    //console.log(aph);
+                    // 读取一下这个函数集合
+                    var restr = Wn.exec('cat "' + aph + '"');
+                    var funcSet = eval('(' + restr + ')');
+                    for(var key in funcSet) {
+                        var func = funcSet[key];
+                        // 是函数的话就合并到 bus 里
+                        // 这样菜单里就能直接调用到了
+                        if(_.isFunction(func)) {
+                            bus["__ext_"+key] = func;
+                        }
+                    }
+                }
+            }
 
             // 标识处理完成
             bus.__CONF = conf;
