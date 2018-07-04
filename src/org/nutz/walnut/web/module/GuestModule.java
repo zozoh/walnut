@@ -10,6 +10,8 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -27,6 +29,8 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.qrcode.QRCode;
 import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.util.WnWeb;
@@ -42,6 +46,11 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Filters(@By(type = WnAsUsr.class, args = {"guest", "guest"}))
 public class GuestModule extends AbstractWnModule {
 
+	@Inject
+	protected PropertiesProxy conf;
+	
+	protected boolean enableSecurity;
+
     @At("/**")
     @Fail("http:404")
     public View read(String str,
@@ -53,8 +62,23 @@ public class GuestModule extends AbstractWnModule {
                      HttpServletResponse resp) {
         // 获取对象
         WnObj o = Wn.checkObj(io, str);
+        // 安全性 检查
+        if (enableSecurity) {
+            WnSecurity wns = Wn.WC().getSecurity();
+            try {
+            	Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
+            	o = Wn.WC().whenRead(o, false);
+            }
+            finally {
+    			Wn.WC().setSecurity(wns);
+    		}
+        }
 
         // 确保可读，同时处理链接文件
+        if (!(str.startsWith("etc") || str.startsWith("rs"))) {
+            System.out.println(str);
+            Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
+        }
         o = Wn.WC().whenRead(o, false);
 
         // 特殊的类型，将不生成下载目标
@@ -155,4 +179,8 @@ public class GuestModule extends AbstractWnModule {
         }
     }
 
+    public void setConf(PropertiesProxy conf) {
+		this.conf = conf;
+		this.enableSecurity = conf.getBoolean("gu-security", true);
+	}
 }
