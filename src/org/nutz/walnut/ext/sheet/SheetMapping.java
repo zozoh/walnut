@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
+import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;
@@ -20,6 +21,10 @@ public class SheetMapping {
     private static final Pattern P_KEY = Regex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");
     private static final Pattern P_KEY_ARRAY = Regex.getPattern("^[$@]n([.](.+))?$");
     private static final Pattern P_KEY_DATE = Regex.getPattern("^[$@]date(%(.+))?$");
+    private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean$");
+    private static final Pattern P_KEY_MAPPING = Regex.getPattern("^[$@][{]([^}]+)[}]$");
+    private static final Pattern P_KEY_INT = Regex.getPattern("^[$@]int(=(.+))?$");
+    private static final Pattern P_KEY_STR = Regex.getPattern("^[$@]str(=(.+))?$");
 
     public void parse(String flds) {
         // 空字段
@@ -64,6 +69,55 @@ public class SheetMapping {
 
             // 看看有木有特殊配置
             if (!Strings.isBlank(kconf)) {
+                // 是整数吗？
+                m = P_KEY_INT.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.INT;
+                    String arg = m.group(2);
+                    if(!Strings.isBlank(arg)) {
+                        sf.arg = Integer.parseInt(arg);
+                    }
+                    continue;
+                }
+                // 是字符串吗？（要强制转换的）
+                m = P_KEY_STR.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.STR;
+                    sf.arg = m.group(2);
+                    continue;
+                }
+                // 是布尔吗
+                m = P_KEY_BOOLEAN.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.BOOLEAN;
+                    continue;
+                }
+                // 是映射吗
+                m = P_KEY_MAPPING.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.MAPPING;
+                    NutMap map = new NutMap();
+                    String str = m.group(1);
+                    String[] ss = Strings.splitIgnoreBlank(str, ";");
+                    for (String s : ss) {
+                        Pair<String> p = Pair.create(s);
+                        String pv = p.getValue();
+                        // 如果是布尔
+                        if (pv.matches("^(true|false)$")) {
+                            map.put(p.getName(), Boolean.parseBoolean(pv));
+                        }
+                        // 如果是整数
+                        else if (pv.matches("^[0-9]+$")) {
+                            map.put(p.getName(), Integer.parseInt(pv));
+                        }
+                        // 默认就是字符串咯
+                        else {
+                            map.put(p.getName(), p.getValue());
+                        }
+                    }
+                    sf.arg = map;
+                    continue;
+                }
                 // 是数组吗？
                 m = P_KEY_ARRAY.matcher(kconf);
                 if (m.find()) {

@@ -23,7 +23,7 @@ public class sms_send implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws IOException {
         ZParams params = hc.params;
-        boolean isDebug = params.is("debug");
+        // boolean isDebug = params.is("debug");
         String mobiles = params.get("r");
         String header = params.has("header") ? params.get("header") : "";
         String lang = params.get("lang");

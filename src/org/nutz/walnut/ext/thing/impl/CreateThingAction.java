@@ -21,7 +21,7 @@ import org.nutz.walnut.util.Wn;
 
 public class CreateThingAction extends ThingAction<List<WnObj>> {
 
-    private String uniqueKey;
+    private String[] uniqueKeys;
 
     private List<NutMap> metas;
 
@@ -40,7 +40,12 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     }
 
     public CreateThingAction setUniqueKey(String uniqueKey) {
-        this.uniqueKey = uniqueKey;
+        this.uniqueKeys = Strings.splitIgnoreBlank(uniqueKey);
+        return this;
+    }
+
+    public CreateThingAction setUniqueKeys(String... uniqueKeys) {
+        this.uniqueKeys = uniqueKeys;
         return this;
     }
 
@@ -122,14 +127,17 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         WnObj oT = null;
 
         // 看看如果声明了唯一键
-        if (!Strings.isBlank(this.uniqueKey)) {
-            Object uval = meta.get(this.uniqueKey);
-            if (null != uval) {
-                WnQuery q = Wn.Q.pid(oIndex);
-                q.setv("th_live", Things.TH_LIVE);
-                q.setv(this.uniqueKey, uval);
-                oT = io.getOne(q);
+        if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
+            WnQuery q = Wn.Q.pid(oIndex);
+            q.setv("th_live", Things.TH_LIVE);
+            for (String ukey : this.uniqueKeys) {
+                Object uval = meta.get(ukey);
+                if (null == uval && null != this.fixedMeta) {
+                    uval = this.fixedMeta.get(ukey);
+                }
+                q.setv(ukey, uval);
             }
+            oT = io.getOne(q);
         }
         // 木有，那么就创建咯
         if (null == oT) {

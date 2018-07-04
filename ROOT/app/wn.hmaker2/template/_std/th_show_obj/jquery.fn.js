@@ -25,7 +25,7 @@ $.fn.extend({ "_std_th_show_obj" : function(obj, opt){
     HmRT.renderLayout(opt, jData, layout, obj, href);
 
     // 事件
-    HmRT.setupLayoutEvents(jData[0].ownerDocument.defaultView);
+    HmRT.setupLayoutEvents(opt, jData[0].ownerDocument.defaultView);
 
     // 模拟第一次点击
     jData.find(".wn-obj-layout ul[li-target]").each(function(){

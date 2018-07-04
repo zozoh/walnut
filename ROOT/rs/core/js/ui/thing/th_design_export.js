@@ -89,6 +89,15 @@ return ZUI.def("app.wn.thdesign_export", {
                     key : "mapping",
                     title : "i18n:thing.conf.export.mapping",
                     tip   : "i18n:thing.conf.export.mapping_tip"
+                }, {
+                    key : "processTmpl",
+                    title : "i18n:thing.conf.export.processTmpl",
+                    tip   : "i18n:thing.conf.export.processTmpl_tip",
+                    uiType : "@text",
+                    uiConf : {
+                        placeholder : UI.msg("thing.conf.export.processTmpl_placeholder"),
+                        height: 60
+                    }
                 }],
         }).render(function(){
             UI.defer_report("form");

@@ -27,9 +27,10 @@ public class SheetField {
      * <ul>
      * <li>日期时间，这个字段就是格式化字符串等
      * <li>数组，这个就是一个数组元素对象的键，如果不设置，就用整个对象
+     * <li>映射，这个就是一个 Map 存储映射
      * </ul>
      */
-    public String arg;
+    public Object arg;
 
     public String getKey() {
         if (Strings.isBlank(title)) {
@@ -50,14 +51,37 @@ public class SheetField {
                 break;
         }
 
+        // 布尔
+        if (SheetFieldType.BOOLEAN == this.type) {
+            return null == val ? Boolean.FALSE : Castors.me().castTo(val, Boolean.class);
+        }
+
+        // 字符串
+        if (SheetFieldType.STR == this.type) {
+            return null == val ? this.arg : Castors.me().castToString(val);
+        }
+
+        // 整数
+        if (SheetFieldType.INT == this.type) {
+            return null == val ? this.arg : Castors.me().castTo(val, Integer.class);
+        }
+
         // 空值
         if (null == val)
             return null;
 
+        // 映射
+        if (SheetFieldType.MAPPING == this.type) {
+            NutMap map = (NutMap) arg;
+            String vk = val.toString();
+            return map.get(vk, val);
+        }
+
         // 数组？
         if (SheetFieldType.ARRAY == this.type) {
+            String key = Strings.sBlank(arg, null);
             // 采用整个对象
-            if (Strings.isBlank(arg)) {
+            if (null == key) {
                 // 数组
                 if (val.getClass().isArray()) {
                     return Strings.join(", ", (Object[]) val);
@@ -75,7 +99,7 @@ public class SheetField {
                 Lang.each(val, new Each<Map<String, Object>>() {
                     public void invoke(int index, Map<String, Object> ele, int length) {
                         NutMap map = NutMap.WRAP(ele);
-                        Object val = Mapl.cell(map, arg);
+                        Object val = Mapl.cell(map, key);
                         vals[index] = null == val ? "--" : val.toString();
                     }
                 });
@@ -85,8 +109,9 @@ public class SheetField {
 
         // 日期
         if (SheetFieldType.DATE == this.type) {
+            String fmt = Strings.sBlank(arg, "yyyy-MM-dd HH:mm:ss");
             Date d = Castors.me().castTo(val, Date.class);
-            return Times.format(Strings.sBlank(this.arg, "yyyy-MM-dd HH:mm:ss"), d);
+            return Times.format(fmt, d);
         }
 
         // 普通值，就直接使用

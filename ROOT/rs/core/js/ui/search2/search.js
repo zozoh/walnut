@@ -303,6 +303,33 @@ return ZUI.def("ui.search2", {
         });
     },
     //...............................................................
+    getQueryContext : function(jumpToHead) {
+        var UI  = this;
+        var opt = UI.options;
+
+        var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
+        var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
+        var pgr = UI.uiPager  ? UI.uiPager.getData()  
+                              : {skip : 0, limit: 0};
+
+        // 确保跳转到第一页
+        if(jumpToHead && pgr.skip > 1) {
+            pgr.skip = 1;
+        }
+
+        // 创建查询上下文
+        var qc = opt.queryContext.call(UI);
+        _.extend(qc, pgr, {
+            match    : cri ? $z.toJson(cri) : '{}',
+            matchObj : cri,
+            sort     : srt ? $z.toJson(srt) : '{}',
+            sortObj  : srt,
+        });
+
+        // 返回结果
+        return qc;
+    },
+    //...............................................................
     refresh : function(callback, jumpToHead){
         var UI  = this;
         var opt = UI.options;
@@ -318,26 +345,7 @@ return ZUI.def("ui.search2", {
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
         //window.setTimeout(function(){
-        var cri = UI.uiFilter ? UI.uiFilter.getData() : {};
-        var srt = UI.uiSorter ? UI.uiSorter.getData() : {};
-        var pgr = UI.uiPager  ? UI.uiPager.getData()  
-                              : {skip : 0, limit: 0};
-
-        // 确保跳转到第一页
-        if(jumpToHead && pgr.skip > 1) {
-            pgr.skip = 1;
-        }
-
-        // console.log(pgr)
-
-        // 创建查询上下文
-        var qc = opt.queryContext.call(UI);
-        _.extend(qc, pgr, {
-            match    : cri ? $z.toJson(cri) : '{}',
-            matchObj : cri,
-            sort     : srt ? $z.toJson(srt) : '{}',
-            sortObj  : srt,
-        });
+        var qc = UI.getQueryContext(jumpToHead);
 
         //console.log("do_search",qc)
 

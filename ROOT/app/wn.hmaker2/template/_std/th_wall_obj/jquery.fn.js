@@ -24,16 +24,12 @@ $.fn.extend({ "_std_th_wall_obj" : function(list, opt){
 
         // 指定链接（包括封面图片和标题）
         var href = HmRT.explainHref(opt.href, obj);
-        // if(href) {
-        //     jAr.find("a").attr("href", $z.tmpl("{{h}}?{{k}}={{v}}")({
-        //         h : href,
-        //         k : opt.paramName  || "id",
-        //         v : obj[opt.objKey || "id"],
-        //     }));
-        // }
 
         // 渲染
         HmRT.renderLayout(opt, jDiv, layout, obj, href);
+
+        // 事件
+        HmRT.setupLayoutEvents(opt, jDiv[0].ownerDocument.defaultView);
 
     }
     

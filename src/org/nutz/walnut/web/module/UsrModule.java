@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
+import org.nutz.json.JsonException;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -282,8 +284,22 @@ public class UsrModule extends AbstractWnModule {
         String re = this.exec("vcode_phone_get", domain, cmdText);
 
         // 出现意外
-        if (!Strings.isBlank(re))
+        if (Strings.isBlank(re))
             throw Er.create("e.vcode.phone.get", re);
+
+        // 解析返回结果
+        try {
+            NutMap reo = Json.fromJson(NutMap.class, re);
+            NutMap map = reo.getAs(phone, NutMap.class);
+            // TODO @wendal 稍后统一下 sms 返回的值的结构
+            // https://github.com/zozoh/walnut/issues/456
+            if (!map.is("msg", "OK")) {
+                throw Er.create("e.vcode.phone.get", map);
+            }
+        }
+        catch (JsonException e) {
+            throw Er.create("e.vcode.phone.get", re);
+        }
 
         // 成功
         return true;

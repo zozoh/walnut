@@ -82,6 +82,7 @@ return ZUI.def("ui.th_import", {
             theFile   : File   // 本地文件对象,
             oTmpFile  : {..}   // 服务器端的临时文件
             fixedData : {..}   // 固定字段值
+            importLog : [..]   // 记录导入的日志输出
         }
         */
 

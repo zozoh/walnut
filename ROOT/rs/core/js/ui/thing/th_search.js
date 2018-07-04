@@ -198,6 +198,10 @@ return ZUI.def("ui.th_search", {
         return this;
     },
     //..............................................
+    getQueryContext : function(jumpToHead) {
+        return this.gasket.main.getQueryContext(jumpToHead);
+    },
+    //..............................................
     refresh : function(callback, jumpToHead) {
         // 容忍参数类型
         if(_.isBoolean(callback)) {

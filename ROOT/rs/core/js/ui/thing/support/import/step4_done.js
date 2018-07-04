@@ -10,7 +10,7 @@ var html = function(){/*
     <header>
         <i class="zmdi zmdi-check-circle"></i>
     </header>
-    <section>{{thing.import.in_done}}</section>
+    <section>{{thing.import.done}}</section>
     <footer></footer>
 </div>
 */};

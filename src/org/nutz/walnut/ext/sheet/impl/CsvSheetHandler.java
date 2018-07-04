@@ -17,9 +17,8 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.ext.sheet.SheetHandler;
 
-public class CsvSheetHandler implements SheetHandler {
+public class CsvSheetHandler extends AbstractSheetHandler {
 
     @Override
     public List<NutMap> read(InputStream ins, NutMap conf) {
@@ -84,7 +83,13 @@ public class CsvSheetHandler implements SheetHandler {
             }
 
             // 依次输出
+            int i = 1;
+            int len = list.size();
             for (NutMap map : list) {
+                // 日志
+                this._on_process(i++, len, map);
+
+                // 准备输出
                 ArrayList<Object> cells = new ArrayList<>(map.size());
                 for (Object val : map.values()) {
                     // 空值
@@ -105,8 +110,11 @@ public class CsvSheetHandler implements SheetHandler {
                     cells.add(val);
                 }
                 line = Strings.join(sep, cells) + "\n";
+                // 写入
                 writer.write(line);
             }
+            // 结束日志
+            this._on_end(len);
         }
         catch (IOException e) {
             throw Er.wrap(e);

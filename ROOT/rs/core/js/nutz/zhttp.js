@@ -24,6 +24,55 @@
         }
     };
 
+    //================================================ 图片压缩
+    var photoCompress = function (file, conf, callback) {
+        // 判断类型与大小
+        var maxSize = (conf.size || 1) * 1024 + 1;
+        if (file.type.indexOf("image") == 0 && file.size / 1024 > maxSize) {
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            var reader = new FileReader();
+            var img = new Image();
+            img.onload = function () {
+                // 图片原始尺寸
+                var originWidth = this.width;
+                var originHeight = this.height;
+                // 最大尺寸限制
+                var maxWidth = conf.width || 400, maxHeight = conf.height || 400;
+                // 目标尺寸
+                var targetWidth = originWidth, targetHeight = originHeight;
+                // 图片尺寸超过限制
+                if (originWidth > maxWidth || originHeight > maxHeight) {
+                    if (originWidth / originHeight > maxWidth / maxHeight) {
+                        // 更宽，按照宽度限定尺寸
+                        targetWidth = maxWidth;
+                        targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+                    } else {
+                        targetHeight = maxHeight;
+                        targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+                    }
+                }
+                // canvas对图片进行缩放
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                // 清除画布
+                context.clearRect(0, 0, targetWidth, targetHeight);
+                // 图片压缩
+                context.drawImage(img, 0, 0, targetWidth, targetHeight);
+                // canvas转为blob
+                canvas.toBlob(function (blob) {
+                    callback(blob)
+                }, file.type || 'image/png');
+            };
+            reader.onload = function (e) {
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        } else {
+            callback(file)
+        }
+    }
+
     //================================================ ajax请求部分
 
     var _ajax, _ajaxDone, _ajaxFail, _ajaxErrorMsg;
@@ -113,6 +162,16 @@
         xhr.open("POST", url, true);
         xhr.setRequestHeader('Content-type', "application/x-www-form-urlencoded; charset=utf-8");
         xhr.send(file);
+    };
+
+    http.uploadImage = function (url, file, conf, callback) {
+        photoCompress(file, conf || {
+            size: 1, // 单位mb
+            width: 400,
+            height: 400
+        }, function (cfile) {
+            http.uploadBody(url, cfile, callback)
+        });
     };
 
     http.getText = function (url, form, callback) {

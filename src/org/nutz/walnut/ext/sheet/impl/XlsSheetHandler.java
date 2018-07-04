@@ -5,7 +5,7 @@ import java.io.InputStream;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 
-public class XlsSheetHandler extends AbstractSheetHandler {
+public class XlsSheetHandler extends AbstractPoiSheetHandler {
 
     protected Workbook createWorkbook(InputStream ins) throws IOException {
         return new HSSFWorkbook(ins);

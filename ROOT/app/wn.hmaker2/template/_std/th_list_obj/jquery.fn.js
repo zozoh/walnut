@@ -13,6 +13,7 @@ $.fn.extend({ "_std_th_list_obj" : function(list, opt){
 
     // 解析布局
     var layout = HmRT.parseLayout(str);
+    //console.log(layout)
 
     // 循环数据
     for(var i=0; i<list.length; i++) {
@@ -34,8 +35,10 @@ $.fn.extend({ "_std_th_list_obj" : function(list, opt){
 
         // 渲染
         HmRT.renderLayout(opt, jDiv, layout, obj, href);
-
     }
+
+    // 事件
+    HmRT.setupLayoutEvents(opt, jList[0].ownerDocument.defaultView);
     
     // 返回自身以便链式赋值
     return this;

@@ -240,12 +240,12 @@ var DATA_MODE = {
             tabsKeepChecked : true,
             tabs : [{
                     icon : '<i class="fas fa-database"></i>',
-                    text : "数据",
+                    text : "i18n:thing.conf.filter.data",
                     value   : {th_live : 1},
                     checked : true
                 }, {
                     icon : '<i class="fas fa-trash"></i>',
-                    text : "回收站",
+                    text : "i18n:thing.conf.filter.recycle",
                     color      : "#C44",
                     background : "#F88",
                     value   : {th_live : -1},
@@ -290,8 +290,8 @@ var DATA_MODE = {
         };
         // 更多菜单项:导入
         if(conf.dataImport && conf.dataImport.enabled) {
-            conf.searchMenu.push({
-            //miMore.items.push({
+            //conf.searchMenu.push({
+            miMore.items.push({
                 text : "导入数据..",
                 handler : function(jBtn, mi){
                     UI.fire("do:import");
@@ -299,8 +299,8 @@ var DATA_MODE = {
             });
         }
         if(conf.dataExport && conf.dataExport.enabled) {
-            conf.searchMenu.push({
-            //miMore.items.push({
+            //conf.searchMenu.push({
+            miMore.items.push({
                 text : "导出数据..",
                 handler : function(jBtn, mi){
                     UI.fire("do:export");
