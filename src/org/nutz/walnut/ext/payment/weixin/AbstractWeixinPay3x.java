@@ -4,12 +4,15 @@ import java.util.Date;
 
 import org.nutz.http.Http;
 import org.nutz.http.Response;
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -28,6 +31,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     protected static final String KEY_wxpay_send = "wxpay_send";
     protected static final String KEY_wxpay_result = "wxpay_result";
     protected static final String KEY_wxpay_st = "wxpay_st";
+
+    private Log log = Logs.get();
 
     /**
      * 调用微信的统一下单接口
@@ -119,12 +124,13 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
                     // js api需要下面的参数, 签名并返回之
                     NutMap params = new NutMap();
                     params.put("appId", conf.appID);
-                    params.put("timeStamp", System.currentTimeMillis() / 1000);
+                    params.put("timeStamp", "" + System.currentTimeMillis() / 1000);
                     params.put("nonceStr", R.UU32());
                     params.put("package", "prepay_id=" + respMap.get("prepay_id"));
                     String sign = Wxs.genPaySign(params, conf.pay_key, "MD5");
                     params.put("paySign", sign);
                     params.put("signType", "MD5");
+                    log.info("jsapi-params:\n" + Json.toJson(params));
                     respMap.putAll(params);
                 }
                 re.setData(respMap);
