@@ -1,6 +1,7 @@
 package org.nutz.walnut.web;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.random.R;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
@@ -27,6 +28,13 @@ public class WnCheckRootSetup implements Setup {
             root = usrs.create(new WnUsrInfo("root"));
             usrs.setPassword(root, passwd);
             log.infof("init root usr: %s", root.id());
+        }
+        WnUsr guest = usrs.fetch("guest");
+        if (guest == null) {
+            String passwd = conf.get("root-init-passwd", R.UU32());
+            guest = usrs.create(new WnUsrInfo("guest"));
+            usrs.setPassword(guest, passwd);
+            log.infof("init guest usr: %s", guest.id());
         }
     }
 
