@@ -122,9 +122,9 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
                     params.put("timeStamp", ""+(System.currentTimeMillis() / 1000));
                     params.put("nonceStr", "" + R.random(10000000, 100000000));
                     params.put("package", "prepay_id=" + respMap.get("prepay_id"));
+                    params.put("signType", "MD5");
                     String sign = Wxs.genPaySign(params, conf.pay_key, "MD5");
                     params.put("paySign", sign);
-                    params.put("signType", "MD5");
                     respMap.putAll(params);
                 }
                 re.setData(respMap);
