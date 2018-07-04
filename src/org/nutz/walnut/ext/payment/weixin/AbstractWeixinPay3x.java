@@ -119,8 +119,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
                     // js api需要下面的参数, 签名并返回之
                     NutMap params = new NutMap();
                     params.put("appId", conf.appID);
-                    params.put("timeStamp", System.currentTimeMillis() / 1000);
-                    params.put("nonceStr", R.UU32());
+                    params.put("timeStamp", ""+(System.currentTimeMillis() / 1000));
+                    params.put("nonceStr", "" + R.random(10000000, 100000000));
                     params.put("package", "prepay_id=" + respMap.get("prepay_id"));
                     String sign = Wxs.genPaySign(params, conf.pay_key, "MD5");
                     params.put("paySign", sign);
