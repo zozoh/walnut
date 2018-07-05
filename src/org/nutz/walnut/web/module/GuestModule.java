@@ -63,6 +63,7 @@ public class GuestModule extends AbstractWnModule {
         // 获取对象
         WnObj o = Wn.checkObj(io, str);
         // 安全性 检查
+        // 确保可读，同时处理链接文件
         if (enableSecurity) {
             WnSecurity wns = Wn.WC().getSecurity();
             try {
@@ -73,13 +74,10 @@ public class GuestModule extends AbstractWnModule {
     			Wn.WC().setSecurity(wns);
     		}
         }
-
-        // 确保可读，同时处理链接文件
-        if (!(str.startsWith("etc") || str.startsWith("rs"))) {
-            System.out.println(str);
-            Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
+        else {
+            o = Wn.WC().whenRead(o, false);
         }
-        o = Wn.WC().whenRead(o, false);
+        
 
         // 特殊的类型，将不生成下载目标
         ua = WnWeb.autoUserAgent(o, ua, isDownload);

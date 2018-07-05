@@ -23,7 +23,7 @@ public class mgadmin_raw_query extends mgadmin_raw {
             if (cur.hasNext())
                 sys.out.println(",");
         }
-        System.out.print("]");
+        sys.out.print("]");
     }
 
 }
