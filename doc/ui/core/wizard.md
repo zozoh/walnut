@@ -36,7 +36,7 @@ new WizardUI({
         "step1" : {
             icon : '<..>',      // 「选」图标
             text : 'i18n:xxx',  // 「选」文字描述
-            
+           
             // 界面控件(必须支持getData/setData)
             // 可选方法为 isDataReady(data)，
             // 向导通过这个函数来判断是否显示 "下一步"

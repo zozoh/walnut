@@ -21,5 +21,79 @@
     			white-space: pre-wrap;
     		}
     	}
-    }
+	}
+	.smsw-step2-confirmmsg {
+		text-align: center;
+		> h4 { 
+			margin:0; padding:@d5;
+			font-size:@f8; color:@c4;
+		}
+		> header {
+			padding: @d4; font-size:@f4;
+		}
+		> section {
+			padding: @d4; color:@c2;
+			font-size:@f3;
+		}
+		> footer {
+			margin:@d4; padding:@d5;
+			border:1px dashed @cborder1;
+			color:@c4; background:@cb2;
+			text-align: left;
+		}
+	}
+	.smsw-step3-dosend {
+		@flex(); flex-direction: column; 
+		section {
+			flex:1 1 auto;
+			overflow: auto; padding:@d4 @d2;
+			background:@cb1; color:@cf1; border:1px solid @cborder1;
+			> div.ssd-begin {
+				padding:@d5 @d3; font-size:@f4; color:@c2;
+				border-bottom:3px solid @cborder0;
+			}
+			> div.ssd-send {
+				padding:@d1 @d2;
+				&:nth-child(2n-1) {
+					background:@cb2;
+				}
+				.ssds-con {
+					@flex();
+					span {
+						padding:@d3; @flex(); justify-content: center; align-items: center;
+						flex:0 0 auto;
+					}
+					span[k="status"] {color:@c4; width:40px;}
+					span[k="status"][st="OK"] {color:@c3;}
+					span[k="status"][st="FAIL"] {color:@c6;}
+					span[k="nb"] {width:100px; padding:0 @d1; color:@c2;}
+					span[k="phone"] {font-family: @f_fixed; color:@c5; font-size:@f3;}
+					span[k="name"] {color:@c2; font-size:@f1}
+				}
+				pre {
+					font-size:@f0; color:@c2; white-space:pre-wrap;
+					margin:@d2; padding:@d3;
+					border-top:1px dashed @cborder1; display: none;
+					> div {
+						padding:@d3; margin:@d3 0 0 0;
+						color:@c3; border:1px dashed @c3;
+					}
+				}
+				&:hover pre {
+					display: block;
+				}
+			}
+			> div.ssd-end {
+				padding: @d5; font-size:@f3; color:@c2;
+			}
+		}
+		footer {
+			flex:0 0 auto;
+			padding:@d3;
+			> a {@btn(); display: none;}
+			> a:hover {@btn_hover();}
+			&[st="sending"] a[m="pause"] {display: inline-block;}
+			&[st="pause"]   a[m="goon"]  {display: inline-block;}
+		}
+	}
 }
