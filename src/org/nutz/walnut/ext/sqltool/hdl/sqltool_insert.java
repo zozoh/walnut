@@ -24,7 +24,7 @@ public class sqltool_insert implements JvmHdl {
         String tableName = hc.params.val(0);
         List<NutMap> params;
         if (hc.params.has("params")) {
-            System.out.println(hc.params.get("params"));
+            //System.out.println(hc.params.get("params"));
             params = Json.fromJsonAsList(NutMap.class, hc.params.check("params").trim());
         } else {
             params = Json.fromJsonAsList(NutMap.class, sys.in.getReader());
