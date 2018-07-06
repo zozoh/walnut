@@ -292,6 +292,10 @@
                 pos = R1.lastIndex;
                 m = R1.exec(str);
             }
+            // 加入末尾
+            if(pos < str.length) {
+                list.push(str.substring(pos));
+            }
             // 再编译一下
             var s2 = list.join('');
             var tmpl = _.template(s2, {

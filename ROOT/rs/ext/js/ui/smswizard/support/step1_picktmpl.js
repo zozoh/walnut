@@ -130,7 +130,7 @@ return ZUI.def("ui.ext.smsw_step1_picktmpl", {
 
     		// 解析占位符
     		var tm = $z.parseTmpl(txt);
-    		//console.log(tm)
+    		console.log(tm)
 
     		// 得到参数
     		var params = _.extend({}, tm.obj, data.params);
