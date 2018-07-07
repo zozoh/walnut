@@ -35,7 +35,7 @@ function _main(params){
     // 准备生成命令
     cmdText = 'thing %s update %s -fields \'%s\' -cqn';
     
-    if (args && args[0] == "-safe") {
+    if (args && args.length > 0 && args[0] == "-safe") {
     	cmdText += " -safe '" + args[1] + "'"
     }
 
