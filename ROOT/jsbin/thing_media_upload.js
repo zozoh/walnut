@@ -11,7 +11,7 @@ params: {
 }
 
 用法
-jsc /jsbin/thing_upload.js ${id} ${http-qs-th_set} ${http-qs-th_id} ${http-qs-name}
+jsc /jsbin/thing_media_upload.js ${id} ${http-qs-th_set} ${http-qs-th_id} ${http-qs-name}
 */
 //........................................
 //http://127.0.0.1:8080/api/leshaonian/thing/upload?th_set=~/thing/营期项目&th_id=vumurnhe5shuco32vfqvknqlui&name=wendal.txt
