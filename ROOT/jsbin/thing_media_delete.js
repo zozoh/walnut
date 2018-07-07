@@ -10,7 +10,7 @@ params: {
 }
 
 用法
-httpparam -in id:${id} -map params | jsc /jsbin/thing_upload.js -vars
+httpparam -in id:${id} -map params | jsc /jsbin/thing_media_delete.js -vars
 */
 //........................................
 //http://127.0.0.1:8080/api/leshaonian/thing/media_delete?th_set=~/thing/营期项目&th_id=vumurnhe5shuco32vfqvknqlui&name=wendal.txt
