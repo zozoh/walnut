@@ -85,7 +85,10 @@ define(function (require, exports, module) {
             }
             // 没被标识过，标识一下
             else {
-                jq.attr("ui-gasket", UI.cid + "@" + ga);
+                jq.attr({
+                    "ui-gasket": UI.cid + "@" + ga,
+                    'ui-gasket-raw' : ga
+                });
             }
         });
     };
@@ -330,6 +333,12 @@ define(function (require, exports, module) {
             // 触发初始化事件
             $z.invoke(opt, "on_init", [opt], UI);
             UI.trigger("ui:init", UI);
+        },
+        //............................................
+        // 对外提供标识自己 gasket 的能力，以便动态加载的 HTML
+        // 包含 ui-gasket
+        rebuildGaskets : function() {
+            sign_gaskets(this);
         },
         //............................................
         // 释放全部自己的子
@@ -749,24 +758,29 @@ define(function (require, exports, module) {
         //............................................
         // 设置一组延迟的 KEY，当所有的 KEY 都被 defer_report 处理完了
         // 就调用 callback
-        // ! 注意，如果你重复调用这个函数，后一个函数会覆盖前一个函数的效果
-        // ! 所以最好是确保处理完了，才这样做
-        // 本函数利用了 redraw 的 defer 机制，所以只能在 redraw 完成后
-        // 调用，否则 redraw 会出现问题
+        // 当前 UI 实例在绘制时刻（render）就采用这个机制，你可以在你UI
+        // 的 redraw 函数里，随意调用这个函数，以便增加更多的延迟 key 和回调
+        // 其他函数如果想利用这个机制，记住
+        // 在任何地方调用 defer  就表示这些 key 如果一一被 defer_report
+        // 调用过后，最后一个被 defer_report 的时刻，会统一执行你设置的
+        // callback，你如果有多个 callback，可以随时 defer(callback) 传进来
         defer : function(keys, callback) {
             var UI = this;
-            // 直接添加延迟回调
+            // 直接添加延迟回调，也就是说，在所有key被 report 以后，再附加一个
+            // 行为
             if(_.isFunction(keys)) {
                 UI._defer_callbacks.push(keys);
             }
-            // 指定了 keys 和回调
-            else if(keys && _.isFunction(callback)) {
+            // 指定了更多的 keys
+            else if(keys) {
                 // 合并键
                 keys = [].concat(keys);
                 for(var i=0; i<keys.length; i++)
                     UI._defer_keys[keys[i]] = true;
                 // 合并回调
-                UI._defer_callbacks.push(callback);
+                if(_.isFunction(callback)) {
+                    UI._defer_callbacks.push(callback);
+                }
             }
             //console.log("defer", UI.uiName, _.keys(UI._defer_keys).join(","));
         },
@@ -794,7 +808,7 @@ define(function (require, exports, module) {
         },
         __check_all_defer_done: function () {
             var UI = this;
-            //console.log("check all done[..]", UI.uiName, _.keys(UI._defer_keys).join(","));
+            //console.log("check all done[..]", UI.uiName, $z.toJson(UI._defer_keys));
             // 检查是否所有的 key 都被加载完成了
             for(var key in UI._defer_keys)
                 if(UI._defer_keys[key])
