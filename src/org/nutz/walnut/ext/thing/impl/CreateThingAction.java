@@ -113,7 +113,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             // 来吧，循环生成
             for (NutMap meta : metas) {
                 WnObj oT = __create_one(oIndex, meta, i++, len);
-                list.add(oT);
+                if (null != oT)
+                    list.add(oT);
             }
 
             // 返回
@@ -135,6 +136,17 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
                 if (null == uval && null != this.fixedMeta) {
                     uval = this.fixedMeta.get(ukey);
                 }
+                // 如果键值还是为空，说明导入的数据可能有问题
+                if (null == uval) {
+                    // 打印一下输出
+                    if (null != process && null != out) {
+                        String msg = process.render(meta.setv("P", P).setv("I", i));
+                        out.println(msg);
+                        out.printlnf("  !!! ignore because lack '%s'", ukey);
+                    }
+                    return null;
+                }
+                // 加入查询条件
                 q.setv(ukey, uval);
             }
             oT = io.getOne(q);
