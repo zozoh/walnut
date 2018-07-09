@@ -464,7 +464,7 @@ public class HmPageTranslating extends HmContext {
         }
         // ---------------------------------------------------
         // 得到资源的相对路径
-        String rph = this.getTargetRelativePath(o) + ".html";
+        String rph = this.getTargetRelativePath(this.oSrc) + ".html";
 
         // 输出本页的一些有用元数据
         this.scripts.add("window.__PAGE_PATH = '" + rph + "';");
@@ -517,7 +517,7 @@ public class HmPageTranslating extends HmContext {
 
         // ---------------------------------------------------
         // 在目标处创建
-        this.oTa = createTarget(rph, o.race());
+        this.oTa = createTarget(rph, this.oSrc.race());
 
         // 更新目标的元数据
         NutMap meta = new NutMap();
@@ -529,8 +529,8 @@ public class HmPageTranslating extends HmContext {
         meta.put("hm_pg_args", m.find());
         meta.put("hm_pg_args_regex", null);
         meta.put("hm_pg_args_names", null);
-        if (meta.has("hm_list_tsid")) // add by wendal, for hmaker sitemap
-            meta.put("hm_pg_args_tsid", o.get("hm_list_tsid"));
+        if (this.oSrc.has("hm_list_tsid")) // add by wendal, for hmaker sitemap
+            meta.put("hm_pg_args_tsid", this.oSrc.get("hm_list_tsid"));
 
         // 更新元数据
         io.appendMeta(this.oTa, meta);

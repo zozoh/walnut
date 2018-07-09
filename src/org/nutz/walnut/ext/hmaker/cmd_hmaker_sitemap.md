@@ -7,7 +7,9 @@
 =======
 
 ```    
-hmaker ~/sites/惠人官网
+hmaker sitemap 
+        ~/sites/惠人官网                                              # 目标路径，可以是 www目录或者site的工程目录
+                                      # 如果是site工程目录，则自动根据hm_target_release查找www目录
         [-host www.hurom.com.cn]      # 如果目录没有www属性,则需要输入,否则自动选第一个
         [-xml]                        # 输出XML格式sitemap
         [-json]                       # 输出Json格式sitemap

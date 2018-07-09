@@ -37,7 +37,9 @@ public class hmaker_sitemap implements JvmHdl {
         // 首先,检查有没有发布
         WnObj wwwHome = sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys));
         if (wwwHome.has("hm_target_release")) {
-            wwwHome = sys.io.check(null, Wn.normalizeFullPath(wwwHome.getString("hm_target_release"), sys));
+            wwwHome = sys.io.check(null,
+                                   Wn.normalizeFullPath(wwwHome.getString("hm_target_release"),
+                                                        sys));
         }
         // 检查域名是否需要传入
         String host = hc.params.get("host");
@@ -70,18 +72,20 @@ public class hmaker_sitemap implements JvmHdl {
                 if (ph.endsWith("/index.html"))
                     ph = ph.substring(0, ph.length() - "index.html".length());
                 // 如果包含{{XXX}},展开之
-                if (obj.is("hm_pg_args", false) && obj.get("hm_pg_args_tsid") != null) {
+                if (obj.is("hm_pg_args", true) && obj.get("hm_pg_args_tsid") != null) {
                     Segment seg = new CharSegment(ph.replace("{{", "${").replace("}}", "}"));
                     // hm_pg_args_tsid可能是个数组
                     Lang.each(obj.get("hm_pg_args_tsid"), new Each<Object>() {
-                        public void invoke(int index, Object ele, int length) throws ExitLoop, ContinueLoop, LoopException {
+                        public void invoke(int index, Object ele, int length)
+                                throws ExitLoop, ContinueLoop, LoopException {
                             String tid = String.valueOf(ele);
                             WnThingService wts = new WnThingService(sys.io, sys.io.checkById(tid));
                             // 遍历thing的数据,展开路径
                             // TODO 容易爆
                             for (WnObj oT : wts.queryList(new ThQuery())) {
                                 String ph = seg.render(Lang.context(oT)).toString();
-                                links.add(new NutMap("loc", _host + ph).setv("lastmod", oT.lastModified()));
+                                links.add(new NutMap("loc", _host + ph).setv("lastmod",
+                                                                             oT.lastModified()));
                             }
                         }
                     });
@@ -96,13 +100,31 @@ public class hmaker_sitemap implements JvmHdl {
         // JSON格式, 对应sitemap.json, 搜索引擎并不读取.
         if (hc.params.is("json")) {
             if (doWrite) {
-                sys.io.writeJson(sys.io.createIfNoExists(wwwHome, "sitemap.json", WnRace.FILE), links, JsonFormat.full());
+                sys.io.writeJson(sys.io.createIfNoExists(wwwHome, "sitemap.json", WnRace.FILE),
+                                 links,
+                                 JsonFormat.full());
             } else {
                 sys.out.writeJson(links, JsonFormat.full());
             }
         }
-        // Txt格式,一行一个网址,最古老的模式,文件名sitemap.txt
-        if (hc.params.is("txt")) {
+        // XML格式, 当前的流行格式了,对应 sitemap.xml
+        else if (hc.params.is("xml")) {
+            Tag urlset = Tag.tag("urlset");
+            StringBuilder sb = new StringBuilder();
+            for (NutMap link : links) {
+                Tag url = urlset.add("url");
+                url.add("loc").setText(link.getString("loc"));
+                url.add("lastmod").setText(Times.sD(new Date(link.getLong("lastmod"))));
+            }
+            urlset.toXml(sb, 0);
+            if (doWrite)
+                sys.io.writeText(sys.io.createIfNoExists(wwwHome, "sitemap.xml", WnRace.FILE),
+                                 sb.toString());
+            else
+                sys.out.print(sb.toString());
+        }
+        // 默认 Txt格式,一行一个网址,最古老的模式,文件名sitemap.txt
+        else {
             if (doWrite) {
                 WnObj txt = sys.io.createIfNoExists(wwwHome, "sitemap.txt", WnRace.FILE);
                 if (txt.len() > 0)
@@ -118,21 +140,6 @@ public class hmaker_sitemap implements JvmHdl {
                     sys.out.println(link.get("loc"));
                 }
             }
-        }
-        // XML格式, 当前的流行格式了,对应 sitemap.xml
-        if (hc.params.is("xml")) {
-            Tag urlset = Tag.tag("urlset");
-            StringBuilder sb = new StringBuilder();
-            for (NutMap link : links) {
-                Tag url = urlset.add("url");
-                url.add("loc").setText(link.getString("loc"));
-                url.add("lastmod").setText(Times.sD(new Date(link.getLong("lastmod"))));
-            }
-            urlset.toXml(sb, 0);
-            if (doWrite)
-                sys.io.writeText(sys.io.createIfNoExists(wwwHome, "sitemap.xml", WnRace.FILE), sb.toString());
-            else
-                sys.out.print(sb.toString());
         }
     }
 
