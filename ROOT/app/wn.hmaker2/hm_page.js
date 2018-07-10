@@ -1996,6 +1996,8 @@ return ZUI.def("app.wn.hmaker_page", {
                 "@::hmaker/pub_site",
                 "@::hmaker/pub_current_page",
                 "~",
+                "::hmaker/hm_seo",
+                "~",
                 "@::hmaker/hm_site_conf",
                 "~",
                 "::zui_debug",
