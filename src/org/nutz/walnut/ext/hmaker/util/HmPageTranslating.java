@@ -383,11 +383,7 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 处理整个页面的 body
         doc.body().removeAttr("assisted-off").removeAttr("assisted-on");
-        // ---------------------------------------------------
-        // 添加页面皮肤过滤器
-        if (this.hasSkin()) {
-            doc.body().attr("skin", this.skinInfo.name);
-        }
+
         // ---------------------------------------------------
         // 首先递归展开全部组件
         Elements eleLibs = doc.body().select(".hm-com[lib]");
