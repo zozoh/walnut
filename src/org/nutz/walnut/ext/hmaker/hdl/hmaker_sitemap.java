@@ -47,7 +47,8 @@ public class hmaker_sitemap implements JvmHdl {
         // 检查域名是否需要传入
         String host = hc.params.get("host");
         if (Strings.isBlank(host) && wwwHome.has("www")) {
-            host = wwwHome.getArray("www", String.class)[0];
+            Object www = wwwHome.get("www");
+            host = Lang.first(www).toString();
         } else {
             sys.err.print("e.cmd.hmaker.sitemap.need_host");
             return;
