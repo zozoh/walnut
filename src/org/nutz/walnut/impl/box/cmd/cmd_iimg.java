@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +29,7 @@ public class cmd_iimg extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "Qcnqlf", "^(force)$");
+        ZParams params = ZParams.parse(args, "Qcnqlf", "^(force|compress)$");
 
         // 读取文件
         if (params.vals.length == 0)
@@ -37,7 +38,7 @@ public class cmd_iimg extends JvmExecutor {
         WnObj oim = Wn.checkObj(sys, params.vals[0]);
 
         // 不是图片抛错
-        if (!oim.mime().startsWith("image/"))
+        if (!oim.mime().startsWith("image/") && !params.is("force"))
             throw Er.create("e.cmd.iimg.noimage", oim);
 
         // 看看系统里面是否已经有了这个图片的缩略图
@@ -107,6 +108,29 @@ public class cmd_iimg extends JvmExecutor {
                 sys.io.writeImage(outObj, Images.redraw(im2, Color.white));
             } else {
                 sys.err.print("err clip params, must be num like 0,0,100,100");
+            }
+        }
+        // 原地压缩
+        if (params.is("compress")) {
+            // 是否指定了jpeg质量
+            double quality = params.getDouble("quality", 0.8f);
+            int w = params.getInt("width", -1);
+            int h = params.getInt("height", -1);
+            BufferedImage srcImg = sys.io.readImage(oim);
+            if (w > 0) {
+                h = (int)(w / (srcImg.getWidth() + 0.0) * srcImg.getHeight());
+            }
+            else if (h > 0) {
+                w = (int)(h / (srcImg.getHeight() + 0.0) * srcImg.getWidth());
+            }
+            BufferedImage dstImg = srcImg;
+            if (w > 0 && h > 0)
+                dstImg = Images.zoomScale(srcImg, w, h);
+            WnObj dsto = oim;
+            if (params.has("dst"))
+                dsto = sys.io.createIfNoExists(null, Wn.normalizeFullPath(params.get("dst"), sys), WnRace.FILE);
+            try (OutputStream out = sys.io.getOutputStream(dsto, 0)) {
+                Images.writeJpeg(dstImg, out, (float)quality);
             }
         }
 
