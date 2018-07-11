@@ -72,6 +72,9 @@ return ZUI.def("app.wn.hmaker2", {
             parent : UI,
             gasketName : "resource"
         }).render(function(){
+            // 传递 browser 函数
+            this.browser = UI.browser;
+            // 加载完成
             UI.defer_report("resource");
         });
 
@@ -80,6 +83,9 @@ return ZUI.def("app.wn.hmaker2", {
             parent : UI,
             gasketName : "prop"
         }).render(function(){
+            // 传递 browser 函数
+            this.browser = UI.browser;
+            // 加载完成
             UI.defer_report("prop");
         });
 
@@ -145,6 +151,8 @@ return ZUI.def("app.wn.hmaker2", {
                 parent : UI,
                 gasketName : "main"
             }).render(function(){
+                // 传递 browser 函数
+                this.browser = UI.browser;
                 // 更新菜单
                 var actions = $z.invoke(this, "getActions") || [];
                 var menuSetup = Wn.extendActions(actions, false, true);
@@ -352,6 +360,44 @@ return ZUI.def("app.wn.hmaker2", {
             },
             btnCancel : null
         }, UI);
+    },
+    //...............................................................
+    doGenSiteMap : function(oHome, callback) {
+        var UI = this;
+        var oHome = oHome || UI.getHomeObj();
+        var cmdText = 'hmaker sitemap id:'+oHome.id + " -xml -write -process";
+        // 执行命令
+        Wn.processPanel(cmdText, {
+            welcome    : UI.msg("hmaker.seo.gen_sitemap_ing"),
+            arenaClass : "hm-gen-sitemap-mask",
+            width  : 640,
+            height : 480,
+        }, function(urls, jMsg) {
+            jMsg.text(UI.msg('hmaker.seo.gen_sitemap_done'));
+            // 显示一个访问站点地图的链接
+            if(urls && urls.length > 0) {
+                var oSiteMap = $z.fromJson(urls[0]);
+                var jDiv = $('<div class="view-sitemap">').insertAfter(jMsg);
+                $('<span><i class="fas fa-sitemap"></i></span>').appendTo(jDiv);
+                $('<a target="_blank">').attr({
+                    'href': '/a/open/wn.wedit?ph=id:' + oSiteMap.id
+                }).text(UI.msg('hmaker.seo.gen_sitemap_view', oSiteMap))
+                    .appendTo(jDiv);
+            }
+            
+        });
+    },
+    //...............................................................
+    doViewSiteMap : function(oHome, callback) {
+        var UI = this;
+        var oHome = oHome || UI.getHomeObj();
+        // 得到目标目录
+        var taPh = oHome.hm_target_release;
+        var oSiteMap = Wn.fetch(taPh+"/sitemap.xml");
+
+        // 打开链接
+        var url = '/a/open/wn.wedit?ph=id:' + oSiteMap.id;
+        $z.openUrl(url, "_blank", {ph:'id:' + oSiteMap.id});
     },
     //...............................................................
     doChangeSiteConf : function() {

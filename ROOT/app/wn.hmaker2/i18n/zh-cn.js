@@ -11,6 +11,11 @@ define({
             "title" : '资源库',
             "resource" : "素材库",
         },
+        "seo" :{
+            "gen_sitemap_ing"  : "正在生成站点地图",
+            "gen_sitemap_done" : "站点地图生成完毕",
+            "gen_sitemap_view" : "点击查看站点地图文件 {{nm}}"
+        },
         "action" : {
             "dup_tip" : "请输入新副本的名称"
         },

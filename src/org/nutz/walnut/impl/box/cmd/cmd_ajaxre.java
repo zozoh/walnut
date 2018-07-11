@@ -49,7 +49,7 @@ public class cmd_ajaxre extends JvmExecutor {
         // 下面做点判断吧 ...
         else {
             // 看看是不是像错误
-            Matcher m = Pattern.compile("^(e.[a-zA-Z0-9.-]+)( *: *(.+))?$").matcher(str);
+            Matcher m = Pattern.compile("^(e.[a-zA-Z0-9._-]+)( *: *(.+))?$").matcher(str);
             if (m.find()) {
                 String errCode = m.group(1);
                 String reason = Strings.sBlank(m.group(3), null);

@@ -121,7 +121,7 @@ return ZUI.def("ui.ext.smsw_step1_picktmpl", {
 
     	// 得到数据
     	var data = UI.getData();
-    	console.log(data);
+    	// console.log(data);
 
     	// 有内容的话，加载
     	if(data.tmplName) {
@@ -168,16 +168,25 @@ return ZUI.def("ui.ext.smsw_step1_picktmpl", {
     //...............................................................
     isDataReady : function(){
     	var data = this.getData();
-    	console.log('is ready', data);
+    	//console.log('is ready', data);
     	return data.lang && data.tmplName && data.params;
     },
     //...............................................................
     getData : function(data) {
-    	return this.gasket.form.getData();
+		var UI  = this;
+    	var jPr = UI.arena.find('pre');
+    	return _.extend({
+			exampleContent : jPr.text()
+		}, this.gasket.form.getData());
     },
     //...............................................................
     setData : function(data) {
-    	var UI = this;
+		var UI = this;
+		
+		// 防止一下数据
+		if(!_.isArray(data.targets)){
+            return;
+        }
 
     	// 默认语言
     	$z.setUndefined(data, 'lang', UI.lang);
@@ -188,7 +197,9 @@ return ZUI.def("ui.ext.smsw_step1_picktmpl", {
 
     	// 设置
     	UI.showTemplateList(data.lang, function(){
-    		UI.gasket.form.setData(data);
+			UI.gasket.form.setData(data);
+			// 渲染一下
+			UI.renderTemplate();
     		// 检查下一步按钮状态
     		UI.parent.checkNextBtnStatus();
     	});

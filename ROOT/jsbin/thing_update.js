@@ -35,9 +35,9 @@ function _main(params){
     // 准备生成命令
     cmdText = 'thing %s update %s -fields \'%s\' -cqn';
     
-    if (args && args.length > 0 && args[0] == "-safe") {
-    	cmdText += " -safe '" + args[1] + "'"
-    }
+    // if (args && args[0] == "-safe") {
+    // 	cmdText += " -safe '" + args[1] + "'"
+    // }
 
     // 运行命令，并输出返回值
     var fields = JSON.stringify(params.data);

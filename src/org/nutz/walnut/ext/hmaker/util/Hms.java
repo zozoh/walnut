@@ -93,6 +93,10 @@ public final class Hms {
                 continue;
             }
 
+            // 忽略特殊属性
+            if (key.startsWith("seo"))
+                continue;
+
             // 数字转成字符串要加 "px"
             String str;
             if (Mirror.me(val).isNumber()) {

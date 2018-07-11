@@ -292,6 +292,10 @@
                 pos = R1.lastIndex;
                 m = R1.exec(str);
             }
+            // 加入末尾
+            if(pos < str.length) {
+                list.push(str.substring(pos));
+            }
             // 再编译一下
             var s2 = list.join('');
             var tmpl = _.template(s2, {
@@ -3826,6 +3830,12 @@
         //.............................................
         // 打开一个新的窗口
         openUrl: function (url, target, method, params) {
+            // 如果默认是 GET 方法
+            if(!params && method && !_.isString(method)) {
+                params = method;
+                method = "GET";
+            }
+            // 创建一个模拟表单 
             var html = '<form target="' + (target || '_blank') + '" method="' + (method || "GET") + '"';
             html += ' action="' + url + '" style="display:none;">';
             html += '</form>';

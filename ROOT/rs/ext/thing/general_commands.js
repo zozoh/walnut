@@ -9,17 +9,10 @@
     Wn  : Wn           // Wn 帮助对象
 }
 */
-{
-	// 打开一个发送短信的向导
-	// - objs : 传入的 User 对象列表
-	// this.menuItem.setup 格式
-	// {
-	// 	   nameKey : 'th_nm',   // 哪个字段表示目标名称
-	//     phoneKey : 'phone'   // 哪个字段表示目标手机号
-    // }
+({
+	
 	openSendSmsWizard : function(objs) {
 		//console.log(this.uiName, objs)
-
 		this.POP.openUIPanel({
 			title : this.menuItem.text,
 			ready : function(uiSW){
@@ -33,4 +26,4 @@
 			btnCancel : null
 		}, this.UI);
 	}
-}
+})

@@ -348,8 +348,8 @@ var DATA_MODE = {
                     var cmd = conf.extendCommand.search[i];
                     var btn = __format_extend_command(cmd);
                     // 计入
-                    //miMore.items.push(btn);
-                    conf.searchMenu.push(btn);
+                    miMore.items.push(btn);
+                    //conf.searchMenu.push(btn);
                 }
             }
             // 对于 meta 对象的自定义菜单
