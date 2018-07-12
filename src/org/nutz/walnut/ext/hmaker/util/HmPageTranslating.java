@@ -315,6 +315,12 @@ public class HmPageTranslating extends HmContext {
         // ---------------------------------------------------
         // 添加页面标题
         doc.head().appendElement("title").text(this.oSrc.getString("title", this.oSrc.name()));
+        // 添加 SEO 描述
+        if (this.propPage.has("seodescription")) {
+            String seodescription = this.propPage.getString("seodescription");
+            doc.head().appendElement("meta").attr("name", "description").attr("content",
+                                                                              seodescription);
+        }
         // ---------------------------------------------------
         // 添加 SEO 搜索关键字
         if (this.propPage.has("seokwd")) {
@@ -322,12 +328,6 @@ public class HmPageTranslating extends HmContext {
             if (!Strings.isBlank(seokwd)) {
                 doc.head().appendElement("meta").attr("name", "keywords").attr("content", seokwd);
             }
-        }
-        // 添加 SEO 描述
-        if (this.propPage.has("seodescription")) {
-            String seodescription = this.propPage.getString("seodescription");
-            doc.head().appendElement("meta").attr("name", "description").attr("content",
-                                                                              seodescription);
         }
         // ---------------------------------------------------
         // 删除自己和下属所有节点的 style 属性
