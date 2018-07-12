@@ -415,7 +415,7 @@ public class HmPageTranslating extends HmContext {
 
         // ---------------------------------------------------
         // 对于所有的 <img> 和 <source> 标签，处理一遍 src
-        Elements eleImgs = doc.body().select("img,source");
+        Elements eleImgs = doc.body().select("img,source,video");
         for (Element eleImg : eleImgs) {
             String src = eleImg.attr("src");
             src = this.explainLink(src, true);
