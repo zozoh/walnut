@@ -90,8 +90,15 @@ public abstract class backup_xxx {
                 }
             } else {
                 WnObj dstWnObj = io.createIfNoExists(null, dst, WnRace.FILE);
-                try (OutputStream out = io.getOutputStream(dstWnObj, 0)) {
-                    dump_write_zip(out, tmpDir, log);
+                if (io.exists(null, Wn.normalizeFullPath("~/.dump/to_local", ctx.se))) {
+                    try (OutputStream out = new FileOutputStream("/data/dump/" + R.UU32() + ".zip")) {
+                        dump_write_zip(out, tmpDir, log);
+                    }
+                }
+                else {
+                    try (OutputStream out = io.getOutputStream(dstWnObj, 0)) {
+                        dump_write_zip(out, tmpDir, log);
+                    }
                 }
                 io.appendMeta(dstWnObj, new NutMap("backup_config", ctx));
             }
@@ -200,6 +207,7 @@ public abstract class backup_xxx {
 
     public void dump_write_zip(OutputStream out, File tmpDir, Log log) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(out, Encoding.CHARSET_UTF8);
+        zos.setLevel(1); // 快速压缩
         dump_zip_add(zos, new File(tmpDir, "objs.txt"), log, tmpDir);
         Disks.visitFile(new File(tmpDir, "objs"), new FileVisitor() {
             public void visit(File file) {
@@ -376,6 +384,8 @@ public abstract class backup_xxx {
             en = zis.getNextEntry();
             if (en == null)
                 break;
+            if (en.isDirectory())
+                continue;
             if ("objs.txt".equals(en.getName())) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(zis,
                                                                              Encoding.CHARSET_UTF8));

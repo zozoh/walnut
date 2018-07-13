@@ -29,17 +29,15 @@ Walnut 的 `WnObj` 是对所有的数据进行的最高级的抽象。 因为抽
     tmp/              # 临时文件夹，存放所有上传下载的临时文件
     index/            # 索引表，存放 thing 的所有元数据
         $ThingID      # 每个都是文件，nm==id
-                      # tp 为 'th_index'
-    comment/          # 存放所有的评论信息
-        $CommentID    # 每个都是一个文件
-                      # tp 为 'th_cmt'
     data/             # 存放每个 thing 的负数数据 
         $ThingID/          # 每个子目录对应一个 thing, nm与索引对象同名
-                           # tp 为 'th_data'
             thumb.jpg      # 对象的缩略图
-            media          # 目录，存放相关的一组媒体
-            attachment     # 目录，存放相关的一组附件
-            resource       # 目录，存放评论信息相关的附件
+            media/         # 目录，存放相关的一组媒体
+            attachment/    # 目录，存放相关的一组附件
+            resource/      # 目录，存放评论信息相关的附件
+            comment/       # 放置 thing  所有的评论
+              $CommentID   # 每个都是一个文件，元数据会关联 resource 里面的媒体
+                           # 以便删除的使用
 ``` 
 
 我们认为:
