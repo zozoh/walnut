@@ -26,6 +26,11 @@
 
     //================================================ 图片压缩
     var photoCompress = function (file, conf, callback) {
+        // 强制禁用
+        if (conf.disable) {
+            callback(file);
+            return;
+        }
         // 判断类型与大小
         var maxSize = (conf.size || 1) * 1024 + 1;
         if (file.type.indexOf("image") == 0 && file.size / 1024 > maxSize) {
