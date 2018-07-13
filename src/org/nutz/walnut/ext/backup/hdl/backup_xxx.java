@@ -384,6 +384,8 @@ public abstract class backup_xxx {
             en = zis.getNextEntry();
             if (en == null)
                 break;
+            if (en.isDirectory())
+                continue;
             if ("objs.txt".equals(en.getName())) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(zis,
                                                                              Encoding.CHARSET_UTF8));
