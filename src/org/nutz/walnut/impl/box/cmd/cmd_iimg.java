@@ -134,7 +134,7 @@ public class cmd_iimg extends JvmExecutor {
                 try (OutputStream out = new FileOutputStream(f)) {
                     sys.io.readAndClose(oim, out);
                 }
-                Lang.execOutput(new String[] {"/usr/bin/convert","strip", "-quality", "80%", "-resize", params.get("resize", "1920x1920"), f.getAbsolutePath(), tmp.getAbsolutePath()});
+                Lang.execOutput(new String[] {"/usr/bin/convert", "-auto-orient", "-strip", "-quality", "80%", "-resize", params.get("resize", "1920x1920"), f.getAbsolutePath(), tmp.getAbsolutePath()});
                 if (tmp.exists() && tmp.length() > 100*1024 && tmp.length() < f.length()) {
                     try (InputStream ins = new FileInputStream(tmp)) {
                         sys.io.writeAndClose(dsto, ins);
