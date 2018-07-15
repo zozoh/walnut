@@ -14,7 +14,7 @@ params: {
 jsc /jsbin/thing_media_upload.js ${id} ${http-qs-th_set} ${http-qs-th_id} ${http-qs-name}
 */
 //........................................
-//http://127.0.0.1:8080/api/leshaonian/thing/upload?th_set=~/thing/营期项目&th_id=vumurnhe5shuco32vfqvknqlui&name=wendal.txt
+//http://127.0.0.1:8080/api/leshaonian/thing/media_upload?th_set=~/thing/营期项目&th_id=vumurnhe5shuco32vfqvknqlui&name=wendal.txt
 //........................................
 // 执行: 需要 params 变量
 var params = {

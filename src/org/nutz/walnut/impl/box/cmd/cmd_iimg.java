@@ -2,6 +2,10 @@ package org.nutz.walnut.impl.box.cmd;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,8 +14,12 @@ import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.Regex;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -25,11 +33,13 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_iimg extends JvmExecutor {
+    
+    private static final Log log = Logs.get();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "Qcnqlf", "^(force|compress)$");
+        ZParams params = ZParams.parse(args, "Qcnqlf", "^(force|compress|native)$");
 
         // 读取文件
         if (params.vals.length == 0)
@@ -113,24 +123,43 @@ public class cmd_iimg extends JvmExecutor {
         // 原地压缩
         if (params.is("compress")) {
             // 是否指定了jpeg质量
-            double quality = params.getDouble("quality", 0.8f);
-            int w = params.getInt("width", -1);
-            int h = params.getInt("height", -1);
-            BufferedImage srcImg = sys.io.readImage(oim);
-            if (w > 0) {
-                h = (int)(w / (srcImg.getWidth() + 0.0) * srcImg.getHeight());
-            }
-            else if (h > 0) {
-                w = (int)(h / (srcImg.getHeight() + 0.0) * srcImg.getWidth());
-            }
-            BufferedImage dstImg = srcImg;
-            if (w > 0 && h > 0)
-                dstImg = Images.zoomScale(srcImg, w, h);
-            WnObj dsto = oim;
+            double quality = params.getDouble("quality", 0.8f);WnObj dsto = oim;
             if (params.has("dst"))
                 dsto = sys.io.createIfNoExists(null, Wn.normalizeFullPath(params.get("dst"), sys), WnRace.FILE);
-            try (OutputStream out = sys.io.getOutputStream(dsto, 0)) {
-                Images.writeJpeg(dstImg, out, (float)quality);
+            if (params.is("native") && new File("/usr/bin/convert").exists()) {
+                String tmpName = R.UU32() + ".jpg";
+                File f = new File("/dev/shm/" + tmpName);
+                File tmp = new File("/dev/shm/new_" + tmpName);
+                log.info("native convert :" + oim.path());
+                try (OutputStream out = new FileOutputStream(f)) {
+                    sys.io.readAndClose(oim, out);
+                }
+                Lang.execOutput(new String[] {"/usr/bin/convert", "-auto-orient", "-strip", "-quality", "80%", "-resize", params.get("resize", "1920x1920"), f.getAbsolutePath(), tmp.getAbsolutePath()});
+                if (tmp.exists() && tmp.length() > 100*1024 && tmp.length() < f.length()) {
+                    try (InputStream ins = new FileInputStream(tmp)) {
+                        sys.io.writeAndClose(dsto, ins);
+                    }
+                }
+                f.delete();
+                tmp.delete();
+            }
+            else {
+                int w = params.getInt("width", -1);
+                int h = params.getInt("height", -1);
+                BufferedImage srcImg = sys.io.readImage(oim);
+                if (w > 0) {
+                    h = (int)(w / (srcImg.getWidth() + 0.0) * srcImg.getHeight());
+                }
+                else if (h > 0) {
+                    w = (int)(h / (srcImg.getHeight() + 0.0) * srcImg.getWidth());
+                }
+                BufferedImage dstImg = srcImg;
+                if (w > 0 && h > 0)
+                    dstImg = Images.zoomScale(srcImg, w, h);
+                
+                try (OutputStream out = sys.io.getOutputStream(dsto, 0)) {
+                    Images.writeJpeg(dstImg, out, (float)quality);
+                }
             }
         }
 

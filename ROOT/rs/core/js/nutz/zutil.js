@@ -6861,12 +6861,27 @@
         }
     };  // ~ End Of zUtil
 
-// 感知平台
+    // 感知平台
     var platform = navigator.platform.toLowerCase();
     zUtil.os = {
         mac: /^mac/.test(platform)
     };
 
+    // 浏览器版本
+    var ua = window.navigator.userAgent;
+    zUtil.browser = {
+        trident: ua.indexOf('Trident') > -1, //IE内核
+        presto: ua.indexOf('Presto') > -1, //opera内核
+        webKit: ua.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!ua.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: ua.indexOf('Android') > -1 || ua.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: ua.indexOf('iPhone') > -1 || ua.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: ua.indexOf('iPad') > -1, //是否为iPad
+        webApp: ua.indexOf('Safari') == -1 ,//是否为web应用程序，没有头部与底部
+        weixin: ua.match(/MicroMessenger/i) == "micromessenger" //是否为微信浏览器
+    };
 
 //..................................................
 // 挂载到 window 对象
