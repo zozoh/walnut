@@ -11,7 +11,13 @@
     //  "~/path/to/file" - 指定主目录下的路径
     //  "id:xxxx/path/to/file" - 指定某ID文件夹下的文件
     // 所指向的文件必须存在，如果不存在，会自动创建一个（id:xxx) 形式的除外，因为无法指定
-    target : "xxxx"
+    target : "xxxx",
+
+    // 如果上传目标指定的是一个目录，通常会在这个目录写入本地同名文件
+    // 如果你想指定这个文件名，可以通过定制本段
+    // 你可以指定一个回调函数，从而直接指定文件名
+    // 或者直接给一个字符串指定文件名也是可以的
+    fileName : F(f):String
 
     // 返回的是图片的路径/ID/还是完整对象
     // - obj  : 完整对象
@@ -21,9 +27,18 @@
     dataType : "obj|path|id|idph"
 
     // 检查上传文件的合法性，默认会动态的根据 target 来判断
+    // 如果这个值是一个正则表达式，或者 `^` 开头的字符串，则对文件名进行正则表达式匹配
+    // 如果就是字符串，则表示用半角逗号分隔的文件扩展名
+    // 同理，你可以直接写一个数组
     validate : {c}F(file, UI):Boolean
 
-    // 回调
+    // 删除回调
+    // 本控件的删除操作，仅仅清空自己的数据记录，
+    // 如果想在服务器上删除文件等，需要指定删除操作的回调
+    // 回调函数是异步的，如果执行完毕，请主动调用 callback
+    remove   : {c}F(obj, callback)
+
+    // 上传回调
     done     : {c}F(re)
     fail     : {c}F(re)
     complete : {c}F(re, status)
@@ -51,12 +66,15 @@ var html = `<div class="ui-arena com-image">
             </span>
             <span class="comi-process-info">0%</span>
         </div>
+        <div a="remove"><i class="fas fa-trash-alt"></i></div>
     </div>
 </div>`;
 //===================================================================
 return ZUI.def("ui.form_com_image", {
     //...............................................................
     dom  : html,
+    css  : "ui/form/theme/component-{{theme}}.css",
+    i18n : "ui/form/i18n/{{lang}}.js",
     //...............................................................
     init : function(opt){
         FormCMethods(this);
@@ -67,6 +85,11 @@ return ZUI.def("ui.form_com_image", {
             }
             return suffix;
         }
+
+        // 设置默认的删除函数
+        $z.setUndefined(opt, "remove", function(obj, callback){
+            callback();
+        });
 
         // 默认根据 target 来检查上传的文件类型
         $z.setUndefined(opt, "validate", function(file, UI){
@@ -91,11 +114,26 @@ return ZUI.def("ui.form_com_image", {
             // 还木有，那么返回 false
             return false;
         });
+
+        // 如果过 validate 是一个字符串...
+        if(_.isString(opt.validate)) {
+            // ^ 开头的就变成一个正则表达式
+            if(/^\^/.test(opt.validate)) {
+                opt.validate = new RegExp(opt.validate);
+            }
+            // 否则就变成数组
+            else {
+                opt.validate = opt.validate.split(',');
+            }
+        }
     },
     //...............................................................
     events : {
-        'click .comi-select' : function(){
+        'click .comi-select b' : function(){
             this.arena.find('input[type="file"]').click();
+        },
+        'click div[a="remove"]' : function(){
+            this.__do_remove();
         },
         'change input[type="file"]' : function(e) {
             if(e.currentTarget.files.length > 0){
@@ -150,6 +188,24 @@ return ZUI.def("ui.form_com_image", {
         UI._set_data();
     },
     //...............................................................
+    __do_remove : function() {
+        var UI  = this;
+        var opt = UI.options;
+        var obj = UI.__OBJ;
+        var context = opt.context || UI;
+        var jB = UI.arena.find('div[a="remove"]');
+
+        if(obj) {
+            // 显示操作中
+            jB.html('<i class="zmdi zmdi-rotate-right zmdi-hc-spin"></i>');
+            // 执行删除
+            opt.remove.apply(context, [obj, function(o){
+                UI._set_data(o, true);
+                jB.html('<i class="fas fa-trash-alt"></i>');
+            }]);
+        }
+    },
+    //...............................................................
     setTarget : function(ta){
         this.options.target = ta;
     },
@@ -170,6 +226,28 @@ return ZUI.def("ui.form_com_image", {
         return ta;
     },
     //...............................................................
+    __is_validate : function(f) {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 正则表达式
+        if(_.isRegExp(opt.validate)) {
+            return opt.validate.test(f.name);
+        }
+        // 如果是数组，那么久判断一下文件扩展名
+        if(_.isArray(opt.validate)) {
+            var ftp = $z.getSuffixName(f.name);
+            return opt.validate.indexOf(ftp) >= 0;
+        }
+        // 函数的话，就直接调用了
+        if(_.isFunction(opt.validate)){
+            var context = opt.context || UI;
+            return opt.validate.apply(context, [f, UI]);
+        }
+        // 其他的情况，是什么鬼，直接返回错误
+        return false;
+    },
+    //...............................................................
     __do_upload : function(f) {
         var UI  = this;
         var opt = UI.options;
@@ -182,7 +260,7 @@ return ZUI.def("ui.form_com_image", {
         }
 
         // 校验
-        if(!$z.invoke(opt, "validate", [f, UI], context)){
+        if(!UI.__is_validate(f)){
             alert(UI.msg("com.image.invalideFile") + " : " + f.name);
             return;
         }
@@ -198,7 +276,9 @@ return ZUI.def("ui.form_com_image", {
         }
         // 否则可以自动创建
         else if(_.isString(ta)){
-            url += ta + "?race=FILE&cie=true&";
+            // 路径如果以 `/` 结尾，表示目录
+            var taRace = /\/$/.test(ta) ? 'DIR' : 'FILE';
+            url += ta + "?race="+taRace+"&cie=true&";
             // FIXME 绝对目录
             if (ta.substr(0, 1) == '/') {
                 url += "aph=true&"
@@ -211,7 +291,25 @@ return ZUI.def("ui.form_com_image", {
             alert(UI.msg("com.image.invalidTarget"));
             return;
         }
-        url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
+
+        // 准备文件名等信息
+        url += "sz={{file.size}}&mime={{file.type}}";
+        // 指定了文件名
+        if(opt.fileName) {
+            // 函数
+            if(_.isFunction(opt.fileName)) {
+                var fnm = opt.fileName.apply(context, [f]);
+                url += '&nm=' + fnm;
+            }
+            // 字符串
+            else {
+                url += '&nm=' + opt.fileName + ".{{suffixName}}";
+            }
+        }
+        // 默认
+        else {
+            url += '&nm={{file.name}}';
+        }
 
         // 先压缩后上传
         if(opt.iosfix || opt.compress){
@@ -233,6 +331,7 @@ return ZUI.def("ui.form_com_image", {
         $z.uploadFile({
             url: url,
             file: f,
+            suffixName : $z.getSuffixName(f.name),
             progress: function (e) {
                 UI.__update_progress(UI, e.loaded, e.total);
             },
@@ -288,6 +387,9 @@ return ZUI.def("ui.form_com_image", {
         if("id" == opt.dataType)
             return UI.__OBJ.id;
 
+        if("nm" == opt.dataType)
+            return UI.__OBJ.nm;
+
         if("idph" == opt.dataType)
             return "id:" + UI.__OBJ.id;
 
@@ -298,15 +400,32 @@ return ZUI.def("ui.form_com_image", {
     },
     //...............................................................
     _set_data : function(o, notifyChange) {
-        var UI = this;
+        var UI  = this;
+        var opt = UI.options;
 
         if(o && _.isString(o)){
-            o = Wn.get(o);
+            var oph = o;
+            // 如果保存的仅仅是名称，那么就需要 target 是一个目录咯
+            // 如果不是目录就截取到目录
+            if("nm" == opt.dataType) {
+                var ta = UI.__eval_target();
+                var tpos = ta.lastIndexOf('/');
+                if(tpos > 0) {
+                    oph = ta.substring(0, tpos) + "/" + o;
+                } else {
+                    oph = ta + "/" + o;
+                }
+            }
+
+            // 得到对象
+            o = Wn.get(oph);
         }
         // 记录数据
         UI.__OBJ = o || null;
 
-        //console.log("image._set_data", o);
+        // console.log("image._set_data", o);
+        // 标记状态
+        UI.arena.attr('is-empty', UI.__OBJ ? null : "yes");
 
         // 修改显示（如果是通知方式，则加入时间戳更新缓存)
         UI.arena.find("img").attr({

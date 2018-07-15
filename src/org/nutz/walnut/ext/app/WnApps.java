@@ -103,7 +103,8 @@ public abstract class WnApps {
      * @return 对象
      */
     public static WnObj checkActionObj(WnSystem sys, String actionName, List<WnObj> oUIHomes) {
-        WnObj o = Wn.getObjIn(sys, "actions/" + actionName + ".js", oUIHomes);
+        String actionPath = "actions/" + actionName + ".js";
+        WnObj o = Wn.getObjIn(sys, actionPath, oUIHomes);
         if (null == o)
             throw Er.create("e.cmd.app.action.noexists", actionName);
         return o;
