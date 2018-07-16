@@ -59,14 +59,15 @@ class JvmAtom extends JvmCmd implements Atom {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
 
-                // 如果仅仅显示警告，则日志记录警告信息
-                if (log.isWarnEnabled()) {
-                    log.warnf("Atom[%d] ERROR: %s", id, ue.toString());
-                }
-
                 // 有必要的话，显示错误堆栈
-                if (!(ue instanceof WebException)) {
-                    log.warn(String.format("Atom[%d] ERROR: %s", id, ue.toString()), ue);
+                if (log.isWarnEnabled()) {
+                    if (!(ue instanceof WebException)) {
+                        log.warnf("Atom[%d] ERROR: %s", id, ue, ue);
+                    }
+                    // 如果仅仅显示警告，则日志记录警告信息
+                    else {
+                        log.warnf("Atom[%d] ERROR: %s", id, ue.toString());
+                    }
                 }
 
                 // 将错误输出到标准输出
