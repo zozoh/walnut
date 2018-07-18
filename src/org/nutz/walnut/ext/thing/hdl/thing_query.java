@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.thing.hdl;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.ext.thing.impl.QueryThingAction;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -16,6 +18,7 @@ public class thing_query implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
+        // 分析参数
         ThQuery tq = new ThQuery();
 
         // ..............................................
@@ -38,13 +41,14 @@ public class thing_query implements JvmHdl {
         tq.needContent = hc.params.is("content");
         tq.autoObj = hc.params.is("obj");
 
-        QueryThingAction TA = new QueryThingAction();
-        TA.setIo(sys.io).setThingSet(hc.oRefer);
-        TA.setQuery(tq);
-        ThQr qr = TA.invoke();
+        // 准备服务类
+        WnObj oTs = Things.checkThingSet(hc.oRefer);
+        WnThingService wts = new WnThingService(sys.io, oTs);
+
+        // 调用接口
+        ThQr qr = wts.queryThing(tq);
         hc.pager = qr.pager;
         hc.output = qr.data;
-
     }
 
 }

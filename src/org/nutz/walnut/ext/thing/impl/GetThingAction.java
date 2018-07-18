@@ -3,8 +3,9 @@ package org.nutz.walnut.ext.thing.impl;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -18,7 +19,9 @@ public class GetThingAction extends ThingAction<WnObj> {
 
     private boolean isFull;
 
-    private boolean quiet;
+    private String sortKey;
+
+    private boolean isAsc;
 
     public GetThingAction setId(String id) {
         this.id = id;
@@ -30,8 +33,13 @@ public class GetThingAction extends ThingAction<WnObj> {
         return this;
     }
 
-    public GetThingAction setQuiet(boolean quiet) {
-        this.quiet = quiet;
+    public GetThingAction setSortKey(String sortKey) {
+        this.sortKey = sortKey;
+        return this;
+    }
+
+    public GetThingAction setAsc(boolean isAsc) {
+        this.isAsc = isAsc;
         return this;
     }
 
@@ -41,9 +49,7 @@ public class GetThingAction extends ThingAction<WnObj> {
 
         // 这个 Thing 必须是有效的
         if (null == oT || oT.getInt("th_live") == Things.TH_DEAD) {
-            if (quiet)
-                return null;
-            throw Er.create("e.thing.get.noexists", oT.id());
+            return null;
         }
 
         // 补充上 ThingSet 的集合名称
@@ -63,6 +69,27 @@ public class GetThingAction extends ThingAction<WnObj> {
 
             // 附件映射
             __set_file_map(oT, "attachment");
+        }
+
+        // 看看是否需要读取 th_next/th_prev
+        Object sortVal = Strings.isBlank(this.sortKey) ? null : oT.get(this.sortKey);
+        if (null != sortVal) {
+            WnObj oTPrev = null;
+            WnObj oTNext = null;
+            WnQuery q = Wn.Q.pid(oT.parentId());
+            // 正序
+            if (this.isAsc) {
+                oTPrev = io.getOne(q.desc(sortKey).setv(sortKey, Lang.map("$lt", sortVal)));
+                oTNext = io.getOne(q.asc(sortKey).setv(sortKey, Lang.map("$gt", sortVal)));
+            }
+            // 倒序
+            else {
+                oTPrev = io.getOne(q.asc(sortKey).setv(this.sortKey, Lang.map("$gt", sortVal)));
+                oTNext = io.getOne(q.desc(sortKey).setv(this.sortKey, Lang.map("$lt", sortVal)));
+            }
+            // 记录一下
+            oT.setv("th_prev", oTPrev);
+            oT.setv("th_next", oTNext);
         }
 
         // 返回

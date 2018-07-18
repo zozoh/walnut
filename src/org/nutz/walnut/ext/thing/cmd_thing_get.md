@@ -5,7 +5,13 @@
 # 用法
 
     thing [TsID] get ID 
-       [-full]  表示获取 thing 的全部数据，包括 detail
+       [-full]   # 表示获取 thing 的全部数据，包括 detail
+       [-sort]   # 表示指定一个排序字段，如果有这个字段
+                 #  - lm:asc  表示按照  lm 正序
+                 #  - lm:desc 表示按照  lm 倒序
+                 #  - lm 相当于是  lm:asc
+                 # 那么输出的元数据包括 `th_next` 和  `th_prev` 两字段
+                 # 当然如果查不到数据，这两个字段的值是 null
 
 # 示例
 

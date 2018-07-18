@@ -8,6 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.WnOutputable;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.impl.CreateTmpFileAction;
@@ -173,14 +174,24 @@ public class WnThingService {
     // .....................................................................
 
     public WnObj getThing(String id, boolean isFull) {
+        return this.getThing(id, isFull, null, false);
+    }
+
+    public WnObj getThing(String id, boolean isFull, String sortKey, boolean isAsc) {
         GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
-        a.setQuiet(true);
+        a.setSortKey(sortKey).setAsc(isAsc);
         return a.invoke();
     }
 
     public WnObj checkThing(String id, boolean isFull) {
-        GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
-        return a.invoke();
+        return this.checkThing(id, isFull, null, false);
+    }
+
+    public WnObj checkThing(String id, boolean isFull, String sortKey, boolean isAsc) {
+        WnObj oT = this.getThing(id, isFull, sortKey, isAsc);
+        if (null == oT)
+            throw Er.create("e.thing.noexists", id);
+        return oT;
     }
 
     public WnObj fetchThing(String th_nm, boolean isFull) {
