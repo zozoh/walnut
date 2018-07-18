@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.io.mongo;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
@@ -107,7 +108,18 @@ public class MongoWnTree extends AbstractWnTree {
 
     @Override
     public long count(WnQuery q) {
-        ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : WnMongos.toQueryDoc(q);
+        if (q == null)
+            throw new RuntimeException("count without WnQuery is not allow");
+        ZMoDoc qDoc = WnMongos.toQueryDoc(q);
+        if (qDoc.isEmpty())
+            throw new RuntimeException("count with emtry WnQuery is not allow");
+        // 对id的正则表达式进行更多的检查
+        if (qDoc.containsField("id")) {
+            Object tmp = qDoc.get("id");
+            if (tmp != null && tmp instanceof Pattern && tmp.toString().equals("^")) {
+                throw new RuntimeException("count with id:/^/ is not allow");
+            }
+        }
         return co.count(qDoc);
     }
 
