@@ -339,6 +339,10 @@ public class ObjModule extends AbstractWnModule {
 
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
+        // 防御非法请求
+        if (Strings.isBlank(str) || str.equals("id:") || str.equals("id:undefined")) {
+            return HttpStatusView.HTTP_404;
+        }
 
         // 首先得到目标对象
         WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);

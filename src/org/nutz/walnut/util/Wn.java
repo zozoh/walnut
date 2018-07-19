@@ -305,7 +305,8 @@ public abstract class Wn {
                 re = Wn.appendPath(pwd, path);
             }
         }
-
+        if (re.endsWith("id:"))
+            throw new RuntimeException("emtry paht 'id:' is not allow!!! re=" + re);
         return re;
     }
 
