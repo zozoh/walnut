@@ -9,7 +9,7 @@ public class wiki_render implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
