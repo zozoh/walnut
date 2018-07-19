@@ -931,7 +931,7 @@ window.HmRT = {
                 return data.list;
             if(_.isArray(data))
                 return data;
-            throw "api_data_nomatch : API(" + data + ") != Template("+tmplDataType+")";
+            throw "api_data_nomatch : API(" + $z.toJson(data) + ") != Template("+tmplDataType+")";
         }
         return data;
     },
