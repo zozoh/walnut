@@ -42,8 +42,16 @@ public class thing_query implements JvmHdl {
         tq.autoObj = hc.params.is("obj");
 
         // 准备服务类
-        WnObj oTs = Things.checkThingSet(hc.oRefer);
-        WnThingService wts = new WnThingService(sys.io, oTs);
+        WnThingService wts;
+        // 指定了 ThingSet
+        if (tq.tss != null && tq.tss.length > 0) {
+            wts = new WnThingService(sys.io, null);
+        }
+        // 否则用自己当前目录作为 ThingSet
+        else {
+            WnObj oTs = Things.checkThingSet(hc.oRefer);
+            wts = new WnThingService(sys.io, oTs);
+        }
 
         // 调用接口
         ThQr qr = wts.queryThing(tq);
