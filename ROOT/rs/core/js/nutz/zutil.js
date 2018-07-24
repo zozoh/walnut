@@ -9,6 +9,8 @@
     var INDENT_BY = "    ";
 
     var KEY_CODE = {
+        WIN: 91,
+        COMMAND: 91,
         // 特殊字符
         SHIFT: 16,
         CTRL: 17,
