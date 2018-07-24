@@ -10,6 +10,10 @@ function __set_layout_item_size (it, s) {
     return it;
 }
 //===================================================================
+function __parse_selector(s) {
+    return $z.parseLayoutSize(s, null);
+}
+//===================================================================
 window.HmRT = {
     //...............................................................
     __parse_layout_fld : function(line) {
@@ -43,7 +47,7 @@ window.HmRT = {
             fld.show = m_pp=="!" ? "always" : "auto";
             // 选择器
             if(m_sel){
-                fld.selector = $.trim(m_sel);
+                fld.selector = __parse_selector(m_sel);
             }
             // 链接
             if(m_lnk){
@@ -248,15 +252,26 @@ window.HmRT = {
             }
 
             // 组
-            m = /^@(\((.+)\))?(.+)?/.exec(line)
+            m = /^@(\((.+)\))?(<(.+)>)?(\[([+-])\])?(.+)?/.exec(line)
             if(m) {
-                // 推入前组
-                // if(grp && grp.items.length > 0)
-                //     layout.data.push(grp);
+                // 分析正则表达式
+                var m_gnm = m[2];
+                var m_sel = m[4];
+                var m_lnk = m[6];
+                var m_sz  = m[7];
+
                 // 建立新组
                 var grp2 = __set_layout_item_size({
-                        type:"group", name:$.trim(m[2]) ,items:[]
-                    }, m[3]);
+                        type : "group", 
+                        name : $.trim(m_gnm) || null,
+                        selector : __parse_selector(m_sel),
+                        linkTarget : "+" == m_lnk 
+                                        ? "_blank" 
+                                        : (m_lnk ? "_self" : undefined),
+                        items:[]
+                    }, m_sz);
+
+                // 加入当前组
                 if(grp) {
                     grp2.__parent = grp;
                     grp.items.push(grp2);
@@ -266,11 +281,20 @@ window.HmRT = {
             }
 
             // 表格
-            m = /^T(\((.+)\))?(.+)?/.exec(line)
+            m = /^T(\((.+)\))?(<(.+)>)?(.+)?/.exec(line)
             if(m) {
+                // 分析正则表达式
+                var m_tnm = m[2];
+                var m_sel = m[4];
+                var m_sz  = m[5];
+
+                // 建立表格
                 var tbl = __set_layout_item_size({
-                        type:"table", name:$.trim(m[2]) ,rows:[]
-                    }, m[3]);
+                        type:"table", 
+                        name:$.trim(m_tnm) || null,
+                        selector : __parse_selector(m_sel),
+                        rows:[]
+                    }, m_sz);
                 for (i++; i < lines.length; i++) {
                     line = $.trim(lines[i]);
                     m = /^-([^|]+)[|](.+)$/.exec(line);
@@ -307,7 +331,7 @@ window.HmRT = {
                         type       : "HTML", 
                         isTitle    : m[1] == ">",
                         display    : m[3] || "String",
-                        selector   : $.trim(m[5]), 
+                        selector   : __parse_selector(m[5]), 
                         tmpl       : $z.tmpl(m[10]),
                         config     : {},
                     }, m[8]);
@@ -475,8 +499,12 @@ window.HmRT = {
             jFld = this.renderLayoutFieldElementContent(fld, str, oHref, forceHTML);
         }
         // 增加类选择器
-        if(fld.selector)
-            jFld.addClass(fld.selector);
+        if(fld.selector) {
+            jFld.attr({
+                "layout-desktop-selector" : fld.selector.desktop || "",
+                "layout-mobile-selector"  : fld.selector.mobile  || ""
+            });
+        }
         // 增加一下属性
         return jFld.attr({
             "fld-type"             : fld.type || "text",
@@ -493,7 +521,8 @@ window.HmRT = {
         var theHref = oHref ? oHref.result : null;
         // 普通文字
         if('text' == fld.type) {
-            return $('<em class="wn-obj-text">').text(fld.value).appendTo(jP);
+            //return $('<em class="wn-obj-text">').text(fld.value).appendTo(jP);
+            return this.renderLayoutFieldElement(fld, fld.value).appendTo(jP);
         }
         // HR
         else if('hr' == fld.type) {
@@ -833,18 +862,33 @@ window.HmRT = {
     renderLayoutDataItem : function(opt, jP, it, obj, oHref) {
         // 字段组
         if('group' == it.type) {
-            var jGrp = $('<section>');
+            var jGrp;
+            if(oHref && it.linkTarget) {
+                jGrp = $('<a>').attr({
+                    "href"   : oHref.result,
+                    "target" : it.linkTarget
+                });
+            }
+            // 那么没有链接，就用一个块元素咯
+            else {
+                jGrp = $('<section>');
+            }
             // 循环渲染字段
             for(var x=0; x<it.items.length; x++) {
                 var fld  = it.items[x];
                 this.renderLayoutDataItem(opt, jGrp, fld, obj, oHref);
             }
             // 设置属性，并加入 DOM
+            var sel = it.selector || {};
             jGrp.attr({
+                "hm-layout-grp" : "yes",
                 "group-name" : it.name,
-                "layout-desktop-width" : it.w_desktop,
-                "layout-mobile-width"  : it.w_mobile,
+                "layout-desktop-width" : it.w_desktop || "",
+                "layout-mobile-width"  : it.w_mobile || "",
+                "layout-desktop-selector" : sel.desktop || "",
+                "layout-mobile-selector"  : sel.mobile  || ""
             });
+            
             jGrp.appendTo(jP);
         }
         // 字段
@@ -870,6 +914,17 @@ window.HmRT = {
             var it = layout.data[i];
             this.renderLayoutDataItem(opt, jLayout, it, obj, oHref);
         }
+        //----------------------------------
+        // 保护一下所有的
+        jLayout.find('a[href]').click(function(e){
+            // 如果切换按钮在组内，且组还有一个 href，那就无穷循环了
+            //   ：因为点击会触发 a 的行为，刷新页面后，又会自动触发第一个 li 的 click
+            //   : 没玩没了了
+            // 因此这里，发现这种情况，禁止触发 a.href
+            if($(e.target).closest('ul[li-target]').length > 0) {
+                e.preventDefault();
+            }
+        });
         //----------------------------------
         // 返回
         return jLayout.appendTo(jq);
