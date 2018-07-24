@@ -6242,23 +6242,26 @@
 
         返回对象 {desktop:"1rem", mobile:".04rem"}
         */ 
-        parseLayoutSize : function(str) {
+        parseLayoutSize : function(str, dft) {
             s = $.trim(str);
-            if(!s)
-                return {};
+            if(!s) {
+                if(_.isUndefined(dft))
+                    return {};
+                return dft;
+            }
 
             // 准备解析函数
-            var ___layout_size = function(sz, dft) {
-                if("?" == sz)
+            var ___layout_size = function(sz) {
+                if(_.isNumber(sz))
+                    return sz + "px";
+                
+                // 确保去掉空白
+                sz = $.trim(sz);
+
+                if("?" == sz || !sz)
                     return undefined;
                 if("-" == sz)
                     return "hidden";
-                if(_.isNumber(sz))
-                    return sz + "px";
-
-                sz = $.trim(sz);
-                if(!sz)
-                    return dft;
 
                 if(/^[0-9]+$/.test(sz))
                     return parseInt(sz);
@@ -6268,12 +6271,12 @@
             var pos = s.indexOf('/');
             var desktop, mobile;
             if(pos>=0) {
-                desktop = ___layout_size(s.substring(0,pos), "?");
-                mobile  = ___layout_size(s.substring(pos+1), desktop);
+                desktop = ___layout_size(s.substring(0,pos));
+                mobile  = ___layout_size(s.substring(pos+1));
             }
             // 否则用一样的
             else {
-                desktop = ___layout_size(s, "?");
+                desktop = ___layout_size(s);
                 mobile  = desktop;
             }
             // 搞定
