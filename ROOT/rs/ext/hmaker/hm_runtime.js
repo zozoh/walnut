@@ -81,8 +81,14 @@ window.HmRT = {
                 if("Date" == this.display) {
                     var s = "N/A";
                     if(val) {
-                        var d = $z.parseDate(val);
-                        s = d.format(this.config || "yyyy-mm-dd");
+                        try{
+                            var d = $z.parseDate(val);
+                            s = d.format(this.config || "yyyy-mm-dd");
+                        }
+                        // 解析失败就用原来的值
+                        catch(E) {
+                            s = val;
+                        }
                     }
                     return s;
                 }
@@ -169,19 +175,17 @@ window.HmRT = {
                     return fld;
                 }
                 // 链接: .href=Link(Buy Now)
-                m2 = /^Link\(([^)]*)\)$/.exec(ts);
+                // 按钮: .href=Button(Buy Now)
+                m2 = /^(Link|Button)(\(([^)]*)\))?(->(.+))?$/.exec(ts);
                 if(m2) {
-                    fld.display = "Link";
-                    fld.config  = m2[1];
-                    $z.setUndefined(fld, "linkTarget", "_blank");
-                    return fld;
-                }
-                // 链接: .href=Button(Buy Now)
-                m2 = /^Button\(([^)]*)\)$/.exec(ts);
-                if(m2) {
-                    fld.display = "Button";
-                    fld.config  = m2[1];
-                    $z.setUndefined(fld, "linkTarget", "_blank");
+                    fld.display = m2[1];
+                    var text = $.trim(m2[3]);
+                    var href = $.trim(m2[5]);
+                    fld.config  = {
+                        linkText : text ? $z.tmpl(text) : null,
+                        linkHref : href ? $z.tmpl(href) : null
+                    };
+                    $z.setUndefined(fld, "linkTarget", "_self");
                     return fld;
                 }
                 // 列表: .lbls:100=UL(text)->.thumb
@@ -431,10 +435,19 @@ window.HmRT = {
         if((fld.linkTarget && oHref)
             || 'Button' == fld.display
             || 'Link'   == fld.display) {
-            var hs = _.isString(oHref) ? oHref : oHref.tmpl(oHref.obj);
+            var href = null;
+            // 普通字符串
+            if(oHref && _.isString(oHref)) {
+                href = oHref;
+            }
+            // 是链接对象
+            else if(oHref && _.isFunction(oHref.tmpl)) {
+                href = oHref.tmpl(oHref.obj || {});
+            }
+            // 生成 Dom 节点
             jFi = $('<a>').attr({
-                    "href"   : hs,
-                    "target" : "_blank" == fld.linkTarget && oHref 
+                    "href"   : href,
+                    "target" : "_blank" == fld.linkTarget && href 
                                     ? "_blank" : null,
                 }).append(jFi);
         }
@@ -769,7 +782,49 @@ window.HmRT = {
         // .href=Link[Buy Now]
         if("Link" == fld.display || "Button" == fld.display) {
             var s = fld.config || val || fld.display;
-            return this.renderLayoutFieldElement(fld, s, val||oHref).appendTo(jP);
+            var lnkText, lnkHref;
+            // 就是 =Link()，那么采用全局链接模板
+            if(!fld.config.linkHref) {
+                lnkText = "Link";
+                lnkHref = null;
+                // 指定了全局模板
+                if(_.isoHref) {
+
+                }
+            }
+            // 指定了链接 =Link()->/path/to/target
+            //...................................
+            // 处理链接文字
+            var lnkText = "Link";
+            if(_.isFunction(fld.config.linkText)) {
+                try {
+                    lnkText = fld.config.linkText(val || {});
+                }catch(E){}
+            }
+            //...................................
+            // 处理链接目标
+            var lnkHref = null;
+            try {
+                // 直接自定了一个固定链接
+                if(_.isString(val)) {
+                    lnkHref = val;
+                }
+                // 应该是自定义的动态链接
+                else if(val && _.isFunction(fld.config.linkHref)) {
+                    lnkHref = fld.config.linkHref(val);
+                }
+                // 用全局模板渲染的动态链接
+                else if(val && oHref && _.isFunction(oHref.tmpl)) {
+                    lnkHref = oHref.tmpl(val);
+                }
+            }
+            // 容忍一下错误
+            catch(E) {
+                lnkHref = "!!!" + E;
+            }
+            
+            // 渲染字段
+            return this.renderLayoutFieldElement(fld, lnkText, lnkHref).appendTo(jP);
         }
         // 默认就是文字咯
         return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);

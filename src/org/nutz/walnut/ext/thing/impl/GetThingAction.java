@@ -76,7 +76,7 @@ public class GetThingAction extends ThingAction<WnObj> {
         if (null != sortVal) {
             WnObj oTPrev = null;
             WnObj oTNext = null;
-            WnQuery q = Wn.Q.pid(oT.parentId());
+            WnQuery q = Wn.Q.pid(oT.parentId()).setv("th_live", Things.TH_LIVE);
             // 正序
             if (this.isAsc) {
                 oTPrev = io.getOne(q.desc(sortKey).setv(sortKey, Lang.map("$lt", sortVal)));

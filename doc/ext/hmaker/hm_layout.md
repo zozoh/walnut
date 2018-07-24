@@ -278,7 +278,12 @@ T(info)100
                 }, {
                     "key"     : "href",
                     "display" : "Link",
-                    "config"  : "Buy Now"
+                    "config"  : {
+                        linkText : F(obj),  // 链接文字，如果没有，那么就为链接本身
+                                            // 如果是字符串，解析时会变函数
+                        linkHref :  F(obj)  // 链接模板
+                                            // 如果是字符串，解析时会变函数
+                    }
                     ...  // 我就懒得写 w_desktop | w_mobile 了
                 }, {
                     "type" : "hr",   // 表示分隔线
