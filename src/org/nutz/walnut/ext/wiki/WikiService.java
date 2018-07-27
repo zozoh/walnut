@@ -10,8 +10,13 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
+import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+import org.nutz.plugins.zdoc.NutDSet;
+import org.nutz.plugins.zdoc.NutDoc;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.w3c.dom.Document;
@@ -19,11 +24,13 @@ import org.w3c.dom.Element;
 
 @IocBean
 public class WikiService {
+    
+    private static final Log log = Logs.get();
 
     @Inject
     protected WnIo io;
 
-    public WikiNode tree(WnObj root, NutMap confs) throws Exception {
+    public void tree(WnObj root, NutDSet dset) throws Exception {
         // if root is dir, search for [tree.xml, tree.md, tree.json]
         WnObj tmp = null;
         if (root.isDIR()) {
@@ -42,45 +49,62 @@ public class WikiService {
             tmp = root;
         }
         if (tmp.name().endsWith(".xml")) {
+            dset.setPrimerObj(io.get(tmp.parentId()));
             try (InputStream ins = io.getInputStream(tmp, 0)) {
-                return readTreeXml(ins);
+                readTreeXml(ins, dset);
+                return;
             }
         }
-        if (tmp.name().endsWith(".json")) {
-            return io.readJson(tmp, WikiNode.class);
-        }
-        return null;
     }
 
     // ----------------------------------------------------------
     // Read Tree define document as XML
-    protected WikiNode readTreeXml(InputStream ins) throws Exception {
+    protected void readTreeXml(InputStream ins, NutDSet dset) throws Exception {
         Document root = Xmls.xmls().parse(ins);
         root.normalizeDocument();
         Element topEle = root.getDocumentElement();
-        WikiNode top = new WikiNode();
         if (!"doc".equals(topEle.getNodeName())) {
             throw new RuntimeException("top xml node isn't doc!!!");
         }
-        xmlEle2Node(top, topEle);
-        return top;
+        xmlEle2Node(topEle, dset);
     }
 
-    protected void xmlEle2Node(WikiNode node, Element ele) {
-        node.path = ele.getAttribute("path");
+    protected void xmlEle2Node(Element ele, NutDSet dset) {
+        WnObj dir = (WnObj) dset.getPrimerObj();
         if (ele.hasAttribute("title"))
-            node.title = ele.getAttribute("title");
+            dset.setTitle(ele.getAttribute("title"));
         if (ele.hasAttribute("author"))
-            node.author = ele.getAttribute("author");
+            dset.addAuthors(ele.getAttribute("author"));
         Xmls.eachChildren(ele, new Each<Element>() {
             public void invoke(int index, Element ele2, int length) {
-                if (!"doc".equals(ele.getNodeName()))
+                if (!"doc".equals(ele2.getNodeName()))
                     return;
-                WikiNode node2 = new WikiNode();
-                if (node.subs == null)
-                    node.subs = new ArrayList<>();
-                node.subs.add(node2);
-                xmlEle2Node(node2, ele2);
+                String path = ele2.getAttribute("path");
+                if (Strings.isBlank(path))
+                    return;
+                WnObj wobj = io.fetch(dir, path);
+                if (wobj == null) {
+                    log.info("not exists path=" + dir.path() + "/" + path);
+                    return;
+                }
+                if (wobj.isFILE()) {
+                    NutDoc doc = dset.createDocByPath(ele2.getAttribute("path"), true);
+                    if (ele2.hasAttribute("author"))
+                        doc.addAuthors(ele2.getAttribute("author"));
+                    if (ele2.hasAttribute("title"))
+                        doc.setTitle(ele2.getAttribute("title"));
+                    doc.setPrimerObj(wobj);
+                }
+                else if (wobj.isDIR()) {
+                    NutDSet next = dset.createSetByPath(path, true);
+                    if (ele2.hasAttribute("author"))
+                        next.addAuthors(ele2.getAttribute("author"));
+                    if (ele2.hasAttribute("title"))
+                        next.setTitle(ele2.getAttribute("title"));
+                    next.setPrimerObj(wobj);
+                    xmlEle2Node(ele2, next);
+                }
+                
             }
         });
     }
@@ -91,11 +115,12 @@ public class WikiService {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        try (InputStream ins = Http.get("https://gitee.com/nutz/nutz/raw/master/doc/manual/index.xml")
-                                   .getStream()) {
-            WikiNode top = new WikiService().readTreeXml(ins);
-            System.out.println(Json.toJson(top));
-        }
-    }
+//    public static void main(String[] args) throws Exception {
+//        try (InputStream ins = Http.get("https://gitee.com/nutz/nutz/raw/master/doc/manual/index.xml")
+//                                   .getStream()) {
+//            NutDSet dset = new NutDSet("nutz");
+//            new WikiService().readTreeXml(ins, dset);
+//            System.out.println(Json.toJson(top));
+//        }
+//    }
 }
