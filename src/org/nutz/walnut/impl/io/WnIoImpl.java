@@ -404,7 +404,6 @@ public class WnIoImpl implements WnIo {
 
                 // 删除树节点和索引
                 tree.delete(o);
-
             }
 
             // 触发同步时间修改
