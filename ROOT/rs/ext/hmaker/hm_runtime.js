@@ -675,7 +675,7 @@ window.HmRT = {
         
         // .lbls:100=UL(!image:src)->thumb
         if("UL" == fld.display) {
-            //console.log(fld)
+            // console.log("UL", fld);
             var liType = fld.config.itemType || "text";
             var jUl  = $('<ul>').attr({
                     "li-type"   : liType,
