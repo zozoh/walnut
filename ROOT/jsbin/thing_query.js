@@ -64,7 +64,7 @@ function _main(params){
     // 循环参数表，找到过滤函数
     for(var key in params) {
         // 固定参数，已经处理过了，忽略
-        if(/^(pid|k|s|pn|pgsz|skip|detail|cb|jfmt)$/.test(key))
+        if(/^(pid|k|s|pn|pgsz|skip|detail|jfmt)$/.test(key))
             continue;
         // 处理值
         var val = params[key];
@@ -88,7 +88,7 @@ function _main(params){
     if(cnd != "{}")
         cmdText += " '" + cnd.replace(/'/g, "\\'");
 
-    log.warn(cmdText);
+    log.info(cmdText);
 
     // 运行命令，并输出返回值
     var reJson = sys.exec2(cmdText);

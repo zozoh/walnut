@@ -14,7 +14,9 @@ params: {
     detail : "yes",      // 如果为 "yes" 表示读取数据详情
     pn   : 1             // 页数，如果 >=1 则表示分页，
     pgsz : 10            // 页大小，默认 10，只有 pn>=1 才生效
-    skip : 10            // 跳过多少记录，不声明则用 (pn-1) * pgsz                
+    skip : 10            // 跳过多少记录，不声明则用 (pn-1) * pgsz      
+    // 其他字段，均作为过滤条件
+    ...          
 }
 
 用法
@@ -39,16 +41,6 @@ function _main(params){
         cmdText += " -sort '" + params.s + "' ";
     else
     	cmdText += " -sort 'ct:1' ";
-
-    // 标签
-    if(params.lb){
-        cmdText += " \"lbls:'" + params.lb + "'\"";
-    }
-
-    // 分类
-    if(params.c){
-        cmdText += " \"th_cate:'" + params.c + "'\"";
-    }
     
     // 读取详情
     if("yes" == params.detail) {
@@ -89,10 +81,71 @@ function _main(params){
         cmdText += " -skip " + params.skip;
     }
 
-    //log.warn(cmdText);
+    // 准备查询条件
+    var flt = {};
+
+    // 标签
+    if(params.lb)
+        flt.lbls = params.lb;
+
+    // 分类
+    if(params.c)
+        flt.th_cate = params.c;
+
+    // 循环参数表，找到过滤函数
+    for(var key in params) {
+        // 固定参数，已经处理过了，忽略
+        if(/^(pid|c|lb|s|pn|pgsz|skip|detail|jfmt)$/.test(key))
+            continue;
+        // 处理值
+        var val = params[key];
+        if(!val)
+            continue;
+        // 试图将值拆分成数组
+        var vv = val.split(/ *\|\| */g);
+
+        // 单个值，就直接来吧
+        if(vv.length == 1) {
+            flt[key] = vv[0];
+        }
+        // 变成 or，并加入过滤表
+        else {
+            flt[key] = ["%or"].concat(vv);
+        }
+    }
+
+    // 循环一下，看看是否要改变值的类型
+    for(var key in flt) {
+        var val = flt[key];
+        // 布尔
+        if(/^(true|false)$/.test(val)) {
+            flt[key] = val == "true";
+            continue;
+        }
+        // 数字
+        val = val *1;
+        if(!isNaN(val)) {
+            flt[key] = val;
+        }
+    }
+
+    // 看看搜索匹配条件的字符串是啥
+    var cnd = JSON.stringify(flt);
+    if(cnd != "{}")
+        cmdText += " '" + cnd.replace(/'/g, "\\'");
+
+    log.info(cmdText);
 
     // 运行命令，并输出返回值
     var reJson = sys.exec2(cmdText);
+
+    // 错误
+    if(/^e./.test(reJson)) {
+        sys.exec("ajaxre '" + reJson + "'");
+        return;
+    }
+
+    // 最后输出结果
     sys.out.println(reJson);
 }
 //........................................

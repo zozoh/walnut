@@ -1343,6 +1343,191 @@ window.HmRT = {
             }
         });
     },
+    /*...............................................................
+    解析分组逻辑
+    type                         # 普通: type 字段值直接分组
+    th_nm::S2                    # 截取: th_nm 字段值截取字符串后分组
+    th_nm::S1::Last Name: %s     # 截取: th_nm 字段值截取字符串后分组，标题需映射
+    th_cate::{0=A,1=B}X          # 映射: th_cate 字段分组，标题需要映射
+    th_cate::{0=A,1=B}Y::Cate:%s # 映射: th_cate 字段映射后分组，标题需要替换模板
+    lm::Date(yyyy)::Year:%s      # 日期: lm 字段做日期转换后分组，标题需要替换模板
+    dead::[否,是]                # 布尔: dead 字段根据给定布尔值映射后分组
+    price::R{奢侈>100;普通<20>100;便宜<20}普通 # 区间：price字段必须是数字，根据给定区间归纳
+    */
+    parseGroupBy: function(str) {
+        if(!str)
+            return null;
+        var ss = str.split("::");
+        //-------------------------------------
+        // 准备返回值
+        var gb = {name : $.trim(ss[0])};
+        //-------------------------------------
+        // 标题
+        if(ss.length >= 3)
+            gb.title = ss[2];
+        //-------------------------------------
+        // 来吧，分析一下
+        var s = ss.length>=2 ? $.trim(ss[1]) : null;
+
+        //-------------------------------------
+        // type # 普通: type 字段值直接分组
+        if(!s) {
+            gb.getGroupValue = function(obj){
+                return obj[this.name];
+            };
+            return gb;
+        }
+        //-------------------------------------
+        // th_nm::S2=Unknown  # 截取: th_nm 字段值截取字符串后分组
+        var m = /^S([0-9]*)(=(.+))?$/.exec(s);
+        if(m){
+            gb.len = m[1] ? parseInt(m[1]) : 0;
+            gb.dft = m[3];
+            gb.getGroupValue = function(obj){
+                var v = obj[this.name];
+                if(_.isUndefined(v) || _.isNull(v))
+                    return this.dft;
+                return this.len > 0
+                            ? v.substring(0, this.len)
+                            : v;
+            };
+            return gb;
+        }
+        //-------------------------------------
+        // th_cate::{0=A,1=B}X # 映射: th_cate 字段分组，标题需要映射
+        m = /^\{([^}]+)\}(.+)$/.exec(s);
+        if(m){
+            var ms = m[1];
+            gb.dft = m[2];
+            gb.mapping = {};
+            ss = ms.split(",");
+            for(var i=0; i<ss.length; i++) {
+                var m2 = /^([^=])=(.+)$/.exec(ss[i]);
+                if(m2) {
+                    var k = $.trim(m2[1]);
+                    var v = $.trim(m2[2]);
+                    gb.mapping[k] = $.trim(v);
+                    continue;
+                }
+                // 错误，不忍！
+                throw "Invalid mapping pair: [" + ss[i] + '] in "' + s + '"';
+            }
+            gb.getGroupValue = function(obj){
+                return this.mapping[obj[this.name]+""] || this.dft;
+            };
+            return gb;
+        }
+        //-------------------------------------
+        // lm::D(yyyy)None::Year:%s      # 日期: lm 字段做日期转换后分组，标题需要替换模板
+        m = /^D(\(([^)]+)\))?(.+)?$/.exec(s);
+        if(m){
+            gb.fmt = m[2] || "yyyy-mm-dd";
+            gb.dft = m[3];
+            gb.getGroupValue = function(obj){
+                var v = obj[this.name];
+                if(!v)
+                    return this.dft;
+                return $z.parseDate(v).format(this.fmt);
+            };
+            return gb;
+        }
+        //-------------------------------------
+        // dead::[否,是]                # 布尔: dead 字段根据给定布尔值映射后分组
+        m = /^\[([^,\]]+),([^\]]+)\]?$/.exec(s);
+        if(m){
+            gb.mapping = [m[1],m[2]],
+            gb.getGroupValue = function(obj){
+                return this.mapping[obj[this.name] ? 1 : 0];
+            };
+            return gb;
+        }
+        //-------------------------------------
+        /* # 区间：price字段必须是数字，根据给定区间归纳
+        price::R{奢侈>100;普通<20>100;便宜<20} 
+            mapping : {
+                "奢侈" : [100],
+                "普通" : [20, 100],
+                "便宜" : 20
+            },
+        */
+        m = /^R\{([^}]+)\}(.+)?$/.exec(s);
+        if(m){
+            var ms = m[1];
+            gb.dft = m[2];
+            gb.mapping = {};
+            ss = ms.split(";");
+            for(var i=0; i<ss.length; i++) {
+                // 奢侈>100
+                var m2 = /^(.+)>([0-9.-]+)$/.exec(ss[i]);
+                if(m2) {
+                    var k = $.trim(m2[1]);
+                    gb.mapping[k] = [m2[2]*1];
+                    continue;
+                }
+                // 便宜<20
+                m2 = /^(.+)<([0-9.-]+)$/.exec(ss[i]);
+                if(m2) {
+                    var k = $.trim(m2[1]);
+                    gb.mapping[k] = m2[2]*1;
+                    continue;
+                }
+                // 普通<20>100
+                m2 = /^(.+)<([0-9.-]+)>([0-9.-]+)$/.exec(ss[i]);
+                if(m2) {
+                    var k = $.trim(m2[1]);
+                    gb.mapping[k] = [m2[2]*1, m2[3]*1];
+                    continue;
+                }
+                // 错误，不忍！
+                throw "Invalid range pair: [" + ss[i] + '] in "' + s + '"';
+            }
+            // 设置获取函数
+            gb.getGroupValue = function(obj){
+                var val = obj[this.name] * 1;
+                if(!isNaN(val)) {
+                    for(var key in this.ramappingnge) {
+                        var r = this.mapping[key];
+                        // 小于
+                        if(_.isNumber(r)){
+                            if(val < r)
+                                return key;
+                        }
+                        // 大于
+                        else if(_.isArray(r) && r.length == 1) {
+                            if(val >= r[0])
+                                return key;
+                        }
+                        // 区间 
+                        else {
+                            if(val >= r[0] && val < r[1])
+                                return key;
+                        }           
+                    }
+                }
+                return this.dft;
+            };
+            // 返回区间
+            return gb;
+        }
+        //-------------------------------------
+        throw "Unknown groupBy:: " + str;
+    },
+    /*...............................................................
+    // 将一个数组，按照 groupBy 进行分组。
+    // 返回的数据结构为:
+    [{
+        title : "xxx"    // 组标题
+        list  : [..]      // 本组的数据对象
+    }, {
+        // ... next group
+    }, {
+        // 如果没有标题的组，则表示总结不出来的数据 ...
+        list : [..] 
+    }]
+    */
+    groupData : function(list, groupBy) {
+
+    }
     //...............................................................
 };  // ~ window.HmRT =
 })(window.jQuery, window.NutzUtil);
