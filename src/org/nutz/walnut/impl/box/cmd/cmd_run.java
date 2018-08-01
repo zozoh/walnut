@@ -7,8 +7,9 @@ public class cmd_run extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
+        boolean x = args.length > 0 && "-x".equals(args[0]);
         // 运行每个参数
-        if (args.length > 0) {
+        if (args.length > 0 && !x) {
             for (String arg : args) {
                 sys.exec(arg);
             }
@@ -17,6 +18,8 @@ public class cmd_run extends JvmExecutor {
         else if (sys.pipeId > 0) {
             String cmdLine;
             while (null != (cmdLine = sys.in.readLine())) {
+                if (x)
+                    sys.out.println("+ "+cmdLine);
                 sys.exec(cmdLine);
             }
         }
