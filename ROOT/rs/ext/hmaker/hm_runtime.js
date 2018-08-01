@@ -802,9 +802,10 @@ window.HmRT = {
             });
 
             // 处理一下视频
-            $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
-                watchClick : $('html[hmaker-runtime]').size() > 0
-            });
+            // $z.wrapVideoSimplePlayCtrl(jAr.find('video'), {
+            //     watchClick : $('html[hmaker-runtime]').size() > 0
+            // });
+
             // 搞定返回
             return this.renderLayoutFieldElement(fld, jAr).appendTo(jP);
         }
@@ -978,6 +979,24 @@ window.HmRT = {
             // 标识一下
             win.__layout_event_binded = true;
         }
+        //----------------------------------------
+        // 事件:确保运行时，仅仅允许一个视频播放
+        $(win.document.body).find('video').each(function(){
+            var jVideo = $(this);
+            if(!jVideo.attr('hm-video-mutex')) {
+                jVideo.on("play", function(){
+                    // console.log("I am play", this);
+                    var me = this;
+                    $(this.ownerDocument.body).find("video").each(function(){
+                        if(me !== this) {
+                            this.pause();
+                        }
+                    });
+                });
+                // 标识
+                jVideo.attr('hm-video-mutex', 'yes');
+            }
+        });
     },
     //...............................................................
     // 自动寻找一个合适的详情页面

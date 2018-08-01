@@ -27,12 +27,13 @@
   
 # 使用方法
 
-    app sidebar [-cq] [-html] [Path]
+    app sidebar [-cq] [-html] [/path/to/sidebar.js] [-dft /path/to/sidebar.js]
     -------------------------------------------
     Path    为配置文件的位置，如果不声明则看环境变量，还没有，就默认采用 /etc/sidebar
     
     -c      按json输出时，紧凑显示
     -q      按json输出时，键值用双引号包裹
+    -dft    指明路径是默认路径
     
     -html   是按照 HTML 输出，默认关闭。是按照 JSON 输出的 
 

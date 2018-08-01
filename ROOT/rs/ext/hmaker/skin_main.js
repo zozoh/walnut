@@ -91,6 +91,20 @@ $(function(){
         window.addEventListener("orientationchange", function(){
             on_screen_resize(SC);
         });
+
+        // 事件:运行时，仅仅允许一个视频播放
+        $(document.body).on("play", "video", function(){
+            console.log("video is play!")
+        });
+        // jVideo.on("play", function(){
+        //     //console.log("I am play", this);
+        //     var me = this;
+        //     $(this.ownerDocument.body).find("video").each(function(){
+        //         if(me !== this) {
+        //             this.pause();
+        //         }
+        //     });
+        // });
     };
     //........................................................
     // 加载

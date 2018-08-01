@@ -117,21 +117,28 @@ public class app_sidebar implements JvmHdl {
     }
 
     private WnObj __find_conf(WnSystem sys, ZParams params, List<WnObj> oUIHomes) {
-        // 环境变量里最优先
-        String phConf = sys.se.varString("SIDEBAR");
+        // 直接指定最优
+        String phConf = params.val(0);
 
-        // 否则看看是否指定了默认配置的位置
-        if (Strings.isBlank(phConf))
-            phConf = params.val(0);
-
-        // 还是木有，那么一次查找各个 UI 主目录
+        // 环境变量次优
         if (Strings.isBlank(phConf)) {
-            for (WnObj oUIHome : oUIHomes) {
-                WnObj oSidebar = sys.io.fetch(oUIHome, "sidebar.js");
-                if (null != oSidebar)
-                    return oSidebar;
+            phConf = sys.se.varString("SIDEBAR");
+
+            // 否则看看是否指定了默认配置的位置
+            if (Strings.isBlank(phConf)) {
+                phConf = params.getString("dft");
+
+                // 还是木有，那么根据约定一次查找各个 UI 主目录
+                if (Strings.isBlank(phConf)) {
+                    for (WnObj oUIHome : oUIHomes) {
+                        WnObj oSidebar = sys.io.fetch(oUIHome, "sidebar.js");
+                        if (null != oSidebar)
+                            return oSidebar;
+                    }
+                    // 没有找到 sidebar.js
+                    throw Er.create("e.cmd.app.sidebar.noexists");
+                }
             }
-            throw Er.create("e.cmd.app.sidebar.noexists");
         }
 
         // 得到配置文件对象
