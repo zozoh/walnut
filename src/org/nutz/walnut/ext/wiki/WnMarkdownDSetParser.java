@@ -190,7 +190,7 @@ public class WnMarkdownDSetParser extends AbstractMarkdownDSetParser {
     @Override
     protected void loadTreeByPath(NutDSet home, String path) {
         try {
-            wikiService.tree((WnObj) home.getParent(), null);
+            wikiService.tree((WnObj) home.getParent(), null, false);
         }
         catch (Exception e) {
             throw Lang.wrapThrow(e);
