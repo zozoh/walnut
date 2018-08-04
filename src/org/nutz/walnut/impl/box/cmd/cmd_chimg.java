@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.img.Colors;
 import org.nutz.img.Images;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -99,11 +100,8 @@ public class cmd_chimg extends cmd_image {
         // 否则就试图创建这个对象
         else {
             String outPath = Wn.normalizeFullPath(pa_o, sys);
-            if (sys.io.exists(null, outPath)) {
-                outObj = sys.io.fetch(null, outPath);
-            } else {
-                outObj = sys.io.createIfNoExists(null, outPath, WnRace.FILE);
-            }
+            outObj = sys.io.createIfNoExists(null, outPath, WnRace.FILE);
+
             // 如果是目录，就创建一个文件对象
             if (outObj.isDIR()) {
                 outObj = sys.io.createIfNoExists(outObj, inObj.name(), WnRace.FILE);
@@ -137,6 +135,11 @@ public class cmd_chimg extends cmd_image {
         if (outImg != null) {
             // 写入outObj中
             Images.writeAndClose(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
+            // 修改元数据
+            sys.io.appendMeta(outObj,
+                              Lang.mapf("width:%d,height:%d",
+                                        outImg.getWidth(),
+                                        outImg.getHeight()));
         }
     }
 

@@ -33,7 +33,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_iimg extends JvmExecutor {
-    
+
     private static final Log log = Logs.get();
 
     @Override
@@ -42,10 +42,15 @@ public class cmd_iimg extends JvmExecutor {
         ZParams params = ZParams.parse(args, "Qcnqlf", "^(force|compress|native)$");
 
         // 读取文件
-        if (params.vals.length == 0)
-            throw Er.create("e.cmd.iimg.noinput");
+        String imPh = params.val_check(0);
+        WnObj oim = Wn.checkObj(sys, imPh);
 
-        WnObj oim = Wn.checkObj(sys, params.vals[0]);
+        // 如果是生成缩略图，那么是否指定了特殊的缩略图生成目标
+        String thumbTa = params.get("thumbta");
+        WnObj oThumbTa = oim;
+        if (!Strings.isBlank(thumbTa) && "true".equals(thumbTa)) {
+            oThumbTa = sys.io.fetch(oim, thumbTa);
+        }
 
         // 不是图片抛错
         if (!oim.mime().startsWith("image/") && !params.is("force"))
@@ -70,7 +75,7 @@ public class cmd_iimg extends JvmExecutor {
 
         // 重新计算
         if (null == o_old) {
-            __force_gen(sys, params, oim);
+            __force_gen(sys, params, oim, oThumbTa);
         }
         // 利用现成结果
         else {
@@ -91,7 +96,7 @@ public class cmd_iimg extends JvmExecutor {
                         return Wn.getObj(sys, o_old2.thumbnail());
                     }
                 });
-                _gen_thumb(sys, params, oim, null, o_old_thumb);
+                _gen_thumb(sys, params, oim, null, o_old_thumb, oThumbTa);
             }
         }
 
@@ -100,8 +105,7 @@ public class cmd_iimg extends JvmExecutor {
             String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
             if (parr.length == 4) {
                 int[] startPoint = new int[]{Integer.parseInt(parr[0]), Integer.parseInt(parr[1])};
-                int[] endPoint = new int[]{startPoint[0]
-                                           + Integer.parseInt(parr[2]),
+                int[] endPoint = new int[]{startPoint[0] + Integer.parseInt(parr[2]),
                                            startPoint[1] + Integer.parseInt(parr[3])};
                 BufferedImage im = sys.io.readImage(oim);
                 BufferedImage im2 = Images.clipScale(im, startPoint, endPoint);
@@ -123,9 +127,12 @@ public class cmd_iimg extends JvmExecutor {
         // 原地压缩
         if (params.is("compress")) {
             // 是否指定了jpeg质量
-            double quality = params.getDouble("quality", 0.8f);WnObj dsto = oim;
+            double quality = params.getDouble("quality", 0.8f);
+            WnObj dsto = oim;
             if (params.has("dst"))
-                dsto = sys.io.createIfNoExists(null, Wn.normalizeFullPath(params.get("dst"), sys), WnRace.FILE);
+                dsto = sys.io.createIfNoExists(null,
+                                               Wn.normalizeFullPath(params.get("dst"), sys),
+                                               WnRace.FILE);
             if (params.is("native") && new File("/usr/bin/convert").exists()) {
                 String tmpName = R.UU32() + ".jpg";
                 File f = new File("/dev/shm/" + tmpName);
@@ -134,31 +141,37 @@ public class cmd_iimg extends JvmExecutor {
                 try (OutputStream out = new FileOutputStream(f)) {
                     sys.io.readAndClose(oim, out);
                 }
-                Lang.execOutput(new String[] {"/usr/bin/convert", "-auto-orient", "-strip", "-quality", "80%", "-resize", params.get("resize", "1920x1920"), f.getAbsolutePath(), tmp.getAbsolutePath()});
-                if (tmp.exists() && tmp.length() > 100*1024 && tmp.length() < f.length()) {
+                Lang.execOutput(new String[]{"/usr/bin/convert",
+                                             "-auto-orient",
+                                             "-strip",
+                                             "-quality",
+                                             "80%",
+                                             "-resize",
+                                             params.get("resize", "1920x1920"),
+                                             f.getAbsolutePath(),
+                                             tmp.getAbsolutePath()});
+                if (tmp.exists() && tmp.length() > 100 * 1024 && tmp.length() < f.length()) {
                     try (InputStream ins = new FileInputStream(tmp)) {
                         sys.io.writeAndClose(dsto, ins);
                     }
                 }
                 f.delete();
                 tmp.delete();
-            }
-            else {
+            } else {
                 int w = params.getInt("width", -1);
                 int h = params.getInt("height", -1);
                 BufferedImage srcImg = sys.io.readImage(oim);
                 if (w > 0) {
-                    h = (int)(w / (srcImg.getWidth() + 0.0) * srcImg.getHeight());
-                }
-                else if (h > 0) {
-                    w = (int)(h / (srcImg.getHeight() + 0.0) * srcImg.getWidth());
+                    h = (int) (w / (srcImg.getWidth() + 0.0) * srcImg.getHeight());
+                } else if (h > 0) {
+                    w = (int) (h / (srcImg.getHeight() + 0.0) * srcImg.getWidth());
                 }
                 BufferedImage dstImg = srcImg;
                 if (w > 0 && h > 0)
                     dstImg = Images.zoomScale(srcImg, w, h);
-                
+
                 try (OutputStream out = sys.io.getOutputStream(dsto, 0)) {
-                    Images.writeJpeg(dstImg, out, (float)quality);
+                    Images.writeJpeg(dstImg, out, (float) quality);
                 }
             }
         }
@@ -171,7 +184,7 @@ public class cmd_iimg extends JvmExecutor {
 
     }
 
-    private void __force_gen(WnSystem sys, ZParams params, WnObj oim) {
+    private void __force_gen(WnSystem sys, ZParams params, WnObj oim, WnObj oThumbTa) {
         // 读取图片
         BufferedImage im = sys.io.readImage(oim);
         if (im == null) {
@@ -188,7 +201,7 @@ public class cmd_iimg extends JvmExecutor {
 
         // 要不要生成缩略图
         if (params.has("thumb")) {
-            _gen_thumb(sys, params, oim, im, null);
+            _gen_thumb(sys, params, oim, im, null, oThumbTa);
         }
     }
 
@@ -196,36 +209,38 @@ public class cmd_iimg extends JvmExecutor {
                             ZParams params,
                             WnObj oim,
                             BufferedImage im,
-                            WnObj o_old_thumb) {
+                            WnObj o_old_thumb,
+                            WnObj oThumbTa) {
         // 当然，如果是 thumbnail 里面的图片 ...
         String aph = Wn.normalizeFullPath("~/.thumbnail/gen/", sys);
         WnObj oThumbHome = sys.io.createIfNoExists(null, aph, WnRace.DIR);
 
-        // 就不要再生成缩略图了
-        if (oim.isMyParent(oThumbHome)) {
+        // 缩略图目录里的就不要再生成缩略图了，否则会递归的吧...
+        if (null == oThumbTa || oThumbTa.isMyParent(oThumbHome)) {
             return;
         }
 
         Pattern p = Regex.getPattern("^(\\d+)[xX](\\d+)$");
         Matcher m = p.matcher(params.check("thumb"));
+        // 嗯，有缩略图属性，且写法是合法的
         if (m.find()) {
             int w = Integer.parseInt(m.group(1));
             int h = Integer.parseInt(m.group(2));
 
             // 那么得到目标缩略图
             WnObj oThumb = null;
-            if (oim.hasThumbnail()) {
-                oThumb = Wn.getObj(sys, oim.thumbnail());
+            if (oThumbTa.hasThumbnail()) {
+                oThumb = Wn.getObj(sys, oThumbTa.thumbnail());
             }
 
             // 创建缩略图，都是 (JPEG)
             if (null == oThumb) {
                 oThumb = sys.io.createIfNoExists(oThumbHome, oim.id() + ".jpg", WnRace.FILE);
-                oThumb.setv("thumb_src", "id:" + oim.id());
+                oThumb.setv("thumb_src", "id:" + oThumbTa.id());
                 sys.io.set(oThumb, "^thumb_src$");
 
-                oim.thumbnail("id:" + oThumb.id());
-                sys.io.set(oim, "^thumb$");
+                oThumbTa.thumbnail("id:" + oThumb.id());
+                sys.io.set(oThumbTa, "^thumb$");
             }
 
             // 缩略图的宽高元数据
@@ -274,8 +289,7 @@ public class cmd_iimg extends JvmExecutor {
                         String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
                         int[] startPoint = new int[]{Integer.parseInt(parr[0]),
                                                      Integer.parseInt(parr[1])};
-                        int[] endPoint = new int[]{startPoint[0]
-                                                   + Integer.parseInt(parr[2]),
+                        int[] endPoint = new int[]{startPoint[0] + Integer.parseInt(parr[2]),
                                                    startPoint[1] + Integer.parseInt(parr[3])};
                         im2 = Images.clipScale(im, startPoint, endPoint);
                     }

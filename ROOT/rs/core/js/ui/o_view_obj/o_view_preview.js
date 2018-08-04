@@ -34,17 +34,6 @@ var html = `
 </div>
 <div class="ui-arena opreview">
     <header>
-        <ul>
-            <li><b a="fullscreen" balloon="left:oview.preview.fullscreen">
-                <i class="zmdi zmdi-fullscreen"></i>
-            </b></li>
-            <li><b a="download" balloon="left:oview.preview.download">
-                <i class="zmdi zmdi-download"></i>
-            </b></li>
-            <li><b a="open" balloon="left:oview.preview.open_in_new">
-                <i class="zmdi zmdi-open-in-new"></i>
-            </b></li>
-        </ul>
     </header>
     <section></section>
     <aside class="exit-fullscreen">
@@ -59,45 +48,102 @@ return ZUI.def("ui.o_view_preview", {
     css  : "ui/o_view_obj/theme/o_view_obj-{{theme}}.css",
     i18n : "ui/o_view_obj/i18n/{{lang}}.js",
     //...............................................................
-    init : function(){
+    init : function(opt){
         var UI = this;
         // 监控 Esc 退出全屏
         UI.watchKey(27, function(e){
             this.arena.removeAttr("fullscreen");
         });
+        // 准备快捷命令列表
+        UI.__commands = {
+            "fullscreen" : {
+                icon : '<i class="zmdi zmdi-fullscreen"></i>',
+                tip  : 'i18n:oview.preview.fullscreen',
+                handler : function(){
+                    UI.arena.attr("fullscreen", "yes");
+                }
+            },
+            "download" : {
+                icon : '<i class="zmdi zmdi-download"></i>',
+                tip  : 'i18n:oview.preview.download',
+                handler : function(o){
+                    $z.openUrl("/o/read/id:" + o.id, "_blank", "GET", {
+                        d : true
+                    });
+                }
+            },
+            "open" : {
+                icon : '<i class="zmdi zmdi-open-in-new"></i>',
+                tip  : 'i18n:oview.preview.open_in_new',
+                handler : function(o){
+                    var url = "/a/open/"+(window.wn_browser_appName||"wn.browser");
+                    $z.openUrl(url, "_blank", "GET", {
+                        "ph" : "id:" + o.id
+                    });
+                }
+            },
+        };
+        // 默认的快捷命令
+        $z.setUndefined(opt, "commands", ["fullscreen", "download", "open"]);
+
     },
     //...............................................................
     events : {
-        // 点击全屏
-        'click ul b[a="fullscreen"]' : function(e){
-            this.arena.attr("fullscreen", "yes");
-        },
         // 退出全屏
         'click .exit-fullscreen' : function(e){
             this.arena.removeAttr("fullscreen");
         },
-        // 下载
-        'click ul b[a="download"]' : function(e){
-            var o = this.__OBJ;
-            if(o)
-                $z.openUrl("/o/read/id:" + o.id, "_blank", "GET", {
-                    d : true
-                });
-        },
-        // 在新窗口打开
-        'click ul b[a="open"]' : function(e){
-            var o = this.__OBJ;
-            if(o){
-                var url = "/a/open/"+(window.wn_browser_appName||"wn.browser");
-                $z.openUrl(url, "_blank", "GET", {
-                    "ph" : "id:" + o.id
-                });
+        // 执行命令
+        'click header > ul > li[cmd-key]' : function(e){
+            var key = $(e.currentTarget).attr("cmd-key");
+            var cmd = this.__commands[key];
+            if(cmd) {
+                if(this.__OBJ)
+                    $z.invoke(cmd, "handler", [this.__OBJ], cmd);
             }
-        },
+        }
     },
     //...............................................................
     redraw : function() {
-        this.balloon();
+        var UI  = this;
+        var opt = UI.options;
+
+        // 增加更多快捷命令
+        /*
+        <ul>
+            <li><b a="fullscreen" balloon="left:oview.preview.fullscreen">
+                <i class="zmdi zmdi-fullscreen"></i>
+            </b></li>
+            <li><b a="download" balloon="left:oview.preview.download">
+                <i class="zmdi zmdi-download"></i>
+            </b></li>
+            <li><b a="open" balloon="left:oview.preview.open_in_new">
+                <i class="zmdi zmdi-open-in-new"></i>
+            </b></li>
+        </ul>
+        */
+        if(_.isArray(opt.commands) && opt.commands.length > 0) {
+            var jUl = $('<ul>').appendTo(UI.arena.find('>header'));
+            for(var i=0; i<opt.commands.length; i++) {
+                var cmd = opt.commands[i];
+                var key = "cmd_" + i;
+                if(_.isString(cmd)) {
+                    key = cmd;
+                    cmd = UI.__commands[key];
+                }
+                if(cmd) {
+                    var jLi = $('<li>').attr({
+                        "cmd-key" : key
+                    }).appendTo(jUl);
+                    var jB  = $('<b>').attr({
+                        "data-balloon-pos" : "left",
+                        "data-balloon" : UI.text(cmd.tip)
+                    }).html(cmd.icon).appendTo(jLi);
+                    // 计入命令集合
+                    UI.__commands[key] = cmd;
+                }
+            }
+        }
     },
     //...............................................................
     update : function(o) {

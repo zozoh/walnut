@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -24,6 +25,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
@@ -31,7 +33,7 @@ import org.nutz.web.Webs.Err;
 public class cmd_videoc extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "vkF");
+        ZParams params = ZParams.parse(args, "vkFocqn");
         WnObj obj = Wn.checkObj(sys, params.vals[0]);
         if (obj.name().startsWith("_") && !params.is("F"))
             return;
@@ -136,7 +138,7 @@ public class cmd_videoc extends JvmExecutor {
                     String tmp = obj.name();
                     if (pattern.matcher(tmp).find()) {
                         String cut = tmp.substring(0, tmp.indexOf('_'));
-                        String size = tmp.substring(tmp.indexOf('_')+1, tmp.indexOf('~'));
+                        String size = tmp.substring(tmp.indexOf('_') + 1, tmp.indexOf('~'));
                         _crop = size.replace('x', ':') + ":" + cut.replace('-', ':');
                     }
                 }
@@ -160,15 +162,23 @@ public class cmd_videoc extends JvmExecutor {
                     int crop_y = Integer.parseInt(tmp[3]);
                     for (int i = 0; i < crop_x; i++) {
                         for (int j = 0; j < crop_y; j++) {
-                            String crop = String.format("-vf crop=%s:%s:%s:%s", crop_w, crop_h, i*crop_w, j*crop_h);
-                            String crop_target = tmpDir + "/" + String.format("_%s_%s.mp4", i+1, j+1);
+                            String crop = String.format("-vf crop=%s:%s:%s:%s",
+                                                        crop_w,
+                                                        crop_h,
+                                                        i * crop_w,
+                                                        j * crop_h);
+                            String crop_target = tmpDir
+                                                 + "/"
+                                                 + String.format("_%s_%s.mp4", i + 1, j + 1);
                             vc_params.setv("crop", crop);
                             vc_params.put("crop_target", crop_target);
                             seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
                             cmd = seg.render(new SimpleContext(vc_params)).toString();
                             log.debug("cmd: " + cmd);
                             Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
-                            t = sys.io.createIfNoExists(tdir, String.format("_%s_%s.mp4", i+1, j+1), WnRace.FILE);
+                            t = sys.io.createIfNoExists(tdir,
+                                                        String.format("_%s_%s.mp4", i + 1, j + 1),
+                                                        WnRace.FILE);
                             String fmd5 = Lang.md5(crop_target);
                             String smd5 = simpleMd5(new File(crop_target));
                             sys.io.writeAndClose(t, new FileInputStream(crop_target));
@@ -177,12 +187,20 @@ public class cmd_videoc extends JvmExecutor {
                             sys.io.appendMeta(t, tMap);
                         }
                     }
-                    
+
                 }
                 sys.io.appendMeta(obj, "videoc_dir:'" + tdir.id() + "'");
             }
             sys.io.appendMeta(obj, "videoc_dir:'id:" + tdir.id() + "'");
-            sys.out.print(tdir.id());
+            // 输出转换后元数据
+            if (params.is("o")) {
+                JsonFormat jfmt = Cmds.gen_json_format(params);
+                sys.out.println(Json.toJson(obj, jfmt));
+            }
+            // 默认输出转换目录 ID
+            else {
+                sys.out.print(tdir.id());
+            }
         }
         finally {
             if (!params.is("k"))
@@ -220,16 +238,16 @@ public class cmd_videoc extends JvmExecutor {
             Streams.safeClose(raf);
         }
     }
-    
+
     static Pattern pattern = Pattern.compile("^([0-9]{1,2}-[0-9]{1,2})(_[0-9]{3,4}x[0-9]{3,4})~.+$");
-    
+
     public static void main(String[] args) {
         String tmp = "3-1_640x1080~10空天猎.mp4";
         System.out.println(tmp.matches("^([0-9]{1,2}-[0-9]{1,2})(_[0-9]{3,4}x[0-9]{3,4})~.+$"));
         Matcher matcher = pattern.matcher(tmp);
         System.out.println(matcher.find());
         String cut = tmp.substring(0, tmp.indexOf('_'));
-        String size = tmp.substring(tmp.indexOf('_')+1, tmp.indexOf('~'));
+        String size = tmp.substring(tmp.indexOf('_') + 1, tmp.indexOf('~'));
         String crop = size.replace('x', ':') + ":" + cut.replace('-', ':');
         System.out.println(crop);
     }

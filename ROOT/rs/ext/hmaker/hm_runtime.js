@@ -10,8 +10,13 @@ function __set_layout_item_size (it, s) {
     return it;
 }
 //===================================================================
+// 选择器支持模板的写法
 function __parse_selector(s) {
-    return $z.parseLayoutSize(s, null);
+    var re = $z.parseLayoutSize(s, null);
+    for(var key in  re) {
+        re[key] = $z.tmpl(re[key]);
+    }
+    return re;
 }
 //===================================================================
 window.HmRT = {
@@ -487,7 +492,7 @@ window.HmRT = {
     },
     //...............................................................
     // 渲染字段元素
-    renderLayoutFieldElement : function(fld, str, oHref, forceHTML) {
+    renderLayoutFieldElement : function(obj, fld, str, oHref, forceHTML) {
         var jFld;
         //----------------------------------
         // 已经是弄好的东东了
@@ -501,8 +506,8 @@ window.HmRT = {
         // 增加类选择器
         if(fld.selector) {
             jFld.attr({
-                "layout-desktop-selector" : fld.selector.desktop || "",
-                "layout-mobile-selector"  : fld.selector.mobile  || ""
+                "layout-desktop-selector" : fld.selector.desktop(obj) || "",
+                "layout-mobile-selector"  : fld.selector.mobile(obj)  || ""
             });
         }
         // 增加一下属性
@@ -522,7 +527,7 @@ window.HmRT = {
         // 普通文字
         if('text' == fld.type) {
             //return $('<em class="wn-obj-text">').text(fld.value).appendTo(jP);
-            return this.renderLayoutFieldElement(fld, fld.value).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, fld.value).appendTo(jP);
         }
         // HR
         else if('hr' == fld.type) {
@@ -544,7 +549,7 @@ window.HmRT = {
                     this.renderLayoutField(opt, jTd, row.value, obj, oHref);
                 }
             }
-            return this.renderLayoutFieldElement(fld, jTable).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, jTable).appendTo(jP);
         }
         // HTML
         else if('HTML' == fld.type) {
@@ -563,7 +568,7 @@ window.HmRT = {
             var html = fld.tmpl(map);
 
             // 加入DOM
-            return this.renderLayoutFieldElement(fld, html, oHref, true).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, html, oHref, true).appendTo(jP);
         }
 
         // 动态值，获取一下
@@ -598,7 +603,7 @@ window.HmRT = {
                 }
             }
             // 搞定返回
-            return this.renderLayoutFieldElement(fld, jThumb).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, jThumb).appendTo(jP);
         }
 
         // 无效的值无视
@@ -663,14 +668,14 @@ window.HmRT = {
                 }
             }
             // 搞定返回
-            return this.renderLayoutFieldElement(fld, jRange).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, jRange).appendTo(jP);
         }
 
         // .th_cate={A:"猫",B:"狗"}
         // .th_birthday=Date(yyyy-mm-dd)
         // .len:100/?=Size(2)
         if(/^(Mapping|Date|Size|List)$/.test(fld.display)) {
-            return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, val, theHref).appendTo(jP);
         }
         
         // .lbls:100=UL(!image:src)->thumb
@@ -764,7 +769,7 @@ window.HmRT = {
                     }
                 }
             }
-            return this.renderLayoutFieldElement(fld, jUl).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, jUl).appendTo(jP);
         }
         // .content=Markdown
         if("Markdown" == fld.display) {
@@ -807,7 +812,7 @@ window.HmRT = {
             // });
 
             // 搞定返回
-            return this.renderLayoutFieldElement(fld, jAr).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, jAr).appendTo(jP);
         }
         // .href=Link[Buy Now]
         if("Link" == fld.display || "Button" == fld.display) {
@@ -854,10 +859,10 @@ window.HmRT = {
             }
             
             // 渲染字段
-            return this.renderLayoutFieldElement(fld, lnkText, lnkHref).appendTo(jP);
+            return this.renderLayoutFieldElement(obj, fld, lnkText, lnkHref).appendTo(jP);
         }
         // 默认就是文字咯
-        return this.renderLayoutFieldElement(fld, val, theHref).appendTo(jP);
+        return this.renderLayoutFieldElement(obj, fld, val, theHref).appendTo(jP);
     },
     //...............................................................
     renderLayoutDataItem : function(opt, jP, it, obj, oHref) {
@@ -886,8 +891,8 @@ window.HmRT = {
                 "group-name" : it.name,
                 "layout-desktop-width" : it.w_desktop || "",
                 "layout-mobile-width"  : it.w_mobile || "",
-                "layout-desktop-selector" : sel.desktop || "",
-                "layout-mobile-selector"  : sel.mobile  || ""
+                "layout-desktop-selector" : sel.desktop(obj) || "",
+                "layout-mobile-selector"  : sel.mobile(obj)  || ""
             });
             
             jGrp.appendTo(jP);
@@ -920,7 +925,7 @@ window.HmRT = {
         jLayout.find('a[href]').click(function(e){
             // 如果切换按钮在组内，且组还有一个 href，那就无穷循环了
             //   ：因为点击会触发 a 的行为，刷新页面后，又会自动触发第一个 li 的 click
-            //   : 没玩没了了
+            //   : 没完没了了
             // 因此这里，发现这种情况，禁止触发 a.href
             if($(e.target).closest('ul[li-target]').length > 0) {
                 e.preventDefault();

@@ -122,7 +122,11 @@ var __format_thing_fld = function(UI, fld) {
             editAs : "image",
             uiConf : {
                 dataType : "idph",
-                height : 180
+                height : 180,
+                remove : function(obj, callback) {
+                    if(obj)
+                        Wn.exec('rm id:'+obj.id, callback);
+                }
             }
         });
     }
@@ -751,7 +755,8 @@ var methods = {
             //console.log("init")
             conf = {
                 bus : bus,
-                dataMode : opt.dataMode || "thing"
+                dataMode : opt.dataMode || "thing",
+                thumbSize : opt.thumbSize || "256x256"
             };
 
             // 处理一下通用的配置信息

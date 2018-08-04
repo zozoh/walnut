@@ -74,6 +74,14 @@ return ZUI.def("ui.thing.thdesign_general", {
                                 text : "i18n:thing.data.attachment"
                             }]
                     }
+                }, {
+                    key : "thumbSize",
+                    title : "i18n:thing.conf.general.thumbsz",
+                    tip : "i18n:thing.conf.general.thumbsz_tip",
+                    type : "object",
+                    dft : [],
+                    uiWidth : "auto",
+                    uiType : "@input",
                 }]
             }, {
                 title : "i18n:thing.conf.general.t_query",
@@ -84,7 +92,7 @@ return ZUI.def("ui.thing.thdesign_general", {
                     dft   : null,
                     uiType : "@text",
                     uiConf : {
-                        height : 140,
+                        height : 120,
                         asJson : true,
                         placeholder : "JSON格式的配置信息"
                     }
@@ -95,7 +103,7 @@ return ZUI.def("ui.thing.thdesign_general", {
                     dft   : null,
                     uiType : "@text",
                     uiConf : {
-                        height : 150,
+                        height : 130,
                         asJson : true,
                         placeholder : "JSON格式的配置信息"
                     }

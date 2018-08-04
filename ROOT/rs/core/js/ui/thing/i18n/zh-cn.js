@@ -125,6 +125,8 @@ define({
                 "k_thIndex_m" : "对象属性",
                 "k_thIndex_d" : "详情内容",
                 "k_thData"  : "显示数据",
+                "thumbsz"   : "缩略图尺寸",
+                "thumbsz_tip"   : "请输入诸如 `256x256`",
             },
             "import" : {
                 "enabled" : "允许导入",
@@ -243,6 +245,7 @@ define({
             "remove" : "删除选中文件",
             "upload" : "上传新文件",
             "delnone" : "请先选择要删除的文件（支持按Shift键多选）",
+            "asthumb" : "设置为当前对象的封面",
         },
         "err" : {
             "nothingjs"  : "没有找到 thing.js!",

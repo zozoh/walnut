@@ -14,6 +14,7 @@ videoc [-vk] [-bv 3000] [-ba 64] [-vcodec libx264]
 -v       显示详细的转换日志
 -k       不删除临时文件
 -F       当文件名已`_`开头时默认不转换,加上此参数表示强制转换
+-o       输出处理后的视频文件元数据
 
 -mode   转换模式, 值是一个正则表达式 "preview_video|preview_image|main"
         preview_video : 输出预览视频

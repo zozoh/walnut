@@ -138,6 +138,67 @@ return ZUI.def("ui.thing.th_obj_data_media", {
             new OPreviewUI({
                 parent : UI,
                 gasketName : "preview",
+                commands : ["fullscreen", "download", "open", {
+                    icon : '<i class="zmdi zmdi-image"></i>',
+                    tip  : 'i18n:thing.data.asthumb',
+                    handler :function(o){
+                        // 对对象进行一下处理
+                        var coverType = /^video\//.test(o.mime)?"video":"image";
+                        var oThumbSrcId = o.id;
+
+                        // 如果是视频，那么就需要确保它是有  _preview 的，如果没有，生成一个
+                        if("video" == coverType) {
+                            if(!o.video_cover) {
+                                var re = Wn.exec('videoc id:'+o.id+' -mode "preview_image" -o');
+                                if(!re || /^e./.test(re)){
+                                    UI.alert(re||"Some Error Happend!", "warn");
+                                    return;
+                                }
+                                o = $z.fromJson(re);
+                            }
+                            // 视频转换失败
+                            if(!o.video_cover) {
+                                UI.alert("obj [" + o.nm + "] without video_cover "
+                                        + o.id, "warn");
+                                return;
+                            }
+                            // 记录图片源
+                            oThumbSrcId = o.video_cover;
+                        }
+
+                        var conf = UI.getBusConf();
+                        console.log(conf.thumbSize);
+                        var oTh = UI.__OBJ;
+                        var thumbPh = 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg';
+                        console.log(o.thumb)
+                        // 将这个图片 cp 一份到 thumb.jpg
+                        Wn.execf('chimg id:{{srcId}} -s "{{thumbsz}}" {{taph}}; obj {{taph}}', {
+                            srcId   : oThumbSrcId,
+                            thumbsz : conf.thumbSize,
+                            taph    : 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg'
+                        }, function(re){
+                            if(!re || /^e./.test(re)){
+                                UI.alert(re||"Some Error Happend!", "warn");
+                                return;
+                            }
+                            var reo = $z.fromJson(re);
+                            
+                            Wn.execf("thing {{th_set}} update {{id}} -fields '<%=json%>'", {
+                                th_set : oTh.th_set,
+                                id     : oTh.id,
+                                json   : $z.toJson({
+                                    thumb : 'id:' + reo.id,
+                                    th_cover_tp  : coverType
+                                })
+                            }, function(re){
+                                oTh = $z.fromJson(re);
+                                Wn.saveToCache(oTh);
+                                // 修改 thing 对象
+                                UI.fire("change:meta", [oTh]);
+                            })
+                        })
+                    }
+                }]
             }).render(function(){
                 this.update(oMedia);
                 $z.doCallback(callback);

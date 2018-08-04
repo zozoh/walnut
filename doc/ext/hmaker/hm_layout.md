@@ -34,6 +34,7 @@ tags:
 #      如果 </xyz> 则表示仅仅作用在移动版上
 #      如果 <abc/> 则表示仅仅作用在桌面版上
 #      <abc> 则表示无论桌面版还是移动版，都应用选择器 `.abc`
+#      同时，selector 支持 {{xxx}} 嵌入动态数据，上下文为对象本身
 # [-] 「选」表示，控件如果发现用户设置了链接，就插入到这里
 #     也可以用 [+] 表示新窗口打开
 # :100 表示宽度 100% 这个会设在 css 里
@@ -218,8 +219,8 @@ T(info)100
             "type" : "group",        // 表示字段组
             "name" : "abc",          // 组名
             "selector" : {           // 为字段特殊声明的类选择器
-                "mobile"  : "xxxx",  // 移动版选择器
-                "desktop" : "xxxx",  // 桌面版选择器
+                "mobile"  : F(o),    // 移动版选择器模板函数
+                "desktop" : F(o),    // 桌面版选择器模板函数
             },
             "linkTarget" : "_self",  // 表示整个组都是一个链接
             "w_desktop" : 50,        // 表示 50% 宽度
@@ -240,8 +241,8 @@ T(info)100
                     "display" : "String",   // 字段值如何显示，默认 String
                     "config"  : undefined,  // 显示配置参数
                     "selector" : {           // 为字段特殊声明的类选择器
-                        "mobile"  : "xxxx",  // 移动版选择器
-                        "desktop" : "xxxx",  // 桌面版选择器
+                        "mobile"  : F(o),    // 移动版选择器模板函数
+                        "desktop" : F(o),    // 桌面版选择器模板函数
                     },
                     "linkTarget" : "_self", // 表示可以插入链接，_blank 表示新窗口
                     "isTitle"      : true,  // 标识本字段是否为标题

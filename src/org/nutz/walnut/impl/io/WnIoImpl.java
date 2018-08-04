@@ -375,6 +375,16 @@ public class WnIoImpl implements WnIo {
             if (o.hasThumbnail()) {
                 WnObj oThumb = this.fetch(null, o.thumbnail());
                 if (null != oThumb) {
+                    // TODO zozoh: 要不要下面的逻辑呢？
+                    // // 如果有其他的对象引用了这个缩略图，那么不要删掉
+                    // WnQuery q2 = new WnQuery();
+                    // q2.setv("thumb", "id:" + oThumb.id());
+                    // q2.setv("id", Lang.map("$ne", o.id()));
+                    // WnObj o2 = this.getOne(q2);
+                    // // 嗯，的确木有人引用了
+                    // if (null == o2) {
+                    // this.delete(oThumb);
+                    // }
                     this.delete(oThumb);
                 }
             }
