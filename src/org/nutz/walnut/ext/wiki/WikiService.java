@@ -10,13 +10,16 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.plugins.zdoc.NutD;
 import org.nutz.plugins.zdoc.NutDSet;
 import org.nutz.plugins.zdoc.NutDoc;
+import org.nutz.plugins.zdoc.markdown.MarkdownDocParser;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.w3c.dom.Document;
@@ -30,13 +33,16 @@ public class WikiService {
     @Inject
     protected WnIo io;
 
-    public void tree(WnObj root, NutDSet dset) throws Exception {
+    public void tree(WnObj root, NutDSet dset, boolean withContent) throws Exception {
         // if root is dir, search for [tree.xml, tree.md, tree.json]
         WnObj tmp = null;
         if (root.isDIR()) {
             tmp = io.fetch(root, "tree.xml");
             if (tmp == null) {
                 tmp = io.fetch(root, "tree.md");
+            }
+            if (tmp == null) {
+                tmp = io.fetch(root, "index.xml");
             }
             if (tmp == null) {
                 tmp = io.fetch(root, "tree.json");
@@ -52,8 +58,33 @@ public class WikiService {
             dset.setPrimerObj(io.get(tmp.parentId()));
             try (InputStream ins = io.getInputStream(tmp, 0)) {
                 readTreeXml(ins, dset);
-                return;
             }
+        }
+        if (withContent) {
+            // 依次处理
+            for (NutD d : dset.getChildren()) {
+                __parse_it(d);
+            }
+        }
+    }
+    
+    private void __parse_it(NutD d) {
+        // 如果是 Markdown 文件，则解析
+        if (d instanceof NutDoc) {
+            MarkdownDocParser dp = new MarkdownDocParser();
+            NutDoc doc = (NutDoc) d;
+            log.info(" - parse : " + doc.getPath());
+            dp.parse(doc);
+        }
+        // 如果是目录，则递归
+        else if (d instanceof NutDSet) {
+            for (NutD d2 : ((NutDSet) d).getChildren()) {
+                __parse_it(d2);
+            }
+        }
+        // 不可能
+        else {
+            throw Lang.impossible();
         }
     }
 
@@ -94,6 +125,7 @@ public class WikiService {
                     if (ele2.hasAttribute("title"))
                         doc.setTitle(ele2.getAttribute("title"));
                     doc.setPrimerObj(wobj);
+                    doc.setPrimerContent(io.readText(wobj));
                 }
                 else if (wobj.isDIR()) {
                     NutDSet next = dset.createSetByPath(path, true);
@@ -107,6 +139,7 @@ public class WikiService {
                 
             }
         });
+        
     }
 
     // ---------------------------------------------------------------------

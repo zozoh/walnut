@@ -1,7 +1,10 @@
 package org.nutz.walnut.ext.wiki.hdl;
 
 import org.nutz.lang.Streams;
+import org.nutz.plugins.zdoc.NutDSet;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.wiki.WikiService;
+import org.nutz.walnut.ext.wiki.WnHtmlDSetRender;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -24,7 +27,19 @@ public class wiki_render implements JvmHdl {
             pipeStr = Streams.readAndClose(sys.in.getReader());
         }
         else {
-            wobj = sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys));
+            try {
+                wobj = sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys));
+                NutDSet dset = new NutDSet(wobj.name());
+                hc.ioc.get(WikiService.class).tree(wobj, dset, true);
+                WnHtmlDSetRender render = new WnHtmlDSetRender();
+                render.setIo(sys.io);
+                render.setDst(sys.io.check(null, Wn.normalizeFullPath(dst, sys)));
+                render.render(dset, dst);
+            }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 

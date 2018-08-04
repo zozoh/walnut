@@ -18,7 +18,7 @@ public class wiki_tree implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         WnObj wobj = Wn.getObj(sys, hc.params.val_check(0));
         NutDSet dset = new NutDSet(wobj.name());
-        hc.ioc.get(WikiService.class).tree(wobj, dset);
+        hc.ioc.get(WikiService.class).tree(wobj, dset, false);
         if (hc.params.is("xml")) {
             throw Err.create("e.cmd.wiki_tree.xml_output_not_support_yet");
         }
