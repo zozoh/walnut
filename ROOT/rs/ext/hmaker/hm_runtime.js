@@ -1355,6 +1355,7 @@ window.HmRT = {
     price::R{奢侈>100;普通<20>100;便宜<20}普通 # 区间：price字段必须是数字，根据给定区间归纳
     */
     parseGroupBy: function(str) {
+        str = $.trim(str);
         if(!str)
             return null;
         var ss = str.split("::");
@@ -1525,8 +1526,38 @@ window.HmRT = {
         list : [..] 
     }]
     */
-    groupData : function(list, groupBy) {
+    groupData : function(list, gb) {
+        // 木有合法数据或者木有合法分组
+        if(!_.isArray(list) || list.length == 0 || !gb)
+            return list;
 
+        // 来吧开始解析分组
+        var reMap = {};
+        for(var i=0; i<list.length; i++) {
+            var data  = list[i];
+            var gval  = gb.getGroupValue(data) || "-no-title";
+            var title = gb.title
+                            ? gb.title.replace("%s", gval)
+                            : gval;
+            var glist = reMap[title];
+            if(!glist) {
+                reMap[title] = [data];
+            } else {
+                glist.push(data);
+            }
+        }
+
+        // 生成返回数据
+        var re = [];
+        for(var title in reMap) {
+            re.push({
+                title : title,
+                list  : reMap[title]
+            });
+        }
+
+        // 返回
+        return re;
     }
     //...............................................................
 };  // ~ window.HmRT =
