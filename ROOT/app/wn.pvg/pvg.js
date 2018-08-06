@@ -257,8 +257,7 @@ return ZUI.def("app.wn.pvg", {
                 var html = '';
                 html += UI.pvgHTML;
                 html += '<span class="icon"';
-                html += ' data-balloon="'+UI.msg("pvg.role_"+u.roleName)+'"';
-                html += ' data-balloon-pos="right"';
+                html += ' balloon="pvg.role_'+u.roleName+'"';
                 html += '><i class="uicon fa"></i></span>';
                 //html += '<em>' + UI.msg("pvg.role_"+u.roleName) + '</em>';
                 html += '<b>' + u.nm + '</b>';

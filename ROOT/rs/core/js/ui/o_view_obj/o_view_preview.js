@@ -136,8 +136,7 @@ return ZUI.def("ui.o_view_preview", {
                         "cmd-key" : key
                     }).appendTo(jUl);
                     var jB  = $('<b>').attr({
-                        "data-balloon-pos" : "left",
-                        "data-balloon" : UI.text(cmd.tip)
+                        "balloon" : "left:" + UI.text(cmd.tip)
                     }).html(cmd.icon).appendTo(jLi);
                     // 计入命令集合
                     UI.__commands[key] = cmd;

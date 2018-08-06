@@ -60,11 +60,14 @@
         }
 
         .chute-btn {
-            position: absolute; right:0; top:0; padding:@d0;
-            b {@btn(); padding:0 @d1;}
-            b:hover{@btn_hover();}
-            b i:before {
-                font-family:FontAwesome; display: inline;
+            position: absolute; right:0; top:0; 
+            b {
+                height:@chuteWm; padding:0 @d3;
+                @flex(); justify-content: center; align-items:center;
+                cursor: pointer; background:@cb2; color:@cf2;
+            }
+            b:hover{
+                background:@ch0_b; color:@ch0_f;
             }
         }
 
@@ -237,11 +240,8 @@
             .obw-main {left:@chuteW;}
         }
     }
-    // 边栏具体内容隐藏
     .obrowser-chute {
-        .chute-btn {
-            b i:before {content:"\f100";}
-        }
+        overflow: auto;
     }
 }
 
@@ -256,11 +256,9 @@
     }
     // 边栏具体内容隐藏
     .obrowser-chute {
+        overflow: hidden;
         .chute-btn {
-            position: absolute; left:0; text-align: center;
-            padding:@d3 @d0;
-            b {@btn(); padding:0 @d1;}
-            b:hover{@btn_hover();}
+            width:@chuteWm;
             b i:before {content:"\f101";}
         }
         .chute-wrapper {

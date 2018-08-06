@@ -327,6 +327,47 @@ define(function (require, exports, module) {
                 });
             }
 
+            // 监听所有子元素的 balloon
+            UI.$el.on("mouseenter", '[balloon]', function(e){
+                e.stopPropagation();
+                var jq = $(this);
+                // 已经显示了，就无视
+                if(jq.attr('balloon-is-on') || jq.attr('balloon-is-disabled'))
+                    return;
+                // 得到 UI 对象
+                // var UI = ZUI(jq);
+                // 解析
+                var ss = jq.attr('balloon').split(':');
+                var tip = ss.length > 1 ? ss[1] : ss[0];
+                var msg = UI.msg(tip.replace(/(\r?\n)|(\\n)/g,'<br>'));
+                var pos = ss.length > 1 ? ss[0] : undefined;
+                // 生成浮动元素
+                var jBall = $('<div class="ui-balloon-con">').prependTo(jq);
+                $('<span>').html(msg).appendTo(jBall);
+                // 停靠
+                var di = $z.dock(jq, jBall, pos);
+                // 标识
+                jBall.attr({
+                    'ba-ma': di.mode+di.area,
+                    'ba-m' : di.mode,
+                    'ba-a' : di.area,
+                    "ba-d" : di.direction
+                });
+                // 设置一个箭头
+                if(/^(right|down)$/.test(di.direction)){
+                    $('<em>').prependTo(jBall);
+                } else {
+                    $('<em>').appendTo(jBall);
+                }
+                // 设置开关
+                window.setTimeout(function(){
+                    jq.attr('balloon-is-on', "yes");
+                }, 0);
+            }).on("mouseleave", '[balloon-is-on]', function(e){
+                $(this).removeAttr("balloon-is-on")
+                    .find('>.ui-balloon-con').remove();
+            });
+
             // 调用子类自定义的 init
             $z.invoke(UI.$ui, "init", [opt], UI);
 
@@ -1083,6 +1124,8 @@ define(function (require, exports, module) {
         // selector 如果不给，默认是 "*"
         balloon: function (selector, enabled) {
             var UI = this;
+
+            return;
 
             if (false === selector) {
                 selector = "*";
@@ -2165,6 +2208,20 @@ define(function (require, exports, module) {
         $(document).mouseenter(on_g_mouse_event);
         $(document).mouseleave(on_g_mouse_event);
         $(document).contextmenu(on_g_mouse_event);
+
+        // 增加 scroll/resize 事件监听
+        $(window).scroll(function(){
+            $('[balloon-is-on]').each(function(){
+                $(this).removeAttr('balloon-is-on')
+                    .find('>.ui-balloon-con').remove();
+            });
+        });
+        $(window).resize(function(){
+            $('[balloon-is-on]').each(function(){
+                $(this).removeAttr('balloon-is-on')
+                    .find('>.ui-balloon-con').remove();
+            });
+        });
 
         // TODO 捕获 ondrop，整个界面不能被拖拽改变
         // 标记以便能不要再次绑定了

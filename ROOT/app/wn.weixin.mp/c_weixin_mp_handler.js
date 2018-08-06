@@ -25,7 +25,7 @@ var html = function(){/*
     <div code-id="handler.item" class="wxmh-hdl">
         <h4>
             <i class="fa fa-filter"></i><b></b>
-            <span class="hdl-del" data-balloon="{{weixin.mp.hdl_del}}" data-balloon-pos="left"><i class="fa fa-close"></i></span>
+            <span class="hdl-del" balloon="{{weixin.mp.hdl_del}}"><i class="fa fa-close"></i></span>
         </h4>
         <div class="hdl-matchs">
             <div class="hdl-match-add"><%=weixin.mp.hdl_match_add%></div>

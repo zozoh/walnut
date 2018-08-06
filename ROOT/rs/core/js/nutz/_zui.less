@@ -83,6 +83,7 @@ pre {font-family: @f_fixed; }
 .ui-noselect {@noselect();}
 
 /*-------------------------------------------- resizable 的通用样式 ------*/
+/* 好像木有用了
 @hS  : 4px;
 @hV  : 14px;
 @aS  : 2px;
@@ -117,8 +118,8 @@ pre {font-family: @f_fixed; }
     > .uirz-ai[m="S"] {border-bottom-width:@aS;}
     > .uirz-ai[m="W"] {border-left-width:@aS;}
     > .uirz-ai[m="E"] {border-right-width:@aS;}
-    
 }
+*/
 
 /*--------------------------------------------------- 其他 --------*/
 .fa-combo-icon2 {
@@ -129,6 +130,8 @@ pre {font-family: @f_fixed; }
     font-size:0.9em; margin:-2px -2px 0 0; 
 }
 
+//--------------------------------------------------- 
+// 通用·UI.loading
 div[ui-id][ui-loading] > .ui-arena{
     @noselect(); opacity: 0.4;
 }
@@ -141,12 +144,14 @@ div[ui-id][ui-loading] > .ui-arena{
         i {display: inline-block; vertical-align: middle;font-size: 1.3em;}
     }
 }
-
-
+//---------------------------------------------------
+// 通用·UI.editIt
 .z-edit-it input {padding:0 6px;}
 
+//---------------------------------------------------
+// 通用·video 包裹
 .z-video-con {
-    display: block; vertical-align: bottom;
+    display: block; 
     position: relative;
     .z-video-ctrl {
         transition: 0.5s; opacity: 0;
@@ -177,7 +182,8 @@ div[ui-id][ui-loading] > .ui-arena{
     }
 }
 
-/*--------------------------------------------------- SPAN做的单选框 --------*/
+//---------------------------------------------------
+// SPAN做的单选框
 .ui-radio {
     font-family:'Material-Design-Iconic-Font'; display: inline-block; cursor: pointer; margin:0 2px;
     vertical-align: middle;
@@ -185,7 +191,8 @@ div[ui-id][ui-loading] > .ui-arena{
 .ui-radio:before{content:"\f26c"; display: inline;}
 .ui-radio[checked]:before{content:"\f26f";}
 
-/*--------------------------------------------------- SPAN做的复选框 --------*/
+//---------------------------------------------------
+// SPAN做的复选框
 .ui-checkbox {
     font-family:FontAwesome; display: inline-block; cursor: pointer; margin:0 2px;
     vertical-align: middle;
@@ -193,7 +200,8 @@ div[ui-id][ui-loading] > .ui-arena{
 .ui-checkbox:before{content:"\f096"; display: inline;}
 .ui-checkbox[checked]:before{content:"\f14a";}
 
-/*--------------------------------------------------- SPAN做的ON/OFF控件 --------*/
+//---------------------------------------------------
+// SPAN做的ON/OFF控件
 .ui-toggle {
     font-family:FontAwesome; display: inline-block; cursor: pointer;
     vertical-align: middle;
@@ -201,7 +209,70 @@ div[ui-id][ui-loading] > .ui-arena{
 .ui-toggle:before{content:"\f204"; display: inline;}
 .ui-toggle[on]:before{content:"\f205";}
 
-/*--------------------------------------------------- balloon.css --------*/
+//---------------------------------------------------
+// 通用·ZUI.balloon 机制
+@ba-dis : 10px;
+[balloon] {
+    > .ui-balloon-con {
+        position:fixed; z-index:99;
+        opacity: .1; 
+        > span {
+            display:block; padding:@d3; border-radius:@d1;
+            background:@balloon-b; color:@balloon-f;
+            //text-shadow: unset;
+        }
+        > em {
+            @flex(); 
+            &:before {
+                display:block; content:""; width:0;height:0;line-height:0;
+                border:6px solid transparent;
+            }
+        }
+        // 箭头形状
+        &[ba-d="up"]{
+            transform: translate(0, @ba-dis);
+            > em {padding:0 @d3 @d2 @d3;}
+            > em:before {border-bottom:0; border-top-color:@balloon-b;}
+        }
+        &[ba-d="down"]{
+            transform: translate(0, @ba-dis * -1);
+            > em {padding:@d2 @d3 0 @d3;}
+            > em:before {border-top:0; border-bottom-color:@balloon-b;}
+        }
+        &[ba-d="left"]{
+            transform: translate(@ba-dis, 0);
+            > em {padding:@d3 @d2 @d3 0;}
+            > em:before {border-right:0; border-left-color:@balloon-b;}
+        }
+        &[ba-d="right"]{
+            transform: translate(@ba-dis * -1, 0);
+            > em {padding:@d3 0 @d3 @d2;}
+            > em:before {border-left:0; border-right-color:@balloon-b;}
+        }
+        // 箭头排列
+        &[ba-m="V"]{
+            @flex();
+        }
+        // 箭头位置
+        &[ba-m="H"] {
+            &[ba-a="A"]>em, &[ba-a="C"]>em {justify-content: flex-start;}
+            &[ba-a="B"]>em, &[ba-a="D"]>em {justify-content: flex-end;}
+        }
+        &[ba-m="V"] {
+            &[ba-a="A"]>em, &[ba-a="B"]>em {align-items: flex-start;}
+            &[ba-a="C"]>em, &[ba-a="D"]>em {align-items: flex-end;}
+        }
+        &[ba-a="N"]>em, &[ba-a="S"]>em,&[ba-a="W"]>em, &[ba-a="E"]>em {
+            align-items: center;justify-content: center;
+        }
+    }
+    &[balloon-is-on] > .ui-balloon-con {
+        transition: .18s ease-out; opacity: 1; transform: translate(0, 0);
+    }
+}
+
+//---------------------------------------------------
+// balloon.css
 [data-balloon] {position: relative; }
 [data-balloon]::before {
     opacity: 0;

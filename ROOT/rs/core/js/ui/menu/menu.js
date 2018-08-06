@@ -537,12 +537,14 @@ return ZUI.def("ui.menu", {
 
         // 添加提示文字
         if(mi.tip){
-            if(jT || jIcon) {
-                (jT || jIcon).attr({
-                    "data-balloon" : UI.text(mi.tip),
-                    "data-balloon-pos" : opt.tipDirection || "down"
-                });
-            }
+            // if(jT || jIcon) {
+            //     (jT || jIcon).attr({
+            //         "data-balloon" : UI.text(mi.tip),
+            //         "data-balloon-pos" : opt.tipDirection || "down"
+            //     });
+            // }
+            var balloon = (opt.tipDirection || "up") + ":" + UI.text(mi.tip)
+            jq.attr('balloon', balloon);
         }
 
         // 如果有快捷性，做一下监听

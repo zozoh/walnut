@@ -398,12 +398,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             return;
             
         $('<div class="dynamic-reload"><b><i class="fa fa-refresh"></i></b></div>')
-            .attr({
-                "data-balloon" : UI.msg("hmaker.dds.reload"),
-                "data-balloon-pos"    : "left",
-                "data-balloon-length" : "medium"
-            })
-            .appendTo(jW);
+            .attr({"balloon":"left:hmaker.dds.reload"})
+                .appendTo(jW);
     },
     //...............................................................
     // 清除 reload 按钮和动态参数标志

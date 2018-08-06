@@ -1392,21 +1392,41 @@
             rect.left = pos.x - (offset ? offset.x : 0);
             return this.rect_count_tlwh(rect);
         },
-        //.............................................
-        // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
-        // 
-        // !前提: 浮动元素将作为 position:fixed 来停靠
-        //
-        // @ele  - 被停靠元素
-        // @ta   - 浮动元素
-        // @mode - H | V 表示是停靠在水平边还是垂直边，默认 H
-        //         或者可以通过 "VA|VB|VC|VD|HA|HB|HC|HD" 来直接指定停靠的区域
-        // @ignoreSetCss - true 表示不强制设置 position
-        // @viewport - Rect 获取矩形的时候，是否要对视口做补偿
-        dock: function (ele, ta, mode, ignoreSetCss, viewport) {
+        /*.............................................
+        将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案
+        !前提: 浮动元素将作为 position:fixed 来停靠
+        ele: 被停靠元素
+        ta:  浮动元素
+        opt: {
+            // H | V 表示是停靠在水平边还是垂直边，默认 H
+            // 或者可以通过 "VA|VB..." 来直接指定停靠的区域
+            // 可以的值为 ABCDNSWE 八个字符表示停靠元素所在页面的八个区域
+            // 或者你可以直接指定 left|right|up|down 来指定浮动元素的位置
+            // 不指定则表示根据形状和位置自动计算
+            mode : "H", 
+            ignoreSetCss ：true,  // 表示不强制设置 position
+            vp - Rect 获取矩形的时候，是否要对视口做补偿
+        }
+        @return {
+            mode : "H",
+            area : "A",
+            direction : "up"  // 浮动元素位于停靠元素的四个方向 up|down|left|right
+        };
+        */
+        dock: function (ele, ta, opt, ignoreSetCss, vp) {
+            opt = opt || {};
+            // 处理一下参数
+            if(_.isString(opt)) {
+                opt = {
+                    mode : opt,
+                    ignoreSetCss : ignoreSetCss,
+                    vp : vp
+                };
+            }
+            // 处理节点
             var jq = $(ele);
             var jTa = $(ta);
-            if (!ignoreSetCss) {
+            if (!opt.ignoreSetCss) {
                 jTa.css("position", "fixed");
             }
             // 得到浮动元素大小
@@ -1415,19 +1435,77 @@
                 height: jTa.outerHeight(true)
             };
             // 得到被停靠元素的矩形信息
-            var rect = $D.rect.gen(jq, viewport);
+            var rect = $D.rect.gen(jq, opt.vp);
             //console.log(" rect  :", rect);
-            // 计算页面的中点
+            // 得到页面的矩形信息
             var viewport = $D.dom.winsz(jq[0].ownerDocument.defaultView);
             //console.log("viewport:", viewport);
             /*
              看看这个位置在页面的那个区域
              +----+----+
              | A [N] B |
-             +----+----+
+             +[W]-+-[E]+
              | C [S] D |
              +----+----+
              */
+            var wx = viewport.width / 3;
+            var wy = viewport.height / 3;
+            var xx = [wx, wx*2];
+            var yy = [wy, wy*2];
+            var mode, area,direction;
+            // A/W/C
+            if(rect.x < xx[0]) {
+                area = rect.y<yy[0]
+                        ? "A"
+                        : (rect.y>yy[1] ? "C" : "W");
+            }
+            // N/S
+            else if(rect.x >= xx[0] && rect.x <= xx[1]) {
+                area = rect.y<viewport.y ? "N" : "S";
+            }
+            // B/E/D
+            else {
+                area = rect.y<yy[0]
+                        ? "B"
+                        : (rect.y>yy[1] ? "D" : "E");
+            }
+
+            // 看看是否指定了停靠模式
+            var m = /^([VH])?([ABCDWENS])?$/.exec((opt.mode || "H").toUpperCase());
+            if(m) {
+                mode = m[1] || mode;
+                area = m[2] || area;
+            }
+            // left
+            else if("left" == opt.mode) {
+                mode = "V";
+                area = "E";
+            }
+            // right
+            else if("right" == opt.mode) {
+                mode = "V";
+                area = "W";
+            }
+            // up
+            else if("up" == opt.mode) {
+                mode = "H";
+                area = "S";
+            }
+            // down
+            else if("up" == opt.mode) {
+                mode = "H";
+                area = "N";
+            }
+            // 默认，根据自己的形状来决定
+            else {
+                // 得到自己矩形的比例
+                var scale = rect.width / rect.height;
+                // 扁的，默认停靠在水平边
+                // 窄的，默认停靠在垂直边
+                mode = scale < 1 ? "V" : "H";
+            }
+            
+            // 准备 css 偏移的原型
             var off = {
                 "top": "",
                 "left": "",
@@ -1435,20 +1513,14 @@
                 "bottom": ""
             };
 
-            // 分析模式
-            var m = /^([VH])([ABCDNS])?$/.exec((mode || "H").toUpperCase());
-            var mode = m ? m[1] : "H";
-            // 分析一下视口所在网页的区域
-            var area = (m ? m[2] : null) || (
-                viewport.x >= rect.x && viewport.y >= rect.y ? "A" : (
-                    viewport.x <= rect.x && viewport.y >= rect.y ? "B" : (
-                        viewport.x >= rect.x && viewport.y <= rect.y ? "C"
-                            : "D"
-                    )
-                )
-            );
-
             // 停靠在垂直边
+            /*
+             +----+----+
+             | A [N] B |
+             +[W]-+-[E]+
+             | C [S] D |
+             +----+----+
+             */
             if ("V" == mode) {
                 // A : 右上角对齐
                 if ("A" == area) {
@@ -1456,13 +1528,15 @@
                         "left": rect.right,
                         "top": rect.top,
                     });
+                    direction = "right";
                 }
                 // B : 左上角对齐
                 else if ("B" == area) {
                     _.extend(off, {
-                        "left": rect.left - sub.width,
+                        "right": viewport.width - rect.left,
                         "top": rect.top
                     });
+                    direction = "left";
                 }
                 // C : 右下角对齐
                 else if ("C" == area) {
@@ -1470,20 +1544,38 @@
                         "left": rect.right,
                         "bottom": viewport.height - rect.bottom
                     });
+                    direction = "right";
                 }
                 // D : 左下角对齐
-                else {
+                else if ("D" == area) {
                     _.extend(off, {
-                        "left": rect.left - sub.width,
+                        "right": viewport.width - rect.left,
                         "bottom": viewport.height - rect.bottom
                     });
+                    direction = "left";
+                }
+                // W : 右边中对齐
+                else if ("N" == area || "W" == area || "S" == area) {
+                    _.extend(off, {
+                        "left": rect.right,
+                        "top": rect.top - (sub.height - rect.height)/2
+                    });
+                    direction = "right";
+                }
+                // E : 左边中对齐
+                else {
+                    _.extend(off, {
+                        "right": viewport.width - rect.left,
+                        "top": rect.top - (sub.height - rect.height)/2
+                    });
+                    direction = "left";
                 }
             }
             // 停靠在上水平边
             /*
              +----+----+
              | A [N] B |
-             +----+----+
+             +[W]-+-[E]+
              | C [S] D |
              +----+----+
              */
@@ -1494,6 +1586,7 @@
                         "left": rect.left,
                         "top": rect.bottom
                     });
+                    direction = "down";
                 }
                 // B : 右下角对齐
                 else if ("B" == area) {
@@ -1501,6 +1594,7 @@
                         "left": rect.right - sub.width,
                         "top": rect.bottom
                     });
+                    direction = "down";
                 }
                 // C : 左上角对齐
                 else if ("C" == area) {
@@ -1508,6 +1602,7 @@
                         "left": rect.left,
                         "bottom": viewport.height - rect.top
                     });
+                    direction = "up";
                 }
                 // D : 右上角对齐
                 else if ("D" == area) {
@@ -1515,13 +1610,15 @@
                         "left": rect.right - sub.width,
                         "bottom": viewport.height - rect.top
                     });
+                    direction = "up";
                 }
                 // N : 下边中对齐
-                else if ("N" == area) {
+                else if ("N" == area || "W" == area || "E" == area) {
                     _.extend(off, {
                         "left": rect.left - (sub.width-rect.width)/2,
                         "top": rect.bottom
                     });
+                    direction = "down";
                 }
                 // S : 上边中对齐
                 else {
@@ -1529,8 +1626,16 @@
                         "left": rect.left - (sub.width-rect.width)/2,
                         "bottom": viewport.height - rect.top
                     });
+                    direction = "up";
                 }
             }
+            /*
+             +----+----+
+             | A [N] B |
+             +[W]-+-[E]+
+             | C [S] D |
+             +----+----+
+             */
             // 调整上下边缘
             if (_.isNumber(off.top) && off.top < viewport.top) {
                 off.top = viewport.top;
@@ -1540,6 +1645,12 @@
             }
             // 设置属性
             jTa.css(off);
+            // 返回
+            return {
+                mode : mode,
+                area : area,
+                direction :direction
+            };
         },
         //.............................................
         // 将一个元素停靠再另外一个元素上，根据目标元素在文档的位置来自动决定最佳的停靠方案

@@ -128,12 +128,11 @@ return ZUI.def("app.wn.hmpg_combar", {
 
                 // 计入 DOM
                 $(html).attr({
-                    "ctype"        : pi.ctype,
-                    "com-id"       : pi.comId,
-                    "area-id"      : pi.areaId,
-                    "lib-name"     : pi.lib || null,
-                    "data-balloon" : tip,
-                    "data-balloon-pos" : "down"
+                    "ctype"    : pi.ctype,
+                    "com-id"   : pi.comId,
+                    "area-id"  : pi.areaId,
+                    "lib-name" : pi.lib || null,
+                    "balloon"  : "down:" + tip,
                 }).appendTo(UI.arena);
             }
         }

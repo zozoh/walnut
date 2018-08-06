@@ -352,9 +352,12 @@
                     }).render(function () {
                         // 恢复本地显示模式
                         var cmode = UI.local("chute-mode") || "normal";
-                        if (cmode == 'mini') {
-                            UI.arena.find('.obw-con-wrapper').addClass('mini');
-                        }
+                        // 如果正常模式，不显示 balloon，否则显示 balloon
+                        UI.arena.find('.obw-con-wrapper .chute-wrapper [balloon]').each(function(){
+                            $(this).attr("balloon-is-disabled", cmode=='normal' ? "yes" : null)
+                                .find('>.ui-balloon-con').remove();
+                        });
+                        // 汇报延迟加载           
                         UI.defer_report("chute");
                     });
                 }
@@ -482,6 +485,13 @@
                 cm = "mini" == cm ? "normal" : "mini";
                 UI.arena.attr("chute-mode", cm);
                 UI.local("chute-mode", cm);
+
+                // 如果正常模式，不显示 balloon，否则显示 balloon
+                UI.arena.find('.obw-con-wrapper .chute-wrapper [balloon]').each(function(){
+                    $(this).attr("balloon-is-disabled", cm=='normal' ? "yes" : null)
+                        .find('>.ui-balloon-con').remove();
+                });
+                
                 // 动画完成后 resize
                 UI.arena.find(".obw-con").one("transitionend", function (e) {
                     UI.resize(true);

@@ -24,8 +24,8 @@ new UIMenu({
     }
     
     // 提示信息的展出方向，up|down|left|right
-    // 默认 down
-    tipDirection : "down"
+    // 默认 up
+    tipDirection : "up"
     
     // 自动调整布局
     // 默认为 false
