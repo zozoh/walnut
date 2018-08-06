@@ -22,7 +22,7 @@ import com.aliyuncs.iot.model.v20170420.QueryDeviceResponse.DeviceInfo;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value="cqn",regex="^online$")
 public class npower_list implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -49,6 +49,8 @@ public class npower_list implements JvmHdl {
             pager.countPage = true;
             List<NutMap> list = new ArrayList<>();
             for (DeviceInfo dev : resp.getData()) {
+                if (hc.params.is("online") && !"ONLINE".equals(dev.getDeviceStatus()))
+                    continue;
                 Map<String, Object> map = Lang.obj2map(dev);
                 map.remove("deviceSecret");
                 list.add(new NutMap(map));
