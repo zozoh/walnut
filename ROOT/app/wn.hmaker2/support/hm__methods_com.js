@@ -816,9 +816,9 @@ module.exports = function(uiCom){
         var jAss = jW.children(".hm-com-assist");
         if(jAss.length == 0) {
             jAss = $(`<div class="hm-com-assist">
-                <div class="hmc-ai" m="H" data-balloon-pos="left" data-balloon="`
-                + ME.msg("hmaker.drag.com_tip")
-                + `"><i class="zmdi zmdi-arrows"></i></div>
+                <div class="hmc-ai" m="H" balloon="V:hmaker.drag.com_tip">
+                    <i class="zmdi zmdi-arrows"></i>
+                </div>
                 <div class="hmc-ai rsz-hdl1" m="N"></div>
                 <div class="hmc-ai rsz-hdl1" m="W"></div>
                 <div class="hmc-ai rsz-hdl1" m="E"></div>

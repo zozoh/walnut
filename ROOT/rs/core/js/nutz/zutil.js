@@ -1405,7 +1405,7 @@
             // 不指定则表示根据形状和位置自动计算
             mode : "H", 
             ignoreSetCss ：true,  // 表示不强制设置 position
-            vp - Rect 获取矩形的时候，是否要对视口做补偿
+            viewport : Rect       // 获取矩形的时候，是否要对视口做补偿
         }
         @return {
             mode : "H",
@@ -1420,7 +1420,7 @@
                 opt = {
                     mode : opt,
                     ignoreSetCss : ignoreSetCss,
-                    vp : vp
+                    viewport : vp
                 };
             }
             // 处理节点
@@ -1435,8 +1435,8 @@
                 height: jTa.outerHeight(true)
             };
             // 得到被停靠元素的矩形信息
-            var rect = $D.rect.gen(jq, opt.vp);
-            //console.log(" rect  :", rect);
+            var rect = $D.rect.gen(jq, opt.viewport);
+            //console.log($D.rect.dumpValues(rect))
             // 得到页面的矩形信息
             var viewport = $D.dom.winsz(jq[0].ownerDocument.defaultView);
             //console.log("viewport:", viewport);
@@ -1450,8 +1450,8 @@
              */
             var wx = viewport.width / 3;
             var wy = viewport.height / 3;
-            var xx = [wx, wx*2];
-            var yy = [wy, wy*2];
+            var xx = [viewport.left + wx, viewport.left + wx*2];
+            var yy = [viewport.top  + wy, viewport.top  + wy*2];
             var mode, area,direction;
             // A/W/C
             if(rect.x < xx[0]) {
@@ -1492,7 +1492,7 @@
                 area = "S";
             }
             // down
-            else if("up" == opt.mode) {
+            else if("down" == opt.mode) {
                 mode = "H";
                 area = "N";
             }
@@ -1507,10 +1507,10 @@
             
             // 准备 css 偏移的原型
             var off = {
-                "top": "",
-                "left": "",
-                "right": "",
-                "bottom": ""
+                "top"    : "unset",
+                "left"   : "unset",
+                "right"  : "unset",
+                "bottom" : "unset"
             };
 
             // 停靠在垂直边

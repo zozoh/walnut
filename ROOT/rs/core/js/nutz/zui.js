@@ -346,6 +346,7 @@ define(function (require, exports, module) {
                 $('<span>').html(msg).appendTo(jBall);
                 // 停靠
                 var di = $z.dock(jq, jBall, pos);
+                //var di = {};
                 // 标识
                 jBall.attr({
                     'ba-ma': di.mode+di.area,

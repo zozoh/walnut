@@ -47,10 +47,9 @@ return ZUI.def("app.wn.hm_com_searcher", {
         if(m) {
             $('<div class="hmcs-loadreq">')
                 .text(m[1]).attr({
-                    "data-balloon"     : UI.msg("hmaker.com.searcher.loadreq_tip", {
+                    "balloon" : UI.msg("hmaker.com.searcher.loadreq_tip", {
                             pmnm : m[1]
-                        }),
-                    "data-balloon-pos" : "right",
+                        })
                 }).appendTo(UI.arena);
             UI.$el.attr("hm-loadreq", "yes");
         }

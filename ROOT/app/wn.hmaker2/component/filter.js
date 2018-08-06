@@ -139,8 +139,7 @@ return ZUI.def("app.wn.hm_com_filter", {
         if(com.loadreq) {
             $('<div class="hmcf-loadreq">')
                 .text('REQ').attr({
-                    "data-balloon"     : UI.msg("hmaker.com.filter.loadreq_tip"),
-                    "data-balloon-pos" : "right",
+                    "balloon" : "hmaker.com.filter.loadreq_tip"
                 }).appendTo(UI.arena);
             UI.$el.attr("hm-loadreq", "yes");
         }

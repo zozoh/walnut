@@ -210,69 +210,8 @@ div[ui-id][ui-loading] > .ui-arena{
 .ui-toggle[on]:before{content:"\f205";}
 
 //---------------------------------------------------
-// 通用·ZUI.balloon 机制
-@ba-dis : 10px;
-[balloon] {
-    > .ui-balloon-con {
-        position:fixed; z-index:99;
-        opacity: .1; 
-        > span {
-            display:block; padding:@d3; border-radius:@d1;
-            background:@balloon-b; color:@balloon-f;
-            //text-shadow: unset;
-        }
-        > em {
-            @flex(); 
-            &:before {
-                display:block; content:""; width:0;height:0;line-height:0;
-                border:6px solid transparent;
-            }
-        }
-        // 箭头形状
-        &[ba-d="up"]{
-            transform: translate(0, @ba-dis);
-            > em {padding:0 @d3 @d2 @d3;}
-            > em:before {border-bottom:0; border-top-color:@balloon-b;}
-        }
-        &[ba-d="down"]{
-            transform: translate(0, @ba-dis * -1);
-            > em {padding:@d2 @d3 0 @d3;}
-            > em:before {border-top:0; border-bottom-color:@balloon-b;}
-        }
-        &[ba-d="left"]{
-            transform: translate(@ba-dis, 0);
-            > em {padding:@d3 @d2 @d3 0;}
-            > em:before {border-right:0; border-left-color:@balloon-b;}
-        }
-        &[ba-d="right"]{
-            transform: translate(@ba-dis * -1, 0);
-            > em {padding:@d3 0 @d3 @d2;}
-            > em:before {border-left:0; border-right-color:@balloon-b;}
-        }
-        // 箭头排列
-        &[ba-m="V"]{
-            @flex();
-        }
-        // 箭头位置
-        &[ba-m="H"] {
-            &[ba-a="A"]>em, &[ba-a="C"]>em {justify-content: flex-start;}
-            &[ba-a="B"]>em, &[ba-a="D"]>em {justify-content: flex-end;}
-        }
-        &[ba-m="V"] {
-            &[ba-a="A"]>em, &[ba-a="B"]>em {align-items: flex-start;}
-            &[ba-a="C"]>em, &[ba-a="D"]>em {align-items: flex-end;}
-        }
-        &[ba-a="N"]>em, &[ba-a="S"]>em,&[ba-a="W"]>em, &[ba-a="E"]>em {
-            align-items: center;justify-content: center;
-        }
-    }
-    &[balloon-is-on] > .ui-balloon-con {
-        transition: .18s ease-out; opacity: 1; transform: translate(0, 0);
-    }
-}
-
-//---------------------------------------------------
 // balloon.css
+/*
 [data-balloon] {position: relative; }
 [data-balloon]::before {
     opacity: 0;
@@ -280,7 +219,7 @@ div[ui-id][ui-loading] > .ui-arena{
     transition: all .18s ease-out;
     background: @balloon-b;
     border-radius: 4px;
-    color: @balloon-f;
+    color: @balloon-f; 
     content: attr(data-balloon);
     font-size: 12px;
     padding: .5em 1em;
@@ -409,6 +348,7 @@ div[ui-id][ui-loading] > .ui-arena{
     white-space: normal;
     width: 100%;
 }
+*/
 
 
 // 绝对浮动的模式

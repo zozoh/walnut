@@ -399,7 +399,8 @@ return ZUI.def("app.wn.hm_com_dynamic", {
             
         $('<div class="dynamic-reload"><b><i class="fa fa-refresh"></i></b></div>')
             .attr({"balloon":"left:hmaker.dds.reload"})
-                .appendTo(jW);
+                .data('balloon-viewport', UI.pageUI().arena.find('.hmpg-frame-edit'))
+                    .appendTo(jW);
     },
     //...............................................................
     // 清除 reload 按钮和动态参数标志
