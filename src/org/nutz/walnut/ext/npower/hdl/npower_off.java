@@ -12,7 +12,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  * @author wendal
  *
  */
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value="cqn", regex="^dry$")
 public class npower_off extends npower_shadow {
 
     @Override

@@ -25,7 +25,7 @@ import com.aliyuncs.profile.IClientProfile;
  * @author wendal
  *
  */
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value="cqn", regex="^dry$")
 public class npower_shadow implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -65,13 +65,20 @@ public class npower_shadow implements JvmHdl {
             re.put("method", "update");
             re.put("state", new NutMap("desired", desired));
             String n = Json.toJson(re, JsonFormat.full());
+            
+            // 都准备好了,看看是真更新还是假更新
+            if (hc.params.is("dry")) {
+                sys.out.print("{'ok':true, 'dry':true}");
+                return;
+            }
+            
             UpdateDeviceShadowRequest req2 = new UpdateDeviceShadowRequest();
             req2.setDeviceName(imei);
             req2.setProductKey(productKey);
             req2.setShadowMessage(n);
             UpdateDeviceShadowResponse resp2 = client.getAcsResponse(req2);
             if (resp2.getSuccess()) {
-                sys.out.print("{\"ok\":true}");
+                sys.out.print("{'ok':true}");
             }
         }
     }

@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
@@ -17,6 +18,7 @@ import com.aliyuncs.iot.model.v20180120.QueryDeviceDetailResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 
+@JvmHdlParamArgs("cqn")
 public class npower_stat implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
