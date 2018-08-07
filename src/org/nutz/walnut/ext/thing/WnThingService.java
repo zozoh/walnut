@@ -26,6 +26,8 @@ import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.thing.util.ThingConf;
+import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.walnut.util.WnPager;
 
@@ -41,7 +43,6 @@ public class WnThingService {
     }
 
     // .....................................................................
-
     private <T extends ThingAction<?>> T _A(T a) {
         a.setIo(io).setThingSet(oTs);
         return a;
@@ -53,8 +54,12 @@ public class WnThingService {
         return a;
     }
 
-    // .....................................................................
+    private ThingConf checkConf() {
+        WnObj oConf = Things.fileTsConf(io, oTs);
+        return io.readJson(oConf, ThingConf.class);
+    }
 
+    // .....................................................................
     public WnObj fileAdd(String dirName,
                          WnObj oT,
                          String fnm,
@@ -226,6 +231,7 @@ public class WnThingService {
     public WnObj createThing(NutMap meta, String uniqueKey) {
         CreateThingAction a = _A(new CreateThingAction());
         a.addMeta(meta).setUniqueKey(uniqueKey);
+        a.setConf(this.checkConf());
         return a.invoke().get(0);
     }
 
@@ -246,6 +252,7 @@ public class WnThingService {
         a.setProcess(out, process);
         a.setFixedMeta(fixedMeta);
         a.setExecutor(executor, cmdTmpl);
+        a.setConf(this.checkConf());
         return a.invoke();
     }
 
@@ -275,6 +282,7 @@ public class WnThingService {
 
     public WnObj updateThing(String id, NutMap meta) {
         UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
+        a.setConf(this.checkConf());
         return a.invoke();
     }
 

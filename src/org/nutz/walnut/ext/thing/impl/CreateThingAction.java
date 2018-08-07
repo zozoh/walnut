@@ -13,12 +13,16 @@ import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.ThingAction;
+import org.nutz.walnut.ext.thing.util.ThingConf;
+import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
-import org.nutz.walnut.util.Wn;
+import org.nutz.web.WebException;
 
+/**
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     private String[] uniqueKeys;
@@ -34,6 +38,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     private Tmpl cmdTmpl;
 
     private NutMap fixedMeta;
+
+    private ThingConf conf;
 
     public CreateThingAction() {
         this.metas = new LinkedList<>();
@@ -89,6 +95,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
+    public CreateThingAction setConf(ThingConf conf) {
+        this.conf = conf;
+        return this;
+    }
+
     @Override
     public List<WnObj> invoke() {
         // 找到索引
@@ -127,31 +138,34 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 创建或者取得一个一个 Thing
         WnObj oT = null;
 
-        // 看看如果声明了唯一键
-        if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
-            WnQuery q = Wn.Q.pid(oIndex);
-            q.setv("th_live", Things.TH_LIVE);
-            for (String ukey : this.uniqueKeys) {
-                Object uval = meta.get(ukey);
-                if (null == uval && null != this.fixedMeta) {
-                    uval = this.fixedMeta.get(ukey);
-                }
-                // 如果键值还是为空，说明导入的数据可能有问题
-                if (null == uval) {
-                    // 打印一下输出
-                    if (null != process && null != out) {
-                        String msg = process.render(meta.setv("P", P).setv("I", i));
-                        out.println(msg);
-                        out.printlnf("  !!! ignore because lack '%s'", ukey);
-                    }
-                    return null;
-                }
-                // 加入查询条件
-                q.setv(ukey, uval);
-            }
-            oT = io.getOne(q);
+        // 默认增加固定字段
+        if (null != this.fixedMeta && this.fixedMeta.size() > 0) {
+            meta.putAll(this.fixedMeta);
         }
-        // 木有，那么就创建咯
+
+        // 检查一下字段等值
+        try {
+            // 看看如果声明了唯一键(导入)
+            if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
+                oT = this.checkUniqueKeys(oIndex, null, meta, this.uniqueKeys, true);
+            }
+
+            // 根据唯一键约束检查重复
+            if (conf.hasUniqueKeys()) {
+                ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys());
+                if (null != tuk) {
+                    throw Er.create("e.thing.create.ukey.duplicated", tuk.toString());
+                }
+            }
+        }
+        catch (WebException e) {
+            if (null != process && null != out) {
+                out.printlnf("  !!! %s for %s", e.toString(), Json.toJson(meta));
+            }
+            return null;
+        }
+
+        // 还木有，那么就创建咯
         if (null == oT) {
             oT = io.create(oIndex, "${id}", WnRace.FILE);
         }
@@ -163,11 +177,6 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 默认的内容类型
         if (!meta.has("mime") && meta.has("tp"))
             meta.put("mime", io.mimes().getMime(meta.getString("tp"), "text/plain"));
-
-        // 默认增加固定字段
-        if (null != this.fixedMeta && this.fixedMeta.size() > 0) {
-            meta.putAll(this.fixedMeta);
-        }
 
         // zozoh: 不知道下面几行代码动机是啥，没有就不设置呗。靠，先注释掉
         // // 图标

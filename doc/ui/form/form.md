@@ -3,13 +3,15 @@ title: 表单控件
 author:zozoh
 ---
 
+----------------------------------
 # 控件概述
 
 表单控件将根据配置信息，创建一个对象表单。以及维护这个表单的保存行为
 
+----------------------------------
 # 如何创建实例
 
-```
+```js
 new FormUI({
     // 默认的，控件将调用者通过 setData(o) 传入的对象 o 存储，当 getData 的时候
     // 控件将 o 与最新的编辑信息合并，返回给调用者
@@ -71,12 +73,12 @@ new FormUI({
 ```
 
 
-
+----------------------------------
 # 表单的字段
 
 ## 普通字段
 
-```
+```js
 {
    // 有 key 就是普通字段
    key       : "nm"          // 字段键名
@@ -146,7 +148,7 @@ new FormUI({
 
 ## 字段分组
 
-```
+```js
 {
    icon     : HTML          // 字段的图标
    title    : "i18n:xxx"    // 字段的标题
@@ -189,11 +191,12 @@ new FormUI({
 * 每当遇到一个字段组，就重新开始一组控件
 * 字段组不能被嵌套
 
+----------------------------------
 # 控件方法
 
 ## getData
 
-```
+```js
 // 返回控件正在编辑的表单数据
 var o = uiForm.getData();
 
@@ -209,7 +212,7 @@ form 控件获取数据的行为被下面几个配置项影响:
 
 通过这几个配置项的组合，你基本让你的表单符合绝大多数使用场景。关于这几个选项的描述，请详细参见字段选项描述。这里有个例子:
 
-```
+```js
 var obj = {txt: "Hello"};
 
 // 对于 form, setData 后
@@ -230,14 +233,14 @@ var obj = {txt: "Hello"};
 
 ## setData
 
-```
+```js
 // 为控件设置数据以便展示编辑界面
 uiForm.setData(o);
 ```
 
 ## getFormDataObj
 
-```
+```js
 var o = uiForm.getFormDataObj();
 ```
 
@@ -245,7 +248,7 @@ var o = uiForm.getFormDataObj();
 
 ## getFormCtrl
 
-```
+```js
 var ui = uiForm.getFormCtrl("name");
 ```
 
@@ -255,7 +258,7 @@ var ui = uiForm.getFormCtrl("name");
 
 在某个 Fields 上显示一个提示信息，可以是错误项，可以是 loading 等。
 
-```
+```js
 // 显示某个内置的 prompt （参见控件定义的 prompts 段)
 // 如果给定的 prompt 没有值，那么将作为一段 HTML 代码来显示
 uiForm.showPrompt("name", "loading")
@@ -271,7 +274,7 @@ uiForm.showPrompt("name", "<b>haha</b>");
 
 ## hidePrompt
 
-```
+```js
 uiForm.hidePrompt("name");
 ```
 
