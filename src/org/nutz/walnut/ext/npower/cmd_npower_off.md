@@ -8,8 +8,10 @@
 =======
 
 ```
-npower off [imei]
+npower off [-dry] [imei]
 ```
+
+支持模拟更新参数-dry,不实际更新
 
 示例
 ======

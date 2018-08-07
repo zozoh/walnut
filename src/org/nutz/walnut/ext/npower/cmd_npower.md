@@ -14,4 +14,5 @@ npower stat         # 查看设备状态
 npower shadow       # 获取或修改设备影子
 npower on           # 继电器设置为开,并设置为远程操作模式
 npower off          # 继电器设置为关,并设置为远程操作模式
+npower cron         # 继电器设置为关,并设置为定时器模式
 ```

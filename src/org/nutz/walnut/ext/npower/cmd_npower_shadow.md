@@ -6,14 +6,18 @@
 对设备非实时配置,都是通过设备影子来完成的
 
 设备影子分成 
-- 设备上传的值
+- 设备上传的值reported
+- 界面设置的值desired
+- 元数据,记录上述两者的最后修改时间
 
 用法
 =======
 
 ```
-npower shadow [imei] [-u xxx:xxx,yyy:zzz]
+npower shadow [imei] [-dry] [-u xxx:xxx,yyy:zzz]
 ```
+
+支持模拟更新参数-dry,不实际更新
 
 影子数据详解
 ======
