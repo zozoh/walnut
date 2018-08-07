@@ -54,7 +54,7 @@ return ZUI.def("ui.th_export", {
         };
         // Step3: 导出完成
         steps["step3"] = {
-            text : "i18n:thing.import.step3",
+            text : "i18n:thing.export.step3",
             done : function(){
                 $z.invoke(opt, "done");
             },

@@ -55,11 +55,15 @@ return ZUI.def("ui.thing.th_search", {
                 fields : conf.fields,
                 on_actived : function(th, jRow, prevObj) {
                     //console.log("on_actived");
+                    // 本地记录一下激活的 id
+                    UI.local('last_actived_id', th.id);
+                    // 显示主区域
                     $z.invoke(bus, "showObj", [th]);
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
                         //console.log("on_blur");
+                        UI.local('last_actived_id', null);
                         $z.invoke(bus, "showBlank");
                     }
                 }
@@ -90,7 +94,9 @@ return ZUI.def("ui.thing.th_search", {
         })).render(function(){
             // 刷新数据吧
             this.refresh(function(){
-                //this.uiList.setActived(0);
+                var aid = UI.local('last_actived_id');
+                if(aid)
+                    this.uiList.setActived(aid);
                 var args = Array.from(arguments);
                 $z.doCallback(callback, args, UI.bus());
             });

@@ -82,6 +82,10 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         this.refresh(callback);
     },
     //..............................................
+    getCheckedItems : function() {
+        return this.gasket.list.getChecked();
+    },
+    //..............................................
     removeCheckedItems : function(callback){
         var UI  = this;
         var opt = UI.options;

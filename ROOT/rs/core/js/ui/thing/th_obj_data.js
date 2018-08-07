@@ -2,11 +2,11 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/support/dom',
+    'ui/pop/pop',
     'ui/menu/menu',
     'ui/thing/support/th_methods',
     'ui/thing/th_obj_data_media',
-], function(ZUI, Wn, DomUI, MenuUI, ThMethods, ThObjMediaUI){
+], function(ZUI, Wn, POP, MenuUI, ThMethods, ThObjMediaUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th-obj-data th-obj-pan" ui-fitparent="true">
@@ -39,11 +39,10 @@ return ZUI.def("ui.thing.th_obj_data", {
         // 切换标签
         'click .top-tabs li[m]' : function(e) {
             var UI = this;
-            var jq = $(e.currentTarget);
-            if('media' == jq.attr("m")) {
-                UI.showMedia();
-            } else {
+            if(UI.isCurrentDirName('media')) {
                 UI.showAttachment();
+            } else {
+                UI.showMedia();
             }
         },
         // 监控隐藏的上传按钮
@@ -106,16 +105,26 @@ return ZUI.def("ui.thing.th_obj_data", {
                         UI.gasket.main.refresh();
                     }
                 }, {
+                    type : "separator"
+                }, {
                     icon : '<i class="fa fa-trash"></i>',
                     text : 'i18n:thing.data.remove',
                     handler : function(){
                         UI.gasket.main.removeCheckedItems();
                     }
                 }, {
+                    type : "separator"
+                }, {
                     icon : '<i class="zmdi zmdi-upload"></i>',
                     text : 'i18n:thing.data.upload',
                     handler : function(){
                         UI.arena.find('input[type="file"]').click();
+                    }
+                }, {
+                    icon : '<i class="zmdi zmdi-cloud-download"></i>',
+                    text : 'i18n:thing.data.download',
+                    handler : function() {
+                        UI.openDownloadPanel();
                     }
                 }]
             }]
@@ -136,6 +145,14 @@ return ZUI.def("ui.thing.th_obj_data", {
         this.__OBJ = o;
         this.gasket.main.update(o, callback);
         // TODO 同时也要更新对象菜单吧
+    },
+    //..............................................
+    getCurrentDirName : function(){
+        return this.arena.find('.top-tabs li[current]').attr('m');
+    },
+    //..............................................
+    isCurrentDirName : function(dirName){
+        return dirName == this.getCurrentDirName();
     },
     //..............................................
     __show_main : function(callback){
@@ -203,6 +220,34 @@ return ZUI.def("ui.thing.th_obj_data", {
             }
         });
     },
+    //..............................................
+    openDownloadPanel : function() {
+        var UI = this;
+        var conf  = UI.getBusConf();
+        var oHome = UI.getHomeObj();
+        
+        POP.openUIPanel({
+            title  : "i18n:thing.data.download",
+            width  : 640,
+            height : 480,
+            closer : true,
+            arenaClass : "th-wizard-mask",
+            setup : {
+                uiType : "ui/thing/support/th_media_download",
+                uiConf : {
+                    oT  : UI.__OBJ,
+                    dirName : UI.getCurrentDirName(),
+                    oMediaList : UI.gasket.main.getCheckedItems(),
+                    // 完成就关闭窗口
+                    done : function() {
+                        this.parent.close();
+                    }
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
+    }
     //..............................................
 });
 //==================================================

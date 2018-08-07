@@ -35,7 +35,7 @@ public class cmd_zip extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "frd");
+        ZParams params = ZParams.parse(args, "frd", "^(list|hide)$");
         if (params.vals.length < 2) {
             throw Err.create("e.cmd.zip.miss_args");
         }
@@ -79,9 +79,13 @@ public class cmd_zip extends JvmExecutor {
                     } else {
                         sys.io.walk(wobj, new Callback<WnObj>() {
                             public void invoke(WnObj obj) {
+                                // 无视隐藏文件
+                                if (params.is("hide"))
+                                    if (obj.isHidden())
+                                        Lang.Continue();
                                 ens.add(new WnZipEntry(obj, wobj));
                             }
-                        }, WalkMode.DEPTH_LEAF_FIRST);
+                        }, WalkMode.BREADTH_FIRST);
                     }
                 }
             } else {
@@ -111,9 +115,11 @@ public class cmd_zip extends JvmExecutor {
                         ZipEntry entry = new ZipEntry(entryName);
                         zipOut.putNextEntry(entry);
 
-                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj, 0))) {
+                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj,
+                                                                                                     0))) {
                             Streams.write(proxyOut, bis);
-                        };
+                        }
+                        ;
                         zipOut.closeEntry();
                     }
                     catch (Throwable e) {
@@ -126,9 +132,11 @@ public class cmd_zip extends JvmExecutor {
                     ZipEntry entry = new ZipEntry(wzen.getName());
                     zipOut.putNextEntry(entry);
                     if (!wzen.wobj.isDIR()) {
-                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(wzen.wobj, 0))) {
+                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(wzen.wobj,
+                                                                                                     0))) {
                             Streams.write(proxyOut, bis);
-                        };
+                        }
+                        ;
                     }
                     zipOut.closeEntry();
                 }
@@ -175,25 +183,27 @@ public class cmd_zip extends JvmExecutor {
     public static class WnZipEntry {
         public WnObj wobj;
         public WnObj root;
-        public WnZipEntry() {
-        }
+
+        public WnZipEntry() {}
+
         public WnZipEntry(WnObj wobj, WnObj root) {
             this.wobj = wobj;
             this.root = root;
         }
+
         public String getName() {
             if (wobj == root)
                 return wobj.name();
             return wobj.path().substring(root.path().length() + 1) + (wobj.isDIR() ? "/" : "");
         }
     }
-    
+
     public static class NoFlushOutputStream extends FilterOutputStream {
 
         public NoFlushOutputStream(OutputStream out) {
             super(out);
         }
-        
+
         public void flush() throws IOException {
             // nop
         }

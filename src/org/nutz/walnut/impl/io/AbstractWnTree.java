@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -738,7 +740,15 @@ public abstract class AbstractWnTree implements WnTree {
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
         List<WnObj> list = this.getChildren(p, null);
         for (WnObj o : list) {
-            callback.invoke(o);
+            try {
+                callback.invoke(o);
+            }
+            catch (ExitLoop e) {
+                break;
+            }
+            catch (ContinueLoop e) {
+                continue;
+            }
         }
         // // 映射节点，就直接 getChildren 吧
         // if (p.isMount()) {
