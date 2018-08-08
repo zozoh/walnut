@@ -112,7 +112,7 @@ define({
             "e_fld_nkey"     : "字段键值不能为空",
             "e_fld_invalid"  : "字段键值非法，只能是数字，小写字母，和下划线的组合",
             "e_fld_exists"   : "字段键值已存在",
-            "tab_general"    : "基本",
+            "tab_general"    : "设置",
             "tab_fields"     : "字段",
             "tab_import"     : "导入",
             "tab_export"     : "导出",
@@ -127,6 +127,8 @@ define({
                 "k_thData"  : "显示数据",
                 "thumbsz"   : "缩略图尺寸",
                 "thumbsz_tip"   : "请输入诸如 `256x256`",
+                "ukeys" : "唯一键约束",
+                "ukeys_tip" : "一行一个，复合键用半角逗号分隔，以 * 开头的行，表示不能为空",
             },
             "import" : {
                 "enabled" : "允许导入",

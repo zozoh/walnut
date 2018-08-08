@@ -15,10 +15,6 @@ var html = function(){/*
 return ZUI.def("ui.thing.thdesign_general", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
-    events : {
-        
-    },
-    //...............................................................
     redraw : function() {
         var UI  = this;       
         //--------------------------------------- 集合通用设置
@@ -82,6 +78,51 @@ return ZUI.def("ui.thing.thdesign_general", {
                     dft : [],
                     uiWidth : "auto",
                     uiType : "@input",
+                }]
+            }, {
+                title : "i18n:thing.conf.general.ukeys",
+                fields : [{
+                    key : "uniqueKeys",
+                    tip : 'i18n:thing.conf.general.ukeys_tip',
+                    type : "object",
+                    dft : null,
+                    uiType : "@text",
+                    uiConf : {
+                        height : 60,
+                        parseData : function(uks) {
+                            console.log("parseDate")
+                            var ss = [];
+                            if(_.isArray(uks) && uks.length > 0) {
+                                for(var i=0;i<uks.length;i++) {
+                                    var uk = uks[i];
+                                    if(_.isArray(uk.name) && uk.name.length > 0) {
+                                        if(uk.required)
+                                            ss.push("*" + uk.name.join(","));
+                                        else
+                                            ss.push(uk.name.join(","));
+                                    }
+                                }
+                            }
+                            return ss.join("\n");
+                        },
+                        formatData : function(str) {
+                            console.log("formatData")
+                            var uks = [];
+                            var ss = $z.splitIgnoreBlank(str, "\n");
+                            for(var i=0; i<ss.length; i++) {
+                                var uk = {};
+                                var s =ss[i];
+                                if(/^[*]/.test(s)) {
+                                    uk.required = true;
+                                    s = s.substring(1);
+                                }
+                                uk.name = $z.splitIgnoreBlank(s, ",");
+                                if(uk.name.length > 0)
+                                    uks.push(uk);
+                            }
+                            return uks.length > 0 ? uks : null;
+                        }
+                    }
                 }]
             }, {
                 title : "i18n:thing.conf.general.t_query",

@@ -6697,10 +6697,21 @@
         },
         // 将字符串拆分，并无视空字符串
         splitIgnoreEmpty: function (str, separator) {
-            var ss = str.split(separator);
+            var ss = str.split(separator || ",");
             var re = [];
             for (var i = 0; i < ss.length; i++) {
                 var s = ss[i];
+                if (s)
+                    re.push(s);
+            }
+            return re;
+        },
+        // 将字符串拆分，并无视空字符串
+        splitIgnoreBlank: function (str, separator) {
+            var ss = str.split(separator || ",");
+            var re = [];
+            for (var i = 0; i < ss.length; i++) {
+                var s = $.trim(ss[i]);
                 if (s)
                     re.push(s);
             }
