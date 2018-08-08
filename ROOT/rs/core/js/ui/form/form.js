@@ -794,7 +794,7 @@ return ZUI.def("ui.form", {
         var data  = UI.getData();
         var lacks = [];
 
-        console.log("checkData")
+        //console.log("checkData")
 
         // 检查所有必选字段
         UI.$myfields().each(function(){
@@ -1000,7 +1000,10 @@ return ZUI.def("ui.form", {
         var jF = UI.$fld(key);
 
         // 设置提示图标
-        jF.attr("form-prompt", pKey).find(".ff-prompt").html(html);
+        jF.attr("form-prompt", pKey)
+            .find(".ff-prompt").attr({
+                "balloon" : tip || null
+            }).html(html);
     },
     //...............................................................
     hidePrompt : function() {

@@ -42,6 +42,8 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
                     uiForm.hidePrompt(key);
                     // 通知界面其他部分更新
                     UI.fire("change:meta", [obj, key]);
+                }, function(msg) {
+                    uiForm.showPrompt(key, "warn", msg);
                 }]);
             }
         })).render(function(){

@@ -183,6 +183,7 @@ module.exports = {
         data        : 要编辑的值
         after       : 回调函数, 设置完数据会调用 {uiForm}after(data)
         callback    : 回调函数, 按确认键 {uiForm}callback(data)
+        autoClose   : true, 调用回调函数前是否自动关闭对话框，默认 true
         context     : MaskUI    // 回调的上下文，默认是 FormUI
         errMsg : {
             "lack" : "有必选字段没有被填写"
@@ -194,7 +195,9 @@ module.exports = {
         opt = opt || {};
         //--------------------------------
         $z.setUndefined(opt, "errMsg", {});
+        $z.setUndefined(opt, "autoClose", true);
         $z.setUndefined(opt.errMsg, "lack", "Lack required field!");
+        console.log(opt.autoClose)
         //--------------------------------
         // 修改配置信息
         _.extend(opt, {
@@ -203,16 +206,18 @@ module.exports = {
                 uiConf : opt.form || {}
             },
             ok : function(uiForm, jBtn, uiMask){
-                return uiForm.checkData({
+                var checkResult = uiForm.checkData({
                     ok : function(data) {
                         $z.invoke(opt, "callback", [data], this);        
                     },
                     fail : function(keys){
+                        console.log(keys)
                         uiForm.alert(opt.errMsg.lack, "warn");
                         jBtn.removeAttr("btn-ing");
                         uiMask.is_ing = false;
                     }
                 });
+                return opt.autoClose && checkResult;
             }
         });
         //--------------------------------

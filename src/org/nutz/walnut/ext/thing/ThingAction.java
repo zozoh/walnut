@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.thing;
 
+import java.util.ArrayList;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
@@ -70,7 +72,8 @@ public abstract class ThingAction<T> {
                                     WnObj oT,
                                     NutMap meta,
                                     String[] ukeys,
-                                    boolean required) {
+                                    boolean required,
+                                    boolean forUpdate) {
         if (null == ukeys || ukeys.length == 0)
             return null;
 
@@ -83,17 +86,63 @@ public abstract class ThingAction<T> {
             q.setv("id", Lang.map("$ne", oT.id()));
 
         // 逐个添加唯一键约束
+        ArrayList<String> keyExists = new ArrayList<>(ukeys.length);
+        ArrayList<String> keyNoNull = new ArrayList<>(ukeys.length);
         for (String key : ukeys) {
             Object val = meta.get(key);
-            // 必须存在吗？
+            // 记录一下统计数据，后面再判断
             if (null == val) {
-                if (required) {
-                    throw Er.create("e.thing.ukey.required", Json.toJson(ukeys));
-                }
-                continue;
+                if (meta.containsKey(key))
+                    keyExists.add(key);
             }
-            // 来，查一下
-            q.setv(key, val);
+            // 计入 NoNull
+            else {
+                keyExists.add(key);
+                keyNoNull.add(key);
+                // 记入查询条件
+                q.setv(key, val);
+            }
+        }
+        // 如果是复合键，尝试从原来对象里补偿一个
+        if (null != oT
+            && ukeys.length > 1
+            && !keyExists.isEmpty()
+            && keyExists.size() < ukeys.length) {
+            for (String key : ukeys) {
+                // 原来不存在的话，补偿一下
+                if (!keyExists.contains(key)) {
+                    Object val = oT.get(key);
+                    if (null != val) {
+                        keyExists.add(key);
+                        keyNoNull.add(key);
+                        q.setv(key, val);
+                    }
+                }
+            }
+        }
+
+        // 归纳一下
+        int nbNoNull = keyNoNull.size();
+        int nbExists = keyExists.size();
+        boolean allNoNull = nbNoNull == ukeys.length;
+        boolean allExists = nbExists == ukeys.length;
+
+        // 来判断一下，如果有键值不存在，那么分作两种情况
+        // 如果是更新情况，则如果都没设置，也是可以过的
+        // 否则如果是 required 的情况，那么就抛错
+        // 还有一种情况，如果是复合键，只有部分键有值
+        // 那么无论是不是 update 一定是不能容忍的，这个是最高优先级
+        if (!allNoNull) {
+            if (ukeys.length > 1 && nbExists > 0 && !allExists) {
+                throw Er.create("e.thing.ukey.partly", Json.toJson(ukeys));
+            }
+            if (forUpdate) {
+                if (nbExists == 0)
+                    return null;
+            }
+            if (required) {
+                throw Er.create("e.thing.ukey.required", Json.toJson(ukeys));
+            }
         }
 
         // 查一下吧
@@ -103,9 +152,15 @@ public abstract class ThingAction<T> {
     protected ThingUniqueKey checkDuplicated(WnObj oIndex,
                                              NutMap meta,
                                              WnObj oT,
-                                             ThingUniqueKey[] uks) {
+                                             ThingUniqueKey[] uks,
+                                             boolean forUpdate) {
         for (ThingUniqueKey tuk : uks) {
-            WnObj oT2 = this.checkUniqueKeys(oIndex, oT, meta, tuk.getName(), tuk.isRequired());
+            WnObj oT2 = this.checkUniqueKeys(oIndex,
+                                             oT,
+                                             meta,
+                                             tuk.getName(),
+                                             tuk.isRequired(),
+                                             forUpdate);
             if (null != oT2) {
                 if (null != oT && oT.isSameId(oT2))
                     continue;

@@ -337,10 +337,11 @@ define(function (require, exports, module) {
                 // 得到 UI 对象
                 // var UI = ZUI(jq);
                 // 解析
-                var ss = jq.attr('balloon').split(':');
-                var tip = ss.length > 1 ? ss[1] : ss[0];
+                var ba = jq.attr('balloon');
+                var m  = /^(([HV][ABCDWENS])|(left|right|up|down)) *:(.+)$/.exec(ba);
+                var tip = m ? m[4] : ba;
                 var msg = UI.msg(tip.replace(/(\r?\n)|(\\n)/g,'<br>'));
-                var pos = ss.length > 1 ? ss[0] : undefined;
+                var pos = m ? m[1] : undefined;
                 // 生成浮动元素
                 var jBall = $('<div class="ui-balloon-con">').prependTo(jq);
                 $('<span>').html(msg).appendTo(jBall);

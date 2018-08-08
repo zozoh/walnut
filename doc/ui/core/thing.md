@@ -117,8 +117,9 @@ th_manager    # 顶级管理器
         // 更新元数据的方法
         //  - obj 对象完整的元数据
         //  - key 不指定的话表示全部更新，否则只更新指定的 key
-        //  - callback 更新完毕后的异步回调
-        update : {c}F(obj, key, callback);
+        //  - ok : F(newTh)  更新成功的异步回调
+        //  - fail: F(msg)   更新失败的异步回调
+        update : {c}F(obj, key, ok, fail);
     
         // 元数据表单更多的设置
         setup : {}

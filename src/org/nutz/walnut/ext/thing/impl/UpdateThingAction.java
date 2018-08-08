@@ -44,9 +44,9 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         // 根据唯一键约束检查重复
         if (conf.hasUniqueKeys()) {
             WnObj oIndex = this.checkDirTsIndex();
-            ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys());
+            ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys(), true);
             if (null != tuk) {
-                throw Er.create("e.thing.update.ukey.duplicated", tuk.toString());
+                throw Er.create("e.thing.ukey.duplicated", tuk.toString());
             }
         }
 

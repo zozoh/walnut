@@ -103,6 +103,16 @@ define({
             "range"  : "不是合法区间",
             "date"   : "不是日期",
             "time"   : "不是时间",
+        },
+        "thing" :{
+            "ukey" : {
+                "duplicated" : "数据违反唯一键约束",
+                "required" : "缺失唯一键",
+                "partly" : "复合唯一键不完整"
+            },
+            "fld" : {
+                "lack" : "缺失必要字段"
+            }
         }
     },
     "langs" : {

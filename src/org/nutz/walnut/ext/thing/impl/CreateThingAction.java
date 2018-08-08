@@ -147,14 +147,14 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         try {
             // 看看如果声明了唯一键(导入)
             if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
-                oT = this.checkUniqueKeys(oIndex, null, meta, this.uniqueKeys, true);
+                oT = this.checkUniqueKeys(oIndex, null, meta, this.uniqueKeys, true, false);
             }
 
             // 根据唯一键约束检查重复
             if (conf.hasUniqueKeys()) {
-                ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys());
+                ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys(), false);
                 if (null != tuk) {
-                    throw Er.create("e.thing.create.ukey.duplicated", tuk.toString());
+                    throw Er.create("e.thing.ukey.duplicated", tuk.toString());
                 }
             }
         }
@@ -162,6 +162,9 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             if (null != process && null != out) {
                 out.printlnf("  !!! %s for %s", e.toString(), Json.toJson(meta));
             }
+            // 如果就是创建单个数据的，那么应该不是导入，抛错吧
+            if (1 == len)
+                throw e;
             return null;
         }
 

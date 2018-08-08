@@ -242,12 +242,27 @@ var DATA_MODE = {
             create : function(objName, callback){
                 var UI = this;
                 var oHome = UI.getHomeObj();
-                var cmdText = "thing {{id}} create '{{nm}}'";
-                Wn.execf(cmdText, {
-                    id : UI.getHomeObjId(),
-                    nm : objName.replace(/'/g, ""),
-                }, function(re) {
-                    UI.doActionCallback(re, callback);
+                var cmdText = "thing "+oHome.id+" create ";
+                // 如果是字符串，表示对象名称
+                if(_.isString(objName)) {
+                    var nm = objName.replace(/'/g, "");
+                    cmdText += "'" + nm + "'";
+                }
+                // 否则表示对象的 json
+                else {
+                    var json = $z.toJson(objName).replace(/'/g, "");
+                    cmdText += "-fields '" + json + "'";
+                }
+                // 执行命令
+                Wn.exec(cmdText, function(re) {
+                    // 执行错误
+                    if(/^e\./.test(re)) {
+                        UI.alert(re, 'warn');
+                    }
+                    // 回调成功
+                    else {
+                        UI.doActionCallback(re, callback);
+                    }
                 });
             },
             // thing 的默认移除方法
@@ -440,13 +455,20 @@ var DATA_MODE = {
         }
         // ----------------- meta
         conf.meta = $z.fallback([undefined, true], [opt.meta, conf.meta], {
-            update : function(th, key, callback) {
+            update : function(th, key, ok, fail) {
                 var obj  = key ? $z.obj(key, th[key]) : th;
                 var json = $z.toJson(obj);
 
                 Wn.execf('thing {{th_set}} update {{id}} -fields', json, th, function(re){
-                    var newTh = $z.fromJson(re);
-                    $z.doCallback(callback, [newTh]);
+                    // 错误
+                    if(/^e\./.test(re)) {
+                        $z.doCallback(fail, [UI.msg(re)]);
+                    }
+                    // 成功后：解析结果
+                    else {
+                        var newTh = $z.fromJson(re);
+                        $z.doCallback(ok, [newTh]);
+                    }
                 });
             }
         });
