@@ -21,7 +21,7 @@ public class SheetMapping {
     private static final Pattern P_KEY = Regex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");
     private static final Pattern P_KEY_ARRAY = Regex.getPattern("^[$@]n([.](.+))?$");
     private static final Pattern P_KEY_DATE = Regex.getPattern("^[$@]date(%(.+))?$");
-    private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean$");
+    private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean(((->)|(<-))(.+)/(.+))?$");
     private static final Pattern P_KEY_MAPPING = Regex.getPattern("^[$@][{]([^}]+)[}]$");
     private static final Pattern P_KEY_INT = Regex.getPattern("^[$@]int(=(.+))?$");
     private static final Pattern P_KEY_STR = Regex.getPattern("^[$@]str(=(.+))?$");
@@ -74,7 +74,7 @@ public class SheetMapping {
                 if (m.find()) {
                     sf.type = SheetFieldType.INT;
                     String arg = m.group(2);
-                    if(!Strings.isBlank(arg)) {
+                    if (!Strings.isBlank(arg)) {
                         sf.arg = Integer.parseInt(arg);
                     }
                     continue;
@@ -86,10 +86,17 @@ public class SheetMapping {
                     sf.arg = m.group(2);
                     continue;
                 }
-                // 是布尔吗
+                // 是布尔吗: ^[$@]boolean(((->)|(<-))(.+)/(.+))?$
                 m = P_KEY_BOOLEAN.matcher(kconf);
                 if (m.find()) {
                     sf.type = SheetFieldType.BOOLEAN;
+                    if (!Strings.isBlank(m.group(1))) {
+                        String[] ss = new String[3];
+                        ss[0] = Strings.sBlank(m.group(3),m.group(4));
+                        ss[1] = Strings.sBlank(m.group(5), "Yes");
+                        ss[2] = Strings.sBlank(m.group(6), "No");
+                        sf.arg = ss;
+                    }
                     continue;
                 }
                 // 是映射吗

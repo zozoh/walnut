@@ -11,8 +11,8 @@ sheet /path/to/file      # 输入文件，如果为空，则从管道读取
      [-tpi csv]          # 输入的内容格式，如果是从管道读取，这个必须需要
                          # 如果没有设置，则看输入文件类型，从管道的话，默认 json
      [-tpo xls]          # 输出的内容格式，如果没指定输入文件，而是直接写到输出流里，这个必须需要
-     [-flds ...]         # 字段映射内容
-     [-mapping /path]    # 字段映射文件路径，比 -flds 优先
+     [-flds ...]         # 字段映射内容，字段用半角逗号 `,` 分隔
+     [-mapping /path]    # 字段映射文件路径，比 -flds 优先，字段用换行符分隔
      [-ci {..}]          # 输入处理器需要的配置项
      [-co {..}]          # 输出处理器需要的配置项
      [-process TMPL]     # 进度模式，只有当 -out 指向有效文件时才会生效，
@@ -36,7 +36,7 @@ sheet /path/to/file      # 输入文件，如果为空，则从管道读取
 ---------------------------------------
 # 映射文件
 
-映射文件 `-flds` 可以是一个文件路径 `file://~/path/to/mapping` 也可以直接就是映射内容
+映射文件 `-mapping` 可以是一个文件路径，也可以直接用 `-flds` 给出映射内容。
 
 ```
 th_nm:名称
@@ -45,7 +45,9 @@ lm[$date%yyyy-MM-dd HH:mm:ss]:最后修改日期
 lbls[$n]:标签
 th_media_list[$n.id]:媒体
 sex[${1=男;2=女}]:性别
-th_enabled[$boolean]:生效
+th_enabled[$boolean]:生效 
+th_enabled[$boolean->Yes/No]:生效
+生效[$boolean<-Yes/No]:th_enabled
 phone[$str]:电话
 email[$str=未设置]:电子邮件
 th_price[$int]:价格
@@ -68,6 +70,10 @@ Key 的全部写法为：
 - 数组值   : `key[$n.name]`
 - 日期    : `key[$date]`
 - 日期    : `key[$date%yyyy-MM-dd HH:mm]`
+- 布尔（转字符串）: `th_enabled[$boolean->Yes/No]:生效`
+- 布尔（来自字符串）: `生效[$boolean<-Yes/No]:th_enabled`
+- 字符串 : `phone[$str]:电话`
+- 整数 : `th_price[$int]:价格`
 
 ---------------------------------------
 # 处理器配置

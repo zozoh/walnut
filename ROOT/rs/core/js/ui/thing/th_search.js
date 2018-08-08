@@ -164,10 +164,15 @@ return ZUI.def("ui.thing.th_search", {
                 },
                 autoClose : false,
                 callback : function(obj) {
+                    var pop = this;
                     UI.invokeConfCallback("actions", "create", [obj, function(newObj){
                         var jItem = UI.addObj(newObj);
                         UI.gasket.main.uiList.setActived(jItem);
                         $z.doCallback(callback, [newObj], UI);
+                        pop.uiMask.close();
+                    }, function(){
+                        pop.jBtn.removeAttr("btn-ing");
+                        pop.uiMask.is_ing = false;
                     }]);
                 },
                 errMsg : {

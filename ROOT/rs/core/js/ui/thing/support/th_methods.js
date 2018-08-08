@@ -239,7 +239,7 @@ var DATA_MODE = {
                 });
             },
             // thing 的默认创建方法
-            create : function(objName, callback){
+            create : function(objName, ok, fail){
                 var UI = this;
                 var oHome = UI.getHomeObj();
                 var cmdText = "thing "+oHome.id+" create ";
@@ -255,14 +255,7 @@ var DATA_MODE = {
                 }
                 // 执行命令
                 Wn.exec(cmdText, function(re) {
-                    // 执行错误
-                    if(/^e\./.test(re)) {
-                        UI.alert(re, 'warn');
-                    }
-                    // 回调成功
-                    else {
-                        UI.doActionCallback(re, callback);
-                    }
+                    UI.doActionCallback(re, ok, fail);
                 });
             },
             // thing 的默认移除方法
@@ -822,16 +815,17 @@ var methods = {
     },
     //....................................................
     // 处理命令的通用回调
-    doActionCallback : function(re, callback) {
+    doActionCallback : function(re, ok, fail) {
         var UI = this;
         //console.log("after", re)
         if(!re || /^e./.test(re)){
             UI.alert(re || "empty", "warn");
+            $z.doCallback(fail, [re], UI);
             return;
         }
         try {
             var reo = $z.fromJson(re);
-            $z.doCallback(callback, [reo], UI);
+            $z.doCallback(ok, [reo], UI);
         }
         // 出错了，还是要控制一下
         catch(E) {

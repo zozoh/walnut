@@ -119,7 +119,7 @@ define({
             "tab_commands"   : "命令",
             "general" : {
                 "t_display" : "显示设定",
-                "t_query"   : "查询设定",
+                "t_adv"     : "高级设定",
                 "k_smfwh"   : "菜单收缩",
                 "k_thIndex" : "显示索引",
                 "k_thIndex_m" : "对象属性",

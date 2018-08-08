@@ -154,7 +154,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             if (conf.hasUniqueKeys()) {
                 ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys(), false);
                 if (null != tuk) {
-                    throw Er.create("e.thing.ukey.duplicated", tuk.toString());
+                    throw Er.create("e.thing.ukey.duplicated", tuk.toString(meta));
                 }
             }
         }

@@ -80,14 +80,15 @@ return ZUI.def("ui.thing.thdesign_general", {
                     uiType : "@input",
                 }]
             }, {
-                title : "i18n:thing.conf.general.ukeys",
+                title : "i18n:thing.conf.general.t_adv",
                 fields : [{
                     key : "uniqueKeys",
-                    tip : 'i18n:thing.conf.general.ukeys_tip',
+                    title : "i18n:thing.conf.general.ukeys",
                     type : "object",
                     dft : null,
                     uiType : "@text",
                     uiConf : {
+                        placeholder: 'i18n:thing.conf.general.ukeys_tip',
                         height : 60,
                         parseData : function(uks) {
                             console.log("parseDate")
@@ -123,10 +124,7 @@ return ZUI.def("ui.thing.thdesign_general", {
                             return uks.length > 0 ? uks : null;
                         }
                     }
-                }]
-            }, {
-                title : "i18n:thing.conf.general.t_query",
-                fields : [{
+                }, {
                     key : "searchFilter",
                     title : "过滤设置",
                     type  : "object",

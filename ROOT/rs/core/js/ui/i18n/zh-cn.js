@@ -106,9 +106,9 @@ define({
         },
         "thing" :{
             "ukey" : {
-                "duplicated" : "数据违反唯一键约束",
-                "required" : "缺失唯一键",
-                "partly" : "复合唯一键不完整"
+                "duplicated" : "数据已存在",
+                "required" : "关键数据缺失",
+                "partly" : "关键数据(复合唯一键)不完整"
             },
             "fld" : {
                 "lack" : "缺失必要字段"

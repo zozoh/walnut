@@ -197,7 +197,6 @@ module.exports = {
         $z.setUndefined(opt, "errMsg", {});
         $z.setUndefined(opt, "autoClose", true);
         $z.setUndefined(opt.errMsg, "lack", "Lack required field!");
-        console.log(opt.autoClose)
         //--------------------------------
         // 修改配置信息
         _.extend(opt, {
@@ -208,10 +207,13 @@ module.exports = {
             ok : function(uiForm, jBtn, uiMask){
                 var checkResult = uiForm.checkData({
                     ok : function(data) {
-                        $z.invoke(opt, "callback", [data], this);        
+                        $z.invoke(opt, "callback", [data], {
+                            uiForm : uiForm,
+                            jBtn   : jBtn,
+                            uiMask : uiMask
+                        });        
                     },
                     fail : function(keys){
-                        console.log(keys)
                         uiForm.alert(opt.errMsg.lack, "warn");
                         jBtn.removeAttr("btn-ing");
                         uiMask.is_ing = false;

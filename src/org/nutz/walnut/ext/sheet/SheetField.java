@@ -53,7 +53,24 @@ public class SheetField {
 
         // 布尔
         if (SheetFieldType.BOOLEAN == this.type) {
-            return null == val ? Boolean.FALSE : Castors.me().castTo(val, Boolean.class);
+            // 没有参数的话，转成 boolean
+            if (null == this.arg) {
+                return null == val ? Boolean.FALSE : Castors.me().castTo(val, Boolean.class);
+            }
+
+            // 根据参数转换
+            String[] ss = (String[]) this.arg;
+
+            // ->Yes/No
+            if ("->".equals(ss[0])) {
+                boolean b = null == val ? Boolean.FALSE : Castors.me().castTo(val, Boolean.class);
+                return b ? ss[1] : ss[2];
+            }
+            // <-Yes/No
+            else {
+                String s = Castors.me().castToString(val);
+                return ss[1].equalsIgnoreCase(s) ? true : false;
+            }
         }
 
         // 字符串
@@ -90,8 +107,9 @@ public class SheetField {
                 if (val instanceof Collection<?>) {
                     return Strings.join(", ", (Collection<?>) val);
                 }
-                // 就是一个普通值咯
-                return Castors.me().castToString(val);
+                // 就是一个普通值咯, 那么变成数组
+                String s = Castors.me().castToString(val);
+                return Strings.splitIgnoreBlank(s);
             }
             // 获取对象的一个值
             else {

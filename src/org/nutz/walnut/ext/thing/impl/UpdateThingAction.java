@@ -46,7 +46,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
             WnObj oIndex = this.checkDirTsIndex();
             ThingUniqueKey tuk = checkDuplicated(oIndex, meta, oT, conf.getUniqueKeys(), true);
             if (null != tuk) {
-                throw Er.create("e.thing.ukey.duplicated", tuk.toString());
+                throw Er.create("e.thing.ukey.duplicated", tuk.toString(oT.setAll(meta)));
             }
         }
 
