@@ -1566,6 +1566,13 @@ window.HmRT = {
             });
         }
 
+        // 对分组排序
+        re.sort(function(a, b) {
+            if(a.title > b.title)
+                return 1;
+            return -1;
+        });
+
         // 返回
         return re;
     }
