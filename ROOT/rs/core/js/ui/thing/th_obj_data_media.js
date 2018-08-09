@@ -171,14 +171,15 @@ return ZUI.def("ui.thing.th_obj_data_media", {
                         }
 
                         var conf = UI.getBusConf();
-                        console.log(conf.thumbSize);
+                        var thumbsz = conf.thumbSize || "256x256";
+                        // console.log(conf.thumbSize);
                         var oTh = UI.__OBJ;
                         var thumbPh = 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg';
-                        console.log(o.thumb)
+                        // console.log(o.thumb)
                         // 将这个图片 cp 一份到 thumb.jpg
                         Wn.execf('chimg id:{{srcId}} -s "{{thumbsz}}" {{taph}}; obj {{taph}}', {
                             srcId   : oThumbSrcId,
-                            thumbsz : conf.thumbSize,
+                            thumbsz : thumbsz,
                             taph    : 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg'
                         }, function(re){
                             if(!re || /^e./.test(re)){

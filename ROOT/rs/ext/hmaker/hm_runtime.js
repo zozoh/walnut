@@ -581,9 +581,12 @@ window.HmRT = {
             // 缩略图
             if(val) {
                 jThumb = $('<div class="wn-obj-preview">');
-                var jPr = $('<span>').appendTo(jThumb);
+                var jPr;
                 if(theHref) {
-                    jPr = $('<a>').appendTo(jPr).attr("href", theHref);
+                    jPr = $('<a>').appendTo(jThumb).attr("href", theHref);
+                }
+                else {
+                    jPr = $('<span>').appendTo(jThumb);
                 }
                 $('<img>').attr({
                     "src" : opt.API + "/thumb?" + val
@@ -593,7 +596,7 @@ window.HmRT = {
             else {
                 if(theHref) {
                     jThumb = $('<div class="wn-obj-preview" empty="yes">')
-                        .html('<span><a><i class="fas fa-image"></i></a></span>');
+                        .html('<a><i class="fas fa-image"></i></a>');
                     jThumb.find('a').attr("href", theHref);
                 }
                 // 木有链接
