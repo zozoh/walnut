@@ -885,15 +885,20 @@ window.HmRT = {
                 this.renderLayoutDataItem(opt, jGrp, fld, obj, oHref);
             }
             // 设置属性，并加入 DOM
-            var sel = it.selector || {};
             jGrp.attr({
                 "hm-layout-grp" : "yes",
                 "group-name" : it.name,
                 "layout-desktop-width" : it.w_desktop || "",
                 "layout-mobile-width"  : it.w_mobile || "",
-                "layout-desktop-selector" : sel.desktop(obj) || "",
-                "layout-mobile-selector"  : sel.mobile(obj)  || ""
             });
+            var sel = it.selector;
+            if(sel) {
+                jGrp.attr({
+                    "layout-desktop-selector" : sel.desktop(obj) || "",
+                    "layout-mobile-selector"  : sel.mobile(obj)  || ""
+                }); 
+            }
+
             
             jGrp.appendTo(jP);
         }

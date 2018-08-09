@@ -37,7 +37,7 @@
             // Step2:导出进度
             steps["step2"] = {
                 text : "i18n:thing.data.down_gen_zip",
-                prev : true,
+                prev : false,
                 next : false,
                 uiType : "ui/thing/support/media_download/step2_gen_zip",
                 uiConf : opt
