@@ -1573,6 +1573,16 @@ window.HmRT = {
             return -1;
         });
 
+        // 修正每个分组的标题, 如果带着 `1.xxx` 去掉前面的数字
+        for(var i=0; i<re.length; i++) {
+            var g = re[i];
+            console.log()
+            var m = /^([0-9]+\.)(.+)$/.exec(g.title);
+            if(m) {
+                g.title = $.trim(m[2]);
+            }
+        }
+
         // 返回
         return re;
     }
