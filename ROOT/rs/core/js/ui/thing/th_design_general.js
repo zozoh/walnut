@@ -91,7 +91,7 @@ return ZUI.def("ui.thing.thdesign_general", {
                         placeholder: 'i18n:thing.conf.general.ukeys_tip',
                         height : 60,
                         parseData : function(uks) {
-                            console.log("parseDate")
+                            //console.log("parseDate")
                             var ss = [];
                             if(_.isArray(uks) && uks.length > 0) {
                                 for(var i=0;i<uks.length;i++) {
@@ -107,7 +107,9 @@ return ZUI.def("ui.thing.thdesign_general", {
                             return ss.join("\n");
                         },
                         formatData : function(str) {
-                            console.log("formatData")
+                            //console.log("formatData")
+                            if(!str)
+                                return null;
                             var uks = [];
                             var ss = $z.splitIgnoreBlank(str, "\n");
                             for(var i=0; i<ss.length; i++) {
