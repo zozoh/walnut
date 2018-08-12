@@ -10,5 +10,5 @@
 
 ```
 weather sojson           # 通过sojson.com获取天气信息,仅需要传城市名
-weather ku_realtime      # 通过kuweather获取实时天气信息
+weather ku               # 通过kuweather获取实时天气信息
 ```

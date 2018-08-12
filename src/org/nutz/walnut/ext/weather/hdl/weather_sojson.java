@@ -12,16 +12,18 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
 
 public class weather_sojson implements JvmHdl {
+    
+    protected String base = "https://www.sojson.com/open/api/weather/json.shtml?city=";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         ZParams params = ZParams.parse(hc.args, "cqn");
         // 得到天气 API
-        String weatherApi = Strings.sBlank(params.val(0),
-                                           "https://www.sojson.com/open/api/weather/json.shtml?city=北京");
+        String city = Strings.sBlank(params.val(0), "北京");
 
+        String url = base + city;
         // 发送请求
-        Response resp = Http.get(weatherApi);
+        Response resp = Http.get(url);
         String json = resp.getContent();
 
         // 格式化
