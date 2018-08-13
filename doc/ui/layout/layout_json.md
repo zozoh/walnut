@@ -56,7 +56,7 @@ author:zozoh
             right  : 0,
             bottom : "40px"
         },
-        uiType : "xx"
+        uiType : "ui/xx"
     }],
 }
 ```
