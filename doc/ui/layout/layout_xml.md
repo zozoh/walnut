@@ -4,7 +4,7 @@ author:zozoh
 ---
 
 ----------------------------------
-# 布局语法·概述
+# 布局语法·XML·概述
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -45,7 +45,7 @@ author:zozoh
                         当然，这个UI定义也是可以在稍后在创建实例时被覆盖的
                         -->
                         <tab name="c0">
-                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                            <icon><i class="fa fa-user"></i></icon>
                             <text>i18n:xxxx</text>
                             <ui type="ui/xxx"/>
                         </tab>
@@ -64,28 +64,47 @@ author:zozoh
 
     另外 box 内部也可以组合 rows/cols/tabs
     -->
-    <box name="xx">
-        <!-- 有标题栏，则可以承载一个统一的 actions -->
-        <title>
-            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
-            <text>i18n:xxxx</text>
+    <boxes>
+        <box name="xx">
+            <!-- 标题栏，可以承载 title/actionMenu -->
+            <title>
+                <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                <text>i18n:xxxx</text>
+            </title>
             <action><![CDATA[..这里是menu的配置（数组）..]]></action>
-        </title>
-        <!--
-        默认的 box 位置和尺寸，当用户拖动时，位置信息会存放在本地
-        @dock-x 和 @dock-y 决定了要采用哪些属性。这两个值一定是有的
-        如果没有，默认left/top
-        拖动的时候，会判断 box 中心点哪个角近，就选择哪个
-        -->
-        <pos dock-x="left" dock-y="top">
-            <width>30%</width>
-            <height>90%</width>
-            <right>0</right>
-            <bottom>40px</bottom>
-        </pos>
-        <!--默认UI咯，你懂的-->
-        <ui type="ui/xx"/>        
-    </box>
+            <!--
+            默认的 box 位置和尺寸，当用户拖动时，位置信息会存放在本地
+            拖动的时候，会判断 box 哪个点近，就选择dock到哪个点
+            NW---N---NE
+            |    |    |
+            W----P----E
+            |    |    |
+            SW---S---SE
+            dock 到不同的点，会分别选取不同的位置尺寸信息
+             dock | prop                      | auto
+            ------|---------------------------|----------
+             - NW | left,top,width,height     | ~~
+             - N  | top,width,height          | left
+             - NE | right,top,width,height    | ~~
+             - W  | left,width,height         | top
+             - P  | width,height              | left,top
+             - E  | right,width,height        | top
+             - SW | left,bottom,width,height  | ~~
+             - S  | bottom,width,height       | left
+             - SE | right,bottom,width,height | ~~
+            默认的， box 的 pos 为
+            P:60%/60%
+            -->
+            <pos dock-at="P">
+                <width>30%</width>
+                <height>90%</width>
+                <right>0</right>
+                <bottom>40px</bottom>
+            </pos>
+            <!--默认UI咯，你懂的-->
+            <ui type="ui/xx"/>        
+        </box>
+    </boxes>
 </layout>
 ```
 

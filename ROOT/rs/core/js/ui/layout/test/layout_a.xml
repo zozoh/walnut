@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <rows>
+        <row name="sky" size="40rem">
+            <ui type="ui/xxx/xxx"><![CDATA[
+            {
+                icon : '<i class="fa fa-user"></i>',
+                text : 'i18n:xxxxx'
+            }
+            ]]></ui>
+        </row>
+        <row>
+            <cols>
+                <col name="chute" size="30%" collapse-size="20px" collapse="yes">
+                    <ui type="ui/xxx/xxx"/>
+                </col>
+                <bar/>
+                <col>
+                    <tabs>
+                        <action><![CDATA[[{
+                            text : "action",
+                            handlerName : "xyz"
+                        }]]]></action>
+                        <tab name="c0">
+                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                            <text>i18n:xxxx</text>
+                            <ui type="ui/xxx"/>
+                        </tab>
+                    </tabs>
+                </col>
+                <col name="brief">
+                    <ui type="ui/xxx/xxx"/>
+                </col>
+            </cols>
+        </row>
+        <row name="footer" size="40rem">
+            <ui type="ui/xxx/xxx"/>
+        </row>
+    </rows>
+    <boxes>
+        <box name="box1">
+            <title>
+                <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                <text>i18n:xxxx</text>
+            </title>
+            <action><![CDATA[
+                [{
+                    text : "action",
+                    handlerName : "xyz"
+                }]
+            ]]></action>
+            <pos dock-x="left" dock-y="top">
+                <width>30%</width>
+                <height>90%</height>
+                <right>0</right>
+                <bottom>40px</bottom>
+            </pos>
+            <ui type="ui/xx"/>        
+        </box>
+    </boxes>
+</layout>
+
+
+
+
+

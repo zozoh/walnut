@@ -18,7 +18,16 @@ author:zozoh
 
 ```js
 new LayoutUI({
-    layout : "ui/xxx/xxx.xml"
+    layout : "ui/xxx/xxx.xml",
+    setup : {
+        // 在 xml 里声明的 <row|col|tab|box name=".."> 属性
+        "$gasketName" : {
+            uiType : 'ui/xx/xx',
+            uiConf : {/*..*/}
+        }
+    },
+    // 存储本地的布局信息的键，如果不声明，则不保存本地状态
+    localKey : "xxxx"
 }).render();
 ```
 

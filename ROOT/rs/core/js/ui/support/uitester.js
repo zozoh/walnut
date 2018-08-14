@@ -98,6 +98,7 @@ return ZUI.def("ui.support.uitester", {
         $('<option>ui/thing/test/test_for_thing</option>').appendTo(jList);
         $('<option>ui/thing/test/test_for_obj</option>').appendTo(jList);
         $('<option>ui/search2/test/test_for_search</option>').appendTo(jList);
+        $('<option>ui/layout/test/test_for_layout</option>').appendTo(jList);
 
         $('<textarea placeholder="uiConf as JSON string here" spellcheck="false">').css({
             "width" : "100%",

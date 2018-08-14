@@ -4,29 +4,29 @@ author:zozoh
 ---
 
 ----------------------------------
-# 布局语法·概述
+# 布局语法·JSON·概述
 
 ```js
 {
     type : 'rows',
-    list : [{
+    rows : [{
         name : 'sky',
         size : '40rem',
         uiType : 'ui/xx/xx',
         uiConf : {/*..*/}
     }, {
         type : 'cols',
-        list : [{
+        cols : [{
             name : 'chute',
             size : '30%',
             collapseSize : '20px',
             collapse : true
         },{
-            bar : true,
+            type : "bar"
         },{
             type : 'tabs',
             action : [/*..*/],
-            list : [{
+            tabs : [{
                 name : 'c0',
                 icon : '<i...>',
                 text : 'i18n:xxx',
@@ -43,14 +43,14 @@ author:zozoh
         uiConf : {/*..*/}
     }],
     boxes : [{
+        type  : 'box',
         title : {
             icon : '<i...>',
             text : 'i18n:xxx',
             action : [/*..*/],
         },
         pos : {
-            dockX : "left",
-            dockY : "top",
+            dockAt : "P",
             width  : "30%",
             height : "90%",
             right  : 0,
