@@ -444,27 +444,40 @@
             return jq;
         },
         //.............................................
-        // 计算尺寸
+        // 计算尺寸的绝对像素数值
         //  -v : 要计算的尺寸值的类型可以是
-        //       500   - 整数，直接返回
-        //       .12   - 浮点，相当于一个百分比，可以大于 1.0
-        //       "12%" - 百分比，相当于 .12
+        //       500    - 整数，直接返回表示像素
+        //       .12    - 浮点，相当于一个百分比，可以大于 1.0
+        //       "12%"  - 百分比，相当于 .12
+        //       "5px"  - 像素，直接返回 5
+        //       "5rem" - 根据根元素计算比例
         // - base : 百分比的基数
+        // @return 绝对像素数值
         dimension: function (v, base) {
-            var n = v * 1;
-            if (_.isNumber(n) && !isNaN(n)) {
-                if (parseInt(n) == n)
-                    return n;
-                return n * base;
+            // 数字
+            if(_.isNumber(v)){
+                if(v>1 || v<-1)
+                    return v;
+                return v*base;
             }
-            // 百分比
-            var m = /^(-?)([0-9.]{1,})%$/g.exec(v);
-            if (m) {
-                var neg = "-" == m[1] ? -1 : 1;
-                return (m[2] / 100) * base * neg;
+            // 分析字符串
+            var m = /^(-?\d*\.?\d+)(%|px|rem)?$/.exec(v);
+            // ！靠~不知道是啥
+            if(!m) {
+                throw  "fail to dimension : " + v;
             }
-            // 靠不知道是啥
-            throw  "fail to dimension : " + v;
+
+            // rem
+            if('rem' == m[2]) {
+                var rem = $D.dom.getRootFontSize();
+                return m[1] * rem;
+            }
+            // %
+            else if('%' == m[2]) {
+                return m[1] / 100 * base;
+            }
+            // px
+            return m[1] * 1;
         },
         //.............................................
         toPixel: function (str, base, dft) {

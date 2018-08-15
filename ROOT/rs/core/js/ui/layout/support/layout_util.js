@@ -8,8 +8,32 @@
 //..................................................
 var WnLayout = {
 //..................................................
+getPropFromEle : function($el, prefix) {
+    var obj = {};
+    $.each($el[0].attributes, function(){
+        if(prefix) {
+            if(this.name.substring(0,prefix.length) == prefix) {
+                var anm = this.name.substring(prefix.length);
+                var key = $z.upperWord(anm);
+                var val = $z.strToJsObj(this.value);
+                obj[key] = val;
+            }
+        }else{
+            obj[this.name] = $z.strToJsObj(this.value);
+        }
+    });
+    return obj;
+},
+setPropToEle : function(obj, $el, prefix) {
+    for(var key in obj) {
+        var anm = (prefix||"") + $z.lowerWord(key);
+        var val = obj[key];
+        $el.attr(anm, val);
+    }
+},
+//..................................................
 // 从 xml 节点设置属性的帮助方法
-setPropByEle : function(obj, propName, $el, attrName) {
+setPropByXmlNode : function(obj, propName, $el, attrName) {
     attrName = attrName || $z.lowerWord(propName);
     var m = /^(>)?(CDATA)(:(json))?$/.exec(attrName);
 
@@ -109,8 +133,8 @@ parseXml : function(xml) {
         if('boxes'!=tp)
             la.type = tp;
         // 通用的 actionMenu
-        $L.setPropByEle(la, "key", $el);
-        $L.setPropByEle(la, "action", $el, ">CDATA:json");
+        $L.setPropByXmlNode(la, "key", $el);
+        $L.setPropByXmlNode(la, "action", $el, ">CDATA:json");
         // 根据类型获取  box|row|col|tab
         var subType = tp.substring(0,3);
         //console.log(subType)
@@ -124,20 +148,20 @@ parseXml : function(xml) {
             }
             else if('box' == ittp) {
                 var obj  = {type:'box'};
-                $L.setPropByEle(obj, "key", $it);
-                $L.setPropByEle(obj, "name", $it);
-                $L.setPropByEle(obj, "collapse", $it);
+                $L.setPropByXmlNode(obj, "key", $it);
+                $L.setPropByXmlNode(obj, "name", $it);
+                $L.setPropByXmlNode(obj, "collapse", $it);
                 list.push(obj);
 
                 // 处理 title
                 var $tt = $it.children('title').first();
                 if($tt.length > 0) {
                     obj.title = {};
-                    $L.setPropByEle(obj.title, "icon",  $tt, ">CDATA");
-                    $L.setPropByEle(obj.title, "text",  $tt, ">CDATA");
+                    $L.setPropByXmlNode(obj.title, "icon",  $tt, ">CDATA");
+                    $L.setPropByXmlNode(obj.title, "text",  $tt, ">CDATA");
                 }
                 // 处理 action
-                $L.setPropByEle(obj, "action", $it, ">CDATA:json");
+                $L.setPropByXmlNode(obj, "action", $it, ">CDATA:json");
                 // 处理 pos
                 obj.pos = {
                     dockAt : "P",
@@ -146,20 +170,20 @@ parseXml : function(xml) {
                 };
                 var $pos = $it.children('pos').first();
                 if($pos.length > 0) {
-                    $L.setPropByEle(obj.pos, "dockAt", $pos);
-                    $L.setPropByEle(obj.pos, "width",  $pos, ">CDATA");
-                    $L.setPropByEle(obj.pos, "height", $pos, ">CDATA");
-                    $L.setPropByEle(obj.pos, "left",   $pos, ">CDATA");
-                    $L.setPropByEle(obj.pos, "top",    $pos, ">CDATA");
-                    $L.setPropByEle(obj.pos, "bottom", $pos, ">CDATA");
-                    $L.setPropByEle(obj.pos, "right",  $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "dockAt", $pos);
+                    $L.setPropByXmlNode(obj.pos, "width",  $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "height", $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "left",   $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "top",    $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "bottom", $pos, ">CDATA");
+                    $L.setPropByXmlNode(obj.pos, "right",  $pos, ">CDATA");
                 }
 
                 // 看看子是否声明了ui
                 var $ui = $it.children('ui').first();
                 if($ui.length > 0) {
-                    $L.setPropByEle(obj, "uiType", $ui, "type");
-                    $L.setPropByEle(obj, "uiConf", $ui, "CDATA:json");
+                    $L.setPropByXmlNode(obj, "uiType", $ui, "type");
+                    $L.setPropByXmlNode(obj, "uiConf", $ui, "CDATA:json");
                 }
                 // 否则循环递归自己的 chilren
                 else {
@@ -173,20 +197,20 @@ parseXml : function(xml) {
             // row|col|tab
             else if(/^(row|col|tab)$/.test(ittp)) {
                 var obj  = {};
-                $L.setPropByEle(obj, "key", $it);
-                $L.setPropByEle(obj, "name", $it);
-                $L.setPropByEle(obj, "size", $it);
-                $L.setPropByEle(obj, "collapse", $it);
-                $L.setPropByEle(obj, "collapseSize", $it);
-                $L.setPropByEle(obj, "icon",  $it, ">CDATA");
-                $L.setPropByEle(obj, "text",  $it, ">CDATA");
+                $L.setPropByXmlNode(obj, "key", $it);
+                $L.setPropByXmlNode(obj, "name", $it);
+                $L.setPropByXmlNode(obj, "size", $it);
+                $L.setPropByXmlNode(obj, "collapse", $it);
+                $L.setPropByXmlNode(obj, "collapseSize", $it);
+                $L.setPropByXmlNode(obj, "icon",  $it, ">CDATA");
+                $L.setPropByXmlNode(obj, "text",  $it, ">CDATA");
                 list.push(obj);
 
                 // 看看子是否声明了ui
                 var $ui = $it.children('ui').first();
                 if($ui.length > 0) {
-                    $L.setPropByEle(obj, "uiType", $ui, "type");
-                    $L.setPropByEle(obj, "uiConf", $ui, "CDATA:json");
+                    $L.setPropByXmlNode(obj, "uiType", $ui, "type");
+                    $L.setPropByXmlNode(obj, "uiConf", $ui, "CDATA:json");
                 }
                 // 否则循环递归自己的 chilren
                 else {
@@ -219,16 +243,31 @@ renderDom : function(UI, laItem, $p, isArena) {
         var $div = isArena 
                     ? $('<div>').appendTo($p)
                     : $p;
-        $div.attr('wl-type',laItem.type || null);
-        $div.attr('wl-key',laItem.key  || null);
+        var areaType = null;   // 准备迭代 row/col 标识区域
+        $div.attr({
+            'wl-type'     : laItem.type || null,
+            'wl-key'      : laItem.key  || laItem.name || null,
+            "wl-collapse" : laItem.collapse ? "yes" : null
+        });
         // 对于 box
         if('box' == laItem.type 
                 && (laItem.title || laItem._action_menu_name)) {
-            var $info = $('<div class="wlb-info">').prependTo($div);
+            // 标识自己是区域
+            $div.attr('wl-area', 'box');
+            // 记录一下位置
+            var pos = laItem.pos;
+            if(pos) {
+                this.setPropToEle(pos, $div, "wlb-");
+            }
+            //.....................................
+            // 创建包裹器
+            var $bxc = $('<div class="wlb-con">').appendTo($div);
+            var $info = $('<div class="wlb-info">').prependTo($bxc);
+            //.....................................
             // 标题
             var btt = laItem.title;
             if(btt) {
-                var $btt = $('<div class="wlbt-title">').appendTo($info);
+                var $btt = $('<div class="wlb-title">').appendTo($info);
                 if(btt.icon) {
                     $(btt.icon).appendTo($btt);
                 }
@@ -236,20 +275,25 @@ renderDom : function(UI, laItem, $p, isArena) {
                     $('<span>').text(UI.text(btt.text)).appendTo($btt);
                 }
             }
-            // 记录一下位置
-            var pos = laItem.pos;
-            if(pos) {
-                $div.attr('wl-box-pos', $z.toJson(pos));
-            }
+            //.....................................
             // 命令
             if(laItem._action_menu_name) {
                 $('<div class="wl-action">').attr({
                     "ui-gasket" : laItem._action_menu_name
                 }).appendTo($info);
             }
+            //.....................................
             // 内容
-            $main = $('<div class="wlb-main">').appendTo($div);
-            // 有子内容
+            $main = $('<div class="wlb-main">').appendTo($bxc);
+            //.....................................
+            // 关闭器
+            var colserMode = /^[N]$/.test(pos.dockAt)
+                                    ? pos.dockAt
+                                    : "RT";
+            $('<div class="wlb-closer"><b></b></div>').appendTo($bxc);
+            $bxc.attr({'wlb-cm': colserMode});
+            //.....................................
+            // 有子内容...递归
             if(laItem.box) {
                 $L.renderDom(UI, laItem.box, $main);
             }
@@ -260,12 +304,13 @@ renderDom : function(UI, laItem, $p, isArena) {
         }
         // 对于 tab
         else if('tabs' == laItem.type) {
-            var $tabs = $('<div class="wlt-tabs">').prependTo($div);
-            // 标签
-            var $ul = $('<ul>').appendTo($tabs);
+            // 标识自己是区域
+            $div.attr('wl-area', 'tabs');
+            // 标签栏
+            var $tt = $('<div class="wlt-tabs">').prependTo($div);
+            var $ul = $('<ul>').appendTo($tt);
             for(var i=0; i<laItem.tabs.length; i++) {
                 var tab = laItem.tabs[i];
-                console.log(tab)
                 var $li = $('<li>').attr({
                              "wl-tab-index" : i,
                              "wl-tab-key" : tab.key || null
@@ -281,13 +326,19 @@ renderDom : function(UI, laItem, $p, isArena) {
             if(laItem._action_menu_name) {
                 $('<div class="wl-action">').attr({
                     "ui-gasket" : laItem._action_menu_name
-                }).appendTo($tabs);
+                }).appendTo($tt);
             }
             // 内容
             $con = $('<div class="wn-layout-con">').appendTo($div);
         }
-        // 其他 row|col
-        else if('bar' != laItem.type){
+        // 对于 rows
+        else if('rows' == laItem.type){
+            areaType = 'row';
+            $con = $('<div class="wn-layout-con">').appendTo($div);
+        }
+        // 对于 cols
+        else if('cols' == laItem.type){
+            areaType = 'col';
             $con = $('<div class="wn-layout-con">').appendTo($div);
         }
     }
@@ -296,7 +347,8 @@ renderDom : function(UI, laItem, $p, isArena) {
         $L.eachLayoutChildren(laItem, function(it){
             var $it = $('<div>').attr({
                 "ui-gasket" : it.name || null,
-                "wl-key"    : it.key  || null,
+                "wl-key"    : it.key  || it.name || null,
+                'wl-area'   : areaType,
                 "wl-size"   : it.size || null,
                 "wl-collapse-size" : it.collapseSize || null,
                 "wl-collapse" : it.collapse ? "yes" : null

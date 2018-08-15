@@ -2,12 +2,13 @@
 $z.declare([
     'zui',
     'wn/util',
+    'ui/menu/menu',
     'ui/layout/layout',
-], function(ZUI, Wn, LayoutUI){
+], function(ZUI, Wn, MenuUI, LayoutUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena test-for-layout" ui-fitparent="true">
-    <div class="tfl-menu" ui-gasket="menu"></div>
+    <div class="tfl-menu" ui-gasket="menu" style="border-bottom:1px solid #DDD;"></div>
     <div class="tfl-main" ui-gasket="main"></div>
 </div>
 */};
@@ -18,7 +19,7 @@ return ZUI.def("ui.test_for_thing", {
     redraw : function() {
         var UI = this;
 
-        new LayoutUI({
+        var uiLa = new LayoutUI({
             parent : UI,
             gasketName : 'main',
             layout : 'ui/layout/test/layout_a.xml'
@@ -26,8 +27,27 @@ return ZUI.def("ui.test_for_thing", {
             UI.defer_report('main');
         });
 
+        new MenuUI({
+            parent : UI,
+            gasketName : 'menu',
+            context : uiLa,
+            setup : [{
+                text : "显示Box",
+                handler : function(){
+                    this.showArea('box1');
+                }
+            }, {
+                text : "切换chute",
+                handler : function(){
+                    this.toggleArea('chute');
+                }
+            }]
+        }).render(function(){
+            UI.defer_report('menu');
+        });
+
         // 返回延迟加载
-        return ["main"];
+        return ["menu", "main"];
     },
     //..............................................
     update : function(o) {

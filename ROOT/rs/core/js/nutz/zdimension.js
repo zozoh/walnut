@@ -240,6 +240,53 @@ var zRect = {
         });
     },
     //.............................................
+    quick : function(values, keys, dft) {
+        var re = {};
+        if(keys) {
+            var len = Math.min(values.length, keys.length);
+            for(var i=0; i<len; i++) {
+                var k = keys[i];
+                var key = this.__quick_key_map[k] || k;
+                var val = values[i];
+                if(_.isUndefined(val) || _.isNull(val))
+                    val = dft;
+                if(!_.isUndefined(val) && !_.isNull(val))
+                    re[key] = val * 1;
+            }
+        }
+        return re;
+    },
+    //.............................................
+    __quick_key_map : {
+        t : "top",
+        l : "left",
+        w : "width",
+        h : "height",
+        r : "right",
+        b : "bottom",
+        x : "x",
+        y : "y"
+    },
+    //.............................................
+    // 支持快捷方法
+    // keys : "tlwhrbxy" 几个字母任意组合
+    pick : function(rect, keys, dft) {
+        var re = {};
+        if(keys && _.isString(keys)) {
+            keys = keys.toLowerCase();
+            for(var i=0;i<keys.length;i++) {
+                var k = keys[i];
+                var key = this.__quick_key_map[k] || k;
+                var val = rect[key];
+                if(_.isUndefined(val))
+                    val = dft;
+                if(!_.isUndefined(val))
+                    re[key] = val;
+            }
+        }
+        return re;
+    },
+    //.............................................
     // 快速精简的矩形信息，以便人类查看
     dumpValues : function(rect, keys, precise){
         if(!rect)

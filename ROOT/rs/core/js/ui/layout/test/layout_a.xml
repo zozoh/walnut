@@ -9,7 +9,6 @@
             }
             ]]></ui>
         </row>
-        <bar/>
         <row>
             <cols>
                 <col name="chute" size="30%" collapse-size="40px" collapse="yes">
@@ -46,13 +45,12 @@
                 </col>
             </cols>
         </row>
-        <bar/>
         <row name="footer" size="1rem">
             <ui type="ui/xxx/xxx"/>
         </row>
     </rows>
     <boxes>
-        <box name="box1">
+        <box name="box1" collapse="yes">
             <title>
                 <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
                 <text>i18n:xxxx</text>
@@ -64,15 +62,15 @@
                 }]
             ]]></action>
             <pos dock-at="P">
-                <width>30%</width>
-                <height>90%</height>
-                <right>0</right>
-                <bottom>40px</bottom>
+                <width>640</width>
+                <height>100%</height>
             </pos>
             <!--ui type="ui/xx/xx"/-->
             <rows>
                 <row name="aa"><ui type="ui/xx/xx"/></row>
+                <bar/>
                 <row name="bb"><ui type="ui/xx/xx"/></row>
+                <bar/>
                 <row name="cc"><ui type="ui/xx/xx"/></row>
             </rows>
         </box>

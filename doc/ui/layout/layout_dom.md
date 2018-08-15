@@ -40,7 +40,7 @@ author:zozoh
             <div ui-gasket="footer" wl-size="40rem"></div>
         </div> <!--// End of <div class="wn-layout-con">-->
     </div>
-    <div wl-type="box">
+    <div wl-type="box"><div class="wlb-con">
         <div class="wlb-info">
             <div class="wlbt-title">
                 <i class="fa fa-user"></i>
@@ -53,7 +53,7 @@ author:zozoh
             可以嵌套更多复杂的 rows/cols/tabs
             也可以声明 ui-gasket 表明一个 UI
         --></div>
-    </div>
+    </div></div>
 </div> <!--// End of .ui-arena-->
 ```
 
