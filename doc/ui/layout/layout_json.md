@@ -8,6 +8,7 @@ author:zozoh
 
 ```js
 {
+    key  : 'xxx',
     type : 'rows',
     rows : [{
         name : 'sky',
@@ -56,7 +57,12 @@ author:zozoh
             right  : 0,
             bottom : "40px"
         },
-        uiType : "ui/xx"
+        // 自己的内容，可以是 type = rows 或者 uiType
+        uiType : "ui/xx",  // 这个更优先
+        box : {
+            type : "rows",
+            rows : [/*..*/]
+        }
     }],
 }
 ```

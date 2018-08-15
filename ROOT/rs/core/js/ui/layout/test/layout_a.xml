@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
     <rows>
-        <row name="sky" size="40rem">
+        <row name="sky" size=".4rem">
             <ui type="ui/xxx/xxx"><![CDATA[
             {
                 icon : '<i class="fa fa-user"></i>',
@@ -9,31 +9,45 @@
             }
             ]]></ui>
         </row>
+        <bar/>
         <row>
             <cols>
-                <col name="chute" size="30%" collapse-size="20px" collapse="yes">
+                <col name="chute" size="30%" collapse-size="40px" collapse="yes">
                     <ui type="ui/xxx/xxx"/>
                 </col>
                 <bar/>
                 <col>
-                    <tabs>
+                    <tabs key="zozoh">
                         <action><![CDATA[[{
                             text : "action",
                             handlerName : "xyz"
                         }]]]></action>
-                        <tab name="c0">
+                        <tab name="c0" key="tab1">
                             <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
                             <text>i18n:xxxx</text>
                             <ui type="ui/xxx"/>
                         </tab>
+                        <tab>
+                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                            <text>i18n:xxxx</text>
+                            <rows>
+                                <row></row>
+                                <bar/>
+                                <row></row>
+                                <bar/>
+                                <row></row>
+                            </rows>
+                        </tab>
                     </tabs>
                 </col>
+                <bar/>
                 <col name="brief">
                     <ui type="ui/xxx/xxx"/>
                 </col>
             </cols>
         </row>
-        <row name="footer" size="40rem">
+        <bar/>
+        <row name="footer" size="1rem">
             <ui type="ui/xxx/xxx"/>
         </row>
     </rows>
@@ -49,13 +63,18 @@
                     handlerName : "xyz"
                 }]
             ]]></action>
-            <pos dock-x="left" dock-y="top">
+            <pos dock-at="P">
                 <width>30%</width>
                 <height>90%</height>
                 <right>0</right>
                 <bottom>40px</bottom>
             </pos>
-            <ui type="ui/xx"/>        
+            <!--ui type="ui/xx/xx"/-->
+            <rows>
+                <row name="aa"><ui type="ui/xx/xx"/></row>
+                <row name="bb"><ui type="ui/xx/xx"/></row>
+                <row name="cc"><ui type="ui/xx/xx"/></row>
+            </rows>
         </box>
     </boxes>
 </layout>

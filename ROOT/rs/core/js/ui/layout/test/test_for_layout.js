@@ -7,8 +7,8 @@ $z.declare([
 //==============================================
 var html = function(){/*
 <div class="ui-arena test-for-layout" ui-fitparent="true">
-    <div ui-gasket="menu"></div>
-    <div ui-gasket="main"></div>
+    <div class="tfl-menu" ui-gasket="menu"></div>
+    <div class="tfl-main" ui-gasket="main"></div>
 </div>
 */};
 //==============================================
@@ -32,6 +32,14 @@ return ZUI.def("ui.test_for_thing", {
     //..............................................
     update : function(o) {
         // this.gasket.main.update(o);
+    },
+    resize : function(){
+        var UI = this;
+        var jMenu = UI.arena.find('>.tfl-menu');
+        var jMain = UI.arena.find('>.tfl-main');
+        jMain.css({
+            "height" : UI.arena.height() - jMenu.outerHeight()
+        });
     }
     //..............................................
 });

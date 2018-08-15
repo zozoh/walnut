@@ -46,10 +46,13 @@ author:zozoh
                 <i class="fa fa-user"></i>
                 <span>xxxxx</span>
             </div>
-            <div class="wl-action"><!--嵌入menu--></div>
+            <div class="wl-action"
+                 ui-gasket="action_menu_1"><!--嵌入menu--></div>
         </div>
-        <div class="wn-layout-con"
-             ui-gasket="action_menu_1"><!--嵌入menu--></div>
+        <div class="wlb-main"><!--
+            可以嵌套更多复杂的 rows/cols/tabs
+            也可以声明 ui-gasket 表明一个 UI
+        --></div>
     </div>
 </div> <!--// End of .ui-arena-->
 ```

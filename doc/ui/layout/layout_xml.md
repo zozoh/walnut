@@ -11,11 +11,12 @@ author:zozoh
 <layout>
     <!--
     rows 分栏，将界面水平划分为多行
-     @size 表示显示的宽度，支持 `px|%|rem|em` 等 css 尺寸单位。只有数字的话表 px
+     @size 表示显示的宽度，支持 `px|%` 两种 css 尺寸单位。只有数字的话表 px
            不声明 @size 的区域表自动应用剩余宽度
+     @collapse-size 如果不指定，默认为 24px;
     -->
-    <rows>
-        <row name="sky" size="40rem">
+    <rows key="xxx">
+        <row key="xxx" name="sky" size="40rem" collapse-size="24px" >
             <!--
             声明本行的默认控件，控件的 type 为必选，是控件类型。
             内容 CDATA 为控件的配置信息
@@ -29,7 +30,7 @@ author:zozoh
         <row>
             <cols>
                 <!--不指定 <ui> 则表示没有默认控件，需要创建时指定-->
-                <col name="chute" size="30%" collapse-size="20px" collapse="yes"/>
+                <col name="chute" size="30%" collapse="yes"/>
                 <!--插入调整条，则表示调整前后两个区域-->
                 <bar/>
                 <col>
@@ -97,12 +98,16 @@ author:zozoh
             -->
             <pos dock-at="P">
                 <width>30%</width>
-                <height>90%</width>
+                <height>90%</height>
                 <right>0</right>
                 <bottom>40px</bottom>
             </pos>
-            <!--默认UI咯，你懂的-->
-            <ui type="ui/xx"/>        
+            <!--
+            可以嵌套更多复杂的 rows/cols/tabs
+            也可以声明 ui-gasket 表明一个 UI
+            -->
+            <ui type="ui/xx"/>
+            <rows><!--...--></rows>     
         </box>
     </boxes>
 </layout>
