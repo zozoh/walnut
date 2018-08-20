@@ -289,13 +289,13 @@ var methods = {
         UI._do_blur(jItems);
     },
     //...............................................................
-    setAllBlur : function(nextObj, nextItem){
+    setAllBlur : function(nextObj, nextItem, quiet){
         var UI  = this;
         var jItems  = UI.$checked();
-        UI._do_blur(jItems, nextObj, nextItem);
+        UI._do_blur(jItems, nextObj, nextItem, quiet);
     },
     //...............................................................
-    _do_blur : function(jItems, nextObj, nextItem) {
+    _do_blur : function(jItems, nextObj, nextItem, quiet) {
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
@@ -311,11 +311,13 @@ var methods = {
             $z.invoke(UI, "__after_blur", [jItems, nextObj, nextItem]);
 
             // 触发消息 
-            UI.trigger("item:blur", jItems, nextObj, nextItem);
-            $z.invoke(opt, "on_blur", [jItems, nextObj, nextItem], context);
-            
-            UI.trigger("item:unchecked", jItems);
-            $z.invoke(opt, "on_unchecked", [jItems], UI);
+            if(!quiet) {
+                UI.trigger("item:blur", jItems, nextObj, nextItem);
+                $z.invoke(opt, "on_blur", [jItems, nextObj, nextItem], context);
+                
+                UI.trigger("item:unchecked", jItems);
+                $z.invoke(opt, "on_unchecked", [jItems], UI);
+            }
         }
     },
     //...............................................................
@@ -348,7 +350,7 @@ var methods = {
         return jItem.attr("li-checked") ? true : false;
     },
     //...............................................................
-    check : function(arg){
+    check : function(arg, quiet){
         var UI  = this;
         var opt = UI.options;
 
@@ -365,12 +367,14 @@ var methods = {
             $z.invoke(UI, "__after_checked", [jItems]);
 
             // 触发消息 
-            UI.trigger("item:checked", jItems);
-            $z.invoke(opt, "on_checked", [jItems], UI);
+            if(!quiet) {
+                UI.trigger("item:checked", jItems);
+                $z.invoke(opt, "on_checked", [jItems], UI);
+            }
         }
     },
     //...............................................................
-    uncheck : function(arg){
+    uncheck : function(arg, quiet){
         var UI  = this;
         var opt = UI.options;
 
@@ -388,8 +392,10 @@ var methods = {
             $z.invoke(UI, "__after_checked", [jItems]);
 
             // 触发消息 
-            UI.trigger("item:unchecked", jItems);
-            $z.invoke(opt, "on_unchecked", [jItems], UI);
+            if(!quiet) {
+                UI.trigger("item:unchecked", jItems);
+                $z.invoke(opt, "on_unchecked", [jItems], UI);
+            }
 
             // 取消激活
             var jA = jItems.filter('[li-actived]');
@@ -400,10 +406,11 @@ var methods = {
                 $z.invoke(UI, "__after_blur", [jA]);
 
                 // 触发消息 
-                UI.trigger("item:blur", jA);
-                $z.invoke(opt, "on_blur", [jA]);
+                if(!quiet) {
+                    UI.trigger("item:blur", jA);
+                    $z.invoke(opt, "on_blur", [jA]);
+                }
             }
-
         }
     },
     //...............................................................

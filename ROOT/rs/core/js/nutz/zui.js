@@ -80,14 +80,18 @@ define(function (require, exports, module) {
             if (m) {
                 // 不是自己标识的，改成自己
                 if (m[1] != UI.cid) {
-                    jq.attr("ui-gasket", UI.cid + "@" + m[2]);
+                    jq.attr({
+                        "ui-gasket"     : UI.cid + "@" + m[2],
+                        "ui-gasket-cid" : UI.cid
+                    });
                 }
             }
             // 没被标识过，标识一下
             else {
                 jq.attr({
-                    "ui-gasket": UI.cid + "@" + ga,
-                    'ui-gasket-raw' : ga
+                    "ui-gasket"     : UI.cid + "@" + ga,
+                    "ui-gasket-cid" : UI.cid,
+                    "ui-gasket-raw" : ga
                 });
             }
         });

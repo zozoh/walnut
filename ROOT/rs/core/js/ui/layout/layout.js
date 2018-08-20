@@ -140,7 +140,7 @@ return ZUI.def("ui.layout", {
     css  : "ui/layout/theme/layout-{{theme}}.css",
     //..............................................
     init : function(opt) {
-        LayoutMethods(this);
+        $z.setUndefined(opt, "setup", {});
     },
     //..............................................
     events : {
@@ -205,7 +205,7 @@ return ZUI.def("ui.layout", {
     //..............................................
     __build_ui_map : function(layout) {
         var UI  = this;
-        var opt = UI.options;
+        var opt = UI.options;       
 
         // 准备一个 menu 的序列
         var menu_seq = 0;
@@ -231,19 +231,35 @@ return ZUI.def("ui.layout", {
             }
         }, {});
 
-        // 用自己配置填充一下（最优先嘛）
-        _.extend(UI.__ui_map, opt.setup);
-        
-        // 寻找需要加载的 gaskeName 以便调用者注册延迟加载
-        var keys = [];
+        // 用自己配置填充一下缺失的 UI 配置（最优先嘛）
+        for(var key in UI.__ui_map) {
+            var val = opt.setup[key];
+            if(!val)
+                continue;
+            if(_.isString(val)) {
+                UI.__ui_map[key] = {uiType : val}
+            }
+            else if(val.uiType) {
+                UI.__ui_map[key] = _.extend({
+                    uiType : val.uiType,
+                    uiConf : val.uiConf
+                });
+            }
+        }
+
+        // 未定义的 UI 从映射表里删掉，留着也是祸害 
+        var map = {};
         for(var key in  UI.__ui_map) {
             var uiDef = UI.__ui_map[key];
             if(uiDef && uiDef.uiType)
-                keys.push(key);
+                map[key] = uiDef;
         }
-
-        // 返回以便延迟加载
-        return keys;
+        UI.__ui_map = map;
+    },
+    //..............................................
+    // 通常用来寻找需要加载的 gaskeName 以便调用者注册延迟加载
+    getSubUINames : function() {
+        return _.keys(this.__ui_map);
     },
     //..............................................
     __build_dom : function(layout) {
@@ -265,7 +281,7 @@ return ZUI.def("ui.layout", {
             }
         }
 
-        // 编译一份区域键值索引
+        // 编译一份区域键值索引·以便用来show/hide区域
         UI.__area_map = {};
         UI.arena.find('[wl-area][wl-key]').each(function(){
             var $ar = $(this);
@@ -274,7 +290,7 @@ return ZUI.def("ui.layout", {
         console.log(UI.__area_map)
 
         // 编译 gasket
-        //UI.rebuildGaskets();
+        UI.rebuildGaskets();
     },
     //..............................................
     __do_redraw : function(layout, callback) {
@@ -282,11 +298,39 @@ return ZUI.def("ui.layout", {
         var opt = UI.options;
 
         // 首先编制一下自己的 gasketName 映射表
-        var keys = UI.__build_ui_map(layout);
-        //UI.defer(keys);
+        UI.__build_ui_map(layout);
+        
+        // 注册延迟加载
+        var keys = UI.getSubUINames();
+        console.log(keys)
+        UI.defer(keys, function(){
+            console.log("all UI loaded!");
+        });
 
         // 下面依次绘制 DOM 节点
         UI.__build_dom(layout);
+
+        // 下面依次加载子界面
+        for(var key in UI.__ui_map) {
+            var uiDef = UI.__ui_map[key];
+            UI.__do_redraw_subUI(uiDef.uiType, uiDef.uiConf, key);
+        }
+    },
+    //..............................................
+    __do_redraw_subUI : function(uiType, uiConf, key) {
+        var UI = this;
+        var theConf = _.extend({}, uiConf, {
+            parent : UI,
+            gasketName : key,
+            on_init : function(){
+                this._bus = UI;
+            }
+        });
+        seajs.use(uiType, function(SubUI){
+            new SubUI(theConf).render(function(){
+                UI.defer_report(key);
+            });
+        });
     },
     //..............................................
     // 获取 area 的 jquery 对象

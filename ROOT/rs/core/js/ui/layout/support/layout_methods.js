@@ -5,138 +5,78 @@ var methods = {
     //....................................................
     // 得到当前界面用来做消息通知对象
     bus : function(){
-        return this.options.bus || this;
+        return this._bus;
     },
+    //....................................................
+    // 得到自己所在区域的 key
+    getMyAreaKey : function() {
+        var $area = this.$el.closest('[wl-area]');
+        return $area.attr('wl-key');
+    },
+    //....................................................
     // 监听消息
-    listenBus : function(event, handler, listenSelf){
+    // - ignoreLvl : "self" 无视自己发出的消息, "area" 无视本区域发出消息
+    listenBus : function(event, handler, ignoreLvl){
         var cid   = this.cid;
         var uiBus = this.bus();
         //console.log("listen", uiBus, event)
-        this.listenUI(uiBus, event, function(be){
+        // 不是监听函数，木有意义
+        if(!_.isFunction(handler))
+            return;
+        this.listenUI(uiBus, event, function(eo){
             //console.log("handle", event)
-            if(listenSelf || be.cid != cid) {
-                handler.apply(this, be.args);
-            }
+            // 无视自己
+            if('self' == ignoreLvl && this.cid == eo.ci)
+                return;
+            // 无视本区域
+            var myAreaKey = this.getMyAreaKey();
+            if('area' == ignoreLvl && myAreaKey == eo.key)
+                return; 
+            // 调用回调
+            handler.apply(this, [eo]);
         });
     },
+    //....................................................
     // 发送消息
-    fire : function(event, args) {
-        var cid  = this.cid;
-        var uiBus = this.bus();
+    fireBus : function(eventType, data) {
+        var bus = this.bus();
+        var $area = this.$el.closest('[wl-area]');
         //console.log("fire", event, args)
-        uiBus.trigger(event, {
-            cid  : cid,
-            args : args,
-        });
-    },
-    //....................................................
-    getHomeObjId : function() {
-        return this.bus().__HOME_OBJ.id;
-    },
-    getHomeObj : function() {
-        return this.bus().__HOME_OBJ;
-    },
-    setHomeObj : function(obj) {
-        this.bus().__HOME_OBJ = obj;
-    },
-    //....................................................
-    // 获取一个 UI 集合，以便方便访问整个控件簇
-    uis : function(key){
-        var uiSet = {
-            "ME" : this
+        var eo = {
+            cid  : this.cid,
+            area : $area,
+            key  : $area.attr('wl-key'),
+            type : eventType,
+            data : data,
         };
-        this.bus()._fill_context(uiSet);
-        return key ? uiSet[key] : uiSet;
+        // 如果是区域
+        if('area:ready' == eventType) {
+            eo.ui = {};
+            $area.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+                var areaKey = $(this).attr('[wl-key]');
+                var childUI = ZUI($(this).children('[ui-id]'));
+                if(childUI) {
+                    eo.ui[areaKey] = childUI;
+                }
+            });
+        }
+        // 如果全部
+        else if('layout:ready' == eventType) {
+            eo.ui = _.extend({}, bus.gasket);
+        }
+        // 否则就是自己
+        else {
+            eo.ui = this;
+        }
+
+        // 触发吧
+        bus.trigger(eventType, eo);
     },
     //....................................................
     invokeUI : function(uiName, methodName, args, context) {
-        $z.invoke(this.uis(uiName), methodName, args||[], context);
-    },
-    //....................................................
-    invokeConfCallback : function(fldName, methodName, args){
-        var UI   = this;
-        var bus  = this.bus();
-        var conf = this.getBusConf();
-        $z.invoke(conf[fldName], methodName, args, bus);
-    },
-    //....................................................
-    getBusConf : function(keys) {
-        return $z.pick(this.initBusConf(), keys);
-    },
-    //....................................................
-    initBusConf : function() {
-        var UI   = this;
-        var bus  = this.bus();
-        var opt  = bus.options;
-        var conf = bus.__CONF;
-
-        // 首次的话，初始化配置信息
-        if(!conf){
-            //console.log("init")
-            conf = {
-                bus : bus,
-                dataMode : opt.dataMode || "thing",
-                thumbSize : opt.thumbSize || "256x256"
-            };
-
-            // 处理一下通用的配置信息
-            conf.searchMenuFltWidthHint = opt.searchMenuFltWidthHint 
-                                          || conf.searchMenuFltWidthHint
-                                          || "50%";
-            conf.searchList   = opt.searchList   || conf.searchList;
-            conf.searchSorter = opt.searchSorter || conf.searchSorter;
-            conf.searchPager  = opt.searchPager  || conf.searchPager;
-            conf.objMenu = opt.objMenu || conf.objMenu;
-            conf.extendCommand = opt.extendCommand || conf.extendCommand;
-
-            // 按照模式处理各个配置项
-            DATA_MODE[conf.dataMode].call(UI, conf, opt);
-
-            // 如果声明了扩展方法，将其合并到 bus 里
-            if(conf.extendCommand && _.isArray(conf.extendCommand.actions)) {
-                for(var i=0; i<conf.extendCommand.actions.length; i++) {
-                    var aph = conf.extendCommand.actions[i];
-                    //console.log(aph);
-                    // 读取一下这个函数集合
-                    var restr = Wn.exec('cat "' + aph + '"');
-                    var funcSet = eval('(' + restr + ')');
-                    for(var key in funcSet) {
-                        var func = funcSet[key];
-                        // 是函数的话就合并到 bus 里
-                        // 这样菜单里就能直接调用到了
-                        if(_.isFunction(func)) {
-                            bus["__ext_"+key] = func;
-                        }
-                    }
-                }
-            }
-
-            // 标识处理完成
-            bus.__CONF = conf;
-        }
-
-        // 返回配置对象
-        return conf;
-    },
-    //....................................................
-    // 处理命令的通用回调
-    doActionCallback : function(re, ok, fail) {
-        var UI = this;
-        //console.log("after", re)
-        if(!re || /^e./.test(re)){
-            UI.alert(re || "empty", "warn");
-            $z.doCallback(fail, [re], UI);
-            return;
-        }
-        try {
-            var reo = $z.fromJson(re);
-            $z.doCallback(ok, [reo], UI);
-        }
-        // 出错了，还是要控制一下
-        catch(E) {
-            UI.alert(E, "warn");
-            console.warn(E);
-        }
+        var bus = this.bus();
+        var subUI = bus.subUI(uiName);
+        $z.invoke(subUI, methodName, args||[], context);
     }
     //....................................................
 }; // ~End methods

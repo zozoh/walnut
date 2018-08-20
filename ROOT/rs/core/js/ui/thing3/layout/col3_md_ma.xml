@@ -1,46 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
     <cols>
-        <col name="chute" size="35%">
-            <ui type="ui/xxx/xxx"/>
+        <col name="chute">
+            <ui type="ui/thing3/th3_search"/>
         </col>
         <bar/>
-        <col size="35%">
-            <tabs key="zozoh">
-                <action><![CDATA[[{
-                    text : "action",
-                    handlerName : "xyz"
-                }]]]></action>
-                <tab name="c0" key="tab1">
-                    <icon><![CDATA[<i class="fas fa-info-circle"></i>]]></icon>
-                    <text>i18n:th3.meta.title</text>
-                    <ui type="ui/xxx"/>
-                </tab>
-                <tab>
-                    <icon><![CDATA[<i class="fas fa-file-alt"></i>]]></icon>
-                    <text>i18n:th3.detail.title</text>
-                    <ui type="ui/xxx"/>
-                </tab>
-            </tabs>
-        </col>
-        <bar/>
-        <col size="30%">
-            <tabs key="zozoh">
-                <action><![CDATA[[{
-                    text : "action",
-                    handlerName : "xyz"
-                }]]]></action>
-                <tab name="media">
-                    <icon><![CDATA[<i class="far fa-images"></i>]]></icon>
-                    <text>i18n:th3.data.media</text>
-                    <ui type="ui/xxx"/>
-                </tab>
-                <tab name="attachment">
-                    <icon><![CDATA[<i class="fas fa-paperclip"></i>]]></icon>
-                    <text>i18n:th3.data.attachment</text>
-                    <ui type="ui/xxx"/>
-                </tab>
-            </tabs>
+        <col name="meta">
+            <ui type="ui/thing3/th3_meta"/>
         </col>
     </cols>
 </layout>

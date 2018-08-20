@@ -14,6 +14,10 @@ area:ready     # 某个area内部全部控件加载完毕
 如果一个 `box/tab` 显示了，其事件调用顺序应该是
 
 ```bash
+# 首次布局以及全部子控件准备完毕后会调用
+layout:ready
+
+# 每个区域显示时都会调用
 area:show
 # 如果有的话，就异步加载所有的控件
 # 所有加载完毕以后会调用
@@ -27,12 +31,17 @@ area:show
 
 ```js
 {
-    area : jQuery,      // 表示一个事件所在的区域
-    key  : "chute",     // 事件所在区域的 key
+    cid  : "view13",    // 事件发起的UI ID
+    area : jQuery,      // 事件对应的区域的DOM
+    key  : "chute",     // 事件对应的区域的 key
     type : "box:show",  // 事件的类型
-    // 如果是 ready 事件，那么会有下面的段表示本区域下所有的
+    data : {}||[],      // 事件触发者传入的事件数据
+    
+    // 如果是 area:ready 事件，那么会有下面的段表示本区域下所有的
+    // 如果过是 layout:ready 那么将是全部的子控件
+    // 否则将是自己所在的 UI 的实例
     // UI 加载实例映射表
-    uis  : {
+    ui : {
         "gasA" : UI,
         "gasB" : UI,
     }
