@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
     <cols>
-        <col name="chute">
+        <col name="list">
             <ui type="ui/thing3/th3_search"/>
         </col>
         <bar/>

@@ -31,17 +31,19 @@ area:show
 
 ```js
 {
-    cid  : "view13",    // 事件发起的UI ID
-    area : jQuery,      // 事件对应的区域的DOM
-    key  : "chute",     // 事件对应的区域的 key
     type : "box:show",  // 事件的类型
-    data : {}||[],      // 事件触发者传入的事件数据
+
+    // 下面是区域事件才有的字段
+    UI    : UI,          // 事件发起的 UI 实例
+    area  : jQuery,      // 事件对应的区域的DOM
+    key   : "chute",     // 事件对应的区域的 key
+    data  : {}||[],      // 事件触发者传入的事件数据
     
+    // 事件发起 UI 所在区域还有哪些 UI
     // 如果是 area:ready 事件，那么会有下面的段表示本区域下所有的
     // 如果过是 layout:ready 那么将是全部的子控件
-    // 否则将是自己所在的 UI 的实例
     // UI 加载实例映射表
-    ui : {
+    areaUIs : {
         "gasA" : UI,
         "gasB" : UI,
     }

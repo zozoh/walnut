@@ -1,7 +1,74 @@
 // ------------------------------- 
-// 管理器
-.th3-main {
-
+// 对象搜索器
+.th3-search {
+    [key="th_nm"] {
+        > i, >.th_thumb {
+            display:inline-block; vertical-align: middle; width: 16px; text-align: center;
+            margin-right:@d2;
+        }
+        img {
+            height:16px; vertical-align: middle;border-radius: @d0; border:1px solid @cborder1;
+            margin-right:@d2;
+        }
+        span {
+            margin-left:@d3; color:@c4;
+            em {margin-left:@d1; color:@c3;}
+        }
+    }
+    .th-lbl {
+        display: inline-block; padding:0 @d2; vertical-align: middle;
+        margin: 0 1px; border:1px solid @cborder1; font-size:@f1;
+        border-radius: @d0;
+    }
+    .th_file_none {
+            font-size:@f2; font-style: italic; color:@c2;
+    }
+    .th_file_nb {
+        font-size:@f2; 
+        > i {color:@c4;}
+        > em {font-style: normal; font-weight: bold; color:@c3; margin-left: @d0;}
+    }
+    .list-item [key] {
+        font-family: @f_fixed; font-size: @f2;
+    }
+    .list-item[li-checked] {
+        [key="th_nm"] {
+            span {
+                color:@ch0_f;
+                em {color:@ch0_f;}
+            }
+        }
+        [key="lbls"] {
+            .th-lbl {
+                color:@ch0_f; background: @ch0_b;
+                border-color:@ch0_f; border-style: dotted;
+            }
+        }
+        .th_file_none {color:@ch0_f;}
+        .th_file_nb {
+            > i {color:@ch0_f;}
+            > em {color:@ch0_f;}
+        }
+        .th-pub {
+            color:@ch0_f;
+        }
+    }
+}
+//........................................
+// 元数据界面
+.th3-meta {
+    .obj-meta-form > .form-body > .form-body-wrapper > .form-group {
+        padding-top:@d3;
+        > .fg-fields > .form-fld {
+            padding:0;
+            > .ff-txt {padding:@d3 @d2 @d3 24px;}
+            > .ff-val {padding:@d0;}
+            > .ff-prompt {padding:@d2 @d3;}
+        }
+        // .comi-image {
+        //     img {max-height:180px;}
+        // }
+    }
 }
 
 

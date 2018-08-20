@@ -21,9 +21,7 @@ return ZUI.def("ui.th3.th_main", {
         var opt = UI.options;
         //console.log(opt)
 
-        // 加载配置文件
-
-        // 加载主界面
+        // 准备主界面布局对象
         UI._bus = new LayoutUI({
             parent : UI,
             gasketName : 'main',
@@ -41,13 +39,45 @@ return ZUI.def("ui.th3.th_main", {
                     uiConf : {folderName:"attachment"}
                 }
             }
-        }).render(function(){
-            $z.doCallback(callback, [], UI);
+        });
+
+        // 监听各个区域
+        UI._bus.listenSelf("area:ready", function(eo) {
+            // console.log("area:ready", eo, eo.UI.getMainData());
+            eo.UI.update()
+        });
+
+        // 加载配置文件
+        var oThConf = Wn.fetch("id:"+oDir.id+"/thing.js");
+        Wn.read(oThConf, function(json) {
+            // 格式化配置对象
+            var conf = $z.fromJson(json);
+            Ths.evalConf(UI, conf, opt, oDir);
+
+            // 初始化本地数据
+            UI.__main_data = {
+                home      : oDir,
+                conf      : conf,
+                currentId : UI.local('th3_last_actived_id_'+oDir.id)
+            };
+            
+            // 加载主界面
+            UI._bus.render(function(){
+                // 调用回调，以便调用者知道异步加载已经完成
+                $z.doCallback(callback, [], UI);
+            });
         });
 
         // 表示自己是异步加载
         // 待加载完毕，需要主动调用回调
         return true;
+    },
+    //..............................................
+    setCurrentObj : function(obj) {
+        var man = this.__main_data;
+        man.currentId = obj ? obj.id : null;
+        // 本地记录一下
+        this.local('th3_last_actived_id_'+man.home.id, man.currentId);
     },
     //..............................................
     createObj : function(callback){

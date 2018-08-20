@@ -26,7 +26,7 @@ var methods = {
         this.listenUI(uiBus, event, function(eo){
             //console.log("handle", event)
             // 无视自己
-            if('self' == ignoreLvl && this.cid == eo.ci)
+            if('self' == ignoreLvl && this.cid == eo.UI.cid)
                 return;
             // 无视本区域
             var myAreaKey = this.getMyAreaKey();
@@ -43,30 +43,26 @@ var methods = {
         var $area = this.$el.closest('[wl-area]');
         //console.log("fire", event, args)
         var eo = {
-            cid  : this.cid,
-            area : $area,
-            key  : $area.attr('wl-key'),
-            type : eventType,
-            data : data,
+            UI    : this,
+            area  : $area,
+            key   : $area.attr('wl-key'),
+            type  : eventType,
+            data  : data,
         };
         // 如果是区域
         if('area:ready' == eventType) {
-            eo.ui = {};
-            $area.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+            eo.areaUIs = {};
+            $area.find('[ui-gasket-cid="'+eo.cid+'"]').each(function(){
                 var areaKey = $(this).attr('[wl-key]');
                 var childUI = ZUI($(this).children('[ui-id]'));
                 if(childUI) {
-                    eo.ui[areaKey] = childUI;
+                    eo.areaUIs[areaKey] = childUI;
                 }
             });
         }
         // 如果全部
         else if('layout:ready' == eventType) {
-            eo.ui = _.extend({}, bus.gasket);
-        }
-        // 否则就是自己
-        else {
-            eo.ui = this;
+            eo.areaUIs = _.extend({}, bus.gasket);
         }
 
         // 触发吧

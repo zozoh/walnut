@@ -374,6 +374,9 @@ define(function (require, exports, module) {
                     .find('>.ui-balloon-con').remove();
             });
 
+            // 调用更早的自定义初始化功能
+            $z.invoke(opt, "on_before_init", [opt], UI);
+
             // 调用子类自定义的 init
             $z.invoke(UI.$ui, "init", [opt], UI);
 

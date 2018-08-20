@@ -236,7 +236,7 @@ var methods = {
         return this.arena.find('.list-item').length <= 0;
     },
     //...............................................................
-    setActived : function(arg){
+    setActived : function(arg, quiet){
         var UI  = this;
         var opt = UI.options;
         var context = opt.context || UI;
@@ -273,11 +273,13 @@ var methods = {
             jItem.attr("li-checked", "yes");
 
             // 触发消息 
-            UI.trigger("item:actived", o, jItem);
-            $z.invoke(opt, "on_actived", [o, jItem, prevObj, jPreItem], context);
-            
-            UI.trigger("item:checked", jItem);
-            $z.invoke(opt, "on_checked", [jItem], UI);
+            if(!quiet) {
+                UI.trigger("item:actived", o, jItem);
+                $z.invoke(opt, "on_actived", [o, jItem, prevObj, jPreItem], context);
+                
+                UI.trigger("item:checked", jItem);
+                $z.invoke(opt, "on_checked", [jItem], UI);
+            }
         }
         // 调用子类方法
         $z.invoke(UI, "__after_actived", [o, jItem, prevObj, jPreItem]);

@@ -217,12 +217,18 @@ return ZUI.def("ui.layout", {
                 // 重名！ 不能忍啊
                 if(this[it.name])
                     throw "duplicate gasketName ["+it.name+"] in layout " + opt.layout;
-                this[it.name] = $z.pick(it, ["uiType", "uiConf"]);
+                this[it.name] = {
+                    key      : it.name,
+                    collapse : it.collapse,
+                    uiType   : it.uiType,
+                    uiConf   : it.uiConf
+                };
             }
             // 声明了 action 的话，需要定制一下名称
             if(it.action) {
                 it._action_menu_name = "action_menu_" + (menu_seq++);
                 this[it._action_menu_name] = {
+                    key    : it._action_menu_name,
                     uiType : 'ui/menu/menu',
                     uiConf : {
                         setup : it.action
@@ -237,10 +243,14 @@ return ZUI.def("ui.layout", {
             if(!val)
                 continue;
             if(_.isString(val)) {
-                UI.__ui_map[key] = {uiType : val}
+                UI.__ui_map[key] = {
+                    key    : key,
+                    uiType : val
+                };
             }
             else if(val.uiType) {
                 UI.__ui_map[key] = _.extend({
+                    key    : key,
                     uiType : val.uiType,
                     uiConf : val.uiConf
                 });
@@ -257,9 +267,17 @@ return ZUI.def("ui.layout", {
         UI.__ui_map = map;
     },
     //..............................................
+    // 返回现在所有要显示的 UI key （即非 collapse:true）
     // 通常用来寻找需要加载的 gaskeName 以便调用者注册延迟加载
-    getSubUINames : function() {
-        return _.keys(this.__ui_map);
+    getDisplayUIKeys : function() {
+        var UI = this;
+        var keys = [];
+        for(var key in  UI.__ui_map) {
+            var uiDef = UI.__ui_map[key];
+            if(!uiDef.collapse)
+                keys.push(uiDef.key);
+        }
+        return keys;
     },
     //..............................................
     __build_dom : function(layout) {
@@ -301,34 +319,43 @@ return ZUI.def("ui.layout", {
         UI.__build_ui_map(layout);
         
         // 注册延迟加载
-        var keys = UI.getSubUINames();
+        var keys = UI.getDisplayUIKeys();
         console.log(keys)
         UI.defer(keys, function(){
-            console.log("all UI loaded!");
+            $z.doCallback(callback, [], UI);
+            UI.trigger("layout:ready", {
+                type : "layout:ready",
+                uis  : _.extend({}, UI.gasket)
+            });
         });
 
         // 下面依次绘制 DOM 节点
         UI.__build_dom(layout);
 
         // 下面依次加载子界面
-        for(var key in UI.__ui_map) {
+        for(var i=0; i<keys.length; i++) {
+            var key = keys[i];
             var uiDef = UI.__ui_map[key];
-            UI.__do_redraw_subUI(uiDef.uiType, uiDef.uiConf, key);
+            UI.__do_redraw_subUI(uiDef, function(key){
+                UI.defer_report(key);
+                this.fireBus("area:ready");
+            });
         }
     },
     //..............................................
-    __do_redraw_subUI : function(uiType, uiConf, key) {
+    __do_redraw_subUI : function(uiDef, callback) {
         var UI = this;
-        var theConf = _.extend({}, uiConf, {
+        var theConf = _.extend({}, uiDef.uiConf, {
             parent : UI,
-            gasketName : key,
-            on_init : function(){
+            gasketName : uiDef.key,
+            on_before_init : function(){
                 this._bus = UI;
+                LayoutMethods(this);
             }
         });
-        seajs.use(uiType, function(SubUI){
+        seajs.use(uiDef.uiType, function(SubUI){
             new SubUI(theConf).render(function(){
-                UI.defer_report(key);
+                callback.apply(this, [uiDef.key]);
             });
         });
     },

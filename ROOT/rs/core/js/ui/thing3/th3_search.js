@@ -19,21 +19,16 @@ return ZUI.def("ui.thing.th_search", {
     init : function(opt){
         var UI = ThMethods(this);
 
-        UI.listenBus("obj:selected", UI.updateObj);
-        UI.listenBus("obj:blur", UI.setObj);
         UI.listenBus("meta:updated", UI.updateObj);
+        UI.listenBus("list:refresh", UI.on_refresh);
     },
     //..............................................
-    update : function(o, callback) {
+    update : function() {
         var UI  = this;
-        var opt = UI.options;
-        var bus = UI.bus();
-
-        // 保存 HomeObj
-        bus.setHomeObj(o);
+        var man = UI.getMainData();
 
         // 提出子控件需要的配置信息
-        var conf = UI.getBusConf();
+        var conf = man.conf;
         //console.log("search", conf)
 
         // 加载搜索器
@@ -41,16 +36,33 @@ return ZUI.def("ui.thing.th_search", {
             parent : UI,
             gasketName : "main",
             menu : conf.searchMenu,
-            menuContext : bus,
+            menuContext : UI,
             filterWidthHint : conf.searchMenuFltWidthHint,
             data : function(params, callback){
-                $z.invoke(conf.actions, "query", [_.extend(params, {
-                    pid : bus.getHomeObjId()
-                }), callback], bus);
+                params = _.extend({},params, {
+                    pid : UI.getHomeObjId()
+                });
+                $z.setUndefined(params, "skip",  0);
+                $z.setUndefined(params, "limit", 50);
+                var cmdText = $z.tmpl("thing {{pid}} query -skip {{skip}}"
+                                    + " -limit {{limit}}"
+                                    + " -json -pager")(params);
+                // 增加排序项
+                if(params.sort) {
+                    cmdText += " -sort '" + params.sort + "'";
+                }
+                //console.log(cmdText)
+                // 因为条件可能比较复杂，作为命令的输入妥当一点
+                Wn.exec(cmdText, params.match || "{}", function(re) {
+                    UI.doActionCallback(re, callback);
+                });
             },
             filter : conf.searchFilter,
             list   : _.extend({}, conf.searchList, {
                 fields : conf.fields,
+                on_actived : function(th, jRow, prevObj) {
+                    UI.thMain().setCurrentObj(th);
+                },
                 on_checked : function(jRows) {
                     // 取出数据
                     var objs = this.getObj(jRows, true);
@@ -60,6 +72,7 @@ return ZUI.def("ui.thing.th_search", {
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
+                        UI.thMain().setCurrentObj(null);
                         UI.fireBus('obj:blur');
                     }
                 }
@@ -84,12 +97,15 @@ return ZUI.def("ui.thing.th_search", {
                             text : "按日期倒序",
                             value : {th_date:-1},
                         }],
-                    storeKey : "th_search_sort_" + o.id
+                    storeKey : "th_search_sort_" + man.home.id
                 }),
             pager : conf.searchPager,
         })).render(function(){
-            // 刷新数据后调用回调
-            this.refresh(callback);
+            // 刷新数据后，显示高亮项目
+            this.refresh(function(){
+                if(man.currentId)
+                    UI.setActived(man.currentId)
+            });
         });
     },
     //..............................................
@@ -98,12 +114,8 @@ return ZUI.def("ui.thing.th_search", {
         return this.gasket.main.uiList.update(obj);
     },
     //..............................................
-    selectObj : function(arg) {
-        //console.log("setObj", obj);
-        // 确保取消之前的选择
-        this.gasket.main.uiList.setAllBlur(null, null, true);
-        // 选择当前
-        return this.gasket.main.uiList.check(obj, true);
+    setActived : function(arg) {
+        return this.gasket.main.uiList.setActived(arg, true);
     },
     //..............................................
     addObj : function(obj) {
@@ -184,13 +196,17 @@ return ZUI.def("ui.thing.th_search", {
         return this.gasket.main.getQueryContext(jumpToHead);
     },
     //..............................................
+    on_refresh : function(eo) {
+        this.refresh.apply(this,eo.data);
+    },
+    //..............................................
     refresh : function(callback, jumpToHead) {
         // 容忍参数类型
         if(_.isBoolean(callback)) {
             jumpToHead = callback;
             callback = undefined;
         }
-
+        // 调用刷新
         this.gasket.main.refresh(callback, jumpToHead);
     }
     //..............................................
