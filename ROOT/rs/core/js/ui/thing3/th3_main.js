@@ -3,8 +3,9 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/layout/layout',
-    'ui/thing3/support/th_util',
-], function(ZUI, Wn, LayoutUI, Ths){
+    'ui/thing3/support/th3_methods',
+    'ui/thing3/support/th3_util',
+], function(ZUI, Wn, LayoutUI, ThMethods, Ths){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-main" ui-fitparent="true" ui-gasket="main">
@@ -26,6 +27,9 @@ return ZUI.def("ui.th3.th_main", {
             parent : UI,
             gasketName : 'main',
             layout : 'ui/thing3/layout/col3_md_ma.xml',
+            on_before_init : function(){
+                ThMethods(this);
+            },
             setup :{
                 "search"  : 'ui/thing3/th3_search',
                 "meta"    : 'ui/thing3/th3_meta',
@@ -43,8 +47,11 @@ return ZUI.def("ui.th3.th_main", {
 
         // 监听各个区域
         UI._bus.listenSelf("area:ready", function(eo) {
-            // console.log("area:ready", eo, eo.UI.getMainData());
-            eo.UI.update()
+            console.log("area:ready", eo, eo.UI.getMainData());
+            $z.invoke(eo.UI, "update");
+        });
+        UI._bus.listenSelf("do:create", function(){
+            this.showArea("create");
         });
 
         // 加载配置文件

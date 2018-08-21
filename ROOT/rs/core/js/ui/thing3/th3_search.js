@@ -19,7 +19,7 @@ return ZUI.def("ui.thing.th_search", {
     init : function(opt){
         var UI = ThMethods(this);
 
-        UI.listenBus("meta:updated", UI.updateObj);
+        UI.listenBus("meta:updated", UI.on_update);
         UI.listenBus("list:refresh", UI.on_refresh);
     },
     //..............................................
@@ -198,6 +198,14 @@ return ZUI.def("ui.thing.th_search", {
     //..............................................
     on_refresh : function(eo) {
         this.refresh.apply(this,eo.data);
+    },
+    //..............................................
+    on_update : function(eo) {
+        var obj = eo.data[0];
+        var key = eo.data[1];
+        // 标识一下，这样 list 更新的时候，会强制更新缩略图的
+        obj.__force_update = 'thumb' == key;
+        this.updateObj(obj);
     },
     //..............................................
     refresh : function(callback, jumpToHead) {

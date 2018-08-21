@@ -161,13 +161,25 @@ return ZUI.def("ui.layout", {
             var oe = e.originalEvent;
             var $ar = $(e.target);
             if($ar.attr('wl-area') && 'opacity' == oe.propertyName) {
+                //console.log("area trans end")
                 // 标记自己的结束状态
+                var isHide = $ar.attr('wl-collapse') == "yes";
                 $ar.attr({
                     'animat-on'    : null,
-                    'wl-area-hide' : $ar.attr('wl-collapse')||null
+                    'wl-area-hide' : isHide ? "yes" : null
                 });
                 // 重新调整子区域布局
                 UI.__resize_area($ar);
+
+                // // 最后 resize 自己所在控件
+                // var uis = this.getAreaUIList($ar);
+                // for(var i=0; i<uis.length; i++) {
+                //     //console.log(uis[i])
+                //     uis[i].resize(true);
+                // }
+                if(!isHide) {
+                    UI.fire('area:ready', $ar, UI);
+                }
             }
         }
     },
@@ -370,6 +382,55 @@ return ZUI.def("ui.layout", {
             return this.__area_map[arg];
         }
     },
+    //....................................................
+    getAreaUIMap : function($ar) {
+        var cid = this.cid;
+        var map = {};
+        $ar.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+            var gasName = $(this).attr('ui-gasket-raw');
+            var childUI = ZUI($(this).children('[ui-id]'));
+            if(childUI) {
+                map[gasName] = childUI;
+            }
+        });
+        return map;
+    },
+    //....................................................
+    getAreaUIList : function($ar) {
+        var cid = this.cid;
+        var list = [];
+        $ar.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+            var childUI = ZUI($(this).children('[ui-id]'));
+            if(childUI) {
+                list.push(childUI);
+            }
+        });
+        return list;
+    },
+    //....................................................
+    // 发送消息
+    fire : function(eventType, $ar, UI, data) {
+        var bus = this;
+        console.log("fire", eventType)
+        var eo = {
+            UI    : UI || this,
+            area  : $ar,
+            key   : $ar ? $ar.attr('wl-key') : null,
+            type  : eventType,
+            data  : data,
+        };
+        // 如果是区域
+        if('area:ready' == eventType) {
+            eo.areaUIs = bus.getAreaUIMap($ar);
+        }
+        // 如果全部
+        else if('layout:ready' == eventType) {
+            eo.areaUIs = _.extend({}, bus.gasket);
+        }
+
+        // 触发吧
+        bus.trigger(eventType, eo);
+    },
     //..............................................
     switchTab : function($li) {
         var UI = this;
@@ -402,6 +463,10 @@ return ZUI.def("ui.layout", {
             return;
         // 标识
         $ar.removeAttr('wl-collapse');
+
+        // 通知
+        UI.fire('area:show', $ar, UI);
+
         // 对于 Box 单独设置
         UI.__resize_area($ar, true);
     },
@@ -429,7 +494,7 @@ return ZUI.def("ui.layout", {
         }
         // 对于其他区域，整体 resize
         else {
-            UI.resize();
+            UI.resize(true);
         }
     },
     //..............................................

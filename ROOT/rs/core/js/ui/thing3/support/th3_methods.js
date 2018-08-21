@@ -4,7 +4,13 @@ define(function (require, exports, module) {
 var methods = {
 //....................................................
 thMain : function() {
-    return this.bus().parent;
+    var reUI = this;
+    while(reUI.uiName != 'ui.th3.th_main') {
+        reUI = reUI.parent;
+        if(!reUI)
+            return;
+    }
+    return reUI;
 },
 //....................................................
 getMainData : function(){

@@ -362,6 +362,10 @@ evalConf : function(UI, conf, opt, home) {
             this.fireBus("do:restore");
         }
     });
+    // 加入到菜单
+    if(miMore.items.length > 0) {
+        conf.searchMenu.push(miMore);
+    }
 },
 //...............................................................
 }; // ~End methods

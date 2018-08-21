@@ -9,6 +9,15 @@
             <ui type="ui/thing3/th3_meta"/>
         </col>
     </cols>
+    <boxes>
+        <box name="create">
+            <pos dock-at="E">
+                <width>80%</width>
+                <height>100%</height>
+            </pos>
+            <ui type="ui/thing3/th3_obj_create"/>
+        </box>
+    </boxes>
 </layout>
 
 

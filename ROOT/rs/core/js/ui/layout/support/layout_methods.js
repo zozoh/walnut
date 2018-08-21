@@ -10,8 +10,8 @@ var methods = {
     //....................................................
     // 得到自己所在区域的 key
     getMyAreaKey : function() {
-        var $area = this.$el.closest('[wl-area]');
-        return $area.attr('wl-key');
+        var $ar = this.$el.closest('[wl-area]');
+        return $ar.attr('wl-key');
     },
     //....................................................
     // 监听消息
@@ -40,33 +40,9 @@ var methods = {
     // 发送消息
     fireBus : function(eventType, data) {
         var bus = this.bus();
-        var $area = this.$el.closest('[wl-area]');
+        var $ar = this.$el.closest('[wl-area]');
         //console.log("fire", event, args)
-        var eo = {
-            UI    : this,
-            area  : $area,
-            key   : $area.attr('wl-key'),
-            type  : eventType,
-            data  : data,
-        };
-        // 如果是区域
-        if('area:ready' == eventType) {
-            eo.areaUIs = {};
-            $area.find('[ui-gasket-cid="'+eo.cid+'"]').each(function(){
-                var areaKey = $(this).attr('[wl-key]');
-                var childUI = ZUI($(this).children('[ui-id]'));
-                if(childUI) {
-                    eo.areaUIs[areaKey] = childUI;
-                }
-            });
-        }
-        // 如果全部
-        else if('layout:ready' == eventType) {
-            eo.areaUIs = _.extend({}, bus.gasket);
-        }
-
-        // 触发吧
-        bus.trigger(eventType, eo);
+        bus.fire(eventType, $ar, this, data);
     },
     //....................................................
     invokeUI : function(uiName, methodName, args, context) {

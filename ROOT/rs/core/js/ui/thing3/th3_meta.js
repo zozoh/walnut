@@ -60,18 +60,28 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
                 uiWidth : "all",
                 arenaClass : "obj-meta-form",
                 on_change : function(key){
-                    //console.log("update key=", key);
+                    console.log("update key=", key);
+                    // 准备数据
                     var uiForm = this;
-                    var obj    = uiForm.getData();
-                    obj.__force_update = true;
+                    var obj = uiForm.getData();
+
+                    // 标识执行中
                     uiForm.showPrompt(key, "spinning");
-                    UI.invokeConfCallback("meta", "update", [obj, key, function(){
-                        uiForm.hidePrompt(key);
-                        // 通知界面其他部分更新
-                        UI.fire("change:meta", [obj, key]);
-                    }, function(msg) {
-                        uiForm.showPrompt(key, "warn", msg);
-                    }]);
+                    
+                    // 执行命令
+                    var json = $z.toJson(obj);
+                    Wn.execf('thing {{th_set}} update {{id}} -fields', json, obj, function(re){
+                        // 错误
+                        if(/^e\./.test(re)) {
+                            uiForm.showPrompt(key, "warn", re);
+                        }
+                        // 成功后：通知界面其他部分更新
+                        else {
+                            uiForm.hidePrompt(key);
+                            var newTh = $z.fromJson(re);
+                            UI.fireBus("meta:updated", [newTh, key]);
+                        }
+                    });
                 }
             })).render(function(){
                 this.setData(obj);

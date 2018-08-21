@@ -250,8 +250,7 @@ renderDom : function(UI, laItem, $p, isArena) {
             "wl-collapse" : laItem.collapse ? "yes" : null
         });
         // 对于 box
-        if('box' == laItem.type 
-                && (laItem.title || laItem._action_menu_name)) {
+        if('box' == laItem.type) {
             // 标识自己是区域
             $div.attr('wl-area', 'box');
             // 记录一下位置
@@ -266,14 +265,17 @@ renderDom : function(UI, laItem, $p, isArena) {
             //.....................................
             // 标题
             var btt = laItem.title;
+            var $btt = $('<div class="wlb-title">').appendTo($info);
             if(btt) {
-                var $btt = $('<div class="wlb-title">').appendTo($info);
                 if(btt.icon) {
                     $(btt.icon).appendTo($btt);
                 }
                 if(btt.text) {
                     $('<span>').text(UI.text(btt.text)).appendTo($btt);
                 }
+            }
+            else {
+                $('<i class="fas fa-info-circle"></i>').appendTo($btt);
             }
             //.....................................
             // 命令
@@ -294,6 +296,7 @@ renderDom : function(UI, laItem, $p, isArena) {
             $bxc.attr({'wlb-cm': colserMode});
             //.....................................
             // 有子内容...递归
+            console.log(laItem)
             if(laItem.box) {
                 $L.renderDom(UI, laItem.box, $main);
             }
