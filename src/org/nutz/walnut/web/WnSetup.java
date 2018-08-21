@@ -52,6 +52,8 @@ public class WnSetup implements Setup {
         // 写入自身进程id
         try {
             String WL_PID_PATH = System.getenv("WL_PID_PATH");
+            if (Strings.isBlank(WL_PID_PATH) && new File("/etc/ssh/sshd_config").exists())
+                WL_PID_PATH = "/var/log/walnut.pid";
             String pid = Lang.JdkTool.getProcessId(null);
             log.infof("path=%s pid=%s", WL_PID_PATH, pid);
             if (!Strings.isBlank(WL_PID_PATH) && !Strings.isBlank(pid)) {
