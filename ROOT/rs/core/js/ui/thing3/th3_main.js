@@ -22,6 +22,32 @@ return ZUI.def("ui.th3.th_main", {
         var opt = UI.options;
         //console.log(opt)
 
+        // 加载配置文件
+        var oThConf = Wn.fetch("id:"+oDir.id+"/thing.js");
+        Wn.read(oThConf, function(json) {
+            // 格式化配置对象
+            var conf = $z.fromJson(json);
+            Ths.evalConf(UI, conf, opt, oDir);
+
+            // 初始化本地数据
+            UI.__main_data = {
+                home      : oDir,
+                conf      : conf,
+                currentId : UI.local('th3_last_actived_id_'+oDir.id)
+            };
+            
+            // 加载主界面
+            UI.__do_redraw(conf, callback);
+        });
+
+        // 表示自己是异步加载
+        // 待加载完毕，需要主动调用回调
+        return true;
+    },
+    //..............................................
+    __do_redraw : function(conf, callback) {
+        var UI = this;
+
         // 准备主界面布局对象
         UI._bus = new LayoutUI({
             parent : UI,
@@ -57,30 +83,11 @@ return ZUI.def("ui.th3.th_main", {
             this.showArea("create");
         });
 
-        // 加载配置文件
-        var oThConf = Wn.fetch("id:"+oDir.id+"/thing.js");
-        Wn.read(oThConf, function(json) {
-            // 格式化配置对象
-            var conf = $z.fromJson(json);
-            Ths.evalConf(UI, conf, opt, oDir);
-
-            // 初始化本地数据
-            UI.__main_data = {
-                home      : oDir,
-                conf      : conf,
-                currentId : UI.local('th3_last_actived_id_'+oDir.id)
-            };
-            
-            // 加载主界面
-            UI._bus.render(function(){
-                // 调用回调，以便调用者知道异步加载已经完成
-                $z.doCallback(callback, [], UI);
-            });
-        });
-
-        // 表示自己是异步加载
-        // 待加载完毕，需要主动调用回调
-        return true;
+        // 渲染布局
+        UI._bus.render(function(){
+            // 调用回调，以便调用者知道异步加载已经完成
+            $z.doCallback(callback, [], UI);
+        })
     },
     //..............................................
     setCurrentObj : function(obj) {
