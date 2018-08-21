@@ -637,6 +637,9 @@ return ZUI.def("ui.form", {
             return;
         }
 
+        // 无论怎样，清除提示信息
+        this.hidePrompt(fld.key);
+
         // 更新的时候，检查是否接受
         var jso = fld.JsObjType;
         if(forUpdate && !jso.type().acceptForFormUpdate(o)){
