@@ -1,9 +1,9 @@
 define({
     "th3" : {
         "create" : "创建..",
-        "create_tip" : "请输入对象的名称",
-        "create_tip2": "请输入{{text}}的名称",
-        "create_do"  : "立即创建",
+        "create_tt" : "创建{{text}}",
+        "create_do" : "立即创建",
+        "create_do_lack" : "缺少必要字段，请确保表单中必填项（星号部分）全部填写正确！",
         "rm_tip" : "将选中的项目移入回收站",
         "refresh_tip" : "重新加载列表",
         "clean_do"    : "清空回收站",

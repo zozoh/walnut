@@ -25,9 +25,23 @@ getHomeObj : function() {
     return this.getMainData().home;
 },
 //....................................................
+getHomeTitle : function(){
+    var home = this.getHomeObj();
+    return this.text(home.title || home.nm);
+},
+//....................................................
+getHomeOneObjTitle : function(){
+    var home = this.getHomeObj();
+    return this.text(home.title_one || home.title || home.nm);
+},
+//....................................................
 // 处理命令的通用回调
 doActionCallback : function(re, ok, fail) {
     var UI = this;
+    if(_.isFunction(ok.ok) || _.isFunction(ok.fail)) {
+        fail = ok.fail;
+        ok = ok.ok;
+    }
     //console.log("after", re)
     if(!re || /^e./.test(re)){
         UI.alert(re || "empty", "warn");

@@ -43,15 +43,18 @@ layout:ready       # 布局以及相关子控件 redraw 完毕
 
 # 关于对象
 obj:selected       # 选中某个或者多个对象
-    [[obj1,obj2]]
+    [obj1,obj2]
 obj:blur           # 取消激活对象（并且没有其他对象将被激活）
     []
+
 
 # 关于列表
 list:remove    # 移除一个对象(由列表监听，并判断后续是next还是blur)
                # 因此移除的是列表选中的对象
 list:refresh   # 通知列表刷新，会导致对象重新被选中
     [callback, jumpToHead] # 参数是一个回调，当加载完毕后，应该调用这个函数以便清理
+list:add       # 添加一个新对象
+    [obj]
 
 
 # 对象元数据更新

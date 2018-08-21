@@ -146,7 +146,7 @@ return ZUI.def("ui.thing.th_search", {
             // 本身标记了 required
             // 或者在唯一性索引里
             if(fld.required || ukMap[fld.key]) {
-                fields.push(_.extend({},fld,{rquired:true}));
+                fields.push(_.extend({},fld,{required:true}));
             }
         }
 

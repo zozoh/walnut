@@ -36,7 +36,10 @@ new FormUI({
 
     // 表单可以指定一个标题，你可以随意写一段 HTML
     // 如果未定义，标题将不显示
-    title : HTML
+    title : HTML,
+
+    // 可以设置显示模式，不写是默认，现在只支持一个紧凑模式 : compact
+    displayMode : "compact"
     
     // 表单的字段列表
     fields : [..]

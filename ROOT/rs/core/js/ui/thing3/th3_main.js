@@ -47,8 +47,11 @@ return ZUI.def("ui.th3.th_main", {
 
         // 监听各个区域
         UI._bus.listenSelf("area:ready", function(eo) {
-            console.log("area:ready", eo, eo.UI.getMainData());
-            $z.invoke(eo.UI, "update");
+            console.log("area:ready", eo);
+            for(var key in eo.uis) {
+                var ui = eo.uis[key];
+                $z.invoke(ui, "update");
+            }
         });
         UI._bus.listenSelf("do:create", function(){
             this.showArea("create");

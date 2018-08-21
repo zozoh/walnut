@@ -577,13 +577,17 @@ window.HmRT = {
         // 这个比较优先，因为无论如何都要显示出预览区嘛
         // .thumb=Preview
         if("Preview" == fld.display) {
+            //console.log(fld)
             var jThumb;
             // 缩略图
             if(val) {
                 jThumb = $('<div class="wn-obj-preview">');
                 var jPr;
-                if(theHref) {
-                    jPr = $('<a>').appendTo(jThumb).attr("href", theHref);
+                if(theHref && fld.linkTarget) {
+                    jPr = $('<a>').appendTo(jThumb).attr({
+                        "href": theHref,
+                        "target" : "_blank" == fld.linkTarget ? "_blank" : null
+                    });
                 }
                 else {
                     jPr = $('<span>').appendTo(jThumb);

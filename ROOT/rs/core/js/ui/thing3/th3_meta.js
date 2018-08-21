@@ -104,14 +104,14 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
     },
     //..............................................
     on_selected : function(eo) {
-        this.setData.apply(this, eo.data);
+        this.setData.apply(this, [eo.data]);
     },
     //..............................................
     setData : function(objs) {
         var UI = this;
         // this.gasket.form.setData(o);
         // $z.doCallback(callback, [], this);
-        console.log(objs)
+        // console.log(objs)
         // 显示
         if(_.isArray(objs) && objs.length > 0) {
             var obj = objs[0];

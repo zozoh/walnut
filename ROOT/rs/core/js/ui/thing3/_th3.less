@@ -70,7 +70,27 @@
         // }
     }
 }
-
+//........................................
+// 创建数据界面
+.th3-obj-create {
+    @flex(); flex-direction: column;
+    > header, >footer {
+        flex:0 0 auto; padding:@d6; font-size:2em;
+        text-align: center;
+    }
+    > section {flex:1 1 auto;}
+    > footer {
+        position: relative;
+        b {
+            @btn(); padding:@d5 @d6; font-size:.8em; line-height:auto;
+            &:hover {@btn_hover();}
+        }
+        a {
+            cursor: pointer; position: absolute; right:@d6; bottom:@d6;
+            font-size:.6em;
+        }
+    }
+}
 
 
 

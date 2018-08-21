@@ -151,7 +151,7 @@ __format_field : function(UI, fld) {
 
     // 如果没有声明字段的标题，看看是否需要自动为其声明
     if(!fld.title) {
-        var keyTitle = UI.str("thing.key." + fld.key, "");
+        var keyTitle = UI.str("th3.key." + fld.key, "");
         if(keyTitle){
             fld.title = keyTitle;
         }

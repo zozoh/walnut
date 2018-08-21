@@ -177,8 +177,41 @@ return ZUI.def("ui.layout", {
                 //     //console.log(uis[i])
                 //     uis[i].resize(true);
                 // }
+                // 需要显示区域，如果是需要显示区域，那么确保这个区域内的 UI 是加载的
+                // 没有的话，试图重新加载
                 if(!isHide) {
-                    UI.fire('area:ready', $ar, UI);
+                    var uis = UI.getAreaUIMap($ar, true);
+                    var dks = [];
+                    for(var key in uis) {
+                        var ui = uis[key];
+                        if(!ui) {
+                            var uiDef = UI.__ui_map[key];
+                            if(uiDef) {
+                                // 诡异
+                                if(uiDef.key != key) 
+                                    throw "Weird uiDef:" + uiDef.key 
+                                            + " != ["+key+'] uiType:'+uiDef.uiType;
+                                dks.push(key);
+                            }
+                        }
+                    }
+                    // 看来需要加载完再通知
+                    if(dks.length > 0) {
+                        UI.defer(dks, function(){
+                            UI.fire('area:ready', $ar, UI);
+                        });
+                        for(var i=0; i<dks.length; i++) {
+                            var key = dks[i];
+                            var uiDef = UI.__ui_map[key];
+                            UI.__do_redraw_subUI(uiDef, function(){
+                                UI.defer_report(key);
+                            });
+                        }
+                    }
+                    // 不需要，直接通知吧
+                    else {
+                        UI.fire('area:ready', $ar);
+                    }
                 }
             }
         }
@@ -383,25 +416,25 @@ return ZUI.def("ui.layout", {
         }
     },
     //....................................................
-    getAreaUIMap : function($ar) {
+    getAreaUIMap : function($ar, showAll) {
         var cid = this.cid;
         var map = {};
-        $ar.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+        $ar.find('[ui-gasket-cid="'+cid+'"]').andSelf().each(function(){
             var gasName = $(this).attr('ui-gasket-raw');
             var childUI = ZUI($(this).children('[ui-id]'));
-            if(childUI) {
-                map[gasName] = childUI;
+            if(childUI || showAll) {
+                map[gasName] = childUI || null;
             }
         });
         return map;
     },
     //....................................................
-    getAreaUIList : function($ar) {
+    getAreaUIList : function($ar, showAll) {
         var cid = this.cid;
         var list = [];
-        $ar.find('[ui-gasket-cid="'+cid+'"]').each(function(){
+        $ar.find('[ui-gasket-cid="'+cid+'"]').andSelf().each(function(){
             var childUI = ZUI($(this).children('[ui-id]'));
-            if(childUI) {
+            if(childUI || showAll) {
                 list.push(childUI);
             }
         });
@@ -411,7 +444,7 @@ return ZUI.def("ui.layout", {
     // 发送消息
     fire : function(eventType, $ar, UI, data) {
         var bus = this;
-        console.log("fire", eventType)
+        //console.log("fire", eventType)
         var eo = {
             UI    : UI || this,
             area  : $ar,
@@ -421,11 +454,11 @@ return ZUI.def("ui.layout", {
         };
         // 如果是区域
         if('area:ready' == eventType) {
-            eo.areaUIs = bus.getAreaUIMap($ar);
+            eo.uis = bus.getAreaUIMap($ar);
         }
         // 如果全部
         else if('layout:ready' == eventType) {
-            eo.areaUIs = _.extend({}, bus.gasket);
+            eo.uis = _.extend({}, bus.gasket);
         }
 
         // 触发吧
@@ -467,7 +500,7 @@ return ZUI.def("ui.layout", {
         // 通知
         UI.fire('area:show', $ar, UI);
 
-        // 对于 Box 单独设置
+        // 修改尺寸
         UI.__resize_area($ar, true);
     },
     //..............................................
@@ -477,9 +510,11 @@ return ZUI.def("ui.layout", {
         // 无视
         if(!$ar || $ar.length == 0)
             return;
-        // 标识
+        
+            // 标识
         $z.toggleAttr($ar, 'wl-collapse', 'yes');
-        // 对于 Box 单独设置
+        
+        // 修改尺寸
         UI.__resize_area($ar, true);
     },
     //..............................................

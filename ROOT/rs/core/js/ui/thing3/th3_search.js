@@ -20,7 +20,9 @@ return ZUI.def("ui.thing.th_search", {
         var UI = ThMethods(this);
 
         UI.listenBus("meta:updated", UI.on_update);
+        UI.listenBus("list:remove", UI.on_remove);
         UI.listenBus("list:refresh", UI.on_refresh);
+        UI.listenBus("list:add", UI.on_add);
     },
     //..............................................
     update : function() {
@@ -68,7 +70,7 @@ return ZUI.def("ui.thing.th_search", {
                     var objs = this.getObj(jRows, true);
                                        
                     // 显示通知
-                    UI.fireBus('obj:selected', [objs]);
+                    UI.fireBus('obj:selected', objs);
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
@@ -130,7 +132,7 @@ return ZUI.def("ui.thing.th_search", {
         return this.gasket.main.uiFilter.getData();
     },
     //..............................................
-    removeChecked : function(callback, filter) {
+    removeChecked : function(callback) {
         var UI = this;
 
         // 得到选中的东东
@@ -140,18 +142,11 @@ return ZUI.def("ui.thing.th_search", {
         var list = UI.getChecked();
 
         // 判断 th_live == 1 的对象
-        var checkedObjs;
-        if(_.isFunction(filter)) {
-            checkedObjs = [];
-            for(var i=0; i<list.length; i++) {
-                var obj = filter(list[i]);
-                if(obj)
-                    checkedObjs.push(obj);
-            }
-        }
-        // 不用过滤，直接来吧
-        else {
-            checkedObjs = list;
+        var checkedObjs = [];
+        for(var i=0; i<list.length; i++) {
+            var obj = list[i];
+            if(obj.th_live >= 0)
+                checkedObjs.push(obj);
         }
 
         // 没有对象，显示警告
@@ -164,27 +159,35 @@ return ZUI.def("ui.thing.th_search", {
         var jN2  = UI.gasket.main.uiList.findNextItem(checkedObjs);
         var nit2 = jN2.length > 0 ? jN2.attr("oid") : 0;
 
+        // 准备命令
+        var cmdText = "thing " + UI.getHomeObjId() + " delete -l";
+        for(var i=0; i<checkedObjs.length; i++) {
+            var obj = checkedObjs[i];
+            cmdText += " " + obj.id;
+        }
         // 执行删除
-        UI.invokeConfCallback("actions", "remove", [checkedObjs, function(){
-            // 删除并试图高亮下一个对象
-            var jN2 = UI.gasket.main.uiList.remove(checkedObjs);
-            //console.log("jN2", jN2)
-            // 高亮下一个
-            if(jN2){
-                UI.gasket.main.uiList.setActived(jN2);
-                // 回调
-                $z.doCallback(callback, [checkedObjs], UI);
-            }
-            // 刷新一下看看有木有东西，然后高亮第一个
-            else{
-                UI.gasket.main.uiList.setAllBlur();
-                UI.refresh(function(){
-                    UI.gasket.main.uiList.setActived(0);
+        Wn.exec(cmdText, function(re) {
+            UI.doActionCallback(re, function(){
+                // 删除并试图高亮下一个对象
+                var jN2 = UI.gasket.main.uiList.remove(checkedObjs);
+                //console.log("jN2", jN2)
+                // 高亮下一个
+                if(jN2){
+                    UI.gasket.main.uiList.setActived(jN2);
                     // 回调
                     $z.doCallback(callback, [checkedObjs], UI);
-                });
-            }
-        }]);
+                }
+                // 刷新一下看看有木有东西，然后高亮第一个
+                else{
+                    UI.gasket.main.uiList.setAllBlur();
+                    UI.refresh(function(){
+                        UI.gasket.main.uiList.setActived(0);
+                        // 回调
+                        $z.doCallback(callback, [checkedObjs], UI);
+                    });
+                }
+            });
+        });
     },
     //..............................................
     setKeyword : function(str) {
@@ -194,6 +197,10 @@ return ZUI.def("ui.thing.th_search", {
     //..............................................
     getQueryContext : function(jumpToHead) {
         return this.gasket.main.getQueryContext(jumpToHead);
+    },
+    //..............................................
+    on_remove : function(eo) {
+        this.removeChecked();
     },
     //..............................................
     on_refresh : function(eo) {
@@ -206,6 +213,16 @@ return ZUI.def("ui.thing.th_search", {
         // 标识一下，这样 list 更新的时候，会强制更新缩略图的
         obj.__force_update = 'thumb' == key;
         this.updateObj(obj);
+    },
+    //..............................................
+    on_add : function(eo) {
+        var UI = this;
+        if(_.isArray(eo.data) && eo.data.length > 0) {
+            UI.addObj(eo.data);
+            var obj = eo.data[0];
+            UI.setActived(obj);
+            UI.thMain().setCurrentObj(obj);
+        }
     },
     //..............................................
     refresh : function(callback, jumpToHead) {
