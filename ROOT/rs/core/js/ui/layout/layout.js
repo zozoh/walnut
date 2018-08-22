@@ -157,7 +157,7 @@ return ZUI.def("ui.layout", {
         'click [wl-type="box"] > .wlb-con > .wlb-closer > b' : function(e){
             this.hideArea(e.currentTarget);
         },
-        'dblclick [wl-type="box"] > .wlb-con > .wlb-info' : function(e){
+        'dblclick [wl-type="box"] > .wlb-con > .wl-info' : function(e){
             this.hideArea(e.currentTarget);
         },
         // 切换标签
