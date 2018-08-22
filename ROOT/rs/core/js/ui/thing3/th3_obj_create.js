@@ -24,6 +24,11 @@ return ZUI.def("ui.thing.th_obj_create", {
     //..............................................
     init : function(opt){
         var UI = ThMethods(this);
+
+        // 监听 Esc
+        this.watchKey(27, function(e){
+            this.bus().hideArea('create');
+        });
     },
     //..............................................
     events : {
@@ -41,9 +46,9 @@ return ZUI.def("ui.thing.th_obj_create", {
                     // 执行命令
                     Wn.exec(cmdText, function(re) {
                         UI.doActionCallback(re, {
-                            ok : function(obj){
-                                UI.fireBus('list:add', [obj]);
-                                UI.fireBus('obj:selected', [obj]);
+                            ok : function(newTh){
+                                UI.fireBus('list:add', newTh);
+                                UI.fireBus('obj:selected', [newTh]);
                                 UI.bus().hideArea('create');
                             },
                             fail : function(errMsg){
@@ -71,7 +76,7 @@ return ZUI.def("ui.thing.th_obj_create", {
 
         // 编制一下唯一性索引的键表
         var ukMap = {};
-        console.log(conf.uniqueKeys)
+        //console.log(conf.uniqueKeys)
         if(_.isArray(conf.uniqueKeys)) {
             for(var i=0; i<conf.uniqueKeys.length; i++) {
                 var uk = conf.uniqueKeys[i];

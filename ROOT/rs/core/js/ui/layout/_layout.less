@@ -55,14 +55,6 @@
         }
         > .wlb-con {
             position: relative; width:100%; height:100%; 
-            > .wlb-info {
-                padding:@d3; border-bottom:1px solid @cborder1;
-                background:@cb4; color:@cf4; overflow: hidden;
-                > .wlb-title {
-                    padding:0 @d1; font-size:1.2em;
-                    > span {margin:0 @d2;}
-                }
-            }
             > .wlb-main {
                 overflow: hidden;
             }
@@ -116,4 +108,13 @@
     //------------------------------------------------- bar
     [wl-type="bar"]{background:rgba(0,0,0,0.1); z-index:1;}
     [wl-type="bar"]:hover{background:rgba(0,0,0,0.2);}
+    //------------------------------------------------- info
+    .wl-info {
+        padding:@d3; border-bottom:1px solid @cborder1;
+        background:@cb4; color:@cf4; overflow: hidden;
+        > .wl-title {
+            padding:0 @d1; font-size:1.2em;
+            > span.wlt-icon {margin-right:@d2;}
+        }
+    }
 }

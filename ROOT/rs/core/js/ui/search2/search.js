@@ -61,6 +61,8 @@ return ZUI.def("ui.search2", {
         // 检查菜单, string 表示的为快捷菜单项
         var __check_menu_item = function(items, index) {
             var mi = items[index];
+            if(!mi)
+                return;
             // 快捷菜单
             if(_.isString(mi)){
                 items[index] = UI.__quick_menu(mi);

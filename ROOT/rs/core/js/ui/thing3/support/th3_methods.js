@@ -2,10 +2,11 @@ define(function (require, exports, module) {
 // ....................................
 // 方法表
 var methods = {
+__th3_methods_binded : true,
 //....................................................
 thMain : function() {
     var reUI = this;
-    while(reUI.uiName != 'ui.th3.th_main') {
+    while(reUI.uiName != 'ui.th3.main') {
         reUI = reUI.parent;
         if(!reUI)
             return;
@@ -64,6 +65,8 @@ doActionCallback : function(re, ok, fail) {
 //====================================================================
 // 输出
 module.exports = function(uiSub){
+    if(!uiSub || uiSub.__th3_methods_binded)
+        return uiSub;
     return _.extend(uiSub, methods);
 };
 //=======================================================================

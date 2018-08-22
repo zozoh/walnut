@@ -162,34 +162,164 @@ __format_field : function(UI, fld) {
 },
 //...............................................................
 // 格式化扩展命令的函数
-__format_extend_command : function(cmd) {
-    var btn = _.extend({
-        icon : null,
-        text : 'SomeCommand'
-    }, cmd);
-    // 如果是调用方法
-    if(btn.handlerName) {
-        // 修改方法名前缀，因为初始化时，会将这个函数加入前缀增加到 bus 上
-        btn.handlerName = "__ext_" + btn.handlerName;
-        btn.handler = function(jq, mi) {
-            var bus  = this.bus();
-            var data = $z.invoke(this, "getData");
-            $z.invoke(bus, mi.handlerName, [data], {
-                UI  : this,
-                jBtn : jq,
-                menuItem : mi,
-                bus : bus,
-                POP : POP,
-                Wn  : Wn
-            });
+// __format_extend_command : function(cmd) {
+//     var btn = _.extend({
+//         icon : null,
+//         text : 'SomeCommand'
+//     }, cmd);
+//     // 如果是调用方法
+//     if(btn.handlerName) {
+//         // 修改方法名前缀，因为初始化时，会将这个函数加入前缀增加到 bus 上
+//         btn.handlerName = "__ext_" + btn.handlerName;
+//         btn.handler = function(jq, mi) {
+//             var bus  = this.bus();
+//             var data = $z.invoke(this, "getData");
+//             $z.invoke(bus, mi.handlerName, [data], {
+//                 UI  : this,
+//                 jBtn : jq,
+//                 menuItem : mi,
+//                 bus : bus,
+//                 POP : POP,
+//                 Wn  : Wn
+//             });
+//         }
+//         return btn;
+//     }
+//     // 指定命令的话，应该是异步调用
+//     else if(cmd.cmdText) {
+//         // TODO 这个看以后后没有必要实现
+//     }
+//     // 不是一个合法的结构的话，就无视吧
+// },
+//...............................................................
+__normalize_action_menu : function(conf, items) {
+    // 防守
+    if(!items || items.length <= 0)
+        return;
+
+    // 准备快速映射对象
+    var quick_map = {
+        "@create" : {
+            icon : '<i class="zmdi zmdi-flare"></i>',
+            text : "i18n:th3.create",
+            fireEvent : "show:create"
+        },
+        "@refresh" : {
+            icon : '<i class="zmdi zmdi-refresh"></i>',
+            tip  : "i18n:th3.refresh_tip",
+            asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
+            asyncFireEvent : "list:refresh"
+        }, 
+        "@remove" : {
+            icon : '<i class="fa fa-trash"></i>',
+            tip  : "i18n:th3.rm_tip",
+            fireEvent : "list:remove"
+        },
+        "@cleanup" : {
+            icon : '<i class="fa fa-eraser"></i>',
+            text : "i18n:th3.cleanup",
+            fireEvent : "do:cleanup"
+        },
+        "@restore" : {
+            icon : '<i class="zmdi zmdi-window-minimize"></i>',
+            text : "i18n:th3.restore",
+            fireEvent : "do:restore"
+        },
+        // @import 还需要配置启用开关 conf.dataImport.enabled 
+        // 否则会被无视
+        "@import" : {
+            text : "i18n:th3.import.tt", 
+            fireEvent : "do:import"
+        },
+        // @export 还需要配置启用开关 conf.dataExport.enabled
+        // 否则会被无视
+        "@export" : {
+            text : "i18n:th3.export.tt", 
+            fireEvent : "do:export"
+        },
+        "|" : {type:"separator"}
+    };
+
+    // 迭代
+    for(var i=0; i<items.length; i++) {
+        var mi = items[i];
+
+        // 字符串的话，用快速映射
+        if(mi && _.isString(mi)) {
+            // @import 还需要配置启用开关 conf.dataImport.enabled
+            if("@import" == mi) {
+                mi = conf.dataImport && conf.dataImport.enabled
+                            ? quick_map[mi] : null;
+            }
+            // @export 还需要配置启用开关 conf.dataExport.enabled
+            else if("@export" == mi) {
+                mi = conf.dataExport && conf.dataExport.enabled
+                            ? quick_map[mi] : null;
+            }
+            // 其他直接取
+            else {
+                mi = quick_map[mi] || null;
+            }
+            // 设置回去
+            items[i] = mi;
         }
-        return btn;
+
+        if(!mi)
+            continue;
+
+        // 组的话·递归
+        if(_.isArray(mi.items)) {
+            this.__normalize_action_menu(conf, mi.items);
+            continue;
+        }
+        // 开始展开吧
+        //------------------------------------------
+        // <i..>::i18n:xxx::->doSomething  # 调用函数
+        if(mi.handlerName) {
+            mi.handlerName = "__ext_" + mi.handlerName;
+            mi.handler = function(jq, mi) {
+                var thM  = this.thMain();
+                var data = $z.invoke(this, "getData");
+                $z.invoke(thM, mi.handlerName, [data], {
+                    UI  : this,
+                    jBtn : jq,
+                    menuItem : mi,
+                    bus : bus,
+                    POP : POP,
+                    Wn  : Wn
+                });
+            }
+        }
+        // <i..>::i18n:xxx::~>doSomething  # 调用异步函数
+        else if(mi.asyncHandlerName) {
+            mi.asyncHandlerName = "__ext_" + mi.handlerName;
+            mi.asyncHandler = function(jq, mi, callback) {
+                var thM  = this.thMain();
+                var data = $z.invoke(this, "getData");
+                $z.invoke(thM, mi.asyncHandlerName, [data], {
+                    UI  : this,
+                    jBtn : jq,
+                    menuItem : mi,
+                    bus : bus,
+                    POP : POP,
+                    Wn  : Wn,
+                    callback : callback
+                });
+            }
+        }
+        // <i..>::i18n:xxx::-@do:create    # 触发消息
+        else if(mi.fireEvent) {
+            mi.handler = function(jq, mi) {
+                this.fireBus(mi.fireEvent);
+            }
+        }
+        // <i..>::i18n:xxx::~@do:create    # 触发异步消息
+        else if(mi.asyncFireEvent) {
+            mi.asyncHandler = function(jq, mi, callback) {
+                this.fireBus(mi.asyncFireEvent, [callback]);
+            }
+        }
     }
-    // 指定命令的话，应该是异步调用
-    else if(cmd.cmdText) {
-        // TODO 这个看以后后没有必要实现
-    }
-    // 不是一个合法的结构的话，就无视吧
 },
 //...............................................................
 __merge_extendCommand : function(UI, conf) {
@@ -221,8 +351,9 @@ evalConf : function(UI, conf, opt, home) {
     conf.searchList    = opt.searchList    || conf.searchList;
     conf.searchSorter  = opt.searchSorter  || conf.searchSorter;
     conf.searchPager   = opt.searchPager   || conf.searchPager;
-    conf.objMenu       = opt.objMenu       || conf.objMenu;
-    conf.extendCommand = opt.extendCommand || conf.extendComma
+    conf.topMenu       = opt.topMenu       || conf.topMenu;
+    conf.extendCommand = opt.extendCommand || conf.extendCommand;
+    conf.eventRouter   = opt.eventRouter   || conf.eventRouter;
     // 合并扩展方法
     this.__merge_extendCommand(UI, conf);
 
@@ -263,109 +394,17 @@ evalConf : function(UI, conf, opt, home) {
     $z.setUndefined(conf.searchFilter, "keyField", ["th_nm"]);
 
     // ----------------- searchMenu
-    conf.searchMenu = opt.searchMenu || conf.searchMenu;
-    // 设置默认菜单
-    if(!_.isArray(conf.searchMenu)) {
-        conf.searchMenu = [{
-                // 命令: 创建
-                icon : '<i class="zmdi zmdi-flare"></i>',
-                text : "i18n:th3.create",
-                handler : function() {
-                    this.fireBus("do:create");
-                }
-            }, {
-                // 命令: 刷新
-                icon : '<i class="zmdi zmdi-refresh"></i>',
-                tip  : "i18n:th3.refresh_tip",
-                asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
-                asyncHandler : function(jq, mi, callback) {
-                    //this.uis("search").refresh(callback, true);
-                    this.fireBus("list:refresh", [callback, true]);
-                }
-            }, {
-                // 命令: 删除
-                icon : '<i class="fa fa-trash"></i>',
-                tip  : "i18n:th3.rm_tip",
-                handler : function() {
-                    // this.uis("search").removeChecked(null, function(o){
-                    //     return o.th_live >= 0 ? o : null;
-                    // });
-                    this.fireBus('list:remove');
-                }
-            }];
-    }
-    // 准备更多项目
-    var miMore = {
-        icon  : '<i class="zmdi zmdi-more-vert"></i>',
-        items : []
-    };
-    // 更多菜单项:导入
-    if(conf.dataImport && conf.dataImport.enabled) {
-        //conf.searchMenu.push({
-        miMore.items.push({
-            text : "导入数据..",
-            handler : function(jBtn, mi){
-                this.fireBus("do:import");
-            }
-        });
-    }
-    // 更多菜单项目：导出
-    if(conf.dataExport && conf.dataExport.enabled) {
-        //conf.searchMenu.push({
-        miMore.items.push({
-            text : "导出数据..",
-            handler : function(jBtn, mi){
-                this.fireBus("do:export");
-            }
-        });
-    }
-    // 更多用户自定义的菜单项
-    if(conf.extendCommand) {
-        // 对于搜索列表的自定义菜单
-        if(_.isArray(conf.extendCommand.search) && conf.extendCommand.search.length>0) {
-            miMore.items.push({type:"separator"});
-            for(var i=0; i<conf.extendCommand.search.length; i++) {
-                var cmd = conf.extendCommand.search[i];
-                var btn = this.__format_extend_command(cmd);
-                // 计入
-                miMore.items.push(btn);
-                //conf.searchMenu.push(btn);
-            }
-        }
-        // 对于 meta 对象的自定义菜单
-        if(_.isArray(conf.extendCommand.obj) && conf.extendCommand.obj.length > 0) {
-            if(!_.isArray(conf.objMenu)){
-                conf.objMenu = [];
-            }
-            for(var i=0; i<conf.extendCommand.obj.length; i++) {
-                var cmd = conf.extendCommand.obj[i];
-                var btn = this.__format_extend_command(cmd);
-                // 计入
-                conf.objMenu.push(btn);
-            }
-        }
-    }
-    // 更多菜单项:清空回收站
-    miMore.items.push({type:"separator"});
-    miMore.items.push({
-        icon : '<i class="fa fa-eraser"></i>',
-        text : "i18n:th3.clean_do",
-        handler : function() {
-            this.fireBus("do:cleanup");
-        }
-    });
-    // 更多菜单项:从回收站恢复
-    miMore.items.push({
-        icon : '<i class="zmdi zmdi-window-minimize"></i>',
-        text : "i18n:th3.clean_restore",
-        handler : function() {
-            this.fireBus("do:restore");
-        }
-    });
-    // 加入到菜单
-    if(miMore.items.length > 0) {
-        conf.searchMenu.push(miMore);
-    }
+    conf.searchMenu = opt.searchMenu 
+                        || conf.searchMenu 
+                        || ["@create","@refresh","@remove", {
+                            icon  : '<i class="zmdi zmdi-more-vert"></i>',
+                            items : ["@import","@export","|","@cleanup", "@restore"]
+                        }];
+
+    // 格式化菜单项目
+    this.__normalize_action_menu(conf, conf.searchMenu);
+    this.__normalize_action_menu(conf, conf.topMenu);
+
 },
 //...............................................................
 }; // ~End methods

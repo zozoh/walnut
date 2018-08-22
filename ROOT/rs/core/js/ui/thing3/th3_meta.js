@@ -3,23 +3,21 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
-    'ui/thing3/support/th3_methods',
     'ui/form/form',
-], function(ZUI, Wn, DomUI, ThMethods, FormUI){
+], function(ZUI, Wn, DomUI, FormUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-meta"
     ui-fitparent="true" ui-gasket="form"></div>
 */};
 //==============================================
-return ZUI.def("ui.thing.th_obj_index_meta", {
+return ZUI.def("ui.th3.meta", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing/theme/thing-{{theme}}.css",
     i18n : "ui/thing/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
-        var UI = ThMethods(this);
-
+        var UI = this;
         UI.listenBus("obj:selected", UI.on_selected);
         UI.listenBus("obj:blur", UI.showBlank);
     },
@@ -27,22 +25,11 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
     update : function() {
         var UI  = this;
         var man = UI.getMainData();
-        var obj = man.currentId 
-                        ? Wn.getById(man.currentId, true)
-                        : null;
-
-        // 有值
-        if(obj) {
-            UI.showForm(obj);
-        }
-        // 空
-        else {
-            UI.showBlank();
-        }
-
+        var obj = Wn.getById(man.currentId, true);
+        UI.setData(obj);
     },
     //..............................................
-    showForm : function(obj) {
+    showEditing : function(obj) {
         var UI   = this;
         var man  = UI.getMainData();
         var conf = man.conf;
@@ -112,21 +99,26 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
         // this.gasket.form.setData(o);
         // $z.doCallback(callback, [], this);
         // console.log(objs)
+        // 格式化数据
+        if(!_.isArray(objs) && objs) {
+            objs = [objs];
+        }
+
         // 显示
-        if(_.isArray(objs) && objs.length > 0) {
+        if(objs && objs.length > 0) {
             var obj = objs[0];
             // TODO 多个对象应该显示模板
             if(objs.length > 1) {
                 
             }
             // 更新表单
-            this.showForm(obj);
+            this.showEditing(obj);
         }
         // 显示空白
         else {
             UI.showBlank();
         }
-    },
+    }
     //..............................................
 });
 //==================================================

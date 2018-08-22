@@ -141,6 +141,15 @@ return ZUI.def("ui.layout", {
     //..............................................
     init : function(opt) {
         $z.setUndefined(opt, "setup", {});
+        $z.setUndefined(opt, "eventRouter", {});
+
+        // 确保 eventRouter 值为数组
+        for(var ekey in opt.eventRouter) {
+            var edst = opt.eventRouter[ekey];
+            if(_.isString(edst)) {
+                opt.eventRouter[ekey] = [edst];
+            }
+        }
     },
     //..............................................
     events : {
@@ -238,11 +247,41 @@ return ZUI.def("ui.layout", {
             //console.log("after load")
             var layout = $L.parseXml(xml);
             UI.__do_redraw(layout);
-            console.log($z.toJson(layout, null, '  '));
+            //console.log($z.toJson(layout, null, '  '));
             // 如果有 UI，那么 __do_redraw 已经把他们塞入延时了
             // 这里可以放心的释放一个延时的 key 先
             UI.defer_report("load");
         });
+
+        // 监听通用事件
+        UI.listenSelf("all", function(eventType, eo){
+            //console.log("layout heard", eventType, eo)
+            // 在路由表里有记录，那么就路由
+            var edst = opt.eventRouter[eventType];
+            if(edst) {
+                for(var i=0; i<edst.length; i++) {
+                    var ed = edst[i];
+                    UI.fire(ed);
+                }
+            }
+            // 默认的处理
+            else {
+                var ss = eventType.split(":");
+                if(ss.length == 2) {
+                    var ac = ss[0];
+                    var ar = ss[1];
+                    // 通用事件 show:xxx
+                    if('show' == ac) {
+                        UI.showArea(ar);
+                    }
+                    // 通用事件 hide:xxx
+                    else if('hide' == ac) {
+                        UI.hideArea(ar);
+                    }
+                }
+            }
+        });
+
 
         // 返回延迟加载
         return ['load'];
@@ -350,7 +389,7 @@ return ZUI.def("ui.layout", {
             var $ar = $(this);
             UI.__area_map[$ar.attr('wl-key')] = $ar;
         });
-        console.log(UI.__area_map)
+        // console.log(UI.__area_map)
 
         // 编译 gasket
         UI.rebuildGaskets();
@@ -365,7 +404,7 @@ return ZUI.def("ui.layout", {
         
         // 注册延迟加载
         var keys = UI.getDisplayUIKeys();
-        console.log(keys)
+        // console.log(keys)
         UI.defer(keys, function(){
             $z.doCallback(callback, [], UI);
             UI.trigger("layout:ready", {
@@ -517,6 +556,30 @@ return ZUI.def("ui.layout", {
         // 修改尺寸
         UI.__resize_area($ar, true);
     },
+    /*..............................................
+    修改指定区域标题
+     - arg  : 区域
+     - info : {
+         text : 'i18n:xxx',
+         icon : '<i..>'
+     }
+    */
+    changeAreaTitle : function(arg, info) {
+        var UI = this;
+        var $ar = UI.$area(arg);
+        var $tt = $ar.find('>div>.wl-info>.wl-title');
+        info = info || {};
+        // 图标
+        if(info.icon)
+            $tt.find('>.wlt-icon').html(info.icon);
+        else
+            $tt.find('>.wlt-icon').empty();
+        // 文字
+        if(info.text)
+            $tt.find('>.wlt-text').text(UI.text(info.text));
+        else
+            $tt.find('>.wlt-text').empty();
+    },
     //..............................................
     __resize_area : function($ar, enableAnimat) {
         var UI  = this;
@@ -600,7 +663,7 @@ return ZUI.def("ui.layout", {
 
         // 设置标题和内部主区域高度
         var $bxc  = $box.find('>.wlb-con');
-        var $info = $bxc.find('>.wlb-info');
+        var $info = $bxc.find('>.wl-info');
         var $main = $bxc.find('>.wlb-main');
         $main.css('height', $bxc.height() - $info.outerHeight());
 

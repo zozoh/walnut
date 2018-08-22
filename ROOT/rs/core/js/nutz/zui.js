@@ -1498,7 +1498,7 @@ define(function (require, exports, module) {
             
             $z.setUndefined(opt, "width", 400);
             $z.setUndefined(opt, "height", 240);
-            $z.setUndefined(opt, "title", "info");
+            $z.setUndefined(opt, "title", "i18n:info");
             $z.setUndefined(opt, "btnOk", "ok");
             $z.setUndefined(opt, "icon", '<i class="zmdi zmdi-info"></i>');
 
@@ -1581,7 +1581,7 @@ define(function (require, exports, module) {
                     var self = this;
                     // 设置标题
                     if (opt.title)
-                        this.$main.find(".pm-title").html(UI.msg(opt.title));
+                        this.$main.find(".pm-title").html(UI.text(opt.title));
                     else
                         this.$main.find(".pm-title").remove();
 
@@ -1709,7 +1709,7 @@ define(function (require, exports, module) {
                 })).render(function () {
                     // 设置标题
                     if (opt.title)
-                        this.$main.find(".pm-title").html(UI.msg(opt.title));
+                        this.$main.find(".pm-title").html(UI.text(opt.title));
                     else
                         this.$main.find(".pm-title").remove();
 

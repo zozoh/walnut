@@ -19,6 +19,8 @@ author:zozoh
 ```js
 new LayoutUI({
     layout : "ui/xxx/xxx.xml",
+    //......................................
+    // 优先声明在 XML 里的子控件
     setup : {
         // 在 xml 里声明的 <row|col|tab|box name=".."> 属性
         "$gasketName" : {
@@ -26,6 +28,13 @@ new LayoutUI({
             uiConf : {/*..*/}
         }
     },
+    //......................................
+    // 事件路由表
+    // 总线的事件，如果在这个映射表里，会触发对应的一个或多个事件
+    eventRouter : {
+        'obj:open' : ['show:comp'],
+        'do:xxx'   ：'show:xxx'
+    }
     // 存储本地的布局信息的键，如果不声明，则不保存本地状态
     localKey : "xxxx"
 }).render();

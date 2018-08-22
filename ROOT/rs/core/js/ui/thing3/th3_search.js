@@ -2,23 +2,21 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/thing3/support/th3_methods',
     'ui/search2/search',
-], function(ZUI, Wn, ThMethods, SearchUI, POP){
+], function(ZUI, Wn, SearchUI){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-search" ui-fitparent="true"
     ui-gasket="main"></div>
 */};
 //==============================================
-return ZUI.def("ui.thing.th_search", {
+return ZUI.def("ui.th3.search", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing3/theme/th3-{{theme}}.css",
     i18n : "ui/thing3/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
-        var UI = ThMethods(this);
-
+        var UI = this;
         UI.listenBus("meta:updated", UI.on_update);
         UI.listenBus("list:remove", UI.on_remove);
         UI.listenBus("list:refresh", UI.on_refresh);
@@ -71,6 +69,9 @@ return ZUI.def("ui.thing.th_search", {
                                        
                     // 显示通知
                     UI.fireBus('obj:selected', objs);
+                },
+                on_open : function(obj) {
+                    UI.fireBus('obj:open', obj);
                 },
                 on_blur : function(objs, jRows, nextObj) {
                     if(!nextObj){
@@ -151,7 +152,7 @@ return ZUI.def("ui.thing.th_search", {
 
         // 没有对象，显示警告
         if(checkedObjs.length == 0){
-            UI.alert("thing.err.remove_none", "warn");
+            UI.alert("th3.err.remove_none", "warn");
             return;
         }
 
@@ -204,7 +205,7 @@ return ZUI.def("ui.thing.th_search", {
     },
     //..............................................
     on_refresh : function(eo) {
-        this.refresh.apply(this,eo.data);
+        this.refresh.apply(this, eo.data);
     },
     //..............................................
     on_update : function(eo) {
@@ -217,9 +218,9 @@ return ZUI.def("ui.thing.th_search", {
     //..............................................
     on_add : function(eo) {
         var UI = this;
-        if(_.isArray(eo.data) && eo.data.length > 0) {
-            UI.addObj(eo.data);
-            var obj = eo.data[0];
+        var obj = eo.data;
+        if(obj) {
+            UI.addObj(obj);
             UI.setActived(obj);
             UI.thMain().setCurrentObj(obj);
         }

@@ -261,22 +261,16 @@ renderDom : function(UI, laItem, $p, isArena) {
             //.....................................
             // 创建包裹器
             var $bxc = $('<div class="wlb-con">').appendTo($div);
-            var $info = $('<div class="wlb-info">').prependTo($bxc);
+            var $info = $('<div class="wl-info">').prependTo($bxc);
             //.....................................
             // 标题
-            var btt = laItem.title;
-            var $btt = $('<div class="wlb-title">').appendTo($info);
-            if(btt) {
-                if(btt.icon) {
-                    $(btt.icon).appendTo($btt);
-                }
-                if(btt.text) {
-                    $('<span>').text(UI.text(btt.text)).appendTo($btt);
-                }
-            }
-            else {
-                $('<i class="fas fa-info-circle"></i>').appendTo($btt);
-            }
+            var btt = laItem.title || {};
+            var $btt = $('<div class="wl-title">').appendTo($info);
+            $('<span class="wlt-icon">').appendTo($btt);
+            $('<span class="wlt-text">').appendTo($btt);
+            if(!btt.icon && !btt.text)
+                btt.icon = '<i class="fas fa-info-circle"></i>';
+            UI.changeAreaTitle($div, btt);
             //.....................................
             // 命令
             if(laItem._action_menu_name) {
@@ -296,7 +290,7 @@ renderDom : function(UI, laItem, $p, isArena) {
             $bxc.attr({'wlb-cm': colserMode});
             //.....................................
             // 有子内容...递归
-            console.log(laItem)
+            //console.log(laItem)
             if(laItem.box) {
                 $L.renderDom(UI, laItem.box, $main);
             }

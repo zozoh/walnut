@@ -38,33 +38,37 @@ th3_main  -----+  (Global Methods for menu)
 # 控件·事件
 
 ```bash
-# 整体事件
+# [th3_main.layout] ==> {self}
 layout:ready       # 布局以及相关子控件 redraw 完毕
-
-# 关于对象
+#------------------------------------
+# [list] ==> {bus}
 obj:selected       # 选中某个或者多个对象
     [obj1,obj2]
 obj:blur           # 取消激活对象（并且没有其他对象将被激活）
-    []
-
-
-# 关于列表
+obj:open           # 双击某个对象
+    {obj}
+#------------------------------------
+# [list] <== {bus}
 list:remove    # 移除一个对象(由列表监听，并判断后续是next还是blur)
                # 因此移除的是列表选中的对象
 list:refresh   # 通知列表刷新，会导致对象重新被选中
-    [callback, jumpToHead] # 参数是一个回调，当加载完毕后，应该调用这个函数以便清理
+    [callback] # 参数是一个回调，当加载完毕后，应该调用这个函数以便清理
 list:add       # 添加一个新对象
-    [obj]
-
-
-# 对象元数据更新
+    {obj}
+#------------------------------------
+# [meta] ==> {bus}
 meta:updated       # 更新了对象的元数据
-    [obj]
+    [obj, key]
 
-# 全局事件
-do:create      # 创建一个对象(由th3_main监听并打开一个创建窗口)
-do:import      # 需要执行导入
-do:export      # 需要执行导出
-do:cleanup     # 清空回收站
-do:restore     # 从回收站恢复
+#------------------------------------
+# [searchMenu] ==> {bus}
+do:cleanup       # 清空回收站
+do:restore       # 从回收站恢复
+#------------------------------------
+# 自动处理事件
+# [searchMenu] ==> {bus}
+show:create      # 显示新建对象界面
+show:import      # 显示导入向导
+show:export      # 显示导出向导
+show:xxx         # 主要看 xml 有没有对应的区域       
 ```

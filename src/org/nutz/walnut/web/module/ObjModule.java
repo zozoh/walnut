@@ -351,10 +351,13 @@ public class ObjModule extends AbstractWnModule {
         o = Wn.WC().whenRead(o, false);
 
         // 校验 sha1
-        if (!Strings.isBlank(sha1)) {
-            if (!o.isSameSha1(sha1))
-                return new HttpStatusView(400);
-        }
+        // TODO 如果先生成一个对象，然后浏览器读取了，在服务器上将这个对象改成一个链接对象
+        // 再次 read 时，因为浏览器端 Wn.read 会带上 sha1 校验，就 400 了。
+        // 先暂时关掉校验功能，之后再想想怎么弄比较好
+        // if (!Strings.isBlank(sha1)) {
+        // if (!o.isSameSha1(sha1))
+        // return new HttpStatusView(400);
+        // }
 
         // 特殊的类型，将不生成下载目标
         ua = WnWeb.autoUserAgent(o, ua, isDownload);

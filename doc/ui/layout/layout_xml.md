@@ -46,7 +46,7 @@ author:zozoh
                         当然，这个UI定义也是可以在稍后在创建实例时被覆盖的
                         -->
                         <tab name="c0">
-                            <icon><i class="fa fa-user"></i></icon>
+                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
                             <text>i18n:xxxx</text>
                             <ui type="ui/xxx"/>
                         </tab>

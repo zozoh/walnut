@@ -12,7 +12,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("ui.th3.th_main", {
+return ZUI.def("ui.th3.main", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/thing3/theme/th3-{{theme}}.css",
     i18n : "ui/thing3/i18n/{{lang}}.js",
@@ -52,12 +52,12 @@ return ZUI.def("ui.th3.th_main", {
         UI._bus = new LayoutUI({
             parent : UI,
             gasketName : 'main',
-            layout : 'ui/thing3/layout/col3_md_ma.xml',
+            layout : conf.layout || 'ui/thing3/layout/col3_md_ma.xml',
             on_before_init : function(){
                 ThMethods(this);
             },
             setup :{
-                "search"  : 'ui/thing3/th3_search',
+                "list"    : 'ui/thing3/th3_search',
                 "meta"    : 'ui/thing3/th3_meta',
                 "content" : 'ui/thing3/th3_content',
                 "media"   : {
@@ -68,26 +68,23 @@ return ZUI.def("ui.th3.th_main", {
                     uiType :'ui/thing3/th3_media',
                     uiConf : {folderName:"attachment"}
                 }
-            }
+            },
+            eventRouter : conf.eventRouter
         });
 
-        // 监听各个区域
+        // 监听各个区域，一旦准备好就要触发更新数据
         UI._bus.listenSelf("area:ready", function(eo) {
-            console.log("area:ready", eo);
+            //console.log("area:ready", eo);
             for(var key in eo.uis) {
-                var ui = eo.uis[key];
+                var ui = ThMethods(eo.uis[key]);
                 $z.invoke(ui, "update");
             }
         });
-        UI._bus.listenSelf("do:create", function(){
-            this.showArea("create");
-        });
-
         // 渲染布局
         UI._bus.render(function(){
             // 调用回调，以便调用者知道异步加载已经完成
             $z.doCallback(callback, [], UI);
-        })
+        });
     },
     //..............................................
     setCurrentObj : function(obj) {
@@ -95,93 +92,7 @@ return ZUI.def("ui.th3.th_main", {
         man.currentId = obj ? obj.id : null;
         // 本地记录一下
         this.local('th3_last_actived_id_'+man.home.id, man.currentId);
-    },
-    //..............................................
-    createObj : function(callback){
-        var UI = this;
-        var bus = UI.bus();
-        var conf = UI.getBusConf();
-
-        // 准备标题
-        var oHome = UI.getHomeObj();
-        var title = UI.msg("thing.create_tip2", {
-            text : UI.text(oHome.title || oHome.nm)
-        });
-
-        // 编制一下唯一性索引的键表
-        var ukMap = {};
-        if(_.isArray(conf.uniqueKeys)) {
-            for(var i=0; i<conf.uniqueKeys.length; i++) {
-                var uk = conf.uniqueKeys[i];
-                if(_.isArray(uk.name))
-                    for(var x=0; x<uk.name.length; x++) {
-                        ukMap[uk.name[x]] = true;
-                    }
-            }
-        }
-        
-        // 准备表单字段
-        var fields = [];
-
-        for(var i=0; i<conf.fields.length; i++) {
-            var fld = conf.fields[i];
-            // 本身标记了 required
-            // 或者在唯一性索引里
-            if(fld.required || ukMap[fld.key]) {
-                fields.push(_.extend({},fld,{rquired:true}));
-            }
-        }
-
-        // 直接弹出一个表单收集新对象信息
-        if(fields.length > 0) {
-            POP.openFormPanel({
-                title : title,
-                width : 640,
-                height: "61.8%",
-                form : {
-                    mergeData : false,
-                    uiWidth   : "all",
-                    fields    : fields,
-                    data : {},
-                },
-                autoClose : false,
-                callback : function(obj) {
-                    var pop = this;
-                    UI.invokeConfCallback("actions", "create", [obj, function(newObj){
-                        var jItem = UI.addObj(newObj);
-                        UI.gasket.main.uiList.setActived(jItem);
-                        $z.doCallback(callback, [newObj], UI);
-                        pop.uiMask.close();
-                    }, function(){
-                        pop.jBtn.removeAttr("btn-ing");
-                        pop.uiMask.is_ing = false;
-                    }]);
-                },
-                errMsg : {
-                    "lack" : "e.thing.fld.lack"
-                }
-            }, UI);
-        }
-        // 否则如果为空，那么仅仅弹出一个询问框
-        else {
-            UI.prompt(title, {
-                icon  : oHome.icon || '<i class="fa fa-plus"></i>',
-                btnOk : "thing.create_do",
-                ok : function(str){
-                    str = $.trim(str);
-                    if(!str) {
-                        UI.alert('e.thing.fld.lack', 'warn');
-                        return;
-                    }
-                    UI.invokeConfCallback("actions", "create", [str, function(newObj){
-                        var jItem = UI.addObj(newObj);
-                        UI.gasket.main.uiList.setActived(jItem);
-                        $z.doCallback(callback, [newObj], UI);
-                    }]);                
-                }
-            });
-        }
-    }, 
+    }
     //..............................................
 });
 //==================================================

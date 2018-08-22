@@ -51,6 +51,23 @@ return ZUI.def("ui.menu", {
         $z.setUndefined(opt, "setup", []);
         $z.setUndefined(opt, "autoLayout", false);
 
+        // 首先格式化菜单项
+        var __normlize_setup = function(items) {
+            var list = [];
+            for(var i=0; i<items.length; i++) {
+                var mi = items[i];
+                if(mi) {
+                    list.push(mi);
+                    if(_.isArray(mi.items) && mi.items.length > 0) {
+                        mi.items = __normlize_setup(mi.items);
+                    }
+                }
+            }
+            return list;
+        }
+        opt.setup = __normlize_setup(opt.setup);
+
+
         // 自动整理菜单模式
         //  - 二级菜单，所有没有 text 项目，将 tip 作为 text
         //  - 二级菜单中的 group，如果没有 text，且不为 Function，合并进来

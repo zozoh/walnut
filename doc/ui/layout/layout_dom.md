@@ -41,10 +41,10 @@ author:zozoh
         </div> <!--// End of <div class="wn-layout-con">-->
     </div>
     <div wl-type="box"><div class="wlb-con">
-        <div class="wlb-info">
-            <div class="wlbt-title">
-                <i class="fa fa-user"></i>
-                <span>xxxxx</span>
+        <div class="wl-info">
+            <div class="wl-title">
+                <span class="wlt-icon"><i class="fa fa-user"></i></span>
+                <span class="wlt-text">xxxxx</span>
             </div>
             <div class="wl-action"
                  ui-gasket="action_menu_1"><!--嵌入menu--></div>

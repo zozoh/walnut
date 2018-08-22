@@ -6,9 +6,9 @@ define({
         "create_do_lack" : "缺少必要字段，请确保表单中必填项（星号部分）全部填写正确！",
         "rm_tip" : "将选中的项目移入回收站",
         "refresh_tip" : "重新加载列表",
-        "clean_do"    : "清空回收站",
+        "cleanup"     : "清空回收站",
         "clean_confirm"  : "清空回收站将导致所有回收站内数据不可恢复，你确定要继续吗？",
-        "clean_restore" : "从回收站中恢复",
+        "restore"        : "从回收站中恢复",
         "conf_setup" : "数据集配置...",
         "conf" : {
             "title" : "设置数据集「{{nm}}」",
@@ -197,6 +197,7 @@ define({
         },
         "import" : {
             "title" : "导入数据",
+            "tt"    : "导入数据..",
             "step0" : "预设",
             "step1" : "选择文件",
             "step2" : "上传",
@@ -217,6 +218,7 @@ define({
         },
         "export" : {
             "title" : "导出数据",
+            "tt"    : "导出数据..",
             "step1" : "导出设置",
             "step2" : "执行导出",
             "step3" : "完成",
