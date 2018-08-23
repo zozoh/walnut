@@ -49,7 +49,7 @@ return ZUI.def("ui.th3.main", {
         var UI = this;
 
         // 准备主界面布局对象
-        UI._bus = new LayoutUI({
+        var bus = new LayoutUI({
             parent : UI,
             gasketName : 'main',
             layout : conf.layout || 'ui/thing3/layout/col3_md_ma.xml',
@@ -73,15 +73,17 @@ return ZUI.def("ui.th3.main", {
         });
 
         // 监听各个区域，一旦准备好就要触发更新数据
-        UI._bus.listenSelf("area:ready", function(eo) {
+        bus.listenSelf("area:ready", function(eo) {
             //console.log("area:ready", eo);
+            UI.resize(true);
             for(var key in eo.uis) {
                 var ui = ThMethods(eo.uis[key]);
                 $z.invoke(ui, "update");
             }
         });
+
         // 渲染布局
-        UI._bus.render(function(){
+        bus.render(function(){
             // 调用回调，以便调用者知道异步加载已经完成
             $z.doCallback(callback, [], UI);
         });

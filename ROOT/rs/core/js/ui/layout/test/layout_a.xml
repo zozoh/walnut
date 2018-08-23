@@ -17,17 +17,19 @@
                 <bar/>
                 <col>
                     <tabs key="zozoh">
-                        <action><![CDATA[[{
-                            text : "action",
-                            handlerName : "xyz"
-                        }]]]></action>
                         <tab name="c0" key="tab1">
-                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                            <icon><i class="fa fa-user"></i></icon>
                             <text>i18n:xxxx</text>
+                            <action><![CDATA[{
+                                setup : [{
+                                    text : "action",
+                                    handlerName : "xyz"
+                                }]
+                            }]]></action>
                             <ui type="ui/xxx"/>
                         </tab>
                         <tab>
-                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                            <icon><i class="fa fa-user"></i></icon>
                             <text>i18n:xxxx</text>
                             <rows>
                                 <row></row>
@@ -51,16 +53,14 @@
     </rows>
     <boxes>
         <box name="box1" collapse="yes">
-            <title>
-                <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
-                <text>i18n:xxxx</text>
-            </title>
-            <action><![CDATA[
-                [{
+            <icon><i class="fa fa-user"></i></icon>
+            <text>i18n:xxxx</text>
+            <action><![CDATA[{
+                setup : [{
                     text : "action",
                     handlerName : "xyz"
                 }]
-            ]]></action>
+            }]]></action>
             <pos dock-at="P">
                 <width>640</width>
                 <height>100%</height>

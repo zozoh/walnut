@@ -156,7 +156,6 @@ return ZUI.def("ui.picker.datepicker", {
     _update : function(o, showBlink){
         var UI   = this;
         var opt  = UI.options;
-        console.log("acdd")
 
         // 准备显示
         var jBox = UI.arena.find(".picker-box");

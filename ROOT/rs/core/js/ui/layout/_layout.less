@@ -24,6 +24,7 @@
                 > li {
                     padding:@d3; cursor: pointer;
                     color:@c2; opacity: 0.7;
+                    white-space: nowrap;
                     border-bottom:0; border-left-width:0;
                     &:first-child {border-left-width:1px;}
                     > span {margin:0 @d2;}
@@ -34,14 +35,16 @@
             }
             > .wl-action {
                 flex:0 0 auto;
+                .menu {
+                    padding:0 @d2;
+                }
             }
         }
         > .wn-layout-con {
             position: relative;
             > * {
                 position: absolute; top:0; left:0; right:0; bottom:0;
-                display: none;
-                &[current] {display:block;}
+                &[wl-collapse] {display:none;}
             } 
         }
     }

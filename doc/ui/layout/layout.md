@@ -31,9 +31,12 @@ new LayoutUI({
     //......................................
     // 事件路由表
     // 总线的事件，如果在这个映射表里，会触发对应的一个或多个事件
+    //  键 'all' 表示全部事件
+    //  值 '..' 表示路由到父 parent.bus()
     eventRouter : {
         'obj:open' : ['show:comp'],
-        'do:xxx'   ：'show:xxx'
+        'do:xxx'   ：'show:xxx',
+        'all'      : '..'
     }
     // 存储本地的布局信息的键，如果不声明，则不保存本地状态
     localKey : "xxxx"

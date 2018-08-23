@@ -35,20 +35,33 @@ author:zozoh
                 <bar/>
                 <col>
                     <!--
-                    标签组表示组合一组标签。每个标签对应一个控件
-                    标签组可以声明一个 <action> 表示对整个标签操作
-                    实际上，它的实现会利用 tabs 控件来完成
+                    标签组表示组合一组标签。每个标签对应一个或者多个控件
+                    @current 属性指明了当前标签（对应name||key）
                     -->
-                    <tabs>
-                        <action><![CDATA[{..这里是menu的配置..}]]></action>
+                    <tabs current="c0">
                         <!--
                         每个标签都可以声明 icon/text 以及一个默认 UI
                         当然，这个UI定义也是可以在稍后在创建实例时被覆盖的
                         -->
-                        <tab name="c0">
-                            <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
+                        <tab name="c0" current="yes">
+                            <icon><i class="fa fa-user"></i></icon>
                             <text>i18n:xxxx</text>
+                            <!--
+                            标签可以声明一个 <action> 表示对整个标签操作
+                            这个 action 会关联到一个 menu 控件。context 为整个 bus
+                            注意，这个需要你的 <tabs> 声明 key （注意不是<tab>
+                            譬如你的 <tabs key="abc">，那么
+                            会生成一个 "abc_action" 的 gasket
+                            -->
+                            <action><![CDATA[{..这里是menu的配置..}]]></action>
                             <ui type="ui/xxx"/>
+                        </tab>
+                        <!--
+                        如果标签下是复杂布局，那么不能声明 name，需要声明 key
+                        作为整个标签的标识
+                        -->
+                        <tab key="c1">
+                            <!--可以更复杂的布局，譬如<cols>等-->
                         </tab>
                     </tabs>
                 </col>
@@ -68,11 +81,14 @@ author:zozoh
     <boxes>
         <box name="xx">
             <!-- 标题栏，可以承载 title/actionMenu -->
-            <title>
-                <icon><![CDATA[<i class="fa fa-user"></i>]]></icon>
-                <text>i18n:xxxx</text>
-            </title>
-            <action><![CDATA[..这里是menu的配置（数组）..]]></action>
+            <icon><i class="fa fa-user"></i></icon>
+            <text>i18n:xxxx</text>
+            <!--
+            注意，这个需要你的 box 声明 name 或者 key，
+            譬如你的 box 的 key="abc"，那么
+            会生成一个 "abc_action" 的 gasket
+            -->
+            <action><![CDATA[{..这里是menu的配置（数组）..}]]></action>
             <!--
             默认的 box 位置和尺寸，当用户拖动时，位置信息会存放在本地
             拖动的时候，会判断 box 哪个点近，就选择dock到哪个点

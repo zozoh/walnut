@@ -1,9 +1,10 @@
 (function($z){
     $z.declare([
         'zui',
+        'ui/menu/menu',
         'ui/layout/support/layout_methods',
         'ui/layout/support/layout_util'
-    ], function(ZUI, LayoutMethods, $L){
+    ], function(ZUI, MenuUI, LayoutMethods, $L){
 //==============================================
 // 获取区域内尺寸数组
 // @return ["auto", "30%", "-bar-", "24px"]
@@ -146,7 +147,7 @@ return ZUI.def("ui.layout", {
         // 确保 eventRouter 值为数组
         for(var ekey in opt.eventRouter) {
             var edst = opt.eventRouter[ekey];
-            if(_.isString(edst)) {
+            if(_.isString(edst) && '..' != edst) {
                 opt.eventRouter[ekey] = [edst];
             }
         }
@@ -189,38 +190,7 @@ return ZUI.def("ui.layout", {
                 // 需要显示区域，如果是需要显示区域，那么确保这个区域内的 UI 是加载的
                 // 没有的话，试图重新加载
                 if(!isHide) {
-                    var uis = UI.getAreaUIMap($ar, true);
-                    var dks = [];
-                    for(var key in uis) {
-                        var ui = uis[key];
-                        if(!ui) {
-                            var uiDef = UI.__ui_map[key];
-                            if(uiDef) {
-                                // 诡异
-                                if(uiDef.key != key) 
-                                    throw "Weird uiDef:" + uiDef.key 
-                                            + " != ["+key+'] uiType:'+uiDef.uiType;
-                                dks.push(key);
-                            }
-                        }
-                    }
-                    // 看来需要加载完再通知
-                    if(dks.length > 0) {
-                        UI.defer(dks, function(){
-                            UI.fire('area:ready', $ar, UI);
-                        });
-                        for(var i=0; i<dks.length; i++) {
-                            var key = dks[i];
-                            var uiDef = UI.__ui_map[key];
-                            UI.__do_redraw_subUI(uiDef, function(){
-                                UI.defer_report(key);
-                            });
-                        }
-                    }
-                    // 不需要，直接通知吧
-                    else {
-                        UI.fire('area:ready', $ar);
-                    }
+                    UI.on_area_ready($ar);
                 }
             }
         }
@@ -242,12 +212,23 @@ return ZUI.def("ui.layout", {
         }
 
         // 读取 layout
-        //console.log("before load")
+        if(opt.debug)console.log(UI._TK(2), "before load");
         seajs.use(layoutPath, function(xml){
-            //console.log("after load")
+            if(opt.debug)console.log(UI._TK(2), "after load");
+            // 解析
             var layout = $L.parseXml(xml);
+
+            // 首先重置一下所有的 tabs 的 collapse
+            var tabStatus = {};
+            if(opt.localKey) {
+                tabStatus = UI.local(opt.localKey) || tabStatus;
+            }
+            if(opt.debug)console.log(UI._TK(2), "tabStatus", tabStatus);
+            $L.normalizeTabCollapse(layout, tabStatus);
+            
+            if(opt.debug)console.log(UI._TK(2), $z.toJson(layout, null, '  '));
             UI.__do_redraw(layout);
-            //console.log($z.toJson(layout, null, '  '));
+            
             // 如果有 UI，那么 __do_redraw 已经把他们塞入延时了
             // 这里可以放心的释放一个延时的 key 先
             UI.defer_report("load");
@@ -255,10 +236,20 @@ return ZUI.def("ui.layout", {
 
         // 监听通用事件
         UI.listenSelf("all", function(eventType, eo){
-            //console.log("layout heard", eventType, eo)
+            //console.log(UI._TK(2), "heard:", eventType, eo)
             // 在路由表里有记录，那么就路由
-            var edst = opt.eventRouter[eventType];
-            if(edst) {
+            var edst = opt.eventRouter[eventType]
+                        || opt.eventRouter.all;
+            
+            // 路由到父
+            if('..' == edst) {
+                var pbus = $z.invoke(UI.parent, 'bus');
+                if(pbus) {
+                    pbus.trigger(eventType, eo);
+                }
+            }
+            // 有映射值，重新发起事件
+            else if(edst) {
                 for(var i=0; i<edst.length; i++) {
                     var ed = edst[i];
                     UI.fire(ed);
@@ -282,7 +273,6 @@ return ZUI.def("ui.layout", {
             }
         });
 
-
         // 返回延迟加载
         return ['load'];
     },
@@ -295,46 +285,42 @@ return ZUI.def("ui.layout", {
         var menu_seq = 0;
 
         // 首先编制一下自己的 gasketName 映射表
-        UI.__ui_map = $L.eachLayoutItem(layout, function(it){
+        UI.__ui_map = $L.eachLayoutItem(layout, function(it, p){
+            if(p)
+                it.__is_in_hidden_area = p.collapse || p.__is_in_hidden_area;
             // 声明了名称，那么就要记录一下映射
             if(it.name) {
                 // 重名！ 不能忍啊
                 if(this[it.name])
                     throw "duplicate gasketName ["+it.name+"] in layout " + opt.layout;
                 this[it.name] = {
-                    key      : it.name,
+                    name     : it.name,
                     collapse : it.collapse,
                     uiType   : it.uiType,
-                    uiConf   : it.uiConf
+                    uiConf   : it.uiConf,
+                    __is_in_hidden_area : it.__is_in_hidden_area
                 };
             }
-            // 声明了 action 的话，需要定制一下名称
+            // 如果有 Action，那么格式化一下
             if(it.action) {
-                it._action_menu_name = "action_menu_" + (menu_seq++);
-                this[it._action_menu_name] = {
-                    key    : it._action_menu_name,
-                    uiType : 'ui/menu/menu',
-                    uiConf : {
-                        setup : it.action
-                    }
-                };
+                it.action.setup = UI.__normalize_action_menu(it.action.setup);
             }
         }, {});
 
         // 用自己配置填充一下缺失的 UI 配置（最优先嘛）
-        for(var key in UI.__ui_map) {
-            var val = opt.setup[key];
+        for(var name in UI.__ui_map) {
+            var val = opt.setup[name];
             if(!val)
                 continue;
             if(_.isString(val)) {
-                UI.__ui_map[key] = {
-                    key    : key,
+                UI.__ui_map[name] = {
+                    name   : name,
                     uiType : val
                 };
             }
             else if(val.uiType) {
-                UI.__ui_map[key] = _.extend({
-                    key    : key,
+                UI.__ui_map[name] = _.extend({
+                    name   : name,
                     uiType : val.uiType,
                     uiConf : val.uiConf
                 });
@@ -343,12 +329,13 @@ return ZUI.def("ui.layout", {
 
         // 未定义的 UI 从映射表里删掉，留着也是祸害 
         var map = {};
-        for(var key in  UI.__ui_map) {
-            var uiDef = UI.__ui_map[key];
+        for(var name in  UI.__ui_map) {
+            var uiDef = UI.__ui_map[name];
             if(uiDef && uiDef.uiType)
-                map[key] = uiDef;
+                map[name] = uiDef;
         }
         UI.__ui_map = map;
+        if(opt.debug)console.log(UI._TK(2), "UI.__ui_map", UI.__ui_map);
     },
     //..............................................
     // 返回现在所有要显示的 UI key （即非 collapse:true）
@@ -358,8 +345,8 @@ return ZUI.def("ui.layout", {
         var keys = [];
         for(var key in  UI.__ui_map) {
             var uiDef = UI.__ui_map[key];
-            if(!uiDef.collapse)
-                keys.push(uiDef.key);
+            if(!uiDef.collapse && !uiDef.__is_in_hidden_area)
+                keys.push(uiDef.name);
         }
         return keys;
     },
@@ -389,7 +376,7 @@ return ZUI.def("ui.layout", {
             var $ar = $(this);
             UI.__area_map[$ar.attr('wl-key')] = $ar;
         });
-        // console.log(UI.__area_map)
+        if(opt.debug)console.log(UI._TK(2)," UI.__area_map", UI.__area_map);
 
         // 编译 gasket
         UI.rebuildGaskets();
@@ -404,7 +391,7 @@ return ZUI.def("ui.layout", {
         
         // 注册延迟加载
         var keys = UI.getDisplayUIKeys();
-        // console.log(keys)
+        if(opt.debug)console.log(UI._TK(2), "deferKeys", keys);
         UI.defer(keys, function(){
             $z.doCallback(callback, [], UI);
             UI.trigger("layout:ready", {
@@ -415,6 +402,11 @@ return ZUI.def("ui.layout", {
 
         // 下面依次绘制 DOM 节点
         UI.__build_dom(layout);
+
+        // 同步所有的 tabs 菜单
+        UI.arena.find('.wlt-tabs > ul >li[current]').each(function(){
+            UI.__sync_tab_action($(this));
+        });
 
         // 下面依次加载子界面
         for(var i=0; i<keys.length; i++) {
@@ -431,15 +423,15 @@ return ZUI.def("ui.layout", {
         var UI = this;
         var theConf = _.extend({}, uiDef.uiConf, {
             parent : UI,
-            gasketName : uiDef.key,
+            gasketName : uiDef.name,
             on_before_init : function(){
-                this._bus = UI;
+                this.__layout_bus = UI;
                 LayoutMethods(this);
             }
         });
         seajs.use(uiDef.uiType, function(SubUI){
             new SubUI(theConf).render(function(){
-                callback.apply(this, [uiDef.key]);
+                callback.apply(this, [uiDef.name]);
             });
         });
     },
@@ -503,16 +495,171 @@ return ZUI.def("ui.layout", {
         // 触发吧
         bus.trigger(eventType, eo);
     },
+    /*..............................................
+    修改指定区域标题
+     - arg  : 区域
+     - info : {
+         text : 'i18n:xxx',
+         icon : '<i..>'
+     }
+    */
+    changeAreaTitle : function(arg, info) {
+        var UI = this;
+        var $ar = UI.$area(arg);
+        var $tt = $ar.find('>div>.wl-info>.wl-title');
+        info = info || {};
+        // 图标
+        if(info.icon)
+            $tt.find('>.wlt-icon').html(info.icon);
+        else
+            $tt.find('>.wlt-icon').empty();
+        // 文字
+        if(info.text)
+            $tt.find('>.wlt-text').text(UI.text(info.text));
+        else
+            $tt.find('>.wlt-text').empty();
+    },
+    //..............................................
+    on_area_ready : function($ar){
+        var UI = this;
+        var uis = UI.getAreaUIMap($ar, true);
+        var dks = [];
+        for(var key in uis) {
+            var ui = uis[key];
+            if(!ui) {
+                var uiDef = UI.__ui_map[key];
+                if(uiDef) {
+                    // 诡异
+                    if(uiDef.name != key) 
+                        throw "Weird uiDef:" + uiDef.name
+                                + " != ["+key+'] uiType:'+uiDef.uiType;
+                    dks.push(key);
+                }
+            }
+        }
+        // 看来需要加载完再通知
+        if(dks.length > 0) {
+            UI.defer(dks, function(){
+                UI.fire('area:ready', $ar, UI);
+            });
+            for(var i=0; i<dks.length; i++) {
+                var key = dks[i];
+                var uiDef = UI.__ui_map[key];
+                UI.__do_redraw_subUI(uiDef, function(){
+                    UI.defer_report(key);
+                });
+            }
+        }
+        // 不需要，直接通知吧
+        else {
+            UI.fire('area:ready', $ar);
+        }
+    },
+    //..............................................
+    __normalize_action_menu : function(items) {
+        // 防守
+        if(!_.isArray(items) || items.length <= 0)
+            return [];
+    
+        // 迭代
+        var list = [];
+        for(var i=0; i<items.length; i++) {
+            var mi = items[i];
+        
+            if(!mi)
+                continue;
+    
+            // 组的话·递归
+            if(_.isArray(mi.items)) {
+                mi.items = this.__normalize_action_menu(mi.items);
+                continue;
+            }
+            // 开始展开吧
+            // <i..>::i18n:xxx::-@do:create    # 触发消息
+            if(mi.fireEvent) {
+                list.push(_.extend({}, mi, {
+                    handler : function(jq, mi) {
+                        this.fire(mi.fireEvent);
+                    }
+                }));
+            }
+            // <i..>::i18n:xxx::~@do:create    # 触发异步消息
+            else if(mi.asyncFireEvent) {
+                list.push(_.extend({}, mi, {
+                    asyncHandler : function(jq, mi, callback) {
+                        this.fireBus(mi.asyncFireEvent, [callback]);
+                    }
+                }));
+            }
+            // 默认项目
+            else {
+                list.push(_.extend({}, mi));
+            }
+        }
+        // 返回
+        return list;
+    },
+    //..............................................
+    __sync_tab_action : function($li) {
+        var UI = this;
+
+        var jAction = $li.closest('.wlt-tabs').find('>.wl-action');
+        if(jAction.length > 0) {
+            var acGasName = jAction.attr('ui-gasket-raw');
+            // 看看有没有菜单可以加载
+            var action = $li.data('@ACTION');
+            //console.log("======= ACTION", action)
+            // 木有的话，注销菜单
+            if(!action) {
+                if(UI.gasket[acGasName]){
+                    UI.gasket[acGasName].destroy();
+                }
+            }
+            // 装载一个新菜单
+            else {
+                new MenuUI(_.extend({}, action, {
+                    parent : UI,
+                    gasketName : acGasName
+                })).render(function(){
+                    $z.blinkIt(jAction);
+                });
+            }
+        }
+    },
     //..............................................
     switchTab : function($li) {
         var UI = this;
+        var opt = UI.options;
+
+        // 已经高亮了
+        if($li.attr('current'))
+            return;
+        
+        // 切换标签状态
         var ix = $li.attr('wl-tab-index') * 1;
         $li.parent().find('>[current]').removeAttr('current');
         $li.attr('current', 'yes');
-        $li.closest('[wl-type]').find('>.wn-layout-con>*')
-            .removeAttr('current')
-                .eq(ix)
-                    .attr('current', 'yes');
+
+        // 找到所在的菜单
+        UI.__sync_tab_action($li);
+
+        // 看看这个标签是否可以被本地存储状态
+        if(opt.localKey) {
+            var $tabs = $li.closest('[wl-type="tabs"]');
+            var lsKey = $tabs.attr('wl-key');
+            if(lsKey) {
+                var tabStatus = UI.local(opt.localKey) || {};
+                tabStatus[lsKey] = $li.attr('wl-tab-key');
+                UI.local(opt.localKey, tabStatus);
+            }
+        }
+
+        var $ar = $li.closest('[wl-type]').find('>.wn-layout-con>*')
+            .attr('wl-collapse', 'yes')
+                .eq(ix);
+        // 显示区域
+        //console.log($ar)
+        UI.showArea($ar);
     },
     //..............................................
     hideArea : function(arg) {
@@ -550,35 +697,11 @@ return ZUI.def("ui.layout", {
         if(!$ar || $ar.length == 0)
             return;
         
-            // 标识
-        $z.toggleAttr($ar, 'wl-collapse', 'yes');
-        
-        // 修改尺寸
-        UI.__resize_area($ar, true);
-    },
-    /*..............................................
-    修改指定区域标题
-     - arg  : 区域
-     - info : {
-         text : 'i18n:xxx',
-         icon : '<i..>'
-     }
-    */
-    changeAreaTitle : function(arg, info) {
-        var UI = this;
-        var $ar = UI.$area(arg);
-        var $tt = $ar.find('>div>.wl-info>.wl-title');
-        info = info || {};
-        // 图标
-        if(info.icon)
-            $tt.find('>.wlt-icon').html(info.icon);
-        else
-            $tt.find('>.wlt-icon').empty();
-        // 文字
-        if(info.text)
-            $tt.find('>.wlt-text').text(UI.text(info.text));
-        else
-            $tt.find('>.wlt-text').empty();
+        if($ar.attr('wl-collapse')) {
+            UI.showArea($ar);
+        } else {
+            UI.hideArea($ar);
+        }
     },
     //..............................................
     __resize_area : function($ar, enableAnimat) {
@@ -589,10 +712,13 @@ return ZUI.def("ui.layout", {
         // 对于 Box 单独设置
         if('box' == $ar.attr('wl-area')) {
             UI.__resize_box($ar, enableAnimat);
+            // 动画结束后，会导致 area ready, 所以这里先不用管了
         }
         // 对于其他区域，整体 resize
         else {
             UI.resize(true);
+            // 之后确保 area ready
+            UI.on_area_ready($ar);
         }
     },
     //..............................................
@@ -690,6 +816,10 @@ return ZUI.def("ui.layout", {
         UI.arena.find('>[wl-type="box"]').each(function(){
             UI.__resize_box($(this));
         });
+    },
+    //..............................................
+    _D : function() {
+        return [this.uiName+"@"+this.cid].concat(Array.from(arguments));
     }
     //..............................................
 });

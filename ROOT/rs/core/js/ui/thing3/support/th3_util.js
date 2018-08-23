@@ -192,11 +192,11 @@ __format_field : function(UI, fld) {
 //     // 不是一个合法的结构的话，就无视吧
 // },
 //...............................................................
-__normalize_action_menu : function(conf, items) {
+__normalize_action_menu : function(items, conf) {
     // 防守
-    if(!items || items.length <= 0)
+    if(!_.isArray(items) || items.length <= 0)
         return;
-
+    conf = conf || {};
     // 准备快速映射对象
     var quick_map = {
         "@create" : {
@@ -269,7 +269,7 @@ __normalize_action_menu : function(conf, items) {
 
         // 组的话·递归
         if(_.isArray(mi.items)) {
-            this.__normalize_action_menu(conf, mi.items);
+            this.__normalize_action_menu(mi.items, conf);
             continue;
         }
         // 开始展开吧
@@ -402,8 +402,8 @@ evalConf : function(UI, conf, opt, home) {
                         }];
 
     // 格式化菜单项目
-    this.__normalize_action_menu(conf, conf.searchMenu);
-    this.__normalize_action_menu(conf, conf.topMenu);
+    this.__normalize_action_menu(conf.searchMenu, conf);
+    this.__normalize_action_menu(conf.topMenu, conf);
 
 },
 //...............................................................

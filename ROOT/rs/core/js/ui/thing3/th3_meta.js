@@ -66,6 +66,7 @@ return ZUI.def("ui.th3.meta", {
                         else {
                             uiForm.hidePrompt(key);
                             var newTh = $z.fromJson(re);
+                            Wn.saveToCache(newTh);
                             UI.fireBus("meta:updated", [newTh, key]);
                         }
                     });

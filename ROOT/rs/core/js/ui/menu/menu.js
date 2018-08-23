@@ -57,6 +57,9 @@ return ZUI.def("ui.menu", {
             for(var i=0; i<items.length; i++) {
                 var mi = items[i];
                 if(mi) {
+                    if(_.isEmpty(mi)) {
+                        mi.type = 'separator';
+                    }
                     list.push(mi);
                     if(_.isArray(mi.items) && mi.items.length > 0) {
                         mi.items = __normlize_setup(mi.items);

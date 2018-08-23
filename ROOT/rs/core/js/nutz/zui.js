@@ -467,6 +467,22 @@ define(function (require, exports, module) {
             return this;
         },
         //............................................
+        _TK : function(n){
+            var ss = [];
+            var ca = arguments.callee.caller;
+            var c = 0;
+            while(ca && n > 0) {
+                if(ca.name) {
+                    ss.push(ca.name);
+                    n--;
+                }
+                ca = ca.caller;
+                if(++c > 100)
+                    break;
+            }
+            return this.uiName + '@' + this.cid + ":" + ss.reverse().join('->') + ':>';
+        },
+        //............................................
         __append_child: function (childUI) {
             if (childUI.parent != this) {
                 this.children.push(childUI);

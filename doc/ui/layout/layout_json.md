@@ -21,16 +21,18 @@ author:zozoh
             name : 'chute',
             size : '30%',
             collapseSize : '20px',
-            collapse : true
+            collapse : true,
         },{
             type : "bar"
         },{
             type : 'tabs',
-            action : [/*..*/],
+            key  : 'xxx',
+            current : 'c0',
             tabs : [{
                 name : 'c0',
                 icon : '<i...>',
                 text : 'i18n:xxx',
+                action : {/*..*/},
                 uiType : 'ui/xx/xx',
                 uiConf : {/*..*/}
             }]
@@ -45,11 +47,9 @@ author:zozoh
     }],
     boxes : [{
         type  : 'box',
-        title : {
-            icon : '<i...>',
-            text : 'i18n:xxx',
-            action : [/*..*/],
-        },
+        icon : '<i...>',
+        text : 'i18n:xxx',
+        action : {/*..*/},
         pos : {
             dockAt : "P",
             width  : "30%",
