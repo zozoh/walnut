@@ -2,32 +2,33 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/support/dom',
-    'ui/thing/support/th_methods',
     'ui/menu/menu',
     'ui/markdown/edit_markdown',
-], function(ZUI, Wn, DomUI, ThMethods, MenuUI, EditMarkdownUI){
+    'ui/thing3/support/th3_methods'
+], function(ZUI, Wn, MenuUI, EditMarkdownUI, ThMethods){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-obj-index-detail" ui-fitparent="true">
+<div class="ui-arena th3-content" ui-fitparent="true">
     <section class="toid-content" ui-gasket="edit"></section>
     <section class="toid-brief">
-        <h4>{{thing.key.brief}}</h4>
+        <h4>{{th3.key.brief}}</h4>
         <aside>
-            <a><i class="zmdi zmdi-flash"></i> {{thing.detail.genbreif}}</a>
+            <a><i class="zmdi zmdi-flash"></i> {{th3.content.genbreif}}</a>
         </aside>
-        <textarea spellcheck="false" placeholder="{{thing.detail.brief}}"></textarea>
+        <textarea spellcheck="false" placeholder="{{th3.content.brief}}"></textarea>
     </section>
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.th_obj_index_detail", {
+return ZUI.def("ui.th3.content", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
+    css  : "ui/thing3/theme/th3-{{theme}}.css",
+    i18n : "ui/thing3/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
-        ThMethods(this);
+        var UI = ThMethods(this);
+        UI.listenBus("obj:selected", UI.on_selected);
+        UI.listenBus("obj:blur", UI.showBlank);
     },
     //..............................................
     events : {
@@ -41,83 +42,131 @@ return ZUI.def("ui.thing.th_obj_index_detail", {
         }
     },
     //..............................................
-    redraw : function(){
-        var UI   = this;
-        var conf = UI.getBusConf();
-       
-        new EditMarkdownUI({
-            parent : UI,
-            gasketName : "edit",
-            menu : [{
-                icon : '<i class="fa fa-save"></i>',
-                text : "i18n:thing.detail.save",
-                asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
-                asyncText : "i18n:thing.detail.saving",
-                asyncHandler : function(jq, mi, callback) {
-                    var obj = UI.__OBJ;
-                    // 防守一下吧，虽然不太可能会发生
-                    if(!obj) {
-                        UI.alert("thing.detail.noobj", "warn");
-                        return;
-                    }
-                    // 读取数据 
-                    var det = {
-                        tp : "md",
-                        brief : $.trim(UI.arena.find(">.toid-brief textarea").val()),
-                        content : this.getData()
-                    };
-                    // 执行保存
-                    //conf.detail.save(obj, det, callback);
-                    UI.invokeConfCallback("detail", "save", [obj, det, function(re){
-                        // 这里主动调用一下异步函数回调
-                        // 以便恢复按钮状态
-                        $z.doCallback(callback);
-                        // 处理任务回调
-                        UI.doActionCallback(re, function(newObj){
-                            // 通知界面其他部分更新
-                            UI.fire("change:meta", [newObj]);
-                        });
-                    }]);
-                }
-            }, {type : "separator"}, "preview"],
-            preview : conf.detail.markdown || {
-                media : function(src) {
-                    var m = /^(media|attachment)\/(.+)$/.exec(src);
-                    console.log(m)
-                    if(m) {
-                        return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
-                            thset : UI.getHomeObjId(),
-                            th_id : UI.__OBJ.id,
-                            cate  : m[1],
-                            path  : m[2]
-                        });
-                    }
-                    return src;
-                }
-            },
-            defaultMode : UI.local("markdown-mode"),
-            on_mode : function(m) {
-                UI.local("markdown-mode", m);
-            }
-        }).render(function(){
-            UI.defer_report("edit");
-        });
-
-        return ["edit"];
+    update : function() {
+        var UI  = this;
+        var man = UI.getMainData();
+        var obj = Wn.getById(man.currentId, true);
+        UI.setData(obj);
     },
     //..............................................
-    update : function(o, callback) {
-        var UI  = this;
-        var conf = UI.getBusConf();
-        UI.__OBJ = o;
-
-        this.invokeConfCallback("detail", "read", [o, function(str){
-            UI.gasket.edit.setData(str);
-            $z.doCallback(callback, [str], UI);  
-        }]);
+    showEditing : function(obj) {
+        var UI   = this;
+        var man  = UI.getMainData();
+        var conf = man.conf;
 
         // 更新摘要
-        UI.arena.find(">.toid-brief textarea").val(o.brief || "");
+        UI.arena.find(">.toid-brief textarea").val(obj.brief || "");
+
+        // 读取数据
+        Wn.read(obj, function(str){
+            // 已经有了 form
+            if(UI.gasket.edit && UI.gasket.edit.uiName == 'ui.edit-markdown') {
+                UI.gasket.edit.setData(str);
+            }
+            // 重新创建
+            else {
+                new EditMarkdownUI({
+                    parent : UI,
+                    gasketName : "edit",
+                    menu : [{
+                        icon : '<i class="fa fa-save"></i>',
+                        text : "i18n:th3.content.save",
+                        asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
+                        asyncText : "i18n:th3.content.saving",
+                        asyncHandler : function(jq, mi, callback) {
+                            // 防守一下吧，虽然不太可能会发生
+                            if(!obj) {
+                                UI.alert("th3.content.noobj", "warn");
+                                return;
+                            }
+                            // 读取数据 
+                            var det = {
+                                tp : "md",
+                                brief : $.trim(UI.arena.find(">.toid-brief textarea").val()),
+                                content : this.getData()
+                            };
+                            // 执行保存
+                            var cmdText = $z.tmpl('thing {{th_set}} detail {{id}} -content')(obj);
+                            if(det.tp)
+                                cmdText += ' -tp ' + det.tp;
+                            // 更新摘要和类型
+                            if(!_.isUndefined(det.brief)) {
+                                cmdText += ' -brief "' + det.brief||"null" + '"'; 
+                            }
+                            // 更新
+                            Wn.exec(cmdText, det.content||"", function(re){
+                                // 回调更新菜单按状态
+                                $z.doCallback(callback);
+                                // 处理回调
+                                UI.doActionCallback(re, function(newTh){
+                                    Wn.saveToCache(newTh);
+                                    UI.fireBus("meta:updated", [newTh]);
+                                });
+                            });
+                        }
+                    }, {type : "separator"}, "preview"],
+                    preview : {
+                        media : function(src) {
+                            var m = /^(media|attachment)\/(.+)$/.exec(src);
+                            console.log(m)
+                            if(m) {
+                                return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
+                                    thset : UI.getHomeObjId(),
+                                    th_id : obj.id,
+                                    cate  : m[1],
+                                    path  : m[2]
+                                });
+                            }
+                            return src;
+                        }
+                    },
+                    defaultMode : UI.local("markdown-mode"),
+                    on_mode : function(m) {
+                        UI.local("markdown-mode", m);
+                    }
+                }).render(function(){
+                    this.setData(str);
+                });
+            }
+        });  // ~ Wn.read(obj, function(str){
+    },
+    //..............................................
+    showBlank : function() {
+        var UI = this;
+
+        UI.__show_blankUI("edit", {
+            text : 'i18n:th3.nocontent'
+        });
+    },
+    //..............................................
+    on_selected : function(eo) {
+        this.setData.apply(this, [eo.data]);
+    },
+    //..............................................
+    setData : function(objs) {
+        var UI = this;
+        // this.gasket.form.setData(o);
+        // $z.doCallback(callback, [], this);
+        // console.log(objs)
+        // 格式化数据
+        if(!_.isArray(objs) && objs) {
+            objs = [objs];
+        }
+
+        // 显示
+        if(objs && objs.length > 0) {
+            var obj = objs[0];
+            // TODO 多个对象应该显示模板
+            if(objs.length > 1) {
+                
+            }
+            // 更新表单
+            this.showEditing(obj);
+        }
+        // 显示空白
+        else {
+            UI.showBlank();
+        }
     },
     //..............................................
     resize : function() {

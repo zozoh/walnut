@@ -1,4 +1,5 @@
 define(function (require, exports, module) {
+var DomUI = require('ui/support/dom');
 // ....................................
 // 方法表
 var methods = {
@@ -58,7 +59,24 @@ doActionCallback : function(re, ok, fail) {
         UI.alert(E, "warn");
         console.warn(E);
     }
-}
+},
+//..............................................
+// opt 为 {icon:'<i..>', text:'i18n:xxx'}
+__show_blankUI : function(gasName, opt) {
+    var UI = this;
+
+    var dom = '<div class="th3-blank">';
+    dom += opt.icon || "";
+    dom += UI.text(opt.text) || "";
+    dom += '</div>';
+
+    // 替换掉索引项
+    new DomUI({
+        parent : UI,
+        gasketName : gasName,
+        dom : dom
+    }).render();
+},
 //....................................................
 }; // ~End methods
 

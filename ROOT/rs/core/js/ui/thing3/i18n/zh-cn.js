@@ -234,7 +234,7 @@ define({
         "meta"   : {
             "title" : "属性"
         },
-        "detail" : {
+        "content" : {
             "title"  : "内容",
             "brief"  : "请输入不超过 50 字的摘要",
             "save"   : "保存内容及摘要",
@@ -265,5 +265,6 @@ define({
             "restore_none" : "你没有选中任何可以被恢复的数据记录",
         },
         "blank" : '请选择数据以便查看详情',
+        "nocontent" : "无内容"
     }
 });

@@ -71,6 +71,24 @@
     }
 }
 //........................................
+// 对象详情界面
+.th3-content {
+    .toid-brief {
+        padding:@d2; position: relative; background: @cb1;
+        > h4 {margin:0; padding:@d2; font-size:@f2; color:@c2;}
+        > aside {
+            position: absolute; right: 0; top:0;
+            padding:@d2;
+            a {cursor: pointer;}
+        }
+        > textarea {@input();
+            width:100%; height:60px; outline:none; resize:none;
+            padding:@d3; font-size:@f2; line-height: @f3;
+            
+        }
+    }
+}
+//........................................
 // 创建数据界面
 .th3-obj-create {
     @flex(); flex-direction: column;
@@ -90,6 +108,13 @@
             font-size:.6em;
         }
     }
+}
+// ------------------------------- 
+// 空对象
+.th3-blank {
+    padding:@da 0 0 @d6; color:@c2; text-align: center;
+    font-size:1.6em; font-family: @f_fixed;
+    i {margin-right:@d3;}
 }
 
 

@@ -2,9 +2,9 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/support/dom',
     'ui/form/form',
-], function(ZUI, Wn, DomUI, FormUI){
+    'ui/thing3/support/th3_methods'
+], function(ZUI, Wn, FormUI, ThMethods){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-meta"
@@ -13,13 +13,14 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.th3.meta", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
+    css  : "ui/thing3/theme/th3-{{theme}}.css",
+    i18n : "ui/thing3/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
-        var UI = this;
+        var UI = ThMethods(this);
         UI.listenBus("obj:selected", UI.on_selected);
         UI.listenBus("obj:blur", UI.showBlank);
+        UI.listenBus("meta:updated", UI.on_selected);
     },
     //..............................................
     update : function() {
@@ -80,18 +81,14 @@ return ZUI.def("ui.th3.meta", {
     showBlank : function() {
         var UI = this;
 
-        // 替换掉索引项
-        new DomUI({
-            parent : UI,
-            gasketName : "form",
-            dom : `<div class="th-obj-blank">
-                <i class="fa fa-hand-o-left"></i>
-                {{thing.blank}}
-            </div>`
-        }).render();
+        UI.__show_blankUI("form", {
+            icon : '<i class="fa fa-hand-o-left"></i>',
+            text : 'i18n:th3.blank'
+        });
     },
     //..............................................
     on_selected : function(eo) {
+        console.log(eo.type, eo)
         this.setData.apply(this, [eo.data]);
     },
     //..............................................

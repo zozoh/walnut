@@ -16,6 +16,7 @@ var methods = {
     //....................................................
     // 监听消息
     // - ignoreLvl : "self" 无视自己发出的消息, "area" 无视本区域发出消息
+    //               默认自己
     listenBus : function(event, handler, ignoreLvl){
         var cid   = this.cid;
         var uiBus = this.bus();
@@ -26,12 +27,17 @@ var methods = {
         this.listenUI(uiBus, event, function(eo){
             //console.log("handle", event)
             // 无视自己
-            if('self' == ignoreLvl && this.cid == eo.UI.cid)
-                return;
+            if('self' == ignoreLvl || _.isUndefined(ignoreLvl)) {
+                if(this.cid == eo.UI.cid)
+                    return;
+            }
             // 无视本区域
-            var myAreaKey = this.getMyAreaKey();
-            if('area' == ignoreLvl && myAreaKey == eo.key)
-                return; 
+            if('area' == ignoreLvl){
+                var myAreaKey = this.getMyAreaKey();
+                if(myAreaKey == eo.key)
+                    return; 
+            }
+            
             // 调用回调
             handler.apply(this, [eo]);
         });
