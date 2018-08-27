@@ -252,6 +252,7 @@ return ZUI.def("ui.menu", {
         }
         // 同步
         else {
+            //console.log("fireMenuBtn", mi)
             $z.invoke(mi, "handler", [jq, mi], context);
         }
     },

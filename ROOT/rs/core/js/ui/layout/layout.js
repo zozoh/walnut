@@ -236,7 +236,10 @@ return ZUI.def("ui.layout", {
 
         // 监听通用事件
         UI.listenSelf("all", function(eventType, eo){
-            //console.log(UI._TK(2), "heard:", eventType, eo)
+            // 如果是  ui:xxx 事件，无视
+            if(/^ui:/.test(eventType))
+                return;
+            if(opt.debug)console.log(UI._TK(2), "heard:", eventType, eo)
             // 在路由表里有记录，那么就路由
             var edst = opt.eventRouter[eventType]
                         || opt.eventRouter.all;
@@ -248,11 +251,31 @@ return ZUI.def("ui.layout", {
                     pbus.trigger(eventType, eo);
                 }
             }
-            // 有映射值，重新发起事件
+            // 有映射值
             else if(edst) {
+                // 看看是否映射到子控件
+                var m = /^(->)([^=]+)(=(.+))?$/.exec(edst);
+                // 映射到子控件
+                if(m) {
+                    var subUI = UI.subUI(m[2]);
+                    var evTp2 = $.trim(m[4]);
+                    if(subUI) {
+                        // 触发新事件
+                        if(evTp2) {
+                            var eo2 = this.__gen_event_obj(evTp2, eo.area, subUI, eo.data);
+                            subUI.trigger(eo2.type, eo2);
+                        }
+                        // 直接转发旧事件
+                        else {
+                            subUI.trigger(eo.type, eo);
+                        }
+                    }
+                }
+                // 重新发起事件
                 for(var i=0; i<edst.length; i++) {
-                    var ed = edst[i];
-                    UI.fire(ed);
+                    var evTp2 = edst[i];
+                    var eo2 = this.__gen_event_obj(evTp2, eo.area, subUI, eo.data);
+                    UI.trigger(eo2.type, eo2);
                 }
             }
             // 默认的处理
@@ -410,12 +433,13 @@ return ZUI.def("ui.layout", {
 
         // 下面依次加载子界面
         for(var i=0; i<keys.length; i++) {
-            var key = keys[i];
-            var uiDef = UI.__ui_map[key];
-            UI.__do_redraw_subUI(uiDef, function(key){
-                UI.defer_report(key);
-                this.fireBus("area:ready");
-            });
+            (function(key){
+                var uiDef = UI.__ui_map[key];
+                UI.__do_redraw_subUI(uiDef, function(key){
+                    UI.defer_report(key);
+                    this.fireBus("area:ready");
+                });
+            })(keys[i]);
         }
     },
     //..............................................
@@ -453,7 +477,7 @@ return ZUI.def("ui.layout", {
         $ar.find('[ui-gasket-cid="'+cid+'"]').andSelf().each(function(){
             var gasName = $(this).attr('ui-gasket-raw');
             var childUI = ZUI($(this).children('[ui-id]'));
-            if(childUI || showAll) {
+            if(gasName && (childUI || showAll)) {
                 map[gasName] = childUI || null;
             }
         });
@@ -472,10 +496,15 @@ return ZUI.def("ui.layout", {
         return list;
     },
     //....................................................
-    // 发送消息
-    fire : function(eventType, $ar, UI, data) {
+    __gen_event_obj : function(eventType, $ar, UI, data) {
         var bus = this;
-        //console.log("fire", eventType)
+
+        // 格式化参数
+        if(!_.isUndefined($ar) && !$z.isjQuery($ar) && !_.isElement($ar)){
+            data = $ar;
+            $ar = undefined;
+        }
+
         var eo = {
             UI    : UI || this,
             area  : $ar,
@@ -484,16 +513,24 @@ return ZUI.def("ui.layout", {
             data  : data,
         };
         // 如果是区域
-        if('area:ready' == eventType) {
+        if($ar) {
             eo.uis = bus.getAreaUIMap($ar);
         }
-        // 如果全部
-        else if('layout:ready' == eventType) {
+        // 否则就全部
+        else {
             eo.uis = _.extend({}, bus.gasket);
         }
+        // 返回
+        return eo;
+    },
+    //....................................................
+    // 发送消息
+    fire : function(eventType, $ar, UI, data) {
+        // 事件对象
+        var eo = this.__gen_event_obj(eventType, $ar, UI, data);
 
         // 触发吧
-        bus.trigger(eventType, eo);
+        this.trigger(eventType, eo);
     },
     /*..............................................
     修改指定区域标题
@@ -543,11 +580,12 @@ return ZUI.def("ui.layout", {
                 UI.fire('area:ready', $ar, UI);
             });
             for(var i=0; i<dks.length; i++) {
-                var key = dks[i];
-                var uiDef = UI.__ui_map[key];
-                UI.__do_redraw_subUI(uiDef, function(){
-                    UI.defer_report(key);
-                });
+                (function(key){
+                    var uiDef = UI.__ui_map[key];
+                    UI.__do_redraw_subUI(uiDef, function(){
+                        UI.defer_report(key);
+                    });
+                })(dks[i]);
             }
         }
         // 不需要，直接通知吧
@@ -658,7 +696,7 @@ return ZUI.def("ui.layout", {
             .attr('wl-collapse', 'yes')
                 .eq(ix);
         // 显示区域
-        //console.log($ar)
+        console.log($ar)
         UI.showArea($ar);
     },
     //..............................................
@@ -680,14 +718,21 @@ return ZUI.def("ui.layout", {
         // 无视
         if(!$ar || $ar.length == 0)
             return;
-        // 标识
-        $ar.removeAttr('wl-collapse');
+        // 原本是隐藏的
+        if($ar.attr('wl-collapse')) {
+            // 标识
+            $ar.removeAttr('wl-collapse');
 
-        // 通知
-        UI.fire('area:show', $ar, UI);
+            // 通知
+            UI.fire('area:show', $ar, UI);
 
-        // 修改尺寸
-        UI.__resize_area($ar, true);
+            // 修改尺寸
+            UI.__resize_area($ar, true);
+        }
+        // // 原本就是现实的，那么直接就报 ready
+        // else {
+        //     UI.on_area_ready($ar);
+        // }
     },
     //..............................................
     toggleArea : function(arg) {
