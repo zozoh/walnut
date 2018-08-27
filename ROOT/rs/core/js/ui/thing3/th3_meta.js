@@ -48,7 +48,7 @@ return ZUI.def("ui.th3.meta", {
                 uiWidth : "all",
                 arenaClass : "obj-meta-form",
                 on_change : function(key){
-                    console.log("update key=", key);
+                    //console.log("update key=", key);
                     // 准备数据
                     var uiForm = this;
                     var obj = uiForm.getData();
