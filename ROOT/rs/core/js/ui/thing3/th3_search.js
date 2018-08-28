@@ -18,8 +18,8 @@ return ZUI.def("ui.th3.search", {
     init : function(opt){
         var UI = this;
         UI.listenBus("meta:updated", UI.on_update);
-        UI.listenBus("list:remove", UI.on_remove);
-        UI.listenBus("list:refresh", UI.on_refresh);
+        UI.listenBus("list:remove", UI.on_remove, 'all');
+        UI.listenBus("list:refresh", UI.on_refresh, 'all');
         UI.listenBus("list:add", UI.on_add);
     },
     //..............................................

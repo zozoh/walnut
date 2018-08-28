@@ -88,7 +88,7 @@ return ZUI.def("ui.th3.meta", {
     },
     //..............................................
     on_selected : function(eo) {
-        console.log(eo.type, eo)
+        //console.log(eo.type, eo)
         this.setData.apply(this, [eo.data]);
     },
     //..............................................

@@ -625,7 +625,7 @@ return ZUI.def("ui.layout", {
             else if(mi.asyncFireEvent) {
                 list.push(_.extend({}, mi, {
                     asyncHandler : function(jq, mi, callback) {
-                        this.fireBus(mi.asyncFireEvent, [callback]);
+                        this.fire(mi.asyncFireEvent, [callback]);
                     }
                 }));
             }
