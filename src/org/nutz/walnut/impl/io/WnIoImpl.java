@@ -321,6 +321,31 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj createIfExists(WnObj p, String path, WnRace race) {
+        // 判断是否是获取对象索引
+        String nm = Files.getName(path);
+        if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
+            return fetch(p, path);
+        }
+
+        // 就是自己
+        if (".".equals(path))
+            return p;
+
+        // 存在的话先删除
+        WnObj o = tree.fetch(p, path);
+        if (null != o) {
+            // 种类冲突，不能忍啊
+            if (!o.isRace(race))
+                throw Er.create("e.io.create.invalid.race", path + " ! " + race);
+            // 删之
+            this.delete(o);
+        }
+        // 创建
+        return tree.create(p, path, race);
+    }
+
+    @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
         // 判断是否是获取对象索引
         String nm = Files.getName(path);
@@ -328,7 +353,21 @@ public class WnIoImpl implements WnIo {
             return fetch(p, path);
         }
 
-        return tree.createIfNoExists(p, path, race);
+        // 就是自己
+        if (".".equals(path))
+            return p;
+
+        // 不存在才创建
+        WnObj o = tree.fetch(p, path);
+        if (null == o)
+            return tree.create(p, path, race);
+
+        // 种类冲突，不能忍啊
+        if (!o.isRace(race))
+            throw Er.create("e.io.create.invalid.race", path + " ! " + race);
+
+        // 嗯就是它了
+        return o;
     }
 
     @Override

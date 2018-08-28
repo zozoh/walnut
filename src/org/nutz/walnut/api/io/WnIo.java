@@ -12,6 +12,10 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 
 public interface WnIo extends WnStore, WnTree {
+    
+    WnObj createIfNoExists(WnObj p, String path, WnRace race);
+    
+    WnObj createIfExists(WnObj p, String path, WnRace race);
 
     /**
      * 返回修改前对象

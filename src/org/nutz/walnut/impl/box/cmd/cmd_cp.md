@@ -14,6 +14,6 @@
 	// 拷贝目录
 	cp -r superdir supermandir
 
-	// 拷贝单个文件,且复制 权限信息和所属的group
+	// 拷贝单个文件,且复制元数据
 	cp -p hi.jpg hi_keepmode.jpg
 

@@ -273,7 +273,7 @@ public abstract class Wn {
             // 就是一个 id:xxx 形式的东东
             String id = ph.substring(3);
             WnObj o = sys.io.checkById(id);
-            return o.path();
+            return o.getRegularPath();
         }
 
         // 返回
@@ -305,8 +305,15 @@ public abstract class Wn {
                 re = Wn.appendPath(pwd, path);
             }
         }
+        // 特殊诡异情况
         if (re.endsWith("id:"))
             throw new RuntimeException("emtry paht 'id:' is not allow!!! re=" + re);
+
+        // 如果是目录
+        if (ph.endsWith("/") && !re.endsWith("/"))
+            return re + "/";
+
+        // 返回
         return re;
     }
 

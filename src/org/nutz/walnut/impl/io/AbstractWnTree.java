@@ -887,22 +887,6 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     @Override
-    public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
-        // 就是自己
-        if (".".equals(path))
-            return p;
-
-        WnObj o = fetch(p, path);
-        if (null == o)
-            return create(p, path, race);
-
-        if (!o.isRace(race))
-            throw Er.create("e.io.create.invalid.race", path + " ! " + race);
-
-        return o;
-    }
-
-    @Override
     public int each(WnQuery q, final Each<WnObj> callback) {
         final boolean autoPath = Wn.WC().isAutoPath();
         final WnTree tree = this;

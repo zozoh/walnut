@@ -91,8 +91,6 @@ public interface WnTree extends UnitTestable {
 
     <T> T getAs(String id, String key, Class<T> classOfT, T dft);
 
-    WnObj createIfNoExists(WnObj p, String path, WnRace race);
-
     WnObj create(WnObj p, String path, WnRace race);
 
     WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
