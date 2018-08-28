@@ -38,8 +38,9 @@ public class cmd_cpobj extends JvmExecutor {
 
         // 显示详情模式
         if (params.is("v")) {
+            WnObj oCurrent = sys.getCurrentObj();
             woc.setCallback((oTa, oDst) -> {
-                String rph = Wn.Io.getRelativePath(oDst, oTa);
+                String rph = Wn.Io.getRelativePath(oCurrent, oTa);
                 sys.out.println(rph);
             });
         }

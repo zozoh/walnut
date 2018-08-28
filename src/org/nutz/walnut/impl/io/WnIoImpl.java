@@ -339,7 +339,7 @@ public class WnIoImpl implements WnIo {
             if (!o.isRace(race))
                 throw Er.create("e.io.create.invalid.race", path + " ! " + race);
             // 删之
-            this.delete(o);
+            this.delete(o, true);
         }
         // 创建
         return tree.create(p, path, race);

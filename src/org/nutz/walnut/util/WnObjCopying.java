@@ -126,7 +126,7 @@ public class WnObjCopying {
     }
 
     private WnObj __do_create(WnObj o_src, WnObj o_dst) {
-        if (this.dropBeforeCopy) {
+        if (this.dropBeforeCopy && o_src.isFILE()) {
             return io.createIfExists(o_dst, o_src.name(), o_src.race());
         }
         return io.createIfNoExists(o_dst, o_src.name(), o_src.race());
