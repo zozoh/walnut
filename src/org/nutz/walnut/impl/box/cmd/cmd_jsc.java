@@ -64,7 +64,7 @@ public class cmd_jsc extends JvmExecutor {
         if (params.has("vars")) {
             String vstr = params.get("vars");
             // 从管道读取
-            if (("~pipe".equals(vstr) || "true".equals(vstr)) && sys.pipeId > 0) {
+            if ("~pipe".equals(vstr) || "true".equals(vstr)) {
                 vstr = sys.in.readAll();
             }
             vars = Lang.map(vstr);
