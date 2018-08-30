@@ -1,19 +1,23 @@
-package org.nutz.walnut.ext.gpx.hdl;
+package org.nutz.walnut.ext.kml.hdl;
 
-import org.nutz.json.Json;
+import java.io.ByteArrayInputStream;
+
+import org.nutz.lang.Xmls;
 import org.nutz.plugins.xmlbind.entity.XmlEntity;
 import org.nutz.plugins.xmlbind.entity.XmlEntityAnnotationMaker;
-import org.nutz.walnut.ext.gpx.bean.GpxFile;
+import org.nutz.walnut.ext.kml.bean.KmlFile;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.w3c.dom.Element;
 
 @JvmHdlParamArgs("cqn")
-public class gpx_togpx implements JvmHdl {
+public class kml_tojson implements JvmHdl {
     
-    protected XmlEntity<GpxFile> gpxEntity = new XmlEntityAnnotationMaker().makeEntity(null, GpxFile.class);
+    protected XmlEntity<KmlFile> kmlEntity = new XmlEntityAnnotationMaker().makeEntity(null, KmlFile.class);
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -24,8 +28,10 @@ public class gpx_togpx implements JvmHdl {
         else {
             text = sys.io.readText(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)));
         }
-        GpxFile gpx = Json.fromJson(GpxFile.class, text);
-        sys.out.print(gpxEntity.write(gpx, "gpx"));
+        ByteArrayInputStream ins = new ByteArrayInputStream(text.getBytes());
+        Element ele = Xmls.xml(ins).getDocumentElement();
+        KmlFile kml = kmlEntity.read(ele);
+        sys.out.writeJson(kml, Cmds.gen_json_format(hc.params));
     }
 
 }
