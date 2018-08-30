@@ -105,6 +105,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
+			<artifactId>nutz-plugins-xmlbind</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nutz</groupId>
 			<artifactId>nutz-plugins-zdoc</artifactId>
 			<version>${project.version}</version>
 		</dependency>

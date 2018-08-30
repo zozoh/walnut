@@ -67,6 +67,7 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-plugins-mongodb', version:nutz_version
     compile group: 'org.nutz', name: 'nutzwx', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-qrcode', version:nutz_version
+    compile group: 'org.nutz', name: 'nutz-plugins-xmlbind', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-integration-json4excel', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zdoc', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
