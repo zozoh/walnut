@@ -1,12 +1,11 @@
 package org.nutz.walnut.ext.gpx.bean;
 
-import org.nutz.plugins.xmlbind.annotation.XmlAttr;
 import org.nutz.plugins.xmlbind.annotation.XmlEle;
 
 @XmlEle("trk")
 public class GpxTrk {
 
-    @XmlAttr
+    @XmlEle(simpleNode=true)
     public String name;
     @XmlEle
     public GpxTrkseg trkseg;
