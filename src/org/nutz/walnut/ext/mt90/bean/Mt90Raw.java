@@ -6,11 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.nutz.castor.Castors;
-import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 
-public class Mt90Raw {
+public class Mt90Raw implements Comparable<Mt90Raw> {
 
     public long timestamp; // 时间戳
     public int eventKey; // 事件ID
@@ -34,7 +33,7 @@ public class Mt90Raw {
     // 计算得出的量
     public int powerVoltage; // 单位毫伏
     public int powerQuantity; // 单位0.01%
-    public Date localDate;
+    public Date gpsDate;
     public Date recDate;
     
     private static Mirror<Mt90Raw> mirror = Mirror.me(Mt90Raw.class);
@@ -59,13 +58,21 @@ public class Mt90Raw {
         raw.recDate = new Date(raw.timestamp);
         if (!Strings.isBlank(raw.localtime)) {
             try {
-                raw.localDate = new SimpleDateFormat("yyyyMMddHHmmss").parse("20"+raw.localtime);
-                raw.localDate = new Date(raw.localDate.getTime() + 8*3600*1000);
+                raw.gpsDate = new SimpleDateFormat("yyyyMMddHHmmss").parse("20"+raw.localtime);
+                raw.gpsDate = new Date(raw.gpsDate.getTime() + 8*3600*1000);
             }
             catch (ParseException e) {
             }
         }
         return raw;
+    }
+
+    public int compareTo(Mt90Raw o) {
+        if (this.gpsDate.before(o.gpsDate))
+            return -1;
+        else if (this.gpsDate.after(o.gpsDate))
+            return 1;
+        return 0;
     }
     
 //    public static void main(String[] args) {
