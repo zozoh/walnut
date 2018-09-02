@@ -61,8 +61,10 @@ public class WnPager {
     public void setupQuery(WnIo io, WnQuery q) {
         // 看看是否需要查询分页信息
         if (this.countPage && this.limit > 0) {
-            this.sum_count = (int) io.count(q);
-            this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
+            // this.sum_count = (int) io.count(q);
+            // this.sum_page = (int) Math.ceil(((double) this.sum_count) /
+            // ((double) this.limit));
+            this.setSumCount((int) io.count(q));
         }
 
         if (this.skip > 0)
@@ -70,6 +72,13 @@ public class WnPager {
 
         if (this.limit > 0)
             q.limit(this.limit);
+    }
+
+    public void setSumCount(int sc) {
+        this.sum_count = sc;
+        if (this.countPage && this.limit > 0) {
+            this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
+        }
     }
 
     @Override

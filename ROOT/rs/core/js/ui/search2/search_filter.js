@@ -194,8 +194,6 @@ return ZUI.def("ui.search_filter", {
             var opt = UI.options;
             var jLi = $(e.currentTarget);
             var jUl = jLi.closest("ul");
-
-            console.log("haha")
             
             // 多选处理
             if(opt.tabsMulti) {

@@ -278,7 +278,7 @@ var methods = {
                 $z.invoke(opt, "on_actived", [o, jItem, prevObj, jPreItem], context);
                 
                 UI.trigger("item:checked", jItem);
-                $z.invoke(opt, "on_checked", [jItem], UI);
+                $z.invoke(opt, "on_checked", [jItem], context);
             }
         }
         // 调用子类方法
@@ -318,7 +318,7 @@ var methods = {
                 $z.invoke(opt, "on_blur", [jItems, nextObj, nextItem], context);
                 
                 UI.trigger("item:unchecked", jItems);
-                $z.invoke(opt, "on_unchecked", [jItems], UI);
+                $z.invoke(opt, "on_unchecked", [jItems], context);
             }
         }
     },
@@ -355,6 +355,7 @@ var methods = {
     check : function(arg, quiet){
         var UI  = this;
         var opt = UI.options;
+        var context = opt.context || UI;
 
         // 找到未选中项目
         var jItems = (_.isUndefined(arg)
@@ -371,7 +372,7 @@ var methods = {
             // 触发消息 
             if(!quiet) {
                 UI.trigger("item:checked", jItems);
-                $z.invoke(opt, "on_checked", [jItems], UI);
+                $z.invoke(opt, "on_checked", [jItems], context);
             }
         }
     },
@@ -379,6 +380,7 @@ var methods = {
     uncheck : function(arg, quiet){
         var UI  = this;
         var opt = UI.options;
+        var context = opt.context || UI;
 
         // 找到选中项目
         var jItems = (_.isUndefined(arg)
@@ -396,7 +398,7 @@ var methods = {
             // 触发消息 
             if(!quiet) {
                 UI.trigger("item:unchecked", jItems);
-                $z.invoke(opt, "on_unchecked", [jItems], UI);
+                $z.invoke(opt, "on_unchecked", [jItems], context);
             }
 
             // 取消激活
@@ -410,7 +412,7 @@ var methods = {
                 // 触发消息 
                 if(!quiet) {
                     UI.trigger("item:blur", jA);
-                    $z.invoke(opt, "on_blur", [jA]);
+                    $z.invoke(opt, "on_blur", [jA], context);
                 }
             }
         }
@@ -419,6 +421,7 @@ var methods = {
     toggle : function(arg){
         var UI  = this;
         var opt = UI.options;
+        var context = opt.context || UI;
         
         var jItems = _.isUndefined(arg)
                         ? UI.arena.find(".list-item")
@@ -457,13 +460,13 @@ var methods = {
             if(checkeds.length > 0) {
                 var jCheckeds = $(checkeds);
                 UI.trigger("item:checked", jCheckeds);
-                $z.invoke(opt, "on_checked", [jCheckeds], UI);
+                $z.invoke(opt, "on_checked", [jCheckeds], context);
             }
             // 触发消息 : uncheck
             if(unchecks.length > 0) {
                 var jUnchecks = $(unchecks);
                 UI.trigger("item:unchecked", jUnchecks);
-                $z.invoke(opt, "on_unchecked", [jUnchecks], UI);
+                $z.invoke(opt, "on_unchecked", [jUnchecks], context);
             }
         }
     },

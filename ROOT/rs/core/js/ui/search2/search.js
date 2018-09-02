@@ -342,7 +342,7 @@ return ZUI.def("ui.search2", {
             callback = undefined;
         }
 
-        // console.log("refresh", jumpToHead)
+        //console.log("refresh", jumpToHead)
         // zozoh@20151026:
         // 推迟运行，以便确保界面都加载完毕了
         // 这个问题，现在只发现在版本帝 Firefox 41.0.2 上有， Chrome 上没问题
