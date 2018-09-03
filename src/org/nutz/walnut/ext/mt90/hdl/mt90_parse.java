@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
-import org.nutz.plugins.xmlbind.entity.XmlEntityAnnotationMaker;
+import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.ext.gpx.bean.GpxFile;
 import org.nutz.walnut.ext.gpx.bean.GpxTrk;
 import org.nutz.walnut.ext.gpx.bean.GpxTrkpt;
@@ -66,7 +66,7 @@ public class mt90_parse implements JvmHdl {
                 trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(raw.gpsDate);
                 gpx.trk.trkseg.trkpts.add(trkpt);
             }
-            String str = new XmlEntityAnnotationMaker().makeEntity(null, GpxFile.class).write(gpx, "gpx");
+            String str = XmlBind.toXml(gpx, "gpx");
             sys.out.print(str);
             return;
         }
@@ -91,7 +91,7 @@ public class mt90_parse implements JvmHdl {
                 coordinates.append(placemark.point.coordinates).append("        \r\n");
             }
             first.lineString.coordinates = coordinates.toString();
-            String str = new XmlEntityAnnotationMaker().makeEntity(null, KmlFile.class).write(kml, "kml");
+            String str = XmlBind.toXml(kml, "kml");
             sys.out.print(str);
             return;
         }
