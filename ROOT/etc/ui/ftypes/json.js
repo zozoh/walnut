@@ -1,4 +1,4 @@
 ({
 	actions : ["@::save_text"],
-	editors : [ "edit_json" ]
+	editors : [ "edit_text" ]
 })
