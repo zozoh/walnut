@@ -168,7 +168,7 @@ var Wn = {
     // sep : 一段 HTML，用来分隔个个路径，默认为 <em>/</em>
     objDisplayPath : function(UI, ph, offset, wrapper, sep){
         var Wn  = this;
-        var nms = ph
+        var nms = ph;
         if(!_.isArray(ph)){
             nms = _.without(ph.split("/"), "");
         }

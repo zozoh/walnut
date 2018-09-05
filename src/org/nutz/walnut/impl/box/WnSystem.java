@@ -21,6 +21,7 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnSysConf;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
@@ -246,7 +247,7 @@ public class WnSystem implements WnExecutable{
     /**
      * @return 系统配置对象
      */
-    public NutMap getSysConf() {
+    public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
     }
 }

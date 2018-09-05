@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -1106,17 +1105,17 @@ public abstract class Wn {
      *            IO 接口
      * @return 系统配置对象
      */
-    public static NutMap getSysConf(WnIo io) {
-        return Wn.WC().nosecurity(io, new Proton<NutMap>() {
+    public static WnSysConf getSysConf(WnIo io) {
+        return Wn.WC().nosecurity(io, new Proton<WnSysConf>() {
             @Override
-            protected NutMap exec() {
+            protected WnSysConf exec() {
                 // TODO @peter确认下这个/etc/sysconf是干什么的 默认好像没有这个文件
+                // zzh: 嗯，格式了输出了。 WnSysConf 可以让业务逻辑有机会明确的知道自己所在的服务器地址
                 WnObj oSysConf = io.fetch(null, "/etc/sysconf");
                 if (oSysConf == null) {
-                    return NutMap.NEW();
+                    return new WnSysConf();
                 }
-                String json = io.readText(oSysConf);
-                return Json.fromJson(NutMap.class, json);
+                return io.readJson(oSysConf, WnSysConf.class);
             }
         });
     }
