@@ -48,6 +48,6 @@ mysrc
 
 /ROOT/rs/core/js/nutz/theme/*.css
 
-
+*.css.map
 
 .MWebMetaData

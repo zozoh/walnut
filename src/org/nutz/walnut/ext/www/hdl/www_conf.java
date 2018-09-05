@@ -8,6 +8,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnSysConf;
 
 @JvmHdlParamArgs("cqn")
 public class www_conf implements JvmHdl {
@@ -29,8 +30,8 @@ public class www_conf implements JvmHdl {
         // 设置 DNS 转接地址
         if (!conf.has("dns_record")) {
             // 读取系统配置文件
-            NutMap sysConf = Wn.getSysConf(sys.io);
-            String dftHost = sysConf.getString("mainHost", "127.0.0.1");
+            WnSysConf sysConf = Wn.getSysConf(sys.io);
+            String dftHost = sysConf.getMainHost();
             conf.put("dns_record", dftHost);
         }
 

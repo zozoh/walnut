@@ -284,7 +284,7 @@ public class WnRun {
         return Wn.WC().nosecurity(io, proton);
     }
 
-    public NutMap getSysConf() {
+    public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
     }
 }

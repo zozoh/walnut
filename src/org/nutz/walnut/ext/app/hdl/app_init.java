@@ -20,6 +20,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnSysConf;
 
 public class app_init implements JvmHdl {
 
@@ -105,21 +106,10 @@ public class app_init implements JvmHdl {
         }
 
         // 上下文一定要增加的键
-        NutMap sysconf = sys.getSysConf();
-        String hostAndPort = sysconf.getString("mainHost", "localhost");
-        int port = sysconf.getInt("mainPort", 80);
-        if (port > 80 && port != 443)
-            hostAndPort += ":" + port;
-        String scheme = sysconf.getString("mainScheme");
-        if (Strings.isBlank(scheme)) {
-            if (port == 443 || port == 8443)
-                scheme = "https";
-            else
-                scheme = "http";
-        }
-        c.putDefault("hostAndPort", hostAndPort);
-        c.putDefault("scheme", scheme);
-        c.putDefault("urlbase", scheme + "://" + hostAndPort);
+        WnSysConf sysconf = sys.getSysConf();
+        c.putDefault("hostAndPort", sysconf.getMainHostAndPort());
+        c.putDefault("scheme", sysconf.getMainScheme());
+        c.putDefault("urlbase", sysconf.getMainUrlBase());
         c.put("sys", sysconf);
         c.put("me", sys.me);
 
