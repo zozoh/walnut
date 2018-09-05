@@ -8,6 +8,10 @@ public class KmlStyle {
 
     @XmlAttr
     public String id;
+    @XmlEle("IconStyle")
+    public KmlStyleIconStyle iconStyle;
+    @XmlEle("LabelStyle")
+    public KmlStyleLabelStyle labelStyle;
     @XmlEle("LineStyle")
     public KmlStyleLineStyle lineStyle;
 }
