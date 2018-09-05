@@ -15,4 +15,12 @@ public class KmlDocument {
     public List<KmlStyle> styles;
     @XmlEle("Placemark")
     public List<KmlPlacemark> placemarks;
+    
+    @XmlEle("ExtendedData")
+    public KmlExtendedData extendedData;
+    
+    @XmlEle("Folder")
+    public List<KmlFolder> folders;
+    
+    
 }
