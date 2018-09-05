@@ -1,7 +1,11 @@
 package org.nutz.walnut.ext.gpx.hdl;
 
 import java.util.ArrayList;
+import java.util.Date;
 
+import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
+import org.nutz.lang.util.Regex;
 import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.ext.gpx.bean.GpxFile;
 import org.nutz.walnut.ext.gpx.bean.GpxTrk;
@@ -40,9 +44,24 @@ public class gpx_fromkml implements JvmHdl {
             trkpt.lon = tmp[1];
             trkpt.ele = tmp[2];
             gpx.trk.trkseg.trkpts.add(trkpt);
-            sys.out.print(XmlBind.toXml(gpx));
-            return;
+            if (placemark.name != null) {
+                if (Regex.match("^[0-9]+km/h", placemark.name)) {
+                    String[] tmp2 = Strings.splitIgnoreBlank(placemark.name, " ");
+                    try {
+                        int speed = Integer.parseInt(tmp2[0].substring(0, tmp2[0].indexOf("km"))) * 1000;
+                        trkpt.speed = ""+speed;
+                        // <name>0km/h  2018-08-12 07:33:27</name>
+                        // <time>2002-02-10T21:01:29.250Z</time>
+                        Date date = Times.parse("yyyy-MM-dd HH:mm:ss", tmp2[1] + " " + tmp2[2]);
+                        trkpt.time = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", date);
+                    }
+                    catch (Throwable e) {
+                    }
+                }
+            }
         }
+        sys.out.print(XmlBind.toXml(gpx));
+        return;
     }
 
 }

@@ -14,7 +14,15 @@ public class GpxTrkpt {
     public String ele;
     @XmlEle(simpleNode = true)
     public String time;
+    @XmlEle(simpleNode = true)
+    public String speed;
     
+    public String getSpeed() {
+        return speed;
+    }
+    public void setSpeed(String speed) {
+        this.speed = speed;
+    }
     public String getLat() {
         return lat;
     }
