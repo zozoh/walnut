@@ -43,7 +43,7 @@ public class gpx_tokml implements JvmHdl {
                 KmlPlacemark placemark = new KmlPlacemark();
                 placemark.name = "Point";
                 placemark.point = new KmlPlacemarkPoint();
-                placemark.point.coordinates = String.format("%s,%s,%s", trkpt.lat, trkpt.lon, trkpt.ele);
+                placemark.point.coordinates = String.format("%s,%s,%s", trkpt.lon, trkpt.lat, trkpt.ele);
                 kml.document.placemarks.add(placemark);
                 coordinates.append(placemark.point.coordinates).append("\r\n");
             }
