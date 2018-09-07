@@ -41,8 +41,14 @@ public class kml_towooz implements JvmHdl {
                     wooz.points = new ArrayList<>();
                     for (KmlPlacemark placemark : folder.placemarks) {
                         WoozPoint point = new WoozPoint();
-                        point.name = placemark.id;
-                        point.desc = placemark.name;
+                        if ("startPoint".equals(placemark.id))
+                            point.type = "start";
+                        else if ("endPoint".equals(placemark.id))
+                            point.type = "end";
+                        else
+                            point.type = "csp";
+                        point.name = placemark.name;
+                        point.desc = placemark.description;
                         double[] tmp = WoozTools.parse(placemark.point.coordinates, _wgs84togcj02, _wgs84tobd09);
                         point.lng = tmp[0];
                         point.lat = tmp[1];
