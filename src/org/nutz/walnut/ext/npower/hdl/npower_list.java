@@ -58,5 +58,4 @@ public class npower_list implements JvmHdl {
             Cmds.output_beans(sys, hc.params, pager, list);
         }
     }
-
 }
