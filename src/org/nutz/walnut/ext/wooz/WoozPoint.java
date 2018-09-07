@@ -32,6 +32,7 @@ public class WoozPoint {
     public String name;
     public String desc;
     public String type;
+    public String service;
     public double lng;
     public double lat;
     public double ele;
