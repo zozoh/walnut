@@ -143,6 +143,9 @@ return ZUI.def("ui.form_com_input", {
         // 占位符显示
         UI.setPlaceholder(opt.placeholder);
 
+        // 只读
+        jInput.prop('disabled', opt.readonly || false)
+
         // 助理
         UI.setAssist(opt.assist);
     },

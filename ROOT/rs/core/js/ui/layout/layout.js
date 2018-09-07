@@ -729,10 +729,10 @@ return ZUI.def("ui.layout", {
             // 修改尺寸
             UI.__resize_area($ar, true);
         }
-        // // 原本就是现实的，那么直接就报 ready
-        // else {
-        //     UI.on_area_ready($ar);
-        // }
+        // 原本就是现实的，那么直接就报 ready
+        else {
+            UI.on_area_ready($ar);
+        }
     },
     //..............................................
     toggleArea : function(arg) {
