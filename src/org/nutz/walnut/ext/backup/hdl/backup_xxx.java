@@ -308,14 +308,16 @@ public abstract class backup_xxx {
             NutMap backup_config = pkgWobj.getAs("backup_config", NutMap.class);
             if (backup_config == null) {
                 backup_config = new NutMap();
-                backup_config.put("base", "");
             }
+            String base = ctx.base;
+            if (Strings.isBlank(base))
+                base = backup_config.getString("base", "");
             for (WnObj wobj : main.objs) {
                 String sha1 = wobj.sha1();
                 // 原本的路径
                 String originPath = wobj.path();
                 // 相对路径
-                String rpath = originPath.substring(backup_config.getString("base").length());
+                String rpath = originPath.substring(base.length());
                 String dstPath = ctx.target + rpath;
                 WnObj dstWnObj = io.fetch(null, dstPath);
                 // 确保父文件夹存在
@@ -355,7 +357,7 @@ public abstract class backup_xxx {
                 }
                 log.debugf("restore meta   : %s -> %s", rpath, dstPath);
                 wobj.clearRWMetaKeys();
-                io.appendMeta(dstWnObj, Lang.filter(wobj, null, null, "^(id|race|d0|d1|nm|pid|ph|sha1|data)$", null));
+                io.appendMeta(dstWnObj, Lang.filter(wobj, null, null, "^(id|race|d0|d1|nm|pid|ph|sha1|data|c|m|g)$", null));
             }
         }
         catch (Exception e) {
