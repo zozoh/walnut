@@ -19,7 +19,7 @@ return ZUI.def("ui.form_com_label", {
         var UI = this;
         //console.log("label: getData")
         return this.ui_format_data(function(opt){
-            return UI.$el.data("@VAL") || "";
+            return UI.$el.data("@VAL");
         });
     },
     //...............................................................
@@ -29,7 +29,8 @@ return ZUI.def("ui.form_com_label", {
         //console.log("label: setData")
 
         // 记录数据
-        val = _.isNull(val) || _.isUndefined(val) ? "" : val;
+        val = !_.isNumber(val) && (_.isNull(val) || _.isUndefined(val)) 
+                    ? "" : val;
         this.$el.data("@VAL", val);
 
         // 设置显示 
