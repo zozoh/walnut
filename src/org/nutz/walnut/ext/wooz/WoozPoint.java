@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.wooz;
 
-public class WoozPoint {
+public class WoozPoint extends AbstraceWoozPoint {
 /**
         "name" : "P1",          // 赛点名称，整个文档中必须唯一
         "desc" : "起点",        // 赛点的显示文字，一般为地名的别名
@@ -33,9 +33,6 @@ public class WoozPoint {
     public String desc;
     public String type;
     public String service;
-    public double lng;
-    public double lat;
-    public double ele;
     public int distanceStart;
     public int distanceEnd;
     public int distancePrev;

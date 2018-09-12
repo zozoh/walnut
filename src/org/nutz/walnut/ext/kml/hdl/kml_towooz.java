@@ -1,6 +1,9 @@
 package org.nutz.walnut.ext.kml.hdl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.nutz.lang.Strings;
 import org.nutz.plugins.xmlbind.XmlBind;
@@ -18,7 +21,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex=("^(wgs84togcj02|wgs84tobd09)$"))
+@JvmHdlParamArgs(value="cqn")
 public class kml_towooz implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -32,12 +35,14 @@ public class kml_towooz implements JvmHdl {
         KmlFile kml = XmlBind.fromXml(KmlFile.class, text);
         if (kml.document == null)
             return;
-        boolean _wgs84togcj02 = hc.params.is("wgs84togcj02");
-        boolean _wgs84tobd09 = hc.params.is("wgs84tobd09");
+        String conv_from = hc.params.get("conv_from", "");
+        String conv_to = hc.params.get("conv_to", "");
+        Set<String> pointsKeyworks = new HashSet<>(Arrays.asList(hc.params.get("points", "标注点").split(",")));
+        Set<String> routeKeyworks = new HashSet<>(Arrays.asList(hc.params.get("route", "导航线,轨迹").split(",")));
         WoozMap wooz = new WoozMap();
         if (kml.document.folders != null) {
             for (KmlFolder folder : kml.document.folders) {
-                if ("标注点".equals(folder.name)) {
+                if (pointsKeyworks.contains(folder.name)) {
                     wooz.points = new ArrayList<>();
                     for (KmlPlacemark placemark : folder.placemarks) {
                         WoozPoint point = new WoozPoint();
@@ -49,24 +54,26 @@ public class kml_towooz implements JvmHdl {
                             point.type = "csp";
                         point.name = placemark.name;
                         point.desc = placemark.description;
-                        double[] tmp = WoozTools.parse(placemark.point.coordinates, _wgs84togcj02, _wgs84tobd09);
+                        double[] tmp = WoozTools.parse(placemark.point.coordinates);
                         point.lng = tmp[0];
                         point.lat = tmp[1];
                         point.ele = tmp[2];
+                        WoozTools.convert(point, conv_from, conv_to);
                         wooz.points.add(point);
                     }
                 }
-                else if ("导航线".equals(folder.name)) {
+                else if (routeKeyworks.contains(folder.name)) {
                     wooz.route = new ArrayList<>();
                     String[] tmp2 = folder.placemarks.get(0).lineString.coordinates.split(" ");
                     for (String coordinate : tmp2) {
                         if (Strings.isBlank(coordinate))
                             continue;
-                        double[] tmp = WoozTools.parse(coordinate, _wgs84togcj02, _wgs84tobd09);
+                        double[] tmp = WoozTools.parse(coordinate);
                         WoozRoute route = new WoozRoute();
                         route.lng = tmp[0];
                         route.lat = tmp[1];
                         route.ele = tmp[2];
+                        WoozTools.convert(route, conv_from, conv_to);
                         wooz.route.add(route);
                     }
                 }

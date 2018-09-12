@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.wooz;
 
-public class WoozRoute {
+public class WoozRoute extends AbstraceWoozPoint {
 /**
         "type" : "P1",
         //............................................
@@ -9,7 +9,4 @@ public class WoozRoute {
         "ele": 0,             // 海拔 (米)
  */
     public String type;
-    public double lng;
-    public double lat;
-    public double ele;
 }
