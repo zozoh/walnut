@@ -243,7 +243,6 @@ return ZUI.def("ui.layout", {
             // 在路由表里有记录，那么就路由
             var edst = opt.eventRouter[eventType]
                         || opt.eventRouter.all;
-            
             // 路由到父
             if('..' == edst) {
                 var pbus = $z.invoke(UI.parent, 'bus');
@@ -610,6 +609,7 @@ return ZUI.def("ui.layout", {
             // 组的话·递归
             if(_.isArray(mi.items)) {
                 mi.items = this.__normalize_action_menu(mi.items);
+                list.push(mi);
                 continue;
             }
             // 开始展开吧
