@@ -18,17 +18,17 @@
 # 示例
 
 	显示当前目录所非隐藏对象数量
-	discount
+	dircount
 	
 	计算当前目录下所有对象数量，包括隐藏对象
-	discount -A
+	dircount -A
 	
 	计算txt类型的对象数量
-	discount -tp txt
+	dircount -tp txt
 	
 	计算符合match的对象数量
-	discount -match 'tp:"txt"'
+	dircount -match 'tp:"txt"'
 	
 	计算2层深度目录
-	discount -deep 2
+	dircount -deep 2
 	

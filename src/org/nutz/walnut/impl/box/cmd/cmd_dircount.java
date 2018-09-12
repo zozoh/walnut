@@ -33,7 +33,7 @@ public class cmd_dircount extends JvmExecutor {
         boolean showHidden = params.is("A");
         String match = params.getString("match", null);
         String tp = params.getString("tp", null);
-        int tarDeep = params.getInt("deep", 0);
+        int tarDeep = params.getInt("deep", 1);
         int curDeep = 0;
 
         String path;

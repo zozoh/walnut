@@ -7,19 +7,44 @@ public class WoozTools {
         return new double[] {Double.parseDouble(tmp[0]), Double.parseDouble(tmp[1]), Double.parseDouble(tmp[2])};
     }
     
-    public static double[] parse(String coordinate, boolean _wgs84togcj02, boolean _wgs84tobd09) {
-        double[] tmp = parse(coordinate);
-        if (_wgs84togcj02) {
-            double[] tmp2 = wgs84togcj02(tmp[0], tmp[1]);
-            tmp[0] = tmp2[0];
-            tmp[1] = tmp2[1];
+    public static void convert(AbstraceWoozPoint point, String from, String to) {
+        double[] tmp = null;
+        switch (from) {
+        case "wgs84":
+            switch (to) {
+            case "gcj02":
+                tmp = WoozTools.wgs84togcj02(point.lng, point.lat);
+                break;
+            case "bd09":
+                tmp = WoozTools.wgs84togcj02(point.lng, point.lat);
+                break;
+            }
+            break;
+        case "gcj02":
+            switch (to) {
+            case "wgs84":
+                tmp = WoozTools.gcj02towgs84(point.lng, point.lat);
+                break;
+            case "bd09":
+                tmp = WoozTools.gcj02tobd09(point.lng, point.lat);
+                break;
+            }
+            break;
+        case "bd09":
+            switch ("to") {
+            case "gcj02":
+                tmp = WoozTools.bd09togcj02(point.lng, point.lat);
+                break;
+            case "wgs84":
+                tmp = WoozTools.bd09towgs84(point.lng, point.lat);
+                break;
+            }
+            break;
         }
-        else if (_wgs84tobd09) {
-            double[] tmp2 = wgs84tobd09(tmp[0], tmp[1]);
-            tmp[0] = tmp2[0];
-            tmp[1] = tmp2[1];
+        if (tmp != null) {
+            point.lng = tmp[0];
+            point.lat = tmp[1];
         }
-        return tmp;
     }
     
     // from https://gist.github.com/jp1017/71bd0976287ce163c11a7cb963b04dd8
