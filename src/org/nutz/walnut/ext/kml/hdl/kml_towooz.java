@@ -3,9 +3,11 @@ package org.nutz.walnut.ext.kml.hdl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.ext.kml.bean.KmlFile;
 import org.nutz.walnut.ext.kml.bean.KmlFolder;
@@ -64,17 +66,41 @@ public class kml_towooz implements JvmHdl {
                 }
                 else if (routeKeyworks.contains(folder.name)) {
                     wooz.route = new ArrayList<>();
-                    String[] tmp2 = folder.placemarks.get(0).lineString.coordinates.split(" ");
-                    for (String coordinate : tmp2) {
-                        if (Strings.isBlank(coordinate))
-                            continue;
-                        double[] tmp = WoozTools.parse(coordinate);
-                        WoozRoute route = new WoozRoute();
-                        route.lng = tmp[0];
-                        route.lat = tmp[1];
-                        route.ele = tmp[2];
-                        WoozTools.convert(route, conv_from, conv_to);
-                        wooz.route.add(route);
+                    KmlPlacemark placemark = folder.placemarks.get(0);
+                    if (placemark.lineString != null) {
+                        String[] tmp2 = folder.placemarks.get(0).lineString.coordinates.split(" ");
+                        for (String coordinate : tmp2) {
+                            if (Strings.isBlank(coordinate))
+                                continue;
+                            double[] tmp = WoozTools.parse(coordinate);
+                            WoozRoute route = new WoozRoute();
+                            route.lng = tmp[0];
+                            route.lat = tmp[1];
+                            route.ele = tmp[2];
+                            WoozTools.convert(route, conv_from, conv_to);
+                            wooz.route.add(route);
+                        }
+                    }
+                    else if (placemark.track != null) {
+                        int index = 0;
+                        List<String> whens = placemark.track.whens;
+                        for (String coord : placemark.track.coords) {
+                            double[] tmp = WoozTools.parse(coord.replace(' ', ','));
+                            WoozRoute route = new WoozRoute();
+                            route.lng = tmp[0];
+                            route.lat = tmp[1];
+                            route.ele = tmp[2];
+                            WoozTools.convert(route, conv_from, conv_to);
+                            wooz.route.add(route);
+                            try {
+                                if (whens != null && index < whens.size()) {
+                                    route.time = Times.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", whens.get(index));
+                                }
+                            }
+                            catch (Throwable e) {
+                            }
+                            index++;
+                        }
                     }
                 }
             }

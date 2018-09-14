@@ -20,4 +20,6 @@ public class KmlPlacemark {
     public KmlPlacemarkPoint point;
     @XmlEle("ExtendedData")
     public KmlExtendedData extendedData;
+    @XmlEle("gx:Track")
+    public KmlGxTrack track;
 }
