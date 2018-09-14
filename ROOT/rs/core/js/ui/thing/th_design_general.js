@@ -127,6 +127,17 @@ return ZUI.def("ui.thing.thdesign_general", {
                         }
                     }
                 }, {
+                    key : "lnKeys",
+                    title : "链接键设置",
+                    type  : "object",
+                    dft   : null,
+                    uiType : "@text",
+                    uiConf : {
+                        height : 200,
+                        asJson : true,
+                        placeholder : "JSON格式的配置信息"
+                    }
+                }, {
                     key : "searchFilter",
                     title : "过滤设置",
                     type  : "object",

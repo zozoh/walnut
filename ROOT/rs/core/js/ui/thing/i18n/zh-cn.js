@@ -129,6 +129,7 @@ define({
                 "thumbsz_tip"   : "请输入诸如 `256x256`",
                 "ukeys" : "唯一键约束",
                 "ukeys_tip" : "一行一个，复合键用半角逗号分隔，以 * 开头的行，表示不能为空",
+                "lnkeys" : "链接键"
             },
             "import" : {
                 "enabled" : "允许导入",
