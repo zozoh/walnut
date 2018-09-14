@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.Xmls;
 import org.nutz.plugins.xmlbind.entity.XmlEntity;
 import org.nutz.plugins.xmlbind.entity.XmlEntityAnnotationMaker;
@@ -74,6 +75,10 @@ public class gpx_towooz implements JvmHdl {
                 route.lng = Double.parseDouble(trkpt.lon);
                 if (trkpt.ele != null)
                     route.ele = Double.parseDouble(trkpt.ele);
+                if (Strings.isNotBlank(trkpt.time)) {
+                    // 2018-06-17T13:14:15Z
+                    route.time = Times.parse("yyyy-MM-dd'T'HH:mm:ss'Z'", trkpt.time);
+                }
                 WoozTools.convert(route, conv_from, conv_to);
                 wooz.route.add(route);
             }
