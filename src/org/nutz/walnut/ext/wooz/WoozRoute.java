@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.wooz;
 
+import java.util.Date;
+
 public class WoozRoute extends AbstraceWoozPoint {
 /**
         "type" : "P1",
@@ -9,4 +11,5 @@ public class WoozRoute extends AbstraceWoozPoint {
         "ele": 0,             // 海拔 (米)
  */
     public String type;
+    public Date time;
 }
