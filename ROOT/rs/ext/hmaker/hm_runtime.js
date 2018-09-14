@@ -856,8 +856,8 @@ window.HmRT = {
                     lnkHref = fld.config.linkHref(val);
                 }
                 // 用全局模板渲染的动态链接
-                else if(val && oHref && _.isFunction(oHref.tmpl)) {
-                    lnkHref = oHref.tmpl(val);
+                else if(oHref && _.isFunction(oHref.tmpl)) {
+                    lnkHref = oHref.tmpl(val || obj);
                 }
             }
             // 容忍一下错误

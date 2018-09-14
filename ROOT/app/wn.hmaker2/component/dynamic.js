@@ -356,7 +356,7 @@ return ZUI.def("app.wn.hm_com_dynamic", {
         // 重新应用皮肤
         PageUI.invokeSkin("ready");
         window.setTimeout(function(){
-            console.log("apply skin resize");
+            //console.log("apply skin resize");
             PageUI.invokeSkin("resize");
         },1000);
     },

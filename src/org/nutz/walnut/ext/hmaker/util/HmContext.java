@@ -295,11 +295,15 @@ public class HmContext {
     }
 
     public String getRelativePath(WnObj o) {
-        return Disks.getRelativePath(oHome.path(), o.path());
+        String phHome = oHome.getRegularPath();
+        String phObj = o.getRegularPath();
+        return Disks.getRelativePath(phHome, phObj);
     }
 
     public String getRelativeDestPath(WnObj oTa) {
-        return Disks.getRelativePath(oDest.path(), oTa.path());
+        String phDest = oDest.getRegularPath();
+        String phTa = oTa.getRegularPath();
+        return Disks.getRelativePath(phDest, phTa);
     }
 
     public String getRelativePath(WnObj oBase, WnObj o) {
