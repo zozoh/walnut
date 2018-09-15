@@ -45,12 +45,12 @@ public class thing_query implements JvmHdl {
         WnThingService wts;
         // 指定了 ThingSet
         if (tq.tss != null && tq.tss.length > 0) {
-            wts = new WnThingService(sys.io, null);
+            wts = new WnThingService(sys, null);
         }
         // 否则用自己当前目录作为 ThingSet
         else {
             WnObj oTs = Things.checkThingSet(hc.oRefer);
-            wts = new WnThingService(sys.io, oTs);
+            wts = new WnThingService(sys, oTs);
         }
 
         // 调用接口

@@ -18,7 +18,7 @@ public class thing_delete implements JvmHdl {
         
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
-        WnThingService wts = new WnThingService(sys.io, oTs);
+        WnThingService wts = new WnThingService(sys, oTs);
         
         // 调用接口
         hc.output = wts.deleteThing(quiet, hc.params.vals);

@@ -33,7 +33,6 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
     @Override
     public List<WnObj> invoke() {
-
         List<WnObj> output = new LinkedList<>();
 
         for (String id : ids) {

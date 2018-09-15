@@ -233,18 +233,22 @@ public abstract class Wn {
     }
 
     public static String normalizePath(String ph, WnSession se) {
+        return normalizePath(ph, se.vars());
+    }
+
+    public static String normalizePath(String ph, NutMap vars) {
         if (Strings.isBlank(ph))
             return ph;
         // 主目录开头
         if (ph.startsWith("~")) {
-            ph = se.vars().getString("HOME") + ph.substring(1);
+            ph = vars.getString("HOME") + ph.substring(1);
         }
         // 当前目录开头
         else if (ph.startsWith("./")) {
-            ph = se.vars().getString("PWD", "") + ph.substring(1);
+            ph = vars.getString("PWD", "") + ph.substring(1);
         }
 
-        return normalizeStr(ph, se.vars());
+        return normalizeStr(ph, vars);
     }
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
@@ -280,10 +284,14 @@ public abstract class Wn {
     }
 
     public static String normalizeFullPath(String ph, WnSession se) {
+        return normalizeFullPath(ph, se.vars());
+    }
+
+    public static String normalizeFullPath(String ph, NutMap vars) {
         if (Strings.isBlank(ph))
             return ph;
-        String path = normalizePath(ph, se);
-        String pwd = se.vars().getString("PWD", "");
+        String path = normalizePath(ph, vars);
+        String pwd = vars.getString("PWD", "");
 
         String re;
 

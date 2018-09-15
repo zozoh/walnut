@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.thing.impl;
 
+import java.util.List;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
+import org.nutz.walnut.ext.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
@@ -50,8 +52,18 @@ public class UpdateThingAction extends ThingAction<WnObj> {
             }
         }
 
+        // 根据链接键，修改对应的键值
+        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, false);
+
         // 更新这个 Thing
         io.appendMeta(oT, meta);
+
+        // 更新其他记录
+        if (null != others && others.size() > 0) {
+            for (ThOtherUpdating other : others) {
+                other.doUpdate();
+            }
+        }
 
         // 返回
         return oT;

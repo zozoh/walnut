@@ -23,7 +23,7 @@ public class thing_create implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 找到集合
         WnObj oTs = Things.checkThingSet(hc.oRefer);
-        WnThingService wts = new WnThingService(sys.io, oTs);
+        WnThingService wts = new WnThingService(sys, oTs);
 
         // 得到字段
         String ukey = hc.params.get("unique");

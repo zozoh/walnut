@@ -253,7 +253,7 @@ public abstract class Things {
                                   WnObj oTs,
                                   WnObj oT,
                                   String dirName) {
-        WnThingService ths = new WnThingService(sys.io, oTs);
+        WnThingService ths = new WnThingService(sys, oTs);
 
         // 添加
         if (hc.params.has("add")) {

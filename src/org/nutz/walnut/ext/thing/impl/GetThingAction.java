@@ -100,7 +100,7 @@ public class GetThingAction extends ThingAction<WnObj> {
         String key = "th_" + mode + "_list";
         // 没有的话，如果还是有媒体的，就搞一下同步
         if (!oT.has(key) && oT.getInt("th_" + mode + "_nb") > 0) {
-            WnObj oData = Things.dirTsData(io, this.oTs);
+            WnObj oData = Things.dirTsData(io, oTs);
             WnObj oDir = io.fetch(oData, oT.id() + "/" + mode);
             if (null != oDir) {
                 WnQuery q = Wn.Q.pid(oDir);

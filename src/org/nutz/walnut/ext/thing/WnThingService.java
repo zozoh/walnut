@@ -28,28 +28,78 @@ import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.Things;
+import org.nutz.walnut.ext.thing.util.WnPathNormalizing;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.walnut.util.WnPager;
 
 public class WnThingService {
 
-    private WnIo io;
+    protected WnIo io;
 
-    private WnObj oTs;
+    protected WnObj oTs;
+
+    protected WnPathNormalizing pathNormalizing;
 
     public WnThingService(WnIo io, WnObj oTs) {
         this.io = io;
         this.oTs = oTs;
+        NutMap vars = new NutMap();
+        String homePath = Wn.appendPath(oTs.d0(),oTs.d1());
+        vars.put("HOME", homePath);
+        vars.put("PWD", homePath);
+        this.pathNormalizing = new WnPathNormalizing() {
+            public String normalizeFullPath(String ph) {
+                return Wn.normalizeFullPath(ph, vars);
+            }
+        };
+    }
+    
+    public WnThingService(WnIo io, WnObj oTs, WnPathNormalizing pathNormalizing) {
+        this.io = io;
+        this.oTs = oTs;
+        this.pathNormalizing = pathNormalizing;
+    }
+
+    public WnThingService(WnSystem sys, WnObj oTs) {
+        this.io = sys.io;
+        this.oTs = oTs;
+        this.pathNormalizing = new WnPathNormalizing() {
+            public String normalizeFullPath(String ph) {
+                return Wn.normalizeFullPath(ph, sys);
+            }
+        };
+    }
+
+    /**
+     * 创建一个新的服务类。如果给定的数据集对象与自己的相同，那么就返回自身
+     * 
+     * @param oTsOther
+     *            另外一个集合
+     * @param forceGen
+     *            true: 表示指定集合即使是自身，也要创建一个新的服务类实例
+     * @return 一个新的服务类或者自身
+     */
+    public WnThingService gen(WnObj oTsOther, boolean forceGen) {
+        if (!forceGen && null != oTs && null != oTsOther && oTs.isSameId(oTsOther)) {
+            return this;
+        }
+        return new WnThingService(io, oTsOther, pathNormalizing);
     }
 
     // .....................................................................
     private <T extends ThingAction<?>> T _A(T a) {
-        a.setIo(io).setThingSet(oTs);
+        a.setService(this);
+        a.setIo(io);
+        a.setoTs(oTs);
         return a;
     }
 
     private <T extends ThingDataAction<?>> T _AD(T a, String dirName, WnObj oT) {
-        a.setIo(io).setThingSet(oTs);
+        a.setService(this);
+        a.setIo(io);
+        a.setoTs(oTs);
         a.setDirName(dirName).setThing(oT);
         return a;
     }
@@ -57,6 +107,10 @@ public class WnThingService {
     private ThingConf checkConf() {
         WnObj oConf = Things.fileTsConf(io, oTs);
         return io.readJson(oConf, ThingConf.class);
+    }
+
+    public String normalizeFullPath(String ph) {
+        return this.pathNormalizing.normalizeFullPath(ph);
     }
 
     // .....................................................................

@@ -35,7 +35,7 @@ public class thing_get implements JvmHdl {
 
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
-        WnThingService wts = new WnThingService(sys.io, oTs);
+        WnThingService wts = new WnThingService(sys, oTs);
 
         // 调用接口
         hc.output = wts.getThing(thId, isFull, sortKey, isAsc);

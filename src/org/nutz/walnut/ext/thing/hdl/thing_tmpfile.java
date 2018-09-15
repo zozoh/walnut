@@ -15,7 +15,7 @@ public class thing_tmpfile implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
-        WnThingService ths = new WnThingService(sys.io, oTs);
+        WnThingService ths = new WnThingService(sys, oTs);
 
         // 清理
         if (hc.params.has("clean")) {
