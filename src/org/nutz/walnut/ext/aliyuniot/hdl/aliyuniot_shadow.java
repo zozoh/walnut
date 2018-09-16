@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.npower.hdl;
+package org.nutz.walnut.ext.aliyuniot.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -26,10 +26,10 @@ import com.aliyuncs.profile.IClientProfile;
  *
  */
 @JvmHdlParamArgs(value="cqn", regex="^dry$")
-public class npower_shadow implements JvmHdl {
+public class aliyuniot_shadow implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyun/" + hc.params.get("cnf", "npower"), sys));
+        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyuniot/" + hc.params.get("cnf", "default"), sys));
         String imei = hc.params.val_check(0);
 
         String accessKey = conf.getString("accessKey");

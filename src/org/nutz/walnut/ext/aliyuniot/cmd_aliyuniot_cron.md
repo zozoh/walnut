@@ -1,14 +1,14 @@
 命令简介
 ======= 
 
-`npower cron` 用于设置定时器
+`aliyuniot cron` 用于设置定时器
     
 
 用法
 =======
 
 ```
-npower cron [-dry] [imei] [cron] ...
+aliyuniot cron [-dry] [imei] [cron] ...
 ```
 
 支持模拟支持参数-dry,不实际更新
@@ -17,7 +17,7 @@ npower cron [-dry] [imei] [cron] ...
 ======
 
 ```
-->: npower cron 869300033624598 on:000000-010000,off:010001-050000,on:050001-235959
+->: aliyuniot cron 869300033624598 on:000000-010000,off:010001-050000,on:050001-235959
 {
    "ok": true
 }

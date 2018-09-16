@@ -1,21 +1,21 @@
 命令简介
 ======= 
 
-`npower stat` 用于获取设备状态
+`aliyuniot stat` 用于获取设备状态
     
 
 用法
 =======
 
 ```
-npower stat [imeiA] [imeiB] ...
+aliyuniot stat [imeiA] [imeiB] ...
 ```
 
 示例
 ======
 
 ```
-->: npower stat 869300033624598
+->: aliyuniot stat 869300033624598
 [{
    firmwareVersion: "NPowerV1_2.0.5_Luat_V0027_8955_SSL_FLOAT", //设备版本号
    gmtCreate: "2018-06-30 23:42:52", // 设备创建数据

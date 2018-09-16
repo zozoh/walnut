@@ -1,21 +1,21 @@
 命令简介
 ======= 
 
-`npower add` 用于添加设备
+`aliyuniot add` 用于添加设备
     
 
 用法
 =======
 
 ```
-npower add [imeiA] [imeiB] ...
+aliyuniot add [imeiA] [imeiB] ...
 ```
 
 示例
 ======
 
 ```
-->: npower add 869300033624598
+->: aliyuniot add 869300033624598
 {
    "869300033624598": "ok"
 }

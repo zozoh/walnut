@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.npower.hdl;
+package org.nutz.walnut.ext.aliyuniot.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
@@ -13,7 +13,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  *
  */
 @JvmHdlParamArgs(value="cqn", regex="^dry$")
-public class npower_on extends npower_shadow {
+public class aliyuniot_on extends aliyuniot_shadow {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

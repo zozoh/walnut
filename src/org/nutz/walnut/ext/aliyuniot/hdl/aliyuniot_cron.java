@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.npower.hdl;
+package org.nutz.walnut.ext.aliyuniot.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
 @JvmHdlParamArgs(value="cqn", regex="^dry$")
-public class npower_cron extends npower_shadow {
+public class aliyuniot_cron extends aliyuniot_shadow {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
