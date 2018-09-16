@@ -1,21 +1,21 @@
 命令简介
 ======= 
 
-`npower list` 用于查询设备
+`aliyuniot list` 用于查询设备
     
 
 用法
 =======
 
 ```
-npower list [-skip xxx] [-limit xxx]
+aliyuniot list [-skip xxx] [-limit xxx]
 ```
 
 示例
 ======
 
 ```
-->: npower list
+->: aliyuniot list
 {
    list: [{
       gmtModified: "Sat, 28-Jul-2018 11:38:02 GMT",
