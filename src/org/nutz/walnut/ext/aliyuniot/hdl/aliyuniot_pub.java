@@ -1,6 +1,10 @@
-package org.nutz.walnut.ext.npower.hdl;
+package org.nutz.walnut.ext.aliyuniot.hdl;
 
-import org.nutz.lang.util.NutMap;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -10,22 +14,16 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
 import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.iot.model.v20170420.RegistDeviceRequest;
-import com.aliyuncs.iot.model.v20170420.RegistDeviceResponse;
+import com.aliyuncs.iot.model.v20170420.PubRequest;
+import com.aliyuncs.iot.model.v20170420.PubResponse;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 
-/**
- * 添加设备
- * 
- * @author wendal
- *
- */
 @JvmHdlParamArgs("cqn")
-public class npower_add implements JvmHdl {
+public class aliyuniot_pub implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyun/" + hc.params.get("cnf", "npower"), sys));
+        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyuniot/" + hc.params.get("cnf", "default"), sys));
 
         String accessKey = conf.getString("accessKey");
         String accessSecret = conf.getString("accessSecret");
@@ -34,21 +32,21 @@ public class npower_add implements JvmHdl {
         DefaultAcsClient client = new DefaultAcsClient(profile);
 
         String productKey = conf.getString("productKey");
+        String content = hc.params.check("msg");
+        content = Base64.getEncoder().encodeToString(content.getBytes());
+        int qos = hc.params.getInt("qos", 0);
 
-        NutMap re = new NutMap();
-        // 逐个添加并记录状态
+        Map<String, PubResponse> re = new HashMap<>();
         for (String imei : hc.params.vals) {
-            RegistDeviceRequest req = new RegistDeviceRequest();
-            req.setDeviceName(imei);
+            PubRequest req = new PubRequest();
+            req.setTopicFullName("/" + productKey + "/" + imei + "/get");
             req.setProductKey(productKey);
-            RegistDeviceResponse resp = client.getAcsResponse(req);
-            if (resp.getSuccess() != null && resp.getSuccess()) {
-                re.put(imei, "ok");
-            } else {
-                re.put(imei, resp.getErrorMessage());
-            }
+            req.setMessageContent(content);
+            req.setQos(qos);
+            PubResponse resp = client.getAcsResponse(req);
+            re.put(imei, resp);
         }
-        sys.out.writeJson(re, Cmds.gen_json_format(hc.params));
+        sys.out.print(Json.toJson(re, Cmds.gen_json_format(hc.params)));
     }
 
 }

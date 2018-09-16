@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.npower.hdl;
+package org.nutz.walnut.ext.aliyuniot.hdl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,10 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 
 @JvmHdlParamArgs("cqn")
-public class npower_stat implements JvmHdl {
+public class aliyuniot_stat implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyun/" + hc.params.get("cnf", "npower"), sys));
+        WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyuniot/" + hc.params.get("cnf", "default"), sys));
 
         String accessKey = conf.getString("accessKey");
         String accessSecret = conf.getString("accessSecret");

@@ -1,14 +1,14 @@
 命令简介
 ======= 
 
-`npower on` 设置继电器状态为开
+`aliyuniot off` 设置继电器状态为关
     
 
 用法
 =======
 
 ```
-npower on [-dry] [imei]
+aliyuniot off [-dry] [imei]
 ```
 
 支持模拟更新参数-dry,不实际更新
@@ -17,7 +17,7 @@ npower on [-dry] [imei]
 ======
 
 ```
-->: npower on 869300033624598
+->: aliyuniot off 869300033624598
 {
    "ok": true
 }

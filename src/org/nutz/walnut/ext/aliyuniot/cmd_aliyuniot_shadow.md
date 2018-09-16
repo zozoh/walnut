@@ -1,7 +1,7 @@
 命令简介
 ======= 
 
-`npower shadow` 获取或设置设备影子数据
+`aliyuniot shadow` 获取或设置设备影子数据
     
 对设备非实时配置,都是通过设备影子来完成的
 
@@ -14,7 +14,7 @@
 =======
 
 ```
-npower shadow [imei] [-dry] [-u xxx:xxx,yyy:zzz]
+aliyuniot shadow [imei] [-dry] [-u xxx:xxx,yyy:zzz]
 ```
 
 支持模拟更新参数-dry,不实际更新
@@ -77,7 +77,7 @@ npower shadow [imei] [-dry] [-u xxx:xxx,yyy:zzz]
 u参数更新的是 desired , 仅desired部分
 
 ```
-npower shadow 869300033624598 -u '{OpMode:"remote", PowerSwitch:"on"}'
+aliyuniot shadow 869300033624598 -u '{OpMode:"remote", PowerSwitch:"on"}'
 ```
 
 注意, 这只是把设置下发到设备,如果设备不在线,那么下次联网时才能生效
