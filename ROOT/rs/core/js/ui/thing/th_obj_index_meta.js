@@ -38,10 +38,12 @@ return ZUI.def("ui.thing.th_obj_index_meta", {
                 var obj    = uiForm.getData();
                 obj.__force_update = true;
                 uiForm.showPrompt(key, "spinning");
-                UI.invokeConfCallback("meta", "update", [obj, key, function(){
+                UI.invokeConfCallback("meta", "update", [obj, key, function(newTh){
                     uiForm.hidePrompt(key);
+                    // 更新自身，因为服务器端可能同时更新多个字段
+                    uiForm.setData(newTh);
                     // 通知界面其他部分更新
-                    UI.fire("change:meta", [obj, key]);
+                    UI.fire("change:meta", [newTh, key]);
                 }, function(msg) {
                     uiForm.showPrompt(key, "warn", msg);
                 }]);
