@@ -51,10 +51,9 @@
                     > footer {
                         text-align: center; font-size: @f0;
                         position: absolute;bottom: 0; left:0; right:0;  
-                        cursor: ns-resize; height:@objFH; line-height: @objFH;
+                        height:@objFH; line-height: @objFH;
                         > * {display: none;}
                     }
-                    > footer:hover > * {display: inline;}
                 }
                 > .tmln-obj-del {
                     position: absolute; top:-12px; right:-12px;
@@ -70,6 +69,15 @@
                     color:#FFF; background:@c6;
                     transform: rotate(360deg);
                 }
+            }
+            &[to-editable] {
+                > .tmln-objw > .tmln-obj-con > footer {
+                    cursor: ns-resize;
+                    &:hover > * {display: inline;}
+                }
+            }
+            &[to-readonly] {
+                .tmln-obj-del {display: none;}
             }
         } 
     }

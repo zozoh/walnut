@@ -11,7 +11,7 @@ author:zozoh
 
 # 如何创建实例
 
-```
+```js
 new TimelineUI({
     // 建立多少个绘制层
     layers : {
@@ -83,7 +83,7 @@ new TimelineUI({
 
 # jBlock 的 DOM 结构
 
-```
+```html
 <div class="tmln-obj">
     <div class="tmln-objw">
         <!--
@@ -108,7 +108,7 @@ new TimelineUI({
 
 ## setData : 设置数据
 
-```
+```js
 uiTimeline.setData([{
     layer : "AAA"   // 层的名称
     from : '10:20:12',
@@ -124,13 +124,13 @@ uiTimeline.setData([{
 
 ## getData : 获取数据
 
-```
+```js
 var list = uiTimeline.getData();
 ```
 
 ## add : 添加数据
 
-```
+```js
 uiTimeline.add({
     layer : "AAA"   // 层的名称
     from : '10:20:12',
@@ -143,7 +143,7 @@ uiTimeline.add({
 
 ## clear : 全部清除
 
-```
+```js
 uiTimeline.clear()
 ```
 

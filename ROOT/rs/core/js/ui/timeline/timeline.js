@@ -134,6 +134,12 @@ return ZUI.def("ui.timeline", {
         var jBlock = UI.ccode("timeline.obj")
                         .appendTo(jLayer)
                         .css(ly.css);
+        
+        // 标记只读
+        jBlock.attr({
+            'to-readonly' : ly.readonly ? 'yes' : null,
+            'to-editable' : ly.readonly ? null  : 'yes',
+        });
 
         // 保存对象
         jBlock.data("@TLO", tlo);
@@ -233,7 +239,7 @@ return ZUI.def("ui.timeline", {
 
         // 响应各层的鼠标拖拽事件
         jCon.moving({
-            trigger   : ".tmln-obj",
+            trigger   : '.tmln-obj[to-editable]',
             mode      : "y",
             maskClass : "tmln-mask",
             on_begin  : function(){
