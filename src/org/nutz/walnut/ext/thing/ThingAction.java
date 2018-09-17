@@ -198,7 +198,7 @@ public abstract class ThingAction<T> {
                 ThingLinkKey lnk = en.getValue();
 
                 // 木有值的话，就忽略
-                Object val = oT.get(key);
+                Object val = meta.get(key);
                 if (null == val)
                     continue;
 
@@ -221,7 +221,7 @@ public abstract class ThingAction<T> {
                                          val);
                     }
                     // 填充 val 上下文
-                    for (int i = 0; i < m.groupCount(); i++) {
+                    for (int i = 0; i <= m.groupCount(); i++) {
                         valContext.put("g" + i, m.group(i));
                     }
                 }

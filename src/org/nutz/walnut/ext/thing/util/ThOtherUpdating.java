@@ -2,7 +2,11 @@ package org.nutz.walnut.ext.thing.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.nutz.castor.Castors;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
@@ -55,6 +59,7 @@ public class ThOtherUpdating {
      * @param context
      */
     public void fillMeta(NutMap meta, NutMap tmpl, NutBean context) {
+        Pattern p = Pattern.compile("^@([^:]+)(:(int|float|boolean|string))?$");
         for (Map.Entry<String, Object> en : tmpl.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -62,10 +67,36 @@ public class ThOtherUpdating {
                 continue;
             String str = val.toString();
             Object v2 = null;
+
             // 直接填值
-            if (str.startsWith("@")) {
-                String k2 = Strings.trim(str.substring(1));
+            Matcher m = p.matcher(str);
+            if (m.find()) {
+                String k2 = m.group(1);
                 v2 = context.get(k2);
+                // 转换值
+                String valType = m.group(3);
+                if (null != v2 && !Strings.isBlank(valType)) {
+                    // int
+                    if ("int".equals(valType)) {
+                        v2 = Integer.parseInt(v2.toString());
+                    }
+                    // float
+                    else if ("float".equals(valType)) {
+                        v2 = Float.parseFloat(v2.toString());
+                    }
+                    // boolean
+                    else if ("boolean".equals(valType)) {
+                        v2 = Castors.me().castTo(v2, Boolean.class);
+                    }
+                    // string
+                    else if ("int".equals(valType)) {
+                        v2 = v2.toString();
+                    }
+                    // 靠，不可能
+                    else {
+                        throw Lang.impossible();
+                    }
+                }
             }
             // 否则当做模板
             else {

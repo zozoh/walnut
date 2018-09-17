@@ -66,8 +66,12 @@ return ZUI.def("ui.th3.meta", {
                         // 成功后：通知界面其他部分更新
                         else {
                             uiForm.hidePrompt(key);
+                            // j解析返回值
                             var newTh = $z.fromJson(re);
                             Wn.saveToCache(newTh);
+                            // 更新自身，因为服务器端可能同时更新多个字段
+                            uiForm.setData(newTh);
+                            // 通知界面其他部分更新
                             UI.fireBus("meta:updated", [newTh, key]);
                         }
                     });
