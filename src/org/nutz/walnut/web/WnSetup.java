@@ -30,6 +30,7 @@ import org.nutz.walnut.ext.quota.JettyMonitorHandler;
 import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
+import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
@@ -152,6 +153,9 @@ public class WnSetup implements Setup {
         // 挂载流量统计的钩子
         JettyHandlerHook.me().setCallback(new JettyMonitorHandler(ioc.get(QuotaService.class)));
         log.debug("setup network quota hook");
+        
+        // 初始化jvm box
+        ioc.get(JvmExecutorFactory.class).get("time");
     }
 
     private void __load_init_setups(WnConfig conf) {

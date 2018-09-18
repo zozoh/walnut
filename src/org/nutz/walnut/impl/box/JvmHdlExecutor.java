@@ -140,7 +140,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
         // 开始扫描
         hdls = new HashMap<String, JvmHdl>();
         // 扫描本包下的所有类
-        List<Class<?>> list = Scans.me().scanPackage(this.getClass());
+        List<Class<?>> list = Scans.me().scanPackage(this.getClass().getPackage().getName() + ".hdl");
         for (Class<?> klass : list) {
             // 跳过抽象类
             int mod = klass.getModifiers();
@@ -148,7 +148,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
                 continue;
 
             // 跳过非公共的类
-            if (!Modifier.isPublic(klass.getModifiers()))
+            if (!Modifier.isPublic(mod))
                 continue;
 
             // 跳过内部类
