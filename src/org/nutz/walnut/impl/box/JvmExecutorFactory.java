@@ -40,14 +40,14 @@ public class JvmExecutorFactory {
                     Map<String, JvmExecutor> map = new HashMap<String, JvmExecutor>();
                     // 搜索包
                     for (String pkg : scanPkgs) {
-                        List<Class<?>> list = Scans.me().scanPackage(pkg);
-                        for (Class<?> klass : list) {
-                            // 跳过抽象类
+                        List<Class<?>> list = Scans.me().scanPackage(pkg, "^cmd_.+[.]class$");
+                        list.stream().parallel().forEach((klass)->{
+                         // 跳过抽象类
                             if (Modifier.isAbstract(klass.getModifiers()))
-                                continue;
+                                return;
                             // 跳过内部类
                             if (klass.getName().contains("$"))
-                                continue;
+                                return;
 
                             // 看看是不是一个 JvmExecutor
                             Mirror<?> mi = Mirror.me(klass);
@@ -59,7 +59,7 @@ public class JvmExecutorFactory {
                                 if (log.isInfoEnabled())
                                     log.infof("jvmexec: '%s' -> %s", nm, klass.getName());
                             }
-                        }
+                        });
                     }
                     this.map = map;
                 }
