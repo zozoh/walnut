@@ -47,6 +47,7 @@ return ZUI.def("ui.th3.main", {
     //..............................................
     __do_redraw : function(conf, callback) {
         var UI = this;
+        var man = this.__main_data;
 
         // 准备主界面布局对象
         var bus = new LayoutUI({
@@ -69,7 +70,8 @@ return ZUI.def("ui.th3.main", {
                     uiConf : {folderName:"attachment"}
                 }
             },
-            eventRouter : conf.eventRouter
+            eventRouter : conf.eventRouter,
+            localKey : 'th_local_layout_' + man.home.id
         });
 
         // 监听各个区域，一旦准备好就要触发更新数据
@@ -94,6 +96,14 @@ return ZUI.def("ui.th3.main", {
         man.currentId = obj ? obj.id : null;
         // 本地记录一下
         this.local('th3_last_actived_id_'+man.home.id, man.currentId);
+    },
+    //..............................................
+    getCurrentObj : function() {
+        var man = this.__main_data;
+        if(man.currentId) {
+            return Wn.getById(man.currentId, true);
+        }
+        return null;
     }
     //..............................................
 });

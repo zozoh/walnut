@@ -3,24 +3,26 @@ $z.declare([
     'zui',
     'wn/util',
     'ui/support/dom',
-    'ui/thing/support/th_methods',
+    'ui/thing3/support/th3_methods',
     'ui/support/dom',
     'ui/o_view_obj/o_view_preview',
     'ui/otiles/otiles',
 ], function(ZUI, Wn, DomUI, ThMethods, DomUI, OPreviewUI, OTilesUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-obj-data-media th-obj-data-W" ui-fitparent="true">
+<div class="ui-arena th3-media" ui-fitparent="true">
     <header ui-gasket="preview"></header>
     <section ui-gasket="list"></section>
-    <!--aside>{{thing.data.drag_tip}}</aside-->
+    <div class="hide-file-selector">
+        <input type="file" multiple>
+    </div>
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.th_obj_data_media", {
+return ZUI.def("ui.th3.media", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
+    css  : "ui/thing3/theme/th3-{{theme}}.css",
+    i18n : "ui/thing3/i18n/{{lang}}.js",
     //..............................................
     dragAndDrop : true,
     on_drop : function(files) {
@@ -28,14 +30,36 @@ return ZUI.def("ui.thing.th_obj_data_media", {
     },
     //..............................................
     init : function(opt){
-        ThMethods(this);
+        var UI = ThMethods(this);
         $z.setUndefined(opt, "folderName", "media");
+
+        var mode = opt.folderName;
+
+        UI.listenBus("obj:selected", UI.on_selected);
+        UI.listenBus("obj:blur", UI.showBlank);
+        UI.listenBus(mode+":refresh", UI.on_refresh);
+        UI.listenBus(mode+":remove", UI.on_remove);
+        UI.listenBus(mode+":upload", UI.on_upload);
+    },
+    //..............................................
+    events : {
+        // 监控隐藏的上传按钮
+        'change input[type="file"]' : function(e) {
+            var UI   = this;
+            var eleF = e.currentTarget;
+
+            // 执行上传
+            UI.upload(e.currentTarget.files);
+
+            // 清空
+            $(eleF).val("");
+        }
     },
     //..............................................
     redraw : function(){
         var UI   = this;
         var opt  = UI.options;
-        var conf = UI.getBusConf();
+        var mode = opt.folderName;
 
         // 创建默认 Preview 视图
         UI.showPreview(null, function(){
@@ -58,9 +82,14 @@ return ZUI.def("ui.thing.th_obj_data_media", {
             },
             on_rename : function(o) {
                 var obj = UI.__OBJ;
-                UI.invokeConfCallback(opt.folderName, "on_rename", [obj, o, function(obj2){
-                    Wn.saveToCache(obj2);
-                }]);
+                Wn.execf('thing {{th_set}} '+mode+' {{id}} -ufc', {
+                    th_set : obj.th_set,
+                    id     : obj.id,
+                }, function(re){
+                    UI.doActionCallback(re, function(obj2){
+                        Wn.saveToCache(obj2);
+                    });
+                });
             },
             on_actived : function(o) {
                 UI.showPreview(o);
@@ -77,19 +106,47 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         return ["preview", "list"];
     },
     //..............................................
-    update : function(o, callback) {
-        this.__OBJ = o;
-        this.refresh(callback);
+    showBlank : function() {
+        var UI = this;
+
+        UI.showPreview(null);
+        UI.gasket.list.setData([]);
+    },
+    //..............................................
+    on_selected : function(eo) {
+        var UI = this;
+
+        // 寻找一个对象
+        var objs = eo.data;
+
+        // 显示空白
+        if(!_.isArray(objs) || objs.length <=0) {
+            UI.showBlank();
+            return;
+        }
+
+        // 将第一个对象作为要显示的对象
+        UI.__OBJ = objs[0];
+        UI.refresh();
     },
     //..............................................
     getCheckedItems : function() {
         return this.gasket.list.getChecked();
     },
     //..............................................
+    on_remove : function(eo) {
+        var data = eo.data;
+        var callback = null;
+        if(_.isArray(data) && data.length > 0)
+            callback = data[0];
+        this.removeCheckedItems(callback);
+    },
+    //..............................................
     removeCheckedItems : function(callback){
         var UI  = this;
         var opt = UI.options;
         var o   = UI.__OBJ;
+        var mode = opt.folderName;
 
         // 得到所有选中的对象
         var list = UI.gasket.list.getChecked();
@@ -98,15 +155,34 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         if(list.length == 0) {
             $z.markIt({
                 target : UI.gasket.list.arena,
-                text   : UI.msg("thing.data.delnone")
+                text   : UI.msg("th3.data.delnone")
             }, callback);
         }
         // 执行删除
         else {
-            UI.invokeConfCallback(opt.folderName, "remove", [o, list, function(){
-                UI.refresh(callback);
-            }]);
+            var cmdText = 'thing {{th_set}} '+mode+' {{id}} -del';
+            for(var i=0; i<list.length; i++) {
+                var oM = list[i];
+                cmdText += ' "' + oM.nm + '"'; 
+            }
+            Wn.execf(cmdText, o, function(re){
+                UI.doActionCallback(re, function(list){
+                    UI.refresh(callback);
+                });
+            });
         }
+    },
+    //..............................................
+    on_refresh : function(eo) {
+        var data = eo.data;
+        var callback = null;
+        if(_.isArray(data) && data.length > 0)
+            callback = data[0];
+        this.refresh(callback);
+    },
+    //..............................................
+    on_upload : function(eo) {
+        this.arena.find('input[type="file"]').click();
     },
     //..............................................
     refresh : function(callback) {
@@ -115,15 +191,21 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         var o   = UI.__OBJ;
 
         UI.gasket.list.showLoading();
-        UI.invokeConfCallback(opt.folderName, "list", [o, function(list){
-            UI.gasket.list.hideLoading();
-            UI.gasket.list.setData(list);
-            UI.showPreview(UI.gasket.list.getActived(), callback);
-        }]);  
+        Wn.execf('thing {{th_set}} '+opt.folderName+' {{id}}', o, function(re){
+            var list = $z.fromJson(re);
+            $z.doCallback(callback, [list]);
+            UI.doActionCallback(re, function(list){
+                UI.gasket.list.hideLoading();
+                UI.gasket.list.setData(list);
+                UI.showPreview(UI.gasket.list.getActived(), callback);
+            });
+        });
     },
     //..............................................
     showPreview : function(oMedia, callback) {
         var UI = this;
+        var man  = UI.getMainData();
+        var conf = man.conf;
 
         if(!oMedia) {
             new DomUI({
@@ -131,7 +213,7 @@ return ZUI.def("ui.thing.th_obj_data_media", {
                 gasketName : "preview",
                 fitparent : true,
                 dom : UI.compactHTML(`<div class="ui-arena media-none">
-                    {{thing.data.none_media_tip}}
+                    {{th3.data.none_media_tip}}
                 </div>`)
             }).render(function(){
                 $z.doCallback(callback);
@@ -144,7 +226,7 @@ return ZUI.def("ui.thing.th_obj_data_media", {
                 gasketName : "preview",
                 commands : ["fullscreen", "download", "open", {
                     icon : '<i class="zmdi zmdi-image"></i>',
-                    tip  : 'i18n:thing.data.asthumb',
+                    tip  : 'i18n:th3.data.asthumb',
                     handler :function(o){
                         // 对对象进行一下处理
                         var coverType = /^video\//.test(o.mime)?"video":"image";
@@ -170,7 +252,6 @@ return ZUI.def("ui.thing.th_obj_data_media", {
                             oThumbSrcId = o.video_cover;
                         }
 
-                        var conf = UI.getBusConf();
                         var thumbsz = conf.thumbSize || "256x256";
                         // console.log(conf.thumbSize);
                         var oTh = UI.__OBJ;
@@ -196,10 +277,10 @@ return ZUI.def("ui.thing.th_obj_data_media", {
                                     th_cover_tp  : coverType
                                 })
                             }, function(re){
-                                oTh = $z.fromJson(re);
-                                Wn.saveToCache(oTh);
-                                // 修改 thing 对象
-                                UI.fire("change:meta", [oTh]);
+                                UI.doActionCallback(re, function(oTh2){
+                                    Wn.saveToCache(oTh2);
+                                    UI.fireBus("meta:updated", [oTh2, "thumb"]);
+                                });
                             })
                         })
                     }
@@ -223,7 +304,13 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         var UI   = this;
         var opt  = UI.options;
         var se   = Wn.app().session;
-        var conf = UI.getBusConf();
+        var man  = UI.getMainData();
+        var conf = man.conf;
+        var mode = opt.folderName;
+
+        // 判断是否为覆盖模式，默认为 true
+        var c2 = _.extend({}, conf[mode]);
+        $z.setUndefined(c2, 'overwrite', true);
 
         // 准备个假的对象
         var fo = {
@@ -241,30 +328,42 @@ return ZUI.def("ui.thing.th_obj_data_media", {
         // 定义上传并显示进度的函数
         var __run = function(jItem) {
             $z.invoke(UI.gasket.list, "showProgress", [jItem, 0]);
-            UI.invokeConfCallback(opt.folderName, "upload", [{
-                obj  : UI.__OBJ,
+            var th = UI.__OBJ;
+            var ph = "id:"+th.th_set+"/data/"+th.id+"/"+mode+"/";
+            var url = "/o/upload/<%=ph%>";
+            url += "?nm=<%=file.name%>";
+            url += "&sz=<%=file.size%>";
+            url += "&mime=<%=file.type%>";
+            if(!c2.overwrite)
+                url += '&dupp=${major}(${nb})${suffix}';
+            $z.uploadFile({
                 file : f,
-                overwrite : conf[opt.folderName].overwrite,
-                progress : function(pe){
+                url  : url,
+                ph   : "id:"+th.th_set+"/data/"+th.id+"/"+mode+"/",
+                evalReturn : "ajax",
+                progress : function(e){
+                    var pe = e.loaded/e.total;
                     $z.invoke(UI.gasket.list, "showProgress", [jItem, pe]);
                 },
                 done : function(newObj){
-                    $z.invoke(UI.gasket.list, "hideProgress", [jItem]);
-                    UI.gasket.list.update(newObj, jItem);
-                    $z.blinkIt(jItem);
+                    Wn.execf('thing {{th_set}} '+mode+' {{id}} -ufc',th,function(){
+                        $z.invoke(UI.gasket.list, "hideProgress", [jItem]);
+                        UI.gasket.list.update(newObj, jItem);
+                        $z.blinkIt(jItem);
+                    });
                 },
                 fail : function(re) {
-                    alert("upload fail");
+                    alert("upload failed");
                     console.warn(re);
                 }
-            }]);
-        }
+            });
+        };
 
         // 如果是覆盖的话，看看有没有重名
-        if(conf[opt.folderName].overwrite) {
+        if(c2.overwrite) {
             var jItem = UI.gasket.list.findItem("nm:" + fo.nm);
             if(jItem.length > 0) {
-                if(window.confirm(UI.msg("thing.data.overwrite_tip", fo))){
+                if(window.confirm(UI.msg("th3.data.overwrite_tip", fo))){
                     __run(jItem);
                 }
             }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.nutz.walnut.api.io.WnObj;
 
 public interface WnUsr extends WnObj {
-    
+
     boolean isNameSameAsId();
 
     String mainGroup();
@@ -39,6 +39,12 @@ public interface WnUsr extends WnObj {
     String home();
 
     WnUsr home(String home);
+
+    String defaultObjPath();
+
+    WnUsr defaultObjPath(String dftObjPath);
+    
+    boolean hasDefaultObjPath();
 
     WnUsr clone();
 

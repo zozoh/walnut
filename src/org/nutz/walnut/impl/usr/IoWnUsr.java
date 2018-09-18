@@ -116,6 +116,22 @@ public class IoWnUsr extends WnBean implements WnUsr {
     }
 
     @Override
+    public String defaultObjPath() {
+        return this.getString("DFT_OBJ_PATH");
+    }
+
+    @Override
+    public WnUsr defaultObjPath(String dftObjPath) {
+        this.setv("DFT_OBJ_PATH", dftObjPath);
+        return this;
+    }
+
+    @Override
+    public boolean hasDefaultObjPath() {
+        return this.has("DFT_OBJ_PATH");
+    }
+
+    @Override
     public WnUsr clone() {
         IoWnUsr u = new IoWnUsr();
         u.update2(this);

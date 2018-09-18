@@ -76,13 +76,15 @@ public class AppModule extends AbstractWnModule {
 
     public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$",
                                                              Pattern.DOTALL);
-    
+
     public static View V_304 = new HttpStatusView(304);
 
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
-    public View open(String appName, @Param("ph") String str, @Param("m") boolean meta, 
+    public View open(String appName,
+                     @Param("ph") String str,
+                     @Param("m") boolean meta,
                      @ReqHeader("If-None-Match") String etag)
             throws UnsupportedEncodingException {
 
@@ -110,8 +112,16 @@ public class AppModule extends AbstractWnModule {
         WnObj o = null;
         if (!Strings.isBlank(str)) {
             o = Wn.checkObj(io, se, str);
-            if (meta)
-                o.setRWMeta(true);
+        }
+
+        // 如果没有指定对象，看看用户有没有设置默认的打开对象
+        if (null == o && me.hasDefaultObjPath()) {
+            o = Wn.checkObj(io, se, me.defaultObjPath());
+        }
+
+        // 指定读取元数据
+        if (null != o && meta) {
+            o.setRWMeta(true);
         }
 
         // 生成 app 的对象

@@ -1,13 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <layout>
     <cols>
-        <col name="list">
-            <ui type="ui/thing3/th3_search"/>
+        <col name="list"></col>
+        <bar/>
+        <col>
+            <tabs key="index">
+                <tab name="meta">
+                    <text>i18n:th3.meta.title</text>
+                </tab>
+                <tab name="content">
+                    <text>i18n:th3.content.title</text>                    
+                </tab>
+            </tabs>
         </col>
         <bar/>
-        <col name="meta">
-            <ui type="ui/thing3/th3_meta"/>
+        <col size="25%">
+            <tabs key="files">
+                <tab name="media">
+                    <text>i18n:th3.key.media</text>
+                    <action><![CDATA[{
+                        setup : [{
+                            icon : '<i class="zmdi zmdi-refresh"></i>',
+                            tip : 'i18n:refresh',
+                            asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
+                            asyncFireEvent : 'media:refresh'
+                        },{
+                            icon : '<i class="zmdi zmdi-more-vert"></i>',
+                            items : [{
+                                    icon : '<i class="fa fa-trash"></i>',
+                                    text : 'i18n:th3.data.remove',
+                                    asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
+                                    asyncFireEvent : 'media:remove'
+                                }, {
+                                }, {
+                                    icon : '<i class="zmdi zmdi-upload"></i>',
+                                    text : 'i18n:th3.data.upload',
+                                    fireEvent : 'media:upload'
+                                }, {
+                                    icon : '<i class="zmdi zmdi-cloud-download"></i>',
+                                    text : 'i18n:th3.data.download',
+                                    fireEvent : 'media:download'
+                                }]
+                        }]
+                    }]]></action>
+                </tab>
+            </tabs>
         </col>
+        <bar/>
     </cols>
     <boxes>
         <box name="create" collapse="yes">
@@ -15,7 +54,6 @@
                 <width>640</width>
                 <height>280</height>
             </pos>
-            <ui type="ui/thing3/th3_obj_create"/>
         </box>
     </boxes>
 </layout>

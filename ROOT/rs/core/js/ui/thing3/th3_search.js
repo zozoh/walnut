@@ -20,6 +20,8 @@ return ZUI.def("ui.th3.search", {
         UI.listenBus("meta:updated", UI.on_update);
         UI.listenBus("list:remove", UI.on_remove, 'all');
         UI.listenBus("list:refresh", UI.on_refresh, 'all');
+        UI.listenBus("do:cleanup", UI.on_do_cleanup, 'all');
+        UI.listenBus("do:restore", UI.on_do_restore, 'all');
         UI.listenBus("list:add", UI.on_add);
     },
     //..............................................
@@ -103,11 +105,18 @@ return ZUI.def("ui.th3.search", {
                     storeKey : "th_search_sort_" + man.home.id
                 }),
             pager : conf.searchPager,
+            on_refresh : function() {
+                // 如果刷新后没有数据高亮，那么通知 blur
+                if(!this.uiList.hasActived()) {
+                    UI.fireBus('obj:blur');
+                }
+            }
         })).render(function(){
             // 刷新数据后，显示高亮项目
             this.refresh(function(){
-                if(man.currentId)
-                    UI.setActived(man.currentId)
+                if(man.currentId) {                   
+                    UI.setActivedAndDoCallback(man.currentId)
+                }
             });
         });
     },
@@ -119,6 +128,10 @@ return ZUI.def("ui.th3.search", {
     //..............................................
     setActived : function(arg) {
         return this.gasket.main.uiList.setActived(arg, true);
+    },
+    //..............................................
+    setActivedAndDoCallback : function(arg) {
+        return this.gasket.main.uiList.setActived(arg);
     },
     //..............................................
     addObj : function(obj) {
@@ -216,6 +229,53 @@ return ZUI.def("ui.th3.search", {
         this.updateObj(obj);
     },
     //..............................................
+    on_do_cleanup : function(eo) {
+        var UI = this;
+        UI.confirm("th3.clean_confirm", {
+            icon : "warn",
+            ok : function(){
+                var cmdText = "thing " + UI.getHomeObjId() + " clean";
+                Wn.logpanel(cmdText, function(){
+                    UI.fireBus('obj:blur');
+                    UI.refresh(true);
+                });
+            }
+        });
+    },
+    //..............................................
+    on_do_restore : function(eo) {
+        var UI  = this;
+
+        // 得到选中的对象们
+        var list = UI.getChecked();
+        // 判断 th_live == -1 的对象
+        var checkedObjs = [];
+        for(var i=0; i<list.length; i++) {
+            var obj = list[i];
+            if(obj.th_live < 0)
+                checkedObjs.push(obj);
+        }
+
+        // 没有对象，显示警告
+        if(checkedObjs.length == 0){
+            UI.alert("th3.err.restore_none", "warn");
+            return;
+        }
+
+        // 组装命令
+        var cmdText = "thing " + UI.getHomeObjId() + " restore -l";
+        for(var i=0; i<checkedObjs.length; i++) {
+            var obj = checkedObjs[i];
+            cmdText += " " + obj.id;
+        }
+
+        // 执行命令后清空对象显示，并刷新列表
+        Wn.exec(cmdText, function(re) {
+            UI.fireBus('obj:blur');
+            UI.refresh(true);
+        });
+    },
+    //..............................................
     on_add : function(eo) {
         var UI = this;
         var obj = eo.data;
@@ -227,13 +287,14 @@ return ZUI.def("ui.th3.search", {
     },
     //..............................................
     refresh : function(callback, jumpToHead) {
+        var UI = this;
         // 容忍参数类型
         if(_.isBoolean(callback)) {
             jumpToHead = callback;
             callback = undefined;
         }
         // 调用刷新
-        this.gasket.main.refresh(callback, jumpToHead);
+        UI.gasket.main.refresh(callback, jumpToHead);
     }
     //..............................................
 });
