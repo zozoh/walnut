@@ -31,6 +31,17 @@ return ZUI.def("ui.otiles", {
         "click .list-item .wnobj-thumbnail, .list-item .wnobj-nm" : function(e){
             this._do_click_list_item(e);
         },
+        // 移动触摸设备，单击表示打开
+        "touchend .list-item .wnobj-thumbnail, .list-item .wnobj-nm" : function(e) {
+            var UI  = this;
+            var opt = UI.options;
+            var context = opt.context || UI;
+
+            var jq  = $(e.currentTarget);
+            var obj = this.getData(jq);
+
+            $z.invoke(opt, "on_open", [obj, context]);
+        },
         // 点击空白区域
         "click .ui-arena" : function(e){
             var UI  = this;
