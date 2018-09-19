@@ -68,6 +68,9 @@ return ZUI.def("ui.th3.main", {
                 "attachment"  : {
                     uiType :'ui/thing3/th3_media',
                     uiConf : {folderName:"attachment"}
+                },
+                "create" : {
+                    uiType : 'ui/thing3/th3_obj_create'
                 }
             },
             eventRouter : conf.eventRouter,
@@ -76,7 +79,7 @@ return ZUI.def("ui.th3.main", {
 
         // 监听各个区域，一旦准备好就要触发更新数据
         bus.listenSelf("area:ready", function(eo) {
-            //console.log("area:ready", eo);
+            console.log("area:ready", eo);
             UI.resize(true);
             for(var key in eo.uis) {
                 var ui = ThMethods(eo.uis[key]);
