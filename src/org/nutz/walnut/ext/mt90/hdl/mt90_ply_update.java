@@ -36,9 +36,9 @@ public class mt90_ply_update implements JvmHdl {
         point.lng = Double.parseDouble(raw.lng);
         WoozTools.convert(point, conv_from, conv_to);
         NutMap meta = new NutMap();
-        meta.put("u_lat", ""+point.lat);
-        meta.put("u_lng", ""+point.lng);
-        meta.put("u_ele", ""+point.ele);
+        meta.put("u_lat", point.lat);
+        meta.put("u_lng", point.lng);
+        meta.put("u_ele", point.ele);
         meta.put("u_trk_tm", raw.timestamp);
         sys.io.appendMeta(wobj, meta);
     }
