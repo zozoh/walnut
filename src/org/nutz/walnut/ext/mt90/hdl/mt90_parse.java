@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
 import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,16 +34,16 @@ public class mt90_parse implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        String text = null;
+        Reader r;
         if (sys.pipeId > 0) {
-            text = sys.in.readAll();
+            r =  sys.in.getReader();
         }
         else {
-            text = sys.io.readText(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)));
+            r = sys.io.getReader(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)), 0);
         }
-        BufferedReader br = new BufferedReader(new StringReader(text));
+        BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
-        while (br.ready()) {
+        while (true) {
             String line = br.readLine();
             if (line == null)
                 break;
