@@ -43,7 +43,7 @@ public class mt90_parse implements JvmHdl {
             Mt90Raw raw = Mt90Raw.mapping(line);
             // TODO 过滤特定时段
             if (raw != null) {
-                if (hc.params.is("gpsOk") && !"A".equals(raw.gpsLoc)) {
+                if (hc.params.is("gpsOk") && !"A".equals(raw.gpsFixed)) {
                     continue;
                 }
                 list.add(raw);

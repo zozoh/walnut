@@ -16,7 +16,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     public String lat; // 纬度
     public String lng; // 经度
     public String localtime; // 设备本地时间
-    public String gpsLoc; // A 代表定位成功
+    public String gpsFixed; // A 代表定位成功
     public int satellite; // 卫星数量
     public int gsmRssi; // GSM信号强度 0-31
     public int speed; // 速度
