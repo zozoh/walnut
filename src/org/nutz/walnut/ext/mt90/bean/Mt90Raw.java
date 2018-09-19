@@ -13,8 +13,8 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
 
     public long rtimestamp; // 时间戳
     public int eventKey; // 事件ID
-    public String lat; // 纬度
-    public String lng; // 经度
+    public double lat; // 纬度
+    public double lng; // 经度
     public String localtime; // 设备本地时间
     public String gpsFixed; // A 代表定位成功
     public int satellite; // 卫星数量
@@ -41,7 +41,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     
     public static Mt90Raw mapping(String line) {
         Mt90Raw raw = new Mt90Raw();
-        String[] tmp = line.split(",");
+        String[] tmp = line.trim().split(",");
         for (int i = 0; i < tmp.length; i++) {
             //System.out.println(fields[i].getName() + "=" + tmp[i]);
             mirror.setValue(raw, fields[i], Castors.me().castTo(tmp[i], fields[i].getType()));

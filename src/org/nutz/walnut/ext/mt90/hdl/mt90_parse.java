@@ -27,13 +27,20 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsOk|simple)$")
 public class mt90_parse implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        String text = sys.in.readAll();
+        String text = null;
+        if (sys.pipeId > 0) {
+            text = sys.in.readAll();
+        }
+        else {
+            text = sys.io.readText(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)));
+        }
         BufferedReader br = new BufferedReader(new StringReader(text));
         List<Mt90Raw> list = new ArrayList<>();
         while (br.ready()) {
@@ -62,8 +69,8 @@ public class mt90_parse implements JvmHdl {
             for (Mt90Raw raw : list) {
                 GpxTrkpt trkpt = new GpxTrkpt();
                 trkpt.ele = raw.ele + "";
-                trkpt.lat = raw.lat;
-                trkpt.lon = raw.lng;
+                trkpt.lat = raw.lat + "";
+                trkpt.lon = raw.lng + "";
                 // 2009-10-17T18:37:34Z
                 trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date(raw.timestamp));
                 gpx.trk.trkseg.trkpts.add(trkpt);

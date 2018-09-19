@@ -32,8 +32,8 @@ public class mt90_ply_update implements JvmHdl {
         String conv_from = "wgs84";
         String conv_to = hc.params.get("conv_to", "gcj02");
         AbstraceWoozPoint point = new AbstraceWoozPoint();
-        point.lat = Double.parseDouble(raw.lat);
-        point.lng = Double.parseDouble(raw.lng);
+        point.lat = raw.lat;
+        point.lng = raw.lng;
         WoozTools.convert(point, conv_from, conv_to);
         NutMap meta = new NutMap();
         meta.put("u_lat", point.lat);
