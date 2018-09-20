@@ -16,6 +16,7 @@ params: {
     skip : 84,         // 要跳过的记录数
     
     // 其他字段，均作为过滤条件
+    // 过滤条件如果是布尔/数字则转换，如果是 ! 开头则表示 ne
     _flt : "*(搜索条件)@com:filter",
 }
 
@@ -75,7 +76,31 @@ function _main(params){
 
         // 单个值，就直接来吧
         if(vv.length == 1) {
-            flt[key] = vv[0];
+            var v = vv[0];
+            // 如果是 ! 开头，表示  not equale
+            var not_equals = false;
+            if(/^!/.test(v)) {
+                not_equals = true;
+                v = v.substring(1);
+            }
+            // 如果是布尔
+            if(/^(true|false)$/.test(v)) {
+                v = "true" == v;
+            }
+            // 如果是数字
+            else if(/^[-]?[0-9.]+$/.test(v)) {
+                v = v * 1;
+            }
+            // 其他的那就是字符串咯
+            
+            // 如果是不等于
+            if(not_equals) {
+                flt[key] = {"%ne" : v};
+            }
+            // 否则就是直接的值
+            else {
+                flt[key] = v;
+            }
         }
         // 变成 or，并加入过滤表
         else {
