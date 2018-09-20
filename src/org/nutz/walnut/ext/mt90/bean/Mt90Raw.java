@@ -11,12 +11,12 @@ import org.nutz.lang.Strings;
 
 public class Mt90Raw implements Comparable<Mt90Raw> {
 
-    public long timestamp; // 时间戳
+    public long rtimestamp; // 时间戳
     public int eventKey; // 事件ID
-    public String lat; // 纬度
-    public String lng; // 经度
+    public double lat; // 纬度
+    public double lng; // 经度
     public String localtime; // 设备本地时间
-    public String gpsLoc; // A 代表定位成功
+    public String gpsFixed; // A 代表定位成功
     public int satellite; // 卫星数量
     public int gsmRssi; // GSM信号强度 0-31
     public int speed; // 速度
@@ -33,7 +33,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     // 计算得出的量
     public int powerVoltage; // 单位毫伏
     public int powerQuantity; // 单位0.01%
-    public Date gpsDate;
+    public long timestamp;
     public Date recDate;
     
     private static Mirror<Mt90Raw> mirror = Mirror.me(Mt90Raw.class);
@@ -41,7 +41,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     
     public static Mt90Raw mapping(String line) {
         Mt90Raw raw = new Mt90Raw();
-        String[] tmp = line.split(",");
+        String[] tmp = line.trim().split(",");
         for (int i = 0; i < tmp.length; i++) {
             //System.out.println(fields[i].getName() + "=" + tmp[i]);
             mirror.setValue(raw, fields[i], Castors.me().castTo(tmp[i], fields[i].getType()));
@@ -55,11 +55,10 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
                 raw.powerQuantity = (int)((AD4*3.0*2/4096)*100);
             }
         }
-        raw.recDate = new Date(raw.timestamp);
+        raw.recDate = new Date(raw.rtimestamp);
         if (!Strings.isBlank(raw.localtime)) {
             try {
-                raw.gpsDate = new SimpleDateFormat("yyyyMMddHHmmss").parse("20"+raw.localtime);
-                raw.gpsDate = new Date(raw.gpsDate.getTime() + 8*3600*1000);
+                raw.timestamp = new SimpleDateFormat("yyyyMMddHHmmss").parse("20"+raw.localtime).getTime() + 8*3600*1000;
             }
             catch (ParseException e) {
             }
@@ -68,9 +67,9 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     }
 
     public int compareTo(Mt90Raw o) {
-        if (this.gpsDate.before(o.gpsDate))
+        if (timestamp > o.timestamp)
             return -1;
-        else if (this.gpsDate.after(o.gpsDate))
+        else if (timestamp < o.timestamp)
             return 1;
         return 0;
     }

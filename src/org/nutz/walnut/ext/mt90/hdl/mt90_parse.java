@@ -1,12 +1,14 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
 import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.plugins.xmlbind.XmlBind;
@@ -25,16 +27,23 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsOk)$")
+@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsOk|simple)$")
 public class mt90_parse implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        String text = sys.in.readAll();
-        BufferedReader br = new BufferedReader(new StringReader(text));
+        Reader r;
+        if (sys.pipeId > 0) {
+            r =  sys.in.getReader();
+        }
+        else {
+            r = sys.io.getReader(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)), 0);
+        }
+        BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
-        while (br.ready()) {
+        while (true) {
             String line = br.readLine();
             if (line == null)
                 break;
@@ -43,7 +52,7 @@ public class mt90_parse implements JvmHdl {
             Mt90Raw raw = Mt90Raw.mapping(line);
             // TODO 过滤特定时段
             if (raw != null) {
-                if (hc.params.is("gpsOk") && !"A".equals(raw.gpsLoc)) {
+                if (hc.params.is("gpsOk") && !"A".equals(raw.gpsFixed)) {
                     continue;
                 }
                 list.add(raw);
@@ -60,10 +69,10 @@ public class mt90_parse implements JvmHdl {
             for (Mt90Raw raw : list) {
                 GpxTrkpt trkpt = new GpxTrkpt();
                 trkpt.ele = raw.ele + "";
-                trkpt.lat = raw.lat;
-                trkpt.lon = raw.lng;
+                trkpt.lat = raw.lat + "";
+                trkpt.lon = raw.lng + "";
                 // 2009-10-17T18:37:34Z
-                trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(raw.gpsDate);
+                trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date(raw.timestamp));
                 gpx.trk.trkseg.trkpts.add(trkpt);
             }
             String str = XmlBind.toXml(gpx, "gpx");
@@ -84,7 +93,7 @@ public class mt90_parse implements JvmHdl {
             for (Mt90Raw raw : list) {
                 KmlPlacemark placemark = new KmlPlacemark();
                 placemark.point = new KmlPlacemarkPoint();
-                placemark.name = String.format("%dkm/h %s", raw.speed, Times.sDT(raw.gpsDate));
+                placemark.name = String.format("%dkm/h %s", raw.speed, Times.sDT(new Date(raw.timestamp)));
                 //coordinates>116.287656,39.894523,0</coordinates>
                 placemark.point.coordinates = String.format("%s,%s,%s", raw.lng, raw.lat, raw.ele);
                 kml.document.placemarks.add(placemark);
@@ -95,7 +104,13 @@ public class mt90_parse implements JvmHdl {
             sys.out.print(str);
             return;
         }
+        if (hc.params.is("simple")) {
+            JsonFormat jf = JsonFormat.full().setCompact(true).setActived("^(lat|lng|ele|timestamp)$");
+            sys.out.writeJson(list, jf);
+        }
+        else {
+            sys.out.writeJson(list, Cmds.gen_json_format(hc.params));
+        }
         
-        sys.out.writeJson(list, Cmds.gen_json_format(hc.params));
     }
 }
