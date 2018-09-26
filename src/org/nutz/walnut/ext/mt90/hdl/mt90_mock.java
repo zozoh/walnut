@@ -64,7 +64,7 @@ public class mt90_mock implements JvmHdl {
         sys.out.printlnf("赛事总点数: %d", map.route.size());
         sys.out.printlnf("模拟输出点数: %d", endPoint - startPoint);
         sys.out.printlnf("限制输出的点数(count): %d", count);
-        sys.out.printlnf("输出间隔(t): %d秒", t);
+        sys.out.printlnf("输出间隔(t): %dms", t);
         sys.out.printlnf("目标网址(url): %s", url);
         sys.out.println("===========================================");
         if (!hc.params.is("y")) {
