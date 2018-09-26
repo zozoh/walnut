@@ -34,12 +34,14 @@ public class mt90_ply_update implements JvmHdl {
         AbstraceWoozPoint point = new AbstraceWoozPoint();
         point.lat = raw.lat;
         point.lng = raw.lng;
+        point.ele = raw.ele;
         WoozTools.convert(point, conv_from, conv_to);
         NutMap meta = new NutMap();
         meta.put("u_lat", point.lat);
         meta.put("u_lng", point.lng);
         meta.put("u_ele", point.ele);
-        meta.put("u_trk_tm", raw.timestamp);
+        meta.put("u_trk_tm", System.currentTimeMillis());
+        meta.put("u_trk_tm_gps", raw.timestamp);
         sys.io.appendMeta(wobj, meta);
     }
 }
