@@ -87,10 +87,6 @@ function _main(params){
             if(/^(true|false)$/.test(v)) {
                 v = "true" == v;
             }
-            // 如果是数字
-            else if(/^[-]?[0-9.]+$/.test(v)) {
-                v = v * 1;
-            }
             // 其他的那就是字符串咯
             
             // 如果是不等于
@@ -111,7 +107,7 @@ function _main(params){
     // 看看搜索匹配条件的字符串是啥
     var cnd = JSON.stringify(flt);
     if(cnd != "{}")
-        cmdText += " '" + cnd.replace(/'/g, "\\'");
+        cmdText += " '" + cnd.replace(/'/g, "\\'") + "'";
 
     log.info(cmdText);
 
