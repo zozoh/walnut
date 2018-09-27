@@ -74,6 +74,22 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
         return 0;
     }
     
+    public String toGpsRaw() {
+        StringBuilder sb = new StringBuilder();
+        if (timestamp > 0 && localtime == null)
+            localtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(timestamp));
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            if ("powerVoltage".equals(field.getName()))
+                break;
+            Object value = mirror.getValue(this, field);
+            if (value == null)
+                value = "";
+            sb.append(value).append(",");
+        }
+        return sb.toString();
+    }
+    
 //    public static void main(String[] args) {
 //        Mt90Raw raw = mapping("1535273067692,35,25.294176,110.294135,180826084426,A,6,27,0,254,1.2,167,482672,102514,460|0|77C7|8EEF,0000,0000|0000|0000|0867|0000,00000001");
 //        System.out.println(Json.toJson(raw));

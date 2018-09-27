@@ -94,6 +94,8 @@ public class cmd_jsc extends JvmExecutor {
             }
             if (null != o) {
                 jsStr = sys.io.readText(o);
+                if (o.name().endsWith("groovy"))
+                    engineName = "groovy";
             } else {
                 jsStr = str;
             }
