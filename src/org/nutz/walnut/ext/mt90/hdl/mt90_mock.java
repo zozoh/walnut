@@ -84,7 +84,7 @@ public class mt90_mock implements JvmHdl {
             raw.gpsFixed = "A";
             raw.rtimestamp = raw.timestamp;
             
-            Response resp = Http.post3(url + "?imei=" + dev.getString("dev_imei"), raw.toGpsRaw(), null, 2000);
+            Response resp = Http.post3(url + "?imei=" + dev.getString("dev_imei"), raw.toGpsRaw() + "\r\n", null, 2000);
             if (resp.isOK()) {
                 sys.out.printlnf("       OK");
             }
