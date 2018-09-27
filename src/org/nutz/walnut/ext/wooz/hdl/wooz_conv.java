@@ -27,11 +27,15 @@ public class wooz_conv implements JvmHdl {
         String conv_from = hc.params.get("conv_from");
         String conv_to = hc.params.get("conv_to");
         
-        for (WoozPoint point : source.points) {
-            WoozTools.convert(point, conv_from, conv_to);
+        if (source.points != null) {
+            for (WoozPoint point : source.points) {
+                WoozTools.convert(point, conv_from, conv_to);
+            }
         }
-        for (WoozRoute route : source.route) {
-            WoozTools.convert(route, conv_from, conv_to);
+        if (source.route != null) {
+            for (WoozRoute route : source.route) {
+                WoozTools.convert(route, conv_from, conv_to);
+            }
         }
         sys.out.writeJson(source, Cmds.gen_json_format(hc.params));
     }
