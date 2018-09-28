@@ -149,9 +149,6 @@ return ZUI.def("ui.th3.search", {
     removeChecked : function(callback) {
         var UI = this;
 
-        // 得到选中的东东
-        var checkedObjs = UI.getChecked();
-
         // 得到选中的对象们
         var list = UI.getChecked();
 

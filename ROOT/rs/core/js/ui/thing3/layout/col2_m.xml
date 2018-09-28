@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <cols>
+        <col name="list"></col>
+        <bar/>
+        <col name="meta" size="40%"></col>
+    </cols>
+    <boxes>
+        <box name="create" collapse="yes">
+            <pos dock-at="N">
+                <width>640</width>
+                <height>280</height>
+            </pos>
+        </box>
+    </boxes>
+</layout>
+

@@ -39,26 +39,27 @@ getHomeOneObjTitle : function(){
 //....................................................
 // 处理命令的通用回调
 doActionCallback : function(re, ok, fail) {
-    var UI = this;
-    if(_.isFunction(ok.ok) || _.isFunction(ok.fail)) {
-        fail = ok.fail;
-        ok = ok.ok;
-    }
-    //console.log("after", re)
-    if(!re || /^e./.test(re)){
-        UI.alert(re || "empty", "warn");
-        $z.doCallback(fail, [re], UI);
-        return;
-    }
-    try {
-        var reo = $z.fromJson(re);
-        $z.doCallback(ok, [reo], UI);
-    }
-    // 出错了，还是要控制一下
-    catch(E) {
-        UI.alert(E, "warn");
-        console.warn(E);
-    }
+    // var UI = this;
+    // if(_.isFunction(ok.ok) || _.isFunction(ok.fail)) {
+    //     fail = ok.fail;
+    //     ok = ok.ok;
+    // }
+    // //console.log("after", re)
+    // if(!re || /^e./.test(re)){
+    //     UI.alert(re || "empty", "warn");
+    //     $z.doCallback(fail, [re], UI);
+    //     return;
+    // }
+    // try {
+    //     var reo = $z.fromJson(re);
+    //     $z.doCallback(ok, [reo], UI);
+    // }
+    // // 出错了，还是要控制一下
+    // catch(E) {
+    //     UI.alert(E, "warn");
+    //     console.warn(E);
+    // }
+    this.doCommandCallback(re, ok, fail);
 },
 //..............................................
 // opt 为 {icon:'<i..>', text:'i18n:xxx'}
