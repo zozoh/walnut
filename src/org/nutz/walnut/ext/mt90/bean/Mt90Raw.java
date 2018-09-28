@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
@@ -58,7 +59,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
         raw.recDate = new Date(raw.rtimestamp);
         if (!Strings.isBlank(raw.localtime)) {
             try {
-                raw.timestamp = new SimpleDateFormat("yyyyMMddHHmmss").parse("20"+raw.localtime).getTime() + 8*3600*1000;
+                raw.timestamp = new SimpleDateFormat("yyyyMMddHHmmss", Locale.UK).parse("20"+raw.localtime).getTime();
             }
             catch (ParseException e) {
             }
@@ -68,9 +69,9 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
 
     public int compareTo(Mt90Raw o) {
         if (timestamp > o.timestamp)
-            return -1;
-        else if (timestamp < o.timestamp)
             return 1;
+        else if (timestamp < o.timestamp)
+            return -1;
         return 0;
     }
     

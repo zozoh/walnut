@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -31,7 +32,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsOk|simple)$")
+@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple)$")
 public class mt90_parse implements JvmHdl {
 
     @Override
@@ -45,6 +46,12 @@ public class mt90_parse implements JvmHdl {
         }
         BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
+        boolean onlyGpsFixed = hc.params.is("gpsFixed");
+        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : 0;
+        long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
+        boolean simple = hc.params.is("simple");
+        int speed = hc.params.getInt("speed", 300);
+        String name = hc.params.get("name");
         while (true) {
             String line = br.readLine();
             if (line == null)
@@ -54,10 +61,21 @@ public class mt90_parse implements JvmHdl {
             Mt90Raw raw = Mt90Raw.mapping(line);
             // TODO 过滤特定时段
             if (raw != null) {
-                if (hc.params.is("gpsOk") && !"A".equals(raw.gpsFixed)) {
+                // 是否GPS定位的结果
+                if (onlyGpsFixed && !"A".equals(raw.gpsFixed)) {
                     continue;
                 }
-                if (hc.params.is("simple")) {
+                // 超过设置的时间了吗?
+                if (raw.timestamp < begin || raw.timestamp > end) {
+                    continue;
+                }
+                System.out.println("" + raw.timestamp + "," + begin);
+                // 是否超过正常速度
+                if (raw.speed > speed) {
+                    continue;
+                }
+                // 简单模式,需要进行坐标转换
+                if (simple) {
                     WoozRoute route = new WoozRoute();
                     route.lat = raw.lat;
                     route.lng = raw.lng;
@@ -70,10 +88,19 @@ public class mt90_parse implements JvmHdl {
         }
         // 按gps时间排序
         Collections.sort(list);
+        // 计算名称
+        if (!simple && Strings.isBlank(name)) {
+            if (list.size() > 0) {
+                name = "MT90-" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK).format(new Date(list.get(0).timestamp));
+            }
+            else {
+                name = "MT90";
+            }
+        }
         if (hc.params.is("gpx")) {
             GpxFile gpx = new GpxFile();
             gpx.trk = new GpxTrk();
-            gpx.trk.name = "MT90";
+            gpx.trk.name = name;
             gpx.trk.trkseg = new GpxTrkseg();
             gpx.trk.trkseg.trkpts = new ArrayList<>(list.size());
             for (Mt90Raw raw : list) {
@@ -82,7 +109,7 @@ public class mt90_parse implements JvmHdl {
                 trkpt.lat = raw.lat + "";
                 trkpt.lon = raw.lng + "";
                 // 2009-10-17T18:37:34Z
-                trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date(raw.timestamp));
+                trkpt.time = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK).format(new Date(raw.timestamp));
                 gpx.trk.trkseg.trkpts.add(trkpt);
             }
             String str = XmlBind.toXml(gpx, "gpx");
@@ -92,7 +119,7 @@ public class mt90_parse implements JvmHdl {
         if (hc.params.is("kml")) {
             KmlFile kml = new KmlFile();
             kml.document = new KmlDocument();
-            kml.document.name = "MT90";
+            kml.document.name = name;
             kml.document.open = "1";
             kml.document.placemarks = new ArrayList<>(list.size()+10);
             KmlPlacemark first = new KmlPlacemark();
@@ -104,7 +131,7 @@ public class mt90_parse implements JvmHdl {
                 KmlPlacemark placemark = new KmlPlacemark();
                 placemark.point = new KmlPlacemarkPoint();
                 placemark.name = String.format("%dkm/h %s", raw.speed, Times.sDT(new Date(raw.timestamp)));
-                //coordinates>116.287656,39.894523,0</coordinates>
+                //<coordinates>116.287656,39.894523,0</coordinates>
                 placemark.point.coordinates = String.format("%s,%s,%s", raw.lng, raw.lat, raw.ele);
                 kml.document.placemarks.add(placemark);
                 coordinates.append(placemark.point.coordinates).append("        \r\n");
@@ -114,7 +141,7 @@ public class mt90_parse implements JvmHdl {
             sys.out.print(str);
             return;
         }
-        if (hc.params.is("simple")) {
+        if (simple) {
             JsonFormat jf = JsonFormat.full().setCompact(true).setActived("^(lat|lng|ele|timestamp)$");
             sys.out.writeJson(list, jf);
         }

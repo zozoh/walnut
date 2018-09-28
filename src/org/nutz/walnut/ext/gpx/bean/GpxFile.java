@@ -2,10 +2,29 @@ package org.nutz.walnut.ext.gpx.bean;
 
 import java.util.List;
 
+import org.nutz.plugins.xmlbind.annotation.XmlAttr;
 import org.nutz.plugins.xmlbind.annotation.XmlEle;
 
 @XmlEle("gax")
 public class GpxFile {
+
+    /*
+     *  <gpx creator="Garmin Desktop App" 
+     *      version="1.1" 
+     *      xmlns="http://www.topografix.com/GPX/1/1" 
+     *      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     */
+    
+    @XmlAttr
+    public String creator = "Wooz";
+    
+    @XmlAttr
+    public String version = "1.1";
+
+    @XmlAttr
+    public String xmlns = "http://www.topografix.com/GPX/1/1";
+    @XmlAttr("xmlns:xsi")
+    public String xmlns_xsi = "http://www.w3.org/2001/XMLSchema-instance";
 
     @XmlEle
     public GpxMetadata metadata;
