@@ -29,6 +29,10 @@ public class mt90_ply_update implements JvmHdl {
             // TODO 报警信息
         }
         // 过滤跟踪时间
+        if (wobj.getLong("u_trk_tm_gps", 0) > raw.timestamp) {
+            // 属于补传数据,跳过
+            return;
+        }
         String conv_from = "wgs84";
         String conv_to = hc.params.get("conv_to", "gcj02");
         AbstraceWoozPoint point = new AbstraceWoozPoint();

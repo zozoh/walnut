@@ -22,6 +22,8 @@ import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemarkLineString;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemarkPoint;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
+import org.nutz.walnut.ext.wooz.WoozRoute;
+import org.nutz.walnut.ext.wooz.WoozTools;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -54,6 +56,14 @@ public class mt90_parse implements JvmHdl {
             if (raw != null) {
                 if (hc.params.is("gpsOk") && !"A".equals(raw.gpsFixed)) {
                     continue;
+                }
+                if (hc.params.is("simple")) {
+                    WoozRoute route = new WoozRoute();
+                    route.lat = raw.lat;
+                    route.lng = raw.lng;
+                    WoozTools.convert(route, "wgs84", "gcj02");
+                    raw.lat = route.lat;
+                    raw.lng = route.lng;
                 }
                 list.add(raw);
             }
