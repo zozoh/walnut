@@ -56,7 +56,7 @@ new SearchUI({
     如果是命令，格式类似:
     
         obj -match '<%=match%>'
-            -sort '<%=sort>'
+            -sort '<%=sort%>'
             -skip {{skip}}
             -limit {{limit}}
             -l -json -pager
