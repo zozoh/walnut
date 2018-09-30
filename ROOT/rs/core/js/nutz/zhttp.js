@@ -122,7 +122,7 @@
     };
 
     _ajaxFail = function (e) {
-        alert('Ajax Error!\n' + e);
+        alert('Ajax Error!\n' + JSON.stringify(e));
     };
 
     _ajaxErrorMsg = function (re) {
