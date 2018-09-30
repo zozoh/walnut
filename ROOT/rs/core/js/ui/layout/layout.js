@@ -696,7 +696,7 @@ return ZUI.def("ui.layout", {
             .attr('wl-collapse', 'yes')
                 .eq(ix);
         // 显示区域
-        console.log($ar)
+        // console.log($ar)
         UI.showArea($ar);
     },
     //..............................................
