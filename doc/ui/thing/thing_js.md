@@ -22,6 +22,9 @@ THING_SET
 
 ```js
 {
+    // 指定布局文件，默认为
+    // ui/thing3/layout/col3_md_ma.xml
+    layout : "ui/thing3/layout/col3_md_ma.xml",
     // 对于搜索部分菜单的设定
     // 如果为空，则会默认从 actions 里面找
     //  query | create | update | remove 

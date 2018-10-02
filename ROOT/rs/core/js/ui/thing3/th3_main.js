@@ -5,7 +5,8 @@ $z.declare([
     'ui/layout/layout',
     'ui/thing3/support/th3_methods',
     'ui/thing3/support/th3_util',
-], function(ZUI, Wn, LayoutUI, ThMethods, Ths){
+    'ui/pop/pop'
+], function(ZUI, Wn, LayoutUI, ThMethods, Ths, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-main" ui-fitparent="true" ui-gasket="main">
@@ -87,11 +88,42 @@ return ZUI.def("ui.th3.main", {
             }
         });
 
+        // 监听打开 config
+        bus.listenSelf("open:config", function(eo){
+            UI.openConfigSetup();
+        });
+
         // 渲染布局
         bus.render(function(){
             // 调用回调，以便调用者知道异步加载已经完成
             $z.doCallback(callback, [], UI);
         });
+    },
+    //..............................................
+    openConfigSetup : function() {
+        var UI = this;
+        var man   = this.__main_data;
+        var conf  = man.conf;
+        var oHome = man.home;
+        
+        POP.openUIPanel({
+            title : UI.msg("th3.conf.title", oHome),
+            width : 640,
+            arenaClass : "th-design-mask",
+            setup : {
+                uiType : "ui/thing3/design/th3_design",
+            },
+            ready : function(uiDesign){
+                uiDesign.update(oHome);
+            },
+            close : function(uiDesign){
+                if(uiDesign.isChanged()) {
+                    window.location.reload();
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
     },
     //..............................................
     setCurrentObj : function(obj) {

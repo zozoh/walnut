@@ -50,6 +50,7 @@ var methods = {
 
         // 通知
         $z.invoke(opt, "on_change", [v], context);
+        UI.trigger('change:value', v);
 
         // 看看控件还有没有后续处理
         $z.invoke(UI, "on_after_change", [v]);

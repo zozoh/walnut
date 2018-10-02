@@ -6,11 +6,11 @@ $z.declare([
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-import" ui-fitparent="yes" ui-gasket="form">
+<div class="ui-arena th3-design-import" ui-fitparent="yes" ui-gasket="form">
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.thdesign_import", {
+return ZUI.def("ui.th3.thdesign_import", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {
@@ -32,41 +32,41 @@ return ZUI.def("ui.thing.thdesign_import", {
             },
             fields : [{
                     key : "enabled",
-                    title : "i18n:thing.conf.import.enabled",
+                    title : "i18n:th3.conf.import.enabled",
                     type   : "boolean",
                     uiType : "@switch",
                 }, {
                     key : "accept",
-                    title : "i18n:thing.conf.import.accept",
-                    tip   : "i18n:thing.conf.import.accept_tip",
+                    title : "i18n:th3.conf.import.accept",
+                    tip   : "i18n:th3.conf.import.accept_tip",
                     uiConf : {
-                        placeholder : UI.msg("thing.conf.import.accept_placeholder")
+                        placeholder : UI.msg("th3.conf.import.accept_placeholder")
                     }
                 }, {
                     key : "processTmpl",
-                    title : "i18n:thing.conf.import.processTmpl",
-                    tip   : "i18n:thing.conf.import.processTmpl_tip",
+                    title : "i18n:th3.conf.import.processTmpl",
+                    tip   : "i18n:th3.conf.import.processTmpl_tip",
                     uiType : "@text",
                     uiConf : {
-                        placeholder : UI.msg("thing.conf.import.processTmpl_placeholder"),
+                        placeholder : UI.msg("th3.conf.import.processTmpl_placeholder"),
                         height: 60
                     }
                 },{
                     key : "uniqueKey",
-                    title : "i18n:thing.conf.import.unikey",
-                    tip   : "i18n:thing.conf.import.unikey_tip",
+                    title : "i18n:th3.conf.import.unikey",
+                    tip   : "i18n:th3.conf.import.unikey_tip",
                 }, {
                     key : "mapping",
-                    title : "i18n:thing.conf.import.mapping",
-                    tip   : "i18n:thing.conf.import.mapping_tip",
+                    title : "i18n:th3.conf.import.mapping",
+                    tip   : "i18n:th3.conf.import.mapping_tip",
                 }, {
                     key : "fixedForm",
-                    title : "i18n:thing.conf.import.fixedForm",
-                    tip   : "i18n:thing.conf.import.fixedForm_tip",
+                    title : "i18n:th3.conf.import.fixedForm",
+                    tip   : "i18n:th3.conf.import.fixedForm_tip",
                 }, {
                     key : "afterCommand",
-                    title : "i18n:thing.conf.import.afterCommand",
-                    tip   : "i18n:thing.conf.import.afterCommand_tip",
+                    title : "i18n:th3.conf.import.afterCommand",
+                    tip   : "i18n:th3.conf.import.afterCommand_tip",
                     uiType : "@text",
                     uiConf : {
                         height: 120

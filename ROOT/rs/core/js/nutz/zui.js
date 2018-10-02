@@ -1666,7 +1666,7 @@ define(function (require, exports, module) {
             opt = opt || {};
             $z.setUndefined(opt, "width", 400);
             $z.setUndefined(opt, "height", 240);
-            $z.setUndefined(opt, "title", "prompt");
+            $z.setUndefined(opt, "title", "i18n:prompt");
             $z.setUndefined(opt, "placeholder", "");
             $z.setUndefined(opt, "btnOk", "ok");
             $z.setUndefined(opt, "btnCancel", "cancel");

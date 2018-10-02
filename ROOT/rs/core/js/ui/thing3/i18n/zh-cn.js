@@ -120,6 +120,7 @@ define({
             "general" : {
                 "t_display" : "显示设定",
                 "t_adv"     : "高级设定",
+                "k_layout"  : "布局类型",
                 "k_smfwh"   : "菜单收缩",
                 "k_thIndex" : "显示索引",
                 "k_thIndex_m" : "对象属性",

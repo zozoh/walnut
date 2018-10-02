@@ -13,7 +13,7 @@ return ZUI.def("ui.tabs", {
     css  : "ui/tabs/theme/tabs-{{theme}}.css",
     //..............................................
     events : {
-        'click ul.tabs-list > li.tabs-li' : function(e){
+        'click > .tabs > header > ul.tabs-list > li.tabs-li' : function(e){
             var UI  = this;
             var jLi = $(e.currentTarget);
             UI.changeUI(jLi.attr("key"));
