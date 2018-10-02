@@ -8,7 +8,7 @@ var html = function(){/*
 <div class="ui-arena th-import-2-uploading" ui-fitparent="yes">
     <h4>
         <i class="zmdi zmdi-cloud-upload"></i>
-        {{thing.import.up_title}}<code></code>
+        {{th3.import.up_title}}<code></code>
     </h4>
     <div class="thiw-ing">
         <div class="thiw-ing-nb">0%</div>

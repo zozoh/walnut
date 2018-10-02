@@ -8,9 +8,9 @@ var html = function(){/*
 <div class="ui-arena th-import-1-choose-file" ui-fitparent="yes">
     <div class="thiw-main">
         <input type="file">
-        <section>{{thing.import.cf_tip1}}</section>
+        <section>{{th3.import.cf_tip1}}</section>
         <b class="ui-btn">选择文件...</b>
-        <section class="thiw-tip2">{{thing.import.cf_tip2}}：<code></code></section>
+        <section class="thiw-tip2">{{th3.import.cf_tip2}}：<code></code></section>
     </div>
 </div>
 */};

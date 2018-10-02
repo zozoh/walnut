@@ -401,11 +401,11 @@ evalConf : function(UI, conf, opt, home) {
     // ----------------- searchMenu
     conf.searchMenu = opt.searchMenu 
                         || conf.searchMenu 
-                        || ["@config", {
+                        || ["@import","@export", {
                             icon  : '<i class="zmdi zmdi-more-vert"></i>',
                             items : ["@import","@export",
-                                    "@create","@refresh","@remove",
                                     "|","@cleanup", "@restore",
+                                    "|","@create","@refresh","@remove",
                                     "|","@config"]
                         }];
 

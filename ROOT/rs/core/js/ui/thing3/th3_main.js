@@ -93,6 +93,16 @@ return ZUI.def("ui.th3.main", {
             UI.openConfigSetup();
         });
 
+        // 监听导入数据
+        bus.listenSelf("do:import", function(eo){
+            UI.openImport();
+        });
+
+        // 监听导出数据
+        bus.listenSelf("do:export", function(eo){
+            UI.openExport();
+        });
+
         // 渲染布局
         bus.render(function(){
             // 调用回调，以便调用者知道异步加载已经完成
@@ -119,6 +129,76 @@ return ZUI.def("ui.th3.main", {
             close : function(uiDesign){
                 if(uiDesign.isChanged()) {
                     window.location.reload();
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
+    },
+    //..............................................
+    openImport : function() {
+        var UI = this;
+        var man   = this.__main_data;
+        var conf  = man.conf;
+        var oHome = man.home;
+        
+        POP.openUIPanel({
+            title  : "i18n:th3.import.title",
+            width  : 640,
+            height : 480,
+            closer : true,
+            arenaClass : "th-wizard-mask",
+            setup : {
+                uiType : "ui/thing3/wiz/th3_import",
+                uiConf : {
+                    thingSetId   : oHome.id,
+                    accept       : conf.dataImport.accept,
+                    processTmpl  : conf.dataImport.processTmpl,
+                    uniqueKey    : conf.dataImport.uniqueKey,
+                    mapping      : conf.dataImport.mapping,
+                    fixedForm    : conf.dataImport.fixedForm,
+                    afterCommand : conf.dataImport.afterCommand,
+                    done : function() {
+                        // 关闭窗口
+                        this.parent.close();
+                        // 刷新数据
+                        UI.subUI('main').fire('list:refresh');
+                    }
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
+    },
+    //..............................................
+    openExport : function() {
+        var UI = this;
+        var man   = this.__main_data;
+        var conf  = man.conf;
+        var oHome = man.home;
+        
+        POP.openUIPanel({
+            title  : "i18n:th3.export.title",
+            width  : 640,
+            height : 480,
+            closer : true,
+            arenaClass : "th-wizard-mask",
+            setup : {
+                uiType : "ui/thing3/wiz/th3_export",
+                uiConf : {
+                    thingSetId   : oHome.id,
+                    thingSetNm   : oHome.nm,
+                    exportType   : conf.dataExport.exportType,
+                    pageRange    : conf.dataExport.pageRange,
+                    pageBegin    : conf.dataExport.pageBegin,
+                    pageEnd      : conf.dataExport.pageEnd,
+                    audoDownload : conf.dataExport.audoDownload,
+                    mapping      : conf.dataExport.mapping,
+                    processTmpl  : conf.dataExport.processTmpl,
+                    queryContext : UI.subUI("main/list").getQueryContext(),
+                    done : function() {
+                        this.parent.close();
+                    }
                 }
             },
             btnOk : null,

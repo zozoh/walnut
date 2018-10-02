@@ -2,17 +2,16 @@
 $z.declare([
     'zui',
     'wn/util',
-    'ui/thing/support/th_methods',
     'ui/wizard/wizard',
-], function(ZUI, Wn, ThMethods, WizardUI){
+], function(ZUI, Wn, WizardUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-export th-wizard"
+<div class="ui-arena th3-import th-wizard"
     ui-fitparent="true"
     ui-gasket="wizard"></div>
 */};
 //==============================================
-return ZUI.def("ui.th_export", {
+return ZUI.def("ui.th3_import", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //..............................................
     redraw : function() {
@@ -21,12 +20,11 @@ return ZUI.def("ui.th_export", {
 
         // 准备参数
         $z.setUndefined(opt, "thingSetId", null);
-        $z.setUndefined(opt, "exportType", "csv");
-        $z.setUndefined(opt, "pageRange", false);
-        $z.setUndefined(opt, "pageBegin", 1);
-        $z.setUndefined(opt, "pageEnd", -1);
-        $z.setUndefined(opt, "audoDownload", false);
+        $z.setUndefined(opt, "accept", ".csv, .xls");
+        $z.setUndefined(opt, "uniqueKey", null);
         $z.setUndefined(opt, "mapping", null);
+        $z.setUndefined(opt, "fixedForm", null);
+        $z.setUndefined(opt, "afterCommand", null);
         $z.setUndefined(opt, "processTmpl", "${P} ${th_nm?-未知-} : ${phone?-未设定-}");
 
         // 必须有 thingSetId
@@ -37,36 +35,53 @@ return ZUI.def("ui.th_export", {
 
         // 准备步骤的配置文件
         var steps = {};
+        if(opt.fixedForm) {
+            steps["step0"] = {
+                text : "i18n:th3.import.step0",
+                next : true,
+                uiType : "ui/thing3/wiz/import/step0_fixed_form",
+                uiConf : opt
+            }
+        }
         // Step1:选择文件
         steps["step1"] = {
-            text : "i18n:thing.export.step1",
-            next : true,
-            uiType : "ui/thing/support/export/step1_setup",
+            text : "i18n:th3.import.step1",
+            next : false,
+            uiType : "ui/thing3/wiz/import/step1_choose_file",
             uiConf : opt
         };
-        // Step2:导出进度
+        // Step2:上传进度
         steps["step2"] = {
-            text : "i18n:thing.export.step2",
+            text : "i18n:th3.import.step2",
             prev : false,
             next : false,
-            uiType : "ui/thing/support/export/step2_export",
+            uiType : "ui/thing3/wiz/import/step2_uploading",
             uiConf : opt
         };
-        // Step3: 导出完成
+        // Step3: 分析数据执行命令
         steps["step3"] = {
-            text : "i18n:thing.export.step3",
+            text : "i18n:th3.import.step3",
+            prev : false,
+            next : false,
+            uiType : "ui/thing3/wiz/import/step3_import",
+            uiConf : opt
+        };
+        // Step4: 显示上传成功
+        steps["step4"] = {
+            text : "i18n:th3.import.step4",
             done : function(){
                 $z.invoke(opt, "done");
             },
-            uiType : "ui/thing/support/export/step3_done",
+            uiType : "ui/thing3/wiz/import/step4_done",
         },
 
         /*
         向导收集的对象为:
         {
-            setup     : {..}   // 导出的设定
+            theFile   : File   // 本地文件对象,
             oTmpFile  : {..}   // 服务器端的临时文件
-            exportLog : [..]   // 记录导出的日志输出
+            fixedData : {..}   // 固定字段值
+            importLog : [..]   // 记录导入的日志输出
         }
         */
 
@@ -74,7 +89,7 @@ return ZUI.def("ui.th_export", {
             parent : UI,
             gasketName : "wizard",
             headMode : "all",
-            //startPoint : "step3",
+            //startPoint : "step0",
             steps : steps
         }).render(function(){
             UI.defer_report("wizard")
