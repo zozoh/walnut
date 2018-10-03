@@ -4,11 +4,11 @@ $z.declare([
     'wn/util',
     'ui/pop/pop',
     'ui/list/list',
-    'ui/thing/support/th_design_command_list'
+    'ui/thing3/design/th3_design_command_list'
 ], function(ZUI, Wn, POP, ListUI, ThDesignCommandListUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-commands" ui-fitparent="yes">
+<div class="ui-arena th3-design-commands" ui-fitparent="yes">
     <section class="thdc-actions">
         <div class="thdca-list" ui-gasket="list"></div>
         <div class="thdca-opt">
@@ -23,7 +23,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.thdesign_commands", {
+return ZUI.def("ui.th3.thdesign_commands", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {

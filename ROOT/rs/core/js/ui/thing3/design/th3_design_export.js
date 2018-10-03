@@ -6,11 +6,11 @@ $z.declare([
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-export" ui-fitparent="yes" ui-gasket="form">
+<div class="ui-arena th3-design-export" ui-fitparent="yes" ui-gasket="form">
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.thdesign_export", {
+return ZUI.def("ui.th3.thdesign_export", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {
@@ -32,35 +32,35 @@ return ZUI.def("ui.thing.thdesign_export", {
             },
             fields : [{
                     key : "enabled",
-                    title : "i18n:thing.conf.import.enabled",
+                    title : "i18n:th3.conf.import.enabled",
                     type   : "boolean",
                     uiType : "@switch",
                 }, {
                     key : "exportType",
-                    title : "i18n:thing.conf.export.exportType",
+                    title : "i18n:th3.conf.export.exportType",
                     type   : "string",
                     dft    : "csv",
                     uiType : "@droplist",
                     uiConf : {
                         items : [{
                                 value : "csv",
-                                text  : "i18n:thing.conf.export.etp_csv"
+                                text  : "i18n:th3.conf.export.etp_csv"
                             }, {
                                 value : "xls", 
-                                text  : "i18n:thing.conf.export.etp_xls"
+                                text  : "i18n:th3.conf.export.etp_xls"
                             }]
                     }
                 }, {
                     key : "pageRange",
-                    title : "i18n:thing.conf.export.pageRange",
-                    tip   : "i18n:thing.conf.export.pageRange_tip",
+                    title : "i18n:th3.conf.export.pageRange",
+                    tip   : "i18n:th3.conf.export.pageRange_tip",
                     type  : "boolean",
                     dft   : false,
                     uiWidth : "auto",
                     uiType : "@toggle",
                 }, {
                     key : "pageBegin",
-                    title : "i18n:thing.conf.export.pageBegin",
+                    title : "i18n:th3.conf.export.pageBegin",
                     type  : "int",
                     dft   : 1,
                     uiWidth : 100,
@@ -69,8 +69,8 @@ return ZUI.def("ui.thing.thdesign_export", {
                     }
                 }, {
                     key : "pageEnd",
-                    title : "i18n:thing.conf.export.pageEnd",
-                    tip   : "i18n:thing.conf.export.pageEnd_tip",
+                    title : "i18n:th3.conf.export.pageEnd",
+                    tip   : "i18n:th3.conf.export.pageEnd_tip",
                     type  : "int",
                     dft   : -1,
                     uiWidth : 100,
@@ -79,23 +79,23 @@ return ZUI.def("ui.thing.thdesign_export", {
                     }
                 }, {
                     key : "audoDownload",
-                    title : "i18n:thing.conf.export.audoDownload",
-                    tip   : "i18n:thing.conf.export.audoDownload_tip",
+                    title : "i18n:th3.conf.export.audoDownload",
+                    tip   : "i18n:th3.conf.export.audoDownload_tip",
                     type  : "boolean",
                     dft   : false,
                     uiWidth : "auto",
                     uiType : "@toggle",
                 }, {
                     key : "mapping",
-                    title : "i18n:thing.conf.export.mapping",
-                    tip   : "i18n:thing.conf.export.mapping_tip"
+                    title : "i18n:th3.conf.export.mapping",
+                    tip   : "i18n:th3.conf.export.mapping_tip"
                 }, {
                     key : "processTmpl",
-                    title : "i18n:thing.conf.export.processTmpl",
-                    tip   : "i18n:thing.conf.export.processTmpl_tip",
+                    title : "i18n:th3.conf.export.processTmpl",
+                    tip   : "i18n:th3.conf.export.processTmpl_tip",
                     uiType : "@text",
                     uiConf : {
-                        placeholder : UI.msg("thing.conf.export.processTmpl_placeholder"),
+                        placeholder : UI.msg("th3.conf.export.processTmpl_placeholder"),
                         height: 60
                     }
                 }],

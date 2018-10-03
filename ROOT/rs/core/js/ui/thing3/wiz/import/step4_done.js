@@ -10,7 +10,7 @@ var html = function(){/*
     <header>
         <i class="zmdi zmdi-check-circle"></i>
     </header>
-    <section>{{thing.import.done}}</section>
+    <section>{{th3.import.done}}</section>
     <footer></footer>
 </div>
 */};
@@ -35,7 +35,7 @@ return ZUI.def("app.wn.thi_4_done", {
         var UI = this;
         //console.log(data)
         if(data.importLog && data.importLog.length > 0) {
-            $('<a>').text(UI.msg("thing.import.viewlog"))
+            $('<a>').text(UI.msg("th3.import.viewlog"))
                 .appendTo(UI.arena.find('footer'));
         }
     }

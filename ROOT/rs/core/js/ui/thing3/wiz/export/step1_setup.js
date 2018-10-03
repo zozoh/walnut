@@ -28,30 +28,30 @@ return ZUI.def("app.wn.the_1_setup", {
             },
             fields : [{
                     key : "exportType",
-                    title : "i18n:thing.export.exportType",
+                    title : "i18n:th3.export.exportType",
                     type   : "string",
                     dft    : opt.exportType,
                     uiType : "@droplist",
                     uiConf : {
                         items : [{
                                 value : "csv",
-                                text  : "i18n:thing.conf.export.etp_csv"
+                                text  : "i18n:th3.conf.export.etp_csv"
                             }, {
                                 value : "xls", 
-                                text  : "i18n:thing.conf.export.etp_xls"
+                                text  : "i18n:th3.conf.export.etp_xls"
                             }]
                     }
                 }, {
                     key : "pageRange",
-                    title : "i18n:thing.export.pageRange",
-                    tip   : "i18n:thing.conf.export.pageRange_tip",
+                    title : "i18n:th3.export.pageRange",
+                    tip   : "i18n:th3.conf.export.pageRange_tip",
                     type  : "boolean",
                     dft   : opt.pageRange,
                     uiWidth : "auto",
                     uiType : "@toggle",
                 }, {
                     key : "pageBegin",
-                    title : "i18n:thing.export.pageBegin",
+                    title : "i18n:th3.export.pageBegin",
                     type  : "int",
                     dft   : opt.pageBegin,
                     uiWidth : 100,
@@ -60,8 +60,8 @@ return ZUI.def("app.wn.the_1_setup", {
                     }
                 }, {
                     key : "pageEnd",
-                    title : "i18n:thing.export.pageEnd",
-                    tip   : "i18n:thing.conf.export.pageEnd_tip",
+                    title : "i18n:th3.export.pageEnd",
+                    tip   : "i18n:th3.conf.export.pageEnd_tip",
                     type  : "int",
                     dft   : opt.pageEnd,
                     uiWidth : 100,
@@ -70,8 +70,8 @@ return ZUI.def("app.wn.the_1_setup", {
                     }
                 }, {
                     key : "audoDownload",
-                    title : "i18n:thing.export.audoDownload",
-                    tip   : "i18n:thing.conf.export.audoDownload_tip",
+                    title : "i18n:th3.export.audoDownload",
+                    tip   : "i18n:th3.conf.export.audoDownload_tip",
                     type  : "boolean",
                     dft   : opt.audoDownload,
                     uiWidth : "auto",

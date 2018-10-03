@@ -11,14 +11,14 @@ $z.declare([
 ], function(ZUI, Wn, CIconUI, CNameUI, FormUI, MenuUI, ListUI, DomUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design-flds" ui-fitparent="yes">
+<div class="ui-arena th3-design-flds" ui-fitparent="yes">
     <div class="thd-menu" ui-gasket="menu"></div>
     <div class="thd-fld-list" ui-gasket="list"></div>
     <div class="thd-fld-conf" ui-gasket="fld"></div>
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.thdesign_fields", {
+return ZUI.def("ui.th3.thdesign_fields", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {
@@ -34,21 +34,21 @@ return ZUI.def("ui.thing.thdesign_fields", {
             tipDirection : "up",
             setup : [{
                 icon : '<i class="fa fa-plus"></i>',
-                text : "i18n:thing.conf.addfld",
+                text : "i18n:th3.conf.addfld",
                 handler : function(){
                     // 获取字段名
-                    UI.prompt("thing.conf.addfld_tip", {
+                    UI.prompt("i18n:th3.conf.addfld_tip", {
                         icon  : '<i class="zmdi zmdi-plus-circle"></i>',
                         check : function(str, callback) {
                             var fldName = $.trim(str);
                             if(fldName) {
                                 // 字段名不能非法
                                 if(!/^[0-9a-z_]+$/.test(fldName)) {
-                                    return callback(UI.msg("thing.conf.e_fld_invalid"));
+                                    return callback(UI.msg("th3.conf.e_fld_invalid"));
                                 }
                                 // 字段已存在
                                 if(UI.gasket.list.has(fldName)){
-                                    return callback(UI.msg("thing.conf.e_fld_exists"));
+                                    return callback(UI.msg("th3.conf.e_fld_exists"));
                                 }
                             }
                             // 恢复成功的状态
@@ -58,7 +58,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
                             var fldName = $.trim(str);
                             // 字段名不能为空
                             if(!fldName) {
-                                UI.alert("thing.conf.e_fld_nkey", "warn");
+                                UI.alert("th3.conf.e_fld_nkey", "warn");
                                 return;
                             }
 
@@ -73,7 +73,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
                 }
             }, {
                 icon : '<i class="fa fa-trash"></i>',
-                text : "i18n:thing.conf.delfld",
+                text : "i18n:th3.conf.delfld",
                 handler : function(){
                     var it = UI.gasket.list.remove();
                     if(it) {
@@ -84,7 +84,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
                 }
             }, {
                 icon : '<i class="zmdi zmdi-long-arrow-up"></i>',
-                tip  : "i18n:thing.conf.mv_up",
+                tip  : "i18n:th3.conf.mv_up",
                 handler : function(){
                     UI.gasket.list.moveUp();
                     // 通知更新
@@ -92,7 +92,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
                 }
             }, {
                 icon : '<i class="zmdi zmdi-long-arrow-down"></i>',
-                tip  : "i18n:thing.conf.mv_down",
+                tip  : "i18n:th3.conf.mv_down",
                 handler : function(){
                     UI.gasket.list.moveDown();
                     // 通知更新
@@ -110,8 +110,8 @@ return ZUI.def("ui.thing.thdesign_fields", {
             idKey : "key",
             nmKey : "title",
             display : function(fo) {
-                var html = UI.str("thing.conf.ficon." + fo.key
-                              , UI.str("thing.conf.cicon." + fo.editAs
+                var html = UI.str("th3.conf.ficon." + fo.key
+                              , UI.str("th3.conf.cicon." + fo.editAs
                                     , '<i class="zmdi zmdi-minus"></i>'));
                 
                 // 字段名
@@ -156,7 +156,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
             gasketName : "fld",
             dom : '<div class="thd-blank">'
                 + ' <i class="zmdi zmdi-arrow-left"></i> '
-                + '{{thing.conf.blank}}'
+                + '{{th3.conf.blank}}'
                 + '</div>'
         }).render(function(){
             $z.doCallback(callback, [], UI);
@@ -246,22 +246,22 @@ return ZUI.def("ui.thing.thdesign_fields", {
 
         return [{
             key    : "key",
-            title  : "i18n:thing.conf.key.key",
+            title  : "i18n:th3.conf.key.key",
         }, {
             key    : "title",
-            title  : "i18n:thing.conf.key.title",
+            title  : "i18n:th3.conf.key.title",
             uiConf : {
                 placeholder : "i18n:auto",
             }
         }, {
             key    : "type",
-            title  : "i18n:thing.conf.key.type",
+            title  : "i18n:th3.conf.key.type",
             editAs : "droplist",
             uiConf : {
                 text : function(s) {
                     if(!s)
                         return "i18n:default";
-                    return "i18n:thing.conf.t." + s + " : " + s;
+                    return "i18n:th3.conf.t." + s + " : " + s;
                 },
                 value : function(s) {
                     return s;
@@ -270,12 +270,12 @@ return ZUI.def("ui.thing.thdesign_fields", {
             }
         }, {
             key    : "tip",
-            title  : "i18n:thing.conf.key.tip",
+            title  : "i18n:th3.conf.key.tip",
             editAs : "text",
         }, {
             // TODO 如果支持默认值，那么创建的时候要增加默认值才行
             key    : "dft",
-            title  : "i18n:thing.conf.key.dft",
+            title  : "i18n:th3.conf.key.dft",
             type   : "string",
             editAs : "input",
             uiConf : {
@@ -298,22 +298,22 @@ return ZUI.def("ui.thing.thdesign_fields", {
             }
         }, {
             key    : "hide",
-            title  : "i18n:thing.conf.key.hide",
+            title  : "i18n:th3.conf.key.hide",
             type   : "boolean",
             editAs : "toggle"
         }, {
             key    : "editAs",
-            title  : "i18n:thing.conf.key.editAs",
+            title  : "i18n:th3.conf.key.editAs",
             editAs : "droplist",
             uiConf : {
                 icon : function(s) {
                     if(s)
-                        return UI.msg("thing.conf.cicon." + s);
+                        return UI.msg("th3.conf.cicon." + s);
                 },
                 text : function(s) {
                     if(!s)
                         return "i18n:default";
-                    return "i18n:thing.conf.c." + s + " : " + s;
+                    return "i18n:th3.conf.c." + s + " : " + s;
                 },
                 value : function(s) {
                     return s;
@@ -325,12 +325,12 @@ return ZUI.def("ui.thing.thdesign_fields", {
             }
         }, {
             key : "uiConf",
-            title  : "i18n:thing.conf.key.uiConf",
+            title  : "i18n:th3.conf.key.uiConf",
             type  : "object",
             editAs : "text",
             uiConf : {
                 height: 100,
-                placeholder : "i18n:thing.conf.key.uiConf_ph",
+                placeholder : "i18n:th3.conf.key.uiConf_ph",
                 parseData : function(obj){
                     return $z.toJson(obj);
                 },
@@ -340,7 +340,7 @@ return ZUI.def("ui.thing.thdesign_fields", {
             }
         }, {
             key    : "uiWidth",
-            title  : "i18n:thing.conf.key.uiWidth",
+            title  : "i18n:th3.conf.key.uiWidth",
             type   : "string",
             editAs : "input",
             uiConf : {

@@ -252,9 +252,6 @@ return ZUI.def("ui.thing.thdesign", {
         _.extend(UI.__TH_CONF, data);
 
         // 看看 json 变没
-        var json = $z.toJson(UI.__TH_CONF,null, '  ');
-
-        // 变了
         if(UI.isNeedSave()) {
             jBtns.attr("mode", "changed");
             $z.blinkIt(jBtns);
@@ -276,7 +273,11 @@ return ZUI.def("ui.thing.thdesign", {
     },
     //...............................................................
     getDataJson : function(){
-        return $z.toJson(this.__TH_CONF,null, '  ');
+        return $z.toJson(this.__TH_CONF,function(k, v) {
+            if (!_.isNull(v)) {
+              return v;
+            }
+        }, '  ');
     },
     //...............................................................
     getData : function(){

@@ -13,26 +13,26 @@ $z.declare([
 ], function(ZUI, Wn, TabsUI, CIconUI, CNameUI, POP, FormUI, MenuUI, ListUI, DomUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-design" ui-fitparent="yes">
+<div class="ui-arena th3-design" ui-fitparent="yes">
     <div class="thd-info">
         <div class="thd-icon" ui-gasket="icon"></div>
         <div class="thd-name" ui-gasket="name"></div>
         <div class="thd-id"></div>
-        <div class="thd-vc"><a>{{thing.conf.viewsource}}</a></div>
+        <div class="thd-vc"><a>{{th3.conf.viewsource}}</a></div>
         <div class="thd-btns" mode="loaded">
-            <a>{{thing.conf.cancel}}</a>
-            <b><i class="fa fa-save"></i> {{thing.conf.saveflds}}</b>
-            <em><i class="fa fa-cog fa-spin"></i> {{thing.conf.saving}}</em>
+            <a>{{th3.conf.cancel}}</a>
+            <b><i class="fa fa-save"></i> {{th3.conf.saveflds}}</b>
+            <em><i class="fa fa-cog fa-spin"></i> {{th3.conf.saving}}</em>
         </div>
     </div>
     <div class="thd-tabs" ui-gasket="tabs"></div>
 </div>
 */};
 //==============================================
-return ZUI.def("ui.thing.thdesign", {
+return ZUI.def("ui.th3.design", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
+    css  : "ui/thing3/theme/th3-{{theme}}.css",
+    i18n : "ui/thing3/i18n/{{lang}}.js",
     //...............................................................
     init : function() {
         this.listenSelf("change:data", this.on_sub_changed);
@@ -99,7 +99,7 @@ return ZUI.def("ui.thing.thdesign", {
             parent : UI,
             gasketName : "icon",
             dftIcon : '<i class="fa fa-cubes"></i>',
-            balloon : 'up:thing.conf.icon_modify',
+            balloon : 'up:th3.conf.icon_modify',
             on_change : function(icon) {
                 var iconHtml = icon.replace(/"/g, "\\\\\"");
                 var cmdText = 'obj id:' + UI.__oTS.id + ' -u \'icon:"'+iconHtml+'"\' -o';
@@ -161,24 +161,24 @@ return ZUI.def("ui.thing.thdesign", {
             defaultKey : UI.local('tabsKey') || "general",
             setup : {
                 "general" : {
-                    text : "i18n:thing.conf.tab_general",
-                    uiType : "ui/thing/th_design_general",
+                    text : "i18n:th3.conf.tab_general",
+                    uiType : "ui/thing3/design/th3_design_general",
                 },
                 "fields" : {
-                    text : "i18n:thing.conf.tab_fields",
-                    uiType : "ui/thing/th_design_fields",
+                    text : "i18n:th3.conf.tab_fields",
+                    uiType : "ui/thing3/design/th3_design_fields",
                 },
                 "import" : {
-                    text : "i18n:thing.conf.tab_import",
-                    uiType : "ui/thing/th_design_import",
+                    text : "i18n:th3.conf.tab_import",
+                    uiType : "ui/thing3/design/th3_design_import",
                 },
                 "export" : {
-                    text : "i18n:thing.conf.tab_export",
-                    uiType : "ui/thing/th_design_export",
+                    text : "i18n:th3.conf.tab_export",
+                    uiType : "ui/thing3/design/th3_design_export",
                 },
                 "commands" : {
-                    text : "i18n:thing.conf.tab_commands",
-                    uiType : "ui/thing/th_design_commands",
+                    text : "i18n:th3.conf.tab_commands",
+                    uiType : "ui/thing3/design/th3_design_commands",
                 }
             },
             on_changeUI : function(key, theUI) {
@@ -219,7 +219,7 @@ return ZUI.def("ui.thing.thdesign", {
         if(!thConf) {
             var oThConf = Wn.fetch(oThSet.ph + "/thing.js", true);
             if(!oThConf){
-                UI.alert("thing.conf.e_no_thingjs");
+                UI.alert("th3.conf.e_no_thingjs");
                 return;
             }
 
@@ -252,9 +252,6 @@ return ZUI.def("ui.thing.thdesign", {
         _.extend(UI.__TH_CONF, data);
 
         // 看看 json 变没
-        var json = $z.toJson(UI.__TH_CONF,null, '  ');
-
-        // 变了
         if(UI.isNeedSave()) {
             jBtns.attr("mode", "changed");
             $z.blinkIt(jBtns);
@@ -276,7 +273,13 @@ return ZUI.def("ui.thing.thdesign", {
     },
     //...............................................................
     getDataJson : function(){
-        return $z.toJson(this.__TH_CONF,null, '  ');
+        //console.log("getDataJson")
+        return $z.toJson(this.__TH_CONF,function(k, v) {
+            //console.log(k, v)
+            if (!_.isNull(v)) {
+              return v;
+            }
+        }, '  ');
     },
     //...............................................................
     getData : function(){

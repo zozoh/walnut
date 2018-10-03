@@ -237,6 +237,11 @@ __normalize_action_menu : function(items, conf) {
             text : "i18n:th3.export.tt", 
             fireEvent : "do:export"
         },
+        "@config" : {
+            icon : '<i class="fa fa-gears"></i>',
+            tip : "i18n:th3.conf_setup",
+            fireEvent : 'open:config'
+        },
         "|" : {type:"separator"}
     };
 
@@ -396,9 +401,12 @@ evalConf : function(UI, conf, opt, home) {
     // ----------------- searchMenu
     conf.searchMenu = opt.searchMenu 
                         || conf.searchMenu 
-                        || ["@create","@refresh","@remove", {
+                        || ["@import","@export", {
                             icon  : '<i class="zmdi zmdi-more-vert"></i>',
-                            items : ["@import","@export","|","@cleanup", "@restore"]
+                            items : ["@import","@export",
+                                    "|","@cleanup", "@restore",
+                                    "|","@create","@refresh","@remove",
+                                    "|","@config"]
                         }];
 
     // 格式化菜单项目
