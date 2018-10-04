@@ -31,14 +31,19 @@ public class mt90_mock implements JvmHdl {
             WnThingService thing = new WnThingService(sys.io, sys.io.check(null, Wn.normalizeFullPath("~/device", sys)));
             dev = thing.getOne(new ThQuery("dev_imei", d));
         }
-        String cm_id = dev.getString("cm_id");
-        String sp_u_pj = dev.getString("sp_u_pj");
-        if (Strings.isBlank(cm_id) || Strings.isBlank(sp_u_pj)) {
-            sys.err.print("miss cm_id or sp_u_pj");
-            return;
-        }
         // comp/data/pak83ovupcg43pkn23qtdeueut/proj/100KM/mars_google.json
-        String path = "~/comp/data/"+cm_id+"/proj/"+sp_u_pj+"/mars_google.json";
+        String path = hc.params.get("path");
+        if (Strings.isBlank(path)) {
+            String cm_id = dev.getString("wz_cm_id");
+            String cm_pj = dev.getString("cm_pj");
+            if (Strings.isBlank(cm_id) || Strings.isBlank(cm_pj)) {
+                sys.err.print("miss cm_id or cm_pj");
+                return;
+            }
+            path = "~/comp/data/"+cm_id+"/proj/"+cm_pj+"/mars_google.json";
+        }
+        
+        
         WnObj mars_google = sys.io.check(null, Wn.normalizeFullPath(path, sys));
         WoozMap map = sys.io.readJson(mars_google, WoozMap.class);
         // 起始百分比,默认从起点开始
