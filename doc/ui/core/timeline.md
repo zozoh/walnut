@@ -13,6 +13,9 @@ author:zozoh
 
 ```js
 new TimelineUI({
+    // 移动和resize的最小时间单位
+    // 默认 1800 秒（半小时）
+    moveUnit : 1800,
     // 建立多少个绘制层
     layers : {
         // 层名称作为 Key

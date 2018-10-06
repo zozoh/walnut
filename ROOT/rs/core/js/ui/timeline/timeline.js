@@ -32,6 +32,10 @@ return ZUI.def("ui.timeline", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     css  : "ui/timeline/theme/timeline-{{theme}}.css",
     //..............................................
+    init : function(opt) {
+        $z.setUndefined(opt, "moveUnit", 1800);
+    },
+    //..............................................
     events : {
         "click .tmln-hour" : function(e) {
             var UI  = this;
@@ -276,15 +280,17 @@ return ZUI.def("ui.timeline", {
                     css.top = this.css.rect.top;
                     // 改变 from 和 to
                     var du = tTo.sec - tFrom.sec;
-                    var fromSec = Math.round((css.top / this.rect.viewport.height) * 86400 / 1800) * 1800;
+                    var mu = opt.moveUnit;
+                    var fromSec = Math.round((css.top / this.rect.viewport.height) * 86400 / mu) * mu;
                     tlo.from = $z.parseTime(fromSec).key;
                     tlo.to   = $z.parseTime(fromSec + du).key;
                 }
                 // 模式: resize
                 else {
                     css.height = Math.max(this.minHeight, this.rect.current.bottom - this.rect.tmlnObj.top);
+                    var mu = opt.moveUnit;
                     // 仅仅改变 to
-                    var toSec = tFrom.sec + Math.round((css.height / this.rect.viewport.height) * 86400 / 1800) * 1800;
+                    var toSec = tFrom.sec + Math.round((css.height / this.rect.viewport.height) * 86400 / mu) * mu;
                     tlo.to = $z.parseTime(toSec).key;
                 }
                 // 修改

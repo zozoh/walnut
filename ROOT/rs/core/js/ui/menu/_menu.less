@@ -30,21 +30,26 @@
             display: inline-block; vertical-align: middle;
             border:1px solid @cborder1; border-radius: @d1;
             overflow: hidden;
+            @flex();
             .menu-item-si {
-                display:inline-block; text-align: center; width:24px;
+                padding:0 @d2;
+                @flex(); justify-content: center; align-items: center;
                 border-right: 1px solid @cborder1; cursor: pointer;
                 color:@cf1; 
                 i {cursor: pointer;}
             }
             .menu-item-si:last-child{border-right: 0;}
-            .menu-item-si-on {background: @ch1_b; color:@ch1_f;}
+            .menu-item-si-on,
+            .menu-item-si-on:hover {background: @ch0_b; color:@ch0_f;}
         }
      }
      
 }
+.menu-item[tp="status"] .menu-item-si-off:hover {
+    color:@ch1_f; background: @ch1_b;
+}
 .menu-item[tp="button"]>.menu-item-wrapper:hover,
 .menu-item[tp="boolean"]>.menu-item-wrapper:hover,
-.menu-item[tp="status"] .menu-item-si-off:hover,
 .menu-item[tp="group"]>.menu-item-wrapper:hover,
 .menu-item[tp="group"][open]>.menu-item-wrapper
 {

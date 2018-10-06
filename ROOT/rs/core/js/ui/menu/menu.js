@@ -472,11 +472,18 @@ return ZUI.def("ui.menu", {
     //..............................................
     __draw_status : function(mi, jq, jItem){
         var UI = this;
+        var opt = UI.options;
         jItem.attr("tp", "status");
 
         // 绘制主体
         if(!mi.is_top_item){
             UI.__draw_fireable(mi, jq, jItem);
+        }
+
+        // 绘制提示信息
+        if(mi.tip){
+            var balloon = (opt.tipDirection || "up") + ":" + UI.text(mi.tip)
+            jq.attr('balloon', balloon);
         }
 
         // 绘制状态按钮
