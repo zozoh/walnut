@@ -5,7 +5,7 @@ $z.declare([
 ], function(ZUI, Wn){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-import-1-choose-file" ui-fitparent="yes">
+<div class="ui-arena th3-import-1-choose-file" ui-fitparent="yes">
     <div class="thiw-main">
         <input type="file">
         <section>{{th3.import.cf_tip1}}</section>
@@ -15,7 +15,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thi_1_choose_file", {
+return ZUI.def("app.wn.th3_i_1_choose_file", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     init : function(opt) {

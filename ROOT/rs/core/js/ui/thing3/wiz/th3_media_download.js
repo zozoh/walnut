@@ -2,17 +2,16 @@
     $z.declare([
         'zui',
         'wn/util',
-        'ui/thing/support/th_methods',
         'ui/wizard/wizard',
-    ], function(ZUI, Wn, ThMethods, WizardUI){
+    ], function(ZUI, Wn, WizardUI){
     //==============================================
     var html = function(){/*
-    <div class="ui-arena th-media-download th-wizard"
+    <div class="ui-arena th3-media-download th3-wizard"
         ui-fitparent="true"
         ui-gasket="wizard"></div>
     */};
     //==============================================
-    return ZUI.def("ui.th_export", {
+    return ZUI.def("ui.th3_media_download", {
         dom  : $z.getFuncBodyAsStr(html.toString()),
         //..............................................
         redraw : function() {
@@ -29,26 +28,26 @@
             var steps = {};
             // Step1:选择文件
             steps["step1"] = {
-                text : "i18n:thing.data.down_pickname",
+                text : "i18n:th3.data.down_pickname",
                 next : true,
-                uiType : "ui/thing/support/media_download/step1_pickname",
+                uiType : "ui/thing3/wiz/media_download/step1_pickname",
                 uiConf : opt
             };
             // Step2:导出进度
             steps["step2"] = {
-                text : "i18n:thing.data.down_gen_zip",
+                text : "i18n:th3.data.down_gen_zip",
                 prev : false,
                 next : false,
-                uiType : "ui/thing/support/media_download/step2_gen_zip",
+                uiType : "ui/thing3/wiz/media_download/step2_gen_zip",
                 uiConf : opt
             };
             // Step3: 导出完成
             steps["step3"] = {
-                text : "i18n:thing.data.down_show_down",
+                text : "i18n:th3.data.down_show_down",
                 done : function(){
                     $z.invoke(opt, "done");
                 },
-                uiType : "ui/thing/support/media_download/step3_show_down",
+                uiType : "ui/thing3/wiz/media_download/step3_show_down",
             },
     
             /*

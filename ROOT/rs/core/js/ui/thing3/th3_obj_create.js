@@ -19,8 +19,8 @@ var html = function(){/*
 //==============================================
 return ZUI.def("ui.thing.th_obj_create", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
-    css  : "ui/thing/theme/thing-{{theme}}.css",
-    i18n : "ui/thing/i18n/{{lang}}.js",
+    css  : "ui/thing3/theme/th3-{{theme}}.css",
+    i18n : "ui/thing3/i18n/{{lang}}.js",
     //..............................................
     init : function(opt){
         var UI = ThMethods(this);

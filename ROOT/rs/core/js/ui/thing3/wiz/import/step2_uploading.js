@@ -5,7 +5,7 @@ $z.declare([
 ], function(ZUI, Wn){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-import-2-uploading" ui-fitparent="yes">
+<div class="ui-arena th3-import-2-uploading" ui-fitparent="yes">
     <h4>
         <i class="zmdi zmdi-cloud-upload"></i>
         {{th3.import.up_title}}<code></code>
@@ -18,7 +18,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thi_2_uploading", {
+return ZUI.def("app.wn.th3_i_2_uploading", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     dredraw : function() {

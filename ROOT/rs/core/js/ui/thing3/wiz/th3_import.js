@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, WizardUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th3-import th-wizard"
+<div class="ui-arena th3-import th3-wizard"
     ui-fitparent="true"
     ui-gasket="wizard"></div>
 */};

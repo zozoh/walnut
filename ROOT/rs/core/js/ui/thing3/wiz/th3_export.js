@@ -7,7 +7,7 @@ $z.declare([
 ], function(ZUI, Wn, ThMethods, WizardUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th3-export th-wizard"
+<div class="ui-arena th3-export th3-wizard"
     ui-fitparent="true"
     ui-gasket="wizard"></div>
 */};

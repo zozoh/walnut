@@ -6,7 +6,7 @@ $z.declare([
 ], function(ZUI, Wn, POP){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-import-4-done" ui-fitparent="yes">
+<div class="ui-arena th3-wiz-done" ui-fitparent="yes">
     <header>
         <i class="zmdi zmdi-check-circle"></i>
     </header>
@@ -15,7 +15,7 @@ var html = function(){/*
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thi_4_done", {
+return ZUI.def("app.wn.th3_i_4_done", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     events : {

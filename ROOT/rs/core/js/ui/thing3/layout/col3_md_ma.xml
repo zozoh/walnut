@@ -44,6 +44,34 @@
                         }]
                     }]]></action>
                 </tab>
+                <tab name="attachment">
+                    <text>i18n:th3.key.attachment</text>
+                    <action><![CDATA[{
+                        setup : [{
+                            icon : '<i class="zmdi zmdi-refresh"></i>',
+                            tip : 'i18n:refresh',
+                            asyncIcon : '<i class="zmdi zmdi-refresh zmdi-hc-spin"></i>',
+                            asyncFireEvent : 'attachment:refresh'
+                        },{
+                            icon : '<i class="zmdi zmdi-more-vert"></i>',
+                            items : [{
+                                    icon : '<i class="fa fa-trash"></i>',
+                                    text : 'i18n:th3.data.remove',
+                                    asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
+                                    asyncFireEvent : 'attachment:remove'
+                                }, {
+                                }, {
+                                    icon : '<i class="zmdi zmdi-upload"></i>',
+                                    text : 'i18n:th3.data.upload',
+                                    fireEvent : 'attachment:upload'
+                                }, {
+                                    icon : '<i class="zmdi zmdi-cloud-download"></i>',
+                                    text : 'i18n:th3.data.download',
+                                    fireEvent : 'attachment:download'
+                                }]
+                        }]
+                    }]]></action>
+                </tab>
             </tabs>
         </col>
         <bar/>

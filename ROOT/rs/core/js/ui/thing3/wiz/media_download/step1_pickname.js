@@ -6,11 +6,11 @@
     ], function(ZUI, Wn, FormUI){
     //==============================================
     var html = function(){/*
-    <div class="ui-arena th-media-down-1-pickname" ui-fitparent="yes" ui-gasket="form">
+    <div class="ui-arena th3-media-down-1-pickname" ui-fitparent="yes" ui-gasket="form">
     </div>
     */};
     //==============================================
-    return ZUI.def("app.wn.thmd_1_pickname", {
+    return ZUI.def("app.wn.th3_md_1_pickname", {
         dom  : $z.getFuncBodyAsStr(html.toString()),
         //...............................................................
         redraw : function() {
@@ -28,14 +28,14 @@
                 mergeData : false,
                 fields : [{
                         key : "fileName",
-                        title : "i18n:thing.data.down_nm",
+                        title : "i18n:th3.data.down_nm",
                         type   : "string",
                         dft    : dftDownNm,
                         uiType : "@input"
                     }, {
                         key : "audoDownload",
-                        title : "i18n:thing.export.audoDownload",
-                        tip   : "i18n:thing.conf.export.audoDownload_tip",
+                        title : "i18n:th3.export.audoDownload",
+                        tip   : "i18n:th3.conf.export.audoDownload_tip",
                         type  : "boolean",
                         dft   : true,
                         uiWidth : "auto",

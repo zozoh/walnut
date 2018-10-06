@@ -6,10 +6,10 @@
     ], function(ZUI, Wn, POP){
     //==============================================
     var html = function(){/*
-    <div class="ui-arena th-export-3-done" ui-fitparent="yes">
+    <div class="ui-arena th3-wiz-done" ui-fitparent="yes">
         <header>
             <i class="far fa-check-circle"></i>
-            <span>{{thing.export.done}}</span>
+            <span>{{th3.export.done}}</span>
         </header>
         <section>
             <a href="#">
@@ -21,7 +21,7 @@
     </div>
     */};
     //==============================================
-    return ZUI.def("app.wn.thmd_3_show_done", {
+    return ZUI.def("app.wn.th3_md_3_show_done", {
         dom  : $z.getFuncBodyAsStr(html.toString()),
         //...............................................................
         events : {
@@ -42,7 +42,7 @@
             //console.log(data)
             // 显示日志
             if(data.exportLog && data.exportLog.length > 0) {
-                $('<a>').text(UI.msg("thing.export.viewlog"))
+                $('<a>').text(UI.msg("th3.export.viewlog"))
                     .appendTo(UI.arena.find('footer'));
             }
             // 显示下载文件

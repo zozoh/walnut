@@ -6,12 +6,12 @@ $z.declare([
 ], function(ZUI, Wn, CmdLogUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-import-2-export"    
+<div class="ui-arena th3-export-2-export"
     ui-fitparent="yes"
     ui-gasket="log"></div>
 */};
 //==============================================
-return ZUI.def("app.wn.the_2_export", {
+return ZUI.def("app.wn.th3_e_2_export", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function(){

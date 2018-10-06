@@ -6,12 +6,12 @@
     ], function(ZUI, Wn, CmdLogUI){
     //==============================================
     var html = function(){/*
-    <div class="ui-arena th-media-down-2-gen-zip"    
+    <div class="ui-arena th3-media-down-2-gen-zip"    
         ui-fitparent="yes"
         ui-gasket="log"></div>
     */};
     //==============================================
-    return ZUI.def("app.wn.thmd_2_gen_zip", {
+    return ZUI.def("app.wn.th3_md_2_gen_zip", {
         dom  : $z.getFuncBodyAsStr(html.toString()),
         //...............................................................
         redraw : function(){
@@ -22,7 +22,7 @@
             new CmdLogUI({
                 parent : UI,
                 gasketName : "log",
-                welcome : 'i18n:thing.data.down_begin',
+                welcome : 'i18n:th3.data.down_begin',
                 // 偷偷记录一下日志给 done 用
                 formatMessage : function(str) {
                     UI.__log_list.push(str);

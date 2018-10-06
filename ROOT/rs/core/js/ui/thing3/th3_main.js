@@ -147,7 +147,7 @@ return ZUI.def("ui.th3.main", {
             width  : 640,
             height : 480,
             closer : true,
-            arenaClass : "th-wizard-mask",
+            arenaClass : "th3-wizard-mask",
             setup : {
                 uiType : "ui/thing3/wiz/th3_import",
                 uiConf : {
@@ -182,7 +182,7 @@ return ZUI.def("ui.th3.main", {
             width  : 640,
             height : 480,
             closer : true,
-            arenaClass : "th-wizard-mask",
+            arenaClass : "th3-wizard-mask",
             setup : {
                 uiType : "ui/thing3/wiz/th3_export",
                 uiConf : {

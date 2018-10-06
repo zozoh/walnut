@@ -6,11 +6,11 @@ $z.declare([
 ], function(ZUI, Wn, FormUI){
 //==============================================
 var html = function(){/*
-<div class="ui-arena th-import-0-fixed-form" ui-fitparent="yes" ui-gasket="form">
+<div class="ui-arena th3-import-0-fixed-form" ui-fitparent="yes" ui-gasket="form">
 </div>
 */};
 //==============================================
-return ZUI.def("app.wn.thi_0_fixed_form", {
+return ZUI.def("app.wn.th3_i_0_fixed_form", {
     dom  : $z.getFuncBodyAsStr(html.toString()),
     //...............................................................
     redraw : function() {

@@ -7,7 +7,8 @@ $z.declare([
     'ui/support/dom',
     'ui/o_view_obj/o_view_preview',
     'ui/otiles/otiles',
-], function(ZUI, Wn, DomUI, ThMethods, DomUI, OPreviewUI, OTilesUI){
+    'ui/pop/pop'
+], function(ZUI, Wn, DomUI, ThMethods, DomUI, OPreviewUI, OTilesUI, POP){
 //==============================================
 var html = function(){/*
 <div class="ui-arena th3-media" ui-fitparent="true">
@@ -40,6 +41,7 @@ return ZUI.def("ui.th3.media", {
         UI.listenBus(mode+":refresh", UI.on_refresh);
         UI.listenBus(mode+":remove", UI.on_remove);
         UI.listenBus(mode+":upload", UI.on_upload);
+        UI.listenBus(mode+":download", UI.on_download);
     },
     //..............................................
     events : {
@@ -179,6 +181,37 @@ return ZUI.def("ui.th3.media", {
         if(_.isArray(data) && data.length > 0)
             callback = data[0];
         this.refresh(callback);
+    },
+    //..............................................
+    on_download : function(eo) {
+        var UI = this;
+        var opt  = UI.options;
+        var man  = UI.getMainData();
+        var conf  = man.conf;
+        var oHome = man.home;
+        var mode  = opt.folderName;
+        
+        POP.openUIPanel({
+            title  : "i18n:th3.data.download",
+            width  : 640,
+            height : 480,
+            closer : true,
+            arenaClass : "th3-wizard-mask",
+            setup : {
+                uiType : "ui/thing3/wiz/th3_media_download",
+                uiConf : {
+                    oT  : UI.__OBJ,
+                    dirName : mode,
+                    oMediaList : UI.gasket.list.getChecked(),
+                    // 完成就关闭窗口
+                    done : function() {
+                        this.parent.close();
+                    }
+                }
+            },
+            btnOk : null,
+            btnCancel : null,
+        }, UI);
     },
     //..............................................
     on_upload : function(eo) {
