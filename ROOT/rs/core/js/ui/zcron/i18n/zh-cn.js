@@ -16,6 +16,8 @@ define({
         "adv_invalid": "您的表达式格式错误",
         "adv_tip"    : '这里你可以自由的输入你的 Quartz 表达式， 关于 Quartz 表达式的语法'
                        + '请参见 <a target="_blank" href="http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger">官方语法说明</a>',
+        "tps_add" : "添加时间点",
+        "tps_empty" : "没有指定时间点",
         "exp" : {
             "start" : "从?开始",
             "to" : "至",

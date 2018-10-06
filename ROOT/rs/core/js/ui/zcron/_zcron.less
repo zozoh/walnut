@@ -165,11 +165,40 @@
 // 时间点编辑视图
 .zcr-tps {
     padding:@d2;
-    .com-array-grp {
+    /*.com-array-grp {
         ul{
             width:100%;
             @flex(); justify-content:center; flex-wrap: wrap;
             li {padding:1px @d2;}
+        }
+    }*/
+    .zcr-tps-empty {
+        padding:@d3; text-align:center; color:@c2;
+    }
+    > section {
+        > ul {
+            @flex(); padding:@d2; border-bottom:1px dashed @cborder0;
+            &:last-child {border:0;}
+            &:hover {background: rgba(255,255,0,0.05);}
+            > .tps-time {flex:1 1 auto;}
+            > .tps-del {
+                flex:0 0 auto;
+                @flex(); justify-content: center; align-items: center;
+                a {
+                    cursor:pointer; color:@c2;
+                    &:hover {
+                        color:@c6;
+                    }
+                }
+            }
+        }
+    }
+    > footer {
+        border-top:1px solid @cborder1;
+        text-align: center; padding:@d1;
+        a {
+            cursor:pointer;
+            i {margin-right:@d3;}
         }
     }
 }

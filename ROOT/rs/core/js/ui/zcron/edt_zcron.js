@@ -166,7 +166,7 @@ return ZUI.def("ui.zcron", {
         new TabsUI({
             parent : UI,
             gasketName : "time",
-            defaultKey : "tmrg",
+            defaultKey : opt.timeBy[0],
             setup : timeSetup,
             on_changeUI : function(key, subUI) {
                 var ozc = UI._get_data();

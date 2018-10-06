@@ -8,11 +8,11 @@ $z.declare([
 var html = `<div class="ui-arena com-date-range com-range">
     <section>
         <dl class="rv-left">
-            <dt><em>{{com.range.left}}</em><b>{{clear}}</b></dt>
+            <dt><em>{{com.range.l_date}}</em><b>{{clear}}</b></dt>
             <dd></dd>
         </dl>
         <dl class="rv-right">
-            <dt><em>{{com.range.right}}</em><b>{{clear}}</b></dt>
+            <dt><em>{{com.range.r_date}}</em><b>{{clear}}</b></dt>
             <dd></dd>
         </dl>
     </section>

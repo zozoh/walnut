@@ -18,6 +18,8 @@ define({
             "right" : "最大值",
             "empty" : "未设置范围",
             "number" : "输入数字",
+            "l_date" : "开始日期",
+            "r_date" : "结束日期"
         },
         "checklist" : {
             "all"     : "全",
@@ -72,6 +74,11 @@ define({
             "invalidTarget"  : "错误的上传目标或者上传目标不存在",
             "noFile" : "您必须选择一张图片!",
             "invalideFile" : "错误的图片类型!!"
+        },
+        "time" : {
+            'hour'   : '时',
+            'minute' : '分',
+            'second' : '秒'
         }
     }
 });

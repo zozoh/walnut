@@ -2976,6 +2976,8 @@
         //.............................................
         // 解析时间字符串（替代 parseTime)
         parseTimeInfo: function (input, dft) {
+            if(_.isNull(input) || _.isUndefined(input))
+                return null;
             var _pad = function (v, width) {
                 width = width || 2;
                 if (3 == width) {

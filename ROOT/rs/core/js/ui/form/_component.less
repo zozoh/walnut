@@ -15,6 +15,30 @@
         text-align: center;
     }
 }
+
+//----------------------------------------------------------------
+// 时间编辑
+.com-time {
+    ul {
+        @flex();
+        li > b {
+            display:inline-block; content:":";
+            padding:0 @d2; color:@c2; font-weight:bold;
+        }
+        li.ct-clean {
+            padding:@d1 @d2;
+            a {
+                cursor:pointer; font-size:@f1;
+            }
+        }
+        input {
+            @input(); width:@f3*3;
+            font-size:@f2; padding:@d2;
+        }
+        input:focus {@input_focus();}
+    }
+}
+
 //----------------------------------------------------------------
 // 标签
 .com-label {
@@ -136,7 +160,7 @@
     }
     > .ass { @noselect();
         display: block; border-radius: 0 @d1 @d1 0;
-        @flex(); justiy-content:center; align-items:center;
+        @flex(); justify-content: center; align-items: center;
         i {font-size:@f2;}
         b {
             font-weight: normal; font-size: @f1;
@@ -151,10 +175,21 @@
         background: rgba(0,0,0,0); z-index:10;
     }
     > .ass-box {
-        z-index: 12; background: @cmenu_b; color:@cmenu_f; 
+        z-index: 12; background: @cb0;  color:@cf0;
         border:1px solid @cborder1; box-shadow: 4px 4px 6px @cshadow;
         padding:@d4; border-radius:@d2;
         overflow: auto;
+        > .ass-box-action {
+            border-top:1px solid @cborder1;
+            ul {
+                @flex(); justify-content: center; align-items: center;
+                padding:@d2;
+                li a {
+                    @btn();
+                    &:hover{@btn_hover();}
+                }
+            }
+        }
     }
 }
 //----------------------------------------------------------------
