@@ -25,8 +25,8 @@
         [-tree {...}]
         [-treeBy {..}]
         [-treeDepth 1]
-        [-ancestor noself|noroot|nodes]
-        [-ancestorUntil {..}]
+        [-an noself|noroot|nodes]
+        [-anuntil {..}]
         [-hide]
     
     -new    创建一个新的对象，内容是一个 JSON 字段，可以不用 "{}" 包裹，其中:
@@ -66,7 +66,7 @@
                  - noroot 则表示返回: [节点1] [节点2] [自己]
                  - nodes  则表示返回: [节点1] [节点2]
                  - full   则表示返回: [根] [节点1] [节点2] [自己]
-                默认为 noself
+                                                默认为 noself
     -anuntil    值为一个 Map，表示符合这个条件的节点就是根了。否则会一直寻找到 /xxx 目录
     
     

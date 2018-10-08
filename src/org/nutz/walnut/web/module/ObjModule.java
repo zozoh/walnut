@@ -44,6 +44,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.filter.WnSetSecurity;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnImageView;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -54,7 +55,7 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @IocBean
-@Filters(@By(type = WnCheckSession.class))
+@Filters({@By(type = WnCheckSession.class), @By(type = WnSetSecurity.class)})
 @At("/o")
 @Ok("ajax")
 @Fail("ajax")
