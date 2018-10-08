@@ -111,11 +111,7 @@ public class HttpApiModule extends AbstractWnModule {
             });
 
             // 生成请求对象
-            WnObj oReq = __gen_req_obj(req, u, oApi, oTmp);
-
-            // 记录老的Session对象信息
-            if (null != oldSe)
-                oReq.setv("se", oldSe.toMapForClient());
+            WnObj oReq = __gen_req_obj(req, u, oApi, oTmp, oldSe);
 
             // 执行 API 文件
             try {
@@ -273,7 +269,11 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
-    private WnObj __gen_req_obj(HttpServletRequest req, WnUsr u, WnObj oApi, final WnObj oTmp)
+    private WnObj __gen_req_obj(HttpServletRequest req,
+                                WnUsr u,
+                                WnObj oApi,
+                                final WnObj oTmp,
+                                WnSession oldSe)
             throws UnsupportedEncodingException, IOException {
         // 创建临时文件以便保存请求的内容
         WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
@@ -285,8 +285,18 @@ public class HttpApiModule extends AbstractWnModule {
         NutMap map = new NutMap();
 
         // 保存 http 参数
-        map.setv("http-usr", u.name()).setv("http-api", oApi.name());
+        map.setv("http-usr", u.name());
+        map.setv("http-api", oApi.name());
 
+        // 记录老的Session对象信息
+        if (null != oldSe) {
+            map.setv("http-se-id", oldSe.id());
+            map.setv("http-se-usr", oldSe.me());
+            map.setv("http-se-grp", oldSe.group());
+            map.setv("http-se-obj", oldSe.toMapForClient());
+        }
+
+        // 记录请求信息的其他数据
         map.setv("http-protocol", req.getProtocol().toUpperCase());
         map.setv("http-method", req.getMethod().toUpperCase());
         map.setv("http-uri", req.getRequestURI());
@@ -298,6 +308,9 @@ public class HttpApiModule extends AbstractWnModule {
         // 更新路径参数
         map.setv("args", oApi.get("args"));
         map.setv("params", oApi.get("params"));
+
+        // 将请求的对象设置一下清除标志（缓存 30 分钟)
+        map.setv("expi", System.currentTimeMillis() + 1800000L);
 
         // 保存 QueryString，同时，看看有没必要更改 mime-type
         String qs = req.getQueryString();
@@ -348,8 +361,8 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 将请求的对象设置一下清除标志（缓存 30 分钟)
-        oReq.expireTime(System.currentTimeMillis() + 1800000L);
-        io.set(oReq, "^expi$");
+        // oReq.expireTime(System.currentTimeMillis() + 1800000L);
+        // io.set(oReq, "^expi$");
         return oReq;
     }
 
