@@ -182,7 +182,7 @@ module.exports = {
         form        : {..}          // 表单配置项
         data        : 要编辑的值
         after       : 回调函数, 设置完数据会调用 {uiForm}after(data)
-        callback    : 回调函数, 按确认键 {uiForm}callback(data)
+        callback    : 回调函数, 按确认键 {uiForm,jBtn,uiMask}callback(data)
         autoClose   : true, 调用回调函数前是否自动关闭对话框，默认 true
         context     : MaskUI    // 回调的上下文，默认是 FormUI
         errMsg : {

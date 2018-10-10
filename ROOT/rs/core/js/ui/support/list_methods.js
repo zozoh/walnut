@@ -283,6 +283,9 @@ var methods = {
         }
         // 调用子类方法
         $z.invoke(UI, "__after_actived", [o, jItem, prevObj, jPreItem]);
+
+        // 返回激活的项目
+        return jItem;
     },
     //...............................................................
     setBlur : function(arg) {
