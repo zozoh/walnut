@@ -36,6 +36,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     public int powerQuantity; // 单位0.01%
     public long timestamp;
     public Date recDate;
+    public Date gpsDate;
     
     private static Mirror<Mt90Raw> mirror = Mirror.me(Mt90Raw.class);
     private static Field[] fields = Mt90Raw.class.getDeclaredFields();
@@ -60,6 +61,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
         if (!Strings.isBlank(raw.localtime)) {
             try {
                 raw.timestamp = new SimpleDateFormat("yyyyMMddHHmmss", Locale.UK).parse("20"+raw.localtime).getTime();
+                raw.gpsDate = new Date(raw.timestamp+8*3600*1000);
             }
             catch (ParseException e) {
             }

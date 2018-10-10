@@ -8,7 +8,7 @@ public class KmlPlacemark {
 
     @XmlAttr("id")
     public String id;
-    @XmlEle(simpleNode=true, value="Name")
+    @XmlEle(simpleNode=true, value="name")
     public String name;
     @XmlEle(simpleNode=true)
     public String description;
