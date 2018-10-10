@@ -22,6 +22,8 @@ import org.nutz.walnut.ext.kml.bean.KmlFile;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemarkLineString;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemarkPoint;
+import org.nutz.walnut.ext.kml.bean.KmlStyle;
+import org.nutz.walnut.ext.kml.bean.KmlStyleLineStyle;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
 import org.nutz.walnut.ext.wooz.WoozRoute;
 import org.nutz.walnut.ext.wooz.WoozTools;
@@ -32,7 +34,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple)$")
+@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple|lineOnly)$")
 public class mt90_parse implements JvmHdl {
 
     @Override
@@ -52,6 +54,7 @@ public class mt90_parse implements JvmHdl {
         boolean simple = hc.params.is("simple");
         int speed = hc.params.getInt("speed", 300);
         String name = hc.params.get("name");
+        boolean lineOnly = hc.params.is("lineOnly");
         while (true) {
             String line = br.readLine();
             if (line == null)
@@ -69,7 +72,7 @@ public class mt90_parse implements JvmHdl {
                 if (raw.timestamp < begin || raw.timestamp > end) {
                     continue;
                 }
-                System.out.println("" + raw.timestamp + "," + begin);
+                //System.out.println("" + raw.timestamp + "," + begin);
                 // 是否超过正常速度
                 if (raw.speed > speed) {
                     continue;
@@ -121,10 +124,22 @@ public class mt90_parse implements JvmHdl {
             kml.document = new KmlDocument();
             kml.document.name = name;
             kml.document.open = "1";
+            // 添加默认样式
+            kml.document.styles = new ArrayList<>();
+            KmlStyle yellowLineGreenPoly = new KmlStyle();
+            yellowLineGreenPoly.id = "yellowLineGreenPoly";
+            yellowLineGreenPoly.lineStyle = new KmlStyleLineStyle();
+            yellowLineGreenPoly.lineStyle.width = "4";
+            yellowLineGreenPoly.lineStyle.color = "7f00ffff";
+            kml.document.styles.add(yellowLineGreenPoly);
+            // 添加轨迹线和轨迹点
             kml.document.placemarks = new ArrayList<>(list.size()+10);
             KmlPlacemark first = new KmlPlacemark();
             first.name = "Line";
             first.lineString = new KmlPlacemarkLineString();
+            first.lineString.tessellate = "1";
+            first.lineString.altitudeMode = "relativeToGround";
+            first.styleUrl = "#yellowLineGreenPoly";
             StringBuilder coordinates = new StringBuilder();
             kml.document.placemarks.add(first);
             for (Mt90Raw raw : list) {
@@ -133,8 +148,9 @@ public class mt90_parse implements JvmHdl {
                 placemark.name = String.format("%dkm/h %s", raw.speed, Times.sDT(new Date(raw.timestamp)));
                 //<coordinates>116.287656,39.894523,0</coordinates>
                 placemark.point.coordinates = String.format("%s,%s,%s", raw.lng, raw.lat, raw.ele);
-                kml.document.placemarks.add(placemark);
-                coordinates.append(placemark.point.coordinates).append("        \r\n");
+                if (!lineOnly)
+                    kml.document.placemarks.add(placemark);
+                coordinates.append(placemark.point.coordinates).append("\r\n");
             }
             first.lineString.coordinates = coordinates.toString();
             String str = XmlBind.toXml(kml, "kml");
