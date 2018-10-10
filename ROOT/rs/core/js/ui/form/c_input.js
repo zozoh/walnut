@@ -215,13 +215,16 @@ return ZUI.def("ui.form_com_input", {
                             ? "" : UI._assist.padding
         }).appendTo(UI.arena);
         var jAssMain = $('<div class="ass-box-main">').appendTo(jAssBox);
-        var jAssBtn = $(UI.compactHTML(`
-            <div class="ass-box-action">
-                <ul>
-                    <li><a>{{ok}}</a></li>
-                </ul>
-            </div>
-        `)).appendTo(jAssBox);
+
+        if(opt.assist.showAction) {
+            var jAssBtn = $(UI.compactHTML(`
+                <div class="ass-box-action">
+                    <ul>
+                        <li><a>{{ok}}</a></li>
+                    </ul>
+                </div>
+            `)).appendTo(jAssBox);
+        }
 
         // 加载辅助弹出控件
         seajs.use(uiType, function(AssUI){

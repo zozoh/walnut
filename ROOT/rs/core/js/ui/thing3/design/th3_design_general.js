@@ -193,6 +193,7 @@ return ZUI.def("ui.th3.thdesign_general", {
         var UI = this;
         
         var formData = UI.gasket.form.getData();
+        console.log(formData)
 
         return _.extend({}, formData, UI.__MORE);
     },
@@ -204,7 +205,10 @@ return ZUI.def("ui.th3.thdesign_general", {
 
         // 记录一下 more value
         UI.__MORE = $z.pick(thConf, /^(uniqueKeys|lnKeys|search(.+))$/);
-        console.log("haha", UI.__MORE)
+        if(UI.__MORE.searchMenuFltWidthHint) {
+            delete UI.__MORE.searchMenuFltWidthHint;
+        }
+        //console.log("haha", UI.__MORE)
 
         // 确保是对象
         if(_.isString(thConf))

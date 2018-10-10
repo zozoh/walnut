@@ -145,7 +145,7 @@ __format_field : function(UI, fld) {
     else if(_.isArray(fld.fields)){
         for(var i=0; i<fld.fields.length; i++){
             var subFld = fld.fields[i];
-            __format_theConf_field(subFld);
+            this.__format_field(UI, subFld);
         }
     }
 
@@ -401,11 +401,10 @@ evalConf : function(UI, conf, opt, home) {
     // ----------------- searchMenu
     conf.searchMenu = opt.searchMenu 
                         || conf.searchMenu 
-                        || ["@import","@export", {
+                        || ["@create","@refresh","@remove", {
                             icon  : '<i class="zmdi zmdi-more-vert"></i>',
                             items : ["@import","@export",
                                     "|","@cleanup", "@restore",
-                                    "|","@create","@refresh","@remove",
                                     "|","@config"]
                         }];
 

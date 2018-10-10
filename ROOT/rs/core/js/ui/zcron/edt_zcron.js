@@ -61,6 +61,7 @@ return ZUI.def("ui.zcron", {
             parent : UI,
             gasketName : "drange",
             assist : {
+                showAction : true,
                 icon   : '<i class="zmdi zmdi-calendar"></i>',
                 uiType : 'ui/form/c_date_range',
             },

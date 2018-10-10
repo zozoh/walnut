@@ -297,9 +297,18 @@ return ZUI.def("ui.th3.thdesign_fields", {
                 },
             }
         }, {
+            key    : "required",
+            title  : "i18n:th3.conf.key.required",
+            tip    : "i18n:th3.conf.key.required_tip",
+            type   : "boolean",
+            uiWidth : "auto",
+            editAs : "toggle"
+        }, {
             key    : "hide",
             title  : "i18n:th3.conf.key.hide",
+            tip    : "i18n:th3.conf.key.hide_tip",
             type   : "boolean",
+            uiWidth : "auto",
             editAs : "toggle"
         }, {
             key    : "editAs",

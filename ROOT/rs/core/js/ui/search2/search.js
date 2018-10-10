@@ -411,14 +411,15 @@ return ZUI.def("ui.search2", {
         if(jMenu.attr("prime-width")) {
             var w_sky = jSky.width();
             var isNarrow = jMenu.attr("narrow-mode") ? true : false;
-            var w_menu   = jMenu.attr("prime-width") * 1;
-            var w_flt    = w_sky - w_menu;
+            //var w_menu   = jMenu.attr("prime-width") * 1;
+            var w_kwd    = jSky.find(".flt-keyword").width();
             
             // 得到 filter 宽度的参考值
             var fltWidthHint = $z.dimension(opt.filterWidthHint || "50%", w_sky);
+            //console.log("w_kwd/fltWidthHint", w_kwd, fltWidthHint);
 
             // 改成窄模式
-            if(w_flt < fltWidthHint) {
+            if(w_kwd < fltWidthHint) {
                 if(!isNarrow) {
                     UI._draw_menu(true);
                 }
