@@ -67,7 +67,7 @@
                 // canvas转为blob
                 canvas.toBlob(function (blob) {
                     callback(blob)
-                }, file.type || 'image/png');
+                }, (conf.type ? conf.type : (file.type || 'image/jpeg')), conf.quality || 0.95);
             };
             reader.onload = function (e) {
                 img.src = e.target.result;
