@@ -1287,7 +1287,11 @@ define(function (require, exports, module) {
                 return;
             }
             try {
-                var reo = $z.fromJson(re);
+                var reo;
+                if(_.isString(re))
+                    reo = $z.fromJson(re);
+                else
+                    reo = re;
                 $z.doCallback(ok, [reo], UI);
             }
             // 出错了，还是要控制一下
