@@ -46,15 +46,16 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 @Filters(@By(type = WnAsUsr.class, args = {"guest", "guest"}))
 public class GuestModule extends AbstractWnModule {
 
-	@Inject
-	protected PropertiesProxy conf;
-	
-	protected boolean enableSecurity;
+    @Inject
+    protected PropertiesProxy conf;
+
+    protected boolean enableSecurity;
 
     @At("/**")
     @Fail("http:404")
     public View read(String str,
-                     @Param("down") boolean isDownload,
+                     @Param("d") boolean downloadMedia,
+                     @Param("fd") boolean forceDownload,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
                      @ReqHeader("Range") String range,
@@ -67,20 +68,20 @@ public class GuestModule extends AbstractWnModule {
         if (enableSecurity) {
             WnSecurity wns = Wn.WC().getSecurity();
             try {
-            	Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
-            	o = Wn.WC().whenRead(o, false);
+                Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
+                o = Wn.WC().whenRead(o, false);
             }
             finally {
-    			Wn.WC().setSecurity(wns);
-    		}
-        }
-        else {
+                Wn.WC().setSecurity(wns);
+            }
+        } else {
             o = Wn.WC().whenRead(o, false);
         }
-        
 
         // 特殊的类型，将不生成下载目标
-        ua = WnWeb.autoUserAgent(o, ua, isDownload);
+        if (!forceDownload) {
+            ua = WnWeb.autoUserAgent(o, ua, downloadMedia);
+        }
 
         // 返回下载视图
         return new WnObjDownloadView(io, o, ua, etag, range);
@@ -178,7 +179,7 @@ public class GuestModule extends AbstractWnModule {
     }
 
     public void setConf(PropertiesProxy conf) {
-		this.conf = conf;
-		this.enableSecurity = conf.getBoolean("gu-security", false);
-	}
+        this.conf = conf;
+        this.enableSecurity = conf.getBoolean("gu-security", false);
+    }
 }
