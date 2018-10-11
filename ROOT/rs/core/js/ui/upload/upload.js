@@ -17,7 +17,10 @@ define(function (require, exports, module) {
                 url += "aph=false&"
             }
         }
-        url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
+        // 原始版本
+        // url += "nm={{file.name}}&sz={{file.size}}&mime={{file.type}}";
+        // 支持压缩的版本
+        url += "nm={{fileInfo.name}}&sz={{fileInfo.size}}&mime={{fileInfo.type}}";
 
         if (!opt.replaceable)
             url += "&dupp=${major}(${nb})${suffix}";
@@ -199,10 +202,16 @@ define(function (require, exports, module) {
                 // 开始上传
                 jSingle.attr("ing", "yes");
 
+                var fileInfo = {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                };
                 $http.photoCompress(file, UI.uploadOption, function (cfile) {
                     $z.uploadFile({
                         url: gen_url(opt),
                         file: cfile,
+                        fileInfo: fileInfo,
                         progress: function (e) {
                             UI.updateProgress.call(UI, jSingle, e.loaded, e.total);
                         },
@@ -286,12 +295,18 @@ define(function (require, exports, module) {
                 }
                 jItem[0].scrollIntoView();
                 // 开始上传
-                
+
                 var file = jItem.data("FILE");
+                var fileInfo = {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                };
                 $http.photoCompress(file, UI.uploadOption, function (cfile) {
                     $z.uploadFile({
                         url: gen_url(opt),
                         file: cfile,
+                        fileInfo: fileInfo,
                         progress: function (e) {
                             UI.updateProgress.call(UI, jItem, e.loaded, e.total);
                         },
