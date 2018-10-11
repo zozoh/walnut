@@ -9,7 +9,7 @@
 
 		// 没有对象被选中
 		if (objs.length == 0) {
-			UI.alert(UI.msg("noselected"));
+			alert(UI.msg("noselected"));
 			return;
 		}
 
@@ -46,45 +46,58 @@
 				moveTo.filter = [];
 			}
 
-			seajs.use('ui/pop/pop_browser', function(PopUI) {
-				new PopUI({
-					base : moveTo.base || "~",
-					multi : false,
-					filter : function(o) {
-						// 必须是目录
-						if ('DIR' != o.race)
-							return false;
+			seajs.use('ui/pop/pop', function(POP) {
+				POP.browser({
+					title  : "i18n:moveTo",
+					width  : "73%",
+					height : "73%",
+					setup  : moveTo.base || "~",
+					setup  : {
+						multi  : false,
+						filter : function(o) {
+				            // 必须是目录
+				            if ('DIR' != o.race)
+				                return false;
 
-						// 不能是已选
-						if (ids.indexOf(o.id) >= 0)
-							return false;
+				            // 不能是已选
+				            if (ids.indexOf(o.id) >= 0)
+				                return false;
 
-						if (moveTo.filter.length > 0) {
-							var tp = Wn.objTypeName(o);
-							for (var i = 0; i < moveTo.filter.length; i++) {
-								if (!moveTo.filter[i].test(tp)) {
-									return false;
-								}
-							}
-						}
-						// 嗯通过
-						return true;
+				            if (moveTo.filter.length > 0) {
+				                var tp = Wn.objTypeName(o);
+				                for (var i = 0; i < moveTo.filter.length; i++) {
+				                    if (!moveTo.filter[i].test(tp)) {
+				                        return false;
+				                    }
+				                }
+				            }
+				            // 嗯通过
+				            return true;
+				        }
 					},
-					on_ok : function(oTa) {
-						//console.log("ta:", oTa)
-						// 组合命令
-						var cmdText = "";
-						for (var i = 0; i < ids.length; i++) {
-							cmdText += 'mv id:' + ids[i] + ' id:' + oTa[0].id + ";";
-						}
-						//console.log(cmdText);
-						// 执行
-						Wn.exec(cmdText, function() {
-							UI.browser().refresh();
-						});
-
+					ingOk : UI.compactHTML('<i class="fa fa-spinner fa-spin"></i> {{doing}}'),
+					ok : function(uiBrowser, jBtn, uiMask){
+						var objs = uiBrowser.getChecked();
+	                    if(objs.length == 0){
+	                        objs = [uiBrowser.getCurrentObj()];
+	                    }
+	                    var oTa = objs[0];
+	                    //console.log(oTa);
+	                    // 组合命令
+	                    var cmdText = "";
+	                    for (var i = 0; i < ids.length; i++) {
+	                        cmdText += 'mv id:' + ids[i] + ' id:' + oTa.id + ";";
+	                    }
+	                    //console.log(cmdText);
+	                    // 执行
+	                    Wn.exec(cmdText, function() {
+	                        UI.browser().refresh();
+	                        uiMask.close();
+	                    });
+	                    // 等候异步操作结束后才关闭
+	                    return false;
 					}
-				}).render();
+				}, UI);
 			});
 		});
 	}

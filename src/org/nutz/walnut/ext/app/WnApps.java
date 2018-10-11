@@ -125,6 +125,8 @@ public abstract class WnApps {
     public static WnObj checkFTypeObj(WnSystem sys, String type, List<WnObj> oUIHomes) {
         WnObj o = Wn.getObjIn(sys, "ftypes/" + type + ".js", oUIHomes);
         if (null == o)
+            o = Wn.getObjIn(sys, "ftypes/_unknown.js", oUIHomes);
+        if (null == o)
             throw Er.create("e.cmd.app.ftype.noexists", type);
         return o;
     }
