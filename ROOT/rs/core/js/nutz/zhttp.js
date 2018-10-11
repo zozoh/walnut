@@ -78,6 +78,8 @@
         }
     }
 
+    http.photoCompress = photoCompress;
+
     //================================================ ajax请求部分
 
     var _ajax, _ajaxDone, _ajaxFail, _ajaxErrorMsg;
