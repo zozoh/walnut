@@ -52,6 +52,7 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
 
         // 其他设置
         $z.setUndefined(opt, "escapeHtml", true);
+        $z.setUndefined(opt, "readonly", false);
 
         // 注册全局关闭
         UI.watchMouse("click", do_close_all);
@@ -61,8 +62,13 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     events : {
         // 显示下拉框
         "click .com-box" : function(e){
+            var UI  = this;
+            var opt = UI.options;
+            // 如果是只读，那么就无视
+            if(opt.readonly)
+                return;
+            // 停止冒泡
             e.stopPropagation();
-            var UI = this;
             // 隐藏: TODO 额，为啥有这个逻辑？
             if(UI.arena.attr("show")){
                 UI.arena.removeAttr("show");
@@ -162,6 +168,14 @@ return ZUI.def("ui.form_com_droplist", EnumListSupport({
     },
     //...............................................................
     _before_load : function() {
+        var UI  = this;
+        var opt = UI.options;
+
+        // 标记一下只读属性
+        if(opt.readonly) {
+            UI.arena.attr('readonly', "yes");
+        }
+
         // 标记单/多选形态
         this.arena.attr("multi", this.isMulti() ? "yes" : "no");
     },
