@@ -52,7 +52,7 @@ public class mt90_parse implements JvmHdl {
         BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
         boolean onlyGpsFixed = hc.params.is("gpsFixed");
-        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : 0;
+        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : -1;
         long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
         boolean simple = hc.params.is("simple");
         int speed = hc.params.getInt("speed", 300);
@@ -75,6 +75,10 @@ public class mt90_parse implements JvmHdl {
                 if (raw.timestamp < begin || raw.timestamp > end) {
                     Logs.get().info("过滤一条记录" + line);
                     continue;
+                }
+                if (begin == -1) {
+                    // 选择第一条记录的时间作为起点
+                    begin = raw.timestamp;
                 }
                 //System.out.println("" + raw.timestamp + "," + begin);
                 // 是否超过正常速度
@@ -160,36 +164,36 @@ public class mt90_parse implements JvmHdl {
             first.lineString.coordinates = coordinates.toString();
             */
             kml.document.folders = new ArrayList<>();
-            // 添加起点和终点
-            KmlFolder TbuluHisPointFolder = new KmlFolder();
-            TbuluHisPointFolder.id = "TbuluHisPointFolder";
-            TbuluHisPointFolder.name = "标注点";
-            // 起点
-            TbuluHisPointFolder.placemarks = new ArrayList<>();
-            {
-                Mt90Raw _start = list.get(0);
-                Mt90Raw _end = list.get(list.size() - 1);
-                KmlPlacemark startPoint = new KmlPlacemark();
-                startPoint.id = "startPoint";
-                startPoint.name = "起点";
-                startPoint.point = new KmlPlacemarkPoint();
-                startPoint.point.coordinates = String.format("%s,%s,%s", _start.lng, _start.lat, _start.ele);
-                startPoint.TimeStamp = new KmlTimeStamp();
-                startPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_start.timestamp));
-                //startPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _start.lng, _start.lat, _start.ele, _start.gpsDate);
-
-                KmlPlacemark endPoint = new KmlPlacemark();
-                endPoint.id = "endPoint";
-                endPoint.name = "终点";
-                endPoint.point = new KmlPlacemarkPoint();
-                endPoint.point.coordinates = String.format("%s,%s,%s", _end.lng, _end.lat, _end.ele);
-                endPoint.TimeStamp = new KmlTimeStamp();
-                endPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_end.timestamp));
-                //endPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _end.lng, _end.lat, _end.ele, _end.gpsDate);
-                TbuluHisPointFolder.placemarks.add(startPoint);
-                TbuluHisPointFolder.placemarks.add(endPoint);
-            }
-            kml.document.folders.add(TbuluHisPointFolder);
+//            // 添加起点和终点
+//            KmlFolder TbuluHisPointFolder = new KmlFolder();
+//            TbuluHisPointFolder.id = "TbuluHisPointFolder";
+//            TbuluHisPointFolder.name = "标注点";
+//            // 起点
+//            TbuluHisPointFolder.placemarks = new ArrayList<>();
+//            {
+//                Mt90Raw _start = list.get(0);
+//                Mt90Raw _end = list.get(list.size() - 1);
+//                KmlPlacemark startPoint = new KmlPlacemark();
+//                startPoint.id = "startPoint";
+//                startPoint.name = "起点";
+//                startPoint.point = new KmlPlacemarkPoint();
+//                startPoint.point.coordinates = String.format("%s,%s,%s", _start.lng, _start.lat, _start.ele);
+//                startPoint.TimeStamp = new KmlTimeStamp();
+//                startPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_start.timestamp));
+//                //startPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _start.lng, _start.lat, _start.ele, _start.gpsDate);
+//
+//                KmlPlacemark endPoint = new KmlPlacemark();
+//                endPoint.id = "endPoint";
+//                endPoint.name = "终点";
+//                endPoint.point = new KmlPlacemarkPoint();
+//                endPoint.point.coordinates = String.format("%s,%s,%s", _end.lng, _end.lat, _end.ele);
+//                endPoint.TimeStamp = new KmlTimeStamp();
+//                endPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_end.timestamp));
+//                //endPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _end.lng, _end.lat, _end.ele, _end.gpsDate);
+//                TbuluHisPointFolder.placemarks.add(startPoint);
+//                TbuluHisPointFolder.placemarks.add(endPoint);
+//            }
+//            kml.document.folders.add(TbuluHisPointFolder);
             // 添加轨迹
             KmlFolder TbuluTrackFolder = new KmlFolder();
             TbuluTrackFolder.id = "TbuluTrackFolder";
