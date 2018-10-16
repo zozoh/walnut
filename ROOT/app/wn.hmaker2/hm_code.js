@@ -84,6 +84,7 @@ return ZUI.def("app.wn.hmaker_text", {
                 "::hmaker/hm_delete",
                 "~",
                 "@::hmaker/pub_site",
+                "@::hmaker/pub_current_page",
                 "~",
                 "@::hmaker/hm_site_conf",
                 "~",
