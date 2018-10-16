@@ -236,6 +236,9 @@ public class hmaker_publish implements JvmHdl {
         if (oSrc.isFILE()) {
             String rph = hpc.getRelativePath(oSrc);
             String fnm = hpc.pageOutputNames.get(rph);
+            if (Strings.isBlank(fnm)) {
+                fnm = rph;
+            }
             page_rph = "/" + Files.renamePath(rph, fnm);
         }
 
