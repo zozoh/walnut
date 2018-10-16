@@ -307,8 +307,10 @@ public class ObjModule extends AbstractWnModule {
      * @param sha1
      *            SHA1 校验，可选。如果给定了值，如果对象的内容不符合这个指纹，则抛错
      * 
-     * @param isDownload
-     *            是否是下载模式，如果是下载，将提供 CONTENT_DISPOSITION 响应头 默认 false
+     * @param downloadMedia
+     *            媒体文件是否要下载，默认不下载
+     * @param forceDownload
+     *            是否是强制下载模式，如果是下载，将提供 CONTENT_DISPOSITION 响应头 默认 false
      * 
      * @param isAbsolutePath
      *            给的对象字符串是否是绝对路径，如果是，则必须确保 "/" 或者 "~" 开头
@@ -325,7 +327,8 @@ public class ObjModule extends AbstractWnModule {
     @Ok("void")
     public View read(String str,
                      @Param("sha1") String sha1,
-                     @Param("d") boolean isDownload,
+                     @Param("d") boolean downloadMedia,
+                     @Param("fd") boolean forceDownload,
                      @Param("aph") boolean isAbsolutePath,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
@@ -360,8 +363,11 @@ public class ObjModule extends AbstractWnModule {
         // return new HttpStatusView(400);
         // }
 
-        // 特殊的类型，将不生成下载目标
-        ua = WnWeb.autoUserAgent(o, ua, isDownload);
+        // 非强制下载，检查一下
+        if (!forceDownload) {
+            // 特殊的类型，将不生成下载目标
+            ua = WnWeb.autoUserAgent(o, ua, downloadMedia);
+        }
 
         // 返回下载视图
         return new WnObjDownloadView(io, o, ua, etag, range);

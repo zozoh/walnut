@@ -456,10 +456,15 @@
         min-width: 100px; width: 100%; border: 1px solid @cborder1;
         border-radius: @d1; position: relative; padding: 0 @cdlIW 0 @d1;
         background: @cb0; color: @cf0; overflow: hidden;
-        .com-box-drop {
-            position: absolute; top: 0; right: 0; bottom: 0;
-            width: @cdlIW; text-align: center;border-radius: 0 @d1 @d1 0;
-        }
+    }
+    .com-box-drop {
+        position: absolute; top: 0; right: 0; bottom: 0;
+        width: @cdlIW; text-align: center;border-radius: 0 @d1 @d1 0;
+    }
+    &[readonly] {
+        * {cursor: default;}
+        .com-box {padding-right:@d1;}
+        .com-box-drop {display:none;}
     }
     .com-mask {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
