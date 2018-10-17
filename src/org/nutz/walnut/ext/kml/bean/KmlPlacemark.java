@@ -22,4 +22,8 @@ public class KmlPlacemark {
     public KmlExtendedData extendedData;
     @XmlEle("gx:Track")
     public KmlGxTrack track;
+    @XmlEle("TimeStamp")
+    public KmlTimeStamp TimeStamp;
+    @XmlEle("MultiGeometry")
+    public KmlMultiGeometry MultiGeometry;
 }

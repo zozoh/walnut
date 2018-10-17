@@ -6,7 +6,7 @@ import org.nutz.plugins.xmlbind.annotation.XmlAttr;
 import org.nutz.plugins.xmlbind.annotation.XmlEle;
 
 @XmlEle("Folder")
-public class KmlFolder {
+public class KmlFolder2 {
 
     @XmlAttr
     public String id;
@@ -16,7 +16,4 @@ public class KmlFolder {
     
     @XmlEle("Placemark")
     public List<KmlPlacemark> placemarks;
-    
-    @XmlEle("Folder")
-    public List<KmlFolder2> folders;
 }

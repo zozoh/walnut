@@ -12,6 +12,7 @@ import java.util.Locale;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
+import org.nutz.log.Logs;
 import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.ext.gpx.bean.GpxFile;
 import org.nutz.walnut.ext.gpx.bean.GpxTrk;
@@ -19,11 +20,13 @@ import org.nutz.walnut.ext.gpx.bean.GpxTrkpt;
 import org.nutz.walnut.ext.gpx.bean.GpxTrkseg;
 import org.nutz.walnut.ext.kml.bean.KmlDocument;
 import org.nutz.walnut.ext.kml.bean.KmlFile;
+import org.nutz.walnut.ext.kml.bean.KmlFolder;
+import org.nutz.walnut.ext.kml.bean.KmlGxTrack;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
-import org.nutz.walnut.ext.kml.bean.KmlPlacemarkLineString;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemarkPoint;
 import org.nutz.walnut.ext.kml.bean.KmlStyle;
 import org.nutz.walnut.ext.kml.bean.KmlStyleLineStyle;
+import org.nutz.walnut.ext.kml.bean.KmlTimeStamp;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
 import org.nutz.walnut.ext.wooz.WoozRoute;
 import org.nutz.walnut.ext.wooz.WoozTools;
@@ -49,12 +52,12 @@ public class mt90_parse implements JvmHdl {
         BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
         boolean onlyGpsFixed = hc.params.is("gpsFixed");
-        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : 0;
+        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : -1;
         long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
         boolean simple = hc.params.is("simple");
         int speed = hc.params.getInt("speed", 300);
         String name = hc.params.get("name");
-        boolean lineOnly = hc.params.is("lineOnly");
+        //boolean lineOnly = hc.params.is("lineOnly");
         while (true) {
             String line = br.readLine();
             if (line == null)
@@ -70,7 +73,12 @@ public class mt90_parse implements JvmHdl {
                 }
                 // 超过设置的时间了吗?
                 if (raw.timestamp < begin || raw.timestamp > end) {
+                    Logs.get().info("过滤一条记录" + line);
                     continue;
+                }
+                if (begin == -1) {
+                    // 选择第一条记录的时间作为起点
+                    begin = raw.timestamp;
                 }
                 //System.out.println("" + raw.timestamp + "," + begin);
                 // 是否超过正常速度
@@ -133,6 +141,7 @@ public class mt90_parse implements JvmHdl {
             yellowLineGreenPoly.lineStyle.color = "7f00ffff";
             kml.document.styles.add(yellowLineGreenPoly);
             // 添加轨迹线和轨迹点
+            /*
             kml.document.placemarks = new ArrayList<>(list.size()+10);
             KmlPlacemark first = new KmlPlacemark();
             first.name = "Line";
@@ -153,6 +162,55 @@ public class mt90_parse implements JvmHdl {
                 coordinates.append(placemark.point.coordinates).append("\r\n");
             }
             first.lineString.coordinates = coordinates.toString();
+            */
+            kml.document.folders = new ArrayList<>();
+//            // 添加起点和终点
+//            KmlFolder TbuluHisPointFolder = new KmlFolder();
+//            TbuluHisPointFolder.id = "TbuluHisPointFolder";
+//            TbuluHisPointFolder.name = "标注点";
+//            // 起点
+//            TbuluHisPointFolder.placemarks = new ArrayList<>();
+//            {
+//                Mt90Raw _start = list.get(0);
+//                Mt90Raw _end = list.get(list.size() - 1);
+//                KmlPlacemark startPoint = new KmlPlacemark();
+//                startPoint.id = "startPoint";
+//                startPoint.name = "起点";
+//                startPoint.point = new KmlPlacemarkPoint();
+//                startPoint.point.coordinates = String.format("%s,%s,%s", _start.lng, _start.lat, _start.ele);
+//                startPoint.TimeStamp = new KmlTimeStamp();
+//                startPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_start.timestamp));
+//                //startPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _start.lng, _start.lat, _start.ele, _start.gpsDate);
+//
+//                KmlPlacemark endPoint = new KmlPlacemark();
+//                endPoint.id = "endPoint";
+//                endPoint.name = "终点";
+//                endPoint.point = new KmlPlacemarkPoint();
+//                endPoint.point.coordinates = String.format("%s,%s,%s", _end.lng, _end.lat, _end.ele);
+//                endPoint.TimeStamp = new KmlTimeStamp();
+//                endPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_end.timestamp));
+//                //endPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _end.lng, _end.lat, _end.ele, _end.gpsDate);
+//                TbuluHisPointFolder.placemarks.add(startPoint);
+//                TbuluHisPointFolder.placemarks.add(endPoint);
+//            }
+//            kml.document.folders.add(TbuluHisPointFolder);
+            // 添加轨迹
+            KmlFolder TbuluTrackFolder = new KmlFolder();
+            TbuluTrackFolder.id = "TbuluTrackFolder";
+            TbuluTrackFolder.name = "轨迹";
+            TbuluTrackFolder.placemarks = new ArrayList<>();
+            KmlPlacemark placemark = new KmlPlacemark();
+            placemark.name = "";
+            placemark.track = new KmlGxTrack();
+            placemark.track.coords = new ArrayList<>(list.size());
+            placemark.track.whens = new ArrayList<>(list.size());
+            for (Mt90Raw raw : list) {
+                String coord = String.format("%s %s %s", raw.lng, raw.lat, raw.ele);
+                placemark.track.coords.add(coord);
+                placemark.track.whens.add(Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(raw.timestamp)));
+            }
+            TbuluTrackFolder.placemarks.add(placemark);
+            kml.document.folders.add(TbuluTrackFolder);
             String str = XmlBind.toXml(kml, "kml");
             sys.out.print(str);
             return;

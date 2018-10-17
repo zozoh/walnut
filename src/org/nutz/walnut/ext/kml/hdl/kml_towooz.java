@@ -12,6 +12,7 @@ import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.ext.kml.bean.KmlFile;
 import org.nutz.walnut.ext.kml.bean.KmlFolder;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
+import org.nutz.walnut.ext.kml.bean.KmlPlacemarkLineString;
 import org.nutz.walnut.ext.wooz.WoozMap;
 import org.nutz.walnut.ext.wooz.WoozPoint;
 import org.nutz.walnut.ext.wooz.WoozRoute;
@@ -39,8 +40,8 @@ public class kml_towooz implements JvmHdl {
             return;
         String conv_from = hc.params.get("conv_from", "");
         String conv_to = hc.params.get("conv_to", "");
-        Set<String> pointsKeyworks = new HashSet<>(Arrays.asList(hc.params.get("points", "标注点").split(",")));
-        Set<String> routeKeyworks = new HashSet<>(Arrays.asList(hc.params.get("route", "导航线,轨迹").split(",")));
+        Set<String> pointsKeyworks = new HashSet<>(Arrays.asList(hc.params.get("points", "标注点,航点").split(",")));
+        Set<String> routeKeyworks = new HashSet<>(Arrays.asList(hc.params.get("route", "导航线,轨迹,航迹").split(",")));
         WoozMap wooz = new WoozMap();
         if (kml.document.folders != null) {
             for (KmlFolder folder : kml.document.folders) {
@@ -66,9 +67,19 @@ public class kml_towooz implements JvmHdl {
                 }
                 else if (routeKeyworks.contains(folder.name)) {
                     wooz.route = new ArrayList<>();
-                    KmlPlacemark placemark = folder.placemarks.get(0);
-                    if (placemark.lineString != null) {
-                        String[] tmp2 = folder.placemarks.get(0).lineString.coordinates.split(" ");
+                    List<KmlPlacemark> placemarks = folder.placemarks;
+                    if (placemarks == null) {
+                        if (folder.folders != null) {
+                            placemarks = folder.folders.get(0).placemarks;
+                        }
+                    }
+                    KmlPlacemark placemark = placemarks.get(0);
+                    KmlPlacemarkLineString lineString = placemark.lineString;
+                    if (lineString == null && placemark.MultiGeometry != null) {
+                        lineString = placemark.MultiGeometry.LineString;
+                    }
+                    if (lineString != null) {
+                        String[] tmp2 = lineString.coordinates.split(" ");
                         for (String coordinate : tmp2) {
                             if (Strings.isBlank(coordinate))
                                 continue;
