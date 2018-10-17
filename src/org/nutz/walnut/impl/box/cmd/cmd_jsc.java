@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.script.ScriptEngineFactory;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
@@ -115,6 +116,7 @@ public class cmd_jsc extends JvmExecutor {
 
         // 添加固定上下文变量
         vars.put("args", params.vals);
+        vars.put("_args_str", Json.toJson(params.vals));
         vars.put("log", log);
 
         // 默认加载的几个js
