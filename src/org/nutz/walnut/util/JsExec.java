@@ -66,12 +66,15 @@ public class JsExec {
 
         // 试图从缓存中获取引擎
         ScriptEngine engine = getEngine(engineName);
+        boolean groovyMode = "groovy".equals(engineName);
 
         // 准备运行，首先设置上下文
         Bindings bindings = engine.createBindings();
         // 全局变量
-        for (Entry<String, Object> en : globalVars.entrySet()) {
-            bindings.put(en.getKey(), en.getValue());
+        if (!groovyMode) {
+            for (Entry<String, Object> en : globalVars.entrySet()) {
+                bindings.put(en.getKey(), en.getValue());
+            }
         }
         // 变量
         if (vars != null) {
@@ -83,23 +86,9 @@ public class JsExec {
         bindings.put("sys", jsc);
 
         // 生成动态访问的 $wn
-        jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
+        if (!groovyMode)
+            jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
                 + jsStr;
-
-        // bindings.put("args", params.vals);
-        // bindings.put("log", log);
-        // bindings.put("walnut_js",
-        // "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js");
-        // bindings.put("lodash_js",
-        // "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.core.min.js");
-        // 默认加载的几个js
-        // TODO 需要测试加载默认js的时间，是否影响性能等问题
-        // String jsPreload = "";
-        // jsPreload += "load(walnut_js);\n";
-        // // jsPreload += "load(lodash_js);\n";
-        // if (!Strings.isBlank(jsPreload)) {
-        // jsStr = jsPreload + jsStr;
-        // }
 
         // 执行
         Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);
