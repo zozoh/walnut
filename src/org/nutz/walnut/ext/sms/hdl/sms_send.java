@@ -1,7 +1,12 @@
 package org.nutz.walnut.ext.sms.hdl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -97,11 +102,21 @@ public class sms_send implements JvmHdl {
         SmsSend s = new SmsSend();
         s.vars = vars;
         s.message = msg;
-        for (String mobile : Strings.splitIgnoreBlank(mobiles, ",")) {
+        String[] tmp = Strings.splitIgnoreBlank(mobiles, ",");
+        Map<String, Object> res = new HashMap<>();
+        for (String mobile : tmp) {
             s.receiver = mobile;
             String re = provider.send(conf, s);
-            sys.out.printf("{'%s': %s}\n", mobile, re);
+            if (re == null)
+                res.put(mobile, null);
+            try {
+                res.put(mobile, Json.fromJson(re));
+            }
+            catch (Throwable e) {
+                res.put(mobile, re);
+            }
         }
+        sys.out.writeJson(res, JsonFormat.full());
     }
 
 }
