@@ -4,7 +4,10 @@ public class WoozTools {
 
     public static double[] parse(String coordinate) {
         String[] tmp = coordinate.split(",");
-        return new double[] {Double.parseDouble(tmp[0]), Double.parseDouble(tmp[1]), Double.parseDouble(tmp[2])};
+        if (tmp.length == 3) {
+            return new double[] {Double.parseDouble(tmp[0]), Double.parseDouble(tmp[1]), Double.parseDouble(tmp[2])};
+        }
+        return new double[] {Double.parseDouble(tmp[0]), Double.parseDouble(tmp[1]), 0};
     }
     
     public static void convert(AbstraceWoozPoint point, String from, String to) {
