@@ -68,7 +68,12 @@ public class cmd_ajaxre extends JvmExecutor {
             // 成功
             else {
                 re.setOk(true);
-                re.setData(Json.fromJson(str));
+                try {
+                    re.setData(Json.fromJson(str));
+                }
+                catch (Throwable e) {
+                    re.setData(str);
+                }
             }
         }
 
