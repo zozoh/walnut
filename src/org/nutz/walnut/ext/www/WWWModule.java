@@ -368,9 +368,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 嗯，那么就创建一个用户咯
         if (null == oU) {
-            oU = ths.createThing(Lang.map("phone", phone)
-                                     .setv("aa", phone)
-                                     .setv("th_nm", "anonymous"));
+            oU = ths.createThing(Lang.map("phone", phone).setv("th_nm", "anonymous"));
             // 设置默认密码 123456
             // 根据 siteId 获取一下对应域名
             String domain = oWWW.d1();
@@ -452,10 +450,10 @@ public class WWWModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public NutBean u_modify_passwd(String wwwId,
-                                   @Param("a") String phone,
-                                   @Param("m") String meta,
-                                   HttpServletRequest req) {
+    public NutBean u_update_meta(String wwwId,
+                                 @Param("a") String phone,
+                                 @Param("m") String meta,
+                                 HttpServletRequest req) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
@@ -529,7 +527,7 @@ public class WWWModule extends AbstractWnModule {
         // 设置新密码
         String domain = oWWW.d1();
         exec("setpasswd", domain, "passwd -u id:" + oU.id() + " " + npasswd);
-        return null;
+        return oU.pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|passwd|salt|th_live|th_set.*|_.*)$");
     }
 
     /**
