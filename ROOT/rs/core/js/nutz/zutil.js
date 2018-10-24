@@ -2549,7 +2549,36 @@
             var func;
             // 自定义的 display 方法
             if (fld.display) {
-                func = _.isFunction(fld.display) ? fld.display : $z.tmpl(fld.display);
+                // 本身就是函数
+                if(_.isFunction(fld.display)){
+                    func = fld.display;
+                }
+                // 一个函数调用
+                else if(fld.display.method) {
+                    func = function(o) {
+                        //console.log(o, fld);
+                        var context = this;
+                        if(fld.display.context) {
+                            context = zUtil.getValue(context, fld.display.context, this);
+                        }
+                        var func = context[fld.display.method];
+                        if(_.isFunction(func)){
+                            return func.call(context, o);
+                        }
+                        else {
+                            console.warn('can not find method "'+fld.display.method+'"!');
+                            return "::" + fld.display.method + '(obj)';
+                        }
+                    }
+                }
+                // 本身是个模板
+                else if(_.isString(fld.display)) {
+                    func = $z.tmpl(fld.display);
+                }
+                // 靠那是什么鬼！！！
+                else {
+                    throw "Unsupport fld.display:: " + $z.toJson(fld);
+                }
             }
             // 同时有 text && icon
             else {
