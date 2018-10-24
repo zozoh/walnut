@@ -368,7 +368,9 @@ public class WWWModule extends AbstractWnModule {
 
         // 嗯，那么就创建一个用户咯
         if (null == oU) {
-            oU = ths.createThing(Lang.map("phone", phone).setv("th_nm", "anonymous"));
+            oU = ths.createThing(Lang.map("phone", phone)
+                                     .setv("aa", phone)
+                                     .setv("th_nm", "anonymous"));
             // 设置默认密码 123456
             // 根据 siteId 获取一下对应域名
             String domain = oWWW.d1();
@@ -444,6 +446,90 @@ public class WWWModule extends AbstractWnModule {
                                                            req);
             }
         });
+    }
+
+    @At("/u/update/meta/?")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public NutBean u_modify_passwd(String wwwId,
+                                   @Param("a") String phone,
+                                   @Param("m") String meta,
+                                   HttpServletRequest req) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+        // 采用 domain 用户的权限，执行会话的创建等逻辑
+        WnUsr me = usrs.check(domain);
+        return Wn.WC().su(me, new Proton<NutBean>() {
+            @Override
+            protected NutBean exec() {
+                return __do_modify_user_meta(phone, meta, oWWW);
+            }
+        });
+    }
+
+    private NutBean __do_modify_user_meta(String phone, String meta, WnObj oWWW) {
+        // 找到用户表，看看有没有这个用户
+        WnThingService ths = __gen_account_service(oWWW);
+        // 如果没有的话，不行啊，抛一个错
+        WnObj oU = __get_usr_by_phone(ths, phone);
+        if (null == oU) {
+            throw Er.create("e.www.login.account_noexists");
+        }
+        // 更新属性
+        NutMap umate = Lang.map(meta);
+        NutBean umateSafe = umate.pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|passwd|salt|th_live|th_set.*|_.*)$");
+        io.appendMeta(oU, umateSafe);
+        // 重新读一次
+        return __get_usr_by_phone(ths,
+                                  phone).pickBy("!^(id|race|tp|mime|pid|d0|d1|c|m|g|md|ph|passwd|salt|th_live|th_set.*|_.*)$");
+    }
+
+    @At("/u/modify/passwd/?")
+    @Ok("ajax")
+    @Fail("ajax")
+    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    public NutBean u_modify_passwd(String wwwId,
+                                   @Param("a") String phone,
+                                   @Param("o") String opasswd,
+                                   @Param("n") String npasswd,
+                                   HttpServletRequest req) {
+        // 根据 siteId 获取一下对应域名
+        WnObj oWWW = io.checkById(wwwId);
+        String domain = oWWW.d1();
+        // 采用 domain 用户的权限，执行会话的创建等逻辑
+        WnUsr me = usrs.check(domain);
+        return Wn.WC().su(me, new Proton<NutBean>() {
+            @Override
+            protected NutBean exec() {
+                return __do_modify_user_passwd(phone, opasswd, npasswd, oWWW);
+            }
+        });
+    }
+
+    private NutBean __do_modify_user_passwd(String phone,
+                                            String opasswd,
+                                            String npasswd,
+                                            WnObj oWWW) {
+        // 找到用户表，看看有没有这个用户
+        WnThingService ths = __gen_account_service(oWWW);
+        // 如果没有的话，不行啊，抛一个错
+        WnObj oU = __get_usr_by_phone(ths, phone);
+        if (null == oU) {
+            throw Er.create("e.www.login.account_noexists");
+        }
+        // 验证一下用户名和密码
+        String db_passwd = oU.getString("passwd");
+        String salt = oU.getString("salt");
+        String salt_pass = Wn.genSaltPassword(opasswd, salt);
+        if (!salt_pass.equals(db_passwd)) {
+            throw Er.create("e.www.modify.error_passwd");
+        }
+        // 设置新密码
+        String domain = oWWW.d1();
+        exec("setpasswd", domain, "passwd -u id:" + oU.id() + " " + npasswd);
+        return null;
     }
 
     /**
