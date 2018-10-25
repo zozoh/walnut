@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.mt90.hdl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -33,10 +34,12 @@ public class mt90_ply_update implements JvmHdl {
             return;
         }
         if (!"A".equals(raw.gpsFixed)) {
+            log.debug("非GPS定位数据, 不更新位置信息 " + line);
             return; // 不是gps定位成功的,不认
         }
         if (1 == raw.eventKey) {
             // TODO 报警信息
+            log.debug("SOS求救信息!!!  " + line);
         }
 
         // 把更新数据准备好
@@ -68,6 +71,7 @@ public class mt90_ply_update implements JvmHdl {
                 int[] re = WoozTools.findClosest(map.route, point.lat, point.lng, 50);
                 meta.put("u_trk_route_index", re[0]);
                 meta.put("u_trk_route_distance", re[1]);
+                log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
             }
             catch (Throwable e) {
                 log.warn("尝试匹配选手轨迹点到线路时报错了", e);
@@ -79,6 +83,7 @@ public class mt90_ply_update implements JvmHdl {
             // 过滤跟踪时间
             if (wobj.getLong("u_trk_tm_gps", 0) > raw.timestamp) {
                 // 属于补传数据,跳过
+                log.debug("补传数据,不更新选手位置信息" + line);
                 continue;
             }
             sys.io.appendMeta(wobj, meta);
