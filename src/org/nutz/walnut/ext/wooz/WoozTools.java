@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.wooz;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 public class WoozTools {
 
     public static double[] parse(String coordinate) {
@@ -212,5 +215,37 @@ public class WoozTools {
             return true;
         }
         return false;
+    }
+    
+    private final static double EARTH_RADIUS = 6378.137;//地球半径
+    private static double rad(double d) {
+    return d * Math.PI / 180.0;
+    }
+    
+    public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
+        double radLat1 = rad(lat1);
+        double radLat2 = rad(lat2);
+        double a = radLat1 - radLat2;
+        double b = rad(lng1) - rad(lng2);
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
+        Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+        s = s * EARTH_RADIUS;
+        s = new BigDecimal(s).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return s * 1000;
+    }
+    
+    public static int[] findClosest(List<WoozRoute> routes, double lat, double lng, int maxD) {
+        int[] re = new int[2];
+        re[1] = Integer.MAX_VALUE;
+        int index = 0;
+        for (WoozRoute woozRoute : routes) {
+            double distance = getDistance(woozRoute.lat, woozRoute.lng, lat, lng);
+            if (distance < re[1]) {
+                re[0] = index;
+                re[1] = (int)distance;
+            }
+            index ++;
+        }
+        return re;
     }
 }

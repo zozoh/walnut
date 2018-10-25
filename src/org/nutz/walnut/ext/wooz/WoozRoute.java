@@ -12,4 +12,7 @@ public class WoozRoute extends AbstraceWoozPoint {
  */
     public String type;
     public Date time;
+    public double goUp;
+    public double goDown;
+    public double goDistance;
 }
