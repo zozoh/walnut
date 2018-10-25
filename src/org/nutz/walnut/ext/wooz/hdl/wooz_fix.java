@@ -122,7 +122,15 @@ public class wooz_fix implements JvmHdl {
                     cur.goUp = cur.ele - preRoutePoint.ele;
                 }
             }
+            else {
+                cur.goDown = 0;
+                cur.goUp = 0;
+            }
             cur.goDistance = WoozTools.getDistance(cur.lat, cur.lng, preRoutePoint.lat, preRoutePoint.lng);
+
+            cur.countDistance = cur.goDistance + preRoutePoint.countDistance;
+            cur.countUp = cur.goUp + preRoutePoint.countUp;
+            cur.countDown = cur.goDown + preRoutePoint.countDown;
             //System.out.println("轨迹点 距离 " + cur.goDistance);
             preRoutePoint = cur;
         }

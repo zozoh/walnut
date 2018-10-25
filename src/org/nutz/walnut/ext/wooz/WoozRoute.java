@@ -15,4 +15,9 @@ public class WoozRoute extends AbstraceWoozPoint {
     public double goUp;
     public double goDown;
     public double goDistance;
+    
+
+    public double countUp;
+    public double countDown;
+    public double countDistance;
 }
