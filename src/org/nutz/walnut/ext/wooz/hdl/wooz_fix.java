@@ -151,17 +151,15 @@ public class wooz_fix implements JvmHdl {
             WoozRoute _end = wooz.route.get(end);
             for (int j = start; j < end; j++) {
                 WoozRoute route = wooz.route.get(j);
-                route.cpDistance = route.countDistance - _start.countDistance;
-                route.cpUp = route.countUp - _start.countUp;
-                route.cpDown = route.countDown - _start.countDown;
+                route.cpDistance = _end.countDistance - route.countDistance;
+                route.cpUp = _end.countUp - route.countUp;
+                route.cpDown = _end.countDown - route.countDown;
                 route.cpName = point.name;
             }
             point.distancePrev = (int) (_end.countDistance - _start.countDistance);
             point.goUp = (int) (_end.countUp - _start.countUp);
             point.goDown = (int) (_end.countDown - _start.countDown);
             prevCp = point;
-            
-            
         }
         
         log.debug("再遍历一遍,算出CP点的更多信息");
