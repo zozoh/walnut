@@ -80,7 +80,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     public String toGpsRaw() {
         StringBuilder sb = new StringBuilder();
         if (timestamp > 0 && localtime == null)
-            localtime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(timestamp));
+            localtime = new SimpleDateFormat("yyMMddHHmmss").format(new Date(timestamp));
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             if ("powerVoltage".equals(field.getName()))

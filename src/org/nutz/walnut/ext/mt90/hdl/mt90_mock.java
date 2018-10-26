@@ -62,7 +62,7 @@ public class mt90_mock implements JvmHdl {
         
         // 差不多了, 输出概要
         sys.out.printlnf("设备IMEI: %s", dev.getString("dev_imei"));
-        sys.out.printlnf("赛事id: %s", dev.getString("cm_id"));
+        sys.out.printlnf("赛事id: %s", dev.getString("wz_cm_id"));
         sys.out.printlnf("赛项名称: %s", dev.getString("cm_pj"));
         sys.out.printlnf("起始百分比(start): %d", start);
         sys.out.printlnf("结束百分比(end): %d", end);
