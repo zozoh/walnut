@@ -22,20 +22,21 @@
 var paramStr = sys.json(params) || "{}";
 var paramObj = JSON.parse(paramStr);
 paramObj = {
-    orderId   : paramObj["id"],
-    pid       : paramObj["pid"],
-    buyer     : paramObj["bu"],
-    goods     : paramObj["go"],
-    payType   : paramObj["pt"],
-    payTarget : paramObj["pa"],
-    brief     : paramObj["br"],
-    callback  : paramObj["ca"],
-    unm       : paramObj["unm"],
-    comment   : paramObj["cm"] || "",
-	openid    : paramObj["oid"] || ""
+    orderId: paramObj["id"],
+    pid: paramObj["pid"],
+    buyer: paramObj["bu"],
+    goods: paramObj["go"],
+    payType: paramObj["pt"],
+    payTarget: paramObj["pa"],
+    brief: paramObj["br"],
+    callback: paramObj["ca"],
+    unm: paramObj["unm"],
+    comment: paramObj["cm"] || "",
+    openid: paramObj["oid"] || ""
 };
+
 //........................................
-function _main(params){
+function _main(params) {
     var order = {};
     // 如果传了order的id, 直接找订单查出来
     if (params.orderId) {
@@ -44,36 +45,36 @@ function _main(params){
     }
     else {
         // thingSet pid为空
-        if(!params.pid){
+        if (!params.pid) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noThingSet");
             return;
         }
         // 买家为空
-        if(!params.buyer){
+        if (!params.buyer) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noBuyer");
             return;
         }
         // 商品为空
-        if(!params.goods){
+        if (!params.goods) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noGoods");
             return;
         }
         // 支付方式为空
-        if(!params.payType){
+        if (!params.payType) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noPayType");
             return;
         }
         // 支付内容
-        if(!params.brief){
+        if (!params.brief) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noBrief");
             return;
         }
         // 支付回调
-        if(!params.callback){
+        if (!params.callback) {
             sys.exec("ajaxre -qe site0.e.pay.submit.noCallback");
             return;
         }
-        if(!params.unm) {
+        if (!params.unm) {
             params.unm = params.buyer;
         }
 
@@ -91,7 +92,7 @@ function _main(params){
             var goo = JSON.parse(reJson);
             goo["count"] = count;
             // 商品必须有价格
-            if(!goo.fee || goo.fee < 0 || count < 1) {
+            if (!goo.fee || goo.fee < 0 || count < 1) {
                 sys.execf("ajaxre -qe 'site0.e.pay.submit.noFee : %s'", goo.nm);
                 return;
             }
@@ -110,45 +111,57 @@ function _main(params){
         }
         var cmdText = "thing %s create '%s' -fields '%s' -cqn";
         var reJson = sys.exec2f(cmdText, params.pid, params.brief,
-                            JSON.stringify({
-                                uid : params.buyer,
-                                unm : params.unm,
-                                goods : _goods,
-                                fee : fee,
-                                cur : params.cur ? params.cur : 'RMB',
-                                price : price,
-                                comment : params.comment,
-                                phone : buyer.phone
-                            }));
+            JSON.stringify({
+                uid: params.buyer,
+                unm: params.unm,
+                goods: _goods,
+                fee: fee,
+                cur: params.cur ? params.cur : 'RMB',
+                price: price,
+                comment: params.comment,
+                phone: buyer.phone
+            }));
         order = JSON.parse(reJson);
         log.warn("order=" + reJson);
     }
 
-
     // 准备提交支付单
     var cmdText = "pay create -br '%s' -bu '%s' -fee %s -pt %s -ta %s -callback %s -meta '%s' -cqn";
     re = sys.exec2f(cmdText,
-                    order.th_nm,
-                    "%"+order.uid,
-                    order.fee,
-                    //params.coupon ? params.coupon + " -scope traffic" : "",
-                    params.payType,
-                    params.payTarget,
-                    params.callback,
-                    JSON.stringify({
-                        buy_for    : order.id,
-                        client_ip  : params.clientIp,
-						wx_openid : params.openid
-                    }));
+        order.th_nm,
+        "%" + order.uid,
+        order.fee,
+        //params.coupon ? params.coupon + " -scope traffic" : "",
+        params.payType,
+        params.payTarget,
+        params.callback,
+        JSON.stringify({
+            buy_for: order.id,
+            client_ip: params.clientIp,
+            wx_openid: params.openid
+        }));
     log.warn(re);
     var payment = JSON.parse(re);
-    sys.exec2f("obj -u '%s' id:%s", JSON.stringify({pay_tp : params.payType,pay_st : "WAIT", pay_id:payment.payObjId}), order.id);
+
+    // 支付价格，记录一个以元为单位的
+    var fee_yuan = '';
+    try {
+        fee_yuan = (parseInt(order.fee) / 100).toFixed(2);
+    } catch (e) {
+    }
+    sys.exec2f("obj -u '%s' id:%s", JSON.stringify({
+        pay_tp: params.payType,
+        pay_st: "WAIT",
+        pay_id: payment.payObjId,
+        fee_yuan: fee_yuan
+    }), order.id);
     //log.warn(re);
     payment["order_id"] = order.id;
     re = JSON.stringify(payment);
     // 输出成功内容
     sys.exec("ajaxre -q", re);
 }
+
 //........................................
 // 执行
 _main(paramObj);
