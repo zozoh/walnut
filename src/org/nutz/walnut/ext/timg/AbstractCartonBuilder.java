@@ -6,7 +6,7 @@ import java.io.File;
 import org.nutz.img.Images;
 import org.nutz.lang.Files;
 
-public abstract class AbstraceCartonBuilder implements CartonBuilder {
+public abstract class AbstractCartonBuilder implements CartonBuilder {
 
     public void add(CartonCtx ctx, byte[] buf) {
         File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.jpg", ctx.tmpDir, ctx.lastFrameIndex)));
@@ -32,6 +32,18 @@ public abstract class AbstraceCartonBuilder implements CartonBuilder {
         }
     }
     
+    public void exportNext(CartonCtx ctx, int count) {
+        //输出playTime,原图
+        if (count > 0) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream(1024*1024);
+            Images.writeJpeg(ctx.next.image, out, 0.9f);
+            byte[] buf = out.toByteArray();
+            for (int i = 0; i < count; i++) {
+                add(ctx, buf);
+            }
+        }
+    }
+    
     public void prepareImages(CartonCtx ctx) {
         if (ctx.cur.image == null)
             ctx.cur.image = ctx.io.readImage(ctx.cur.wobj);
@@ -43,4 +55,17 @@ public abstract class AbstraceCartonBuilder implements CartonBuilder {
         if (ctx.h < 1)
             ctx.h = ctx.cur.image.getHeight();
     }
+    
+    @Override
+    public final void invoke(CartonCtx ctx) {
+        prepareImages(ctx);
+        exportOrigin(ctx, ctx.cur.playTime / (1000 / ctx.fps));
+        // 输出转场的部分
+        if (ctx.cur.cartonTime < 1) {
+            return;
+        }
+        _invoke(ctx);
+    }
+    
+    public abstract void _invoke(CartonCtx ctx);
 }

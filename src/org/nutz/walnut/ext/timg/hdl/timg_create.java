@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +24,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.timg.CartonBuilder;
 import org.nutz.walnut.ext.timg.CartonCtx;
 import org.nutz.walnut.ext.timg.TimgCarton;
-import org.nutz.walnut.ext.timg.builder.FadeCartonBuilder;
+import org.nutz.walnut.ext.timg.builder.MoovCartonBuilder;
 import org.nutz.walnut.ext.timg.builder.NopCartonBuilder;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -39,7 +39,7 @@ public class timg_create implements JvmHdl {
     
     protected static final Log log = Logs.get();
     
-    public static Map<String, CartonBuilder> builders = new HashMap<>();
+    public static Map<String, CartonBuilder> builders = new LinkedHashMap<>();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -48,15 +48,27 @@ public class timg_create implements JvmHdl {
             // 简单模式   图片A,图片B,转场效果,时长
             String[] simple = hc.params.get("simple").split(",");
             cartons = new ArrayList<>();
-            TimgCarton first = new TimgCarton();
-            first.cartonName = simple[2];
-            first.cartonTime = Integer.parseInt(simple[3]);
-            first.path = simple[0];
-            cartons.add(first);
-            TimgCarton next = new TimgCarton();
-            next.cartonName = simple[2];
-            next.path = simple[1];
-            cartons.add(next);
+            String cartonName = simple[2];
+            if ("效果测试".equals(cartonName)) {
+                for (String cname : builders.keySet()) {
+                    TimgCarton first = new TimgCarton();
+                    first.cartonName = cname;
+                    first.cartonTime = Integer.parseInt(simple[3]);
+                    first.path = simple[cartons.size() % 2];
+                    cartons.add(first);
+                }
+            }
+            else {
+                TimgCarton first = new TimgCarton();
+                first.cartonName = cartonName;
+                first.cartonTime = Integer.parseInt(simple[3]);
+                first.path = simple[0];
+                cartons.add(first);
+                TimgCarton next = new TimgCarton();
+                next.cartonName = simple[2];
+                next.path = simple[1];
+                cartons.add(next);
+            }
         }
         else {
             // 详细模式
@@ -98,7 +110,7 @@ public class timg_create implements JvmHdl {
         CartonCtx ctx = new CartonCtx();
         ctx.cartons = cartons;
         ctx.tmpDir = "/tmp/" + R.UU32(); // 本地临时路径
-        ctx.fps = 25; // 图片生成的帧率总是25
+        ctx.fps = hc.params.getInt("fps", 24); // 图片生成的帧率总是25
         ctx.w = hc.params.getInt("w");
         ctx.h = hc.params.getInt("h");
         ctx.io = sys.io;
@@ -127,7 +139,9 @@ public class timg_create implements JvmHdl {
         args.add("-i");
         args.add(ctx.tmpDir + "/images/T%06d.jpg");
         args.add("-r");
-        args.add("24");
+        args.add(""+ctx.fps);
+        args.add("-b:v");
+        args.add("6000k");
         args.add("-y");
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
@@ -154,7 +168,28 @@ public class timg_create implements JvmHdl {
     }
 
     static {
-        builders.put("淡入淡出", new FadeCartonBuilder());
+        builders.put("淡入淡出", MoovCartonBuilder.Builder.create(true).moov(0, 0, 0, 0).alpha(0, 1).build());
+        builders.put("左入", MoovCartonBuilder.Builder.create(true).moov(0, 0, -1, 0).build());
+        builders.put("右入", MoovCartonBuilder.Builder.create(true).moov(0, 0, 1, 0).build());
+        builders.put("上入", MoovCartonBuilder.Builder.create(true).moov(0, 0, 0, -1).build());
+        builders.put("下入", MoovCartonBuilder.Builder.create(true).moov(0, 0, 0, 1).build());
+        
+        builders.put("左入右出", MoovCartonBuilder.Builder.create(true).moov(1, 0, -1, 0).build());
+        builders.put("右入左出", MoovCartonBuilder.Builder.create(true).moov(-1, 0, 1, 0).build());
+        builders.put("上入下出", MoovCartonBuilder.Builder.create(true).moov(0, 1, 0, -1).build());
+        builders.put("下入上出", MoovCartonBuilder.Builder.create(true).moov(0, -1, 0, 1).build());
+        
+        builders.put("左上入", MoovCartonBuilder.Builder.create(true).moov(0, 0, -1, 1).build());
+        builders.put("右上入", MoovCartonBuilder.Builder.create(true).moov(0, 0, 1, 1).build());
+        builders.put("左下入", MoovCartonBuilder.Builder.create(true).moov(0, 0, -1, -1).build());
+        builders.put("右下入", MoovCartonBuilder.Builder.create(true).moov(0, 0, -1, 1).build());
+        
+        // 带淡出
+        builders.put("左淡出", MoovCartonBuilder.Builder.create(false).moov(1, 0, 0, 0).alpha(-1, 0).build());
+        builders.put("右淡出", MoovCartonBuilder.Builder.create(false).moov(-1, 0, 0, 0).alpha(-1, 0).build());
+        builders.put("上淡出", MoovCartonBuilder.Builder.create(false).moov(0, -1, 0, 0).alpha(-1, 0).build());
+        builders.put("下淡出", MoovCartonBuilder.Builder.create(false).moov(0, 1, 0, 0).alpha(-1, 0).build());
+
         builders.put("无效果", new NopCartonBuilder());
     }
     
