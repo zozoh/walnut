@@ -12,8 +12,10 @@ import java.util.Locale;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Logs;
 import org.nutz.plugins.xmlbind.XmlBind;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.gpx.bean.GpxFile;
 import org.nutz.walnut.ext.gpx.bean.GpxTrk;
 import org.nutz.walnut.ext.gpx.bean.GpxTrkpt;
@@ -43,12 +45,15 @@ public class mt90_parse implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        WnObj trk_data = null;
         Reader r;
         if (sys.pipeId > 0) {
             r =  sys.in.getReader();
         }
         else {
-            r = sys.io.getReader(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)), 0);
+            String path = Wn.normalizeFullPath(hc.params.val_check(0), sys);
+            trk_data = sys.io.check(null, path);
+            r = sys.io.getReader(trk_data, 0);
         }
         BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
@@ -80,6 +85,10 @@ public class mt90_parse implements JvmHdl {
             }
         }
         //boolean lineOnly = hc.params.is("lineOnly");
+        int goUp = 0;
+        int goDown = 0;
+        int goDistance = 0;
+        Mt90Raw prev = null;
         while (true) {
             String line = br.readLine();
             if (line == null)
@@ -115,6 +124,20 @@ public class mt90_parse implements JvmHdl {
                     WoozTools.convert(route, "wgs84", "gcj02");
                     raw.lat = route.lat;
                     raw.lng = route.lng;
+                    if (prev != null) {
+                        if (raw.ele  > prev.ele) {
+                            goUp += raw.ele - prev.ele;
+                        }
+                        else {
+                            goDown += prev.ele - raw.ele;
+                        }
+                        // TODO 过滤明显不合法的距离
+                        double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
+                        if (distance > 10) {
+                            goDistance += distance;
+                        }
+                    }
+                    prev = raw;
                 }
                 list.add(raw);
             }
@@ -163,59 +186,7 @@ public class mt90_parse implements JvmHdl {
             yellowLineGreenPoly.lineStyle.color = "7f00ffff";
             kml.document.styles.add(yellowLineGreenPoly);
             // 添加轨迹线和轨迹点
-            /*
-            kml.document.placemarks = new ArrayList<>(list.size()+10);
-            KmlPlacemark first = new KmlPlacemark();
-            first.name = "Line";
-            first.lineString = new KmlPlacemarkLineString();
-            first.lineString.tessellate = "1";
-            first.lineString.altitudeMode = "relativeToGround";
-            first.styleUrl = "#yellowLineGreenPoly";
-            StringBuilder coordinates = new StringBuilder();
-            kml.document.placemarks.add(first);
-            for (Mt90Raw raw : list) {
-                KmlPlacemark placemark = new KmlPlacemark();
-                placemark.point = new KmlPlacemarkPoint();
-                placemark.name = String.format("%dkm/h %s", raw.speed, Times.sDT(new Date(raw.timestamp)));
-                //<coordinates>116.287656,39.894523,0</coordinates>
-                placemark.point.coordinates = String.format("%s,%s,%s", raw.lng, raw.lat, raw.ele);
-                if (!lineOnly)
-                    kml.document.placemarks.add(placemark);
-                coordinates.append(placemark.point.coordinates).append("\r\n");
-            }
-            first.lineString.coordinates = coordinates.toString();
-            */
             kml.document.folders = new ArrayList<>();
-//            // 添加起点和终点
-//            KmlFolder TbuluHisPointFolder = new KmlFolder();
-//            TbuluHisPointFolder.id = "TbuluHisPointFolder";
-//            TbuluHisPointFolder.name = "标注点";
-//            // 起点
-//            TbuluHisPointFolder.placemarks = new ArrayList<>();
-//            {
-//                Mt90Raw _start = list.get(0);
-//                Mt90Raw _end = list.get(list.size() - 1);
-//                KmlPlacemark startPoint = new KmlPlacemark();
-//                startPoint.id = "startPoint";
-//                startPoint.name = "起点";
-//                startPoint.point = new KmlPlacemarkPoint();
-//                startPoint.point.coordinates = String.format("%s,%s,%s", _start.lng, _start.lat, _start.ele);
-//                startPoint.TimeStamp = new KmlTimeStamp();
-//                startPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_start.timestamp));
-//                //startPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _start.lng, _start.lat, _start.ele, _start.gpsDate);
-//
-//                KmlPlacemark endPoint = new KmlPlacemark();
-//                endPoint.id = "endPoint";
-//                endPoint.name = "终点";
-//                endPoint.point = new KmlPlacemarkPoint();
-//                endPoint.point.coordinates = String.format("%s,%s,%s", _end.lng, _end.lat, _end.ele);
-//                endPoint.TimeStamp = new KmlTimeStamp();
-//                endPoint.TimeStamp.when = Times.format("yyyy-MM-dd'T'HH:mm:ss'Z'", new Date(_end.timestamp));
-//                //endPoint.description = String.format("<div>经度: %s</div>div>纬度: %s</div>div>海拔: %s</div><div>时间: %s</div>", _end.lng, _end.lat, _end.ele, _end.gpsDate);
-//                TbuluHisPointFolder.placemarks.add(startPoint);
-//                TbuluHisPointFolder.placemarks.add(endPoint);
-//            }
-//            kml.document.folders.add(TbuluHisPointFolder);
             // 添加轨迹
             KmlFolder TbuluTrackFolder = new KmlFolder();
             TbuluTrackFolder.id = "TbuluTrackFolder";
@@ -237,17 +208,21 @@ public class mt90_parse implements JvmHdl {
             sys.out.print(str);
             return;
         }
+
         if (simple) {
             JsonFormat jf = JsonFormat.full().setCompact(true).setActived("^(lat|lng|ele|timestamp)$");
             sys.out.writeJson(list, jf);
+            
+            if (trk_data == null) {
+                NutMap metas = new NutMap();
+                metas.put("u_trk_go_up", goUp);
+                metas.put("u_trk_go_down", goDown);
+                metas.put("u_trk_go_distance", goDistance);
+                sys.io.appendMeta(trk_data, metas);
+            }
         }
         else {
             sys.out.writeJson(list, Cmds.gen_json_format(hc.params));
         }
-        
-    }
-    
-    public static void main(String[] args) {
-        System.out.println(new Date(Times.ams("2018-10-27T14:50:00")));
     }
 }
