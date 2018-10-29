@@ -1,13 +1,10 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.mt90.Mt90Map;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
 import org.nutz.walnut.ext.wooz.AbstraceWoozPoint;
 import org.nutz.walnut.ext.wooz.WoozMap;
@@ -22,8 +19,6 @@ import org.nutz.walnut.util.Wn;
 public class mt90_ply_update implements JvmHdl {
     
     private static final Log log = Logs.get();
-    
-    private static Map<String, WoozMap> maps = new HashMap<>();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -62,16 +57,15 @@ public class mt90_ply_update implements JvmHdl {
         
         if (hc.params.has("map")) {
             try {
-                WnObj tmp = sys.io.fetch(null, Wn.normalizeFullPath(hc.params.get("map"), sys));
-                WoozMap map = maps.get(tmp.sha1());
-                if (map == null) {
-                    map = sys.io.readJson(tmp, WoozMap.class);
-                    maps.put(tmp.sha1(), map);
-                }
+                WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
                 int[] re = WoozTools.findClosest(map.route, point.lat, point.lng, 50);
                 meta.put("u_trk_route_index", re[0]);
                 meta.put("u_trk_route_distance", re[1]);
-                log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
+                //log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
+                
+
+                
+                // 算一下选手的累计 里程 升 降
             }
             catch (Throwable e) {
                 log.warn("尝试匹配选手轨迹点到线路时报错了", e);
