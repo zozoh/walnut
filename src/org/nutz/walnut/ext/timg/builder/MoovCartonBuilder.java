@@ -36,7 +36,8 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
         int h = ctx.h;
         exportOrigin(ctx, 2);
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-        for (int i = 2; i < cartonFrameCount - 2; i++) {
+        cartonFrameCount -= 4;
+        for (int i = 0; i < cartonFrameCount; i++) {
 
             // 首先,清图
             Graphics2D g2d = image.createGraphics();
