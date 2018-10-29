@@ -25,7 +25,10 @@ import org.nutz.walnut.ext.kml.bean.KmlGxTrack;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
 import org.nutz.walnut.ext.kml.bean.KmlStyle;
 import org.nutz.walnut.ext.kml.bean.KmlStyleLineStyle;
+import org.nutz.walnut.ext.mt90.Mt90Map;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
+import org.nutz.walnut.ext.wooz.WoozMap;
+import org.nutz.walnut.ext.wooz.WoozPoint;
 import org.nutz.walnut.ext.wooz.WoozRoute;
 import org.nutz.walnut.ext.wooz.WoozTools;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -55,6 +58,27 @@ public class mt90_parse implements JvmHdl {
         boolean simple = hc.params.is("simple");
         int speed = hc.params.getInt("speed", 300);
         String name = hc.params.get("name");
+        String _map = hc.params.get("map");
+        
+        // 如果没有指定开始和结束使用,但指定了map, 获取赛事
+        if (begin < 1 && !Strings.isBlank(_map)) {
+            WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
+            if (map != null && map.points != null && map.points.size() > 1) {
+                for (WoozPoint point : map.points) {
+                    if ("start".equals(point.type)) {
+                        if (!Strings.isBlank(point.closeAt)) {
+                            // 2018-10-27T14:50:00
+                            begin = Times.ams(point.closeAt) - 8*3600*1000L;
+                        }
+                    }
+                    else if ("end".equals(point.type)) {
+                        if (!Strings.isBlank(point.closeAt)) {
+                            end = Times.ams(point.closeAt) - 8*3600*1000L;
+                        }
+                    }
+                }
+            }
+        }
         //boolean lineOnly = hc.params.is("lineOnly");
         while (true) {
             String line = br.readLine();
@@ -221,5 +245,9 @@ public class mt90_parse implements JvmHdl {
             sys.out.writeJson(list, Cmds.gen_json_format(hc.params));
         }
         
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(new Date(Times.ams("2018-10-27T14:50:00")));
     }
 }
