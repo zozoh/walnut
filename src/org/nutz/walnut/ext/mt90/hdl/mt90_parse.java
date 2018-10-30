@@ -176,9 +176,7 @@ public class mt90_parse implements JvmHdl {
                     }
                     // TODO 过滤明显不合法的距离
                     double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
-                    if (distance > 10) {
-                        goDistance += distance;
-                    }
+                    goDistance += distance;
                 }
                 prev = raw;
             }
