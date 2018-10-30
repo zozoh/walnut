@@ -85,9 +85,6 @@ public class mt90_parse implements JvmHdl {
             }
         }
         //boolean lineOnly = hc.params.is("lineOnly");
-        int goUp = 0;
-        int goDown = 0;
-        int goDistance = 0;
         Mt90Raw prev = null;
         while (true) {
             String line = br.readLine();
@@ -124,26 +121,71 @@ public class mt90_parse implements JvmHdl {
                     WoozTools.convert(route, "wgs84", "gcj02");
                     raw.lat = route.lat;
                     raw.lng = route.lng;
-                    if (prev != null) {
-                        if (raw.ele  > prev.ele) {
-                            goUp += raw.ele - prev.ele;
-                        }
-                        else {
-                            goDown += prev.ele - raw.ele;
-                        }
-                        // TODO 过滤明显不合法的距离
-                        double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
-                        if (distance > 10) {
-                            goDistance += distance;
-                        }
-                    }
-                    prev = raw;
                 }
                 list.add(raw);
             }
         }
         // 按gps时间排序
         Collections.sort(list);
+        
+        // 计算 升 降 里程
+        int goUp = 0;
+        int goDown = 0;
+        int goDistance = 0;
+        for (Mt90Raw raw : list) {
+            if (prev != null) {
+                if (raw.ele  > prev.ele) {
+                    goUp += raw.ele - prev.ele;
+                }
+                else {
+                    goDown += prev.ele - raw.ele;
+                }
+                // TODO 过滤明显不合法的距离
+                double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
+                if (distance > 10) {
+                    goDistance += distance;
+                }
+            }
+            prev = raw;
+        }
+        NutMap metas = new NutMap();
+        metas.put("u_trk_go_up", goUp);
+        metas.put("u_trk_go_down", goDown);
+        metas.put("u_trk_go_distance", goDistance);
+        
+        // 计算最近30个轨迹点的速度
+        goUp = 0;
+        goDown = 0;
+        goDistance = 0;
+        if (list.size() > 3) {
+            List<Mt90Raw> _10min = new ArrayList<>();
+            Mt90Raw last = list.get(list.size() - 1);
+            for (Mt90Raw raw : list) {
+                long t = raw.gpsDate.getTime() - last.gpsDate.getTime();
+                if (Math.abs(t) < 10 * 60 *1000) {
+                    _10min.add(raw);
+                }
+            }
+            for (Mt90Raw raw : _10min) {
+                if (prev != null) {
+                    if (raw.ele  > prev.ele) {
+                        goUp += raw.ele - prev.ele;
+                    }
+                    else {
+                        goDown += prev.ele - raw.ele;
+                    }
+                    // TODO 过滤明显不合法的距离
+                    double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
+                    if (distance > 10) {
+                        goDistance += distance;
+                    }
+                }
+                prev = raw;
+            }
+            double _speed = goDistance / (Math.abs(_10min.get(0).gpsDate.getTime() - _10min.get(_10min.size() - 1).gpsDate.getTime()) / 1000 + 1);
+            metas.pushTo("u_trk_go_speed", (int)_speed);
+        }
+        
         // 计算名称
         if (!simple && Strings.isBlank(name)) {
             if (list.size() > 0) {
@@ -214,10 +256,6 @@ public class mt90_parse implements JvmHdl {
             sys.out.writeJson(list, jf);
             
             if (trk_data == null) {
-                NutMap metas = new NutMap();
-                metas.put("u_trk_go_up", goUp);
-                metas.put("u_trk_go_down", goDown);
-                metas.put("u_trk_go_distance", goDistance);
                 sys.io.appendMeta(trk_data, metas);
             }
         }
