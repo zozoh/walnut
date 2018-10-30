@@ -5,7 +5,7 @@ author:zozoh
 
 # 如何创建
 
-```
+```js
 new SearchFilterUI({
     /*
     如果 filter 内部被输入了普通字符串，那么将在对象的哪几个字段里搜索

@@ -412,6 +412,13 @@ evalConf : function(UI, conf, opt, home) {
     this.__normalize_action_menu(conf.searchMenu, conf);
     this.__normalize_action_menu(conf.topMenu, conf);
 
+    // 调用自定义函数
+    var on_init_conf = opt.on_init_conf || conf.on_init_conf;
+    if(on_init_conf) {
+        var func_nm = '__ext_' + on_init_conf;
+        $z.invoke(UI, func_nm, [conf,opt,home]);
+    }
+
 },
 //...............................................................
 }; // ~End methods

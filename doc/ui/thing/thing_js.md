@@ -25,6 +25,15 @@ THING_SET
     // 指定布局文件，默认为
     // ui/thing3/layout/col3_md_ma.xml
     layout : "ui/thing3/layout/col3_md_ma.xml",
+
+    // 初始化配置时，可以自定义的扩展方法，这个方法会在
+    // 标准的配置文件初始化流程（evalConf）后调用
+    // 指定一个函数名称，这个函数需要在 extendCommand.actions 里的
+    // 某函数集定义。
+    // 函数被调用的方式 {UI}F(conf,opt,home)
+    // 通常这个函数被用来更加动态的设置配置文件内容
+    on_init_conf : "methodName"
+
     // 对于搜索部分菜单的设定
     // 如果为空，则会默认从 actions 里面找
     //  query | create | update | remove 
@@ -222,6 +231,15 @@ THING_SET
     // 扩展的命令菜单
     extendCommand : {
         // 扩展命令的 JS 文件，是一个列表
+        // 里面文件是一个函数集合，格式为：
+        /*
+        ({
+            methodA : function(){..},
+            methodB : function(){..},
+        })
+        */
+        // 所有的函数将会被装载到 th3_main 对象上，为了防止名称冲突，
+        // 函数将会被加上前缀 `__ext_`,  譬如 `__ext_methodA`
         actions : [
             "~/xxx/action1.js",
             "~/xxx/action2.js",
