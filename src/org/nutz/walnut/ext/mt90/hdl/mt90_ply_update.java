@@ -83,7 +83,7 @@ public class mt90_ply_update implements JvmHdl {
                     meta.put("u_trk_route_index", 0);
                     meta.put("u_trk_route_distance", 0);
                 }
-                else if (end > 0 && raw.gpsDate.getTime() > end) {
+                else if (end > 0 && raw.gpsDate.getTime() > (end + 3600 * 1000)) {
                     log.debug("比赛已经结束, 固定在起点");
                     meta.put("u_trk_route_index", map.points.size() - 1);
                     meta.put("u_trk_route_distance", 0);
