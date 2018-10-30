@@ -18,7 +18,7 @@ search
 
 # 创建方法
 
-```
+```js
 new SearchUI({
     // 是否支持更多的操作
     //  - 支持快捷按钮配置字符串 "new", "delete", "edit", "refresh"
