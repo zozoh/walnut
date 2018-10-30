@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
+import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -8,6 +10,7 @@ import org.nutz.walnut.ext.mt90.Mt90Map;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
 import org.nutz.walnut.ext.wooz.AbstraceWoozPoint;
 import org.nutz.walnut.ext.wooz.WoozMap;
+import org.nutz.walnut.ext.wooz.WoozPoint;
 import org.nutz.walnut.ext.wooz.WoozTools;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -58,13 +61,40 @@ public class mt90_ply_update implements JvmHdl {
         if (hc.params.has("map")) {
             try {
                 WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
-                int[] re = WoozTools.findClosest(map.route, point.lat, point.lng, 50);
-                meta.put("u_trk_route_index", re[0]);
-                meta.put("u_trk_route_distance", re[1]);
-                //log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
-                
-
-                
+                long begin = 0;
+                long end = 0;
+                if (map != null && map.points != null && map.points.size() > 1) {
+                    for (WoozPoint _point : map.points) {
+                        if ("start".equals(_point.type)) {
+                            if (!Strings.isBlank(_point.closeAt)) {
+                                // 2018-10-27T14:50:00
+                                begin = Times.ams(_point.closeAt) - 8*3600*1000L;
+                            }
+                        }
+                        else if ("end".equals(_point.type)) {
+                            if (!Strings.isBlank(_point.closeAt)) {
+                                end = Times.ams(_point.closeAt) - 8*3600*1000L;
+                            }
+                        }
+                    }
+                }
+                if (begin > 0 && begin > raw.gpsDate.getTime() ) {
+                    log.debug("比赛尚未开始, 固定在起点");
+                    meta.put("u_trk_route_index", 0);
+                    meta.put("u_trk_route_distance", 0);
+                }
+                else if (end > 0 && raw.gpsDate.getTime() > (end + 3600 * 1000)) {
+                    log.debug("比赛已经结束, 固定在起点");
+                    meta.put("u_trk_route_index", map.points.size() - 1);
+                    meta.put("u_trk_route_distance", 0);
+                }
+                else {
+                    // TODO 结合里程进行判断
+                    int[] re = WoozTools.findClosest(map.route, point.lat, point.lng, 50);
+                    meta.put("u_trk_route_index", re[0]);
+                    meta.put("u_trk_route_distance", re[1]);
+                    //log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
+                }
                 // 算一下选手的累计 里程 升 降
             }
             catch (Throwable e) {
