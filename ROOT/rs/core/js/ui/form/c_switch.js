@@ -38,6 +38,9 @@ return ZUI.def("ui.form_com_switch", EnumListSupport({
             var UI  = this;
             var opt = UI.options;
             var jq = $(e.currentTarget);
+            // 只读的话，无视
+            if(opt.readonly)
+                return;
             // 有限多选的话 ...
             if(UI.isMulti(true)){
                 if(jq.hasClass("checked")){
