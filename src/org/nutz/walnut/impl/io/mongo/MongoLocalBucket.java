@@ -420,14 +420,14 @@ public class MongoLocalBucket extends AbstractBucket {
 
     protected void _remove(long refer) {
         if (refer <= 0) {
-            log.info("准备删除Bucket id=" + id);
+            //log.info("准备删除Bucket id=" + id);
             WriteResult wr = _co.remove(WnMongos.qID(id).putv("refer", refer), WriteConcern.ACKNOWLEDGED);
             if (wr.getN() > 0) {
-                log.info("删除成功Bucket id=" + id);
+                //log.info("删除成功Bucket id=" + id);
                 Files.deleteDir(dir);
             }
             else {
-                log.info("删除失败Bucket id=" + id);
+                //log.info("删除失败Bucket id=" + id);
             }
         }
     }

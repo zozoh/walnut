@@ -34,9 +34,8 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
         log.infof("转场共%d帧", cartonFrameCount);
         int w = ctx.w;
         int h = ctx.h;
-        exportOrigin(ctx, 4);
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-        cartonFrameCount -= 4*2;
+        cartonFrameCount -= 14;
         for (int i = 0; i < cartonFrameCount; i++) {
 
             // 首先,清图
@@ -59,7 +58,7 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
             g2d.dispose();
             Images.writeJpeg(image, nextFile(ctx), 0.9f);
         }
-        exportNext(ctx, 4);
+        exportNext(ctx, 14);
     }
     
     public void drawImage(Graphics2D g2d, double process, BufferedImage image, MoovParam param, int w, int h, boolean moovToZero) {
