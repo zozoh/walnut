@@ -693,7 +693,7 @@ define(function (require, exports, module) {
                 // 定义后续处理
                 var do_render = function () {
                     // 首先看看是否有增加 class
-                    if (UI.options.arenaClass) {
+                    if ($z.isjQuery(UI.arena) && UI.options.arenaClass) {
                         UI.arena.addClass(UI.options.arenaClass);
                     }
 

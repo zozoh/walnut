@@ -52,7 +52,7 @@
     [wl-type="box"] {
         position: absolute; z-index:2;
         background:@cb2; color:@cf2; opacity: 1; 
-        border:1px solid @cborder1; overflow: hidden;
+        border:1px solid @cborder1;
         &[animat-on] {
             transition-property: opacity, left, top, bottom, right, width, height;
             transition-duration: .3s;
@@ -72,7 +72,7 @@
                     @flex(); justify-content: center; align-items: center;
                     font-size:@f4; font-family: 'Material-Design-Iconic-Font';
 
-                    &:before{display:"inline"; content:"\f136";}
+                    &:before{content:"\f136";}
                     &:hover {transform: scale(1.2) rotate(180deg);}
                 }
             } // ~ > .wlb-closer
@@ -84,13 +84,14 @@
                 left:0; right:0; bottom:-48px;
                 > b {
                     border-radius:50%;
-                    color:rgba(0,0,0,0.2);
+                    color:rgba(0,0,0,0.6);
                     background-color: rgba(255,255,255,0.4); 
-                    border:1px solid rgba(0,0,0,0.2);
+                    border:1px solid rgba(0,0,0,0.4);
                 }
                 > b:hover {
-                    background-color: #FFF; color:#444; 
-                    border-color:#444;
+                    color:#FFF; 
+                    background-color: rgba(0,0,0,0.6); 
+                    border-color:#FFF;
                 }
             }
             //-----------------------------------
