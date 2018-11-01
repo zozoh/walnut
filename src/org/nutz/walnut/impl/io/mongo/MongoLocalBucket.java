@@ -25,6 +25,9 @@ import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
 import org.nutz.walnut.impl.io.AbstractBucket;
 
+import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
+
 public class MongoLocalBucket extends AbstractBucket {
 
     private static final Log log = Logs.get();
@@ -417,8 +420,15 @@ public class MongoLocalBucket extends AbstractBucket {
 
     protected void _remove(long refer) {
         if (refer <= 0) {
-            Files.deleteDir(dir);
-            _co.remove(WnMongos.qID(id));
+            log.info("准备删除Bucket id=" + id);
+            WriteResult wr = _co.remove(WnMongos.qID(id).putv("refer", refer), WriteConcern.ACKNOWLEDGED);
+            if (wr.getN() > 0) {
+                log.info("删除成功Bucket id=" + id);
+                Files.deleteDir(dir);
+            }
+            else {
+                log.info("删除失败Bucket id=" + id);
+            }
         }
     }
 
