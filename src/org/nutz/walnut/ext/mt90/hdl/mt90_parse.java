@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.Locale;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Logs;
 import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.api.io.WnObj;
@@ -45,144 +45,10 @@ public class mt90_parse implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        WnObj trk_data = null;
-        Reader r;
-        if (sys.pipeId > 0) {
-            r =  sys.in.getReader();
-        }
-        else {
-            String path = Wn.normalizeFullPath(hc.params.val_check(0), sys);
-            trk_data = sys.io.check(null, path);
-            r = sys.io.getReader(trk_data, 0);
-        }
-        BufferedReader br = new BufferedReader(r);
-        List<Mt90Raw> list = new ArrayList<>();
-        boolean onlyGpsFixed = hc.params.is("gpsFixed");
-        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : -1;
-        long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
         boolean simple = hc.params.is("simple");
-        int speed = hc.params.getInt("speed", 300);
         String name = hc.params.get("name");
-        String _map = hc.params.get("map");
-        
-        // 如果没有指定开始和结束使用,但指定了map, 获取赛事
-        if (begin < 1 && !Strings.isBlank(_map)) {
-            WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
-            if (map != null && map.points != null && map.points.size() > 1) {
-                for (WoozPoint point : map.points) {
-                    if ("start".equals(point.type)) {
-                        if (!Strings.isBlank(point.closeAt)) {
-                            // 2018-10-27T14:50:00
-                            begin = Times.ams(point.closeAt) - 8*3600*1000L;
-                        }
-                    }
-                    else if ("end".equals(point.type)) {
-                        if (!Strings.isBlank(point.closeAt)) {
-                            end = Times.ams(point.closeAt) - 8*3600*1000L;
-                        }
-                    }
-                }
-            }
-        }
-        //boolean lineOnly = hc.params.is("lineOnly");
-        Mt90Raw prev = null;
-        while (true) {
-            String line = br.readLine();
-            if (line == null)
-                break;
-            if (Strings.isBlank(line))
-                continue;
-            Mt90Raw raw = Mt90Raw.mapping(line);
-            // TODO 过滤特定时段
-            if (raw != null) {
-                // 是否GPS定位的结果
-                if (onlyGpsFixed && !"A".equals(raw.gpsFixed)) {
-                    continue;
-                }
-                // 超过设置的时间了吗?
-                if (raw.timestamp < begin || raw.timestamp > end) {
-                    Logs.get().info("过滤一条记录" + line);
-                    continue;
-                }
-                if (begin == -1) {
-                    // 选择第一条记录的时间作为起点
-                    begin = raw.timestamp;
-                }
-                //System.out.println("" + raw.timestamp + "," + begin);
-                // 是否超过正常速度
-                if (raw.speed > speed) {
-                    continue;
-                }
-                // 简单模式,需要进行坐标转换
-                if (simple) {
-                    WoozRoute route = new WoozRoute();
-                    route.lat = raw.lat;
-                    route.lng = raw.lng;
-                    WoozTools.convert(route, "wgs84", "gcj02");
-                    raw.lat = route.lat;
-                    raw.lng = route.lng;
-                }
-                list.add(raw);
-            }
-        }
-        // 按gps时间排序
-        Collections.sort(list);
-        
-        // 计算 升 降 里程
-        int goUp = 0;
-        int goDown = 0;
-        int goDistance = 0;
-        for (Mt90Raw raw : list) {
-            if (prev != null) {
-                if (raw.ele  > prev.ele) {
-                    goUp += raw.ele - prev.ele;
-                }
-                else {
-                    goDown += prev.ele - raw.ele;
-                }
-                // TODO 过滤明显不合法的距离
-                double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
-                if (distance > 10) {
-                    goDistance += distance;
-                }
-            }
-            prev = raw;
-        }
-        NutMap metas = new NutMap();
-        metas.put("u_trk_go_up", goUp);
-        metas.put("u_trk_go_down", goDown);
-        metas.put("u_trk_go_distance", goDistance);
-        
-        // 计算最近30个轨迹点的速度
-        goUp = 0;
-        goDown = 0;
-        goDistance = 0;
-        if (list.size() > 3) {
-            List<Mt90Raw> _10min = new ArrayList<>();
-            Mt90Raw last = list.get(list.size() - 1);
-            for (Mt90Raw raw : list) {
-                long t = raw.gpsDate.getTime() - last.gpsDate.getTime();
-                if (Math.abs(t) < 10 * 60 *1000) {
-                    _10min.add(raw);
-                }
-            }
-            for (Mt90Raw raw : _10min) {
-                if (prev != null) {
-                    if (raw.ele  > prev.ele) {
-                        goUp += raw.ele - prev.ele;
-                    }
-                    else {
-                        goDown += prev.ele - raw.ele;
-                    }
-                    // TODO 过滤明显不合法的距离
-                    double distance = WoozTools.getDistance(raw.lat, raw.lng, prev.lat, prev.lng);
-                    goDistance += distance;
-                }
-                prev = raw;
-            }
-            double _speed = goDistance / (Math.abs(_10min.get(0).gpsDate.getTime() - _10min.get(_10min.size() - 1).gpsDate.getTime()) / 1000 + 1);
-            metas.pushTo("u_trk_go_speed", (int)_speed);
-        }
+        List<Mt90Raw> list = parse(sys, hc);
+
         
         // 计算名称
         if (!simple && Strings.isBlank(name)) {
@@ -252,13 +118,95 @@ public class mt90_parse implements JvmHdl {
         if (simple) {
             JsonFormat jf = JsonFormat.full().setCompact(true).setActived("^(lat|lng|ele|timestamp)$");
             sys.out.writeJson(list, jf);
-            
-            if (trk_data == null) {
-                sys.io.appendMeta(trk_data, metas);
-            }
         }
         else {
             sys.out.writeJson(list, Cmds.gen_json_format(hc.params));
         }
+    }
+    
+    public List<Mt90Raw> parse(WnSystem sys, JvmHdlContext hc) throws IOException {
+        WnObj trk_data = null;
+        Reader r;
+        if (sys.pipeId > 0) {
+            r =  sys.in.getReader();
+        }
+        else {
+            String path = Wn.normalizeFullPath(hc.params.val_check(0), sys);
+            trk_data = sys.io.check(null, path);
+            r = sys.io.getReader(trk_data, 0);
+        }
+        BufferedReader br = new BufferedReader(r);
+        List<Mt90Raw> list = new ArrayList<>();
+        boolean onlyGpsFixed = hc.params.is("gpsFixed");
+        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : -1;
+        long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
+        boolean simple = hc.params.is("simple");
+        int speed = hc.params.getInt("speed", 300);
+        String _map = hc.params.get("map");
+        
+        // 如果没有指定开始和结束使用,但指定了map, 获取赛事
+        if (begin < 1 && !Strings.isBlank(_map)) {
+            WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
+            if (map != null && map.points != null && map.points.size() > 1) {
+                for (WoozPoint point : map.points) {
+                    if ("start".equals(point.type)) {
+                        if (!Strings.isBlank(point.closeAt)) {
+                            // 2018-10-27T14:50:00
+                            begin = Times.ams(point.closeAt) - 8*3600*1000L;
+                        }
+                    }
+                    else if ("end".equals(point.type)) {
+                        if (!Strings.isBlank(point.closeAt)) {
+                            end = Times.ams(point.closeAt) - 8*3600*1000L;
+                        }
+                    }
+                }
+            }
+        }
+        //boolean lineOnly = hc.params.is("lineOnly");
+        int pointCount = hc.params.getInt("points", Integer.MAX_VALUE);
+        while (pointCount > 0) {
+            String line = br.readLine();
+            if (line == null)
+                break;
+            if (Strings.isBlank(line))
+                continue;
+            pointCount --;
+            Mt90Raw raw = Mt90Raw.mapping(line);
+            // TODO 过滤特定时段
+            if (raw != null) {
+                // 是否GPS定位的结果
+                if (onlyGpsFixed && !"A".equals(raw.gpsFixed)) {
+                    continue;
+                }
+                // 超过设置的时间了吗?
+                if (raw.timestamp < begin || raw.timestamp > end) {
+                    Logs.get().info("过滤一条记录" + line);
+                    continue;
+                }
+                if (begin == -1) {
+                    // 选择第一条记录的时间作为起点
+                    begin = raw.timestamp;
+                }
+                //System.out.println("" + raw.timestamp + "," + begin);
+                // 是否超过正常速度
+                if (raw.speed > speed) {
+                    continue;
+                }
+                // 简单模式,需要进行坐标转换
+                if (simple) {
+                    WoozRoute route = new WoozRoute();
+                    route.lat = raw.lat;
+                    route.lng = raw.lng;
+                    WoozTools.convert(route, "wgs84", "gcj02");
+                    raw.lat = route.lat;
+                    raw.lng = route.lng;
+                }
+                list.add(raw);
+            }
+        }
+        // 按gps时间排序
+        Collections.sort(list);
+        return list;
     }
 }

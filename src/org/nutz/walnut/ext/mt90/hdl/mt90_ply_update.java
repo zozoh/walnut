@@ -79,26 +79,18 @@ public class mt90_ply_update implements JvmHdl {
                     }
                 }
                 if (begin > 0 && begin > raw.gpsDate.getTime() ) {
-                    log.debug("比赛尚未开始, 固定在起点");
+                    //log.debug("比赛尚未开始, 固定在起点");
                     meta.put("u_trk_route_index", 0);
                     meta.put("u_trk_route_distance", 0);
                 }
                 else if (end > 0 && raw.gpsDate.getTime() > (end + 3600 * 1000)) {
-                    log.debug("比赛已经结束, 固定在起点");
+                    //log.debug("比赛已经结束, 固定在起点");
                     meta.put("u_trk_route_index", map.points.size() - 1);
                     meta.put("u_trk_route_distance", 0);
                 }
-                else {
-                    // TODO 结合里程进行判断
-                    int[] re = WoozTools.findClosest(map.route, point.lat, point.lng, 50);
-                    meta.put("u_trk_route_index", re[0]);
-                    meta.put("u_trk_route_distance", re[1]);
-                    //log.debugf("匹配轨迹点成功 %s", Json.toJson(re));
-                }
-                // 算一下选手的累计 里程 升 降
             }
             catch (Throwable e) {
-                log.warn("尝试匹配选手轨迹点到线路时报错了", e);
+                //log.warn("尝试匹配选手轨迹点到线路时报错了", e);
             }
         }
         
