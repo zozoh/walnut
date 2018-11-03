@@ -3,7 +3,9 @@ package org.nutz.walnut.ext.mt90.bean;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.nutz.castor.Castors;
@@ -37,6 +39,11 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     public long timestamp;
     public Date recDate;
     public Date gpsDate;
+    
+    // 其他临时变量
+    // 临近的线路点列表
+    public transient List<CloseRoutePoint> closestRoutePoints = new ArrayList<>();
+    public transient int closestRouteIndex = -1;
     
     private static Mirror<Mt90Raw> mirror = Mirror.me(Mt90Raw.class);
     private static Field[] fields = Mt90Raw.class.getDeclaredFields();
@@ -91,6 +98,34 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
             sb.append(value).append(",");
         }
         return sb.toString();
+    }
+    
+    public static class CloseRoutePoint implements Comparable<CloseRoutePoint> {
+        // 线路点索引
+        public int pointIndex;
+        // 距离此线路点的距离
+        public double distance;
+        @Override
+        public int compareTo(CloseRoutePoint other) {
+            if (this.pointIndex > other.pointIndex)
+                return 1;
+            else if (this.pointIndex < other.pointIndex)
+                return -1;
+            return 0;
+        }
+        public CloseRoutePoint() {
+            // TODO Auto-generated constructor stub
+        }
+        public CloseRoutePoint(int pointIndex, double distance) {
+            super();
+            this.pointIndex = pointIndex;
+            this.distance = distance;
+        }
+        
+        @Override
+        public String toString() {
+            return "[" + pointIndex + "-" + distance + "]";
+        }
     }
     
 //    public static void main(String[] args) {

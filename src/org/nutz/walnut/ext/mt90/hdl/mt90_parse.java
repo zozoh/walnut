@@ -13,7 +13,6 @@ import java.util.Locale;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
-import org.nutz.log.Logs;
 import org.nutz.plugins.xmlbind.XmlBind;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.gpx.bean.GpxFile;
@@ -181,7 +180,7 @@ public class mt90_parse implements JvmHdl {
                 }
                 // 超过设置的时间了吗?
                 if (raw.timestamp < begin || raw.timestamp > end) {
-                    Logs.get().info("过滤一条记录" + line);
+                    //Logs.get().info("过滤一条记录" + line);
                     continue;
                 }
                 if (begin == -1) {

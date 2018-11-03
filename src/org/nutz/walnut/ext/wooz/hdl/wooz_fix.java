@@ -60,7 +60,9 @@ public class wooz_fix implements JvmHdl {
             if (log.isDebugEnabled())
                 log.debug("获取cplist");
             for (WoozPoint point : wooz.points) {
-                if ("csp".equals(point.type)) {
+                if (point.service == null)
+                    point.service = "";
+                if ("csp".equals(point.type) && point.service.contains("C")) {
                     has_no_any_csp = false;
                 } else if ("start".equals(point.type)) {
                     startPoint = point;
@@ -92,7 +94,7 @@ public class wooz_fix implements JvmHdl {
                     point.routePointIndex = wooz.route.size() - 1; // 直接定位到最后一个点
                     point.routePointDistance = 0; // 肯定是0
                 }
-                if (!"csp".equals(point.type)) {
+                if (!"csp".equals(point.type) && !point.service.contains("C")) {
                     continue;
                 }
                 // 查找与CP点最近的轨迹点

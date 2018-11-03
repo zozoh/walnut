@@ -12,7 +12,7 @@ public class Mt90Map {
     public static Map<String, WoozMap> maps = new HashMap<>();
     
     public static WoozMap get(WnIo io, String path) {
-        WnObj tmp = io.fetch(null, path);
+        WnObj tmp = io.check(null, path);
         WoozMap map = maps.get(tmp.sha1());
         if (map == null) {
             map = io.readJson(tmp, WoozMap.class);
