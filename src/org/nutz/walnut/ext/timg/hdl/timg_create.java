@@ -143,6 +143,10 @@ public class timg_create implements JvmHdl {
         args.add("-b:v");
         args.add("6000k");
         args.add("-y");
+        args.add("-pix_fmt");
+        args.add("yuv420p");
+        args.add("-movflags");
+        args.add("faststart");
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
         log.info("启动: " + Strings.join(" ", args));

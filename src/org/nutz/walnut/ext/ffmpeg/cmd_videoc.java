@@ -122,7 +122,7 @@ public class cmd_videoc extends JvmExecutor {
             // 再生成预览视频
             if (mode == null || mode.matcher("preview_video").find()) {
                 vc_params.setv("preview_bv", vc_params.getInt("bv") / 3);
-                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -vcodec libx264 -maxrate ${preview_bv}k -bufsize 2048k -b:a 64k -r ${fps} -s ${preview_size} ${previewPath}");
+                seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -pix_fmt yuv420p -vcodec libx264 -maxrate ${preview_bv}k -bufsize 2048k -b:a 64k -r ${fps} -s ${preview_size} ${previewPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
                 Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
@@ -143,7 +143,7 @@ public class cmd_videoc extends JvmExecutor {
                     }
                 }
                 if (Strings.isBlank(_crop)) {
-                    seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
+                    seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                     cmd = seg.render(new SimpleContext(vc_params)).toString();
                     log.debug("cmd: " + cmd);
                     Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
@@ -172,7 +172,7 @@ public class cmd_videoc extends JvmExecutor {
                                                  + String.format("_%s_%s.mp4", i + 1, j + 1);
                             vc_params.setv("crop", crop);
                             vc_params.put("crop_target", crop_target);
-                            seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
+                            seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
                             cmd = seg.render(new SimpleContext(vc_params)).toString();
                             log.debug("cmd: " + cmd);
                             Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
