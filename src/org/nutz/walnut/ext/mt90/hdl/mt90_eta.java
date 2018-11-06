@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -25,7 +26,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple|lineOnly|debug|tomap|all)$")
+@JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple|lineOnly|debug|tomap|all|precise)$")
 public class mt90_eta extends mt90_parse {
     
     private static final Log log = Logs.get();
@@ -35,10 +36,12 @@ public class mt90_eta extends mt90_parse {
         hc.params.setv("simple", true);
         WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.check("map"), sys));
         boolean debug = hc.params.is("debug");
+        boolean precise = hc.params.is("precise"); // 精确计算球体距离,慢很多
         List<Mt90Raw> list = parse(sys, hc);
         List<WoozRoute> routes = map.route;
         NutMap re = new NutMap();
         
+        Stopwatch sw = Stopwatch.begin();
         // =================================轨迹匹配============================================
         {
             // 剔除所有离线路太远的点
@@ -47,7 +50,11 @@ public class mt90_eta extends mt90_parse {
             for (Mt90Raw raw : list) {
                 int index = 0;
                 for (WoozRoute woozRoute : routes) {
-                    double distance = WoozTools.getDistance(woozRoute.lat, woozRoute.lng, raw.lat, raw.lng);
+                    double distance = 0;
+                    if (precise)
+                        distance = WoozTools.getDistance(woozRoute.lat, woozRoute.lng, raw.lat, raw.lng);
+                    else
+                        distance = WoozTools.distanceSimplify(woozRoute.lat, woozRoute.lng, raw.lat, raw.lng);
                     if (distance < maxAway) {
                         raw.closestRoutePoints.add(new Mt90Raw.CloseRoutePoint(index, distance));
                     }
@@ -63,7 +70,7 @@ public class mt90_eta extends mt90_parse {
             //log.infof("过滤前%d 过滤后%d", list.size(), newList.size());
             list = newList;
         }
-        
+        sw.tag("剔除所有离线路太远的点");
         {
             List<Mt90Raw> newList = new ArrayList<>();
             int lastRoutePoint = 0;
@@ -107,7 +114,7 @@ public class mt90_eta extends mt90_parse {
                 log.infof("经过赛项线路匹配, 过滤前%d 过滤后%d", list.size(), newList.size());
             list = newList;
         }
-        
+        sw.tag("赛项线路匹配");
         if (list.isEmpty())
             return;
         
@@ -118,6 +125,7 @@ public class mt90_eta extends mt90_parse {
             // 点太少了,不算了
         }
         else {
+
             // 往前找30分钟
             NutMap[] speeds = new NutMap[list.size()];
             int[] _re = new int[1];
@@ -210,6 +218,7 @@ public class mt90_eta extends mt90_parse {
                 }
             }
         }
+        sw.tag("预测");
 
         // 更新 u_trk_route_index
         if (hc.params.vals.length > 0 && !hc.params.is("all")) {
@@ -220,6 +229,12 @@ public class mt90_eta extends mt90_parse {
             sys.io.appendMeta(trk_data, metas);
         }
         sys.out.writeJson(re, Cmds.gen_json_format(hc.params));
+
+
+        sw.tag("全部完成");
+        sw.stop();
+        if (debug)
+            log.info(">> " + sw.toString());
     }
 
     public void printMatrix(double[][] matrix) {
