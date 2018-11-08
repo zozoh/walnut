@@ -149,7 +149,7 @@ public class timg_create implements JvmHdl {
         args.add("-movflags");
         args.add("faststart");
         args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
-        args.addAll(Arrays.asList("-maxrate 6000k -bufsize 2M".split(" ")));
+        //args.addAll(Arrays.asList("-maxrate 6000k -bufsize 2M".split(" ")));
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
         log.info("启动: " + Strings.join(" ", args));
