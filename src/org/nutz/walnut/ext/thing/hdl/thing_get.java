@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("cnqihbslVNHQ")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(check)$")
 public class thing_get implements JvmHdl {
 
     @Override
@@ -37,9 +37,14 @@ public class thing_get implements JvmHdl {
         WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnThingService wts = new WnThingService(sys, oTs);
 
-        // 调用接口
-        hc.output = wts.getThing(thId, isFull, sortKey, isAsc);
-
+        // 调用接口·严格模式
+        if (hc.params.is("check")) {
+            hc.output = wts.checkThing(thId, isFull, sortKey, isAsc);
+        }
+        // 调用接口·普通模式
+        else {
+            hc.output = wts.getThing(thId, isFull, sortKey, isAsc);
+        }
     }
 
 }

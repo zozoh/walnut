@@ -26,6 +26,7 @@ return ZUI.def("ui.form_com_combotable", {
         var UI = FormMethods(this);
 
         // 默认值
+        $z.setUndefined(opt, "readonly", false);
         $z.setUndefined(opt, "fields", []);
         $z.setUndefined(opt, "msgNoExists", "i18n:com.combotable.noneobj");
         $z.setUndefined(opt, "getObj", function(val){
@@ -97,7 +98,9 @@ return ZUI.def("ui.form_com_combotable", {
 
         // 绘制表头
         var jTHr = UI.arena.find(">.cct-list>table>thead>tr");
-        $('<th opt="del">&nbsp;</th>').appendTo(jTHr);
+
+        if(!opt.readonly)
+            $('<th opt="del">&nbsp;</th>').appendTo(jTHr);
 
         // 准备延迟的 UI 类型 
         var defer_ui_types = [];
@@ -119,8 +122,10 @@ return ZUI.def("ui.form_com_combotable", {
         }
 
         // 绘制尾部移动顺序按钮
-        $('<th opt-icon="yes">&nbsp;</th>').appendTo(jTHr);
-        $('<th opt-icon="yes">&nbsp;</th>').appendTo(jTHr);
+        if(!opt.readonly) {
+            $('<th opt-icon="yes">&nbsp;</th>').appendTo(jTHr);
+            $('<th opt-icon="yes">&nbsp;</th>').appendTo(jTHr);
+        }
 
         // 准备延迟加载
         var defer_keys = [];
@@ -167,7 +172,7 @@ return ZUI.def("ui.form_com_combotable", {
         }
         // 绘制添加按钮
         var jAdder = UI.arena.find('.cct-adder');
-        if(opt.adder) {
+        if(opt.adder && !opt.readonly) {
             var jBtn = $('<b>').appendTo(jAdder.empty());
             if(opt.adder.icon){
                 $(opt.adder.icon).appendTo(jBtn);
@@ -258,9 +263,11 @@ return ZUI.def("ui.form_com_combotable", {
         jTr.data("@OBJ", obj2);
 
         // 绘制删除按钮
-        $('<td opt="del"></td>')
-            .html('<span><i class="zmdi zmdi-close"></i></span>')
-                .appendTo(jTr);
+        if(!opt.readonly) {
+            $('<td opt="del"></td>')
+                .html('<span><i class="zmdi zmdi-close"></i></span>')
+                    .appendTo(jTr);
+        }
 
         // 循环绘制字段
         for(var i = 0; i<UI.__fields.length; i++) {
@@ -317,12 +324,14 @@ return ZUI.def("ui.form_com_combotable", {
         }
 
         // 绘制操作按钮
-        $('<td opt="down"></td>')
-            .html('<span><i class="fa fa-angle-double-down"></i></span>')
-                .appendTo(jTr);
-        $('<td opt="up"></td>')
-            .html('<span><i class="fa fa-angle-double-up"></i></span>')
-                .appendTo(jTr);
+        if(!opt.readonly) {
+            $('<td opt="down"></td>')
+                .html('<span><i class="fa fa-angle-double-down"></i></span>')
+                    .appendTo(jTr);
+            $('<td opt="up"></td>')
+                .html('<span><i class="fa fa-angle-double-up"></i></span>')
+                    .appendTo(jTr);
+        }
 
         // 返回
         return jTr;

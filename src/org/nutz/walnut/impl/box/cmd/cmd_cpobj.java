@@ -30,11 +30,18 @@ public class cmd_cpobj extends JvmExecutor {
         woc.setRecur(params.is("r"));
         woc.setDropBeforeCopy(params.is("d"));
 
-        // 元数据
-        if (params.is("p"))
+        // 元数据·复制标准属性以外所有元数据
+        if (params.is("p")) {
             woc.setPropDefaultFilter();
-        else if (params.is("m"))
+        }
+        // 元数据·复制标准属性以外所有元数据以及这四个标准属性 `c|m|g|md`
+        else if (params.is("m")) {
             woc.setPropOwnerFilter();
+        }
+        // 元数据·正则表达式指定copy特殊的元数据，支持 ! 语法
+        else if (params.has("e")) {
+            woc.setPropFilter(params.get("e"));
+        }
 
         // 显示详情模式
         if (params.is("v")) {
