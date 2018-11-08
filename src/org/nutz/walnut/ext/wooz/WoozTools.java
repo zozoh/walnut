@@ -234,6 +234,16 @@ public class WoozTools {
         return s * 1000;
     }
     
+    // http://younglibin.iteye.com/blog/2185365
+    public static double distanceSimplify(double lat1, double lng1, double lat2, double lng2) {
+        double dx = lng1 - lng2; // 经度差值
+        double dy = lat1 - lat2; // 纬度差值
+        double b = (lat1 + lat2) / 2.0; // 平均纬度
+        double Lx = rad(dx) * 6367000.0* Math.cos(rad(b)); // 东西距离
+        double Ly = 6367000.0 * rad(dy); // 南北距离
+        return Math.sqrt(Lx * Lx + Ly * Ly);  // 用平面的矩形对角距离公式计算总距离
+   }
+    
     public static int[] findClosest(List<WoozRoute> routes, double lat, double lng, int maxD) {
         int[] re = new int[2];
         re[1] = Integer.MAX_VALUE;
