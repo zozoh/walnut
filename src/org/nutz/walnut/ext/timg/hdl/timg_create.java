@@ -149,36 +149,37 @@ public class timg_create implements JvmHdl {
         args.add("-movflags");
         args.add("faststart");
         args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
+        args.addAll(Arrays.asList("-maxrate 6000k -bufsize 2M".split(" ")));
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
         log.info("启动: " + Strings.join(" ", args));
         Lang.execOutput(args.toArray(new String[args.size()]));
         log.info("完成: " + Strings.join(" ", args));
         // 再转视频一次
-        log.info("启动: " + Strings.join(" ", args));
-        args = new ArrayList<>();
-        if (Lang.isWin()) {
-            args.add("ffmpeg.exe");
-        }
-        else {
-            args.add("ffmpeg");
-        }
-        // -r 25 -i uobm2jbg5ojj1qh0vpq8am5frn/images/T%06d.jpg -r 24 -y uobm2jbg5ojj1qh0vpq8am5frn.mp4
-        args.add("-v");
-        args.add("quiet");
-        args.add("-i");
-        args.add(ctx.tmpDir + "/timg.mp4");
-        args.add("-y");
-        args.add("-pix_fmt");
-        args.add("yuv420p");
-        args.add("-movflags");
-        args.add("faststart");
-        args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
-        args.add(ctx.tmpDir + "/timg2.mp4");
-        Lang.execOutput(args.toArray(new String[args.size()]));
-        log.info("完成: " + Strings.join(" ", args));
+//        log.info("启动: " + Strings.join(" ", args));
+//        args = new ArrayList<>();
+//        if (Lang.isWin()) {
+//            args.add("ffmpeg.exe");
+//        }
+//        else {
+//            args.add("ffmpeg");
+//        }
+//        // -r 25 -i uobm2jbg5ojj1qh0vpq8am5frn/images/T%06d.jpg -r 24 -y uobm2jbg5ojj1qh0vpq8am5frn.mp4
+//        args.add("-v");
+//        args.add("quiet");
+//        args.add("-i");
+//        args.add(ctx.tmpDir + "/timg.mp4");
+//        args.add("-y");
+//        args.add("-pix_fmt");
+//        args.add("yuv420p");
+//        args.add("-movflags");
+//        args.add("faststart");
+//        args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
+//        args.add(ctx.tmpDir + "/timg2.mp4");
+//        Lang.execOutput(args.toArray(new String[args.size()]));
+//        log.info("完成: " + Strings.join(" ", args));
         // 写到walnut里面去
-        File f = new File(ctx.tmpDir + "/timg2.mp4");
+        File f = new File(ctx.tmpDir + "/timg.mp4");
         try (InputStream ins = new FileInputStream(f)) {
             sys.io.writeAndClose(wobj, ins);
         }
