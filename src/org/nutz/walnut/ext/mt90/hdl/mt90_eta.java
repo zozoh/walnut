@@ -144,12 +144,12 @@ public class mt90_eta extends mt90_parse {
                     WoozRoute route = routes.get(list.get(i).closestRouteIndex);
                     double t = route.cpDistance * result[0] + route.cpUp * result[1] + route.cpDown * result[2];
                     tmp.put("eta_cp", (int)t);
-                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
+                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t*1000);
                     // 到达终点的耗时
                     WoozRoute route_end = routes.get(routes.size() - 1);
                     double t2 = (route_end.countDistance - route.countDistance) * result[0] + (route_end.countUp - route.countUp) * result[1] + (route_end.countDown - route.countDown) * result[2];
                     tmp.put("eta_end", (int)t2);   
-                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);                 
+                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t*1000);                 
                     speeds[i] = tmp;
                     if (!re.containsKey("eta_cp_time")) {
                         re.putAll(tmp);
@@ -173,12 +173,12 @@ public class mt90_eta extends mt90_parse {
                 WoozRoute route = routes.get(last.closestRouteIndex);
                 double t = (route.cpDistance + route.cpUp * 10) * result[0];
                 re.put("eta_cp", (int)t);
-                re.put("eta_cp_time", last.gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
+                re.put("eta_cp_time", last.gpsDate.getTime() + (int)t*1000);
                 // 到达终点的耗时
                 WoozRoute route_end = routes.get(routes.size() - 1);
                 double t2 = (route_end.countDistance - route.countDistance + (route_end.countUp - route.countUp)*10) * result[0];
                 re.put("eta_end", (int)t2);   
-                re.put("eta_end_time", last.gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
+                re.put("eta_end_time", last.gpsDate.getTime() + (int)t*1000);
             }
             
             if (checkAll && hc.params.has("image")) {
