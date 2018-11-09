@@ -9,13 +9,13 @@ import org.nutz.lang.Files;
 public abstract class AbstractCartonBuilder implements CartonBuilder {
 
     public void add(CartonCtx ctx, byte[] buf) {
-        File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.jpg", ctx.tmpDir, ctx.lastFrameIndex)));
+        File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.png", ctx.tmpDir, ctx.lastFrameIndex)));
         Files.write(f, buf);
         ctx.lastFrameIndex ++;
     }
     
     public File nextFile(CartonCtx ctx) {
-        File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.jpg", ctx.tmpDir, ctx.lastFrameIndex)));
+        File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.png", ctx.tmpDir, ctx.lastFrameIndex)));
         ctx.lastFrameIndex ++;
         return f;
     }
@@ -24,7 +24,7 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
         //输出playTime,原图
         if (count > 0) {
             ByteArrayOutputStream out = new ByteArrayOutputStream(1024*1024);
-            Images.writeJpeg(ctx.cur.image, out, 0.9f);
+            Images.write(ctx.cur.image, "png", out);
             byte[] buf = out.toByteArray();
             for (int i = 0; i < count; i++) {
                 add(ctx, buf);
@@ -36,7 +36,7 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
         //输出playTime,原图
         if (count > 0) {
             ByteArrayOutputStream out = new ByteArrayOutputStream(1024*1024);
-            Images.writeJpeg(ctx.next.image, out, 0.9f);
+            Images.write(ctx.next.image, "png", out);
             byte[] buf = out.toByteArray();
             for (int i = 0; i < count; i++) {
                 add(ctx, buf);

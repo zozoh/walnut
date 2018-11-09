@@ -56,7 +56,7 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
             }
             
             g2d.dispose();
-            Images.writeJpeg(image, nextFile(ctx), 0.9f);
+            Images.write(image, nextFile(ctx));
         }
         exportNext(ctx, 4);
     }

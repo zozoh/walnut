@@ -138,7 +138,7 @@ public class timg_create implements JvmHdl {
         args.add("-r");
         args.add(""+ctx.fps);
         args.add("-i");
-        args.add(ctx.tmpDir + "/images/T%06d.jpg");
+        args.add(ctx.tmpDir + "/images/T%06d.png");
         args.add("-r");
         args.add(""+ctx.fps);
         args.add("-b:v");
