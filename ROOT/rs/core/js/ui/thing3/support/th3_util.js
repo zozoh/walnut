@@ -113,6 +113,7 @@ __format_field : function(UI, fld) {
     // thumb
     else if("thumb" == fld.key) {
         $z.setUndefined(fld, "title", "i18n:th3.key.thumb");
+        var uiConf = fld.uiConf || {};
         $z.extend(fld, {
             hide : true,
             type : "string",
@@ -123,13 +124,14 @@ __format_field : function(UI, fld) {
             editAs : "image",
             uiConf : {
                 dataType : "idph",
-                height : 180,
+                height : uiConf.height || 180,
                 remove : function(obj, callback) {
                     if(obj)
                         Wn.exec('rm id:'+obj.id, callback);
                 }
             }
         });
+        console.log(fld)
     }
     // 日期
     else if(/^(lm|ct)$/.test(fld.key)) {

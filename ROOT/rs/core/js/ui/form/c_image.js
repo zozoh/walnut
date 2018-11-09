@@ -108,7 +108,7 @@ return ZUI.def("ui.form_com_image", {
             }
             // 没有目标，试图根据 data 来判断
             if(UI.__OBJ) {
-                return o.mime == file.type;
+                return UI.__OBJ.mime == file.type;
             }
 
             // 还木有，那么返回 false
@@ -161,6 +161,8 @@ return ZUI.def("ui.form_com_image", {
         var UI  = this;
         var opt = UI.options;
 
+        //console.log("c_image", opt)
+
         // UI.$el.find(".comi-image").bind("drop",function(e){
         //     e.stopPropagation();
         //     e.preventDefault();
@@ -173,6 +175,7 @@ return ZUI.def("ui.form_com_image", {
 
         //     alert("haha")
         // });
+        //console.log(opt.width, opt.height)
 
         // 限制宽度
         if(!_.isUndefined(opt.width)) {
