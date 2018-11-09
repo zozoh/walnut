@@ -144,12 +144,12 @@ public class mt90_eta extends mt90_parse {
                     WoozRoute route = routes.get(list.get(i).closestRouteIndex);
                     double t = route.cpDistance * result[0] + route.cpUp * result[1] + route.cpDown * result[2];
                     tmp.put("eta_cp", (int)t);
-                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t + 8*3600*1000L);
+                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
                     // 到达终点的耗时
                     WoozRoute route_end = routes.get(routes.size() - 1);
                     double t2 = (route_end.countDistance - route.countDistance) * result[0] + (route_end.countUp - route.countUp) * result[1] + (route_end.countDown - route.countDown) * result[2];
                     tmp.put("eta_end", (int)t2);   
-                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t + 8*3600*1000L);                 
+                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);                 
                     speeds[i] = tmp;
                     if (!re.containsKey("eta_cp_time")) {
                         re.putAll(tmp);
@@ -164,6 +164,21 @@ public class mt90_eta extends mt90_parse {
             }
             if (checkAll) {
                 re.put("speeds", speeds);
+            }
+            
+            // 一个预测结果都没有啊?!!! 按平均速度算, 6km/h, 即 6000/3600.0的米耗时
+            if (!re.has("eta_cp_time")) {
+                Mt90Raw last = list.get(list.size() - 1);
+                double[] result = new double[] {8000/3600.0, 0, 0};
+                WoozRoute route = routes.get(last.closestRouteIndex);
+                double t = (route.cpDistance + route.cpUp * 10) * result[0];
+                re.put("eta_cp", (int)t);
+                re.put("eta_cp_time", last.gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
+                // 到达终点的耗时
+                WoozRoute route_end = routes.get(routes.size() - 1);
+                double t2 = (route_end.countDistance - route.countDistance + (route_end.countUp - route.countUp)*10) * result[0];
+                re.put("eta_end", (int)t2);   
+                re.put("eta_end_time", last.gpsDate.getTime() + (int)t*1000 + 8*3600*1000L);
             }
             
             if (checkAll && hc.params.has("image")) {
@@ -269,15 +284,12 @@ public class mt90_eta extends mt90_parse {
     }
     
     public double[] countResult(List<Mt90Raw> list, List<WoozRoute> routes, int endAt, int[] _re, boolean debug) {
-        Mt90Raw _30min = list.get(endAt);
-        Mt90Raw _20min = null;
-        Mt90Raw _10min = null;
-        Mt90Raw _0min = null;
+        Mt90Raw _25min = list.get(endAt);
         
         List<Integer> tlist = new ArrayList<>();
         tlist.add(endAt);
         for (int i = endAt -1; i > -1; i--) {
-            if (_30min.gpsDate.getTime() - list.get(i).gpsDate.getTime() < 60*60*1000) {
+            if (_25min.gpsDate.getTime() - list.get(i).gpsDate.getTime() < 30*60*1000) {
                 tlist.add(Integer.valueOf(i));
             }
             else {
@@ -286,29 +298,33 @@ public class mt90_eta extends mt90_parse {
         }
         //log.infof("count %d point for 3-1", tlist.size());
         if (tlist.size() > 40) {
-            // 抽取0,10,20,30 
+            // 抽取0,5,10,15,20,25
             // 0 - 30 , 0 - 20, 10 - 30
-            _0min = list.get(tlist.get(tlist.size() - 1));
-            _10min = list.get(tlist.get(tlist.size() / 3));
-            _20min = list.get(tlist.get(tlist.size() / 3 * 2)) ;
+            int _t = tlist.size() / 5;
+            Mt90Raw _0min = list.get(tlist.get(tlist.size() - 1));
+            Mt90Raw _5min = list.get(tlist.get(_t*1));
+            Mt90Raw _10min = list.get(tlist.get(_t*2));
+            Mt90Raw _15min = list.get(tlist.get(_t*3));
+            Mt90Raw _20min = list.get(tlist.get(_t*4)) ;
+            //Mt90Raw _25min = list.get(tlist.get(tlist.size() / 3));
             
             // 准备个矩阵
             double[][] matrix = new double[3][4];
-            // 0 - 30的3个参数
-            matrix[0][0] = (routes.get(_30min.closestRouteIndex).countDistance - routes.get(_0min.closestRouteIndex).countDistance);
-            matrix[0][1] = (routes.get(_30min.closestRouteIndex).countUp - routes.get(_0min.closestRouteIndex).countUp);
-            matrix[0][2] = (routes.get(_30min.closestRouteIndex).countDown - routes.get(_0min.closestRouteIndex).countDown);
-            matrix[0][3] = (_30min.gpsDate.getTime() - _0min.gpsDate.getTime()) / 1000;
-            // 0 - 20的三个参数
-            matrix[1][0] = (routes.get(_20min.closestRouteIndex).countDistance - routes.get(_0min.closestRouteIndex).countDistance);
-            matrix[1][1] = (routes.get(_20min.closestRouteIndex).countUp - routes.get(_0min.closestRouteIndex).countUp);
-            matrix[1][2] = (routes.get(_20min.closestRouteIndex).countDown - routes.get(_0min.closestRouteIndex).countDown);
-            matrix[1][3] = (_20min.gpsDate.getTime() - _0min.gpsDate.getTime()) / 1000;
-            // 10 - 30的3个参数
-            matrix[2][0] = (long) (routes.get(_30min.closestRouteIndex).countDistance - routes.get(_10min.closestRouteIndex).countDistance);
-            matrix[2][1] = (long) (routes.get(_30min.closestRouteIndex).countUp - routes.get(_10min.closestRouteIndex).countUp);
-            matrix[2][2] = (long) (routes.get(_30min.closestRouteIndex).countDown - routes.get(_10min.closestRouteIndex).countDown);
-            matrix[2][3] = (_30min.gpsDate.getTime() - _10min.gpsDate.getTime()) / 1000;
+            // 10-25的3个参数
+            matrix[0][0] = (routes.get(_25min.closestRouteIndex).countDistance - routes.get(_10min.closestRouteIndex).countDistance);
+            matrix[0][1] = (routes.get(_25min.closestRouteIndex).countUp - routes.get(_10min.closestRouteIndex).countUp);
+            matrix[0][2] = (routes.get(_25min.closestRouteIndex).countDown - routes.get(_10min.closestRouteIndex).countDown);
+            matrix[0][3] = (_25min.gpsDate.getTime() - _10min.gpsDate.getTime()) / 1000;
+            // 5 - 20的三个参数
+            matrix[1][0] = (routes.get(_20min.closestRouteIndex).countDistance - routes.get(_5min.closestRouteIndex).countDistance);
+            matrix[1][1] = (routes.get(_20min.closestRouteIndex).countUp - routes.get(_5min.closestRouteIndex).countUp);
+            matrix[1][2] = (routes.get(_20min.closestRouteIndex).countDown - routes.get(_5min.closestRouteIndex).countDown);
+            matrix[1][3] = (_20min.gpsDate.getTime() - _5min.gpsDate.getTime()) / 1000;
+            // 0 - 15的3个参数
+            matrix[2][0] = (long) (routes.get(_15min.closestRouteIndex).countDistance - routes.get(_0min.closestRouteIndex).countDistance);
+            matrix[2][1] = (long) (routes.get(_15min.closestRouteIndex).countUp - routes.get(_0min.closestRouteIndex).countUp);
+            matrix[2][2] = (long) (routes.get(_15min.closestRouteIndex).countDown - routes.get(_0min.closestRouteIndex).countDown);
+            matrix[2][3] = (_15min.gpsDate.getTime() - _0min.gpsDate.getTime()) / 1000;
             
             double[][] _matrix = null;
             if (debug) {
