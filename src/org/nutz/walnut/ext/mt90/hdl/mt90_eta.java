@@ -83,7 +83,7 @@ public class mt90_eta extends mt90_parse {
                         WoozRoute last = routes.get(lastRoutePoint);
                         WoozRoute cur = routes.get(point.pointIndex);
                         double len = cur.countDistance - last.countDistance;
-                        long time = raw.gpsDate.getTime() - prev.gpsDate.getTime();
+                        long time = raw.timestamp - prev.timestamp;
                         int speed = (int) Math.abs(len / (time / 1000 + 1) * 3.6);
                         if (debug)
                             log.infof("选手轨迹点序号%d 线路轨迹点%d 水平速度%dkm/s", index, point.pointIndex, speed);
@@ -149,7 +149,7 @@ public class mt90_eta extends mt90_parse {
                     WoozRoute route_end = routes.get(routes.size() - 1);
                     double t2 = (route_end.countDistance - route.countDistance) * result[0] + (route_end.countUp - route.countUp) * result[1] + (route_end.countDown - route.countDown) * result[2];
                     tmp.put("eta_end", (int)t2);   
-                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t*1000);                 
+                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t2*1000);                 
                     speeds[i] = tmp;
                     if (!re.containsKey("eta_cp_time")) {
                         re.putAll(tmp);
@@ -178,7 +178,7 @@ public class mt90_eta extends mt90_parse {
                 WoozRoute route_end = routes.get(routes.size() - 1);
                 double t2 = (route_end.countDistance - route.countDistance + (route_end.countUp - route.countUp)*10) * result[0];
                 re.put("eta_end", (int)t2);   
-                re.put("eta_end_time", last.gpsDate.getTime() + (int)t*1000);
+                re.put("eta_end_time", last.gpsDate.getTime() + (int)t2*1000);
             }
             
             if (checkAll && hc.params.has("image")) {
@@ -289,7 +289,7 @@ public class mt90_eta extends mt90_parse {
         List<Integer> tlist = new ArrayList<>();
         tlist.add(endAt);
         for (int i = endAt -1; i > -1; i--) {
-            if (_25min.gpsDate.getTime() - list.get(i).gpsDate.getTime() < 30*60*1000) {
+            if (_25min.timestamp - list.get(i).timestamp < 30*60*1000) {
                 tlist.add(Integer.valueOf(i));
             }
             else {
@@ -314,17 +314,17 @@ public class mt90_eta extends mt90_parse {
             matrix[0][0] = (routes.get(_25min.closestRouteIndex).countDistance - routes.get(_10min.closestRouteIndex).countDistance);
             matrix[0][1] = (routes.get(_25min.closestRouteIndex).countUp - routes.get(_10min.closestRouteIndex).countUp);
             matrix[0][2] = (routes.get(_25min.closestRouteIndex).countDown - routes.get(_10min.closestRouteIndex).countDown);
-            matrix[0][3] = (_25min.gpsDate.getTime() - _10min.gpsDate.getTime()) / 1000;
+            matrix[0][3] = (_25min.timestamp - _10min.timestamp) / 1000;
             // 5 - 20的三个参数
             matrix[1][0] = (routes.get(_20min.closestRouteIndex).countDistance - routes.get(_5min.closestRouteIndex).countDistance);
             matrix[1][1] = (routes.get(_20min.closestRouteIndex).countUp - routes.get(_5min.closestRouteIndex).countUp);
             matrix[1][2] = (routes.get(_20min.closestRouteIndex).countDown - routes.get(_5min.closestRouteIndex).countDown);
-            matrix[1][3] = (_20min.gpsDate.getTime() - _5min.gpsDate.getTime()) / 1000;
+            matrix[1][3] = (_20min.timestamp - _5min.timestamp) / 1000;
             // 0 - 15的3个参数
             matrix[2][0] = (long) (routes.get(_15min.closestRouteIndex).countDistance - routes.get(_0min.closestRouteIndex).countDistance);
             matrix[2][1] = (long) (routes.get(_15min.closestRouteIndex).countUp - routes.get(_0min.closestRouteIndex).countUp);
             matrix[2][2] = (long) (routes.get(_15min.closestRouteIndex).countDown - routes.get(_0min.closestRouteIndex).countDown);
-            matrix[2][3] = (_15min.gpsDate.getTime() - _0min.gpsDate.getTime()) / 1000;
+            matrix[2][3] = (_15min.timestamp - _0min.timestamp) / 1000;
             
             double[][] _matrix = null;
             if (debug) {
