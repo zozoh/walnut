@@ -556,6 +556,38 @@ var methods = {
         UI.resize();
     },
     //...............................................................
+    moveFirst : function(it) {
+        var UI = this;
+        var jItem = UI.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jItem.length == 0)
+            return;
+
+        // 寻找移动目标
+        var jListBody = UI.$listBody();
+        jListBody.prepend(jItem);
+
+        // 返回被移动项
+        return jItem;
+    },
+    //...............................................................
+    moveLast : function(it) {
+        var UI = this;
+        var jItem = UI.$item(it);
+
+        // 如果没有匹配的行，啥也不做
+        if(jItem.length == 0)
+            return;
+
+        // 寻找移动目标
+        var jListBody = UI.$listBody();
+        jListBody.append(jItem);
+
+        // 返回被移动项
+        return jItem;
+    },
+    //...............................................................
     moveUp : function(it) {
         var jItem = this.$item(it);
 

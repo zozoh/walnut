@@ -131,7 +131,7 @@ __format_field : function(UI, fld) {
                 }
             }
         });
-        console.log(fld)
+        //console.log(fld)
     }
     // 日期
     else if(/^(lm|ct)$/.test(fld.key)) {
