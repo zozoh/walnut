@@ -3007,6 +3007,12 @@
         parseTimeInfo: function (input, dft) {
             if(_.isNull(input) || _.isUndefined(input))
                 return null;
+            // 接受日期对象
+            if(_.isDate(input)) {
+                var str = input.format('HH:MM:ss');
+                input = str;
+            }
+            // 准备对齐方法
             var _pad = function (v, width) {
                 width = width || 2;
                 if (3 == width) {

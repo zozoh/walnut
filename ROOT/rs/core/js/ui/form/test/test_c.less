@@ -1,3 +1,5 @@
+@import "light";
+
 .form-test-con {
     padding:.2rem;
 
@@ -9,5 +11,18 @@
     > div {
         width:100%; max-width:800px;
     }
+}
+
+.t-msg {
+    padding:@d3; font-family:@f_fixed;
+    background:#000; color:#FF0; font-size:14px;
+    min-height: 100px; 
+}
+
+.t-item {
+    @flex(); border-bottom:1px dashed @cborder1;
+    padding:@d4;
+    > div {flex:1 1 auto;}
+    > button {flex:0 0 auto;}
 }
 

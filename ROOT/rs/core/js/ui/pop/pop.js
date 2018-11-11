@@ -83,6 +83,58 @@ module.exports = {
         this.openUIPanel(opt, referUI);
     },
     //...............................................................
+    // 弹出一个 Date 拾取器
+    /*
+    opt : {
+        title       : "i18n:xxx"    // 弹出框标题
+        arenaClass  : "xxx",        // 弹出框主题的类选择器
+        width       : 900           // 弹出框宽度
+        height      : "90%"         // 弹出框高度
+        callback    : 回调函数接受 callback(Date)
+        context     : MaskUI        // 回调的上下文，默认是 MaskUI
+    }
+    referUI : 为一个 UI 的引用，弹出框将复用它的 _msg_map | app | exec 设定
+    */
+    date : function(d, opt, referUI) {
+        // opt 直接就是一个回调
+        if(_.isFunction(opt)){
+            opt = {callback : opt};
+        }
+        // 确保配置非空
+        else {
+            opt = opt || {};
+        }
+
+        // 默认标题
+        $z.setUndefined(opt, "title", "i18n:edit");
+
+        // 固定宽高
+        opt.width  = 300;
+        opt.height = 360;
+        opt.arenaClass = "pop-date";
+
+        //--------------------------------
+        // 修改配置信息
+        _.extend(opt, {
+            setup : {
+                uiType : 'ui/calendar/calendar',
+                uiConf : opt.setup || {}
+            },
+            ok : function(uiCal, jBtn, uiMask){
+                var d = uiCal.getActived();
+                $z.invoke(opt, "callback", [d], this);
+            }
+        });
+        //--------------------------------
+        // 设定初始化函数
+        opt.ready = function(uiCal){
+            uiCal.setActived(d);
+        };
+
+        // 打开
+        this.openUIPanel(opt, referUI);
+    },
+    //...............................................................
     // 打开一个文本编辑器（弹出），接受的参数格式为:
     /*
     opt : {

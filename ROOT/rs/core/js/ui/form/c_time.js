@@ -37,6 +37,7 @@ return ZUI.def("ui.form_com_time", {
     init : function(opt){
         FormMethods(this);
 
+        $z.setUndefined(opt, "clearable", true);
         // 默认编辑精确到秒, 指定  "minute" 将会显示编辑框到分
         $z.setUndefined(opt, "editAs", "second");
         // 默认的输出格式 (getData)
@@ -87,9 +88,13 @@ return ZUI.def("ui.form_com_time", {
         if(opt.editAs =='minute') {
             UI.arena.find('input[name="second"]').closest('li').remove();
         }
+        // 不用取消
+        if(!opt.clearable){
+            UI.arena.find('.ct-clean').remove();
+        }
     },
     //...............................................................
-    _get_data : function(){
+    _get_data : function(format){
         var UI = this;
         var opt = UI.options;
 
@@ -120,7 +125,7 @@ return ZUI.def("ui.form_com_time", {
 
         // 解析
         var ti = $z.parseTimeInfo(sec);
-        return ti.toString(opt.format);
+        return ti.toString(format || opt.format);
     },
     //...............................................................
     _set_data : function(val, jso){

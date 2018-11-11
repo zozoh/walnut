@@ -17,6 +17,54 @@
 }
 
 //----------------------------------------------------------------
+// 日期时间编辑
+.com-datetime {
+    @flex(); align-items:center;
+    > div {
+        margin:0 @d1;
+    }
+    > .cdt-date {
+        min-width: 120px;
+    }
+    > .cdt-btn {
+        flex: 0 0 auto; cursor:pointer;
+        color:@clink; padding:@d3; 
+        font-size: @f1;
+        &:hover{
+            color:@clink_hover;
+            text-decoration:underline;
+        }
+    }
+}
+
+//----------------------------------------------------------------
+// 日期编辑
+.com-date {
+    @flex(); @input(); cursor: pointer;
+    color:@c4; 
+    &:hover {
+        background:@ch0_b; color:@ch0_f;
+        > .cd-box {
+            > i {color:@ch0_f;}
+        }
+    }
+    > .cd-box {
+        flex:1 1 auto; padding:@d3; 
+        > i {color:@c2;}
+        > span {margin:0 @d2;}
+    }
+    > .cd-btn {
+        flex: 0 0 auto; cursor:pointer;
+        color:@clink; padding:@d3; 
+        font-size: @f1;
+        &:hover{
+            color:@clink_hover;
+            text-decoration:underline;
+        }
+    }
+}
+
+//----------------------------------------------------------------
 // 时间编辑
 .com-time {
     ul {
