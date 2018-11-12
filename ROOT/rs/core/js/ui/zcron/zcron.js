@@ -1413,7 +1413,7 @@ ZCronObj.prototype = {
         return ary.join("");
     },
     //............................................................
-    toText : function(i18n){
+    toText : function(i18n, onlyShowDateText){
         var ary = [];
         // ............................................
         // 增加日期范围
@@ -1438,18 +1438,21 @@ ZCronObj.prototype = {
             this.idd.joinText(ary, i18n, "day");
         }
 
-        // ............................................
-        // 描述了时间点
-        for (var i=0; i < this.timeRepeaters.length; i++) {
-            var tr = this.timeRepeaters[i];
-            tr.joinText(i18n, ary);
-        }
-        // ............................................
-        // 如果没有指定时间点，则默认采用标准表达式的时间
-        if (!this.has_time_points) {
-            this.iHH.joinText(ary, i18n, "hour");
-            this.imm.joinText(ary, i18n, "minute");
-            this.iss.joinText(ary, i18n, "second");
+        // 时间部分
+        if(!onlyShowDateText) {
+            // ............................................
+            // 描述了时间点
+            for (var i=0; i < this.timeRepeaters.length; i++) {
+                var tr = this.timeRepeaters[i];
+                tr.joinText(i18n, ary);
+            }
+            // ............................................
+            // 如果没有指定时间点，则默认采用标准表达式的时间
+            if (!this.has_time_points) {
+                this.iHH.joinText(ary, i18n, "hour");
+                this.imm.joinText(ary, i18n, "minute");
+                this.iss.joinText(ary, i18n, "second");
+            }
         }
 
         // 返回字符串
