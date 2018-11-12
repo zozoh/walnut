@@ -60,18 +60,16 @@ public class wooz_fix implements JvmHdl {
             if (log.isDebugEnabled())
                 log.debug("获取cplist");
             for (WoozPoint point : wooz.points) {
-                if (point.service == null)
-                    point.service = "";
-                if ("csp".equals(point.type) && point.service.contains("C")) {
+                if ("cp".equals(point.type) || "sp".equals(point.type)) {
                     has_no_any_csp = false;
+                    cplist.add(point);
                 } else if ("start".equals(point.type)) {
                     startPoint = point;
+                    cplist.add(point);
                 } else if ("end".equals(point.type)) {
                     endPoint = point;
-                } else {
-                    continue;
+                    cplist.add(point);
                 }
-                cplist.add(point);
             }
             if (must_has_csp) {
                 // 必须有赛点，或者有 -nocsp
@@ -86,7 +84,9 @@ public class wooz_fix implements JvmHdl {
             if (log.isDebugEnabled())
                 log.debug("计算每个CP点对应的轨迹点");
             // 计算每个CP点对应的轨迹点
-            for (WoozPoint point : wooz.points) {
+            Iterator<WoozPoint> it = cplist.iterator();
+            while (it.hasNext()) {
+                WoozPoint point = it.next();
                 if ("start".equals(point.type)) {
                     point.routePointIndex = 0;
                     point.routePointDistance = 0;
@@ -94,13 +94,16 @@ public class wooz_fix implements JvmHdl {
                     point.routePointIndex = wooz.route.size() - 1; // 直接定位到最后一个点
                     point.routePointDistance = 0; // 肯定是0
                 }
-                if (!"csp".equals(point.type) && !point.service.contains("C")) {
-                    continue;
+                else {
+                    // 查找与CP点最近的轨迹点
+                    double[] re = WoozTools.findClosest(wooz.route, point.lat, point.lng, -1);
+                    point.routePointIndex = (int) re[0];
+                    point.routePointDistance = (int) re[1];
+                    System.out.println("" + re[0] + " " + re[1] + " " + point.name + " " + point.lat + " " + point.lng);
+                    if ("sp".equals(point.type)) {
+                        it.remove();
+                    }
                 }
-                // 查找与CP点最近的轨迹点
-                int[] re = WoozTools.findClosest(wooz.route, point.lat, point.lng, -1);
-                point.routePointIndex = re[0];
-                point.routePointDistance = re[1];
             }
             if (log.isInfoEnabled())
                 log.info("重新排序");
@@ -122,7 +125,7 @@ public class wooz_fix implements JvmHdl {
             WoozPoint cur = cplist.get(i);
             WoozPoint next = cplist.get(i + 1);
             if (cur.routePointIndex > next.routePointIndex) {
-                throw Er.create("cp点顺序不合法!!!");
+                throw Er.create("cp点顺序不合法!!! ");
             }
         }
         if (log.isInfoEnabled())

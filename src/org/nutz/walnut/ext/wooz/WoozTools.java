@@ -244,15 +244,15 @@ public class WoozTools {
         return Math.sqrt(Lx * Lx + Ly * Ly);  // 用平面的矩形对角距离公式计算总距离
    }
     
-    public static int[] findClosest(List<WoozRoute> routes, double lat, double lng, int maxD) {
-        int[] re = new int[2];
+    public static double[] findClosest(List<WoozRoute> routes, double lat, double lng, int maxD) {
+        double[] re = new double[2];
         re[1] = Integer.MAX_VALUE;
         int index = 0;
         for (WoozRoute woozRoute : routes) {
             double distance = getDistance(woozRoute.lat, woozRoute.lng, lat, lng);
             if (distance < re[1]) {
                 re[0] = index;
-                re[1] = (int)distance;
+                re[1] = distance;
             }
             index ++;
         }

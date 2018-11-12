@@ -9,6 +9,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.mt90.Mt90Map;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
 import org.nutz.walnut.ext.wooz.WoozMap;
+import org.nutz.walnut.ext.wooz.WoozPoint;
 import org.nutz.walnut.ext.wooz.WoozRoute;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -74,6 +75,7 @@ public class mt90_toimage extends mt90_parse {
         
         // 画原轨迹
         if (map != null) {
+            g2d.setColor(Color.GREEN);
             xPoints = new int[map.route.size()];
             yPoints = new int[map.route.size()];
             for (int i = 0; i < xPoints.length; i++) {
@@ -82,11 +84,20 @@ public class mt90_toimage extends mt90_parse {
                 int y = (int) ((raw.lat - min_lat) * (image_h / diff_lat));
                 xPoints[i] = x + image_ext/2;
                 yPoints[i] = image_h - y + image_ext/2;
+                g2d.drawString("M-" + i, xPoints[i] + 2, yPoints[i]+2);
             }
             g2d.setColor(Color.BLACK);
             g2d.drawPolygon(xPoints, yPoints, map.route.size());
+            if (map.points != null) {
+                g2d.setColor(Color.RED);
+                for (WoozPoint point : map.points) {
+                    int x = (int) ((point.lng - min_lng) * (image_w / diff_lng));
+                    int y = (int) ((point.lat - min_lat) * (image_h / diff_lat));
+                    g2d.drawString(point.name, x + image_ext/2, image_h - y + image_ext/2);
+                }
+            }
         }
         
-        sys.io.writeImage(sys.io.createIfNoExists(null, Wn.normalizeFullPath(hc.params.get("image"), sys), WnRace.FILE), image);
+        sys.io.writeImage(sys.io.createIfNoExists(null, Wn.normalizeFullPath(hc.params.check("image"), sys), WnRace.FILE), image);
     }
 }
