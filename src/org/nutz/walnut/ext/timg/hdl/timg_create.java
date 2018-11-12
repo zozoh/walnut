@@ -142,7 +142,7 @@ public class timg_create implements JvmHdl {
         args.add("-r");
         args.add(""+ctx.fps);
         args.add("-b:v");
-        args.add("6000k");
+        args.add("12000k");
         args.add("-y");
         args.add("-pix_fmt");
         args.add("yuv420p");
