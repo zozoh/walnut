@@ -35,7 +35,7 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
-@JvmHdlParamArgs(value="cqn", regex="^(keep|debug|fmd5|force)$")
+@JvmHdlParamArgs(value="cqn", regex="^(keep|debug|fmd5|force|silencemp3)$")
 public class timg_create implements JvmHdl {
     
     protected static final Log log = Logs.get();
@@ -139,6 +139,14 @@ public class timg_create implements JvmHdl {
         args.add(""+ctx.fps);
         args.add("-i");
         args.add(ctx.tmpDir + "/images/T%06d.png");
+        if (hc.params.is("silencemp3")) {
+            args.add("-i");
+            args.add(ctx.tmpDir + "/Silence01min.mp3");
+            Files.write(ctx.tmpDir + "/Silence01min.mp3", getClass().getClassLoader().getResourceAsStream("Silence01min.mp3"));
+            args.add("-t");
+            int t = (new File(ctx.tmpDir + "/images/").list().length+23);
+            args.add(String.format("00:%02d:%02d.00", t/24/24, t/ 24));
+        }
         args.add("-r");
         args.add(""+ctx.fps);
         args.add("-b:v");
@@ -155,29 +163,6 @@ public class timg_create implements JvmHdl {
         log.info("启动: " + Strings.join(" ", args));
         Lang.execOutput(args.toArray(new String[args.size()]));
         log.info("完成: " + Strings.join(" ", args));
-        // 再转视频一次
-//        log.info("启动: " + Strings.join(" ", args));
-//        args = new ArrayList<>();
-//        if (Lang.isWin()) {
-//            args.add("ffmpeg.exe");
-//        }
-//        else {
-//            args.add("ffmpeg");
-//        }
-//        // -r 25 -i uobm2jbg5ojj1qh0vpq8am5frn/images/T%06d.jpg -r 24 -y uobm2jbg5ojj1qh0vpq8am5frn.mp4
-//        args.add("-v");
-//        args.add("quiet");
-//        args.add("-i");
-//        args.add(ctx.tmpDir + "/timg.mp4");
-//        args.add("-y");
-//        args.add("-pix_fmt");
-//        args.add("yuv420p");
-//        args.add("-movflags");
-//        args.add("faststart");
-//        args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
-//        args.add(ctx.tmpDir + "/timg2.mp4");
-//        Lang.execOutput(args.toArray(new String[args.size()]));
-//        log.info("完成: " + Strings.join(" ", args));
         // 写到walnut里面去
         File f = new File(ctx.tmpDir + "/timg.mp4");
         try (InputStream ins = new FileInputStream(f)) {
