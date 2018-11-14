@@ -1,8 +1,13 @@
 package org.nutz.walnut.ext.timg.builder;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nutz.img.Images;
 import org.nutz.log.Log;
@@ -35,7 +40,9 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
         int w = ctx.w;
         int h = ctx.h;
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-        cartonFrameCount -= 4;
+        int keepOrigin = ctx.conf.getInt("keepOrigin", 4);
+        boolean drawNumber = ctx.conf.getBoolean("drawNumber", false);
+        cartonFrameCount -= keepOrigin;
         for (int i = 0; i < cartonFrameCount; i++) {
 
             // 首先,清图
@@ -47,21 +54,21 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
             
             // 先画第一张图?
             if (drawCurFirst) {
-                drawImage(g2d, process, ctx.cur.image, curParam, w, h, false);
-                drawImage(g2d, process, ctx.next.image, nextParam, w, h, true);
+                drawImage(g2d, process, ctx.cur.image, curParam, w, h, false, i, drawNumber);
+                drawImage(g2d, process, ctx.next.image, nextParam, w, h, true, i, drawNumber);
             }
             else {
-                drawImage(g2d, process, ctx.next.image, nextParam, w, h, true);
-                drawImage(g2d, process, ctx.cur.image, curParam, w, h, false);
+                drawImage(g2d, process, ctx.next.image, nextParam, w, h, true, i, drawNumber);
+                drawImage(g2d, process, ctx.cur.image, curParam, w, h, false, i, drawNumber);
             }
             
             g2d.dispose();
             Images.write(image, nextFile(ctx));
         }
-        exportNext(ctx, 4);
+        exportNext(ctx, keepOrigin, cartonFrameCount, drawNumber);
     }
     
-    public void drawImage(Graphics2D g2d, double process, BufferedImage image, MoovParam param, int w, int h, boolean moovToZero) {
+    public void drawImage(Graphics2D g2d, double process, BufferedImage image, MoovParam param, int w, int h, boolean moovToZero, int i, boolean drawNumber) {
         // 透明度
         float alpha = (float) compute(process, param.alpha, 1);
         //System.out.println("" + process + "," + param.alpha + "," + alpha);
@@ -83,6 +90,14 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
         
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         g2d.drawImage(image, x, y, size_w, size_h, null);
+        
+        if (drawNumber) {
+            if (chineseFont != null)
+                g2d.setFont(chineseFont);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
+            g2d.setColor(Color.BLACK);
+            g2d.drawString("F" + i, size_w/2-40, size_h/2-40);
+        }
     }
     
     public static double compute(double process, int type, double base) {

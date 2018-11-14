@@ -45,6 +45,14 @@ public class timg_create implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         List<TimgCarton> cartons = null;
+        // 读取动态配置文件
+        NutMap conf = new NutMap();
+        {
+            WnObj wobj = sys.io.fetch(null, Wn.normalizeFullPath("~/.timg/config", sys));
+            if (wobj != null && wobj.len() > 0) {
+                conf = sys.io.readJson(wobj, NutMap.class);
+            }
+        }
         if (hc.params.has("simple")) {
             // 简单模式   图片A,图片B,转场效果,时长
             String[] simple = hc.params.get("simple").split(",");
@@ -111,10 +119,11 @@ public class timg_create implements JvmHdl {
         CartonCtx ctx = new CartonCtx();
         ctx.cartons = cartons;
         ctx.tmpDir = "/tmp/" + R.UU32(); // 本地临时路径
-        ctx.fps = hc.params.getInt("fps", 24); // 图片生成的帧率总是25
+        ctx.fps = hc.params.getInt("fps", conf.getInt("fps", 24)); // 图片生成的帧率总是25
         ctx.w = hc.params.getInt("w");
         ctx.h = hc.params.getInt("h");
         ctx.io = sys.io;
+        ctx.conf = conf;
         // 逐个效果操作
         for (int i = 0; i < cartons.size(); i++) {
             ctx.cur = cartons.get(i);
@@ -139,7 +148,7 @@ public class timg_create implements JvmHdl {
         args.add(""+ctx.fps);
         args.add("-i");
         args.add(ctx.tmpDir + "/images/T%06d.png");
-        if (hc.params.is("silencemp3")) {
+        if (conf.getBoolean("silencemp3", false)) {
             args.add("-i");
             args.add(ctx.tmpDir + "/Silence01min.mp3");
             Files.write(ctx.tmpDir + "/Silence01min.mp3", getClass().getClassLoader().getResourceAsStream("Silence01min.mp3"));
@@ -147,17 +156,24 @@ public class timg_create implements JvmHdl {
             int t = (new File(ctx.tmpDir + "/images/").list().length+23);
             args.add(String.format("00:%02d:%02d.00", t/24/24, t/ 24));
         }
+        else if (conf.has("mp3")) {
+            args.add("-i");
+            args.add(ctx.tmpDir + "/Silence01min.mp3");
+            Files.write(ctx.tmpDir + "/Silence01min.mp3", sys.io.getInputStream(sys.io.check(null, Wn.normalizeFullPath(conf.getString("mp3"), sys)), 0));
+            args.add("-t");
+            int t = (new File(ctx.tmpDir + "/images/").list().length+23);
+            args.add(String.format("00:%02d:%02d.00", t/24/24, t/ 24));
+        }
         args.add("-r");
         args.add(""+ctx.fps);
         args.add("-b:v");
-        args.add("12000k");
+        args.add(conf.getString("bv", "12000k"));
         args.add("-y");
         args.add("-pix_fmt");
         args.add("yuv420p");
         args.add("-movflags");
         args.add("faststart");
         args.addAll(Arrays.asList("-profile:v main -level 4.0".split(" ")));
-        //args.addAll(Arrays.asList("-maxrate 6000k -bufsize 2M".split(" ")));
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
         log.info("启动: " + Strings.join(" ", args));
