@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.timg;
 
 import java.util.List;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 
 public class CartonCtx {
@@ -16,4 +17,5 @@ public class CartonCtx {
     public WnIo io;
     public int w;
     public int h;
+    public NutMap conf;
 }
