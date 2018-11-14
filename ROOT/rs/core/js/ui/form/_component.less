@@ -37,7 +37,7 @@
     }
     > .cdt-btn {
         flex: 0 0 auto; cursor:pointer;
-        color:@clink; padding:@d3; 
+        color:@clink; padding:@d3 @d0; 
         font-size: @f1;
         &:hover{
             color:@clink_hover;
@@ -78,6 +78,7 @@
 .com-time {
     ul {
         @flex();
+        li {white-space: nowrap;}
         li > b {
             display:inline-block; content:":";
             padding:0 @d2; color:@c2; font-weight:bold;
