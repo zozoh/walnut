@@ -35,8 +35,6 @@ public class kml_fromwooz implements JvmHdl {
         KmlFile kml = XmlBind.fromXml(KmlFile.class, text);
         if (kml.document == null)
             return;
-        String conv_from = hc.params.get("conv_from", "");
-        String conv_to = hc.params.get("conv_to", "");
         Set<String> pointsKeyworks = new HashSet<>(Arrays.asList(hc.params.get("points", "标注点").split(",")));
         Set<String> routeKeyworks = new HashSet<>(Arrays.asList(hc.params.get("route", "导航线,轨迹").split(",")));
         WoozMap wooz = new WoozMap();

@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.sms.hdl;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;

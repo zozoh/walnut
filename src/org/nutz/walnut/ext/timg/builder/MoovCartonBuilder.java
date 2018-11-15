@@ -2,12 +2,8 @@ package org.nutz.walnut.ext.timg.builder;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.nutz.img.Images;
 import org.nutz.log.Log;
