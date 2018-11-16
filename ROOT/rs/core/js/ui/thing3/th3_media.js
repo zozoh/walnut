@@ -32,16 +32,55 @@ return ZUI.def("ui.th3.media", {
     //..............................................
     init : function(opt){
         var UI = ThMethods(this);
+
+        // 默认 mainData 为空，则表示从父 th3_main 取
+        $z.setUndefined(opt, "mainData", "null");
+
+        // 对应 folderName
         $z.setUndefined(opt, "folderName", "media");
 
-        var mode = opt.folderName;
+        // 默认双击媒体
+        $z.setUndefined(opt, "on_open", function(o) {
+            //console.log("open", o);
+            var url = "/a/open/"+(window.wn_browser_appName||"wn.browser");
+            $z.openUrl(url, "_blank", "GET", {
+                "ph" : "id:" + o.id
+            });
+        });
 
-        UI.listenBus("obj:selected", UI.on_selected);
-        UI.listenBus("obj:blur", UI.showBlank);
-        UI.listenBus(mode+":refresh", UI.on_refresh);
-        UI.listenBus(mode+":remove", UI.on_remove);
-        UI.listenBus(mode+":upload", UI.on_upload);
-        UI.listenBus(mode+":download", UI.on_download);
+        // 预览界面的命令
+        $z.setUndefined(opt, "previewActions", [
+                "fullscreen", "download", "open", "asthumb"]);
+        var previewActions = [];
+        for(var i=0; i<opt.previewActions.length; i++) {
+            var pa = opt.previewActions[i];
+            if('asthumb' == pa) {
+                previewActions.push({
+                    icon : '<i class="zmdi zmdi-image"></i>',
+                    tip  : 'i18n:th3.data.asthumb',
+                    handler :function(o){
+                        UI.__do_as_thumb(o);
+                    }
+                });
+            }
+            // 其他
+            else {
+                previewActions.push(pa);
+            }
+        }
+        opt.previewActions = previewActions;
+        console.log(opt.previewActions)
+
+        // 监听
+        if(_.isFunction(UI.listenBus)) {
+            var mode = opt.folderName;
+            UI.listenBus("obj:selected", UI.on_selected);
+            UI.listenBus("obj:blur", UI.showBlank);
+            UI.listenBus(mode+":refresh", UI.on_refresh);
+            UI.listenBus(mode+":remove", UI.on_remove);
+            UI.listenBus(mode+":upload", UI.on_upload);
+            UI.listenBus(mode+":download", UI.on_download);
+        }
     },
     //..............................................
     events : {
@@ -75,13 +114,7 @@ return ZUI.def("ui.th3.media", {
             arenaClass : "data-list",
             objTagName : "SPAN",
             renameable : true,
-            on_open : function(o) {
-                //console.log("open", o);
-                var url = "/a/open/"+(window.wn_browser_appName||"wn.browser");
-                $z.openUrl(url, "_blank", "GET", {
-                    "ph" : "id:" + o.id
-                });
-            },
+            on_open : opt.on_open,
             on_rename : function(o) {
                 var obj = UI.__OBJ;
                 Wn.execf('thing {{th_set}} '+mode+' {{id}} -ufc', {
@@ -128,8 +161,12 @@ return ZUI.def("ui.th3.media", {
         }
 
         // 将第一个对象作为要显示的对象
-        UI.__OBJ = objs[0];
-        UI.refresh();
+        UI.setObj(objs[0]);
+    },
+    //..............................................
+    setObj : function(obj, callback) {
+        this.__OBJ = obj;
+        this.refresh(callback);
     },
     //..............................................
     getCheckedItems : function() {
@@ -237,9 +274,8 @@ return ZUI.def("ui.th3.media", {
     //..............................................
     showPreview : function(oMedia, callback) {
         var UI = this;
-        var man  = UI.getMainData();
-        var conf = man.conf;
-
+        var opt = UI.options;
+        
         if(!oMedia) {
             new DomUI({
                 parent : UI,
@@ -257,72 +293,75 @@ return ZUI.def("ui.th3.media", {
             new OPreviewUI({
                 parent : UI,
                 gasketName : "preview",
-                commands : ["fullscreen", "download", "open", {
-                    icon : '<i class="zmdi zmdi-image"></i>',
-                    tip  : 'i18n:th3.data.asthumb',
-                    handler :function(o){
-                        // 对对象进行一下处理
-                        var coverType = /^video\//.test(o.mime)?"video":"image";
-                        var oThumbSrcId = o.id;
-
-                        // 如果是视频，那么就需要确保它是有  _preview 的，如果没有，生成一个
-                        if("video" == coverType) {
-                            if(!o.video_cover) {
-                                var re = Wn.exec('videoc id:'+o.id+' -mode "preview_image" -o');
-                                if(!re || /^e./.test(re)){
-                                    UI.alert(re||"Some Error Happend!", "warn");
-                                    return;
-                                }
-                                o = $z.fromJson(re);
-                            }
-                            // 视频转换失败
-                            if(!o.video_cover) {
-                                UI.alert("obj [" + o.nm + "] without video_cover "
-                                        + o.id, "warn");
-                                return;
-                            }
-                            // 记录图片源
-                            oThumbSrcId = o.video_cover;
-                        }
-
-                        var thumbsz = conf.thumbSize || "256x256";
-                        // console.log(conf.thumbSize);
-                        var oTh = UI.__OBJ;
-                        var thumbPh = 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg';
-                        // console.log(o.thumb)
-                        // 将这个图片 cp 一份到 thumb.jpg
-                        Wn.execf('chimg id:{{srcId}} -s "{{thumbsz}}" {{taph}}; obj {{taph}}', {
-                            srcId   : oThumbSrcId,
-                            thumbsz : thumbsz,
-                            taph    : 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg'
-                        }, function(re){
-                            if(!re || /^e./.test(re)){
-                                UI.alert(re||"Some Error Happend!", "warn");
-                                return;
-                            }
-                            var reo = $z.fromJson(re);
-                            
-                            Wn.execf("thing {{th_set}} update {{id}} -fields '<%=json%>'", {
-                                th_set : oTh.th_set,
-                                id     : oTh.id,
-                                json   : $z.toJson({
-                                    thumb : 'id:' + reo.id,
-                                    th_cover_tp  : coverType
-                                })
-                            }, function(re){
-                                UI.doActionCallback(re, function(oTh2){
-                                    Wn.saveToCache(oTh2);
-                                    UI.fireBus("meta:updated", [oTh2, "thumb"]);
-                                });
-                            })
-                        })
-                    }
-                }]
+                commands : opt.previewActions
             }).render(function(){
                 this.update(oMedia);
                 $z.doCallback(callback);
             });
         }
+    },
+    //..............................................
+    __do_as_thumb : function(o) {
+        var UI = this;
+        var man  = UI.getMainData();
+        var conf = man.conf;
+
+        // 对对象进行一下处理
+        var coverType = /^video\//.test(o.mime)?"video":"image";
+        var oThumbSrcId = o.id;
+
+        // 如果是视频，那么就需要确保它是有  _preview 的，如果没有，生成一个
+        if("video" == coverType) {
+            if(!o.video_cover) {
+                var re = Wn.exec('videoc id:'+o.id+' -mode "preview_image" -o');
+                if(!re || /^e./.test(re)){
+                    UI.alert(re||"Some Error Happend!", "warn");
+                    return;
+                }
+                o = $z.fromJson(re);
+            }
+            // 视频转换失败
+            if(!o.video_cover) {
+                UI.alert("obj [" + o.nm + "] without video_cover "
+                        + o.id, "warn");
+                return;
+            }
+            // 记录图片源
+            oThumbSrcId = o.video_cover;
+        }
+
+        var thumbsz = conf.thumbSize || "256x256";
+        // console.log(conf.thumbSize);
+        var oTh = UI.__OBJ;
+        var thumbPh = 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg';
+        // console.log(o.thumb)
+        // 将这个图片 cp 一份到 thumb.jpg
+        Wn.execf('chimg id:{{srcId}} -s "{{thumbsz}}" {{taph}}; obj {{taph}}', {
+            srcId   : oThumbSrcId,
+            thumbsz : thumbsz,
+            taph    : 'id:'+oTh.th_set+'/data/'+oTh.id+'/thumb.jpg'
+        }, function(re){
+            if(!re || /^e./.test(re)){
+                UI.alert(re||"Some Error Happend!", "warn");
+                return;
+            }
+            var reo = $z.fromJson(re);
+            
+            Wn.execf("thing {{th_set}} update {{id}} -fields '<%=json%>'", {
+                th_set : oTh.th_set,
+                id     : oTh.id,
+                json   : $z.toJson({
+                    thumb : 'id:' + reo.id,
+                    th_cover_tp  : coverType
+                })
+            }, function(re){
+                UI.doActionCallback(re, function(oTh2){
+                    Wn.saveToCache(oTh2);
+                    if(_.isFunction(UI.fireBus))
+                        UI.fireBus("meta:updated", [oTh2, "thumb"]);
+                });
+            })
+        });
     },
     //..............................................
     upload : function(files) {

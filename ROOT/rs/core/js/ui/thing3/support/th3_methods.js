@@ -16,7 +16,8 @@ thMain : function() {
 },
 //....................................................
 getMainData : function(){
-    return this.thMain().__main_data;
+    return this.options.mainData 
+            || this.thMain().__main_data;
 },
 //....................................................
 getHomeObjId : function() {
