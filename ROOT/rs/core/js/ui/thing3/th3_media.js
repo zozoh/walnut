@@ -69,7 +69,7 @@ return ZUI.def("ui.th3.media", {
             }
         }
         opt.previewActions = previewActions;
-        console.log(opt.previewActions)
+        //console.log(opt.previewActions)
 
         // 监听
         if(_.isFunction(UI.listenBus)) {
