@@ -42,6 +42,15 @@ public class WnObjCopying {
     private WnObj oDstObj;
 
     /**
+     * 强制设定新文件/目录的所属者，null 表示为当前账号
+     */
+    private String own;
+    /**
+     * 强制设定新文件/目录的所属组，null 表示为当前账号
+     */
+    private String grp;
+
+    /**
      * @param io
      *            数据接口
      */
@@ -121,6 +130,17 @@ public class WnObjCopying {
     private void __copy_meta(WnObj oSrc, WnObj oDst) {
         if (!Strings.isBlank(propFilter)) {
             NutBean meta = oSrc.pickBy(propFilter);
+            // 重设所有者
+            if (!Strings.isBlank(this.own))
+                meta.setv("c", this.own);
+
+            // 重设组
+            if (!Strings.isBlank(this.grp))
+                meta.setv("g", this.grp);
+            
+            // 确保不 copy 缩略图
+            meta.remove("thumb");
+
             io.appendMeta(oDst, meta);
         }
     }
@@ -167,6 +187,14 @@ public class WnObjCopying {
 
     public void setRecur(boolean recur) {
         this.recur = recur;
+    }
+
+    public void setOwn(String own) {
+        this.own = own;
+    }
+
+    public void setGrp(String grp) {
+        this.grp = grp;
     }
 
     public boolean isDropBeforeCopy() {

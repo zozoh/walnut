@@ -212,7 +212,8 @@ public class cmd_iimg extends JvmExecutor {
                             WnObj o_old_thumb,
                             WnObj oThumbTa) {
         // 当然，如果是 thumbnail 里面的图片 ...
-        String aph = Wn.normalizeFullPath("~/.thumbnail/gen/", sys);
+        // 为了确保缩略图都能被读到，所以要放到 oim.d1 所在的路径下
+        String aph = "/home/"+oim.d1()+"/.thumbnail/gen/";
         WnObj oThumbHome = sys.io.createIfNoExists(null, aph, WnRace.DIR);
 
         // 缩略图目录里的就不要再生成缩略图了，否则会递归的吧...
@@ -237,7 +238,8 @@ public class cmd_iimg extends JvmExecutor {
             if (null == oThumb) {
                 oThumb = sys.io.createIfNoExists(oThumbHome, oim.id() + ".jpg", WnRace.FILE);
                 oThumb.setv("thumb_src", "id:" + oThumbTa.id());
-                sys.io.set(oThumb, "^thumb_src$");
+                oThumb.group(oim.group()).creator(oim.creator());
+                sys.io.set(oThumb, "^(c|g|thumb_src)$");
 
                 oThumbTa.thumbnail("id:" + oThumb.id());
                 sys.io.set(oThumbTa, "^thumb$");
