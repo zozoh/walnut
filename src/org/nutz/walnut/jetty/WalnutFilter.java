@@ -125,6 +125,9 @@ public class WalnutFilter implements Filter {
 
             // 找不到记录，全当没有
             if (null == oDmn) {
+                if (log.isDebugEnabled()) {
+                    log.debug(" - domain outof quota!");
+                }
                 chain.doFilter(req, resp);
                 return;
             }
@@ -135,6 +138,9 @@ public class WalnutFilter implements Filter {
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
+                if (log.isDebugEnabled()) {
+                    log.debug(" - domain expired!");
+                }
                 return;
             }
 
@@ -149,6 +155,9 @@ public class WalnutFilter implements Filter {
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "流量已经超出限额");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
+                if (log.isDebugEnabled()) {
+                    log.debug(" - domain outof quota!");
+                }
                 return;
             }
 
@@ -195,6 +204,13 @@ public class WalnutFilter implements Filter {
                 if (log.isDebugEnabled()) {
                     log.debug(" - no rule -");
                 }
+            }
+        }
+        //
+        else {
+            // 这个通常还是要记录一下日志的
+            if (log.isDebugEnabled()) {
+                log.debug(" - rMainHost without define! ");
             }
         }
 
