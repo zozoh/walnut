@@ -129,7 +129,7 @@ public class WalnutFilter implements Filter {
             // 找不到记录，全当没有
             if (null == oDmn) {
                 if (log.isDebugEnabled()) {
-                    log.debug(" - no mapping!: %s");
+                    log.debug(" - no mapping!");
                 }
                 chain.doFilter(req, resp);
                 return;
