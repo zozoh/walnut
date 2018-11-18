@@ -91,6 +91,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
+    public CreateThingAction setExecutor(WnExecutable executor) {
+        this.executor = executor;
+        return this;
+    }
+
     public CreateThingAction setFixedMeta(NutMap fixedMeta) {
         this.fixedMeta = fixedMeta;
         return this;
@@ -202,6 +207,20 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             for (ThOtherUpdating other : others) {
                 other.doUpdate();
             }
+        }
+
+        // 看看是否有附加的创建执行脚本
+        String on_create = conf.getOnCreate();
+        if (null != this.executor && !Strings.isBlank(on_create)) {
+            String cmdText = Tmpl.exec(on_create, oT);
+            StringBuilder stdOut = new StringBuilder();
+            StringBuilder stdErr = new StringBuilder();
+            this.executor.exec(cmdText, stdOut, stdErr, null);
+
+            // 出错就阻止后续执行
+            if (stdErr.length() > 0)
+                throw Er.create("e.cmd.thing.on_create", stdErr);
+
         }
 
         if (null != process && null != out) {

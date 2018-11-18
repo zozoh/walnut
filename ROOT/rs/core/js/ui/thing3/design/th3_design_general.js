@@ -135,6 +135,14 @@ return ZUI.def("ui.th3.thdesign_general", {
                         placeholder : "JSON格式的配置信息"
                     }
                 },
+                "on_create" : {
+                    text : "创建后脚本",
+                    uiType : "ui/form/c_text",
+                    uiConf : {
+                        height : "100%",
+                        placeholder : "脚本执行的模板，接受当前 thing 对象为上下文"
+                    }
+                },
                 "searchFilter" : {
                     text : "过滤设置",
                     uiType : "ui/form/c_text",
@@ -204,7 +212,7 @@ return ZUI.def("ui.th3.thdesign_general", {
         thConf = thConf || {};
 
         // 记录一下 more value
-        UI.__MORE = $z.pick(thConf, /^(uniqueKeys|lnKeys|search(.+))$/);
+        UI.__MORE = $z.pick(thConf, /^(uniqueKeys|on_create|lnKeys|search(.+))$/);
         if(UI.__MORE.searchMenuFltWidthHint) {
             delete UI.__MORE.searchMenuFltWidthHint;
         }

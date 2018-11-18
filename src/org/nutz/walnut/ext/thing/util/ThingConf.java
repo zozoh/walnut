@@ -18,6 +18,9 @@ public class ThingConf {
     @JsonField("lnKeys")
     private Map<String, ThingLinkKey> linkKeys;
 
+    @JsonField("on_create")
+    private String onCreate;
+
     public boolean hasUniqueKeys() {
         return null != uniqueKeys && uniqueKeys.length > 0;
     }
@@ -40,6 +43,14 @@ public class ThingConf {
 
     public void setLinkKeys(Map<String, ThingLinkKey> linkKeys) {
         this.linkKeys = linkKeys;
+    }
+
+    public String getOnCreate() {
+        return onCreate;
+    }
+
+    public void setOnCreate(String onCreate) {
+        this.onCreate = onCreate;
     }
 
     public ThingField[] getFields() {

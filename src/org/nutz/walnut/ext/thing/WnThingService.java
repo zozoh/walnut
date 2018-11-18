@@ -46,7 +46,7 @@ public class WnThingService {
         this.io = io;
         this.oTs = oTs;
         NutMap vars = new NutMap();
-        String homePath = Wn.appendPath(oTs.d0(),oTs.d1());
+        String homePath = Wn.appendPath(oTs.d0(), oTs.d1());
         vars.put("HOME", homePath);
         vars.put("PWD", homePath);
         this.pathNormalizing = new WnPathNormalizing() {
@@ -55,7 +55,7 @@ public class WnThingService {
             }
         };
     }
-    
+
     public WnThingService(WnIo io, WnObj oTs, WnPathNormalizing pathNormalizing) {
         this.io = io;
         this.oTs = oTs;
@@ -283,9 +283,14 @@ public class WnThingService {
     }
 
     public WnObj createThing(NutMap meta, String uniqueKey) {
+        return createThing(meta, uniqueKey, null);
+    }
+
+    public WnObj createThing(NutMap meta, String uniqueKey, WnExecutable executor) {
         CreateThingAction a = _A(new CreateThingAction());
         a.addMeta(meta).setUniqueKey(uniqueKey);
         a.setConf(this.checkConf());
+        a.setExecutor(executor);
         return a.invoke().get(0);
     }
 

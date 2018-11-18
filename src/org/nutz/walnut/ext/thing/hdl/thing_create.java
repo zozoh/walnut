@@ -32,7 +32,7 @@ public class thing_create implements JvmHdl {
 
         // 准备后续执行
         String afterCmd = hc.params.get("after");
-        WnExecutable exec = Strings.isBlank(afterCmd) ? null : sys;
+        WnExecutable exec = sys;
 
         // 得到固定数据
         NutMap fixedMeta = hc.params.getMap("fixed");
@@ -52,7 +52,7 @@ public class thing_create implements JvmHdl {
                 meta.put("th_nm", th_nm);
             }
             // 执行创建
-            hc.output = wts.createThing(meta, ukey);
+            hc.output = wts.createThing(meta, ukey, exec);
         }
 
     }
