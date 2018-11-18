@@ -120,13 +120,16 @@ public class WalnutFilter implements Filter {
                 WnQuery q = Wn.Q.pid(oDmnHome);
                 q.setv("dmn_host", host);
                 // q.setv("dmn_expi", "[" + System.currentTimeMillis() + ",]");
+                if (log.isDebugEnabled()) {
+                    log.debugf(" - query: %s", q.toString());
+                }
                 oDmn = io.getOne(q);
             }
 
             // 找不到记录，全当没有
             if (null == oDmn) {
                 if (log.isDebugEnabled()) {
-                    log.debug(" - domain outof quota!");
+                    log.debug(" - no mapping!: %s");
                 }
                 chain.doFilter(req, resp);
                 return;
