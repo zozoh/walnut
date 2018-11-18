@@ -160,6 +160,9 @@ public class mt90_comp_result implements JvmHdl {
                     else {
                         metas.put("rank", pr.end.rank);
                         metas.put("rank_sex", pr.end.rank_sex);
+                        if (pr.start != null) {
+                            metas.put("du_total", pr.end.tm - pr.start.tm);
+                        }
                     }
                     metas.put("rank_cps", pr.cps);
                 }
