@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -26,16 +28,18 @@ import org.nutz.walnut.util.Wn;
  */
 @JvmHdlParamArgs(value="cqn", regex="^(clean|write_result)$")
 public class mt90_comp_result implements JvmHdl {
+    
+    private static final Log log = Logs.get();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备一下必须存在的东西
         // 赛事本身, 主办方域
-        WnObj comp = sys.io.check(null, Wn.normalizeFullPath(hc.params.check("comp"), sys));
+        WnObj comp = sys.io.check(null, Wn.normalizeFullPath("~/comp/data/"+hc.params.check("comp"), sys));
         // 赛项
-        WnObj proj = sys.io.check(comp, "/proj/" + hc.params.check("pj"));
+        WnObj proj = sys.io.check(null, comp.path() + "/proj/" + hc.params.check("pj"));
         // 打卡记录
-        WnObj trkcp = sys.io.check(comp, "trkcp");
+        WnObj trkcp = sys.io.check(null, comp.path() + "/trkcp");
         // 跟踪记录
         WnObj trkplayer = sys.io.check(comp, "trkplayer");
         // 地图数据
@@ -58,7 +62,9 @@ public class mt90_comp_result implements JvmHdl {
         while (it.hasNext()) { // 移除没有选手编号的选手
             WnObj player = it.next();
             if (Strings.isBlank(player.getString("u_code")) && player.getString("u_id") == null) {
+                log.info("无效打卡记录: " + player.path());
                 it.remove();
+                continue;
             }
             players.put(player.getString("u_id"), player);
             PlayerResult pr = new PlayerResult();
@@ -82,6 +88,7 @@ public class mt90_comp_result implements JvmHdl {
             int cpIndex = cpr.getInt("cp_index");
             if (cpIndex >= map.points.size()) {
                 // 竟然没有对应的打卡点!!!
+                log.info("无效打卡记录, 因为打卡点序号不对 cpIndex="+cpIndex);
                 continue;
             }
             String key = cpIndex + "";
@@ -100,11 +107,11 @@ public class mt90_comp_result implements JvmHdl {
             // 记录个人打卡
             pcpr = new PlayerCpResult();
             pcpr.tm = cpr.getLong("cpr_tm");
-            pcpr.rank = cpPlayerList.size(); // 全局排名
+            pcpr.rank = cpPlayerList.size() + 1; // 全局排名,从1开始
             pr.cps.put(key, pcpr);
             
             // 是否退赛
-            if (pr.quit || cpr.is("u_quit", false)) {
+            if (pr.quit || (cpr.getString("cpr_st") != null && !"C".equals(cpr.getString("cpr_st")))) {
                 pr.quit = true;
             }
             else {
@@ -160,6 +167,9 @@ public class mt90_comp_result implements JvmHdl {
                     else {
                         metas.put("rank", pr.end.rank);
                         metas.put("rank_sex", pr.end.rank_sex);
+                        if (pr.start != null) {
+                            metas.put("du_total", pr.end.tm - pr.start.tm);
+                        }
                     }
                     metas.put("rank_cps", pr.cps);
                 }
@@ -172,7 +182,7 @@ public class mt90_comp_result implements JvmHdl {
         
         NutMap ret = new NutMap();
         ret.put("allcp", globalResult);
-        ret.put("players", players);
+        ret.put("players", re);
         sys.out.writeJson(ret, Cmds.gen_json_format(hc.params));
     }
 

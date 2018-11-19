@@ -41,6 +41,16 @@ return ZUI.def("ui.dom", {
             // 需要延迟
             return uiTypes;
         }
+    },
+    //...............................................................
+    setHtml : function(html) {
+        var UI = this;
+        
+        // 注销自己所有的子
+        UI.releaseAllChildren(true);
+
+        // 显示 html
+        UI.arena.html(UI.compactHTML(html));
     }
     //...............................................................
 });
