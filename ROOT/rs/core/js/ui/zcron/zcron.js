@@ -328,6 +328,23 @@ var Region = function(str, formatFunc){
         // 等于
         return this[1] == v;
     };
+    re.compare = function(v) {
+        // 区间
+        if(this.length == 4) {
+            if(null!=this[1]){
+                if((this[0] && this[1]>=v) || (!this[0] && this[1]>v))
+                    return -1;
+            }
+            if(null!=this[2]){
+                if((this[3] && this[2]<=v) || (!this[3] && this[2]<v))
+                    return 1;
+            }
+            return 0;
+        }
+        // 等于
+        return this[1] > v ? -1 
+                           : (this[1] < v ? 1 : 0);
+    };
     re.valueOf = function(){
         var s = this.isLeftOpen()?"(":"[";
         if(this.isRegion()){
