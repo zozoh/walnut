@@ -124,6 +124,7 @@ public class timg_create implements JvmHdl {
         ctx.h = hc.params.getInt("h");
         ctx.io = sys.io;
         ctx.conf = conf;
+        ctx.videoFrame = hc.params.getInt("vframe", 24+12); // 假设2秒视频吧
         // 逐个效果操作
         for (int i = 0; i < cartons.size(); i++) {
             ctx.cur = cartons.get(i);

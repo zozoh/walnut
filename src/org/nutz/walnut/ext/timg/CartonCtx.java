@@ -18,4 +18,5 @@ public class CartonCtx {
     public int w;
     public int h;
     public NutMap conf;
+    public int videoFrame;
 }

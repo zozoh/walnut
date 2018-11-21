@@ -124,7 +124,7 @@
     };
 
     _ajaxFail = function (e) {
-        alert('Ajax Error!\n' + JSON.stringify(e));
+        console.log('Ajax Error!\n' + JSON.stringify(e));
     };
 
     _ajaxErrorMsg = function (re) {

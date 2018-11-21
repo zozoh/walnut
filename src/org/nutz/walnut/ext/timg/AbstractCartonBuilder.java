@@ -6,13 +6,22 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.img.Images;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
+import org.nutz.lang.segment.Segment;
+import org.nutz.lang.segment.Segments;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+import org.nutz.walnut.api.io.WnObj;
 
 public abstract class AbstractCartonBuilder implements CartonBuilder {
+    
+    protected static final Log log = Logs.get();
 
     public void add(CartonCtx ctx, byte[] buf) {
         File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.png", ctx.tmpDir, ctx.lastFrameIndex)));
@@ -69,14 +78,40 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
     
     public void prepareImages(CartonCtx ctx) {
         if (ctx.cur.image == null)
-            ctx.cur.image = ctx.io.readImage(ctx.cur.wobj);
+            ctx.cur.image = readImage(ctx, ctx.cur.wobj, true);
         if (ctx.next.image == null)
-            ctx.next.image = ctx.io.readImage(ctx.next.wobj);
+            ctx.next.image = readImage(ctx, ctx.next.wobj, false);
         // 首先
         if (ctx.w < 1)
             ctx.w = ctx.cur.image.getWidth();
         if (ctx.h < 1)
             ctx.h = ctx.cur.image.getHeight();
+    }
+    
+    public BufferedImage readImage(CartonCtx ctx, WnObj wobj, boolean cur) {
+        if (wobj.mime().startsWith("image/"))
+            return ctx.io.readImage(ctx.cur.wobj);
+        if (wobj.mime().startsWith("video/")) {
+            Segment seg = Segments.create("ffmpeg -y -v quiet -ss ${frame} -i ${source} -f image2 -vframes 1 ${thumbPath}");
+            Files.write(new File(ctx.tmpDir + "/tmp.mp4"), ctx.io.getInputStream(wobj, 0));
+            seg.add("source", ctx.tmpDir + "/tmp.mp4");
+            seg.add("thumbPath", ctx.tmpDir + "/video_frame.png");
+            if (cur) {
+                seg.add("frame", String.format("00:%02d:%02d.00", ctx.videoFrame/24/24, ctx.videoFrame/ 24));
+            }
+            else {
+                seg.add("frame", "00:00:00.00");
+            }
+            log.debug("CMD: " + seg.render());
+            String[] cmd = seg.render().toString().split(" ");
+            try {
+                Lang.execOutput(cmd);
+            }
+            catch (IOException e) {
+            }
+            return Images.read(new File(ctx.tmpDir + "/video_frame.png"));
+        }
+        return null;
     }
     
     @Override
