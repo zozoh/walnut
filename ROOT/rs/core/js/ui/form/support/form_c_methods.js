@@ -40,6 +40,11 @@ var methods = {
                     return;
             }
         }
+        // 比较日期
+        else if(_.isDate(v) && _.isDate(v_old)) {
+            if(v.getTime() == v_old.getTime())
+                return;
+        }
         // 直接比较
         else if(v == v_old){
             return;

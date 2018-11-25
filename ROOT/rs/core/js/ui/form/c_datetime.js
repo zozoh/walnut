@@ -44,6 +44,10 @@ return ZUI.def("ui.form_com_datetime", {
             gasketName : "date",
             clearable  : false,
             on_change : function(){
+                // 确保更新时间
+                var d = UI._get_data();
+                UI._set_data(d);
+                // 触发
                 UI.__on_change()
             }
         }).render(function(){
@@ -69,6 +73,9 @@ return ZUI.def("ui.form_com_datetime", {
     // 只接受 Date 对象或者 Date 对象的数组
     _set_data : function(d, showBlink){
         var UI = this;
+
+        // 确保是日期
+        d = d ? $z.parseDate(d) : null;
 
         // 显示数据
         UI.gasket.date._set_data(d);

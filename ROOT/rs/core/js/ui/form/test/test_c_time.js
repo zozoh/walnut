@@ -57,6 +57,7 @@ return ZUI.def("ui.form_test_time", {
         new TimeUI({
             parent : UI,
             gasketName : "t0",
+            editAs : "minute",
             on_change : function(val) {
                 UI.showMsg("TimeUI: " + val);
             },

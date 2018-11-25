@@ -76,24 +76,58 @@
 //----------------------------------------------------------------
 // 时间编辑
 .com-time {
-    ul {
-        @flex();
-        li {white-space: nowrap;}
-        li > b {
-            display:inline-block; content:":";
-            padding:0 @d2; color:@c2; font-weight:bold;
-        }
-        li.ct-clean {
-            padding:@d1 @d2;
-            a {
-                cursor:pointer; font-size:@f1;
+    font-family: @f_fixed;
+    font-size: @f2;
+    .ct-show {
+        display:inline-block; vertical-align: bottom;
+        ul {
+            @flex(); align-items: center;
+            @input();
+            padding:@d2; border-radius:@d1;
+            cursor:pointer;
+            &:hover {
+                background:@ch0_b; color:@ch0_f;
+                a {color:@ch0_f; opacity: 0.6;}
+            }
+            .ct-show-time {
+                flex:1 1 auto;
+                font-size:@f3;
+                padding:1px @d1;
+            }
+            .ct-clean {
+                flex:0 0 auto;
+                font-size:@f0; padding-left:@d2;
+                a:hover {opacity: 1;}
             }
         }
-        input {
-            @input(); width:@f3*3;
-            font-size:@f2; padding:@d2;
+    }
+    .ct-drop {
+        display:none;
+        .ct-drop-mask {
+            background:rgba(0,0,0,0.0); position:fixed;
+            left:0; right:0; top:0; bottom:0;
+            z-index: 98; 
         }
-        input:focus {@input_focus();}
+        .ct-drop-con {
+            @flex(); position:fixed;
+            background:@cmenu_b; color:@cmenu_f;
+            height: 200px; z-index: 99; 
+            border:2px solid @cmenu_l;
+            ul {
+                flex:1 1 auto; height:100%; overflow-y:scroll;
+                li {
+                    padding:@d1; cursor:pointer;
+                    text-align:center;
+                    &[current] {
+                        background:@ch0_b; color:@ch0_f;
+                    }
+                }
+            }
+        }
+    }
+    &[show-drop] {
+        .ct-show ul {z-index:100;}
+        .ct-drop {display:block;}
     }
 }
 

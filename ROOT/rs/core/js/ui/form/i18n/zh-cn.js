@@ -74,11 +74,6 @@ define({
             "invalidTarget"  : "错误的上传目标或者上传目标不存在",
             "noFile" : "您必须选择一张图片!",
             "invalideFile" : "错误的图片类型!!"
-        },
-        "time" : {
-            'hour'   : '时',
-            'minute' : '分',
-            'second' : '秒'
         }
     }
 });
