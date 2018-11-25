@@ -131,45 +131,46 @@ public class mt90_eta extends mt90_parse {
             int[] _re = new int[1];
             boolean checkAll = hc.params.is("all");
             for (int i = list.size() - 1; i >= 20; i--) {
-                double[] result = countResult(list, routes, i, _re, debug);
-                if (result != null) {
-                    NutMap tmp = new NutMap();
-                    if (checkAll) {
-                        tmp.put("distance", result[0]);
-                        tmp.put("up", result[1]);
-                        tmp.put("down", result[2]);
-                    }
-                    
-                    // 到达CP点的耗时
-                    WoozRoute route = routes.get(list.get(i).closestRouteIndex);
-                    double t = route.cpDistance * result[0] + route.cpUp * result[1] + route.cpDown * result[2];
-                    tmp.put("eta_cp", (int)t);
-                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t*1000);
-                    // 到达终点的耗时
-                    WoozRoute route_end = routes.get(routes.size() - 1);
-                    double t2 = (route_end.countDistance - route.countDistance) * result[0] + (route_end.countUp - route.countUp) * result[1] + (route_end.countDown - route.countDown) * result[2];
-                    tmp.put("eta_end", (int)t2);   
-                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t2*1000);                 
-                    speeds[i] = tmp;
-                    if (!re.containsKey("eta_cp_time")) {
-                        re.putAll(tmp);
-                        re.put("u_eta_route_index", list.get(i).closestRouteIndex);
-                    }
-                    if (!checkAll) {
-                        break;
-                    }
-                    if (debug)
-                        log.infof("轨迹点%06d 打卡点%-10s 水平每米耗时 %.2f 上升每米耗时 %.2f 下降每米耗时 %.2f 预计到终点的耗时 %s", i, route.cpName, result[0], result[1], result[2], (int)t2);
-                }
+                // 暂时禁用方程式, 直接按固定速度算
+//                double[] result = countResult(list, routes, i, _re, debug);
+//                if (result != null) {
+//                    NutMap tmp = new NutMap();
+//                    if (checkAll) {
+//                        tmp.put("distance", result[0]);
+//                        tmp.put("up", result[1]);
+//                        tmp.put("down", result[2]);
+//                    }
+//                    
+//                    // 到达CP点的耗时
+//                    WoozRoute route = routes.get(list.get(i).closestRouteIndex);
+//                    double t = route.cpDistance * result[0] + route.cpUp * result[1] + route.cpDown * result[2];
+//                    tmp.put("eta_cp", (int)t);
+//                    tmp.put("eta_cp_time", list.get(i).gpsDate.getTime() + (int)t*1000);
+//                    // 到达终点的耗时
+//                    WoozRoute route_end = routes.get(routes.size() - 1);
+//                    double t2 = (route_end.countDistance - route.countDistance) * result[0] + (route_end.countUp - route.countUp) * result[1] + (route_end.countDown - route.countDown) * result[2];
+//                    tmp.put("eta_end", (int)t2);   
+//                    tmp.put("eta_end_time", list.get(i).gpsDate.getTime() + (int)t2*1000);                 
+//                    speeds[i] = tmp;
+//                    if (!re.containsKey("eta_cp_time")) {
+//                        re.putAll(tmp);
+//                        re.put("u_eta_route_index", list.get(i).closestRouteIndex);
+//                    }
+//                    if (!checkAll) {
+//                        break;
+//                    }
+//                    if (debug)
+//                        log.infof("轨迹点%06d 打卡点%-10s 水平每米耗时 %.2f 上升每米耗时 %.2f 下降每米耗时 %.2f 预计到终点的耗时 %s", i, route.cpName, result[0], result[1], result[2], (int)t2);
+//                }
             }
             if (checkAll) {
                 re.put("speeds", speeds);
             }
             
-            // 一个预测结果都没有啊?!!! 按平均速度算, 6km/h, 即 6000/3600.0的米耗时
+            // 一个预测结果都没有啊?!!! 按平均速度算, 8km/h, 即 8000/3600.0的米耗时
             if (!re.has("eta_cp_time")) {
                 Mt90Raw last = list.get(list.size() - 1);
-                double[] result = new double[] {8000/3600.0, 0, 0};
+                double[] result = new double[] {3600.0/8000, 0, 0};
                 WoozRoute route = routes.get(last.closestRouteIndex);
                 double t = (route.cpDistance + route.cpUp * 10) * result[0];
                 re.put("eta_cp", (int)t);
