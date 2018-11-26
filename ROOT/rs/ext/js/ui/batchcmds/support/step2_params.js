@@ -93,8 +93,10 @@ return ZUI.def("ui.ext.bc_step2_params", {
         var params = UI.gasket.form.getData();
         if('M' == params.mode) {
             UI.gasket.form.disableField("auto");
+            UI.gasket.form.enableField("op");
         }else {
             UI.gasket.form.enableField("auto");
+            UI.gasket.form.disableField("op");
         }
     },
     //...............................................................
