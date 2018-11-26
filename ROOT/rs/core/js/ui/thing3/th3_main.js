@@ -206,6 +206,35 @@ return ZUI.def("ui.th3.main", {
         }, UI);
     },
     //..............................................
+    /*
+    setup : {
+        method   : "func",  // the funcion name should be called
+        args     : [],      // default as objs
+        menuItem  :{..},    // MenuItem Object
+        jBtn     : jQuery   // menu button which be clicked,
+        callback : F()      // anync callback
+    }
+    */
+    invokeExtCommand : function(setup) {
+        var thM  = this;
+        var man  = this.__main_data;
+        var objs = thM.subUI("main/list").getChecked();
+        var methodName = '__ext_' + setup.method;
+        // 设置默认参数
+        var context = _.extend({
+            args : [objs]
+        }, setup, {
+            UI   : thM,
+            bus  : thM.gasket.main,
+            objs : objs,
+            man  : man,
+            POP  : POP,
+            Wn   : Wn,
+        });
+        // 调用
+        return $z.invoke(thM, methodName, context.args, context);
+    },
+    //..............................................
     setCurrentObj : function(obj) {
         var man = this.__main_data;
         man.currentId = obj ? obj.id : null;

@@ -1,0 +1,42 @@
+.batchcmds {
+	//--------------------------------------------------------
+	// 样式·向导·step1 选择目标
+	.bc-step1-target {
+		@flex();
+		> .cd-canlist {
+			flex:1 1 auto; height:100%;
+			border:1px solid @cborder1;
+		}
+		> .cd-selected { @noselect();
+			flex:0 0 auto; width:30%;
+			@flex(); flex-direction: column;
+			> h4 {
+				flex:0 0  auto; margin:0; padding:0 @d3;
+				height:44; line-height:43px;
+				background:@cb1; color:@cf1;
+				border-top:1px solid @cborder1;
+				border-bottom:1px solid @cborder1;
+				font-weight: normal;
+				a {cursor: pointer;}
+			}
+			> .cd-selist {
+				flex:1 1 auto; 
+			}
+		}
+	}
+	//--------------------------------------------------------
+	// 样式·向导·step4 完成
+	.bc-step4-done {
+		text-align: center;
+		header {
+			padding:@d6 0 @d3 0; font-size:@f8; color:@c3;
+		}
+		section {
+			font-size:@f4; color:@c3;
+		}
+		footer {
+			padding:@d2;
+			a {cursor: pointer;}
+		}
+	} // ~ .bc-step4-done
+}

@@ -1,4 +1,5 @@
 define(function (require, exports, module) {
+var POP = require('ui/pop/pop');
 //...............................................................
 // 方法表
 module.exports = {
@@ -163,37 +164,6 @@ __format_field : function(UI, fld) {
     return fld;
 },
 //...............................................................
-// 格式化扩展命令的函数
-// __format_extend_command : function(cmd) {
-//     var btn = _.extend({
-//         icon : null,
-//         text : 'SomeCommand'
-//     }, cmd);
-//     // 如果是调用方法
-//     if(btn.handlerName) {
-//         // 修改方法名前缀，因为初始化时，会将这个函数加入前缀增加到 bus 上
-//         btn.handlerName = "__ext_" + btn.handlerName;
-//         btn.handler = function(jq, mi) {
-//             var bus  = this.bus();
-//             var data = $z.invoke(this, "getData");
-//             $z.invoke(bus, mi.handlerName, [data], {
-//                 UI  : this,
-//                 jBtn : jq,
-//                 menuItem : mi,
-//                 bus : bus,
-//                 POP : POP,
-//                 Wn  : Wn
-//             });
-//         }
-//         return btn;
-//     }
-//     // 指定命令的话，应该是异步调用
-//     else if(cmd.cmdText) {
-//         // TODO 这个看以后后没有必要实现
-//     }
-//     // 不是一个合法的结构的话，就无视吧
-// },
-//...............................................................
 __normalize_action_menu : function(items, conf) {
     // 防守
     if(!_.isArray(items) || items.length <= 0)
@@ -283,33 +253,23 @@ __normalize_action_menu : function(items, conf) {
         //------------------------------------------
         // <i..>::i18n:xxx::->doSomething  # 调用函数
         if(mi.handlerName) {
-            mi.handlerName = "__ext_" + mi.handlerName;
             mi.handler = function(jq, mi) {
                 var thM  = this.thMain();
-                var data = $z.invoke(this, "getData");
-                $z.invoke(thM, mi.handlerName, [data], {
-                    UI  : this,
-                    jBtn : jq,
-                    menuItem : mi,
-                    bus : bus,
-                    POP : POP,
-                    Wn  : Wn
+                thM.invokeExtCommand({
+                    method   : mi.handlerName,
+                    jBtn     : jq,
+                    menuItem : mi
                 });
             }
         }
         // <i..>::i18n:xxx::~>doSomething  # 调用异步函数
         else if(mi.asyncHandlerName) {
-            mi.asyncHandlerName = "__ext_" + mi.handlerName;
             mi.asyncHandler = function(jq, mi, callback) {
                 var thM  = this.thMain();
-                var data = $z.invoke(this, "getData");
-                $z.invoke(thM, mi.asyncHandlerName, [data], {
-                    UI  : this,
-                    jBtn : jq,
+                thM.invokeExtCommand({
+                    method   : mi.asyncHandlerName,
+                    jBtn     : jq,
                     menuItem : mi,
-                    bus : bus,
-                    POP : POP,
-                    Wn  : Wn,
                     callback : callback
                 });
             }
@@ -409,6 +369,36 @@ evalConf : function(UI, conf, opt, home) {
                                     "|","@cleanup", "@restore",
                                     "|","@config"]
                         }];
+    // ----------------- 自定义搜索菜单项
+    if(conf.extendCommand) {
+        // 对于搜索列表的自定义菜单
+        if(_.isArray(conf.extendCommand.search) && conf.extendCommand.search.length>0) {
+            // 寻找到 More 的项目
+            var miMore = null;
+            for(var i=0; i<conf.searchMenu.length; i++) {
+                var mi = conf.searchMenu[i];
+                if(_.isArray(mi.items)) {
+                    miMore = mi;
+                    break;
+                }
+            } 
+            // 确保有 More 项目
+            if(!miMore) {
+                miMore = {
+                    icon  : '<i class="zmdi zmdi-more-vert"></i>',
+                    items : []
+                };
+                conf.searchMenu.push(miMore);
+            }
+            // 加入扩展项
+            miMore.items.unshift({type:"separator"});
+            for(var i=conf.extendCommand.search.length-1; i>=0; i--) {
+                var cmd = conf.extendCommand.search[i];
+                miMore.items.unshift(cmd);
+                //conf.searchMenu.push(btn);
+            }
+        }
+    }
 
     // 格式化菜单项目
     this.__normalize_action_menu(conf.searchMenu, conf);
