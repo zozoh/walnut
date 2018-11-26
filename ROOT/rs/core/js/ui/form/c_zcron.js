@@ -44,6 +44,15 @@ return ZUI.def("ui.form_com_zcron", {
         }
     },
     //...............................................................
+    redraw : function() {
+        var UI = this;
+        var opt = UI.options;
+        
+        if(opt.readonly) {
+            UI.arena.find('> a').hide();
+        }
+    },
+    //...............................................................
     _get_data : function() {
         return this.__ZCRON;
     },
