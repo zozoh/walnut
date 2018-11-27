@@ -200,7 +200,7 @@ THING_SET
     //......................................
     // 当创建一个数据时，要执行的脚本文件
     // 脚本执行的模板，接受当前 thing 对象为上下文
-    on_create : "jsc /jsbin/xxx.js -var ${id}"
+    on_create : "jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"
     //......................................
     // 导入段的设置
     dataImport : {
