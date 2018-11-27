@@ -138,7 +138,7 @@ task fatJar(type: Jar, dependsOn: [':wbuild']) {
     with jar
     reproducibleFileOrder true
     zip64 true
-    entryCompression ZipEntryCompression.STORED
+    //entryCompression ZipEntryCompression.STORED
     duplicatesStrategy = 'exclude'
     manifest {
         attributes 'Implementation-Title': 'Walnut', 'Implementation-Version': version
