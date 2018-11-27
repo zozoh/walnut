@@ -104,10 +104,19 @@ public class mt90_comp_result implements JvmHdl {
                 globalResult.put(key, cpPlayerList);
             }
             
+            // 还得分性别
+            String sex_key = key + "_" + pr.player.getString("u_sex", "M");
+            List<String> cpPlayerListSex = globalResult.get(sex_key);
+            if (cpPlayerListSex == null) {
+                cpPlayerListSex = new ArrayList<>();
+                globalResult.put(sex_key, cpPlayerListSex);
+            }
+            
             // 记录个人打卡
             pcpr = new PlayerCpResult();
             pcpr.tm = cpr.getLong("cpr_tm");
             pcpr.rank = cpPlayerList.size() + 1; // 全局排名,从1开始
+            pcpr.rank_sex = cpPlayerListSex.size() + 1;
             pr.cps.put(key, pcpr);
             
             // 是否退赛
@@ -117,6 +126,7 @@ public class mt90_comp_result implements JvmHdl {
             else {
                 // 计入全局排名
                 cpPlayerList.add(uid);
+                cpPlayerListSex.add(uid);
             }
             
             // 记录起点和终点
