@@ -81,6 +81,11 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
             ctx.cur.image = readImage(ctx, ctx.cur.wobj, true);
         if (ctx.next.image == null)
             ctx.next.image = readImage(ctx, ctx.next.wobj, false);
+        
+        if (ctx.cur.image == null)
+            throw new RuntimeException("当前播放对象的图像无法获取");
+        if (ctx.next.image == null)
+            throw new RuntimeException("下个播放对象的图像无法获取");
         // 首先
         if (ctx.w < 1)
             ctx.w = ctx.cur.image.getWidth();
@@ -89,28 +94,32 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
     }
     
     public BufferedImage readImage(CartonCtx ctx, WnObj wobj, boolean cur) {
+        log.info("read from carton :" + wobj.path());
         if (wobj.mime().startsWith("image/"))
-            return ctx.io.readImage(ctx.cur.wobj);
+            return ctx.io.readImage(wobj);
         if (wobj.mime().startsWith("video/")) {
             Segment seg = Segments.create("ffmpeg -y -v quiet -ss ${frame} -i ${source} -f image2 -vframes 1 ${thumbPath}");
             Files.write(new File(ctx.tmpDir + "/tmp.mp4"), ctx.io.getInputStream(wobj, 0));
             seg.add("source", ctx.tmpDir + "/tmp.mp4");
             seg.add("thumbPath", ctx.tmpDir + "/video_frame.png");
             if (cur) {
-                seg.add("frame", String.format("00:%02d:%02d.00", ctx.videoFrame/24/24, ctx.videoFrame/ 24));
+                seg.add("frame", toFFmpegTime(ctx.videoFrame, 24));
             }
             else {
                 seg.add("frame", "00:00:00.00");
             }
-            log.debug("CMD: " + seg.render());
+            log.info("CMD: " + seg.render());
             String[] cmd = seg.render().toString().split(" ");
             try {
                 Lang.execOutput(cmd);
             }
             catch (IOException e) {
             }
-            return Images.read(new File(ctx.tmpDir + "/video_frame.png"));
+            File t = new File(ctx.tmpDir + "/video_frame.png");
+            log.info("PNG: " + t.getAbsolutePath() + " " + t.exists());
+            return Images.read(t);
         }
+        log.info("我靠,返回null!!");
         return null;
     }
     
@@ -148,5 +157,17 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
         }
         if (chineseFont == null)
             chineseFont = new Font("宋体",Font.BOLD, 256);
+    }
+    
+    public static String toFFmpegTime(int frameCount, int fps) {
+        if (frameCount < 1)
+            return "00:00:00.00";
+        if (fps < 1)
+            fps = 24;
+        int min = frameCount / 24 /24;
+        int sec = (frameCount - min * 24) / 24;
+        int ms = frameCount % 24 * 4;
+        String t = String.format("00:%02d:%02d.%02d", min, sec, ms);
+        return t;
     }
 }
