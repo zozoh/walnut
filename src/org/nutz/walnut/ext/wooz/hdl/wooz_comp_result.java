@@ -167,7 +167,7 @@ public class wooz_comp_result implements JvmHdl {
                 result_dir = null;
             }
             if (result_dir == null) {
-                result_dir = sys.io.createIfNoExists(comp, "result", WnRace.DIR);
+                result_dir = sys.io.createIfNoExists(compDir, "result", WnRace.DIR);
             }
             
             // 逐个选手记录下来
