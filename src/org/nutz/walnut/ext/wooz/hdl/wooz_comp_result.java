@@ -123,7 +123,7 @@ public class wooz_comp_result implements JvmHdl {
             }
             
             // 还得分性别
-            String sex_key = key + "_" + pr.player.getString("u_sex", "M");
+            String sex_key = key + "_" + pr.player.getString("u_sex", "m").toLowerCase();
             List<String> cpPlayerListSex = globalResult.get(sex_key);
             if (cpPlayerListSex == null) {
                 cpPlayerListSex = new ArrayList<>();
