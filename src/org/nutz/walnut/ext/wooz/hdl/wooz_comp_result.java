@@ -181,7 +181,7 @@ public class wooz_comp_result implements JvmHdl {
                 metas.put("u_sex", player.getString("u_sex"));
                 metas.put("u_code", player.getString("u_code"));
                 
-                metas.put("u_pj", player.getString(proj.name()));
+                metas.put("u_pj", proj.name());
                 // 看看有无终点打卡记录
                 PlayerResult pr = re.get(uid);
                 if (pr == null) {
