@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.mt90.hdl;
+package org.nutz.walnut.ext.wooz.hdl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,28 +20,45 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Wn;
 
 /**
  *  根据打卡记录,得出成绩总表
  *
  */
 @JvmHdlParamArgs(value="cqn", regex="^(clean|write_result)$")
-public class mt90_comp_result implements JvmHdl {
+public class wooz_comp_result implements JvmHdl {
     
     private static final Log log = Logs.get();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        String compId = hc.params.get("comp");
+        WnObj comp = sys.io.checkById(compId);
+        if (comp.has("sp_comp_id")) {
+            comp = sys.io.checkById(comp.getString("sp_comp_id"));
+            compId = comp.id();
+        }
+        String compPath = "/home/" + comp.creator() + "/comp/data/" + compId;
+        WnObj compDir = sys.io.check(null, compPath);
+        WnObj projDir = sys.io.check(compDir, "proj");
+        List<WnObj> projs = sys.io.getChildren(projDir, null);
+        NutMap ret = new NutMap();
+        for (WnObj proj : projs) {
+            ret.put(proj.name(), comp_result(comp, compDir, proj.name(), sys, hc));
+        }
+        sys.out.writeJson(ret, Cmds.gen_json_format(hc.params));
+    }
+    
+    public NutMap comp_result(WnObj comp, WnObj compDir, String projName, WnSystem sys, JvmHdlContext hc) {
+
         // 准备一下必须存在的东西
         // 赛事本身, 主办方域
-        WnObj comp = sys.io.check(null, Wn.normalizeFullPath("~/comp/data/"+hc.params.check("comp"), sys));
         // 赛项
-        WnObj proj = sys.io.check(null, comp.path() + "/proj/" + hc.params.check("pj"));
+        WnObj proj = sys.io.check(compDir, "proj/" + projName);
         // 打卡记录
-        WnObj trkcp = sys.io.check(null, comp.path() + "/trkcp");
+        WnObj trkcp = sys.io.check(compDir, "trkcp");
         // 跟踪记录
-        WnObj trkplayer = sys.io.check(comp, "trkplayer");
+        WnObj trkplayer = sys.io.check(compDir, "trkplayer");
         // 地图数据
         WoozMap map = Mt90Map.get(sys.io, proj.path() + "/mars_google.json");
         
@@ -49,6 +66,7 @@ public class mt90_comp_result implements JvmHdl {
         WnQuery query = new WnQuery();
         query.setv("pid", trkcp.id());
         query.sortBy("cpr_tm", 1);
+        query.setv("u_pj", proj.name());
         List<WnObj> cprList = sys.io.query(query);
         
         // 查出所有选手
@@ -141,9 +159,9 @@ public class mt90_comp_result implements JvmHdl {
         if (hc.params.is("write_result")) {
             if (comp.is("result_locked", false)) {
                 sys.err.print("cmd.mt90.comp.result.compLocked");
-                return;
+                return new NutMap();
             }
-            WnObj result_dir = sys.io.fetch(comp, "result");
+            WnObj result_dir = sys.io.fetch(compDir, "result");
             if (result_dir != null && hc.params.is("clean")) {
                 sys.io.delete(result_dir, true);
                 result_dir = null;
@@ -186,14 +204,15 @@ public class mt90_comp_result implements JvmHdl {
 
                 WnObj prz = sys.io.createIfNoExists(result_dir, proj.name() + "_" + uid, WnRace.FILE);
                 sys.io.appendMeta(prz, metas);
+                if (!prz.creator().equals(compDir.creator())) {
+                    sys.io.appendMeta(prz, new NutMap("c", compDir.creator()).setv("g", compDir.creator()));
+                }
             }
         }
-        
-        
         NutMap ret = new NutMap();
         ret.put("allcp", globalResult);
         ret.put("players", re);
-        sys.out.writeJson(ret, Cmds.gen_json_format(hc.params));
+        return ret;
     }
 
     public static class PlayerResult {
