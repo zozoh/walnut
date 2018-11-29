@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,9 +95,9 @@ public class wooz_comp_result implements JvmHdl {
         query = new WnQuery();
         query.setv("pid", trkplayer.id());
         List<WnObj> _players = sys.io.query(query);
-        Map<String, WnObj> players = new HashMap<>();
+        Map<String, WnObj> players = new LinkedHashMap<>();
         // 把选手分门别类
-        Map<String, PlayerResult> player_results = new HashMap<>();
+        Map<String, PlayerResult> player_results = new LinkedHashMap<>();
         Iterator<WnObj> it = _players.iterator();
         while (it.hasNext()) { // 移除没有选手编号的选手
             WnObj player = it.next();
@@ -113,7 +114,7 @@ public class wooz_comp_result implements JvmHdl {
             player_results.put(pr.uid, pr);
         }
         // 打卡记录总表
-        Map<String, List<String>> globalResult = new HashMap<>();
+        Map<String, List<String>> globalResult = new LinkedHashMap<>();
         // 第一轮,把每个选手的打卡记录都弄好
         for (WnObj cpr : cprList) {
             String uid = cpr.getString("u_id");
@@ -136,8 +137,8 @@ public class wooz_comp_result implements JvmHdl {
                 continue;
             }
             WoozPoint cpPoint = null;
-            if (cpr.containsKey("cp_name")) {
-                cpPoint = cpMap.get(cpr.getString("cp_name"));
+            if (cpr.containsKey("cp_nm")) {
+                cpPoint = cpMap.get(cpr.getString("cp_nm"));
             }
             if (cpPoint == null) {
                 int cpIndex = cpr.getInt("cp_index", 0);
@@ -171,7 +172,7 @@ public class wooz_comp_result implements JvmHdl {
                 pr.end = pcr;
         }
         // 第二轮, 计算每个选手的耗时
-        Map<String, List<PlayerResult>> cps = new HashMap<>();
+        Map<String, List<PlayerResult>> cps = new LinkedHashMap<>();
         for (PlayerResult pr : player_results.values()) {
             if (pr.start == null) {
                 PlayerCpResult pcr = new PlayerCpResult();
