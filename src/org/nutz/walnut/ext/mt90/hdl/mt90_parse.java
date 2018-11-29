@@ -26,10 +26,7 @@ import org.nutz.walnut.ext.kml.bean.KmlGxTrack;
 import org.nutz.walnut.ext.kml.bean.KmlPlacemark;
 import org.nutz.walnut.ext.kml.bean.KmlStyle;
 import org.nutz.walnut.ext.kml.bean.KmlStyleLineStyle;
-import org.nutz.walnut.ext.mt90.Mt90Map;
 import org.nutz.walnut.ext.mt90.bean.Mt90Raw;
-import org.nutz.walnut.ext.wooz.WoozMap;
-import org.nutz.walnut.ext.wooz.WoozPoint;
 import org.nutz.walnut.ext.wooz.WoozRoute;
 import org.nutz.walnut.ext.wooz.WoozTools;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -137,30 +134,18 @@ public class mt90_parse implements JvmHdl {
         BufferedReader br = new BufferedReader(r);
         List<Mt90Raw> list = new ArrayList<>();
         boolean onlyGpsFixed = hc.params.is("gpsFixed");
-        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")) - 8*3600*1000L : -1;
-        long end = hc.params.has("end") ? Times.ams(hc.params.get("end")) - 8*3600*1000L : Long.MAX_VALUE;
+        long begin = hc.params.has("begin") ? Times.ams(hc.params.get("begin")): -1;
+        long end = hc.params.has("end") ? Times.ams(hc.params.get("end")): Long.MAX_VALUE;
         boolean simple = hc.params.is("simple");
         int speed = hc.params.getInt("speed", 300);
         String _map = hc.params.get("map");
         
         // 如果没有指定开始和结束使用,但指定了map, 获取赛事
         if (begin < 1 && !Strings.isBlank(_map)) {
-            WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(hc.params.get("map"), sys));
-            if (map != null && map.points != null && map.points.size() > 1) {
-                for (WoozPoint point : map.points) {
-                    if ("start".equals(point.type)) {
-                        if (!Strings.isBlank(point.closeAt)) {
-                            // 2018-10-27T14:50:00
-                            begin = Times.ams(point.closeAt) - 8*3600*1000L;
-                        }
-                    }
-                    else if ("end".equals(point.type)) {
-                        if (!Strings.isBlank(point.closeAt)) {
-                            end = Times.ams(point.closeAt) - 8*3600*1000L;
-                        }
-                    }
-                }
-            }
+            WnObj map = sys.io.check(null, Wn.normalizeFullPath(_map, sys));
+            WnObj proj = sys.io.checkById(map.parentId());
+            begin = proj.getLong("d_start");
+            end = proj.getLong("d_end", Long.MAX_VALUE);
         }
         //boolean lineOnly = hc.params.is("lineOnly");
         int pointCount = hc.params.getInt("points", Integer.MAX_VALUE);
