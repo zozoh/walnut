@@ -268,7 +268,7 @@ public class wooz_comp_result implements JvmHdl {
         }
         
         // 是否写出到result目录呢?
-        if (hc.params.is("write_result")) {
+        if (hc.params.is("write")) {
             if (comp.is("result_locked", false)) {
                 sys.err.print("cmd.mt90.comp.result.compLocked");
                 return new NutMap();
@@ -301,11 +301,15 @@ public class wooz_comp_result implements JvmHdl {
                     metas.put("u_stat", "NOT_START");
                 }
                 else {
+                    if (pr.start != null) {
+                        metas.put("u_start_tm", pr.start.tm);
+                    }
                     if (pr.end == null) { // 还没到达终点?
                         metas.put("rank", -1);
                         metas.put("rank_sex", -1);
                     }
                     else {
+                        metas.put("u_end_tm", pr.end.tm);
                         metas.put("rank", pr.end.rank);
                         metas.put("rank_sex", pr.end.rank_sex);
                         if (pr.start != null) {
