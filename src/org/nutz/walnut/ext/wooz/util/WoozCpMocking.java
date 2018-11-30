@@ -156,6 +156,8 @@ public class WoozCpMocking {
                 meta.put("dev_ele", po.ele);
                 meta.put("du_total", du_sum);
                 meta.put("du_phase", du_phase);
+                meta.put("c", oComp.creator());
+                meta.put("g", oComp.group());
 
                 // 创建记录
                 WnObj oCp = io.create(dTrkcp, nm, WnRace.FILE);
