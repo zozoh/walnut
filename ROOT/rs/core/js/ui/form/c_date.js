@@ -59,13 +59,14 @@ return ZUI.def("ui.form_com_date", {
     _set_data : function(d, showBlink){
         var UI   = this;
         var opt  = UI.options;
+        //console.log("c_date._set_data", d);
 
         // 准备显示
         var jBox = UI.arena.find(".cd-box");
         var jBco = jBox.find(">span").empty();
 
         // 格式化数据并记录
-        UI.__VALUE = d;
+        UI.__VALUE = d || null;
 
         // 显示数据
         if(d){

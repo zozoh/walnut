@@ -41,13 +41,26 @@ public class wooz_comp_validate implements JvmHdl {
         }
 
         // 自定义域名也不能大写
-        if(oComp.has("cname")) {
-            Lang.each(oComp.get("cname"), (i, nm, len)->{
-                
+        if (oComp.has("cname")) {
+            Lang.each(oComp.get("cname"), (i, nm, len) -> {
+
             });
         }
 
         // 检查赛事的四个时间
+        // d_ready 必须在 d_apply 以后，否则报名区间木有啊
+        // d_ready 必须在 today 以后，否则表示比赛已经开始，还审核啥
+        // d_end 必须在 d_start 以后，否则没时间比赛
+        // d_start 必须在 d_ready 以后，否则不科学
+
+        // 依次检查每个赛项设置
+        // 四个日期有木有
+
+        // 检查价格策略 pj_price
+    }
+
+    private boolean _check(WnObj obj) {
+        return false;
     }
 
 }

@@ -46,6 +46,7 @@ return ZUI.def("ui.form_com_datetime", {
             on_change : function(){
                 // 确保更新时间
                 var d = UI._get_data();
+                //console.log("c_datetime.on_change", d);
                 UI._set_data(d);
                 // 触发
                 UI.__on_change()
@@ -78,8 +79,8 @@ return ZUI.def("ui.form_com_datetime", {
         d = d ? $z.parseDate(d) : null;
 
         // 显示数据
-        UI.gasket.date._set_data(d);
-        UI.gasket.time._set_data(d);
+        UI.gasket.date.setData(d);
+        UI.gasket.time.setData(d);
 
         // 显示效果
         if(showBlink)
