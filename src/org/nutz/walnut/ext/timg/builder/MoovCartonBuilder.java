@@ -36,7 +36,7 @@ public class MoovCartonBuilder extends AbstractCartonBuilder {
         int w = ctx.w;
         int h = ctx.h;
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-        int keepOrigin = ctx.conf.getInt("keepOrigin", 4);
+        int keepOrigin = ctx.conf.getInt("keepOrigin", 12);
         boolean drawNumber = ctx.conf.getBoolean("drawNumber", false);
         cartonFrameCount -= keepOrigin;
         for (int i = 0; i < cartonFrameCount; i++) {
