@@ -110,28 +110,18 @@ return ZUI.def("ui.ext.batchcmds", {
             parent : UI,
             gasketName : "main",
             headMode : "all",
-            // startPoint : "step2",
+            startPoint : opt.initStep || "step1",
             steps : steps,
+            data   : function() {
+				return {
+                    targets : objs,
+                    params  : opt.params
+                };
+			},
             on_done : function(){
             	UI.parent.close();
             }
-        }).render(function(){
-            this.setData({
-	    		targets : objs
-            });
-            // this.setData({
-            //     targets : objs,
-            //     lang : "zh-cn",
-            //     params : {
-            //         code: "3456", 
-            //         min: "10", 
-            //         app: "我们的服务"
-            //     },
-            //     tmplName : "login",
-            //     exampleTarget : objs[0],
-            //     exampleContent : "【零站服务】您的验证码是3456。有效期为10分钟，感谢您使用我们的服务"
-            // });
-        });
+        }).render();
     }
     //...............................................................
 });

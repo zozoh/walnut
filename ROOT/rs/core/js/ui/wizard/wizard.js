@@ -379,6 +379,11 @@ return ZUI.def("ui.wizard", {
     setData : function(data, notUpdateCurrentStepUI) {
         var UI = this;
 
+        // 确保是数据
+        if(_.isFunction(data)){
+            data = data();
+        }
+
         // 更新数据
         this.__data = _.extend({}, data);
 
