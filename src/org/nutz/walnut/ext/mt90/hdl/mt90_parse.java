@@ -147,6 +147,10 @@ public class mt90_parse implements JvmHdl {
             begin = proj.getLong("d_start");
             end = proj.getLong("d_end", Long.MAX_VALUE);
         }
+        if (begin > 0) {
+            begin -= 8*3600*1000;
+            end -= 8*3600*1000;
+        }
         //boolean lineOnly = hc.params.is("lineOnly");
         int pointCount = hc.params.getInt("points", Integer.MAX_VALUE);
         while (pointCount > 0) {
@@ -168,11 +172,6 @@ public class mt90_parse implements JvmHdl {
                     //Logs.get().info("过滤一条记录" + line);
                     continue;
                 }
-                if (begin == -1) {
-                    // 选择第一条记录的时间作为起点
-                    begin = raw.timestamp;
-                }
-                //System.out.println("" + raw.timestamp + "," + begin);
                 // 是否超过正常速度
                 if (raw.speed > speed) {
                     continue;
