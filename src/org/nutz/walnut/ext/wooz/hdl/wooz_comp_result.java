@@ -26,7 +26,6 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
 
 /**
  *  根据打卡记录,得出成绩总表
@@ -54,7 +53,7 @@ public class wooz_comp_result implements JvmHdl {
             ret.put(proj.name(), comp_result(comp, compDir, proj.name(), sys, hc));
         }
         if (hc.params.is("json"))
-            sys.out.writeJson(ret, Cmds.gen_json_format(hc.params));
+            sys.out.writeJson(ret, hc.jfmt);
     }
     
     public NutMap comp_result(WnObj comp, WnObj compDir, String projName, WnSystem sys, JvmHdlContext hc) {
