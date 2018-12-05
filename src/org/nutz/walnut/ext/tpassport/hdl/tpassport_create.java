@@ -1,7 +1,10 @@
 package org.nutz.walnut.ext.tpassport.hdl;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
+import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -66,10 +69,12 @@ public class tpassport_create implements JvmHdl {
         finally {
             tp.finish();
         }
-        BufferedImage image = tp.getImage();
         if (hc.params.has("dst")) {
+            BufferedImage image = tp.getImage();
             WnObj dst = sys.io.createIfNoExists(null, Wn.normalizeFullPath(hc.params.get("dst"), sys), WnRace.FILE);
-            sys.io.writeImage(dst, image);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Images.writeJpeg(image, out, 0.9f);
+            sys.io.writeAndClose(dst, new ByteArrayInputStream(out.toByteArray()));
         }
         sys.out.print("{\"ok\":true}");
     }
