@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.wooz.hdl;
 
 import java.util.List;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -11,17 +13,43 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
+import org.nutz.web.WebException;
+import org.nutz.web.ajax.AjaxReturn;
 
 /**
  * 检查赛事各种数据是否完备
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
+@JvmHdlParamArgs("cqn")
 public class wooz_comp_validate implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        AjaxReturn re = new AjaxReturn();
+        try {
+            WnObj oComp = __do_check_comp(sys, hc);
+            // 输出正常返回
+            re.setOk(true);
+            re.setData(oComp);
+        }
+        catch (Exception e) {
+            WebException we = Er.wrap(e);
+            re.setOk(false);
+            re.setErrCode(we.getKey());
+            re.setMsg(we.toString());
+            re.setData(we.getReason());
+        }
+
+        // 输出
+        JsonFormat jfmt = Cmds.gen_json_format(hc.params);
+        sys.out.println(Json.toJson(re, jfmt));
+    }
+
+    private WnObj __do_check_comp(WnSystem sys, JvmHdlContext hc) {
         // 得到关键参数
         String compId = hc.params.val_check(0);
 
@@ -71,7 +99,7 @@ public class wooz_comp_validate implements JvmHdl {
             // 检查价格策略 pj_price
             List<NutMap> ppList = oPj.getAsList("pj_price", NutMap.class);
             if (ppList.isEmpty()) {
-                throw Er.create("wooz.err.proj.no_price", oPj.name());
+                throw Er.create("wooz.err.proj_no_price", oPj.name());
             }
             // 必须有默认价格策略
             boolean hasDefaultPrice = false;
@@ -82,41 +110,43 @@ public class wooz_comp_validate implements JvmHdl {
                 }
             }
             if (!hasDefaultPrice) {
-                throw Er.create("wooz.err.proj.no_dft_price", oPj.name());
+                throw Er.create("wooz.err.proj_no_dft_price", oPj.name());
             }
         }
+
+        return oComp;
     }
 
     private void _check_date(WnObj obj) {
-        long d_ready = obj.getLong("d_ready", -1);
         long d_apply = obj.getLong("d_apply", -1);
+        long d_ready = obj.getLong("d_ready", -1);
         long d_start = obj.getLong("d_start", -1);
         long d_end = obj.getLong("d_end", -1);
         long today = System.currentTimeMillis();
         String prefix = obj.has("cm_tp") ? "comp" : "proj";
         // d_ready 必须在 d_apply 以后，否则报名区间木有啊
         if (d_ready < 0)
-            throw Er.create("wooz.err." + prefix + ".no_d_ready");
+            throw Er.create("wooz.err." + prefix + "_no_d_ready");
         if (d_apply < 0)
-            throw Er.create("wooz.err." + prefix + ".no_d_apply");
+            throw Er.create("wooz.err." + prefix + "_no_d_apply");
         if (d_ready <= d_apply) {
-            throw Er.create("wooz.err." + prefix + ".d_ready_gt");
+            throw Er.create("wooz.err." + prefix + "_d_ready_gt");
         }
         // d_ready 必须在 today 以后，否则表示比赛已经开始，还审核啥
         if (d_ready <= today) {
-            throw Er.create("wooz.err." + prefix + ".d_ready_passed");
+            throw Er.create("wooz.err." + prefix + "_d_ready_passed");
         }
         // d_end 必须在 d_start 以后，否则没时间比赛
         if (d_start < 0)
-            throw Er.create("wooz.err." + prefix + ".no_d_start");
+            throw Er.create("wooz.err." + prefix + "_no_d_start");
         if (d_end < 0)
-            throw Er.create("wooz.err." + prefix + ".no_d_end");
+            throw Er.create("wooz.err." + prefix + "_no_d_end");
         if (d_start >= d_end) {
-            throw Er.create("wooz.err." + prefix + ".d_start_gt");
+            throw Er.create("wooz.err." + prefix + "_d_start_gt");
         }
         // d_start 必须在 d_ready 以后，否则不科学
         if (d_start < d_ready) {
-            throw Er.create("wooz.err." + prefix + ".d_start_lt");
+            throw Er.create("wooz.err." + prefix + "_d_start_lt");
         }
     }
 
