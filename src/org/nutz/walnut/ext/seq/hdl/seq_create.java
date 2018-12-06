@@ -17,7 +17,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
-@JvmHdlParamArgs(value="cqn", regex="^(force)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(force)$")
 public class seq_create implements JvmHdl {
 
     @Override
@@ -38,19 +38,18 @@ public class seq_create implements JvmHdl {
         if (vars == null) {
             vars = new NutMap();
         }
-        
+
         String tmpl = hc.params.check("tmpl");
         int start = hc.params.getInt("start", 1); // 起始
         int count = hc.params.getInt("count", 100); // 默认生成100个,差不多了吧
         int step = hc.params.getInt("step", 1); // 步进长度
         String list_match = hc.params.get("match"); // 列表匹配模式
-        
-        
+
         if (step == 0)
             step = 1;
-        
+
         int current = start;
-        //Tmpl t = Tmpl.parse(tmpl);
+        // Tmpl t = Tmpl.parse(tmpl);
         Tmpl t = Cmds.parse_tmpl(tmpl);
         // 简单序列模式
         if (Strings.isBlank(list_match)) {
@@ -60,8 +59,9 @@ public class seq_create implements JvmHdl {
                 current += step;
             }
         }
+        // 列表模式
         else {
-            boolean force = hc.params.is("force");    // 是否覆盖原有的值
+            boolean force = hc.params.is("force"); // 是否覆盖原有的值
             String sort = hc.params.get("sort", "ct:1"); // 列表排序模式,
             String list_key = hc.params.get("key", "u_code"); // 列表模式下的存储序列值的键
             List<WnObj> objs = null;
@@ -69,8 +69,10 @@ public class seq_create implements JvmHdl {
             int nochange = 0;
             if (Strings.isNotBlank(list_match)) {
                 WnQuery q = new WnQuery();
-                q.add(Lang.map(list_match));
-                q.setv("d0", "home").setv("d1", sys.me.mainGroup());
+                NutMap map = Lang.map(list_match);
+                map.put("d0", "home");
+                map.setnx("d1", sys.me.mainGroup());
+                q.add(map);
                 q.sort(Lang.map(sort));
                 objs = sys.io.query(q);
                 if (objs.isEmpty())
@@ -91,8 +93,7 @@ public class seq_create implements JvmHdl {
                     if (it.hasNext()) {
                         cur = it.next();
                         continue;
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
@@ -104,14 +105,15 @@ public class seq_create implements JvmHdl {
                     continue;
                 }
                 sys.io.appendMeta(cur, new NutMap(list_key, value));
-                updated ++;
+                updated++;
                 current += step;
                 if (it.hasNext())
                     cur = it.next();
                 else
                     break;
             }
-            sys.out.writeJson(new NutMap("updated", updated).setv("nochange", nochange), Cmds.gen_json_format(hc.params));
+            sys.out.writeJson(new NutMap("updated", updated).setv("nochange", nochange),
+                              Cmds.gen_json_format(hc.params));
         }
     }
 }
