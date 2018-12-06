@@ -125,6 +125,8 @@ public class JsExec {
             if ("nashorn".equals(engineName)) {
                 try {
                     engine = getNashornEngineSafe((name) -> {
+                        if (name.equals("java.lang.String"))
+                            return true;
                         // 不允许加载java.lang下的类,尤其是Runtime
                         if (name.startsWith("java.lang"))
                             return false;
