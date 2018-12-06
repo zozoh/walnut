@@ -22,11 +22,14 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.qrcode.QRCode;
 import org.nutz.qrcode.QRCodeFormat;
+import org.nutz.repo.cache.simple.LRUCache;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class TPassport {
 
-    private static NutMap fontCache = NutMap.NEW();
+    private static LRUCache<String, Font> fontCache = new LRUCache<>(128);
+    private static LRUCache<String, BufferedImage> bgCache = new LRUCache<>(128);
 
     private WnSystem sys;
     private BufferedImage im;
@@ -61,7 +64,7 @@ public class TPassport {
     }
 
     public void prepare() {
-        im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        im = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         gc = im.createGraphics();
         gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setBackground(bgColor);
@@ -170,7 +173,7 @@ public class TPassport {
 
     private Font getFont(String nm, int style, int size) {
         String fkey = nm + "_" + style + "_" + size;
-        Font ffont = fontCache.getAs(fkey, Font.class);
+        Font ffont = fontCache.get(fkey);
         if (ffont == null) {
             InputStream ins = null;
             try {
@@ -197,7 +200,7 @@ public class TPassport {
                 Streams.safeClose(ins);
             }
             if (ffont != null) {
-                fontCache.setv(fkey, ffont);
+                fontCache.put(fkey, ffont);
             }
         }
         return ffont;
@@ -208,7 +211,15 @@ public class TPassport {
             return ImageIO.read(Streams.fileIn(Files.findFile(img.substring(7))));
         } else {
             if (sys != null) {
-                return ImageIO.read(sys.io.getInputStream(sys.io.get(img), 0));
+                WnObj wobj = sys.io.get(img);
+                if (wobj == null)
+                    throw new IOException("no such image : " + img);
+                BufferedImage image = bgCache.get(wobj.sha1());
+                if (image == null) {
+                    image = sys.io.readImage(wobj);
+                    bgCache.put(wobj.sha1(), image);
+                }
+                return image;
             }
             throw new RuntimeException("Need Walnut System");
         }
@@ -221,14 +232,6 @@ public class TPassport {
             return Images.zoomScale(img, tarW, tarH, bgColor);
         }
         return img;
-    }
-
-    public static NutMap getFontCache() {
-        return fontCache;
-    }
-
-    public static void setFontCache(NutMap fontCache) {
-        TPassport.fontCache = fontCache;
     }
 
     public WnSystem getSys() {
