@@ -273,6 +273,7 @@ public class wooz_comp_result implements JvmHdl {
                 return new NutMap();
             }
             WnObj result_dir = sys.io.fetch(compDir, "result");
+            WnObj signup_dir = sys.io.check(compDir, "signup");
             if (result_dir != null && hc.params.is("clean")) {
                 sys.io.delete(result_dir, true);
                 result_dir = null;
@@ -323,6 +324,10 @@ public class wooz_comp_result implements JvmHdl {
                 sys.io.appendMeta(prz, metas);
                 if (!prz.creator().equals(compDir.creator())) {
                     sys.io.appendMeta(prz, new NutMap("c", compDir.creator()).setv("g", compDir.creator()));
+                }
+                WnObj sig = sys.io.fetch(signup_dir, uid);
+                if (sig != null) {
+                    sys.io.appendMeta(sig, new NutMap("result_id", prz.id()));
                 }
             }
         }
