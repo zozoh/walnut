@@ -42,7 +42,7 @@ public class TPassport {
     private String dftFont = "Microsoft Yahei.ttf";
     private int dftFontStyle = Font.PLAIN;
     private int dftFontSize = 13;
-    
+
     public TPassport() {
         width = 840;
         height = 600;
@@ -61,7 +61,7 @@ public class TPassport {
     }
 
     public void prepare() {
-        im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        im = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         gc = im.createGraphics();
         gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setBackground(bgColor);
@@ -343,6 +343,5 @@ public class TPassport {
     public void setBackgroundImage(String backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
-    
-    
+
 }

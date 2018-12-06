@@ -50,7 +50,8 @@ public class seq_create implements JvmHdl {
             step = 1;
         
         int current = start;
-        Tmpl t = Tmpl.parse(tmpl);
+        //Tmpl t = Tmpl.parse(tmpl);
+        Tmpl t = Cmds.parse_tmpl(tmpl);
         // 简单序列模式
         if (Strings.isBlank(list_match)) {
             for (int i = 0; i < count; i++) {
