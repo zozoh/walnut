@@ -44,9 +44,11 @@ return ZUI.def("ui.thing.th_obj_create", {
                     var json = $z.toJson(obj).replace(/'/g, "");
                     cmdText += "-fields '" + json + "'";
                     // 执行命令
+                    UI.showLoading();
                     Wn.exec(cmdText, function(re) {
                         UI.doActionCallback(re, {
                             ok : function(newTh){
+                                UI.hideLoading();
                                 UI.fireBus('list:add', newTh);
                                 UI.fireBus('obj:selected', [newTh]);
                                 UI.bus().hideArea('create');
