@@ -5,6 +5,7 @@ import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -12,6 +13,7 @@ import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnSession;
@@ -21,11 +23,12 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.WnSysConf;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
-public class WnSystem implements WnExecutable{
+public class WnSystem implements WnExecutable {
 
     private static final Log log = Logs.get();
 
@@ -216,6 +219,58 @@ public class WnSystem implements WnExecutable{
      */
     public <T> T nosecurity(Proton<T> proton) {
         return Wn.WC().nosecurity(io, proton);
+    }
+
+    /**
+     * 将当前的系统沙箱和线程上下文切换成某指定用户，并为这个用户创建一个会话。
+     * 这样本沙箱运行的所有环境就变成了一个新用户。函数退出前，会恢复原始的会话信息。新会话也会被注销
+     * <p>
+     * ！！！ 注意，只有 root 用户组的成员以上权限才有资格执行这个操作
+     * 
+     * @param newUsr
+     *            新用户
+     * @param callback
+     *            回调，参数为当前 WnSystem
+     */
+    public void switchUser(WnUsr newUsr, Callback<WnSystem> callback) {
+        final WnSystem sys = this;
+        // 检查权限
+        if (!this.usrService.isMemberOfGroup(this.me, "root")) {
+            throw Er.create("e.sys.switchUser.nopvg");
+        }
+
+        // 创建新会话
+        WnSession newSession = this.sessionService.create(me);
+
+        // 记录旧的 Session
+        WnSession old_se = this.se;
+        WnUsr old_me = this.me;
+        this.se = newSession;
+        this.me = newUsr;
+        WnContext wc = Wn.WC();
+        try {
+            // 切换沙箱的的会话
+            this._runner.bc.me = newUsr;
+            this._runner.bc.session = newSession;
+            // 切换 session
+            wc.SE(newSession);
+            wc.su(newUsr, new Atom() {
+                public void run() {
+                    callback.invoke(sys);
+                }
+            });
+        }
+        // 释放 session
+        finally {
+            // 切换沙箱的的会话
+            this._runner.bc.me = old_me;
+            this._runner.bc.session = old_se;
+            // 切换 session
+            this.se = old_se;
+            this.me = old_me;
+            wc.SE(old_se);
+            this.sessionService.logout(newSession.id());
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
@@ -20,6 +21,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.WnSysConf;
 
 public class app_init implements JvmHdl {
@@ -39,12 +41,12 @@ public class app_init implements JvmHdl {
 
     private void __exec_without_security(WnSystem sys, JvmHdlContext hc) {
         // 得到要操作的用户
-        WnUsr me = sys.me;
+        WnUsr u = sys.me;
         if (hc.params.has("u")) {
-            me = sys.usrService.check(hc.params.get("u"));
+            u = sys.usrService.check(hc.params.get("u"));
         }
 
-        boolean isME = me.isSameId(sys.me);
+        boolean isME = u.isSameId(sys.me);
 
         // 如果操作的用户不是自己，必须是 root 或者 op 组成员才能做
         if (!isME) {
@@ -54,30 +56,17 @@ public class app_init implements JvmHdl {
             }
         }
 
+        // 本人
         if (isME) {
             __exec_init(sys, hc);
-        } else {
-            // // 为其创建会话, 切换到对应用户
-            WnSession se = sys.sessionService.create(me);
-            WnSession ose = sys.se;
-            WnUsr ome = sys.me;
-            sys.se = se;
-            sys.me = me;
-            try {
-                Wn.WC().su(me, new Atom() {
-                    @Override
-                    public void run() {
-                        __exec_init(sys, hc);
-                    }
-                });
-            }
-            // 释放 session
-            finally {
-                sys.se = ose;
-                sys.me = ome;
-                sys.sessionService.logout(se.id());
-
-            }
+        }
+        // 为其创建会话, 切换到对应用户
+        else {
+            sys.switchUser(u, new Callback<WnSystem>() {
+                public void invoke(WnSystem sys2) {
+                    __exec_init(sys2, hc);
+                }
+            });
         }
     }
 
