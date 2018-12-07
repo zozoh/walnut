@@ -26,6 +26,7 @@ import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.repo.cache.simple.LRUCache;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public class TPassport {
 
@@ -178,6 +179,9 @@ public class TPassport {
         Font ffont = fontCache.get(fkey);
         if (ffont == null) {
             WnObj wobj = sys.io.fetch(null, "/home/" + sys.me.name() + "/.font/" + nm);
+            if (wobj == null) {
+                wobj = sys.io.fetch(null, "/sys/font/" + nm.replaceAll("[\"\'\\n\\r\\$]", ""));
+            }
             if (wobj != null && wobj.isFILE()) {
                 try (InputStream ins = sys.io.getInputStream(wobj, 0)) {
                     ffont = Font.createFont(Font.TRUETYPE_FONT, ins).deriveFont(style, size);
