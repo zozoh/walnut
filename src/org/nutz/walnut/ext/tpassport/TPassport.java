@@ -2,14 +2,13 @@ package org.nutz.walnut.ext.tpassport;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -20,6 +19,8 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.qrcode.QRCode;
 import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.repo.cache.simple.LRUCache;
@@ -30,6 +31,7 @@ public class TPassport {
 
     private static LRUCache<String, Font> fontCache = new LRUCache<>(128);
     private static LRUCache<String, BufferedImage> bgCache = new LRUCache<>(128);
+    private static final Log log = Logs.get();
 
     private WnSystem sys;
     private BufferedImage im;
@@ -175,32 +177,20 @@ public class TPassport {
         String fkey = nm + "_" + style + "_" + size;
         Font ffont = fontCache.get(fkey);
         if (ffont == null) {
-            InputStream ins = null;
-            try {
-                String path = "font/" + nm;
-                try {
-                    URL url = getClass().getClassLoader().getResource(path);
-                    if (url != null) {
-                        if (url.getFile() != null) {
-                            ffont = Font.createFont(Font.TRUETYPE_FONT, new File(url.getFile()))
-                                        .deriveFont(style, size);
-                        }
-                    }
-                }
-                catch (Exception e) {}
-                ins = Streams.fileIn(path);
-                if (ins != null)
+            WnObj wobj = sys.io.fetch(null, "/home/" + sys.me.name() + "/.font/" + nm);
+            if (wobj != null && wobj.isFILE()) {
+                try (InputStream ins = sys.io.getInputStream(wobj, 0)) {
                     ffont = Font.createFont(Font.TRUETYPE_FONT, ins).deriveFont(style, size);
-            }
-            catch (Exception e) {
-                // 尝试直接获取字体
-                ffont = new Font(nm, style, size);
-            }
-            finally {
-                Streams.safeClose(ins);
+                }
+                catch (IOException | FontFormatException e) {
+                    log.info("bad font data: " + wobj.path() , e);
+                }
             }
             if (ffont != null) {
                 fontCache.put(fkey, ffont);
+            }
+            else {
+                ffont = new Font(nm, style, size);
             }
         }
         return ffont;
