@@ -76,8 +76,7 @@ public class cmd_passwd extends JvmExecutor {
         else if (null != u) {
             // 只有 root 组的管理员才能修改其他人的密码
             if (!u.isSameId(sys.me)) {
-                int role = sys.usrService.getRoleInGroup(sys.me, "root");
-                if (Wn.ROLE.ADMIN != role) {
+                if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
                     throw Er.create("e.cmd.passwd.nopvg");
                 }
             }

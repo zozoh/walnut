@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -116,8 +117,14 @@ public class WnHttpResponse {
             this.contentType = wobj.mime();
 
         // 默认用 obj 的名称作为下载名
-        if (Strings.isBlank(this.downloadName))
+        if (Strings.isBlank(this.downloadName)) {
             this.downloadName = wobj.name();
+            // 确保有正确的扩展名作为结尾
+            String suffixName = Files.getSuffixName(this.downloadName);
+            if (wobj.hasType() && !wobj.isType(suffixName)) {
+                this.downloadName += "." + wobj.type();
+            }
+        }
 
         // 准备记录 ETag
         String objETag = Wn.getEtag(wobj);

@@ -87,11 +87,11 @@ public class wooz_comp_validate implements JvmHdl {
         WnObj oData = Things.dirTsData(sys.io, oComp);
         WnObj oPjHome = sys.io.fetch(oData, oComp.id() + "/proj/");
         if (null == oPjHome) {
-            throw Er.create("wooz.err.comp.no_proj");
+            throw Er.create("wooz.err.comp_no_proj");
         }
         List<WnObj> oPjList = sys.io.getChildren(oPjHome, null);
         if (oPjList.isEmpty()) {
-            throw Er.create("wooz.err.comp.no_proj");
+            throw Er.create("wooz.err.comp_no_proj");
         }
         for (WnObj oPj : oPjList) {
             // 四个日期有木有

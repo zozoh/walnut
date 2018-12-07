@@ -34,7 +34,7 @@ vars    额外变量表,需要是json, 或者从标准输入获取
 
 ```
 // 赛项对象id:xxx, 其中u_code_prefix=A
->: obj id:xxx | seq create -tmpl '\${u_code_prefix}\${seq<int:%03d>}\${obj.u_sex}' -vars 'prefix:"T"' -match 'pid:"48mv1tu9a2j5arrcgiiub6slhu",u_pj:"10KM"' -vars
+>: obj id:xxx | seq create -tmpl '@{u_code_prefix}@{seq<int:%03d>}@{obj.u_sex}' -match 'pid:"48mv1tu9a2j5arrcgiiub6slhu",u_pj:"10KM"'
 {
    updated: 0,
    nochange: 5

@@ -47,7 +47,7 @@ public class TPassport {
     private String dftFont = "Microsoft Yahei.ttf";
     private int dftFontStyle = Font.PLAIN;
     private int dftFontSize = 13;
-    
+
     public TPassport() {
         width = 840;
         height = 600;
@@ -336,6 +336,5 @@ public class TPassport {
     public void setBackgroundImage(String backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
-    
-    
+
 }
