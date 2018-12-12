@@ -486,6 +486,52 @@ var zRect = {
         return this.count_tlwh(rect);
     },
     //.............................................
+    // 将给定矩形缩放到适合视口
+    // 基本假想两个矩形都是 left/top 为 0/0
+    //  - viewport : Rect  : 视口
+    //  - rect     : Rect  : 要被缩放的矩形
+    //  - forContains : false : true 表示如果全部在视口内，就无视
+    // 返回矩形自身
+    zoomScale : function(viewport, rect, forContains) {
+        if(forContains && this.contains(viewport, rect)){
+            return;
+        }
+        // 获得尺寸
+        var w  = viewport.width;
+        var h  = viewport.height;
+        var oW = rect.width;
+        var oH = rect.height;
+        var oR = oW / oH;
+        var nR = w  / h;
+
+        var nW, nH;
+        /*
+         * 缩放
+         */
+        // 原图太宽，计算当原图与画布同高时，原图的等比宽度
+        if (oR > nR) {
+            nW = w;
+            nH = (w) / oR;
+        }
+        // 原图太高
+        else if (oR < nR) {
+            nH = h;
+            nW = h * oR;
+        }
+        // 比例相同
+        else {
+            nW = w;
+            nH = h;
+            x = 0;
+            y = 0;
+        }
+
+        // 设置
+        rect.width  = nW;
+        rect.height = nH;
+        return this.count_tlwh(rect);
+    },
+    //.............................................
     // 移动矩形
     // - rect : 要被移动的矩形
     // - tX   : X 轴位移
@@ -717,7 +763,7 @@ var zRect = {
         rect.top = pos.y - (offset ? offset.y : 0);
         rect.left = pos.x - (offset ? offset.x : 0);
         return this.count_tlwh(rect);
-    },
+    }
     //.............................................
 };
 //.................................................

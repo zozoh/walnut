@@ -315,13 +315,23 @@ define(function (require, exports, module) {
                 var ddSelector = UI.dragAndDrop;
                 if(!_.isString(ddSelector))
                     ddSelector = "> .ui-arena";
+                UI.__drag_enter_count = 0;
+                UI.$el.on("dragenter", ddSelector, function(e){
+                    //console.log("enter-->",e.currentTarget.className, e.target.className)
+                    UI.__drag_enter_count++;
+                    $(this).attr("ui-drag", "over");
+                });
                 UI.$el.on("dragover", ddSelector, function(e){
                     e.stopPropagation();
                     e.preventDefault();
-                    $(this).attr("ui-drag", "over");
                 });
-                UI.$el.on("dragleave", ddSelector, function(){
-                    $(this).removeAttr("ui-drag");
+                UI.$el.on("dragleave", ddSelector, function(e){
+                    //console.log("<--leave",e.currentTarget.className, e.target.className)
+                    UI.__drag_enter_count--;
+                    if(UI.__drag_enter_count <= 0) {
+                        $(this).removeAttr("ui-drag");
+                        UI.__drag_enter_count = 0;
+                    }
                 });
                 UI.$el.on("drop", ddSelector, function(e){
                     $(this).removeAttr("ui-drag");
@@ -2189,6 +2199,7 @@ define(function (require, exports, module) {
 //===================================================================
 
     ZUI._on_keyevent = function (e, kmap) {
+        // console.log(e.which);
         var keys = [];
         // 顺序添加，所以不用再次排序了
         if (e.altKey && e.keyCode != 18) keys.push("alt");

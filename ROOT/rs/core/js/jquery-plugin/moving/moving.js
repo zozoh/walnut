@@ -145,7 +145,7 @@ var MVs = {
                 var s = bb.substring(0, bb.length-1) * 0.01;
                 MVing.__boundary_w = s * rcTa.width;
                 MVing.__boundary_h = s * rcTa.height;
-                console.log(MVing.__boundary_w, MVing.__boundary_h)
+                //console.log(MVing.__boundary_w, MVing.__boundary_h)
             }
             // 额，什么鬼？
             else {
