@@ -266,6 +266,30 @@ public class wooz_comp_result implements JvmHdl {
             }
         }
         
+        // 计算选手的区间配速
+        for (PlayerResult pr : player_results.values()) {
+            if (pr.cps == null)
+                continue;
+            if (pr.cps.size() < 2)
+                continue;
+            for (Map.Entry<String, PlayerCpResult> en : pr.cps.entrySet()) {
+                String cpName = en.getKey();
+                WoozPoint point = cpMap.get(cpName);
+                if (point == null)
+                    continue;
+                PlayerCpResult pcr = en.getValue();
+                pcr.du = point.distancePrev;
+                pcr.duKM = String.format("%.2f", pcr.du / 1000.0);
+                if (pcr.du == 0) {
+                    pcr.speedstr = "-";
+                }
+                else {
+                    int t = (int)((pcr.tused/1000) / (pcr.du / 1000.0));
+                    pcr.speedstr = String.format("%d'%02d''", t/60, t%60);
+                }
+            }
+        }
+        
         // 是否写出到result目录呢?
         if (hc.params.is("write")) {
             if (comp.is("result_locked", false)) {
@@ -352,5 +376,8 @@ public class wooz_comp_result implements JvmHdl {
         public long tused; // 从起点到当前点的耗时, 单位是毫秒
         public int rank; // 全局排名
         public int rank_sex; // 同性别排名
+        public int du; // 距离,单位是米
+        public String duKM; // 距离,单位km
+        public String speedstr;
     }
 }

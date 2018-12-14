@@ -72,6 +72,7 @@ public class tpassport_create implements JvmHdl {
         if (hc.params.has("dst")) {
             BufferedImage image = tp.getImage();
             WnObj dst = sys.io.createIfNoExists(null, Wn.normalizeFullPath(hc.params.get("dst"), sys), WnRace.FILE);
+            sys.io.appendMeta(dst, new NutMap("mime", "image/jpeg"));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Images.writeJpeg(image, out, 0.9f);
             sys.io.writeAndClose(dst, new ByteArrayInputStream(out.toByteArray()));
