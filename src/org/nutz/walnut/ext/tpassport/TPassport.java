@@ -26,7 +26,6 @@ import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.repo.cache.simple.LRUCache;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
 public class TPassport {
 
@@ -128,21 +127,23 @@ public class TPassport {
             gc.setColor(getTextColor(tpItem));
             gc.setFont(cFont);
             FontMetrics cFontM = gc.getFontMetrics(cFont);
-            int cW = cFontM.stringWidth(tpItem.getContent());
-            int cH = cFontM.getHeight();
-            int cHFix = cH / 3 * 2;
-            int x, y;
-            if ("left".equals(tpItem.align)) {
-                x = tpItem.left;
-            } else if ("right".equals(tpItem.align)) {
-                x = tpItem.left + (tpItem.width - cW);
-            } else {
-                x = tpItem.left + (tpItem.width / 2 - cW / 2);
-            }
-            y = tpItem.top
-                + cHFix
-                + (tpItem.height / 2 - cH / 2)
-                + (cFontM.getAscent() - tpItem.fontSize);
+//            int cW = cFontM.stringWidth(tpItem.getContent());
+//            int cH = cFontM.getHeight();
+//            int cHFix = cH / 3 * 2;
+//            int x, y;
+//            if ("left".equals(tpItem.align)) {
+//                x = tpItem.left;
+//            } else if ("right".equals(tpItem.align)) {
+//                x = tpItem.left + (tpItem.width - cW);
+//            } else {
+//                x = tpItem.left + (tpItem.width / 2 - cW / 2);
+//            }
+//            y = tpItem.top
+//                + cHFix
+//                + (tpItem.height / 2 - cH / 2)
+//                + (cFontM.getAscent() - tpItem.fontSize);
+            int x = tpItem.left;
+            int y = tpItem.top + cFontM.getHeight();
             gc.drawString(tpItem.getContent(), x, y);
         }
     }
@@ -340,5 +341,4 @@ public class TPassport {
     public void setBackgroundImage(String backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
-
 }
