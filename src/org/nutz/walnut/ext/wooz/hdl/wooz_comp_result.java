@@ -320,7 +320,7 @@ public class wooz_comp_result implements JvmHdl {
                     metas.put("u_stat", pr.stat);
                 }
 
-                WnObj prz = sys.io.createIfNoExists(result_dir, proj.name() + "_" + uid, WnRace.FILE);
+                WnObj prz = sys.io.createIfNoExists(result_dir, proj.name() + "_" + uid, WnRace.DIR);
                 sys.io.appendMeta(prz, metas);
                 if (!prz.creator().equals(compDir.creator())) {
                     sys.io.appendMeta(prz, new NutMap("c", compDir.creator()).setv("g", compDir.creator()));
