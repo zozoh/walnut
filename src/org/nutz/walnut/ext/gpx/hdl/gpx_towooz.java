@@ -51,14 +51,33 @@ public class gpx_towooz implements JvmHdl {
                 WoozPoint point = new WoozPoint();
                 point.lat = Double.parseDouble(wpt.getLat());
                 point.lng = Double.parseDouble(wpt.getLon());
-                point.name = wpt.getName();
-                // 暂时无法区分起点和终点
-                point.type = "csp";
-                if (index == 0) {
-                    point.type = "start";
-                }
-                else if (index == gpx.wpts.size() - 1) {
-                    point.type = "end";
+                point.name = Strings.sBlank(wpt.getName(), "CP" + index);
+                if (Strings.isNotBlank(point.name)) {
+                    if (point.name.toUpperCase().startsWith("CP")) {
+                        point.type = "cp";
+                        if (point.name.contains(" ")) {
+                            point.name = point.name.substring(0, point.name.indexOf(' '));
+                            point.desc = point.name.substring(point.name.indexOf(' ')+1);
+                        }
+                    }
+                    else if (point.name.toUpperCase().startsWith("SP")) {
+                        point.type = "sp";
+                        if (point.name.contains(" ")) {
+                            point.name = point.name.substring(0, point.name.indexOf(' '));
+                            point.desc = point.name.substring(point.name.indexOf(' ')+1);
+                        }
+                    }
+                    else {
+                        if (index == 0) {
+                            point.type = "start";
+                        }
+                        else if (index == gpx.wpts.size() - 1) {
+                            point.type = "end";
+                        }
+                        else {
+                            point.type = "sp";
+                        }
+                    }
                 }
                 index ++;
                 WoozTools.convert(point, conv_from, conv_to);

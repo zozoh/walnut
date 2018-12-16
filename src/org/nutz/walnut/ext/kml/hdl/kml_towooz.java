@@ -53,9 +53,19 @@ public class kml_towooz implements JvmHdl {
                             point.type = "start";
                         else if ("endPoint".equals(placemark.id))
                             point.type = "end";
-                        else
-                            point.type = "csp";
-                        point.name = placemark.name;
+                        if (!Strings.isBlank(placemark.name)) {
+                            if (placemark.name.toString().startsWith("CP")) {
+                                point.type = "cp";
+                            }
+                            else if (placemark.name.toString().startsWith("SP")) {
+                                point.type = "sp";
+                            }
+                        }
+                        else {
+                            point.type = "sp";
+                        }
+                        if (Strings.isBlank(point.name))
+                            point.name = placemark.name;
                         point.desc = placemark.description;
                         double[] tmp = WoozTools.parse(placemark.point.coordinates);
                         point.lng = tmp[0];
