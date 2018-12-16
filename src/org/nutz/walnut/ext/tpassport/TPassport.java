@@ -208,6 +208,8 @@ public class TPassport {
             if (sys != null) {
                 WnObj wobj = sys.io.get(img);
                 if (wobj == null)
+                    wobj = sys.io.fetch(null, img);
+                if (wobj == null)
                     throw new IOException("no such image : " + img);
                 BufferedImage image = bgCache.get(wobj.sha1());
                 if (image == null) {
