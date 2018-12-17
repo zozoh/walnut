@@ -1,10 +1,13 @@
 package org.nutz.walnut.ext.wup.hdl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
@@ -25,35 +28,60 @@ public class wup_pkg_add implements JvmHdl {
     @SuppressWarnings("unchecked")
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         List<NutMap> list = new ArrayList<>();
-        String path = hc.params.vals[0];
-        path = Wn.normalizeFullPath(path, sys);
-        WnObj _src = sys.io.check(null, path);
-        sys.io.walk(_src, (wobj) -> {
-            String source = wobj.path();
-            if (!source.endsWith(".tgz")) {
-                return;
+        File dir = new File("/root/dw");
+        for (File f : dir.listFiles()) {
+            if (!f.getName().endsWith(".tgz")) {
+                continue;
             }
-            String[] tmp = wobj.name().split("-", 2);
+            String[] tmp = f.getName().split("-", 2);
             if (tmp.length != 2 || tmp[0].isEmpty() || tmp[1].length() < 4)
                 return;
             String name = tmp[0];
             String version = tmp[1].substring(0, tmp[1].length() - 4);
 
-            String dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz", sys);
-            WnObj obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
-            sys.io.writeAndClose(obj, sys.io.getInputStream(wobj, 0));
-            sys.io.appendMeta(obj, "md:" + 493); // 0755
+            // TODO 做成可配置
+            String pkgDir = "/opt/oss/stones/wup/pkgs/" + name + "/";
+            String path = pkgDir + version + ".tgz";
+            File dst = new File(path);
+            Files.createDirIfNoExists(pkgDir);
+            Files.copy(f, dst);
+            Files.write(path + ".sha1", Lang.sha1(f));
             list.add(new NutMap("name", name).setv("version", version));
-
-            // 如果存在zsync文件,设置为可用呗
-            WnObj zsync = sys.io.fetch(null, wobj.path() + ".zsync");
-            if (zsync != null) {
-                dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz.zsync", sys);
-                obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
-                sys.io.writeAndClose(obj, sys.io.getInputStream(zsync, 0));
-                sys.io.appendMeta(obj, "md:" + 493); // 0755
+            if (new File(f.getPath() + ".zsync").exists()) {
+                Files.copy(new File(f.getPath() + ".zsync"), new File(pkgDir + version + ".tgz.zsync"));
             }
-        }, WalkMode.LEAF_ONLY);
+        }
+        if (hc.params.get("old") != null) {
+            String path = hc.params.vals[0];
+            path = Wn.normalizeFullPath(path, sys);
+            WnObj _src = sys.io.check(null, path);
+            sys.io.walk(_src, (wobj) -> {
+                String source = wobj.path();
+                if (!source.endsWith(".tgz")) {
+                    return;
+                }
+                String[] tmp = wobj.name().split("-", 2);
+                if (tmp.length != 2 || tmp[0].isEmpty() || tmp[1].length() < 4)
+                    return;
+                String name = tmp[0];
+                String version = tmp[1].substring(0, tmp[1].length() - 4);
+
+                String dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz", sys);
+                WnObj obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
+                sys.io.writeAndClose(obj, sys.io.getInputStream(wobj, 0));
+                sys.io.appendMeta(obj, "md:" + 493); // 0755
+                list.add(new NutMap("name", name).setv("version", version));
+
+                // 如果存在zsync文件,设置为可用呗
+                WnObj zsync = sys.io.fetch(null, wobj.path() + ".zsync");
+                if (zsync != null) {
+                    dst = Wn.normalizePath("~/wup/pkgs/" + name + "/" + version + ".tgz.zsync", sys);
+                    obj = sys.io.createIfNoExists(null, dst, WnRace.FILE);
+                    sys.io.writeAndClose(obj, sys.io.getInputStream(zsync, 0));
+                    sys.io.appendMeta(obj, "md:" + 493); // 0755
+                }
+            }, WalkMode.LEAF_ONLY);
+        }
         sys.out.println(Json.toJson(list));
         if (hc.params.vals.length > 1) {
             for (int i = 1; i < hc.params.vals.length; i++) {

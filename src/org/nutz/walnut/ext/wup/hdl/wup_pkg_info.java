@@ -37,6 +37,13 @@ public class wup_pkg_info implements JvmHdl {
         String name = hc.params.check("name");
         String version = hc.params.get("version", "lastest");
         String path = Wn.normalizeFullPath("~/wup/pkgs/"+name+"/"+version+".tgz", sys);
-        return sys.io.check(null, path);
+        WnObj wobj = sys.io.check(null, path);
+        if (wobj.isMount()) {
+            WnObj wobj2 = sys.io.fetch(null, path + ".sha1");
+            if (wobj2 != null) {
+                wobj.sha1(sys.io.readText(wobj2).trim());
+            }
+        }
+        return wobj;
     }
 }
