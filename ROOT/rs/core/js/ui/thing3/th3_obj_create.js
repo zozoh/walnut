@@ -39,6 +39,7 @@ return ZUI.def("ui.thing.th_obj_create", {
             var UI = this;
             UI.gasket.form.checkData({
                 ok : function(obj) {
+                    //console.log("OK:!!!")
                     var home = UI.getHomeObj();
                     var cmdText = "thing "+home.id+" create ";
                     var json = $z.toJson(obj).replace(/'/g, "");
@@ -54,7 +55,7 @@ return ZUI.def("ui.thing.th_obj_create", {
                                 UI.bus().hideArea('create');
                             },
                             fail : function(errMsg){
-                                UI.alert(errMsg, 'warn');
+                                UI.hideLoading();
                             }
                         });
                     });
@@ -119,6 +120,17 @@ return ZUI.def("ui.thing.th_obj_create", {
                     fields.push(_.extend({},fld,{required:true}));
                     break;
                 }
+            }
+        }
+
+        // 所有只读的文本节点，显示一个输入框
+        for(var i=0; i<fields.length; i++) {
+            var fld = fields[i];
+            if(fld.editAs == "label") {
+                fld.editAs = "input"
+            }
+            else if(fld.uiType == "@label") {
+                fld.uiType = "@input"
             }
         }
 

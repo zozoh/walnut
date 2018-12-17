@@ -9,7 +9,7 @@
         <box name="create" collapse="yes">
             <pos dock-at="N">
                 <width>640</width>
-                <height>280</height>
+                <height>320</height>
             </pos>
         </box>
     </boxes>

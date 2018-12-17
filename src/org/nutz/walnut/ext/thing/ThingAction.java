@@ -190,6 +190,10 @@ public abstract class ThingAction<T> {
                                                       NutMap meta,
                                                       ThingConf conf,
                                                       boolean isCreate) {
+        // 检查所有的元数据是否合法
+        conf.validate(meta, true);
+
+        // 查看链接字段
         List<ThOtherUpdating> others = null;
         if (conf.hasLinkKeys()) {
             others = new ArrayList<>(conf.getLinkKeys().size());

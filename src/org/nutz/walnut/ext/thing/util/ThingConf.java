@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.thing.util;
 import java.util.Map;
 
 import org.nutz.json.JsonField;
+import org.nutz.lang.util.NutBean;
 
 /**
  * 服务器端对 thing.js 的解析结果
@@ -59,6 +60,16 @@ public class ThingConf {
 
     public void setFields(ThingField[] fields) {
         this.fields = fields;
+    }
+
+    public void validate(NutBean meta, boolean ignoreNoExists) {
+        if (null != fields) {
+            for (ThingField fld : fields) {
+                if (ignoreNoExists && !meta.containsKey(fld.getKey()))
+                    continue;
+                fld.validate(meta);
+            }
+        }
     }
 
 }

@@ -19,6 +19,7 @@ import org.nutz.walnut.ext.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
+import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.web.WebException;
 
 /**
@@ -174,19 +175,6 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             return null;
         }
 
-        // 还木有，那么就创建咯
-        if (null == oT) {
-            oT = io.create(oIndex, "${id}", WnRace.FILE);
-        }
-
-        // 设置更多的固有属性
-        meta.put("th_set", oTs.id());
-        meta.put("th_live", Things.TH_LIVE);
-
-        // 默认的内容类型
-        if (!meta.has("mime") && meta.has("tp"))
-            meta.put("mime", io.mimes().getMime(meta.getString("tp"), "text/plain"));
-
         // zozoh: 不知道下面几行代码动机是啥，没有就不设置呗。靠，先注释掉
         // // 图标
         // if (!meta.has("icon") && !oT.has("icon"))
@@ -197,7 +185,20 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // meta.put("thumb", oTs.get("th_thumb"));
 
         // 根据链接键，修改对应的键值
-        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, false);
+        List<ThOtherUpdating> others = evalOtherUpdating(new WnBean(), meta, this.conf, false);
+
+        // 设置更多的固有属性
+        meta.put("th_set", oTs.id());
+        meta.put("th_live", Things.TH_LIVE);
+
+        // 默认的内容类型
+        if (!meta.has("mime") && meta.has("tp"))
+            meta.put("mime", io.mimes().getMime(meta.getString("tp"), "text/plain"));
+
+        // 还木有，那么就创建咯
+        if (null == oT) {
+            oT = io.create(oIndex, "${id}", WnRace.FILE);
+        }
 
         // 更新这个 Thing
         io.appendMeta(oT, meta);

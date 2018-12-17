@@ -118,6 +118,24 @@ new FormUI({
    // 注意，因为 form 的 on_change 的参数形式， virtual 类型
    // 的键将不会被通知，请用 on_update 来获取
    virtual : false,
+
+   // 字段检查
+   validate ： {
+       // 针对字符串型的值，检查前是否要预先去掉左右空白
+       trim : true,
+       // 数字区间
+       intRange : "(10,20]",
+       // 日期范围的区间
+       dateRange : "(2018-12-02,2018-12-31]",
+       // 验证值的字符串形式，支持 "!" 开头
+       regex : "^...$",
+       // 确保值非 null
+       notNull : true,
+       // 针对字符串的值，最大长度不超过多少
+       maxLength : 23,
+       // 针对字符串的值，最小长度不能低于多少
+       minLength : 5,
+   }
    
    // 当字段对应控件被 setData 时的回调
    beforeSetData : {fld}F(o),
