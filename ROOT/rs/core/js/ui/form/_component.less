@@ -219,7 +219,7 @@
 //----------------------------------------------------------------
 // 输入框
 .com-input {
-    @flex();
+    @flex(); flex-wrap:wrap;
     > .box {
         position: relative; flex:1 1 auto;
         input {
@@ -230,9 +230,19 @@
         input:disabled {opacity: 0.8; background:@cb4; color:@cf2;}
         .unit {
             display: block; position: absolute;
-            top: 0; bottom: 0; right: 0;
-            padding: 0 @d2; color: rgba(0, 0, 0, 0.2);
+            top: 0; bottom: 0; right: 0; padding:0 @d2;
+            color: rgba(0, 0, 0, 0.2);
             font-family: @f_fixed;
+            @flex(); justify-content:center; align-items:center;
+            &[toggle-passwd] {cursor:pointer; color:@c5;}
+            &[toggle-passwd="hide"] {
+                opacity:0.8;
+                i:last-child{display:none;}
+            }
+            &[toggle-passwd="show"] {
+                color:@c4;
+                i:first-child{display:none;}
+            }
         }
     }
     > .ass {
@@ -242,6 +252,21 @@
     }
     > .ass:hover {
         background: @ch0_b; color:@ch0_f;
+    }
+    > .passwd-level {
+        width:100%;
+        ul { @flex();
+            list-style: none; margin:.04rem; padding: 0;
+            border:1px solid @cborder1;
+            li {
+                flex:1 1 auto; padding:.02rem; text-align: center;
+                font-size: .10rem; color: @c2; 
+                border-left:1px solid @cborder1;
+                > i {margin:0 .02rem;}
+            }
+            li:first-child{border-left:0;}
+            li[on] {background: @chx_b; color:@chx_f;}
+        }
     }
 }
 .com-input[show-ass] {

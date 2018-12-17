@@ -10,7 +10,9 @@ $z.declare([
 var html = function(){/*
 <div class="ui-code-template">
     <div code-id="me.info">
-        <span></span><b></b><a>{{exit}}</a>
+        <span></span><b></b>
+        | <a class="me-chpasswd">{{obrowser.chpasswd}}</a>
+        | <a class="me-exit">{{exit}}</a>
     </div>
     <div code-id="crumb.item" class="citem ui-clr">
         <b></b><span class="ochild"><i class="fa fa-caret-down"></i></span>
@@ -58,6 +60,7 @@ return ZUI.def("ui.obrowser_sky", {
             var jDrop = jFolder.children().eq(1);
             $z.dock(jBtn, jDrop.fadeIn(300));
         },
+        // 点击·面包屑
         "click .obrowser-crumb" : function(e){
             var UI  = this;
             var opt = UI.browser().options;
@@ -114,6 +117,109 @@ return ZUI.def("ui.obrowser_sky", {
                 //console.log("::", ph);
                 UI.browser().setData(ph);
             }
+        }, // ~ 点击·面包屑
+        // 点击·修改密码
+        'click .obrowser-me a.me-chpasswd' : function(){
+            var UI = this;
+            seajs.use('ui/pop/pop', function(POP){
+                POP.openFormPanel({
+                    title  : "i18n:obrowser.chpasswd",
+                    width  : 480,
+                    height : 320,
+                    data : {},
+                    form : {
+                        uiWidth : "all",
+                        on_change : function(key, val) {
+                            if('repasswd' == key) {
+                                var data = this.getData();
+                                if(data.passwd != data.repasswd) {
+                                    this.showPrompt(key, "warn", 
+                                        "obrowser.passwd_nomatch");
+                                } else {
+                                    this.hidePrompt(key);
+                                }
+                            }
+                            // 其他的移除警告
+                            else {
+                                this.hidePrompt(key);
+                            }
+                        },
+                        fields : [{
+                            key : "oldpasswd",
+                            title : 'i18n:obrowser.passwd_old',
+                            editAs : "input",
+                            uiConf : {
+                                trimData : true,
+                                asPassword : true
+                            }
+                        }, {
+                            key : "passwd",
+                            title : 'i18n:obrowser.passwd_new',
+                            editAs : "input",
+                            uiConf : {
+                                trimData : true,
+                                asPassword : true,
+                                passwdTip  : true
+                            }
+                        }, {
+                            key : "repasswd",
+                            title : 'i18n:obrowser.passwd_re',
+                            editAs : "input",
+                            uiConf : {
+                                trimData : true,
+                                asPassword : true
+                            }
+                        }]
+                    },
+                    autoClose : false,
+                    callback : function(data){
+                        var ME = this;
+                        // 旧密码不能是空密码
+                        if(!data.oldpasswd) {
+                            ME.uiForm.showPrompt("oldpasswd", "warn", 
+                                "obrowser.passwd_empty");
+                            ME.jBtn.removeAttr('btn-ing');
+                            ME.uiMask.is_ing = false;
+                            return;
+                        } 
+                        
+                        // 新密码不能是空密码
+                        if(!data.passwd) {
+                            ME.uiForm.showPrompt("passwd", "warn", 
+                                "obrowser.passwd_empty");
+                            ME.jBtn.removeAttr('btn-ing');
+                            ME.uiMask.is_ing = false;
+                            return;
+                        } 
+
+                        // 检查两次密码输入
+                        if(data.passwd != data.repasswd) {
+                            ME.uiForm.showPrompt("repasswd", "warn", 
+                                "obrowser.passwd_nomatch");
+                            ME.jBtn.removeAttr('btn-ing');
+                            ME.uiMask.is_ing = false;
+                            return;
+                        }
+
+                        // 准备提交
+                        ME.uiMask.showLoading("obrowser.passwd_ing");
+                        $.post('/u//change/password', data, function(re){
+                            var reo = $z.fromJson(re);
+                            if(reo.ok) {
+                                UI.alert('obrowser.passwd_changed');
+                                ME.uiMask.close();
+                            }
+                            // 错误
+                            else {
+                                UI.alert(reo.errCode);
+                                ME.uiMask.hideLoading();
+                                ME.jBtn.removeAttr('btn-ing');
+                                ME.uiMask.is_ing = false;
+                            }
+                        });
+                    }
+                }, UI);
+            });
         }
     },
     //..............................................
@@ -263,11 +369,13 @@ return ZUI.def("ui.obrowser_sky", {
                 jMyInfo.find("span").remove();
             }
 
+            // 修改密码
+
             // 登出链接
             if(opt.myInfo.logout)
-                jMyInfo.find("a").prop("href", opt.myInfo.logout);
+                jMyInfo.find("a.me-exit").prop("href", opt.myInfo.logout);
             else
-                jMyInfo.find("a").remove();
+                jMyInfo.find("a.me-exit").remove();
         }
         // 否则删除
         else {

@@ -9,6 +9,14 @@ define({
             "len"  : "大小",
             "tp"   : "类型",
         },
+        "chpasswd" : "修改密码",
+        "passwd_old" : "旧密码",
+        "passwd_new" : "新密码",
+        "passwd_re"  : "再次输入",
+        "passwd_nomatch" : "两次输入的密码不一致",
+        "passwd_empty"   : "密码不能为空",
+        "passwd_ing" : "正在修改密码",
+        "passwd_changed" : "您的密码修改成功，下次登录记得输入新密码哦 ^_^",
         "action" : {
             "upload" : "本地上传.."
         },

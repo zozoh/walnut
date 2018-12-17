@@ -22,6 +22,13 @@ new CInputUI({
     
     // 输入框的占位符
     placeholder : "i18n:xxx"
+
+    // 作为密码输入框
+    // 默认 false
+    asPassword : true,
+
+    // 密码输入时，显示强度提示信息
+    passwdTip : true,
     
     // 辅助按钮。如果给定了辅助按钮 UI，那么输入框会显示一个辅助按钮
     // 当用户点击，会弹出一个 UI，帮助用户输入，比如选择日期范围等

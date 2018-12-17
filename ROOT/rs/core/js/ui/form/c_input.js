@@ -125,6 +125,37 @@ return ZUI.def("ui.form_com_input", {
         // 关闭辅助框
         "click > .com-input .ass-box-action a" : function(){
             this.closeAssist();
+        },
+        // 密码输入提示
+        "input > .com-input[passwd-tip] > .box > input" : function(e){
+            var UI = this;
+            var jIn = $(e.currentTarget);
+            var val = jIn.val();
+            
+            // 评估密码级别
+            var lvl = $z.evalPassword(val, 6);
+            var lis = UI.arena.find(".passwd-level ul li")
+                        .removeAttr('on');
+            for(var i=0; i<lvl; i++) {
+                lis.eq(i).attr("on", "yes");
+            }
+        },
+        // 密码输入·切换显示模式
+        "click > .com-input > .box > [toggle-passwd]" : function(e){
+            var UI = this;
+            var jTg = $(e.currentTarget);
+            var jIn = jTg.prev();
+            
+            // 显示
+            if('hide' == jTg.attr('toggle-passwd')) {
+                jTg.attr('toggle-passwd', "show");
+                jIn.prop("type", "input");
+            }
+            // 隐藏
+            else {
+                jTg.attr('toggle-passwd', "hide");
+                jIn.prop("type", "password");
+            }
         }
     },
     //...............................................................
@@ -141,14 +172,36 @@ return ZUI.def("ui.form_com_input", {
             });
         }
 
-        // 声明了单位，显示一下
-        UI.setUnit(opt.unit);
-
         // 占位符显示
         UI.setPlaceholder(opt.placeholder);
 
         // 只读
         jInput.prop('disabled', opt.readonly || false)
+
+        // 作为密码框
+        if(opt.asPassword) {
+            jInput.prop("type", "password");
+            jUnit.html('<i class="zmdi zmdi-eye-off"></i><i class="zmdi zmdi-eye"></i>');
+            jUnit.attr('toggle-passwd', "hide");
+        }
+        // 否则显示单位
+        else {
+            UI.setUnit(opt.unit);
+        }
+
+        // 显示密码提示
+        if(opt.passwdTip) {
+            UI.arena.attr("passwd-tip", "yes");
+            $(UI.compactHTML(`<div class="passwd-level">
+                <ul>
+                    <li><i class="zmdi zmdi-thumb-down"></i>{{com.input.passwd.l1}}</li>
+                    <li>{{com.input.passwd.l2}}</li>
+                    <li>{{com.input.passwd.l3}}</li>
+                    <li>{{com.input.passwd.l4}}</li>
+                    <li>{{com.input.passwd.l5}}<i class="zmdi zmdi-thumb-up"></i></li>
+                </ul>
+            </div>`)).appendTo(UI.arena);
+        }
 
         // 助理
         UI.setAssist(opt.assist);

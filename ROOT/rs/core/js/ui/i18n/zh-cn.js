@@ -97,6 +97,15 @@ define({
         "pay" : {
             "outOfHome" : "支付单对象路径非法",
         },
+        "usr" : {
+            "pwd" : {
+                "invalid" : "密码不符合要求",
+                "old" : {
+                    "invalid" : "旧密码不正确"
+                }
+
+            }
+        },
         "invalid" : {
             "number" : "不是数字",
             "range"  : "不是合法区间",
