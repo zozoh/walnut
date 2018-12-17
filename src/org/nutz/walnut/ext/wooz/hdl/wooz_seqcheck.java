@@ -26,6 +26,7 @@ public class wooz_seqcheck implements JvmHdl {
         WnObj comp = sys.io.checkById(compId);
         if (comp.containsKey("sp_comp_id")) {
             comp = sys.io.checkById(comp.getString("sp_comp_id"));
+            compId = comp.id();
         }
         // 是否限定的赛项
         if (hc.params.vals.length > 1) {
@@ -35,8 +36,10 @@ public class wooz_seqcheck implements JvmHdl {
         String path = "/home/" + comp.creator() + "/comp/data/" + comp.id() + "/signup";
         WnObj signup_dir = sys.io.check(null, path);
 
-        NutMap map = new NutMap();
         query.setv("pid", signup_dir.id());
+        
+        
+        NutMap map = new NutMap();
         sys.io.each(query, new Each<WnObj>() {
             public void invoke(int index, WnObj ele, int length) throws ExitLoop, ContinueLoop, LoopException {
                 String u_code = ele.getString("u_code");
