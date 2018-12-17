@@ -71,14 +71,16 @@ public class wooz_comp_result implements JvmHdl {
         // 地图数据
         WoozMap map = Mt90Map.get(sys.io, proj.path() + "/mars_google.json");
         
-        // 把打卡点做成的map
+        // 把打卡点做成的map和list
         Map<String, WoozPoint> cpMap = new HashMap<>();
+        List<String> cpNames = new ArrayList<>();
         WoozPoint startCP = null;
         for (WoozPoint point : map.points) {
             if ("start".equals(point.type) || "end".equals(point.type) || "cp".equals(point.type)) {
                 cpMap.put(point.name, point);
                 if ("start".equals(point.type))
                     startCP = point;
+                cpNames.add(point.name);
             }
         }
         
@@ -410,6 +412,7 @@ public class wooz_comp_result implements JvmHdl {
                         }
                     }
                     metas.put("rank_cps", pr.cps);
+                    metas.put("rank_cps_names", cpNames);
                     metas.put("u_stat", pr.stat);
                     // 配速信息
                     metas.put("u_pspeed_min_str", pr.u_pspeed_min_str);
