@@ -30,13 +30,14 @@ wooz seq
 
 - `_N` : 表示当前的号码，模板可以用 `@{_N<int:%05d>}` 来控制号码显示位数
 - `_S` ： 如果是赛组模式，那么号码 `_N` 实际上是赛组的编号，为了区别选手，会在上下文中添加 `_S` 表示对应组内选手编号
+- `_U` : 当前选手的报名记录对象，可以用 `_U.xxx` 取得用户的字段
 - `其他变量`，则来自 `-vars` 参数
 
 号码模板的例子:
 
 ```bash
 # 个人赛，号码为 M001 或者 F001, 其中 M/F 表示性别
-@{sex}@{_N<int:%05d>}
+@{_U.sex}@{_N<int:%05d>}
 
 # 团体赛，号码为 M001A 或者 F001B, 其中 M/F 表示性别
 # A/B 表示选手赛组内编号
@@ -55,14 +56,14 @@ G00001C : amily
 ...
 
 # 为个人体赛 80KM 赛项生成号码，并打印出来 （不写入）
-demo:~> wooz seq qad0lj2824idar9v63k8v0hgj0 80KM '@{sex}@{_N<int:%05d>}'
+demo:~> wooz seq qad0lj2824idar9v63k8v0hgj0 80KM '@{_U.sex}@{_N<int:%05d>}'
 M00001 : xiaobai
 M00002 : xiaohei
 F00003 : amily
 ...
 
 # 为个人体赛 80KM 赛项所有女性生成号码，并打印出来 （不写入）
-demo:~> wooz seq qad0lj2824idar9v63k8v0hgj0 80KM '@{sex}@{_N<int:%05d>}' -sex f
+demo:~> wooz seq qad0lj2824idar9v63k8v0hgj0 80KM '@{_U.sex}@{_N<int:%05d>}' -sex f
 F00001 : amily
 F00002 : emma
 F00003 : jony
