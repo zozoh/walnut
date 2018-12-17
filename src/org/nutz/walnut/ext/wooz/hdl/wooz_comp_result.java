@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.wooz.hdl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.Set;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -69,15 +71,17 @@ public class wooz_comp_result implements JvmHdl {
         // 地图数据
         WoozMap map = Mt90Map.get(sys.io, proj.path() + "/mars_google.json");
         
-        // 把打卡点做成的map
+        // 把打卡点做成的map和list
         Map<String, WoozPoint> cpMap = new HashMap<>();
+        List<String> cpNames = new ArrayList<>();
         WoozPoint startCP = null;
         for (WoozPoint point : map.points) {
             if ("start".equals(point.type) || "end".equals(point.type) || "cp".equals(point.type)) {
                 cpMap.put(point.name, point);
+                if ("start".equals(point.type))
+                    startCP = point;
+                cpNames.add(point.name);
             }
-            if ("start".equals(point.type))
-                startCP = point;
         }
         
         // 比赛开始时间
@@ -157,6 +161,7 @@ public class wooz_comp_result implements JvmHdl {
             // 记录个人打卡
             pcr = new PlayerCpResult();
             pcr.tm = cpr.getLong("cpr_tm");
+            pcr.cpRecordStr = Times.format("HH:mm:ss", new Date(pcr.tm));
             pr.cps.put(key, pcr);
             
             // 是否退赛
@@ -178,13 +183,17 @@ public class wooz_comp_result implements JvmHdl {
                 pcr.tm = projStart;
                 pr.cps.put(startCP.name, pcr);
                 pr.start = pcr;
+                pcr.cpRecordStr = "-";
             }
+        }
+        for (PlayerResult pr : player_results.values()) {
             if (pr.quit)
                 continue; // 选手已经退赛,就不用算了
             for (Map.Entry<String, PlayerCpResult> en : pr.cps.entrySet()) {
                 String key = en.getKey();
                 PlayerCpResult pcr = en.getValue();
                 pcr.tused = pcr.tm - pr.start.tm;
+                //System.out.println("耗时(毫秒) : " + pcr.tused);
                 // 总排名
                 List<PlayerResult> prList = cps.get(key);
                 if (prList == null) {
@@ -272,22 +281,84 @@ public class wooz_comp_result implements JvmHdl {
                 continue;
             if (pr.cps.size() < 2)
                 continue;
+            int pspeed_min = 3600 - 1;
+            int pspeed_max = 0;
             for (Map.Entry<String, PlayerCpResult> en : pr.cps.entrySet()) {
+                // 每个打卡点的数据,应该对应一个打卡点
                 String cpName = en.getKey();
                 WoozPoint point = cpMap.get(cpName);
+                WoozPoint prevPoint = null;
                 if (point == null)
                     continue;
+                // 找出当前打卡点的成绩,及上一个打卡点的成绩
+                PlayerCpResult prevPcr = null;
                 PlayerCpResult pcr = en.getValue();
-                pcr.du = point.distancePrev;
-                pcr.duKM = String.format("%.2f", pcr.du / 1000.0);
-                if (pcr.du == 0) {
-                    pcr.speedstr = "-";
+                if ("start".equals(point.type)) {
+                    prevPcr = pcr; // 如果是起点,指向自身就可以了
+                    prevPoint = point;
                 }
                 else {
-                    int t = (int)((pcr.tused/1000) / (pcr.du / 1000.0));
-                    pcr.speedstr = String.format("%d'%02d''", t/60, t%60);
+                    for (WoozPoint point2 : map.points) {
+                        if ("start".equals(point2.type) || "end".equals(point2.type) || "cp".equals(point2.type)) {
+                            if (point2.name.equals(point.name)) {
+                                break;
+                            }
+                            if (pr.cps.containsKey(point2.name)) {
+                                prevPcr = pr.cps.get(point2.name);
+                                prevPoint = point2;
+                            }
+                        }
+                    }
                 }
+                // 当前打卡点与上一个打卡点的距离,在打卡点数据里面有
+                pcr.du = point.distancePrev;
+                // 量化为字符串 xxx.xx  KM
+                pcr.duKM = String.format("%.2f", (pcr.du) / 1000.0);
+                // 把打卡点的名字也附上
+                if ("start".equals(point.type)) {
+                    pcr.cpDesc = "起点";
+                }
+                else if ("end".equals(point.type)) {
+                    pcr.cpDesc = "终点";
+                }
+                else {
+                    pcr.cpDesc = point.name.toUpperCase();
+                }
+
+                
+                pcr.timeUsedStr = toTimeUsedStr(pcr.tused);
+                //System.out.println("耗时(毫秒) : " + pcr.tused + " ------> " + pcr.timeUsedStr);
+                if (pcr.du == 0) {
+                    // 没有距离,那就是没有速度了
+                    pcr.pspeedstr = "-";
+                }
+                else {
+                    // 耗时tusd的单位是毫秒, 距离的单位是米
+                    // 所以, 需要各自除1000, 然后算出配速, TODO 加上海拔信息
+                    pcr.pspeed = (int)(((pcr.tused - prevPcr.tused)/1000) / ((pcr.du) / 1000.0));
+                    pcr.pspeedstr = toPSpeedStr(pcr.pspeed);
+                    
+                    if (pcr.pspeed > pspeed_max)
+                        pspeed_max = pcr.pspeed;
+                    if (pcr.pspeed < pspeed_min)
+                        pspeed_min = pcr.pspeed;
+                }
+                
+                // 计算总的配速
+                if ("end".equals(point.type)) {
+                    pr.u_pspeed_avg = (int)(((pcr.tused)/1000) / (point.distanceStart / 1000.0));
+                    pr.u_pspeed_avg_str = toPSpeedStr(pr.u_pspeed_avg);
+                    
+                    pr.timeUsedStr = toTimeUsedStr(pcr.tused);
+                    pr.timeUsedFromPjStr = toTimeUsedStr(projStart - pcr.tm);
+                }
+                pcr.prevCpDesc = prevPoint.desc;
+                pcr.prevCpName = prevPoint.name;
             }
+            pr.u_pspeed_max = pspeed_max;
+            pr.u_pspeed_max_str = toPSpeedStr(pr.u_pspeed_max);
+            pr.u_pspeed_min = pspeed_min;
+            pr.u_pspeed_min_str = toPSpeedStr(pr.u_pspeed_min);
         }
         
         // 是否写出到result目录呢?
@@ -341,8 +412,19 @@ public class wooz_comp_result implements JvmHdl {
                         }
                     }
                     metas.put("rank_cps", pr.cps);
+                    metas.put("rank_cps_names", cpNames);
                     metas.put("u_stat", pr.stat);
+                    // 配速信息
+                    metas.put("u_pspeed_min_str", pr.u_pspeed_min_str);
+                    metas.put("u_pspeed_max_str", pr.u_pspeed_max_str);
+                    metas.put("u_pspeed_avg_str", pr.u_pspeed_avg_str);
+                    // 总成绩信息
+                    metas.put("u_tused_gen_str", pr.timeUsedStr); // 暂时用一样的成绩
+                    metas.put("u_tused_real_str", pr.timeUsedStr);
                 }
+                
+                metas.put("u_poc_done", false);
+                metas.put("u_report_done", false);
 
                 WnObj prz = sys.io.createIfNoExists(result_dir, proj.name() + "_" + uid, WnRace.DIR);
                 sys.io.appendMeta(prz, metas);
@@ -369,6 +451,20 @@ public class wooz_comp_result implements JvmHdl {
         public PlayerCpResult end;
         public boolean quit;
         public String stat; // "QUIT" 退赛, "MISS_CP" 缺了部分打卡点, "NOT_DONE", 未到达终点, "DONE" 完赛, "NONE_CP" 没有任何打卡点
+        
+        // 配速信息
+        public int u_pspeed_min;
+        public int u_pspeed_avg;
+        public int u_pspeed_max;
+        
+
+        public String u_pspeed_min_str;
+        public String u_pspeed_avg_str;
+        public String u_pspeed_max_str;
+        
+        // 总耗时, 用终点打卡成绩算
+        public String timeUsedStr;
+        public String timeUsedFromPjStr;
     }
     
     public static class PlayerCpResult {
@@ -377,7 +473,25 @@ public class wooz_comp_result implements JvmHdl {
         public int rank; // 全局排名
         public int rank_sex; // 同性别排名
         public int du; // 距离,单位是米
-        public String duKM; // 距离,单位km
-        public String speedstr;
+        public String duKM; // 距离,单位km, 加小数点后2位
+        public String pspeedstr; // xx'XX"
+        public int pspeed;
+        public String cpDesc; // CP点的中文名
+        public String prevCpDesc; // 前一个CP点的中文名
+        public String prevCpName; // 前一个CP点的名称
+        public String timeUsedStr; // 耗时, 字符串形式
+        public String cpRecordStr;   // 打卡时间, 字符串形式
+    }
+    
+    public static String toPSpeedStr(int pspeed) {
+        return String.format("%d'%02d\"", pspeed/60, pspeed%60);
+    }
+    
+    public static String toTimeUsedStr(long time_used_ms) {
+        long t2 = time_used_ms / 1000;
+        long sec = t2 % 60;
+        long min = t2 % 3600 / 60;
+        long hour = t2 / 3600;
+        return String.format("%02d:%02d:%02d", hour, min, sec);
     }
 }

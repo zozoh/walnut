@@ -176,4 +176,8 @@ public class JvmJsExecContext implements JsExecContext {
     public Log nlog() {
         return _log;
     }
+    
+    public void writeText(String path, String data) {
+        sys.io.writeText(sys.io.check(null, Wn.normalizeFullPath(path, sys)), data);
+    }
 }

@@ -8,10 +8,11 @@
 =======
 
 ```
-aliyuniot on [-dry] [imei]
+aliyuniot on [-dry] [-delay 3000] [imei]
 ```
 
-支持模拟更新参数-dry,不实际更新
+* dry 模拟更新参数,不实际更新
+* delay 异步延迟执行,单位毫秒
 
 示例
 ======
