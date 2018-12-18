@@ -58,7 +58,7 @@ return ZUI.def("ui.ext.bc_step3_run", {
             method : opt.cmdBy,
             args : [data.targets, data.params]
         });
-        console.log(cmds.join(";\n"));
+        // console.log(cmds.join(";\n"));
         
 
         // 执行命令

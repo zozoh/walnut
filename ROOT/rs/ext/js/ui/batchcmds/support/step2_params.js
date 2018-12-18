@@ -47,7 +47,8 @@ return ZUI.def("ui.ext.bc_step2_params", {
                 uiConf: {
                     items: [
                         {text: "关闭", val: "off"},
-                        {text: "打开", val: "on"}]
+                        {text: "打开", val: "on"},
+                        {text: "重启", val: "reset"}]
                 }
             }, {
                 "key": "auto",
