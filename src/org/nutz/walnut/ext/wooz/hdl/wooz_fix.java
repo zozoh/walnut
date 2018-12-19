@@ -108,12 +108,23 @@ public class wooz_fix implements JvmHdl {
             if (log.isInfoEnabled())
                 log.info("重新排序");
             // 重新排序
-            cplist.remove(startPoint);
-            cplist.add(0, startPoint);
-            cplist.remove(endPoint);
-            cplist.add(endPoint);
+            if (startPoint != null) {
+                cplist.remove(startPoint);
+                cplist.add(0, startPoint);
+            }
+            else {
+                //log.info("没有起点");
+            }
+            if (endPoint != null) {
+                cplist.remove(endPoint);
+                cplist.add(endPoint);
+            }
+            else {
+                //log.info("没有终点");
+            }
             if (log.isInfoEnabled()) {
                 for (WoozPoint woozPoint : cplist) {
+                    log.infof(">>> " + woozPoint);
                     log.infof("CP点: %s 轨迹点索引 %d", woozPoint.name, woozPoint.routePointIndex);
                 }
 
