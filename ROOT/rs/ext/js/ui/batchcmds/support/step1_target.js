@@ -45,7 +45,8 @@ return ZUI.def("ui.ext.bc_step1_target", {
 		var opt = UI.options;
 
         // 显示设备搜索栏
-        new SearchUI({
+
+        var searchOpt = {
             parent : UI,
             gasketName : "candidates",
             menu : [{
@@ -61,7 +62,7 @@ return ZUI.def("ui.ext.bc_step1_target", {
                 handler : function(){
                     // 获取选中
                     var list = this.uiList.getChecked();
-                    
+
                     // 列表为空
                     if(!list || list.length ==0) {
                         UI.alert("请先选择要分配的设备，谢谢");
@@ -80,17 +81,26 @@ return ZUI.def("ui.ext.bc_step1_target", {
                 }
             }],
             data : function(params, callback){
-				opt.thing.UI.invokeExtCommand({
-					method : opt.targetBy,
-					args : [opt.targetHome, params, callback]
-				});
+                opt.thing.UI.invokeExtCommand({
+                    method : opt.targetBy,
+                    args : [opt.targetHome, params, callback]
+                });
             },
             list : {
                 fields : opt.thing.UI.invokeExtCommand({
-					method : opt.listFieldsBy
-				})
+                    method : opt.listFieldsBy
+                })
             } // ~ End of List
-        }).render(function(){
+        }
+
+        // 排序
+        if(opt.sorterFieldsBy){
+            searchOpt.sorter = opt.thing.UI.invokeExtCommand({
+                method : opt.sorterFieldsBy
+            })
+        }
+
+        new SearchUI(searchOpt).render(function(){
             UI.defer_report("candidates");
         });
 
