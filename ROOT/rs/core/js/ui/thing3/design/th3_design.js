@@ -49,6 +49,7 @@ return ZUI.def("ui.th3.design", {
             var tsPh = UI.__oTS.ph;
 
             // 生成命令
+            console.log(json)
             var cmdText = 'json -n > "' + tsPh + '/thing.js"; obj id:'+tsId;
 
             // 执行命令
@@ -217,6 +218,7 @@ return ZUI.def("ui.th3.design", {
 
         // 读取配置文件
         if(!thConf) {
+            console.log("reaload!!!")
             var oThConf = Wn.fetch(oThSet.ph + "/thing.js", true);
             if(!oThConf){
                 UI.alert("th3.conf.e_no_thingjs");
@@ -230,7 +232,6 @@ return ZUI.def("ui.th3.design", {
         // 确保是对象
         if(_.isString(thConf)) {
             thConf = $z.fromJson(thConf);
-            $z.setUndefined(thConf, "searchMenuFltWidthHint", null);
         }
 
         // 记录

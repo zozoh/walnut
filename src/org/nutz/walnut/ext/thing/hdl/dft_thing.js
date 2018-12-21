@@ -1,8 +1,4 @@
 {
-   meta: true,
-   detail: true,
-   media: true,
-   attachment: true,
    fields: [{
       key: "id"
    }, {

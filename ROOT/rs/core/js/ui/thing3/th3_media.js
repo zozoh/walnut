@@ -261,15 +261,26 @@ return ZUI.def("ui.th3.media", {
         var o   = UI.__OBJ;
 
         UI.gasket.list.showLoading();
-        Wn.execf('thing {{th_set}} '+opt.folderName+' {{id}}', o, function(re){
-            var list = $z.fromJson(re);
-            $z.doCallback(callback, [list]);
-            UI.doActionCallback(re, function(list){
+
+        // 没数据就显示个假加载 ...
+        if(!o) {
+            setTimeout(function(){
                 UI.gasket.list.hideLoading();
-                UI.gasket.list.setData(list);
-                UI.showPreview(UI.gasket.list.getActived(), callback);
+                $z.doCallback(callback);
+            }, 500);
+        }
+        // 加载数据
+        else {
+            Wn.execf('thing {{th_set}} '+opt.folderName+' {{id}}', o, function(re){
+                var list = $z.fromJson(re);
+                $z.doCallback(callback, [list]);
+                UI.doActionCallback(re, function(list){
+                    UI.gasket.list.hideLoading();
+                    UI.gasket.list.setData(list);
+                    UI.showPreview(UI.gasket.list.getActived(), callback);
+                });
             });
-        });
+        }
     },
     //..............................................
     showPreview : function(oMedia, callback) {

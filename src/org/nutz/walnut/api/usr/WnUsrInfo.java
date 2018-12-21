@@ -169,8 +169,10 @@ public class WnUsrInfo {
         if (str.length() == 0)
             throw Er.create("e.usr.loginstr.empty");
 
-        if (str.length() < 4)
-            throw Er.create("e.usr.loginstr.tooshort");
+        // zozoh: 这个太坑，去掉吧，如果需要检查应该在入口函数等较高级的地方检查
+        // 副作用会比较小
+        // if (str.length() < 4)
+        // throw Er.create("e.usr.loginstr.tooshort");
 
         // 用户 ID
         if (str.startsWith("id:")) {
