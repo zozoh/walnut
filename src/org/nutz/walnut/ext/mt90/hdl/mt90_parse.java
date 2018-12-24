@@ -147,10 +147,6 @@ public class mt90_parse implements JvmHdl {
             begin = proj.getLong("d_start");
             end = proj.getLong("d_end", Long.MAX_VALUE);
         }
-        if (begin > 0) {
-            begin -= 8*3600*1000;
-            end -= 8*3600*1000;
-        }
         //boolean lineOnly = hc.params.is("lineOnly");
         int pointCount = hc.params.getInt("points", Integer.MAX_VALUE);
         while (pointCount > 0) {
