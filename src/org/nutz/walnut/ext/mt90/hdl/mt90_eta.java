@@ -70,6 +70,8 @@ public class mt90_eta extends mt90_parse {
             //log.infof("过滤前%d 过滤后%d", list.size(), newList.size());
             list = newList;
         }
+        if (list.isEmpty())
+            return;
         sw.tag("剔除所有离线路太远的点");
         {
             List<Mt90Raw> newList = new ArrayList<>();
@@ -115,8 +117,6 @@ public class mt90_eta extends mt90_parse {
             list = newList;
         }
         sw.tag("赛项线路匹配");
-        if (list.isEmpty())
-            return;
         
         
         // =================================预测============================================
