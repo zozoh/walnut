@@ -34,7 +34,7 @@ return ZUI.def("ui.th3.media", {
         var UI = ThMethods(this);
 
         // 默认 mainData 为空，则表示从父 th3_main 取
-        $z.setUndefined(opt, "mainData", "null");
+        $z.setUndefined(opt, "mainData", null);
 
         // 对应 folderName
         $z.setUndefined(opt, "folderName", "media");
