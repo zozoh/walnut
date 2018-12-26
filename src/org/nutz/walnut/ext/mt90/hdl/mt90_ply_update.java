@@ -60,15 +60,12 @@ public class mt90_ply_update implements JvmHdl {
             try {
                 String _map = hc.params.get("map");
                 WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(_map, sys));
-                long begin = 0;
-                long end = 0;
                 
                 // 如果没有指定开始和结束使用,但指定了map, 获取赛事
-                if (begin < 1 && !Strings.isBlank(_map)) {
-                    WnObj proj = sys.io.checkById(sys.io.check(null, Wn.normalizeFullPath(_map, sys)).parentId());
-                    begin = proj.getLong("d_start");
-                    end = proj.getLong("d_end", Long.MAX_VALUE);
-                }
+                WnObj proj = sys.io.checkById(sys.io.check(null, Wn.normalizeFullPath(_map, sys)).parentId());
+                long begin = proj.getLong("d_start");
+                long end = proj.getLong("d_end", Long.MAX_VALUE);
+                
                 if (begin > 0 && begin > raw.gpsDate.getTime() ) {
                     //log.debug("比赛尚未开始, 固定在起点");
                     meta.put("u_trk_route_index", 0);
