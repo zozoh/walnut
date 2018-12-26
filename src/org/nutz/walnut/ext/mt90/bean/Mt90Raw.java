@@ -36,7 +36,7 @@ public class Mt90Raw implements Comparable<Mt90Raw> {
     // 计算得出的量
     public int powerVoltage; // 单位毫伏
     public int powerQuantity; // 单位0.01%
-    public long timestamp;
+    public long timestamp;  // GPS时间, UTC时间戳
     public Date recDate;
     public Date gpsDate;
     

@@ -83,7 +83,7 @@ public class mt90_eta extends mt90_parse {
                         WoozRoute last = routes.get(lastRoutePoint);
                         WoozRoute cur = routes.get(point.pointIndex);
                         double len = cur.countDistance - last.countDistance;
-                        long time = raw.timestamp - prev.timestamp;
+                        long time = raw.gpsDate.getTime() - prev.gpsDate.getTime();
                         int speed = (int) Math.abs(len / (time / 1000 + 1) * 3.6);
                         if (debug)
                             log.infof("选手轨迹点序号%d 线路轨迹点%d 水平速度%dkm/s", index, point.pointIndex, speed);
@@ -123,6 +123,17 @@ public class mt90_eta extends mt90_parse {
         // 来吧, 列3个3元一次方程
         if (list.size() < 10) {
             // 点太少了,不算了
+            Mt90Raw last = list.get(list.size() - 1);
+            double[] result = new double[] {3600.0/8000, 0, 0};
+            WoozRoute route = routes.get(last.closestRouteIndex);
+            double t = (route.cpDistance + route.cpUp * 10) * result[0];
+            re.put("eta_cp", (int)t);
+            re.put("eta_cp_time", last.gpsDate.getTime() + (int)t*1000);
+            // 到达终点的耗时
+            WoozRoute route_end = routes.get(routes.size() - 1);
+            double t2 = (route_end.countDistance - route.countDistance + (route_end.countUp - route.countUp)*10) * result[0];
+            re.put("eta_end", (int)t2);   
+            re.put("eta_end_time", last.gpsDate.getTime() + (int)t2*1000);
         }
         else {
 
@@ -290,7 +301,7 @@ public class mt90_eta extends mt90_parse {
         List<Integer> tlist = new ArrayList<>();
         tlist.add(endAt);
         for (int i = endAt -1; i > -1; i--) {
-            if (_25min.timestamp - list.get(i).timestamp < 30*60*1000) {
+            if (_25min.gpsDate.getTime() - list.get(i).gpsDate.getTime() < 30*60*1000) {
                 tlist.add(Integer.valueOf(i));
             }
             else {
