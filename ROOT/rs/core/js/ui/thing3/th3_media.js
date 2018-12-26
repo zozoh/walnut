@@ -144,8 +144,8 @@ return ZUI.def("ui.th3.media", {
     showBlank : function() {
         var UI = this;
 
+        UI.setObj(null);
         UI.showPreview(null);
-        UI.gasket.list.setData([]);
     },
     //..............................................
     on_selected : function(eo) {
@@ -153,6 +153,8 @@ return ZUI.def("ui.th3.media", {
 
         // 寻找一个对象
         var objs = eo.data;
+
+        //console.log("on_selected", UI.options.folderName)
 
         // 显示空白
         if(!_.isArray(objs) || objs.length <=0) {
@@ -165,6 +167,7 @@ return ZUI.def("ui.th3.media", {
     },
     //..............................................
     setObj : function(obj, callback) {
+        //console.log("setObj", obj)
         this.__OBJ = obj;
         this.refresh(callback);
     },
@@ -227,6 +230,11 @@ return ZUI.def("ui.th3.media", {
         var conf  = man.conf;
         var oHome = man.home;
         var mode  = opt.folderName;
+
+        if(!man.currentId) {
+            UI.alert("th3.data.noSelected", 'warn');
+            return;
+        }
         
         POP.openUIPanel({
             title  : "i18n:th3.data.download",
@@ -252,7 +260,15 @@ return ZUI.def("ui.th3.media", {
     },
     //..............................................
     on_upload : function(eo) {
-        this.arena.find('input[type="file"]').click();
+        var UI = this;
+        var man  = UI.getMainData();
+
+        if(!man.currentId) {
+            UI.alert("th3.data.noSelected", 'warn');
+            return;
+        }
+
+        UI.arena.find('input[type="file"]').click();
     },
     //..............................................
     refresh : function(callback) {
@@ -264,10 +280,12 @@ return ZUI.def("ui.th3.media", {
 
         // 没数据就显示个假加载 ...
         if(!o) {
+            //console.log("refresh nodata")
             setTimeout(function(){
                 UI.gasket.list.hideLoading();
+                UI.gasket.list.setData([]);
                 $z.doCallback(callback);
-            }, 500);
+            }, 0);
         }
         // 加载数据
         else {
@@ -377,6 +395,12 @@ return ZUI.def("ui.th3.media", {
     //..............................................
     upload : function(files) {
         var UI = this;
+        var man  = UI.getMainData();
+
+        if(!man.currentId) {
+            UI.alert("th3.data.noSelected", 'warn');
+            return;
+        }
 
         for(var i=0; i<files.length; i++){
             UI.__do_upload(files[i]);

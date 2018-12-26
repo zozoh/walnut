@@ -54,7 +54,11 @@ return ZUI.def("ui.th3.content", {
         var man  = UI.getMainData();
         var conf = man.conf;
 
+        // 重新获取数据
+        obj = Wn.getById(man.currentId);
+
         // 更新摘要
+        UI.arena.find('.toid-brief').show();
         UI.arena.find(">.toid-brief textarea").val(obj.brief || "");
 
         // 读取数据
@@ -74,6 +78,8 @@ return ZUI.def("ui.th3.content", {
                         asyncIcon : '<i class="zmdi zmdi-settings zmdi-hc-spin"></i>',
                         asyncText : "i18n:th3.content.saving",
                         asyncHandler : function(jq, mi, callback) {
+                            // 重新获取数据
+                            var obj = Wn.getById(man.currentId);
                             // 防守一下吧，虽然不太可能会发生
                             if(!obj) {
                                 UI.alert("th3.content.noobj", "warn");
@@ -108,7 +114,7 @@ return ZUI.def("ui.th3.content", {
                     preview : {
                         media : function(src) {
                             var m = /^(media|attachment)\/(.+)$/.exec(src);
-                            console.log(m)
+                            // console.log(m)
                             if(m) {
                                 return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
                                     thset : UI.getHomeObjId(),
@@ -128,7 +134,7 @@ return ZUI.def("ui.th3.content", {
                     this.setData(str);
                 });
             }
-        });  // ~ Wn.read(obj, function(str){
+        }, true);  // ~ Wn.read(obj, function(str){
     },
     //..............................................
     showBlank : function() {
@@ -137,6 +143,8 @@ return ZUI.def("ui.th3.content", {
         UI.__show_blankUI("edit", {
             text : 'i18n:th3.nocontent'
         });
+
+        UI.arena.find('.toid-brief').hide();
     },
     //..............................................
     on_selected : function(eo) {

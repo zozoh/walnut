@@ -254,6 +254,7 @@ define({
             "none_media_tip" : "请选择一个文件显示预览",
             "remove" : "删除选中文件",
             "upload" : "上传新文件",
+            "noSelected" : "请选择一个数据记录先",
             "download" : "打包下载...",
             "down_pickname"  : "下载包名称",
             "down_gen_zip"   : "生成压缩包",
