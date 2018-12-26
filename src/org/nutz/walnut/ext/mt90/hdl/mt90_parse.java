@@ -164,7 +164,7 @@ public class mt90_parse implements JvmHdl {
                     continue;
                 }
                 // 超过设置的时间了吗?
-                if (raw.timestamp < begin || raw.timestamp > end) {
+                if (raw.gpsDate.getTime() < begin || raw.gpsDate.getTime() > end) {
                     //Logs.get().info("过滤一条记录" + line);
                     continue;
                 }
