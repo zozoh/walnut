@@ -136,7 +136,8 @@ public class wooz_fix implements JvmHdl {
             WoozPoint cur = cplist.get(i);
             WoozPoint next = cplist.get(i + 1);
             if (cur.routePointIndex > next.routePointIndex) {
-                throw Er.create("cp点顺序不合法!!! ");
+                log.debugf("轨迹点数据有问题, 强行修正 name=%s, from %d to %d", cur.name, cur.routePointIndex, next.routePointIndex);
+                cur.routePointIndex = next.routePointIndex - 100;
             }
         }
         if (log.isInfoEnabled())
