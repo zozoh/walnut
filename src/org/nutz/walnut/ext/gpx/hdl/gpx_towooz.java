@@ -59,6 +59,13 @@ public class gpx_towooz implements JvmHdl {
                             point.name = point.name.substring(0, point.name.indexOf(' '));
                             point.desc = point.name.substring(point.name.indexOf(' ')+1);
                         }
+                        else if (point.name.contains(":")) {
+                            point.name = point.name.substring(0, point.name.indexOf(':'));
+                            point.desc = point.name.substring(point.name.indexOf(':')+1);
+                            if (point.name.equals("CP0")) {
+                                point.type = "start";
+                            }
+                        }
                     }
                     else if (point.name.toUpperCase().startsWith("SP")) {
                         point.type = "sp";
