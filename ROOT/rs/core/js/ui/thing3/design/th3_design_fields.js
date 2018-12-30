@@ -330,6 +330,8 @@ return ZUI.def("ui.th3.thdesign_fields", {
                 items : [null, "input", "text", "label", "color", "background",
                     "switch", "toggle", "droplist", "checklist", "radiolist",
                     "pair", "date_range", "number_range",
+                    "array", "file", "icon", "image", "list", "name",
+                    "date", "time", "datetime",
                     "opicker", "datepicker","combotable"]
             }
         }, {
