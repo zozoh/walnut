@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sheet;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -108,8 +109,20 @@ public class SheetField {
                     return Strings.join(", ", (Collection<?>) val);
                 }
                 // 就是一个普通值咯, 那么变成数组
-                String s = Castors.me().castToString(val);
-                return Strings.splitIgnoreBlank(s);
+                String str = Castors.me().castToString(val);
+                String ss[] = Strings.splitIgnoreBlank(str);
+
+                // 如果都是数字，自动变一下数字
+                Object[] oo = (Object[]) Array.newInstance(Object.class, ss.length);
+                for (int i = 0; i < ss.length; i++) {
+                    String s = ss[i];
+                    if (s.matches("^([0-9]+)$")) {
+                        oo[i] = Integer.parseInt(ss[i]);
+                    } else {
+                        oo[i] = s;
+                    }
+                }
+                return oo;
             }
             // 获取对象的一个值
             else {

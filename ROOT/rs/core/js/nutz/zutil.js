@@ -2865,6 +2865,12 @@
             d2.setTime(ms + 86400000*7*off);
             return d2;
         },
+        getWeekOfYear: function(d){
+            var Jan1 = new Date(d.getFullYear(),0, 1);
+            var ms = d.getTime() - Jan1.getTime();
+            var days = Math.round(ms / 86400000);
+            return Math.ceil(days/7);
+        },
         //.............................................
         // 解析日期字符串为一个日期对象
         /*
