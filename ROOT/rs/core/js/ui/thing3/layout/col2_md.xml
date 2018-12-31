@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <cols>
+        <col name="list"></col>
+        <bar/>
+        <col size="40%">
+            <tabs key="index">
+                <tab name="meta">
+                    <text>i18n:th3.meta.title</text>
+                </tab>
+                <tab name="content">
+                    <text>i18n:th3.content.title</text>                    
+                </tab>
+            </tabs>
+        </col>
+        <bar/>
+    </cols>
+    <boxes>
+        <box name="create" collapse="yes">
+            <pos dock-at="N">
+                <width>640</width>
+                <height>320</height>
+            </pos>
+        </box>
+    </boxes>
+</layout>
+
+
+
+
+

@@ -55,6 +55,7 @@ return ZUI.def("ui.th3.thdesign_general", {
                             textAsValue : true,
                             items : [
                                 "ui/thing3/layout/col3_md_ma.xml",
+                                "ui/thing3/layout/col2_md.xml",
                                 "ui/thing3/layout/col2_m.xml",
                             ]
                         }
