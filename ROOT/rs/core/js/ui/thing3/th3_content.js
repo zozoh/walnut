@@ -118,7 +118,7 @@ return ZUI.def("ui.th3.content", {
                             if(m) {
                                 return ($z.tmpl("/o/read/id:{{thset}}/data/{{th_id}}/{{cate}}/{{path}}"))({
                                     thset : UI.getHomeObjId(),
-                                    th_id : obj.id,
+                                    th_id : man.currentId,
                                     cate  : m[1],
                                     path  : m[2]
                                 });
