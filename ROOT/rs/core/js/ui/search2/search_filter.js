@@ -601,7 +601,25 @@ return ZUI.def("ui.search_filter", {
             //console.log(cri)
 
             // 返回最后结果，并且一定用基础对象覆盖
-            return _.extend(re, UI.__query_base);
+            if(UI.__query_base) {
+                // 数组则分别覆盖
+                if(_.isArray(UI.__query_base)) {
+                    var reList = [];
+                    for(var i=0; i<UI.__query_base.length; i++) {
+                        var qb = UI.__query_base[i];
+                        if(_.isString(qb)) {
+                            reList.push(qb)
+                        } else {
+                            reList.push(_.extend({},re,qb))
+                        }
+                    }
+                    return reList;
+                }
+                // 就一个对象
+                return _.extend(re, UI.__query_base);
+            }
+            // 没有基础对象
+            return re;
         });
     },
     /*..............................................
