@@ -126,6 +126,7 @@ __format_field : function(UI, fld) {
             uiConf : {
                 dataType : "idph",
                 height : uiConf.height || 180,
+                readonly : uiConf.readonly || false,
                 remove : function(obj, callback) {
                     if(obj)
                         Wn.exec('rm id:'+obj.id, callback);

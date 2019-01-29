@@ -115,6 +115,8 @@ return ZUI.def("ui.form_com_image", {
             return false;
         });
 
+        console.log("readonly", opt.readonly)
+
         // 如果过 validate 是一个字符串...
         if(_.isString(opt.validate)) {
             // ^ 开头的就变成一个正则表达式
@@ -130,12 +132,18 @@ return ZUI.def("ui.form_com_image", {
     //...............................................................
     events : {
         'click .comi-select b' : function(){
+            if(this.options.readonly)
+                return;
             this.arena.find('input[type="file"]').click();
         },
         'click div[a="remove"]' : function(){
+            if(this.options.readonly)
+                return;
             this.__do_remove();
         },
         'change input[type="file"]' : function(e) {
+            if(this.options.readonly)
+                return;
             if(e.currentTarget.files.length > 0){
                 this.__do_upload(e.currentTarget.files[0]);
                 // 清除文件选择框的记忆
@@ -147,6 +155,11 @@ return ZUI.def("ui.form_com_image", {
     dragAndDrop : true,
     on_drop : function(fs) {
         var UI = this;
+        var opt = UI.options;
+
+        // 只读什么都不做
+        if(opt.readonly)
+            return;
 
         // 只能允许一个文件
         if (fs.length != 1) {
@@ -176,6 +189,13 @@ return ZUI.def("ui.form_com_image", {
         //     alert("haha")
         // });
         //console.log(opt.width, opt.height)
+
+        // 标识一下只读
+        if(opt.readonly) {
+            UI.arena.attr('is-readonly', 'yes');
+        } else {
+            UI.arena.attr('is-editable', 'yes');
+        }
 
         // 限制宽度
         if(!_.isUndefined(opt.width)) {
