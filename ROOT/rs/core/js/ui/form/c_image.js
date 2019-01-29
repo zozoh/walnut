@@ -115,8 +115,6 @@ return ZUI.def("ui.form_com_image", {
             return false;
         });
 
-        console.log("readonly", opt.readonly)
-
         // 如果过 validate 是一个字符串...
         if(_.isString(opt.validate)) {
             // ^ 开头的就变成一个正则表达式
