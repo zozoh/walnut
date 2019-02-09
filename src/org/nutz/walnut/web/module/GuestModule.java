@@ -54,8 +54,7 @@ public class GuestModule extends AbstractWnModule {
     @At("/**")
     @Fail("http:404")
     public View read(String str,
-                     @Param("d") boolean downloadMedia,
-                     @Param("fd") boolean forceDownload,
+                     @Param("d") String download,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
                      @ReqHeader("Range") String range,
@@ -78,10 +77,8 @@ public class GuestModule extends AbstractWnModule {
             o = Wn.WC().whenRead(o, false);
         }
 
-        // 特殊的类型，将不生成下载目标
-        if (!forceDownload) {
-            ua = WnWeb.autoUserAgent(o, ua, downloadMedia);
-        }
+        // 纠正一下下载模式
+        ua = WnWeb.autoUserAgent(o, ua, download);
 
         // 返回下载视图
         return new WnObjDownloadView(io, o, ua, etag, range);

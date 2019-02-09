@@ -722,7 +722,7 @@ public class WWWModule extends AbstractWnModule {
     @Filters({@By(type = WWWSetSessionID.class)})
     public View show_page(String usr,
                           String a_path,
-                          @Param("down") boolean isDownload,
+                          @Param("d") String download,
                           @ReqHeader("User-Agent") String ua,
                           @ReqHeader("If-None-Match") String etag,
                           @ReqHeader("Range") String range,
@@ -970,8 +970,8 @@ public class WWWModule extends AbstractWnModule {
             if (log.isDebugEnabled())
                 log.debugf(" - www.S (%s)@%s : %s", o.id(), usr, a_path);
 
-            // 特殊的类型，将不生成下载目标
-            ua = WnWeb.autoUserAgent(o, ua, isDownload);
+            // 纠正一下下载模式
+            ua = WnWeb.autoUserAgent(o, ua, download);
 
             // 返回下载视图
             return new WnObjDownloadView(io, o, ua, etag, range);

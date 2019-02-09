@@ -301,7 +301,7 @@ public class AppModule extends AbstractWnModule {
     public View load(String appName,
                      String rsName,
                      @Param("mime") String mimeType,
-                     @Param("down") boolean isDownload,
+                     @Param("d") String download,
                      @Param("auto_unwrap") boolean auto_unwrap,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
@@ -344,8 +344,8 @@ public class AppModule extends AbstractWnModule {
                     sw.tag("auto_unwrap ");
             }
 
-            // 处理一下 ua 来决定是否下载
-            ua = WnWeb.autoUserAgent(o, ua, isDownload);
+            // 纠正一下下载模式
+            ua = WnWeb.autoUserAgent(o, ua, download);
 
             // 如果是 JSON ，那么特殊的格式化一下
             if ("application/json".equals(mimeType)) {

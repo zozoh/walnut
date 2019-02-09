@@ -11,7 +11,7 @@ public class WnPager {
     public boolean countPage;
     public int pgsz;
     public int pn;
-    public int sum_count;
+    public long sum_count;
     public int sum_page;
     public static int DEAULT_LIMIT = 500;
 
@@ -74,11 +74,18 @@ public class WnPager {
             q.limit(this.limit);
     }
 
-    public void setSumCount(int sc) {
+    public void setSumCount(long sc) {
         this.sum_count = sc;
         if (this.countPage && this.limit > 0) {
             this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
         }
+    }
+    
+    public WnPagerObj toPagerObj() {
+        WnPagerObj wpo = new WnPagerObj(DEAULT_LIMIT, 5000);
+        wpo.set(limit, skip);
+        wpo.setTotal(sum_count);
+        return wpo;
     }
 
     @Override

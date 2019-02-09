@@ -118,7 +118,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail(">>:/")
     public View show_host(String rph,
                           @Attr("wn_www_host") String host,
-                          @Param("down") boolean isDownload,
+                          @Param("d") String download,
                           @ReqHeader("User-Agent") String ua,
                           @ReqHeader("If-None-Match") String etag,
                           @ReqHeader("Range") String range,
@@ -162,8 +162,8 @@ public class UsrModule extends AbstractWnModule {
 
                 // 如果不是html，那么必然是资源
                 if (!o.name().matches("^.*[.]html?")) {
-                    // 特殊的类型，将不生成下载目标
-                    ua = WnWeb.autoUserAgent(o, ua, isDownload);
+                    // 纠正一下下载模式
+                    ua = WnWeb.autoUserAgent(o, ua, download);
 
                     // 返回下载视图
                     return new WnObjDownloadView(io, o, ua, etag, range);

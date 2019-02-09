@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -17,6 +19,7 @@ import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -43,6 +46,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnPagerObj;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.filter.WnSetSecurity;
 import org.nutz.walnut.web.util.WnWeb;
@@ -67,29 +71,53 @@ public class ObjModule extends AbstractWnModule {
         thumbCache = new Hashtable<String, BufferedImage>();
     }
 
+    @Deprecated
     @At("/get/**")
     public WnObj get(String str, @Param("aph") boolean isAbsolutePath) {
         str = __format_str(str, isAbsolutePath);
         return Wn.checkObj(io, str);
     }
 
-    @POST
     @At("/fetch")
-    public WnObj fetch(@Param("str") String str, @Param("aph") boolean isAbsolutePath) {
-        str = __format_str(str, isAbsolutePath);
-        return Wn.checkObj(io, Wn.WC().checkSE(), str);
+    public WnObj fetch(@Param("str") String str) {
+        WnSession se = Wn.WC().checkSE();
+        return Wn.checkObj(io, se, str);
     }
 
     /**
-     * 设置一个对象的元数据
+     * 获取某个对象的祖先列表。从顶级目录开始一直到给定对象的父，相当于执行命令:
+     * 
+     * <code>
+     * obj [str] -an
+     * </code>
      * 
      * @param str
-     *            对象字符串。@see
-     *            {@link #checkObj(String, org.nutz.lang.util.NutMap, String)}
+     *            对象字符串。@see {@link Wn#checkObj}
+     * @return 对象的祖先列表（通常第0位为 <code>/home</code>）
+     */
+    @At("/ancestors")
+    public List<WnObj> ancestors(@Param("str") String str) {
+        WnSession se = Wn.WC().checkSE();
+        WnObj meta = Wn.checkObj(io, se, str);
+        LinkedList<WnObj> ans = new LinkedList<>();
+        meta.loadParents(ans, false);
+        return ans;
+    }
+
+    /**
+     * @deprecated 不赞成采用本方法，比较危险，将在未来的某个版本（看心情）删除本方法。<br>
+     *             请用 <code>update</code> 方法代替
+     * 
+     *             重设一个对象的元数据
+     * 
+     * @param str
+     *            对象字符串。@see {@link Wn#checkObj}
      * @param map
      *            都要修改哪些元数据
      * @return 对象
+     * @see #update(String, boolean, NutMap)
      */
+    @Deprecated
     @At("/set/**")
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj set(String str, @Param("aph") boolean isAbsolutePath, NutMap map) {
@@ -103,15 +131,153 @@ public class ObjModule extends AbstractWnModule {
     }
 
     /**
+     * 更新一个对象的元数据
+     * 
+     * @param str
+     *            对象字符串。@see {@link Wn#checkObj}
+     * @param map
+     *            都要修改哪些元数据
+     * @return 对象
+     */
+    @At("/update")
+    @AdaptBy(type = JsonAdaptor.class)
+    public WnObj update(@Param("str") String str, NutMap map) {
+        // 确保 str 的形式正确
+        WnSession se = Wn.WC().checkSE();
+
+        // 取得并写入
+        WnObj o = Wn.checkObj(io, se, str);
+        io.appendMeta(o, map);
+        return o;
+    }
+
+    /**
      * 给定查询对象，获取对象列表
      * 
      * @param q
-     *            查询对象
-     * @return 列表
+     *            查询对象，如果不指定，默认限制为 100，如果指定最大可查询的记录为 5000
+     * @return
+     * 
+     *         如果 <code>q.limit > 0</code> 返回分页信息
+     * 
+     *         <pre>
+     * {
+     *  list:[..], 
+     *  pager: {
+     *      pageNumber,
+     *      pageSize,
+     *      pageCount,
+     *      totalCount
+     *  }
+     * }
+     *         </pre>
+     * 
+     *         否则直接返回返回数组
+     * 
+     *         <pre>
+     * [..]
+     *         </pre>
      */
     @At("/query")
-    public List<WnObj> query(@Param("..") WnQuery q) {
-        return io.query(q);
+    public Object query(@Param("..") WnQuery q) {
+        boolean isPaging = q.limit() > 0;
+
+        // 确保数据的限制
+        if (q.limit() > 5000) {
+            q.limit(5000);
+        } else if (q.limit() <= 0) {
+            q.limit(100);
+        }
+
+        // 查询列表
+        List<WnObj> list = io.query(q);
+
+        // 需要分页
+        if (isPaging) {
+            WnPagerObj pager = new WnPagerObj().setBy(q);
+            long tc = io.count(q);
+            pager.setTotal(tc);
+            return new NutMap("list", list).setv("pager", pager);
+        }
+
+        // 直接返回列表
+        return list;
+    }
+
+    /**
+     * 给定查询对象，获取对象列表
+     * 
+     * @param limit(`_l`)
+     *            查询数据上限
+     * @param skip(`_o`)
+     *            跳过的记录数
+     * @param sort(`_s`)
+     *            一个排序的 JSON 字符串，形式类似 <code>"nm:-1,ct:1"</code>
+     * @param mine(`_me`)
+     *            标识仅仅查询自己主域的内容，默认 true
+     * @param match(`..`)
+     *            其余的全部参数（除了 `_`开头的）均被作为查询参数
+     * @return
+     * 
+     *         <pre>
+     * {
+     *  list:[..], 
+     *  pager: {
+     *      pageNumber,
+     *      pageSize,
+     *      pageCount,
+     *      totalCount
+     *  }
+     * }
+     *         </pre>
+     */
+    @At("/find")
+    public Object find(@Param("_l") int limit,
+                       @Param("_o") int skip,
+                       @Param("_s") String sort,
+                       @Param(value = "_me", df = "true") boolean mine,
+                       @Param("..") NutMap match) {
+        // 准备查询
+        WnQuery q = new WnQuery();
+
+        // 翻页信息
+        WnPagerObj pager = new WnPagerObj().set(limit, skip);
+        pager.setupQuery(q);
+
+        // 排序
+        NutMap sorting = Lang.map(sort);
+        q.sort(sorting);
+
+        // 确保去掉 "_" 开头的字段
+        List<String> dks = new ArrayList<>(match.size());
+        for (String k : match.keySet()) {
+            if (k.startsWith("_"))
+                dks.add(k);
+        }
+        for (String k : dks) {
+            match.remove(k);
+        }
+
+        // 添加查询条件
+        q.setAll(match);
+
+        // 增加自己主域限制
+        if (mine) {
+            WnSession se = Wn.WC().checkSE();
+            q.setv("d0", "home");
+            q.setv("d1", se.group());
+        }
+
+        // 查询
+        List<WnObj> list = io.query(q);
+
+        // 更新分页信息
+        long tc = io.count(q);
+        pager.setTotal(tc);
+
+        // 返回
+        return new NutMap("list", list).setv("pager", pager);
+
     }
 
     @Inject("java:$conf.get('obj-thumbnail-dft-szhint', 64)")
@@ -299,6 +465,51 @@ public class ObjModule extends AbstractWnModule {
     }
 
     /**
+     * 得到一个对象的内容
+     * 
+     * @param str
+     *            对象字符串。@see {@link Wn#checkObj}
+     * @param download
+     *            下载模式。 @see {@link WnWeb#autoUserAgent(WnObj, String, String)}
+     * @return 对象的内容
+     * 
+     */
+    @At("/content")
+    @AdaptBy(type = JsonAdaptor.class)
+    public View content(@Param("str") String str,
+                        @Param("d") String download,
+                        @ReqHeader("User-Agent") String ua,
+                        @ReqHeader("If-None-Match") String etag,
+                        @ReqHeader("Range") String range,
+                        HttpServletRequest req,
+                        HttpServletResponse resp) {
+        // 确保 str 的形式正确
+        WnSession se = Wn.WC().checkSE();
+
+        // 取得并写入
+        WnObj o = Wn.checkObj(io, se, str);
+
+        // 确保可读，同时处理链接文件
+        o = Wn.WC().whenRead(o, false);
+
+        // 校验 sha1
+        // TODO 如果先生成一个对象，然后浏览器读取了，在服务器上将这个对象改成一个链接对象
+        // 再次 read 时，因为浏览器端 Wn.read 会带上 sha1 校验，就 400 了。
+        // 先暂时关掉校验功能，之后再想想怎么弄比较好
+        // if (!Strings.isBlank(sha1)) {
+        // if (!o.isSameSha1(sha1))
+        // return new HttpStatusView(400);
+        // }
+
+        // 纠正一下下载模式
+        ua = WnWeb.autoUserAgent(o, ua, download);
+
+        // 返回下载视图
+        return new WnObjDownloadView(io, o, ua, etag, range);
+
+    }
+
+    /**
      * 得到对象内容
      * 
      * @param str
@@ -323,6 +534,7 @@ public class ObjModule extends AbstractWnModule {
      * @see org.nutz.walnut.util.Wn#checkObj(org.nutz.walnut.api.io.WnIo,
      *      String)
      */
+    @Deprecated
     @At("/read/**")
     @Ok("void")
     public View read(String str,
@@ -373,6 +585,7 @@ public class ObjModule extends AbstractWnModule {
         return new WnObjDownloadView(io, o, ua, etag, range);
     }
 
+    @Deprecated
     @POST
     @AdaptBy(type = QueryStringAdaptor.class)
     @At("/write/**")
@@ -439,6 +652,7 @@ public class ObjModule extends AbstractWnModule {
      *            文件内容流
      * @return 创建的对象
      */
+    @Deprecated
     @At("/upload/**")
     @AdaptBy(type = QueryStringAdaptor.class)
     public WnObj upload(String str,
