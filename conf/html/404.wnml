@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>404 : ${url}</title>
+<title>404</title>
 </head>
 <body>
-    <h1>404 NotFound : ${url}</h1>
+    <h1>404 NotFound</h1>
     <pre>${msg}</pre>
 </body>
 </html>

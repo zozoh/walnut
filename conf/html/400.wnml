@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>400 : ${url}</title>
+<title>400</title>
 </head>
 <body>
-    <h1>400 BadRequest : ${url}</h1>
+    <h1>400 BadRequest</h1>
     <pre>${msg}</pre>
 </body>
 </html>
