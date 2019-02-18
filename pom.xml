@@ -5,7 +5,7 @@
 	<groupId>org.nutz</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>1.r.67-SNAPSHOT</version>
+	<version>1.r.68-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -215,9 +215,9 @@
 			<version>3.6</version>
 		</dependency>
 		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-plugins-ip2region</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.lionsoul</groupId>
+			<artifactId>ip2region</artifactId>
+			<version>1.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -283,6 +283,22 @@
     		<artifactId>jaxb-api</artifactId>
     		<version>2.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>jst</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
+		<dependency>
+    		<groupId>gov.nist.math</groupId>
+    		<artifactId>jama</artifactId>
+    		<version>1.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>5.3.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -332,7 +348,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.4.7.v20170914</version>
+				<version>9.4.14.v20181114</version>
 			</plugin>
 		</plugins>
 	</build>

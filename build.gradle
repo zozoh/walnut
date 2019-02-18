@@ -7,7 +7,7 @@ import org.nutz.lang.Files
 import groovy.io.FileType
 
 group = 'org.nutz'
-version = '1.r.66-SNAPSHOT'
+version = '1.r.68-SNAPSHOT'
 
 description = "一台神奇的计算机"
 
@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def version_tag = getDate()
-def nutz_version = "1.r.67-SNAPSHOT"
+def nutz_version = "1.r.68-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
@@ -70,9 +70,9 @@ dependencies {
     compile group: 'org.nutz', name: 'nutz-plugins-xmlbind', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-integration-json4excel', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zdoc', version:nutz_version
-    compile group: 'org.nutz', name: 'nutz-plugins-ip2region', version:nutz_version
     compile group: 'org.nutz', name: 'nutz-plugins-zcron', version:nutz_version
     compile group: 'org.nutz', name: 'lessc4j', version:'2.7.2-SNAPSHOT'
+    compile group: 'org.nutz', name: 'jst', version:'1.0.3'
     compile ('org.nutz:nutz-quartz:1.r.63-SNAPSHOT') { 
     	exclude group:'org.nutz', module: 'nutz'
     }
@@ -106,15 +106,18 @@ dependencies {
     compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version : '6.4.0.jre8'
     compile group: 'com.aliyun', name: 'aliyun-java-sdk-iot', version : '5.0.0'
 	compile group: 'com.aliyun', name: 'aliyun-java-sdk-core', version : '3.5.1'
+	// https://mvnrepository.com/artifact/gov.nist.math/jama
+	compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
+	compile group: 'org.lionsoul', name: 'ip2region', version: '1.7.2'
 }
 
 buildscript {
     repositories {
-		maven { url "https://jfrog.nutz.cn/artifactory/jcenter"}
+		maven { url "https://jfrog.nutz.cn/artifactory/lib-releases"}
     }
 
     dependencies {
-        classpath 'org.nutz:nutz:1.r.63.r2'
+        classpath 'org.nutz:nutz:1.r.66'
     }
 }
 

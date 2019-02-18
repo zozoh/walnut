@@ -1,26 +1,51 @@
 package org.nutz.walnut.ext.ip2region.hdl;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 
+import org.lionsoul.ip2region.DbSearcher;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.Mvcs;
-import org.nutz.plugins.ip2region.DbSearcher;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public class ip2region_query implements JvmHdl {
     
-    DbSearcher searcher = new DbSearcher();
+    DbSearcher searcher;
+    
+    public void init() throws IOException {
+        byte[] buf = Streams.readBytes(getClass().getClassLoader().getResourceAsStream("ip2region/ip2region.db"));
+        searcher = new DbSearcher(null, buf);
+        searcher.memorySearch("8.8.8.8");
+    }
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
+        if (hc.params.has("db")) {
+            String path = Wn.normalizeFullPath(hc.params.get("db"), sys);
+            WnObj wobj = sys.io.check(null, path);
+            byte[] buf = Streams.readBytesAndClose(sys.io.getInputStream(wobj, 0));
+            searcher = new DbSearcher(null, buf);
+            return;
+        }
+        if (searcher == null) {
+            try {
+                init();
+            }
+            catch (IOException e) {
+                throw Lang.wrapThrow(e);
+            }
+        }
         LinkedHashMap<String, NutMap> list = new LinkedHashMap<>();
         for (String ip : hc.params.vals) {
             if ("self".equals(ip)) {
                 ip = Lang.getIP(Mvcs.getReq());
             }
-            String region = searcher.getRegion(ip);
+            String region = this.getRegion(ip);
             String[] tmp = region.split("\\|");
             NutMap map = new NutMap();
             map.put("region", region);
@@ -39,4 +64,12 @@ public class ip2region_query implements JvmHdl {
         sys.out.writeJson(list);
     }
 
+    public String getRegion(String ip) {
+        try {
+            return searcher.memorySearch(ip).getRegion();
+        }
+        catch (IOException e) {
+            return "未知";
+        }
+    }
 }
