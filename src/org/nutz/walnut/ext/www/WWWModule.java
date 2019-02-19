@@ -902,6 +902,7 @@ public class WWWModule extends AbstractWnModule {
                 // 得到一些当前域账号的关键信息
                 context.put("grp", se.group());
                 context.put("fnm", o.name());
+                context.put("majorName", Files.getMajorName(o.name()));
                 context.put("rs", "/gu/rs");
 
                 // 如果上下文中有 "wn_www_path_new" 表示 WalnutFilter 已经修改了路径，那么
