@@ -248,7 +248,14 @@ public abstract class WnMongos {
         }
         // 如果是一个精确的值
         else if (!rg.isNull()) {
-            q.put(key, rg.left());
+            // 如果两边都是开区间表示不等于
+            if (rg.isLeftOpen() && rg.isRightOpen()) {
+                q.put(key, ZMoDoc.NEW("$ne", rg.left()));
+            }
+            // 否则表示等于
+            else {
+                q.put(key, rg.left());
+            }
         }
     }
 

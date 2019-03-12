@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -483,10 +484,10 @@ public class ObjModule extends AbstractWnModule {
                         @ReqHeader("Range") String range,
                         HttpServletRequest req,
                         HttpServletResponse resp) {
-        // 确保 str 的形式正确
+        // 获取当前会话
         WnSession se = Wn.WC().checkSE();
 
-        // 取得并写入
+        // 取得对应对象
         WnObj o = Wn.checkObj(io, se, str);
 
         // 确保可读，同时处理链接文件
@@ -507,6 +508,161 @@ public class ObjModule extends AbstractWnModule {
         // 返回下载视图
         return new WnObjDownloadView(io, o, ua, etag, range);
 
+    }
+
+    @At("/save/text")
+    public WnObj saveText(@Param("str") String str, @Param("content") String content) {
+        // 获取当前会话
+        WnSession se = Wn.WC().checkSE();
+
+        // 取得对应对象
+        WnObj o = Wn.checkObj(io, se, str);
+
+        // 确保可读，同时处理链接文件
+        o = Wn.WC().whenRead(o, false);
+
+        // 处理空
+        content = Strings.sNull(content, "");
+
+        // 写入
+        io.writeText(o, content);
+
+        // 返回
+        return o;
+    }
+
+    /**
+     * @param str
+     *            上传目标，可以是目录也可以是文件，根据 <code>mode</code>来决定
+     * @param mode
+     *            保存模式
+     *            <ul>
+     *            <li><code>r</code>- 替换模式：<code>str</code>可以存在，如果不存在或是目录根据
+     *            <code>nm</code>创建
+     *            <li><code>s</code>- 严格模式: <code>str</code>必须存在，且是一个文件，将会将其替换
+     *            <li><code>a</code>- 追加模式:
+     *            <code>str</code>必须存在，且必须是目录，如果是文件选择其目录。<br>
+     *            并根据文件名模板（<code>dupp</code>）生成一个确定不存在的文件名
+     *            </ul>
+     * @param nm
+     *            本地文件名
+     * @param sz
+     *            本地文件尺寸
+     * @param mime
+     *            本地文件的内容类型
+     * @param tmpl
+     *            只有在 <code>mode=a</code> 模式下才有效:
+     * 
+     *            <pre>
+     *            # 参数就是一个字符串模板，比如
+     *            "${major}(${nb})${suffix}"
+     *            
+     *            - 里面一定有三个固定的占位符 major, nb, suffix
+     *            - 比如 abc.png 那么，它的 major 是 "abc" 它的 suffix 是 ".png"
+     *            - 根据这个字符串模板，函数会从 nb=1 开始试验有没有重名，直到发现不重名的对象为止
+     *            - 对于 abc.png ，对于上面那个模板重试的顺序就是
+     *            -- abc(1).png
+     *            -- abc(2).png
+     *            -- abc(3).png
+     *            -- ..
+     *            - 总之根据这个字符串模板，你可以定制自己的重命名方式
+     *            </pre>
+     * 
+     *            默认的，本参数值为 <code>"${major}(${nb})${suffix}"</code>
+     * @param ins
+     *            上传的数据流
+     * @return 写入的文件对象
+     */
+    @At("/save/stream")
+    @AdaptBy(type = QueryStringAdaptor.class)
+    public WnObj saveStream(@Param("str") String str,
+                            @Param("nm") String nm,
+                            @Param("m") String mode,
+                            @Param("sz") long sz,
+                            @Param("mime") String mime,
+                            @Param("tmpl") String tmpl,
+                            InputStream ins) {
+        // 得到当前会话
+        WnSession se = Wn.WC().checkSE();
+
+        // 取得对应对象
+        WnObj o = Wn.getObj(io, se, str);
+
+        // 处理链接文件
+        if (null != o)
+            o = Wn.real(o, io, new HashMap<>());
+
+        // 默认模式
+        mode = Strings.sBlank(mode, "r");
+
+        // r- 替换模式：str可以存在，如果不存在或是目录根据 nm创建
+        if ("r".equals(mode)) {
+            // 不存在，那么创建
+            if (null == o) {
+                String aph = Wn.normalizeFullPath(Wn.appendPath(str, nm), se);
+                o = io.createIfNoExists(null, aph, WnRace.FILE);
+            }
+            // 存在，且是目录，那么还是创建
+            else if (o.isDIR()) {
+                o = io.createIfNoExists(o, nm, WnRace.FILE);
+            }
+        }
+        // s- 严格模式: str必须存在，且是一个文件，将会将其替换
+        else if ("s".equals(mode)) {
+            if (null == o) {
+                throw Er.create("e.web.obj.save_stream.targetNoExists", str);
+            }
+            if (!o.isFILE()) {
+                throw Er.create("e.web.obj.save_stream.targetNoFile", str);
+            }
+        }
+        // a- 追加模式: str必须存在，且必须是目录，如果是文件选择其目录。
+        // 并根据文件名模板（dupp）生成一个确定不存在的文件名
+        else if ("a".equals(mode)) {
+            if (null == o) {
+                throw Er.create("e.web.obj.save_stream.targetNoExists", str);
+            }
+            // 目录的话，则按照 nm取一下
+            if (o.isDIR()) {
+                o = io.fetch(o, nm);
+            }
+            // 如果存在，按照模板找
+            if (null != o) {
+                // 父母了
+                WnObj oP = o.parent();
+                // 准备查找一个不存在的文件名
+                NutMap c = new NutMap();
+                c.put("major", Files.getMajorName(nm));
+                c.put("suffix", Files.getSuffix(nm));
+                Tmpl seg = Tmpl.parse(tmpl);
+                int i = 1;
+                String fname;
+                do {
+                    c.put("nb", i++);
+                    fname = seg.render(c);
+                } while (io.exists(oP, fname));
+                // 创建这个文件
+                o = io.create(oP, fname, WnRace.FILE);
+            }
+        }
+        // 错误的模式
+        else {
+            throw Er.create("e.web.obj.save_stream.invalidMode", mode);
+        }
+
+        // 写入
+        OutputStream ops = io.getOutputStream(o, 0);
+        Streams.writeAndClose(ops, ins, 256 * 1024);
+
+        // 计入原始数据
+        NutMap localMeta = new NutMap();
+        localMeta.put("name", nm);
+        localMeta.put("mime", mime);
+        localMeta.put("size", sz);
+        io.appendMeta(o, Lang.map("local", localMeta));
+
+        // 返回
+        return o;
     }
 
     /**
