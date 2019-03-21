@@ -175,14 +175,19 @@ function bindEvents(jRoot, opt){
 //...........................................................
 function on_click_item(e){
     // 标记单元格
-    var jItem     = $(this);
+    var jItem = $(this);
+    var jRoot = $root(jItem);
+    var opt   = options(jRoot);
+    console.log("haha", opt, e)
+    if(opt.stopPropagation) {
+        e.stopPropagation();
+    }
 
     // disable 的项目，无视
     if(jItem.hasClass("timelist-item-disabled")){
         return;
     }
 
-    var jRoot     = $root(jItem);
     var jLast     = jRoot.find(".timelist-item-actived");
     var jItemList = jRoot.find(".timelist-item");
 
@@ -214,7 +219,6 @@ function on_click_item(e){
     }
 
     // 开始计算
-    var opt = options(jRoot);
     var _t_sec = jItem.attr("sec") * 1;
 
     // 首先取得全部时间点
