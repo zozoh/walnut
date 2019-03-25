@@ -56,6 +56,19 @@ public interface WnObj extends NutBean {
      */
     String getRegularPath();
 
+    /**
+     * 获取统一形式的路径，即，如果路径在主目录中，用 "~" 开头。
+     * <p>
+     * 这个判断主要依靠 `d0` 和 `d1`，即，如果 `d0` 为 "home" 且如果路径已 `/{$d0}/{$d1}` 开头，则替换为 `~`
+     * 
+     * @param isRegular
+     *            是否规范路径
+     * @return 统一形式的路径
+     * 
+     * @see #getRegularPath()
+     */
+    String getFormedPath(boolean isRegular);
+
     WnObj appendPath(String path);
 
     String name();

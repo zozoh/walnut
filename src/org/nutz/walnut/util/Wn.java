@@ -409,6 +409,18 @@ public abstract class Wn {
         return wc;
     }
 
+    public static class Mime {
+        public static String getGroupName(String mime, String dft) {
+            if(!Strings.isBlank(mime)) {
+                int pos = mime.indexOf("/");
+                if(pos>0) {
+                    return mime.substring(0, pos);
+                }
+            }
+            return dft;
+        }
+    }
+
     public static class Cmd {
 
         public static final int JOIN_CURRENT = 1;

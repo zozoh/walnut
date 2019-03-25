@@ -19,22 +19,36 @@ public abstract class JvmExecutor {
     public abstract void exec(WnSystem sys, String[] args) throws Exception;
 
     public String getManual() {
-        return this.getManual(null);
+        return this.getManual(null, "zh_cn");
     }
 
-    public String getManual(String hdlName) {
+    public String getManual(String lang) {
+        return this.getManual(null, lang);
+    }
+
+    public String getManual(String hdlName, String lang) {
         Class<?> klass = this.getClass();
         String ph = klass.getPackage().getName().replace('.', '/');
-        ph += "/" + klass.getSimpleName();
-        if (!Strings.isBlank(hdlName)) {
-            ph += "_" + hdlName;
-        }
-        // 优先找 .md
-        File f = Files.findFile(ph + ".md");
 
-        // 没有的话，找 .man
+        // 帮助文件 majorName
+        String majorName = klass.getSimpleName();
+        if (!Strings.isBlank(hdlName)) {
+            majorName += "_" + hdlName;
+        }
+        // 新版本: 寻找 man/zh_ch/${xxx}.md
+        String aph = Wn.appendPath(ph, "man", lang, majorName + ".md");
+        File f = Files.findFile(aph);
+
+        // 老版本：优先找 .md
         if (null == f) {
-            f = Files.findFile(ph + ".man");
+            aph = Wn.appendPath(ph, majorName + ".md");
+            f = Files.findFile(aph);
+        }
+
+        // 最初版本：没有的话，找 .man
+        if (null == f) {
+            aph = Wn.appendPath(ph, majorName + ".man");
+            f = Files.findFile(aph);
         }
 
         // 没 manual，抛错

@@ -20,7 +20,7 @@ import org.nutz.walnut.util.Wn;
 public class WnBean extends NutMap implements WnObj {
 
     private static final long serialVersionUID = 1L;
-    
+
     private WnTree tree;
 
     public WnTree tree() {
@@ -488,6 +488,19 @@ public class WnBean extends NutMap implements WnObj {
         if (this.isDIR())
             return aph + "/";
         return aph;
+    }
+
+    public String getFormedPath(boolean isRegular) {
+        String path = isRegular ? this.getRegularPath() : this.path();
+        String d0 = this.d0();
+        if ("home".equals(d0)) {
+            String d1 = this.d1();
+            String home = Wn.appendPath("/", d0, d1);
+            if (path.startsWith(home)) {
+                return "~" + path.substring(home.length());
+            }
+        }
+        return path;
     }
 
     public WnObj appendPath(String path) {
