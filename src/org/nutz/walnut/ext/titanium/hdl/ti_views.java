@@ -4,8 +4,8 @@ import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.titanium.TiViewService;
-import org.nutz.walnut.ext.titanium.util.TiView;
+import org.nutz.walnut.ext.titanium.views.TiView;
+import org.nutz.walnut.ext.titanium.views.TiViewService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -19,6 +19,7 @@ public class ti_views implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        // 初始化服务类
         if (null == views) {
             synchronized (ti_views.class) {
                 if (null == views) {
@@ -32,21 +33,21 @@ public class ti_views implements JvmHdl {
         WnObj o = Wn.checkObj(sys, aph);
 
         // 获取映射文件名
-        String mappFileName = hc.params.get("name", "views.json");
+        String mappFileName = hc.params.get("m", "mapping.json");
 
         // 获取视图搜寻路径
         String VIEW_PATH = Strings.sBlank(sys.se.varString("VIEW_PATH"), "/rs/ti/view/");
-        String[] viewPaths = Strings.splitIgnoreBlank(VIEW_PATH, ":");
+        String[] viewHomePaths = Strings.splitIgnoreBlank(VIEW_PATH, ":");
 
         // 准备获取的视图
         TiView view = null;
 
         // 读取映射文件
-        for (String viewPath : viewPaths) {
-            String phMapping = Wn.appendPath(viewPath, mappFileName);
+        for (String viewHomePath : viewHomePaths) {
+            String phMapping = Wn.appendPath(viewHomePath, mappFileName);
             String aphMapping = Wn.normalizeFullPath(phMapping, sys);
             WnObj oMapping = sys.io.fetch(null, aphMapping);
-            view = views.getView(oMapping, o);
+            view = views.getView(oMapping, o, viewHomePaths);
             if (null != view)
                 break;
         }

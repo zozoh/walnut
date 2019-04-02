@@ -7,5 +7,6 @@
  
 ```bash
 ti version      # 显示命令版本
-ti views        # 获取某个对象的视图信息       
+ti views        # 获取某个对象的视图信息
+ti sidebar      # 获取当前会话的侧边栏       
 ```

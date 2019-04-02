@@ -1,6 +1,7 @@
-package org.nutz.walnut.ext.titanium;
+package org.nutz.walnut.ext.titanium.util;
 
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 public class WnObjCachedItem<T> {
 
@@ -21,7 +22,7 @@ public class WnObjCachedItem<T> {
     }
 
     public void setObj(WnObj o) {
-        this.objFinger = o.sha1();
+        this.objFinger = Wn.getEtag(o);
     }
 
 }

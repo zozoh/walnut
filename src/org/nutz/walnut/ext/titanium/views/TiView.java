@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.titanium.util;
+package org.nutz.walnut.ext.titanium.views;
 
 public class TiView {
 
