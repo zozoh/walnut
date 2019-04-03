@@ -622,28 +622,35 @@ public class ObjModule extends AbstractWnModule {
             if (null == o) {
                 throw Er.create("e.web.obj.save_stream.targetNoExists", str);
             }
+            WnObj oP;
+            String fname;
             // 目录的话，则按照 nm取一下
             if (o.isDIR()) {
+                oP = o;
                 o = io.fetch(o, nm);
+                fname = nm;
             }
-            // 如果存在，按照模板找
-            if (null != o) {
-                // 父母了
-                WnObj oP = o.parent();
+            // 文件的话，取一下父目录
+            else {
+                oP = o.parent();
+                fname = o.name();
+            }
+            // 下面这个逻辑是去重的，因为的追加模式，所以需要一直确保找到一个文件名在给定目录下不存在
+            int i = 1;
+            while (null != o) {
                 // 准备查找一个不存在的文件名
                 NutMap c = new NutMap();
                 c.put("major", Files.getMajorName(nm));
                 c.put("suffix", Files.getSuffix(nm));
                 Tmpl seg = Tmpl.parse(tmpl);
-                int i = 1;
-                String fname;
-                do {
-                    c.put("nb", i++);
-                    fname = seg.render(c);
-                } while (io.exists(oP, fname));
-                // 创建这个文件
-                o = io.create(oP, fname, WnRace.FILE);
+                c.put("nb", i++);
+                fname = seg.render(c);
+                // 一直找到一个不存在的名称
+                if (!io.exists(oP, fname))
+                    break;
             }
+            // 创建这个文件
+            o = io.create(oP, fname, WnRace.FILE);
         }
         // 错误的模式
         else {
