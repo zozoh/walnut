@@ -109,6 +109,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/gov.nist.math/jama
 	compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
 	compile group: 'org.lionsoul', name: 'ip2region', version: '1.7.2'
+	compile group: 'org.eclipse.paho', name : 'org.eclipse.paho.client.mqttv3', version: '1.2.1'
 }
 
 buildscript {
