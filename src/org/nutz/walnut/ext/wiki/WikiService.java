@@ -3,12 +3,9 @@ package org.nutz.walnut.ext.wiki;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 
-import org.nutz.http.Http;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;

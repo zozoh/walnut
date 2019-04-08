@@ -1,14 +1,11 @@
 package org.nutz.walnut.ext.wiki;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
