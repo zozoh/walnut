@@ -151,7 +151,7 @@ task sassc << {
     		}
     	} else {
     		exec {
-    			commandLine "sassc", "--include-path="+phLess, _src, _dst
+    			commandLine "sassc", _src, _dst
     			ignoreExitValue true
     		}
     	}
