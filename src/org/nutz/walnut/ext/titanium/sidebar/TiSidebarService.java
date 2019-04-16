@@ -9,6 +9,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnIo;
@@ -69,8 +70,16 @@ public class TiSidebarService {
         // 动态项目
         else if (inIt.hasCommand()) {
             String cmdText = inIt.getCommand();
-            String re = runtime.exec2(cmdText);
+            String re = Strings.trim(runtime.exec2(cmdText));
+
+            // 空
+            if ("null".equals(re))
+                return;
+
+            // 得到对象
             Object reObj = Json.fromJson(re);
+            if (null == reObj)
+                return;
 
             // 集合
             if (reObj instanceof Collection) {

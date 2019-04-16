@@ -62,6 +62,7 @@ public class TiCreation {
         }
         // 全部类型
         else if (tpNames.length == 0) {
+            output.setFreeCreate(true);
             output.asList(types.size());
             output.addAllTypes(types.values());
         }
@@ -69,6 +70,10 @@ public class TiCreation {
         else {
             output.asList(tpNames.length);
             for (String typeName : tpNames) {
+                if ("*".equals(typeName)) {
+                    output.setFreeCreate(true);
+                    continue;
+                }
                 TiTypeInfo info = types.get(typeName);
                 if (null != info) {
                     output.addType(info);

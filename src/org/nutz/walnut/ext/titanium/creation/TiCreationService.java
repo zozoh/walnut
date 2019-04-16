@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
@@ -26,24 +28,30 @@ public class TiCreationService {
 
     public TiTypes getTypes(WnObj oTypes) {
         return types.get(oTypes, (o) -> {
-            TiTypes tt = io.readJson(o, TiTypes.class);
+            NutMap tt = io.readJson(o, NutMap.class);
+            TiTypes types = new TiTypes();
             // 循环解析自己的 help段引用
-            for (Map.Entry<String, TiTypeInfo> en : tt.entrySet()) {
+            for (Map.Entry<String, Object> en : tt.entrySet()) {
                 String typeName = en.getKey();
-                TiTypeInfo tpio = en.getValue();
-                if (tpio.isHelpReferToFile()) {
-                    WnObj oHelp = io.check(oTypes, tpio.getHelp());
+                NutMap typeMap = (NutMap) en.getValue();
+                TiTypeInfo info = Lang.map2Object(typeMap, TiTypeInfo.class);
+                // Help
+                if (info.isHelpReferToFile()) {
+                    WnObj oHelp = io.check(oTypes, info.getHelp());
                     String help = io.readText(oHelp);
-                    tpio.setHelp(help);
+                    info.setHelp(help);
                 }
-                tpio.setName(typeName);
-                if (!tpio.hasMime()) {
+                // Name/Mime
+                info.setName(typeName);
+                if (info.isFILE() && !info.hasMime()) {
                     String mime = io.mimes().getMime(typeName);
-                    tpio.setMime(mime);
+                    info.setMime(mime);
                 }
+                // 记录
+                types.put(typeName, info);
             }
             // 返回
-            return tt;
+            return types;
         });
     }
 

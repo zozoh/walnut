@@ -21,6 +21,14 @@ public class TiTypeInfo {
 
     private String help;
 
+    public boolean isFILE() {
+        return WnRace.FILE == race;
+    }
+
+    public boolean isDIR() {
+        return WnRace.DIR == race;
+    }
+
     public String getName() {
         return name;
     }
