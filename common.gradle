@@ -116,7 +116,47 @@ task lessc << {
 	}
 }
 
-
+task sassc << {
+	def lesscDir = 'src'
+	try {
+		if (project.appdir != null) {
+			lesscDir = project.appdir
+		}
+	} catch(e){}
+	FileTree tree = fileTree(lesscDir) {
+		include "**/*.scss"
+		exclude "**/fontawesome*/**/*.*"
+	}
+    File fHome = Files.findFile(".");
+    String phHome = fHome.getCanonicalPath();
+    println "do sassc in HOME: " + phHome
+    //String phLess = Files.getParent(phHome)+"/walnut/ROOT/rs/theme/scss"
+	tree.each {File _file ->
+    	def _src = _file.path
+    	def _dst = _src.substring(0, _src.length() - 4) + 'css'
+        def _rph = Disks.getRelativePath(phHome, _src);
+    	//if (file(_dst).exists() && file(_src.toString()).lastModified() <= file(_dst).lastModified()) {
+    	//	println "- no change >> " + _rph
+    	//	return
+    	//}
+        if(Files.getName(_src).startsWith("_")){
+    		println "~ skip >> " + _rph
+            return;
+        }
+    	println "sass>> "  + Files.getName(_src) + " : "  + _rph
+    	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    		exec {
+    			commandLine "cmd.exe", "/c", "sassc", _src, _dst
+    			ignoreExitValue true
+    		}
+    	} else {
+    		exec {
+    			commandLine "sassc", _src, _dst
+    			ignoreExitValue true
+    		}
+    	}
+	}
+}
 
 task fatJar(type: Jar, dependsOn: [':wbuild']) {
     archiveName = project.name + ".jar"
