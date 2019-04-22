@@ -93,6 +93,8 @@ public interface WnSession {
      * @return 某变量的值的字符串形式
      */
     String varString(String nm);
+    
+    String varString(String nm, String dft);
 
     /**
      * @param nm
@@ -100,7 +102,7 @@ public interface WnSession {
      * @return 某变量的值的整数形式，默认值为最小整数
      */
     int varInt(String nm);
-
+    
     /**
      * @param nm
      *            变量名

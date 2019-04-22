@@ -79,8 +79,13 @@ public abstract class AbstractWnSession implements WnSession {
 
     @Override
     public String varString(String nm) {
+        return varString(nm, null);
+    }
+
+    @Override
+    public String varString(String nm, String dft) {
         Object v = var(nm);
-        return null == v ? null : v.toString();
+        return null == v ? dft : v.toString();
     }
 
     @Override

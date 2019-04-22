@@ -18,7 +18,8 @@ public class WnObjCachedItem<T> {
     }
 
     public boolean isMatchFinger(WnObj o) {
-        return objFinger.equals(o.sha1());
+        String finger = Wn.getEtag(o);
+        return objFinger.equals(finger);
     }
 
     public void setObj(WnObj o) {

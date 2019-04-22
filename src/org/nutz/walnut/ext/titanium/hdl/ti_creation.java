@@ -12,9 +12,11 @@ import org.nutz.walnut.ext.titanium.creation.TiCreationOutput;
 import org.nutz.walnut.ext.titanium.creation.TiCreationService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
+@JvmHdlParamArgs("cqn")
 public class ti_creation implements JvmHdl {
 
     private static Log log = Logs.get();
@@ -56,23 +58,40 @@ public class ti_creation implements JvmHdl {
             sw.tagf("ok:(%s):oCreation", oCreation.path());
             creation = creations.getCreation(oCreation);
             if (null != creation) {
-                sw.tagf("ok:(%s):loaded::%s/%s", oCreation.path());
+                sw.tagf("ok:(%s):loaded", oCreation.path());
                 break;
             }
         }
-        sw.tag("prepare to output");
 
-        // 准备 lang
-        String lang = hc.params.get("lang", "zh-cn");
+        // 没有找到文件
+        if (null == creation) {
+            sw.tagf("fail:VIEW_PATH=%s", VIEW_PATH);
+            sw.stop();
+            sys.out.println("{}");
+        }
+        // 找到了，继续
+        else {
+            // 准备 lang
+            String lang = hc.params.get("lang", "zh-cn");
 
-        // 得到输出
-        TiCreationOutput tcout = creation.getOutput(o.type(), lang);
-        sw.tag("Got the outut");
+            // 得到输出
+            String type = "----no-type---";
+            // 指定了类型
+            if (o.hasType()) {
+                type = o.type();
+            }
+            // 默认目录用 folder
+            else if (o.isDIR()) {
+                type = "folder";
+            }
+            TiCreationOutput tcout = creation.getOutput(type, lang);
+            sw.tag("ok:creation.getOutput");
 
-        // 输出
-        String json = Json.toJson(tcout, hc.jfmt);
-        sys.out.println(json);
-        sw.tag("done for println");
+            // 输出
+            String json = Json.toJson(tcout, hc.jfmt);
+            sys.out.println(json);
+            sw.tag("ok:done for ti_creation");
+        }
         sw.stop();
         if (log.isDebugEnabled()) {
             log.debugf("ti_creation done: %s", sw.toString());

@@ -6,6 +6,8 @@ import java.util.List;
 
 public class TiCreationOutput {
 
+    private boolean freeCreate;
+
     private List<TiTypeInfo> types;
 
     public void asNone() {
@@ -14,6 +16,14 @@ public class TiCreationOutput {
 
     public void asList(int len) {
         this.types = new ArrayList<>(len);
+    }
+
+    public boolean isFreeCreate() {
+        return freeCreate;
+    }
+
+    public void setFreeCreate(boolean freeCreate) {
+        this.freeCreate = freeCreate;
     }
 
     public List<TiTypeInfo> getTypes() {

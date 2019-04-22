@@ -205,6 +205,7 @@ public class AppModule extends AbstractWnModule {
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
+        c.put("theme", se.varString("THEME", "light"));
 
         // 渲染视图
         String cnt = Tmpl.exec(tmpl, c);
