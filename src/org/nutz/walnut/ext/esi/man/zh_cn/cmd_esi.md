@@ -44,12 +44,17 @@
 =======
 
 ```
-esi root_init     # 初始化必要的钩子文件,仅root用户执行一次
-esi add           # 添加一条记录
+esi root_init     # 初始化必要的钩子文件,仅root用户执行一次,没有参数没有配置项
+esi mapping       # 更新索引配置, 新建或修改esi_conf后执行
 esi query         # 查询
+
+# 一般会使用钩子自动完成数据的增删改查, 但仍保留手工维护的命令
+esi delete        # 删除一条记录,
+esi add           # 添加/更新一条记录,注意, 添加和更新是不区分的
 esi drop          # 删除整个索引
-ftp mapping       # 更新索引配置
 ```
+
+
 
 ### 示例
 
