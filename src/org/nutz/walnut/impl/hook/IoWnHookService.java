@@ -9,6 +9,8 @@ import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.esi.ElasticsearchService;
+import org.nutz.walnut.ext.esi.EsiHook;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -16,6 +18,8 @@ import org.nutz.walnut.util.WnContext;
 public abstract class IoWnHookService implements WnHookService {
 
     protected WnIo io;
+    
+    protected ElasticsearchService esi;
 
     public IoWnHookService setIo(WnIo io) {
         this.io = io;
@@ -47,6 +51,12 @@ public abstract class IoWnHookService implements WnHookService {
             // js
             if (oHook.isType("js")) {
                 hook = new JsCommandHook();
+            }
+            // esi
+            else if (oHook.name().equals("esi")) {
+                if (!esi.isEnable())
+                    continue; // 没启用esi,就没必要加了
+                hook = new EsiHook(esi, oHook.parent().name());
             }
             // 模板
             else {

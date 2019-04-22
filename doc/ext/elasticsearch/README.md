@@ -16,6 +16,7 @@
 * 分布式: 支持集群,自动分片,手工分片
 * RESTful: 使用Http 协议通信, 基于路径参数和Json数据进行交互
 * 搜索和数据分析引擎: 支持全文索引,支持聚合操作(map-reduce)
+* 准实时: 数据并非马上可以查到, 可能会延迟1秒以上
 
 官网: https://www.elastic.co/cn/products/elasticsearch
 
