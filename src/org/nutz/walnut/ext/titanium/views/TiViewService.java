@@ -82,4 +82,36 @@ public class TiViewService {
         return view;
     }
 
+    public TiView getView(String viewName, String[] viewHomePaths) {
+        // 必须有视图名称
+        if (Strings.isBlank(viewName)) {
+            throw Er.create("e.ti.view.blankName");
+        }
+
+        // 确保是 JSON 文件
+        String fnm = viewName;
+        if (!fnm.endsWith(".json"))
+            fnm += ".json";
+
+        // 得到视图对象
+        WnObj oView = null;
+
+        // 如果在指定 viewHome 里找不到，在给定查找路径下再找一轮
+        if (null == oView) {
+            for (String viewHomePath : viewHomePaths) {
+                String viewPath = Wn.appendPath(viewHomePath, "views", fnm);
+                // 找一哈，看看有木有
+                oView = io.fetch(null, viewPath);
+                if (null != oView)
+                    break;
+            }
+        }
+
+        // 获取视图
+        TiView view = views.get(oView, o -> {
+            return io.readJson(o, TiView.class);
+        });
+        return view;
+    }
+
 }

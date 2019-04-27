@@ -35,11 +35,6 @@ public class ti_views implements JvmHdl {
         }
         sw.tag("ok:init-views");
 
-        // 获取要操作的对象
-        String aph = hc.params.val_check(0);
-        WnObj o = Wn.checkObj(sys, aph);
-        sw.tag("ok:checkObj");
-
         // 获取映射文件名
         String mappFileName = hc.params.get("m", "mapping.json");
 
@@ -50,19 +45,40 @@ public class ti_views implements JvmHdl {
         // 准备获取的视图
         TiView view = null;
 
-        // 读取映射文件
-        for (String viewHomePath : viewHomePaths) {
-            String phMapping = Wn.appendPath(viewHomePath, mappFileName);
-            String aphMapping = Wn.normalizeFullPath(phMapping, sys);
-            WnObj oMapping = sys.io.fetch(null, aphMapping);
-            if (null == oMapping)
-                continue;
-            sw.tagf("ok:(%s):oMapping", oMapping.path());
-            view = views.getView(oMapping, o, viewHomePaths);
-            if (null != view) {
-                sw.tagf("ok:(%s):view::%s/%s", viewHomePath, view.getComType(), view.getModType());
-                break;
+        // 直接指明编辑器
+        String viewName = hc.params.get("name");
+        if (!Strings.isBlank(viewName)) {
+            view = views.getView(viewName, viewHomePaths);
+        }
+
+        // 如果没有视图，继续尝试
+        if (null == view) {
+            // 获取要操作的对象
+            String aph = hc.params.val_check(0);
+            WnObj o = Wn.checkObj(sys, aph);
+            sw.tag("ok:checkObj");
+
+            // 读取映射文件
+            for (String viewHomePath : viewHomePaths) {
+                String phMapping = Wn.appendPath(viewHomePath, mappFileName);
+                String aphMapping = Wn.normalizeFullPath(phMapping, sys);
+                WnObj oMapping = sys.io.fetch(null, aphMapping);
+                if (null == oMapping)
+                    continue;
+                sw.tagf("ok:(%s):oMapping", oMapping.path());
+                view = views.getView(oMapping, o, viewHomePaths);
+                if (null != view) {
+                    sw.tagf("ok:(%s):view::%s/%s",
+                            viewHomePath,
+                            view.getComType(),
+                            view.getModType());
+                    break;
+                }
             }
+        }
+        // 找到了视图，打印一下
+        else {
+            sw.tagf("ok-viewName:(%s):view::%s/%s", viewName, view.getComType(), view.getModType());
         }
         sw.tag("prepare to output");
         // 输出
