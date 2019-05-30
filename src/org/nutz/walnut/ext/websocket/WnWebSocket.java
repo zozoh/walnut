@@ -29,7 +29,7 @@ import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
@@ -77,7 +77,7 @@ public class WnWebSocket extends Endpoint {
                 return;
             String user = map.getString("user");
             if (Strings.isBlank(user))
-                user = Wn.Ctx.get().SE().me();
+                user = "root";
 
             // 默认需要返回内容
             boolean doReturn = map.getBoolean("return", true);
@@ -112,6 +112,7 @@ public class WnWebSocket extends Endpoint {
                 }
                 break;
             case "resp":
+            {
                 String id = map.getString("id");
                 if (Strings.isBlank(id) || id.contains(".."))
                     break;
@@ -138,6 +139,44 @@ public class WnWebSocket extends Endpoint {
                 String cmd = tmpl.render(ctx);
                 wnRun.exec("websocket", ws_usr, cmd);
                 break;
+            }
+            case "cmd":
+            {
+                WnUsr usr = wnRun.usrs().fetch(user);
+                if (usr == null) {
+                    log.debugf("not such websocket user=%s", user);
+                    break;
+                }
+                String cmdpath = map.getString("cmd");
+                if (Strings.isBlank(cmdpath) || cmdpath.contains("..") || cmdpath.contains("/")) {
+                    log.debugf("invaild websocket cmd path user=%s cmd=%s", user, cmdpath);
+                    break;
+                }
+                WnObj wsroot = wnRun.io().fetch(null, usr.home() + "/.ws/cmd/");
+                if (wsroot == null) {
+                    log.debugf("not such websocket callback file user=%s cmd=%s", user, cmdpath);
+                    break;
+                }
+                
+                WnObj cfile = wnRun.io().fetch(wsroot, cmdpath);
+                if (cfile == null) {
+                    log.debugf("not such websocket callback file user=%s cmd=%s", user, cmdpath);
+                    break;
+                }
+                String callback = wnRun.io().readText(cfile);
+                if (Strings.isBlank(callback)) {
+                    log.debugf("websocket callback file is emtry user=%s cmd=%s", user, cmdpath);
+                    break;
+                }
+                Tmpl tmpl = Tmpl.parse(callback);
+                NutMap ctx = new NutMap();
+                ctx.put("ok", map.getBoolean("ok", false));
+                ctx.put("args", map.get("args"));
+                ctx.put("cfile", cfile);
+                String cmd = tmpl.render(ctx);
+                wnRun.exec("websocket", user, cmd);
+                break;
+            }
             default:
                 log.info("unknown method=" + methodName);
                 break;
