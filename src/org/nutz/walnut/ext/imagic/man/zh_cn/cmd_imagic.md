@@ -2,11 +2,11 @@
 
     `imagic` 命令用来管理一个图片
     
-主要用途:
+主要过滤器:
 1. 缩放--scale(float[,float]),scale(int[,int])
 2. 旋转--rotate(int{0~360})
 3. 裁剪--clip(int,int,int,int),clip(float,float,int,int)
-4. 镜像--flip(h),flip(v)
+4. 镜像--flip('h'),flip('v')
 5. 根据exif旋转--autoexif(false),autoexif(true)
 6. 缩放并填满--cover(int,int)
 7. 缩放并放入--contains(int,int)
@@ -14,14 +14,15 @@
 # 用法
 
 ```
-imagic [abc.jpg] [-filter 'scale(0.5) cover(1920,1080)'] [-qa 0.8] [-out out.jpg] [-thumb '...']
+imagic [abc.jpg] [-filter 'scale(0.5) cover(1920,1080)'] [-qa 0.8] [-out out.jpg] [-thumb '...'] [-thumbout ~/.xxx]
 ```
 
-* [abc.jpg] 原文件,如果没有,从流读取
+* abc.jpg 源文件,如果没有,从标准输入流读取
 * filter 过滤器及配置, 空格间隔
 * qa 输出品质,默认0.8
 * out 输出路径,不设置就是标准输出,设置为inplace就是原图替换
 * thumb 输出图片后,再额外生成缩略图
+* thumbout 的输出路径,可选
 
 # 示例
 
