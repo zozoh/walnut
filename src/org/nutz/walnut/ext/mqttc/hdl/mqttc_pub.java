@@ -16,7 +16,7 @@ public class mqttc_pub extends mqttc_xxx {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        MqttClient client = mqttService().get(sys.me.name(), hc.oRefer.name(), false);
+        MqttClient client = mqttService(hc.ioc).get(sys.me.name(), hc.oRefer.name(), false);
         String topic = hc.params.val_check(0);
         byte[] payload = null;
         if (hc.params.has("f")) {

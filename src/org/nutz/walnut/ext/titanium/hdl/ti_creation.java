@@ -30,7 +30,7 @@ public class ti_creation implements JvmHdl {
         if (null == creations) {
             synchronized (ti_views.class) {
                 if (null == creations) {
-                    creations = Mvcs.getIoc().get(TiCreationService.class);
+                    creations = hc.ioc.get(TiCreationService.class);
                 }
             }
         }

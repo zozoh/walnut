@@ -73,7 +73,7 @@ public class esi_query extends esi_xxx {
         // 开始请求, 同步模式
         SearchRequest searchRequest = new SearchRequest(sys.me.name() + "_" + conf.getName()); 
         searchRequest.source(searchSourceBuilder);
-        SearchResponse resp = esi().getClient().search(searchRequest).actionGet();
+        SearchResponse resp = esi(hc.ioc).getClient().search(searchRequest).actionGet();
         
         
         // 看看要输出什么

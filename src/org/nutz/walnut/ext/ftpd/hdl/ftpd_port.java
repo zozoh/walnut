@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.ftpd.hdl;
 
 import java.io.PrintStream;
 
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.ext.ftpd.WnFtpServer;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -11,7 +10,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class ftpd_port implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        WnFtpServer ftpd = Mvcs.getIoc().get(WnFtpServer.class);
+        WnFtpServer ftpd = hc.ioc.get(WnFtpServer.class);
         try {
             ftpd.setPort(Integer.parseInt(hc.params.val(0)));
             sys.out.print("ftp port set as " + ftpd.getPort());

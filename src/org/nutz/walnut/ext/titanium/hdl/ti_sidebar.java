@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.titanium.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.sidebar.TiSidebarInput;
@@ -26,7 +25,7 @@ public class ti_sidebar implements JvmHdl {
         if (null == sidebars) {
             synchronized (ti_sidebar.class) {
                 if (null == sidebars) {
-                    sidebars = Mvcs.getIoc().get(TiSidebarService.class);
+                    sidebars = hc.ioc.get(TiSidebarService.class);
                 }
             }
         }

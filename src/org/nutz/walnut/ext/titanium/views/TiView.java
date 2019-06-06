@@ -4,6 +4,8 @@ public class TiView {
 
     private String comIcon;
 
+    private String comName;
+
     private String comType;
 
     private String modType;
@@ -16,6 +18,14 @@ public class TiView {
 
     public void setComIcon(String comIcon) {
         this.comIcon = comIcon;
+    }
+
+    public String getComName() {
+        return comName;
+    }
+
+    public void setComName(String comName) {
+        this.comName = comName;
     }
 
     public String getComType() {

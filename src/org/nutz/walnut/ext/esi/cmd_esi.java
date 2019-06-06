@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
@@ -86,11 +87,18 @@ public class cmd_esi extends JvmHdlExecutor {
 
                     // WnObj 的集合
                     if (null == oFirst || oFirst instanceof WnObj) {
-                        Cmds.output_objs(sys, hc.params, hc.pager, (List<? extends WnObj>) hc.output, false);
+                        Cmds.output_objs(sys,
+                                         hc.params,
+                                         hc.pager,
+                                         (List<? extends WnObj>) hc.output,
+                                         false);
                     }
                     // WnBean 的集合
                     else if (oFirst instanceof NutBean) {
-                        Cmds.output_beans(sys, hc.params, hc.pager, (List<? extends NutBean>) hc.output);
+                        Cmds.output_beans(sys,
+                                          hc.params,
+                                          hc.pager,
+                                          (List<? extends NutBean>) hc.output);
                     }
                     // 其他集合只能简单的 toJson
                     else {
@@ -119,18 +127,18 @@ public class cmd_esi extends JvmHdlExecutor {
             }
         }
     }
-    
+
     protected ElasticsearchService _service;
-    
-    public ElasticsearchService esi() {
+
+    public ElasticsearchService esi(Ioc ioc) {
         if (_service == null)
-            _service = Mvcs.getIoc().get(ElasticsearchService.class);
+            _service = ioc.get(ElasticsearchService.class);
         return _service;
     }
-    
+
     public EsiConf conf(WnSystem sys, JvmHdlContext hc) {
         WnObj wobj = hc.oRefer;
-        EsiConf conf = esi().getEsiConf(wobj);
+        EsiConf conf = esi(hc.ioc).getEsiConf(wobj);
         return conf;
     }
 }
