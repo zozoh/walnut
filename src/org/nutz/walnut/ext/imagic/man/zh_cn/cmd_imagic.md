@@ -3,7 +3,7 @@
     `imagic` 命令用来管理一个图片
     
 主要过滤器:
-1. 缩放--scale(float[,float]),scale(int[,int])
+1. 等比缩放--scale(float[,float]),scale(int[,int])
 2. 旋转--rotate(int{0~360})
 3. 裁剪--clip(int,int,int,int),clip(float,float,int,int)
 4. 镜像--flip('h'),flip('v')
