@@ -1,12 +1,13 @@
 package org.nutz.walnut.ext.imagic;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.img.Images;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
@@ -53,14 +54,16 @@ public class cmd_imagic extends JvmExecutor {
         if (params.vals.length > 0) {
             String tmp = params.val(0);
             if (tmp.startsWith("http://") || tmp.startsWith("https://")) {
-                image = Images.read(new URL(tmp).openStream());
+                image = readStream(new URL(tmp).openStream());
             } else {
                 sourcePath = Wn.normalizeFullPath(tmp, sys);
                 WnObj wobj = sys.io.check(null, sourcePath);
-                image = sys.io.readImage(wobj);
+                try (InputStream ins = sys.io.getInputStream(wobj, 0)) {
+                    image = readStream(ins);
+                }
             }
         } else if (sys.pipeId > 0) {
-            image = Images.read(sys.in.getInputStream());
+            image = readStream(sys.in.getInputStream());
         } else {
             sys.err.print("e.cmd.imagic.need_image_path");
             return;
@@ -140,5 +143,9 @@ public class cmd_imagic extends JvmExecutor {
         finally {
             Streams.safeClose(outs);
         }
+    }
+    
+    protected BufferedImage readStream(InputStream ins) throws IOException {
+        return Thumbnails.of(ins).scale(1.0).asBufferedImage();
     }
 }
