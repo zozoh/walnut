@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.websocket.CloseReason;
@@ -16,10 +17,13 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.nutz.el.El;
+import org.nutz.el.opt.RunMethod;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
@@ -168,12 +172,11 @@ public class WnWebSocket extends Endpoint {
                     log.debugf("websocket callback file is emtry user=%s cmd=%s", user, cmdpath);
                     break;
                 }
-                Tmpl tmpl = Tmpl.parse(callback);
                 NutMap ctx = new NutMap();
                 ctx.put("ok", map.getBoolean("ok", false));
                 ctx.put("args", map.get("args"));
                 ctx.put("cfile", cfile);
-                String cmd = tmpl.render(ctx);
+                String cmd = El.render(callback, Lang.context(ctx));
                 wnRun.exec("websocket", user, cmd);
                 break;
             }
@@ -209,5 +212,13 @@ public class WnWebSocket extends Endpoint {
 
     public void init() {
         root = wnRun.io().createIfNoExists(null, "/sys/ws", WnRace.DIR);
+        El.register("tojson", new RunMethod() {
+            public Object run(List<Object> fetchParam) {
+                return Json.toJson(fetchParam.get(0), JsonFormat.compact());
+            }
+            public String fetchSelf() {
+                return "tojson";
+            }
+        });
     }
 }
