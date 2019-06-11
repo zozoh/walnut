@@ -13,7 +13,7 @@ public class esi_drop extends esi_xxx {
             sys.err.print("e.cmd.esi.mapping.miss_esi_conf");
             return;
         }
-        esi().drop(sys.me.name(), conf);
+        esi(hc.ioc).drop(sys.me.name(), conf);
     }
 
 }

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.esi.hdl;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.ext.esi.ElasticsearchService;
 import org.nutz.walnut.ext.esi.EsiConf;
@@ -11,9 +12,9 @@ public abstract class esi_xxx implements JvmHdl {
 
     protected ElasticsearchService _service;
     
-    public ElasticsearchService esi() {
+    public ElasticsearchService esi(Ioc ioc) {
         if (_service == null)
-            _service = Mvcs.getIoc().get(ElasticsearchService.class);
+            _service = ioc.get(ElasticsearchService.class);
         return _service;
     }
     

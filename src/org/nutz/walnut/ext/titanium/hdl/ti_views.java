@@ -5,7 +5,6 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.views.TiView;
 import org.nutz.walnut.ext.titanium.views.TiViewService;
@@ -29,7 +28,7 @@ public class ti_views implements JvmHdl {
         if (null == views) {
             synchronized (ti_views.class) {
                 if (null == views) {
-                    views = Mvcs.getIoc().get(TiViewService.class);
+                    views = hc.ioc.get(TiViewService.class);
                 }
             }
         }

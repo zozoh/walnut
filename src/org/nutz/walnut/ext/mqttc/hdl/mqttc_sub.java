@@ -18,7 +18,7 @@ public class mqttc_sub extends mqttc_xxx {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        MqttClient client = mqttService().get(sys.me.name(), hc.oRefer.name(), false);
+        MqttClient client = mqttService(hc.ioc).get(sys.me.name(), hc.oRefer.name(), false);
         String topic = hc.params.val_check(0);
         String handler = hc.params.val_check(1);
         String message_path = "/home/" + sys.me.name() + "/.mqttc/" + hc.oRefer.name() + "/message/";
