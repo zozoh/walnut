@@ -114,6 +114,7 @@ dependencies {
 	// ES
 	compile group: 'org.elasticsearch.client', name : 'transport', version: '6.3.2'
 	compile group: 'org.apache.logging.log4j', name : 'log4j-core', version: '2.9.1'
+	compile ('net.coobird:thumbnailator:0.4.8')
 }
 
 buildscript {
