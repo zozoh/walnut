@@ -352,12 +352,14 @@ public abstract class Cmds {
             NutMap re = new NutMap();
             re.setv("list", outs);
             re.setv("pager",
-                    Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d",
+                    Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
                               wp.pn,
                               wp.pgsz,
                               wp.sum_page,
                               wp.sum_count,
                               wp.skip,
+                              outs.size(),
+                              wp.sum_page,
                               outs.size()));
             json = Json.toJson(re, fmt);
         }
