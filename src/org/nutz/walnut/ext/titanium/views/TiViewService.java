@@ -41,6 +41,9 @@ public class TiViewService {
         // 获取视图名称
         String viewName = mapping.match(o);
 
+        if (Strings.isBlank(viewName))
+            return null;
+
         // 得到视图
         WnObj oViewHome = oMapping.parent();
         return this.getView(oViewHome, viewName, viewHomePaths);

@@ -315,19 +315,11 @@
         	<artifactId>log4j-core</artifactId>
         	<version>2.9.1</version>
         </dependency>
-<<<<<<< HEAD
-		<dependency>
-			<groupId>net.coobird</groupId>
-			<artifactId>thumbnailator</artifactId>
-			<version>0.4.8</version>
-		</dependency>
-=======
         <dependency>
         	<groupId>net.coobird</groupId>
         	<artifactId>thumbnailator</artifactId>
         	<version>0.4.8</version>
         </dependency>
->>>>>>> 705cf0f628b1abeea1b8dff13ee9ccd8b7a557f9
 	</dependencies>
 
 	<build>

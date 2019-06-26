@@ -627,7 +627,7 @@ public class WWWModule extends AbstractWnModule {
                 // 更新一下本用户
                 io.appendMeta(oU, meta);
 
-                // 删除一下微信用户
+                // 删除一下微信用户（因为没用了，硬删除就好了）
                 accS.deleteThing(true, oU2.id());
             }
 
