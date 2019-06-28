@@ -18,7 +18,7 @@
     - 定位器设备               # 一个thing_set
         - data
             - 862285033462874 # 设备对象
-                - tracemsg    # 跟踪信息,也是一个thing_set
+                - track       # 跟踪信息
                     - xxx...yyy # 跟踪记录
     - .mqttc                  # MQTT客户端配置目录
         - mqttwk              # MQTT服务器名称
