@@ -17,7 +17,7 @@
 imagic [abc.jpg] [-filter 'scale(0.5) cover(1920,1080)'] [-qa 0.8] [-out out.jpg] [-thumb '...'] [-thumbout ~/.xxx]
 ```
 
-* abc.jpg 源文件,如果没有,从标准输入流读取
+* abc.jpg 源文件,如果没有,从标准输入流读取. 如果是http://或者https://开头,则作为URL读取
 * filter 过滤器及配置, 空格间隔
 * qa 输出品质,默认0.8
 * out 输出路径,不设置就是标准输出,设置为inplace就是原图替换
