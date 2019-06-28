@@ -3,60 +3,75 @@
 
 package org.nutz.walnut.ext.gpstracker;
 
-@SuppressWarnings("unused")
 public final class Tracker {
   private Tracker() {}
   public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
+  }
+
+  public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   /**
-   * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.RequestCommand}
-   *
    * <pre>
    * 服务器端发起的请求
    * </pre>
+   *
+   * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.RequestCommand}
    */
   public enum RequestCommand
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
-     * <code>REMOTE_WAKEN = 1;</code>
-     *
      * <pre>
      * GPS手动唤醒1次
      * </pre>
-     */
-    REMOTE_WAKEN(0, 1),
-    /**
-     * <code>UPDATE_SCRIPT = 2;</code>
      *
+     * <code>REMOTE_WAKEN = 1;</code>
+     */
+    REMOTE_WAKEN(1),
+    /**
      * <pre>
      * 更新程序
      * </pre>
+     *
+     * <code>UPDATE_SCRIPT = 2;</code>
      */
-    UPDATE_SCRIPT(1, 2),
+    UPDATE_SCRIPT(2),
     ;
 
     /**
-     * <code>REMOTE_WAKEN = 1;</code>
-     *
      * <pre>
      * GPS手动唤醒1次
      * </pre>
+     *
+     * <code>REMOTE_WAKEN = 1;</code>
      */
     public static final int REMOTE_WAKEN_VALUE = 1;
     /**
-     * <code>UPDATE_SCRIPT = 2;</code>
-     *
      * <pre>
      * 更新程序
      * </pre>
+     *
+     * <code>UPDATE_SCRIPT = 2;</code>
      */
     public static final int UPDATE_SCRIPT_VALUE = 2;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
+    /**
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
     public static RequestCommand valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static RequestCommand forNumber(int value) {
       switch (value) {
         case 1: return REMOTE_WAKEN;
         case 2: return UPDATE_SCRIPT;
@@ -68,17 +83,17 @@ public final class Tracker {
         internalGetValueMap() {
       return internalValueMap;
     }
-    private static com.google.protobuf.Internal.EnumLiteMap<RequestCommand>
-        internalValueMap =
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        RequestCommand> internalValueMap =
           new com.google.protobuf.Internal.EnumLiteMap<RequestCommand>() {
             public RequestCommand findValueByNumber(int number) {
-              return RequestCommand.valueOf(number);
+              return RequestCommand.forNumber(number);
             }
           };
 
     public final com.google.protobuf.Descriptors.EnumValueDescriptor
         getValueDescriptor() {
-      return getDescriptor().getValues().get(index);
+      return getDescriptor().getValues().get(ordinal());
     }
     public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
@@ -100,11 +115,9 @@ public final class Tracker {
       return VALUES[desc.getIndex()];
     }
 
-    private final int index;
     private final int value;
 
-    private RequestCommand(int index, int value) {
-      this.index = index;
+    private RequestCommand(int value) {
       this.value = value;
     }
 
@@ -116,73 +129,74 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 sensitive = 1;</code>
-     *
      * <pre>
      * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
      * </pre>
+     *
+     * <code>optional int32 sensitive = 1;</code>
      */
     boolean hasSensitive();
     /**
-     * <code>optional int32 sensitive = 1;</code>
-     *
      * <pre>
      * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
      * </pre>
+     *
+     * <code>optional int32 sensitive = 1;</code>
      */
     int getSensitive();
 
     /**
-     * <code>optional int32 trackMode = 2;</code>
-     *
      * <pre>
      * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
      * </pre>
+     *
+     * <code>optional int32 trackMode = 2;</code>
      */
     boolean hasTrackMode();
     /**
-     * <code>optional int32 trackMode = 2;</code>
-     *
      * <pre>
      * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
      * </pre>
+     *
+     * <code>optional int32 trackMode = 2;</code>
      */
     int getTrackMode();
   }
   /**
    * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceParam}
    */
-  public static final class DeviceParam extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class DeviceParam extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceParam)
       DeviceParamOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use DeviceParam.newBuilder() to construct.
-    private DeviceParam(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private DeviceParam(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DeviceParam(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DeviceParam defaultInstance;
-    public static DeviceParam getDefaultInstance() {
-      return defaultInstance;
+    private DeviceParam() {
     }
 
-    public DeviceParam getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DeviceParam();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private DeviceParam(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -194,13 +208,6 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               bitField0_ |= 0x00000001;
               sensitive_ = input.readInt32();
@@ -211,13 +218,20 @@ public final class Tracker {
               trackMode_ = input.readInt32();
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -228,47 +242,33 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DeviceParam> PARSER =
-        new com.google.protobuf.AbstractParser<DeviceParam>() {
-      public DeviceParam parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeviceParam(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeviceParam> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int SENSITIVE_FIELD_NUMBER = 1;
     private int sensitive_;
     /**
-     * <code>optional int32 sensitive = 1;</code>
-     *
      * <pre>
      * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
      * </pre>
+     *
+     * <code>optional int32 sensitive = 1;</code>
      */
     public boolean hasSensitive() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>optional int32 sensitive = 1;</code>
-     *
      * <pre>
      * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
      * </pre>
+     *
+     * <code>optional int32 sensitive = 1;</code>
      */
     public int getSensitive() {
       return sensitive_;
@@ -277,31 +277,28 @@ public final class Tracker {
     public static final int TRACKMODE_FIELD_NUMBER = 2;
     private int trackMode_;
     /**
-     * <code>optional int32 trackMode = 2;</code>
-     *
      * <pre>
      * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
      * </pre>
+     *
+     * <code>optional int32 trackMode = 2;</code>
      */
     public boolean hasTrackMode() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional int32 trackMode = 2;</code>
-     *
      * <pre>
      * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
      * </pre>
+     *
+     * <code>optional int32 trackMode = 2;</code>
      */
     public int getTrackMode() {
       return trackMode_;
     }
 
-    private void initFields() {
-      sensitive_ = 0;
-      trackMode_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -311,44 +308,92 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeInt32(1, sensitive_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeInt32(2, trackMode_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, sensitive_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, trackMode_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam other = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam) obj;
+
+      if (hasSensitive() != other.hasSensitive()) return false;
+      if (hasSensitive()) {
+        if (getSensitive()
+            != other.getSensitive()) return false;
+      }
+      if (hasTrackMode() != other.hasTrackMode()) return false;
+      if (hasTrackMode()) {
+        if (getTrackMode()
+            != other.getTrackMode()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasSensitive()) {
+        hash = (37 * hash) + SENSITIVE_FIELD_NUMBER;
+        hash = (53 * hash) + getSensitive();
+      }
+      if (hasTrackMode()) {
+        hash = (37 * hash) + TRACKMODE_FIELD_NUMBER;
+        hash = (53 * hash) + getTrackMode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -372,46 +417,59 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -419,7 +477,7 @@ public final class Tracker {
      * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceParam}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceParam)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -427,7 +485,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -440,18 +499,16 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         sensitive_ = 0;
@@ -461,19 +518,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam build() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam result = buildPartial();
         if (!result.isInitialized()) {
@@ -482,23 +538,57 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam result = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.sensitive_ = sensitive_;
           to_bitField0_ |= 0x00000001;
         }
-        result.sensitive_ = sensitive_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.trackMode_ = trackMode_;
           to_bitField0_ |= 0x00000002;
         }
-        result.trackMode_ = trackMode_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam)other);
@@ -516,14 +606,17 @@ public final class Tracker {
         if (other.hasTrackMode()) {
           setTrackMode(other.getTrackMode());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -533,7 +626,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -545,31 +638,31 @@ public final class Tracker {
 
       private int sensitive_ ;
       /**
-       * <code>optional int32 sensitive = 1;</code>
-       *
        * <pre>
        * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
        * </pre>
+       *
+       * <code>optional int32 sensitive = 1;</code>
        */
       public boolean hasSensitive() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>optional int32 sensitive = 1;</code>
-       *
        * <pre>
        * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
        * </pre>
+       *
+       * <code>optional int32 sensitive = 1;</code>
        */
       public int getSensitive() {
         return sensitive_;
       }
       /**
-       * <code>optional int32 sensitive = 1;</code>
-       *
        * <pre>
        * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
        * </pre>
+       *
+       * <code>optional int32 sensitive = 1;</code>
        */
       public Builder setSensitive(int value) {
         bitField0_ |= 0x00000001;
@@ -578,11 +671,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 sensitive = 1;</code>
-       *
        * <pre>
        * 震动传感器灵敏度 1-10 窗口灵敏度线性调整
        * </pre>
+       *
+       * <code>optional int32 sensitive = 1;</code>
        */
       public Builder clearSensitive() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -593,31 +686,31 @@ public final class Tracker {
 
       private int trackMode_ ;
       /**
-       * <code>optional int32 trackMode = 2;</code>
-       *
        * <pre>
        * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
        * </pre>
+       *
+       * <code>optional int32 trackMode = 2;</code>
        */
       public boolean hasTrackMode() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional int32 trackMode = 2;</code>
-       *
        * <pre>
        * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
        * </pre>
+       *
+       * <code>optional int32 trackMode = 2;</code>
        */
       public int getTrackMode() {
         return trackMode_;
       }
       /**
-       * <code>optional int32 trackMode = 2;</code>
-       *
        * <pre>
        * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
        * </pre>
+       *
+       * <code>optional int32 trackMode = 2;</code>
        */
       public Builder setTrackMode(int value) {
         bitField0_ |= 0x00000002;
@@ -626,11 +719,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 trackMode = 2;</code>
-       *
        * <pre>
        * 轨迹模式 1 为精细轨迹,0为自动轨迹(节省流量)
        * </pre>
+       *
+       * <code>optional int32 trackMode = 2;</code>
        */
       public Builder clearTrackMode() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -638,16 +731,57 @@ public final class Tracker {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceParam)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceParam)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DeviceParam(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceParam)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<DeviceParam>
+        PARSER = new com.google.protobuf.AbstractParser<DeviceParam>() {
+      @java.lang.Override
+      public DeviceParam parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DeviceParam(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DeviceParam> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DeviceParam> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DeviceLoginOrBuilder extends
@@ -655,164 +789,169 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     boolean hasSwVersion();
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     java.lang.String getSwVersion();
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     com.google.protobuf.ByteString
         getSwVersionBytes();
 
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     boolean hasImei();
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     java.lang.String getImei();
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     com.google.protobuf.ByteString
         getImeiBytes();
 
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     boolean hasIccid();
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     java.lang.String getIccid();
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     com.google.protobuf.ByteString
         getIccidBytes();
 
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     boolean hasDeviceModel();
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     java.lang.String getDeviceModel();
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     com.google.protobuf.ByteString
         getDeviceModelBytes();
 
     /**
-     * <code>required int32 param_version = 5;</code>
-     *
      * <pre>
      * 参数版本号
      * </pre>
+     *
+     * <code>required int32 param_version = 5;</code>
      */
     boolean hasParamVersion();
     /**
-     * <code>required int32 param_version = 5;</code>
-     *
      * <pre>
      * 参数版本号
      * </pre>
+     *
+     * <code>required int32 param_version = 5;</code>
      */
     int getParamVersion();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
-   *
    * <pre>
    *登录消息
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
    */
-  public static final class DeviceLogin extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class DeviceLogin extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceLogin)
       DeviceLoginOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use DeviceLogin.newBuilder() to construct.
-    private DeviceLogin(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private DeviceLogin(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DeviceLogin(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DeviceLogin defaultInstance;
-    public static DeviceLogin getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public DeviceLogin getDefaultInstanceForType() {
-      return defaultInstance;
+    private DeviceLogin() {
+      swVersion_ = "";
+      imei_ = "";
+      iccid_ = "";
+      deviceModel_ = "";
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DeviceLogin();
+    }
+
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private DeviceLogin(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -824,13 +963,6 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
@@ -860,13 +992,20 @@ public final class Tracker {
               paramVersion_ = input.readInt32();
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -877,47 +1016,33 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DeviceLogin> PARSER =
-        new com.google.protobuf.AbstractParser<DeviceLogin>() {
-      public DeviceLogin parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeviceLogin(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeviceLogin> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int SW_VERSION_FIELD_NUMBER = 1;
-    private java.lang.Object swVersion_;
+    private volatile java.lang.Object swVersion_;
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     public boolean hasSwVersion() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     public java.lang.String getSwVersion() {
       java.lang.Object ref = swVersion_;
@@ -934,11 +1059,11 @@ public final class Tracker {
       }
     }
     /**
-     * <code>required string sw_version = 1;</code>
-     *
      * <pre>
      *软件版本号，格式为PROJECT_VERSION_LOD版本号
      * </pre>
+     *
+     * <code>required string sw_version = 1;</code>
      */
     public com.google.protobuf.ByteString
         getSwVersionBytes() {
@@ -955,23 +1080,23 @@ public final class Tracker {
     }
 
     public static final int IMEI_FIELD_NUMBER = 2;
-    private java.lang.Object imei_;
+    private volatile java.lang.Object imei_;
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     public boolean hasImei() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     public java.lang.String getImei() {
       java.lang.Object ref = imei_;
@@ -988,11 +1113,11 @@ public final class Tracker {
       }
     }
     /**
-     * <code>required string imei = 2;</code>
-     *
      * <pre>
      *设备IMEI
      * </pre>
+     *
+     * <code>required string imei = 2;</code>
      */
     public com.google.protobuf.ByteString
         getImeiBytes() {
@@ -1009,23 +1134,23 @@ public final class Tracker {
     }
 
     public static final int ICCID_FIELD_NUMBER = 3;
-    private java.lang.Object iccid_;
+    private volatile java.lang.Object iccid_;
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     public boolean hasIccid() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     public java.lang.String getIccid() {
       java.lang.Object ref = iccid_;
@@ -1042,11 +1167,11 @@ public final class Tracker {
       }
     }
     /**
-     * <code>required string iccid = 3;</code>
-     *
      * <pre>
      * SIM卡ICCID
      * </pre>
+     *
+     * <code>required string iccid = 3;</code>
      */
     public com.google.protobuf.ByteString
         getIccidBytes() {
@@ -1063,23 +1188,23 @@ public final class Tracker {
     }
 
     public static final int DEVICE_MODEL_FIELD_NUMBER = 4;
-    private java.lang.Object deviceModel_;
+    private volatile java.lang.Object deviceModel_;
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     public boolean hasDeviceModel() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     public java.lang.String getDeviceModel() {
       java.lang.Object ref = deviceModel_;
@@ -1096,11 +1221,11 @@ public final class Tracker {
       }
     }
     /**
-     * <code>required string device_model = 4;</code>
-     *
      * <pre>
      * 设备型号
      * </pre>
+     *
+     * <code>required string device_model = 4;</code>
      */
     public com.google.protobuf.ByteString
         getDeviceModelBytes() {
@@ -1119,34 +1244,28 @@ public final class Tracker {
     public static final int PARAM_VERSION_FIELD_NUMBER = 5;
     private int paramVersion_;
     /**
-     * <code>required int32 param_version = 5;</code>
-     *
      * <pre>
      * 参数版本号
      * </pre>
+     *
+     * <code>required int32 param_version = 5;</code>
      */
     public boolean hasParamVersion() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
-     * <code>required int32 param_version = 5;</code>
-     *
      * <pre>
      * 参数版本号
      * </pre>
+     *
+     * <code>required int32 param_version = 5;</code>
      */
     public int getParamVersion() {
       return paramVersion_;
     }
 
-    private void initFields() {
-      swVersion_ = "";
-      imei_ = "";
-      iccid_ = "";
-      deviceModel_ = "";
-      paramVersion_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -1176,65 +1295,136 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getSwVersionBytes());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, swVersion_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getImeiBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, imei_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getIccidBytes());
+      if (((bitField0_ & 0x00000004) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, iccid_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, getDeviceModelBytes());
+      if (((bitField0_ & 0x00000008) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, deviceModel_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         output.writeInt32(5, paramVersion_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getSwVersionBytes());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, swVersion_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getImeiBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, imei_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getIccidBytes());
+      if (((bitField0_ & 0x00000004) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, iccid_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, getDeviceModelBytes());
+      if (((bitField0_ & 0x00000008) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, deviceModel_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, paramVersion_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin other = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin) obj;
+
+      if (hasSwVersion() != other.hasSwVersion()) return false;
+      if (hasSwVersion()) {
+        if (!getSwVersion()
+            .equals(other.getSwVersion())) return false;
+      }
+      if (hasImei() != other.hasImei()) return false;
+      if (hasImei()) {
+        if (!getImei()
+            .equals(other.getImei())) return false;
+      }
+      if (hasIccid() != other.hasIccid()) return false;
+      if (hasIccid()) {
+        if (!getIccid()
+            .equals(other.getIccid())) return false;
+      }
+      if (hasDeviceModel() != other.hasDeviceModel()) return false;
+      if (hasDeviceModel()) {
+        if (!getDeviceModel()
+            .equals(other.getDeviceModel())) return false;
+      }
+      if (hasParamVersion() != other.hasParamVersion()) return false;
+      if (hasParamVersion()) {
+        if (getParamVersion()
+            != other.getParamVersion()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasSwVersion()) {
+        hash = (37 * hash) + SW_VERSION_FIELD_NUMBER;
+        hash = (53 * hash) + getSwVersion().hashCode();
+      }
+      if (hasImei()) {
+        hash = (37 * hash) + IMEI_FIELD_NUMBER;
+        hash = (53 * hash) + getImei().hashCode();
+      }
+      if (hasIccid()) {
+        hash = (37 * hash) + ICCID_FIELD_NUMBER;
+        hash = (53 * hash) + getIccid().hashCode();
+      }
+      if (hasDeviceModel()) {
+        hash = (37 * hash) + DEVICE_MODEL_FIELD_NUMBER;
+        hash = (53 * hash) + getDeviceModel().hashCode();
+      }
+      if (hasParamVersion()) {
+        hash = (37 * hash) + PARAM_VERSION_FIELD_NUMBER;
+        hash = (53 * hash) + getParamVersion();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1258,58 +1448,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceLogin)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -1317,7 +1520,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -1330,18 +1534,16 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         swVersion_ = "";
@@ -1357,19 +1559,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin build() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin result = buildPartial();
         if (!result.isInitialized()) {
@@ -1378,35 +1579,69 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin result = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.swVersion_ = swVersion_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           to_bitField0_ |= 0x00000002;
         }
         result.imei_ = imei_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
           to_bitField0_ |= 0x00000004;
         }
         result.iccid_ = iccid_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
           to_bitField0_ |= 0x00000008;
         }
         result.deviceModel_ = deviceModel_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.paramVersion_ = paramVersion_;
           to_bitField0_ |= 0x00000010;
         }
-        result.paramVersion_ = paramVersion_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin)other);
@@ -1441,34 +1676,32 @@ public final class Tracker {
         if (other.hasParamVersion()) {
           setParamVersion(other.getParamVersion());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasSwVersion()) {
-          
           return false;
         }
         if (!hasImei()) {
-          
           return false;
         }
         if (!hasIccid()) {
-          
           return false;
         }
         if (!hasDeviceModel()) {
-          
           return false;
         }
         if (!hasParamVersion()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1478,7 +1711,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -1490,21 +1723,21 @@ public final class Tracker {
 
       private java.lang.Object swVersion_ = "";
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public boolean hasSwVersion() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public java.lang.String getSwVersion() {
         java.lang.Object ref = swVersion_;
@@ -1521,11 +1754,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public com.google.protobuf.ByteString
           getSwVersionBytes() {
@@ -1541,11 +1774,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public Builder setSwVersion(
           java.lang.String value) {
@@ -1558,11 +1791,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public Builder clearSwVersion() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -1571,11 +1804,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string sw_version = 1;</code>
-       *
        * <pre>
        *软件版本号，格式为PROJECT_VERSION_LOD版本号
        * </pre>
+       *
+       * <code>required string sw_version = 1;</code>
        */
       public Builder setSwVersionBytes(
           com.google.protobuf.ByteString value) {
@@ -1590,21 +1823,21 @@ public final class Tracker {
 
       private java.lang.Object imei_ = "";
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public boolean hasImei() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public java.lang.String getImei() {
         java.lang.Object ref = imei_;
@@ -1621,11 +1854,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public com.google.protobuf.ByteString
           getImeiBytes() {
@@ -1641,11 +1874,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public Builder setImei(
           java.lang.String value) {
@@ -1658,11 +1891,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public Builder clearImei() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -1671,11 +1904,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string imei = 2;</code>
-       *
        * <pre>
        *设备IMEI
        * </pre>
+       *
+       * <code>required string imei = 2;</code>
        */
       public Builder setImeiBytes(
           com.google.protobuf.ByteString value) {
@@ -1690,21 +1923,21 @@ public final class Tracker {
 
       private java.lang.Object iccid_ = "";
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public boolean hasIccid() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public java.lang.String getIccid() {
         java.lang.Object ref = iccid_;
@@ -1721,11 +1954,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public com.google.protobuf.ByteString
           getIccidBytes() {
@@ -1741,11 +1974,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public Builder setIccid(
           java.lang.String value) {
@@ -1758,11 +1991,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public Builder clearIccid() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -1771,11 +2004,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string iccid = 3;</code>
-       *
        * <pre>
        * SIM卡ICCID
        * </pre>
+       *
+       * <code>required string iccid = 3;</code>
        */
       public Builder setIccidBytes(
           com.google.protobuf.ByteString value) {
@@ -1790,21 +2023,21 @@ public final class Tracker {
 
       private java.lang.Object deviceModel_ = "";
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public boolean hasDeviceModel() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public java.lang.String getDeviceModel() {
         java.lang.Object ref = deviceModel_;
@@ -1821,11 +2054,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public com.google.protobuf.ByteString
           getDeviceModelBytes() {
@@ -1841,11 +2074,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public Builder setDeviceModel(
           java.lang.String value) {
@@ -1858,11 +2091,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public Builder clearDeviceModel() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -1871,11 +2104,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required string device_model = 4;</code>
-       *
        * <pre>
        * 设备型号
        * </pre>
+       *
+       * <code>required string device_model = 4;</code>
        */
       public Builder setDeviceModelBytes(
           com.google.protobuf.ByteString value) {
@@ -1890,31 +2123,31 @@ public final class Tracker {
 
       private int paramVersion_ ;
       /**
-       * <code>required int32 param_version = 5;</code>
-       *
        * <pre>
        * 参数版本号
        * </pre>
+       *
+       * <code>required int32 param_version = 5;</code>
        */
       public boolean hasParamVersion() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000010) != 0);
       }
       /**
-       * <code>required int32 param_version = 5;</code>
-       *
        * <pre>
        * 参数版本号
        * </pre>
+       *
+       * <code>required int32 param_version = 5;</code>
        */
       public int getParamVersion() {
         return paramVersion_;
       }
       /**
-       * <code>required int32 param_version = 5;</code>
-       *
        * <pre>
        * 参数版本号
        * </pre>
+       *
+       * <code>required int32 param_version = 5;</code>
        */
       public Builder setParamVersion(int value) {
         bitField0_ |= 0x00000010;
@@ -1923,11 +2156,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required int32 param_version = 5;</code>
-       *
        * <pre>
        * 参数版本号
        * </pre>
+       *
+       * <code>required int32 param_version = 5;</code>
        */
       public Builder clearParamVersion() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -1935,16 +2168,57 @@ public final class Tracker {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceLogin)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DeviceLogin(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<DeviceLogin>
+        PARSER = new com.google.protobuf.AbstractParser<DeviceLogin>() {
+      @java.lang.Override
+      public DeviceLogin parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DeviceLogin(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DeviceLogin> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DeviceLogin> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface SateStatusOrBuilder extends
@@ -1952,130 +2226,133 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 sateNum = 1;</code>
-     *
      * <pre>
      * 卫星数量
      * </pre>
+     *
+     * <code>optional int32 sateNum = 1;</code>
      */
     boolean hasSateNum();
     /**
-     * <code>optional int32 sateNum = 1;</code>
-     *
      * <pre>
      * 卫星数量
      * </pre>
+     *
+     * <code>optional int32 sateNum = 1;</code>
      */
     int getSateNum();
 
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     boolean hasSateType();
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     java.lang.String getSateType();
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     com.google.protobuf.ByteString
         getSateTypeBytes();
 
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> 
         getStaeItemsList();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index);
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     int getStaeItemsCount();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
         getStaeItemsOrBuilderList();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
-   *
    * <pre>
    * 设备卫星详细信息
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
    */
-  public static final class SateStatus extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class SateStatus extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.SateStatus)
       SateStatusOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use SateStatus.newBuilder() to construct.
-    private SateStatus(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private SateStatus(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private SateStatus(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final SateStatus defaultInstance;
-    public static SateStatus getDefaultInstance() {
-      return defaultInstance;
+    private SateStatus() {
+      sateType_ = "";
+      staeItems_ = java.util.Collections.emptyList();
     }
 
-    public SateStatus getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new SateStatus();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private SateStatus(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2087,13 +2364,6 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               bitField0_ |= 0x00000001;
               sateNum_ = input.readInt32();
@@ -2106,11 +2376,19 @@ public final class Tracker {
               break;
             }
             case 26: {
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+              if (!((mutable_bitField0_ & 0x00000004) != 0)) {
                 staeItems_ = new java.util.ArrayList<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage>();
                 mutable_bitField0_ |= 0x00000004;
               }
-              staeItems_.add(input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.PARSER, extensionRegistry));
+              staeItems_.add(
+                  input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.PARSER, extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -2119,9 +2397,9 @@ public final class Tracker {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((mutable_bitField0_ & 0x00000004) != 0)) {
           staeItems_ = java.util.Collections.unmodifiableList(staeItems_);
         }
         this.unknownFields = unknownFields.build();
@@ -2133,26 +2411,12 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<SateStatus> PARSER =
-        new com.google.protobuf.AbstractParser<SateStatus>() {
-      public SateStatus parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new SateStatus(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<SateStatus> getParserForType() {
-      return PARSER;
     }
 
     public interface sateMessageOrBuilder extends
@@ -2160,107 +2424,108 @@ public final class Tracker {
         com.google.protobuf.MessageOrBuilder {
 
       /**
-       * <code>optional int32 id = 1;</code>
-       *
        * <pre>
        * 卫星编号
        * </pre>
+       *
+       * <code>optional int32 id = 1;</code>
        */
       boolean hasId();
       /**
-       * <code>optional int32 id = 1;</code>
-       *
        * <pre>
        * 卫星编号
        * </pre>
+       *
+       * <code>optional int32 id = 1;</code>
        */
       int getId();
 
       /**
-       * <code>optional int32 elevation = 2;</code>
-       *
        * <pre>
        * 仰角
        * </pre>
+       *
+       * <code>optional int32 elevation = 2;</code>
        */
       boolean hasElevation();
       /**
-       * <code>optional int32 elevation = 2;</code>
-       *
        * <pre>
        * 仰角
        * </pre>
+       *
+       * <code>optional int32 elevation = 2;</code>
        */
       int getElevation();
 
       /**
-       * <code>optional int32 azimuth = 3;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 3;</code>
        */
       boolean hasAzimuth();
       /**
-       * <code>optional int32 azimuth = 3;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 3;</code>
        */
       int getAzimuth();
 
       /**
-       * <code>optional int32 cno = 4;</code>
-       *
        * <pre>
        * 载噪比
        * </pre>
+       *
+       * <code>optional int32 cno = 4;</code>
        */
       boolean hasCno();
       /**
-       * <code>optional int32 cno = 4;</code>
-       *
        * <pre>
        * 载噪比
        * </pre>
+       *
+       * <code>optional int32 cno = 4;</code>
        */
       int getCno();
     }
     /**
      * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage}
      */
-    public static final class sateMessage extends
-        com.google.protobuf.GeneratedMessage implements
+    public  static final class sateMessage extends
+        com.google.protobuf.GeneratedMessageV3 implements
         // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
         sateMessageOrBuilder {
+    private static final long serialVersionUID = 0L;
       // Use sateMessage.newBuilder() to construct.
-      private sateMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private sateMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private sateMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final sateMessage defaultInstance;
-      public static sateMessage getDefaultInstance() {
-        return defaultInstance;
+      private sateMessage() {
       }
 
-      public sateMessage getDefaultInstanceForType() {
-        return defaultInstance;
+      @java.lang.Override
+      @SuppressWarnings({"unused"})
+      protected java.lang.Object newInstance(
+          UnusedPrivateParameter unused) {
+        return new sateMessage();
       }
 
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private sateMessage(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+        this();
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2272,13 +2537,6 @@ public final class Tracker {
               case 0:
                 done = true;
                 break;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
               case 8: {
                 bitField0_ |= 0x00000001;
                 id_ = input.readInt32();
@@ -2299,13 +2557,20 @@ public final class Tracker {
                 cno_ = input.readInt32();
                 break;
               }
+              default: {
+                if (!parseUnknownField(
+                    input, unknownFields, extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           throw e.setUnfinishedMessage(this);
         } catch (java.io.IOException e) {
           throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+              e).setUnfinishedMessage(this);
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -2316,47 +2581,33 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<sateMessage> PARSER =
-          new com.google.protobuf.AbstractParser<sateMessage>() {
-        public sateMessage parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new sateMessage(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<sateMessage> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int ID_FIELD_NUMBER = 1;
       private int id_;
       /**
-       * <code>optional int32 id = 1;</code>
-       *
        * <pre>
        * 卫星编号
        * </pre>
+       *
+       * <code>optional int32 id = 1;</code>
        */
       public boolean hasId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>optional int32 id = 1;</code>
-       *
        * <pre>
        * 卫星编号
        * </pre>
+       *
+       * <code>optional int32 id = 1;</code>
        */
       public int getId() {
         return id_;
@@ -2365,21 +2616,21 @@ public final class Tracker {
       public static final int ELEVATION_FIELD_NUMBER = 2;
       private int elevation_;
       /**
-       * <code>optional int32 elevation = 2;</code>
-       *
        * <pre>
        * 仰角
        * </pre>
+       *
+       * <code>optional int32 elevation = 2;</code>
        */
       public boolean hasElevation() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional int32 elevation = 2;</code>
-       *
        * <pre>
        * 仰角
        * </pre>
+       *
+       * <code>optional int32 elevation = 2;</code>
        */
       public int getElevation() {
         return elevation_;
@@ -2388,21 +2639,21 @@ public final class Tracker {
       public static final int AZIMUTH_FIELD_NUMBER = 3;
       private int azimuth_;
       /**
-       * <code>optional int32 azimuth = 3;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 3;</code>
        */
       public boolean hasAzimuth() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>optional int32 azimuth = 3;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 3;</code>
        */
       public int getAzimuth() {
         return azimuth_;
@@ -2411,33 +2662,28 @@ public final class Tracker {
       public static final int CNO_FIELD_NUMBER = 4;
       private int cno_;
       /**
-       * <code>optional int32 cno = 4;</code>
-       *
        * <pre>
        * 载噪比
        * </pre>
+       *
+       * <code>optional int32 cno = 4;</code>
        */
       public boolean hasCno() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
-       * <code>optional int32 cno = 4;</code>
-       *
        * <pre>
        * 载噪比
        * </pre>
+       *
+       * <code>optional int32 cno = 4;</code>
        */
       public int getCno() {
         return cno_;
       }
 
-      private void initFields() {
-        id_ = 0;
-        elevation_ = 0;
-        azimuth_ = 0;
-        cno_ = 0;
-      }
       private byte memoizedIsInitialized = -1;
+      @java.lang.Override
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
         if (isInitialized == 1) return true;
@@ -2447,58 +2693,124 @@ public final class Tracker {
         return true;
       }
 
+      @java.lang.Override
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           output.writeInt32(1, id_);
         }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((bitField0_ & 0x00000002) != 0)) {
           output.writeInt32(2, elevation_);
         }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((bitField0_ & 0x00000004) != 0)) {
           output.writeInt32(3, azimuth_);
         }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((bitField0_ & 0x00000008) != 0)) {
           output.writeInt32(4, cno_);
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
-      private int memoizedSerializedSize = -1;
+      @java.lang.Override
       public int getSerializedSize() {
-        int size = memoizedSerializedSize;
+        int size = memoizedSize;
         if (size != -1) return size;
 
         size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           size += com.google.protobuf.CodedOutputStream
             .computeInt32Size(1, id_);
         }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((bitField0_ & 0x00000002) != 0)) {
           size += com.google.protobuf.CodedOutputStream
             .computeInt32Size(2, elevation_);
         }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((bitField0_ & 0x00000004) != 0)) {
           size += com.google.protobuf.CodedOutputStream
             .computeInt32Size(3, azimuth_);
         }
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((bitField0_ & 0x00000008) != 0)) {
           size += com.google.protobuf.CodedOutputStream
             .computeInt32Size(4, cno_);
         }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
+        size += unknownFields.getSerializedSize();
+        memoizedSize = size;
         return size;
       }
 
-      private static final long serialVersionUID = 0L;
       @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
+      public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+         return true;
+        }
+        if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage)) {
+          return super.equals(obj);
+        }
+        org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage other = (org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage) obj;
+
+        if (hasId() != other.hasId()) return false;
+        if (hasId()) {
+          if (getId()
+              != other.getId()) return false;
+        }
+        if (hasElevation() != other.hasElevation()) return false;
+        if (hasElevation()) {
+          if (getElevation()
+              != other.getElevation()) return false;
+        }
+        if (hasAzimuth() != other.hasAzimuth()) return false;
+        if (hasAzimuth()) {
+          if (getAzimuth()
+              != other.getAzimuth()) return false;
+        }
+        if (hasCno() != other.hasCno()) return false;
+        if (hasCno()) {
+          if (getCno()
+              != other.getCno()) return false;
+        }
+        if (!unknownFields.equals(other.unknownFields)) return false;
+        return true;
       }
 
+      @java.lang.Override
+      public int hashCode() {
+        if (memoizedHashCode != 0) {
+          return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptor().hashCode();
+        if (hasId()) {
+          hash = (37 * hash) + ID_FIELD_NUMBER;
+          hash = (53 * hash) + getId();
+        }
+        if (hasElevation()) {
+          hash = (37 * hash) + ELEVATION_FIELD_NUMBER;
+          hash = (53 * hash) + getElevation();
+        }
+        if (hasAzimuth()) {
+          hash = (37 * hash) + AZIMUTH_FIELD_NUMBER;
+          hash = (53 * hash) + getAzimuth();
+        }
+        if (hasCno()) {
+          hash = (37 * hash) + CNO_FIELD_NUMBER;
+          hash = (53 * hash) + getCno();
+        }
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+      }
+
+      public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
+          java.nio.ByteBuffer data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
+          java.nio.ByteBuffer data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2522,46 +2834,59 @@ public final class Tracker {
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(java.io.InputStream input)
           throws java.io.IOException {
-        return PARSER.parseFrom(input);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseDelimitedFrom(java.io.InputStream input)
           throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input);
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseDelimitedFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
           com.google.protobuf.CodedInputStream input)
           throws java.io.IOException {
-        return PARSER.parseFrom(input);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
       }
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
+      @java.lang.Override
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      @java.lang.Override
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         Builder builder = new Builder(parent);
         return builder;
       }
@@ -2569,7 +2894,7 @@ public final class Tracker {
        * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
           // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
@@ -2577,7 +2902,8 @@ public final class Tracker {
           return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
         }
 
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        @java.lang.Override
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internalGetFieldAccessorTable() {
           return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
@@ -2590,18 +2916,16 @@ public final class Tracker {
         }
 
         private Builder(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+            com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
           super(parent);
           maybeForceBuilderInitialization();
         }
         private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          if (com.google.protobuf.GeneratedMessageV3
+                  .alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
+        @java.lang.Override
         public Builder clear() {
           super.clear();
           id_ = 0;
@@ -2615,19 +2939,18 @@ public final class Tracker {
           return this;
         }
 
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
+        @java.lang.Override
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
           return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
         }
 
+        @java.lang.Override
         public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getDefaultInstanceForType() {
           return org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.getDefaultInstance();
         }
 
+        @java.lang.Override
         public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage build() {
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage result = buildPartial();
           if (!result.isInitialized()) {
@@ -2636,31 +2959,65 @@ public final class Tracker {
           return result;
         }
 
+        @java.lang.Override
         public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage buildPartial() {
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage result = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage(this);
           int from_bitField0_ = bitField0_;
           int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          if (((from_bitField0_ & 0x00000001) != 0)) {
+            result.id_ = id_;
             to_bitField0_ |= 0x00000001;
           }
-          result.id_ = id_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          if (((from_bitField0_ & 0x00000002) != 0)) {
+            result.elevation_ = elevation_;
             to_bitField0_ |= 0x00000002;
           }
-          result.elevation_ = elevation_;
-          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          if (((from_bitField0_ & 0x00000004) != 0)) {
+            result.azimuth_ = azimuth_;
             to_bitField0_ |= 0x00000004;
           }
-          result.azimuth_ = azimuth_;
-          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          if (((from_bitField0_ & 0x00000008) != 0)) {
+            result.cno_ = cno_;
             to_bitField0_ |= 0x00000008;
           }
-          result.cno_ = cno_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
         }
 
+        @java.lang.Override
+        public Builder clone() {
+          return super.clone();
+        }
+        @java.lang.Override
+        public Builder setField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            java.lang.Object value) {
+          return super.setField(field, value);
+        }
+        @java.lang.Override
+        public Builder clearField(
+            com.google.protobuf.Descriptors.FieldDescriptor field) {
+          return super.clearField(field);
+        }
+        @java.lang.Override
+        public Builder clearOneof(
+            com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          return super.clearOneof(oneof);
+        }
+        @java.lang.Override
+        public Builder setRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            int index, java.lang.Object value) {
+          return super.setRepeatedField(field, index, value);
+        }
+        @java.lang.Override
+        public Builder addRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            java.lang.Object value) {
+          return super.addRepeatedField(field, value);
+        }
+        @java.lang.Override
         public Builder mergeFrom(com.google.protobuf.Message other) {
           if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage) {
             return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage)other);
@@ -2684,14 +3041,17 @@ public final class Tracker {
           if (other.hasCno()) {
             setCno(other.getCno());
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
+        @java.lang.Override
         public final boolean isInitialized() {
           return true;
         }
 
+        @java.lang.Override
         public Builder mergeFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2701,7 +3061,7 @@ public final class Tracker {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
             parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage) e.getUnfinishedMessage();
-            throw e;
+            throw e.unwrapIOException();
           } finally {
             if (parsedMessage != null) {
               mergeFrom(parsedMessage);
@@ -2713,31 +3073,31 @@ public final class Tracker {
 
         private int id_ ;
         /**
-         * <code>optional int32 id = 1;</code>
-         *
          * <pre>
          * 卫星编号
          * </pre>
+         *
+         * <code>optional int32 id = 1;</code>
          */
         public boolean hasId() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
+          return ((bitField0_ & 0x00000001) != 0);
         }
         /**
-         * <code>optional int32 id = 1;</code>
-         *
          * <pre>
          * 卫星编号
          * </pre>
+         *
+         * <code>optional int32 id = 1;</code>
          */
         public int getId() {
           return id_;
         }
         /**
-         * <code>optional int32 id = 1;</code>
-         *
          * <pre>
          * 卫星编号
          * </pre>
+         *
+         * <code>optional int32 id = 1;</code>
          */
         public Builder setId(int value) {
           bitField0_ |= 0x00000001;
@@ -2746,11 +3106,11 @@ public final class Tracker {
           return this;
         }
         /**
-         * <code>optional int32 id = 1;</code>
-         *
          * <pre>
          * 卫星编号
          * </pre>
+         *
+         * <code>optional int32 id = 1;</code>
          */
         public Builder clearId() {
           bitField0_ = (bitField0_ & ~0x00000001);
@@ -2761,31 +3121,31 @@ public final class Tracker {
 
         private int elevation_ ;
         /**
-         * <code>optional int32 elevation = 2;</code>
-         *
          * <pre>
          * 仰角
          * </pre>
+         *
+         * <code>optional int32 elevation = 2;</code>
          */
         public boolean hasElevation() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
+          return ((bitField0_ & 0x00000002) != 0);
         }
         /**
-         * <code>optional int32 elevation = 2;</code>
-         *
          * <pre>
          * 仰角
          * </pre>
+         *
+         * <code>optional int32 elevation = 2;</code>
          */
         public int getElevation() {
           return elevation_;
         }
         /**
-         * <code>optional int32 elevation = 2;</code>
-         *
          * <pre>
          * 仰角
          * </pre>
+         *
+         * <code>optional int32 elevation = 2;</code>
          */
         public Builder setElevation(int value) {
           bitField0_ |= 0x00000002;
@@ -2794,11 +3154,11 @@ public final class Tracker {
           return this;
         }
         /**
-         * <code>optional int32 elevation = 2;</code>
-         *
          * <pre>
          * 仰角
          * </pre>
+         *
+         * <code>optional int32 elevation = 2;</code>
          */
         public Builder clearElevation() {
           bitField0_ = (bitField0_ & ~0x00000002);
@@ -2809,31 +3169,31 @@ public final class Tracker {
 
         private int azimuth_ ;
         /**
-         * <code>optional int32 azimuth = 3;</code>
-         *
          * <pre>
          * 方位角
          * </pre>
+         *
+         * <code>optional int32 azimuth = 3;</code>
          */
         public boolean hasAzimuth() {
-          return ((bitField0_ & 0x00000004) == 0x00000004);
+          return ((bitField0_ & 0x00000004) != 0);
         }
         /**
-         * <code>optional int32 azimuth = 3;</code>
-         *
          * <pre>
          * 方位角
          * </pre>
+         *
+         * <code>optional int32 azimuth = 3;</code>
          */
         public int getAzimuth() {
           return azimuth_;
         }
         /**
-         * <code>optional int32 azimuth = 3;</code>
-         *
          * <pre>
          * 方位角
          * </pre>
+         *
+         * <code>optional int32 azimuth = 3;</code>
          */
         public Builder setAzimuth(int value) {
           bitField0_ |= 0x00000004;
@@ -2842,11 +3202,11 @@ public final class Tracker {
           return this;
         }
         /**
-         * <code>optional int32 azimuth = 3;</code>
-         *
          * <pre>
          * 方位角
          * </pre>
+         *
+         * <code>optional int32 azimuth = 3;</code>
          */
         public Builder clearAzimuth() {
           bitField0_ = (bitField0_ & ~0x00000004);
@@ -2857,31 +3217,31 @@ public final class Tracker {
 
         private int cno_ ;
         /**
-         * <code>optional int32 cno = 4;</code>
-         *
          * <pre>
          * 载噪比
          * </pre>
+         *
+         * <code>optional int32 cno = 4;</code>
          */
         public boolean hasCno() {
-          return ((bitField0_ & 0x00000008) == 0x00000008);
+          return ((bitField0_ & 0x00000008) != 0);
         }
         /**
-         * <code>optional int32 cno = 4;</code>
-         *
          * <pre>
          * 载噪比
          * </pre>
+         *
+         * <code>optional int32 cno = 4;</code>
          */
         public int getCno() {
           return cno_;
         }
         /**
-         * <code>optional int32 cno = 4;</code>
-         *
          * <pre>
          * 载噪比
          * </pre>
+         *
+         * <code>optional int32 cno = 4;</code>
          */
         public Builder setCno(int value) {
           bitField0_ |= 0x00000008;
@@ -2890,11 +3250,11 @@ public final class Tracker {
           return this;
         }
         /**
-         * <code>optional int32 cno = 4;</code>
-         *
          * <pre>
          * 载噪比
          * </pre>
+         *
+         * <code>optional int32 cno = 4;</code>
          */
         public Builder clearCno() {
           bitField0_ = (bitField0_ & ~0x00000008);
@@ -2902,60 +3262,101 @@ public final class Tracker {
           onChanged();
           return this;
         }
+        @java.lang.Override
+        public final Builder setUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return super.setUnknownFields(unknownFields);
+        }
+
+        @java.lang.Override
+        public final Builder mergeUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return super.mergeUnknownFields(unknownFields);
+        }
+
 
         // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
       }
 
+      // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+      private static final org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage DEFAULT_INSTANCE;
       static {
-        defaultInstance = new sateMessage(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage();
       }
 
-      // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+      public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      @java.lang.Deprecated public static final com.google.protobuf.Parser<sateMessage>
+          PARSER = new com.google.protobuf.AbstractParser<sateMessage>() {
+        @java.lang.Override
+        public sateMessage parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new sateMessage(input, extensionRegistry);
+        }
+      };
+
+      public static com.google.protobuf.Parser<sateMessage> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<sateMessage> getParserForType() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
     public static final int SATENUM_FIELD_NUMBER = 1;
     private int sateNum_;
     /**
-     * <code>optional int32 sateNum = 1;</code>
-     *
      * <pre>
      * 卫星数量
      * </pre>
+     *
+     * <code>optional int32 sateNum = 1;</code>
      */
     public boolean hasSateNum() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>optional int32 sateNum = 1;</code>
-     *
      * <pre>
      * 卫星数量
      * </pre>
+     *
+     * <code>optional int32 sateNum = 1;</code>
      */
     public int getSateNum() {
       return sateNum_;
     }
 
     public static final int SATETYPE_FIELD_NUMBER = 2;
-    private java.lang.Object sateType_;
+    private volatile java.lang.Object sateType_;
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     public boolean hasSateType() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     public java.lang.String getSateType() {
       java.lang.Object ref = sateType_;
@@ -2972,11 +3373,11 @@ public final class Tracker {
       }
     }
     /**
-     * <code>optional string sateType = 2;</code>
-     *
      * <pre>
      * 定位器类型 "GPS","BD"
      * </pre>
+     *
+     * <code>optional string sateType = 2;</code>
      */
     public com.google.protobuf.ByteString
         getSateTypeBytes() {
@@ -2995,64 +3396,60 @@ public final class Tracker {
     public static final int STAEITEMS_FIELD_NUMBER = 3;
     private java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> staeItems_;
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> getStaeItemsList() {
       return staeItems_;
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
         getStaeItemsOrBuilderList() {
       return staeItems_;
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public int getStaeItemsCount() {
       return staeItems_.size();
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index) {
       return staeItems_.get(index);
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-     *
      * <pre>
      * 0-n组卫星数据
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
         int index) {
       return staeItems_.get(index);
     }
 
-    private void initFields() {
-      sateNum_ = 0;
-      sateType_ = "";
-      staeItems_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -3062,51 +3459,104 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeInt32(1, sateNum_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getSateTypeBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, sateType_);
       }
       for (int i = 0; i < staeItems_.size(); i++) {
         output.writeMessage(3, staeItems_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, sateNum_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getSateTypeBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, sateType_);
       }
       for (int i = 0; i < staeItems_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, staeItems_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.SateStatus)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.SateStatus other = (org.nutz.walnut.ext.gpstracker.Tracker.SateStatus) obj;
+
+      if (hasSateNum() != other.hasSateNum()) return false;
+      if (hasSateNum()) {
+        if (getSateNum()
+            != other.getSateNum()) return false;
+      }
+      if (hasSateType() != other.hasSateType()) return false;
+      if (hasSateType()) {
+        if (!getSateType()
+            .equals(other.getSateType())) return false;
+      }
+      if (!getStaeItemsList()
+          .equals(other.getStaeItemsList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasSateNum()) {
+        hash = (37 * hash) + SATENUM_FIELD_NUMBER;
+        hash = (53 * hash) + getSateNum();
+      }
+      if (hasSateType()) {
+        hash = (37 * hash) + SATETYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getSateType().hashCode();
+      }
+      if (getStaeItemsCount() > 0) {
+        hash = (37 * hash) + STAEITEMS_FIELD_NUMBER;
+        hash = (53 * hash) + getStaeItemsList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3130,58 +3580,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.SateStatus)
         org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -3189,7 +3652,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -3202,19 +3666,17 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
           getStaeItemsFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         sateNum_ = 0;
@@ -3230,19 +3692,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus build() {
         org.nutz.walnut.ext.gpstracker.Tracker.SateStatus result = buildPartial();
         if (!result.isInitialized()) {
@@ -3251,20 +3712,21 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.SateStatus result = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.sateNum_ = sateNum_;
           to_bitField0_ |= 0x00000001;
         }
-        result.sateNum_ = sateNum_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           to_bitField0_ |= 0x00000002;
         }
         result.sateType_ = sateType_;
         if (staeItemsBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          if (((bitField0_ & 0x00000004) != 0)) {
             staeItems_ = java.util.Collections.unmodifiableList(staeItems_);
             bitField0_ = (bitField0_ & ~0x00000004);
           }
@@ -3277,6 +3739,39 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.SateStatus) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.SateStatus)other);
@@ -3315,21 +3810,24 @@ public final class Tracker {
               staeItems_ = other.staeItems_;
               bitField0_ = (bitField0_ & ~0x00000004);
               staeItemsBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getStaeItemsFieldBuilder() : null;
             } else {
               staeItemsBuilder_.addAllMessages(other.staeItems_);
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -3339,7 +3837,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.SateStatus) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -3351,31 +3849,31 @@ public final class Tracker {
 
       private int sateNum_ ;
       /**
-       * <code>optional int32 sateNum = 1;</code>
-       *
        * <pre>
        * 卫星数量
        * </pre>
+       *
+       * <code>optional int32 sateNum = 1;</code>
        */
       public boolean hasSateNum() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>optional int32 sateNum = 1;</code>
-       *
        * <pre>
        * 卫星数量
        * </pre>
+       *
+       * <code>optional int32 sateNum = 1;</code>
        */
       public int getSateNum() {
         return sateNum_;
       }
       /**
-       * <code>optional int32 sateNum = 1;</code>
-       *
        * <pre>
        * 卫星数量
        * </pre>
+       *
+       * <code>optional int32 sateNum = 1;</code>
        */
       public Builder setSateNum(int value) {
         bitField0_ |= 0x00000001;
@@ -3384,11 +3882,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 sateNum = 1;</code>
-       *
        * <pre>
        * 卫星数量
        * </pre>
+       *
+       * <code>optional int32 sateNum = 1;</code>
        */
       public Builder clearSateNum() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -3399,21 +3897,21 @@ public final class Tracker {
 
       private java.lang.Object sateType_ = "";
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public boolean hasSateType() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public java.lang.String getSateType() {
         java.lang.Object ref = sateType_;
@@ -3430,11 +3928,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public com.google.protobuf.ByteString
           getSateTypeBytes() {
@@ -3450,11 +3948,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public Builder setSateType(
           java.lang.String value) {
@@ -3467,11 +3965,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public Builder clearSateType() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -3480,11 +3978,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional string sateType = 2;</code>
-       *
        * <pre>
        * 定位器类型 "GPS","BD"
        * </pre>
+       *
+       * <code>optional string sateType = 2;</code>
        */
       public Builder setSateTypeBytes(
           com.google.protobuf.ByteString value) {
@@ -3500,21 +3998,21 @@ public final class Tracker {
       private java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> staeItems_ =
         java.util.Collections.emptyList();
       private void ensureStaeItemsIsMutable() {
-        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+        if (!((bitField0_ & 0x00000004) != 0)) {
           staeItems_ = new java.util.ArrayList<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage>(staeItems_);
           bitField0_ |= 0x00000004;
          }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> staeItemsBuilder_;
 
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> getStaeItemsList() {
         if (staeItemsBuilder_ == null) {
@@ -3524,11 +4022,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public int getStaeItemsCount() {
         if (staeItemsBuilder_ == null) {
@@ -3538,11 +4036,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index) {
         if (staeItemsBuilder_ == null) {
@@ -3552,11 +4050,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder setStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
@@ -3573,11 +4071,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder setStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -3591,11 +4089,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
         if (staeItemsBuilder_ == null) {
@@ -3611,11 +4109,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
@@ -3632,11 +4130,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -3650,11 +4148,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -3668,11 +4166,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addAllStaeItems(
           java.lang.Iterable<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> values) {
@@ -3687,11 +4185,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder clearStaeItems() {
         if (staeItemsBuilder_ == null) {
@@ -3704,11 +4202,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder removeStaeItems(int index) {
         if (staeItemsBuilder_ == null) {
@@ -3721,22 +4219,22 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder getStaeItemsBuilder(
           int index) {
         return getStaeItemsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
           int index) {
@@ -3746,11 +4244,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
            getStaeItemsOrBuilderList() {
@@ -3761,22 +4259,22 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder addStaeItemsBuilder() {
         return getStaeItemsFieldBuilder().addBuilder(
             org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder addStaeItemsBuilder(
           int index) {
@@ -3784,40 +4282,81 @@ public final class Tracker {
             index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
-       *
        * <pre>
        * 0-n组卫星数据
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder> 
            getStaeItemsBuilderList() {
         return getStaeItemsFieldBuilder().getBuilderList();
       }
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
           getStaeItemsFieldBuilder() {
         if (staeItemsBuilder_ == null) {
-          staeItemsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          staeItemsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder>(
                   staeItems_,
-                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  ((bitField0_ & 0x00000004) != 0),
                   getParentForChildren(),
                   isClean());
           staeItems_ = null;
         }
         return staeItemsBuilder_;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.SateStatus)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.SateStatus DEFAULT_INSTANCE;
     static {
-      defaultInstance = new SateStatus(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<SateStatus>
+        PARSER = new com.google.protobuf.AbstractParser<SateStatus>() {
+      @java.lang.Override
+      public SateStatus parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SateStatus(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<SateStatus> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SateStatus> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DeviceStatusOrBuilder extends
@@ -3825,280 +4364,282 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 csq = 1;</code>
-     *
      * <pre>
      * GSM CSQ值
      * </pre>
+     *
+     * <code>optional int32 csq = 1;</code>
      */
     boolean hasCsq();
     /**
-     * <code>optional int32 csq = 1;</code>
-     *
      * <pre>
      * GSM CSQ值
      * </pre>
+     *
+     * <code>optional int32 csq = 1;</code>
      */
     int getCsq();
 
     /**
-     * <code>optional bool charge_sta = 2;</code>
-     *
      * <pre>
      * 内置电池充电状态 true表示充电,false表示没充电
      * </pre>
+     *
+     * <code>optional bool charge_sta = 2;</code>
      */
     boolean hasChargeSta();
     /**
-     * <code>optional bool charge_sta = 2;</code>
-     *
      * <pre>
      * 内置电池充电状态 true表示充电,false表示没充电
      * </pre>
+     *
+     * <code>optional bool charge_sta = 2;</code>
      */
     boolean getChargeSta();
 
     /**
-     * <code>optional bool vib_sta = 3;</code>
-     *
      * <pre>
      *震动传感器状态 true表示有震动，false表示没有震动
      * </pre>
+     *
+     * <code>optional bool vib_sta = 3;</code>
      */
     boolean hasVibSta();
     /**
-     * <code>optional bool vib_sta = 3;</code>
-     *
      * <pre>
      *震动传感器状态 true表示有震动，false表示没有震动
      * </pre>
+     *
+     * <code>optional bool vib_sta = 3;</code>
      */
     boolean getVibSta();
 
     /**
-     * <code>optional bool acc_sta = 4;</code>
-     *
      * <pre>
      * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
      * </pre>
+     *
+     * <code>optional bool acc_sta = 4;</code>
      */
     boolean hasAccSta();
     /**
-     * <code>optional bool acc_sta = 4;</code>
-     *
      * <pre>
      * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
      * </pre>
+     *
+     * <code>optional bool acc_sta = 4;</code>
      */
     boolean getAccSta();
 
     /**
-     * <code>optional bool start = 5;</code>
-     *
      * <pre>
      * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
      * </pre>
+     *
+     * <code>optional bool start = 5;</code>
      */
     boolean hasStart();
     /**
-     * <code>optional bool start = 5;</code>
-     *
      * <pre>
      * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
      * </pre>
+     *
+     * <code>optional bool start = 5;</code>
      */
     boolean getStart();
 
     /**
-     * <code>optional bool isOpen = 6;</code>
-     *
      * <pre>
      * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
      * </pre>
+     *
+     * <code>optional bool isOpen = 6;</code>
      */
     boolean hasIsOpen();
     /**
-     * <code>optional bool isOpen = 6;</code>
-     *
      * <pre>
      * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
      * </pre>
+     *
+     * <code>optional bool isOpen = 6;</code>
      */
     boolean getIsOpen();
 
     /**
-     * <code>optional bool isFix = 7;</code>
-     *
      * <pre>
      * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
      * </pre>
+     *
+     * <code>optional bool isFix = 7;</code>
      */
     boolean hasIsFix();
     /**
-     * <code>optional bool isFix = 7;</code>
-     *
      * <pre>
      * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
      * </pre>
+     *
+     * <code>optional bool isFix = 7;</code>
      */
     boolean getIsFix();
 
     /**
-     * <code>optional int32 powerVolt = 8;</code>
-     *
      * <pre>
      * 功率电池当前电压mV
      * </pre>
+     *
+     * <code>optional int32 powerVolt = 8;</code>
      */
     boolean hasPowerVolt();
     /**
-     * <code>optional int32 powerVolt = 8;</code>
-     *
      * <pre>
      * 功率电池当前电压mV
      * </pre>
+     *
+     * <code>optional int32 powerVolt = 8;</code>
      */
     int getPowerVolt();
 
     /**
-     * <code>optional int32 vbatt = 9;</code>
-     *
      * <pre>
      * 内置锂电池电压mV
      * </pre>
+     *
+     * <code>optional int32 vbatt = 9;</code>
      */
     boolean hasVbatt();
     /**
-     * <code>optional int32 vbatt = 9;</code>
-     *
      * <pre>
      * 内置锂电池电压mV
      * </pre>
+     *
+     * <code>optional int32 vbatt = 9;</code>
      */
     int getVbatt();
 
     /**
-     * <code>optional int32 powerType = 10;</code>
-     *
      * <pre>
      * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
      * </pre>
+     *
+     * <code>optional int32 powerType = 10;</code>
      */
     boolean hasPowerType();
     /**
-     * <code>optional int32 powerType = 10;</code>
-     *
      * <pre>
      * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
      * </pre>
+     *
+     * <code>optional int32 powerType = 10;</code>
      */
     int getPowerType();
 
     /**
-     * <code>optional bool underVolt = 11;</code>
-     *
      * <pre>
      * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
      * </pre>
+     *
+     * <code>optional bool underVolt = 11;</code>
      */
     boolean hasUnderVolt();
     /**
-     * <code>optional bool underVolt = 11;</code>
-     *
      * <pre>
      * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
      * </pre>
+     *
+     * <code>optional bool underVolt = 11;</code>
      */
     boolean getUnderVolt();
 
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     boolean hasSateStatus();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder();
 
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     java.util.List<java.lang.Integer> getSateCnoList();
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     int getSateCnoCount();
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     int getSateCno(int index);
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
-   *
    * <pre>
    *设备状态消息
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
    */
-  public static final class DeviceStatus extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class DeviceStatus extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceStatus)
       DeviceStatusOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use DeviceStatus.newBuilder() to construct.
-    private DeviceStatus(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private DeviceStatus(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DeviceStatus(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DeviceStatus defaultInstance;
-    public static DeviceStatus getDefaultInstance() {
-      return defaultInstance;
+    private DeviceStatus() {
+      sateCno_ = emptyIntList();
     }
 
-    public DeviceStatus getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DeviceStatus();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private DeviceStatus(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -4110,13 +4651,6 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               bitField0_ |= 0x00000001;
               csq_ = input.readInt32();
@@ -4174,7 +4708,7 @@ public final class Tracker {
             }
             case 98: {
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000800) == 0x00000800)) {
+              if (((bitField0_ & 0x00000800) != 0)) {
                 subBuilder = sateStatus_.toBuilder();
               }
               sateStatus_ = input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.PARSER, extensionRegistry);
@@ -4186,24 +4720,31 @@ public final class Tracker {
               break;
             }
             case 104: {
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
-                sateCno_ = new java.util.ArrayList<java.lang.Integer>();
+              if (!((mutable_bitField0_ & 0x00001000) != 0)) {
+                sateCno_ = newIntList();
                 mutable_bitField0_ |= 0x00001000;
               }
-              sateCno_.add(input.readInt32());
+              sateCno_.addInt(input.readInt32());
               break;
             }
             case 106: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000) && input.getBytesUntilLimit() > 0) {
-                sateCno_ = new java.util.ArrayList<java.lang.Integer>();
+              if (!((mutable_bitField0_ & 0x00001000) != 0) && input.getBytesUntilLimit() > 0) {
+                sateCno_ = newIntList();
                 mutable_bitField0_ |= 0x00001000;
               }
               while (input.getBytesUntilLimit() > 0) {
-                sateCno_.add(input.readInt32());
+                sateCno_.addInt(input.readInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -4212,10 +4753,10 @@ public final class Tracker {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
-          sateCno_ = java.util.Collections.unmodifiableList(sateCno_);
+        if (((mutable_bitField0_ & 0x00001000) != 0)) {
+          sateCno_.makeImmutable(); // C
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -4226,47 +4767,33 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DeviceStatus> PARSER =
-        new com.google.protobuf.AbstractParser<DeviceStatus>() {
-      public DeviceStatus parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeviceStatus(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeviceStatus> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int CSQ_FIELD_NUMBER = 1;
     private int csq_;
     /**
-     * <code>optional int32 csq = 1;</code>
-     *
      * <pre>
      * GSM CSQ值
      * </pre>
+     *
+     * <code>optional int32 csq = 1;</code>
      */
     public boolean hasCsq() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>optional int32 csq = 1;</code>
-     *
      * <pre>
      * GSM CSQ值
      * </pre>
+     *
+     * <code>optional int32 csq = 1;</code>
      */
     public int getCsq() {
       return csq_;
@@ -4275,21 +4802,21 @@ public final class Tracker {
     public static final int CHARGE_STA_FIELD_NUMBER = 2;
     private boolean chargeSta_;
     /**
-     * <code>optional bool charge_sta = 2;</code>
-     *
      * <pre>
      * 内置电池充电状态 true表示充电,false表示没充电
      * </pre>
+     *
+     * <code>optional bool charge_sta = 2;</code>
      */
     public boolean hasChargeSta() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional bool charge_sta = 2;</code>
-     *
      * <pre>
      * 内置电池充电状态 true表示充电,false表示没充电
      * </pre>
+     *
+     * <code>optional bool charge_sta = 2;</code>
      */
     public boolean getChargeSta() {
       return chargeSta_;
@@ -4298,21 +4825,21 @@ public final class Tracker {
     public static final int VIB_STA_FIELD_NUMBER = 3;
     private boolean vibSta_;
     /**
-     * <code>optional bool vib_sta = 3;</code>
-     *
      * <pre>
      *震动传感器状态 true表示有震动，false表示没有震动
      * </pre>
+     *
+     * <code>optional bool vib_sta = 3;</code>
      */
     public boolean hasVibSta() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>optional bool vib_sta = 3;</code>
-     *
      * <pre>
      *震动传感器状态 true表示有震动，false表示没有震动
      * </pre>
+     *
+     * <code>optional bool vib_sta = 3;</code>
      */
     public boolean getVibSta() {
       return vibSta_;
@@ -4321,21 +4848,21 @@ public final class Tracker {
     public static final int ACC_STA_FIELD_NUMBER = 4;
     private boolean accSta_;
     /**
-     * <code>optional bool acc_sta = 4;</code>
-     *
      * <pre>
      * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
      * </pre>
+     *
+     * <code>optional bool acc_sta = 4;</code>
      */
     public boolean hasAccSta() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
-     * <code>optional bool acc_sta = 4;</code>
-     *
      * <pre>
      * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
      * </pre>
+     *
+     * <code>optional bool acc_sta = 4;</code>
      */
     public boolean getAccSta() {
       return accSta_;
@@ -4344,21 +4871,21 @@ public final class Tracker {
     public static final int START_FIELD_NUMBER = 5;
     private boolean start_;
     /**
-     * <code>optional bool start = 5;</code>
-     *
      * <pre>
      * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
      * </pre>
+     *
+     * <code>optional bool start = 5;</code>
      */
     public boolean hasStart() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
-     * <code>optional bool start = 5;</code>
-     *
      * <pre>
      * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
      * </pre>
+     *
+     * <code>optional bool start = 5;</code>
      */
     public boolean getStart() {
       return start_;
@@ -4367,21 +4894,21 @@ public final class Tracker {
     public static final int ISOPEN_FIELD_NUMBER = 6;
     private boolean isOpen_;
     /**
-     * <code>optional bool isOpen = 6;</code>
-     *
      * <pre>
      * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
      * </pre>
+     *
+     * <code>optional bool isOpen = 6;</code>
      */
     public boolean hasIsOpen() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
-     * <code>optional bool isOpen = 6;</code>
-     *
      * <pre>
      * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
      * </pre>
+     *
+     * <code>optional bool isOpen = 6;</code>
      */
     public boolean getIsOpen() {
       return isOpen_;
@@ -4390,21 +4917,21 @@ public final class Tracker {
     public static final int ISFIX_FIELD_NUMBER = 7;
     private boolean isFix_;
     /**
-     * <code>optional bool isFix = 7;</code>
-     *
      * <pre>
      * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
      * </pre>
+     *
+     * <code>optional bool isFix = 7;</code>
      */
     public boolean hasIsFix() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000040) != 0);
     }
     /**
-     * <code>optional bool isFix = 7;</code>
-     *
      * <pre>
      * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
      * </pre>
+     *
+     * <code>optional bool isFix = 7;</code>
      */
     public boolean getIsFix() {
       return isFix_;
@@ -4413,21 +4940,21 @@ public final class Tracker {
     public static final int POWERVOLT_FIELD_NUMBER = 8;
     private int powerVolt_;
     /**
-     * <code>optional int32 powerVolt = 8;</code>
-     *
      * <pre>
      * 功率电池当前电压mV
      * </pre>
+     *
+     * <code>optional int32 powerVolt = 8;</code>
      */
     public boolean hasPowerVolt() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000080) != 0);
     }
     /**
-     * <code>optional int32 powerVolt = 8;</code>
-     *
      * <pre>
      * 功率电池当前电压mV
      * </pre>
+     *
+     * <code>optional int32 powerVolt = 8;</code>
      */
     public int getPowerVolt() {
       return powerVolt_;
@@ -4436,21 +4963,21 @@ public final class Tracker {
     public static final int VBATT_FIELD_NUMBER = 9;
     private int vbatt_;
     /**
-     * <code>optional int32 vbatt = 9;</code>
-     *
      * <pre>
      * 内置锂电池电压mV
      * </pre>
+     *
+     * <code>optional int32 vbatt = 9;</code>
      */
     public boolean hasVbatt() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000100) != 0);
     }
     /**
-     * <code>optional int32 vbatt = 9;</code>
-     *
      * <pre>
      * 内置锂电池电压mV
      * </pre>
+     *
+     * <code>optional int32 vbatt = 9;</code>
      */
     public int getVbatt() {
       return vbatt_;
@@ -4459,21 +4986,21 @@ public final class Tracker {
     public static final int POWERTYPE_FIELD_NUMBER = 10;
     private int powerType_;
     /**
-     * <code>optional int32 powerType = 10;</code>
-     *
      * <pre>
      * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
      * </pre>
+     *
+     * <code>optional int32 powerType = 10;</code>
      */
     public boolean hasPowerType() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000200) != 0);
     }
     /**
-     * <code>optional int32 powerType = 10;</code>
-     *
      * <pre>
      * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
      * </pre>
+     *
+     * <code>optional int32 powerType = 10;</code>
      */
     public int getPowerType() {
       return powerType_;
@@ -4482,21 +5009,21 @@ public final class Tracker {
     public static final int UNDERVOLT_FIELD_NUMBER = 11;
     private boolean underVolt_;
     /**
-     * <code>optional bool underVolt = 11;</code>
-     *
      * <pre>
      * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
      * </pre>
+     *
+     * <code>optional bool underVolt = 11;</code>
      */
     public boolean hasUnderVolt() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000400) != 0);
     }
     /**
-     * <code>optional bool underVolt = 11;</code>
-     *
      * <pre>
      * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
      * </pre>
+     *
+     * <code>optional bool underVolt = 11;</code>
      */
     public boolean getUnderVolt() {
       return underVolt_;
@@ -4505,86 +5032,72 @@ public final class Tracker {
     public static final int SATESTATUS_FIELD_NUMBER = 12;
     private org.nutz.walnut.ext.gpstracker.Tracker.SateStatus sateStatus_;
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     public boolean hasSateStatus() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00000800) != 0);
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus() {
-      return sateStatus_;
+      return sateStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-     *
      * <pre>
      * 设备卫星详细信息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder() {
-      return sateStatus_;
+      return sateStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
     }
 
     public static final int SATECNO_FIELD_NUMBER = 13;
-    private java.util.List<java.lang.Integer> sateCno_;
+    private com.google.protobuf.Internal.IntList sateCno_;
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     public java.util.List<java.lang.Integer>
         getSateCnoList() {
       return sateCno_;
     }
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     public int getSateCnoCount() {
       return sateCno_.size();
     }
     /**
-     * <code>repeated int32 sateCno = 13;</code>
-     *
      * <pre>
      * 所有卫星的载噪比数组
      * </pre>
+     *
+     * <code>repeated int32 sateCno = 13;</code>
      */
     public int getSateCno(int index) {
-      return sateCno_.get(index);
+      return sateCno_.getInt(index);
     }
 
-    private void initFields() {
-      csq_ = 0;
-      chargeSta_ = false;
-      vibSta_ = false;
-      accSta_ = false;
-      start_ = false;
-      isOpen_ = false;
-      isFix_ = false;
-      powerVolt_ = 0;
-      vbatt_ = 0;
-      powerType_ = 0;
-      underVolt_ = false;
-      sateStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance();
-      sateCno_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -4594,126 +5107,277 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeInt32(1, csq_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeBool(2, chargeSta_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         output.writeBool(3, vibSta_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         output.writeBool(4, accSta_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         output.writeBool(5, start_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         output.writeBool(6, isOpen_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         output.writeBool(7, isFix_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         output.writeInt32(8, powerVolt_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         output.writeInt32(9, vbatt_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000200) != 0)) {
         output.writeInt32(10, powerType_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000400) != 0)) {
         output.writeBool(11, underVolt_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeMessage(12, sateStatus_);
+      if (((bitField0_ & 0x00000800) != 0)) {
+        output.writeMessage(12, getSateStatus());
       }
       for (int i = 0; i < sateCno_.size(); i++) {
-        output.writeInt32(13, sateCno_.get(i));
+        output.writeInt32(13, sateCno_.getInt(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, csq_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, chargeSta_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(3, vibSta_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(4, accSta_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(5, start_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(6, isOpen_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(7, isFix_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, powerVolt_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(9, vbatt_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000200) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(10, powerType_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000400) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(11, underVolt_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000800) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(12, sateStatus_);
+          .computeMessageSize(12, getSateStatus());
       }
       {
         int dataSize = 0;
         for (int i = 0; i < sateCno_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(sateCno_.get(i));
+            .computeInt32SizeNoTag(sateCno_.getInt(i));
         }
         size += dataSize;
         size += 1 * getSateCnoList().size();
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus other = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus) obj;
+
+      if (hasCsq() != other.hasCsq()) return false;
+      if (hasCsq()) {
+        if (getCsq()
+            != other.getCsq()) return false;
+      }
+      if (hasChargeSta() != other.hasChargeSta()) return false;
+      if (hasChargeSta()) {
+        if (getChargeSta()
+            != other.getChargeSta()) return false;
+      }
+      if (hasVibSta() != other.hasVibSta()) return false;
+      if (hasVibSta()) {
+        if (getVibSta()
+            != other.getVibSta()) return false;
+      }
+      if (hasAccSta() != other.hasAccSta()) return false;
+      if (hasAccSta()) {
+        if (getAccSta()
+            != other.getAccSta()) return false;
+      }
+      if (hasStart() != other.hasStart()) return false;
+      if (hasStart()) {
+        if (getStart()
+            != other.getStart()) return false;
+      }
+      if (hasIsOpen() != other.hasIsOpen()) return false;
+      if (hasIsOpen()) {
+        if (getIsOpen()
+            != other.getIsOpen()) return false;
+      }
+      if (hasIsFix() != other.hasIsFix()) return false;
+      if (hasIsFix()) {
+        if (getIsFix()
+            != other.getIsFix()) return false;
+      }
+      if (hasPowerVolt() != other.hasPowerVolt()) return false;
+      if (hasPowerVolt()) {
+        if (getPowerVolt()
+            != other.getPowerVolt()) return false;
+      }
+      if (hasVbatt() != other.hasVbatt()) return false;
+      if (hasVbatt()) {
+        if (getVbatt()
+            != other.getVbatt()) return false;
+      }
+      if (hasPowerType() != other.hasPowerType()) return false;
+      if (hasPowerType()) {
+        if (getPowerType()
+            != other.getPowerType()) return false;
+      }
+      if (hasUnderVolt() != other.hasUnderVolt()) return false;
+      if (hasUnderVolt()) {
+        if (getUnderVolt()
+            != other.getUnderVolt()) return false;
+      }
+      if (hasSateStatus() != other.hasSateStatus()) return false;
+      if (hasSateStatus()) {
+        if (!getSateStatus()
+            .equals(other.getSateStatus())) return false;
+      }
+      if (!getSateCnoList()
+          .equals(other.getSateCnoList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasCsq()) {
+        hash = (37 * hash) + CSQ_FIELD_NUMBER;
+        hash = (53 * hash) + getCsq();
+      }
+      if (hasChargeSta()) {
+        hash = (37 * hash) + CHARGE_STA_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getChargeSta());
+      }
+      if (hasVibSta()) {
+        hash = (37 * hash) + VIB_STA_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getVibSta());
+      }
+      if (hasAccSta()) {
+        hash = (37 * hash) + ACC_STA_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getAccSta());
+      }
+      if (hasStart()) {
+        hash = (37 * hash) + START_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getStart());
+      }
+      if (hasIsOpen()) {
+        hash = (37 * hash) + ISOPEN_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getIsOpen());
+      }
+      if (hasIsFix()) {
+        hash = (37 * hash) + ISFIX_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getIsFix());
+      }
+      if (hasPowerVolt()) {
+        hash = (37 * hash) + POWERVOLT_FIELD_NUMBER;
+        hash = (53 * hash) + getPowerVolt();
+      }
+      if (hasVbatt()) {
+        hash = (37 * hash) + VBATT_FIELD_NUMBER;
+        hash = (53 * hash) + getVbatt();
+      }
+      if (hasPowerType()) {
+        hash = (37 * hash) + POWERTYPE_FIELD_NUMBER;
+        hash = (53 * hash) + getPowerType();
+      }
+      if (hasUnderVolt()) {
+        hash = (37 * hash) + UNDERVOLT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getUnderVolt());
+      }
+      if (hasSateStatus()) {
+        hash = (37 * hash) + SATESTATUS_FIELD_NUMBER;
+        hash = (53 * hash) + getSateStatus().hashCode();
+      }
+      if (getSateCnoCount() > 0) {
+        hash = (37 * hash) + SATECNO_FIELD_NUMBER;
+        hash = (53 * hash) + getSateCnoList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4737,58 +5401,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceStatus)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -4796,7 +5473,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -4809,19 +5487,17 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
           getSateStatusFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         csq_ = 0;
@@ -4847,29 +5523,28 @@ public final class Tracker {
         underVolt_ = false;
         bitField0_ = (bitField0_ & ~0x00000400);
         if (sateStatusBuilder_ == null) {
-          sateStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance();
+          sateStatus_ = null;
         } else {
           sateStatusBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000800);
-        sateCno_ = java.util.Collections.emptyList();
+        sateCno_ = emptyIntList();
         bitField0_ = (bitField0_ & ~0x00001000);
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus build() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus result = buildPartial();
         if (!result.isInitialized()) {
@@ -4878,64 +5553,65 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus result = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.csq_ = csq_;
           to_bitField0_ |= 0x00000001;
         }
-        result.csq_ = csq_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.chargeSta_ = chargeSta_;
           to_bitField0_ |= 0x00000002;
         }
-        result.chargeSta_ = chargeSta_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.vibSta_ = vibSta_;
           to_bitField0_ |= 0x00000004;
         }
-        result.vibSta_ = vibSta_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.accSta_ = accSta_;
           to_bitField0_ |= 0x00000008;
         }
-        result.accSta_ = accSta_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.start_ = start_;
           to_bitField0_ |= 0x00000010;
         }
-        result.start_ = start_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.isOpen_ = isOpen_;
           to_bitField0_ |= 0x00000020;
         }
-        result.isOpen_ = isOpen_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((from_bitField0_ & 0x00000040) != 0)) {
+          result.isFix_ = isFix_;
           to_bitField0_ |= 0x00000040;
         }
-        result.isFix_ = isFix_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((from_bitField0_ & 0x00000080) != 0)) {
+          result.powerVolt_ = powerVolt_;
           to_bitField0_ |= 0x00000080;
         }
-        result.powerVolt_ = powerVolt_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.vbatt_ = vbatt_;
           to_bitField0_ |= 0x00000100;
         }
-        result.vbatt_ = vbatt_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((from_bitField0_ & 0x00000200) != 0)) {
+          result.powerType_ = powerType_;
           to_bitField0_ |= 0x00000200;
         }
-        result.powerType_ = powerType_;
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((from_bitField0_ & 0x00000400) != 0)) {
+          result.underVolt_ = underVolt_;
           to_bitField0_ |= 0x00000400;
         }
-        result.underVolt_ = underVolt_;
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((from_bitField0_ & 0x00000800) != 0)) {
+          if (sateStatusBuilder_ == null) {
+            result.sateStatus_ = sateStatus_;
+          } else {
+            result.sateStatus_ = sateStatusBuilder_.build();
+          }
           to_bitField0_ |= 0x00000800;
         }
-        if (sateStatusBuilder_ == null) {
-          result.sateStatus_ = sateStatus_;
-        } else {
-          result.sateStatus_ = sateStatusBuilder_.build();
-        }
-        if (((bitField0_ & 0x00001000) == 0x00001000)) {
-          sateCno_ = java.util.Collections.unmodifiableList(sateCno_);
+        if (((bitField0_ & 0x00001000) != 0)) {
+          sateCno_.makeImmutable();
           bitField0_ = (bitField0_ & ~0x00001000);
         }
         result.sateCno_ = sateCno_;
@@ -4944,6 +5620,39 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus)other);
@@ -5001,14 +5710,17 @@ public final class Tracker {
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5018,7 +5730,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -5030,31 +5742,31 @@ public final class Tracker {
 
       private int csq_ ;
       /**
-       * <code>optional int32 csq = 1;</code>
-       *
        * <pre>
        * GSM CSQ值
        * </pre>
+       *
+       * <code>optional int32 csq = 1;</code>
        */
       public boolean hasCsq() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>optional int32 csq = 1;</code>
-       *
        * <pre>
        * GSM CSQ值
        * </pre>
+       *
+       * <code>optional int32 csq = 1;</code>
        */
       public int getCsq() {
         return csq_;
       }
       /**
-       * <code>optional int32 csq = 1;</code>
-       *
        * <pre>
        * GSM CSQ值
        * </pre>
+       *
+       * <code>optional int32 csq = 1;</code>
        */
       public Builder setCsq(int value) {
         bitField0_ |= 0x00000001;
@@ -5063,11 +5775,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 csq = 1;</code>
-       *
        * <pre>
        * GSM CSQ值
        * </pre>
+       *
+       * <code>optional int32 csq = 1;</code>
        */
       public Builder clearCsq() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -5078,31 +5790,31 @@ public final class Tracker {
 
       private boolean chargeSta_ ;
       /**
-       * <code>optional bool charge_sta = 2;</code>
-       *
        * <pre>
        * 内置电池充电状态 true表示充电,false表示没充电
        * </pre>
+       *
+       * <code>optional bool charge_sta = 2;</code>
        */
       public boolean hasChargeSta() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional bool charge_sta = 2;</code>
-       *
        * <pre>
        * 内置电池充电状态 true表示充电,false表示没充电
        * </pre>
+       *
+       * <code>optional bool charge_sta = 2;</code>
        */
       public boolean getChargeSta() {
         return chargeSta_;
       }
       /**
-       * <code>optional bool charge_sta = 2;</code>
-       *
        * <pre>
        * 内置电池充电状态 true表示充电,false表示没充电
        * </pre>
+       *
+       * <code>optional bool charge_sta = 2;</code>
        */
       public Builder setChargeSta(boolean value) {
         bitField0_ |= 0x00000002;
@@ -5111,11 +5823,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool charge_sta = 2;</code>
-       *
        * <pre>
        * 内置电池充电状态 true表示充电,false表示没充电
        * </pre>
+       *
+       * <code>optional bool charge_sta = 2;</code>
        */
       public Builder clearChargeSta() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -5126,31 +5838,31 @@ public final class Tracker {
 
       private boolean vibSta_ ;
       /**
-       * <code>optional bool vib_sta = 3;</code>
-       *
        * <pre>
        *震动传感器状态 true表示有震动，false表示没有震动
        * </pre>
+       *
+       * <code>optional bool vib_sta = 3;</code>
        */
       public boolean hasVibSta() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>optional bool vib_sta = 3;</code>
-       *
        * <pre>
        *震动传感器状态 true表示有震动，false表示没有震动
        * </pre>
+       *
+       * <code>optional bool vib_sta = 3;</code>
        */
       public boolean getVibSta() {
         return vibSta_;
       }
       /**
-       * <code>optional bool vib_sta = 3;</code>
-       *
        * <pre>
        *震动传感器状态 true表示有震动，false表示没有震动
        * </pre>
+       *
+       * <code>optional bool vib_sta = 3;</code>
        */
       public Builder setVibSta(boolean value) {
         bitField0_ |= 0x00000004;
@@ -5159,11 +5871,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool vib_sta = 3;</code>
-       *
        * <pre>
        *震动传感器状态 true表示有震动，false表示没有震动
        * </pre>
+       *
+       * <code>optional bool vib_sta = 3;</code>
        */
       public Builder clearVibSta() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -5174,31 +5886,31 @@ public final class Tracker {
 
       private boolean accSta_ ;
       /**
-       * <code>optional bool acc_sta = 4;</code>
-       *
        * <pre>
        * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
        * </pre>
+       *
+       * <code>optional bool acc_sta = 4;</code>
        */
       public boolean hasAccSta() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
-       * <code>optional bool acc_sta = 4;</code>
-       *
        * <pre>
        * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
        * </pre>
+       *
+       * <code>optional bool acc_sta = 4;</code>
        */
       public boolean getAccSta() {
         return accSta_;
       }
       /**
-       * <code>optional bool acc_sta = 4;</code>
-       *
        * <pre>
        * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
        * </pre>
+       *
+       * <code>optional bool acc_sta = 4;</code>
        */
       public Builder setAccSta(boolean value) {
         bitField0_ |= 0x00000008;
@@ -5207,11 +5919,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool acc_sta = 4;</code>
-       *
        * <pre>
        * ACC检测线的状态 true 表示开启，false表示没开启或者没有ACC
        * </pre>
+       *
+       * <code>optional bool acc_sta = 4;</code>
        */
       public Builder clearAccSta() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -5222,31 +5934,31 @@ public final class Tracker {
 
       private boolean start_ ;
       /**
-       * <code>optional bool start = 5;</code>
-       *
        * <pre>
        * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
        * </pre>
+       *
+       * <code>optional bool start = 5;</code>
        */
       public boolean hasStart() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000010) != 0);
       }
       /**
-       * <code>optional bool start = 5;</code>
-       *
        * <pre>
        * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
        * </pre>
+       *
+       * <code>optional bool start = 5;</code>
        */
       public boolean getStart() {
         return start_;
       }
       /**
-       * <code>optional bool start = 5;</code>
-       *
        * <pre>
        * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
        * </pre>
+       *
+       * <code>optional bool start = 5;</code>
        */
       public Builder setStart(boolean value) {
         bitField0_ |= 0x00000010;
@@ -5255,11 +5967,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool start = 5;</code>
-       *
        * <pre>
        * 车辆启动状态 true 表示启动，false 表示未启动 或者未检测到
        * </pre>
+       *
+       * <code>optional bool start = 5;</code>
        */
       public Builder clearStart() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -5270,31 +5982,31 @@ public final class Tracker {
 
       private boolean isOpen_ ;
       /**
-       * <code>optional bool isOpen = 6;</code>
-       *
        * <pre>
        * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
        * </pre>
+       *
+       * <code>optional bool isOpen = 6;</code>
        */
       public boolean hasIsOpen() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000020) != 0);
       }
       /**
-       * <code>optional bool isOpen = 6;</code>
-       *
        * <pre>
        * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
        * </pre>
+       *
+       * <code>optional bool isOpen = 6;</code>
        */
       public boolean getIsOpen() {
         return isOpen_;
       }
       /**
-       * <code>optional bool isOpen = 6;</code>
-       *
        * <pre>
        * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
        * </pre>
+       *
+       * <code>optional bool isOpen = 6;</code>
        */
       public Builder setIsOpen(boolean value) {
         bitField0_ |= 0x00000020;
@@ -5303,11 +6015,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool isOpen = 6;</code>
-       *
        * <pre>
        * 定位器是否打开 true 表示打开，false 表示未打开,配合定位状态可以实现 未定位，定位中，已定位三种状态
        * </pre>
+       *
+       * <code>optional bool isOpen = 6;</code>
        */
       public Builder clearIsOpen() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -5318,31 +6030,31 @@ public final class Tracker {
 
       private boolean isFix_ ;
       /**
-       * <code>optional bool isFix = 7;</code>
-       *
        * <pre>
        * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
        * </pre>
+       *
+       * <code>optional bool isFix = 7;</code>
        */
       public boolean hasIsFix() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000040) != 0);
       }
       /**
-       * <code>optional bool isFix = 7;</code>
-       *
        * <pre>
        * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
        * </pre>
+       *
+       * <code>optional bool isFix = 7;</code>
        */
       public boolean getIsFix() {
         return isFix_;
       }
       /**
-       * <code>optional bool isFix = 7;</code>
-       *
        * <pre>
        * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
        * </pre>
+       *
+       * <code>optional bool isFix = 7;</code>
        */
       public Builder setIsFix(boolean value) {
         bitField0_ |= 0x00000040;
@@ -5351,11 +6063,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool isFix = 7;</code>
-       *
        * <pre>
        * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
        * </pre>
+       *
+       * <code>optional bool isFix = 7;</code>
        */
       public Builder clearIsFix() {
         bitField0_ = (bitField0_ & ~0x00000040);
@@ -5366,31 +6078,31 @@ public final class Tracker {
 
       private int powerVolt_ ;
       /**
-       * <code>optional int32 powerVolt = 8;</code>
-       *
        * <pre>
        * 功率电池当前电压mV
        * </pre>
+       *
+       * <code>optional int32 powerVolt = 8;</code>
        */
       public boolean hasPowerVolt() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000080) != 0);
       }
       /**
-       * <code>optional int32 powerVolt = 8;</code>
-       *
        * <pre>
        * 功率电池当前电压mV
        * </pre>
+       *
+       * <code>optional int32 powerVolt = 8;</code>
        */
       public int getPowerVolt() {
         return powerVolt_;
       }
       /**
-       * <code>optional int32 powerVolt = 8;</code>
-       *
        * <pre>
        * 功率电池当前电压mV
        * </pre>
+       *
+       * <code>optional int32 powerVolt = 8;</code>
        */
       public Builder setPowerVolt(int value) {
         bitField0_ |= 0x00000080;
@@ -5399,11 +6111,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 powerVolt = 8;</code>
-       *
        * <pre>
        * 功率电池当前电压mV
        * </pre>
+       *
+       * <code>optional int32 powerVolt = 8;</code>
        */
       public Builder clearPowerVolt() {
         bitField0_ = (bitField0_ & ~0x00000080);
@@ -5414,31 +6126,31 @@ public final class Tracker {
 
       private int vbatt_ ;
       /**
-       * <code>optional int32 vbatt = 9;</code>
-       *
        * <pre>
        * 内置锂电池电压mV
        * </pre>
+       *
+       * <code>optional int32 vbatt = 9;</code>
        */
       public boolean hasVbatt() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000100) != 0);
       }
       /**
-       * <code>optional int32 vbatt = 9;</code>
-       *
        * <pre>
        * 内置锂电池电压mV
        * </pre>
+       *
+       * <code>optional int32 vbatt = 9;</code>
        */
       public int getVbatt() {
         return vbatt_;
       }
       /**
-       * <code>optional int32 vbatt = 9;</code>
-       *
        * <pre>
        * 内置锂电池电压mV
        * </pre>
+       *
+       * <code>optional int32 vbatt = 9;</code>
        */
       public Builder setVbatt(int value) {
         bitField0_ |= 0x00000100;
@@ -5447,11 +6159,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 vbatt = 9;</code>
-       *
        * <pre>
        * 内置锂电池电压mV
        * </pre>
+       *
+       * <code>optional int32 vbatt = 9;</code>
        */
       public Builder clearVbatt() {
         bitField0_ = (bitField0_ & ~0x00000100);
@@ -5462,31 +6174,31 @@ public final class Tracker {
 
       private int powerType_ ;
       /**
-       * <code>optional int32 powerType = 10;</code>
-       *
        * <pre>
        * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
        * </pre>
+       *
+       * <code>optional int32 powerType = 10;</code>
        */
       public boolean hasPowerType() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000200) != 0);
       }
       /**
-       * <code>optional int32 powerType = 10;</code>
-       *
        * <pre>
        * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
        * </pre>
+       *
+       * <code>optional int32 powerType = 10;</code>
        */
       public int getPowerType() {
         return powerType_;
       }
       /**
-       * <code>optional int32 powerType = 10;</code>
-       *
        * <pre>
        * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
        * </pre>
+       *
+       * <code>optional int32 powerType = 10;</code>
        */
       public Builder setPowerType(int value) {
         bitField0_ |= 0x00000200;
@@ -5495,11 +6207,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 powerType = 10;</code>
-       *
        * <pre>
        * 功率电池的类型，比如12 表示12V电池, 48 表示48V电池,
        * </pre>
+       *
+       * <code>optional int32 powerType = 10;</code>
        */
       public Builder clearPowerType() {
         bitField0_ = (bitField0_ & ~0x00000200);
@@ -5510,31 +6222,31 @@ public final class Tracker {
 
       private boolean underVolt_ ;
       /**
-       * <code>optional bool underVolt = 11;</code>
-       *
        * <pre>
        * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
        * </pre>
+       *
+       * <code>optional bool underVolt = 11;</code>
        */
       public boolean hasUnderVolt() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000400) != 0);
       }
       /**
-       * <code>optional bool underVolt = 11;</code>
-       *
        * <pre>
        * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
        * </pre>
+       *
+       * <code>optional bool underVolt = 11;</code>
        */
       public boolean getUnderVolt() {
         return underVolt_;
       }
       /**
-       * <code>optional bool underVolt = 11;</code>
-       *
        * <pre>
        * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
        * </pre>
+       *
+       * <code>optional bool underVolt = 11;</code>
        */
       public Builder setUnderVolt(boolean value) {
         bitField0_ |= 0x00000400;
@@ -5543,11 +6255,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional bool underVolt = 11;</code>
-       *
        * <pre>
        * 欠压报警，true表示电池电压低于电池类型的最低电压 false 表示电池电压正常
        * </pre>
+       *
+       * <code>optional bool underVolt = 11;</code>
        */
       public Builder clearUnderVolt() {
         bitField0_ = (bitField0_ & ~0x00000400);
@@ -5556,39 +6268,39 @@ public final class Tracker {
         return this;
       }
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.SateStatus sateStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
+      private org.nutz.walnut.ext.gpstracker.Tracker.SateStatus sateStatus_;
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder> sateStatusBuilder_;
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public boolean hasSateStatus() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000800) != 0);
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus() {
         if (sateStatusBuilder_ == null) {
-          return sateStatus_;
+          return sateStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
         } else {
           return sateStatusBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public Builder setSateStatus(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus value) {
         if (sateStatusBuilder_ == null) {
@@ -5604,11 +6316,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public Builder setSateStatus(
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder builderForValue) {
@@ -5622,15 +6334,16 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public Builder mergeSateStatus(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus value) {
         if (sateStatusBuilder_ == null) {
-          if (((bitField0_ & 0x00000800) == 0x00000800) &&
+          if (((bitField0_ & 0x00000800) != 0) &&
+              sateStatus_ != null &&
               sateStatus_ != org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance()) {
             sateStatus_ =
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.newBuilder(sateStatus_).mergeFrom(value).buildPartial();
@@ -5645,15 +6358,15 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public Builder clearSateStatus() {
         if (sateStatusBuilder_ == null) {
-          sateStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance();
+          sateStatus_ = null;
           onChanged();
         } else {
           sateStatusBuilder_.clear();
@@ -5662,11 +6375,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder getSateStatusBuilder() {
         bitField0_ |= 0x00000800;
@@ -5674,31 +6387,32 @@ public final class Tracker {
         return getSateStatusFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder() {
         if (sateStatusBuilder_ != null) {
           return sateStatusBuilder_.getMessageOrBuilder();
         } else {
-          return sateStatus_;
+          return sateStatus_ == null ?
+              org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
-       *
        * <pre>
        * 设备卫星详细信息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
        */
-      private com.google.protobuf.SingleFieldBuilder<
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder> 
           getSateStatusFieldBuilder() {
         if (sateStatusBuilder_ == null) {
-          sateStatusBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+          sateStatusBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder>(
                   getSateStatus(),
                   getParentForChildren(),
@@ -5708,77 +6422,78 @@ public final class Tracker {
         return sateStatusBuilder_;
       }
 
-      private java.util.List<java.lang.Integer> sateCno_ = java.util.Collections.emptyList();
+      private com.google.protobuf.Internal.IntList sateCno_ = emptyIntList();
       private void ensureSateCnoIsMutable() {
-        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
-          sateCno_ = new java.util.ArrayList<java.lang.Integer>(sateCno_);
+        if (!((bitField0_ & 0x00001000) != 0)) {
+          sateCno_ = mutableCopy(sateCno_);
           bitField0_ |= 0x00001000;
          }
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public java.util.List<java.lang.Integer>
           getSateCnoList() {
-        return java.util.Collections.unmodifiableList(sateCno_);
+        return ((bitField0_ & 0x00001000) != 0) ?
+                 java.util.Collections.unmodifiableList(sateCno_) : sateCno_;
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public int getSateCnoCount() {
         return sateCno_.size();
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public int getSateCno(int index) {
-        return sateCno_.get(index);
+        return sateCno_.getInt(index);
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public Builder setSateCno(
           int index, int value) {
         ensureSateCnoIsMutable();
-        sateCno_.set(index, value);
+        sateCno_.setInt(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public Builder addSateCno(int value) {
         ensureSateCnoIsMutable();
-        sateCno_.add(value);
+        sateCno_.addInt(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public Builder addAllSateCno(
           java.lang.Iterable<? extends java.lang.Integer> values) {
@@ -5789,28 +6504,69 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated int32 sateCno = 13;</code>
-       *
        * <pre>
        * 所有卫星的载噪比数组
        * </pre>
+       *
+       * <code>repeated int32 sateCno = 13;</code>
        */
       public Builder clearSateCno() {
-        sateCno_ = java.util.Collections.emptyList();
+        sateCno_ = emptyIntList();
         bitField0_ = (bitField0_ & ~0x00001000);
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceStatus)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DeviceStatus(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<DeviceStatus>
+        PARSER = new com.google.protobuf.AbstractParser<DeviceStatus>() {
+      @java.lang.Override
+      public DeviceStatus parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DeviceStatus(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DeviceStatus> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DeviceStatus> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface TrackMsgOrBuilder extends
@@ -5818,196 +6574,197 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 lng = 1;</code>
-     *
      * <pre>
      * 经度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lng = 1;</code>
      */
     boolean hasLng();
     /**
-     * <code>optional int32 lng = 1;</code>
-     *
      * <pre>
      * 经度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lng = 1;</code>
      */
     int getLng();
 
     /**
-     * <code>optional int32 lat = 2;</code>
-     *
      * <pre>
      * 纬度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lat = 2;</code>
      */
     boolean hasLat();
     /**
-     * <code>optional int32 lat = 2;</code>
-     *
      * <pre>
      * 纬度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lat = 2;</code>
      */
     int getLat();
 
     /**
-     * <code>optional int32 altitude = 3;</code>
-     *
      * <pre>
      * 海拔 米
      * </pre>
+     *
+     * <code>optional int32 altitude = 3;</code>
      */
     boolean hasAltitude();
     /**
-     * <code>optional int32 altitude = 3;</code>
-     *
      * <pre>
      * 海拔 米
      * </pre>
+     *
+     * <code>optional int32 altitude = 3;</code>
      */
     int getAltitude();
 
     /**
-     * <code>optional int32 speed = 4;</code>
-     *
      * <pre>
      * 速度 小时/公里
      * </pre>
+     *
+     * <code>optional int32 speed = 4;</code>
      */
     boolean hasSpeed();
     /**
-     * <code>optional int32 speed = 4;</code>
-     *
      * <pre>
      * 速度 小时/公里
      * </pre>
+     *
+     * <code>optional int32 speed = 4;</code>
      */
     int getSpeed();
 
     /**
-     * <code>optional int32 azimuth = 5;</code>
-     *
      * <pre>
      * 方位角
      * </pre>
+     *
+     * <code>optional int32 azimuth = 5;</code>
      */
     boolean hasAzimuth();
     /**
-     * <code>optional int32 azimuth = 5;</code>
-     *
      * <pre>
      * 方位角
      * </pre>
+     *
+     * <code>optional int32 azimuth = 5;</code>
      */
     int getAzimuth();
 
     /**
-     * <code>optional int32 useSateCnt = 6;</code>
-     *
      * <pre>
      * 定位使用的卫星个数
      * </pre>
+     *
+     * <code>optional int32 useSateCnt = 6;</code>
      */
     boolean hasUseSateCnt();
     /**
-     * <code>optional int32 useSateCnt = 6;</code>
-     *
      * <pre>
      * 定位使用的卫星个数
      * </pre>
+     *
+     * <code>optional int32 useSateCnt = 6;</code>
      */
     int getUseSateCnt();
 
     /**
-     * <code>optional int32 viewedSateCnt = 7;</code>
-     *
      * <pre>
      * 可见卫星个数
      * </pre>
+     *
+     * <code>optional int32 viewedSateCnt = 7;</code>
      */
     boolean hasViewedSateCnt();
     /**
-     * <code>optional int32 viewedSateCnt = 7;</code>
-     *
      * <pre>
      * 可见卫星个数
      * </pre>
+     *
+     * <code>optional int32 viewedSateCnt = 7;</code>
      */
     int getViewedSateCnt();
 
     /**
-     * <code>optional int32 timestamp = 8;</code>
-     *
      * <pre>
      * 轨迹点时间戳
      * </pre>
+     *
+     * <code>optional int32 timestamp = 8;</code>
      */
     boolean hasTimestamp();
     /**
-     * <code>optional int32 timestamp = 8;</code>
-     *
      * <pre>
      * 轨迹点时间戳
      * </pre>
+     *
+     * <code>optional int32 timestamp = 8;</code>
      */
     int getTimestamp();
 
     /**
-     * <code>optional int32 sateSn = 9;</code>
-     *
      * <pre>
      * 卫星最大载波值
      * </pre>
+     *
+     * <code>optional int32 sateSn = 9;</code>
      */
     boolean hasSateSn();
     /**
-     * <code>optional int32 sateSn = 9;</code>
-     *
      * <pre>
      * 卫星最大载波值
      * </pre>
+     *
+     * <code>optional int32 sateSn = 9;</code>
      */
     int getSateSn();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
-   *
    * <pre>
    * 设备运行轨迹信息
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
    */
-  public static final class TrackMsg extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class TrackMsg extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.TrackMsg)
       TrackMsgOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use TrackMsg.newBuilder() to construct.
-    private TrackMsg(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private TrackMsg(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private TrackMsg(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final TrackMsg defaultInstance;
-    public static TrackMsg getDefaultInstance() {
-      return defaultInstance;
+    private TrackMsg() {
     }
 
-    public TrackMsg getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new TrackMsg();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private TrackMsg(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -6019,13 +6776,6 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               bitField0_ |= 0x00000001;
               lng_ = input.readInt32();
@@ -6071,13 +6821,20 @@ public final class Tracker {
               sateSn_ = input.readInt32();
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -6088,47 +6845,33 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.class, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<TrackMsg> PARSER =
-        new com.google.protobuf.AbstractParser<TrackMsg>() {
-      public TrackMsg parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new TrackMsg(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<TrackMsg> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int LNG_FIELD_NUMBER = 1;
     private int lng_;
     /**
-     * <code>optional int32 lng = 1;</code>
-     *
      * <pre>
      * 经度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lng = 1;</code>
      */
     public boolean hasLng() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>optional int32 lng = 1;</code>
-     *
      * <pre>
      * 经度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lng = 1;</code>
      */
     public int getLng() {
       return lng_;
@@ -6137,21 +6880,21 @@ public final class Tracker {
     public static final int LAT_FIELD_NUMBER = 2;
     private int lat_;
     /**
-     * <code>optional int32 lat = 2;</code>
-     *
      * <pre>
      * 纬度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lat = 2;</code>
      */
     public boolean hasLat() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional int32 lat = 2;</code>
-     *
      * <pre>
      * 纬度 度格式*10^7
      * </pre>
+     *
+     * <code>optional int32 lat = 2;</code>
      */
     public int getLat() {
       return lat_;
@@ -6160,21 +6903,21 @@ public final class Tracker {
     public static final int ALTITUDE_FIELD_NUMBER = 3;
     private int altitude_;
     /**
-     * <code>optional int32 altitude = 3;</code>
-     *
      * <pre>
      * 海拔 米
      * </pre>
+     *
+     * <code>optional int32 altitude = 3;</code>
      */
     public boolean hasAltitude() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>optional int32 altitude = 3;</code>
-     *
      * <pre>
      * 海拔 米
      * </pre>
+     *
+     * <code>optional int32 altitude = 3;</code>
      */
     public int getAltitude() {
       return altitude_;
@@ -6183,21 +6926,21 @@ public final class Tracker {
     public static final int SPEED_FIELD_NUMBER = 4;
     private int speed_;
     /**
-     * <code>optional int32 speed = 4;</code>
-     *
      * <pre>
      * 速度 小时/公里
      * </pre>
+     *
+     * <code>optional int32 speed = 4;</code>
      */
     public boolean hasSpeed() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
-     * <code>optional int32 speed = 4;</code>
-     *
      * <pre>
      * 速度 小时/公里
      * </pre>
+     *
+     * <code>optional int32 speed = 4;</code>
      */
     public int getSpeed() {
       return speed_;
@@ -6206,21 +6949,21 @@ public final class Tracker {
     public static final int AZIMUTH_FIELD_NUMBER = 5;
     private int azimuth_;
     /**
-     * <code>optional int32 azimuth = 5;</code>
-     *
      * <pre>
      * 方位角
      * </pre>
+     *
+     * <code>optional int32 azimuth = 5;</code>
      */
     public boolean hasAzimuth() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
-     * <code>optional int32 azimuth = 5;</code>
-     *
      * <pre>
      * 方位角
      * </pre>
+     *
+     * <code>optional int32 azimuth = 5;</code>
      */
     public int getAzimuth() {
       return azimuth_;
@@ -6229,21 +6972,21 @@ public final class Tracker {
     public static final int USESATECNT_FIELD_NUMBER = 6;
     private int useSateCnt_;
     /**
-     * <code>optional int32 useSateCnt = 6;</code>
-     *
      * <pre>
      * 定位使用的卫星个数
      * </pre>
+     *
+     * <code>optional int32 useSateCnt = 6;</code>
      */
     public boolean hasUseSateCnt() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
-     * <code>optional int32 useSateCnt = 6;</code>
-     *
      * <pre>
      * 定位使用的卫星个数
      * </pre>
+     *
+     * <code>optional int32 useSateCnt = 6;</code>
      */
     public int getUseSateCnt() {
       return useSateCnt_;
@@ -6252,21 +6995,21 @@ public final class Tracker {
     public static final int VIEWEDSATECNT_FIELD_NUMBER = 7;
     private int viewedSateCnt_;
     /**
-     * <code>optional int32 viewedSateCnt = 7;</code>
-     *
      * <pre>
      * 可见卫星个数
      * </pre>
+     *
+     * <code>optional int32 viewedSateCnt = 7;</code>
      */
     public boolean hasViewedSateCnt() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000040) != 0);
     }
     /**
-     * <code>optional int32 viewedSateCnt = 7;</code>
-     *
      * <pre>
      * 可见卫星个数
      * </pre>
+     *
+     * <code>optional int32 viewedSateCnt = 7;</code>
      */
     public int getViewedSateCnt() {
       return viewedSateCnt_;
@@ -6275,21 +7018,21 @@ public final class Tracker {
     public static final int TIMESTAMP_FIELD_NUMBER = 8;
     private int timestamp_;
     /**
-     * <code>optional int32 timestamp = 8;</code>
-     *
      * <pre>
      * 轨迹点时间戳
      * </pre>
+     *
+     * <code>optional int32 timestamp = 8;</code>
      */
     public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000080) != 0);
     }
     /**
-     * <code>optional int32 timestamp = 8;</code>
-     *
      * <pre>
      * 轨迹点时间戳
      * </pre>
+     *
+     * <code>optional int32 timestamp = 8;</code>
      */
     public int getTimestamp() {
       return timestamp_;
@@ -6298,38 +7041,28 @@ public final class Tracker {
     public static final int SATESN_FIELD_NUMBER = 9;
     private int sateSn_;
     /**
-     * <code>optional int32 sateSn = 9;</code>
-     *
      * <pre>
      * 卫星最大载波值
      * </pre>
+     *
+     * <code>optional int32 sateSn = 9;</code>
      */
     public boolean hasSateSn() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000100) != 0);
     }
     /**
-     * <code>optional int32 sateSn = 9;</code>
-     *
      * <pre>
      * 卫星最大载波值
      * </pre>
+     *
+     * <code>optional int32 sateSn = 9;</code>
      */
     public int getSateSn() {
       return sateSn_;
     }
 
-    private void initFields() {
-      lng_ = 0;
-      lat_ = 0;
-      altitude_ = 0;
-      speed_ = 0;
-      azimuth_ = 0;
-      useSateCnt_ = 0;
-      viewedSateCnt_ = 0;
-      timestamp_ = 0;
-      sateSn_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -6339,93 +7072,204 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeInt32(1, lng_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeInt32(2, lat_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         output.writeInt32(3, altitude_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         output.writeInt32(4, speed_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         output.writeInt32(5, azimuth_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         output.writeInt32(6, useSateCnt_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         output.writeInt32(7, viewedSateCnt_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         output.writeInt32(8, timestamp_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         output.writeInt32(9, sateSn_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, lng_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, lat_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, altitude_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, speed_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, azimuth_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(6, useSateCnt_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(7, viewedSateCnt_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, timestamp_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(9, sateSn_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg other = (org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg) obj;
+
+      if (hasLng() != other.hasLng()) return false;
+      if (hasLng()) {
+        if (getLng()
+            != other.getLng()) return false;
+      }
+      if (hasLat() != other.hasLat()) return false;
+      if (hasLat()) {
+        if (getLat()
+            != other.getLat()) return false;
+      }
+      if (hasAltitude() != other.hasAltitude()) return false;
+      if (hasAltitude()) {
+        if (getAltitude()
+            != other.getAltitude()) return false;
+      }
+      if (hasSpeed() != other.hasSpeed()) return false;
+      if (hasSpeed()) {
+        if (getSpeed()
+            != other.getSpeed()) return false;
+      }
+      if (hasAzimuth() != other.hasAzimuth()) return false;
+      if (hasAzimuth()) {
+        if (getAzimuth()
+            != other.getAzimuth()) return false;
+      }
+      if (hasUseSateCnt() != other.hasUseSateCnt()) return false;
+      if (hasUseSateCnt()) {
+        if (getUseSateCnt()
+            != other.getUseSateCnt()) return false;
+      }
+      if (hasViewedSateCnt() != other.hasViewedSateCnt()) return false;
+      if (hasViewedSateCnt()) {
+        if (getViewedSateCnt()
+            != other.getViewedSateCnt()) return false;
+      }
+      if (hasTimestamp() != other.hasTimestamp()) return false;
+      if (hasTimestamp()) {
+        if (getTimestamp()
+            != other.getTimestamp()) return false;
+      }
+      if (hasSateSn() != other.hasSateSn()) return false;
+      if (hasSateSn()) {
+        if (getSateSn()
+            != other.getSateSn()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasLng()) {
+        hash = (37 * hash) + LNG_FIELD_NUMBER;
+        hash = (53 * hash) + getLng();
+      }
+      if (hasLat()) {
+        hash = (37 * hash) + LAT_FIELD_NUMBER;
+        hash = (53 * hash) + getLat();
+      }
+      if (hasAltitude()) {
+        hash = (37 * hash) + ALTITUDE_FIELD_NUMBER;
+        hash = (53 * hash) + getAltitude();
+      }
+      if (hasSpeed()) {
+        hash = (37 * hash) + SPEED_FIELD_NUMBER;
+        hash = (53 * hash) + getSpeed();
+      }
+      if (hasAzimuth()) {
+        hash = (37 * hash) + AZIMUTH_FIELD_NUMBER;
+        hash = (53 * hash) + getAzimuth();
+      }
+      if (hasUseSateCnt()) {
+        hash = (37 * hash) + USESATECNT_FIELD_NUMBER;
+        hash = (53 * hash) + getUseSateCnt();
+      }
+      if (hasViewedSateCnt()) {
+        hash = (37 * hash) + VIEWEDSATECNT_FIELD_NUMBER;
+        hash = (53 * hash) + getViewedSateCnt();
+      }
+      if (hasTimestamp()) {
+        hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+        hash = (53 * hash) + getTimestamp();
+      }
+      if (hasSateSn()) {
+        hash = (37 * hash) + SATESN_FIELD_NUMBER;
+        hash = (53 * hash) + getSateSn();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -6449,58 +7293,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
-     *
      * <pre>
      * 设备运行轨迹信息
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.TrackMsg)
         org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -6508,7 +7365,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -6521,18 +7379,16 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         lng_ = 0;
@@ -6556,19 +7412,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg build() {
         org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg result = buildPartial();
         if (!result.isInitialized()) {
@@ -6577,51 +7432,85 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg result = new org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.lng_ = lng_;
           to_bitField0_ |= 0x00000001;
         }
-        result.lng_ = lng_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.lat_ = lat_;
           to_bitField0_ |= 0x00000002;
         }
-        result.lat_ = lat_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.altitude_ = altitude_;
           to_bitField0_ |= 0x00000004;
         }
-        result.altitude_ = altitude_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.speed_ = speed_;
           to_bitField0_ |= 0x00000008;
         }
-        result.speed_ = speed_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.azimuth_ = azimuth_;
           to_bitField0_ |= 0x00000010;
         }
-        result.azimuth_ = azimuth_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.useSateCnt_ = useSateCnt_;
           to_bitField0_ |= 0x00000020;
         }
-        result.useSateCnt_ = useSateCnt_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((from_bitField0_ & 0x00000040) != 0)) {
+          result.viewedSateCnt_ = viewedSateCnt_;
           to_bitField0_ |= 0x00000040;
         }
-        result.viewedSateCnt_ = viewedSateCnt_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((from_bitField0_ & 0x00000080) != 0)) {
+          result.timestamp_ = timestamp_;
           to_bitField0_ |= 0x00000080;
         }
-        result.timestamp_ = timestamp_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.sateSn_ = sateSn_;
           to_bitField0_ |= 0x00000100;
         }
-        result.sateSn_ = sateSn_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg)other);
@@ -6660,14 +7549,17 @@ public final class Tracker {
         if (other.hasSateSn()) {
           setSateSn(other.getSateSn());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -6677,7 +7569,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -6689,31 +7581,31 @@ public final class Tracker {
 
       private int lng_ ;
       /**
-       * <code>optional int32 lng = 1;</code>
-       *
        * <pre>
        * 经度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lng = 1;</code>
        */
       public boolean hasLng() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>optional int32 lng = 1;</code>
-       *
        * <pre>
        * 经度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lng = 1;</code>
        */
       public int getLng() {
         return lng_;
       }
       /**
-       * <code>optional int32 lng = 1;</code>
-       *
        * <pre>
        * 经度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lng = 1;</code>
        */
       public Builder setLng(int value) {
         bitField0_ |= 0x00000001;
@@ -6722,11 +7614,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 lng = 1;</code>
-       *
        * <pre>
        * 经度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lng = 1;</code>
        */
       public Builder clearLng() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -6737,31 +7629,31 @@ public final class Tracker {
 
       private int lat_ ;
       /**
-       * <code>optional int32 lat = 2;</code>
-       *
        * <pre>
        * 纬度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lat = 2;</code>
        */
       public boolean hasLat() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional int32 lat = 2;</code>
-       *
        * <pre>
        * 纬度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lat = 2;</code>
        */
       public int getLat() {
         return lat_;
       }
       /**
-       * <code>optional int32 lat = 2;</code>
-       *
        * <pre>
        * 纬度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lat = 2;</code>
        */
       public Builder setLat(int value) {
         bitField0_ |= 0x00000002;
@@ -6770,11 +7662,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 lat = 2;</code>
-       *
        * <pre>
        * 纬度 度格式*10^7
        * </pre>
+       *
+       * <code>optional int32 lat = 2;</code>
        */
       public Builder clearLat() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -6785,31 +7677,31 @@ public final class Tracker {
 
       private int altitude_ ;
       /**
-       * <code>optional int32 altitude = 3;</code>
-       *
        * <pre>
        * 海拔 米
        * </pre>
+       *
+       * <code>optional int32 altitude = 3;</code>
        */
       public boolean hasAltitude() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>optional int32 altitude = 3;</code>
-       *
        * <pre>
        * 海拔 米
        * </pre>
+       *
+       * <code>optional int32 altitude = 3;</code>
        */
       public int getAltitude() {
         return altitude_;
       }
       /**
-       * <code>optional int32 altitude = 3;</code>
-       *
        * <pre>
        * 海拔 米
        * </pre>
+       *
+       * <code>optional int32 altitude = 3;</code>
        */
       public Builder setAltitude(int value) {
         bitField0_ |= 0x00000004;
@@ -6818,11 +7710,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 altitude = 3;</code>
-       *
        * <pre>
        * 海拔 米
        * </pre>
+       *
+       * <code>optional int32 altitude = 3;</code>
        */
       public Builder clearAltitude() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -6833,31 +7725,31 @@ public final class Tracker {
 
       private int speed_ ;
       /**
-       * <code>optional int32 speed = 4;</code>
-       *
        * <pre>
        * 速度 小时/公里
        * </pre>
+       *
+       * <code>optional int32 speed = 4;</code>
        */
       public boolean hasSpeed() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
-       * <code>optional int32 speed = 4;</code>
-       *
        * <pre>
        * 速度 小时/公里
        * </pre>
+       *
+       * <code>optional int32 speed = 4;</code>
        */
       public int getSpeed() {
         return speed_;
       }
       /**
-       * <code>optional int32 speed = 4;</code>
-       *
        * <pre>
        * 速度 小时/公里
        * </pre>
+       *
+       * <code>optional int32 speed = 4;</code>
        */
       public Builder setSpeed(int value) {
         bitField0_ |= 0x00000008;
@@ -6866,11 +7758,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 speed = 4;</code>
-       *
        * <pre>
        * 速度 小时/公里
        * </pre>
+       *
+       * <code>optional int32 speed = 4;</code>
        */
       public Builder clearSpeed() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -6881,31 +7773,31 @@ public final class Tracker {
 
       private int azimuth_ ;
       /**
-       * <code>optional int32 azimuth = 5;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 5;</code>
        */
       public boolean hasAzimuth() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000010) != 0);
       }
       /**
-       * <code>optional int32 azimuth = 5;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 5;</code>
        */
       public int getAzimuth() {
         return azimuth_;
       }
       /**
-       * <code>optional int32 azimuth = 5;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 5;</code>
        */
       public Builder setAzimuth(int value) {
         bitField0_ |= 0x00000010;
@@ -6914,11 +7806,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 azimuth = 5;</code>
-       *
        * <pre>
        * 方位角
        * </pre>
+       *
+       * <code>optional int32 azimuth = 5;</code>
        */
       public Builder clearAzimuth() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -6929,31 +7821,31 @@ public final class Tracker {
 
       private int useSateCnt_ ;
       /**
-       * <code>optional int32 useSateCnt = 6;</code>
-       *
        * <pre>
        * 定位使用的卫星个数
        * </pre>
+       *
+       * <code>optional int32 useSateCnt = 6;</code>
        */
       public boolean hasUseSateCnt() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000020) != 0);
       }
       /**
-       * <code>optional int32 useSateCnt = 6;</code>
-       *
        * <pre>
        * 定位使用的卫星个数
        * </pre>
+       *
+       * <code>optional int32 useSateCnt = 6;</code>
        */
       public int getUseSateCnt() {
         return useSateCnt_;
       }
       /**
-       * <code>optional int32 useSateCnt = 6;</code>
-       *
        * <pre>
        * 定位使用的卫星个数
        * </pre>
+       *
+       * <code>optional int32 useSateCnt = 6;</code>
        */
       public Builder setUseSateCnt(int value) {
         bitField0_ |= 0x00000020;
@@ -6962,11 +7854,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 useSateCnt = 6;</code>
-       *
        * <pre>
        * 定位使用的卫星个数
        * </pre>
+       *
+       * <code>optional int32 useSateCnt = 6;</code>
        */
       public Builder clearUseSateCnt() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -6977,31 +7869,31 @@ public final class Tracker {
 
       private int viewedSateCnt_ ;
       /**
-       * <code>optional int32 viewedSateCnt = 7;</code>
-       *
        * <pre>
        * 可见卫星个数
        * </pre>
+       *
+       * <code>optional int32 viewedSateCnt = 7;</code>
        */
       public boolean hasViewedSateCnt() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000040) != 0);
       }
       /**
-       * <code>optional int32 viewedSateCnt = 7;</code>
-       *
        * <pre>
        * 可见卫星个数
        * </pre>
+       *
+       * <code>optional int32 viewedSateCnt = 7;</code>
        */
       public int getViewedSateCnt() {
         return viewedSateCnt_;
       }
       /**
-       * <code>optional int32 viewedSateCnt = 7;</code>
-       *
        * <pre>
        * 可见卫星个数
        * </pre>
+       *
+       * <code>optional int32 viewedSateCnt = 7;</code>
        */
       public Builder setViewedSateCnt(int value) {
         bitField0_ |= 0x00000040;
@@ -7010,11 +7902,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 viewedSateCnt = 7;</code>
-       *
        * <pre>
        * 可见卫星个数
        * </pre>
+       *
+       * <code>optional int32 viewedSateCnt = 7;</code>
        */
       public Builder clearViewedSateCnt() {
         bitField0_ = (bitField0_ & ~0x00000040);
@@ -7025,31 +7917,31 @@ public final class Tracker {
 
       private int timestamp_ ;
       /**
-       * <code>optional int32 timestamp = 8;</code>
-       *
        * <pre>
        * 轨迹点时间戳
        * </pre>
+       *
+       * <code>optional int32 timestamp = 8;</code>
        */
       public boolean hasTimestamp() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000080) != 0);
       }
       /**
-       * <code>optional int32 timestamp = 8;</code>
-       *
        * <pre>
        * 轨迹点时间戳
        * </pre>
+       *
+       * <code>optional int32 timestamp = 8;</code>
        */
       public int getTimestamp() {
         return timestamp_;
       }
       /**
-       * <code>optional int32 timestamp = 8;</code>
-       *
        * <pre>
        * 轨迹点时间戳
        * </pre>
+       *
+       * <code>optional int32 timestamp = 8;</code>
        */
       public Builder setTimestamp(int value) {
         bitField0_ |= 0x00000080;
@@ -7058,11 +7950,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 timestamp = 8;</code>
-       *
        * <pre>
        * 轨迹点时间戳
        * </pre>
+       *
+       * <code>optional int32 timestamp = 8;</code>
        */
       public Builder clearTimestamp() {
         bitField0_ = (bitField0_ & ~0x00000080);
@@ -7073,31 +7965,31 @@ public final class Tracker {
 
       private int sateSn_ ;
       /**
-       * <code>optional int32 sateSn = 9;</code>
-       *
        * <pre>
        * 卫星最大载波值
        * </pre>
+       *
+       * <code>optional int32 sateSn = 9;</code>
        */
       public boolean hasSateSn() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000100) != 0);
       }
       /**
-       * <code>optional int32 sateSn = 9;</code>
-       *
        * <pre>
        * 卫星最大载波值
        * </pre>
+       *
+       * <code>optional int32 sateSn = 9;</code>
        */
       public int getSateSn() {
         return sateSn_;
       }
       /**
-       * <code>optional int32 sateSn = 9;</code>
-       *
        * <pre>
        * 卫星最大载波值
        * </pre>
+       *
+       * <code>optional int32 sateSn = 9;</code>
        */
       public Builder setSateSn(int value) {
         bitField0_ |= 0x00000100;
@@ -7106,11 +7998,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 sateSn = 9;</code>
-       *
        * <pre>
        * 卫星最大载波值
        * </pre>
+       *
+       * <code>optional int32 sateSn = 9;</code>
        */
       public Builder clearSateSn() {
         bitField0_ = (bitField0_ & ~0x00000100);
@@ -7118,16 +8010,57 @@ public final class Tracker {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.TrackMsg)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.TrackMsg)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg DEFAULT_INSTANCE;
     static {
-      defaultInstance = new TrackMsg(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.TrackMsg)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<TrackMsg>
+        PARSER = new com.google.protobuf.AbstractParser<TrackMsg>() {
+      @java.lang.Override
+      public TrackMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new TrackMsg(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<TrackMsg> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TrackMsg> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DeviceMessageOrBuilder extends
@@ -7135,154 +8068,157 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-     *
      * <pre>
      *设备端上报的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     boolean hasId();
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-     *
      * <pre>
      *设备端上报的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId();
 
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     boolean hasLogin();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder();
 
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     boolean hasDevStatus();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder();
 
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> 
         getTrackMsgList();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index);
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     int getTrackMsgCount();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
         getTrackMsgOrBuilderList();
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
-   *
    * <pre>
    *设备端上报消息
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
    */
-  public static final class DeviceMessage extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class DeviceMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceMessage)
       DeviceMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use DeviceMessage.newBuilder() to construct.
-    private DeviceMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private DeviceMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DeviceMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DeviceMessage defaultInstance;
-    public static DeviceMessage getDefaultInstance() {
-      return defaultInstance;
+    private DeviceMessage() {
+      id_ = 0;
+      trackMsg_ = java.util.Collections.emptyList();
     }
 
-    public DeviceMessage getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DeviceMessage();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private DeviceMessage(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -7294,27 +8230,21 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID value = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                id_ = value;
+                id_ = rawValue;
               }
               break;
             }
             case 18: {
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+              if (((bitField0_ & 0x00000002) != 0)) {
                 subBuilder = login_.toBuilder();
               }
               login_ = input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.PARSER, extensionRegistry);
@@ -7327,7 +8257,7 @@ public final class Tracker {
             }
             case 26: {
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+              if (((bitField0_ & 0x00000004) != 0)) {
                 subBuilder = devStatus_.toBuilder();
               }
               devStatus_ = input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.PARSER, extensionRegistry);
@@ -7339,11 +8269,19 @@ public final class Tracker {
               break;
             }
             case 34: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+              if (!((mutable_bitField0_ & 0x00000008) != 0)) {
                 trackMsg_ = new java.util.ArrayList<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg>();
                 mutable_bitField0_ |= 0x00000008;
               }
-              trackMsg_.add(input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.PARSER, extensionRegistry));
+              trackMsg_.add(
+                  input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.PARSER, extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -7352,9 +8290,9 @@ public final class Tracker {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((mutable_bitField0_ & 0x00000008) != 0)) {
           trackMsg_ = java.util.Collections.unmodifiableList(trackMsg_);
         }
         this.unknownFields = unknownFields.build();
@@ -7366,76 +8304,72 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DeviceMessage> PARSER =
-        new com.google.protobuf.AbstractParser<DeviceMessage>() {
-      public DeviceMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeviceMessage(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeviceMessage> getParserForType() {
-      return PARSER;
-    }
-
     /**
-     * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID}
-     *
      * <pre>
      *设备消息类型
      * </pre>
+     *
+     * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID}
      */
     public enum DeviceMessageID
         implements com.google.protobuf.ProtocolMessageEnum {
       /**
-       * <code>LOGIN = 0;</code>
-       *
        * <pre>
        *登录
        * </pre>
-       */
-      LOGIN(0, 0),
-      /**
-       * <code>STATUS = 1;</code>
        *
+       * <code>LOGIN = 0;</code>
+       */
+      LOGIN(0),
+      /**
        * <pre>
        *状态
        * </pre>
+       *
+       * <code>STATUS = 1;</code>
        */
-      STATUS(1, 1),
+      STATUS(1),
       ;
 
       /**
-       * <code>LOGIN = 0;</code>
-       *
        * <pre>
        *登录
        * </pre>
+       *
+       * <code>LOGIN = 0;</code>
        */
       public static final int LOGIN_VALUE = 0;
       /**
-       * <code>STATUS = 1;</code>
-       *
        * <pre>
        *状态
        * </pre>
+       *
+       * <code>STATUS = 1;</code>
        */
       public static final int STATUS_VALUE = 1;
 
 
-      public final int getNumber() { return value; }
+      public final int getNumber() {
+        return value;
+      }
 
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
       public static DeviceMessageID valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static DeviceMessageID forNumber(int value) {
         switch (value) {
           case 0: return LOGIN;
           case 1: return STATUS;
@@ -7447,17 +8381,17 @@ public final class Tracker {
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static com.google.protobuf.Internal.EnumLiteMap<DeviceMessageID>
-          internalValueMap =
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          DeviceMessageID> internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<DeviceMessageID>() {
               public DeviceMessageID findValueByNumber(int number) {
-                return DeviceMessageID.valueOf(number);
+                return DeviceMessageID.forNumber(number);
               }
             };
 
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
           getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
+        return getDescriptor().getValues().get(ordinal());
       }
       public final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptorForType() {
@@ -7479,11 +8413,9 @@ public final class Tracker {
         return VALUES[desc.getIndex()];
       }
 
-      private final int index;
       private final int value;
 
-      private DeviceMessageID(int index, int value) {
-        this.index = index;
+      private DeviceMessageID(int value) {
         this.value = value;
       }
 
@@ -7492,156 +8424,153 @@ public final class Tracker {
 
     private int bitField0_;
     public static final int ID_FIELD_NUMBER = 1;
-    private org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID id_;
+    private int id_;
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-     *
      * <pre>
      *设备端上报的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     public boolean hasId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-     *
      * <pre>
      *设备端上报的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
-      return id_;
+      @SuppressWarnings("deprecation")
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(id_);
+      return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN : result;
     }
 
     public static final int LOGIN_FIELD_NUMBER = 2;
     private org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin login_;
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     public boolean hasLogin() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin() {
-      return login_;
+      return login_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-     *
      * <pre>
      *登录消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder() {
-      return login_;
+      return login_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
     }
 
     public static final int DEVSTATUS_FIELD_NUMBER = 3;
     private org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus devStatus_;
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     public boolean hasDevStatus() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus() {
-      return devStatus_;
+      return devStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-     *
      * <pre>
      *设备状态消息
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder() {
-      return devStatus_;
+      return devStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
     }
 
     public static final int TRACKMSG_FIELD_NUMBER = 4;
     private java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> trackMsg_;
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> getTrackMsgList() {
       return trackMsg_;
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
         getTrackMsgOrBuilderList() {
       return trackMsg_;
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     public int getTrackMsgCount() {
       return trackMsg_.size();
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index) {
       return trackMsg_.get(index);
     }
     /**
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-     *
      * <pre>
      *设备的运行轨迹
      * </pre>
+     *
+     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
         int index) {
       return trackMsg_.get(index);
     }
 
-    private void initFields() {
-      id_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN;
-      login_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance();
-      devStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance();
-      trackMsg_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -7661,58 +8590,120 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, id_.getNumber());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeEnum(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(2, login_);
+      if (((bitField0_ & 0x00000002) != 0)) {
+        output.writeMessage(2, getLogin());
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeMessage(3, devStatus_);
+      if (((bitField0_ & 0x00000004) != 0)) {
+        output.writeMessage(3, getDevStatus());
       }
       for (int i = 0; i < trackMsg_.size(); i++) {
         output.writeMessage(4, trackMsg_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, id_.getNumber());
+          .computeEnumSize(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, login_);
+          .computeMessageSize(2, getLogin());
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, devStatus_);
+          .computeMessageSize(3, getDevStatus());
       }
       for (int i = 0; i < trackMsg_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, trackMsg_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage other = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage) obj;
+
+      if (hasId() != other.hasId()) return false;
+      if (hasId()) {
+        if (id_ != other.id_) return false;
+      }
+      if (hasLogin() != other.hasLogin()) return false;
+      if (hasLogin()) {
+        if (!getLogin()
+            .equals(other.getLogin())) return false;
+      }
+      if (hasDevStatus() != other.hasDevStatus()) return false;
+      if (hasDevStatus()) {
+        if (!getDevStatus()
+            .equals(other.getDevStatus())) return false;
+      }
+      if (!getTrackMsgList()
+          .equals(other.getTrackMsgList())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasId()) {
+        hash = (37 * hash) + ID_FIELD_NUMBER;
+        hash = (53 * hash) + id_;
+      }
+      if (hasLogin()) {
+        hash = (37 * hash) + LOGIN_FIELD_NUMBER;
+        hash = (53 * hash) + getLogin().hashCode();
+      }
+      if (hasDevStatus()) {
+        hash = (37 * hash) + DEVSTATUS_FIELD_NUMBER;
+        hash = (53 * hash) + getDevStatus().hashCode();
+      }
+      if (getTrackMsgCount() > 0) {
+        hash = (37 * hash) + TRACKMSG_FIELD_NUMBER;
+        hash = (53 * hash) + getTrackMsgList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -7736,58 +8727,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
-     *
      * <pre>
      *设备端上报消息
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceMessage)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -7795,7 +8799,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -7808,33 +8813,31 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
           getLoginFieldBuilder();
           getDevStatusFieldBuilder();
           getTrackMsgFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN;
+        id_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (loginBuilder_ == null) {
-          login_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance();
+          login_ = null;
         } else {
           loginBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
         if (devStatusBuilder_ == null) {
-          devStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance();
+          devStatus_ = null;
         } else {
           devStatusBuilder_.clear();
         }
@@ -7848,19 +8851,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage build() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage result = buildPartial();
         if (!result.isInitialized()) {
@@ -7869,32 +8871,33 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage result = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.id_ = id_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          if (loginBuilder_ == null) {
+            result.login_ = login_;
+          } else {
+            result.login_ = loginBuilder_.build();
+          }
           to_bitField0_ |= 0x00000002;
         }
-        if (loginBuilder_ == null) {
-          result.login_ = login_;
-        } else {
-          result.login_ = loginBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          if (devStatusBuilder_ == null) {
+            result.devStatus_ = devStatus_;
+          } else {
+            result.devStatus_ = devStatusBuilder_.build();
+          }
           to_bitField0_ |= 0x00000004;
         }
-        if (devStatusBuilder_ == null) {
-          result.devStatus_ = devStatus_;
-        } else {
-          result.devStatus_ = devStatusBuilder_.build();
-        }
         if (trackMsgBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          if (((bitField0_ & 0x00000008) != 0)) {
             trackMsg_ = java.util.Collections.unmodifiableList(trackMsg_);
             bitField0_ = (bitField0_ & ~0x00000008);
           }
@@ -7907,6 +8910,39 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage)other);
@@ -7946,31 +8982,32 @@ public final class Tracker {
               trackMsg_ = other.trackMsg_;
               bitField0_ = (bitField0_ & ~0x00000008);
               trackMsgBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getTrackMsgFieldBuilder() : null;
             } else {
               trackMsgBuilder_.addAllMessages(other.trackMsg_);
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasId()) {
-          
           return false;
         }
         if (hasLogin()) {
           if (!getLogin().isInitialized()) {
-            
             return false;
           }
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -7980,7 +9017,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -7990,90 +9027,92 @@ public final class Tracker {
       }
       private int bitField0_;
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID id_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN;
+      private int id_ = 0;
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-       *
        * <pre>
        *设备端上报的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public boolean hasId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-       *
        * <pre>
        *设备端上报的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
-        return id_;
+        @SuppressWarnings("deprecation")
+        org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(id_);
+        return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN : result;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-       *
        * <pre>
        *设备端上报的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public Builder setId(org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID value) {
         if (value == null) {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        id_ = value;
+        id_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
-       *
        * <pre>
        *设备端上报的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        id_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN;
+        id_ = 0;
         onChanged();
         return this;
       }
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin login_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
+      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin login_;
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder> loginBuilder_;
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public boolean hasLogin() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin() {
         if (loginBuilder_ == null) {
-          return login_;
+          return login_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
         } else {
           return loginBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public Builder setLogin(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin value) {
         if (loginBuilder_ == null) {
@@ -8089,11 +9128,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public Builder setLogin(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder builderForValue) {
@@ -8107,15 +9146,16 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public Builder mergeLogin(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin value) {
         if (loginBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+          if (((bitField0_ & 0x00000002) != 0) &&
+              login_ != null &&
               login_ != org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance()) {
             login_ =
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.newBuilder(login_).mergeFrom(value).buildPartial();
@@ -8130,15 +9170,15 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public Builder clearLogin() {
         if (loginBuilder_ == null) {
-          login_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance();
+          login_ = null;
           onChanged();
         } else {
           loginBuilder_.clear();
@@ -8147,11 +9187,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder getLoginBuilder() {
         bitField0_ |= 0x00000002;
@@ -8159,31 +9199,32 @@ public final class Tracker {
         return getLoginFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder() {
         if (loginBuilder_ != null) {
           return loginBuilder_.getMessageOrBuilder();
         } else {
-          return login_;
+          return login_ == null ?
+              org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
-       *
        * <pre>
        *登录消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
        */
-      private com.google.protobuf.SingleFieldBuilder<
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder> 
           getLoginFieldBuilder() {
         if (loginBuilder_ == null) {
-          loginBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+          loginBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder>(
                   getLogin(),
                   getParentForChildren(),
@@ -8193,39 +9234,39 @@ public final class Tracker {
         return loginBuilder_;
       }
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus devStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
+      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus devStatus_;
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder> devStatusBuilder_;
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public boolean hasDevStatus() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus() {
         if (devStatusBuilder_ == null) {
-          return devStatus_;
+          return devStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
         } else {
           return devStatusBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder setDevStatus(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus value) {
         if (devStatusBuilder_ == null) {
@@ -8241,11 +9282,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder setDevStatus(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder builderForValue) {
@@ -8259,15 +9300,16 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder mergeDevStatus(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus value) {
         if (devStatusBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+          if (((bitField0_ & 0x00000004) != 0) &&
+              devStatus_ != null &&
               devStatus_ != org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance()) {
             devStatus_ =
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.newBuilder(devStatus_).mergeFrom(value).buildPartial();
@@ -8282,15 +9324,15 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder clearDevStatus() {
         if (devStatusBuilder_ == null) {
-          devStatus_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance();
+          devStatus_ = null;
           onChanged();
         } else {
           devStatusBuilder_.clear();
@@ -8299,11 +9341,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder getDevStatusBuilder() {
         bitField0_ |= 0x00000004;
@@ -8311,31 +9353,32 @@ public final class Tracker {
         return getDevStatusFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder() {
         if (devStatusBuilder_ != null) {
           return devStatusBuilder_.getMessageOrBuilder();
         } else {
-          return devStatus_;
+          return devStatus_ == null ?
+              org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
-       *
        * <pre>
        *设备状态消息
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
        */
-      private com.google.protobuf.SingleFieldBuilder<
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder> 
           getDevStatusFieldBuilder() {
         if (devStatusBuilder_ == null) {
-          devStatusBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+          devStatusBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder>(
                   getDevStatus(),
                   getParentForChildren(),
@@ -8348,21 +9391,21 @@ public final class Tracker {
       private java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> trackMsg_ =
         java.util.Collections.emptyList();
       private void ensureTrackMsgIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+        if (!((bitField0_ & 0x00000008) != 0)) {
           trackMsg_ = new java.util.ArrayList<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg>(trackMsg_);
           bitField0_ |= 0x00000008;
          }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> trackMsgBuilder_;
 
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> getTrackMsgList() {
         if (trackMsgBuilder_ == null) {
@@ -8372,11 +9415,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public int getTrackMsgCount() {
         if (trackMsgBuilder_ == null) {
@@ -8386,11 +9429,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index) {
         if (trackMsgBuilder_ == null) {
@@ -8400,11 +9443,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder setTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
@@ -8421,11 +9464,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder setTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -8439,11 +9482,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
         if (trackMsgBuilder_ == null) {
@@ -8459,11 +9502,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
@@ -8480,11 +9523,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -8498,11 +9541,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -8516,11 +9559,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addAllTrackMsg(
           java.lang.Iterable<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> values) {
@@ -8535,11 +9578,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder clearTrackMsg() {
         if (trackMsgBuilder_ == null) {
@@ -8552,11 +9595,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder removeTrackMsg(int index) {
         if (trackMsgBuilder_ == null) {
@@ -8569,22 +9612,22 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder getTrackMsgBuilder(
           int index) {
         return getTrackMsgFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
           int index) {
@@ -8594,11 +9637,11 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
            getTrackMsgOrBuilderList() {
@@ -8609,22 +9652,22 @@ public final class Tracker {
         }
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder addTrackMsgBuilder() {
         return getTrackMsgFieldBuilder().addBuilder(
             org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.getDefaultInstance());
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder addTrackMsgBuilder(
           int index) {
@@ -8632,40 +9675,81 @@ public final class Tracker {
             index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.getDefaultInstance());
       }
       /**
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
-       *
        * <pre>
        *设备的运行轨迹
        * </pre>
+       *
+       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder> 
            getTrackMsgBuilderList() {
         return getTrackMsgFieldBuilder().getBuilderList();
       }
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
           getTrackMsgFieldBuilder() {
         if (trackMsgBuilder_ == null) {
-          trackMsgBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          trackMsgBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder>(
                   trackMsg_,
-                  ((bitField0_ & 0x00000008) == 0x00000008),
+                  ((bitField0_ & 0x00000008) != 0),
                   getParentForChildren(),
                   isClean());
           trackMsg_ = null;
         }
         return trackMsgBuilder_;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DeviceMessage(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<DeviceMessage>
+        PARSER = new com.google.protobuf.AbstractParser<DeviceMessage>() {
+      @java.lang.Override
+      public DeviceMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DeviceMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DeviceMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DeviceMessage> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DeviceResponseOrBuilder extends
@@ -8673,77 +9757,79 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     boolean hasCmd();
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd();
 
     /**
-     * <code>required bool result = 2;</code>
-     *
      * <pre>
      * 应答结果，true表示成功，false表示失败
      * </pre>
+     *
+     * <code>required bool result = 2;</code>
      */
     boolean hasResult();
     /**
-     * <code>required bool result = 2;</code>
-     *
      * <pre>
      * 应答结果，true表示成功，false表示失败
      * </pre>
+     *
+     * <code>required bool result = 2;</code>
      */
     boolean getResult();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
-   *
    * <pre>
    *对服务器端请求的应答
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
    */
-  public static final class DeviceResponse extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class DeviceResponse extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceResponse)
       DeviceResponseOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use DeviceResponse.newBuilder() to construct.
-    private DeviceResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private DeviceResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private DeviceResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final DeviceResponse defaultInstance;
-    public static DeviceResponse getDefaultInstance() {
-      return defaultInstance;
+    private DeviceResponse() {
+      cmd_ = 1;
     }
 
-    public DeviceResponse getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new DeviceResponse();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private DeviceResponse(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -8755,21 +9841,15 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                cmd_ = value;
+                cmd_ = rawValue;
               }
               break;
             }
@@ -8778,13 +9858,20 @@ public final class Tracker {
               result_ = input.readBool();
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -8795,80 +9882,65 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<DeviceResponse> PARSER =
-        new com.google.protobuf.AbstractParser<DeviceResponse>() {
-      public DeviceResponse parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new DeviceResponse(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<DeviceResponse> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int CMD_FIELD_NUMBER = 1;
-    private org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand cmd_;
+    private int cmd_;
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     public boolean hasCmd() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-      return cmd_;
+      @SuppressWarnings("deprecation")
+      org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
+      return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
     }
 
     public static final int RESULT_FIELD_NUMBER = 2;
     private boolean result_;
     /**
-     * <code>required bool result = 2;</code>
-     *
      * <pre>
      * 应答结果，true表示成功，false表示失败
      * </pre>
+     *
+     * <code>required bool result = 2;</code>
      */
     public boolean hasResult() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>required bool result = 2;</code>
-     *
      * <pre>
      * 应答结果，true表示成功，false表示失败
      * </pre>
+     *
+     * <code>required bool result = 2;</code>
      */
     public boolean getResult() {
       return result_;
     }
 
-    private void initFields() {
-      cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
-      result_ = false;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -8886,44 +9958,92 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, cmd_.getNumber());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeEnum(1, cmd_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeBool(2, result_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, cmd_.getNumber());
+          .computeEnumSize(1, cmd_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, result_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse other = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse) obj;
+
+      if (hasCmd() != other.hasCmd()) return false;
+      if (hasCmd()) {
+        if (cmd_ != other.cmd_) return false;
+      }
+      if (hasResult() != other.hasResult()) return false;
+      if (hasResult()) {
+        if (getResult()
+            != other.getResult()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasCmd()) {
+        hash = (37 * hash) + CMD_FIELD_NUMBER;
+        hash = (53 * hash) + cmd_;
+      }
+      if (hasResult()) {
+        hash = (37 * hash) + RESULT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getResult());
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -8947,58 +10067,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
-     *
      * <pre>
      *对服务器端请求的应答
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceResponse)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -9006,7 +10139,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -9019,40 +10153,37 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
-        cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+        cmd_ = 1;
         bitField0_ = (bitField0_ & ~0x00000001);
         result_ = false;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse build() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse result = buildPartial();
         if (!result.isInitialized()) {
@@ -9061,23 +10192,57 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse result = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.cmd_ = cmd_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.result_ = result_;
           to_bitField0_ |= 0x00000002;
         }
-        result.result_ = result_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse)other);
@@ -9095,22 +10260,23 @@ public final class Tracker {
         if (other.hasResult()) {
           setResult(other.getResult());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasCmd()) {
-          
           return false;
         }
         if (!hasResult()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -9120,7 +10286,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -9130,84 +10296,86 @@ public final class Tracker {
       }
       private int bitField0_;
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+      private int cmd_ = 1;
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public boolean hasCmd() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-        return cmd_;
+        @SuppressWarnings("deprecation")
+        org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
+        return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public Builder setCmd(org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value) {
         if (value == null) {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        cmd_ = value;
+        cmd_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public Builder clearCmd() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+        cmd_ = 1;
         onChanged();
         return this;
       }
 
       private boolean result_ ;
       /**
-       * <code>required bool result = 2;</code>
-       *
        * <pre>
        * 应答结果，true表示成功，false表示失败
        * </pre>
+       *
+       * <code>required bool result = 2;</code>
        */
       public boolean hasResult() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>required bool result = 2;</code>
-       *
        * <pre>
        * 应答结果，true表示成功，false表示失败
        * </pre>
+       *
+       * <code>required bool result = 2;</code>
        */
       public boolean getResult() {
         return result_;
       }
       /**
-       * <code>required bool result = 2;</code>
-       *
        * <pre>
        * 应答结果，true表示成功，false表示失败
        * </pre>
+       *
+       * <code>required bool result = 2;</code>
        */
       public Builder setResult(boolean value) {
         bitField0_ |= 0x00000002;
@@ -9216,11 +10384,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>required bool result = 2;</code>
-       *
        * <pre>
        * 应答结果，true表示成功，false表示失败
        * </pre>
+       *
+       * <code>required bool result = 2;</code>
        */
       public Builder clearResult() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -9228,16 +10396,57 @@ public final class Tracker {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceResponse)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse DEFAULT_INSTANCE;
     static {
-      defaultInstance = new DeviceResponse(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<DeviceResponse>
+        PARSER = new com.google.protobuf.AbstractParser<DeviceResponse>() {
+      @java.lang.Override
+      public DeviceResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new DeviceResponse(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<DeviceResponse> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<DeviceResponse> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ServerMessageOrBuilder extends
@@ -9245,119 +10454,121 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-     *
      * <pre>
      * 服务器端下发的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     boolean hasId();
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-     *
      * <pre>
      * 服务器端下发的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId();
 
     /**
-     * <code>optional int32 server_time = 2;</code>
-     *
      * <pre>
      * utc+0 服务器时间戳
      * </pre>
+     *
+     * <code>optional int32 server_time = 2;</code>
      */
     boolean hasServerTime();
     /**
-     * <code>optional int32 server_time = 2;</code>
-     *
      * <pre>
      * utc+0 服务器时间戳
      * </pre>
+     *
+     * <code>optional int32 server_time = 2;</code>
      */
     int getServerTime();
 
     /**
-     * <code>optional int32 param_version = 3;</code>
-     *
      * <pre>
      * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
      * </pre>
+     *
+     * <code>optional int32 param_version = 3;</code>
      */
     boolean hasParamVersion();
     /**
-     * <code>optional int32 param_version = 3;</code>
-     *
      * <pre>
      * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
      * </pre>
+     *
+     * <code>optional int32 param_version = 3;</code>
      */
     int getParamVersion();
 
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     boolean hasDeviceParam();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam();
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
-   *
    * <pre>
    *&#47;///////////////////////////////////////////////以下为服务器端报文数据格式//////////////////////////////////////////////////
    * </pre>
+   *
+   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
    */
-  public static final class ServerMessage extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class ServerMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.ServerMessage)
       ServerMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use ServerMessage.newBuilder() to construct.
-    private ServerMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ServerMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ServerMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ServerMessage defaultInstance;
-    public static ServerMessage getDefaultInstance() {
-      return defaultInstance;
+    private ServerMessage() {
+      id_ = 1;
     }
 
-    public ServerMessage getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new ServerMessage();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ServerMessage(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -9369,21 +10580,15 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID value = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                id_ = value;
+                id_ = rawValue;
               }
               break;
             }
@@ -9399,7 +10604,7 @@ public final class Tracker {
             }
             case 34: {
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000008) == 0x00000008)) {
+              if (((bitField0_ & 0x00000008) != 0)) {
                 subBuilder = deviceParam_.toBuilder();
               }
               deviceParam_ = input.readMessage(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.PARSER, extensionRegistry);
@@ -9410,13 +10615,20 @@ public final class Tracker {
               bitField0_ |= 0x00000008;
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -9427,26 +10639,12 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<ServerMessage> PARSER =
-        new com.google.protobuf.AbstractParser<ServerMessage>() {
-      public ServerMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ServerMessage(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ServerMessage> getParserForType() {
-      return PARSER;
     }
 
     /**
@@ -9455,44 +10653,54 @@ public final class Tracker {
     public enum ServerMessageID
         implements com.google.protobuf.ProtocolMessageEnum {
       /**
-       * <code>LOGIN_RESPONSE = 1;</code>
-       *
        * <pre>
        * 登录回应，至少包含时间戳，如果参数版本不一致会包含参数信息
        * </pre>
-       */
-      LOGIN_RESPONSE(0, 1),
-      /**
-       * <code>PARAM_UPDATE = 2;</code>
        *
+       * <code>LOGIN_RESPONSE = 1;</code>
+       */
+      LOGIN_RESPONSE(1),
+      /**
        * <pre>
        * 参数更新
        * </pre>
+       *
+       * <code>PARAM_UPDATE = 2;</code>
        */
-      PARAM_UPDATE(1, 2),
+      PARAM_UPDATE(2),
       ;
 
       /**
-       * <code>LOGIN_RESPONSE = 1;</code>
-       *
        * <pre>
        * 登录回应，至少包含时间戳，如果参数版本不一致会包含参数信息
        * </pre>
+       *
+       * <code>LOGIN_RESPONSE = 1;</code>
        */
       public static final int LOGIN_RESPONSE_VALUE = 1;
       /**
-       * <code>PARAM_UPDATE = 2;</code>
-       *
        * <pre>
        * 参数更新
        * </pre>
+       *
+       * <code>PARAM_UPDATE = 2;</code>
        */
       public static final int PARAM_UPDATE_VALUE = 2;
 
 
-      public final int getNumber() { return value; }
+      public final int getNumber() {
+        return value;
+      }
 
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
       public static ServerMessageID valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ServerMessageID forNumber(int value) {
         switch (value) {
           case 1: return LOGIN_RESPONSE;
           case 2: return PARAM_UPDATE;
@@ -9504,17 +10712,17 @@ public final class Tracker {
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static com.google.protobuf.Internal.EnumLiteMap<ServerMessageID>
-          internalValueMap =
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          ServerMessageID> internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<ServerMessageID>() {
               public ServerMessageID findValueByNumber(int number) {
-                return ServerMessageID.valueOf(number);
+                return ServerMessageID.forNumber(number);
               }
             };
 
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
           getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
+        return getDescriptor().getValues().get(ordinal());
       }
       public final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptorForType() {
@@ -9536,11 +10744,9 @@ public final class Tracker {
         return VALUES[desc.getIndex()];
       }
 
-      private final int index;
       private final int value;
 
-      private ServerMessageID(int index, int value) {
-        this.index = index;
+      private ServerMessageID(int value) {
         this.value = value;
       }
 
@@ -9549,46 +10755,48 @@ public final class Tracker {
 
     private int bitField0_;
     public static final int ID_FIELD_NUMBER = 1;
-    private org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID id_;
+    private int id_;
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-     *
      * <pre>
      * 服务器端下发的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     public boolean hasId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-     *
      * <pre>
      * 服务器端下发的消息ID
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
-      return id_;
+      @SuppressWarnings("deprecation")
+      org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(id_);
+      return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE : result;
     }
 
     public static final int SERVER_TIME_FIELD_NUMBER = 2;
     private int serverTime_;
     /**
-     * <code>optional int32 server_time = 2;</code>
-     *
      * <pre>
      * utc+0 服务器时间戳
      * </pre>
+     *
+     * <code>optional int32 server_time = 2;</code>
      */
     public boolean hasServerTime() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
-     * <code>optional int32 server_time = 2;</code>
-     *
      * <pre>
      * utc+0 服务器时间戳
      * </pre>
+     *
+     * <code>optional int32 server_time = 2;</code>
      */
     public int getServerTime() {
       return serverTime_;
@@ -9597,21 +10805,21 @@ public final class Tracker {
     public static final int PARAM_VERSION_FIELD_NUMBER = 3;
     private int paramVersion_;
     /**
-     * <code>optional int32 param_version = 3;</code>
-     *
      * <pre>
      * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
      * </pre>
+     *
+     * <code>optional int32 param_version = 3;</code>
      */
     public boolean hasParamVersion() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>optional int32 param_version = 3;</code>
-     *
      * <pre>
      * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
      * </pre>
+     *
+     * <code>optional int32 param_version = 3;</code>
      */
     public int getParamVersion() {
       return paramVersion_;
@@ -9620,43 +10828,38 @@ public final class Tracker {
     public static final int DEVICE_PARAM_FIELD_NUMBER = 4;
     private org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam deviceParam_;
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     public boolean hasDeviceParam() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam() {
-      return deviceParam_;
+      return deviceParam_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
     }
     /**
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-     *
      * <pre>
      * 设备参数
      * </pre>
+     *
+     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder() {
-      return deviceParam_;
+      return deviceParam_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
     }
 
-    private void initFields() {
-      id_ = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE;
-      serverTime_ = 0;
-      paramVersion_ = 0;
-      deviceParam_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance();
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -9670,58 +10873,123 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, id_.getNumber());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeEnum(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeInt32(2, serverTime_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         output.writeInt32(3, paramVersion_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeMessage(4, deviceParam_);
+      if (((bitField0_ & 0x00000008) != 0)) {
+        output.writeMessage(4, getDeviceParam());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, id_.getNumber());
+          .computeEnumSize(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, serverTime_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, paramVersion_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, deviceParam_);
+          .computeMessageSize(4, getDeviceParam());
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage other = (org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage) obj;
+
+      if (hasId() != other.hasId()) return false;
+      if (hasId()) {
+        if (id_ != other.id_) return false;
+      }
+      if (hasServerTime() != other.hasServerTime()) return false;
+      if (hasServerTime()) {
+        if (getServerTime()
+            != other.getServerTime()) return false;
+      }
+      if (hasParamVersion() != other.hasParamVersion()) return false;
+      if (hasParamVersion()) {
+        if (getParamVersion()
+            != other.getParamVersion()) return false;
+      }
+      if (hasDeviceParam() != other.hasDeviceParam()) return false;
+      if (hasDeviceParam()) {
+        if (!getDeviceParam()
+            .equals(other.getDeviceParam())) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasId()) {
+        hash = (37 * hash) + ID_FIELD_NUMBER;
+        hash = (53 * hash) + id_;
+      }
+      if (hasServerTime()) {
+        hash = (37 * hash) + SERVER_TIME_FIELD_NUMBER;
+        hash = (53 * hash) + getServerTime();
+      }
+      if (hasParamVersion()) {
+        hash = (37 * hash) + PARAM_VERSION_FIELD_NUMBER;
+        hash = (53 * hash) + getParamVersion();
+      }
+      if (hasDeviceParam()) {
+        hash = (37 * hash) + DEVICE_PARAM_FIELD_NUMBER;
+        hash = (53 * hash) + getDeviceParam().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -9745,58 +11013,71 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
-     *
      * <pre>
      *&#47;///////////////////////////////////////////////以下为服务器端报文数据格式//////////////////////////////////////////////////
      * </pre>
+     *
+     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.ServerMessage)
         org.nutz.walnut.ext.gpstracker.Tracker.ServerMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -9804,7 +11085,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -9817,29 +11099,27 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
           getDeviceParamFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
-        id_ = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE;
+        id_ = 1;
         bitField0_ = (bitField0_ & ~0x00000001);
         serverTime_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
         paramVersion_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
         if (deviceParamBuilder_ == null) {
-          deviceParam_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance();
+          deviceParam_ = null;
         } else {
           deviceParamBuilder_.clear();
         }
@@ -9847,19 +11127,18 @@ public final class Tracker {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage build() {
         org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage result = buildPartial();
         if (!result.isInitialized()) {
@@ -9868,35 +11147,69 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage result = new org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.id_ = id_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.serverTime_ = serverTime_;
           to_bitField0_ |= 0x00000002;
         }
-        result.serverTime_ = serverTime_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.paramVersion_ = paramVersion_;
           to_bitField0_ |= 0x00000004;
         }
-        result.paramVersion_ = paramVersion_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          if (deviceParamBuilder_ == null) {
+            result.deviceParam_ = deviceParam_;
+          } else {
+            result.deviceParam_ = deviceParamBuilder_.build();
+          }
           to_bitField0_ |= 0x00000008;
-        }
-        if (deviceParamBuilder_ == null) {
-          result.deviceParam_ = deviceParam_;
-        } else {
-          result.deviceParam_ = deviceParamBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage)other);
@@ -9920,18 +11233,20 @@ public final class Tracker {
         if (other.hasDeviceParam()) {
           mergeDeviceParam(other.getDeviceParam());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasId()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -9941,7 +11256,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -9951,84 +11266,86 @@ public final class Tracker {
       }
       private int bitField0_;
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID id_ = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE;
+      private int id_ = 1;
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-       *
        * <pre>
        * 服务器端下发的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public boolean hasId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-       *
        * <pre>
        * 服务器端下发的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
-        return id_;
+        @SuppressWarnings("deprecation")
+        org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(id_);
+        return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE : result;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-       *
        * <pre>
        * 服务器端下发的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public Builder setId(org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID value) {
         if (value == null) {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        id_ = value;
+        id_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
-       *
        * <pre>
        * 服务器端下发的消息ID
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        id_ = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE;
+        id_ = 1;
         onChanged();
         return this;
       }
 
       private int serverTime_ ;
       /**
-       * <code>optional int32 server_time = 2;</code>
-       *
        * <pre>
        * utc+0 服务器时间戳
        * </pre>
+       *
+       * <code>optional int32 server_time = 2;</code>
        */
       public boolean hasServerTime() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>optional int32 server_time = 2;</code>
-       *
        * <pre>
        * utc+0 服务器时间戳
        * </pre>
+       *
+       * <code>optional int32 server_time = 2;</code>
        */
       public int getServerTime() {
         return serverTime_;
       }
       /**
-       * <code>optional int32 server_time = 2;</code>
-       *
        * <pre>
        * utc+0 服务器时间戳
        * </pre>
+       *
+       * <code>optional int32 server_time = 2;</code>
        */
       public Builder setServerTime(int value) {
         bitField0_ |= 0x00000002;
@@ -10037,11 +11354,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 server_time = 2;</code>
-       *
        * <pre>
        * utc+0 服务器时间戳
        * </pre>
+       *
+       * <code>optional int32 server_time = 2;</code>
        */
       public Builder clearServerTime() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -10052,31 +11369,31 @@ public final class Tracker {
 
       private int paramVersion_ ;
       /**
-       * <code>optional int32 param_version = 3;</code>
-       *
        * <pre>
        * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
        * </pre>
+       *
+       * <code>optional int32 param_version = 3;</code>
        */
       public boolean hasParamVersion() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
-       * <code>optional int32 param_version = 3;</code>
-       *
        * <pre>
        * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
        * </pre>
+       *
+       * <code>optional int32 param_version = 3;</code>
        */
       public int getParamVersion() {
         return paramVersion_;
       }
       /**
-       * <code>optional int32 param_version = 3;</code>
-       *
        * <pre>
        * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
        * </pre>
+       *
+       * <code>optional int32 param_version = 3;</code>
        */
       public Builder setParamVersion(int value) {
         bitField0_ |= 0x00000004;
@@ -10085,11 +11402,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional int32 param_version = 3;</code>
-       *
        * <pre>
        * 服务器上记录的参数版本，发送带参数的消息时都必须带上参数版本
        * </pre>
+       *
+       * <code>optional int32 param_version = 3;</code>
        */
       public Builder clearParamVersion() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -10098,39 +11415,39 @@ public final class Tracker {
         return this;
       }
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam deviceParam_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
+      private org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam deviceParam_;
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder> deviceParamBuilder_;
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public boolean hasDeviceParam() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam() {
         if (deviceParamBuilder_ == null) {
-          return deviceParam_;
+          return deviceParam_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
         } else {
           return deviceParamBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public Builder setDeviceParam(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam value) {
         if (deviceParamBuilder_ == null) {
@@ -10146,11 +11463,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public Builder setDeviceParam(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder builderForValue) {
@@ -10164,15 +11481,16 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public Builder mergeDeviceParam(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam value) {
         if (deviceParamBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008) &&
+          if (((bitField0_ & 0x00000008) != 0) &&
+              deviceParam_ != null &&
               deviceParam_ != org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance()) {
             deviceParam_ =
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.newBuilder(deviceParam_).mergeFrom(value).buildPartial();
@@ -10187,15 +11505,15 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public Builder clearDeviceParam() {
         if (deviceParamBuilder_ == null) {
-          deviceParam_ = org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance();
+          deviceParam_ = null;
           onChanged();
         } else {
           deviceParamBuilder_.clear();
@@ -10204,11 +11522,11 @@ public final class Tracker {
         return this;
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder getDeviceParamBuilder() {
         bitField0_ |= 0x00000008;
@@ -10216,31 +11534,32 @@ public final class Tracker {
         return getDeviceParamFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder() {
         if (deviceParamBuilder_ != null) {
           return deviceParamBuilder_.getMessageOrBuilder();
         } else {
-          return deviceParam_;
+          return deviceParam_ == null ?
+              org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
         }
       }
       /**
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
-       *
        * <pre>
        * 设备参数
        * </pre>
+       *
+       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
        */
-      private com.google.protobuf.SingleFieldBuilder<
+      private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder> 
           getDeviceParamFieldBuilder() {
         if (deviceParamBuilder_ == null) {
-          deviceParamBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+          deviceParamBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder>(
                   getDeviceParam(),
                   getParentForChildren(),
@@ -10249,16 +11568,57 @@ public final class Tracker {
         }
         return deviceParamBuilder_;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.ServerMessage)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerMessage)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ServerMessage(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerMessage)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ServerMessage>
+        PARSER = new com.google.protobuf.AbstractParser<ServerMessage>() {
+      @java.lang.Override
+      public ServerMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ServerMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ServerMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ServerMessage> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ServerRequestOrBuilder extends
@@ -10266,19 +11626,19 @@ public final class Tracker {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     boolean hasCmd();
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd();
 
@@ -10294,37 +11654,39 @@ public final class Tracker {
   /**
    * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerRequest}
    */
-  public static final class ServerRequest extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class ServerRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.ServerRequest)
       ServerRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use ServerRequest.newBuilder() to construct.
-    private ServerRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ServerRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ServerRequest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ServerRequest defaultInstance;
-    public static ServerRequest getDefaultInstance() {
-      return defaultInstance;
+    private ServerRequest() {
+      cmd_ = 1;
     }
 
-    public ServerRequest getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new ServerRequest();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ServerRequest(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -10336,21 +11698,15 @@ public final class Tracker {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                cmd_ = value;
+                cmd_ = rawValue;
               }
               break;
             }
@@ -10359,13 +11715,20 @@ public final class Tracker {
               value_ = input.readBool();
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -10376,50 +11739,38 @@ public final class Tracker {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ServerRequest> PARSER =
-        new com.google.protobuf.AbstractParser<ServerRequest>() {
-      public ServerRequest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ServerRequest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ServerRequest> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int CMD_FIELD_NUMBER = 1;
-    private org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand cmd_;
+    private int cmd_;
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     public boolean hasCmd() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-     *
      * <pre>
      * 请求指令
      * </pre>
+     *
+     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-      return cmd_;
+      @SuppressWarnings("deprecation")
+      org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
+      return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
     }
 
     public static final int VALUE_FIELD_NUMBER = 2;
@@ -10428,7 +11779,7 @@ public final class Tracker {
      * <code>optional bool value = 2;</code>
      */
     public boolean hasValue() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>optional bool value = 2;</code>
@@ -10437,11 +11788,8 @@ public final class Tracker {
       return value_;
     }
 
-    private void initFields() {
-      cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
-      value_ = false;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -10455,44 +11803,92 @@ public final class Tracker {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, cmd_.getNumber());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeEnum(1, cmd_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeBool(2, value_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, cmd_.getNumber());
+          .computeEnumSize(1, cmd_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, value_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest)) {
+        return super.equals(obj);
+      }
+      org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest other = (org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest) obj;
+
+      if (hasCmd() != other.hasCmd()) return false;
+      if (hasCmd()) {
+        if (cmd_ != other.cmd_) return false;
+      }
+      if (hasValue() != other.hasValue()) return false;
+      if (hasValue()) {
+        if (getValue()
+            != other.getValue()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasCmd()) {
+        hash = (37 * hash) + CMD_FIELD_NUMBER;
+        hash = (53 * hash) + cmd_;
+      }
+      if (hasValue()) {
+        hash = (37 * hash) + VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getValue());
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -10516,46 +11912,59 @@ public final class Tracker {
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -10563,7 +11972,7 @@ public final class Tracker {
      * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerRequest}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.ServerRequest)
         org.nutz.walnut.ext.gpstracker.Tracker.ServerRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -10571,7 +11980,8 @@ public final class Tracker {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -10584,40 +11994,37 @@ public final class Tracker {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
-        cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+        cmd_ = 1;
         bitField0_ = (bitField0_ & ~0x00000001);
         value_ = false;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest getDefaultInstanceForType() {
         return org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.getDefaultInstance();
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest build() {
         org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest result = buildPartial();
         if (!result.isInitialized()) {
@@ -10626,23 +12033,57 @@ public final class Tracker {
         return result;
       }
 
+      @java.lang.Override
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest buildPartial() {
         org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest result = new org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.cmd_ = cmd_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.value_ = value_;
           to_bitField0_ |= 0x00000002;
         }
-        result.value_ = value_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest) {
           return mergeFrom((org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest)other);
@@ -10660,18 +12101,20 @@ public final class Tracker {
         if (other.hasValue()) {
           setValue(other.getValue());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasCmd()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -10681,7 +12124,7 @@ public final class Tracker {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -10691,53 +12134,55 @@ public final class Tracker {
       }
       private int bitField0_;
 
-      private org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+      private int cmd_ = 1;
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public boolean hasCmd() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-        return cmd_;
+        @SuppressWarnings("deprecation")
+        org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
+        return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public Builder setCmd(org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value) {
         if (value == null) {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        cmd_ = value;
+        cmd_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
-       *
        * <pre>
        * 请求指令
        * </pre>
+       *
+       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
        */
       public Builder clearCmd() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        cmd_ = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN;
+        cmd_ = 1;
         onChanged();
         return this;
       }
@@ -10747,7 +12192,7 @@ public final class Tracker {
        * <code>optional bool value = 2;</code>
        */
       public boolean hasValue() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>optional bool value = 2;</code>
@@ -10773,74 +12218,115 @@ public final class Tracker {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.ServerRequest)
     }
 
+    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerRequest)
+    private static final org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ServerRequest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest();
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerRequest)
+    public static org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<ServerRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ServerRequest>() {
+      @java.lang.Override
+      public ServerRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ServerRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ServerRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ServerRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static com.google.protobuf.Descriptors.FileDescriptor
+  private static  com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
@@ -10853,7 +12339,7 @@ public final class Tracker {
       "\005\022\020\n\010sateType\030\002 \001(\t\022I\n\tstaeItems\030\003 \003(\01326" +
       ".org.nutz.walnut.ext.gpstracker.SateStat" +
       "us.sateMessage\032J\n\013sateMessage\022\n\n\002id\030\001 \001(" +
-      "\005\022\021\n\televation\030\002 \001(\005\022\017\n\007azimuth\030\003 \001(\005\022\013\n",
+      "\005\022\021\n\televation\030\002 \001(\005\022\017\n\007azimuth\030\003 \001(\005\022\013\n" +
       "\003cno\030\004 \001(\005\"\230\002\n\014DeviceStatus\022\013\n\003csq\030\001 \001(\005" +
       "\022\022\n\ncharge_sta\030\002 \001(\010\022\017\n\007vib_sta\030\003 \001(\010\022\017\n" +
       "\007acc_sta\030\004 \001(\010\022\r\n\005start\030\005 \001(\010\022\016\n\006isOpen\030" +
@@ -10863,7 +12349,7 @@ public final class Tracker {
       "utz.walnut.ext.gpstracker.SateStatus\022\017\n\007" +
       "sateCno\030\r \003(\005\"\244\001\n\010TrackMsg\022\013\n\003lng\030\001 \001(\005\022" +
       "\013\n\003lat\030\002 \001(\005\022\020\n\010altitude\030\003 \001(\005\022\r\n\005speed\030" +
-      "\004 \001(\005\022\017\n\007azimuth\030\005 \001(\005\022\022\n\nuseSateCnt\030\006 \001",
+      "\004 \001(\005\022\017\n\007azimuth\030\005 \001(\005\022\022\n\nuseSateCnt\030\006 \001" +
       "(\005\022\025\n\rviewedSateCnt\030\007 \001(\005\022\021\n\ttimestamp\030\010" +
       " \001(\005\022\016\n\006sateSn\030\t \001(\005\"\275\002\n\rDeviceMessage\022I" +
       "\n\002id\030\001 \002(\0162=.org.nutz.walnut.ext.gpstrac" +
@@ -10873,7 +12359,7 @@ public final class Tracker {
       "utz.walnut.ext.gpstracker.DeviceStatus\022:" +
       "\n\010trackMsg\030\004 \003(\0132(.org.nutz.walnut.ext.g" +
       "pstracker.TrackMsg\"(\n\017DeviceMessageID\022\t\n" +
-      "\005LOGIN\020\000\022\n\n\006STATUS\020\001\"]\n\016DeviceResponse\022;",
+      "\005LOGIN\020\000\022\n\n\006STATUS\020\001\"]\n\016DeviceResponse\022;" +
       "\n\003cmd\030\001 \002(\0162..org.nutz.walnut.ext.gpstra" +
       "cker.RequestCommand\022\016\n\006result\030\002 \002(\010\"\202\002\n\r" +
       "ServerMessage\022I\n\002id\030\001 \002(\0162=.org.nutz.wal" +
@@ -10883,81 +12369,73 @@ public final class Tracker {
       ".nutz.walnut.ext.gpstracker.DeviceParam\"" +
       "7\n\017ServerMessageID\022\022\n\016LOGIN_RESPONSE\020\001\022\020" +
       "\n\014PARAM_UPDATE\020\002\"[\n\rServerRequest\022;\n\003cmd" +
-      "\030\001 \002(\0162..org.nutz.walnut.ext.gpstracker.",
+      "\030\001 \002(\0162..org.nutz.walnut.ext.gpstracker." +
       "RequestCommand\022\r\n\005value\030\002 \001(\010*5\n\016Request" +
       "Command\022\020\n\014REMOTE_WAKEN\020\001\022\021\n\rUPDATE_SCRI" +
       "PT\020\002"
     };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
+        });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor,
         new java.lang.String[] { "Sensitive", "TrackMode", });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor,
         new java.lang.String[] { "SwVersion", "Imei", "Iccid", "DeviceModel", "ParamVersion", });
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor,
         new java.lang.String[] { "SateNum", "SateType", "StaeItems", });
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor =
       internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor.getNestedTypes().get(0);
     internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor,
         new java.lang.String[] { "Id", "Elevation", "Azimuth", "Cno", });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor,
         new java.lang.String[] { "Csq", "ChargeSta", "VibSta", "AccSta", "Start", "IsOpen", "IsFix", "PowerVolt", "Vbatt", "PowerType", "UnderVolt", "SateStatus", "SateCno", });
     internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor,
         new java.lang.String[] { "Lng", "Lat", "Altitude", "Speed", "Azimuth", "UseSateCnt", "ViewedSateCnt", "Timestamp", "SateSn", });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor,
         new java.lang.String[] { "Id", "Login", "DevStatus", "TrackMsg", });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor,
         new java.lang.String[] { "Cmd", "Result", });
     internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor,
         new java.lang.String[] { "Id", "ServerTime", "ParamVersion", "DeviceParam", });
     internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor =
       getDescriptor().getMessageTypes().get(8);
     internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor,
         new java.lang.String[] { "Cmd", "Value", });
   }

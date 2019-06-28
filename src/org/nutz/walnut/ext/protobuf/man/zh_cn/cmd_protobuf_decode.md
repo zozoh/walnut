@@ -28,5 +28,5 @@ protobuf encode -f msg.json a9352.SateStatus
 
 ### 串行编码解码测试
 ```
-echo '{staeItems:[{id:1}, {id:1000, cno:123}], sateNum:20, sateType:"BD"}' | protobuf encode a9352.SateStatus | protobuf decode a9352.SateStatus;
+echo '{staeItems:[{id:1}, {id:1000, cno:123}], sateNum:20, sateType:"BD"}' | protobuf encode a9352.SateStatus | protobuf decode a9352.SateStatus
 ```

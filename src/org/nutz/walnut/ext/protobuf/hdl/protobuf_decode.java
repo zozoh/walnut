@@ -7,18 +7,17 @@ import java.util.Map;
 
 import org.nutz.lang.reflect.FastClassFactory;
 import org.nutz.lang.reflect.FastMethod;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.protobuf.ProtobufPool;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
-import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
-@JvmHdlParamArgs("cqn")
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
+
 public class protobuf_decode implements JvmHdl {
 
     protected static final Map<String, FastMethod> parser = new HashMap<>();
@@ -45,10 +44,8 @@ public class protobuf_decode implements JvmHdl {
         } else {
             throw Err.create("e.cmd.protobuf.decode.need_datas");
         }
-        // protobuf 不适合toJson, 需要处理一下
-        NutMap map = ProtobufPool.toMap(obj);
         // 输出内容
-        sys.out.writeJson(map, Cmds.gen_json_format(hc.params));
+        sys.out.print(JsonFormat.printer().preservingProtoFieldNames().print((Message)obj));
     }
 
 }
