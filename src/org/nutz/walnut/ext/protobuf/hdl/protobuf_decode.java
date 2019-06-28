@@ -21,6 +21,8 @@ import com.google.protobuf.util.JsonFormat;
 public class protobuf_decode implements JvmHdl {
 
     protected static final Map<String, FastMethod> parser = new HashMap<>();
+    
+    private static JsonFormat.Printer printer = JsonFormat.printer().preservingProtoFieldNames().includingDefaultValueFields();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -45,7 +47,7 @@ public class protobuf_decode implements JvmHdl {
             throw Err.create("e.cmd.protobuf.decode.need_datas");
         }
         // 输出内容
-        sys.out.print(JsonFormat.printer().preservingProtoFieldNames().print((Message)obj));
+        sys.out.print(printer.print((Message)obj));
     }
 
 }
