@@ -923,7 +923,7 @@ public class WWWModule extends AbstractWnModule {
                 // 但是后续逻辑还是可以继续执行的，页面中如果调用了 API 则通常会失败
                 catch (WebException e) {
                     if (log.isDebugEnabled()) {
-                        log.debugf("wihtout 'hm_site_id' in %s", oWWW.path());
+                        log.debug(String.format("Fail to set API in '%s'", oWWW.path()), e);
                     }
                 }
 

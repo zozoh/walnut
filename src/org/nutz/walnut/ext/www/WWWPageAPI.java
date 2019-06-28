@@ -68,8 +68,10 @@ public class WWWPageAPI extends WWWAPI {
 
         // 检查一下
         this.siteId = oWWW.getString("hm_site_id");
+        // 如果没有设置站点 ID，那么用当前的目录
         if (Strings.isBlank(this.siteId)) {
-            throw Er.create("e.www.page.api_without_siteId", oWWW);
+            //throw Er.create("e.www.page.api_without_siteId", oWWW);
+            this.siteId = oWWW.id();
         }
 
         // 试图生成微信接口
