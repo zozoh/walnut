@@ -4,7 +4,8 @@
 
 # 用法
 
-    obj [id:ea81..|/path/to/obj] 
+    obj [id:ea81..|/path/to/obj]
+        [-new $JSON] 
         [-u $JSON] 
         [-e $REGEX] 
         [-t fld0,fld1..]

@@ -14,14 +14,12 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.WnSysConf;
 
 public class app_init implements JvmHdl {
