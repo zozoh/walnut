@@ -8,20 +8,20 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(quiet)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(hard|quiet)$")
 public class thing_delete implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 分析参数
-        boolean quiet = hc.params.is("quiet");
+        boolean hard = hc.params.is("hard");
         
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnThingService wts = new WnThingService(sys, oTs);
         
         // 调用接口
-        hc.output = wts.deleteThing(quiet, hc.params.vals);
+        hc.output = wts.deleteThing(hard, hc.params.vals);
 
     }
 

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
 import org.nutz.walnut.ext.thing.util.Things;
@@ -14,7 +13,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
     private Collection<String> ids;
 
-    private boolean quiet;
+    private boolean hard;
 
     public DeleteThingAction setIds(Collection<String> ids) {
         this.ids = ids;
@@ -26,26 +25,34 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
-    public DeleteThingAction setQuiet(boolean quiet) {
-        this.quiet = quiet;
+    public DeleteThingAction setHard(boolean hard) {
+        this.hard = hard;
         return this;
     }
 
     @Override
     public List<WnObj> invoke() {
+        // 数据目录的主目录
+        WnObj oData = this.checkDirTsData();
+
+        // 准备返回结果
         List<WnObj> output = new LinkedList<>();
 
         for (String id : ids) {
             // 得到对应对 Thing
             WnObj oT = this.checkThIndex(id);
 
-            // 已经是删除的了
-            if (oT.getInt("th_live", 0) == Things.TH_DEAD) {
-                if (!this.quiet) {
-                    throw Er.create("e.cmd.thing.delete.already", oT.id());
+            // 硬删除，或者已经是删除的了，那么真实的删除数据对象
+            if (this.hard || oT.getInt("th_live", 0) == Things.TH_DEAD) {
+                // 删除数据对象
+                WnObj oThData = io.fetch(oData, oT.id());
+                if (null != oThData) {
+                    io.delete(oThData, true);
                 }
+                // 删除索引
+                io.delete(oT);
             }
-            // 执行删除
+            // 标记为删除
             else {
                 oT.setv("th_live", Things.TH_DEAD);
                 io.set(oT, "^th_live$");

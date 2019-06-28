@@ -329,13 +329,13 @@ public class WnThingService {
         return null;
     }
 
-    public List<WnObj> deleteThing(boolean quiet, Collection<String> ids) {
-        DeleteThingAction a = _A(new DeleteThingAction()).setQuiet(quiet).setIds(ids);
+    public List<WnObj> deleteThing(boolean hard, Collection<String> ids) {
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(ids);
         return a.invoke();
     }
 
-    public List<WnObj> deleteThing(boolean quiet, String... ids) {
-        DeleteThingAction a = _A(new DeleteThingAction()).setQuiet(quiet).setIds(Lang.list(ids));
+    public List<WnObj> deleteThing(boolean hard, String... ids) {
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Lang.list(ids));
         return a.invoke();
     }
 

@@ -627,7 +627,7 @@ public class WWWModule extends AbstractWnModule {
                 // 更新一下本用户
                 io.appendMeta(oU, meta);
 
-                // 删除一下微信用户
+                // 删除一下微信用户（因为没用了，硬删除就好了）
                 accS.deleteThing(true, oU2.id());
             }
 
@@ -923,7 +923,7 @@ public class WWWModule extends AbstractWnModule {
                 // 但是后续逻辑还是可以继续执行的，页面中如果调用了 API 则通常会失败
                 catch (WebException e) {
                     if (log.isDebugEnabled()) {
-                        log.debugf("wihtout 'hm_site_id' in %s", oWWW.path());
+                        log.debug(String.format("Fail to set API in '%s'", oWWW.path()), e);
                     }
                 }
 

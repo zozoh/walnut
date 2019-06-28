@@ -44,6 +44,10 @@ public abstract class ThingAction<T> {
     public WnObj checkDirTsIndex() {
         return Things.dirTsIndex(io, oTs);
     }
+    
+    public WnObj checkDirTsData() {
+        return Things.dirTsData(io, oTs);
+    }
 
     public WnThingService getService() {
         return service;
