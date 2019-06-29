@@ -6725,6 +6725,23 @@ public final class Tracker {
      * <code>optional int32 sateSn = 9;</code>
      */
     int getSateSn();
+
+    /**
+     * <pre>
+     * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+     * </pre>
+     *
+     * <code>optional bool isFix = 10;</code>
+     */
+    boolean hasIsFix();
+    /**
+     * <pre>
+     * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+     * </pre>
+     *
+     * <code>optional bool isFix = 10;</code>
+     */
+    boolean getIsFix();
   }
   /**
    * <pre>
@@ -6819,6 +6836,11 @@ public final class Tracker {
             case 72: {
               bitField0_ |= 0x00000100;
               sateSn_ = input.readInt32();
+              break;
+            }
+            case 80: {
+              bitField0_ |= 0x00000200;
+              isFix_ = input.readBool();
               break;
             }
             default: {
@@ -7061,6 +7083,29 @@ public final class Tracker {
       return sateSn_;
     }
 
+    public static final int ISFIX_FIELD_NUMBER = 10;
+    private boolean isFix_;
+    /**
+     * <pre>
+     * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+     * </pre>
+     *
+     * <code>optional bool isFix = 10;</code>
+     */
+    public boolean hasIsFix() {
+      return ((bitField0_ & 0x00000200) != 0);
+    }
+    /**
+     * <pre>
+     * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+     * </pre>
+     *
+     * <code>optional bool isFix = 10;</code>
+     */
+    public boolean getIsFix() {
+      return isFix_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -7101,6 +7146,9 @@ public final class Tracker {
       }
       if (((bitField0_ & 0x00000100) != 0)) {
         output.writeInt32(9, sateSn_);
+      }
+      if (((bitField0_ & 0x00000200) != 0)) {
+        output.writeBool(10, isFix_);
       }
       unknownFields.writeTo(output);
     }
@@ -7146,6 +7194,10 @@ public final class Tracker {
       if (((bitField0_ & 0x00000100) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(9, sateSn_);
+      }
+      if (((bitField0_ & 0x00000200) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(10, isFix_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -7207,6 +7259,11 @@ public final class Tracker {
         if (getSateSn()
             != other.getSateSn()) return false;
       }
+      if (hasIsFix() != other.hasIsFix()) return false;
+      if (hasIsFix()) {
+        if (getIsFix()
+            != other.getIsFix()) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -7253,6 +7310,11 @@ public final class Tracker {
       if (hasSateSn()) {
         hash = (37 * hash) + SATESN_FIELD_NUMBER;
         hash = (53 * hash) + getSateSn();
+      }
+      if (hasIsFix()) {
+        hash = (37 * hash) + ISFIX_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getIsFix());
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -7409,6 +7471,8 @@ public final class Tracker {
         bitField0_ = (bitField0_ & ~0x00000080);
         sateSn_ = 0;
         bitField0_ = (bitField0_ & ~0x00000100);
+        isFix_ = false;
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
 
@@ -7472,6 +7536,10 @@ public final class Tracker {
         if (((from_bitField0_ & 0x00000100) != 0)) {
           result.sateSn_ = sateSn_;
           to_bitField0_ |= 0x00000100;
+        }
+        if (((from_bitField0_ & 0x00000200) != 0)) {
+          result.isFix_ = isFix_;
+          to_bitField0_ |= 0x00000200;
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -7548,6 +7616,9 @@ public final class Tracker {
         }
         if (other.hasSateSn()) {
           setSateSn(other.getSateSn());
+        }
+        if (other.hasIsFix()) {
+          setIsFix(other.getIsFix());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -8007,6 +8078,54 @@ public final class Tracker {
       public Builder clearSateSn() {
         bitField0_ = (bitField0_ & ~0x00000100);
         sateSn_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private boolean isFix_ ;
+      /**
+       * <pre>
+       * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+       * </pre>
+       *
+       * <code>optional bool isFix = 10;</code>
+       */
+      public boolean hasIsFix() {
+        return ((bitField0_ & 0x00000200) != 0);
+      }
+      /**
+       * <pre>
+       * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+       * </pre>
+       *
+       * <code>optional bool isFix = 10;</code>
+       */
+      public boolean getIsFix() {
+        return isFix_;
+      }
+      /**
+       * <pre>
+       * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+       * </pre>
+       *
+       * <code>optional bool isFix = 10;</code>
+       */
+      public Builder setIsFix(boolean value) {
+        bitField0_ |= 0x00000200;
+        isFix_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * GPS定位器的状态 true 表示定位成功，false 表示未定位或未打开GPS模块
+       * </pre>
+       *
+       * <code>optional bool isFix = 10;</code>
+       */
+      public Builder clearIsFix() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        isFix_ = false;
         onChanged();
         return this;
       }
@@ -12347,32 +12466,32 @@ public final class Tracker {
       "\r\n\005vbatt\030\t \001(\005\022\021\n\tpowerType\030\n \001(\005\022\021\n\tund" +
       "erVolt\030\013 \001(\010\022>\n\nsateStatus\030\014 \001(\0132*.org.n" +
       "utz.walnut.ext.gpstracker.SateStatus\022\017\n\007" +
-      "sateCno\030\r \003(\005\"\244\001\n\010TrackMsg\022\013\n\003lng\030\001 \001(\005\022" +
+      "sateCno\030\r \003(\005\"\263\001\n\010TrackMsg\022\013\n\003lng\030\001 \001(\005\022" +
       "\013\n\003lat\030\002 \001(\005\022\020\n\010altitude\030\003 \001(\005\022\r\n\005speed\030" +
       "\004 \001(\005\022\017\n\007azimuth\030\005 \001(\005\022\022\n\nuseSateCnt\030\006 \001" +
       "(\005\022\025\n\rviewedSateCnt\030\007 \001(\005\022\021\n\ttimestamp\030\010" +
-      " \001(\005\022\016\n\006sateSn\030\t \001(\005\"\275\002\n\rDeviceMessage\022I" +
-      "\n\002id\030\001 \002(\0162=.org.nutz.walnut.ext.gpstrac" +
-      "ker.DeviceMessage.DeviceMessageID\022:\n\005log" +
-      "in\030\002 \001(\0132+.org.nutz.walnut.ext.gpstracke" +
-      "r.DeviceLogin\022?\n\tdevStatus\030\003 \001(\0132,.org.n" +
-      "utz.walnut.ext.gpstracker.DeviceStatus\022:" +
-      "\n\010trackMsg\030\004 \003(\0132(.org.nutz.walnut.ext.g" +
-      "pstracker.TrackMsg\"(\n\017DeviceMessageID\022\t\n" +
-      "\005LOGIN\020\000\022\n\n\006STATUS\020\001\"]\n\016DeviceResponse\022;" +
-      "\n\003cmd\030\001 \002(\0162..org.nutz.walnut.ext.gpstra" +
-      "cker.RequestCommand\022\016\n\006result\030\002 \002(\010\"\202\002\n\r" +
-      "ServerMessage\022I\n\002id\030\001 \002(\0162=.org.nutz.wal" +
-      "nut.ext.gpstracker.ServerMessage.ServerM" +
-      "essageID\022\023\n\013server_time\030\002 \001(\005\022\025\n\rparam_v" +
-      "ersion\030\003 \001(\005\022A\n\014device_param\030\004 \001(\0132+.org" +
-      ".nutz.walnut.ext.gpstracker.DeviceParam\"" +
-      "7\n\017ServerMessageID\022\022\n\016LOGIN_RESPONSE\020\001\022\020" +
-      "\n\014PARAM_UPDATE\020\002\"[\n\rServerRequest\022;\n\003cmd" +
-      "\030\001 \002(\0162..org.nutz.walnut.ext.gpstracker." +
-      "RequestCommand\022\r\n\005value\030\002 \001(\010*5\n\016Request" +
-      "Command\022\020\n\014REMOTE_WAKEN\020\001\022\021\n\rUPDATE_SCRI" +
-      "PT\020\002"
+      " \001(\005\022\016\n\006sateSn\030\t \001(\005\022\r\n\005isFix\030\n \001(\010\"\275\002\n\r" +
+      "DeviceMessage\022I\n\002id\030\001 \002(\0162=.org.nutz.wal" +
+      "nut.ext.gpstracker.DeviceMessage.DeviceM" +
+      "essageID\022:\n\005login\030\002 \001(\0132+.org.nutz.walnu" +
+      "t.ext.gpstracker.DeviceLogin\022?\n\tdevStatu" +
+      "s\030\003 \001(\0132,.org.nutz.walnut.ext.gpstracker" +
+      ".DeviceStatus\022:\n\010trackMsg\030\004 \003(\0132(.org.nu" +
+      "tz.walnut.ext.gpstracker.TrackMsg\"(\n\017Dev" +
+      "iceMessageID\022\t\n\005LOGIN\020\000\022\n\n\006STATUS\020\001\"]\n\016D" +
+      "eviceResponse\022;\n\003cmd\030\001 \002(\0162..org.nutz.wa" +
+      "lnut.ext.gpstracker.RequestCommand\022\016\n\006re" +
+      "sult\030\002 \002(\010\"\202\002\n\rServerMessage\022I\n\002id\030\001 \002(\016" +
+      "2=.org.nutz.walnut.ext.gpstracker.Server" +
+      "Message.ServerMessageID\022\023\n\013server_time\030\002" +
+      " \001(\005\022\025\n\rparam_version\030\003 \001(\005\022A\n\014device_pa" +
+      "ram\030\004 \001(\0132+.org.nutz.walnut.ext.gpstrack" +
+      "er.DeviceParam\"7\n\017ServerMessageID\022\022\n\016LOG" +
+      "IN_RESPONSE\020\001\022\020\n\014PARAM_UPDATE\020\002\"[\n\rServe" +
+      "rRequest\022;\n\003cmd\030\001 \002(\0162..org.nutz.walnut." +
+      "ext.gpstracker.RequestCommand\022\r\n\005value\030\002" +
+      " \001(\010*5\n\016RequestCommand\022\020\n\014REMOTE_WAKEN\020\001" +
+      "\022\021\n\rUPDATE_SCRIPT\020\002"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -12413,7 +12532,7 @@ public final class Tracker {
     internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor,
-        new java.lang.String[] { "Lng", "Lat", "Altitude", "Speed", "Azimuth", "UseSateCnt", "ViewedSateCnt", "Timestamp", "SateSn", });
+        new java.lang.String[] { "Lng", "Lat", "Altitude", "Speed", "Azimuth", "UseSateCnt", "ViewedSateCnt", "Timestamp", "SateSn", "IsFix", });
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable = new
