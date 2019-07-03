@@ -352,7 +352,7 @@ public class WWWModule extends AbstractWnModule {
         WnObj oU = __get_usr_by_phone(ths, phone);
 
         // 查看一下当前，如果已经有一个会话了，那么可能是微信那套逻辑，自动创建的会话
-        NutMap context = this.__gen_www_context(req, oWWW, null);
+        NutMap context = this.__gen_www_context(req, oWWW, null, null);
         WWWPageAPI api = _api_page(oHome, oWWW, context);
 
         // 如果没有用户，就传一个手机号进去
@@ -563,7 +563,7 @@ public class WWWModule extends AbstractWnModule {
         }
 
         // 查看一下当前，如果已经有一个会话了，那么可能是微信那套逻辑，自动创建的会话
-        NutMap context = this.__gen_www_context(req, oWWW, null);
+        NutMap context = this.__gen_www_context(req, oWWW, null, null);
         WWWPageAPI api = _api_page(oHome, oWWW, context);
         WnObj oSe = __try_merge_with_session_user(api, oU, siteId, ticket);
 
@@ -662,7 +662,7 @@ public class WWWModule extends AbstractWnModule {
         WnObj oHome = io.check(null, "/home/" + domain);
 
         // 从请求对象得到上下文
-        NutMap context = __gen_www_context(req, oWWW, null);
+        NutMap context = __gen_www_context(req, oWWW, null, null);
 
         // 准备操作接口并删除会话
         WWWPageAPI api = _api_page(oHome, oWWW, context);
@@ -686,7 +686,7 @@ public class WWWModule extends AbstractWnModule {
         WnObj oHome = io.check(null, "/home/" + domain);
 
         // 从请求对象得到上下文
-        NutMap context = __gen_www_context(req, oWWW, null);
+        NutMap context = __gen_www_context(req, oWWW, null, null);
 
         WWWPageAPI api = _api_page(oHome, oWWW, context);
         return api.checkMyPhone();
@@ -893,9 +893,13 @@ public class WWWModule extends AbstractWnModule {
                 String pagePath = currentPath.substring(rootPath.length());
 
                 // 从请求对象得到上下文
-                NutMap context = __gen_www_context(req, oWWW, pagePath);
+                NutMap context = __gen_www_context(req, oWWW, pagePath, a_path);
                 context.put("CURRENT_PATH", currentPath);
                 context.put("CURRENT_DIR", currentDir);
+                String uriBase = context.getString("URI_BASE");
+                String ctxName = o.getString("CONTEXT_NAME");
+                String pageBase = Wn.appendPath(uriBase, ctxName) + "/";
+                context.put("PAGE_BASE", pageBase);
 
                 // 加入路径参数
                 context.put("args", args);
@@ -1059,7 +1063,12 @@ public class WWWModule extends AbstractWnModule {
     // 格式化虚拟页面
     static class VirtualPage {
         // 用来渲染的页面，譬如 index.wnml
-        String fileName;
+        // 也可以带路径，譬如 abc/index.wnml
+        String entryPath;
+
+        // 如果 entryPath 是 abc/index.wnml
+        // 这个 abc 就作为 contextName
+        String contextName;
 
         // 匹配列表
         PageMatcher[] matchers;
@@ -1067,8 +1076,12 @@ public class WWWModule extends AbstractWnModule {
         VirtualPage(String s) {
             int pos = s.indexOf(':');
             if (pos >= 0) {
-                fileName = Strings.sBlank(s.substring(0, pos), null);
+                entryPath = Strings.sBlank(s.substring(0, pos), null);
                 s = s.substring(pos + 1);
+                pos = entryPath.indexOf('/');
+                if (pos > 0) {
+                    contextName = entryPath.substring(0, pos);
+                }
             }
             String[] vps = Strings.splitIgnoreBlank(s, ",");
             matchers = new PageMatcher[vps.length];
@@ -1101,39 +1114,15 @@ public class WWWModule extends AbstractWnModule {
         }
         // 否则如果有 ROOT 在其内查找
         else if (null != oWWW) {
-            // 处理一下 www_pages
+            // 如果路径没后缀，那么试图根据 www_pages，处理一下虚页
             // www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
-            Object wwwPages = oWWW.get("www_pages");
-            List<VirtualPage> vpages = new ArrayList<>(5);
-            Lang.each(wwwPages, false, new Each<String>() {
-                public void invoke(int index, String str, int length) {
-                    vpages.add(new VirtualPage(str));
-                }
-            });
-            VirtualPage theVirtualPage = null;
-            String[] remains = null;
-            if (vpages.size() > 0) {
-                String[] paths = Strings.splitIgnoreBlank(a_path, "/");
-                for (VirtualPage vpage : vpages) {
-                    remains = vpage.match(paths);
-                    if (null != remains) {
-                        theVirtualPage = vpage;
-                    }
-                }
+            if (!a_path.matches("^.+[.][a-z]+$")) {
+                o = __do_with_virtual_page(a_path, oWWW);
             }
-            // 存在 VirtualPage 的话，读取这个页
-            if (null != theVirtualPage) {
-                String vpph = Strings.join2("/", remains);
-                String vfnm = theVirtualPage.fileName;
-                if (!Strings.isBlank(vfnm)) {
-                    vpph = Wn.appendPath(vpph, vfnm);
-                }
-                // 不剩下啥了，那就 oWWW 吧
-                if (Strings.isBlank(vpph)) {
-                    return oWWW;
-                }
-                // 读一下这个页
-                return io.fetch(oWWW, vpph);
+
+            // 已经通过 VirtualPage 机制找到了页面，不再进行后续逻辑了
+            if (null != o) {
+                return o;
             }
 
             WnObj oDir;
@@ -1156,6 +1145,45 @@ public class WWWModule extends AbstractWnModule {
             }
         }
         return o;
+    }
+
+    protected WnObj __do_with_virtual_page(String a_path, WnObj oWWW) {
+        Object wwwPages = oWWW.get("www_pages");
+        List<VirtualPage> vpages = new ArrayList<>(5);
+        Lang.each(wwwPages, false, new Each<String>() {
+            public void invoke(int index, String str, int length) {
+                vpages.add(new VirtualPage(str));
+            }
+        });
+        VirtualPage theVirtualPage = null;
+        String[] remains = null;
+        if (vpages.size() > 0) {
+            String[] paths = Strings.splitIgnoreBlank(a_path, "/");
+            for (VirtualPage vpage : vpages) {
+                remains = vpage.match(paths);
+                if (null != remains) {
+                    theVirtualPage = vpage;
+                }
+            }
+        }
+        // 存在 VirtualPage 的话，读取这个页
+        WnObj obj = null;
+        if (null != theVirtualPage) {
+            String entryPath = theVirtualPage.entryPath;
+            // 直接使用 oWWW
+            if (Strings.isBlank(entryPath)) {
+                obj = oWWW;
+            }
+            // 读一下这个页
+            else {
+                obj = io.fetch(oWWW, entryPath);
+            }
+        }
+        // 设置一个 ContextName
+        if (null != obj) {
+            obj.setv("CONTEXT_NAME", theVirtualPage.contextName);
+        }
+        return obj;
     }
 
     // TODO 这是老的 hmaker 需要的特殊处理，重构完了 Ti 需要删掉
@@ -1216,7 +1244,10 @@ public class WWWModule extends AbstractWnModule {
         return o;
     }
 
-    private NutMap __gen_www_context(HttpServletRequest req, WnObj oWWW, String pagePath) {
+    private NutMap __gen_www_context(HttpServletRequest req,
+                                     WnObj oWWW,
+                                     String pagePath,
+                                     String a_path) {
         try {
             NutMap context = _gen_context_by_req(req);
             String rootPath = oWWW.path();
@@ -1226,9 +1257,16 @@ public class WWWModule extends AbstractWnModule {
             URI uri = new URI(url);
             String uriPath = uri.getPath();
             String basePath;
+            // 用 pagePath
             if (!Strings.isBlank(pagePath) && uriPath.endsWith(pagePath)) {
                 basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
-            } else {
+            }
+            // 用 a_path 咯
+            else if (!Strings.isBlank(a_path) && uriPath.endsWith(a_path)) {
+                basePath = uriPath.substring(0, uriPath.length() - a_path.length());
+            }
+            // 嗯，没招了
+            else {
                 basePath = uriPath;
             }
 
