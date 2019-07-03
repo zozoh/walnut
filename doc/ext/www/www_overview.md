@@ -25,12 +25,18 @@ tags:
 
 一个标记了 *www* 元数据的发布目录，元数据的样子是:
 
-```
+```bash
 # 指明本目录映射的域名。 ROOT 表示映射任何域名
 www : "ROOT"
 
 # 指明目录下默认的主页，默认为 ["index.wnml", "index.html"]
 www_entry  : ["index.wnml", "index.html"]
+
+# 指明虚拟路径
+# 下面的配置表明，如果匹配路径 "abc/page/*" 或者 "xyz/page/*"
+# 将直接用 index.wnml 来渲染，匹配上的路径不动，由前端来路由
+# 如果不写 index.wnml:，那么会返回匹配目录，由站点通用入口页面列表决定
+www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
 ```
 
 WWWModule 在处理请求的时候，采用的策略如下 

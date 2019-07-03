@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.www;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -807,6 +808,28 @@ public class WWWModule extends AbstractWnModule {
         // ..............................................
         // 目录的话，依次上传入口
         if (o.isDIR()) {
+            // 如果不是目录，那么应该返回一个重定向
+            // 否则在访问 http://zozoh.com/abc 这样路径的时候，
+            // 路径对应的网页里面如果有相对的图片链接，会有问题
+            if (!req.getRequestURI().endsWith("/")) {
+                String redirectPath;
+                Object orgPath = req.getAttribute("wn_www_path_org");
+
+                // 嗯，不是从 WalnutFilter 过来的
+                if (null == orgPath) {
+                    redirectPath = Wn.appendPath("/www", usr, a_path) + "/";
+                }
+                // 从 WalnutFilter 过来的，直接使用原始路径
+                else {
+                    redirectPath = orgPath.toString() + "/";
+                }
+
+                if (log.isDebugEnabled())
+                    log.debugf(" - www:redirect-> %s", redirectPath);
+
+                // 重定向吧
+                return new ServerRedirectView(redirectPath);
+            }
             // 获取入口网页的可能列表
             List<String> entries = ENTRIES;
             if (null != oWWW) {
@@ -840,28 +863,6 @@ public class WWWModule extends AbstractWnModule {
                 resp.setStatus(400);
                 if (o == null)
                     return gen_errpage(tmpl_400, a_path);
-            }
-            // 如果不是目录，那么应该返回一个重定向
-            // 否则在访问 http://zozoh.com/abc 这样路径的时候，
-            // 路径对应的网页里面如果有相对的图片链接，会有问题
-            if (!req.getRequestURI().endsWith("/")) {
-                String redirectPath;
-                Object orgPath = req.getAttribute("wn_www_path_org");
-
-                // 嗯，不是从 WalnutFilter 过来的
-                if (null == orgPath) {
-                    redirectPath = Wn.appendPath("/www", usr, a_path) + "/";
-                }
-                // 从 WalnutFilter 过来的，直接使用原始路径
-                else {
-                    redirectPath = orgPath.toString() + "/";
-                }
-
-                if (log.isDebugEnabled())
-                    log.debugf(" - www:redirect-> %s", redirectPath);
-
-                // 重定向吧
-                return new ServerRedirectView(redirectPath);
             }
         }
 
@@ -985,6 +986,112 @@ public class WWWModule extends AbstractWnModule {
         }
     }
 
+    static class PageMatcher {
+
+        int step; // 匹配时从哪个下标开始，1 表示从开始， -1 表示从路径结尾, 0 精确匹配
+        String[] _phs;
+
+        PageMatcher(String s) {
+            String[] ss = Strings.splitIgnoreBlank(s, "/");
+            // 后缀模式 "*/xx/xx"
+            if (ss.length > 0 && "*".equals(ss[0])) {
+                step = -1;
+                _phs = Arrays.copyOfRange(ss, 1, ss.length);
+            }
+            // 前缀模式 "/xx/xx/*"
+            else if (s.endsWith("*")) {
+                step = 1;
+                _phs = Arrays.copyOfRange(ss, 0, ss.length - 1);
+            }
+            // 精确匹配模式
+            else {
+                _phs = Strings.splitIgnoreBlank(s, "/");
+            }
+        }
+
+        /**
+         * 匹配给定路径数组
+         * 
+         * @param path
+         *            路径（已经被拆分好的数组）
+         * @return null 表示不匹配, [] 表示完全匹配, ["xx","xx"] 表示还剩下的路径部分
+         */
+        String[] match(String[] paths) {
+            // 后缀模式 "*/xx/xx"
+            if (-1 == step) {
+                int len = paths.length - _phs.length;
+                if (len < 0) {
+                    return null;
+                }
+                int i = _phs.length - 1;
+                for (; i >= 0; i--) {
+                    if (!paths[i].equals(_phs[i]))
+                        return null;
+                }
+                return Arrays.copyOfRange(paths, 0, len);
+            }
+            // 前缀模式 "/xx/xx/*"
+            else if (1 == step) {
+                int len = paths.length - _phs.length;
+                if (len < 0) {
+                    return null;
+                }
+                int i = 0;
+                for (; i < _phs.length; i++) {
+                    if (!paths[i].equals(_phs[i]))
+                        return null;
+                }
+                return Arrays.copyOfRange(paths, _phs.length, paths.length);
+            }
+            // 精确匹配模式
+            if (paths.length != _phs.length) {
+                return null;
+            }
+            for (int i = 0; i < _phs.length; i++) {
+                if (!paths[i].equals(_phs[i]))
+                    return null;
+            }
+            return new String[0];
+        }
+
+    }
+
+    // 格式化虚拟页面
+    static class VirtualPage {
+        // 用来渲染的页面，譬如 index.wnml
+        String fileName;
+
+        // 匹配列表
+        PageMatcher[] matchers;
+
+        VirtualPage(String s) {
+            int pos = s.indexOf(':');
+            if (pos >= 0) {
+                fileName = Strings.sBlank(s.substring(0, pos), null);
+                s = s.substring(pos + 1);
+            }
+            String[] vps = Strings.splitIgnoreBlank(s, ",");
+            matchers = new PageMatcher[vps.length];
+            for (int i = 0; i < vps.length; i++) {
+                String vp = vps[i];
+                matchers[i] = new PageMatcher(vp);
+            }
+        }
+
+        // 匹配，如果 matchers 是空地，那么作废
+        String[] match(String[] paths) {
+            if (null != matchers && matchers.length > 0) {
+                for (PageMatcher m : matchers) {
+                    String[] re = m.match(paths);
+                    if (null != re)
+                        return re;
+                }
+            }
+            return null;
+        }
+
+    }
+
     private WnObj __find_opage_in_www(String a_path, WnObj oWWW, NutMap args) {
         WnObj o = null;
 
@@ -994,6 +1101,41 @@ public class WWWModule extends AbstractWnModule {
         }
         // 否则如果有 ROOT 在其内查找
         else if (null != oWWW) {
+            // 处理一下 www_pages
+            // www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
+            Object wwwPages = oWWW.get("www_pages");
+            List<VirtualPage> vpages = new ArrayList<>(5);
+            Lang.each(wwwPages, false, new Each<String>() {
+                public void invoke(int index, String str, int length) {
+                    vpages.add(new VirtualPage(str));
+                }
+            });
+            VirtualPage theVirtualPage = null;
+            String[] remains = null;
+            if (vpages.size() > 0) {
+                String[] paths = Strings.splitIgnoreBlank(a_path, "/");
+                for (VirtualPage vpage : vpages) {
+                    remains = vpage.match(paths);
+                    if (null != remains) {
+                        theVirtualPage = vpage;
+                    }
+                }
+            }
+            // 存在 VirtualPage 的话，读取这个页
+            if (null != theVirtualPage) {
+                String vpph = Strings.join2("/", remains);
+                String vfnm = theVirtualPage.fileName;
+                if (!Strings.isBlank(vfnm)) {
+                    vpph = Wn.appendPath(vpph, vfnm);
+                }
+                // 不剩下啥了，那就 oWWW 吧
+                if (Strings.isBlank(vpph)) {
+                    return oWWW;
+                }
+                // 读一下这个页
+                return io.fetch(oWWW, vpph);
+            }
+
             WnObj oDir;
             // 首先查到路径所在的目录
             String p_ph = Files.getParent(a_path);
@@ -1006,62 +1148,69 @@ public class WWWModule extends AbstractWnModule {
             // 如果有所在目录，来一下
             if (null != oDir) {
                 o = io.fetch(oDir, pgnm);
+                // TODO 这是老的 hmaker 需要的特殊处理，重构完了 Ti 需要删掉
                 // 如果没有的话，那么依次找找 `hm_pg_args` 声明的网页能不能匹配上
                 if (null == o) {
-                    WnQuery q2 = Wn.Q.pid(oDir);
-                    q2.setv("hm_pg_args", true);
-                    List<WnObj> oCas = io.query(q2);
-                    for (WnObj oCa : oCas) {
-                        // 首先先获取一下页面的正则表达式和名称
-                        String regex = oCa.getString("hm_pg_args_regex");
-                        List<String> argNames = oCa.getList("hm_pg_args_names", String.class);
-
-                        Pattern p;
-                        Matcher m;
-
-                        // 看来没有缓存，或者缓存不正确，那么就分析一下咯
-                        if (Strings.isBlank(regex) || null == argNames || argNames.isEmpty()) {
-                            // 首先处理一下占位符，将其变成一个正则表达式
-                            String fnm = oCa.name();
-                            regex = "^";
-                            int pos = 0;
-                            p = Regex.getPattern("\\{\\{([^\\}]+)\\}\\}");
-                            m = p.matcher(fnm);
-                            argNames = new ArrayList<>(3);
-                            while (m.find()) {
-                                argNames.add(m.group(1));
-                                if (m.start() > pos) {
-                                    regex += fnm.substring(pos, m.start());
-                                }
-                                pos = m.end();
-                                regex += "(.+)";
-                            }
-                            if (pos < fnm.length()) {
-                                regex += fnm.substring(pos);
-                            }
-                            regex += "$";
-                            // 来吧，缓存一下
-                            NutMap meta = new NutMap();
-                            meta.put("hm_pg_args_regex", regex);
-                            meta.put("hm_pg_args_names", argNames);
-                            io.appendMeta(oCa, meta);
-                        }
-                        // 木有占位符，那么放弃吧
-                        if (argNames.isEmpty())
-                            continue;
-                        // 用正则表达式匹配一下
-                        p = Regex.getPattern(regex);
-                        m = p.matcher(pgnm);
-                        if (m.find()) {
-                            o = oCa;
-                            for (int i = 0; i < m.groupCount(); i++) {
-                                String argName = argNames.get(i);
-                                args.put(argName, m.group(i + 1));
-                            }
-                            break;
-                        }
-                    }
+                    o = __for_hmaker_dynamic(args, o, oDir, pgnm);
                 }
+            }
+        }
+        return o;
+    }
+
+    // TODO 这是老的 hmaker 需要的特殊处理，重构完了 Ti 需要删掉
+    private WnObj __for_hmaker_dynamic(NutMap args, WnObj o, WnObj oDir, String pgnm) {
+        WnQuery q2 = Wn.Q.pid(oDir);
+        q2.setv("hm_pg_args", true);
+        List<WnObj> oCas = io.query(q2);
+        for (WnObj oCa : oCas) {
+            // 首先先获取一下页面的正则表达式和名称
+            String regex = oCa.getString("hm_pg_args_regex");
+            List<String> argNames = oCa.getList("hm_pg_args_names", String.class);
+
+            Pattern p;
+            Matcher m;
+
+            // 看来没有缓存，或者缓存不正确，那么就分析一下咯
+            if (Strings.isBlank(regex) || null == argNames || argNames.isEmpty()) {
+                // 首先处理一下占位符，将其变成一个正则表达式
+                String fnm = oCa.name();
+                regex = "^";
+                int pos = 0;
+                p = Regex.getPattern("\\{\\{([^\\}]+)\\}\\}");
+                m = p.matcher(fnm);
+                argNames = new ArrayList<>(3);
+                while (m.find()) {
+                    argNames.add(m.group(1));
+                    if (m.start() > pos) {
+                        regex += fnm.substring(pos, m.start());
+                    }
+                    pos = m.end();
+                    regex += "(.+)";
+                }
+                if (pos < fnm.length()) {
+                    regex += fnm.substring(pos);
+                }
+                regex += "$";
+                // 来吧，缓存一下
+                NutMap meta = new NutMap();
+                meta.put("hm_pg_args_regex", regex);
+                meta.put("hm_pg_args_names", argNames);
+                io.appendMeta(oCa, meta);
+            }
+            // 木有占位符，那么放弃吧
+            if (argNames.isEmpty())
+                continue;
+            // 用正则表达式匹配一下
+            p = Regex.getPattern(regex);
+            m = p.matcher(pgnm);
+            if (m.find()) {
+                o = oCa;
+                for (int i = 0; i < m.groupCount(); i++) {
+                    String argName = argNames.get(i);
+                    args.put(argName, m.group(i + 1));
+                }
+                break;
             }
         }
         return o;
