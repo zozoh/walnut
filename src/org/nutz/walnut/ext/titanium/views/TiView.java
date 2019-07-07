@@ -1,10 +1,14 @@
 package org.nutz.walnut.ext.titanium.views;
 
+import org.nutz.lang.util.NutMap;
+
 public class TiView {
 
     private String comIcon;
 
     private String comType;
+
+    private NutMap comConf;
 
     private String modType;
 
@@ -24,6 +28,14 @@ public class TiView {
 
     public void setComType(String comType) {
         this.comType = comType;
+    }
+
+    public NutMap getComConf() {
+        return comConf;
+    }
+
+    public void setComConf(NutMap comConf) {
+        this.comConf = comConf;
     }
 
     public String getModType() {
