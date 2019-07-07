@@ -13,6 +13,7 @@ import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
+import org.nutz.web.WebException;
 
 public class IoWnSessionService implements WnSessionService {
 
@@ -221,7 +222,9 @@ public class IoWnSessionService implements WnSessionService {
     private WnObj __check_seobj(String seid) {
         WnObj o = __fetch_seobj(seid);
         if (null == o) {
-            throw Er.create("e.sess.noexists", seid);
+            WebException e = Er.create("e.sess.noexists", seid);
+            log.info("未知session错误", e);
+            throw e;
         }
         return o;
     }
