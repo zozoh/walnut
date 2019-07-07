@@ -1,8 +1,13 @@
 package org.nutz.walnut.impl.usr;
 
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -223,7 +228,24 @@ public class IoWnSessionService implements WnSessionService {
         WnObj o = __fetch_seobj(seid);
         if (null == o) {
             WebException e = Er.create("e.sess.noexists", seid);
-            log.info("未知session错误", e);
+            try {
+                HttpServletRequest req = Mvcs.getReq();
+                if (req != null) {
+                    log.info("未知session错误 " + req.getRequestURL());
+                    Enumeration<String> en = req.getHeaderNames();
+                    while (en.hasMoreElements()) {
+                        String name = en.nextElement();
+                        Enumeration<String> en2 = req.getHeaders(name);
+                        while (en2.hasMoreElements()) {
+                            log.infof("未知session错误,头部 %s = %s", name, en2.nextElement());
+                        }
+                    }
+                }
+            }
+            catch (Throwable e2) {
+                e2.printStackTrace();
+            }
+            log.warn("未知session错误" + seid, e);
             throw e;
         }
         return o;
