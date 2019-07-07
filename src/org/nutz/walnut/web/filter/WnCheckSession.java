@@ -41,8 +41,9 @@ public class WnCheckSession implements ActionFilter {
     public static WnSession testSession(WnContext wc, Ioc ioc) {
         // 如果上下文已经有了 Session，就直接返回
         WnSession se = wc.SE();
-        if (null != se)
+        if (null != se) {
             return se;
+        }
 
         // 获取 SessionID
         if (!wc.hasSEID())
