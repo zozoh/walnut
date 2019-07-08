@@ -39,20 +39,20 @@ imagic abc.jpg -filter 'scale(0.7, 0.5)' -qa 0.8 -out  xyz.jpg
 
 3. 裁剪(起点坐标0x0, 区域120x180), 输出品质0.8f, 目标文件xyz.jpg
 ```
-imagic abc.jpg -filter clip(0,0,120,180)' -qa 0.8 -out  xyz.jpg
+imagic abc.jpg -filter 'clip(0,0,120,180)' -qa 0.8 -out  xyz.jpg
 ```
 
 4. 裁剪(起点坐标相对位置0.3x0.3, 区域120x180), 输出品质0.8f, 目标文件xyz.jpg
 ```
-imagic abc.jpg -filter clip(0.3,0.3,120,180)' -qa 0.8 -out  xyz.jpg
+imagic abc.jpg -filter 'clip(0.3,0.3,120,180)' -qa 0.8 -out  xyz.jpg
 ```
 
 5. 左右镜像(0), 上下翻转(1)
 ```
-imagic abc.jpg -filter mirror(0)' -qa 0.8 -out  xyz.jpg
+imagic abc.jpg -filter 'mirror(0)' -qa 0.8 -out  xyz.jpg
 ```
 
 6. 上下镜像,并关闭exif自动旋转
 ```
-imagic abc.jpg -filter mirror(1) autoexif(false)' -qa 0.8 -out  xyz.jpg
+imagic abc.jpg -filter 'mirror(1) autoexif(false)' -qa 0.8 -out  xyz.jpg
 ```
