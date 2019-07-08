@@ -26,8 +26,6 @@ public class CachedWnHookService extends IoWnHookService {
     @Override
     public List<WnHook> get(final String action, WnObj o) {
         List<WnHook> list = new ArrayList<>();
-        // 获取全局钩子
-        list.addAll(getHooks("/sys/hook/" + action, action, o, gcaches));
 
         // 根据对象，得到其组的主目录
         String grp = o.group();
@@ -40,6 +38,9 @@ public class CachedWnHookService extends IoWnHookService {
                 list.add(wnHook);
             }
         }
+
+        // 获取全局钩子
+        list.addAll(getHooks("/sys/hook/" + action, action, o, gcaches));
 
         return list;
     }
