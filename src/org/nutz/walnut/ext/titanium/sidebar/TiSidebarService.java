@@ -20,7 +20,7 @@ import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
 import org.nutz.walnut.util.Wn;
 
-@IocBean
+@IocBean(create = "on_create")
 public class TiSidebarService {
 
     @Inject("refer:io")
@@ -34,8 +34,8 @@ public class TiSidebarService {
 
     private WnObjCachedFactory<TiSidebarInput> cache;
 
-    public TiSidebarService() {
-        this.cache = new WnObjCachedFactory<>();
+    public void on_create() {
+        this.cache = new WnObjCachedFactory<>(io);
     }
 
     private void __join_output(int depth,
