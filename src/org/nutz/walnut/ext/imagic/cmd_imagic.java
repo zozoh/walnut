@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.imagic;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -22,6 +22,12 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -145,7 +151,28 @@ public class cmd_imagic extends JvmExecutor {
         }
     }
     
-    protected BufferedImage readStream(InputStream ins) throws IOException {
-        return Thumbnails.of(ins).scale(1.0).asBufferedImage();
+    protected BufferedImage readStream(InputStream ins) throws Exception {
+        byte[] buf = Streams.readBytesAndClose(ins);
+        Metadata meta = ImageMetadataReader.readMetadata(new ByteArrayInputStream(buf));
+        int route = 0;
+        if (meta != null) {
+            for (Directory directory : meta.getDirectories()) {
+                for (Tag tag : directory.getTags()) {
+                    if (tag.getTagType() == ExifSubIFDDirectory.TAG_ORIENTATION) {
+                        String value = tag.getDescription();
+                        if (value.contains("Right side, top")) {
+                            route = 90;
+                        }
+                        else if (value.contains("Left side, top")) {
+                            route = -90;
+                        }
+                        else if (value.contains("Bottom side, top")) {
+                            route = 180;
+                        }
+                    }
+                }
+            }
+        }
+        return Thumbnails.of(new ByteArrayInputStream(buf)).useExifOrientation(false).rotate(route).scale(1.0).asBufferedImage();
     }
 }
