@@ -27,6 +27,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifDirectoryBase;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -150,26 +151,27 @@ public class cmd_imagic extends JvmExecutor {
             Streams.safeClose(outs);
         }
     }
-    
+
     protected BufferedImage readStream(InputStream ins) throws Exception {
         byte[] buf = Streams.readBytesAndClose(ins);
-        Metadata meta = ImageMetadataReader.readMetadata(new ByteArrayInputStream(buf));
+        Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(buf));
         int route = 0;
-        if (meta != null) {
-            for (Directory directory : meta.getDirectories()) {
-                for (Tag tag : directory.getTags()) {
-                    if (tag.getTagType() == ExifSubIFDDirectory.TAG_ORIENTATION) {
-                        String value = tag.getDescription();
-                        if (value.contains("Right side, top")) {
-                            route = 90;
-                        }
-                        else if (value.contains("Left side, top")) {
-                            route = -90;
-                        }
-                        else if (value.contains("Bottom side, top")) {
-                            route = 180;
-                        }
-                    }
+        if (metadata != null) {
+            Directory directory = metadata.getFirstDirectoryOfType(ExifDirectoryBase.class);
+            int orientation = 0;
+            if (directory != null) {
+                if (directory != null && directory.containsTag(ExifDirectoryBase.TAG_ORIENTATION)) {
+                    orientation = directory.getInt(ExifDirectoryBase.TAG_ORIENTATION);
+                }
+                if (6 == orientation) {
+                    // 6旋转90
+                    route = 90;
+                } else if (3 == orientation) {
+                    // 3旋转180
+                    route = 180;
+                } else if (8 == orientation) {
+                    // 8旋转90
+                    route = 270;
                 }
             }
         }
