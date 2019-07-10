@@ -411,9 +411,9 @@ public abstract class Wn {
 
     public static class Mime {
         public static String getGroupName(String mime, String dft) {
-            if(!Strings.isBlank(mime)) {
+            if (!Strings.isBlank(mime)) {
                 int pos = mime.indexOf("/");
-                if(pos>0) {
+                if (pos > 0) {
                     return mime.substring(0, pos);
                 }
             }
@@ -1158,6 +1158,21 @@ public abstract class Wn {
                                  wobj.lastModified());
         }
         return etag;
+    }
+
+    /**
+     * 获取对象的内容指纹，如果对象是链接对象，会一层层的找到真实文件
+     * 
+     * @param wobj
+     *            输入对象（如果是链接对象会被解开）
+     * @param io
+     *            IO 接口
+     * @return 对象的指纹
+     */
+    public static String getEtag(WnObj wobj, WnIo io) {
+        Map<String, WnObj> memo = new HashMap<>();
+        WnObj o = Wn.real(wobj, io, memo);
+        return getEtag(o);
     }
 
     public static void checkRootRole(WnSystem sys) {

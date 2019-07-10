@@ -6,6 +6,7 @@
 
     obj [id:ea81..|/path/to/obj]
         [-new $JSON] 
+        [-IfNoExists]
         [-u $JSON] 
         [-e $REGEX] 
         [-t fld0,fld1..]

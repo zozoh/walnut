@@ -9,6 +9,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 帮助函数集
@@ -18,9 +19,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 public abstract class WsUtils {
 
     public static void eachSession(WnSystem sys, String id, Callback<Session> callback) {
-        if (id.startsWith("id:")) {
-            id = id.substring(3);
-            WnObj wobj = sys.io.checkById(id);
+        if (id.startsWith("id:") || id.startsWith("~/")) {
+            WnObj wobj = Wn.checkObj(sys, id);
             Lang.each(wobj.get(WnWebSocket.KEY), new Each<Object>() {
                 public void invoke(int index, Object ele, int length) {
                     Session session = WnWebSocket.get(String.valueOf(ele));

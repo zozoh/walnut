@@ -425,6 +425,12 @@ public class WnContext extends NutMap {
     }
 
     public WnSession SE() {
+        // 防守一下，怕有其他的线程污染了这个上下文
+        if (null != se) {
+            if (!se.isSame(seid))
+                return null;
+        }
+        // 返回
         return se;
     }
 

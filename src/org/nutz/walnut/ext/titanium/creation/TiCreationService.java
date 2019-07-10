@@ -11,7 +11,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
 import org.nutz.walnut.ext.titanium.util.WnObjDataLoading;
 
-@IocBean
+@IocBean(create = "on_create")
 public class TiCreationService {
 
     @Inject("refer:io")
@@ -21,9 +21,9 @@ public class TiCreationService {
 
     private WnObjCachedFactory<TiTypes> types;
 
-    public TiCreationService() {
-        creations = new WnObjCachedFactory<>();
-        types = new WnObjCachedFactory<>();
+    public void on_create() {
+        creations = new WnObjCachedFactory<>(io);
+        types = new WnObjCachedFactory<>(io);
     }
 
     public TiTypes getTypes(WnObj oTypes) {

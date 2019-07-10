@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
 import org.nutz.walnut.util.Wn;
 
-@IocBean
+@IocBean(create = "on_create")
 public class TiViewService {
 
     @Inject("refer:io")
@@ -19,9 +19,9 @@ public class TiViewService {
 
     private WnObjCachedFactory<TiView> views;
 
-    public TiViewService() {
-        mappings = new WnObjCachedFactory<>();
-        views = new WnObjCachedFactory<>();
+    public void on_create() {
+        mappings = new WnObjCachedFactory<>(io);
+        views = new WnObjCachedFactory<>(io);
     }
 
     public TiViewMapping getMapping(WnObj oMapping) {
