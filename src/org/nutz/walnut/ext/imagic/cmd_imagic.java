@@ -26,10 +26,7 @@ import org.nutz.walnut.util.ZParams;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifDirectoryBase;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
-
 import net.coobird.thumbnailator.Thumbnails;
 
 public class cmd_imagic extends JvmExecutor {
