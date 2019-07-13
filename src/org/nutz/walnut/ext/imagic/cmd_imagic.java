@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.imagic.filter.AutoExifImagicFilter;
@@ -51,7 +52,7 @@ public class cmd_imagic extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 解析一下参数
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, "^(stream)$");
         // 解析源图片
         BufferedImage image = null;
         String sourcePath = null;
@@ -139,6 +140,12 @@ public class cmd_imagic extends JvmExecutor {
                 }
                 WnObj wobjOut = sys.io.createIfNoExists(null, out, WnRace.FILE);
                 outs = sys.io.getOutputStream(wobjOut, 0);
+                if (!params.is("stream")) {
+                    NutMap meta = new NutMap();
+                    meta.put("width", image.getWidth());
+                    meta.put("height", image.getHeight());
+                    sys.io.appendMeta(wobjOut, meta);
+                }
             } else {
                 outs = sys.out.getOutputStream();
             }
@@ -172,6 +179,10 @@ public class cmd_imagic extends JvmExecutor {
                 }
             }
         }
-        return Thumbnails.of(new ByteArrayInputStream(buf)).useExifOrientation(false).rotate(route).scale(1.0).asBufferedImage();
+        return Thumbnails.of(new ByteArrayInputStream(buf))
+                         .useExifOrientation(false)
+                         .rotate(route)
+                         .scale(1.0)
+                         .asBufferedImage();
     }
 }
