@@ -205,6 +205,28 @@ public class ObjModule extends AbstractWnModule {
         return list;
     }
 
+    @At("/children")
+    public Object children(@Param("str") String str,
+                           @Param("pg") Boolean paging) {
+        WnSession se = Wn.WC().checkSE();
+        WnObj o = Wn.checkObj(io, se, str);
+      
+        // 查询
+        List<WnObj> list = io.getChildren(o, null);
+        
+        // 不要翻页信息
+        if(!paging)
+            return list;
+
+        // 更新分页信息
+        int limit = Math.max(100, list.size());
+        WnPagerObj pager = new WnPagerObj().set(limit, 0);
+        pager.setTotal(list.size());
+
+        // 返回
+        return new NutMap("list", list).setv("pager", pager);
+    }
+
     /**
      * 给定查询对象，获取对象列表
      * 

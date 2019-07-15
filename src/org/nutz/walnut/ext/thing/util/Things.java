@@ -303,8 +303,13 @@ public abstract class Things {
             String fnm = hc.params.get("cat");
             String etag = hc.params.getString("etag");
             String range = hc.params.getString("range");
-            String userAgent = hc.params.getString("UserAgent");
+            String userAgent = null;
             boolean quiet = hc.params.is("quiet");
+            // 下载的话，要设置 UA，这样根据 UA 可以得到 HTTP响应头的那个下载目标的设置
+            // Safari 与 WebKit 等有点不一样
+            if (hc.params.is("download")) {
+                userAgent = hc.params.getString("UserAgent");
+            }
             hc.output = ths.fileRead(dirName, oT, fnm, etag, range, userAgent, quiet);
         }
         // 那么就是查询咯
