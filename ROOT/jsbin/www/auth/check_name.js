@@ -15,7 +15,11 @@ var __inmap = JSON.parse(__input);
 // Main Function
 //---------------------------------------------
 function __main__(params) {
-  sys.out.println(JSON.stringify(params))
+  var reo  = params  
+
+  // Output result
+  var json = JSON.stringify(reo)
+  sys.exec("ajaxre -cqn", json)
 }
 
 

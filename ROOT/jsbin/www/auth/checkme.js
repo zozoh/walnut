@@ -15,7 +15,21 @@ var __inmap = JSON.parse(__input);
 // Main Function
 //---------------------------------------------
 function __main__(params) {
-  sys.out.println(JSON.stringify(params))
+  var me = null
+  var ticket = null
+
+  // No Login
+  if(!me || !ticket) {
+    sys.exec("ajaxre -cqn -e 'e.www.api.auth.nologin'")
+  }
+  // Output result
+  else {
+    var json = JSON.stringify({
+      me : me,
+      ticket : ticket
+    })
+    sys.exec("ajaxre -cqn", json)
+  }
 }
 
 
