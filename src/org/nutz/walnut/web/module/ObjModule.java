@@ -205,6 +205,28 @@ public class ObjModule extends AbstractWnModule {
         return list;
     }
 
+    @At("/children")
+    public Object children(@Param("str") String str,
+                           @Param("pg") Boolean paging) {
+        WnSession se = Wn.WC().checkSE();
+        WnObj o = Wn.checkObj(io, se, str);
+      
+        // 查询
+        List<WnObj> list = io.getChildren(o, null);
+        
+        // 不要翻页信息
+        if(!paging)
+            return list;
+
+        // 更新分页信息
+        int limit = Math.max(100, list.size());
+        WnPagerObj pager = new WnPagerObj().set(limit, 0);
+        pager.setTotal(list.size());
+
+        // 返回
+        return new NutMap("list", list).setv("pager", pager);
+    }
+
     /**
      * 给定查询对象，获取对象列表
      * 
@@ -537,8 +559,8 @@ public class ObjModule extends AbstractWnModule {
      * @param mode
      *            保存模式
      *            <ul>
-     *            <li><code>r</code>- 替换模式：<code>str</code>可以存在，如果不存在或是目录根据
-     *            <code>nm</code>创建
+     *            <li><code>r</code>- 替换模式：<code>str</code>可以存在，如果是目录根据
+     *            <code>nm</code>创建。如果不存在，如果以 <code>/</code> 结尾则被当做目录，否则是目标文件路径
      *            <li><code>s</code>- 严格模式: <code>str</code>必须存在，且是一个文件，将会将其替换
      *            <li><code>a</code>- 追加模式:
      *            <code>str</code>必须存在，且必须是目录，如果是文件选择其目录。<br>
@@ -599,8 +621,16 @@ public class ObjModule extends AbstractWnModule {
         if ("r".equals(mode)) {
             // 不存在，那么创建
             if (null == o) {
-                String aph = Wn.normalizeFullPath(Wn.appendPath(str, nm), se);
-                o = io.createIfNoExists(null, aph, WnRace.FILE);
+                // 目标是个目录
+                if (str.endsWith("/")) {
+                    String aph = Wn.normalizeFullPath(Wn.appendPath(str, nm), se);
+                    o = io.createIfNoExists(null, aph, WnRace.FILE);
+                }
+                // 目标是个文件
+                else {
+                    String aph = Wn.normalizeFullPath(str, se);
+                    o = io.createIfNoExists(null, aph, WnRace.FILE);
+                }
             }
             // 存在，且是目录，那么还是创建
             else if (o.isDIR()) {

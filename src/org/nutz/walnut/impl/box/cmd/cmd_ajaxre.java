@@ -87,7 +87,7 @@ public class cmd_ajaxre extends JvmExecutor {
         Wni18nService i18ns = this.ioc.get(Wni18nService.class);
 
         // 得到语言
-        String lang = params.val(0, sys.getLang());
+        String lang = params.getString("lang", sys.getLang());
 
         // 得到多国语言错误消息
         String errStr = i18ns.getMsg(lang, re.getErrCode());

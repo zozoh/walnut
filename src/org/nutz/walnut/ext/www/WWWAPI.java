@@ -16,6 +16,11 @@ import org.nutz.walnut.util.Wn;
 public class WWWAPI {
 
     /**
+     * 指明默认 session 存放在何处。它下面会根据站点的 ID 为每个用户维护最多一个会话
+     */
+    protected String sessionHomePath;
+
+    /**
      * IO 接口
      */
     protected WnIo io;
@@ -36,11 +41,12 @@ public class WWWAPI {
         this.io = io;
         this.oHome = oHome;
         this.sessionDu = sessionDu;
+        this.sessionHomePath = ".www/session";
     }
 
     public WnObj createSessionObj(String siteId, WnObj oU) {
         // 得到会话主目录
-        String path = Wn.appendPath(".hmaker/session/", siteId);
+        String path = Wn.appendPath(this.sessionHomePath, siteId);
         WnObj oSset = io.createIfNoExists(oHome, path, WnRace.DIR);
 
         // 看看是否已经存在了这个用户，如果存在那么删掉这个会会话
@@ -87,7 +93,7 @@ public class WWWAPI {
 
     public WnObj fetchSessionObj(String siteId, WnObj oU) {
         // 得到会话主目录
-        String path = Wn.appendPath(".hmaker/session/", siteId);
+        String path = Wn.appendPath(this.sessionHomePath, siteId);
         WnObj oSset = io.fetch(oHome, path);
 
         // 根本木有 Session 主目录
@@ -113,7 +119,7 @@ public class WWWAPI {
         if (Strings.isBlank(siteId) || Strings.isBlank(ticket))
             return null;
         // 得到会话主目录
-        String path = Wn.appendPath(".hmaker/session/", siteId);
+        String path = Wn.appendPath(this.sessionHomePath, siteId);
         WnObj oSset = io.fetch(oHome, path);
 
         // 根本木有 Session 主目录
@@ -148,7 +154,7 @@ public class WWWAPI {
 
     protected WnObj getSessionHome() {
         if (null == this.__o_session_home) {
-            this.__o_session_home = io.createIfNoExists(oHome, ".hmaker/session", WnRace.DIR);
+            this.__o_session_home = io.createIfNoExists(oHome, this.sessionHomePath, WnRace.DIR);
         }
         if (null == this.__o_session_home)
             throw Er.create("e.www.page.session_home_fail");

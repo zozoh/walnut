@@ -14,15 +14,24 @@
 # 用法
 
 ```
-imagic [abc.jpg] [-filter 'scale(0.5) cover(1920,1080)'] [-qa 0.8] [-out out.jpg] [-thumb '...'] [-thumbout ~/.xxx]
+imagic
+    [abc.jpg] 
+    [-filter 'scale(0.5) cover(1920,1080)']
+    [-qa 0.8]
+    [-out out.jpg]
+    [-stream]
+    [-thumb '...']
+    [-thumbout ~/.xxx]
 ```
 
 * abc.jpg 源文件,如果没有,从标准输入流读取. 如果是http://或者https://开头,则作为URL读取
 * filter 过滤器及配置, 空格间隔
 * qa 输出品质,默认0.8
 * out 输出路径,不设置就是标准输出,设置为inplace就是原图替换
+* stream 在 -out 有效，如果声明，那么不会自动更新 out 对于对象的  width/height 属性
 * thumb 输出图片后,再额外生成缩略图
 * thumbout 的输出路径,可选
+
 
 # 示例
 
