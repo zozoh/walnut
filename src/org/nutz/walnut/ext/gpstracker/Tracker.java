@@ -19,7 +19,7 @@ public final class Tracker {
    * 服务器端发起的请求
    * </pre>
    *
-   * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.RequestCommand}
+   * Protobuf enum {@code tracker.RequestCommand}
    */
   public enum RequestCommand
       implements com.google.protobuf.ProtocolMessageEnum {
@@ -39,6 +39,14 @@ public final class Tracker {
      * <code>UPDATE_SCRIPT = 2;</code>
      */
     UPDATE_SCRIPT(2),
+    /**
+     * <pre>
+     * 马上重启
+     * </pre>
+     *
+     * <code>REBOOT_NOW = 3;</code>
+     */
+    REBOOT_NOW(3),
     ;
 
     /**
@@ -57,6 +65,14 @@ public final class Tracker {
      * <code>UPDATE_SCRIPT = 2;</code>
      */
     public static final int UPDATE_SCRIPT_VALUE = 2;
+    /**
+     * <pre>
+     * 马上重启
+     * </pre>
+     *
+     * <code>REBOOT_NOW = 3;</code>
+     */
+    public static final int REBOOT_NOW_VALUE = 3;
 
 
     public final int getNumber() {
@@ -75,6 +91,7 @@ public final class Tracker {
       switch (value) {
         case 1: return REMOTE_WAKEN;
         case 2: return UPDATE_SCRIPT;
+        case 3: return REBOOT_NOW;
         default: return null;
       }
     }
@@ -121,11 +138,11 @@ public final class Tracker {
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:org.nutz.walnut.ext.gpstracker.RequestCommand)
+    // @@protoc_insertion_point(enum_scope:tracker.RequestCommand)
   }
 
   public interface DeviceParamOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.DeviceParam)
+      // @@protoc_insertion_point(interface_extends:tracker.DeviceParam)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -163,11 +180,11 @@ public final class Tracker {
     int getTrackMode();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceParam}
+   * Protobuf type {@code tracker.DeviceParam}
    */
   public  static final class DeviceParam extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceParam)
+      // @@protoc_insertion_point(message_implements:tracker.DeviceParam)
       DeviceParamOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use DeviceParam.newBuilder() to construct.
@@ -239,13 +256,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceParam_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceParam_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder.class);
     }
@@ -474,21 +491,21 @@ public final class Tracker {
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceParam}
+     * Protobuf type {@code tracker.DeviceParam}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceParam)
+        // @@protoc_insertion_point(builder_implements:tracker.DeviceParam)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceParam_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceParam_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder.class);
       }
@@ -521,7 +538,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceParam_descriptor;
       }
 
       @java.lang.Override
@@ -744,10 +761,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceParam)
+      // @@protoc_insertion_point(builder_scope:tracker.DeviceParam)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceParam)
+    // @@protoc_insertion_point(class_scope:tracker.DeviceParam)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam();
@@ -785,7 +802,7 @@ public final class Tracker {
   }
 
   public interface DeviceLoginOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+      // @@protoc_insertion_point(interface_extends:tracker.DeviceLogin)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -914,11 +931,11 @@ public final class Tracker {
    *登录消息
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
+   * Protobuf type {@code tracker.DeviceLogin}
    */
   public  static final class DeviceLogin extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+      // @@protoc_insertion_point(message_implements:tracker.DeviceLogin)
       DeviceLoginOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use DeviceLogin.newBuilder() to construct.
@@ -1013,13 +1030,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceLogin_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceLogin_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder.class);
     }
@@ -1509,21 +1526,21 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceLogin}
+     * Protobuf type {@code tracker.DeviceLogin}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+        // @@protoc_insertion_point(builder_implements:tracker.DeviceLogin)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceLogin_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceLogin_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder.class);
       }
@@ -1562,7 +1579,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceLogin_descriptor;
       }
 
       @java.lang.Override
@@ -2181,10 +2198,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+      // @@protoc_insertion_point(builder_scope:tracker.DeviceLogin)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceLogin)
+    // @@protoc_insertion_point(class_scope:tracker.DeviceLogin)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin();
@@ -2222,7 +2239,7 @@ public final class Tracker {
   }
 
   public interface SateStatusOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.SateStatus)
+      // @@protoc_insertion_point(interface_extends:tracker.SateStatus)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -2273,7 +2290,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> 
         getStaeItemsList();
@@ -2282,7 +2299,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index);
     /**
@@ -2290,7 +2307,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     int getStaeItemsCount();
     /**
@@ -2298,7 +2315,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
         getStaeItemsOrBuilderList();
@@ -2307,7 +2324,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
         int index);
@@ -2317,11 +2334,11 @@ public final class Tracker {
    * 设备卫星详细信息
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
+   * Protobuf type {@code tracker.SateStatus}
    */
   public  static final class SateStatus extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.SateStatus)
+      // @@protoc_insertion_point(message_implements:tracker.SateStatus)
       SateStatusOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use SateStatus.newBuilder() to construct.
@@ -2408,19 +2425,19 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder.class);
     }
 
     public interface sateMessageOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+        // @@protoc_insertion_point(interface_extends:tracker.SateStatus.sateMessage)
         com.google.protobuf.MessageOrBuilder {
 
       /**
@@ -2492,11 +2509,11 @@ public final class Tracker {
       int getCno();
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage}
+     * Protobuf type {@code tracker.SateStatus.sateMessage}
      */
     public  static final class sateMessage extends
         com.google.protobuf.GeneratedMessageV3 implements
-        // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+        // @@protoc_insertion_point(message_implements:tracker.SateStatus.sateMessage)
         sateMessageOrBuilder {
     private static final long serialVersionUID = 0L;
       // Use sateMessage.newBuilder() to construct.
@@ -2578,13 +2595,13 @@ public final class Tracker {
       }
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_sateMessage_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_sateMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder.class);
       }
@@ -2891,21 +2908,21 @@ public final class Tracker {
         return builder;
       }
       /**
-       * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage}
+       * Protobuf type {@code tracker.SateStatus.sateMessage}
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+          // @@protoc_insertion_point(builder_implements:tracker.SateStatus.sateMessage)
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
-          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
+          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_sateMessage_descriptor;
         }
 
         @java.lang.Override
         protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internalGetFieldAccessorTable() {
-          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable
+          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_sateMessage_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
                   org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder.class);
         }
@@ -2942,7 +2959,7 @@ public final class Tracker {
         @java.lang.Override
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
-          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
+          return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_sateMessage_descriptor;
         }
 
         @java.lang.Override
@@ -3275,10 +3292,10 @@ public final class Tracker {
         }
 
 
-        // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+        // @@protoc_insertion_point(builder_scope:tracker.SateStatus.sateMessage)
       }
 
-      // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage)
+      // @@protoc_insertion_point(class_scope:tracker.SateStatus.sateMessage)
       private static final org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage DEFAULT_INSTANCE;
       static {
         DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage();
@@ -3400,7 +3417,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> getStaeItemsList() {
       return staeItems_;
@@ -3410,7 +3427,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
         getStaeItemsOrBuilderList() {
@@ -3421,7 +3438,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public int getStaeItemsCount() {
       return staeItems_.size();
@@ -3431,7 +3448,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index) {
       return staeItems_.get(index);
@@ -3441,7 +3458,7 @@ public final class Tracker {
      * 0-n组卫星数据
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+     * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
         int index) {
@@ -3641,21 +3658,21 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.SateStatus}
+     * Protobuf type {@code tracker.SateStatus}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.SateStatus)
+        // @@protoc_insertion_point(builder_implements:tracker.SateStatus)
         org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder.class);
       }
@@ -3695,7 +3712,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_SateStatus_descriptor;
       }
 
       @java.lang.Override
@@ -4012,7 +4029,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> getStaeItemsList() {
         if (staeItemsBuilder_ == null) {
@@ -4026,7 +4043,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public int getStaeItemsCount() {
         if (staeItemsBuilder_ == null) {
@@ -4040,7 +4057,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage getStaeItems(int index) {
         if (staeItemsBuilder_ == null) {
@@ -4054,7 +4071,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder setStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
@@ -4075,7 +4092,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder setStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -4093,7 +4110,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
         if (staeItemsBuilder_ == null) {
@@ -4113,7 +4130,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage value) {
@@ -4134,7 +4151,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -4152,7 +4169,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addStaeItems(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder builderForValue) {
@@ -4170,7 +4187,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder addAllStaeItems(
           java.lang.Iterable<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage> values) {
@@ -4189,7 +4206,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder clearStaeItems() {
         if (staeItemsBuilder_ == null) {
@@ -4206,7 +4223,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public Builder removeStaeItems(int index) {
         if (staeItemsBuilder_ == null) {
@@ -4223,7 +4240,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder getStaeItemsBuilder(
           int index) {
@@ -4234,7 +4251,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder getStaeItemsOrBuilder(
           int index) {
@@ -4248,7 +4265,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessageOrBuilder> 
            getStaeItemsOrBuilderList() {
@@ -4263,7 +4280,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder addStaeItemsBuilder() {
         return getStaeItemsFieldBuilder().addBuilder(
@@ -4274,7 +4291,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder addStaeItemsBuilder(
           int index) {
@@ -4286,7 +4303,7 @@ public final class Tracker {
        * 0-n组卫星数据
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.SateStatus.sateMessage staeItems = 3;</code>
+       * <code>repeated .tracker.SateStatus.sateMessage staeItems = 3;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage.Builder> 
            getStaeItemsBuilderList() {
@@ -4319,10 +4336,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.SateStatus)
+      // @@protoc_insertion_point(builder_scope:tracker.SateStatus)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.SateStatus)
+    // @@protoc_insertion_point(class_scope:tracker.SateStatus)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.SateStatus DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.SateStatus();
@@ -4360,7 +4377,7 @@ public final class Tracker {
   }
 
   public interface DeviceStatusOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+      // @@protoc_insertion_point(interface_extends:tracker.DeviceStatus)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -4555,7 +4572,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     boolean hasSateStatus();
     /**
@@ -4563,7 +4580,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus();
     /**
@@ -4571,7 +4588,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder();
 
@@ -4599,17 +4616,43 @@ public final class Tracker {
      * <code>repeated int32 sateCno = 13;</code>
      */
     int getSateCno(int index);
+
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    boolean hasCellInfo();
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    java.lang.String getCellInfo();
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    com.google.protobuf.ByteString
+        getCellInfoBytes();
   }
   /**
    * <pre>
    *设备状态消息
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
+   * Protobuf type {@code tracker.DeviceStatus}
    */
   public  static final class DeviceStatus extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+      // @@protoc_insertion_point(message_implements:tracker.DeviceStatus)
       DeviceStatusOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use DeviceStatus.newBuilder() to construct.
@@ -4618,6 +4661,7 @@ public final class Tracker {
     }
     private DeviceStatus() {
       sateCno_ = emptyIntList();
+      cellInfo_ = "";
     }
 
     @java.lang.Override
@@ -4740,6 +4784,12 @@ public final class Tracker {
               input.popLimit(limit);
               break;
             }
+            case 114: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00001000;
+              cellInfo_ = bs;
+              break;
+            }
             default: {
               if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
@@ -4764,13 +4814,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceStatus_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceStatus_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder.class);
     }
@@ -5036,7 +5086,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     public boolean hasSateStatus() {
       return ((bitField0_ & 0x00000800) != 0);
@@ -5046,7 +5096,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus() {
       return sateStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
@@ -5056,7 +5106,7 @@ public final class Tracker {
      * 设备卫星详细信息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+     * <code>optional .tracker.SateStatus sateStatus = 12;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder() {
       return sateStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.getDefaultInstance() : sateStatus_;
@@ -5094,6 +5144,60 @@ public final class Tracker {
      */
     public int getSateCno(int index) {
       return sateCno_.getInt(index);
+    }
+
+    public static final int CELLINFO_FIELD_NUMBER = 14;
+    private volatile java.lang.Object cellInfo_;
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    public boolean hasCellInfo() {
+      return ((bitField0_ & 0x00001000) != 0);
+    }
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    public java.lang.String getCellInfo() {
+      java.lang.Object ref = cellInfo_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          cellInfo_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 基站数据
+     * </pre>
+     *
+     * <code>optional string cellInfo = 14;</code>
+     */
+    public com.google.protobuf.ByteString
+        getCellInfoBytes() {
+      java.lang.Object ref = cellInfo_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        cellInfo_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private byte memoizedIsInitialized = -1;
@@ -5148,6 +5252,9 @@ public final class Tracker {
       }
       for (int i = 0; i < sateCno_.size(); i++) {
         output.writeInt32(13, sateCno_.getInt(i));
+      }
+      if (((bitField0_ & 0x00001000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 14, cellInfo_);
       }
       unknownFields.writeTo(output);
     }
@@ -5214,6 +5321,9 @@ public final class Tracker {
         }
         size += dataSize;
         size += 1 * getSateCnoList().size();
+      }
+      if (((bitField0_ & 0x00001000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, cellInfo_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5292,6 +5402,11 @@ public final class Tracker {
       }
       if (!getSateCnoList()
           .equals(other.getSateCnoList())) return false;
+      if (hasCellInfo() != other.hasCellInfo()) return false;
+      if (hasCellInfo()) {
+        if (!getCellInfo()
+            .equals(other.getCellInfo())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -5361,6 +5476,10 @@ public final class Tracker {
       if (getSateCnoCount() > 0) {
         hash = (37 * hash) + SATECNO_FIELD_NUMBER;
         hash = (53 * hash) + getSateCnoList().hashCode();
+      }
+      if (hasCellInfo()) {
+        hash = (37 * hash) + CELLINFO_FIELD_NUMBER;
+        hash = (53 * hash) + getCellInfo().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -5462,21 +5581,21 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceStatus}
+     * Protobuf type {@code tracker.DeviceStatus}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+        // @@protoc_insertion_point(builder_implements:tracker.DeviceStatus)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceStatus_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceStatus_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder.class);
       }
@@ -5530,13 +5649,15 @@ public final class Tracker {
         bitField0_ = (bitField0_ & ~0x00000800);
         sateCno_ = emptyIntList();
         bitField0_ = (bitField0_ & ~0x00001000);
+        cellInfo_ = "";
+        bitField0_ = (bitField0_ & ~0x00002000);
         return this;
       }
 
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceStatus_descriptor;
       }
 
       @java.lang.Override
@@ -5615,6 +5736,10 @@ public final class Tracker {
           bitField0_ = (bitField0_ & ~0x00001000);
         }
         result.sateCno_ = sateCno_;
+        if (((from_bitField0_ & 0x00002000) != 0)) {
+          to_bitField0_ |= 0x00001000;
+        }
+        result.cellInfo_ = cellInfo_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5708,6 +5833,11 @@ public final class Tracker {
             ensureSateCnoIsMutable();
             sateCno_.addAll(other.sateCno_);
           }
+          onChanged();
+        }
+        if (other.hasCellInfo()) {
+          bitField0_ |= 0x00002000;
+          cellInfo_ = other.cellInfo_;
           onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
@@ -6276,7 +6406,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public boolean hasSateStatus() {
         return ((bitField0_ & 0x00000800) != 0);
@@ -6286,7 +6416,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus getSateStatus() {
         if (sateStatusBuilder_ == null) {
@@ -6300,7 +6430,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public Builder setSateStatus(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus value) {
         if (sateStatusBuilder_ == null) {
@@ -6320,7 +6450,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public Builder setSateStatus(
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder builderForValue) {
@@ -6338,7 +6468,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public Builder mergeSateStatus(org.nutz.walnut.ext.gpstracker.Tracker.SateStatus value) {
         if (sateStatusBuilder_ == null) {
@@ -6362,7 +6492,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public Builder clearSateStatus() {
         if (sateStatusBuilder_ == null) {
@@ -6379,7 +6509,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder getSateStatusBuilder() {
         bitField0_ |= 0x00000800;
@@ -6391,7 +6521,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder getSateStatusOrBuilder() {
         if (sateStatusBuilder_ != null) {
@@ -6406,7 +6536,7 @@ public final class Tracker {
        * 设备卫星详细信息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.SateStatus sateStatus = 12;</code>
+       * <code>optional .tracker.SateStatus sateStatus = 12;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.SateStatus, org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.SateStatusOrBuilder> 
@@ -6516,6 +6646,106 @@ public final class Tracker {
         onChanged();
         return this;
       }
+
+      private java.lang.Object cellInfo_ = "";
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public boolean hasCellInfo() {
+        return ((bitField0_ & 0x00002000) != 0);
+      }
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public java.lang.String getCellInfo() {
+        java.lang.Object ref = cellInfo_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            cellInfo_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public com.google.protobuf.ByteString
+          getCellInfoBytes() {
+        java.lang.Object ref = cellInfo_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          cellInfo_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public Builder setCellInfo(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00002000;
+        cellInfo_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public Builder clearCellInfo() {
+        bitField0_ = (bitField0_ & ~0x00002000);
+        cellInfo_ = getDefaultInstance().getCellInfo();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 基站数据
+       * </pre>
+       *
+       * <code>optional string cellInfo = 14;</code>
+       */
+      public Builder setCellInfoBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00002000;
+        cellInfo_ = value;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -6529,10 +6759,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+      // @@protoc_insertion_point(builder_scope:tracker.DeviceStatus)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceStatus)
+    // @@protoc_insertion_point(class_scope:tracker.DeviceStatus)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus();
@@ -6570,7 +6800,7 @@ public final class Tracker {
   }
 
   public interface TrackMsgOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.TrackMsg)
+      // @@protoc_insertion_point(interface_extends:tracker.TrackMsg)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -6748,11 +6978,11 @@ public final class Tracker {
    * 设备运行轨迹信息
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
+   * Protobuf type {@code tracker.TrackMsg}
    */
   public  static final class TrackMsg extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.TrackMsg)
+      // @@protoc_insertion_point(message_implements:tracker.TrackMsg)
       TrackMsgOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use TrackMsg.newBuilder() to construct.
@@ -6864,13 +7094,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_TrackMsg_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_TrackMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.class, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder.class);
     }
@@ -7416,21 +7646,21 @@ public final class Tracker {
      * 设备运行轨迹信息
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.TrackMsg}
+     * Protobuf type {@code tracker.TrackMsg}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.TrackMsg)
+        // @@protoc_insertion_point(builder_implements:tracker.TrackMsg)
         org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_TrackMsg_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_TrackMsg_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.class, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder.class);
       }
@@ -7479,7 +7709,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_TrackMsg_descriptor;
       }
 
       @java.lang.Override
@@ -8142,10 +8372,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.TrackMsg)
+      // @@protoc_insertion_point(builder_scope:tracker.TrackMsg)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.TrackMsg)
+    // @@protoc_insertion_point(class_scope:tracker.TrackMsg)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg();
@@ -8183,7 +8413,7 @@ public final class Tracker {
   }
 
   public interface DeviceMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+      // @@protoc_insertion_point(interface_extends:tracker.DeviceMessage)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -8191,7 +8421,7 @@ public final class Tracker {
      *设备端上报的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+     * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     boolean hasId();
     /**
@@ -8199,7 +8429,7 @@ public final class Tracker {
      *设备端上报的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+     * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId();
 
@@ -8208,7 +8438,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     boolean hasLogin();
     /**
@@ -8216,7 +8446,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin();
     /**
@@ -8224,7 +8454,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder();
 
@@ -8233,7 +8463,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     boolean hasDevStatus();
     /**
@@ -8241,7 +8471,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus();
     /**
@@ -8249,7 +8479,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder();
 
@@ -8258,7 +8488,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> 
         getTrackMsgList();
@@ -8267,7 +8497,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index);
     /**
@@ -8275,7 +8505,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     int getTrackMsgCount();
     /**
@@ -8283,7 +8513,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
         getTrackMsgOrBuilderList();
@@ -8292,7 +8522,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
         int index);
@@ -8302,11 +8532,11 @@ public final class Tracker {
    *设备端上报消息
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
+   * Protobuf type {@code tracker.DeviceMessage}
    */
   public  static final class DeviceMessage extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+      // @@protoc_insertion_point(message_implements:tracker.DeviceMessage)
       DeviceMessageOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use DeviceMessage.newBuilder() to construct.
@@ -8420,13 +8650,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceMessage_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.Builder.class);
     }
@@ -8436,7 +8666,7 @@ public final class Tracker {
      *设备消息类型
      * </pre>
      *
-     * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID}
+     * Protobuf enum {@code tracker.DeviceMessage.DeviceMessageID}
      */
     public enum DeviceMessageID
         implements com.google.protobuf.ProtocolMessageEnum {
@@ -8538,7 +8768,7 @@ public final class Tracker {
         this.value = value;
       }
 
-      // @@protoc_insertion_point(enum_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID)
+      // @@protoc_insertion_point(enum_scope:tracker.DeviceMessage.DeviceMessageID)
     }
 
     private int bitField0_;
@@ -8549,7 +8779,7 @@ public final class Tracker {
      *设备端上报的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+     * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     public boolean hasId() {
       return ((bitField0_ & 0x00000001) != 0);
@@ -8559,7 +8789,7 @@ public final class Tracker {
      *设备端上报的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+     * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
       @SuppressWarnings("deprecation")
@@ -8574,7 +8804,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     public boolean hasLogin() {
       return ((bitField0_ & 0x00000002) != 0);
@@ -8584,7 +8814,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin() {
       return login_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
@@ -8594,7 +8824,7 @@ public final class Tracker {
      *登录消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+     * <code>optional .tracker.DeviceLogin login = 2;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder() {
       return login_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.getDefaultInstance() : login_;
@@ -8607,7 +8837,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     public boolean hasDevStatus() {
       return ((bitField0_ & 0x00000004) != 0);
@@ -8617,7 +8847,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus() {
       return devStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
@@ -8627,7 +8857,7 @@ public final class Tracker {
      *设备状态消息
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+     * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder() {
       return devStatus_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.getDefaultInstance() : devStatus_;
@@ -8640,7 +8870,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> getTrackMsgList() {
       return trackMsg_;
@@ -8650,7 +8880,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
         getTrackMsgOrBuilderList() {
@@ -8661,7 +8891,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     public int getTrackMsgCount() {
       return trackMsg_.size();
@@ -8671,7 +8901,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index) {
       return trackMsg_.get(index);
@@ -8681,7 +8911,7 @@ public final class Tracker {
      *设备的运行轨迹
      * </pre>
      *
-     * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+     * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
         int index) {
@@ -8907,21 +9137,21 @@ public final class Tracker {
      *设备端上报消息
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceMessage}
+     * Protobuf type {@code tracker.DeviceMessage}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+        // @@protoc_insertion_point(builder_implements:tracker.DeviceMessage)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceMessage_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.Builder.class);
       }
@@ -8973,7 +9203,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceMessage_descriptor;
       }
 
       @java.lang.Override
@@ -9152,7 +9382,7 @@ public final class Tracker {
        *设备端上报的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+       * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public boolean hasId() {
         return ((bitField0_ & 0x00000001) != 0);
@@ -9162,7 +9392,7 @@ public final class Tracker {
        *设备端上报的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+       * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
         @SuppressWarnings("deprecation")
@@ -9174,7 +9404,7 @@ public final class Tracker {
        *设备端上报的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+       * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public Builder setId(org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID value) {
         if (value == null) {
@@ -9190,7 +9420,7 @@ public final class Tracker {
        *设备端上报的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.DeviceMessage.DeviceMessageID id = 1;</code>
+       * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -9207,7 +9437,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public boolean hasLogin() {
         return ((bitField0_ & 0x00000002) != 0);
@@ -9217,7 +9447,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin getLogin() {
         if (loginBuilder_ == null) {
@@ -9231,7 +9461,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public Builder setLogin(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin value) {
         if (loginBuilder_ == null) {
@@ -9251,7 +9481,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public Builder setLogin(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder builderForValue) {
@@ -9269,7 +9499,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public Builder mergeLogin(org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin value) {
         if (loginBuilder_ == null) {
@@ -9293,7 +9523,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public Builder clearLogin() {
         if (loginBuilder_ == null) {
@@ -9310,7 +9540,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder getLoginBuilder() {
         bitField0_ |= 0x00000002;
@@ -9322,7 +9552,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder getLoginOrBuilder() {
         if (loginBuilder_ != null) {
@@ -9337,7 +9567,7 @@ public final class Tracker {
        *登录消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceLogin login = 2;</code>
+       * <code>optional .tracker.DeviceLogin login = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceLoginOrBuilder> 
@@ -9361,7 +9591,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public boolean hasDevStatus() {
         return ((bitField0_ & 0x00000004) != 0);
@@ -9371,7 +9601,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus getDevStatus() {
         if (devStatusBuilder_ == null) {
@@ -9385,7 +9615,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder setDevStatus(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus value) {
         if (devStatusBuilder_ == null) {
@@ -9405,7 +9635,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder setDevStatus(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder builderForValue) {
@@ -9423,7 +9653,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder mergeDevStatus(org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus value) {
         if (devStatusBuilder_ == null) {
@@ -9447,7 +9677,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public Builder clearDevStatus() {
         if (devStatusBuilder_ == null) {
@@ -9464,7 +9694,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder getDevStatusBuilder() {
         bitField0_ |= 0x00000004;
@@ -9476,7 +9706,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder getDevStatusOrBuilder() {
         if (devStatusBuilder_ != null) {
@@ -9491,7 +9721,7 @@ public final class Tracker {
        *设备状态消息
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceStatus devStatus = 3;</code>
+       * <code>optional .tracker.DeviceStatus devStatus = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatus.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceStatusOrBuilder> 
@@ -9524,7 +9754,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> getTrackMsgList() {
         if (trackMsgBuilder_ == null) {
@@ -9538,7 +9768,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public int getTrackMsgCount() {
         if (trackMsgBuilder_ == null) {
@@ -9552,7 +9782,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg getTrackMsg(int index) {
         if (trackMsgBuilder_ == null) {
@@ -9566,7 +9796,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder setTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
@@ -9587,7 +9817,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder setTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -9605,7 +9835,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
         if (trackMsgBuilder_ == null) {
@@ -9625,7 +9855,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg value) {
@@ -9646,7 +9876,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -9664,7 +9894,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addTrackMsg(
           int index, org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder builderForValue) {
@@ -9682,7 +9912,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder addAllTrackMsg(
           java.lang.Iterable<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg> values) {
@@ -9701,7 +9931,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder clearTrackMsg() {
         if (trackMsgBuilder_ == null) {
@@ -9718,7 +9948,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public Builder removeTrackMsg(int index) {
         if (trackMsgBuilder_ == null) {
@@ -9735,7 +9965,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder getTrackMsgBuilder(
           int index) {
@@ -9746,7 +9976,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder getTrackMsgOrBuilder(
           int index) {
@@ -9760,7 +9990,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<? extends org.nutz.walnut.ext.gpstracker.Tracker.TrackMsgOrBuilder> 
            getTrackMsgOrBuilderList() {
@@ -9775,7 +10005,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder addTrackMsgBuilder() {
         return getTrackMsgFieldBuilder().addBuilder(
@@ -9786,7 +10016,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder addTrackMsgBuilder(
           int index) {
@@ -9798,7 +10028,7 @@ public final class Tracker {
        *设备的运行轨迹
        * </pre>
        *
-       * <code>repeated .org.nutz.walnut.ext.gpstracker.TrackMsg trackMsg = 4;</code>
+       * <code>repeated .tracker.TrackMsg trackMsg = 4;</code>
        */
       public java.util.List<org.nutz.walnut.ext.gpstracker.Tracker.TrackMsg.Builder> 
            getTrackMsgBuilderList() {
@@ -9831,10 +10061,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+      // @@protoc_insertion_point(builder_scope:tracker.DeviceMessage)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceMessage)
+    // @@protoc_insertion_point(class_scope:tracker.DeviceMessage)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage();
@@ -9872,7 +10102,7 @@ public final class Tracker {
   }
 
   public interface DeviceResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+      // @@protoc_insertion_point(interface_extends:tracker.DeviceResponse)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -9880,7 +10110,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     boolean hasCmd();
     /**
@@ -9888,7 +10118,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd();
 
@@ -9914,11 +10144,11 @@ public final class Tracker {
    *对服务器端请求的应答
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
+   * Protobuf type {@code tracker.DeviceResponse}
    */
   public  static final class DeviceResponse extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+      // @@protoc_insertion_point(message_implements:tracker.DeviceResponse)
       DeviceResponseOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use DeviceResponse.newBuilder() to construct.
@@ -9998,13 +10228,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceResponse_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.Builder.class);
     }
@@ -10017,7 +10247,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public boolean hasCmd() {
       return ((bitField0_ & 0x00000001) != 0);
@@ -10027,7 +10257,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
       @SuppressWarnings("deprecation")
@@ -10247,21 +10477,21 @@ public final class Tracker {
      *对服务器端请求的应答
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.DeviceResponse}
+     * Protobuf type {@code tracker.DeviceResponse}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+        // @@protoc_insertion_point(builder_implements:tracker.DeviceResponse)
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceResponse_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.class, org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse.Builder.class);
       }
@@ -10294,7 +10524,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_DeviceResponse_descriptor;
       }
 
       @java.lang.Override
@@ -10421,7 +10651,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public boolean hasCmd() {
         return ((bitField0_ & 0x00000001) != 0);
@@ -10431,7 +10661,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
         @SuppressWarnings("deprecation")
@@ -10443,7 +10673,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public Builder setCmd(org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value) {
         if (value == null) {
@@ -10459,7 +10689,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public Builder clearCmd() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -10528,10 +10758,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+      // @@protoc_insertion_point(builder_scope:tracker.DeviceResponse)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.DeviceResponse)
+    // @@protoc_insertion_point(class_scope:tracker.DeviceResponse)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse();
@@ -10569,7 +10799,7 @@ public final class Tracker {
   }
 
   public interface ServerMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.ServerMessage)
+      // @@protoc_insertion_point(interface_extends:tracker.ServerMessage)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -10577,7 +10807,7 @@ public final class Tracker {
      * 服务器端下发的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+     * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     boolean hasId();
     /**
@@ -10585,7 +10815,7 @@ public final class Tracker {
      * 服务器端下发的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+     * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId();
 
@@ -10628,7 +10858,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     boolean hasDeviceParam();
     /**
@@ -10636,7 +10866,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam();
     /**
@@ -10644,7 +10874,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder();
   }
@@ -10653,11 +10883,11 @@ public final class Tracker {
    *&#47;///////////////////////////////////////////////以下为服务器端报文数据格式//////////////////////////////////////////////////
    * </pre>
    *
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
+   * Protobuf type {@code tracker.ServerMessage}
    */
   public  static final class ServerMessage extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.ServerMessage)
+      // @@protoc_insertion_point(message_implements:tracker.ServerMessage)
       ServerMessageOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use ServerMessage.newBuilder() to construct.
@@ -10755,19 +10985,19 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerMessage_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.Builder.class);
     }
 
     /**
-     * Protobuf enum {@code org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID}
+     * Protobuf enum {@code tracker.ServerMessage.ServerMessageID}
      */
     public enum ServerMessageID
         implements com.google.protobuf.ProtocolMessageEnum {
@@ -10869,7 +11099,7 @@ public final class Tracker {
         this.value = value;
       }
 
-      // @@protoc_insertion_point(enum_scope:org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID)
+      // @@protoc_insertion_point(enum_scope:tracker.ServerMessage.ServerMessageID)
     }
 
     private int bitField0_;
@@ -10880,7 +11110,7 @@ public final class Tracker {
      * 服务器端下发的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+     * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     public boolean hasId() {
       return ((bitField0_ & 0x00000001) != 0);
@@ -10890,7 +11120,7 @@ public final class Tracker {
      * 服务器端下发的消息ID
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+     * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
       @SuppressWarnings("deprecation")
@@ -10951,7 +11181,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     public boolean hasDeviceParam() {
       return ((bitField0_ & 0x00000008) != 0);
@@ -10961,7 +11191,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam() {
       return deviceParam_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
@@ -10971,7 +11201,7 @@ public final class Tracker {
      * 设备参数
      * </pre>
      *
-     * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+     * <code>optional .tracker.DeviceParam device_param = 4;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder() {
       return deviceParam_ == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.getDefaultInstance() : deviceParam_;
@@ -11193,21 +11423,21 @@ public final class Tracker {
      *&#47;///////////////////////////////////////////////以下为服务器端报文数据格式//////////////////////////////////////////////////
      * </pre>
      *
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerMessage}
+     * Protobuf type {@code tracker.ServerMessage}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.ServerMessage)
+        // @@protoc_insertion_point(builder_implements:tracker.ServerMessage)
         org.nutz.walnut.ext.gpstracker.Tracker.ServerMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerMessage_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.Builder.class);
       }
@@ -11249,7 +11479,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerMessage_descriptor;
       }
 
       @java.lang.Override
@@ -11391,7 +11621,7 @@ public final class Tracker {
        * 服务器端下发的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+       * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public boolean hasId() {
         return ((bitField0_ & 0x00000001) != 0);
@@ -11401,7 +11631,7 @@ public final class Tracker {
        * 服务器端下发的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+       * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
         @SuppressWarnings("deprecation")
@@ -11413,7 +11643,7 @@ public final class Tracker {
        * 服务器端下发的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+       * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public Builder setId(org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID value) {
         if (value == null) {
@@ -11429,7 +11659,7 @@ public final class Tracker {
        * 服务器端下发的消息ID
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.ServerMessage.ServerMessageID id = 1;</code>
+       * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -11542,7 +11772,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public boolean hasDeviceParam() {
         return ((bitField0_ & 0x00000008) != 0);
@@ -11552,7 +11782,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam getDeviceParam() {
         if (deviceParamBuilder_ == null) {
@@ -11566,7 +11796,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public Builder setDeviceParam(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam value) {
         if (deviceParamBuilder_ == null) {
@@ -11586,7 +11816,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public Builder setDeviceParam(
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder builderForValue) {
@@ -11604,7 +11834,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public Builder mergeDeviceParam(org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam value) {
         if (deviceParamBuilder_ == null) {
@@ -11628,7 +11858,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public Builder clearDeviceParam() {
         if (deviceParamBuilder_ == null) {
@@ -11645,7 +11875,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder getDeviceParamBuilder() {
         bitField0_ |= 0x00000008;
@@ -11657,7 +11887,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder getDeviceParamOrBuilder() {
         if (deviceParamBuilder_ != null) {
@@ -11672,7 +11902,7 @@ public final class Tracker {
        * 设备参数
        * </pre>
        *
-       * <code>optional .org.nutz.walnut.ext.gpstracker.DeviceParam device_param = 4;</code>
+       * <code>optional .tracker.DeviceParam device_param = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
           org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParam.Builder, org.nutz.walnut.ext.gpstracker.Tracker.DeviceParamOrBuilder> 
@@ -11700,10 +11930,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.ServerMessage)
+      // @@protoc_insertion_point(builder_scope:tracker.ServerMessage)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerMessage)
+    // @@protoc_insertion_point(class_scope:tracker.ServerMessage)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage();
@@ -11741,7 +11971,7 @@ public final class Tracker {
   }
 
   public interface ServerRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.nutz.walnut.ext.gpstracker.ServerRequest)
+      // @@protoc_insertion_point(interface_extends:tracker.ServerRequest)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -11749,7 +11979,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     boolean hasCmd();
     /**
@@ -11757,7 +11987,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd();
 
@@ -11771,11 +12001,11 @@ public final class Tracker {
     boolean getValue();
   }
   /**
-   * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerRequest}
+   * Protobuf type {@code tracker.ServerRequest}
    */
   public  static final class ServerRequest extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:org.nutz.walnut.ext.gpstracker.ServerRequest)
+      // @@protoc_insertion_point(message_implements:tracker.ServerRequest)
       ServerRequestOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use ServerRequest.newBuilder() to construct.
@@ -11855,13 +12085,13 @@ public final class Tracker {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable
+      return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.Builder.class);
     }
@@ -11874,7 +12104,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public boolean hasCmd() {
       return ((bitField0_ & 0x00000001) != 0);
@@ -11884,7 +12114,7 @@ public final class Tracker {
      * 请求指令
      * </pre>
      *
-     * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+     * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
       @SuppressWarnings("deprecation")
@@ -12088,21 +12318,21 @@ public final class Tracker {
       return builder;
     }
     /**
-     * Protobuf type {@code org.nutz.walnut.ext.gpstracker.ServerRequest}
+     * Protobuf type {@code tracker.ServerRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.nutz.walnut.ext.gpstracker.ServerRequest)
+        // @@protoc_insertion_point(builder_implements:tracker.ServerRequest)
         org.nutz.walnut.ext.gpstracker.Tracker.ServerRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerRequest_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.class, org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest.Builder.class);
       }
@@ -12135,7 +12365,7 @@ public final class Tracker {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
+        return org.nutz.walnut.ext.gpstracker.Tracker.internal_static_tracker_ServerRequest_descriptor;
       }
 
       @java.lang.Override
@@ -12259,7 +12489,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public boolean hasCmd() {
         return ((bitField0_ & 0x00000001) != 0);
@@ -12269,7 +12499,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
         @SuppressWarnings("deprecation")
@@ -12281,7 +12511,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public Builder setCmd(org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value) {
         if (value == null) {
@@ -12297,7 +12527,7 @@ public final class Tracker {
        * 请求指令
        * </pre>
        *
-       * <code>required .org.nutz.walnut.ext.gpstracker.RequestCommand cmd = 1;</code>
+       * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public Builder clearCmd() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -12350,10 +12580,10 @@ public final class Tracker {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:org.nutz.walnut.ext.gpstracker.ServerRequest)
+      // @@protoc_insertion_point(builder_scope:tracker.ServerRequest)
     }
 
-    // @@protoc_insertion_point(class_scope:org.nutz.walnut.ext.gpstracker.ServerRequest)
+    // @@protoc_insertion_point(class_scope:tracker.ServerRequest)
     private static final org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new org.nutz.walnut.ext.gpstracker.Tracker.ServerRequest();
@@ -12391,55 +12621,55 @@ public final class Tracker {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor;
+    internal_static_tracker_DeviceParam_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable;
+      internal_static_tracker_DeviceParam_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor;
+    internal_static_tracker_DeviceLogin_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable;
+      internal_static_tracker_DeviceLogin_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor;
+    internal_static_tracker_SateStatus_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable;
+      internal_static_tracker_SateStatus_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor;
+    internal_static_tracker_SateStatus_sateMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable;
+      internal_static_tracker_SateStatus_sateMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor;
+    internal_static_tracker_DeviceStatus_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable;
+      internal_static_tracker_DeviceStatus_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor;
+    internal_static_tracker_TrackMsg_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable;
+      internal_static_tracker_TrackMsg_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor;
+    internal_static_tracker_DeviceMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable;
+      internal_static_tracker_DeviceMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor;
+    internal_static_tracker_DeviceResponse_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable;
+      internal_static_tracker_DeviceResponse_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor;
+    internal_static_tracker_ServerMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable;
+      internal_static_tracker_ServerMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor;
+    internal_static_tracker_ServerRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable;
+      internal_static_tracker_ServerRequest_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -12449,113 +12679,108 @@ public final class Tracker {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rtracker.proto\022\036org.nutz.walnut.ext.gps" +
-      "tracker\"3\n\013DeviceParam\022\021\n\tsensitive\030\001 \001(" +
-      "\005\022\021\n\ttrackMode\030\002 \001(\005\"k\n\013DeviceLogin\022\022\n\ns" +
-      "w_version\030\001 \002(\t\022\014\n\004imei\030\002 \002(\t\022\r\n\005iccid\030\003" +
-      " \002(\t\022\024\n\014device_model\030\004 \002(\t\022\025\n\rparam_vers" +
-      "ion\030\005 \002(\005\"\306\001\n\nSateStatus\022\017\n\007sateNum\030\001 \001(" +
-      "\005\022\020\n\010sateType\030\002 \001(\t\022I\n\tstaeItems\030\003 \003(\01326" +
-      ".org.nutz.walnut.ext.gpstracker.SateStat" +
-      "us.sateMessage\032J\n\013sateMessage\022\n\n\002id\030\001 \001(" +
-      "\005\022\021\n\televation\030\002 \001(\005\022\017\n\007azimuth\030\003 \001(\005\022\013\n" +
-      "\003cno\030\004 \001(\005\"\230\002\n\014DeviceStatus\022\013\n\003csq\030\001 \001(\005" +
-      "\022\022\n\ncharge_sta\030\002 \001(\010\022\017\n\007vib_sta\030\003 \001(\010\022\017\n" +
-      "\007acc_sta\030\004 \001(\010\022\r\n\005start\030\005 \001(\010\022\016\n\006isOpen\030" +
-      "\006 \001(\010\022\r\n\005isFix\030\007 \001(\010\022\021\n\tpowerVolt\030\010 \001(\005\022" +
-      "\r\n\005vbatt\030\t \001(\005\022\021\n\tpowerType\030\n \001(\005\022\021\n\tund" +
-      "erVolt\030\013 \001(\010\022>\n\nsateStatus\030\014 \001(\0132*.org.n" +
-      "utz.walnut.ext.gpstracker.SateStatus\022\017\n\007" +
-      "sateCno\030\r \003(\005\"\263\001\n\010TrackMsg\022\013\n\003lng\030\001 \001(\005\022" +
-      "\013\n\003lat\030\002 \001(\005\022\020\n\010altitude\030\003 \001(\005\022\r\n\005speed\030" +
-      "\004 \001(\005\022\017\n\007azimuth\030\005 \001(\005\022\022\n\nuseSateCnt\030\006 \001" +
-      "(\005\022\025\n\rviewedSateCnt\030\007 \001(\005\022\021\n\ttimestamp\030\010" +
-      " \001(\005\022\016\n\006sateSn\030\t \001(\005\022\r\n\005isFix\030\n \001(\010\"\275\002\n\r" +
-      "DeviceMessage\022I\n\002id\030\001 \002(\0162=.org.nutz.wal" +
-      "nut.ext.gpstracker.DeviceMessage.DeviceM" +
-      "essageID\022:\n\005login\030\002 \001(\0132+.org.nutz.walnu" +
-      "t.ext.gpstracker.DeviceLogin\022?\n\tdevStatu" +
-      "s\030\003 \001(\0132,.org.nutz.walnut.ext.gpstracker" +
-      ".DeviceStatus\022:\n\010trackMsg\030\004 \003(\0132(.org.nu" +
-      "tz.walnut.ext.gpstracker.TrackMsg\"(\n\017Dev" +
-      "iceMessageID\022\t\n\005LOGIN\020\000\022\n\n\006STATUS\020\001\"]\n\016D" +
-      "eviceResponse\022;\n\003cmd\030\001 \002(\0162..org.nutz.wa" +
-      "lnut.ext.gpstracker.RequestCommand\022\016\n\006re" +
-      "sult\030\002 \002(\010\"\202\002\n\rServerMessage\022I\n\002id\030\001 \002(\016" +
-      "2=.org.nutz.walnut.ext.gpstracker.Server" +
-      "Message.ServerMessageID\022\023\n\013server_time\030\002" +
-      " \001(\005\022\025\n\rparam_version\030\003 \001(\005\022A\n\014device_pa" +
-      "ram\030\004 \001(\0132+.org.nutz.walnut.ext.gpstrack" +
-      "er.DeviceParam\"7\n\017ServerMessageID\022\022\n\016LOG" +
-      "IN_RESPONSE\020\001\022\020\n\014PARAM_UPDATE\020\002\"[\n\rServe" +
-      "rRequest\022;\n\003cmd\030\001 \002(\0162..org.nutz.walnut." +
-      "ext.gpstracker.RequestCommand\022\r\n\005value\030\002" +
-      " \001(\010*5\n\016RequestCommand\022\020\n\014REMOTE_WAKEN\020\001" +
-      "\022\021\n\rUPDATE_SCRIPT\020\002"
+      "\n\rtracker.proto\022\007tracker\"3\n\013DeviceParam\022" +
+      "\021\n\tsensitive\030\001 \001(\005\022\021\n\ttrackMode\030\002 \001(\005\"k\n" +
+      "\013DeviceLogin\022\022\n\nsw_version\030\001 \002(\t\022\014\n\004imei" +
+      "\030\002 \002(\t\022\r\n\005iccid\030\003 \002(\t\022\024\n\014device_model\030\004 " +
+      "\002(\t\022\025\n\rparam_version\030\005 \002(\005\"\257\001\n\nSateStatu" +
+      "s\022\017\n\007sateNum\030\001 \001(\005\022\020\n\010sateType\030\002 \001(\t\0222\n\t" +
+      "staeItems\030\003 \003(\0132\037.tracker.SateStatus.sat" +
+      "eMessage\032J\n\013sateMessage\022\n\n\002id\030\001 \001(\005\022\021\n\te" +
+      "levation\030\002 \001(\005\022\017\n\007azimuth\030\003 \001(\005\022\013\n\003cno\030\004" +
+      " \001(\005\"\223\002\n\014DeviceStatus\022\013\n\003csq\030\001 \001(\005\022\022\n\nch" +
+      "arge_sta\030\002 \001(\010\022\017\n\007vib_sta\030\003 \001(\010\022\017\n\007acc_s" +
+      "ta\030\004 \001(\010\022\r\n\005start\030\005 \001(\010\022\016\n\006isOpen\030\006 \001(\010\022" +
+      "\r\n\005isFix\030\007 \001(\010\022\021\n\tpowerVolt\030\010 \001(\005\022\r\n\005vba" +
+      "tt\030\t \001(\005\022\021\n\tpowerType\030\n \001(\005\022\021\n\tunderVolt" +
+      "\030\013 \001(\010\022\'\n\nsateStatus\030\014 \001(\0132\023.tracker.Sat" +
+      "eStatus\022\017\n\007sateCno\030\r \003(\005\022\020\n\010cellInfo\030\016 \001" +
+      "(\t\"\263\001\n\010TrackMsg\022\013\n\003lng\030\001 \001(\005\022\013\n\003lat\030\002 \001(" +
+      "\005\022\020\n\010altitude\030\003 \001(\005\022\r\n\005speed\030\004 \001(\005\022\017\n\007az" +
+      "imuth\030\005 \001(\005\022\022\n\nuseSateCnt\030\006 \001(\005\022\025\n\rviewe" +
+      "dSateCnt\030\007 \001(\005\022\021\n\ttimestamp\030\010 \001(\005\022\016\n\006sat" +
+      "eSn\030\t \001(\005\022\r\n\005isFix\030\n \001(\010\"\341\001\n\rDeviceMessa" +
+      "ge\0222\n\002id\030\001 \002(\0162&.tracker.DeviceMessage.D" +
+      "eviceMessageID\022#\n\005login\030\002 \001(\0132\024.tracker." +
+      "DeviceLogin\022(\n\tdevStatus\030\003 \001(\0132\025.tracker" +
+      ".DeviceStatus\022#\n\010trackMsg\030\004 \003(\0132\021.tracke" +
+      "r.TrackMsg\"(\n\017DeviceMessageID\022\t\n\005LOGIN\020\000" +
+      "\022\n\n\006STATUS\020\001\"F\n\016DeviceResponse\022$\n\003cmd\030\001 " +
+      "\002(\0162\027.tracker.RequestCommand\022\016\n\006result\030\002" +
+      " \002(\010\"\324\001\n\rServerMessage\0222\n\002id\030\001 \002(\0162&.tra" +
+      "cker.ServerMessage.ServerMessageID\022\023\n\013se" +
+      "rver_time\030\002 \001(\005\022\025\n\rparam_version\030\003 \001(\005\022*" +
+      "\n\014device_param\030\004 \001(\0132\024.tracker.DevicePar" +
+      "am\"7\n\017ServerMessageID\022\022\n\016LOGIN_RESPONSE\020" +
+      "\001\022\020\n\014PARAM_UPDATE\020\002\"D\n\rServerRequest\022$\n\003" +
+      "cmd\030\001 \002(\0162\027.tracker.RequestCommand\022\r\n\005va" +
+      "lue\030\002 \001(\010*E\n\016RequestCommand\022\020\n\014REMOTE_WA" +
+      "KEN\020\001\022\021\n\rUPDATE_SCRIPT\020\002\022\016\n\nREBOOT_NOW\020\003" +
+      "B \n\036org.nutz.walnut.ext.gpstracker"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor =
+    internal_static_tracker_DeviceParam_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_fieldAccessorTable = new
+    internal_static_tracker_DeviceParam_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_DeviceParam_descriptor,
+        internal_static_tracker_DeviceParam_descriptor,
         new java.lang.String[] { "Sensitive", "TrackMode", });
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor =
+    internal_static_tracker_DeviceLogin_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_fieldAccessorTable = new
+    internal_static_tracker_DeviceLogin_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_DeviceLogin_descriptor,
+        internal_static_tracker_DeviceLogin_descriptor,
         new java.lang.String[] { "SwVersion", "Imei", "Iccid", "DeviceModel", "ParamVersion", });
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor =
+    internal_static_tracker_SateStatus_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_fieldAccessorTable = new
+    internal_static_tracker_SateStatus_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor,
+        internal_static_tracker_SateStatus_descriptor,
         new java.lang.String[] { "SateNum", "SateType", "StaeItems", });
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor =
-      internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_descriptor.getNestedTypes().get(0);
-    internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_fieldAccessorTable = new
+    internal_static_tracker_SateStatus_sateMessage_descriptor =
+      internal_static_tracker_SateStatus_descriptor.getNestedTypes().get(0);
+    internal_static_tracker_SateStatus_sateMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_SateStatus_sateMessage_descriptor,
+        internal_static_tracker_SateStatus_sateMessage_descriptor,
         new java.lang.String[] { "Id", "Elevation", "Azimuth", "Cno", });
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor =
+    internal_static_tracker_DeviceStatus_descriptor =
       getDescriptor().getMessageTypes().get(3);
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_fieldAccessorTable = new
+    internal_static_tracker_DeviceStatus_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_DeviceStatus_descriptor,
-        new java.lang.String[] { "Csq", "ChargeSta", "VibSta", "AccSta", "Start", "IsOpen", "IsFix", "PowerVolt", "Vbatt", "PowerType", "UnderVolt", "SateStatus", "SateCno", });
-    internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor =
+        internal_static_tracker_DeviceStatus_descriptor,
+        new java.lang.String[] { "Csq", "ChargeSta", "VibSta", "AccSta", "Start", "IsOpen", "IsFix", "PowerVolt", "Vbatt", "PowerType", "UnderVolt", "SateStatus", "SateCno", "CellInfo", });
+    internal_static_tracker_TrackMsg_descriptor =
       getDescriptor().getMessageTypes().get(4);
-    internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_fieldAccessorTable = new
+    internal_static_tracker_TrackMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_TrackMsg_descriptor,
+        internal_static_tracker_TrackMsg_descriptor,
         new java.lang.String[] { "Lng", "Lat", "Altitude", "Speed", "Azimuth", "UseSateCnt", "ViewedSateCnt", "Timestamp", "SateSn", "IsFix", });
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor =
+    internal_static_tracker_DeviceMessage_descriptor =
       getDescriptor().getMessageTypes().get(5);
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_fieldAccessorTable = new
+    internal_static_tracker_DeviceMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_DeviceMessage_descriptor,
+        internal_static_tracker_DeviceMessage_descriptor,
         new java.lang.String[] { "Id", "Login", "DevStatus", "TrackMsg", });
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor =
+    internal_static_tracker_DeviceResponse_descriptor =
       getDescriptor().getMessageTypes().get(6);
-    internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_fieldAccessorTable = new
+    internal_static_tracker_DeviceResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_DeviceResponse_descriptor,
+        internal_static_tracker_DeviceResponse_descriptor,
         new java.lang.String[] { "Cmd", "Result", });
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor =
+    internal_static_tracker_ServerMessage_descriptor =
       getDescriptor().getMessageTypes().get(7);
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_fieldAccessorTable = new
+    internal_static_tracker_ServerMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_ServerMessage_descriptor,
+        internal_static_tracker_ServerMessage_descriptor,
         new java.lang.String[] { "Id", "ServerTime", "ParamVersion", "DeviceParam", });
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor =
+    internal_static_tracker_ServerRequest_descriptor =
       getDescriptor().getMessageTypes().get(8);
-    internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_fieldAccessorTable = new
+    internal_static_tracker_ServerRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_nutz_walnut_ext_gpstracker_ServerRequest_descriptor,
+        internal_static_tracker_ServerRequest_descriptor,
         new java.lang.String[] { "Cmd", "Value", });
   }
 
