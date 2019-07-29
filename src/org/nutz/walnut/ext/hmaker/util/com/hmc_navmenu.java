@@ -59,6 +59,7 @@ public class hmc_navmenu extends AbstractNoneValueCom {
                 // 新窗口
                 if (!Strings.isBlank(newtab)) {
                     a.attr("target", "_blank");
+                    a.attr("rel", "nofollow");
                     li.removeAttr("newtab");
                 }
             }
