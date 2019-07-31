@@ -70,7 +70,7 @@ public abstract class AbstractWnTree implements WnTree {
 
     @Override
     public WnObj get(final String id) {
-        if (null == id)
+        if (Strings.isBlank(id))
             return null;
 
         // 如果是根节点
