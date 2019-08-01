@@ -16,7 +16,7 @@ www conf        # 【废弃】得到域名映射方面的配置文件信息(JSON
 
 www captcha      # 验证码
 www checkme      # 获取当前会话信息
-www login        # 登录/绑定手机/注册
-www logout       # 注销会话 
+www auth         # 登录/绑定手机/注册
+www signout      # 注销会话 
 www resetpasswd  # 重置密码
 ```

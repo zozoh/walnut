@@ -1,5 +1,9 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 
@@ -7,21 +11,39 @@ public class cmd_run extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        boolean x = args.length > 0 && "-x".equals(args[0]);
-        // 运行每个参数
-        if (args.length > 0 && !x) {
-            for (String arg : args) {
-                sys.exec(arg);
-            }
-        }
+        // 预处理
+        String cmdTmpl = null;
+        String varJson = null;
+
         // 从管道里读取
-        else if (sys.pipeId > 0) {
-            String cmdLine;
-            while (null != (cmdLine = sys.in.readLine())) {
-                if (x)
-                    sys.out.println("+ "+cmdLine);
-                sys.exec(cmdLine);
+        if (args.length == 0) {
+            cmdTmpl = sys.in.readAll();
+        }
+        // 拼合参数
+        else {
+            // 准备参数模板
+            String[] cmds = new String[args.length];
+            int i = 0;
+            for (String arg : args) {
+                // Escape
+                String val = arg.replaceAll("([\"'])", "\\\\$1");
+                cmds[i++] = val;
             }
+            cmdTmpl = Lang.concatBy(" '%s' ", cmds).toString();
+
+            // 读取变量集
+            varJson = sys.in.readAll();
+        }
+
+        // 直接执行
+        if (Strings.isBlank(varJson)) {
+            sys.exec(cmdTmpl);
+        }
+        // 执行模板
+        else {
+            NutMap vars = Lang.map(varJson);
+            String cmdText = Tmpl.exec(cmdTmpl, vars);
+            sys.exec(cmdText);
         }
     }
 

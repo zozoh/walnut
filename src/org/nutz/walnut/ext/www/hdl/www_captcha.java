@@ -90,12 +90,14 @@ public class www_captcha implements JvmHdl {
         // -------------------------------
         // SMS 方式
         if ("sms".equals(as)) {
+            // TODO 发送短信
             // 按照 JSON 输出，但是不带 code
             hc.jfmt.setLocked("^(code)$");
         }
         // -------------------------------
         // 邮件方式
-        if ("sms".equals(as)) {
+        if ("email".equals(as)) {
+            // TODO 发送邮件
             // 按照 JSON 输出，但是不带 code
             hc.jfmt.setLocked("^(code)$");
         }

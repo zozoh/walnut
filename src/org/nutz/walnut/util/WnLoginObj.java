@@ -1,5 +1,7 @@
 package org.nutz.walnut.util;
 
+import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
 /**
@@ -58,6 +60,28 @@ public class WnLoginObj {
 
     public static boolean isValidUserName(String nm) {
         return null != nm && nm.matches("^[0-9a-zA-Z_-]{2,}$");
+    }
+
+    public NutMap toMap() {
+        // 准备查询条件
+        NutMap map = new NutMap();
+        // 登录名
+        if (this.isByName()) {
+            map.put("nm", this.value);
+        }
+        // 手机
+        else if (this.isByPhone()) {
+            map.put("phone", this.value);
+        }
+        // 邮箱
+        else if (this.isByEmail()) {
+            map.put("email", this.value);
+        }
+        // 不可能
+        else {
+            throw Lang.impossible();
+        }
+        return map;
     }
 
     public String getValue() {
