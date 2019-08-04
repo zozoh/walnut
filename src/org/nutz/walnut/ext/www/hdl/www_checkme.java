@@ -28,7 +28,7 @@ public class www_checkme implements JvmHdl {
         // -------------------------------
         // 检查会话
         WnWebSession se = null;
-
+        AjaxReturn re = Ajax.fail().setErrCode("e.www.api.auth.nologin");
         try {
             if (!Strings.isBlank(site) && !Strings.isBlank(ticket)) {
                 // 准备服务类
@@ -42,18 +42,19 @@ public class www_checkme implements JvmHdl {
                 // 输出
                 String json = se.formatJson(hc.jfmt, hc.params.is("ajax"));
                 sys.out.println(json);
+                return;
             }
         }
         // -------------------------------
         // 错误
         catch (Throwable e) {
             WebException we = Er.wrap(e);
-            AjaxReturn re = Ajax.fail().setErrCode("e.www.api.auth.nologin");
             re.setData(we.toString());
-            String json = Json.toJson(re, hc.jfmt);
-            sys.out.println(json);
-            return;
         }
+
+        // 错误输出
+        String json = Json.toJson(re, hc.jfmt);
+        sys.out.println(json);
     }
 
 }

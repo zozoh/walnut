@@ -53,6 +53,9 @@ public class WnCaptchaService {
         String path = Wn.appendPath(scene, account);
         WnObj oFile = io.fetch(oCaptchaHome, path);
 
+        if (null == oFile)
+            return false;
+
         WnCaptcha cap = new WnCaptcha(oFile);
 
         // 过期，失败

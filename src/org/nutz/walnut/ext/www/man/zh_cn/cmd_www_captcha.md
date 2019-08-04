@@ -28,6 +28,8 @@ www captcha
     [-cqn]           # 格式化方式
     #-----------------------------------------------
     # sms/email 模式下的特殊配置项
+    [-cap 1423]      # 【必须】图形验证码，防机器人
+    [-capscene robot]# 图形验证码的场景，默认 robot
     [-to 1842..]     # 接收通知的手机号或者邮箱，默认用账号
     [-by login]      # 短信模板文件的名称，默认用场景
     [-lang zh-cn]    # 模板语言，默认 zh-cn
@@ -43,11 +45,11 @@ www captcha
 
 ```bash
 # 输出一个四位数字的验证码的 JSON 形式
-www captcha id:xxx login zozoh
+www captcha id:xxx auth zozoh
 
 # 输出一个四位数字的验证码，并发送短信
-www captcha id:xxx login 18421964321 -as sms
+www captcha id:xxx auth 18421964321 -cap 3421 -as sms
 
 # 在 REGAPI 里，输出一个四位数字的验证码，并输出成一张图片
-www captcha id:xxx sms 18421964321 -as png -http
+www captcha id:xxx robot 18421964321 -as png -http
 ```

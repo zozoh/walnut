@@ -17,6 +17,11 @@ public class WnCaptcha {
 
     private long expi;
 
+    /**
+     * 持续时间（分钟）
+     */
+    private int duInMin;
+
     public WnCaptcha(String scene, String account) {
         this.scene = scene;
         this.account = account;
@@ -33,6 +38,7 @@ public class WnCaptcha {
         retry = oCa.getInt("retry", 0);
         maxRetry = oCa.getInt("remax", 3);
         expi = oCa.expireTime();
+        duInMin = oCa.getInt("du_min");
     }
 
     public NutMap toMeta() {
@@ -43,6 +49,7 @@ public class WnCaptcha {
         map.put("retry", retry);
         map.put("remax", maxRetry);
         map.put("expi", expi);
+        map.put("du_min", duInMin);
         return map;
     }
 
@@ -112,6 +119,7 @@ public class WnCaptcha {
 
     public void setExpiFromNowByMin(int duInMin) {
         this.expi = System.currentTimeMillis() + duInMin * 60000L;
+        this.duInMin = duInMin;
     }
 
     public boolean isExpired() {

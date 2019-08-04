@@ -200,7 +200,7 @@ public class WnWebAuthService {
      * 
      * @throws "e.www.login.noexists"
      *             : 用户不存在
-     * @throws "e.www.login.invalid.vcode"
+     * @throws "e.www.invalid.captcha"
      *             : 验证码错误
      */
     public WnWebSession bindAccount(String account, String vcode, String ticket) {
@@ -210,8 +210,8 @@ public class WnWebAuthService {
         NutMap meta = lo.toMap();
 
         // 首先验证一下验证码是否正确
-        if (!captcha.removeCaptcha("login", account, vcode)) {
-            throw Er.create("e.www.login.invalid.vcode", vcode);
+        if (!captcha.removeCaptcha("bind", account, vcode)) {
+            throw Er.create("e.www.invalid.captcha", vcode);
         }
 
         // 首先查询出对应的用户对象
@@ -263,7 +263,7 @@ public class WnWebAuthService {
      * 
      * @throws "e.www.login.noexists"
      *             : 用户不存在
-     * @throws "e.www.login.invalid.vcode"
+     * @throws "e.www.invalid.captcha"
      *             : 验证码错误
      */
     public WnWebSession loginByVcode(String account, String vcode) {
@@ -274,7 +274,7 @@ public class WnWebAuthService {
 
         // 首先验证一下验证码是否正确
         if (!captcha.removeCaptcha("login", account, vcode)) {
-            throw Er.create("e.www.login.invalid.vcode", vcode);
+            throw Er.create("e.www.invalid.captcha", vcode);
         }
 
         // 首先查询出对应的用户对象

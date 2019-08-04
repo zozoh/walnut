@@ -16,6 +16,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(http|better|ajax)$")
 public class www_captcha implements JvmHdl {
@@ -29,6 +30,21 @@ public class www_captcha implements JvmHdl {
         String account = hc.params.val_check(2);
         WnObj oWWW = Wn.checkObj(sys, site);
         WnObj oDomain = Wn.checkObj(sys, "~/.domain");
+        // -------------------------------
+        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
+        String as = hc.params.getString("as", "json");
+        // -------------------------------
+        // 短信或者邮箱验证码，需要先校验一下机器人
+        if("sms".equals(as) || "email".equals(as)) {
+            String cap = hc.params.check("cap");
+            String capScene = hc.params.get("capscene", "robot");
+            // 看看是否有效
+            if(!webs.removeCaptcha(capScene, account, cap)) {
+                AjaxReturn re = Ajax.fail().setErrCode("e.www.invalid.captcha");
+                sys.out.println(Json.toJson(re, hc.jfmt));
+                return;
+            }
+        }
         // -------------------------------
         // 生成验证码
         String type = hc.params.getString("type", "digital");
@@ -52,12 +68,9 @@ public class www_captcha implements JvmHdl {
         cap.setExpiFromNowByMin(du);
         // -------------------------------
         // 保存验证码
-        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
         webs.saveCaptcha(cap);
         // -------------------------------
         // 准备输出
-        // -------------------------------
-        String as = hc.params.getString("as", "json");
         // -------------------------------
         // 图片方式
         if ("png".equals(as)) {
