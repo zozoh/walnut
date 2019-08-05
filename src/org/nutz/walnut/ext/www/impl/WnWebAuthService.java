@@ -13,6 +13,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQuery;
@@ -121,16 +122,39 @@ public class WnWebAuthService {
     public WnWebSession loginByWxCode(String code) {
         // 得到用户的 OpenId
         String openid = wxApi.user_openid_by_code(code);
+        if (Strings.isBlank(openid)) {
+            throw Er.create("e.www.login.invalid.weixin_code");
+        }
+        // 得到公众号名称
         String ghName = wxApi.getHomeObj().name();
-        String key = "wx_" + ghName;
+        String key = "wx_gh_" + ghName;
+
+        // 准备帐号库的服务类
+        WnThingService accounts = new WnThingService(io, oAccountHome);
+
+        // 如果已经有了这个用户的微信会话，重用之
+        NutMap by = Lang.map("by_type", key);
+        by.put("by_val", openid);
+        WnQuery q = Wn.Q.pid(oSessionHome);
+        q.setAll(by);
+        WnObj oSe = io.getOne(q);
+        if (null != oSe) {
+            String uid = oSe.getString("uid");
+            WnObj oU = accounts.getThing(uid, false);
+            if (null != oU) {
+                return new WnWebSession(oSe, oU);
+            }
+        }
 
         // 看看这个用户是否存在，如果已经存在了就直接创建 会话收工
         NutMap meta = Lang.map(key, openid);
-        WnThingService accounts = new WnThingService(io, oAccountHome);
         WnObj oU = __get_user(accounts, meta);
         if (null != oU) {
-            return this.__create_session(accounts, oU);
+            return this.__create_session(accounts, oU, by);
         }
+
+        // 选择一个默认角色
+        String role = this.getDefaultRoleName();
 
         // 看来要创建一个用户，嗯嗯，先获取信息
         NutMap re = wxApi.user_info(openid, null);
@@ -162,6 +186,7 @@ public class WnWebAuthService {
         meta = re.pickBy("^(city|province|country|sex)$");
         meta.put(key, openid);
         meta.put("th_nm", myName);
+        meta.put("role", role);
         oU = accounts.createThing(meta);
 
         // 如果有头像的话，搞一下
@@ -183,7 +208,7 @@ public class WnWebAuthService {
         }
 
         // 创建完毕，收工
-        WnWebSession se = this.__create_session(accounts, oU);
+        WnWebSession se = this.__create_session(accounts, oU, by);
         return se;
     }
 
@@ -228,8 +253,26 @@ public class WnWebAuthService {
         // - 然后在微信打开，微信会自动注册/登录，而这个账号是没有手机号的
         if (null != oU) {
             // 将当前的账号信息合并过去（用户信息作为默认值）
-            // 同时也更新用户最后登录时间咯
             NutBean info = se.getUserInfo();
+
+            // 登录名就不同步了
+            info.remove("nm");
+
+            // 如果有头像的话，看看是否有必要搞一下
+            String thumb = info.getString("thumb");
+            if (!Strings.isBlank(thumb) && !oU.hasThumbnail()) {
+                WnObj oSrcThumb = Wn.getObj(io, thumb);
+                if (null != oSrcThumb) {
+                    WnObj oData = Things.dirTsData(io, oU);
+                    WnObj oThumb = io.createIfNoExists(oData, oU.id() + "/thumb.jpg", WnRace.FILE);
+                    // 读取Copy缩略图
+                    Wn.Io.copyFile(io, oSrcThumb, oThumb);
+                    info.put("thumb", "id:" + oThumb.id());
+
+                }
+            }
+
+            // 同时也更新用户最后登录时间咯
             info.setv("login", System.currentTimeMillis());
             io.appendMeta(oU, info);
 
@@ -294,7 +337,9 @@ public class WnWebAuthService {
         }
 
         // 创建会话并返回
-        WnWebSession se = __create_session(accounts, oU);
+        NutMap by = Lang.map("by_tp", "web_vcode");
+        by.put("by_val", account);
+        WnWebSession se = __create_session(accounts, oU, by);
         return se;
     }
 
@@ -340,7 +385,9 @@ public class WnWebAuthService {
         }
 
         // 创建会话并返回
-        WnWebSession se = __create_session(accounts, oU);
+        NutMap by = Lang.map("by_tp", "web_passwd");
+        by.put("by_val", account);
+        WnWebSession se = __create_session(accounts, oU, by);
         return se;
     }
 
@@ -360,7 +407,7 @@ public class WnWebAuthService {
         return se;
     }
 
-    private WnWebSession __create_session(WnThingService accounts, WnObj oU) {
+    private WnWebSession __create_session(WnThingService accounts, WnObj oU, NutMap info) {
         // 默认一天过期
         long expi = System.currentTimeMillis() + (this.sessionDuration * 1000L);
 
@@ -374,6 +421,9 @@ public class WnWebAuthService {
 
         // 更新会话
         NutMap meta = se.toMeta();
+        if (null != info) {
+            meta.putAll(info);
+        }
         io.appendMeta(oSe, meta);
 
         // 更新用户最后登录时间

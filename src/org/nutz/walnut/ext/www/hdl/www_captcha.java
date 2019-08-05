@@ -107,7 +107,7 @@ public class www_captcha implements JvmHdl {
         if ("sms".equals(as)) {
             // 发送短信
             NutMap cc = cap.toMeta("account");
-            String cmdTmpl = "sms send -r ${account} -t i18n:signup 'code:${code},min:${du_in_min}'";
+            String cmdTmpl = "sms send -r ${account} -t i18n:signup 'code:\"${code}\",min:${du_in_min}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);

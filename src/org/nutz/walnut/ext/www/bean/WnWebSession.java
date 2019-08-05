@@ -14,8 +14,6 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class WnWebSession {
 
-    private static final String LOCKED_U_FIELDS = "^(id|race|tp|mime|pid|len|sha1|ct|lm|c|m|g|md|ph|th_set|th_live|d0|d1||passwd|salt|oauth_.+|wx_.+)$";
-
     private String id;
 
     private WnObj me;
@@ -23,6 +21,10 @@ public class WnWebSession {
     private String ticket;
 
     private long expi;
+
+    private String byType;
+
+    private String byValue;
 
     public WnWebSession(String ticket) {
         this.ticket = ticket;
@@ -37,6 +39,8 @@ public class WnWebSession {
         this.me = oMe;
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
+        this.byType = oSe.getString("by_tp");
+        this.byValue = oSe.getString("by_val");
     }
 
     public NutMap toMeta() {
@@ -83,12 +87,23 @@ public class WnWebSession {
         this.expi = expi;
     }
 
+    public String getByType() {
+        return byType;
+    }
+
+    public String getByValue() {
+        return byValue;
+    }
+
     public NutBean getUserInfo() {
-        return this.me.pickBy(Pattern.compile(LOCKED_U_FIELDS), true);
+        String locked = "^(id|nm|ph|race|tp|mime|pid|len|sha1|ct|lm|"
+                        + "c|m|g|md|ph|th_set|th_live|d0|d1||passwd|salt)$";
+        return this.me.pickBy(Pattern.compile(locked), true);
     }
 
     public String formatJson(JsonFormat jfmt, boolean ajax) {
-        jfmt.setLocked(LOCKED_U_FIELDS);
+        jfmt.setLocked("^(id|ph|race|tp|mime|pid|len|sha1|ct|lm|c|m|g|md|ph|th_set|th_live|"
+                       + "d0|d1||passwd|salt|oauth_.+|wx_.+)$");
         jfmt.setIgnoreNull(true);
         if (ajax) {
             AjaxReturn re = Ajax.ok().setData(this);
