@@ -49,13 +49,14 @@ public class www_auth implements JvmHdl {
             // -------------------------------
             // 验证码 /绑定
             else if (!Strings.isBlank(vcode)) {
+                String scene = hc.params.getString("scene", "auth");
                 // 绑定手机
                 if (!Strings.isBlank(ticket)) {
-                    se = webs.bindAccount(account, vcode, ticket);
+                    se = webs.bindAccount(account, scene, vcode, ticket);
                 }
                 // 验证码登录
                 else {
-                    se = webs.loginByVcode(account, vcode);
+                    se = webs.loginByVcode(account, scene, vcode);
                 }
             }
         }

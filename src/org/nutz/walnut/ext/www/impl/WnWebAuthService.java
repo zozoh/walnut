@@ -192,8 +192,10 @@ public class WnWebAuthService {
      * 
      * @param account
      *            账号（手机号|邮箱）
+     * @param scene
+     *            验证码场景
      * @param vcode
-     *            验证码（场景一定为 "bind"）
+     *            验证码
      * @param ticket
      *            用户登录的票据（必须是已经登录的用户才能绑定啊）
      * @return 绑定成功后的会话（可能会切换会话）
@@ -203,14 +205,14 @@ public class WnWebAuthService {
      * @throws "e.www.invalid.captcha"
      *             : 验证码错误
      */
-    public WnWebSession bindAccount(String account, String vcode, String ticket) {
+    public WnWebSession bindAccount(String account, String scene, String vcode, String ticket) {
         WnLoginObj lo = new WnLoginObj(account);
 
         // 检查账号名是否合法，顺便准备查询条件
         NutMap meta = lo.toMap();
 
         // 首先验证一下验证码是否正确
-        if (!captcha.removeCaptcha("bind", account, vcode)) {
+        if (!captcha.removeCaptcha(scene, account, vcode)) {
             throw Er.create("e.www.invalid.captcha", vcode);
         }
 
@@ -257,8 +259,10 @@ public class WnWebAuthService {
      * 
      * @param account
      *            账号（手机号|邮箱）
+     * @param scene
+     *            验证码场景
      * @param vcode
-     *            验证码（场景一定为 "login"）
+     *            验证码
      * @return 登录成功后的会话
      * 
      * @throws "e.www.login.noexists"
@@ -266,20 +270,20 @@ public class WnWebAuthService {
      * @throws "e.www.invalid.captcha"
      *             : 验证码错误
      */
-    public WnWebSession loginByVcode(String account, String vcode) {
+    public WnWebSession loginByVcode(String account, String scene, String vcode) {
         WnLoginObj lo = new WnLoginObj(account);
 
         // 检查账号名是否合法，顺便准备查询条件
         NutMap meta = lo.toMap();
 
         // 首先验证一下验证码是否正确
-        if (!captcha.removeCaptcha("login", account, vcode)) {
+        if (!captcha.removeCaptcha(scene, account, vcode)) {
             throw Er.create("e.www.invalid.captcha", vcode);
         }
 
         // 首先查询出对应的用户对象
         WnThingService accounts = new WnThingService(io, oAccountHome);
-        WnObj oU = __check_user(accounts, meta);
+        WnObj oU = __get_user(accounts, meta);
 
         // 如果手机号未注册，创建一个新账号
         if (null == oU) {

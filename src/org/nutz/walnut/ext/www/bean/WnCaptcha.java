@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.bean;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -38,18 +39,21 @@ public class WnCaptcha {
         retry = oCa.getInt("retry", 0);
         maxRetry = oCa.getInt("remax", 3);
         expi = oCa.expireTime();
-        duInMin = oCa.getInt("du_min");
+        duInMin = oCa.getInt("du_in_min");
     }
 
-    public NutMap toMeta() {
+    public NutMap toMeta(String accountKey) {
         NutMap map = new NutMap();
         map.put("scene", scene);
-        // 这里忽略一下 account 因为已经是对象的名称了
         map.put("code", code);
         map.put("retry", retry);
         map.put("remax", maxRetry);
         map.put("expi", expi);
-        map.put("du_min", duInMin);
+        map.put("du_in_min", duInMin);
+        
+        if(!Strings.isBlank(accountKey)) {
+            map.put(accountKey, account);
+        }
         return map;
     }
 

@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.www.bean.WnCaptcha;
@@ -35,11 +37,11 @@ public class www_captcha implements JvmHdl {
         String as = hc.params.getString("as", "json");
         // -------------------------------
         // 短信或者邮箱验证码，需要先校验一下机器人
-        if("sms".equals(as) || "email".equals(as)) {
+        if ("sms".equals(as) || "email".equals(as)) {
             String cap = hc.params.check("cap");
             String capScene = hc.params.get("capscene", "robot");
             // 看看是否有效
-            if(!webs.removeCaptcha(capScene, account, cap)) {
+            if (!webs.removeCaptcha(capScene, account, cap)) {
                 AjaxReturn re = Ajax.fail().setErrCode("e.www.invalid.captcha");
                 sys.out.println(Json.toJson(re, hc.jfmt));
                 return;
@@ -103,7 +105,21 @@ public class www_captcha implements JvmHdl {
         // -------------------------------
         // SMS 方式
         if ("sms".equals(as)) {
-            // TODO 发送短信
+            // 发送短信
+            NutMap cc = cap.toMeta("account");
+            String cmdTmpl = "sms send -r ${account} -t i18n:signup 'code:${code},min:${du_in_min}'";
+            String cmdText = Tmpl.exec(cmdTmpl, cc);
+            String re = sys.exec2(cmdText);
+            NutMap reMap = Json.fromJson(NutMap.class, re);
+            NutMap acMap = reMap.getAs(cap.getAccount(), NutMap.class);
+            if (null == acMap || !acMap.is("code", 0)) {
+                AjaxReturn reo = Ajax.fail()
+                                     .setErrCode("e.www.captcha.fail_send_by_sms")
+                                     .setData(acMap.get("msg"));
+                sys.out.println(Json.toJson(reo, hc.jfmt));
+                return;
+            }
+
             // 按照 JSON 输出，但是不带 code
             hc.jfmt.setLocked("^(code)$");
         }

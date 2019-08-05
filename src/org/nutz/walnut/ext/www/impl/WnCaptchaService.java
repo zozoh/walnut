@@ -31,7 +31,7 @@ public class WnCaptchaService {
         WnObj oFile = io.createIfExists(oCaptchaHome, path, WnRace.FILE);
 
         // 设置
-        NutMap meta = cap.toMeta();
+        NutMap meta = cap.toMeta(null);
         io.appendMeta(oFile, meta);
 
         // 搞定
@@ -70,8 +70,11 @@ public class WnCaptchaService {
             if (cap.isNoMoreRetry()) {
                 io.delete(oFile);
             }
-            // 增加一个 retry 并返回失败
-            io.inc(oFile.id(), cap.getRetryKey(), 1, false);
+            // 增加一个 retry
+            else {
+                io.inc(oFile.id(), cap.getRetryKey(), 1, false);
+            }
+            // 返回失败
             return false;
         }
 

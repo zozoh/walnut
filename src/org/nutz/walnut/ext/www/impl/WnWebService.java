@@ -120,12 +120,12 @@ public class WnWebService {
         return auth.loginByWxCode(code);
     }
 
-    public WnWebSession bindAccount(String account, String vcode, String ticket) {
-        return auth.bindAccount(account, vcode, ticket);
+    public WnWebSession bindAccount(String account, String scene, String vcode, String ticket) {
+        return auth.bindAccount(account, scene, vcode, ticket);
     }
 
-    public WnWebSession loginByVcode(String account, String vcode) {
-        return auth.loginByVcode(account, vcode);
+    public WnWebSession loginByVcode(String account, String scene, String vcode) {
+        return auth.loginByVcode(account, scene, vcode);
     }
 
     public WnWebSession loginByPasswd(String account, String passwd) {
