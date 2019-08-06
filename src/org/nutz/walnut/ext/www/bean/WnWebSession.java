@@ -45,8 +45,10 @@ public class WnWebSession {
 
     public NutMap toMeta() {
         NutMap map = new NutMap();
-        map.put("uid", me.id());
-        map.put("unm", me.name());
+        if (null != me) {
+            map.put("uid", me.id());
+            map.put("unm", me.name());
+        }
         map.put("expi", expi);
         return map;
     }
@@ -96,6 +98,9 @@ public class WnWebSession {
     }
 
     public NutBean getUserInfo() {
+        if (null == this.me) {
+            return new NutMap();
+        }
         String locked = "^(id|nm|ph|race|tp|mime|pid|len|sha1|ct|lm|"
                         + "c|m|g|md|ph|th_set|th_live|d0|d1||passwd|salt)$";
         return this.me.pickBy(Pattern.compile(locked), true);

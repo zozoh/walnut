@@ -116,6 +116,10 @@ public class WnWebService {
         return auth.checkSession(ticket);
     }
 
+    public WnWebSession removeSession(String ticket) {
+        return auth.removeSession(ticket);
+    }
+
     public WnWebSession loginByWxCode(String code) {
         return auth.loginByWxCode(code);
     }

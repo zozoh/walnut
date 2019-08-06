@@ -113,6 +113,24 @@ public class WnWebAuthService {
     }
 
     /**
+     * 注销会话，移除票据
+     * 
+     * @param ticket
+     *            票据
+     * @return 更新后的会话对象
+     * @throws "e.www.ticket.noexist"
+     *             : 票据找不到对应会话
+     */
+    public WnWebSession removeSession(String ticket) {
+        WnObj oSe = io.fetch(oSessionHome, ticket);
+        if (null == oSe) {
+            throw Er.create("e.www.ticked.noexist", ticket);
+        }
+        // 返回对象
+        return new WnWebSession(oSe, null);
+    }
+
+    /**
      * 用微信的权限码自动登录
      * 
      * @param code
