@@ -200,7 +200,7 @@ public class WnUsrInfo {
     }
 
     public static boolean isValidUserName(String nm) {
-        return null != nm && nm.matches("^[0-9a-zA-Z_]{4,}$");
+        return null != nm && nm.matches("^[0-9a-zA-Z_]{2,}$");
     }
 
     public String getUserId() {
