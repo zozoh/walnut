@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.mqttc;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -11,6 +13,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -18,6 +21,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.web.Webs.Err;
 
 @IocBean(depose = "depose")
@@ -27,6 +31,9 @@ public class MqttClientService {
 
     @Inject
     protected WnIo io;
+    
+    @Inject
+    protected WnRun run;
 
     protected ConcurrentHashMap<String, ConcurrentHashMap<String, MqttClient>> clients = new ConcurrentHashMap<>();
 
@@ -94,7 +101,20 @@ public class MqttClientService {
         // 使用Walnut持久化
         MqttClientPersistence persistence = new WnMqttClientPersistence(io, wobj.parent());
         MqttClient mqttClient = new MqttClient(serverURIs[0], clientId, persistence);
-        mqttClient.setCallback(new MqttCallback() {
+        mqttClient.setCallback(new MqttCallbackExtended() {
+            
+            public void connectComplete(boolean reconnect, String serverURI) {
+                if (subs.size() > 0) {
+                    for (WnMqttSub sub : subs.values()) {
+                        try {
+                            get(sub.user, sub.mqttc, false).subscribe(sub.topic, sub);
+                        }
+                        catch (MqttException e) {
+                            log.warn(Json.toJson(sub), e);
+                        }
+                    }
+                }
+            }
 
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 if (log.isDebugEnabled())
@@ -104,8 +124,10 @@ public class MqttClientService {
             public void deliveryComplete(IMqttDeliveryToken token) {}
 
             public void connectionLost(Throwable cause) {
-                log.debug("lost connection", cause);
+                log.warn("lost connection", cause);
             }
+            
+            
         });
         mqttClient.connect(options);
         return mqttClient;
@@ -122,5 +144,16 @@ public class MqttClientService {
                 }
             });
         });
+    }
+    
+    protected Map<String, WnMqttSub> subs = new HashMap<>();
+    
+    public void addSub(String user, String mqttc, String handler, String topic) throws MqttException {
+        String message_path = "/home/" + user + "/.mqttc/" + mqttc + "/message/";
+        String handler_path = "/home/" + user + "/.mqttc/" + mqttc + "/handler/" + handler;
+        WnMqttSub sub = new WnMqttSub(user, mqttc, topic, message_path, handler_path, run, io);
+        
+        get(user, mqttc, false).subscribe(topic, sub);
+        subs.put(user + ":" + mqttc + ":" + topic, sub);
     }
 }
