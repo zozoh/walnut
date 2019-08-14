@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -179,5 +180,9 @@ public class JvmJsExecContext implements JsExecContext {
     
     public void writeText(String path, String data) {
         sys.io.writeText(sys.io.check(null, Wn.normalizeFullPath(path, sys)), data);
+    }
+    
+    public String uu32() {
+        return R.UU32();
     }
 }
