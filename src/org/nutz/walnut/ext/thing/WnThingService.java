@@ -26,6 +26,7 @@ import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
 import org.nutz.walnut.ext.thing.impl.sql.SqlCreateThingAction;
 import org.nutz.walnut.ext.thing.impl.sql.SqlDeleteThingAction;
+import org.nutz.walnut.ext.thing.impl.sql.SqlGetThingAction;
 import org.nutz.walnut.ext.thing.impl.sql.SqlQueryThingAction;
 import org.nutz.walnut.ext.thing.impl.sql.SqlUpdateThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
@@ -241,7 +242,7 @@ public class WnThingService {
     }
 
     public WnObj getThing(String id, boolean isFull, String sortKey, boolean isAsc) {
-        GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
+        GetThingAction a = _A(_action_get()).setFull(isFull).setId(id);
         a.setSortKey(sortKey).setAsc(isAsc);
         return a.invoke();
     }
@@ -403,6 +404,17 @@ public class WnThingService {
         default :
         case "wntree":
             return new UpdateThingAction();
+        }
+    }
+
+    protected GetThingAction _action_get() {
+        String by = this.oTs.getString("thing-by", "wntree");
+        switch (by) {
+        case "sql":
+            return new SqlGetThingAction();
+        default :
+        case "wntree":
+            return new GetThingAction();
         }
     }
 }
