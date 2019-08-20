@@ -27,11 +27,11 @@ th_live   tinyint          是否存活(会解析成true/false)
 CREATE TABLE `t_user` (
 `id` varchar(26) NOT NULL,
 `nm` varchar(26) NOT NULL,
-`ct` bigint(20) DEFAULT \'0\',
+`ct` bigint(20) DEFAULT '0',
 `lm` bigint(20) DEFAULT NULL,
 `age` int(11) DEFAULT NULL,
 `city` varchar(45) DEFAULT NULL,
-`th_live` tinyint(1) DEFAULT \'1\',
+`th_live` tinyint(1) DEFAULT '1',
 PRIMARY KEY (`id`),
 UNIQUE KEY `nm_UNIQUE` (`nm`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
