@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.dao.Cnd;
+import org.nutz.dao.entity.Record;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
@@ -15,6 +17,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
+import org.nutz.walnut.ext.thing.impl.sql.SqlThingContext;
+import org.nutz.walnut.ext.thing.impl.sql.SqlThingMaster;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -36,9 +40,21 @@ public abstract class Things {
      */
     public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
         WnObj oIndex = dirTsIndex(io, oRefer);
-        WnQuery q = Wn.Q.pid(oIndex);
-        q.setv("id", id);
-        return io.getOne(q);
+        switch (oRefer.getString("thing-by", "wntree")) {
+        case "sql": {
+            SqlThingContext ctx = SqlThingMaster.me().getSqlThingContext(oRefer);
+            Record re = ctx.dao.fetch(ctx.table, Cnd.where("id", "=", id));
+            if (re == null)
+                return null;
+            return SqlThingMaster.asWnObj(oRefer, oIndex, re.sensitive());
+        }
+        default:
+        case "wntree": {
+                WnQuery q = Wn.Q.pid(oIndex);
+                q.setv("id", id);
+                return io.getOne(q);
+            }
+        }
     }
 
     /**

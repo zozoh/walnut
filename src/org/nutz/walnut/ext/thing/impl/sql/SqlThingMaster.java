@@ -46,6 +46,12 @@ public class SqlThingMaster {
         return daos.computeIfAbsent(key, (_key) -> {
             WnObj wobj = io.check(null, "/home/" + user + "/.sqlthing/" + dsName + "/conf");
             NutMap map = io.readJson(wobj, NutMap.class);
+            if (!map.containsKey("maxWait")) {
+                map.put("maxWait", 2000);
+            }
+            if (!map.containsKey("maxActive")) {
+                map.put("maxActive", 50);
+            }
             DruidDataSource ds = Lang.map2Object(map, DruidDataSource.class);
             dataSources.put(key, ds);
             return new NutDao(ds);
