@@ -1,29 +1,26 @@
-package org.nutz.walnut.ext.thing.impl;
+package org.nutz.walnut.ext.thing.impl.sql;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.dao.Cnd;
+import org.nutz.dao.entity.Record;
+import org.nutz.dao.util.cri.Exps;
+import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.ext.thing.ThingAction;
+import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
-import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.thing.util.Things;
 
-public class QueryThingAction extends ThingAction<ThQr> {
-
-    protected ThQuery tq;
-
-    public QueryThingAction setQuery(ThQuery tq) {
-        this.tq = tq;
-        return this;
-    }
+public class SqlQueryThingAction extends QueryThingAction {
 
     @Override
     public ThQr invoke() {
@@ -118,7 +115,87 @@ public class QueryThingAction extends ThingAction<ThQr> {
 
         // ..............................................
         // 执行查询并返回结果
-        List<WnObj> list = io.query(q);
+        // List<WnObj> list = io.query(q);
+        SqlThingContext ctx = SqlThingMaster.me().getSqlThingContext(oTs);
+        Cnd cnd = Cnd.NEW();
+        boolean isAnd = qList.size() < 2;
+        for (NutMap qe : qList) {
+            SqlExpressionGroup g = Exps.begin();
+            for (Map.Entry<String, Object> en : qe.entrySet()) {
+                String key = en.getKey();
+                if ("pid".equals(key))
+                    continue;
+                Object value = en.getValue();
+                if (value == null) {
+                    g.and(key, "is", null);
+                } else if (value instanceof String) {
+                    if (((String) value).contains("%")) {
+                        g.and(key, "like", value);
+                    } else {
+                        g.and(key, "=", value);
+                    }
+                } else if (value instanceof Map) {
+                    NutMap tmp = (NutMap) value;
+                    for (Map.Entry<String, Object> en2 : tmp.entrySet()) {
+                        String _key = en2.getKey();
+                        switch (_key) {
+                        case "$eq":
+                        case "@eq":
+                            g.and(key, "=", en2.getValue());
+                            break;
+                        case "$gt":
+                        case "@gt":
+                            g.and(key, ">", en2.getValue());
+                            break;
+                        case "$gte":
+                        case "@gte":
+                            g.and(key, ">=", en2.getValue());
+                            break;
+                        case "$lt":
+                        case "@lt":
+                            g.and(key, "<", en2.getValue());
+                            break;
+                        case "$lte":
+                        case "@lte":
+                            g.and(key, "<=", en2.getValue());
+                            break;
+                        case "$ne":
+                        case "@ne":
+                            g.and(key, "!=", en2.getValue());
+                            break;
+                        default:
+                            // no support yet
+                            break;
+                        }
+                    }
+                } else {
+                    g.and(key, "=", value);
+                }
+            }
+            if (isAnd) {
+                cnd.and(g);
+            } else {
+                cnd.or(g);
+            }
+        }
+        // 排序
+        if (null != tq.sort && tq.sort.size() > 0) {
+            for (Map.Entry<String, Object> en : tq.sort.entrySet()) {
+                cnd.orderBy(en.getKey(), String.valueOf(en.getValue()).equals("1") ? "asc" : "desc");
+            }
+        }
+        // 执行查询
+        List<Record> _list = ctx.dao.query(ctx.table, cnd, tq.wp);
+        // 转换结果集合
+        List<Map<String, Object>> maps = new ArrayList<>();
+        for (Record re : _list) {
+            maps.add(re.sensitive());
+        }
+        List<WnObj> list = SqlThingMaster.asWnObj(oTs, checkDirTsIndex(), maps);
+        // 补齐pager数据
+        if (null != tq.wp && tq.wp.countPage) {
+            tq.wp.setRecordCount(ctx.dao.count(ctx.table, cnd));
+        }
 
         // 循环补充上 ThingSet 的集合名称
         for (WnObj oT : list) {

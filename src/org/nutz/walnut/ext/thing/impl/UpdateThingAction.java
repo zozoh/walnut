@@ -12,11 +12,11 @@ import org.nutz.walnut.ext.thing.util.Things;
 
 public class UpdateThingAction extends ThingAction<WnObj> {
 
-    private String id;
+    protected String id;
 
-    private NutMap meta;
+    protected NutMap meta;
 
-    private ThingConf conf;
+    protected ThingConf conf;
 
     public UpdateThingAction setId(String id) {
         this.id = id;

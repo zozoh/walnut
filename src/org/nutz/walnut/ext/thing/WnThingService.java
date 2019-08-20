@@ -11,9 +11,9 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.thing.impl.CreateTmpFileAction;
 import org.nutz.walnut.ext.thing.impl.CleanTmpFileAction;
 import org.nutz.walnut.ext.thing.impl.CreateThingAction;
+import org.nutz.walnut.ext.thing.impl.CreateTmpFileAction;
 import org.nutz.walnut.ext.thing.impl.DeleteThingAction;
 import org.nutz.walnut.ext.thing.impl.FileAddAction;
 import org.nutz.walnut.ext.thing.impl.FileDeleteAction;
@@ -24,6 +24,10 @@ import org.nutz.walnut.ext.thing.impl.FileUpdateCountAction;
 import org.nutz.walnut.ext.thing.impl.GetThingAction;
 import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
+import org.nutz.walnut.ext.thing.impl.sql.SqlCreateThingAction;
+import org.nutz.walnut.ext.thing.impl.sql.SqlDeleteThingAction;
+import org.nutz.walnut.ext.thing.impl.sql.SqlQueryThingAction;
+import org.nutz.walnut.ext.thing.impl.sql.SqlUpdateThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.thing.util.ThingConf;
@@ -287,7 +291,7 @@ public class WnThingService {
     }
 
     public WnObj createThing(NutMap meta, String uniqueKey, WnExecutable executor) {
-        CreateThingAction a = _A(new CreateThingAction());
+        CreateThingAction a = _A(_action_create());
         a.addMeta(meta).setUniqueKey(uniqueKey);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
@@ -305,7 +309,7 @@ public class WnThingService {
                                     String process,
                                     WnExecutable executor,
                                     String cmdTmpl) {
-        CreateThingAction a = _A(new CreateThingAction());
+        CreateThingAction a = _A(_action_create());
         a.addAllMeta(metaList);
         a.setUniqueKey(uniqueKey);
         a.setProcess(out, process);
@@ -316,7 +320,7 @@ public class WnThingService {
     }
 
     public ThQr queryThing(ThQuery tq) {
-        QueryThingAction a = _A(new QueryThingAction()).setQuery(tq);
+        QueryThingAction a = _A(_action_query()).setQuery(tq);
         return a.invoke();
     }
 
@@ -330,17 +334,17 @@ public class WnThingService {
     }
 
     public List<WnObj> deleteThing(boolean hard, Collection<String> ids) {
-        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(ids);
+        DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(ids);
         return a.invoke();
     }
 
     public List<WnObj> deleteThing(boolean hard, String... ids) {
-        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Lang.list(ids));
+        DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(Lang.list(ids));
         return a.invoke();
     }
 
     public WnObj updateThing(String id, NutMap meta) {
-        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
+        UpdateThingAction a = _A(_action_update()).setId(id).setMeta(meta);
         a.setConf(this.checkConf());
         return a.invoke();
     }
@@ -358,4 +362,47 @@ public class WnThingService {
         return a.invoke();
     }
 
+    protected CreateThingAction _action_create() {
+        String by = this.oTs.getString("thing-by", "wntree");
+        switch (by) {
+        case "sql":
+            return new SqlCreateThingAction();
+        default :
+        case "wntree":
+            return new CreateThingAction();
+        }
+    }
+
+    protected QueryThingAction _action_query() {
+        String by = this.oTs.getString("thing-by", "wntree");
+        switch (by) {
+        case "sql":
+            return new SqlQueryThingAction();
+        default :
+        case "wntree":
+            return new QueryThingAction();
+        }
+    }
+
+    protected DeleteThingAction _action_delete() {
+        String by = this.oTs.getString("thing-by", "wntree");
+        switch (by) {
+        case "sql":
+            return new SqlDeleteThingAction();
+        default :
+        case "wntree":
+            return new DeleteThingAction();
+        }
+    }
+
+    protected UpdateThingAction _action_update() {
+        String by = this.oTs.getString("thing-by", "wntree");
+        switch (by) {
+        case "sql":
+            return new SqlUpdateThingAction();
+        default :
+        case "wntree":
+            return new UpdateThingAction();
+        }
+    }
 }

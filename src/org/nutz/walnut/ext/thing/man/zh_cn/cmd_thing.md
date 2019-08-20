@@ -58,4 +58,5 @@
     thing media         # 操作数据的媒体
     thing attachment    # 操作数据的附件
     thing tmpfile       # 在数据集创建一个临时文件
+    thing sql           # 关于Thing的SQL实现的特别说明
 

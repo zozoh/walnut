@@ -15,13 +15,13 @@ import org.nutz.walnut.util.Wn;
 
 public class GetThingAction extends ThingAction<WnObj> {
 
-    private String id;
+    protected String id;
 
-    private boolean isFull;
+    protected boolean isFull;
 
-    private String sortKey;
+    protected String sortKey;
 
-    private boolean isAsc;
+    protected boolean isAsc;
 
     public GetThingAction setId(String id) {
         this.id = id;

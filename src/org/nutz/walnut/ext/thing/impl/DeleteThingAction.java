@@ -11,9 +11,9 @@ import org.nutz.walnut.ext.thing.util.Things;
 
 public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
-    private Collection<String> ids;
+    protected Collection<String> ids;
 
-    private boolean hard;
+    protected boolean hard;
 
     public DeleteThingAction setIds(Collection<String> ids) {
         this.ids = ids;

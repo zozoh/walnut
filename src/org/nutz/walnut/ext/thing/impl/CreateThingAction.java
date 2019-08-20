@@ -27,21 +27,21 @@ import org.nutz.web.WebException;
  */
 public class CreateThingAction extends ThingAction<List<WnObj>> {
 
-    private String[] uniqueKeys;
+    protected String[] uniqueKeys;
 
-    private List<NutMap> metas;
+    protected List<NutMap> metas;
 
-    private Tmpl process;
+    protected Tmpl process;
 
-    private WnOutputable out;
+    protected WnOutputable out;
 
-    private WnExecutable executor;
+    protected WnExecutable executor;
 
-    private Tmpl cmdTmpl;
+    protected Tmpl cmdTmpl;
 
-    private NutMap fixedMeta;
+    protected NutMap fixedMeta;
 
-    private ThingConf conf;
+    protected ThingConf conf;
 
     public CreateThingAction() {
         this.metas = new LinkedList<>();

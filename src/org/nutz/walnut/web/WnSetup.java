@@ -29,6 +29,7 @@ import org.nutz.walnut.ext.job.WnJobService;
 import org.nutz.walnut.ext.quota.JettyMonitorHandler;
 import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
+import org.nutz.walnut.ext.thing.impl.sql.SqlThingMaster;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
@@ -156,6 +157,9 @@ public class WnSetup implements Setup {
         
         // 初始化jvm box
         ioc.get(JvmExecutorFactory.class).get("time");
+        
+        // 初始化Thing的SQL实现
+        ioc.get(SqlThingMaster.class);
     }
 
     private void __load_init_setups(WnConfig conf) {
