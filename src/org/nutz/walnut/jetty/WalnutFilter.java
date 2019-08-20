@@ -212,9 +212,9 @@ public class WalnutFilter implements Filter {
         //
         else {
             // 这个通常还是要记录一下日志的
-            if (log.isDebugEnabled()) {
-                log.debug(" - rMainHost without define! ");
-            }
+            //if (log.isDebugEnabled()) {
+            //    log.debug(" - rMainHost without define! ");
+            //}
         }
 
         // 继续执行
