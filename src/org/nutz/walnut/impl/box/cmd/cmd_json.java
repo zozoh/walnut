@@ -38,7 +38,7 @@ public class cmd_json extends JvmExecutor {
         ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only|str)$");
 
         // 读取输入
-        String json = Streams.read(sys.in.getReader()).toString();
+        String json = Strings.trim(Streams.read(sys.in.getReader()).toString());
 
         // 容忍错误
         if (params.is("err") && (Strings.isBlank(json) || json.startsWith("e."))) {
@@ -47,7 +47,30 @@ public class cmd_json extends JvmExecutor {
         }
 
         // 格式化
-        Object obj = Json.fromJson(json);
+        Object obj;
+        switch (params.get("type", "Object")) {
+        case "Integer":
+            obj = Integer.parseInt(json);
+            break;
+        case "Float":
+            obj = Float.parseFloat(json);
+            break;
+        case "Double":
+            obj = Double.parseDouble(json);
+            break;
+        case "Long":
+            obj = Long.parseLong(json);
+            break;
+        case "String":
+            obj = json;
+            break;
+        case "Boolean":
+            obj = Lang.parseBoolean(json);
+            break;
+        case "Object":
+        default:
+            obj = Json.fromJson(json);
+        }
 
         // 取值模式
         String getKey = params.get("get");

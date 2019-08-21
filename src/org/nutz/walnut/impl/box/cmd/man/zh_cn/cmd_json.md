@@ -15,6 +15,10 @@
     -prefix_key   # 一个正则表达式说明特殊的字段才增加前缀
     -r            # 遇到对象，的值也递归修改前缀
     
+    -type         # 指名输入的类型，默认会调用 JSON 解析，如果输入的是数字或者字符串
+                  # 可以用这个来指明，支持的值为：
+                  # String|Integer|Floot|Long|Double|Boolean|Object
+    
     -err          # 如果遇到输入是 "e.xxx" 这样的错误信息，直接从标准输出打印出来
                   # 不声明这个选项，则会抛 Json 解析失败的错误
     
