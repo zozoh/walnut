@@ -1,10 +1,13 @@
 package org.nutz.walnut.util;
 
+import org.nutz.dao.pager.Pager;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class WnPager {
+public class WnPager extends Pager {
+
+    private static final long serialVersionUID = 1L;
 
     public int skip;
     public int limit;
@@ -101,4 +104,11 @@ public class WnPager {
         return wp;
     }
 
+    public int getOffset() {
+        return skip;
+    }
+
+    public int getPageSize() {
+        return limit;
+    }
 }
