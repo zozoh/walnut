@@ -45,8 +45,8 @@ public class CsvSheetHandler extends AbstractSheetHandler {
                 int len = Math.min(keys.length, ss.length);
                 NutMap map = new NutMap();
                 for (int i = 0; i < len; i++) {
-                    String key = keys[i];
-                    String val = ss[i];
+                    String key = Strings.trim(keys[i]);
+                    String val = Strings.trim(ss[i]);
                     map.put(key, val);
                 }
                 list.add(map);

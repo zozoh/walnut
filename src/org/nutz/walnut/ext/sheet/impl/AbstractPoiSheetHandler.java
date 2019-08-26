@@ -205,13 +205,16 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 if (i >= keys.length)
                     break;
                 // 得到键
-                String key = keys[i];
+                String key = Strings.trim(keys[i]);
 
                 if (Strings.isBlank(key))
                     continue;
 
                 // 得到值
                 Object val = __get_cell_value(cell);
+                if (null != val && val instanceof CharSequence) {
+                    val = Strings.trim(val.toString());
+                }
 
                 // 计入
                 obj.put(key, val);

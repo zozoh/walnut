@@ -47,11 +47,13 @@ public class cmd_obj extends JvmExecutor {
 
         // 如果是要更新，首先分析一下更新参数
         NutMap u_map = null;
+        boolean pipeHasBeenUsed = false;
         if (params.has("u")) {
             String json = params.get("u");
             // 标准输入里读取
             if ("true".equals(json)) {
                 json = sys.in.readAll();
+                pipeHasBeenUsed = true;
             }
             // 解析 Map
             try {
@@ -68,27 +70,49 @@ public class cmd_obj extends JvmExecutor {
         // 创建新对象
         if (params.has("new")) {
             String json = params.get("new", "{}");
-            NutMap meta;
+            List<NutMap> metaNewList = null;
+            NutMap meta = null;
             // 类似 cat xxx | obj -new -u 的方式创建对象
             if ("true".equals(json)) {
-                meta = new NutMap();
+                // 从管道读取
+                if (!pipeHasBeenUsed) {
+                    json = Strings.trim(sys.in.readAll());
+                    // 是数组
+                    if (Strings.isQuoteBy(json, '[', ']')) {
+                        metaNewList = Json.fromJsonAsList(NutMap.class, json);
+                    }
+                    // 就是一个单个对象咯
+                    else {
+                        meta = Lang.map(json);
+                    }
+                }
+                // 管道已经被用了，直接搞个新的吧
+                else {
+                    meta = new NutMap();
+                }
             }
             // 解析 JSON
             else {
                 meta = Lang.map(json);
             }
 
-            // 执行创建
-            WnObj o = __do_new(sys, params, meta);
+            // 执行创建：单个对象
+            if (null != meta) {
+                WnObj o = __do_new(sys, params, meta);
 
-            if (null == u_map) {
-                u_map = meta;
-            } else {
-                u_map.putAll(meta);
+                if (null == u_map) {
+                    u_map = meta;
+                } else {
+                    u_map.putAll(meta);
+                }
+
+                // 记录到列表以备后续操作
+                list.add(o);
             }
-
-            // 记录到列表以备后续操作
-            list.add(o);
+            // 执行创建：批量
+            else if (null != metaNewList) {
+                list = this.__do_new_list(sys, params, metaNewList);
+            }
 
         }
         // 确保某一路径存在
@@ -776,27 +800,68 @@ public class cmd_obj extends JvmExecutor {
     }
 
     private WnObj __do_new(WnSystem sys, ZParams params, NutMap meta) {
-        String pid = meta.getString("pid");
-        WnRace race = meta.getAs("race", WnRace.class, WnRace.FILE);
+        boolean ifNoExists = params.is("IfNoExists");
 
         // 得到父对象
-        WnObj oP;
+        WnObj oP = null;
         // 根据路径
         if (params.vals.length > 0) {
             oP = Wn.checkObj(sys, params.vals[0]);
         }
-        // 指明了 pid
-        else if (null != pid) {
-            oP = sys.io.checkById(pid);
-        }
-        // 采用当前路径
-        else {
-            oP = sys.getCurrentObj();
+
+        WnObj currentObj = sys.getCurrentObj();
+
+        return __do_new_for_meta(sys, oP, currentObj, meta, ifNoExists);
+    }
+
+    private List<WnObj> __do_new_list(WnSystem sys, ZParams params, List<NutMap> metaList) {
+        boolean ifNoExists = params.is("IfNoExists");
+
+        // 得到父对象
+        WnObj oP = null;
+        // 根据路径
+        if (params.vals.length > 0) {
+            oP = Wn.checkObj(sys, params.vals[0]);
         }
 
+        WnObj currentObj = sys.getCurrentObj();
+
+        // 准备返回
+        List<WnObj> list = new ArrayList<>(metaList.size());
+        for (NutMap meta : metaList) {
+            WnObj o = __do_new_for_meta(sys, oP, currentObj, meta, ifNoExists);
+            list.add(o);
+            if (!meta.isEmpty()) {
+                sys.io.appendMeta(o, meta);
+            }
+        }
+
+        // 返回结果
+        return list;
+    }
+
+    private WnObj __do_new_for_meta(WnSystem sys,
+                                    WnObj oP,
+                                    WnObj currentObj,
+                                    NutMap meta,
+                                    boolean ifNoExists) {
+        // 根据自身决定 pid
+        if (null == oP) {
+            String pid = meta.getString("pid");
+            if (null != pid) {
+                oP = sys.io.checkById(pid);
+            }
+            // 采用当前路径
+            else {
+                oP = currentObj;
+            }
+        }
+
+        // 确定对象类型
+        WnRace race = meta.getAs("race", WnRace.class, WnRace.FILE);
         // 创建对象
         WnObj o;
-        if (params.is("IfNoExists")) {
+        if (ifNoExists) {
             o = sys.io.createIfNoExists(oP, meta.getString("nm", "${id}"), race);
         } else {
             o = sys.io.create(oP, meta.getString("nm", "${id}"), race);
@@ -894,19 +959,21 @@ public class cmd_obj extends JvmExecutor {
 
         // TODO 这里是不是要检查一下重名啊!
 
-        // 将日期的字符串，搞一下
-        for (Map.Entry<String, Object> en : u_map.entrySet()) {
-            Object v = en.getValue();
-            if (null != v && v instanceof String) {
-                String s = v.toString();
-                Object v2 = Wn.fmt_str_macro(s);
-                en.setValue(v2);
+        if (!u_map.isEmpty()) {
+            // 将日期的字符串，搞一下
+            for (Map.Entry<String, Object> en : u_map.entrySet()) {
+                Object v = en.getValue();
+                if (null != v && v instanceof String) {
+                    String s = v.toString();
+                    Object v2 = Wn.fmt_str_macro(s);
+                    en.setValue(v2);
+                }
             }
-        }
 
-        // 对每个对象执行更新
-        for (WnObj o : list) {
-            sys.io.appendMeta(o, u_map);
+            // 对每个对象执行更新
+            for (WnObj o : list) {
+                sys.io.appendMeta(o, u_map);
+            }
         }
     }
 

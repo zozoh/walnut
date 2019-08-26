@@ -84,6 +84,21 @@ public class SheetField {
             return null == val ? this.arg : Castors.me().castTo(val, Integer.class);
         }
 
+        // 长整数
+        if (SheetFieldType.LONG == this.type) {
+            return null == val ? this.arg : Castors.me().castTo(val, Long.class);
+        }
+
+        // 浮点
+        if (SheetFieldType.FLOAT == this.type) {
+            return null == val ? this.arg : Castors.me().castTo(val, Float.class);
+        }
+
+        // 双精度浮点
+        if (SheetFieldType.DOUBLE == this.type) {
+            return null == val ? this.arg : Castors.me().castTo(val, Double.class);
+        }
+
         // 空值
         if (null == val)
             return null;

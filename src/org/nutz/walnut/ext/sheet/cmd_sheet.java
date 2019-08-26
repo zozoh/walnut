@@ -42,16 +42,34 @@ public class cmd_sheet extends JvmExecutor {
             String typeInput = params.get("tpi", "json");
             inputList = wss.readAndClose(ins, typeInput, confInput);
         }
-
+        // .................................................
+        // 准备过滤器
+        NutMap filter = params.getMap("filter");
+        NutMap matcher = params.getMap("match");
+        if (null != filter)
+            filter.evalSelfForMatching();
+        if (null != matcher)
+            matcher.evalSelfForMatching();
+        // .................................................
+        // 准备分页器
+        int skip = params.getInt("skip", 0);
+        int limit = params.getInt("limit", 0);
         // .................................................
         // 字段映射
         SheetMapping mapping = new SheetMapping();
+        mapping.setFilter(filter);
+        mapping.setMatcher(matcher);
+        mapping.setLimit(limit);
+        mapping.setSkip(skip);
+        // 解析映射字段
         String flds = params.get("flds");
         if (params.has("mapping")) {
             WnObj oMapping = Wn.checkObj(sys, params.get("mapping"));
             flds = sys.io.readText(oMapping);
         }
         mapping.parse(flds);
+
+        // 执行映射
         List<NutMap> outputList = mapping.doMapping(inputList);
 
         // .................................................

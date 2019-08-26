@@ -31,7 +31,7 @@ public class cmd_json extends JvmExecutor {
         boolean recur;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"rawtypes"})
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
@@ -121,7 +121,7 @@ public class cmd_json extends JvmExecutor {
 
         // JSON 输出的格式化
         JsonFormat fmt = Cmds.gen_json_format(params);
-
+        // ----------------------------------------------
         if (params.has("e")) {
             String regex = params.get("e");
             if (regex.startsWith("!")) {
@@ -130,18 +130,18 @@ public class cmd_json extends JvmExecutor {
                 fmt.setActived(regex);
             }
         }
-
+        // ----------------------------------------------
         if (params.has("d")) {
             fmt.setDateFormat(params.get("d"));
         }
-
+        // ----------------------------------------------
         // 映射字段的值
         if (params.has("mapping")) {
             NutMap mapping = Lang.map(params.get("mapping"));
             boolean is_mapping_only = params.is("mapping_only");
             obj = __do_mapping(obj, mapping, is_mapping_only);
         }
-
+        // ----------------------------------------------
         // 深层的修改键值
         if (params.has("prefix")) {
 
@@ -172,7 +172,7 @@ public class cmd_json extends JvmExecutor {
                 }
             }, C.recur);
         }
-
+        // ----------------------------------------------
         // 修改模式
         if (params.has("u")) {
             NutMap map = Lang.map(params.get("u"));
@@ -181,9 +181,12 @@ public class cmd_json extends JvmExecutor {
             }
             // 修改
             else if (map != null && map.size() > 0) {
-                obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map);
+                obj = this.__do_update(obj, (meta) -> {
+                    return meta.mergeWith(map);
+                });
             }
         }
+        // ----------------------------------------------
         // 修改模式（默认值模式）
         if (params.has("a")) {
             NutMap map = Lang.map(params.get("a"));
@@ -192,15 +195,17 @@ public class cmd_json extends JvmExecutor {
             }
             // 修改
             else if (map != null && map.size() > 0) {
-                obj = NutMap.WRAP(((Map<String, Object>) obj)).mergeWith(map, true);
+                obj = this.__do_update(obj, (meta) -> {
+                    return meta.mergeWith(map, true);
+                });
             }
         }
-
+        // ----------------------------------------------
         // 添加模式
         if (params.has("put")) {
             obj = Lang.map(params.get("put"), obj);
         }
-
+        // ----------------------------------------------
         // 作为字符串输出
         if (params.is("str")) {
             sys.out.println(null == obj ? "" : Castors.me().castToString(obj));
@@ -226,6 +231,41 @@ public class cmd_json extends JvmExecutor {
             sys.out.println(Json.toJson(obj, fmt));
         }
 
+    }
+
+    interface Invoking {
+        Object invoke(NutMap obj);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object __do_update(Object obj, Invoking callback) {
+        // 输入的值就是对象的话 ...
+        if (obj instanceof Map<?, ?>) {
+            Map<String, Object> map = (Map<String, Object>) obj;
+            return callback.invoke(NutMap.WRAP(map));
+        }
+        // 输入的对象是个列表
+        else if (obj instanceof List) {
+            List<?> list = (List<?>) obj;
+            if (list.size() > 0) {
+                List<Object> list2 = new ArrayList<>(list.size());
+                for (Object ele : list) {
+                    // 如果是个对象就映射
+                    if (ele instanceof Map<?, ?>) {
+                        Map<String, Object> map = (Map<String, Object>) ele;
+                        Object obj2 = callback.invoke(NutMap.WRAP(map));
+                        list2.add(obj2);
+                    }
+                    // 如果不是对象，就加回去
+                    else {
+                        list2.add(ele);
+                    }
+                }
+                return list2;
+            }
+        }
+        // 原样返回
+        return obj;
     }
 
     private Object __do_mapping(Object obj, NutMap mapping, boolean is_mapping_only) {

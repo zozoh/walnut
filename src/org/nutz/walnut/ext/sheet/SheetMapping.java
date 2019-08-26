@@ -16,7 +16,139 @@ import org.nutz.walnut.api.err.Er;
 
 public class SheetMapping {
 
+    private NutMap filter;
+
+    private NutMap matcher;
+
+    private int limit;
+
+    private int skip;
+
     private List<SheetField> fields;
+
+    public SheetMapping() {
+        this.filter = null;
+        this.matcher = null;
+        this.limit = 0;
+        this.skip = 0;
+    }
+
+    public NutMap getFilter() {
+        return filter;
+    }
+
+    public void setFilter(NutMap filter) {
+        this.filter = filter;
+    }
+
+    public NutMap getMatcher() {
+        return matcher;
+    }
+
+    public void setMatcher(NutMap matcher) {
+        this.matcher = matcher;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public int getSkip() {
+        return skip;
+    }
+
+    public void setSkip(int skip) {
+        this.skip = skip;
+    }
+
+    public List<SheetField> getFields() {
+        return fields;
+    }
+
+    private boolean __is_match(NutMap obj) {
+        // 过滤
+        if (null != filter && !filter.isEmpty() && filter.match(obj)) {
+            return false;
+        }
+        // 匹配
+        if (null != matcher && !matcher.isEmpty() && !matcher.match(obj)) {
+            return false;
+        }
+        // 匹配的
+        return true;
+    }
+
+    public List<NutMap> doMapping(List<NutMap> inputList) {
+        List<NutMap> outputList = new ArrayList<>(inputList.size());
+
+        // 没有指定映射的话，所有的字段都变字符串
+        if (null == fields || fields.isEmpty()) {
+            int index = 0;
+            for (NutMap obj : inputList) {
+                // 执行映射
+                NutMap map = new NutMap();
+                for (Map.Entry<String, Object> en : obj.entrySet()) {
+                    String key = en.getKey();
+                    Object val = en.getValue();
+                    if (null != val) {
+                        Mirror<?> mi = Mirror.me(val);
+                        // 原生的话，保留
+                        // 其他的变字符串
+                        if (!mi.isSimple()) {
+                            val = Castors.me().castToString(val);
+                        }
+                    }
+                    map.put(key, val);
+                }
+                // 过滤
+                if (this.__is_match(map)) {
+                    // 自增计数并查看跳过
+                    if (skip > 0 && ++index <= skip) {
+                        continue;
+                    }
+                    // 达到限制
+                    if (limit > 0 && outputList.size() >= limit) {
+                        break;
+                    }
+                    // 加入
+                    outputList.add(map);
+                }
+            }
+        }
+        // 否则按照映射处理
+        else {
+            int index = 0;
+            for (NutMap obj : inputList) {
+                // 执行映射
+                NutMap map = new NutMap();
+                for (SheetField sf : fields) {
+                    String key = sf.getKey();
+                    Object val = sf.getValue(obj);
+                    map.put(key, val);
+                }
+                // 过滤
+                if (this.__is_match(map)) {
+                    // 自增计数并查看跳过
+                    if (skip > 0 && ++index <= skip) {
+                        continue;
+                    }
+                    // 达到限制
+                    if (limit > 0 && outputList.size() >= limit) {
+                        break;
+                    }
+                    // 加入
+                    outputList.add(map);
+                }
+            }
+        }
+
+        // 嗯，搞定返回吧
+        return outputList;
+    }
 
     private static final Pattern P_KEY = Regex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");
     private static final Pattern P_KEY_ARRAY = Regex.getPattern("^[$@]n([.](.+))?$");
@@ -24,6 +156,9 @@ public class SheetMapping {
     private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean(((->)|(<-))(.+)/(.+))?$");
     private static final Pattern P_KEY_MAPPING = Regex.getPattern("^[$@][{]([^}]+)[}]$");
     private static final Pattern P_KEY_INT = Regex.getPattern("^[$@]int(=(.+))?$");
+    private static final Pattern P_KEY_LONG = Regex.getPattern("^[$@]long(=(.+))?$");
+    private static final Pattern P_KEY_FLOAT = Regex.getPattern("^[$@]float(=(.+))?$");
+    private static final Pattern P_KEY_DOUBLE = Regex.getPattern("^[$@]double(=(.+))?$");
     private static final Pattern P_KEY_STR = Regex.getPattern("^[$@]str(=(.+))?$");
 
     public void parse(String flds) {
@@ -79,6 +214,36 @@ public class SheetMapping {
                     }
                     continue;
                 }
+                // 是长整数吗？
+                m = P_KEY_LONG.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.LONG;
+                    String arg = m.group(2);
+                    if (!Strings.isBlank(arg)) {
+                        sf.arg = Long.parseLong(arg);
+                    }
+                    continue;
+                }
+                // 是浮点吗？
+                m = P_KEY_FLOAT.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.FLOAT;
+                    String arg = m.group(2);
+                    if (!Strings.isBlank(arg)) {
+                        sf.arg = Float.parseFloat(arg);
+                    }
+                    continue;
+                }
+                // 是双精度浮点吗？
+                m = P_KEY_DOUBLE.matcher(kconf);
+                if (m.find()) {
+                    sf.type = SheetFieldType.DOUBLE;
+                    String arg = m.group(2);
+                    if (!Strings.isBlank(arg)) {
+                        sf.arg = Double.parseDouble(arg);
+                    }
+                    continue;
+                }
                 // 是字符串吗？（要强制转换的）
                 m = P_KEY_STR.matcher(kconf);
                 if (m.find()) {
@@ -92,7 +257,7 @@ public class SheetMapping {
                     sf.type = SheetFieldType.BOOLEAN;
                     if (!Strings.isBlank(m.group(1))) {
                         String[] ss = new String[3];
-                        ss[0] = Strings.sBlank(m.group(3),m.group(4));
+                        ss[0] = Strings.sBlank(m.group(3), m.group(4));
                         ss[1] = Strings.sBlank(m.group(5), "Yes");
                         ss[2] = Strings.sBlank(m.group(6), "No");
                         sf.arg = ss;
@@ -144,46 +309,6 @@ public class SheetMapping {
             sf.type = SheetFieldType.NORMAL;
             sf.arg = null;
         }
-    }
-
-    public List<NutMap> doMapping(List<NutMap> inputList) {
-        List<NutMap> outputList = new ArrayList<>(inputList.size());
-
-        // 没有指定映射的话，所有的字段都变字符串
-        if (null == fields || fields.isEmpty()) {
-            for (NutMap obj : inputList) {
-                NutMap map = new NutMap();
-                for (Map.Entry<String, Object> en : obj.entrySet()) {
-                    String key = en.getKey();
-                    Object val = en.getValue();
-                    if (null != val) {
-                        Mirror<?> mi = Mirror.me(val);
-                        // 原生的话，保留
-                        // 其他的变字符串
-                        if (!mi.isSimple()) {
-                            val = Castors.me().castToString(val);
-                        }
-                    }
-                    map.put(key, val);
-                }
-                outputList.add(map);
-            }
-        }
-        // 否则按照映射处理
-        else {
-            for (NutMap obj : inputList) {
-                NutMap map = new NutMap();
-                for (SheetField sf : fields) {
-                    String key = sf.getKey();
-                    Object val = sf.getValue(obj);
-                    map.put(key, val);
-                }
-                outputList.add(map);
-            }
-        }
-
-        // 嗯，搞定返回吧
-        return outputList;
     }
 
 }

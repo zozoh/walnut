@@ -31,6 +31,21 @@ public enum SheetFieldType {
      * 整数
      */
     INT,
+    
+    /**
+     * 长整数
+     */
+    LONG,
+    
+    /**
+     * 浮点
+     */
+    FLOAT,
+    
+    /**
+     * 双精度浮点
+     */
+    DOUBLE,
 
     /**
      * 字符串
