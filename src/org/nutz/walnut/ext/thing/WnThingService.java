@@ -363,56 +363,63 @@ public class WnThingService {
         return a.invoke();
     }
 
+    private String __get_action_by() {
+        if (null != oTs) {
+            return this.oTs.getString("thing-by", "wntree");
+        }
+        return "wntree";
+    }
+
     protected CreateThingAction _action_create() {
-        String by = this.oTs.getString("thing-by", "wntree");
+        String by = __get_action_by();
         switch (by) {
         case "sql":
             return new SqlCreateThingAction();
-        default :
+        default:
         case "wntree":
             return new CreateThingAction();
         }
     }
 
     protected QueryThingAction _action_query() {
-        String by = this.oTs.getString("thing-by", "wntree");
+        String by = __get_action_by();
         switch (by) {
         case "sql":
             return new SqlQueryThingAction();
-        default :
+        default:
         case "wntree":
             return new QueryThingAction();
         }
     }
 
     protected DeleteThingAction _action_delete() {
-        String by = this.oTs.getString("thing-by", "wntree");
+        String by = __get_action_by();
         switch (by) {
         case "sql":
             return new SqlDeleteThingAction();
-        default :
+        default:
         case "wntree":
             return new DeleteThingAction();
         }
     }
 
     protected UpdateThingAction _action_update() {
-        String by = this.oTs.getString("thing-by", "wntree");
+        String by = __get_action_by();
         switch (by) {
         case "sql":
             return new SqlUpdateThingAction();
-        default :
+        default:
         case "wntree":
             return new UpdateThingAction();
         }
     }
 
     protected GetThingAction _action_get() {
-        String by = this.oTs.getString("thing-by", "wntree");
+        String by = __get_action_by();
         switch (by) {
         case "sql":
             return new SqlGetThingAction();
-        default :
+        default:
         case "wntree":
             return new GetThingAction();
         }
