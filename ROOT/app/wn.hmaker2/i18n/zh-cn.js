@@ -359,6 +359,8 @@ define({
                 "tip"   : "不解释你懂的",
                 "icon"  : '<i class="fa fa-image"></i>',
                 "src"   : "图片源",
+                "alt"   : "标注",
+                "alt_tip" : "图片的 ALT",
                 "newtab"   : "新窗口",
                 "naturalWidth"  : "原始宽度",
                 "naturalHeight" : "原始高度",

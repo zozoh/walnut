@@ -55,6 +55,7 @@ return ZUI.def("app.wn.hm_com_image", {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         UI.arena.attr("tpos", com.textPos || null);
         UI.arena.attr("hover-show", com.hoverShow ? "yes" : null);
+        jImg.attr("alt", com.alt || null);
                 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // 指定链接: 要显示链接提示图标

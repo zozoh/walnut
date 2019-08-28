@@ -57,6 +57,15 @@ return ZUI.def("app.wn.hm_com_image_prop", {
             uiWidth : "all",
             uiType  : "app/wn.hmaker2/support/c_edit_link",
         }, {
+            key    : "alt",
+            title  : "i18n:hmaker.com.image.alt",
+            type   : "string",
+            dft    : null,
+            emptyAsNull : true,
+            uiWidth : "all",
+            editAs : "input",
+            uiConf : {placeholder:"i18n:hmaker.com.image.alt_tip"}
+        }, {
             key    : "newtab",
             title  : "i18n:hmaker.com.image.newtab",
             type   : "boolean",

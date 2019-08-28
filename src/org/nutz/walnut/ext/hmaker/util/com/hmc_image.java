@@ -40,7 +40,10 @@ public class hmc_image extends AbstractNoneValueCom {
         }
 
         // zozoh: src 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
-        eleArena.appendElement("img").attr("src", src);
+        Element eleImg = eleArena.appendElement("img").attr("src", src);
+        if (ing.propCom.has("alt")) {
+            eleImg.attr("alt", ing.propCom.getString("alt"));
+        }
 
         // zozoh: href 就不用展开了，因为所有控件输出的结果后，最后会被统一转换的
         String href = ing.propCom.getString("href");
