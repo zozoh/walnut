@@ -1114,9 +1114,9 @@ public class WWWModule extends AbstractWnModule {
         }
         // 否则如果有 ROOT 在其内查找
         else if (null != oWWW) {
-            // 如果路径没后缀，那么试图根据 www_pages，处理一下虚页
+            // 如果路径没后缀，或者是 xxx.html（虚网页） 那么试图根据 www_pages，处理一下虚页
             // www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
-            if (!a_path.matches("^.+[.][a-z]+$")) {
+            if (a_path.endsWith(".html") || !a_path.matches("^.+[.][a-z]+$")) {
                 o = __do_with_virtual_page(a_path, oWWW);
             }
 

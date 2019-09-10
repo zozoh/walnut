@@ -35,15 +35,15 @@ www_entry  : ["index.wnml", "index.html"]
 # 指明虚拟路径
 # 下面的配置表明，如果匹配路径 "abc/page/*" 或者 "xyz/page/*"
 # 将直接用 index.wnml 来渲染，匹配上的路径不动，由前端来路由
-# 如果不写 index.wnml:，那么会返回 www 主目录（标记了 "www" 属性的目录），
-# 由站点通用入口页面列表决定
+# 如果不写 index.wnml，那么会返回 www 主目录（标记了 "www" 属性的目录），
+# 以便由站点通用入口页面列表决定
 # 当然，你的这个入口页面也可以写成 abc/index.wnml 以便应对一个 www 目录带有多个
 # 子站点目录的场景
 # !!! 注，这里需要指明的是如果路径带有后缀，则不会匹配虚拟路径
 www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
 ```
 
-WWWModule 在处理请求的时候，采用的策略如下 
+`WWWModule` 在处理请求的时候，采用的策略如下 
 
 ```
 查看请求对象是否有属性 "www_host"，如果存在比如值为 "demo.walnutos.com"
