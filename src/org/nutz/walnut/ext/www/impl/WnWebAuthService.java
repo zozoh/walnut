@@ -261,7 +261,7 @@ public class WnWebAuthService {
 
         // 首先查询出对应的用户对象
         WnThingService accounts = new WnThingService(io, oAccountHome);
-        WnObj oU = __check_user(accounts, meta);
+        WnObj oU = this.__get_user(accounts, meta);
 
         // 根据票据获取当前登录的会话
         WnWebSession se = this.checkSession(ticket);

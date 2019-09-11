@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.json.JsonIgnore;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -101,13 +100,13 @@ public class WnWebSession {
         if (null == this.me) {
             return new NutMap();
         }
-        String locked = "^(id|nm|ph|race|tp|mime|pid|len|sha1|ct|lm|"
+        String locked = "^(nm|ph|race|tp|mime|pid|len|sha1|ct|lm|"
                         + "c|m|g|md|ph|th_set|th_live|d0|d1||passwd|salt)$";
         return this.me.pickBy(Pattern.compile(locked), true);
     }
 
     public String formatJson(JsonFormat jfmt, boolean ajax) {
-        jfmt.setLocked("^(id|ph|race|tp|mime|pid|len|sha1|ct|lm|c|m|g|md|ph|th_set|th_live|"
+        jfmt.setLocked("^(ph|race|tp|mime|pid|len|sha1|ct|lm|c|m|g|md|ph|th_set|th_live|"
                        + "d0|d1||passwd|salt|oauth_.+|wx_.+)$");
         jfmt.setIgnoreNull(true);
         if (ajax) {
