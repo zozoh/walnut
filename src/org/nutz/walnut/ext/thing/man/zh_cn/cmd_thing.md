@@ -55,8 +55,9 @@
     thing query         # 查询数据
     thing comment       # 操作数据的评论
     thing clean         # 清理数据集回收站
-    thing media         # 操作数据的媒体
-    thing attachment    # 操作数据的附件
+    thing file          # 操作数据的关联文件
+    thing media         # 操作数据的媒体，是 thing file -dir media 的快捷形式
+    thing attachment    # 操作数据的附件，是 thing file -dir attachment 的快捷形式
     thing tmpfile       # 在数据集创建一个临时文件
     thing sql           # 关于Thing的SQL实现的特别说明
 

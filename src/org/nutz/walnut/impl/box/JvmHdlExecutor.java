@@ -21,13 +21,14 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
         JvmHdlContext hc = new JvmHdlContext();
         hc.ioc = this.ioc;
         hc.sys = sys;
+        hc.setHandlers(this.hdls);
 
         // 初始化上下文（子类可以重载）
         hc.args = args;
         this._find_hdl_name(sys, hc);
 
         // 首先看第一个参数是不是能找到一个控制器
-        hc.hdl = hdls.get(hc.hdlName);
+        hc.hdl = hc.getHandler(hc.hdlName);
 
         // 最后统一解析参数
         this._parse_params(sys, hc);

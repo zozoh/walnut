@@ -1,6 +1,7 @@
 package org.nutz.walnut.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -18,7 +19,7 @@ import org.nutz.walnut.api.err.Er;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class ZParams {
+public class ZParams implements Cloneable {
 
     private static final Pattern PARAM_KEY = Pattern.compile("^-([a-zA-Z_].*)$");
 
@@ -133,6 +134,13 @@ public class ZParams {
     }
 
     private ZParams() {}
+
+    public ZParams clone() {
+        ZParams params = new ZParams();
+        params.vals = Arrays.copyOf(this.vals, this.vals.length);
+        params.map = this.map.duplicate();
+        return params;
+    }
 
     public String val(int index) {
         int i = index >= 0 ? index : vals.length + index;
