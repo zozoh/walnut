@@ -57,22 +57,37 @@ public class ti_views implements JvmHdl {
             WnObj o = Wn.checkObj(sys, aph);
             sw.tag("ok:checkObj");
 
+            // 在对象里做了声明
+            viewName = o.getString("view");
+            if (!Strings.isBlank(viewName)) {
+                view = views.getView(viewName, viewHomePaths);
+            }
+
             // 读取映射文件
-            for (String viewHomePath : viewHomePaths) {
-                String phMapping = Wn.appendPath(viewHomePath, mappFileName);
-                String aphMapping = Wn.normalizeFullPath(phMapping, sys);
-                WnObj oMapping = sys.io.fetch(null, aphMapping);
-                if (null == oMapping)
-                    continue;
-                sw.tagf("ok:(%s):oMapping", oMapping.path());
-                view = views.getView(oMapping, o, viewHomePaths);
-                if (null != view) {
-                    sw.tagf("ok:(%s):view::%s/%s",
-                            viewHomePath,
-                            view.getComType(),
-                            view.getModType());
-                    break;
+            if (null == view) {
+                for (String viewHomePath : viewHomePaths) {
+                    String phMapping = Wn.appendPath(viewHomePath, mappFileName);
+                    String aphMapping = Wn.normalizeFullPath(phMapping, sys);
+                    WnObj oMapping = sys.io.fetch(null, aphMapping);
+                    if (null == oMapping)
+                        continue;
+                    sw.tagf("ok:(%s):oMapping", oMapping.path());
+                    view = views.getView(oMapping, o, viewHomePaths);
+                    if (null != view) {
+                        sw.tagf("ok:(%s):view::%s/%s",
+                                viewHomePath,
+                                view.getComType(),
+                                view.getModType());
+                        break;
+                    }
                 }
+            }
+            // 找到视图，打印一下
+            else {
+                sw.tagf("ok-viewName:(%s):view::%s/%s",
+                        viewName,
+                        view.getComType(),
+                        view.getModType());
             }
         }
         // 找到了视图，打印一下
