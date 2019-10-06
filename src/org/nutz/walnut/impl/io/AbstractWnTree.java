@@ -679,10 +679,13 @@ public abstract class AbstractWnTree implements WnTree {
 
     protected void _set_quiet(WnObj o, String regex) {
         NutMap map = o.toMap4Update(regex);
+        String oid = o.id();
         if (o.isMount()) {
-            mounters.get(getMntType(o.mount())).set(o.id(), map);
+            String mntType = getMntType(o.mount());
+            WnMounter mnter = mounters.get(mntType);
+            mnter.set(oid, map);
         } else {
-            _set(o.id(), map);
+            _set(oid, map);
         }
     }
 
