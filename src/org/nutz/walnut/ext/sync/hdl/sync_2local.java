@@ -53,7 +53,6 @@ public class sync_2local implements JvmHdl {
             dst = new File(dst, src.name());
             if (dst.exists()) {
                 if (dst.isFile() && !overwrite) {
-                    sys.err.print("target exist!");
                     return;
                 }
                 else if (dst.isDirectory()) {
@@ -76,7 +75,7 @@ public class sync_2local implements JvmHdl {
                 try {
                     export2local(dstDir, ele, overwrite, sys, ctx);
                 }
-                catch (IOException e) {
+                catch (Throwable e) {
                     ctx.setv("" + ele.path(), e.getMessage());
                 }
             }
