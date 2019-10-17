@@ -1,21 +1,20 @@
-package org.nutz.walnut.ext.pools.hdl;
+package org.nutz.walnut.ext.tpools.hdl;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.pools.MyPools;
+import org.nutz.walnut.ext.tpools.MyPools;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
-import io.netty.util.concurrent.Future;
-
-public class pools_task implements JvmHdl {
+public class tpools_task implements JvmHdl {
     
     private static final Log log = Logs.get();
     

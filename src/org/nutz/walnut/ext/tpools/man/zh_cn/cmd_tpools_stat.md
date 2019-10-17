@@ -1,20 +1,20 @@
 命令简介
 ======= 
 
-`pools stat` 查看指定线程池的状态
+`tpools stat` 查看指定线程池的状态
     
 
 用法
 =======
 ```    
-pools stat [name] # name即线程池的名称
+tpools stat [name] # name即线程池的名称
 ```
 
 示例
 =======
 
 ```
-pools stat gpsconv
+tpools stat gpsconv
 ```
 
 如果线程池存在, 输出

@@ -1,12 +1,12 @@
-package org.nutz.walnut.ext.pools.hdl;
+package org.nutz.walnut.ext.tpools.hdl;
 
 import org.nutz.json.JsonFormat;
-import org.nutz.walnut.ext.pools.MyPools;
+import org.nutz.walnut.ext.tpools.MyPools;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class pools_list implements JvmHdl {
+public class tpools_list implements JvmHdl {
     
     protected MyPools pools;
 

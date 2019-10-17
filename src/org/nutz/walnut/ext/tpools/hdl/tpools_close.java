@@ -1,15 +1,13 @@
-package org.nutz.walnut.ext.pools.hdl;
+package org.nutz.walnut.ext.tpools.hdl;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.nutz.json.JsonFormat;
-import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.pools.MyPools;
+import org.nutz.walnut.ext.tpools.MyPools;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class pools_stat implements JvmHdl {
+public class tpools_close implements JvmHdl {
     
     protected MyPools pools;
 
@@ -19,16 +17,13 @@ public class pools_stat implements JvmHdl {
             pools = hc.ioc.get(MyPools.class);
         String name = hc.params.val_check(0);
         ThreadPoolExecutor es = pools.get(name);
-        NutMap stat = new NutMap();
         if (es == null) {
-            stat.put("msg", "no such pool");
+            sys.out.print("no such pool");
         }
         else {
-            stat.put("active", es.getActiveCount());
-            stat.put("max", es.getMaximumPoolSize());
-            stat.put("completed", es.getCompletedTaskCount());
+            es.shutdown();
+            sys.out.print("done");
         }
-        sys.out.writeJson(stat, JsonFormat.full());
     }
 
 }
