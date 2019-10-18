@@ -118,6 +118,7 @@ public class cmd_jsc extends JvmExecutor {
         vars.put("args", params.vals);
         vars.put("_args_str", Json.toJson(params.vals));
         vars.put("log", log);
+        vars.put("zparams", params);
 
         // 默认加载的几个js
         // TODO 需要测试加载默认js的时间，是否影响性能等问题
