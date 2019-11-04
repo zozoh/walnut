@@ -102,8 +102,10 @@ public abstract class WnWeb {
             String mime = o.mime();
 
             if (!Strings.isBlank(mime)) {
-                // 文本/JS/JSON 不下载
+                // 文本/JS/JSON/Image/Video 不下载
                 if (mime.startsWith("text/")
+                    || mime.startsWith("image/")
+                    || mime.startsWith("video/")
                     || mime.contains("javascript")
                     || mime.contains("json")) {
                     return null;
