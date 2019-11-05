@@ -151,7 +151,7 @@ public class WnWebAuthService {
         WnThingService accounts = new WnThingService(io, oAccountHome);
 
         // 如果已经有了这个用户的微信会话，重用之
-        NutMap by = Lang.map("by_type", key);
+        NutMap by = Lang.map("by_tp", key);
         by.put("by_val", openid);
         WnQuery q = Wn.Q.pid(oSessionHome);
         q.setAll(by);

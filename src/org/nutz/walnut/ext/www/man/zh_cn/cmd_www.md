@@ -19,4 +19,5 @@ www checkme      # 获取当前会话信息
 www auth         # 登录/绑定手机/注册
 www signout      # 注销会话 
 www resetpasswd  # 重置密码
+www buy          # 创建购买商品的订单
 ```

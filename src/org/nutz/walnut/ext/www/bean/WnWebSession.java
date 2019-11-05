@@ -21,8 +21,22 @@ public class WnWebSession {
 
     private long expi;
 
+    /**
+     * 创建的会话方式，可能的值为：
+     * 
+     * <ul>
+     * <li><code>web_vcode</code>: 验证码登录</li>
+     * <li><code>web_passwd</code>: 密码登录</li>
+     * <li><code>wx_gh_xxxx</code>: 某个微信公众号登录</li>
+     * </ul>
+     * 
+     * 这个字段设计的动机是为了方便限制客户端重复登录的数量
+     */
     private String byType;
 
+    /**
+     * 具体依靠什么值创建的会话
+     */
     private String byValue;
 
     public WnWebSession(String ticket) {

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.impl;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -19,10 +20,14 @@ public class WnWebService {
     private WnObj oAccountHome;
     private WnObj oRoleHome;
     private WnObj oOrderHome;
+    private WnObj oProductHome;
+    private WnObj oCouponHome;
     private WnObj oWxConf;
     private long sessionDuration;
 
     private WnCaptchaService captcha;
+
+    private WnOrderService order;
 
     private WnIoWeixinApi wxApi;
 
@@ -35,7 +40,7 @@ public class WnWebService {
         this.oSessionHome = io.createIfNoExists(oDomain, "session/" + siteId, WnRace.DIR);
         this.oCaptchaHome = io.createIfNoExists(oDomain, "captcha/" + siteId, WnRace.DIR);
 
-        NutMap site = oWWW.getAs("www_site", NutMap.class);
+        NutBean site = oWWW;
 
         if (site.has("accounts"))
             this.oAccountHome = Wn.checkObj(sys, site.getString("accounts"));
@@ -46,8 +51,14 @@ public class WnWebService {
         if (site.has("orders"))
             this.oOrderHome = Wn.checkObj(sys, site.getString("orders"));
 
-        if (site.has("wxmp")) {
-            String confPath = Wn.appendPath(site.getString("wxmp"), "wxconf");
+        if (site.has("products"))
+            this.oProductHome = Wn.checkObj(sys, site.getString("products"));
+
+        if (site.has("coupons"))
+            this.oCouponHome = Wn.checkObj(sys, site.getString("coupons"));
+
+        if (site.has("weixin")) {
+            String confPath = Wn.appendPath("~/.weixin", site.getString("weixin"), "wxconf");
             this.oWxConf = Wn.checkObj(sys, confPath);
         }
 
@@ -62,6 +73,8 @@ public class WnWebService {
                         WnObj oAccountHome,
                         WnObj oRoleHome,
                         WnObj oOrderHome,
+                        WnObj oProductHome,
+                        WnObj oCouponHome,
                         WnObj oWxConf,
                         long sessionDuration) {
         this.io = io;
@@ -70,6 +83,8 @@ public class WnWebService {
         this.oAccountHome = oAccountHome;
         this.oRoleHome = oRoleHome;
         this.oOrderHome = oOrderHome;
+        this.oProductHome = oProductHome;
+        this.oCouponHome = oCouponHome;
         this.oWxConf = oWxConf;
         this.sessionDuration = sessionDuration;
         __init();
@@ -84,6 +99,11 @@ public class WnWebService {
         // 验证码服务
         if (null != oCaptchaHome) {
             this.captcha = new WnCaptchaService(io, oCaptchaHome);
+        }
+
+        // 订单服务
+        if (null != oOrderHome && null != oProductHome) {
+            order = new WnOrderService(io, oOrderHome, oProductHome, oCouponHome);
         }
 
         // 权限服务
