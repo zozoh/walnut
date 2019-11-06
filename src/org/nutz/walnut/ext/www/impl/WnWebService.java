@@ -1,12 +1,12 @@
 package org.nutz.walnut.ext.www.impl;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.www.bean.WnCaptcha;
+import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -115,6 +115,40 @@ public class WnWebService {
                                          oSessionHome,
                                          sessionDuration);
     }
+    
+    
+
+    public WnObj getSessionHome() {
+        return oSessionHome;
+    }
+
+    public WnObj getCaptchaHome() {
+        return oCaptchaHome;
+    }
+
+    public WnObj getAccountHome() {
+        return oAccountHome;
+    }
+
+    public WnObj getRoleHome() {
+        return oRoleHome;
+    }
+
+    public WnObj getOrderHome() {
+        return oOrderHome;
+    }
+
+    public WnObj getProductHome() {
+        return oProductHome;
+    }
+
+    public WnObj getCouponHome() {
+        return oCouponHome;
+    }
+
+    public long getSessionDuration() {
+        return sessionDuration;
+    }
 
     public WnObj saveCaptcha(WnCaptcha cap) {
         return captcha.saveCaptcha(cap);
@@ -158,6 +192,18 @@ public class WnWebService {
 
     public WnWebSession logout(String ticket) {
         return auth.logout(ticket);
+    }
+
+    public WnOrder createOrder(WnOrder or) {
+        return order.createOrder(or);
+    }
+
+    public WnOrder checkOrder(String id) {
+        return order.checkOrder(id);
+    }
+
+    public WnOrder getOrder(String id) {
+        return order.getOrder(id);
     }
 
 }

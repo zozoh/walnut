@@ -79,6 +79,11 @@ public class WnOrderService {
 
         // 准备设置其他字段
         or.setStatus(WnOrderStatus.NW);
+        
+        // 自动设置标题
+        if(Strings.isBlank(or.getTitle())) {
+            or.setTitle(or.getSeller());
+        }
 
         // 准备订单元数据
         NutMap meta = or.toMeta();

@@ -105,10 +105,10 @@ dn_at : AMS    // 【自】订单完成时间
 
 ```bash
 www buy
-    [id:xxx]     # 【必】站点主目录路径，
-                 # 主目录必须设置了orders(订单库)/products(商品库)
-                 # 以便进行服务器校验。数据集均为 Thing
-    [$ticket]    # 【必】用户登录票据
+    [id:xxx]      # 【必】站点主目录路径，
+                  # 主目录必须设置了orders(订单库)/products(商品库)
+                  # 以便进行服务器校验。数据集均为 Thing
+    [-ticket xx]  # 【必】用户登录票据
     #-----------------------------------------------
     # 输出的JSON数据的配置信息
     [-cqn]           # JSON 输出的格式化方式
@@ -119,6 +119,6 @@ www buy
 =======
 
 ```bash
-# 创建一个微信支付的订单
-www buy id:xxx TICKET
+# 创建一个订单
+demo:> cat order.json | www buy id:xxx -ticket xxx
 ```
