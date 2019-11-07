@@ -38,7 +38,8 @@
 ## 功能整合`func-l0`
 
 - 微信公众号平台整合
-- 支付宝支付接口整合
+  + [微信支付整合][f0-wxp]
+- [支付宝支付接口整合][f0-zfb]
 - 内容搜索(ESI)整合
 - websocket
 - weather
@@ -60,7 +61,7 @@
 - imagic 图片处理
 - 通用短信发送支持
 - 通用邮件发送支持
-- 通用支付接口
+- [通用支付模型][f1-pay]
 - 通用通知机制
 
 -----------------------------------------
@@ -93,3 +94,6 @@
 
 [c0-pvg]: core-l0/c0-pvg-basic.md
 [c2-pvg]: core-l2/c2-pvg-more.md
+[f0-wxp]: func-l0/f0-weixin-payment.md
+[f0-zfb]: func-l0/f0-alipay.md
+[f1-pay]: func-l1/f1-payment.md
