@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.www.impl;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -23,6 +24,7 @@ public class WnWebService {
     private WnObj oProductHome;
     private WnObj oCouponHome;
     private WnObj oWxConf;
+    private NutMap sellers;
     private long sessionDuration;
 
     private WnCaptchaService captcha;
@@ -60,6 +62,10 @@ public class WnWebService {
         if (site.has("weixin")) {
             String confPath = Wn.appendPath("~/.weixin", site.getString("weixin"), "wxconf");
             this.oWxConf = Wn.checkObj(sys, confPath);
+        }
+
+        if (site.has("sellers")) {
+            this.sellers = site.getAs("sellers", NutMap.class);
         }
 
         this.sessionDuration = site.getLong("se_du", 86400);
@@ -103,7 +109,7 @@ public class WnWebService {
 
         // 订单服务
         if (null != oOrderHome && null != oProductHome) {
-            order = new WnOrderService(io, oOrderHome, oProductHome, oCouponHome);
+            order = new WnOrderService(io, oOrderHome, oProductHome, oCouponHome, sellers);
         }
 
         // 权限服务
@@ -115,8 +121,6 @@ public class WnWebService {
                                          oSessionHome,
                                          sessionDuration);
     }
-    
-    
 
     public WnObj getSessionHome() {
         return oSessionHome;

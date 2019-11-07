@@ -13,14 +13,23 @@ import org.nutz.walnut.ext.www.bean.WnProduct;
 
 public class WnOrderService {
 
+    private NutMap sellers;
     private WnThingService orders;
     private WnThingService products;
     private WnThingService coupons;
 
-    public WnOrderService(WnIo io, WnObj oOrderHome, WnObj oProductHome, WnObj oCouponHome) {
+    public WnOrderService(WnIo io,
+                          WnObj oOrderHome,
+                          WnObj oProductHome,
+                          WnObj oCouponHome,
+                          NutMap sellers) {
+        this.sellers = sellers;
         this.orders = new WnThingService(io, oOrderHome);
         this.products = new WnThingService(io, oProductHome);
         this.coupons = new WnThingService(io, oCouponHome);
+        if(null==sellers || sellers.isEmpty()) {
+            throw Er.create("e.www.order.nil.sellers");
+        }
     }
 
     public WnOrder createOrder(WnOrder or) {
@@ -32,15 +41,20 @@ public class WnOrderService {
         if (Strings.isBlank(or.getAccounts())) {
             throw Er.create("e.www.order.nil.accounts");
         }
-        if (Strings.isBlank(or.getSeller())) {
-            throw Er.create("e.www.order.nil.seller");
-        }
         if (Strings.isBlank(or.getBuyerId())) {
             throw Er.create("e.www.order.nil.buyer_id");
         }
         if (Strings.isBlank(or.getPayType())) {
             throw Er.create("e.www.order.nil.pay_tp");
         }
+        
+        // 根据付款类型找到销售方
+        String ptPrefix = or.getPayTypePrefix();
+        String seller = this.sellers.getString(ptPrefix);
+        if(Strings.isBlank(seller)) {
+            throw Er.create("e.www.order.invalid.pay_tp",or.getPayType());
+        }
+        or.setSeller(seller);
 
         // 依次检查产品列表
         for (WnProduct pro : or.getProducts()) {
@@ -59,7 +73,7 @@ public class WnOrderService {
         // 计算订单总价
         float totalPrice = 0;
         for (WnProduct pro : or.getProducts()) {
-            totalPrice += pro.getPrice();
+            totalPrice += pro.getPrice() * pro.getAmount();
         }
         or.setPrice(totalPrice);
 
@@ -79,9 +93,9 @@ public class WnOrderService {
 
         // 准备设置其他字段
         or.setStatus(WnOrderStatus.NW);
-        
+
         // 自动设置标题
-        if(Strings.isBlank(or.getTitle())) {
+        if (Strings.isBlank(or.getTitle())) {
             or.setTitle(or.getSeller());
         }
 

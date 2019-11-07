@@ -219,6 +219,17 @@ public class WnOrder {
         this.fee = fee;
     }
 
+    public String getPayTypePrefix() {
+        if (null != payType) {
+            int pos = payType.indexOf('.');
+            if (pos >= 0) {
+                return payType.substring(0, pos);
+            }
+            return payType;
+        }
+        return null;
+    }
+
     public String getPayType() {
         return payType;
     }
