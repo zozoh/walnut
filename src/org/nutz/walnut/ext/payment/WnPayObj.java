@@ -10,65 +10,88 @@ import org.nutz.walnut.api.usr.WnUsr;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public interface WnPayObj extends WnObj {
-    // ..............................................................
-    static final String KEY_BRIEF = "brief";
-    static final String KEY_SEND_AT = "send_at";
-    static final String KEY_CLOSE_AT = "close_at";
-    static final String KEY_APPLY_AT = "apply_at";
-    static final String KEY_SELLER_NM = "seller_nm";
-    static final String KEY_SELLER_ID = "seller_id";
-    static final String KEY_BUYER_NM = "buyer_nm";
-    static final String KEY_BUYER_ID = "buyer_id";
-    static final String KEY_BUYER_TP = "buyer_tp";
-    static final String KEY_PAY_TP = "pay_tp";
-    static final String KEY_PAY_TARGET = "pay_target";
-    static final String KEY_CUR = "cur";
-    static final String KEY_FEE = "fee";
-    static final String KEY_PRICE = "price";
-    static final String KEY_ST = "st"; // @see WnPay3xStatus
-    static final String KEY_RETURN_URL = "pay_return_url";
-    static final String KEY_RE_TP = "re_tp";
-    static final String KEY_RE_OBJ = "re_obj";
-    static final String KEY_CLIENT_IP = "client_ip";
-    // ..............................................................
-    /**
-     * "buyer_tp" 段值（KEY_BUYER_TP）：表示 Walnut 用户，即系统用户
-     */
-    static final int BUYTER_WN = 1;
 
-    /**
-     * "buyer_tp" 段值（KEY_BUYER_TP）：表示 Dusr 用户，即某个域内部的用户
-     */
-    static final int BUYTER_DUSR = 2;
-    // ..............................................................
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：微信主动扫二维码付款
-     */
-    static final String PT_WX_QRCODE = "wx.qrcode";
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：微信公众号内支付
-     */
-    static final String PT_WX_JSAPI = "wx.jsapi";
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：微信被物理码枪扫付款码支付
-     */
-    static final String PT_WX_SCAN = "wx.scan";
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：支付宝主动扫二维码付款
-     */
-    static final String PT_ZFB_QRCODE = "zfb.qrcode";
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：支付宝被物理码枪扫付款码支付
-     */
-    static final String PT_ZFB_SCAN = "zfb.scan";
-    /**
-     * "pay_tp" 段值（KEY_PAY_TP）：免费
-     */
-    static final String PT_FREE = "free";
+    boolean hasScript();
 
-    // ..............................................................
+    String getBrief(String dftBrief);
+    
+    String getBrief();
 
-    WnPay3xStatus status();
+    void setBrief(String brief);
+
+    boolean isSended();
+
+    long getSendAt();
+
+    void setSendAt(long sendAt);
+
+    boolean isApplied();
+
+    long getApplyAt();
+
+    void setApplyAt(long applyAt);
+
+    boolean isClosed();
+
+    long getCloseAt();
+
+    void setCloseAt(long closeAt);
+
+    boolean isTheSeller(WnUsr u);
+
+    String getSellerId();
+
+    void setSellerId(String sellerId);
+
+    String getSellerName();
+
+    void setSellerName(String sellerName);
+
+    boolean isTheBuyer(WnUsr u);
+
+    boolean isWalnutBuyer();
+
+    boolean isDomainBuyer();
+
+    String getBuyerId();
+
+    void setBuyerId(String buyerId);
+
+    String getBuyerName();
+
+    void setBuyerName(String buyerName);
+
+    String getBuyerType();
+
+    void setBuyerType(String buyerType);
+
+    boolean isPayType(WnPayType payType);
+
+    WnPayType getPayType();
+    
+    void setPayType(WnPayType payType);
+
+    void setPayType(String payType);
+
+    boolean hasPayTarget();
+
+    String getPayTarget();
+
+    void setPayTarget(String payTarget);
+
+    String getCurrency();
+
+    void setCurrency(String cur);
+
+    int getPrice();
+
+    void setPrice(int price);
+
+    int getFee();
+    
+    float getFeeInYuan();
+
+    void setFee(int fee);
 
     boolean isStatusOk();
 
@@ -76,29 +99,29 @@ public interface WnPayObj extends WnObj {
 
     boolean isStatusWait();
 
+    WnPay3xStatus getStatus();
+
+    void setStatus(WnPay3xStatus status);
+
     boolean isDone();
 
-    WnPayObj status(WnPay3xStatus status);
+    String getReturnUrl();
 
-    boolean isPayType(String payType);
+    void setReturnUrl(String returnUrl);
 
-    boolean isBuyerWn();
+    WnPay3xDataType getReturnType();
 
-    boolean isBuyerDusr();
-
-    boolean hasScript();
-
-    boolean hasPayTarget();
-
-    boolean isClosed();
-
-    boolean isSended();
-
-    boolean isTheSeller(WnUsr u);
-
-    boolean isTheBuyer(WnUsr u);
+    void setReturnType(WnPay3xDataType reType);
+    
+    Object getReturnData();
+    
+    void setReturnData(Object reData);
 
     WnPay3xRe getPayReturn();
+
+    String getClientIP();
+
+    void setClientIP(String clientIP);
 
     NutBean toBean();
 

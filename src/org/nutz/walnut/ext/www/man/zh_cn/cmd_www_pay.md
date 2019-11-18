@@ -8,7 +8,8 @@
 
 ```bash
 www pay
-    [ID]      # 【必】订单的 ID
+    [ID]          # 【必】订单的 ID
+    [-ticket xx]  # 【必】用户登录票据
     #-----------------------------------------------
     # 输出的JSON数据的配置信息
     [-cqn]    # JSON 输出的格式化方式
@@ -20,5 +21,5 @@ www pay
 
 ```bash
 # 支付一个订单
-demo:> www pay 47ra..9q1a
+demo:> www pay 47ra..9q1a -ticket i7NalAeNISa9CU7vBoIXT-
 ```

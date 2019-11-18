@@ -56,14 +56,14 @@ public class ZfbQrcodePay3x extends WnPay3x {
             else if (!Strings.isBlank(alipayConf.pay_return_url))
                 sParaTemp.put("return_url", alipayConf.pay_return_url);
 
-            String total_fee = "" + (((float) po.getInt(WnPayObj.KEY_FEE)) / 100.0f);
+            String total_fee = "" + po.getFeeInYuan();
 
             sParaTemp.put("anti_phishing_key", "");
             sParaTemp.put("exter_invoke_ip", "");
             sParaTemp.put("out_trade_no", po.id());
-            sParaTemp.put("subject", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
+            sParaTemp.put("subject", po.getBrief("测试商品"));
             sParaTemp.put("total_fee", total_fee);
-            sParaTemp.put("body", po.getString(WnPayObj.KEY_BRIEF, "测试商品"));
+            sParaTemp.put("body", po.getBrief("测试商品"));
 
             // 自定义前置付款二维码的宽度
             sParaTemp.put("qr_pay_mode", "4");
@@ -125,12 +125,9 @@ public class ZfbQrcodePay3x extends WnPay3x {
     }
 
     public AlipayConfig getConfig(WnPayObj po) {
-        WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
+        WnUsr seller = run.usrs().check("id:" + po.getSellerId());
         WnObj conf = io.check(null,
-                              seller.home()
-                                    + "/.alipay/"
-                                    + po.getString(WnPayObj.KEY_PAY_TARGET)
-                                    + "/alipayconf");
+                              seller.home() + "/.alipay/" + po.getPayTarget() + "/alipayconf");
         return io.readJson(conf, AlipayConfig.class);
     }
 

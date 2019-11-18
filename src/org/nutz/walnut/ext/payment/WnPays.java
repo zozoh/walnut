@@ -12,6 +12,28 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class WnPays {
 
+    // ..............................................................
+    public static final String KEY_BRIEF = "brief";
+    public static final String KEY_SEND_AT = "send_at";
+    public static final String KEY_CLOSE_AT = "close_at";
+    public static final String KEY_APPLY_AT = "apply_at";
+    public static final String KEY_SELLER_NM = "seller_nm";
+    public static final String KEY_SELLER_ID = "seller_id";
+    public static final String KEY_BUYER_NM = "buyer_nm";
+    public static final String KEY_BUYER_ID = "buyer_id";
+    public static final String KEY_BUYER_TP = "buyer_tp";
+    public static final String KEY_PAY_TP = "pay_tp";
+    public static final String KEY_PAY_TARGET = "pay_target";
+    public static final String KEY_CUR = "cur";
+    public static final String KEY_FEE = "fee";
+    public static final String KEY_PRICE = "price";
+    public static final String KEY_ST = "st"; // @see WnPay3xStatus
+    public static final String KEY_RETURN_URL = "pay_return_url";
+    public static final String KEY_RE_TP = "re_tp";
+    public static final String KEY_RE_OBJ = "re_obj";
+    public static final String KEY_CLIENT_IP = "client_ip";
+    // ..............................................................
+
     public static WnObj getPayHome(WnIo io) {
         return io.createIfNoExists(null, "/var/payment", WnRace.DIR);
     }
@@ -28,18 +50,18 @@ public abstract class WnPays {
             return;
 
         // 买家类型
-        if (bu.startsWith("%")) {
-            wpi.asDusr();
-            wpi.buyer_id = Strings.trim(bu.substring(1));
+        int pos = bu.indexOf(':');
+        if (pos > 0) {
+            wpi.buyer_tp = bu.substring(0, pos);
+            wpi.buyer_id = Strings.trim(bu.substring(pos + 1));
         } else {
-            wpi.asWnUsr();
             // 填充 ID
             if (bu.startsWith("id:")) {
                 wpi.buyer_id = bu.substring(3);
             }
             // 填充名称或其他可登陆信息
             else {
-                wpi.buyer_nm = bu;
+                wpi.buyer_id = bu;
             }
         }
     }
@@ -54,7 +76,7 @@ public abstract class WnPays {
         }
         // 填充名称或其他可登陆信息
         else {
-            wpi.seller_nm = se;
+            wpi.seller_id = se;
         }
     }
 
@@ -83,15 +105,15 @@ public abstract class WnPays {
 
     public static void try_callback(WnSystem sys, WnPayObj po) {
         // 如果支付单成功，且没执行过回调的话，执行回调
-        if (po.isStatusOk() && po.getLong(WnPayObj.KEY_APPLY_AT, 0) <= 0) {
+        if (po.isStatusOk() && po.getLong(WnPays.KEY_APPLY_AT, 0) <= 0) {
             String cmdText = sys.io.readText(po);
             // 有效的回调
             if (!Strings.isBlank(cmdText)) {
                 sys.exec(cmdText);
             }
             // 标识一下支付单已经被应用过了
-            po.setv(WnPayObj.KEY_APPLY_AT, System.currentTimeMillis());
-            sys.io.set(po, "^(" + WnPayObj.KEY_APPLY_AT + ")$");
+            po.setv(WnPays.KEY_APPLY_AT, System.currentTimeMillis());
+            sys.io.set(po, "^(" + WnPays.KEY_APPLY_AT + ")$");
             // 试图通过 websocket 通知一下
             sys.execf("websocket event id:%s done", po.id());
         }

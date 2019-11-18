@@ -4,15 +4,12 @@ import java.util.Date;
 
 import org.nutz.http.Http;
 import org.nutz.http.Response;
-import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -32,7 +29,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     protected static final String KEY_wxpay_result = "wxpay_result";
     protected static final String KEY_wxpay_st = "wxpay_st";
 
-    private Log log = Logs.get();
+    // private Log log = Logs.get();
 
     /**
      * 调用微信的统一下单接口
@@ -53,13 +50,13 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         WxConf conf = this.getConfig(po);
 
         // 准备订单标题
-        String brief = po.getString(WnPayObj.KEY_BRIEF, "测试商品");
+        String brief = po.getBrief("测试商品");
 
         // 准备一个 Map
         NutMap map = new NutMap();
         map.setv("body", brief);
         map.setv("out_trade_no", po.id());
-        map.setv("total_fee", po.getInt(WnPayObj.KEY_FEE));
+        map.setv("total_fee", po.getFee());
 
         // 填充用户 openid
         if (!Strings.isBlank(openid))
@@ -279,8 +276,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     }
 
     private WnObj __get_weixin_conf_obj(WnPayObj po) {
-        WnUsr seller = run.usrs().check("id:" + po.getString(WnPayObj.KEY_SELLER_ID));
-        String ta = po.getString(WnPayObj.KEY_PAY_TARGET);
+        WnUsr seller = run.usrs().check("id:" + po.getSellerId());
+        String ta = po.getPayTarget();
         if (Strings.isBlank(ta)) {
             throw Er.create("e.pay.weixin.noTarget");
         }

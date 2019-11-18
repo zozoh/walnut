@@ -39,28 +39,27 @@ public class WnPayment {
     @Inject
     private WnRun run;
 
-    private Map<String, WnPay3x> _3xes;
+    private Map<WnPayType, WnPay3x> _3xes;
 
     public WnPayment() {
         _3xes = new HashMap<>();
-        _3xes.put(WnPayObj.PT_WX_JSAPI, new WxJsApiPay3x());
-        _3xes.put(WnPayObj.PT_WX_QRCODE, new WxQrcodePay3x());
-        _3xes.put(WnPayObj.PT_WX_SCAN, new WxScanPay3x());
-        _3xes.put(WnPayObj.PT_ZFB_QRCODE, new ZfbQrcodePay3x());
-        _3xes.put(WnPayObj.PT_ZFB_SCAN, new ZfbScanPay3x());
-        _3xes.put(WnPayObj.PT_FREE, new FreePay3x());
+        _3xes.put(WnPayType.WX_JSAPI, new WxJsApiPay3x());
+        _3xes.put(WnPayType.WX_QRCODE, new WxQrcodePay3x());
+        _3xes.put(WnPayType.WX_SCAN, new WxScanPay3x());
+        _3xes.put(WnPayType.ZFB_QRCODE, new ZfbQrcodePay3x());
+        _3xes.put(WnPayType.ZFB_SCAN, new ZfbScanPay3x());
+        _3xes.put(WnPayType.FREE, new FreePay3x());
     }
 
     public void on_create() {
-        for (Map.Entry<String, WnPay3x> en : _3xes.entrySet()) {
-            WnPay3x v = en.getValue();
-            v.run = this.run;
-            v.io = this.run.io();
+        for (WnPay3x p3x : _3xes.values()) {
+            p3x.run = this.run;
+            p3x.io = this.run.io();
         }
     }
 
     private WnPay3x _3X(WnPayObj po) {
-        String payType = po.getString(WnPayObj.KEY_PAY_TP);
+        WnPayType payType = po.getPayType();
         WnPay3x pay = _3xes.get(payType);
         if (null == pay) {
             throw Er.create("e.pay.no3x", po.id() + " -> " + payType);
@@ -296,10 +295,10 @@ public class WnPayment {
         // 固定的初始化值
         meta.put("tp", "wn_payment");
         // meta.put("c", wpi.buyer_nm); // 将创建者设置成买家
-        meta.put(WnPayObj.KEY_CUR, "RMB");
-        meta.setnx(WnPayObj.KEY_ST, WnPay3xStatus.NEW);
-        meta.setnx(WnPayObj.KEY_SEND_AT, 0);
-        meta.setnx(WnPayObj.KEY_CLOSE_AT, 0);
+        meta.put(WnPays.KEY_CUR, "RMB");
+        meta.setnx(WnPays.KEY_ST, WnPay3xStatus.NEW);
+        meta.setnx(WnPays.KEY_SEND_AT, 0);
+        meta.setnx(WnPays.KEY_CLOSE_AT, 0);
 
         // ....................................................
         // 创建对象
@@ -381,8 +380,8 @@ public class WnPayment {
         // 权限检查
         // 如果不是 root/op 组成员只能查询自己的域
         if (!Wn.WC().isMemberOf(run.usrs(), "root", "op")) {
-            q.setv(WnPayObj.KEY_SELLER_ID, me.id());
-            q.unset(WnPayObj.KEY_SELLER_NM);
+            q.setv(WnPays.KEY_SELLER_ID, me.id());
+            q.unset(WnPays.KEY_SELLER_NM);
         }
 
         // 确保 pid 是付款目录
@@ -411,28 +410,28 @@ public class WnPayment {
         __assert_the_seller(po);
 
         // 首先保存一下支付类型
-        po.setv(WnPayObj.KEY_PAY_TP, payType);
+        po.setPayType(payType);
 
         // 得到接口
         WnPay3x pay = _3X(po);
 
         // 设置商户号
-        po.setv(WnPayObj.KEY_PAY_TARGET, target);
+        po.setPayTarget(target);
 
         // 执行
         WnPay3xRe re = pay.send(po, args);
 
         // 记录结果
-        po.setv(WnPayObj.KEY_ST, re.getStatus());
-        po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
-        po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
-        po.setv(WnPayObj.KEY_SEND_AT, System.currentTimeMillis());
-        re.addChangeKeys(WnPayObj.KEY_PAY_TP,
-                         WnPayObj.KEY_PAY_TARGET,
-                         WnPayObj.KEY_ST,
-                         WnPayObj.KEY_RE_TP,
-                         WnPayObj.KEY_RE_OBJ,
-                         WnPayObj.KEY_SEND_AT);
+        po.setStatus(re.getStatus());
+        po.setReturnType(re.getDataType());
+        po.setReturnData(re.getData());
+        po.setSendAt(System.currentTimeMillis());
+        re.addChangeKeys(WnPays.KEY_PAY_TP,
+                         WnPays.KEY_PAY_TARGET,
+                         WnPays.KEY_ST,
+                         WnPays.KEY_RE_TP,
+                         WnPays.KEY_RE_OBJ,
+                         WnPays.KEY_SEND_AT);
 
         // 持久化中间的执行步骤并返回
         return __re(po, re);
@@ -443,7 +442,7 @@ public class WnPayment {
         __assert_the_seller(po);
 
         // 得到原先的状态
-        WnPay3xStatus oldSt = po.status();
+        WnPay3xStatus oldSt = po.getStatus();
 
         // 得到接口
         WnPay3x pay = _3X(po);
@@ -453,10 +452,10 @@ public class WnPayment {
 
         // 记录结果
         if (oldSt != re.getStatus()) {
-            po.setv(WnPayObj.KEY_ST, re.getStatus());
-            po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
-            po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
-            re.addChangeKeys(WnPayObj.KEY_ST, WnPayObj.KEY_RE_TP, WnPayObj.KEY_RE_OBJ);
+            po.setStatus(re.getStatus());
+            po.setReturnType(re.getDataType());
+            po.setReturnData(re.getData());
+            re.addChangeKeys(WnPays.KEY_ST, WnPays.KEY_RE_TP, WnPays.KEY_RE_OBJ);
         }
 
         // 持久化中间的执行步骤并返回
@@ -475,14 +474,14 @@ public class WnPayment {
 
         // 记录结果
         if (re.isDone()) {
-            po.setv(WnPayObj.KEY_ST, re.getStatus());
-            po.setv(WnPayObj.KEY_RE_TP, re.getDataType());
-            po.setv(WnPayObj.KEY_RE_OBJ, re.getData());
-            po.setv(WnPayObj.KEY_CLOSE_AT, System.currentTimeMillis());
-            re.addChangeKeys(WnPayObj.KEY_ST,
-                             WnPayObj.KEY_RE_TP,
-                             WnPayObj.KEY_RE_OBJ,
-                             WnPayObj.KEY_CLOSE_AT);
+            po.setStatus(re.getStatus());
+            po.setReturnType(re.getDataType());
+            po.setReturnData(re.getData());
+            po.setCloseAt(System.currentTimeMillis());
+            re.addChangeKeys(WnPays.KEY_ST,
+                             WnPays.KEY_RE_TP,
+                             WnPays.KEY_RE_OBJ,
+                             WnPays.KEY_CLOSE_AT);
 
         }
 

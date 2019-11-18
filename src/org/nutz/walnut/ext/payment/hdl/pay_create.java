@@ -68,7 +68,7 @@ public class pay_create implements JvmHdl {
         WnPayObj po = pay.create(wpi);
 
         // 金额免费的话，直接完成支付单
-        if (po.getInt(WnPayObj.KEY_FEE) <= 0) {
+        if (po.getFee() <= 0) {
             // 发送支付单
             pay.send(po, "free", null);
 

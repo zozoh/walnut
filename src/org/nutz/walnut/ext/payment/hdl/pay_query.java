@@ -39,28 +39,28 @@ public class pay_query implements JvmHdl {
         }
 
         // 简介
-        q.setvIfNoBlank(WnPayObj.KEY_BRIEF, Wn.toQueryRegex(wpi.brief));
+        q.setvIfNoBlank(WnPays.KEY_BRIEF, Wn.toQueryRegex(wpi.brief));
 
         // 买家
         if (wpi.hasBuyterType())
-            q.setv(WnPayObj.KEY_BUYER_TP, wpi.buyer_tp);
-        q.setvIfNoBlank(WnPayObj.KEY_BUYER_ID, wpi.buyer_id);
-        q.setvIfNoBlank(WnPayObj.KEY_BUYER_NM, wpi.buyer_nm);
+            q.setv(WnPays.KEY_BUYER_TP, wpi.buyer_tp);
+        q.setvIfNoBlank(WnPays.KEY_BUYER_ID, wpi.buyer_id);
+        q.setvIfNoBlank(WnPays.KEY_BUYER_NM, wpi.buyer_nm);
 
         // 卖家
-        q.setvIfNoBlank(WnPayObj.KEY_SELLER_ID, wpi.seller_id);
-        q.setvIfNoBlank(WnPayObj.KEY_SELLER_NM, wpi.seller_nm);
+        q.setvIfNoBlank(WnPays.KEY_SELLER_ID, wpi.seller_id);
+        q.setvIfNoBlank(WnPays.KEY_SELLER_NM, wpi.seller_nm);
 
         // 价格
-        q.setvIfNoBlank(WnPayObj.KEY_FEE, hc.params.get("fee"));
-        q.setvIfNoBlank(WnPayObj.KEY_CUR, hc.params.get("cur"));
+        q.setvIfNoBlank(WnPays.KEY_FEE, hc.params.get("fee"));
+        q.setvIfNoBlank(WnPays.KEY_CUR, hc.params.get("cur"));
 
         // 时间
-        q.setLongRegion(WnPayObj.KEY_SEND_AT, hc.params.get("s_at"));
-        q.setLongRegion(WnPayObj.KEY_CLOSE_AT, hc.params.get("c_at"));
+        q.setLongRegion(WnPays.KEY_SEND_AT, hc.params.get("s_at"));
+        q.setLongRegion(WnPays.KEY_CLOSE_AT, hc.params.get("c_at"));
 
         // 支付单状状态
-        q.setvIfNoBlank(WnPayObj.KEY_ST, hc.params.get("st"));
+        q.setvIfNoBlank(WnPays.KEY_ST, hc.params.get("st"));
 
         // 分页
         WnPager wp = new WnPager(hc.params);

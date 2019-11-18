@@ -38,7 +38,7 @@ public class WxScanPay3x extends AbstractWeixinPay3x {
             throw Er.create("e.pay.send.invalid.payCode", auth_code);
         }
 
-        int total_fee = po.getInt(WnPayObj.KEY_FEE);
+        int total_fee = po.getFee();
 
         // zozoh : 实现类不需要考虑缓存问题吧，铁定发就对了
         // NutMap params = po.getAs(KEY_wxpay_send, NutMap.class);
@@ -47,7 +47,7 @@ public class WxScanPay3x extends AbstractWeixinPay3x {
         params.put("appid", conf.appID);
         params.put("mch_id", conf.pay_mch_id);
         params.put("nonce_str", R.UU32());
-        params.put("body", po.getString(WnPayObj.KEY_BRIEF));
+        params.put("body", po.getBrief("测试商品"));
         params.put("out_trade_no", po.id());
         params.put("total_fee", total_fee);
         _fill_client_ip(params);

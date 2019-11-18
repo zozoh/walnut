@@ -39,7 +39,7 @@ public class domain_apply implements JvmHdl {
         WnPayObj po = pay.get(poId, false);
 
         // 支付单必须没有被应用过
-        if (po.getLong(WnPayObj.KEY_APPLY_AT, 0) > 0)
+        if (po.isApplied())
             return;
 
         // 得到关键信息
@@ -59,7 +59,7 @@ public class domain_apply implements JvmHdl {
         }
 
         // 得到购买者信息
-        String buyer = po.getString(WnPayObj.KEY_BUYER_NM);
+        String buyer = po.getBuyerName();
         WnUsr bu = sys.usrService.check(buyer);
 
         // 准备查询条件

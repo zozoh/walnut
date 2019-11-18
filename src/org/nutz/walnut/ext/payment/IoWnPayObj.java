@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.payment;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.io.WnBean;
@@ -13,56 +14,275 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
 
     @Override
     public boolean isStatusOk() {
-        return WnPay3xStatus.OK == this.status();
+        return WnPay3xStatus.OK == this.getStatus();
     }
 
     @Override
     public boolean isStatusFail() {
-        return WnPay3xStatus.FAIL == this.status();
+        return WnPay3xStatus.FAIL == this.getStatus();
     }
 
     @Override
     public boolean isStatusWait() {
-        return WnPay3xStatus.WAIT == this.status();
+        return WnPay3xStatus.WAIT == this.getStatus();
     }
 
     @Override
     public boolean isDone() {
-        WnPay3xStatus st = this.status();
+        WnPay3xStatus st = this.getStatus();
         return WnPay3xStatus.FAIL == st || WnPay3xStatus.OK == st;
     }
 
     @Override
-    public WnPay3xStatus status() {
-        return this.getEnum(KEY_ST, WnPay3xStatus.class);
+    public WnPay3xStatus getStatus() {
+        return this.getEnum(WnPays.KEY_ST, WnPay3xStatus.class);
     }
 
     @Override
-    public WnPayObj status(WnPay3xStatus status) {
-        this.put(KEY_ST, status);
-        return this;
+    public void setStatus(WnPay3xStatus status) {
+        this.put(WnPays.KEY_ST, status);
     }
 
     @Override
-    public boolean isPayType(String payType) {
+    public boolean isPayType(WnPayType payType) {
         if (null == payType)
             return false;
 
-        String pt = this.getString(KEY_PAY_TP);
-        if (null == pt)
-            return false;
-
-        return payType.equals(pt);
+        return this.isEnum(WnPays.KEY_PAY_TP, payType);
     }
 
     @Override
-    public boolean isBuyerWn() {
-        return BUYTER_WN == this.getInt(KEY_BUYER_TP, -1);
+    public WnPayType getPayType() {
+        return this.getEnum(WnPays.KEY_PAY_TP, WnPayType.class);
     }
 
     @Override
-    public boolean isBuyerDusr() {
-        return BUYTER_DUSR == this.getInt(KEY_BUYER_TP, -1);
+    public void setPayType(String payType) {
+        if (null == payType) {
+            this.put(WnPays.KEY_PAY_TP, null);
+        } else {
+            String pt = payType.replace('.', '_').toUpperCase();
+            WnPayType wpt = WnPayType.valueOf(pt);
+            this.put(WnPays.KEY_PAY_TP, wpt);
+        }
+    }
+
+    @Override
+    public void setPayType(WnPayType payType) {
+        if (null == payType) {
+            this.put(WnPays.KEY_PAY_TP, null);
+        } else {
+            this.put(WnPays.KEY_PAY_TP, payType.name());
+        }
+    }
+
+    @Override
+    public String getBrief(String dftBrief) {
+        return this.getString(WnPays.KEY_BRIEF, dftBrief);
+    }
+
+    @Override
+    public String getBrief() {
+        return this.getString(WnPays.KEY_BRIEF);
+    }
+
+    @Override
+    public void setBrief(String brief) {
+        this.put(WnPays.KEY_BRIEF, brief);
+    }
+
+    @Override
+    public boolean isSended() {
+        return this.getLong(WnPays.KEY_SEND_AT) > 0;
+    }
+
+    @Override
+    public long getSendAt() {
+        return this.getLong(WnPays.KEY_SEND_AT);
+    }
+
+    @Override
+    public void setSendAt(long sendAt) {
+        this.put(WnPays.KEY_SEND_AT, sendAt);
+    }
+
+    @Override
+    public boolean isApplied() {
+        return this.getLong(WnPays.KEY_APPLY_AT) > 0;
+    }
+
+    @Override
+    public long getApplyAt() {
+        return this.getLong(WnPays.KEY_APPLY_AT);
+    }
+
+    @Override
+    public void setApplyAt(long applyAt) {
+        this.put(WnPays.KEY_APPLY_AT, applyAt);
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.getLong(WnPays.KEY_CLOSE_AT) > 0;
+    }
+
+    @Override
+    public long getCloseAt() {
+        return this.getLong(WnPays.KEY_CLOSE_AT);
+    }
+
+    @Override
+    public void setCloseAt(long closeAt) {
+        this.put(WnPays.KEY_CLOSE_AT, closeAt);
+    }
+
+    @Override
+    public String getSellerId() {
+        return this.getString(WnPays.KEY_SELLER_ID);
+    }
+
+    @Override
+    public void setSellerId(String sellerId) {
+        this.put(WnPays.KEY_SELLER_ID, sellerId);
+    }
+
+    @Override
+    public String getSellerName() {
+        return this.getString(WnPays.KEY_SELLER_NM);
+    }
+
+    @Override
+    public void setSellerName(String sellerName) {
+        this.put(WnPays.KEY_SELLER_NM, sellerName);
+    }
+
+    @Override
+    public boolean isWalnutBuyer() {
+        return Strings.isBlank(this.getBuyerType());
+    }
+
+    @Override
+    public boolean isDomainBuyer() {
+        return !Strings.isBlank(this.getBuyerType());
+    }
+
+    @Override
+    public String getBuyerId() {
+        return this.getString(WnPays.KEY_BUYER_ID);
+    }
+
+    @Override
+    public void setBuyerId(String buyerId) {
+        this.put(WnPays.KEY_BUYER_ID, buyerId);
+    }
+
+    @Override
+    public String getBuyerName() {
+        return this.getString(WnPays.KEY_BUYER_NM);
+    }
+
+    @Override
+    public void setBuyerName(String buyerName) {
+        this.put(WnPays.KEY_BUYER_NM, buyerName);
+    }
+
+    @Override
+    public String getBuyerType() {
+        return this.getString(WnPays.KEY_BUYER_TP);
+    }
+
+    @Override
+    public void setBuyerType(String buyerType) {
+        this.put(WnPays.KEY_BUYER_TP, buyerType);
+    }
+
+    @Override
+    public String getPayTarget() {
+        return this.getString(WnPays.KEY_PAY_TARGET);
+    }
+
+    @Override
+    public void setPayTarget(String payTarget) {
+        this.put(WnPays.KEY_PAY_TARGET, payTarget);
+    }
+
+    @Override
+    public String getCurrency() {
+        return this.getString(WnPays.KEY_CUR);
+    }
+
+    @Override
+    public void setCurrency(String cur) {
+        this.put(WnPays.KEY_CUR, cur);
+    }
+
+    @Override
+    public int getPrice() {
+        return this.getInt(WnPays.KEY_PRICE);
+    }
+
+    @Override
+    public void setPrice(int price) {
+        this.put(WnPays.KEY_PRICE, price);
+    }
+
+    @Override
+    public int getFee() {
+        return this.getInt(WnPays.KEY_FEE);
+    }
+
+    @Override
+    public float getFeeInYuan() {
+        return ((float) this.getFee()) / 100.0f;
+    }
+
+    @Override
+    public void setFee(int fee) {
+        this.put(WnPays.KEY_FEE, fee);
+    }
+
+    @Override
+    public String getReturnUrl() {
+        return this.getString(WnPays.KEY_RETURN_URL);
+    }
+
+    @Override
+    public void setReturnUrl(String returnUrl) {
+        this.put(WnPays.KEY_RETURN_URL, returnUrl);
+    }
+
+    @Override
+    public WnPay3xDataType getReturnType() {
+        return this.getEnum(WnPays.KEY_RE_TP, WnPay3xDataType.class);
+    }
+
+    @Override
+    public void setReturnType(WnPay3xDataType reType) {
+        if (null == reType) {
+            this.put(WnPays.KEY_RE_TP, null);
+        } else {
+            this.put(WnPays.KEY_RE_TP, reType.name());
+        }
+    }
+
+    @Override
+    public Object getReturnData() {
+        return this.get(WnPays.KEY_RE_OBJ);
+    }
+
+    @Override
+    public void setReturnData(Object reData) {
+        this.put(WnPays.KEY_RE_OBJ, reData);
+    }
+
+    @Override
+    public String getClientIP() {
+        return this.getString(WnPays.KEY_CLIENT_IP);
+    }
+
+    @Override
+    public void setClientIP(String clientIP) {
+        this.put(WnPays.KEY_CLIENT_IP, clientIP);
     }
 
     @Override
@@ -72,36 +292,26 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
 
     @Override
     public boolean hasPayTarget() {
-        return this.has(WnPayObj.KEY_PAY_TARGET);
-    }
-
-    @Override
-    public boolean isClosed() {
-        return this.getLong(KEY_CLOSE_AT) > 0;
-    }
-
-    @Override
-    public boolean isSended() {
-        return this.getLong(KEY_SEND_AT) > 0;
+        return this.has(WnPays.KEY_PAY_TARGET);
     }
 
     @Override
     public boolean isTheSeller(WnUsr u) {
-        return u.isSameId(this.getString(KEY_SELLER_ID));
+        return u.isSameId(this.getString(WnPays.KEY_SELLER_ID));
     }
 
     @Override
     public boolean isTheBuyer(WnUsr u) {
-        return u.isSameId(this.getString(KEY_BUYER_ID));
+        return u.isSameId(this.getString(WnPays.KEY_BUYER_ID));
     }
 
     @Override
     public WnPay3xRe getPayReturn() {
         WnPay3xRe re = new WnPay3xRe();
         re.setPayObjId(this.id());
-        re.setStatus(this.status());
-        re.setData(this.get(KEY_RE_OBJ));
-        re.setDataType(this.getEnum(KEY_RE_TP, WnPay3xDataType.class));
+        re.setStatus(this.getStatus());
+        re.setDataType(this.getReturnType());
+        re.setData(this.getReturnData());
         return re;
     }
 

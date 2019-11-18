@@ -17,38 +17,25 @@ import org.nutz.walnut.util.Wn;
 public class WnPayInfo {
 
     /**
-     * 用户类型
+     * 买家信息类型
      * 
      * <ul>
-     * <li>1 - walnut 用户 (BUYTER_WN)
-     * <li>2 - 属于卖家域的某用户 (BUYTER_DUSR)
+     * <li>null : 表示 walnut 用户
+     * <li>ID : 表示卖家域的某个账户库(Thing)的ID
      * </ul>
-     * 
-     * @see WnPayObj#BUYTER_WN
-     * @see WnPayObj#BUYTER_DUSR
      */
-    public int buyer_tp;
+    public String buyer_tp;
 
     public boolean hasBuyterType() {
-        return buyer_tp > 0;
+        return Strings.isBlank(buyer_tp);
     }
 
     public boolean isWnUsr() {
-        return WnPayObj.BUYTER_WN == buyer_tp;
+        return Strings.isBlank(buyer_tp);
     }
 
     public boolean isDUsr() {
-        return WnPayObj.BUYTER_DUSR == buyer_tp;
-    }
-
-    public WnPayInfo asWnUsr() {
-        buyer_tp = WnPayObj.BUYTER_WN;
-        return this;
-    }
-
-    public WnPayInfo asDusr() {
-        buyer_tp = WnPayObj.BUYTER_DUSR;
-        return this;
+        return !Strings.isBlank(buyer_tp);
     }
 
     /**
