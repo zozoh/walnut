@@ -26,7 +26,11 @@ public class pay_query implements JvmHdl {
         WnPayment pay = hc.ioc.get(WnPayment.class);
 
         // 准备支付单信息
-        WnPayInfo wpi = WnPays.genPayInfo(hc.params.get("bu"), hc.params.get("se"));
+        String bu = hc.params.check("bu");
+        String sl = hc.params.get("se");
+        WnPayInfo wpi = new WnPayInfo();
+        wpi.fillBuyer(bu);
+        wpi.seller_nm = sl;
         wpi.brief = hc.params.val(0);
 
         // 准备得到查询条件

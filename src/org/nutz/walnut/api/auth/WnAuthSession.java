@@ -38,12 +38,14 @@ public class WnAuthSession {
     }
 
     public WnAuthSession(WnObj oSe, WnObj oMe) {
-        String uid = oSe.getString("uid");
-        if (!oMe.isSameId(uid)) {
-            throw Er.create("e.auth.session.nomatched", uid);
+        if (null != oMe) {
+            String uid = oSe.getString("uid");
+            if (!oMe.isSameId(uid)) {
+                throw Er.create("e.auth.session.nomatched", uid);
+            }
+            this.me = new WnAccount(oMe);
         }
         this.id = oSe.id();
-        this.me = new WnAccount(oMe);
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
         this.byType = oSe.getString("by_tp");
@@ -77,7 +79,11 @@ public class WnAuthSession {
     }
 
     public void setMe(NutBean bean) {
-        this.me = new WnAccount(bean);
+        if (null == bean) {
+            this.me = null;
+        } else {
+            this.me = new WnAccount(bean);
+        }
     }
 
     public String getTicket() {

@@ -1,19 +1,20 @@
-package org.nutz.walnut.ext.www.impl;
+package org.nutz.walnut.impl.auth;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnCaptcha;
+import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.www.bean.WnCaptcha;
 import org.nutz.walnut.util.Wn;
 
-public class WnCaptchaService {
+public class WnCaptchaServiceImpl implements WnCaptchaService {
 
     private WnIo io;
 
     private WnObj oCaptchaHome;
 
-    public WnCaptchaService(WnIo io, WnObj oCaptchaHome) {
+    public WnCaptchaServiceImpl(WnIo io, WnObj oCaptchaHome) {
         this.io = io;
         this.oCaptchaHome = oCaptchaHome;
     }
@@ -25,6 +26,7 @@ public class WnCaptchaService {
      *            验证码对象
      * @return 验证码的数据对象
      */
+    @Override
     public WnObj saveCaptcha(WnCaptcha cap) {
         // 得到场景目录
         String path = Wn.appendPath(cap.getScene(), cap.getAccount());
@@ -49,6 +51,7 @@ public class WnCaptchaService {
      *            待验证的的验证码
      * @return 是否匹配成功
      */
+    @Override
     public boolean removeCaptcha(String scene, String account, String code) {
         String path = Wn.appendPath(scene, account);
         WnObj oFile = io.fetch(oCaptchaHome, path);

@@ -264,29 +264,6 @@ public class WnPayment {
             meta.putAll(wpi.meta);
         }
 
-        // 计算优惠券
-        if (null != wpi.coupon) {
-            // 确保优惠券是未使用的
-            if (wpi.coupon.has("voucher_payId")) {
-                throw Er.create("e.cmd.pay.create.coupon_used", wpi.coupon);
-            }
-            // 确保优惠券可用
-            if (!Coupons.isAvailable(wpi.coupon, wpi.couponScope)) {
-                throw Er.create("e.cmd.pay.create.coupon_noava");
-            }
-            // 确保是合法优惠券
-            if (!wpi.coupon.path().startsWith("/var/voucher/" + wpi.seller_nm)) {
-                throw Er.create("e.cmd.pay.create.invalid_coupon", wpi.coupon);
-            }
-            // 确保优惠券属于当前用户
-            if (!wpi.coupon.is("voucher_uid", wpi.buyer_id)) {
-                throw Er.create("e.cmd.pay.create.invalid_coupon_user", wpi.buyer_nm);
-            }
-            // 试算优惠券
-            NutMap re = Coupons.eval(wpi.coupon, wpi.price);
-            wpi.fee = re.getInt("price_new");
-        }
-
         // 关键元数据
         NutMap m2 = Lang.obj2map(wpi, NutMap.class);
         m2.remove("meta");
@@ -303,20 +280,6 @@ public class WnPayment {
         // ....................................................
         // 创建对象
         WnObj oPayObj = run.io().create(oPayHome, "${id}", WnRace.FILE);
-
-        // 标识优惠券已经被使用
-        if (null != wpi.coupon) {
-            String cmdText = String.format("voucher use_coupon %s %d '%s' -payId %s",
-                                           wpi.coupon.id(),
-                                           wpi.price,
-                                           wpi.buyer_nm,
-                                           oPayObj.id());
-            if (!Strings.isBlank(wpi.couponScope))
-                cmdText += " -scope " + wpi.couponScope;
-
-            // 使用优惠券
-            run.exec("payment", wpi.seller_nm, cmdText);
-        }
 
         // ....................................................
         // 持久化

@@ -164,7 +164,7 @@ oauth_github  : "xxxxxxx",
 oauth_wxlogin : "oSQW..cYq"
 #-------------------------------------------------
 # 微信公号 OpenID
-wx_gh_xxx : "xxx"     # 某微信公号下的 OpenId
+wx_gh_site0 : "OpenId"     # 某微信公号下的 OpenId
 #-------------------------------------------------
 # 时间戳
 ct    : AMS     # 创建/注册时间

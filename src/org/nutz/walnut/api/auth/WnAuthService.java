@@ -1,8 +1,10 @@
 package org.nutz.walnut.api.auth;
 
 public interface WnAuthService {
-
-    String getDefaultRoleName();
+    
+    WnAccount getAccount(String name);
+    
+    WnAccount checkAccount(String name);
 
     /**
      * 根据会话票据，找回自身。执行次操作将会自动更新票据

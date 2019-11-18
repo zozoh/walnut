@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.payment;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -20,8 +23,8 @@ public class WnPayInfo {
      * 买家信息类型
      * 
      * <ul>
-     * <li>null : 表示 walnut 用户
-     * <li>ID : 表示卖家域的某个账户库(Thing)的ID
+     * <li>"walnut" : 表示 walnut 用户
+     * <li>ID(a..t) : 表示卖家域的某个账户库的ID
      * </ul>
      */
     public String buyer_tp;
@@ -30,12 +33,12 @@ public class WnPayInfo {
         return Strings.isBlank(buyer_tp);
     }
 
-    public boolean isWnUsr() {
-        return Strings.isBlank(buyer_tp);
+    public boolean isWalnutBuyer() {
+        return "walnut".equals(buyer_tp);
     }
 
-    public boolean isDUsr() {
-        return !Strings.isBlank(buyer_tp);
+    public boolean isDomainBuyer() {
+        return Wn.isFullObjId(buyer_tp);
     }
 
     /**
@@ -54,6 +57,21 @@ public class WnPayInfo {
     public void assertBuyerPerfect() {
         if (Strings.isBlank(buyer_id) || Strings.isBlank(buyer_nm)) {
             throw Er.createf("e.pay.buyer.imperfect", "id:<%s> / nm:<%s>", buyer_id, buyer_nm);
+        }
+    }
+
+    public void fillBuyer(String bu) {
+        if (Strings.isBlank(bu))
+            return;
+
+        // 买家类型
+        int pos = bu.indexOf(':');
+        if (pos < 1) {
+            throw Er.create("e.pay.invalid.buyer", bu);
+        }
+        if (pos > 0) {
+            this.buyer_tp = bu.substring(0, pos);
+            this.buyer_id = Strings.trim(bu.substring(pos + 1));
         }
     }
 
@@ -108,25 +126,29 @@ public class WnPayInfo {
      */
     public int fee;
 
-    /**
-     * 订单价格（优惠前），单位是分
-     */
-    public int price;
+    public void fillFee(String fee) {
+        fee = Strings.trim(fee);
+        if (Strings.isEmpty(fee))
+            return;
+
+        Matcher m = Pattern.compile("^(([0-9]*[.]?[0-9]+)|(0-9)+)([A-Z]*)")
+                           .matcher(fee.toUpperCase());
+
+        // 合法
+        if (m.find()) {
+            this.fee = Integer.parseInt(m.group(1));
+            this.cur = Strings.sBlank(m.group(4), null);
+        }
+        // 非法
+        else {
+            throw Er.create("e.pay.invalid.fee", fee);
+        }
+    }
 
     /**
      * 默认是 RMB，表示货币
      */
     public String cur;
-
-    /**
-     * 优惠券对象
-     */
-    public WnObj coupon;
-
-    /**
-     * 限制优惠券的范围
-     */
-    public String couponScope;
 
     /**
      * 支付单简要描述

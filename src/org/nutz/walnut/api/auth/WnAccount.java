@@ -136,7 +136,7 @@ public class WnAccount {
                 this.addOAuth2(key, bean.getString(key));
             }
             // wx_gh_xxx
-            else if (key.startsWith("wx_")) {
+            else if (key.startsWith("wx_gh_")) {
                 this.addWxOpenId(key, bean.getString(key));
             }
             // Others put to "meta"
@@ -173,7 +173,7 @@ public class WnAccount {
 
         // WxOpenIds
         for (String key : wxOpenIds.keySet()) {
-            bean.put("wx_" + key, wxOpenIds.get(key));
+            bean.put("wx_gh_" + key, wxOpenIds.get(key));
         }
 
         // Other Meta
@@ -183,6 +183,10 @@ public class WnAccount {
             }
         }
 
+    }
+
+    public boolean isSameId(String uid) {
+        return null != id && null != uid && id.equals(uid);
     }
 
     public String getId() {
@@ -343,8 +347,8 @@ public class WnAccount {
     }
 
     public void addWxOpenId(String ghName, String openId) {
-        if (ghName.startsWith("wx_")) {
-            ghName = ghName.substring("wx_".length());
+        if (ghName.startsWith("wx_gh_")) {
+            ghName = ghName.substring("wx_gh_".length());
         }
         wxOpenIds.put(ghName, openId);
     }

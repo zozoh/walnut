@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.www.bean;
+package org.nutz.walnut.api.auth;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;

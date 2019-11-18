@@ -2,13 +2,15 @@ package org.nutz.walnut.ext.www.impl;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnCaptcha;
+import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.ext.www.bean.WnCaptcha;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnWebSession;
+import org.nutz.walnut.impl.auth.WnCaptchaServiceImpl;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
@@ -104,7 +106,7 @@ public class WnWebService {
 
         // 验证码服务
         if (null != oCaptchaHome) {
-            this.captcha = new WnCaptchaService(io, oCaptchaHome);
+            this.captcha = new WnCaptchaServiceImpl(io, oCaptchaHome);
         }
 
         // 订单服务
