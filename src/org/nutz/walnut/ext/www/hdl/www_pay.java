@@ -8,7 +8,9 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.www.bean.WnOrder;
+import org.nutz.walnut.ext.www.bean.WnOrderStatus;
 import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -27,7 +29,6 @@ public class www_pay implements JvmHdl {
         // 站点/账户/密码/票据
         String site = hc.params.val_check(0);
         String orId = hc.params.val_check(1);
-        String payType = hc.params.check("pt");
         String ticket = hc.params.check("ticket");
 
         // -------------------------------
@@ -39,6 +40,7 @@ public class www_pay implements JvmHdl {
         // -------------------------------
         // 得到订单
         WnOrder or = webs.checkOrder(orId);
+        String payType = or.getPayType();
 
         // -------------------------------
         // 检查用户登录票据
@@ -51,6 +53,10 @@ public class www_pay implements JvmHdl {
         meta.put("or_id", or.getId());
 
         // -------------------------------
+        // 检查回调
+        WnObj oCallback = Wn.getObj(sys, "~/.domain/payment/after");
+
+        // -------------------------------
         // 准备命令
         List<String> cmds = new LinkedList<>();
         cmds.add("pay create");
@@ -61,6 +67,9 @@ public class www_pay implements JvmHdl {
         cmds.add("-br '" + or.getTitle() + "'");
         cmds.add("-bu " + bu.parentId() + ":" + bu.id());
         cmds.add("-fee " + (int) (or.getFee() * 100f));
+        if (null != oCallback) {
+            cmds.add("-callback id:" + oCallback.id());
+        }
         cmds.add("-meta");
 
         String cmdText = Strings.join(" ", cmds);
@@ -69,13 +78,24 @@ public class www_pay implements JvmHdl {
         // 执行
         String input = Json.toJson(meta, JsonFormat.compact());
         String re = sys.exec2(cmdText, input);
+        WnPay3xRe payRe = Json.fromJson(WnPay3xRe.class, re);
+        String payId = payRe.getPayObjId();
+
+        // 更新订单的支付单关联
+        or.setPayId(payId);
+        or.setStatus(WnOrderStatus.WT);
+        or.setWaitAt(System.currentTimeMillis());
+        NutMap orMeta = or.toMeta("^(pay_id|wt_at)$", null);
+        webs.updateOrder(or.getId(), orMeta);
 
         // -------------------------------
         // 解析命令结果并输出
-        Object reo = Json.fromJson(re);
+        or.setPayReturn(payRe);
+        Object reo = or;
         if (hc.params.is("ajax")) {
-            reo = Ajax.ok().setData(reo);
+            reo = Ajax.ok().setData(or);
         }
+        hc.jfmt.setLocked("^(c|m|g|d0|d1|md|tp|mime|ph|pid|data|sha1|len)$");
         String json = Json.toJson(reo, hc.jfmt);
         sys.out.println(json);
     }

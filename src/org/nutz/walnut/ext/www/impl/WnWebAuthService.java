@@ -452,7 +452,7 @@ public class WnWebAuthService {
         long expi = System.currentTimeMillis() + (this.sessionDuration * 1000L);
 
         // 验证通过后，创建会话
-        String ticket = R.UU64();
+        String ticket = R.UU32();
         WnObj oSe = io.create(oSessionHome, ticket, WnRace.FILE);
         WnWebSession se = new WnWebSession(ticket);
         se.setId(oSe.id());

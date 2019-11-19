@@ -62,17 +62,16 @@ public class WnWebService {
         if (site.has("coupons"))
             this.oCouponHome = Wn.checkObj(sys, site.getString("coupons"));
 
-
         String weixinConfName = site.getString("weixin");
 
         if (site.has("sellers")) {
             this.sellers = site.getAs("sellers", NutMap.class);
             // 如果没有微信设定，尝试用卖家的微信设定
-            if(Strings.isBlank(weixinConfName)) {
+            if (Strings.isBlank(weixinConfName)) {
                 weixinConfName = this.sellers.getString("wx");
             }
         }
-        if(!Strings.isBlank(weixinConfName)) {
+        if (!Strings.isBlank(weixinConfName)) {
             String confPath = Wn.appendPath("~/.weixin", weixinConfName, "wxconf");
             this.oWxConf = Wn.checkObj(sys, confPath);
         }
@@ -217,6 +216,10 @@ public class WnWebService {
 
     public WnOrder getOrder(String id) {
         return order.getOrder(id);
+    }
+
+    public WnOrder updateOrder(String id, NutMap meta) {
+        return order.updateOrder(id, meta);
     }
 
 }

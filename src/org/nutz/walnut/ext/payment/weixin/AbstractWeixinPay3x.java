@@ -99,7 +99,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         re.addChangeKeys(KEY_wxpay_result);
 
         // 验证返回的 XML
-        NutMap respMap = Wxs.checkPayReturn(respXml, conf.pay_key);
+        NutMap respMap = Wxs.getkPayReturn(respXml);
 
         // 得到返回对象的状态
         Object returnCode = respMap.get("return_code");
@@ -107,6 +107,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
 
         // 交易成功
         if ("SUCCESS".equals(returnCode) && "SUCCESS".equals(resultCode)) {
+            respMap = Wxs.checkPayReturnMap(respMap, conf.pay_key);
             re.setStatus(WnPay3xStatus.WAIT);
             // 二维码
             String code_url = respMap.getString("code_url");

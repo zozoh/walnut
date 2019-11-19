@@ -24,7 +24,6 @@ import org.nutz.walnut.ext.payment.free.FreePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxJsApiPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxQrcodePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxScanPay3x;
-import org.nutz.walnut.ext.voucher.Coupons;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 

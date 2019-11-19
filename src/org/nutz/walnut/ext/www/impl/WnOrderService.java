@@ -27,7 +27,7 @@ public class WnOrderService {
         this.orders = new WnThingService(io, oOrderHome);
         this.products = new WnThingService(io, oProductHome);
         this.coupons = new WnThingService(io, oCouponHome);
-        if(null==sellers || sellers.isEmpty()) {
+        if (null == sellers || sellers.isEmpty()) {
             throw Er.create("e.www.order.nil.sellers");
         }
     }
@@ -47,12 +47,12 @@ public class WnOrderService {
         if (Strings.isBlank(or.getPayType())) {
             throw Er.create("e.www.order.nil.pay_tp");
         }
-        
+
         // 根据付款类型找到销售方
         String ptPrefix = or.getPayTypePrefix();
         String seller = this.sellers.getString(ptPrefix);
-        if(Strings.isBlank(seller)) {
-            throw Er.create("e.www.order.invalid.pay_tp",or.getPayType());
+        if (Strings.isBlank(seller)) {
+            throw Er.create("e.www.order.invalid.pay_tp", or.getPayType());
         }
         or.setSeller(seller);
 
@@ -121,6 +121,16 @@ public class WnOrderService {
 
     public WnOrder getOrder(String id) {
         WnObj oOr = orders.getThing(id, false);
+        if (null != oOr) {
+            WnOrder or = new WnOrder();
+            or.updateBy(oOr);
+            return or;
+        }
+        return null;
+    }
+
+    public WnOrder updateOrder(String id, NutMap meta) {
+        WnObj oOr = orders.updateThing(id, meta);
         if (null != oOr) {
             WnOrder or = new WnOrder();
             or.updateBy(oOr);

@@ -2,8 +2,11 @@ package org.nutz.walnut.ext.www.bean;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonField;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.payment.WnPay3xRe;
 
 public class WnOrder {
 
@@ -38,6 +41,10 @@ public class WnOrder {
     @JsonField("pay_id")
     private String payId;
 
+    @JsonField("pay_re")
+    private WnPay3xRe payReturn;
+
+    @JsonField("st")
     private WnOrderStatus status;
 
     @JsonField("ct")
@@ -104,6 +111,7 @@ public class WnOrder {
             or.status = this.status;
             or.createTime = this.createTime;
             or.lastModified = this.lastModified;
+            or.payId = this.payId;
             or.waitAt = this.waitAt;
             or.okAt = this.okAt;
             or.failAt = this.failAt;
@@ -129,13 +137,23 @@ public class WnOrder {
         or.copyTo(this, true);
     }
 
-    public void setTo(NutBean bean) {
-        NutMap meta = this.toMeta();
+    public void setTo(NutBean bean, String actived, String locked) {
+        NutMap meta = this.toMeta(actived, locked);
         bean.putAll(meta);
     }
 
     public NutMap toMeta() {
-        String json = Json.toJson(this);
+        return this.toMeta(null, null);
+    }
+
+    public NutMap toMeta(String actived, String locked) {
+        JsonFormat jfmt = JsonFormat.compact();
+        if (!Strings.isBlank(locked))
+            jfmt.setLocked(locked);
+        if (!Strings.isBlank(actived)) {
+            jfmt.setActived(actived);
+        }
+        String json = Json.toJson(this, jfmt);
         return Json.fromJson(NutMap.class, json);
     }
 
@@ -238,12 +256,24 @@ public class WnOrder {
         this.payType = payType;
     }
 
+    public boolean hasPayId() {
+        return !Strings.isBlank(payId);
+    }
+
     public String getPayId() {
         return payId;
     }
 
     public void setPayId(String payId) {
         this.payId = payId;
+    }
+
+    public WnPay3xRe getPayReturn() {
+        return payReturn;
+    }
+
+    public void setPayReturn(WnPay3xRe payReturn) {
+        this.payReturn = payReturn;
     }
 
     public WnOrderStatus getStatus() {
