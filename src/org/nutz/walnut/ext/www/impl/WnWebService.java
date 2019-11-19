@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.impl;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnCaptcha;
@@ -61,13 +62,19 @@ public class WnWebService {
         if (site.has("coupons"))
             this.oCouponHome = Wn.checkObj(sys, site.getString("coupons"));
 
-        if (site.has("weixin")) {
-            String confPath = Wn.appendPath("~/.weixin", site.getString("weixin"), "wxconf");
-            this.oWxConf = Wn.checkObj(sys, confPath);
-        }
+
+        String weixinConfName = site.getString("weixin");
 
         if (site.has("sellers")) {
             this.sellers = site.getAs("sellers", NutMap.class);
+            // 如果没有微信设定，尝试用卖家的微信设定
+            if(Strings.isBlank(weixinConfName)) {
+                weixinConfName = this.sellers.getString("wx");
+            }
+        }
+        if(!Strings.isBlank(weixinConfName)) {
+            String confPath = Wn.appendPath("~/.weixin", weixinConfName, "wxconf");
+            this.oWxConf = Wn.checkObj(sys, confPath);
         }
 
         this.sessionDuration = site.getLong("se_du", 86400);
@@ -180,8 +187,8 @@ public class WnWebService {
         return auth.removeSession(ticket);
     }
 
-    public WnWebSession loginByWxCode(String code) {
-        return auth.loginByWxCode(code);
+    public WnWebSession loginByWxCode(String code, String wxCodeType) {
+        return auth.loginByWxCode(code, wxCodeType);
     }
 
     public WnWebSession bindAccount(String account, String scene, String vcode, String ticket) {

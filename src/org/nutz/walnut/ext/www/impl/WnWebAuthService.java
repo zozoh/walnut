@@ -135,18 +135,29 @@ public class WnWebAuthService {
      * 用微信的权限码自动登录
      * 
      * @param code
-     *            微信的权限码
+     *            微信会话票据代码
+     * @param wxCodeType
+     *            微信票据代码类型: mp(小程序) gh(公众号)，默认为 gh
      * @return 登录成功后的会话
      */
-    public WnWebSession loginByWxCode(String code) {
+    public WnWebSession loginByWxCode(String code, String wxCodeType) {
         // 得到用户的 OpenId
-        String openid = wxApi.user_openid_by_code(code);
+        String openid;
+        wxCodeType = Strings.sBlank(wxCodeType, "gh");
+        // 小程序的权限码
+        if ("mp".equals(wxCodeType)) {
+            openid = wxApi.user_openid_by_mp_code(code);
+        }
+        // 微信公号的登录码
+        else {
+            openid = wxApi.user_openid_by_gh_code(code);
+        }
         if (Strings.isBlank(openid)) {
             throw Er.create("e.www.login.invalid.weixin_code");
         }
         // 得到公众号名称
         String ghName = wxApi.getHomeObj().name();
-        String key = "wx_gh_" + ghName;
+        String key = "wx_" + wxCodeType + "_" + ghName;
 
         // 准备帐号库的服务类
         WnThingService accounts = new WnThingService(io, oAccountHome);
@@ -175,41 +186,51 @@ public class WnWebAuthService {
         // 选择一个默认角色
         String role = this.getDefaultRoleName();
 
-        // 看来要创建一个用户，嗯嗯，先获取信息
-        NutMap re = wxApi.user_info(openid, null);
-        /**
-         * 得到的返回信息格式为：
-         * 
-         * <pre>
-         {
-            subscribe: 1,
-            openid: "xxx",
-            nickname: "小白",
-            sex: 1,
-            language: "zh_CN",
-            city: "海淀",
-            province: "北京",
-            country: "中国",
-            headimgurl: "http://..",
-            subscribe_time: 1474388443,
-            remark: "",
-            groupid: 0,
-            tagid_list: [],
-            subscribe_scene: "ADD_SCENE_OTHERS",
-            qr_scene: 0,
-            qr_scene_str: ""
-         }
-         * </pre>
-         */
-        String myName = re.getString("nickname", "anonymous");
-        meta = re.pickBy("^(city|province|country|sex)$");
+        // 看来要创建一个用户，嗯嗯，如果是公号的话，先获取信息
+        String headimgurl = null;
+        if ("gh".equals(wxCodeType)) {
+            NutMap re = wxApi.user_info(openid, null);
+            /**
+             * 得到的返回信息格式为：
+             * 
+             * <pre>
+             {
+                subscribe: 1,
+                openid: "xxx",
+                nickname: "小白",
+                sex: 1,
+                language: "zh_CN",
+                city: "海淀",
+                province: "北京",
+                country: "中国",
+                headimgurl: "http://..",
+                subscribe_time: 1474388443,
+                remark: "",
+                groupid: 0,
+                tagid_list: [],
+                subscribe_scene: "ADD_SCENE_OTHERS",
+                qr_scene: 0,
+                qr_scene_str: ""
+             }
+             * </pre>
+             */
+            String myName = re.getString("nickname", "anonymous");
+            meta = re.pickBy("^(city|province|country|sex)$");
+            meta.put("th_nm", myName);
+
+            // 记录一下头像
+            headimgurl = re.getString("headimgurl");
+        }
+        // 小程序的话，获得不了，那么就用默认的吧
+        else {
+            meta = new NutMap();
+            meta.put("th_nm", openid);
+        }
         meta.put(key, openid);
-        meta.put("th_nm", myName);
         meta.put("role", role);
         oU = accounts.createThing(meta);
 
         // 如果有头像的话，搞一下
-        String headimgurl = re.getString("headimgurl");
         if (!Strings.isBlank(headimgurl)) {
             WnObj oData = Things.dirTsData(io, oU);
             WnObj oThumb = io.createIfNoExists(oData, oU.id() + "/thumb.jpg", WnRace.FILE);
@@ -450,7 +471,7 @@ public class WnWebAuthService {
         io.set(oU, "^(login)$");
 
         // 搞定
-        return se;
+        return new WnWebSession(oSe, oU);
     }
 
     private WnObj __get_user(WnThingService accounts, NutMap meta) {

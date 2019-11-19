@@ -15,7 +15,7 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(ajax|wxcode)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
 public class www_auth implements JvmHdl {
 
     @Override
@@ -27,6 +27,7 @@ public class www_auth implements JvmHdl {
         String passwd = hc.params.get("p");
         String vcode = hc.params.get("v");
         String ticket = hc.params.get("ticket");
+        String wxCodeType = hc.params.get("wxcode");
 
         // -------------------------------
         // 准备服务类
@@ -38,8 +39,8 @@ public class www_auth implements JvmHdl {
         try {
             // -------------------------------
             // 微信票据代码登录
-            if (hc.params.is("wxcode")) {
-                se = webs.loginByWxCode(account);
+            if (!Strings.isBlank(wxCodeType)) {
+                se = webs.loginByWxCode(account, wxCodeType);
             }
             // -------------------------------
             // 密码登录

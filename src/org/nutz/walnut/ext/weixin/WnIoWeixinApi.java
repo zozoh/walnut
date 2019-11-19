@@ -49,25 +49,55 @@ public class WnIoWeixinApi extends WxApi2Impl {
     }
 
     /**
-     * 根据用户的票据获取 openid
+     * 根据用户的票据获取 openid（小程序）
      * 
      * @param code
      *            票据信息
      * @return 用户的 openid
      */
-    public String user_openid_by_code(String code) {
-        WxResp map = this.user_code_info(code);
+    public String user_openid_by_mp_code(String code) {
+        WxResp map = this.user_info_by_mp_code(code);
         return map.getString("openid");
     }
 
     /**
-     * 根据用户的票据获取 openid 等信息集合
+     * 根据用户的票据获取 openid 等信息集合（小程序）
      * 
      * @param code
      *            票据信息
      * @return 包括 openid 和 access_token
      */
-    public WxResp user_code_info(String code) {
+    public WxResp user_info_by_mp_code(String code) {
+        String fmt = "https://api.weixin.qq.com/sns/jscode2session"
+                     + "?appid=%s"
+                     + "&secret=%s"
+                     + "&js_code=%s"
+                     + "&grant_type=authorization_code";
+
+        String url = String.format(fmt, config.appID, config.appsecret, code);
+        return __get_resp(url);
+    }
+
+    /**
+     * 根据用户的票据获取 openid（公众号）
+     * 
+     * @param code
+     *            票据信息
+     * @return 用户的 openid
+     */
+    public String user_openid_by_gh_code(String code) {
+        WxResp map = this.user_info_by_gh_code(code);
+        return map.getString("openid");
+    }
+
+    /**
+     * 根据用户的票据获取 openid 等信息集合（公众号）
+     * 
+     * @param code
+     *            票据信息
+     * @return 包括 openid 和 access_token
+     */
+    public WxResp user_info_by_gh_code(String code) {
         String fmt = "https://api.weixin.qq.com/sns/oauth2/access_token"
                      + "?appid=%s"
                      + "&secret=%s"
@@ -94,14 +124,14 @@ public class WnIoWeixinApi extends WxApi2Impl {
      */
     public WxResp user_info_by_code(String code, String lang) {
         lang = Strings.sBlank("lang", "zh_CN");
-        WxResp map = this.user_code_info(code);
+        WxResp map = this.user_info_by_gh_code(code);
         String openid = map.getString("openid");
         String web_access_token = map.getString("access_token");
 
         String url = String.format("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=%s",
-                                        web_access_token,
-                                        openid,
-                                        lang);
+                                   web_access_token,
+                                   openid,
+                                   lang);
         return this.__get_resp(url);
     }
 

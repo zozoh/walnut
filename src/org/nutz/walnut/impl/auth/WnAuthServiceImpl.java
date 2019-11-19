@@ -124,7 +124,7 @@ public class WnAuthServiceImpl implements WnAuthService {
     @Override
     public WnAuthSession loginByWxCode(String code) {
         // 得到用户的 OpenId
-        String openid = wxApi.user_openid_by_code(code);
+        String openid = wxApi.user_openid_by_gh_code(code);
         if (Strings.isBlank(openid)) {
             throw Er.create("e.auth.login.invalid.weixin_code");
         }

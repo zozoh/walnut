@@ -57,7 +57,7 @@ public class weixin_user implements JvmHdl {
         else if (!Strings.isBlank(code)) {
             // follower: 根据 openid 获取信息
             if ("follower".equals(infoLevel)) {
-                openid = wxApi.user_openid_by_code(code);
+                openid = wxApi.user_openid_by_gh_code(code);
                 resp = wxApi.user_info(openid, lang);
             }
             // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
@@ -66,7 +66,7 @@ public class weixin_user implements JvmHdl {
             }
             // 默认的，就是仅仅获取 openid 咯
             else {
-                resp = wxApi.user_code_info(code);
+                resp = wxApi.user_info_by_gh_code(code);
             }
         }
         // 什么都没有，那么抛错

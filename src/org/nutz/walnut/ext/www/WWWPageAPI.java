@@ -274,7 +274,7 @@ public class WWWPageAPI extends WWWAPI {
         String code = params.getString("code");
         if (is_weixin && !Strings.isBlank(code)) {
             // 试图获取用户 openid 信息
-            String openid = wxApi.user_openid_by_code(code);
+            String openid = wxApi.user_openid_by_gh_code(code);
             if (!Strings.isBlank(openid)) {
                 // 查一下是否存在这个用户
                 String key = "wx_" + wxmp;
