@@ -54,13 +54,13 @@ public class www_payafter implements JvmHdl {
         NutMap meta = null;
 
         // 支付成功
-        if (po.isStatusOk()) {
+        if (null!=po && po.isStatusOk()) {
             or.setStatus(WnOrderStatus.OK);
             or.setOkAt(po.lastModified());
             meta = or.toMeta("^(st|ok_at)$", null);
         }
         // 支付失败
-        else if (po.isStatusFail()) {
+        else if (null!=po && po.isStatusFail()) {
             or.setStatus(WnOrderStatus.FA);
             or.setFailAt(po.lastModified());
             meta = or.toMeta("^(st|fa_at)$", null);

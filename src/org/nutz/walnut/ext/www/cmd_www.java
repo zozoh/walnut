@@ -1,10 +1,117 @@
 package org.nutz.walnut.ext.www;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.payment.WnPay3xRe;
+import org.nutz.walnut.ext.www.bean.WnOrder;
+import org.nutz.walnut.ext.www.bean.WnOrderStatus;
+import org.nutz.walnut.ext.www.bean.WnWebSession;
+import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
+import org.nutz.web.ajax.Ajax;
 
 /**
  * 提供了域名映射的查询和管理功能
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class cmd_www extends JvmHdlExecutor {}
+public class cmd_www extends JvmHdlExecutor {
+
+    /**
+     * 为订单准备支付单
+     * 
+     * @param sys
+     *            系统上下文
+     * @param webs
+     *            服务类接口
+     * @param or
+     *            订单
+     * @param bu
+     *            支付者
+     */
+    public static void prepareToPayOrder(WnSystem sys, WnWebService webs, WnOrder or, WnObj bu) {
+
+        // 防守一下
+        if (null == bu || null == or) {
+            return;
+        }
+
+        // -------------------------------
+        // 得到支付类型
+        String payType = or.getPayType();
+
+        // -------------------------------
+        // 准备元数据
+        NutMap meta = new NutMap();
+        meta.put("or_id", or.getId());
+
+        // -------------------------------
+        // 检查回调
+        WnObj oCallback = Wn.getObj(sys, "~/.domain/payment/after");
+
+        // -------------------------------
+        // 准备命令
+        List<String> cmds = new LinkedList<>();
+        cmds.add("pay create");
+        if (!Strings.isBlank(payType)) {
+            cmds.add("-pt '" + payType + "'");
+            cmds.add("-ta strato");
+        }
+        cmds.add("-br '" + or.getTitle() + "'");
+        cmds.add("-bu " + bu.parentId() + ":" + bu.id());
+        cmds.add("-fee " + (int) (or.getFee() * 100f));
+        if (null != oCallback) {
+            cmds.add("-callback id:" + oCallback.id());
+        }
+        cmds.add("-meta");
+
+        String cmdText = Strings.join(" ", cmds);
+
+        // -------------------------------
+        // 执行
+        String input = Json.toJson(meta, JsonFormat.compact());
+        String re = sys.exec2(cmdText, input);
+        WnPay3xRe payRe = Json.fromJson(WnPay3xRe.class, re);
+        String payId = payRe.getPayObjId();
+
+        // 更新订单的支付单关联
+        or.setPayId(payId);
+        or.setStatus(WnOrderStatus.WT);
+        or.setWaitAt(System.currentTimeMillis());
+        NutMap orMeta = or.toMeta("^(pay_id|wt_at)$", null);
+        webs.updateOrder(or.getId(), orMeta);
+
+        // -------------------------------
+        // 设置返回结果
+        or.setPayReturn(payRe);
+    }
+
+    /**
+     * 将订单信息写入系统输出流
+     * 
+     * @param sys
+     *            系统上下文
+     * @param hc
+     *            上下文
+     * @param or
+     *            订单对象
+     */
+    public static void outputOrder(WnSystem sys, JvmHdlContext hc, WnOrder or) {
+        Object re = or.toMeta();
+        if (hc.params.is("ajax")) {
+            re = Ajax.ok().setData(re);
+        }
+        String json = Json.toJson(re, hc.jfmt);
+        sys.out.println(json);
+    }
+
+}

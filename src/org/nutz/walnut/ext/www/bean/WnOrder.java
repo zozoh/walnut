@@ -148,8 +148,15 @@ public class WnOrder {
 
     public NutMap toMeta(String actived, String locked) {
         JsonFormat jfmt = JsonFormat.compact();
-        if (!Strings.isBlank(locked))
+        // 黑名单字段
+        if (!Strings.isBlank(locked)) {
             jfmt.setLocked(locked);
+        }
+        // 默认的不输出字段
+        else {
+            jfmt.setLocked("^(c|m|g|d0|d1|md|tp|mime|ph|pid|sha1|len)$");
+        }
+        // 白名单字段
         if (!Strings.isBlank(actived)) {
             jfmt.setActived(actived);
         }

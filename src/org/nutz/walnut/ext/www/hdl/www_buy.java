@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
@@ -10,7 +11,6 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.web.ajax.Ajax;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
 public class www_buy implements JvmHdl {
@@ -31,6 +31,7 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 检查会话
         WnWebSession se = webs.checkSession(ticket);
+        WnObj bu = se.getMe();
 
         // -------------------------------
         // 读取订单数据
@@ -39,7 +40,7 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 准备订单数据
         WnOrder or = Json.fromJson(WnOrder.class, input);
-        or.setBuyerId(se.getMe().id());
+        or.setBuyerId(bu.id());
         or.setAccounts(webs.getAccountHome().id());
 
         // -------------------------------
@@ -47,14 +48,12 @@ public class www_buy implements JvmHdl {
         or = webs.createOrder(or);
 
         // -------------------------------
-        // 输出结果
-        Object re = or.toMeta();
-        if (hc.params.is("ajax")) {
-            re = Ajax.ok().setData(re);
-        }
-        String json = Json.toJson(re, hc.jfmt);
-        sys.out.println(json);
+        // 准备支付单
+        cmd_www.prepareToPayOrder(sys, webs, or, bu);
 
+        // -------------------------------
+        // 输出结果
+        cmd_www.outputOrder(sys, hc, or);
     }
 
 }

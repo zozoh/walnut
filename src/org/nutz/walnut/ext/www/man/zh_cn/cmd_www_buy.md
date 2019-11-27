@@ -121,6 +121,19 @@ www buy
 =======
 
 ```bash
+# >>>>>>>>>>>>>>>>>>>>>
+# 如果我们有一个  order.json ，内容类似：
+demo:> cat order.json
+{
+  "products": [{
+    "id": "7o7j07o08ujtfqq04kaaaagsg9", 
+    "amount": 3
+  }],
+  "pay_tp" : "wx.qrcode"
+}
+# >>>>>>>>>>>>>>>>>>>>>
 # 创建一个订单
 demo:> cat order.json | www buy id:xxx -ticket xxx
+
 ```
+
