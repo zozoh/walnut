@@ -11,7 +11,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnOrderStatus;
-import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;

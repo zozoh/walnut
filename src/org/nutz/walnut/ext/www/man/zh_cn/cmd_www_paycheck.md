@@ -1,13 +1,13 @@
 命令简介
 ======= 
 
-`www payafter` 同步一个订单的支付状态，如果支付完成（成功或者失败）则自动同步订单状态
+`www paycheck` 检查一个订单的支付状态，实际上相当于调用 `pay check`
 
 用法
 =======
 
 ```bash
-www payafter
+www paycheck
     [OrderID]       # 【必】订单的 ID
     #-----------------------------------------------
     # 输出的JSON数据的配置信息
@@ -18,6 +18,6 @@ www payafter
 =======
 
 ```bash
-# 支付一个订单
-demo:> www payafter 4r..wa 
+# 检查一个订单的支付状态
+demo:> www paycheck 4r..wa 
 ```

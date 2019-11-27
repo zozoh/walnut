@@ -11,6 +11,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -84,7 +85,8 @@ public class WnPayment {
         // 持久化改动
         if (re.hasChangedKeys()) {
             String regex = "^(" + Strings.join("|", re.getChangedKeys()) + ")$";
-            run.io().set(po, regex);
+            NutBean meta = po.pickBy(regex);
+            run.io().appendMeta(po, meta);
         }
 
         // 确保设置了 poId

@@ -105,6 +105,10 @@ public class WnObjMetaOutputStream extends OutputStream {
             // 没啥好改的，就手工咯
             if (keys.isEmpty())
                 return;
+            
+            // 确保有最后修改时间
+            keys.add("lm");
+            
             String regex = "^(" + Lang.concat("|", keys) + ")$";
             // 计入索引
             io.set(o, regex);

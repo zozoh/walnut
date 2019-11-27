@@ -56,13 +56,13 @@ public class www_payafter implements JvmHdl {
         // 支付成功
         if (null!=po && po.isStatusOk()) {
             or.setStatus(WnOrderStatus.OK);
-            or.setOkAt(po.lastModified());
+            or.setOkAt(po.getLong("close_at"));
             meta = or.toMeta("^(st|ok_at)$", null);
         }
         // 支付失败
         else if (null!=po && po.isStatusFail()) {
             or.setStatus(WnOrderStatus.FA);
-            or.setFailAt(po.lastModified());
+            or.setFailAt(po.getLong("close_at"));
             meta = or.toMeta("^(st|fa_at)$", null);
         }
         // 还未支付
