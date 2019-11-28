@@ -66,7 +66,11 @@ public class WnWebSocket extends Endpoint {
             e.printStackTrace();
         }
         peers.put(session.getId(), session);
-        session.getAsyncRemote().sendText("{event:'hi','wsid':'" + session.getId() + "'}");
+        
+        NutMap map = Lang.map("event","hi").setv("wsid", session.getId());
+        String json = Json.toJson(map, JsonFormat.compact().setQuoteName(true));
+        
+        session.getAsyncRemote().sendText(json);
     }
 
     @OnMessage
@@ -111,7 +115,7 @@ public class WnWebSocket extends Endpoint {
                 // 返回内容
                 if (doReturn) {
                     NutMap eventData = new NutMap("event", "watched").setv("obj", obj.id());
-                    String eventJson = Json.toJson(eventData, JsonFormat.compact());
+                    String eventJson = Json.toJson(eventData, JsonFormat.compact().setQuoteName(true));
                     session.getAsyncRemote().sendText(eventJson);
                 }
                 break;

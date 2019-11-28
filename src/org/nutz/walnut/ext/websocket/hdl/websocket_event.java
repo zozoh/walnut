@@ -46,9 +46,11 @@ public class websocket_event implements JvmHdl {
                 }
             });
         }
-        WsUtils.eachAsync(sys,
-                       params.val_check(0),
-                       (async) -> async.sendText(Json.toJson(re, JsonFormat.compact())));
+        JsonFormat jfmt = JsonFormat.compact().setQuoteName(true);
+        String json = Json.toJson(re, jfmt);
+        WsUtils.eachAsync(sys, params.val_check(0), (async) -> {
+            async.sendText(json);
+        });
     }
 
 }

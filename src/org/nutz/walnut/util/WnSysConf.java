@@ -21,6 +21,17 @@ public class WnSysConf {
      */
     private int mainPort;
 
+    /**
+     * 系统提供的 websocket 的监控地址，如果为 null 则表示与 mainHost相同 <br>
+     * 当然连接这个地址采用的协议<code>ws|wss</code>应该自动判断
+     */
+    private String websocktHost;
+
+    /**
+     * 系统提供的 websocket 的监控端口，如果为0 则表示与 mainPort相同
+     */
+    private int websocketPort;
+
     public NutMap toMap() {
         return (NutMap) Lang.obj2map(this);
     }
@@ -78,6 +89,22 @@ public class WnSysConf {
 
     public void setMainPort(int mainPort) {
         this.mainPort = mainPort;
+    }
+
+    public String getWebsocktHost() {
+        return websocktHost;
+    }
+
+    public void setWebsocktHost(String websocktHost) {
+        this.websocktHost = websocktHost;
+    }
+
+    public int getWebsocketPort() {
+        return websocketPort;
+    }
+
+    public void setWebsocketPort(int websocketPort) {
+        this.websocketPort = websocketPort;
     }
 
 }
