@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.nutz.log.Log;
-import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class BackupDumpContext {
@@ -68,7 +68,7 @@ public class BackupDumpContext {
     // 支撑运行所需要的对象
     public transient WnSystem sys;
 
-    public transient WnSession se;
+    public transient WnAuthSession se;
     public transient File tmpdir;
     public transient Log log;
     public transient List<BackupPackage> prevPackages;

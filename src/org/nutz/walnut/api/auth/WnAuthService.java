@@ -1,10 +1,73 @@
 package org.nutz.walnut.api.auth;
 
 public interface WnAuthService {
-    
-    WnAccount getAccount(String name);
-    
-    WnAccount checkAccount(String name);
+
+    /**
+     * 获取账户对象
+     * 
+     * @param nameOrIdOrPhoneOrEmail
+     *            账户登录名或ID或手机号或邮箱
+     * @return 账户对象。 null 表示不存在
+     */
+    WnAccount getAccount(String nameOrIdOrPhoneOrEmail);
+
+    /**
+     * 获取账户对象，如果不存在，抛错
+     * 
+     * @param nameOrIdOrPhoneOrEmail
+     *            账户登录名或ID或手机号或邮箱
+     * @return 账户对象
+     * @throws "e.auth.account.noexist"
+     *             - 账户不存在
+     */
+    WnAccount checkAccount(String nameOrIdOrPhoneOrEmail);
+
+    /**
+     * 获取某账户对象在指定的系统组中的权限
+     * 
+     * @param user
+     *            账户对象
+     * @param groupName
+     *            系统的组名
+     * @return 账户对象在指定组中的权限。默认为 <code>GUEST</code>
+     * @see WnGroupRole
+     */
+    WnGroupRole getGroupRole(WnAccount user, String groupName);
+
+    /**
+     * 判断某账户在给定的组中是否至少有一个符合指定的角色
+     * 
+     * @param role
+     *            指定的角色
+     * @param user
+     *            账户对象
+     * @param groupNames
+     *            组名列表
+     * @return 如果在任何一个给定组中是管理员返回 true，否则返回 false
+     */
+    boolean isRoleOfGroup(WnGroupRole role, WnAccount user, String... groupNames);
+
+    /**
+     * 判断某账户在给定的组中是否至少有一个是管理员
+     * 
+     * @param user
+     *            账户对象
+     * @param groupNames
+     *            组名列表
+     * @return 如果在任何一个给定组中是管理员返回 true，否则返回 false
+     */
+    boolean isAdminOfGroup(WnAccount user, String... groupNames);
+
+    /**
+     * 判断某账户在给定的组中是否至少有一个是成员
+     * 
+     * @param user
+     *            账户对象
+     * @param groupNames
+     *            组名列表
+     * @return 如果在任何一个给定组中是成员返回 true，否则返回 false
+     */
+    boolean isMemberOfGroup(WnAccount user, String... groupNames);
 
     /**
      * 根据会话票据，找回自身。执行次操作将会自动更新票据
@@ -20,7 +83,23 @@ public interface WnAuthService {
     WnAuthSession getSession(String ticket);
 
     /**
-     * 根据会话票据，找回自身。执行次操作将会自动更新票据
+     * 根据会话票据，找回自身。如果不存在则抛错。
+     * 
+     * @param ticket
+     *            票据
+     * @return 会话对象
+     * @throws "e.auth.ticket.noexist"
+     *             : 票据找不到对应会话
+     * @throws "e.auth.account.noexist"
+     *             : 会话对应用户不存在
+     * @throws "e.auth.account.invalid"
+     *             : 会话对应用户非法
+     */
+    WnAuthSession checkSession(String ticket);
+
+    /**
+     * 根据会话票据，找回自身。如果不存在则抛错。<br>
+     * 执行本次操作将会自动更新票据
      * 
      * @param ticket
      *            票据
@@ -32,7 +111,25 @@ public interface WnAuthService {
      * @throws "e.auth.account.invalid"
      *             : 会话对应用户非法
      */
-    WnAuthSession checkSession(String ticket);
+    WnAuthSession touchSession(String ticket);
+
+    /**
+     * 根据指定用户，创建一个会话
+     * 
+     * @param user
+     *            账户对象
+     * @return 新创建的会话对象
+     */
+    WnAuthSession createSession(WnAccount user);
+
+    /**
+     * 直接删除一个会话对象。
+     * 
+     * @param sess
+     *            会话对象
+     * @return 是否删除成功
+     */
+    boolean removeSession(WnAuthSession sess);
 
     /**
      * 注销会话，移除票据

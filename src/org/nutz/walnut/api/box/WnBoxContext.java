@@ -1,23 +1,17 @@
 package org.nutz.walnut.api.box;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnSessionService;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnBoxContext {
 
-    public WnUsr me;
-
-    public WnSession session;
+    public WnAuthSession session;
 
     public WnIo io;
 
-    public WnSessionService sessionService;
-
-    public WnUsrService usrService;
+    public WnAuthService auth;
 
     public NutMap attrs;
 
@@ -27,11 +21,9 @@ public class WnBoxContext {
 
     public WnBoxContext clone() {
         WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.me = this.me;
-        bc.session = this.session;
+        bc.session = this.session.clone();
         bc.io = this.io;
-        bc.sessionService = this.sessionService;
-        bc.usrService = this.usrService;
+        bc.auth = this.auth;
         bc.attrs.putAll(this.attrs);
         return bc;
     }

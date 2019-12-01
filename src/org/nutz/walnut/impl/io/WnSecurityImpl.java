@@ -1,24 +1,25 @@
 package org.nutz.walnut.impl.io;
 
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.AbstractWnSecurity;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public class WnSecurityImpl extends AbstractWnSecurity {
 
-    private WnUsrService usrs;
+    private WnAuthService auth;
 
     private WnEvalLink _eval_link;
 
-    public WnSecurityImpl(WnIo io, WnUsrService usrs) {
+    public WnSecurityImpl(WnIo io, WnAuthService auth) {
         super(io);
-        this.usrs = usrs;
+        this.auth = auth;
         this._eval_link = new WnEvalLink(io);
     }
 
@@ -100,7 +101,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         WnContext wc = Wn.WC();
 
         // 我是谁？
-        WnUsr u = wc.getMyUsr(usrs);
+        WnAccount u = wc.getMe();
 
         // // 对于 root 用户，啥都不检查
         // if ("root".equals(u.name()))
@@ -108,7 +109,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         //
 
         // 对于 root 组成员，啥都不检查
-        if (wc.isMemberOf(usrs, "root"))
+        if (auth.isMemberOfGroup(u, "root"))
             return o;
 
         // 自定义权限优先
@@ -120,16 +121,16 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         }
 
         // 本身就是创建者，那么看看 u 部分的权限
-        if (o.creator().equals(u.name())) {
+        if (o.creator().equals(u.getName())) {
             if (((md >> 6) & mask) == mask)
                 return o;
         }
 
         // 对象组给我啥权限
-        int role = usrs.getRoleInGroup(u, o.group());
+        WnGroupRole role = auth.getGroupRole(u, o.group());
 
         // 黑名单的话，禁止
-        if (Wn.ROLE.BLOCK == role) {
+        if (WnGroupRole.BLOCK == role) {
             if (asNull)
                 return null;
             throw Er.create("e.io.forbidden");
@@ -140,11 +141,11 @@ public class WnSecurityImpl extends AbstractWnSecurity {
             return o;
 
         // g 允许进入
-        if (Wn.ROLE.MEMBER == role && ((md >> 3) & mask) == mask)
+        if (WnGroupRole.MEMBER == role && ((md >> 3) & mask) == mask)
             return o;
 
         // u 允许进入
-        if (Wn.ROLE.ADMIN == role && ((md >> 6) & mask) == mask)
+        if (WnGroupRole.ADMIN == role && ((md >> 6) & mask) == mask)
             return o;
 
         // 看看是否允许为空

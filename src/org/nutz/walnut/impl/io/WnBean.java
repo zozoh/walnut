@@ -10,11 +10,11 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 
 public class WnBean extends NutMap implements WnObj {
@@ -607,12 +607,12 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     @SuppressWarnings("rawtypes")
-    public int getCustomizedPrivilege(WnUsr u) {
+    public int getCustomizedPrivilege(WnAccount u) {
         if (null != u) {
             // 自己有木有
             Map map = this.getAs("pvg", Map.class);
             if (null != map) {
-                Object pvg = map.get(u.id());
+                Object pvg = map.get(u.getId());
                 if (null != pvg)
                     return Castors.me().castTo(pvg, Integer.class);
             }

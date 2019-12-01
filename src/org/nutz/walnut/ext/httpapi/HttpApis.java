@@ -2,10 +2,10 @@ package org.nutz.walnut.ext.httpapi;
 
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
@@ -24,20 +24,22 @@ public abstract class HttpApis {
                              boolean createDirIfNoExists,
                              boolean createTmpIfNoExists) {
         // 要操作的用户域
-        String myName = hc.params.get("u", sys.me.name());
+        String theName = hc.params.get("u", sys.getMyName());
+        WnAccount me = sys.getMe();
 
         // 指定了其他用户
-        if (!sys.me.name().equals(myName)) {
+        if (!me.isSameName(theName)) {
             // 进入内核态检查权限
             Wn.WC().security(new WnEvalLink(sys.io), new Atom() {
                 public void run() {
+
                     // 首先确保当前的用户必须为指定用户组，或者 root 或者 op 组成员
-                    if (!sys.usrService.isMemberOfGroup(sys.me, "op", "root")) {
+                    if (!sys.auth.isMemberOfGroup(me, "op", "root")) {
                         throw Er.create("e.cmd.httapi.nopvg");
                     }
                     // 得到这个用户的主目录
-                    WnUsr u = sys.usrService.check(myName);
-                    String aph = Wn.normalizePath(u.home(), sys);
+                    WnAccount u = sys.auth.checkAccount(theName);
+                    String aph = Wn.normalizePath(u.getMetaString("HOME"), sys);
                     WnObj oHome = sys.io.check(null, aph);
 
                     // 执行
@@ -51,13 +53,13 @@ public abstract class HttpApis {
             WnObj oHome = sys.getHome();
 
             // 执行
-            __do_api(sys, oHome, sys.me, callback, createDirIfNoExists, createTmpIfNoExists);
+            __do_api(sys, oHome, me, callback, createDirIfNoExists, createTmpIfNoExists);
         }
     }
 
     private static void __do_api(WnSystem sys,
                                  WnObj oHome,
-                                 WnUsr usr,
+                                 WnAccount usr,
                                  final Callback<HttpApiContext> callback,
                                  boolean createDirIfNoExists,
                                  boolean createTmpIfNoExists) {

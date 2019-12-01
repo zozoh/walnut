@@ -41,11 +41,9 @@ public class Jvms {
         sys.pipeId = 0;
         sys.nextId = -1;
         sys.cmdOriginal = null;
-        sys.se = bc.session;
-        sys.me = bc.usrService.check(bc.session.me());
+        sys.session = bc.session;
         sys.io = bc.io;
-        sys.usrService = bc.usrService;
-        sys.sessionService = bc.sessionService;
+        sys.auth = bc.auth;
         sys.jef = jef;
         sys.in = new JvmBoxInput(null == s_in ? new VoidInputStream() : s_in);
         sys.out = new JvmBoxOutput(s_out);

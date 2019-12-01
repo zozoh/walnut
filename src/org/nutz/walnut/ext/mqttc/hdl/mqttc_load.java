@@ -9,7 +9,7 @@ public class mqttc_load extends mqttc_xxx {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        mqttService(hc.ioc).get(sys.me.name(), hc.oRefer.name(), hc.params.is("reload"));
+        mqttService(hc.ioc).get(sys.getMyName(), hc.oRefer.name(), hc.params.is("reload"));
     }
 
 }

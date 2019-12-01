@@ -5,14 +5,12 @@ import java.io.OutputStream;
 
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.lang.stream.VoidOutputStream;
+import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnSessionService;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 
 public class WnHookContext {
 
@@ -59,31 +57,20 @@ public class WnHookContext {
         return hc;
     }
 
-    public WnUsrService usrs() {
-        return _bc.usrService;
-    }
-
-    public WnSessionService sess() {
-        return _bc.sessionService;
+    public WnAuthService auth() {
+        return _bc.auth;
     }
 
     public WnIo io() {
         return _bc.io;
     }
 
-    public WnSession getSession() {
+    public WnAuthSession getSession() {
         return this._bc.session;
     }
 
-    public void setSession(WnSession se) {
+    public void setSession(WnAuthSession se) {
         this._bc.session = se;
     }
 
-    public WnUsr getUser() {
-        return this._bc.me;
-    }
-
-    public void setUser(WnUsr usr) {
-        this._bc.me = usr;
-    }
 }

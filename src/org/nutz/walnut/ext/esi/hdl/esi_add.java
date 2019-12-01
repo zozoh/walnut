@@ -28,7 +28,7 @@ public class esi_add extends esi_xxx {
             // 指定id和数据, 直接添加
             String id = hc.params.check("id");
             String data = hc.params.check("data");
-            esi(hc.ioc).addOrUpdateMeta(sys.me.name(), conf, id, Lang.map(data));
+            esi(hc.ioc).addOrUpdateMeta(sys.getMyName(), conf, id, Lang.map(data));
         }
     }
 

@@ -19,15 +19,15 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.quartz.Quartz;
 import org.nutz.quartz.QzEach;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
-@IocBean(create = "init", depose = "depose", name="wnJob")
+@IocBean(create = "init", depose = "depose", name = "wnJob")
 public class WnJobService extends WnRun implements Callable<Object> {
 
     private static final Log log = Logs.get();
@@ -38,12 +38,12 @@ public class WnJobService extends WnRun implements Callable<Object> {
 
     @Inject
     protected WnHookService hookService;
-    
+
     @Inject
     protected WnRun wnRun;
 
     // 保持一个 root 会话
-    private WnSession _se;
+    private WnAuthSession _se;
 
     public boolean isRunning() {
         return es != null && !es.isShutdown();
@@ -56,7 +56,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
         }
 
         if (null != _se) {
-            this.sess.logout(_se.id());
+            this.auth.removeSession(_se);
         }
     }
 
@@ -77,22 +77,23 @@ public class WnJobService extends WnRun implements Callable<Object> {
         if (es == null || es.isTerminated())
             es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
         es.submit(this);
-        es.submit(new Runnable(){
-			public void run() {
-				long count = 0;
-				while (es != null && !es.isShutdown()) {
-					count ++;
-					Lang.quiteSleep(1000);
-					if (count % (15*60) != 0)
-						continue;
-					try {
-						wnRun.exec("job_clean", "root", "job clean");
-					} catch (Throwable e) {
-						log.debug("something happen when job clean");
-					}
-				}
-			}
-        	
+        es.submit(new Runnable() {
+            public void run() {
+                long count = 0;
+                while (es != null && !es.isShutdown()) {
+                    count++;
+                    Lang.quiteSleep(1000);
+                    if (count % (15 * 60) != 0)
+                        continue;
+                    try {
+                        wnRun.exec("job_clean", "root", "job clean");
+                    }
+                    catch (Throwable e) {
+                        log.debug("something happen when job clean");
+                    }
+                }
+            }
+
         });
     }
 
@@ -199,16 +200,22 @@ public class WnJobService extends WnRun implements Callable<Object> {
 
         public Object call() throws Exception {
             try {
-                io.appendMeta(jobDir,
-                              new NutMap("job_start", now()).setv("job_st", "run"));
+                io.appendMeta(jobDir, new NutMap("job_start", now()).setv("job_st", "run"));
                 WnObj cmdFile = io.fetch(jobDir, "cmd");
                 if (cmdFile != null) {
                     String cmdText = io.readText(cmdFile);
-                    WnUsr usr = usrs.fetch(jobDir.getString("job_user"));
+                    WnAccount usr = auth.getAccount(jobDir.getString("job_user"));
                     if (usr != null) {
-                       WnJobService.this.runWithHook(usr, jobDir.getString("job_group"), 
-                                              jobDir.getAs("job_env", NutMap.class), 
-                                              (se) -> exec("job-" + jobDir.getString("job_name", "_") + " ", se, "", cmdText));
+                        WnJobService.this.runWithHook(usr,
+                                                      jobDir.getString("job_group"),
+                                                      jobDir.getAs("job_env", NutMap.class),
+                                                      (se) -> exec("job-"
+                                                                   + jobDir.getString("job_name",
+                                                                                      "_")
+                                                                   + " ",
+                                                                   se,
+                                                                   "",
+                                                                   cmdText));
                     }
                 }
             }
@@ -219,24 +226,29 @@ public class WnJobService extends WnRun implements Callable<Object> {
         }
 
     }
-    
+
     public long now() {
         return System.currentTimeMillis();
     }
-    
-    //----------------------------------------
-    public String addJob(String cmdText, String name, String cron, String createByUser, String runByUser, NutMap env) {
+
+    // ----------------------------------------
+    public String addJob(String cmdText,
+                         String name,
+                         String cron,
+                         String createByUser,
+                         String runByUser,
+                         NutMap env) {
         return addJob(new JobData(name, cmdText, cron, createByUser, runByUser, env));
     }
-    
+
     public String addJob(JobData jobData) {
         if (!Strings.isBlank(jobData.cron)) {
             // 校验cron
             Quartz quartz = Quartz.NEW(jobData.cron);
             log.debug("quartz cron=" + quartz);
         }
-    	String id = R.UU32();
-    	WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
+        String id = R.UU32();
+        WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
         WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
         io.writeText(cmdFile, jobData.cmdText);
         NutMap metas = new NutMap();

@@ -456,7 +456,7 @@ public final class Hms {
     public static void syncPageMeta(HmContext hpc, WnSystem sys, WnObj oPage, String content) {
         // 生成一个新的转换上下文
         if (null == hpc) {
-            hpc = new HmContext(sys.io, sys.se.group());
+            hpc = new HmContext(sys.io, sys.getMyGroup());
         }
         // 确保有 apiHome
         if (null == hpc.oApiHome)

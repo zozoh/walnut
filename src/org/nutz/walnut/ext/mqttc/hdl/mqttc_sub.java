@@ -9,6 +9,6 @@ public class mqttc_sub extends mqttc_xxx {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         String topic = hc.params.val_check(0);
         String handler = hc.params.val_check(1);
-        mqttService(hc.ioc).addSub(sys.me.name(), hc.oRefer.name(), handler, topic);
+        mqttService(hc.ioc).addSub(sys.getMyName(), hc.oRefer.name(), handler, topic);
     }
 }

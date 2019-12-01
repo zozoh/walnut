@@ -139,7 +139,7 @@ public class mt90_eta extends mt90_parse {
 
             // 往前找30分钟
             NutMap[] speeds = new NutMap[list.size()];
-            int[] _re = new int[1];
+            //int[] _re = new int[1];
             boolean checkAll = hc.params.is("all");
             for (int i = list.size() - 1; i >= 10; i--) {
                 // 暂时禁用方程式, 直接按固定速度算

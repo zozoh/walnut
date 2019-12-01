@@ -66,31 +66,6 @@ public abstract class JvmExecutor {
         return Strings.lowerWord(nm, '-');
     }
 
-    /**
-     * 这个在未来的某个版本，将会被删除，<code>WnSystem</code> 提供了代替方法
-     * 
-     * @see org.nutz.walnut.impl.box.WnSystem#getCurrentObj()
-     */
-    @Deprecated
-    protected WnObj getCurrentObj(WnSystem sys) {
-        String pwd = sys.se.vars().getString("PWD");
-        String path = Wn.normalizePath(pwd, sys);
-        WnObj re = sys.io.check(null, path);
-        return Wn.WC().whenEnter(re, false);
-    }
-
-    /**
-     * 这个在未来的某个版本，将会被删除，<code>WnSystem</code> 提供了代替方法
-     * 
-     * @see org.nutz.walnut.impl.box.WnSystem#getHome()
-     */
-    @Deprecated
-    protected WnObj getHome(WnSystem sys) {
-        String pwd = sys.se.vars().getString("HOME");
-        String path = Wn.normalizePath(pwd, sys);
-        return sys.io.check(null, path);
-    }
-
     protected WnObj getObj(WnSystem sys, String[] args) {
         ZParams params = ZParams.parse(args, null);
         List<WnObj> list = new LinkedList<WnObj>();

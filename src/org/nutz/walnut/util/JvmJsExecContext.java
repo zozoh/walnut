@@ -11,9 +11,9 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.WnOutputable;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.JvmBoxInput;
 import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -31,7 +31,7 @@ public class JvmJsExecContext implements JsExecContext {
 
     public WnOutputable err;
 
-    public WnSession se;
+    public WnAuthSession se;
 
     public JvmBoxInput in;
 
@@ -42,7 +42,7 @@ public class JvmJsExecContext implements JsExecContext {
         this.in = sys.in;
         this.out = out;
         this.err = sys.err;
-        this.se = sys.se;
+        this.se = sys.session;
     }
 
     public JvmJsExecContext(WnSystem sys, StringBuilder sb) {

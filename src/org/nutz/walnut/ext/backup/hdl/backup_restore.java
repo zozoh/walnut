@@ -20,7 +20,7 @@ public class backup_restore extends backup_xxx implements JvmHdl {
         BackupRestoreContext ctx = new BackupRestoreContext();
         ctx.sys = sys;
         ctx.log = sys.getLog(params);
-        ctx.se = sys.se;
+        ctx.se = sys.session;
 
         ctx.main = Wn.normalizeFullPath(hc.params.val_check(0), sys);
         WnObj mainWnObj = sys.io.check(null, ctx.main);

@@ -6,11 +6,11 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Region;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -53,13 +53,10 @@ public class noti_clean implements JvmHdl {
             }
 
             // 得到要操作的用户
-            String myName = sys.se.me();
-            WnUsr me = sys.usrService.check(myName);
+            WnAccount me = sys.getMe();
 
             // 得到自己在 root 组的权限
-            int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
-            boolean I_am_member_of_root = roleInRoot == Wn.ROLE.ADMIN
-                                          || roleInRoot == Wn.ROLE.MEMBER;
+            boolean I_am_member_of_root = sys.auth.isMemberOfGroup(me, "root");
 
             // 只有 root 组用户才能执行这个命令
             if (!I_am_member_of_root) {

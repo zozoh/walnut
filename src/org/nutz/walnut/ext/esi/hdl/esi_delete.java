@@ -14,7 +14,7 @@ public class esi_delete extends esi_xxx {
             return;
         }
         for (String id : hc.params.vals) {
-            esi(hc.ioc).delete(sys.me.name(), conf, id);
+            esi(hc.ioc).delete(sys.getMyName(), conf, id);
         }
     }
 

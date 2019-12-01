@@ -15,6 +15,8 @@ public class WnAuthSession {
 
     private long expi;
 
+    private NutMap vars;
+
     /**
      * 创建的会话方式，可能的值为：
      * 
@@ -33,11 +35,17 @@ public class WnAuthSession {
      */
     private String byValue;
 
+    private WnAuthSession() {
+        this.vars = new NutMap();
+    }
+
     public WnAuthSession(String ticket) {
+        this();
         this.ticket = ticket;
     }
 
     public WnAuthSession(WnObj oSe, WnObj oMe) {
+        this();
         if (null != oMe) {
             String uid = oSe.getString("uid");
             if (!oMe.isSameId(uid)) {
@@ -62,12 +70,44 @@ public class WnAuthSession {
         return map;
     }
 
+    public WnAuthSession clone() {
+        WnAuthSession se = new WnAuthSession();
+        se.id = this.id;
+        se.ticket = this.ticket;
+        se.expi = this.expi;
+        se.byType = this.byType;
+        se.byValue = this.byValue;
+        if (null != this.me)
+            se.me = this.me.clone();
+        if (null != this.vars)
+            se.vars = this.vars.duplicate();
+        return se;
+    }
+
+    public boolean isSame(WnAuthSession se) {
+        if (null != se) {
+            return this.id.equals(se.id);
+        }
+        return false;
+    }
+
+    public boolean isSameId(String sessionId) {
+        if (null != sessionId) {
+            return this.id.equals(sessionId);
+        }
+        return false;
+    }
+
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public boolean hasMe() {
+        return null != me;
     }
 
     public WnAccount getMe() {
@@ -116,6 +156,19 @@ public class WnAuthSession {
 
     public void setByValue(String byValue) {
         this.byValue = byValue;
+    }
+
+    public NutMap getVars() {
+        if (null == vars) {
+            vars = new NutMap();
+        }
+        return vars;
+    }
+
+    public void setVars(NutMap vars) {
+        if (null != vars) {
+            this.vars = vars;
+        }
     }
 
 }

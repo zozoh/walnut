@@ -33,6 +33,8 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -40,7 +42,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -62,16 +63,6 @@ public abstract class Wn {
     public static WnSysRuntime getRuntime() {
         return _rt.clone();
     }
-
-    // public static void main(String[] args) throws InterruptedException {
-    // for (int i = 0; i < 10; i++) {
-    // System.out.println(" N:" + System.nanoTime());
-    // System.out.println("ms:" + System.currentTimeMillis());
-    // System.out.println("ns:" + Wn.nanoTime());
-    // System.out.println("---------------------------------");
-    // Thread.sleep(100);
-    // }
-    // }
 
     private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhd])?$");
     private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
@@ -120,11 +111,11 @@ public abstract class Wn {
     }
 
     public static WnObj getObj(WnSystem sys, String str) {
-        return getObj(sys.io, sys.se, str);
+        return getObj(sys.io, sys.session, str);
 
     }
 
-    public static WnObj getObj(WnIo io, WnSession se, String str) {
+    public static WnObj getObj(WnIo io, WnAuthSession se, String str) {
         // // 用 ID
         // if (str.startsWith("id:")) {
         // String id = str.substring("id:".length());
@@ -156,11 +147,11 @@ public abstract class Wn {
     }
 
     public static WnObj checkObj(WnSystem sys, String str) {
-        return checkObj(sys.io, sys.se, str);
+        return checkObj(sys.io, sys.session, str);
 
     }
 
-    public static WnObj checkObj(WnIo io, WnSession se, String str) {
+    public static WnObj checkObj(WnIo io, WnAuthSession se, String str) {
         WnObj o = getObj(io, se, str);
         if (null == o)
             throw Er.create("e.io.obj.noexists", str);
@@ -168,7 +159,7 @@ public abstract class Wn {
     }
 
     /**
-     * 得到当前系统环境变量声明的 UI 目录列表
+     * 得到当前系统环境变量声明的路径列表
      * 
      * @param sys
      *            系统上下文
@@ -180,7 +171,8 @@ public abstract class Wn {
      * @return 列表
      */
     public static List<WnObj> getPathObjList(WnSystem sys, String varName, String dftPh) {
-        String paths = Strings.sBlank(sys.se.varString(varName), dftPh);
+        NutMap vars = sys.session.getVars();
+        String paths = vars.getString(varName, dftPh);
         String[] phs = Strings.splitIgnoreBlank(paths, ":");
 
         if (null == phs)
@@ -229,11 +221,11 @@ public abstract class Wn {
     }
 
     public static String normalizePath(String ph, WnSystem sys) {
-        return normalizePath(ph, sys.se);
+        return normalizePath(ph, sys.session);
     }
 
-    public static String normalizePath(String ph, WnSession se) {
-        return normalizePath(ph, se.vars());
+    public static String normalizePath(String ph, WnAuthSession se) {
+        return normalizePath(ph, se.getVars());
     }
 
     public static String normalizePath(String ph, NutMap vars) {
@@ -253,7 +245,7 @@ public abstract class Wn {
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
         // 嗯，搞一下变量吧
-        ph = normalizeFullPath(ph, sys.se);
+        ph = normalizeFullPath(ph, sys.session);
 
         // 如果 ph 里面有 ../id:xxx/... 则用这个来截断
         int pos = ph.lastIndexOf("/id:");
@@ -283,8 +275,8 @@ public abstract class Wn {
         return ph;
     }
 
-    public static String normalizeFullPath(String ph, WnSession se) {
-        return normalizeFullPath(ph, se.vars());
+    public static String normalizeFullPath(String ph, WnAuthSession se) {
+        return normalizeFullPath(ph, se.getVars());
     }
 
     public static String normalizeFullPath(String ph, NutMap vars) {
@@ -325,11 +317,11 @@ public abstract class Wn {
     }
 
     public static String normalizeStr(String str, WnSystem sys) {
-        return normalizeStr(str, sys.se);
+        return normalizeStr(str, sys.session);
     }
 
-    public static String normalizeStr(String str, WnSession se) {
-        return normalizeStr(str, se.vars());
+    public static String normalizeStr(String str, WnAuthSession se) {
+        return normalizeStr(str, se.getVars());
     }
 
     public static String normalizeStr(String str, NutMap env) {
@@ -704,52 +696,6 @@ public abstract class Wn {
         public static boolean isSYNC(int mode) {
             return Maths.isMask(mode, SYNC);
         }
-    }
-
-    public static class ROLE {
-
-        public static final int OTHERS = 0;
-
-        public static final int ADMIN = 1;
-
-        public static final int MEMBER = 10;
-
-        public static final int REQUEST = 100;
-
-        public static final int BLOCK = -1;
-
-        public static String getRoleName(int role) {
-            switch (role) {
-            case Wn.ROLE.ADMIN:
-                return "ADMIN";
-            case Wn.ROLE.BLOCK:
-                return "BLOCK";
-            case Wn.ROLE.MEMBER:
-                return "MEMBER";
-            case Wn.ROLE.OTHERS:
-                return "OTHERS";
-            case Wn.ROLE.REQUEST:
-                return "REQUEST";
-            default:
-                throw Er.create("e.io.role.invalid", role);
-            }
-        }
-
-        public static int getRoleValue(String roleName) {
-            String rn = roleName.toUpperCase();
-            if ("ADMIN".equals(rn))
-                return ADMIN;
-            if ("BLOCK".equals(rn))
-                return BLOCK;
-            if ("MEMBER".equals(rn))
-                return MEMBER;
-            if ("OTHERS".equals(rn))
-                return OTHERS;
-            if ("REQUEST".equals(rn))
-                return REQUEST;
-            throw Er.create("e.io.role.invalid", roleName);
-        }
-
     }
 
     public static class S {
@@ -1179,7 +1125,8 @@ public abstract class Wn {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {
             public void run() {
-                if (!Wn.WC().isAdminOf(sys.usrService, "root")) {
+                WnAccount me = Wn.WC().getMe();
+                if (sys.auth.isAdminOfGroup(me, "root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }
             }

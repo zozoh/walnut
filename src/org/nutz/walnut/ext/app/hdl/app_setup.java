@@ -10,6 +10,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.app.WnApps;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -80,8 +81,8 @@ public class app_setup implements JvmHdl {
      */
     private List<String> __filter_actions(WnSystem sys, WnObj o, List<String> actions) {
         List<String> list = new ArrayList<String>(actions.size());
-        
-        // 进入内核态，因为可能需要访问用户权限 
+
+        // 进入内核态，因为可能需要访问用户权限
         sys.nosecurity(new Atom() {
             public void run() {
                 WnContext wc = Wn.WC();
@@ -131,6 +132,7 @@ public class app_setup implements JvmHdl {
     // 条件用 ; 分隔，是 “或” 的关系
     private boolean __is_matched_role_of_group(WnSystem sys, String pvg) {
         String[] ss = Strings.splitIgnoreBlank(pvg, ";");
+        WnAccount me = sys.getMe();
         for (String s : ss) {
             Matcher m = _P.matcher(s);
             // 错误的输入，被认为是无效
@@ -141,12 +143,12 @@ public class app_setup implements JvmHdl {
             String[] grps = Strings.splitIgnoreBlank(m.group(2));
             // 判断
             if ("ADMIN".equals(roleName)) {
-                if (sys.usrService.isAdminOfGroup(sys.me, grps))
+                if (sys.auth.isAdminOfGroup(me, grps))
                     return true;
             }
             // 那就一定是成员咯
             else {
-                if (sys.usrService.isMemberOfGroup(sys.me, grps))
+                if (sys.auth.isMemberOfGroup(me, grps))
                     return true;
             }
 

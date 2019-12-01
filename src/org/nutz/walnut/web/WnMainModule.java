@@ -18,8 +18,8 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.view.WnViewMaker;
@@ -64,11 +64,10 @@ public class WnMainModule extends AbstractWnModule {
         }
 
         try {
-            String seid = Wn.WC().SEID();
-            WnSession se = sess.check(seid, true);
+            String ticket = Wn.WC().SEID();
+            WnAuthSession se = auth.touchSession(ticket);
             Wn.WC().SE(se);
-            Wn.WC().me(se.me(), se.group());
-            WnUsr me = Wn.WC().getMyUsr(usrs);
+            WnAccount me = se.getMe();
 
             // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
             if (me.isNameSameAsId()) {
@@ -76,7 +75,7 @@ public class WnMainModule extends AbstractWnModule {
             }
 
             // 查看会话环境变量，看看需要转到哪个应用
-            String appPath = se.vars().getString("OPEN");
+            String appPath = se.getVars().getString("OPEN", "wn.console");
 
             // 那么 Session 木有问题了
             return "/a/open/" + appPath;

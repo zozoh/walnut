@@ -21,7 +21,7 @@ public class hmaker_sites implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         // 得到要查找的域，默认的用自己的当前域
-        String dmn = hc.params.getString("d", sys.se.group());
+        String dmn = hc.params.getString("d", sys.getMyGroup());
 
         // 准备查询条件
         WnQuery q = new WnQuery();

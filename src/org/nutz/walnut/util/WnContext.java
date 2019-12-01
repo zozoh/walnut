@@ -1,9 +1,7 @@
 package org.nutz.walnut.util;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +14,8 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookBreak;
@@ -23,9 +23,6 @@ import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 
 /**
@@ -39,11 +36,11 @@ public class WnContext extends NutMap {
 
     private String seid;
 
-    private WnSession se;
+    private WnAuthSession se;
 
-    private String me;
-
-    private String grp;
+    // private String me;
+    //
+    // private String grp;
 
     private WnSecurity security;
 
@@ -52,59 +49,6 @@ public class WnContext extends NutMap {
     private WnHookContext hookContext;
 
     public long _timestamp;
-
-    // 缓存对应各个组的权限
-    private Map<String, Integer> roles;
-
-    // 缓存当前用户对象
-    private WnUsr oMe;
-
-    public WnContext() {
-        roles = new HashMap<>();
-    }
-
-    /**
-     * 默认的，会在线程上下文里缓存 me 对应的用户对象。但是当进行 JUnit 的时候 每次都要创建一个新用户，这时候缓存的用户 ID
-     * 已经不对了。所以提供这个函数，用来清除缓存
-     */
-    public void cleanMe() {
-        oMe = null;
-    }
-
-    public WnUsr getMyUsr(WnUsrService usrs) {
-        if (null == oMe || !oMe.name().equals(me)) {
-            oMe = usrs.check(me);
-        }
-        return oMe;
-    }
-
-    public int getMyRoleOf(WnUsrService usrs, String grp) {
-        Integer r = roles.get(grp);
-        if (null == r) {
-            WnUsr u = this.getMyUsr(usrs);
-            r = usrs.getRoleInGroup(u, grp);
-            roles.put(grp, r);
-        }
-        return r;
-    }
-
-    public boolean isMemberOf(WnUsrService usrs, String... grps) {
-        for (String grp : grps) {
-            int r = this.getMyRoleOf(usrs, grp);
-            if (Wn.ROLE.ADMIN == r || Wn.ROLE.MEMBER == r)
-                return true;
-        }
-        return false;
-    }
-
-    public boolean isAdminOf(WnUsrService usrs, String... grps) {
-        for (String grp : grps) {
-            int r = this.getMyRoleOf(usrs, grp);
-            if (Wn.ROLE.ADMIN == r)
-                return true;
-        }
-        return false;
-    }
 
     /**
      * query|each 的时候，是否自动加载全路径，默认应该是 false
@@ -165,29 +109,20 @@ public class WnContext extends NutMap {
 
                         try {
                             String runby = hook.getRunby();
-                            if (Strings.isBlank(runby))
+                            // 保持当前线程的用户
+                            if (Strings.isBlank(runby)) {
                                 hook.invoke(hc, o);
+                            }
+                            // 切换用户
                             else {
-                                final WnUsr oldUser = hc.getUser();
-                                final WnSession oldSession = hc.getSession();
-                                try {
-                                    this.security(new WnEvalLink(hc.io()), () -> {
-                                        WnUsr usr = hc.usrs().fetch(runby);
-                                        hc.setUser(usr);
-                                        hc.setSession(hc.sess().create(usr));
-                                        se = hc.getSession();
-                                        this.su(usr, new Atom() {
-                                            public void run() {
-                                                hook.invoke(hc, o);
-                                            }
-                                        });
+                                this.security(new WnEvalLink(hc.io()), () -> {
+                                    WnAccount usr = hc.auth().checkAccount(runby);
+                                    this.su(usr, new Atom() {
+                                        public void run() {
+                                            hook.invoke(hc, o);
+                                        }
                                     });
-                                }
-                                finally {
-                                    se = hc.getSession();
-                                    hc.setUser(oldUser);
-                                    hc.setSession(oldSession);
-                                }
+                                });
                             }
                         }
                         catch (WnHookBreak e) {
@@ -357,51 +292,52 @@ public class WnContext extends NutMap {
     }
 
     public String checkMe() {
-        if (null == me) {
+        if (null == se || !se.hasMe()) {
             throw Er.create("e.wc.null.me");
         }
-        return me;
+        return se.getMe().getName();
     }
 
     public String checkGroup() {
-        if (null == grp) {
-            throw Er.create("e.wc.null.grp");
+        if (null == se || !se.hasMe()) {
+            throw Er.create("e.wc.null.me");
         }
-        return grp;
+        return se.getMe().getGroupName();
     }
 
-    public void me(String me, String grp) {
-        this.me = me;
-        this.grp = grp;
-    }
-
-    public <T> T su(WnUsr u, Proton<T> proton) {
-        String old_me = me;
-        String old_grp = grp;
+    public <T> T su(WnAccount u, Proton<T> proton) {
+        if (null == se) {
+            throw Er.create("e.wc.null.session");
+        }
+        if (null == u) {
+            throw Er.create("e.wc.null.user");
+        }
+        WnAccount old_u = se.getMe();
         try {
-            me = u.name();
-            grp = u.mainGroup();
+            se.setMe(u);
             proton.run();
             return proton.get();
         }
         finally {
-            me = old_me;
-            grp = old_grp;
+            se.setMe(old_u);
         }
 
     }
 
-    public void su(WnUsr u, Atom atom) {
-        String old_me = me;
-        String old_grp = grp;
+    public void su(WnAccount u, Atom atom) {
+        if (null == se) {
+            throw Er.create("e.wc.null.session");
+        }
+        if (null == u) {
+            throw Er.create("e.wc.null.user");
+        }
+        WnAccount old_u = se.getMe();
         try {
-            me = u.name();
-            grp = u.mainGroup();
+            se.setMe(u);
             atom.run();
         }
         finally {
-            me = old_me;
-            grp = old_grp;
+            se.setMe(old_u);
         }
     }
 
@@ -424,38 +360,65 @@ public class WnContext extends NutMap {
         this.seid = seid;
     }
 
-    public WnSession SE() {
+    public WnAccount getMe() {
+        if (null != this.se) {
+            return this.se.getMe();
+        }
+        return null;
+    }
+
+    public String getMyId() {
+        WnAccount me = this.getMe();
+        if (null != me) {
+            return me.getId();
+        }
+        return null;
+    }
+
+    public String getMyName() {
+        WnAccount me = this.getMe();
+        if (null != me) {
+            return me.getName();
+        }
+        return null;
+    }
+
+    public String getMyGroup() {
+        WnAccount me = this.getMe();
+        if (null != me) {
+            return me.getGroupName();
+        }
+        return null;
+    }
+
+    public WnAuthSession SE() {
         // 防守一下，怕有其他的线程污染了这个上下文
         if (null != se) {
-            if (!se.isSame(seid))
+            if (!se.isSameId(seid))
                 return null;
         }
         // 返回
         return se;
     }
 
-    public void SE(WnSession se) {
+    public void SE(WnAuthSession se) {
         this.se = se;
         // 设置
         if (null != se) {
-            this.seid = se.id();
-            this.me = se.me();
-            this.grp = se.group();
+            this.seid = se.getId();
         }
         // 删除
         else {
             this.seid = null;
-            this.me = null;
-            this.grp = null;
         }
     }
 
-    public WnSession checkSE() {
+    public WnAuthSession checkSE() {
         if (null == seid) {
             throw Er.create("e.wc.null.seid");
         } else if (null == se) {
             throw Er.create("e.wc.null.se");
-        } else if (!se.id().equals(seid)) {
+        } else if (!se.isSameId(seid)) {
             throw Er.create("e.wc.seid.nomatch");
         }
         return se;
@@ -484,7 +447,4 @@ public class WnContext extends NutMap {
             }
     }
 
-    public String me() {
-        return me;
-    }
 }

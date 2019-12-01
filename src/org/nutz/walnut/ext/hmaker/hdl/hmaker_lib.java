@@ -108,7 +108,7 @@ public class hmaker_lib implements JvmHdl {
                 List<WnObj> oPageList = this.__query_refer_pages(sys, oSiteHome, libName);
 
                 // 准备一个转换上下
-                HmContext hpc = new HmContext(sys.io, sys.se.group());
+                HmContext hpc = new HmContext(sys.io, sys.getMyGroup());
 
                 // 开始循环处理
                 int sum = oPageList.size() + 1;

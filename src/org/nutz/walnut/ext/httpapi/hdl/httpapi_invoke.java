@@ -70,7 +70,7 @@ public class httpapi_invoke implements JvmHdl {
                 // .....................................................
                 // 准备元数据
                 NutMap meta = Lang.map("http-method", "GET");
-                meta.put("http-usr", c.usr.name());
+                meta.put("http-usr", c.usr.getName());
                 meta.put("http-api", rph);
                 meta.put("http-protocol", "HTTP/1.1");
                 meta.put("expi", System.currentTimeMillis() + 1800000L);

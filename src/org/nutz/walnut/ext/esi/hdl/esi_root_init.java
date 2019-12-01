@@ -9,7 +9,7 @@ public class esi_root_init implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        if (!"root".equals(sys.me.name())) {
+        if (!sys.getMe().isRoot()) {
             sys.err.print("only for root");
             return;
         }

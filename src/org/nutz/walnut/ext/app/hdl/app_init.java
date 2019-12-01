@@ -11,10 +11,10 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -39,17 +39,18 @@ public class app_init implements JvmHdl {
 
     private void __exec_without_security(WnSystem sys, JvmHdlContext hc) {
         // 得到要操作的用户
-        WnUsr u = sys.me;
+        WnAccount me = sys.getMe();
+        WnAccount u = sys.getMe();
         if (hc.params.has("u")) {
-            u = sys.usrService.check(hc.params.get("u"));
+            String unm = hc.params.get("u");
+            u = sys.auth.checkAccount(unm);
         }
 
-        boolean isME = u.isSameId(sys.me);
+        boolean isME = u.isSame(me);
 
         // 如果操作的用户不是自己，必须是 root 或者 op 组成员才能做
         if (!isME) {
-            if (!sys.usrService.isMemberOfGroup(sys.me, "root")
-                && !sys.usrService.isMemberOfGroup(sys.me, "op")) {
+            if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
                 throw Er.create("e.cmd.app_init.nopvg");
             }
         }
@@ -98,7 +99,7 @@ public class app_init implements JvmHdl {
         c.putDefault("scheme", sysconf.getMainScheme());
         c.putDefault("urlbase", sysconf.getMainUrlBase());
         c.put("sys", sysconf);
-        c.put("me", sys.me);
+        c.put("me", sys.getMyName());
 
         // 优先处理文件结构
         WnObj oFileS = sys.io.fetch(oTmpl, "_files");

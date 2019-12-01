@@ -1,9 +1,9 @@
 package org.nutz.walnut.ext.noti.hdl;
 
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -22,7 +22,7 @@ public class noti_del implements JvmHdl {
         String nid = hc.params.val_check(0);
 
         // 得到要操作的用户
-        String myName = sys.se.me();
+        String myName = sys.getMyName();
 
         // 进入内核态执行发送
         Wn.WC().core(null, true, null, () -> {
@@ -39,12 +39,10 @@ public class noti_del implements JvmHdl {
 
             // 不是我的消息，只能是 root 组的人才能删除
             if (!oN.getString("noti_c", "?").equals(myName)) {
-                WnUsr me = sys.usrService.check(myName);
+                WnAccount me = sys.auth.checkAccount(myName);
 
                 // 得到自己在 root 组的权限
-                int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
-                boolean I_am_member_of_root = roleInRoot == Wn.ROLE.ADMIN
-                                              || roleInRoot == Wn.ROLE.MEMBER;
+                boolean I_am_member_of_root = sys.auth.isMemberOfGroup(me, "root");
 
                 if (!I_am_member_of_root) {
                     throw Er.create("e.cmd.noti.del.nopvg", oN.id());

@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -55,6 +56,7 @@ public abstract class WnApps {
         return sys.nosecurity(new Proton<Boolean>() {
             protected Boolean exec() {
                 if (null != roles && roles.length > 0) {
+                    WnAccount me = sys.getMe();
                     for (String role : roles) {
                         String[] ss = Strings.splitIgnoreBlank(role, ":");
                         String roleName = ss[0];
@@ -62,12 +64,12 @@ public abstract class WnApps {
                         for (String grp : grps) {
                             // 管理员
                             if ("ADMIN".equals(roleName)) {
-                                if (sys.usrService.isAdminOfGroup(sys.me, grp))
+                                if (sys.auth.isAdminOfGroup(me, grp))
                                     return true;
                             }
                             // 成员
                             else if ("MEMBER".equals(roleName)) {
-                                if (sys.usrService.isMemberOfGroup(sys.me, grp))
+                                if (sys.auth.isMemberOfGroup(me, grp))
                                     return true;
                             }
                             // 角色名称错误

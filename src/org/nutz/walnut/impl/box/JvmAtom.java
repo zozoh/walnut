@@ -105,7 +105,7 @@ class JvmAtom extends JvmCmd implements Atom {
 
         // 切换线程上下文到当前用户，并执行业务逻辑
         final WnContext wc = Wn.WC();
-        wc.SE(sys.se);
+        wc.SE(sys.session);
 
         // 如果不是父线程运行的，则 copy 父线程变量
         if (parentContext != wc) {
@@ -117,7 +117,7 @@ class JvmAtom extends JvmCmd implements Atom {
             public void run() {
                 wc.security(secu, new Atom() {
                     public void run() {
-                        wc.su(sys.me, new Atom() {
+                        wc.su(sys.getMe(), new Atom() {
                             public void run() {
                                 __run();
                             }

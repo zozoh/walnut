@@ -34,7 +34,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.WnPager;
 
-@JvmHdlParamArgs(value="cnqihbslVNHQ", regex="^(pager|content|obj|match_all|debug|rawresp)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager|content|obj|match_all|debug|rawresp)$")
 public class esi_query extends esi_xxx {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -43,13 +43,13 @@ public class esi_query extends esi_xxx {
             sys.err.print("e.cmd.esi.query.miss_esi_conf");
             return;
         }
-        
+
         // 准备参数
         String match = hc.params.get("match");
         String _sort = hc.params.get("sort");
         WnPager pager = new WnPager(hc.params);
         String w = hc.params.get("w");
-        
+
         // 单一对象查询,设置一下分页
         if (hc.params.is("obj")) {
             pager.limit = 1;
@@ -61,21 +61,19 @@ public class esi_query extends esi_xxx {
         if (!Strings.isBlank(w)) {
             // 底层DSL数据直接上
             searchSourceBuilder.query(new WrapperQueryBuilder(w));
-        }
-        else {
+        } else {
             // 类obj -match语法上
-            searchSourceBuilder.query(toQuery(conf, match, hc.params.is("match_all"))); 
+            searchSourceBuilder.query(toQuery(conf, match, hc.params.is("match_all")));
         }
-        
+
         // 设置好分页和排序
         setupQuery(searchSourceBuilder, _sort, pager);
 
         // 开始请求, 同步模式
-        SearchRequest searchRequest = new SearchRequest(sys.me.name() + "_" + conf.getName()); 
+        SearchRequest searchRequest = new SearchRequest(sys.getMyName() + "_" + conf.getName());
         searchRequest.source(searchSourceBuilder);
         SearchResponse resp = esi(hc.ioc).getClient().search(searchRequest).actionGet();
-        
-        
+
         // 看看要输出什么
         if (hc.params.is("rawresp")) {
             // 输出原始resp
@@ -83,8 +81,7 @@ public class esi_query extends esi_xxx {
             resp.toXContent(builder, ToXContent.EMPTY_PARAMS);
             builder.flush();
             builder.close();
-        }
-        else {
+        } else {
             // 输出walnut对象列表
             pager.setSumCount(resp.getHits().totalHits);
             List<WnObj> list = new ArrayList<>();
@@ -110,21 +107,19 @@ public class esi_query extends esi_xxx {
                     QueryBuilder b2 = toQueryBuilder(conf, m2);
                     if (match_all) {
                         bool.must(b2);
-                    }
-                    else {
+                    } else {
                         bool.should(b2);
                     }
                 }
                 return bool;
-            }
-            else {
+            } else {
                 NutMap map = Lang.map(match);
                 return toQueryBuilder(conf, map);
             }
         }
         return QueryBuilders.matchAllQuery();
     }
-    
+
     public static QueryBuilder toQueryBuilder(EsiConf conf, Map<String, Object> match) {
         BoolQueryBuilder bool = new BoolQueryBuilder();
         for (Map.Entry<String, Object> en : match.entrySet()) {
@@ -132,7 +127,7 @@ public class esi_query extends esi_xxx {
         }
         return bool;
     }
-    
+
     @SuppressWarnings("unchecked")
     public static QueryBuilder toQueryBuilder(EsiConf conf, String key, Object value) {
         if (value == null)
@@ -141,10 +136,9 @@ public class esi_query extends esi_xxx {
         if (conf.getMapping().containsKey(key)) {
             if ("date".equals(conf.getMapping().get(key).type)) {
                 if (Lang.eleSize(value) > 1) {
-                    List<Object> list = (List<Object>)value;
+                    List<Object> list = (List<Object>) value;
                     return new RangeQueryBuilder(key).from(list.get(0)).to(list.get(1));
-                }
-                else {
+                } else {
                     return new MatchQueryBuilder(key, value);
                 }
             }
@@ -155,14 +149,11 @@ public class esi_query extends esi_xxx {
                 return new WildcardQueryBuilder(key, _value);
             }
             return new MatchQueryBuilder(key, _value);
-        }
-        else if (value instanceof Number) {
+        } else if (value instanceof Number) {
             return new MatchQueryBuilder(key, value);
-        }
-        else if (value instanceof Boolean) {
+        } else if (value instanceof Boolean) {
             return new MatchQueryBuilder(key, value);
-        }
-        else if (value.getClass().isArray() || value instanceof List) {
+        } else if (value.getClass().isArray() || value instanceof List) {
             int len = Lang.eleSize(value);
             if (len == 0) {
                 return new MatchQueryBuilder(key, null); // NULL?
@@ -172,7 +163,8 @@ public class esi_query extends esi_xxx {
             }
             BoolQueryBuilder bool = new BoolQueryBuilder();
             Lang.each(value, new Each<Object>() {
-                public void invoke(int index, Object ele, int length) throws ExitLoop, ContinueLoop, LoopException {
+                public void invoke(int index, Object ele, int length)
+                        throws ExitLoop, ContinueLoop, LoopException {
                     bool.should(toQueryBuilder(conf, key, ele));
                 }
             });
@@ -180,7 +172,7 @@ public class esi_query extends esi_xxx {
         }
         throw Lang.noImplement();
     }
-    
+
     public static void setupQuery(SearchSourceBuilder builder, String sort, WnPager pager) {
         // 排序
         if (!Strings.isBlank(sort)) {
@@ -188,8 +180,7 @@ public class esi_query extends esi_xxx {
             for (Map.Entry<String, Object> en : _s.entrySet()) {
                 if ("1".equals(String.valueOf(en.getValue()))) {
                     builder.sort(en.getKey(), SortOrder.ASC);
-                }
-                else {
+                } else {
                     builder.sort(en.getKey(), SortOrder.DESC);
                 }
             }

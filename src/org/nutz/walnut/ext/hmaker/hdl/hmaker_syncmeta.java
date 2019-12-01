@@ -20,7 +20,7 @@ public class hmaker_syncmeta implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 上下文
-        final HmContext hpc = new HmContext(sys.io, sys.se.group());
+        final HmContext hpc = new HmContext(sys.io, sys.getMyGroup());
         hpc.oConfHome = Wn.checkObj(sys, "~/.hmaker");
         hpc.oApiHome = Wn.getObj(sys, "~/.regapi/api");
 

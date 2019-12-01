@@ -15,7 +15,7 @@ public class esi_mapping extends esi_xxx {
             sys.err.print("e.cmd.esi.mapping.miss_esi_conf");
             return;
         }
-        esi(hc.ioc).putMapping(sys.me.name(), conf);
+        esi(hc.ioc).putMapping(sys.getMyName(), conf);
         sys.out.writeJson(conf, JsonFormat.full());
     }
 

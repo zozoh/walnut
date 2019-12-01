@@ -11,7 +11,6 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdlContext;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.app.WnApps;
@@ -26,8 +27,9 @@ public class app_sidebar implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         // 确保会话有关键变量,自己的域名
-        if (!sys.se.hasVar("SIDEBAR_DOMAIN"))
-            sys.se.var("SIDEBAR_DOMAIN", sys.se.var("MY_GRP"));
+        NutMap vars = sys.session.getVars();
+        if (!vars.has("SIDEBAR_DOMAIN"))
+            vars.put("SIDEBAR_DOMAIN", vars.getString("MY_GRP"));
 
         // 得到所有的 UI 主目录
         List<WnObj> oUIHomes = WnApps.getUIHomes(sys);
@@ -122,7 +124,8 @@ public class app_sidebar implements JvmHdl {
 
         // 环境变量次优
         if (Strings.isBlank(phConf)) {
-            phConf = sys.se.varString("SIDEBAR");
+            NutMap vars = sys.session.getVars();
+            phConf = vars.getString("SIDEBAR");
 
             // 否则看看是否指定了默认配置的位置
             if (Strings.isBlank(phConf)) {

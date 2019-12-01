@@ -43,10 +43,10 @@ public class backup_dump extends backup_xxx implements JvmHdl {
                 return;
             }
             // 先读取基准路径
-            if (sys.me.name().equals("root")) {
+            if (sys.getMyName().equals("root")) {
                 conf.base = hc.params.get("base", "/");
             } else {
-                conf.base = hc.params.get("base", "/home/" + sys.me.name());
+                conf.base = hc.params.get("base", "/home/" + sys.getMyName());
             }
             if (!conf.base.startsWith("/"))
                 conf.base = "/" + conf.base;
@@ -103,7 +103,7 @@ public class backup_dump extends backup_xxx implements JvmHdl {
             }
         }
         // 设置必要的临时变量
-        conf.se = sys.se;
+        conf.se = sys.session;
         conf.sys = sys;
         conf.sha1Set = new HashSet<>();
         conf.log = sys.getLog(hc.params);

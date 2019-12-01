@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.mt90.hdl;
 
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -16,15 +15,17 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value="cqn", regex="^(fixed)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(fixed)$")
 public class mt90_ply_update implements JvmHdl {
-    
+
     private static final Log log = Logs.get();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        String line = sys.io.readText(sys.io.check(null, Wn.normalizeFullPath(hc.params.val_check(0), sys)));
-        
+        String line = sys.io.readText(sys.io.check(null,
+                                                   Wn.normalizeFullPath(hc.params.val_check(0),
+                                                                        sys)));
+
         Mt90Raw raw = Mt90Raw.mapping(line.trim());
         if (raw == null) {
             return;
@@ -55,33 +56,33 @@ public class mt90_ply_update implements JvmHdl {
         meta.put("u_tkr_rssi", raw.gsmRssi); // 信号强度
         meta.put("u_tkr_satellite", raw.satellite); // 卫星数量
         meta.put("u_tkr_voltage", raw.powerVoltage); // 电池电压
-        
+
         if (hc.params.has("map")) {
             try {
                 String _map = hc.params.get("map");
                 WoozMap map = Mt90Map.get(sys.io, Wn.normalizeFullPath(_map, sys));
-                
+
                 // 如果没有指定开始和结束使用,但指定了map, 获取赛事
-                WnObj proj = sys.io.checkById(sys.io.check(null, Wn.normalizeFullPath(_map, sys)).parentId());
+                WnObj proj = sys.io.checkById(sys.io.check(null, Wn.normalizeFullPath(_map, sys))
+                                                    .parentId());
                 long begin = proj.getLong("d_start");
                 long end = proj.getLong("d_end", Long.MAX_VALUE);
-                
-                if (begin > 0 && begin > raw.gpsDate.getTime() ) {
-                    //log.debug("比赛尚未开始, 固定在起点");
+
+                if (begin > 0 && begin > raw.gpsDate.getTime()) {
+                    // log.debug("比赛尚未开始, 固定在起点");
                     meta.put("u_trk_route_index", 0);
                     meta.put("u_trk_route_distance", 0);
-                }
-                else if (end > 0 && raw.gpsDate.getTime() > (end + 3600 * 1000)) {
-                    //log.debug("比赛已经结束, 固定在起点");
+                } else if (end > 0 && raw.gpsDate.getTime() > (end + 3600 * 1000)) {
+                    // log.debug("比赛已经结束, 固定在起点");
                     meta.put("u_trk_route_index", map.points.size() - 1);
                     meta.put("u_trk_route_distance", 0);
                 }
             }
             catch (Throwable e) {
-                //log.warn("尝试匹配选手轨迹点到线路时报错了", e);
+                // log.warn("尝试匹配选手轨迹点到线路时报错了", e);
             }
         }
-        
+
         for (String val : hc.params.vals) {
             WnObj wobj = sys.io.check(null, Wn.normalizeFullPath(val, sys));
             // 过滤跟踪时间

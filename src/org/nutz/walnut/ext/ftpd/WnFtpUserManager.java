@@ -23,9 +23,9 @@ import org.nutz.walnut.util.WnRun;
 
 @IocBean
 public class WnFtpUserManager extends AbstractUserManager {
-    
+
     private static final Log log = Logs.get();
-    
+
     @Inject
     protected WnRun wnRun;
 
@@ -73,15 +73,14 @@ public class WnFtpUserManager extends AbstractUserManager {
 
     public boolean doesExist(String username) throws FtpException {
         try {
-            return wnRun.usrs().fetch(username) != null;
+            return wnRun.auth().getAccount(username) != null;
         }
         catch (Exception e) {
             return false;
         }
     }
 
-    public User authenticate(Authentication authentication)
-            throws AuthenticationFailedException {
+    public User authenticate(Authentication authentication) throws AuthenticationFailedException {
         if (authentication instanceof UsernamePasswordAuthentication) {
             UsernamePasswordAuthentication upauth = (UsernamePasswordAuthentication) authentication;
 

@@ -21,11 +21,11 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -91,7 +91,7 @@ public class cmd_email extends JvmExecutor {
 
     public List<WnObj> _listLocal(MailCtx mc, int limit) {
         WnSystem sys = mc.sys;
-        WnUsr u = sys.me;
+        WnAccount u = sys.getMe();
         String phHome = userHome(u);
         String mailHome = phHome + "/.mail";
         WnObj mh = sys.io.fetch(null, mailHome);
@@ -196,12 +196,12 @@ public class cmd_email extends JvmExecutor {
             // TODO 切换到root,否则没法往其他用户的文件夹写文件吧
             String mailName = Times.sD(Times.now())
                               + "_"
-                              + mc.sys.me.name()
+                              + mc.sys.getMyName()
                               + "_"
                               + R.UU32()
                               + ".mail";
             for (MailReceiver mailReceiver : rc) {
-                WnUsr u = mc.sys.usrService.check(mailReceiver.name);
+                WnAccount u = mc.sys.auth.checkAccount(mailReceiver.name);
                 String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
@@ -209,7 +209,7 @@ public class cmd_email extends JvmExecutor {
                 io.writeJson(oTmpl, mc, JsonFormat.full());
             }
             for (MailReceiver mailReceiver : cc) {
-                WnUsr u = mc.sys.usrService.check(mailReceiver.name);
+                WnAccount u = mc.sys.auth.checkAccount(mailReceiver.name);
                 String localMailHome = userHome(u) + "/.mail/";
                 if (!io.exists(null, localMailHome))
                     io.create(null, localMailHome, WnRace.DIR);
@@ -232,7 +232,7 @@ public class cmd_email extends JvmExecutor {
                 }
                 String fnm = mc.from;
                 if (Strings.isBlank(fnm)) {
-                    fnm = hostCnf.from == null ? mc.sys.me.name() : hostCnf.from;
+                    fnm = hostCnf.from == null ? mc.sys.getMyName() : hostCnf.from;
                 }
                 ihe.setFrom(hostCnf.account, fnm);
                 ihe.setHtmlMsg(mc.msg);
@@ -271,8 +271,8 @@ public class cmd_email extends JvmExecutor {
         sys.out.print("====================================\n");
     }
 
-    public String userHome(WnUsr u) {
-        return "root".equals(u.name()) ? "/root" : "/home/" + u.name();
+    public String userHome(WnAccount u) {
+        return u.isRoot() ? "/root" : "/home/" + u.getName();
     }
 
     public List<MailReceiver> parse(MailCtx mc, String names) {
@@ -292,7 +292,7 @@ public class cmd_email extends JvmExecutor {
                     mr.name = rev;
                     mr.email = rev;
                 } else {
-                    mr.email = mc.sys.usrService.check(mr.name).email();
+                    mr.email = mc.sys.auth.checkAccount(mr.name).getEmail();
                     mr.name = rev;
                 }
             }

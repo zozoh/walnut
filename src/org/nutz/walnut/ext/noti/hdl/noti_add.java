@@ -3,9 +3,9 @@ package org.nutz.walnut.ext.noti.hdl;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.noti.WnNotiHandler;
 import org.nutz.walnut.ext.noti.WnNotis;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -25,20 +25,19 @@ public class noti_add implements JvmHdl {
         String notiType = hc.params.val_check(0);
 
         // 寻找处理器
-        WnNotiHandler noti = WnNotis.checkHandler(notiType);
+        final WnNotiHandler noti = WnNotis.checkHandler(notiType);
 
         // 进入内核态执行添加
         final WnContext wc = Wn.WC();
         WnObj oN = wc.core(null, true, null, new Proton<WnObj>() {
             protected WnObj exec() {
                 // 得到要操作的用户
-                String myName = sys.se.me();
-                WnUsr me = sys.usrService.check(myName);
+                WnAccount me = sys.getMe();
 
                 // 得到自己在 root 组的权限
-                int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
-                boolean I_am_admin_of_root = roleInRoot == Wn.ROLE.ADMIN;
-                boolean I_am_member_of_root = I_am_admin_of_root || roleInRoot == Wn.ROLE.MEMBER;
+                boolean I_am_admin_of_root = sys.auth.isMemberOfGroup(me, "root");
+                boolean I_am_member_of_root = I_am_admin_of_root
+                                              || sys.auth.isMemberOfGroup(me, "root");
 
                 // 修改等级设定
                 int lv = hc.params.getInt("lv", 1);
@@ -64,7 +63,7 @@ public class noti_add implements JvmHdl {
 
                 // 修改通用属性
                 meta.put("tp", "wn_noti");
-                meta.put("noti_c", myName);
+                meta.put("noti_c", me.getName());
                 meta.put("noti_lv", lv);
                 meta.put("noti_st", WnNotis.TP_WAITING);
                 meta.put("noti_timeout_at", 0);

@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.nutz.log.Log;
-import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class BackupRestoreContext {
@@ -15,7 +15,7 @@ public class BackupRestoreContext {
      * 根路径
      */
     public String target;
-    
+
     public String base;
 
     public boolean force_id;
@@ -50,7 +50,7 @@ public class BackupRestoreContext {
      * 是否详细输出
      */
     public boolean debug;
-    
+
     public boolean overwrite;
 
     /**
@@ -62,7 +62,7 @@ public class BackupRestoreContext {
 
     // 支撑运行所需要的对象
     public transient WnSystem sys;
-    public transient WnSession se;
+    public transient WnAuthSession se;
     public transient Log log;
     public transient List<BackupPackage> prevPackages;
     public transient Set<String> sha1Set;

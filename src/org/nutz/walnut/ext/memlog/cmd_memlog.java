@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.memlog;
 
 import java.util.List;
 
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.MemoryWriterAppender;
@@ -10,7 +11,8 @@ import org.nutz.walnut.util.ZParams;
 public class cmd_memlog extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+        WnAccount me = sys.getMe();
+        if (!sys.auth.isMemberOfGroup(me, "root")) {
             sys.err.println("permission denied");
             return;
         }

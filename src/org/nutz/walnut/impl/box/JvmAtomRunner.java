@@ -13,6 +13,7 @@ import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
@@ -22,8 +23,6 @@ import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.SyncWnTunnel;
@@ -176,7 +175,7 @@ public class JvmAtomRunner {
             return;
 
         // 执行预处理
-        cmdLine = Wn.normalizeStr(cmdLine, bc.session.vars());
+        cmdLine = Wn.normalizeStr(cmdLine, bc.session.getVars());
 
         // 执行处理后的命令行（不再处理预处理指令了）
         try {
@@ -208,8 +207,7 @@ public class JvmAtomRunner {
     @SuppressWarnings("resource")
     private void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
-        WnSession se = bc.session;
-        WnUsr me = bc.me.clone();
+        WnAuthSession se = bc.session;
 
         // 标记状态
         status = WnBoxStatus.RUNNING;
@@ -221,7 +219,7 @@ public class JvmAtomRunner {
         final WnContext wc = Wn.WC();
 
         // 启动安全检查接口
-        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.usrService);
+        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth);
 
         // 如果调用线程设置了钩子，那么本执行器所有的线程也都要执行相同的钩子设定
         // 只是需要确保会话和当前用户与 Box 一致
@@ -261,12 +259,10 @@ public class JvmAtomRunner {
             a.sys.nextId = i + 1;
             a.sys.cmdOriginal = cmds[i];
             // a.sys.cmdOriginal = cmds[i];
-            a.sys.se = se;
-            a.sys.me = me;
+            a.sys.session = se;
             a.sys.err = boxErr;
             a.sys.io = bc.io;
-            a.sys.usrService = bc.usrService;
-            a.sys.sessionService = bc.sessionService;
+            a.sys.auth = bc.auth;
             a.sys.jef = jef;
             a.secu = secu;
             a.hc = hc;

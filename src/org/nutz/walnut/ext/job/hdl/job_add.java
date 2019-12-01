@@ -55,9 +55,15 @@ public class job_add extends job_abstract {
 
         // 用根用户权限执行
         String cmdText = cmd;
-        String runByUser ="root".equals(sys.me.name()) ? hc.params.get("user", "root") : sys.me.name();
+        String runByUser = "root".equals(sys.getMyName()) ? hc.params.get("user", "root")
+                                                          : sys.getMyName();
         WnRun.sudo(sys, () -> {
-            id[0] = WnJobService.me.addJob(cmdText, name, cron, sys.me.name(), runByUser, sys.se.vars());
+            id[0] = WnJobService.me.addJob(cmdText,
+                                           name,
+                                           cron,
+                                           sys.getMyName(),
+                                           runByUser,
+                                           sys.session.getVars());
         });
 
         // 打印任务的 ID

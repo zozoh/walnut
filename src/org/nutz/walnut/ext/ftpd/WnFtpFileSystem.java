@@ -5,26 +5,26 @@ import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.WnRun;
 
 public class WnFtpFileSystem implements FileSystemView {
-    
+
     protected WnIo io;
     protected WnObj homeDir;
     protected WnObj currentDir;
-    protected WnUsr u;
-    protected WnUsrService usrs;
+    protected WnAccount u;
+    protected WnAuthService auth;
     protected WnRun run;
-    
-    public WnFtpFileSystem(WnRun run, WnUsr u, WnObj home) {
+
+    public WnFtpFileSystem(WnRun run, WnAccount u, WnObj home) {
         super();
         this.run = run;
         this.io = run.io();
-        this.usrs = run.usrs();
+        this.auth = run.auth();
         this.u = u;
         homeDir = home;
         currentDir = homeDir;
@@ -59,7 +59,7 @@ public class WnFtpFileSystem implements FileSystemView {
         }
         return getFile(io.fetch(null, file), file);
     }
-    
+
     public FtpFile getFile(WnObj obj, String file) {
         return new WnFtpFile(this, obj, obj == null ? file : obj.path());
     }
@@ -72,11 +72,11 @@ public class WnFtpFileSystem implements FileSystemView {
     public void dispose() {}
 
     protected void su(Atom atom) {
-        run.runWithHook(u, u.group(), null, (session) -> atom.run());
+        run.runWithHook(u, u.getGroupName(), null, (session) -> atom.run());
     }
-    
+
     protected <T> T su2(Proton<T> proton) {
-        run.runWithHook(u, u.group(), null, (session) -> proton.run());
+        run.runWithHook(u, u.getGroupName(), null, (session) -> proton.run());
         return proton.get();
     }
 

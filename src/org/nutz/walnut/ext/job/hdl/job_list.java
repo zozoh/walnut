@@ -17,7 +17,7 @@ public class job_list extends job_abstract {
 
                 ZParams params = ZParams.parse(hc.args, null);
                 //String mode = params.get("mode", "simple");
-                String user = user(sys.me.name(), params.get("user"));
+                String user = user(sys.getMyName(), params.get("user"));
                 
                 WnQuery query = new WnQuery();
                 query.setv("pid", jobRootDir(sys).id());

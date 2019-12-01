@@ -30,13 +30,13 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -61,7 +61,7 @@ public class HttpApiModule extends AbstractWnModule {
                        final HttpServletRequest req,
                        final HttpServletResponse resp)
             throws IOException {
-        final WnUsr u;
+        final WnAccount u;
         final WnObj oHome;
         final WnObj oApi;
         int respCode = 500;
@@ -71,8 +71,8 @@ public class HttpApiModule extends AbstractWnModule {
                 log.infof("httpAPI(%s): /%s/%s", Lang.getIP(req), usr, api);
 
             // 得到用户和主目录
-            u = usrs.check(usr);
-            String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
+            u = auth.checkAccount(usr);
+            String homePath = u.getHomePath();
             oHome = io.check(null, homePath);
 
             // 找到 API 对象
@@ -85,16 +85,19 @@ public class HttpApiModule extends AbstractWnModule {
             }
 
             // 如果有原来的老会话，则记录一下操作会话
-            WnSession oldSe = null;
-            String seid = Wn.WC().SEID();
-            if (!Strings.isBlank(seid)) {
-                oldSe = this.sess().fetch(seid);
+            WnAuthSession oldSe = null;
+            String ticket = Wn.WC().SEID();
+            if (!Strings.isBlank(ticket)) {
+                oldSe = this.auth.checkSession(ticket);
             }
 
             // 将当前线程切换到指定的用户
             WnContext wc = Wn.WC();
-            wc.me("root", "root");
-            WnSession se = sess.create(u);
+            WnAuthSession se = wc.nosecurity(io, new Proton<WnAuthSession>() {
+                protected WnAuthSession exec() {
+                    return auth.createSession(u);
+                }
+            });
             wc.SE(se);
 
             // 如果 API 文件声明了需要 copy 的 cookie 到线程上下文 ...
@@ -117,10 +120,10 @@ public class HttpApiModule extends AbstractWnModule {
             try {
                 // 带钩子方式的运行
                 if (oApi.getBoolean("run-with-hook")) {
-                    this.runWithHook(se, u, new Callback<WnSession>() {
-                        public void invoke(WnSession se) {
+                    this.runWithHook(se, new Callback<WnAuthSession>() {
+                        public void invoke(WnAuthSession se) {
                             try {
-                                _do_api(oReq, resp, oHome, se, u, oApi);
+                                _do_api(oReq, resp, oHome, se, oApi);
                             }
                             catch (IOException e) {
                                 throw Er.wrap(e);
@@ -130,12 +133,12 @@ public class HttpApiModule extends AbstractWnModule {
                 }
                 // 不带钩子
                 else {
-                    _do_api(oReq, resp, oHome, se, u, oApi);
+                    _do_api(oReq, resp, oHome, se, oApi);
                 }
             }
             // 确保退出登录
             finally {
-                sess.logout(se.id());
+                auth.removeSession(se);
                 wc.SE(null);
             }
         }
@@ -225,8 +228,7 @@ public class HttpApiModule extends AbstractWnModule {
     private void _do_api(WnObj oReq,
                          HttpServletResponse resp,
                          final WnObj oHome,
-                         WnSession se,
-                         WnUsr u,
+                         WnAuthSession se,
                          WnObj oApi)
             throws IOException {
 
@@ -261,19 +263,19 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 重定向
         if (respCode == 301 || respCode == 302) {
-            _do_redirect(resp, cmdText, se, u);
+            _do_redirect(resp, cmdText, se);
         }
         // 肯定要写入返回流
         else {
-            _do_run_box(oApi, oReq, mimeType, resp, cmdText, se, u);
+            _do_run_box(oApi, oReq, mimeType, resp, cmdText, se);
         }
     }
 
     private WnObj __gen_req_obj(HttpServletRequest req,
-                                WnUsr u,
+                                WnAccount u,
                                 WnObj oApi,
                                 final WnObj oTmp,
-                                WnSession oldSe)
+                                WnAuthSession se)
             throws UnsupportedEncodingException, IOException {
         // 创建临时文件以便保存请求的内容
         WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
@@ -285,15 +287,16 @@ public class HttpApiModule extends AbstractWnModule {
         NutMap map = new NutMap();
 
         // 保存 http 参数
-        map.setv("http-usr", u.name());
+        map.setv("http-usr", u.getName());
         map.setv("http-api", oApi.name());
 
         // 记录老的Session对象信息
-        if (null != oldSe) {
-            map.setv("http-se-id", oldSe.id());
-            map.setv("http-se-usr", oldSe.me());
-            map.setv("http-se-grp", oldSe.group());
-            map.setv("http-se-obj", oldSe.toMapForClient());
+        if (null != se) {
+            map.setv("http-se-id", se.getId());
+            map.setv("http-se-ticket", se.getTicket());
+            map.setv("http-se-me-name", se.getMe().getName());
+            map.setv("http-se-me-group", se.getMe().getGroupName());
+            map.setv("http-se-vars", se.getVars());
         }
 
         // 记录请求信息的其他数据
@@ -366,7 +369,7 @@ public class HttpApiModule extends AbstractWnModule {
         return oReq;
     }
 
-    private void _do_redirect(HttpServletResponse resp, String cmdText, WnSession se, WnUsr u)
+    private void _do_redirect(HttpServletResponse resp, String cmdText, WnAuthSession se)
             throws IOException {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
@@ -392,8 +395,7 @@ public class HttpApiModule extends AbstractWnModule {
                              String mimeType,
                              HttpServletResponse resp,
                              String cmdText,
-                             WnSession se,
-                             WnUsr u)
+                             WnAuthSession se)
             throws UnsupportedEncodingException {
         // 执行命令
         WnBox box = boxes.alloc(0);
@@ -404,10 +406,8 @@ public class HttpApiModule extends AbstractWnModule {
         // 设置沙箱
         WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
-        bc.me = u;
         bc.session = se;
-        bc.usrService = usrs;
-        bc.sessionService = sess;
+        bc.auth = auth;
 
         if (log.isDebugEnabled())
             log.debugf("box:setup: %s", bc);

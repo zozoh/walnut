@@ -29,25 +29,12 @@ public class WnAccount {
     /**
      * 主组，如果是域账户，主组则为当前域
      */
-    private String group;
+    private String groupName;
 
     /**
-     * 在主组中的角色值：
-     * 
-     * <ul>
-     * <li>role:0 不在组内
-     * <li>role:1 管理员
-     * <li>role:10 组员
-     * <li>role:100 预备组员，等待管理员审批，等待期间，和非组员权限一样
-     * <li>role:-1 黑名单，这个权限的人对这个组里所有的数据都是不可见的
-     * </ul>
+     * 域角色名，这个只有域用户在域用户表里才能指定的。用来判断业务权限
      */
-    private WnGroupRole groupRole;
-
-    /**
-     * 角色名，这个只有域用户在域用户表里才能指定的。用来判断业务权限
-     */
-    private String role;
+    private String roleName;
 
     @JsonIgnore
     private NutMap OAuth2s;
@@ -101,11 +88,11 @@ public class WnAccount {
             }
             // group
             else if ("grp".equals(key)) {
-                this.setGroup(bean.getString(key));
+                this.setGroupName(bean.getString(key));
             }
             // role
             else if ("role".equals(key)) {
-                this.setRole(bean.getString(key));
+                this.setRoleName(bean.getString(key));
             }
             // nickname
             else if ("th_nm".equals(key)) {
@@ -151,8 +138,8 @@ public class WnAccount {
         bean.put("nm", name);
         bean.put("phone", phone);
         bean.put("email", email);
-        bean.put("grp", group);
-        bean.put("role", role);
+        bean.put("grp", groupName);
+        bean.put("role", roleName);
         bean.put("th_nm", nickname);
         bean.put("thumb", thumb);
         bean.put("login", loginAt);
@@ -187,6 +174,50 @@ public class WnAccount {
 
     public boolean isSameId(String uid) {
         return null != id && null != uid && id.equals(uid);
+    }
+
+    public boolean isSameName(String uname) {
+        return null != name && null != uname && name.equals(uname);
+    }
+
+    public boolean isSame(WnAccount ta) {
+        if (null != ta) {
+            return id.equals(ta.getId());
+        }
+        return false;
+    }
+
+    public boolean isRoot() {
+        return "root".equals(name);
+    }
+
+    public boolean isNameSameAsId() {
+        return null != id && id.equals(name);
+    }
+
+    public WnAccount clone() {
+        WnAccount ta = new WnAccount();
+        ta.id = this.id;
+        ta.name = this.name;
+        ta.email = this.email;
+        ta.nickname = this.nickname;
+        ta.thumb = this.thumb;
+        ta.sex = this.sex;
+        ta.loginAt = this.loginAt;
+        ta.groupName = this.groupName;
+        ta.roleName = this.roleName;
+        ta.passwd = this.passwd;
+        ta.salt = this.salt;
+        if (null != this.OAuth2s) {
+            ta.OAuth2s = this.OAuth2s.duplicate();
+        }
+        if (null != wxOpenIds) {
+            ta.wxOpenIds = this.wxOpenIds.duplicate();
+        }
+        if (null != this.meta) {
+            ta.meta = this.meta.duplicate();
+        }
+        return ta;
     }
 
     public String getId() {
@@ -262,37 +293,20 @@ public class WnAccount {
         this.loginAt = loginAt;
     }
 
-    public String getGroup() {
-        return group;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setGroupName(String group) {
+        this.groupName = group;
     }
 
-    public WnGroupRole getGroupRole() {
-        return groupRole;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setGroupRole(int groupRole) {
-        this.groupRole = WnGroupRole.parseInt(groupRole);
-    }
-
-    public void setGroupRole(WnGroupRole groupRole) {
-        this.groupRole = groupRole;
-    }
-
-    public void setGroupRole(String groupRole) {
-        groupRole = Strings.sBlank(groupRole, "GUEST").toUpperCase();
-        this.groupRole = WnGroupRole.valueOf(groupRole);
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoleName(String role) {
+        this.roleName = role;
     }
 
     public String getOAuth2(String key) {
@@ -320,6 +334,21 @@ public class WnAccount {
 
     public Object getMeta(String key) {
         return meta.get(key);
+    }
+
+    public String getMetaString(String key) {
+        return meta.getString(key);
+    }
+
+    public String getHomePath() {
+        String home = this.getMetaString("HOME");
+        if (!Strings.isBlank(home)) {
+            return home;
+        }
+        if (this.isRoot()) {
+            return "/root";
+        }
+        return "/home/" + this.getName();
     }
 
     public static boolean isValidMetaName(String name) {

@@ -49,6 +49,7 @@ public class GuestModule extends AbstractWnModule {
     @Inject
     protected PropertiesProxy conf;
 
+    // 这个临时变量是在 conf 被设置时初始化的
     protected boolean enableSecurity;
 
     @At("/**")
@@ -67,7 +68,7 @@ public class GuestModule extends AbstractWnModule {
         if (enableSecurity) {
             WnSecurity wns = Wn.WC().getSecurity();
             try {
-                Wn.WC().setSecurity(new WnSecurityImpl(io, usrs));
+                Wn.WC().setSecurity(new WnSecurityImpl(io, auth));
                 o = Wn.WC().whenRead(o, false);
             }
             finally {

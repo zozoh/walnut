@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -30,13 +30,10 @@ public class noti_list implements JvmHdl {
         // 进入内核态执行查找
         Wn.WC().core(null, true, null, () -> {
             // 得到要操作的用户
-            String myName = sys.se.me();
-            WnUsr me = sys.usrService.check(myName);
+            WnAccount me = sys.getMe();
 
             // 得到自己在 root 组的权限
-            int roleInRoot = sys.usrService.getRoleInGroup(me, "root");
-            boolean I_am_member_of_root = roleInRoot == Wn.ROLE.ADMIN
-                                          || roleInRoot == Wn.ROLE.MEMBER;
+            boolean I_am_member_of_root = sys.auth.isMemberOfGroup(me, "root");
 
             // 得到消息主目录
             WnObj oNotiHome = sys.io.createIfNoExists(null, "/sys/noti", WnRace.DIR);
@@ -49,7 +46,7 @@ public class noti_list implements JvmHdl {
 
             // 普通用户只能查询自己的消息
             if (!I_am_member_of_root) {
-                q.setv("noti_c", myName);
+                q.setv("noti_c", me.getName());
             }
             // 否则，可以是任何消息
             else if (hc.params.has("u")) {

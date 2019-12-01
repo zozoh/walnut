@@ -73,9 +73,9 @@ public class DockerBox implements WnBox {
         	NutMap params = new NutMap();
         	params.put("cmd", cmdText);
         	if (bc != null) {
-        		params.put("seid", bc.session.id());
-        		params.put("me", bc.me.name());
-        		params.put("env", bc.session.vars());
+        		params.put("seid", bc.session.getTicket());
+        		params.put("me", bc.session.getMe());
+        		params.put("env", bc.session.getVars());
         	}
         	Request req = Request.create("http://127.0.0.1:12099/walnut/call", METHOD.POST);
         	req.setData(Json.toJson(params));
