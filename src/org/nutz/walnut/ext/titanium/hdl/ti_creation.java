@@ -5,7 +5,6 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.creation.TiCreation;
 import org.nutz.walnut.ext.titanium.creation.TiCreationOutput;
@@ -42,7 +41,7 @@ public class ti_creation implements JvmHdl {
         sw.tag("ok:checkObj");
 
         // 获取视图搜寻路径
-        String VIEW_PATH = Strings.sBlank(sys.se.varString("VIEW_PATH"), "/rs/ti/view/");
+        String VIEW_PATH = sys.session.getVars().getString("VIEW_PATH", "/rs/ti/view/");
         String[] viewHomePaths = Strings.splitIgnoreBlank(VIEW_PATH, ":");
 
         // 准备获取的创建

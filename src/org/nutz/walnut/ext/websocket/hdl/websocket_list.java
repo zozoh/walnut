@@ -29,7 +29,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@JvmHdlParamArgs("^clean$")
+@JvmHdlParamArgs("^(clean)$")
 public class websocket_list implements JvmHdl {
 
     @Override
@@ -53,7 +53,7 @@ public class websocket_list implements JvmHdl {
             q.setAll(map);
         }
         // 固定条件
-        q.setv("d1", sys.se.group());
+        q.setv("d1", sys.getMyGroup());
         q.setv(WnWebSocket.KEY, new NutMap("$exists", true));
         // 跳过
         q.skip(hc.params.getInt("skip", 0));

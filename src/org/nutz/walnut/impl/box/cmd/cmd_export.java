@@ -1,6 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
@@ -10,10 +11,11 @@ public class cmd_export extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
+        NutMap vars = sys.session.getVars();
         // 没参数显示所有环境变量
         if (args.length == 0) {
-            for (String key : sys.se.vars().keySet()) {
-                sys.out.printlnf("%-8s : %s", key, sys.se.vars().getString(key));
+            for (String key : vars.keySet()) {
+                sys.out.printlnf("%-8s : %s", key, vars.getString(key));
             }
         }
         // 逐个的添加
@@ -24,12 +26,12 @@ public class cmd_export extends JvmExecutor {
                     String key = Strings.trim(s.substring(0, pos));
                     String val = s.substring(pos + 1);
                     String v2 = Wn.normalizeStr(val, sys);
-                    sys.se.var(key, v2);
+                    vars.put(key, v2);
                 }
             }
             // 强制写入
             Wn.WC().security(new WnEvalLink(sys.io), () -> {
-                sys.se.save();
+                sys.auth.saveSessionVars(sys.session);
             });
         }
     }

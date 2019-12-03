@@ -30,10 +30,10 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
@@ -66,10 +66,10 @@ public class WnWebSocket extends Endpoint {
             e.printStackTrace();
         }
         peers.put(session.getId(), session);
-        
-        NutMap map = Lang.map("event","hi").setv("wsid", session.getId());
+
+        NutMap map = Lang.map("event", "hi").setv("wsid", session.getId());
         String json = Json.toJson(map, JsonFormat.compact().setQuoteName(true));
-        
+
         session.getAsyncRemote().sendText(json);
     }
 
@@ -115,12 +115,12 @@ public class WnWebSocket extends Endpoint {
                 // 返回内容
                 if (doReturn) {
                     NutMap eventData = new NutMap("event", "watched").setv("obj", obj.id());
-                    String eventJson = Json.toJson(eventData, JsonFormat.compact().setQuoteName(true));
+                    String eventJson = Json.toJson(eventData,
+                                                   JsonFormat.compact().setQuoteName(true));
                     session.getAsyncRemote().sendText(eventJson);
                 }
                 break;
-            case "resp":
-            {
+            case "resp": {
                 String id = map.getString("id");
                 if (Strings.isBlank(id) || id.contains(".."))
                     break;
@@ -148,9 +148,8 @@ public class WnWebSocket extends Endpoint {
                 wnRun.exec("websocket", ws_usr, cmd);
                 break;
             }
-            case "cmd":
-            {
-                WnUsr usr = wnRun.usrs().fetch(user);
+            case "cmd": {
+                WnAccount usr = wnRun.auth().getAccount(user);
                 if (usr == null) {
                     log.debugf("not such websocket user=%s", user);
                     break;
@@ -160,12 +159,12 @@ public class WnWebSocket extends Endpoint {
                     log.debugf("invaild websocket cmd path user=%s cmd=%s", user, cmdpath);
                     break;
                 }
-                WnObj wsroot = wnRun.io().fetch(null, usr.home() + "/.ws/cmd/");
+                WnObj wsroot = wnRun.io().fetch(null, usr.getHomePath() + "/.ws/cmd/");
                 if (wsroot == null) {
                     log.debugf("not such websocket callback file user=%s cmd=%s", user, cmdpath);
                     break;
                 }
-                
+
                 WnObj cfile = wnRun.io().fetch(wsroot, cmdpath);
                 if (cfile == null) {
                     log.debugf("not such websocket callback file user=%s cmd=%s", user, cmdpath);
@@ -220,6 +219,7 @@ public class WnWebSocket extends Endpoint {
             public Object run(List<Object> fetchParam) {
                 return Json.toJson(fetchParam.get(0), JsonFormat.compact());
             }
+
             public String fetchSelf() {
                 return "tojson";
             }

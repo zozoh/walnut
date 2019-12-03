@@ -49,9 +49,7 @@ public abstract class WxUtil {
         WnObj oConf = null;
         if (Strings.isBlank(pnb)) {
             // 获取当前目录
-            String pwd = sys.se.vars().getString("PWD");
-            String path = Wn.normalizePath(pwd, sys);
-            WnObj oCurrent = sys.io.check(null, path);
+            WnObj oCurrent = sys.getCurrentObj();
             oConf = sys.io.fetch(oCurrent, "wxconf");
 
             // 如果当前文件夹下有 wxconf，则表示为主目录

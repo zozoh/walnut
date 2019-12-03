@@ -5,6 +5,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -30,11 +31,11 @@ public class cmd_chown extends cmd_chxxx {
         }
 
         // 确保有这个用户
-        sys.usrService.check(unm);
+        WnAccount u = sys.auth.checkAccount(unm);
 
         // 输出内容
         for (WnObj o : cc.list) {
-            __do_ch(sys, cc, unm, grp, o);
+            __do_ch(sys, cc, u.getName(), grp, o);
         }
     }
 

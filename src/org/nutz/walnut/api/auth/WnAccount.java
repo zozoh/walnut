@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.nutz.json.JsonIgnore;
@@ -7,6 +8,8 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Wn;
 
 public class WnAccount {
 
@@ -63,12 +66,6 @@ public class WnAccount {
     }
 
     public void updateBy(NutBean bean) {
-
-        this.nickname = bean.getString("th_nm");
-        this.thumb = bean.getString("thumb");
-        this.sex = WnHumanSex.parseInt(bean.getInt("sex"));
-        this.passwd = bean.getString("passwd");
-        this.salt = bean.getString("salt");
         for (String key : bean.keySet()) {
             // id
             if ("id".equals(key)) {
@@ -120,11 +117,11 @@ public class WnAccount {
             }
             // auth_xxx
             else if (key.startsWith("oauth_")) {
-                this.addOAuth2(key, bean.getString(key));
+                this.setOAuth2(key, bean.getString(key));
             }
             // wx_gh_xxx
             else if (key.startsWith("wx_gh_")) {
-                this.addWxOpenId(key, bean.getString(key));
+                this.setWxOpenId(key, bean.getString(key));
             }
             // Others put to "meta"
             else {
@@ -134,16 +131,43 @@ public class WnAccount {
     }
 
     public void mergeToBean(NutBean bean) {
-        bean.put("id", id);
-        bean.put("nm", name);
-        bean.put("phone", phone);
-        bean.put("email", email);
-        bean.put("grp", groupName);
-        bean.put("role", roleName);
-        bean.put("th_nm", nickname);
-        bean.put("thumb", thumb);
-        bean.put("login", loginAt);
+        // ID
+        if (!Strings.isBlank(id))
+            bean.put("id", id);
 
+        // Name
+        if (!Strings.isBlank(name))
+            bean.put("nm", name);
+
+        // 电话
+        if (!Strings.isBlank(phone))
+            bean.put("phone", phone);
+
+        // 邮箱
+        if (!Strings.isBlank(email))
+            bean.put("email", email);
+
+        // 主组
+        if (!Strings.isBlank(groupName))
+            bean.put("grp", groupName);
+
+        // 业务角色
+        if (!Strings.isBlank(roleName))
+            bean.put("role", roleName);
+
+        // 昵称
+        if (!Strings.isBlank(nickname))
+            bean.put("th_nm", nickname);
+
+        // 头像
+        if (!Strings.isBlank(thumb))
+            bean.put("thumb", thumb);
+
+        // 最后登录
+        if (loginAt > 0)
+            bean.put("login", loginAt);
+
+        // 性别
         if (null != sex)
             bean.put("sex", sex.getValue());
 
@@ -169,7 +193,12 @@ public class WnAccount {
                 bean.put(key, meta.get(key));
             }
         }
+    }
 
+    public NutMap toBean() {
+        NutMap bean = new NutMap();
+        this.mergeToBean(bean);
+        return bean;
     }
 
     public boolean isSameId(String uid) {
@@ -193,6 +222,48 @@ public class WnAccount {
 
     public boolean isNameSameAsId() {
         return null != id && id.equals(name);
+    }
+
+    public void setLoginStr(String str) {
+        if (Strings.isBlank(str))
+            throw Er.create("e.auth.loginstr.blank");
+
+        // 首先整理一下字符串，去掉所有的空格
+        str = str.replaceAll("[ \t\r\n]", "");
+
+        // 确保非空
+        if (Strings.isEmpty(str))
+            throw Er.create("e.auth.loginstr.empty");
+
+        // zozoh: 这个太坑，去掉吧，如果需要检查应该在入口函数等较高级的地方检查
+        // 副作用会比较小
+        // if (str.length() < 4)
+        // throw Er.create("e.usr.loginstr.tooshort");
+
+        // 用户 ID
+        if (str.startsWith("id:")) {
+            id = Strings.trim(str.substring(3));
+        }
+        // 用户 ID
+        else if (Wn.isFullObjId(str)) {
+            id = str;
+        }
+        // 手机
+        else if (str.matches("^[0-9+-]{11,20}$")) {
+            phone = str;
+        }
+        // 邮箱
+        else if (str.matches("^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+.[0-9a-zA-Z_.-]+$")) {
+            email = str;
+        }
+        // 登录名
+        else if (WnAuths.isValidUserName(str)) {
+            name = str;
+        }
+        // 错误的登录字符串
+        else {
+            throw Er.create("e.auth.loginstr.invalid", str);
+        }
     }
 
     public WnAccount clone() {
@@ -220,12 +291,20 @@ public class WnAccount {
         return ta;
     }
 
+    public boolean hasId() {
+        return !Strings.isBlank(id);
+    }
+
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public boolean hasName() {
+        return !Strings.isBlank(name);
     }
 
     public String getName() {
@@ -236,12 +315,20 @@ public class WnAccount {
         this.name = name;
     }
 
+    public boolean hasPhone() {
+        return !Strings.isBlank(phone);
+    }
+
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean hasEmail() {
+        return !Strings.isBlank(email);
     }
 
     public String getEmail() {
@@ -310,6 +397,12 @@ public class WnAccount {
     }
 
     public String getOAuth2(String key) {
+        if (null == this.OAuth2s) {
+            return null;
+        }
+        if (key.startsWith("oauth_")) {
+            key = key.substring("oauth_".length());
+        }
         return this.OAuth2s.getString(key);
     }
 
@@ -317,7 +410,10 @@ public class WnAccount {
         return OAuth2s;
     }
 
-    public void addOAuth2(String key, String val) {
+    public void setOAuth2(String key, String val) {
+        if (null == this.OAuth2s) {
+            OAuth2s = new NutMap();
+        }
         if (key.startsWith("oauth_")) {
             key = key.substring("oauth_".length());
         }
@@ -329,7 +425,42 @@ public class WnAccount {
     }
 
     public String getWxOpenId(String ghName) {
+        if (null == this.wxOpenIds) {
+            return null;
+        }
+        if (ghName.startsWith("wx_gh_")) {
+            ghName = ghName.substring("wx_gh_".length());
+        }
         return wxOpenIds.getString(ghName);
+    }
+
+    public void setWxOpenId(String ghName, String openId) {
+        if (null == this.wxOpenIds) {
+            wxOpenIds = new NutMap();
+        }
+        if (ghName.startsWith("wx_gh_")) {
+            ghName = ghName.substring("wx_gh_".length());
+        }
+        wxOpenIds.put(ghName, openId);
+    }
+
+    public void setWxOpenIds(NutMap wxOpenIds) {
+        this.wxOpenIds = wxOpenIds;
+    }
+
+    public NutMap getMetaMap() {
+        NutMap vars = new NutMap();
+        if (null != this.meta) {
+            for (Map.Entry<String, Object> en : this.meta.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                if (!Strings.isBlank(key)) {
+                    String k2 = key.toUpperCase();
+                    vars.put(k2, val);
+                }
+            }
+        }
+        return vars;
     }
 
     public Object getMeta(String key) {
@@ -375,15 +506,11 @@ public class WnAccount {
         }
     }
 
-    public void addWxOpenId(String ghName, String openId) {
-        if (ghName.startsWith("wx_gh_")) {
-            ghName = ghName.substring("wx_gh_".length());
-        }
-        wxOpenIds.put(ghName, openId);
-    }
-
-    public void setWxOpenIds(NutMap wxOpenIds) {
-        this.wxOpenIds = wxOpenIds;
+    public void removeMeta(String... keys) {
+        if (null != this.meta && !this.meta.isEmpty())
+            for (String key : keys) {
+                this.meta.remove(key);
+            }
     }
 
     public String getPasswd() {

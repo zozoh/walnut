@@ -167,7 +167,7 @@ public class cmd_zip extends JvmExecutor {
         if (null != oP)
             q.setv("pid", oP.id());
 
-        q.setv("d0", "home").setv("d1", sys.me.group());
+        q.setv("d0", "home").setv("d1", sys.getMyGroup());
 
         // 最大不能超过10w
         if (wp.limit <= 0) {

@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -10,15 +11,15 @@ public class cmd_umount extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-
         if (args.length <= 0) {
             throw Er.create("e.cmd.unmount.lackargs", args);
         }
-        if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+        WnAccount me = sys.getMe();
+        if (!sys.auth.isMemberOfGroup(me, "root")) {
             sys.err.println("permission denied");
             return;
         }
-        String ph = Wn.normalizeFullPath(args[0], sys.se);
+        String ph = Wn.normalizeFullPath(args[0], sys);
         WnObj o = sys.io.check(null, ph);
 
         sys.io.setMount(o, null);

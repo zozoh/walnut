@@ -1,3 +1,4 @@
+```
 # 创建一个任务
 #  - 如果 `task add xxx` 则表示创建顶级任务
 #  - 如果 `task 45cd.. add xxx` 表示创建子任务
@@ -101,3 +102,4 @@ task 3acd.. comment 20150721132134321 "修改一下注释"
 
 # 删除任务注释，会自动修改 task.cmtnb 字段 
 task 3acd.. comment del 20150721132134321
+```

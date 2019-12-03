@@ -63,7 +63,7 @@ public abstract class AbstractTaskQueryHdl implements TaskHdl {
     protected boolean _fill_query(WnSystem sys, TaskCtx sc, ZParams params, WnQuery q) {
         boolean logic_order = false;
 
-        q.setv("tp", "task").setv("g", sys.se.group());
+        q.setv("tp", "task").setv("g", sys.getMyGroup());
         // ........................................................
         // 解析所有的字符串值过滤条件
         for (String key : Lang.array("lbls", "status", "ow", "c")) {

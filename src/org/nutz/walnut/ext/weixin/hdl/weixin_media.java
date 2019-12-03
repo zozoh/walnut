@@ -32,7 +32,7 @@ public class weixin_media implements JvmHdl {
                 if (hc.params.has("out")) {
                     String out = hc.params.getString("out");
                     WnObj outObj = sys.io.createIfNoExists(null,
-                                                           Wn.normalizeFullPath(out, sys.se),
+                                                           Wn.normalizeFullPath(out, sys),
                                                            WnRace.FILE);
                     sys.io.writeAndClose(outObj, media.getInputStream());
                 } else {

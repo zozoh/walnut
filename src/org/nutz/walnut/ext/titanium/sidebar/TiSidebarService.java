@@ -12,11 +12,9 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnSessionService;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
 import org.nutz.walnut.util.Wn;
 
@@ -26,11 +24,8 @@ public class TiSidebarService {
     @Inject("refer:io")
     private WnIo io;
 
-    @Inject("refer:sessionService")
-    protected WnSessionService sess;
-
-    @Inject("refer:usrService")
-    protected WnUsrService usrs;
+//    @Inject("refer:sysAuthService")
+//    protected WnAuthService auth;
 
     private WnObjCachedFactory<TiSidebarInput> cache;
 
@@ -41,7 +36,7 @@ public class TiSidebarService {
     private void __join_output(int depth,
                                TiSidebarInputItem inIt,
                                List<TiSidebarOutputItem> list,
-                               WnSession sess,
+                               WnAuthSession sess,
                                WnCheckRoleOfByName check,
                                WnExecutable runtime) {
         // 检查权限
@@ -110,7 +105,7 @@ public class TiSidebarService {
     }
 
     public TiSidebarOutput getOutput(TiSidebarInput input,
-                                     WnSession sess,
+                                     WnAuthSession sess,
                                      WnCheckRoleOfByName check,
                                      WnExecutable runtime) {
         TiSidebarOutput output = new TiSidebarOutput();

@@ -11,7 +11,7 @@ public class trash_recover extends trash_xxx {
         for (String path : hc.params.vals) {
             path = Wn.normalizeFullPath(path, sys);
             WnObj wobj = sys.io.check(null, path);
-            if (!"trash".equals(wobj.d0()) || !sys.me.name().equals(wobj.d1())) {
+            if (!"trash".equals(wobj.d0()) || !sys.getMe().isSameName(wobj.d1())) {
                 sys.err.println("e.cmd.trash.not_allow");
                 return;
             }

@@ -179,7 +179,7 @@ public class TPassport {
         String fkey = nm + "_" + style + "_" + size;
         Font ffont = fontCache.get(fkey);
         if (ffont == null) {
-            WnObj wobj = sys.io.fetch(null, "/home/" + sys.me.name() + "/.font/" + nm);
+            WnObj wobj = sys.io.fetch(null, "/home/" + sys.getMyName() + "/.font/" + nm);
             if (wobj == null) {
                 wobj = sys.io.fetch(null, "/sys/font/" + nm.replaceAll("[\"\'\\n\\r\\$]", ""));
             }

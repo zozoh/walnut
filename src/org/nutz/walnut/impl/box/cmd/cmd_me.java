@@ -5,10 +5,9 @@ import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -17,6 +16,7 @@ public class cmd_me extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, null);
+        WnAccount me = sys.getMe();
 
         // 设置变量
         if (params.has("set")) {
@@ -27,85 +27,58 @@ public class cmd_me extends JvmExecutor {
             String v2 = Wn.normalizeStr(val, sys);
 
             // 设置到自身
-            sys.me.setv(key, v2);
-            sys.usrService.set(sys.me, key, v2);
+            me.setMeta(key, v2);
 
             // 更新到当前 Session
-            sys.exec("export '" + str + "'");
+            sys.session.loadVars(me);
+
+            // 持久化
+            __do_save(sys, me);
         }
         // 删除变量
         else if (params.has("unset")) {
             String keys = params.get("unset");
             String[] keyList = Strings.splitIgnoreBlank(keys, "[, \t\n]");
 
-            // 循环删除
-            for (String key : keyList) {
-                sys.usrService.set(sys.me, key, null);
-                sys.me.remove(key);
-                sys.se.var(key, null);
-            }
+            // 删除元数据
+            me.removeMeta(keyList);
 
-            // 更新 session
-            Wn.WC().security(new WnEvalLink(sys.io), () -> {
-                sys.se.save();
-            });
+            // 更新到当前 Session
+            sys.session.loadVars(me);
+
+            // 持久化
+            __do_save(sys, me);
         }
         // 显示
         else {
             NutMap jsonRe = NutMap.NEW();
-            // 获取值
-            WnUsr u = sys.usrService.check(sys.me.name());
-            if (params.vals.length == 0) {
-                for (String key : u.keySet()) {
-                    Object v = u.get(key);
-                    // 一定要过滤的字段
-                    if (key.matches("^(salt|passwd)$")) {
-                        continue;
-                    }
-                    // JSON 的话直接设置
-                    if (params.is("json")) {
-                        jsonRe.setv(key, v);
-                    }
-                    // 否则打印
-                    else {
-                        sys.out.printf("%8s : %s\n", key, Castors.me().castToString(v));
-                    }
-                }
-                if (params.is("json")) {
-                    sys.out.println(Json.toJson(jsonRe));
-                }
-            }
-            // 只有一个值
-            else if (params.vals.length == 1) {
-                if (params.is("json")) {
-                    jsonRe.setv(params.vals[0], u.getString(params.vals[0]));
-                    sys.out.println(Json.toJson(jsonRe));
-                } else {
-                    sys.out.println(u.getString(params.vals[0]));
-                }
-            }
-            // 指定的几个值
-            else {
-                // JSON 的话直接设置
-                if (params.is("json")) {
-                    for (String key : params.vals) {
-                        // 一定要过滤的字段
-                        if (key.matches("^(salt|passwd)$"))
-                            continue;
-                        jsonRe.setv(key, u.get(key));
-                    }
-                    sys.out.println(Json.toJson(jsonRe));
-                }
-                // 否则打印
-                else {
-                    for (String key : params.vals) {
-                        Object v = u.get(key);
-                        sys.out.printf("%8s : %s\n", key, Castors.me().castToString(v));
-                    }
-                }
+            me.mergeToBean(jsonRe);
 
+            // 去掉敏感信息
+            jsonRe.remove("passwd");
+            jsonRe.remove("salt");
+            jsonRe.pickAndRemoveBy("^(passwd|salt|oauth_.+|wx_.+)$");
+
+            // JSON 输出
+            if (params.is("json")) {
+                sys.out.println(Json.toJson(jsonRe));
+            }
+            // 格式化输出
+            else {
+                for (String key : jsonRe.keySet()) {
+                    Object v = jsonRe.get(key);
+                    String s = Castors.me().castToString(v);
+                    sys.out.printf("%8s : %s\n", key, s);
+                }
             }
         }
+    }
+
+    private void __do_save(WnSystem sys, WnAccount me) {
+        sys.nosecurity(() -> {
+            sys.auth.saveAccountMeta(me);
+            sys.auth.saveSessionVars(sys.session);
+        });
     }
 
 }

@@ -13,7 +13,7 @@ public abstract class trash_xxx implements JvmHdl {
         final WnObj[] re = new WnObj[1];
         WnContext wc = Wn.WC();
         wc.nosecurity(sys.io, () -> {
-            re[0] = sys.io.createIfNoExists(null, "/trash/" + sys.se.me(), WnRace.DIR);
+            re[0] = sys.io.createIfNoExists(null, "/trash/" + sys.getMyName(), WnRace.DIR);
         });
         return re[0];
     }

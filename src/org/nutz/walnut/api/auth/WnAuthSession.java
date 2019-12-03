@@ -70,6 +70,18 @@ public class WnAuthSession {
         return map;
     }
 
+    public NutMap toBean() {
+        NutMap map = new NutMap();
+        if (null != me) {
+            map.put("uid", me.getId());
+            map.put("unm", me.getName());
+        }
+        map.put("expi", expi);
+        map.put("ticket", ticket);
+        map.put("vars", vars);
+        return map;
+    }
+
     public WnAuthSession clone() {
         WnAuthSession se = new WnAuthSession();
         se.id = this.id;
@@ -116,14 +128,26 @@ public class WnAuthSession {
 
     public void setMe(WnAccount me) {
         this.me = me;
+        this.loadVars(me);
     }
 
     public void setMe(NutBean bean) {
         if (null == bean) {
             this.me = null;
+            if (null != this.vars)
+                this.vars.clear();
         } else {
             this.me = new WnAccount(bean);
+            this.loadVars(me);
         }
+    }
+
+    public void loadVars(WnAccount user) {
+        NutMap map = user.getMetaMap();
+        if (null == this.vars) {
+            this.vars = new NutMap();
+        }
+        this.vars.putAll(map);
     }
 
     public String getTicket() {

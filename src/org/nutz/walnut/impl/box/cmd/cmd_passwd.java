@@ -4,6 +4,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -45,21 +46,13 @@ public class cmd_passwd extends JvmExecutor {
         // .....................................................
         // 确定用户
         String unm = params.get("u");
-        WnUsr u = null;
-        WnObj oUsr = null;
+        WnAccount u = null;
         if (!Strings.isBlank(unm)) {
-            // 随便指定的一个用户对象
-            if (unm.startsWith("id:")) {
-                oUsr = sys.io.checkById(unm.substring(3));
-            }
-            // Walnut 的用户对象
-            else {
-                u = sys.usrService.check(unm);
-            }
+            u = sys.auth.checkAccount(unm);
         }
         // 否则就用当前会话
         else {
-            u = sys.me;
+            u = sys.getMe();
         }
         // .....................................................
         // 修改随便的用户

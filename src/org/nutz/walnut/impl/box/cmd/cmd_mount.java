@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -20,7 +21,8 @@ public class cmd_mount extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "a");
-        if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+        WnAccount me = sys.getMe();
+        if (!sys.auth.isMemberOfGroup(me, "root")) {
             sys.err.println("permission denied");
             return;
         }
@@ -49,7 +51,7 @@ public class cmd_mount extends JvmExecutor {
                 WnQuery query = new WnQuery();
                 query.exists("mnt", true).exists("data", false);
                 List<WnObj> list = sys.io.query(query);
-                list.sort((prev, next)-> prev.path().compareTo(next.path()));
+                list.sort((prev, next) -> prev.path().compareTo(next.path()));
                 for (WnObj wobj : list) {
                     sys.out.printlnf("%-20s : %s", wobj.path(), wobj.mount());
                 }
@@ -76,7 +78,7 @@ public class cmd_mount extends JvmExecutor {
         if (o.isSameId(oCurrent)) {
             throw Er.create("e.cmd.mount.mountself", ph);
         }
-        
+
         if (mnt.startsWith("file://")) {
             PropertiesProxy conf = ioc.get(PropertiesProxy.class, "conf");
             List<String> allows = conf.getList("mnt-file-allow");

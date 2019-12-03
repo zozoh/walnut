@@ -23,6 +23,51 @@ public interface WnAuthService {
     WnAccount checkAccount(String nameOrIdOrPhoneOrEmail);
 
     /**
+     * 根据信息获取账户对象
+     * 
+     * @param info
+     *            账户对象信息，可以指定部分字段，例如电话，邮箱，OAuth2等
+     * @return 账户对象。 null 表示不存在
+     */
+    WnAccount getAccount(WnAccount info);
+
+    /**
+     * 获取账户对象，如果不存在，抛错
+     * 
+     * @param info
+     *            账户对象信息，可以指定部分字段，例如电话，邮箱，OAuth2等
+     * @return 账户对象
+     * @throws "e.auth.account.noexist"
+     *             - 账户不存在
+     */
+    WnAccount checkAccount(WnAccount info);
+
+    /**
+     * 创建一个新账户
+     * 
+     * @param user
+     *            账户对象
+     * @return 创建后的账户对象
+     */
+    WnAccount createAccount(WnAccount user);
+
+    /**
+     * 持久化账户对象的元数据集
+     * 
+     * @param user
+     *            账户对象
+     */
+    void saveAccountMeta(WnAccount user);
+
+    /**
+     * 持久化账户对象的密码（加盐）
+     * 
+     * @param user
+     *            账户对象
+     */
+    void saveAccountPasswd(WnAccount user);
+
+    /**
      * 获取某账户对象在指定的系统组中的权限
      * 
      * @param user
@@ -114,7 +159,7 @@ public interface WnAuthService {
     WnAuthSession touchSession(String ticket);
 
     /**
-     * 根据指定用户，创建一个会话
+     * 根据指定用户，创建一个顶级会话
      * 
      * @param user
      *            账户对象
@@ -123,24 +168,32 @@ public interface WnAuthService {
     WnAuthSession createSession(WnAccount user);
 
     /**
-     * 直接删除一个会话对象。
+     * 为一个会话创建子会话
+     * 
+     * @param pse
+     *            父会话对象
+     * @param user
+     *            账户对象
+     * @return 自会话对象
+     */
+    WnAuthSession createSession(WnAuthSession pse, WnAccount user);
+
+    /**
+     * 持久化会话的变量集
+     * 
+     * @param se
+     *            会话对象
+     */
+    void saveSessionVars(WnAuthSession se);
+
+    /**
+     * 注销当前会话，并返回当前会话的父会话
      * 
      * @param sess
      *            会话对象
-     * @return 是否删除成功
+     * @return 被注销的会话对象的父会话，null 表示给入的是顶级会话
      */
-    boolean removeSession(WnAuthSession sess);
-
-    /**
-     * 注销会话，移除票据
-     * 
-     * @param ticket
-     *            票据
-     * @return 更新后的会话对象
-     * @throws "e.auth.ticket.noexist"
-     *             : 票据找不到对应会话
-     */
-    WnAuthSession removeSession(String ticket);
+    WnAuthSession removeSession(WnAuthSession sess);
 
     /**
      * 用微信的权限码自动登录
@@ -208,9 +261,13 @@ public interface WnAuthService {
     WnAuthSession loginByPasswd(String account, String passwd);
 
     /**
+     * 注销当前会话，并返回当前会话的父会话
+     * 
      * @param ticket
      *            用户登录的票据（必须是已经登录的用户才能绑定啊）
-     * @return 被注销的会话对象
+     * @return 被注销的会话对象的父会话，null 表示给入的是顶级会话
+     * @throws "e.auth.ticket.noexist"
+     *             : 票据找不到对应会话
      */
     WnAuthSession logout(String ticket);
 

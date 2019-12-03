@@ -34,13 +34,13 @@ public class websocket_event implements JvmHdl {
         if (!Strings.isBlank(callback)) {
             String id = R.UU32();
             re.put("id", id);
-            re.put("user", sys.me.name());
+            re.put("user", sys.getMyName());
             WnRun.sudo(sys, new Atom() {
                 public void run() {
                     WnObj cfile = sys.io.createIfNoExists(null, "/sys/ws/" + id, WnRace.FILE);
                     NutMap meta = new NutMap();
-                    meta.put("ws_usr", sys.me.name());
-                    meta.put("ws_grp", sys.me.group());
+                    meta.put("ws_usr", sys.getMyName());
+                    meta.put("ws_grp", sys.getMyGroup());
                     meta.put("expi", System.currentTimeMillis() + 300 * 1000);
                     sys.io.writeMeta(cfile, meta);
                 }

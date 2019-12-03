@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.titanium.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.sidebar.TiSidebarInput;
@@ -35,8 +37,7 @@ public class ti_sidebar implements JvmHdl {
         // 路径集合
         String[] paths = hc.params.vals;
         if (paths.length == 0) {
-            String ss = Strings.sBlank(sys.se.varString("SIDEBAR_PATH"),
-                                       "/rs/ti/view/sidebar.json");
+            String ss = sys.session.getVars().getString("SIDEBAR_PATH", "/rs/ti/view/sidebar.json");
             paths = Strings.splitIgnoreBlank(ss, ":");
         }
         // 查找
@@ -54,12 +55,12 @@ public class ti_sidebar implements JvmHdl {
         }
 
         // 准备权限检查接口
-        final WnSecurityImpl secur = new WnSecurityImpl(sys.io, sys.usrService);
+        final WnSecurityImpl secur = new WnSecurityImpl(sys.io, sys.auth);
         final WnObj oSidebarHome = oSidebar.parent();
 
         // 准备解析
         TiSidebarInput input = sidebars.getInput(oSidebar);
-        TiSidebarOutput output = sidebars.getOutput(input, sys.se, (roleName, path) -> {
+        TiSidebarOutput output = sidebars.getOutput(input, sys.session, (roleName, path) -> {
             WnObj oTa = ".".equals(path) ? oSidebarHome : Wn.getObj(sys, path);
             // 根据权限码
             if (roleName.matches("^[rwx-]{3}$")) {
@@ -68,14 +69,15 @@ public class ti_sidebar implements JvmHdl {
             }
             // 根据角色
             String ta_grp = oTa.group();
-            int shouldBeRole = Wn.ROLE.getRoleValue(roleName);
+            WnGroupRole shouldBeRole = WnGroupRole.valueOf(roleName);
+            WnAccount me = sys.getMe();
             // 管理员
-            if (Wn.ROLE.ADMIN == shouldBeRole) {
-                return sys.usrService.isAdminOfGroup(sys.me, ta_grp);
+            if (WnGroupRole.ADMIN == shouldBeRole) {
+                return sys.auth.isAdminOfGroup(me, ta_grp);
             }
             // 成员
-            if (Wn.ROLE.MEMBER == shouldBeRole) {
-                sys.usrService.isMemberOfGroup(sys.me, ta_grp);
+            if (WnGroupRole.MEMBER == shouldBeRole) {
+                sys.auth.isMemberOfGroup(me, ta_grp);
             }
             // 权限写的不对，禁止
             return true;

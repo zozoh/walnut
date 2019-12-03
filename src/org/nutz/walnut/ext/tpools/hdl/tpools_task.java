@@ -15,11 +15,11 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 public class tpools_task implements JvmHdl {
-    
+
     private static final Log log = Logs.get();
-    
+
     protected MyPools pools;
-    
+
     protected WnRun wnRun;
 
     @Override
@@ -34,16 +34,15 @@ public class tpools_task implements JvmHdl {
         if (hc.params.has("out")) {
             String outpath = Wn.normalizeFullPath(hc.params.get("out"), sys);
             dst = sys.io.createIfNoExists(null, outpath, WnRace.FILE);
-        }
-        else 
+        } else
             dst = null;
-        String me = sys.me.name();
+
         ThreadPoolExecutor es = pools.getOrCreate(name, 0);
         Future<?> fu = (Future<?>) es.submit(new Runnable() {
             public void run() {
                 try {
-                    Wn.WC().me(me, me);
-                    String out = wnRun.exec("pools-" + name, me, cmd);
+                    Wn.WC().SE(sys.session.clone());
+                    String out = wnRun.exec("pools-" + name, sys.getMyName(), cmd);
                     if (dst != null)
                         sys.io.writeText(dst, out);
                 }

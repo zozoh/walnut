@@ -7,7 +7,7 @@ public class cmd_pwd extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        String pwd = sys.se.vars().getString("PWD");
+        String pwd = sys.session.getVars().getString("PWD");
         sys.out.println(pwd);
     }
 

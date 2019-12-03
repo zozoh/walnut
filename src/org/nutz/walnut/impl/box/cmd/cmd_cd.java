@@ -21,22 +21,22 @@ public class cmd_cd extends JvmExecutor {
         }
 
         // 得到要进入的目录
-        String ph = Wn.normalizeFullPath(vals[0], sys.se);
+        String ph = Wn.normalizeFullPath(vals[0], sys.session);
 
         ph = Disks.getCanonicalPath(ph);
 
         // 检查这个目录是否存在
         WnObj o = sys.io.check(null, ph);
-        
+
         if (!o.isDIR()) {
             throw Er.create("e.cmd.cd.nodir", ph);
         }
-        
-        // 确保可进入 
+
+        // 确保可进入
         o = Wn.WC().whenEnter(o, false);
 
         // 修改会话中的设定
-        sys.se.var("PWD", o.path());
+        sys.session.getVars().put("PWD", o.path());
 
     }
 
