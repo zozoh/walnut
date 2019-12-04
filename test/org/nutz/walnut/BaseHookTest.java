@@ -21,16 +21,14 @@ public abstract class BaseHookTest extends BaseBoxTest {
         super.on_before(pp);
 
         // 检查钩子目录
-        oHome = io.check(null, me.home());
+        oHome = io.check(null, me.getHomePath());
         oHookHome = io.createIfNoExists(oHome, ".hook", WnRace.DIR);
 
         // 准备钩子上下文
         WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
-        bc.me = me;
         bc.session = se;
-        bc.usrService = usrs;
-        bc.sessionService = ses;
+        bc.auth = auth;
 
         hc = new WnHookContext(boxes, bc);
         hc.service = new CachedWnHookService().setIo(io);

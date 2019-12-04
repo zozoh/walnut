@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.nutz.lang.Stopwatch;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
@@ -42,21 +42,21 @@ public class cmd_setup extends JvmExecutor {
         WnRun wr = this.ioc.get(WnRun.class);
 
         // 得到要操作的用户
-        WnUsr me = sys.me;
+        WnAccount me = sys.getMe();
+        WnAccount u = me;
         if (params.has("u")) {
-            me = sys.usrService.check(params.get("u"));
+            u = sys.auth.checkAccount(params.get("u"));
         }
 
         // 如果操作的用户不是自己，必须是 root 或者 op 组成员才能做
-        if (!me.isSameId(sys.me)) {
-            if (!sys.usrService.isMemberOfGroup(sys.me, "root")
-                && !sys.usrService.isMemberOfGroup(sys.me, "op")) {
+        if (!u.isSame(me)) {
+            if (!sys.auth.isMemberOfGroup(me, "root") && !sys.auth.isMemberOfGroup(me, "op")) {
                 throw Er.create("e.cmd.setup.nopvg");
             }
         }
 
         // 为其创建会话
-        WnSession se = sys.sessionService.create(me);
+        WnAuthSession se = sys.auth.createSession(u);
 
         try {
             // 开始记时
@@ -103,12 +103,12 @@ public class cmd_setup extends JvmExecutor {
         }
         // 释放 session
         finally {
-            sys.sessionService.logout(se.id());
+            sys.auth.removeSession(se);
         }
 
     }
 
-    private void __run_dir(WnSystem sys, WnObj oDir, WnRun wr, WnSession se, boolean verb) {
+    private void __run_dir(WnSystem sys, WnObj oDir, WnRun wr, WnAuthSession se, boolean verb) {
         // 查询出要执行的文件
         List<WnObj> list = wr.io().getChildren(oDir, null);
         for (WnObj o : list) {

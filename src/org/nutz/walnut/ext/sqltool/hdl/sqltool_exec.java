@@ -10,6 +10,7 @@ import org.nutz.dao.util.Daos;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.ext.sqltool.SqlToolHelper;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -22,10 +23,11 @@ public class sqltool_exec implements JvmHdl {
     @SuppressWarnings("rawtypes")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        WnAccount me = sys.getMe();
         // 获取Dao对象
         String dsName = hc.oRefer.name();
         NutMap dsConf = hc.getAs("dataSource_conf", NutMap.class);
-        Dao dao = SqlToolHelper.getDao(sys.me, dsName, dsConf);
+        Dao dao = SqlToolHelper.getDao(me, dsName, dsConf);
 
         // 开始自定义SQL
         Sql sql = Sqls.create(hc.params.val_check(0));
@@ -70,7 +72,8 @@ public class sqltool_exec implements JvmHdl {
 
         // 查询语句,就打印sql咯
         if (sql.isSelect()) {
-            sys.out.writeJson(new NutMap().setv("list", sql.getResult()).setv("pager", pager), JsonFormat.full());
+            sys.out.writeJson(new NutMap().setv("list", sql.getResult()).setv("pager", pager),
+                              JsonFormat.full());
         } else if (sql.isUpdate() || sql.isDelete()) {
             sys.out.println("{changed:" + sql.getUpdateCount() + "}");
         } else {

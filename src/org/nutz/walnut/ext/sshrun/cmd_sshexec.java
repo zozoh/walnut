@@ -20,8 +20,8 @@ public class cmd_sshexec extends JvmExecutor {
         String host = params.get("host", "127.0.0.1");
         int port = params.getInt("port", 22);
         //boolean fuse = params.is("fuse");
-        String login = params.get("user", sys.me.name());
-        String password = params.get("password", "SEID:"+sys.se.id());
+        String login = params.get("user", sys.getMyName());
+        String password = params.get("password", "SEID:"+sys.session.getTicket());
         String command = params.check("command");
         int connect_timeout = params.getInt("connect_timeout", 15)*1000;
         int verify_timeout = params.getInt("verify_timeout", 15)*1000;

@@ -7,11 +7,11 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -60,7 +60,7 @@ public class domain_apply implements JvmHdl {
 
         // 得到购买者信息
         String buyer = po.getBuyerName();
-        WnUsr bu = sys.usrService.check(buyer);
+        WnAccount bu = sys.auth.checkAccount(buyer);
 
         // 准备查询条件
         WnObj oDmnHome = sys.io.check(null, "/domain");
@@ -114,12 +114,12 @@ public class domain_apply implements JvmHdl {
         return expiInMs;
     }
 
-    private WnObj __get_host_obj(WnSystem sys, WnUsr bu, WnObj oDmnHome, String host) {
+    private WnObj __get_host_obj(WnSystem sys, WnAccount bu, WnObj oDmnHome, String host) {
         WnQuery q = Wn.Q.pid(oDmnHome);
         WnObj oD = sys.io.getOne(q.setv("dmn_host", host));
         if (null == oD) {
             oD = sys.io.create(oDmnHome, host, WnRace.FILE);
-            oD.setv("dmn_grp", bu.mainGroup());
+            oD.setv("dmn_grp", bu.getGroupName());
             oD.setv("dmn_host", host);
             sys.io.set(oD, "^dmn_.+$");
         }

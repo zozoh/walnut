@@ -13,9 +13,9 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.ReqHeader;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.view.WnObjDownloadView;
@@ -63,10 +63,10 @@ public class ThemeModule extends AbstractWnModule {
         }
 
         // 看看会话中当前的 Theme 是啥
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 如果声明了主题，则试图从主题目录里查找
-        String theme = se.vars().getString("MY_THEME");
+        String theme = se.getVars().getString("MY_THEME");
 
         // 寻找各个 UI 的主题
         if (!Strings.isBlank(theme)) {
@@ -91,9 +91,9 @@ public class ThemeModule extends AbstractWnModule {
             }
             // UIX 从环境变量里读取
             else if ("uix".equals(themeCate)) {
-                String base = se.vars().getString("MY_UIX_BASE");
+                String base = se.getVars().getString("MY_UIX_BASE");
                 if (null == base) {
-                    String uix = se.vars().getString("MY_UIX");
+                    String uix = se.getVars().getString("MY_UIX");
                     if (null == uix || !uix.startsWith("/gu/"))
                         throw Er.create("e.theme.uix.nobase", themeCate);
                     base = uix.substring(3);

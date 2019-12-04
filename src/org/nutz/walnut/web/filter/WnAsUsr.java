@@ -3,22 +3,23 @@ package org.nutz.walnut.web.filter;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.util.Wn;
 
 public class WnAsUsr implements ActionFilter {
 
-    private String me;
+    private String name;
 
-    private String grp;
-
-    public WnAsUsr(String me, String grp) {
-        this.me = me;
-        this.grp = grp;
+    public WnAsUsr(String name) {
+        this.name = name;
     }
 
     @Override
-    public View match(ActionContext actionContext) {
-        Wn.WC().me(me, grp);
+    public View match(ActionContext ac) {
+        WnAuthService auth = Wn.Service.auth();
+        WnAccount me = auth.checkAccount(name);
+        Wn.WC().setMe(me);
         return null;
     }
 }

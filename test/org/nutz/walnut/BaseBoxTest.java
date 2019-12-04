@@ -5,13 +5,12 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.impl.box.JvmBoxService;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
@@ -26,9 +25,9 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
     protected StringBuilder err;
 
-    protected WnUsr me;
+    protected WnAccount me;
 
-    protected WnSession se;
+    protected WnAuthSession se;
 
     protected WnBoxContext bc;
 
@@ -48,8 +47,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         return Strings.trim(err.toString());
     }
 
-    private String __old_me;
-    private String __old_grp;
+    private WnAccount __old_me;
 
     protected WnObj check(String ph) {
         String path = Wn.normalizeFullPath(ph, se);
@@ -67,13 +65,14 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
         boxes = _create_box_service();
 
-        me = usrs.create(new WnUsrInfo("xiaobai"));
-        usrs.setPassword(me, "123456");
-        se = ses.create(me);
+        WnAccount info = new WnAccount();
+        info.setName("xiaobai");
+        info.setRawPasswd("123456");
+        me = auth.createAccount(info);
+        se = auth.createSession(me);
 
         // 将测试线程切换到当前测试账号
-        __old_me = Wn.WC().checkMe();
-        __old_grp = Wn.WC().checkGroup();
+        __old_me = Wn.WC().getAccount();
         Wn.WC().SE(se);
 
         out = new StringBuilder();
@@ -81,10 +80,8 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
         bc = new WnBoxContext(new NutMap());
         bc.io = io;
-        bc.me = me;
         bc.session = se;
-        bc.usrService = usrs;
-        bc.sessionService = ses;
+        bc.auth = auth;
 
         box = _alloc_box();
     }
@@ -102,7 +99,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected void on_after(PropertiesProxy pp) {
         boxes.free(box);
         Wn.WC().SE(null);
-        Wn.WC().me(__old_me, __old_grp);
+        Wn.WC().setMe(__old_me);
         super.on_after(pp);
     }
 

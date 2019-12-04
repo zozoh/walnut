@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
@@ -31,10 +32,13 @@ import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.mvc.Mvcs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -399,6 +403,34 @@ public abstract class Wn {
             Ctx.set(wc);
         }
         return wc;
+    }
+
+    public static class Service {
+
+        public static WnAuthService auth() {
+            return auth(Mvcs.getIoc());
+        }
+
+        public static WnAuthService auth(Ioc ioc) {
+            return ioc.get(WnAuthService.class, "sysAuthService");
+        }
+
+        public static WnIo io() {
+            return io(Mvcs.getIoc());
+        }
+
+        public static WnIo io(Ioc ioc) {
+            return ioc.get(WnIo.class, "io");
+        }
+
+        public static WnBoxService boxes() {
+            return boxes(Mvcs.getIoc());
+        }
+
+        public static WnBoxService boxes(Ioc ioc) {
+            return ioc.get(WnBoxService.class, "boxService");
+        }
+
     }
 
     public static class Mime {
@@ -1125,7 +1157,7 @@ public abstract class Wn {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {
             public void run() {
-                WnAccount me = Wn.WC().getMe();
+                WnAccount me = Wn.WC().getAccount();
                 if (sys.auth.isAdminOfGroup(me, "root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }

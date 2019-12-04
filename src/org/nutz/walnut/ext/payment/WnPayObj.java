@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.payment;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
 
 /**
  * 封装一条支付记录
@@ -38,7 +37,7 @@ public interface WnPayObj extends WnObj {
 
     void setCloseAt(long closeAt);
 
-    boolean isTheSeller(WnUsr seller);
+    boolean isTheSeller(WnAccount seller);
 
     String getSellerId();
 

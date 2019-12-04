@@ -40,11 +40,11 @@ import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.srv.WnActiveCode;
 import org.nutz.walnut.impl.srv.WnAppLicenceInfo;
 import org.nutz.walnut.impl.srv.WnLicence;
@@ -92,8 +92,8 @@ public class AppModule extends AbstractWnModule {
             return HttpStatusView.HTTP_404;
 
         // 得到会话对象，以及对应的用户
-        WnSession se = Wn.WC().checkSE();
-        WnUsr me = Wn.WC().getMyUsr(usrs);
+        WnAuthSession se = Wn.WC().checkSession();
+        WnAccount me = Wn.WC().getAccount();
 
         // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
         if (me.isNameSameAsId()) {
@@ -115,8 +115,9 @@ public class AppModule extends AbstractWnModule {
         }
 
         // 如果没有指定对象，看看用户有没有设置默认的打开对象
-        if (null == o && me.hasDefaultObjPath()) {
-            o = Wn.checkObj(io, se, me.defaultObjPath());
+        String dftObjPath = me.getMetaString("DFT_OBJ_PATH");
+        if (null == o && !Strings.isBlank(dftObjPath)) {
+            o = Wn.checkObj(io, se, dftObjPath);
         }
 
         // 指定读取元数据
@@ -154,7 +155,7 @@ public class AppModule extends AbstractWnModule {
         return reView;
     }
 
-    private View __open_page(WnApp app, WnObj oAppHome, WnSession se, String etag) {
+    private View __open_page(WnApp app, WnObj oAppHome, WnAuthSession se, String etag) {
         NutMap c = new NutMap();
         String appName = app.getName();
         WnObj o = app.getObj();
@@ -205,7 +206,7 @@ public class AppModule extends AbstractWnModule {
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
-        c.put("theme", se.varString("THEME", "light"));
+        c.put("theme", se.getVars().getString("THEME", "light"));
 
         // 渲染视图
         String cnt = Tmpl.exec(tmpl, c);
@@ -217,9 +218,9 @@ public class AppModule extends AbstractWnModule {
         return new ViewWrapper(new RawView("html"), cnt);
     }
 
-    private View __check_licence(WnApp app, WnSession se, WnAppLicenceInfo ali) {
+    private View __check_licence(WnApp app, WnAuthSession se, WnAppLicenceInfo ali) {
         // 得到有效的激活码
-        String clientName = se.group();
+        String clientName = se.getMyGroup();
         WnActiveCode acode = licences.getActiveCode(ali, clientName);
 
         // 根据激活码，找到许可证本身
@@ -275,7 +276,7 @@ public class AppModule extends AbstractWnModule {
 
             // 在所有的 APP_PATH 里寻找
             if (null == oTmpl) {
-                String appPaths = Wn.WC().checkSE().vars().getString("APP_PATH");
+                String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
                 String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
                 for (String base : bases) {
                     String phTmpl = Wn.appendPath(base, nmTmpl);
@@ -418,19 +419,25 @@ public class AppModule extends AbstractWnModule {
                 isSudo = false;
             }
         }
-        final WnSession seMe = Wn.WC().checkSE().var("PWD", PWD).var("APP_HOME", oAppHome.path());
-        WnSession seSu = isSudo ? sess().create(usrs().check("root")) : null;
+        final WnAuthSession my_se = Wn.WC().checkSession();
+        
+        WnAuthSession su_se = null;
+        if(isSudo) {
+            WnAccount root = auth().checkAccount("root");
+            su_se = auth().createSession(root);
+        }
 
         // 运行
-        WnSession se = isSudo ? seSu : seMe;
-        se.var("PWD", PWD);
-        se.var("APP_HOME", oAppHome.path());
+        WnAuthSession se = isSudo ? su_se : my_se;
+        my_se.getVars().put("PWD", PWD);
+        my_se.getVars().put("APP_HOME", oAppHome.path());
 
         // 执行命令
+        final WnAuthSession the_su_se = su_se;
         exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
             @Override
             public void invoke(WnBoxContext bc) {
-                WnSession se = seMe; // 强制使用原来的se
+                WnAuthSession se = my_se; // 强制使用原来的se
                 // 有宏的分隔符，表示客户端可以接受更多的宏命令
                 if (!Strings.isBlank(metaOutputSeparator)) {
                     try {
@@ -440,7 +447,7 @@ public class AppModule extends AbstractWnModule {
                                 + ":MACRO:"
                                 + Wn.MACRO.UPDATE_ENVS
                                 + "\n");
-                        w.write(Json.toJson(se.vars()));
+                        w.write(Json.toJson(se.getVars()));
                         w.flush();
                         // 修改当前客户端的 session
                         if (bc.attrs.has(Wn.MACRO.CHANGE_SESSION)) {
@@ -459,8 +466,8 @@ public class AppModule extends AbstractWnModule {
                         throw Lang.wrapThrow(e);
                     }
                 }
-                if (seSu != null) {
-                    sess().logout(seSu.id());
+                if (the_su_se != null) {
+                    auth().removeSession(the_su_se);
                 }
             }
         });

@@ -3,7 +3,10 @@ package org.nutz.walnut;
 import org.junit.After;
 import org.junit.Before;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
@@ -17,6 +20,21 @@ public abstract class BaseApiTest {
     protected MongoDB db;
 
     protected MimeMap mimes;
+
+    protected WnAuthService auth;
+
+    protected WnAccount root;
+
+    private WnAuthService _create_auth_service() {
+        // WnAuthService auth = new WnAuthServiceImpl();
+        // Mirror.me(ses).setValue(ses, "io", io);
+        // Mirror.me(ses).setValue(ses, "usrs", usrs);
+        // Mirror.me(ses).setValue(ses, "duration", pp.getInt("se-duration"));
+        // ses.on_create();
+        // return ses;
+
+        throw Lang.noImplement();
+    }
 
     @Before
     public void before() {
@@ -35,6 +53,12 @@ public abstract class BaseApiTest {
         PropertiesProxy ppMime = new PropertiesProxy(pp.check("mime"));
         mimes = new MimeMapImpl(ppMime);
 
+        auth = _create_auth_service();
+
+        root = auth.checkAccount("root");
+        root.setRawPasswd("123456");
+        auth.saveAccountPasswd(root);
+
         // 调用子类初始化
         on_before(pp);
     }
@@ -47,11 +71,12 @@ public abstract class BaseApiTest {
 
     protected void on_before(PropertiesProxy pp) {
         // 默认每个测试运行都是用 root
-        Wn.WC().me("root", "root");
+        Wn.WC().setMe(root);
     };
 
     protected void on_after(PropertiesProxy pp) {
-        Wn.WC().me("root", "root");
+        // 默认每个测试运行都是用 root
+        Wn.WC().setMe(root);
     }
 
 }

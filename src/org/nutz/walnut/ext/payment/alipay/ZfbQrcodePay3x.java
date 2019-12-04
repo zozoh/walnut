@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.alipay.AlipayConfig;
 import org.nutz.walnut.ext.alipay.AlipayNotify;
 import org.nutz.walnut.ext.alipay.AlipaySubmit;
@@ -125,9 +125,9 @@ public class ZfbQrcodePay3x extends WnPay3x {
     }
 
     public AlipayConfig getConfig(WnPayObj po) {
-        WnUsr seller = run.usrs().check("id:" + po.getSellerId());
-        WnObj conf = io.check(null,
-                              seller.home() + "/.alipay/" + po.getPayTarget() + "/alipayconf");
+        WnAccount seller = run.auth().checkAccount(po.getSellerId());
+        String aph = seller.getHomePath() + "/.alipay/" + po.getPayTarget() + "/alipayconf";
+        WnObj conf = io.check(null, aph);
         return io.readJson(conf, AlipayConfig.class);
     }
 

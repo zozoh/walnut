@@ -7,6 +7,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -29,8 +30,10 @@ public class cmd_lccp extends JvmExecutor {
     }
 
     private void __do_it(WnSystem sys, ZParams params) {
+        WnAccount me = sys.getMe();
+
         // 确保当前账号是 root 组成员
-        if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+        if (!sys.auth.isMemberOfGroup(me, "root")) {
             throw Er.create("e.cmd.lccp.nopvg");
         }
 

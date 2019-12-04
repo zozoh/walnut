@@ -31,7 +31,7 @@ public abstract class AbstractWnModule extends WnRun {
     protected MimeMap mimes;
 
     protected WnObj _find_app_home(String appName) {
-        String appPaths = Wn.WC().checkSE().getVars().getString("APP_PATH");
+        String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);

@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.sshd;
 
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -13,7 +14,8 @@ public class cmd_sshd extends JvmHdlExecutor {
             // 检查权限: root 组管理员才能操作
             sys.nosecurity(new Atom() {
                 public void run() {
-                    if (!Wn.WC().isAdminOf(sys.usrService, "root")) {
+                    WnAccount me = Wn.WC().getAccount();
+                    if (!sys.auth.isAdminOfGroup(me, "root")) {
                         throw Er.create("e.cmd.sshd.only_for_root_admin");
                     }
                 }

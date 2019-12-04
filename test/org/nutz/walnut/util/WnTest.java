@@ -3,8 +3,10 @@ package org.nutz.walnut.util;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.lang.random.R;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.usr.IoWnUsr;
 
 public class WnTest {
 
@@ -57,18 +59,19 @@ public class WnTest {
     @Test
     public void test_normalize() {
         WnSystem sys = new WnSystem();
-        sys.se = new FakeWnSession();
-        sys.se.var("HOME", "/home/zozoh");
-        sys.se.var("PWD", "$HOME/workspace/test");
-        sys.se.var("ABC", "haha");
-        sys.me = new IoWnUsr();
-        sys.me.home("/home/zozoh");
+        sys.session = new WnAuthSession(R.UU32());
+        sys.session.getVars().put("HOME", "/home/zozoh");
+        sys.session.getVars().put("PWD", "$HOME/workspace/test");
+        sys.session.getVars().put("ABC", "haha");
+        WnAccount me = new WnAccount();
+        me.setMeta("home", "/home/zozoh");
+        sys.session.setMe(me);
 
         assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));
         assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));
-        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys.se.vars()));
-        assertEquals("~/abc", Wn.normalizeStr("~/abc", sys.se.vars()));
-        assertEquals("\\n", Wn.normalizeStr("\\n", sys.se.vars()));
+        assertEquals("cmd_echo 'haha'", Wn.normalizeStr("cmd_echo '$ABC'", sys));
+        assertEquals("~/abc", Wn.normalizeStr("~/abc", sys));
+        assertEquals("\\n", Wn.normalizeStr("\\n", sys));
     }
 
 }

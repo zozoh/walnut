@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -21,7 +22,7 @@ public class www_add implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 得到要操作的用户
-        String myName = hc.params.get("u", sys.se.me());
+        String myName = hc.params.get("u", sys.getMyName());
 
         // 切换到内核态执行
         List<WnObj> list = sys.nosecurity(new Proton<List<WnObj>>() {
@@ -36,9 +37,10 @@ public class www_add implements JvmHdl {
     }
 
     private List<WnObj> __do_add(WnSystem sys, JvmHdlContext hc, String myName) {
+        WnAccount me = sys.getMe();
         // 检查权限: 如果不是自己，那么自己必须是 root/op 组成员
-        if (!sys.me.name().equals(myName)) {
-            if (!sys.usrService.isMemberOfGroup(sys.me, "op", "root")) {
+        if (!me.isSameName(myName)) {
+            if (!sys.auth.isMemberOfGroup(me, "op", "root")) {
                 throw Er.create("e.cmd.www.query.nopvg", myName);
             }
         }

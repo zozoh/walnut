@@ -35,7 +35,7 @@ public class IoWnSessionService implements WnSessionService {
     private WnObj oSessions;
 
     public void on_create() {
-        Wn.WC().me("root", "root");
+        //Wn.WC().me("root", "root");
         oSessions = io.createIfNoExists(null, "/sys/session", WnRace.DIR);
     }
 

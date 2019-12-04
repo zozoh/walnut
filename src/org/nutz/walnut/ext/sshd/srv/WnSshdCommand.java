@@ -10,7 +10,8 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
-import org.nutz.walnut.api.usr.WnSession;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
@@ -22,7 +23,7 @@ public class WnSshdCommand implements Command, Runnable, SessionAware {
     private ExitCallback callback;
     protected Environment env;
     protected ServerSession session;
-    protected WnSession se;
+    protected WnAuthSession se;
     protected WnRun run;
     protected String cmd;
 
@@ -110,7 +111,9 @@ public class WnSshdCommand implements Command, Runnable, SessionAware {
     }
 
     public void printPH1() throws IOException {
-        String line = String.format("%s:%s# ", se.me(), se.var("PWD"));
+        WnAccount me = se.getMe();
+        String pwd = se.getVars().getString("PWD");
+        String line = String.format("%s:%s# ", me.getName(), pwd);
         out.write(line.getBytes());
         out.flush();
     }

@@ -41,11 +41,11 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPagerObj;
 import org.nutz.walnut.web.filter.WnCheckSession;
@@ -81,7 +81,7 @@ public class ObjModule extends AbstractWnModule {
 
     @At("/fetch")
     public WnObj fetch(@Param("str") String str) {
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
         return Wn.checkObj(io, se, str);
     }
 
@@ -98,7 +98,7 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/ancestors")
     public List<WnObj> ancestors(@Param("str") String str) {
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
         WnObj meta = Wn.checkObj(io, se, str);
         LinkedList<WnObj> ans = new LinkedList<>();
         meta.loadParents(ans, false);
@@ -144,7 +144,7 @@ public class ObjModule extends AbstractWnModule {
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj update(@Param("str") String str, NutMap map) {
         // 确保 str 的形式正确
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 取得并写入
         WnObj o = Wn.checkObj(io, se, str);
@@ -206,16 +206,15 @@ public class ObjModule extends AbstractWnModule {
     }
 
     @At("/children")
-    public Object children(@Param("str") String str,
-                           @Param("pg") Boolean paging) {
-        WnSession se = Wn.WC().checkSE();
+    public Object children(@Param("str") String str, @Param("pg") Boolean paging) {
+        WnAuthSession se = Wn.WC().checkSession();
         WnObj o = Wn.checkObj(io, se, str);
-      
+
         // 查询
         List<WnObj> list = io.getChildren(o, null);
-        
+
         // 不要翻页信息
-        if(!paging)
+        if (!paging)
             return list;
 
         // 更新分页信息
@@ -286,9 +285,9 @@ public class ObjModule extends AbstractWnModule {
 
         // 增加自己主域限制
         if (mine) {
-            WnSession se = Wn.WC().checkSE();
+            WnAuthSession se = Wn.WC().checkSession();
             q.setv("d0", "home");
-            q.setv("d1", se.group());
+            q.setv("d1", se.getMyGroup());
         }
 
         // 查询
@@ -421,7 +420,7 @@ public class ObjModule extends AbstractWnModule {
 
         // 尝试从本域读取默认缩略图
         String ph = Wn.normalizeFullPath("~/.thumbnail/dft/" + tp + "/" + sz_key + ".png",
-                                         Wn.WC().checkSE());
+                                         Wn.WC().checkSession());
         WnObj oThumb = io.fetch(null, ph);
 
         // 如果找到了 ...
@@ -507,7 +506,7 @@ public class ObjModule extends AbstractWnModule {
                         HttpServletRequest req,
                         HttpServletResponse resp) {
         // 获取当前会话
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
         WnObj o = Wn.checkObj(io, se, str);
@@ -535,7 +534,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/save/text")
     public WnObj saveText(@Param("str") String str, @Param("content") String content) {
         // 获取当前会话
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
         WnObj o = Wn.checkObj(io, se, str);
@@ -605,7 +604,7 @@ public class ObjModule extends AbstractWnModule {
                             @Param("tmpl") String tmpl,
                             InputStream ins) {
         // 得到当前会话
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
         WnObj o = Wn.getObj(io, se, str);
@@ -754,7 +753,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 首先得到目标对象
-        WnObj o = Wn.checkObj(io, Wn.WC().checkSE(), str);
+        WnObj o = Wn.checkObj(io, Wn.WC().checkSession(), str);
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
@@ -858,7 +857,7 @@ public class ObjModule extends AbstractWnModule {
                         @Param("dupp") String dupp,
                         InputStream ins) {
         // 得到当前会话
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 首先得到目标对象
         WnObj ta;

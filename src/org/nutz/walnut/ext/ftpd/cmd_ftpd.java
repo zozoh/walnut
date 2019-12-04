@@ -14,7 +14,7 @@ public class cmd_ftpd extends JvmHdlExecutor {
             // 检查权限: root 组管理员才能操作
             sys.nosecurity(new Atom() {
                 public void run() {
-                    WnAccount me = Wn.WC().getMe();
+                    WnAccount me = Wn.WC().getAccount();
                     if (!sys.auth.isAdminOfGroup(me, "root")) {
                         throw Er.create("e.cmd.ftpd.only_for_root_admin");
                     }

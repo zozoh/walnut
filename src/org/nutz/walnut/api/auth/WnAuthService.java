@@ -68,6 +68,16 @@ public interface WnAuthService {
     void saveAccountPasswd(WnAccount user);
 
     /**
+     * 将指定账户修改为新名称
+     * 
+     * @param user
+     *            账户对象
+     * @param newName
+     *            新名称（登录名）
+     */
+    void renameAccount(WnAccount user, String newName);
+
+    /**
      * 获取某账户对象在指定的系统组中的权限
      * 
      * @param user

@@ -7,15 +7,14 @@ import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnSessionService;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.ajax.AjaxReturn;
@@ -38,9 +37,9 @@ public class WnCheckSession implements ActionFilter {
         this.ajax = ajax;
     }
 
-    public static WnSession testSession(WnContext wc, Ioc ioc) {
+    public static WnAuthSession testSession(WnContext wc, WnAuthService auth) {
         // 如果上下文已经有了 Session，就直接返回
-        WnSession se = wc.SE();
+        WnAuthSession se = wc.SE();
         if (null != se) {
             return se;
         }
@@ -50,13 +49,10 @@ public class WnCheckSession implements ActionFilter {
             return null;
 
         // 看看有没有合法的 Session 对象
-        String seid = wc.SEID();
-        return _sess(ioc).fetch(seid);
+        String ticket = wc.SEID();
 
-    }
-
-    private static WnSessionService _sess(Ioc ioc) {
-        return ioc.get(WnSessionService.class, "sessionService");
+        // 获取并更新 Sessoion 对象的最后访问时间
+        return auth.touchSession(ticket);
     }
 
     @Override
@@ -66,34 +62,27 @@ public class WnCheckSession implements ActionFilter {
         Ioc ioc = ac.getIoc();
 
         // 如果有会话合法，那么就继续下一个操作
-        WnSession se = testSession(wc, ioc);
+        WnAuthService auth = Wn.Service.auth(ioc);
+        WnAuthSession se = testSession(wc, auth);
 
         if (null != se) {
-            WnSessionService sess = _sess(ioc);
-
-            // 更行 Sessoion 对象的最后访问时间
-            sess.touch(se.id());
-
             // 记录到上下文
             wc.SE(se);
-            wc.me(se.me(), se.group());
 
             // 读取服务类之类的
-            WnIo io = ioc.get(WnIo.class, "io");
-            WnBoxService boxes = ioc.get(WnBoxService.class, "boxService");
-            WnUsrService usrs = sess.usrs();
-            WnUsr me = usrs.check(se.me());
+            WnIo io = Wn.Service.io(ioc);
+            WnBoxService boxes = Wn.Service.boxes(ioc);
+
+            WnAccount me = se.getMe();
 
             // 给当前 Session 设置默认的当前路径
-            se.var("PWD", me.home());
+            se.getVars().put("PWD", me.getHomePath());
 
             // 生成沙盒上下文
             WnBoxContext bc = new WnBoxContext(new NutMap());
             bc.io = io;
-            bc.me = me;
             bc.session = se;
-            bc.usrService = usrs;
-            bc.sessionService = sess;
+            bc.auth = auth;
 
             // 设置钩子上下文
             WnHookContext hc = new WnHookContext(boxes, bc);

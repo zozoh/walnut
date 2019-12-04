@@ -7,6 +7,7 @@ import java.io.File;
 import org.junit.Test;
 import org.nutz.lang.Files;
 import org.nutz.walnut.BaseIoTest;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
@@ -46,9 +47,10 @@ public class WnIoLocalMountTest extends BaseIoTest {
 
             // 挂载目录
             WnContext wc = Wn.WC();
-            String me = wc.checkMe();
-            String grp = wc.checkGroup();
-            wc.me("nobody", "nogrp");
+            WnAccount me = wc.getAccount();
+            String grp = me.getGroupName();
+            WnAccount nobody = WnAccount.create("nobody", "nogrp");
+            wc.setMe(nobody);
             try {
                 io.setMount(b, "file://~/.walnut/tmp/dir");
 
@@ -95,7 +97,7 @@ public class WnIoLocalMountTest extends BaseIoTest {
 
             }
             finally {
-                wc.me(me, grp);
+                wc.setMe(me);
             }
         }
         // 删除临时目录

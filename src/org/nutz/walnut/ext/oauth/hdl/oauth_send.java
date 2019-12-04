@@ -26,7 +26,8 @@ public class oauth_send implements JvmHdl {
             SocialAuthManager manager = new SocialAuthManager(); // 每次都要新建哦
             manager.setSocialAuthConfig(config);
             String url = manager.getAuthenticationUrl(provider, returnTo);
-            WnObj tmp = sys.io.createIfNoExists(null, Wn.normalizeFullPath("~/.oauth/tmp/" + sys.se.id(), sys), WnRace.FILE);
+            String aph = Wn.normalizeFullPath("~/.oauth/tmp/" + sys.session.getId(), sys);
+            WnObj tmp = sys.io.createIfNoExists(null, aph, WnRace.FILE);
             sys.io.writeAndClose(tmp, new ByteArrayInputStream(Lang.toBytes(manager)));
             sys.out.print(url);
         }

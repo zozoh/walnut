@@ -45,7 +45,7 @@ public class cmd_wnml extends JvmExecutor {
         }
 
         // 设置上下文
-        context.put("grp", sys.se.group());
+        context.put("grp", sys.getMyGroup());
         context.put("fnm", o.name());
         context.put("rs", "/gu/rs");
         context.put("CURRENT_PATH", o.path());

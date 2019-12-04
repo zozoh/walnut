@@ -12,7 +12,7 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutDao;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.usr.WnUsr;
+import org.nutz.walnut.api.auth.WnAccount;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -21,11 +21,11 @@ public class SqlToolHelper {
     protected static Map<String, DataSource> dataSources = new ConcurrentHashMap<>();
     protected static Map<String, Dao> daos = new ConcurrentHashMap<>();
 
-    public static DataSource getDataSource(WnUsr usr, String name) {
+    public static DataSource getDataSource(WnAccount usr, String name) {
         return dataSources.get(key(usr, name));
     }
 
-    public static DataSource getOrCreateDataSource(WnUsr usr, String name, NutMap conf) {
+    public static DataSource getOrCreateDataSource(WnAccount usr, String name, NutMap conf) {
         DataSource ds = getDataSource(usr, name);
         if (ds == null) {
             DruidDataSource dataSource = new DruidDataSource();
@@ -41,7 +41,7 @@ public class SqlToolHelper {
         return ds;
     }
 
-    public static void removeDataSource(WnUsr usr, String name) {
+    public static void removeDataSource(WnAccount usr, String name) {
         DataSource ds = getDataSource(usr, name);
         if (ds != null && ds instanceof Closeable) {
             Streams.safeClose((Closeable) ds);
@@ -49,15 +49,15 @@ public class SqlToolHelper {
         }
     }
 
-    public static String key(WnUsr usr, String name) {
-        return usr.name() + ";" + name;
+    public static String key(WnAccount usr, String name) {
+        return usr.getName() + ";" + name;
     }
 
     public static Set<String> keys() {
         return new HashSet<>(dataSources.keySet());
     }
 
-    public static Dao getDao(WnUsr usr, String name, NutMap conf) {
+    public static Dao getDao(WnAccount usr, String name, NutMap conf) {
         Dao dao = daos.get(key(usr, name));
         if (dao == null) {
             DataSource ds = getOrCreateDataSource(usr, name, conf);
@@ -67,7 +67,7 @@ public class SqlToolHelper {
         return dao;
     }
 
-    public static void reload(WnUsr usr, String name, NutMap conf) {
+    public static void reload(WnAccount usr, String name, NutMap conf) {
         removeDataSource(usr, name);
         getOrCreateDataSource(usr, name, conf);
     }

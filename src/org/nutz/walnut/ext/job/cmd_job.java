@@ -24,7 +24,7 @@ public class cmd_job extends JvmHdlExecutor {
             // 检查权限: root/job 组管理员才能操作
             sys.nosecurity(new Atom() {
                 public void run() {
-                    WnAccount me = Wn.WC().getMe();
+                    WnAccount me = Wn.WC().getAccount();
                     if (!sys.auth.isAdminOfGroup(me, "root", "job")) {
                         throw Er.create("e.cmd.job.only_for_job_admin");
                     }

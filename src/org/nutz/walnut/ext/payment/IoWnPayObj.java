@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.payment;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.auth.WnAccount;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.io.WnBean;
 
 /**
@@ -297,7 +296,7 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
     }
 
     @Override
-    public boolean isTheSeller(WnUsr u) {
+    public boolean isTheSeller(WnAccount u) {
         if(null==u)
             return false;
         return u.isSameId(this.getString(WnPays.KEY_SELLER_ID));

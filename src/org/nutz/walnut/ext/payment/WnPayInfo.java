@@ -5,11 +5,11 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
-import org.nutz.walnut.api.usr.WnUsrService;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -85,7 +85,7 @@ public class WnPayInfo {
      */
     public String seller_nm;
 
-    public WnUsr checkSeller(WnUsrService usrs, WnUsr me) {
+    public WnAccount checkSeller(WnAuthService auth, WnAccount me) {
         boolean noSeId = Strings.isBlank(seller_id);
         boolean noSeNm = Strings.isBlank(seller_nm);
 
@@ -93,28 +93,29 @@ public class WnPayInfo {
         if (noSeId || noSeNm) {
             // 采用默认用户
             if (noSeId && noSeNm) {
-                seller_id = me.id();
-                seller_nm = me.name();
+                seller_id = me.getId();
+                seller_nm = me.getName();
                 return me;
             }
             // 补足 ID
             else if (noSeId) {
-                WnUsr u = usrs.check(seller_nm);
-                seller_id = u.id();
-                seller_nm = u.name();
+                WnAccount u = auth.checkAccount(seller_nm);
+                seller_id = me.getId();
+                seller_nm = me.getName();
                 return u;
             }
             // 补足名称
             else {
-                WnUsr u = usrs.check("id:" + seller_id);
-                seller_nm = u.name();
+                WnAccount u = auth.checkAccount(seller_id);
+                seller_id = me.getId();
+                seller_nm = me.getName();
                 return u;
             }
         }
         // 如果两个都有，则比较一下是否匹配
         else {
-            WnUsr u = usrs.check(seller_nm);
-            if (!u.isSameId(seller_id)) {
+            WnAccount u = auth.checkAccount(seller_id);
+            if (!u.isSameName(seller_nm)) {
                 throw Er.create("e.pay.noMatchSeller", seller_id + " not " + seller_nm);
             }
             return u;
@@ -175,9 +176,9 @@ public class WnPayInfo {
         return !Strings.isBlank(callbackName);
     }
 
-    public String readCallback(WnIo io, WnUsr seller) {
-        WnObj oCallback = io.check(null,
-                                   Wn.appendPath(seller.home(), ".payment/callback", callbackName));
+    public String readCallback(WnIo io, WnAccount seller) {
+        String aph = Wn.appendPath(seller.getHomePath(), ".payment/callback", callbackName);
+        WnObj oCallback = io.check(null, aph);
         return io.readText(oCallback);
     }
 

@@ -2,8 +2,8 @@ package org.nutz.walnut.ext.root;
 
 import org.nutz.lang.Stopwatch;
 import org.nutz.trans.Atom;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
@@ -31,25 +31,30 @@ public class cmd_renameUser extends JvmExecutor {
         boolean verb = params.is("v");
 
         // 得到要操作的用户，以及为其创建会话
-        WnUsr me = sys.usrService.check(params.check("u"));
+        WnAccount me = sys.getMe();
+        WnAccount u = me;
+        if (params.has("unm")) {
+            String unm = params.check("u");
+            u = sys.auth.checkAccount(unm);
+        }
 
         // 没必要改名
-        if (sys.me.name().equals(me.name())) {
+        if (u.isSameName(newName)) {
             if (verb)
                 sys.out.println("same name");
             return;
         }
 
         // root 用户不能改名
-        if ("root".equals(me.name())) {
+        if (u.isRoot()) {
             throw Er.create("e.cmd.renameUser.root");
         }
         // 不能修改当前用户名称
-        if (me.isSameId(sys.me)) {
+        if (u.isSame(me)) {
             throw Er.create("e.cmd.renameUser.self");
         }
         // 执行这个命令，需要 root 组的管理员权限
-        if (!sys.usrService.isAdminOfGroup(sys.me, "root")) {
+        if (!sys.auth.isAdminOfGroup(me, "root")) {
             throw Er.create("e.cmd.renameUser.nopvg");
         }
 
@@ -57,7 +62,7 @@ public class cmd_renameUser extends JvmExecutor {
         sys.out.println("start");
         Stopwatch sw = Stopwatch.begin();
 
-        sys.usrService.rename(me, newName);
+        sys.auth.renameAccount(u, newName);
 
         sw.stop();
         sys.out.println("All done in : " + sw.toString());

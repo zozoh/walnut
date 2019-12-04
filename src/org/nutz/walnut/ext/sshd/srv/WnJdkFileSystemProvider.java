@@ -34,17 +34,17 @@ import org.apache.sshd.client.subsystem.sftp.SftpFileSystem;
 import org.apache.sshd.common.file.util.ImmutableList;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.util.GenericUtils;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
 import org.nutz.walnut.util.Wn;
 
 public class WnJdkFileSystemProvider extends FileSystemProvider {
 
-    WnSession se;
-    
+    WnAuthSession se;
+
     WnIo io;
-    
+
     protected WnJdkFileSystem fs;
 
     public WnJdkFileSystemProvider(Session session, WnIo io) {
@@ -66,7 +66,9 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
     }
 
     public Path getPath(URI uri) {
-        return new WnJdkPath((WnJdkFileSystem) getFileSystem(uri), uri.getPath(), new ImmutableList<>(new String[]{}));
+        return new WnJdkPath((WnJdkFileSystem) getFileSystem(uri),
+                             uri.getPath(),
+                             new ImmutableList<>(new String[]{}));
     }
 
     @Override
@@ -86,16 +88,16 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
         // 根目录
         for (WnObj wobj : io.query(Wn.Q.pid(io.check(null, path)))) {
             list.add(new WnJdkPath(fs, "/", new ImmutableList<>(wobj.path().split("/"))));
-        };
+        }
+        ;
         return new DirectoryStream<Path>() {
 
-            public void close() throws IOException {
-            }
+            public void close() throws IOException {}
 
             public Iterator<Path> iterator() {
                 return list.iterator();
             }
-            
+
         };
     }
 
@@ -151,9 +153,13 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
                                                                 Class<V> type,
                                                                 LinkOption... options) {
         if (AclFileAttributeView.class.isAssignableFrom(type)) {
-            return type.cast(new WnJdkAclFileAttributeView(io.check(null, path.normalize().toString()), io));
+            return type.cast(new WnJdkAclFileAttributeView(io.check(null,
+                                                                    path.normalize().toString()),
+                                                           io));
         } else if (BasicFileAttributeView.class.isAssignableFrom(type)) {
-            return type.cast(new WnJdkPosixFileAttributeView(io.check(null, path.normalize().toString()), io));
+            return type.cast(new WnJdkPosixFileAttributeView(io.check(null,
+                                                                      path.normalize().toString()),
+                                                             io));
         }
         return null;
     }
@@ -164,14 +170,21 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
                                                             LinkOption... options)
             throws IOException {
         if (type.isAssignableFrom(PosixFileAttributes.class)) {
-            return type.cast(getFileAttributeView(path, PosixFileAttributeView.class, options).readAttributes());
+            return type.cast(getFileAttributeView(path,
+                                                  PosixFileAttributeView.class,
+                                                  options).readAttributes());
         }
 
-        throw new UnsupportedOperationException("readAttributes(" + path + ")[" + type.getSimpleName() + "] N/A");
+        throw new UnsupportedOperationException("readAttributes("
+                                                + path
+                                                + ")["
+                                                + type.getSimpleName()
+                                                + "] N/A");
     }
 
     @Override
-    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) throws IOException {
+    public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options)
+            throws IOException {
         String view;
         String attrs;
         int i = attributes.indexOf(':');
@@ -186,55 +199,89 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
         return readAttributes(path, view, attrs, options);
     }
 
-    public Map<String, Object> readAttributes(Path path, String view, String attrs, LinkOption... options) throws IOException {
+    public Map<String, Object> readAttributes(Path path,
+                                              String view,
+                                              String attrs,
+                                              LinkOption... options)
+            throws IOException {
         Collection<String> views = fs.supportedFileAttributeViews();
         if (GenericUtils.isEmpty(views) || (!views.contains(view))) {
-            throw new UnsupportedOperationException("readAttributes(" + path + ")[" + view + ":" + attrs + "] view not supported: " + views);
+            throw new UnsupportedOperationException("readAttributes("
+                                                    + path
+                                                    + ")["
+                                                    + view
+                                                    + ":"
+                                                    + attrs
+                                                    + "] view not supported: "
+                                                    + views);
         }
-        
-        if ("basic".equalsIgnoreCase(view) || "posix".equalsIgnoreCase(view) || "owner".equalsIgnoreCase(view)) {
+
+        if ("basic".equalsIgnoreCase(view)
+            || "posix".equalsIgnoreCase(view)
+            || "owner".equalsIgnoreCase(view)) {
             return readPosixViewAttributes(path, view, attrs, options);
         } else if ("acl".equalsIgnoreCase(view)) {
             return readAclViewAttributes(path, view, attrs, options);
-        } else  {
+        } else {
             return readCustomViewAttributes(path, view, attrs, options);
         }
     }
-    
-    protected Map<String, Object> readCustomViewAttributes(Path path, String view, String attrs, LinkOption... options) throws IOException {
-        throw new UnsupportedOperationException("readCustomViewAttributes(" + path + ")[" + view + ":" + attrs + "] view not supported");
+
+    protected Map<String, Object> readCustomViewAttributes(Path path,
+                                                           String view,
+                                                           String attrs,
+                                                           LinkOption... options)
+            throws IOException {
+        throw new UnsupportedOperationException("readCustomViewAttributes("
+                                                + path
+                                                + ")["
+                                                + view
+                                                + ":"
+                                                + attrs
+                                                + "] view not supported");
     }
 
-    protected Map<String, Object> readAclViewAttributes(Path path, String view, String attrs, LinkOption... options) throws IOException {
+    protected Map<String, Object> readAclViewAttributes(Path path,
+                                                        String view,
+                                                        String attrs,
+                                                        LinkOption... options)
+            throws IOException {
         if ("*".equals(attrs)) {
             attrs = "acl,owner";
         }
 
-        AclFileAttributeView attributes = getFileAttributeView(path, AclFileAttributeView.class, options);
+        AclFileAttributeView attributes = getFileAttributeView(path,
+                                                               AclFileAttributeView.class,
+                                                               options);
 
         Map<String, Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (String attr : attrs.split(",")) {
             switch (attr) {
-                case "acl":
-                    List<AclEntry> acl = attributes.getAcl();
-                    if (acl != null) {
-                        map.put(attr, acl);
-                    }
-                    break;
-                case "owner":
-                    String owner = attributes.getOwner().getName();
-                    if (GenericUtils.length(owner) > 0) {
-                        map.put(attr, new SftpFileSystem.DefaultUserPrincipal(owner));
-                    }
-                    break;
-                default:
-                    ;// nop
+            case "acl":
+                List<AclEntry> acl = attributes.getAcl();
+                if (acl != null) {
+                    map.put(attr, acl);
+                }
+                break;
+            case "owner":
+                String owner = attributes.getOwner().getName();
+                if (GenericUtils.length(owner) > 0) {
+                    map.put(attr, new SftpFileSystem.DefaultUserPrincipal(owner));
+                }
+                break;
+            default:
+                ;// nop
             }
         }
 
         return map;
     }
-    protected Map<String, Object> readPosixViewAttributes(Path path, String view, String attrs, LinkOption... options) throws IOException {
+
+    protected Map<String, Object> readPosixViewAttributes(Path path,
+                                                          String view,
+                                                          String attrs,
+                                                          LinkOption... options)
+            throws IOException {
         PosixFileAttributes v = readAttributes(path, PosixFileAttributes.class, options);
         if ("*".equals(attrs)) {
             attrs = "lastModifiedTime,lastAccessTime,creationTime,size,isRegularFile,isDirectory,isSymbolicLink,isOther,fileKey,owner,permissions,group";
@@ -243,44 +290,44 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
         Map<String, Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (String attr : attrs.split(",")) {
             switch (attr) {
-                case "lastModifiedTime":
-                    map.put(attr, v.lastModifiedTime());
-                    break;
-                case "lastAccessTime":
-                    map.put(attr, v.lastAccessTime());
-                    break;
-                case "creationTime":
-                    map.put(attr, v.creationTime());
-                    break;
-                case "size":
-                    map.put(attr, v.size());
-                    break;
-                case "isRegularFile":
-                    map.put(attr, v.isRegularFile());
-                    break;
-                case "isDirectory":
-                    map.put(attr, v.isDirectory());
-                    break;
-                case "isSymbolicLink":
-                    map.put(attr, v.isSymbolicLink());
-                    break;
-                case "isOther":
-                    map.put(attr, v.isOther());
-                    break;
-                case "fileKey":
-                    map.put(attr, v.fileKey());
-                    break;
-                case "owner":
-                    map.put(attr, v.owner());
-                    break;
-                case "permissions":
-                    map.put(attr, v.permissions());
-                    break;
-                case "group":
-                    map.put(attr, v.group());
-                    break;
-                default:
-                    ; // nop
+            case "lastModifiedTime":
+                map.put(attr, v.lastModifiedTime());
+                break;
+            case "lastAccessTime":
+                map.put(attr, v.lastAccessTime());
+                break;
+            case "creationTime":
+                map.put(attr, v.creationTime());
+                break;
+            case "size":
+                map.put(attr, v.size());
+                break;
+            case "isRegularFile":
+                map.put(attr, v.isRegularFile());
+                break;
+            case "isDirectory":
+                map.put(attr, v.isDirectory());
+                break;
+            case "isSymbolicLink":
+                map.put(attr, v.isSymbolicLink());
+                break;
+            case "isOther":
+                map.put(attr, v.isOther());
+                break;
+            case "fileKey":
+                map.put(attr, v.fileKey());
+                break;
+            case "owner":
+                map.put(attr, v.owner());
+                break;
+            case "permissions":
+                map.put(attr, v.permissions());
+                break;
+            case "group":
+                map.put(attr, v.group());
+                break;
+            default:
+                ; // nop
             }
         }
         return map;
@@ -293,9 +340,8 @@ public class WnJdkFileSystemProvider extends FileSystemProvider {
 
     }
 
-    
-    //---------------------------------------------------------
-    
+    // ---------------------------------------------------------
+
     @Override
     public FileChannel newFileChannel(Path path,
                                       Set<? extends OpenOption> options,

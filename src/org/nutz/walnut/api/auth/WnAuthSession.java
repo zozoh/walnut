@@ -21,9 +21,11 @@ public class WnAuthSession {
      * 创建的会话方式，可能的值为：
      * 
      * <ul>
-     * <li><code>web_vcode</code>: 验证码登录</li>
-     * <li><code>web_passwd</code>: 密码登录</li>
-     * <li><code>wx_gh_xxxx</code>: 某个微信公众号登录</li>
+     * <li><code>web_vcode</code>: 网页动态验证码登录， by_val 为手机号或邮箱</li>
+     * <li><code>web_passwd</code>: 网页账号密码登录，by_val 为用户登录名</li>
+     * <li><code>wx_gh_xxxx</code>: 某微信公众号code自动登录, by_val 为用户 OpenId</li>
+     * <li><code>microapp</code>: 微信小程序，by_val 为用户 OpenId</li>
+     * <li><code>session</code>: 创建的自会话，by_val 为父会话的 ID</li>
      * </ul>
      * 
      * 这个字段设计的动机是为了方便限制客户端重复登录的数量
@@ -79,6 +81,19 @@ public class WnAuthSession {
         map.put("expi", expi);
         map.put("ticket", ticket);
         map.put("vars", vars);
+        return map;
+    }
+
+    public NutMap toMapForClient() {
+        NutMap map = new NutMap();
+        map.put("id", id);
+        if ("session".equals(this.byType)) {
+            map.put("p_se_id", this.byValue);
+        }
+        map.put("me", this.getMyName());
+        map.put("grp", this.getMyGroup());
+        map.put("du", expi - System.currentTimeMillis());
+        map.put("envs", vars);
         return map;
     }
 
@@ -140,6 +155,14 @@ public class WnAuthSession {
             this.me = new WnAccount(bean);
             this.loadVars(me);
         }
+    }
+
+    public String getMyName() {
+        return this.me.getName();
+    }
+
+    public String getMyGroup() {
+        return this.me.getGroupName();
     }
 
     public void loadVars(WnAccount user) {

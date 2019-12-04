@@ -4,6 +4,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.WnRun;
@@ -17,9 +18,10 @@ public class WnRunTestSetup implements Setup {
 
         WnRun run = nc.getIoc().get(WnRun.class);
         WnContext wc = Wn.WC();
+        WnAccount me = wc.getAccount();
 
         new Thread(() -> {
-            Wn.WC().me(wc.checkMe(), wc.checkGroup());
+            Wn.WC().setMe(me);
             log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             run.exec("test", "root", "date > ~/dateoutput");
             log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");

@@ -6,9 +6,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayInfo;
 import org.nutz.walnut.ext.payment.WnPayObj;
@@ -34,14 +32,17 @@ public class pay_create implements JvmHdl {
         wpi.fillBuyer(bu);
 
         // TODO 稍后改一下，现在先用 Wn 的旧账户体系
+        WnAccount seller;
         if (Strings.isBlank(sl)) {
-            wpi.seller_id = sys.me.id();
-            wpi.seller_nm = sys.me.name();
-        } else {
-            wpi.seller_nm = sl;
-            WnUsr seller = sys.usrService.check(sl);
-            wpi.seller_id = seller.id();
+            seller = sys.getMe();
         }
+        // 指定了 seller
+        else {
+            seller = sys.auth.checkAccount(sl);
+        }
+        // 设置 seller
+        wpi.seller_id = seller.getId();
+        wpi.seller_nm = seller.getName();
 
         // 填充支付单的 buyer 的名称和ID，必须配对
         if (wpi.isWalnutBuyer()) {
@@ -131,56 +132,57 @@ public class pay_create implements JvmHdl {
         }
     }
 
-    private void __check_buyer_as_domain(WnSystem sys, WnPayInfo wpi) {
-        boolean noBuId = Strings.isBlank(wpi.buyer_id);
-        boolean noBuNm = Strings.isBlank(wpi.buyer_nm);
+    // private void __check_buyer_as_domain(WnSystem sys, WnPayInfo wpi) {
+    // boolean noBuId = Strings.isBlank(wpi.buyer_id);
+    // boolean noBuNm = Strings.isBlank(wpi.buyer_nm);
+    //
+    // // 没有设置买家
+    // if (noBuId) {
+    // throw Er.create("e.pay.craete.nobuyer");
+    // }
+    //
+    // // 补足
+    // if (noBuNm) {
+    // // 没有设置买家
+    // if (noBuId && noBuNm) {
+    // throw Er.create("e.pay.craete.nobuyer");
+    // }
+    // WnObj u = sys.io.checkById(wpi.buyer_id);
+    // wpi.buyer_nm = u.getString("th_nm", u.name());
+    // }
+    //
+    // }
 
-        // 没有设置买家
-        if (noBuId) {
-            throw Er.create("e.pay.craete.nobuyer");
-        }
-
-        // 补足
-        if (noBuNm) {
-            // 没有设置买家
-            if (noBuId && noBuNm) {
-                throw Er.create("e.pay.craete.nobuyer");
-            }
-            WnObj u = sys.io.checkById(wpi.buyer_id);
-            wpi.buyer_nm = u.getString("th_nm", u.name());
-        }
-
-    }
-
-    private void __check_buyer_as_wn(WnSystem sys, WnPayInfo wpi) {
-        boolean noBuId = Strings.isBlank(wpi.buyer_id);
-        boolean noBuNm = Strings.isBlank(wpi.buyer_nm);
-
-        // 补足
-        if (noBuId || noBuNm) {
-            // 没有设置买家
-            if (noBuId && noBuNm) {
-                throw Er.create("e.pay.craete.nobuyer");
-            }
-            // 补足 ID
-            if (noBuId) {
-                WnUsr u = sys.usrService.check(wpi.buyer_nm);
-                wpi.buyer_id = u.id();
-                wpi.buyer_nm = u.name();
-            }
-            // 补足名称
-            else {
-                WnUsr u = sys.usrService.check("id:" + wpi.buyer_id);
-                wpi.buyer_nm = u.name();
-            }
-        }
-        // 如果两个都有，则比较一下是否匹配
-        else {
-            WnUsr u = sys.usrService.check(wpi.buyer_nm);
-            if (!u.isSameId(wpi.buyer_id)) {
-                throw Er.create("e.pay.create.noMatchBuyer", wpi.buyer_id + " not " + wpi.buyer_nm);
-            }
-        }
-    }
+    // private void __check_buyer_as_wn(WnSystem sys, WnPayInfo wpi) {
+    // boolean noBuId = Strings.isBlank(wpi.buyer_id);
+    // boolean noBuNm = Strings.isBlank(wpi.buyer_nm);
+    //
+    // // 补足
+    // if (noBuId || noBuNm) {
+    // // 没有设置买家
+    // if (noBuId && noBuNm) {
+    // throw Er.create("e.pay.craete.nobuyer");
+    // }
+    // // 补足 ID
+    // if (noBuId) {
+    // WnAccount u = sys.auth.checkAccount(wpi.buyer_nm);
+    // wpi.buyer_id = u.getId();
+    // wpi.buyer_nm = u.getName();
+    // }
+    // // 补足名称
+    // else {
+    // WnAccount u = sys.auth.checkAccount(wpi.buyer_id);
+    // wpi.buyer_nm = u.getName();
+    // }
+    // }
+    // // 如果两个都有，则比较一下是否匹配
+    // else {
+    // WnAccount u = sys.auth.checkAccount(wpi.buyer_nm);
+    // if (!u.isSameId(wpi.buyer_id)) {
+    // throw Er.create("e.pay.create.noMatchBuyer", wpi.buyer_id + " not " +
+    // wpi.buyer_nm);
+    // }
+    // }
+    // }
 
 }

@@ -71,7 +71,7 @@ public class seq_create implements JvmHdl {
                 WnQuery q = new WnQuery();
                 NutMap map = Lang.map(list_match);
                 map.put("d0", "home");
-                map.setnx("d1", sys.me.mainGroup());
+                map.setnx("d1", sys.getMyGroup());
                 q.add(map);
                 q.sort(Lang.map(sort));
                 objs = sys.io.query(q);

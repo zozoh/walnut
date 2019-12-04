@@ -38,7 +38,7 @@ public class JvmBoxTest extends BaseBoxTest {
     @Test
     public void test_append_redirect() {
         box.run("echo 'hello' >> ~/abc.txt");
-        WnObj o = io.check(null, me.home() + "/abc.txt");
+        WnObj o = io.check(null, me.getHomePath() + "/abc.txt");
         String txt = io.readText(o);
         assertEquals("hello\n", txt);
     }

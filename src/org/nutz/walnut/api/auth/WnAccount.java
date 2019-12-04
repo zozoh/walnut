@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
@@ -12,6 +13,18 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.Wn;
 
 public class WnAccount {
+
+    public static WnAccount create(String name) {
+        return create(name, name);
+    }
+
+    public static WnAccount create(String name, String group) {
+        WnAccount u = new WnAccount();
+        u.setId(R.UU32());
+        u.setName(name);
+        u.setGroupName(group);
+        return u;
+    }
 
     private String id;
 
@@ -519,6 +532,18 @@ public class WnAccount {
 
     public void setPasswd(String passwd) {
         this.passwd = passwd;
+    }
+
+    public void setRawPasswd(String passwd) {
+        if (Strings.isBlank(this.salt)) {
+            this.salt = R.UU32();
+        }
+        this.passwd = Wn.genSaltPassword(passwd, salt);
+    }
+
+    public boolean isMatchPasswd(String passwd) {
+        String pwd = Wn.genSaltPassword(passwd, salt);
+        return this.passwd.equals(pwd);
     }
 
     public String getSalt() {

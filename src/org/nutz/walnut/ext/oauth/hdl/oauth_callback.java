@@ -20,7 +20,7 @@ public class oauth_callback implements JvmHdl {
     @SuppressWarnings("unchecked")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        WnObj tmp = sys.io.check(null, Wn.normalizeFullPath("~/.oauth/tmp/" + sys.se.id(), sys));
+        WnObj tmp = sys.io.check(null, Wn.normalizeFullPath("~/.oauth/tmp/" + sys.session.getId(), sys));
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
         sys.io.readAndClose(tmp, ops);
         SocialAuthManager manager = Lang.fromBytes(ops.toByteArray(), SocialAuthManager.class);

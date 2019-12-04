@@ -40,13 +40,13 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQuery;
@@ -324,8 +324,8 @@ public class WWWModule extends AbstractWnModule {
         }
 
         // 采用 domain 用户的权限，执行会话的创建等逻辑
-        WnUsr me = usrs.check(domain);
-        WnObj oHome = io.check(null, me.home());
+        WnAccount me = auth.checkAccount(domain);
+        WnObj oHome = io.check(null, me.getHomePath());
         return Wn.WC().su(me, new Proton<NutBean>() {
             @Override
             protected NutBean exec() {
@@ -431,8 +431,8 @@ public class WWWModule extends AbstractWnModule {
         String siteId = oWWW.getString("hm_site_id");
 
         // 采用 domain 用户的权限，执行会话的创建等逻辑
-        WnUsr me = usrs.check(domain);
-        WnObj oHome = io.check(null, me.home());
+        WnAccount me = auth.checkAccount(domain);
+        WnObj oHome = io.check(null, me.getHomePath());
         return Wn.WC().su(me, new Proton<NutBean>() {
             @Override
             protected NutBean exec() {
@@ -459,7 +459,7 @@ public class WWWModule extends AbstractWnModule {
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
         // 采用 domain 用户的权限，执行会话的创建等逻辑
-        WnUsr me = usrs.check(domain);
+        WnAccount me = auth.checkAccount(domain);
         return Wn.WC().su(me, new Proton<NutBean>() {
             @Override
             protected NutBean exec() {
@@ -498,7 +498,7 @@ public class WWWModule extends AbstractWnModule {
         WnObj oWWW = io.checkById(wwwId);
         String domain = oWWW.d1();
         // 采用 domain 用户的权限，执行会话的创建等逻辑
-        WnUsr me = usrs.check(domain);
+        WnAccount me = auth.checkAccount(domain);
         return Wn.WC().su(me, new Proton<NutBean>() {
             @Override
             protected NutBean exec() {
@@ -743,8 +743,8 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 找到用户
-        WnUsr u = usrs.check(usr);
-        String homePath = Strings.sBlank(u.home(), "/home/" + u.name());
+        WnAccount u = auth.checkAccount(usr);
+        String homePath = u.getHomePath();
         WnObj oHome = io.fetch(null, homePath);
 
         if (log.isDebugEnabled())
@@ -881,7 +881,7 @@ public class WWWModule extends AbstractWnModule {
                     log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
 
                 // 首先创建一个会话
-                WnSession se = this.creatSession(usr);
+                WnAuthSession se = this.creatSession(usr);
 
                 // 得到文件内容
                 String input = io.readText(o);
@@ -905,7 +905,7 @@ public class WWWModule extends AbstractWnModule {
                 context.put("args", args);
 
                 // 得到一些当前域账号的关键信息
-                context.put("grp", se.group());
+                context.put("grp", se.getMyGroup());
                 context.put("fnm", o.name());
                 context.put("majorName", Files.getMajorName(o.name()));
                 context.put("rs", "/gu/rs");
@@ -916,7 +916,7 @@ public class WWWModule extends AbstractWnModule {
                 }
                 // 否则没有修改过路径，则应该本地环境，那么 api 要补全域
                 else {
-                    context.put("REGAPI_BASE", "/api/" + se.group());
+                    context.put("REGAPI_BASE", "/api/" + se.getMyGroup());
                 }
 
                 // 放置一些上下文的接口

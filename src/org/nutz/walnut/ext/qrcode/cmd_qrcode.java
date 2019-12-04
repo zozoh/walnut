@@ -56,7 +56,7 @@ public class cmd_qrcode extends JvmExecutor {
         String icon = params.get("icon");
         BufferedImage iconImg = null;
         if (!Strings.isBlank(icon)) {
-            String iconPath = Wn.normalizeFullPath(icon, sys.se);
+            String iconPath = Wn.normalizeFullPath(icon, sys);
             iconImg = sys.io.readImage(sys.io.fetch(null, iconPath));
         }
         // 生成二维码

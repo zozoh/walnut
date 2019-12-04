@@ -27,7 +27,7 @@ public class pdf_pdf2jpg implements JvmHdl {
         // 获取源文件和目标目录
         String source = hc.params.val_check(0);
         String dst = hc.params.val_check(1);
-        WnObj wobj = sys.io.check(null, Wn.normalizeFullPath(source, sys.se));
+        WnObj wobj = sys.io.check(null, Wn.normalizeFullPath(source, sys));
         String dir = "/tmp/pdf2xxx/" + R.UU32();
         File tmpDir = new File(dir);
         Files.createDirIfNoExists(tmpDir);
@@ -38,7 +38,7 @@ public class pdf_pdf2jpg implements JvmHdl {
         PDDocument doc = PDDocument.load(sys.io.getInputStream(wobj, 0));
         int pageCount = doc.getNumberOfPages();
         doc.close();
-        WnObj wdir = sys.io.createIfNoExists(null, Wn.normalizeFullPath(dst, sys.se), WnRace.DIR);
+        WnObj wdir = sys.io.createIfNoExists(null, Wn.normalizeFullPath(dst, sys), WnRace.DIR);
         try {
             // 逐页转换
             for (int i = 0; i < pageCount; i++) {

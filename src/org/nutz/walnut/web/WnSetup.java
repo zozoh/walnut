@@ -19,6 +19,8 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -80,10 +82,14 @@ public class WnSetup implements Setup {
                                                       System.getProperty("java.io.tmpdir")));
 
         // 尝试看看组装的结果
-        WnIo io = ioc.get(WnIo.class, "io");
+        WnIo io = Wn.Service.io(ioc);
+        WnAuthService auth = Wn.Service.auth(ioc);
+        
+        // 获取根用户
+        WnAccount root = auth.checkAccount("root");
 
         // 下面所有的操作都是 root 权限的
-        Wn.WC().me("root", "root");
+        Wn.WC().setMe(root);
 
         // 检查一下/etc是否合法
         WnObj etc = io.fetch(null, "/etc");
@@ -119,7 +125,7 @@ public class WnSetup implements Setup {
         }
 
         // 获取沙箱服务
-        boxes = ioc.get(WnBoxService.class, "boxService");
+        boxes = Wn.Service.boxes(ioc);
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);

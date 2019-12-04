@@ -21,9 +21,9 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean(create = "init", depose = "depose")
@@ -41,28 +41,30 @@ public class WnSshdServer extends WnRun {
             return;
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("/tmp/hostkey.ser")));
         sshd.setPasswordAuthenticator((String username, String password, ServerSession session) -> {
-            WnUsr usr = usrs.fetch(username);
+            WnAccount usr = auth.getAccount(username);
             if (usr == null)
                 return false;
-            boolean re = usrs.checkPassword(username, password);
+            boolean re = usr.isMatchPasswd(password);
             if (!re) {
-                WnObj wobj = io.fetch(null, usr.home() + "/.ssh/token");
+                String aph = usr.getHomePath() + "/.ssh/token";
+                WnObj wobj = io.fetch(null, aph);
                 if (wobj != null && wobj.isFILE()) {
                     String token = io.readText(wobj);
                     re = password.equals(token);
                 }
             }
             if (re) {
-                WnSession se = sess.create(usr);
+                WnAuthSession se = auth.createSession(usr);
                 session.setAttribute(WnSshd.KEY_WN_SESSION, se);
             }
             return re;
         });
         sshd.setPublickeyAuthenticator((username, key, session) -> {
-            WnUsr usr = usrs.fetch(username);
+            WnAccount usr = auth.getAccount(username);
             if (usr == null)
                 return false;
-            WnObj wobj = io.fetch(null, usr.home() + "/.ssh/authorized_keys");
+            String aph = usr.getHomePath() + "/.ssh/authorized_keys";
+            WnObj wobj = io.fetch(null, aph);
             if (wobj != null && wobj.isFILE() && wobj.len() > 64) {
                 String authorized_keys = io.readText(wobj);
                 try {
@@ -72,7 +74,7 @@ public class WnSshdServer extends WnRun {
                                                                           entries)
                                                    .authenticate(username, key, session);
                     if (re) {
-                        WnSession se = sess.create(usr);
+                        WnAuthSession se = auth.createSession(usr);
                         session.setAttribute(WnSshd.KEY_WN_SESSION, se);
                     }
                     return re;
@@ -95,7 +97,7 @@ public class WnSshdServer extends WnRun {
                 throw Lang.impossible();
             }
         });
-        sshd.setSubsystemFactories(Arrays.<NamedFactory<Command>>asList(new SftpSubsystemFactory()));
+        sshd.setSubsystemFactories(Arrays.<NamedFactory<Command>> asList(new SftpSubsystemFactory()));
         sshd.setPort(port);
         sshd.start();
     }
