@@ -39,17 +39,17 @@ public class WnCheckSession implements ActionFilter {
 
     public static WnAuthSession testSession(WnContext wc, WnAuthService auth) {
         // 如果上下文已经有了 Session，就直接返回
-        WnAuthSession se = wc.SE();
+        WnAuthSession se = wc.getSession();
         if (null != se) {
             return se;
         }
 
         // 获取 SessionID
-        if (!wc.hasSEID())
+        if (!wc.hasTicket())
             return null;
 
         // 看看有没有合法的 Session 对象
-        String ticket = wc.SEID();
+        String ticket = wc.getTicket();
 
         // 获取并更新 Sessoion 对象的最后访问时间
         return auth.touchSession(ticket);
@@ -67,7 +67,7 @@ public class WnCheckSession implements ActionFilter {
 
         if (null != se) {
             // 记录到上下文
-            wc.SE(se);
+            wc.setSession(se);
 
             // 读取服务类之类的
             WnIo io = Wn.Service.io(ioc);
@@ -99,7 +99,7 @@ public class WnCheckSession implements ActionFilter {
             AjaxReturn re = new AjaxReturn();
             re.setOk(false);
             re.setErrCode("e.se.noexists");
-            re.setData(wc.SEID());
+            re.setData(wc.getTicket());
             return new ViewWrapper(new AjaxView(true), re);
         }
 

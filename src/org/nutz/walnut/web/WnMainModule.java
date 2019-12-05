@@ -59,14 +59,14 @@ public class WnMainModule extends AbstractWnModule {
     @At("/")
     @Ok(">>:${obj}")
     public String doCheck(@Attr(value = "wn_www_host", scope = Scope.REQUEST) String host) {
-        if (!Wn.WC().hasSEID()) {
+        if (!Wn.WC().hasTicket()) {
             return this._get_entry_page_url(host);
         }
 
         try {
-            String ticket = Wn.WC().SEID();
+            String ticket = Wn.WC().getTicket();
             WnAuthSession se = auth.touchSession(ticket);
-            Wn.WC().SE(se);
+            Wn.WC().setSession(se);
             WnAccount me = se.getMe();
 
             // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字

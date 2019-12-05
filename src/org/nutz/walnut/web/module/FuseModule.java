@@ -132,11 +132,11 @@ public class FuseModule extends AbstractWnModule {
     public void symlink(@Param("source") String source, @Param("target") String target) {
     	String dir = target.substring(0, target.lastIndexOf('/')+1);
         exec("fuse_ln",
-                 Wn.WC().checkMe(),
+                 Wn.WC().checkMyName(),
                  "ln -s "
-                       + Wn.normalizeFullPath(dir + source, Wn.WC().SE())
+                       + Wn.normalizeFullPath(dir + source, Wn.WC().getSession())
                        + " "
-                       + Wn.normalizeFullPath(target, Wn.WC().SE()));
+                       + Wn.normalizeFullPath(target, Wn.WC().getSession()));
     }
 
     @At
@@ -281,7 +281,7 @@ public class FuseModule extends AbstractWnModule {
     protected String get_hid(int fh, boolean delete) {
         if (fh == 0)
             return null;
-        WnObj obj = io.fetch(null, "/sys/session/" + Wn.WC().SEID()+"/fd."+fh);
+        WnObj obj = io.fetch(null, "/sys/session/" + Wn.WC().getTicket()+"/fd."+fh);
         if (obj != null) {
             if (delete)
                 io.delete(obj);
@@ -292,7 +292,7 @@ public class FuseModule extends AbstractWnModule {
     
     protected int _open(WnObj obj, int mode) {
         String fh = io.open(obj, mode);
-        WnObj seDir = io.check(null, "/sys/session/" + Wn.WC().SEID());
+        WnObj seDir = io.check(null, "/sys/session/" + Wn.WC().getTicket());
         for (int i = 10; i < 2048; i++) { // 先用笨办法测试一下
             WnObj tmp = io.fetch(seDir, "fd." + i);
             if (tmp == null) {

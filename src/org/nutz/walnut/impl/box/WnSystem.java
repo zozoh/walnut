@@ -283,7 +283,7 @@ public class WnSystem implements WnExecutable {
             // 切换沙箱的的会话
             this._runner.bc.session = newSession;
             // 切换 session
-            wc.SE(newSession);
+            wc.setSession(newSession);
             wc.su(newUsr, new Atom() {
                 public void run() {
                     callback.invoke(sys);
@@ -296,7 +296,7 @@ public class WnSystem implements WnExecutable {
             this._runner.bc.session = old_se;
             // 切换 session
             this.session = old_se;
-            wc.SE(old_se);
+            wc.setSession(old_se);
             this.auth.removeSession(newSession);
         }
     }

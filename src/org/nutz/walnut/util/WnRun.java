@@ -232,7 +232,7 @@ public class WnRun {
         hc.service = hooks;
 
         WnContext ctx = Wn.WC();
-        ctx.SE(se);
+        ctx.setSession(se);
         ctx.core(new WnSecurityImpl(io, auth), false, hc, new Atom() {
             public void run() {
                 ctx.security(new WnSecurityImpl(io, auth), () -> callback.invoke(se));

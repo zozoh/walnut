@@ -86,7 +86,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 如果有原来的老会话，则记录一下操作会话
             WnAuthSession oldSe = null;
-            String ticket = Wn.WC().SEID();
+            String ticket = Wn.WC().getTicket();
             if (!Strings.isBlank(ticket)) {
                 oldSe = this.auth.checkSession(ticket);
             }
@@ -98,7 +98,7 @@ public class HttpApiModule extends AbstractWnModule {
                     return auth.createSession(u);
                 }
             });
-            wc.SE(se);
+            wc.setSession(se);
 
             // 如果 API 文件声明了需要 copy 的 cookie 到线程上下文 ...
             String[] copyCookieNames = oApi.getAs("copy-cookie", String[].class);
@@ -139,7 +139,7 @@ public class HttpApiModule extends AbstractWnModule {
             // 确保退出登录
             finally {
                 auth.removeSession(se);
-                wc.SE(null);
+                wc.setSession(null);
             }
         }
         catch (Exception e) {

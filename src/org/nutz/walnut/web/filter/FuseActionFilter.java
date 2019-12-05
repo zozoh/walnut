@@ -28,7 +28,7 @@ public class FuseActionFilter implements ActionFilter {
     public View match(ActionContext ac) {
 
         WnContext wc = Wn.WC();
-        String ticket = wc.SEID();
+        String ticket = wc.getTicket();
         Ioc ioc = ac.getIoc();
 
         // 如果有会话 ID，则检查一下有效性
@@ -43,7 +43,7 @@ public class FuseActionFilter implements ActionFilter {
         
         if (se != null) {
             // 记录到上下文
-            wc.SE(se);
+            wc.setSession(se);
 
             // 设置钩子
             WnIo io = ioc.get(WnIo.class, "io");

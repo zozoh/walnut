@@ -125,7 +125,7 @@ public class WnSshdCommand implements Command, Runnable, SessionAware {
 
     public void execute(String cmdText) throws IOException {
         try {
-            Wn.WC().SE(se);
+            Wn.WC().setSession(se);
             run.exec("",
                      se,
                      cmdText,

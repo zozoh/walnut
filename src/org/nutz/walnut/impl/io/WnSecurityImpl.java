@@ -101,7 +101,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         WnContext wc = Wn.WC();
 
         // 我是谁？
-        WnAccount u = wc.getAccount();
+        WnAccount u = wc.getMe();
 
         // // 对于 root 用户，啥都不检查
         // if ("root".equals(u.name()))

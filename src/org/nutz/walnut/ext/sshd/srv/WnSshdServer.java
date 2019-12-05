@@ -44,7 +44,7 @@ public class WnSshdServer extends WnRun {
             WnAccount usr = auth.getAccount(username);
             if (usr == null)
                 return false;
-            boolean re = usr.isMatchPasswd(password);
+            boolean re = usr.isMatchedRawPasswd(password);
             if (!re) {
                 String aph = usr.getHomePath() + "/.ssh/token";
                 WnObj wobj = io.fetch(null, aph);

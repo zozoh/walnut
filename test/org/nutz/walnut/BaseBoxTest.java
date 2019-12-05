@@ -72,8 +72,8 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         se = auth.createSession(me);
 
         // 将测试线程切换到当前测试账号
-        __old_me = Wn.WC().getAccount();
-        Wn.WC().SE(se);
+        __old_me = Wn.WC().getMe();
+        Wn.WC().setSession(se);
 
         out = new StringBuilder();
         err = new StringBuilder();
@@ -98,7 +98,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     @Override
     protected void on_after(PropertiesProxy pp) {
         boxes.free(box);
-        Wn.WC().SE(null);
+        Wn.WC().setSession(null);
         Wn.WC().setMe(__old_me);
         super.on_after(pp);
     }

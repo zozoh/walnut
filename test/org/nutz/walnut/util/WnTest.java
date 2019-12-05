@@ -58,14 +58,13 @@ public class WnTest {
 
     @Test
     public void test_normalize() {
+        WnAccount me = new WnAccount();
+        me.setMeta("home", "/home/zozoh");
         WnSystem sys = new WnSystem();
-        sys.session = new WnAuthSession(R.UU32());
+        sys.session = new WnAuthSession(R.UU32(), me);
         sys.session.getVars().put("HOME", "/home/zozoh");
         sys.session.getVars().put("PWD", "$HOME/workspace/test");
         sys.session.getVars().put("ABC", "haha");
-        WnAccount me = new WnAccount();
-        me.setMeta("home", "/home/zozoh");
-        sys.session.setMe(me);
 
         assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));
         assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));

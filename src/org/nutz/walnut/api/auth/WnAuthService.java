@@ -50,6 +50,22 @@ public interface WnAuthService {
      * @return 创建后的账户对象
      */
     WnAccount createAccount(WnAccount user);
+    
+    /**
+     * 持久化账户的信息（包括元数据集）
+     * 
+     * @param user
+     *            账户对象
+     */
+    void saveAccount(WnAccount user);
+    
+    /**
+     * 持久化账户的信息字段（不包括元数据集）
+     * 
+     * @param user
+     *            账户对象
+     */
+    void saveAccountInfo(WnAccount user);
 
     /**
      * 持久化账户对象的元数据集
@@ -60,7 +76,7 @@ public interface WnAuthService {
     void saveAccountMeta(WnAccount user);
 
     /**
-     * 持久化账户对象的密码（加盐）
+     * 仅仅持久化账户对象的密码（加盐）
      * 
      * @param user
      *            账户对象
@@ -76,6 +92,8 @@ public interface WnAuthService {
      *            新名称（登录名）
      */
     void renameAccount(WnAccount user, String newName);
+    
+    void deleteAccount(WnAccount user);
 
     /**
      * 获取某账户对象在指定的系统组中的权限
@@ -187,6 +205,21 @@ public interface WnAuthService {
      * @return 自会话对象
      */
     WnAuthSession createSession(WnAuthSession pse, WnAccount user);
+    
+    /**
+     * 持久化会话的信息字段和变量集
+     * 
+     * @param se 会话对象
+     */
+    void saveSession(WnAuthSession se);
+    
+    
+    /**
+     * 持久化会话的信息字段（不包括变量集）
+     * 
+     * @param se 会话对象
+     */
+    void saveSessionInfo(WnAuthSession se);
 
     /**
      * 持久化会话的变量集
@@ -199,11 +232,11 @@ public interface WnAuthService {
     /**
      * 注销当前会话，并返回当前会话的父会话
      * 
-     * @param sess
+     * @param se
      *            会话对象
      * @return 被注销的会话对象的父会话，null 表示给入的是顶级会话
      */
-    WnAuthSession removeSession(WnAuthSession sess);
+    WnAuthSession removeSession(WnAuthSession se);
 
     /**
      * 用微信的权限码自动登录
@@ -217,7 +250,7 @@ public interface WnAuthService {
     /**
      * 绑定手机/邮箱
      * 
-     * @param account
+     * @param nameOrIdOrPhoneOrEmail
      *            账号（手机号|邮箱）
      * @param scene
      *            验证码场景
@@ -232,12 +265,15 @@ public interface WnAuthService {
      * @throws "e.auth.invalid.captcha"
      *             : 验证码错误
      */
-    WnAuthSession bindAccount(String account, String scene, String vcode, String ticket);
+    WnAuthSession bindAccount(String nameOrIdOrPhoneOrEmail,
+                              String scene,
+                              String vcode,
+                              String ticket);
 
     /**
      * 验证码登录
      * 
-     * @param account
+     * @param phoneOrEmail
      *            账号（手机号|邮箱）
      * @param scene
      *            验证码场景
@@ -250,12 +286,12 @@ public interface WnAuthService {
      * @throws "e.auth.invalid.captcha"
      *             : 验证码错误
      */
-    WnAuthSession loginByVcode(String account, String scene, String vcode);
+    WnAuthSession loginByVcode(String phoneOrEmail, String scene, String vcode);
 
     /**
      * 用户名（手机·邮箱）密码登录
      * 
-     * @param account
+     * @param nameOrIdOrPhoneOrEmail
      *            账号（手机号|邮箱|登录名）
      * @param passwd
      *            密码（明文）
@@ -268,7 +304,7 @@ public interface WnAuthService {
      * @throws "e.auth.login.forbid"
      *             : 没声明密码，因此禁止此种登录形式
      */
-    WnAuthSession loginByPasswd(String account, String passwd);
+    WnAuthSession loginByPasswd(String nameOrIdOrPhoneOrEmail, String passwd);
 
     /**
      * 注销当前会话，并返回当前会话的父会话

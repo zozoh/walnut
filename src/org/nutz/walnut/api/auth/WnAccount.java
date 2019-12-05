@@ -73,6 +73,11 @@ public class WnAccount {
         this.sex = WnHumanSex.UNKNOWN;
     }
 
+    public WnAccount(String str) {
+        this();
+        this.setLoginStr(str);
+    }
+
     public WnAccount(NutBean bean) {
         this();
         this.updateBy(bean);
@@ -262,11 +267,11 @@ public class WnAccount {
             id = str;
         }
         // 手机
-        else if (str.matches("^[0-9+-]{11,20}$")) {
+        else if (Strings.isMobile(str)) {
             phone = str;
         }
         // 邮箱
-        else if (str.matches("^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+.[0-9a-zA-Z_.-]+$")) {
+        else if (Strings.isEmail(str)) {
             email = str;
         }
         // 登录名
@@ -283,25 +288,39 @@ public class WnAccount {
         WnAccount ta = new WnAccount();
         ta.id = this.id;
         ta.name = this.name;
-        ta.email = this.email;
-        ta.nickname = this.nickname;
-        ta.thumb = this.thumb;
-        ta.sex = this.sex;
-        ta.loginAt = this.loginAt;
-        ta.groupName = this.groupName;
-        ta.roleName = this.roleName;
-        ta.passwd = this.passwd;
-        ta.salt = this.salt;
-        if (null != this.OAuth2s) {
-            ta.OAuth2s = this.OAuth2s.duplicate();
-        }
-        if (null != wxOpenIds) {
-            ta.wxOpenIds = this.wxOpenIds.duplicate();
-        }
-        if (null != this.meta) {
-            ta.meta = this.meta.duplicate();
-        }
+        this.mergeTo(ta);
         return ta;
+    }
+
+    public void mergeTo(WnAccount ta) {
+        if (!Strings.isBlank(this.email)) {
+            ta.email = this.email;
+        }
+        if (!Strings.isBlank(this.nickname)) {
+            ta.nickname = this.nickname;
+        }
+        if (!Strings.isBlank(this.thumb)) {
+            ta.thumb = this.thumb;
+        }
+        if (null != this.sex) {
+            ta.sex = this.sex;
+        }
+        if (this.loginAt > 0) {
+            ta.loginAt = this.loginAt;
+        }
+        if (!Strings.isBlank(this.groupName)) {
+            ta.groupName = this.groupName;
+        }
+        if (!Strings.isBlank(this.roleName)) {
+            ta.roleName = this.roleName;
+        }
+        if (!Strings.isBlank(this.passwd) && !Strings.isBlank(this.salt)) {
+            ta.passwd = this.passwd;
+            ta.salt = this.salt;
+        }
+        ta.putAllOAuth2(this.OAuth2s);
+        ta.putAllWxOpenId(this.wxOpenIds);
+        ta.putAllMeta(this.meta);
     }
 
     public boolean hasId() {
@@ -358,6 +377,10 @@ public class WnAccount {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public boolean hasThumb() {
+        return !Strings.isBlank(thumb);
     }
 
     public String getThumb() {
@@ -433,6 +456,15 @@ public class WnAccount {
         OAuth2s.put(key, val);
     }
 
+    public void putAllOAuth2(NutBean map) {
+        if (null != map) {
+            for (String key : map.keySet()) {
+                String val = map.getString(key);
+                this.setOAuth2(key, val);
+            }
+        }
+    }
+
     public NutMap getWxOpenIdMap() {
         return wxOpenIds;
     }
@@ -455,6 +487,15 @@ public class WnAccount {
             ghName = ghName.substring("wx_gh_".length());
         }
         wxOpenIds.put(ghName, openId);
+    }
+
+    public void putAllWxOpenId(NutBean map) {
+        if (null != map) {
+            for (String key : map.keySet()) {
+                String val = map.getString(key);
+                this.setWxOpenId(key, val);
+            }
+        }
     }
 
     public void setWxOpenIds(NutMap wxOpenIds) {
@@ -515,7 +556,20 @@ public class WnAccount {
 
     public void setMeta(String key, Object val) {
         if (isValidMetaName(key)) {
+            if (null == this.meta) {
+                this.meta = new NutMap();
+            }
             this.meta.put(key, val);
+        }
+    }
+
+    public void putAllMeta(NutBean meta) {
+        if (null != meta) {
+            for (Map.Entry<String, Object> en : meta.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                this.setMeta(key, val);
+            }
         }
     }
 
@@ -541,7 +595,11 @@ public class WnAccount {
         this.passwd = Wn.genSaltPassword(passwd, salt);
     }
 
-    public boolean isMatchPasswd(String passwd) {
+    public boolean hasSaltedPasswd() {
+        return !Strings.isBlank(salt) && !Strings.isBlank(passwd);
+    }
+
+    public boolean isMatchedRawPasswd(String passwd) {
         String pwd = Wn.genSaltPassword(passwd, salt);
         return this.passwd.equals(pwd);
     }

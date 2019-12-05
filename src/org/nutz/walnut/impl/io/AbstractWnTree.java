@@ -461,8 +461,8 @@ public abstract class AbstractWnTree implements WnTree {
         // 设置创建者，以及权限相关
         else {
             try {
-                String g = wc.checkGroup();
-                String c = wc.checkMe();
+                String g = wc.checkMyGroup();
+                String c = wc.checkMyName();
                 o.creator(c).mender(c).group(g);
             }
             // 线程没设置，用父对象的

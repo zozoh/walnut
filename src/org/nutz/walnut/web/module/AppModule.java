@@ -93,7 +93,7 @@ public class AppModule extends AbstractWnModule {
 
         // 得到会话对象，以及对应的用户
         WnAuthSession se = Wn.WC().checkSession();
-        WnAccount me = Wn.WC().getAccount();
+        WnAccount me = Wn.WC().getMe();
 
         // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
         if (me.isNameSameAsId()) {
@@ -415,7 +415,7 @@ public class AppModule extends AbstractWnModule {
         boolean isSudo = sudoM.find();
         if (isSudo) {
             cmdText = sudoM.group(1);
-            if ("root".equals(Wn.WC().checkMe())) { // root还干啥sudo
+            if ("root".equals(Wn.WC().checkMyName())) { // root还干啥sudo
                 isSudo = false;
             }
         }

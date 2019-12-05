@@ -819,8 +819,8 @@ public class WnIoImplTest extends BaseIoTest {
     @Test
     public void test_simple_create_right() {
         WnObj o = io.create(null, "/a", WnRace.DIR);
-        String g = Wn.WC().checkGroup();
-        String c = Wn.WC().checkMe();
+        String g = Wn.WC().checkMyGroup();
+        String c = Wn.WC().checkMyName();
 
         assertEquals(g, o.group());
         assertEquals(c, o.mender());

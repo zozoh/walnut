@@ -34,15 +34,11 @@ public class WnContext extends NutMap {
 
     private static final Log log = Logs.get();
 
-    private String seid;
+    private String ticket;
 
     private WnAuthSession session;
 
     private WnAccount account;
-
-    // private String me;
-    //
-    // private String grp;
 
     private WnSecurity security;
 
@@ -329,30 +325,41 @@ public class WnContext extends NutMap {
         }
     }
 
-    public String SEID() {
-        return seid;
+    public String getTicket() {
+        return ticket;
     }
 
-    public boolean hasSEID() {
-        return !Strings.isBlank(this.seid);
+    public boolean hasTicket() {
+        return !Strings.isBlank(this.ticket);
     }
 
-    public String checkSEID() {
-        if (null == seid) {
-            throw Er.create("e.wc.null.seid");
+    public String checkTicket() {
+        if (null == ticket) {
+            throw Er.create("e.wc.null.ticket");
         }
-        return seid;
+        return ticket;
     }
 
-    public void SEID(String seid) {
-        this.seid = seid;
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
     }
 
-    public WnAccount getAccount() {
+    public WnAccount getMe() {
+        if (null != this.account) {
+            return this.account;
+        }
         if (null != this.session) {
             return this.session.getMe();
         }
         return null;
+    }
+
+    public WnAccount checkMe() {
+        WnAccount me = this.getMe();
+        if (null == me) {
+            throw Er.create("e.wc.null.me");
+        }
+        return me;
     }
 
     public void setMe(WnAccount me) {
@@ -364,76 +371,86 @@ public class WnContext extends NutMap {
     }
 
     public String getMyId() {
-        WnAccount me = this.getAccount();
+        WnAccount me = this.getMe();
         if (null != me) {
             return me.getId();
         }
         return null;
     }
 
+    public String checkMyId() {
+        return this.checkMe().getId();
+    }
+
     public String getMyName() {
-        WnAccount me = this.getAccount();
+        WnAccount me = this.getMe();
         if (null != me) {
             return me.getName();
         }
         return null;
     }
 
-    public String checkMe() {
-        WnAccount me = this.getAccount();
-        if (null == me) {
-            throw Er.create("e.wc.null.me");
-        }
-        return me.getName();
+    public String checkMyName() {
+        return this.checkMe().getName();
     }
 
     public String getMyGroup() {
-        WnAccount me = this.getAccount();
+        WnAccount me = this.getMe();
         if (null != me) {
             return me.getGroupName();
         }
         return null;
     }
 
-    public String checkGroup() {
-        WnAccount me = this.getAccount();
-        if (null == me) {
-            throw Er.create("e.wc.null.me");
-        }
-        return me.getGroupName();
+    public String checkMyGroup() {
+        return this.checkMe().getGroupName();
     }
 
-    public WnAuthSession SE() {
+    public WnAuthSession getSession() {
         // 防守一下，怕有其他的线程污染了这个上下文
         if (null != session) {
-            if (!session.isSameId(seid))
+            if (!session.isSameId(ticket))
                 return null;
         }
         // 返回
         return session;
     }
 
-    public void SE(WnAuthSession se) {
+    public WnAuthSession checkSession() {
+        // 必须有 Session ID
+        if (null == ticket) {
+            throw Er.create("e.wc.null.ticket");
+        }
+        // 必须有 Session 对象
+        if (null == session) {
+            throw Er.create("e.wc.null.se");
+        }
+        // SessionID 与对象必须匹配
+        if (!session.isSameTicket(ticket)) {
+            throw Er.create("e.wc.ticket.nomatch");
+        }
+        // 嗯，揍是介个
+        return session;
+    }
+
+    public void setSession(WnAuthSession se) {
         this.session = se;
         // 设置
         if (null != se) {
-            this.seid = se.getTicket();
+            this.ticket = se.getTicket();
+            if (null == this.account) {
+                this.account = se.getMe();
+            }
         }
         // 删除
         else {
-            this.seid = null;
+            this.ticket = null;
+            if (null != this.account
+                && null != this.session
+                && this.account.isSame(this.session.getMe())) {
+                this.account = null;
+            }
         }
-    }
-
-    public WnAuthSession checkSession() {
-        if (null == seid) {
-            throw Er.create("e.wc.null.seid");
-        } else if (null == session) {
-            throw Er.create("e.wc.null.se");
-        } else if (!session.isSameId(seid)) {
-            throw Er.create("e.wc.seid.nomatch");
-        }
-        return session;
     }
 
     /**
@@ -451,7 +468,7 @@ public class WnContext extends NutMap {
                 String cknm = co.getName();
                 if (Lang.contains(cookieNames, cknm)) {
                     if (Wn.AT_SEID.equals(cknm)) {
-                        this.seid = co.getValue();
+                        this.ticket = co.getValue();
                     } else {
                         this.setv(cknm, co.getValue());
                     }

@@ -19,7 +19,7 @@ public class job_delete extends job_abstract {
                 WnObj jobDir = sys.io.get(id);
                 if (jobDir == null)
                     continue;
-                WnAccount me = Wn.WC().getAccount();
+                WnAccount me = Wn.WC().getMe();
                 if (!sys.auth.isAdminOfGroup(me, "root", "job")) {
                     if (!jobDir.getString("job_create_user").equals(sys.getMyName())) {
                         sys.err.println("not your job id=" + id);

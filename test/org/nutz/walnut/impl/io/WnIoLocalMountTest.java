@@ -47,7 +47,7 @@ public class WnIoLocalMountTest extends BaseIoTest {
 
             // 挂载目录
             WnContext wc = Wn.WC();
-            WnAccount me = wc.getAccount();
+            WnAccount me = wc.getMe();
             String grp = me.getGroupName();
             WnAccount nobody = WnAccount.create("nobody", "nogrp");
             wc.setMe(nobody);

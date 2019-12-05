@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.auth;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -41,20 +42,26 @@ public class WnAuthSession {
         this.vars = new NutMap();
     }
 
-    public WnAuthSession(String ticket) {
+    public WnAuthSession(String ticket, WnAccount me) {
         this();
         this.ticket = ticket;
+        this.me = me;
     }
 
-    public WnAuthSession(WnObj oSe, WnObj oMe) {
+    public WnAuthSession(WnObj oSe, WnAccount me) {
         this();
-        if (null != oMe) {
-            String uid = oSe.getString("uid");
-            if (!oMe.isSameId(uid)) {
-                throw Er.create("e.auth.session.nomatched", uid);
-            }
-            this.me = new WnAccount(oMe);
+        // 木有用户还有会话？笑话！
+        if (null == me) {
+            throw Er.create("e.auth.session.nome");
         }
+        // 检查给定用户是否匹配
+        String uid = oSe.getString("uid");
+        if (!me.isSameId(uid)) {
+            throw Er.create("e.auth.session.nomatched", uid);
+        }
+        this.me = me;
+
+        // 赋值
         this.id = oSe.id();
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
@@ -87,14 +94,26 @@ public class WnAuthSession {
     public NutMap toMapForClient() {
         NutMap map = new NutMap();
         map.put("id", id);
-        if ("session".equals(this.byType)) {
-            map.put("p_se_id", this.byValue);
+        if (this.hasParentSession()) {
+            map.put("p_se_id", this.getParentSessionId());
         }
         map.put("me", this.getMyName());
         map.put("grp", this.getMyGroup());
         map.put("du", expi - System.currentTimeMillis());
         map.put("envs", vars);
         return map;
+    }
+
+    public String getParentSessionId() {
+        if ("session".equals(this.byType)) {
+            return this.byValue;
+        }
+        return null;
+    }
+
+    public boolean hasParentSession() {
+        String pseid = this.getParentSessionId();
+        return !Strings.isBlank(pseid);
     }
 
     public WnAuthSession clone() {
@@ -125,6 +144,13 @@ public class WnAuthSession {
         return false;
     }
 
+    public boolean isSameTicket(String ticket) {
+        if (null != ticket) {
+            return this.ticket.equals(ticket);
+        }
+        return false;
+    }
+
     public String getId() {
         return id;
     }
@@ -142,19 +168,24 @@ public class WnAuthSession {
     }
 
     public void setMe(WnAccount me) {
+        if (null == me) {
+            throw Er.create("e.auth.session.meToNull");
+        }
+
         this.me = me;
         this.loadVars(me);
     }
 
     public void setMe(NutBean bean) {
         if (null == bean) {
-            this.me = null;
-            if (null != this.vars)
-                this.vars.clear();
-        } else {
-            this.me = new WnAccount(bean);
-            this.loadVars(me);
+            throw Er.create("e.auth.session.meToNull");
         }
+        if (bean.isEmpty()) {
+            throw Er.create("e.auth.session.meToEmpty");
+        }
+
+        this.me = new WnAccount(bean);
+        this.loadVars(me);
     }
 
     public String getMyName() {

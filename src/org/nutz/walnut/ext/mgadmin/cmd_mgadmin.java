@@ -13,7 +13,7 @@ public class cmd_mgadmin extends JvmHdlExecutor {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {
             public void run() {
-                WnAccount me = Wn.WC().getAccount();
+                WnAccount me = Wn.WC().getMe();
                 if (!sys.auth.isMemberOfGroup(me, "root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }

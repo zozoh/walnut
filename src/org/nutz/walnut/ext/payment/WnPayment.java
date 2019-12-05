@@ -69,7 +69,7 @@ public class WnPayment {
 
     private void __assert_the_seller(WnPayObj po) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getAccount();
+        WnAccount me = Wn.WC().getMe();
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
@@ -227,7 +227,7 @@ public class WnPayment {
 
     private WnPayObj __do_create(WnPayInfo wpi) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getAccount();
+        WnAccount me = Wn.WC().getMe();
 
         // 确保买家的信息完备
         wpi.assertBuyerPerfect();
@@ -300,7 +300,7 @@ public class WnPayment {
 
     private WnPayObj __do_get(String poId, boolean quiet) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getAccount();
+        WnAccount me = Wn.WC().getMe();
 
         // 执行获取
         WnObj o = run.io().get(poId);
@@ -338,7 +338,7 @@ public class WnPayment {
 
     private List<WnPayObj> __do_query(WnQuery q) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getAccount();
+        WnAccount me = Wn.WC().getMe();
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查

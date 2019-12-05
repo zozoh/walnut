@@ -41,7 +41,7 @@ public class tpools_task implements JvmHdl {
         Future<?> fu = (Future<?>) es.submit(new Runnable() {
             public void run() {
                 try {
-                    Wn.WC().SE(sys.session.clone());
+                    Wn.WC().setSession(sys.session.clone());
                     String out = wnRun.exec("pools-" + name, sys.getMyName(), cmd);
                     if (dst != null)
                         sys.io.writeText(dst, out);
