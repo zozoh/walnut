@@ -26,7 +26,7 @@ public class cmd_exit extends JvmExecutor {
         // 输出这个新会话
         if (null != newSe) {
             JsonFormat jfmt = JsonFormat.nice().setQuoteName(true).setIgnoreNull(true);
-            NutMap bean = newSe.toBean();
+            NutMap bean = newSe.toMapForClient();
             String json = Json.toJson(bean, jfmt);
             sys.out.println(json);
         }

@@ -7,6 +7,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
@@ -57,7 +58,7 @@ public abstract class BaseApiTest {
 
         root = auth.checkAccount("root");
         root.setRawPasswd("123456");
-        auth.saveAccountPasswd(root);
+        auth.saveAccount(root, WnAuths.ABMM.PASSWD);
 
         // 调用子类初始化
         on_before(pp);

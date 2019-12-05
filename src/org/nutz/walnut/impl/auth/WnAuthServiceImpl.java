@@ -1,98 +1,200 @@
 package org.nutz.walnut.impl.auth;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnCaptchaService;
-import org.nutz.walnut.api.auth.WnRoleService;
+import org.nutz.walnut.api.auth.WnGroupRole;
+import org.nutz.walnut.api.auth.WnAuthSetup;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.thing.WnThingService;
-import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnLoginObj;
 
 public class WnAuthServiceImpl implements WnAuthService {
 
     private WnIo io;
 
-    private WnCaptchaService captcha;
+    private WnAuthSetup setup;
 
-    private WnRoleService roles;
-
-    private WnIoWeixinApi wxApi;
-
-    private WnObj oAccountHome;
-
-    private WnObj oSessionHome;
-
-    private long sessionDuration;
-
-    public WnAuthServiceImpl(WnIo io,
-                             WnCaptchaService captcha,
-                             WnRoleService roles,
-                             WnIoWeixinApi wxApi,
-                             WnObj oAccountHome,
-                             WnObj oSessionHome,
-                             long se_du) {
+    public WnAuthServiceImpl(WnIo io, WnAuthSetup setup) {
         this.io = io;
-        this.captcha = captcha;
-        this.roles = roles;
-        this.wxApi = wxApi;
-        this.oAccountHome = oAccountHome;
-        this.oSessionHome = oSessionHome;
-        this.sessionDuration = se_du;
+        this.setup = setup;
     }
 
     @Override
     public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
-        // 分析信息
         WnAccount info = new WnAccount(nameOrIdOrPhoneOrEmail);
+        return this.getAccount(info);
+    }
 
-        // 查询
-        NutMap qmap = new NutMap();
-        info.mergeToBean(qmap);
-
-        WnQuery q = Wn.Q.pid(oAccountHome);
+    @Override
+    public WnAccount getAccount(WnAccount info) {
+        // 用 ID 获取
+        if (info.hasId()) {
+            String uid = info.getId();
+            return this.checkAccountById(uid);
+        }
+        // 将信息转换为查询条件
+        // 通常这个信息是手机号/邮箱/登录名等
+        NutMap qmap = info.toBean();
+        WnObj oAccountDir = setup.getAccountDir();
+        WnQuery q = Wn.Q.pid(oAccountDir);
         q.setAll(qmap);
 
+        // 获取账户信息
         WnObj oU = io.getOne(q);
-        if (null == oU) {
-            return null;
+        if (null != oU) {
+            return new WnAccount(oU);
         }
-        return new WnAccount(oU);
+        return null;
+    }
+
+    @Override
+    public WnAccount checkAccount(WnAccount info) {
+        WnAccount u = this.getAccount(info);
+        if (null == u) {
+            throw Er.create("e.auth.account.noexists", info);
+        }
+        return u;
     }
 
     @Override
     public WnAccount checkAccount(String name) {
-        WnAccount acc = this.getAccount(name);
-        if (null == acc) {
+        WnAccount u = this.getAccount(name);
+        if (null == u) {
             throw Er.create("e.auth.account.noexists", name);
         }
-        return acc;
+        return u;
+    }
+
+    @Override
+    public WnAccount createAccount(WnAccount u) {
+        WnObj oAccountDir = setup.getAccountDir();
+        // 裸密码自动加盐
+        if (u.hasRawPasswd()) {
+            u.setSalt(R.UU32());
+            u.setRawPasswd(u.getPasswd());
+        }
+
+        // 自动设置业务角色名
+        if (!u.hasRoleName()) {
+            u.setRoleName(setup.getDefaultRoleName());
+        }
+
+        // 创建账户对象
+        WnObj oU = io.create(oAccountDir, u.getName(), WnRace.FILE);
+
+        // 保存之
+        NutMap meta = u.toBean();
+        io.appendMeta(oU, meta);
+
+        // 初始化
+        WnAccount newUser = new WnAccount(oU);
+        setup.afterAccountCreated(newUser);
+        return newUser;
+    }
+
+    @Override
+    public void saveAccount(WnAccount user) {
+        this.saveAccount(user, WnAuths.ABMM.ALL);
+    }
+
+    @Override
+    public void saveAccount(WnAccount user, int mode) {
+        // 取得账户对象
+        WnObj oU = io.checkById(user.getId());
+
+        // 准备元数据
+        NutMap meta = user.toBean(mode);
+
+        // 执行更新
+        io.appendMeta(oU, meta);
+
+        // 更新对象
+        user.updateBy(oU);
+    }
+
+    @Override
+    public void renameAccount(WnAccount user, String newName) {
+        if (!user.isSameName(newName)) {
+            // 为了最小化更新数据集，重新建立一个只有 id/name 的账户对象
+            // 这样执行 save 的时候，仅仅会更新 name 字段
+            String uid = user.getId();
+            WnAccount u2 = new WnAccount();
+            u2.setId(uid);
+            u2.setName(newName);
+            this.saveAccount(u2, WnAuths.ABMM.LOGIN);
+
+            // 执行后续操作
+            setup.afterAccountRenamed(u2);
+        }
+    }
+
+    @Override
+    public void deleteAccount(WnAccount user) {
+        if (setup.beforeAccountDeleted(user)) {
+            WnObj oU = io.checkById(user.getId());
+            io.delete(oU);
+        }
+    }
+
+    @Override
+    public WnGroupRole getGroupRole(WnAccount user, String groupName) {
+        return setup.getGroupRole(user, groupName);
+    }
+
+    @Override
+    public boolean isRoleOfGroup(WnGroupRole role, WnAccount user, String... groupNames) {
+        for (String groupName : groupNames) {
+            WnGroupRole r = setup.getGroupRole(user, groupName);
+            if (role == r) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAdminOfGroup(WnAccount user, String... groupNames) {
+        return this.isRoleOfGroup(WnGroupRole.ADMIN, user, groupNames);
+    }
+
+    @Override
+    public boolean isMemberOfGroup(WnAccount user, String... groupNames) {
+        for (String groupName : groupNames) {
+            WnGroupRole r = setup.getGroupRole(user, groupName);
+            if (WnGroupRole.ADMIN == r || WnGroupRole.MEMBER == r) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public WnAuthSession getSession(String ticket) {
-        WnObj oSe = io.fetch(oSessionHome, ticket);
-        if (null == oSe) {
-            return null;
+        WnObj oSessionDir = setup.getSessionDir();
+        WnObj oSe = io.fetch(oSessionDir, ticket);
+
+        if (null != oSe) {
+            // 取得用户
+            String uid = oSe.getString("uid");
+            WnAccount me = this.checkAccountById(uid);
+            // 返回对象
+            return new WnAuthSession(oSe, me);
         }
-        // 取得用户
-        String uid = oSe.getString("uid");
-        WnAccount me = this.getAccountById(uid);
-        // 返回对象
-        return new WnAuthSession(oSe, me);
+
+        return null;
     }
 
     @Override
@@ -102,6 +204,68 @@ public class WnAuthServiceImpl implements WnAuthService {
             throw Er.create("e.auth.ticked.noexist", ticket);
         }
         return se;
+    }
+
+    @Override
+    public WnAuthSession touchSession(String ticket) {
+        // 准备查询条件
+        WnObj oSessionDir = setup.getSessionDir();
+        WnQuery q = Wn.Q.pid(oSessionDir);
+        q.setv("nm", ticket);
+
+        // 更新会话时间并返回数据
+        long nowInMs = System.currentTimeMillis();
+        long se_du = setup.getSessionDuration();
+        NutMap meta = Lang.map("expi", nowInMs + (se_du * 1000L));
+        WnObj oSe = io.setBy(q, meta, true);
+
+        if (null != oSe) {
+            // 获取用户
+            String uid = oSe.getString("uid");
+            WnAccount me = this.checkAccountById(uid);
+
+            // 返回会话
+            return new WnAuthSession(oSe, me);
+        }
+        return null;
+    }
+
+    @Override
+    public WnAuthSession createSession(WnAccount user) {
+        NutMap by = Lang.map("by_tp", "transient");
+        by.put("by_val", null);
+        long se_du = setup.getSessionTransientDuration();
+        return createSessionBy(se_du, user, by);
+    }
+
+    @Override
+    public WnAuthSession createSession(WnAuthSession pse, WnAccount user) {
+        NutMap by = Lang.map("by_tp", "session");
+        by.put("by_val", pse.getId());
+        long se_du = setup.getSessionDuration();
+        return createSessionBy(se_du, user, by);
+    }
+
+    @Override
+    public void saveSession(WnAuthSession se) {
+        this.saveSessionInfo(se);
+        this.saveSessionVars(se);
+    }
+
+    @Override
+    public void saveSessionInfo(WnAuthSession se) {
+        NutMap meta = se.toMeta();
+        String seId = se.getId();
+        io.setBy(seId, meta, false);
+    }
+
+    @Override
+    public void saveSessionVars(WnAuthSession se) {
+        NutMap vars = se.getVars();
+        String json = Json.toJson(vars, JsonFormat.compact());
+        String seId = se.getId();
+        WnObj oSe = io.checkById(seId);
+        io.writeText(oSe, json);
     }
 
     @Override
@@ -140,11 +304,13 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 删除
         return this.removeSession(se);
     }
-    
-    
 
     @Override
     public WnAuthSession loginByWxCode(String code) {
+        WnIoWeixinApi wxApi = setup.getWeixinApi();
+        WnObj oSessionDir = setup.getSessionDir();
+        WnObj oAccountDir = setup.getAccountDir();
+
         // 得到用户的 OpenId
         String openid = wxApi.user_openid_by_gh_code(code);
         if (Strings.isBlank(openid)) {
@@ -157,12 +323,12 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 如果已经有了这个用户的微信会话，重用之
         NutMap by = Lang.map("by_tp", key);
         by.put("by_val", openid);
-        WnQuery q = Wn.Q.pid(oSessionHome);
+        WnQuery q = Wn.Q.pid(oSessionDir);
         q.setAll(by);
         WnObj oSe = io.getOne(q);
         if (null != oSe) {
             String uid = oSe.getString("uid");
-            WnAccount me = getAccountById(uid);
+            WnAccount me = checkAccountById(uid);
             if (null != me) {
                 return new WnAuthSession(oSe, me);
             }
@@ -171,14 +337,15 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 看看这个用户是否存在
         NutMap qmap = Lang.map(key, openid);
 
-        q = Wn.Q.pid(oAccountHome);
+        q = Wn.Q.pid(oAccountDir);
         q.setAll(qmap);
         WnObj oU = io.getOne(q);
         WnAccount me = new WnAccount(oU);
 
         // 如果已经存在了就直接创建 会话收工
         if (null != oU) {
-            return this.createSessionBy(me, by);
+            long se_du = setup.getSessionDuration();
+            return this.createSessionBy(se_du, me, by);
         }
 
         throw Lang.noImplement();
@@ -189,6 +356,7 @@ public class WnAuthServiceImpl implements WnAuthService {
                                      String scene,
                                      String vcode,
                                      String ticket) {
+        WnCaptchaService captcha = setup.getCaptchaService();
         // 首先验证一下验证码是否正确
         if (!captcha.removeCaptcha(scene, nameOrIdOrPhoneOrEmail, vcode)) {
             throw Er.create("e.auth.captcha.invalid", vcode);
@@ -238,7 +406,7 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 否则直接修改当前账号的 phone 等字段
         else {
             me.setLoginStr(nameOrIdOrPhoneOrEmail);
-            this.saveAccountInfo(me);
+            this.saveAccount(me, WnAuths.ABMM.LOGIN);
         }
 
         // 创建会话并返回
@@ -247,6 +415,7 @@ public class WnAuthServiceImpl implements WnAuthService {
 
     @Override
     public WnAuthSession loginByVcode(String phoneOrEmail, String scene, String vcode) {
+        WnCaptchaService captcha = setup.getCaptchaService();
         WnAccount info = new WnAccount(phoneOrEmail);
 
         // 只允许手机或者邮箱
@@ -274,7 +443,7 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 如果手机号未注册，创建一个新账号
         if (null == me) {
             // 选择一个默认角色
-            String role = roles.getDefaultRoleName();
+            String role = setup.getDefaultRoleName();
             info.setRoleName(role);
             me = this.createAccount(info);
         }
@@ -282,7 +451,8 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_vcode");
         by.put("by_val", account);
-        WnAuthSession se = createSessionBy(me, by);
+        long se_du = setup.getSessionDuration();
+        WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
 
@@ -303,17 +473,19 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_passwd");
         by.put("by_val", nameOrIdOrPhoneOrEmail);
-        WnAuthSession se = createSessionBy(me, by);
+        long se_du = setup.getSessionDuration();
+        WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
 
-    private WnAuthSession createSessionBy(WnAccount me, NutMap meta) {
+    private WnAuthSession createSessionBy(long duInSec, WnAccount me, NutMap meta) {
+        WnObj oSessionDir = setup.getSessionDir();
         // 过期时间
-        long expi = System.currentTimeMillis() + (this.sessionDuration * 1000L);
+        long expi = System.currentTimeMillis() + (duInSec * 1000L);
 
         // 验证通过后，创建会话
         String ticket = R.UU32();
-        WnObj oSe = io.create(oSessionHome, ticket, WnRace.FILE);
+        WnObj oSe = io.create(oSessionDir, ticket, WnRace.FILE);
         WnAuthSession se = new WnAuthSession(ticket, me);
         se.setId(oSe.id());
         se.setExpi(expi);
@@ -334,10 +506,11 @@ public class WnAuthServiceImpl implements WnAuthService {
         return se;
     }
 
-    private WnAccount getAccountById(String uid) {
+    private WnAccount checkAccountById(String uid) {
+        WnObj oAccountDir = setup.getAccountDir();
         WnObj oU = io.get(uid);
         if (null != oU) {
-            if (!this.oAccountHome.isSameId(oU.parentId())) {
+            if (!oAccountDir.isSameId(oU.parentId())) {
                 throw Er.create("e.auth.acc_outof_home", uid);
             }
         }

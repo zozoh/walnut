@@ -50,7 +50,7 @@ public interface WnAuthService {
      * @return 创建后的账户对象
      */
     WnAccount createAccount(WnAccount user);
-    
+
     /**
      * 持久化账户的信息（包括元数据集）
      * 
@@ -58,30 +58,24 @@ public interface WnAuthService {
      *            账户对象
      */
     void saveAccount(WnAccount user);
-    
+
     /**
      * 持久化账户的信息字段（不包括元数据集）
      * 
      * @param user
      *            账户对象
-     */
-    void saveAccountInfo(WnAccount user);
-
-    /**
-     * 持久化账户对象的元数据集
      * 
-     * @param user
-     *            账户对象
-     */
-    void saveAccountMeta(WnAccount user);
-
-    /**
-     * 仅仅持久化账户对象的密码（加盐）
+     * @param mode
+     *            保存的模式。位串，定义在 WnAuths.ABMM
      * 
-     * @param user
-     *            账户对象
+     * @see WnAuths.ABMM#LOGIN
+     * @see WnAuths.ABMM#INFO
+     * @see WnAuths.ABMM#PASSWD
+     * @see WnAuths.ABMM#WXOPEN
+     * @see WnAuths.ABMM#META
+     * @see WnAuths.ABMM#ALL
      */
-    void saveAccountPasswd(WnAccount user);
+    void saveAccount(WnAccount user, int mode);
 
     /**
      * 将指定账户修改为新名称
@@ -92,7 +86,7 @@ public interface WnAuthService {
      *            新名称（登录名）
      */
     void renameAccount(WnAccount user, String newName);
-    
+
     void deleteAccount(WnAccount user);
 
     /**
@@ -205,19 +199,20 @@ public interface WnAuthService {
      * @return 自会话对象
      */
     WnAuthSession createSession(WnAuthSession pse, WnAccount user);
-    
+
     /**
      * 持久化会话的信息字段和变量集
      * 
-     * @param se 会话对象
+     * @param se
+     *            会话对象
      */
     void saveSession(WnAuthSession se);
-    
-    
+
     /**
      * 持久化会话的信息字段（不包括变量集）
      * 
-     * @param se 会话对象
+     * @param se
+     *            会话对象
      */
     void saveSessionInfo(WnAuthSession se);
 

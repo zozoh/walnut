@@ -6,6 +6,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -76,7 +77,8 @@ public class cmd_me extends JvmExecutor {
 
     private void __do_save(WnSystem sys, WnAccount me) {
         sys.nosecurity(() -> {
-            sys.auth.saveAccountMeta(me);
+            int mode = WnAuths.ABMM.INFO | WnAuths.ABMM.META;
+            sys.auth.saveAccount(me, mode);
             sys.auth.saveSessionVars(sys.session);
         });
     }

@@ -64,7 +64,7 @@ public class cmd_login extends JvmExecutor {
 
         // 输出这个新会话
         JsonFormat jfmt = Cmds.gen_json_format(params);
-        NutMap bean = newSe.toBean();
+        NutMap bean = newSe.toMapForClient();
         String json = Json.toJson(bean, jfmt);
         sys.out.println(json);
 

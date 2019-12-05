@@ -110,7 +110,7 @@ public class WnAccount {
                 this.setRoleName(bean.getString(key));
             }
             // nickname
-            else if ("th_nm".equals(key)) {
+            else if ("nickname".equals(key)) {
                 this.setNickname(bean.getString(key));
             }
             // thumb
@@ -149,73 +149,94 @@ public class WnAccount {
     }
 
     public void mergeToBean(NutBean bean) {
-        // ID
-        if (!Strings.isBlank(id))
-            bean.put("id", id);
+        this.mergeToBean(bean, WnAuths.ABMM.ALL);
+    }
 
-        // Name
-        if (!Strings.isBlank(name))
-            bean.put("nm", name);
+    public void mergeToBean(NutBean bean, int mode) {
+        // LOGIN : 登录相关
+        if (WnAuths.ABMM.asLOGIN(mode)) {
+            // ID
+            if (!Strings.isBlank(id))
+                bean.put("id", id);
 
-        // 电话
-        if (!Strings.isBlank(phone))
-            bean.put("phone", phone);
+            // Name
+            if (!Strings.isBlank(name))
+                bean.put("nm", name);
 
-        // 邮箱
-        if (!Strings.isBlank(email))
-            bean.put("email", email);
+            // 电话
+            if (!Strings.isBlank(phone))
+                bean.put("phone", phone);
 
-        // 主组
-        if (!Strings.isBlank(groupName))
-            bean.put("grp", groupName);
-
-        // 业务角色
-        if (!Strings.isBlank(roleName))
-            bean.put("role", roleName);
-
-        // 昵称
-        if (!Strings.isBlank(nickname))
-            bean.put("th_nm", nickname);
-
-        // 头像
-        if (!Strings.isBlank(thumb))
-            bean.put("thumb", thumb);
-
-        // 最后登录
-        if (loginAt > 0)
-            bean.put("login", loginAt);
-
-        // 性别
-        if (null != sex)
-            bean.put("sex", sex.getValue());
-
-        // 盐与密码同在
-        if (!Strings.isBlank(passwd) && !Strings.isBlank(salt)) {
-            bean.put("passwd", passwd);
-            bean.put("salt", salt);
+            // 邮箱
+            if (!Strings.isBlank(email))
+                bean.put("email", email);
         }
 
-        // oAuth2
-        for (String key : OAuth2s.keySet()) {
-            bean.put("oauth_" + key, OAuth2s.get(key));
+        // INFO : 账户基本信息
+        if (WnAuths.ABMM.asINFO(mode)) {
+            // 主组
+            if (!Strings.isBlank(groupName))
+                bean.put("grp", groupName);
+
+            // 业务角色
+            if (!Strings.isBlank(roleName))
+                bean.put("role", roleName);
+
+            // 昵称
+            if (!Strings.isBlank(nickname))
+                bean.put("nickname", nickname);
+
+            // 头像
+            if (!Strings.isBlank(thumb))
+                bean.put("thumb", thumb);
+
+            // 最后登录
+            if (loginAt > 0)
+                bean.put("login", loginAt);
+
+            // 性别
+            if (null != sex)
+                bean.put("sex", sex.getValue());
         }
 
-        // WxOpenIds
-        for (String key : wxOpenIds.keySet()) {
-            bean.put("wx_gh_" + key, wxOpenIds.get(key));
-        }
-
-        // Other Meta
-        for (String key : meta.keySet()) {
-            if (isValidMetaName(key)) {
-                bean.put(key, meta.get(key));
+        // PASSWD : 盐与密码同在
+        if (WnAuths.ABMM.asPASSWD(mode)) {
+            if (!Strings.isBlank(passwd) && !Strings.isBlank(salt)) {
+                bean.put("passwd", passwd);
+                bean.put("salt", salt);
             }
+        }
+
+        // OAUTH2 : 第三方登录信息
+        if (WnAuths.ABMM.asPASSWD(mode)) {
+            for (String key : OAuth2s.keySet()) {
+                bean.put("oauth_" + key, OAuth2s.get(key));
+            }
+        }
+        // WXOPEN : 微信公众号登录信息
+        if (WnAuths.ABMM.asWXOPEN(mode)) {
+            for (String key : wxOpenIds.keySet()) {
+                bean.put("wx_gh_" + key, wxOpenIds.get(key));
+            }
+        }
+
+        // 要处理 Meta
+        if (WnAuths.ABMM.asMETA(mode)) {
+            // Other Meta
+            bean.putAll(this.meta);
+
+            // 最后强制输出 HOME
+            bean.put("HOME", this.getHomePath());
         }
     }
 
     public NutMap toBean() {
+        return this.toBean(WnAuths.ABMM.ALL);
+    }
+
+    public NutMap toBean(int mode) {
         NutMap bean = new NutMap();
-        this.mergeToBean(bean);
+        this.mergeToBean(bean, mode);
         return bean;
     }
 
@@ -275,7 +296,7 @@ public class WnAccount {
             email = str;
         }
         // 登录名
-        else if (WnAuths.isValidUserName(str)) {
+        else if (WnAuths.isValidAccountName(str)) {
             name = str;
         }
         // 错误的登录字符串
@@ -416,12 +437,20 @@ public class WnAccount {
         this.loginAt = loginAt;
     }
 
+    public boolean hasGroupName() {
+        return !Strings.isBlank(groupName);
+    }
+
     public String getGroupName() {
         return groupName;
     }
 
     public void setGroupName(String group) {
         this.groupName = group;
+    }
+
+    public boolean hasRoleName() {
+        return !Strings.isBlank(roleName);
     }
 
     public String getRoleName() {
@@ -503,18 +532,11 @@ public class WnAccount {
     }
 
     public NutMap getMetaMap() {
-        NutMap vars = new NutMap();
+        NutMap map = new NutMap();
         if (null != this.meta) {
-            for (Map.Entry<String, Object> en : this.meta.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                if (!Strings.isBlank(key)) {
-                    String k2 = key.toUpperCase();
-                    vars.put(k2, val);
-                }
-            }
+            map.putAll(this.meta);
         }
-        return vars;
+        return map;
     }
 
     public Object getMeta(String key) {
@@ -533,25 +555,7 @@ public class WnAccount {
         if (this.isRoot()) {
             return "/root";
         }
-        return "/home/" + this.getName();
-    }
-
-    public static boolean isValidMetaName(String name) {
-        if (Strings.isBlank(name))
-            return false;
-        String regex = "^(nm|ph|race|tp|mime|pid|len|sha1"
-                       + "|ct|lm|login"
-                       + "|c|m|g|md"
-                       + "|thumb|phone|email"
-                       + "|oauth_.+"
-                       + "|wx_.+"
-                       + "|th_nm|th_set|th_live"
-                       + "|d0|d1"
-                       + "|passwd|salt)$";
-        Pattern p = Regex.getPattern(regex);
-        if (p.matcher(name).find())
-            return false;
-        return true;
+        return "/home/" + this.getId();
     }
 
     public void setMeta(String key, Object val) {
@@ -559,7 +563,8 @@ public class WnAccount {
             if (null == this.meta) {
                 this.meta = new NutMap();
             }
-            this.meta.put(key, val);
+            String k2 = key.toUpperCase();
+            this.meta.put(k2, val);
         }
     }
 
@@ -580,6 +585,24 @@ public class WnAccount {
             }
     }
 
+    public static boolean isValidMetaName(String name) {
+        if (Strings.isBlank(name))
+            return false;
+        String regex = "^(nm|ph|race|tp|mime|pid|len|sha1"
+                       + "|ct|lm|login"
+                       + "|c|m|g|md"
+                       + "|thumb|phone|email|sex"
+                       + "|oauth_.+"
+                       + "|wx_.+"
+                       + "|nickname|th_set|th_live"
+                       + "|d0|d1"
+                       + "|passwd|salt)$";
+        Pattern p = Regex.getPattern(regex);
+        if (p.matcher(name).find())
+            return false;
+        return true;
+    }
+
     public String getPasswd() {
         return passwd;
     }
@@ -597,6 +620,10 @@ public class WnAccount {
 
     public boolean hasSaltedPasswd() {
         return !Strings.isBlank(salt) && !Strings.isBlank(passwd);
+    }
+
+    public boolean hasRawPasswd() {
+        return Strings.isBlank(salt) && !Strings.isBlank(passwd);
     }
 
     public boolean isMatchedRawPasswd(String passwd) {

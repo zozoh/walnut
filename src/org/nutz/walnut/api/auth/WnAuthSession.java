@@ -26,7 +26,8 @@ public class WnAuthSession {
      * <li><code>web_passwd</code>: 网页账号密码登录，by_val 为用户登录名</li>
      * <li><code>wx_gh_xxxx</code>: 某微信公众号code自动登录, by_val 为用户 OpenId</li>
      * <li><code>microapp</code>: 微信小程序，by_val 为用户 OpenId</li>
-     * <li><code>session</code>: 创建的自会话，by_val 为父会话的 ID</li>
+     * <li><code>session</code>: 创建的子会话，by_val 为父会话的 ID</li>
+     * <li><code>transient</code>: 短暂的会话，by_val 为 null</li>
      * </ul>
      * 
      * 这个字段设计的动机是为了方便限制客户端重复登录的数量
@@ -75,19 +76,18 @@ public class WnAuthSession {
             map.put("uid", me.getId());
             map.put("unm", me.getName());
         }
+        // 过期时间
+        if(expi > 0) {
         map.put("expi", expi);
-        return map;
-    }
-
-    public NutMap toBean() {
-        NutMap map = new NutMap();
-        if (null != me) {
-            map.put("uid", me.getId());
-            map.put("unm", me.getName());
         }
-        map.put("expi", expi);
-        map.put("ticket", ticket);
-        map.put("vars", vars);
+        // by_type 
+        if(!Strings.isBlank(byType)) {
+            map.put("by_tp", byType);
+        }
+        // by_value
+        if(!Strings.isBlank(byValue)) {
+            map.put("by_val", byValue);
+        }
         return map;
     }
 
@@ -97,8 +97,10 @@ public class WnAuthSession {
         if (this.hasParentSession()) {
             map.put("p_se_id", this.getParentSessionId());
         }
+        map.put("uid", this.getMyId());
         map.put("me", this.getMyName());
         map.put("grp", this.getMyGroup());
+        map.put("expi", expi);
         map.put("du", expi - System.currentTimeMillis());
         map.put("envs", vars);
         return map;
@@ -186,6 +188,10 @@ public class WnAuthSession {
 
         this.me = new WnAccount(bean);
         this.loadVars(me);
+    }
+
+    public String getMyId() {
+        return this.me.getId();
     }
 
     public String getMyName() {
