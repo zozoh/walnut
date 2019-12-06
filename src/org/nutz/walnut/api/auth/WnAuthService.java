@@ -1,6 +1,6 @@
 package org.nutz.walnut.api.auth;
 
-public interface WnAuthService {
+public interface WnAuthService extends WnGroupRoleService {
 
     /**
      * 获取账户对象
@@ -88,53 +88,6 @@ public interface WnAuthService {
     void renameAccount(WnAccount user, String newName);
 
     void deleteAccount(WnAccount user);
-
-    /**
-     * 获取某账户对象在指定的系统组中的权限
-     * 
-     * @param user
-     *            账户对象
-     * @param groupName
-     *            系统的组名
-     * @return 账户对象在指定组中的权限。默认为 <code>GUEST</code>
-     * @see WnGroupRole
-     */
-    WnGroupRole getGroupRole(WnAccount user, String groupName);
-
-    /**
-     * 判断某账户在给定的组中是否至少有一个符合指定的角色
-     * 
-     * @param role
-     *            指定的角色
-     * @param user
-     *            账户对象
-     * @param groupNames
-     *            组名列表
-     * @return 如果在任何一个给定组中是管理员返回 true，否则返回 false
-     */
-    boolean isRoleOfGroup(WnGroupRole role, WnAccount user, String... groupNames);
-
-    /**
-     * 判断某账户在给定的组中是否至少有一个是管理员
-     * 
-     * @param user
-     *            账户对象
-     * @param groupNames
-     *            组名列表
-     * @return 如果在任何一个给定组中是管理员返回 true，否则返回 false
-     */
-    boolean isAdminOfGroup(WnAccount user, String... groupNames);
-
-    /**
-     * 判断某账户在给定的组中是否至少有一个是成员
-     * 
-     * @param user
-     *            账户对象
-     * @param groupNames
-     *            组名列表
-     * @return 如果在任何一个给定组中是成员返回 true，否则返回 false
-     */
-    boolean isMemberOfGroup(WnAccount user, String... groupNames);
 
     /**
      * 根据会话票据，找回自身。执行次操作将会自动更新票据

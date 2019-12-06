@@ -44,14 +44,21 @@ tags:
   |   |-- root          # 根用户为默认存在
   |   |-- xiaobai       # 每个用户一个文件
   |   |-- xiaohei       # 元数据记录了用户的信息
+  |-- role/
+  |   |-- ID{uid,grp,role}   # 角色数据记录
+  |   |-- ID{uid,grp,role}   #  uid  : "r8..9e"  用户ID
+  |   |-- ID{uid,grp,role}   #  grp  : "root"    组名
+  |   |-- ID{uid,grp,role}   #  role : 1         角色值
+  #--------------------------^
+  # 下面是旧的用户组划分，程序在查询时应该自动迁移到上面新的组数据结构中
   |-- grp/              # 存放所有的系统账户分组
-      |-- ID(root)/people/  # 根组
+      |-- root/people/  # 根组
       |   |-- e4ca..{role:1}     # role:1 表示组的管理员
       |   |-- f781..{role:1}     # 一个组可以有多个管理员
       |   |-- d213..{role:100}   # 任何用户都可以申请加入组，申请后 role 为100
       |   |-- 94ce..{role:10}    # 管理员通过后，变成普通组员，role 为 10
       |   |-- 889d..{role:-1}    # 如果你想拉黑一个哥们，管理员可以设置 role:-1 
-      |-- ID(xiaobai)/people/      # 每个用户都有一个自己的主组
+      |-- xiaobai/people/      # 每个用户都有一个自己的主组
       |   |-- ID(xiaobai){role:1}  # 自己在主组内通常为管理员
 #-----------------------------
 # 会话的存放地址
@@ -113,6 +120,10 @@ roles    : "~/roles"      # 角色库
 orders   : "~/orders"     # 订单库
 products : "~/products"   # 商品库
 coupons  : "~/coupons"    # 优惠券库
+
+# 微信配置目录名，用来做公众号登录等操作
+# 如果未配置，则会尝试寻找 sellers.wx 的设定
+weixin   : "theName"
 
 # 商户映射表；根据支付类型前缀来决定
 sellers : {

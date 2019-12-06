@@ -296,14 +296,14 @@ public class WnContext extends NutMap {
         if (null == u) {
             throw Er.create("e.wc.null.user");
         }
-        WnAccount old_u = session.getMe();
+        WnAccount old_u = this.getMe();
         try {
-            session.setMe(u);
+            this.setMe(u);
             proton.run();
             return proton.get();
         }
         finally {
-            session.setMe(old_u);
+            this.setMe(old_u);
         }
 
     }
@@ -315,13 +315,13 @@ public class WnContext extends NutMap {
         if (null == u) {
             throw Er.create("e.wc.null.user");
         }
-        WnAccount old_u = session.getMe();
+        WnAccount old_u = this.getMe();
         try {
-            session.setMe(u);
+            this.setMe(u);
             atom.run();
         }
         finally {
-            session.setMe(old_u);
+            this.setMe(old_u);
         }
     }
 

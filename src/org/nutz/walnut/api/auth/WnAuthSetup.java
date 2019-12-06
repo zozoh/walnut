@@ -23,7 +23,7 @@ public interface WnAuthSetup {
     /**
      * @return 默认会话持续时间（秒）
      */
-    long getSessionDuration();
+    long getSessionDefaultDuration();
 
     /**
      * @return 短会话持续时间（秒）
@@ -39,18 +39,6 @@ public interface WnAuthSetup {
      * @return 验证码服务实例
      */
     WnCaptchaService getCaptchaService();
-
-    /**
-     * 获取某账户对象在指定的系统组中的权限
-     * 
-     * @param user
-     *            账户对象
-     * @param groupName
-     *            系统的组名
-     * @return 账户对象在指定组中的权限。默认为 <code>GUEST</code>
-     * @see WnGroupRole
-     */
-    WnGroupRole getGroupRole(WnAccount user, String groupName);
 
     /**
      * 账户对象创建后的后续处理, 主要是系统账户需要初始化主目录以及组等操作

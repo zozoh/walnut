@@ -6,6 +6,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -19,15 +20,18 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
-public class WnAuthServiceImpl implements WnAuthService {
+public class WnAuthServiceImpl extends WnGroupRoleServiceWrapper implements WnAuthService {
 
     private WnIo io;
 
     private WnAuthSetup setup;
 
     public WnAuthServiceImpl(WnIo io, WnAuthSetup setup) {
+        super(io);
         this.io = io;
         this.setup = setup;
     }
@@ -151,34 +155,56 @@ public class WnAuthServiceImpl implements WnAuthService {
 
     @Override
     public WnGroupRole getGroupRole(WnAccount user, String groupName) {
-        return setup.getGroupRole(user, groupName);
+        WnContext wc = Wn.WC();
+        // 进入内核态
+        return wc.core(new WnEvalLink(io), true, null, new Proton<WnGroupRole>() {
+            protected WnGroupRole exec() {
+                // 本操作由 ROOT 账户完成
+                WnAccount root = getAccount("root");
+                // 切换账户并执行
+                return wc.su(root, new Proton<WnGroupRole>() {
+                    protected WnGroupRole exec() {
+                        return __get_sys_role_without_security(user, groupName);
+                    }
+                });
+            }
+        });
     }
 
-    @Override
-    public boolean isRoleOfGroup(WnGroupRole role, WnAccount user, String... groupNames) {
-        for (String groupName : groupNames) {
-            WnGroupRole r = setup.getGroupRole(user, groupName);
-            if (role == r) {
-                return true;
+    private WnGroupRole __get_sys_role_without_security(WnAccount user, String groupName) {
+        // 准备主组权限主目录
+        String aph = "/sys/role/";
+        final WnObj oSysRoleDir = io.createIfNoExists(null, aph, WnRace.DIR);
+        // 默认组权限： 0 - GUEST
+        int role = 0;
+        // 尝试获取
+        WnQuery q = Wn.Q.pid(oSysRoleDir);
+        q.setv("uid", user.getId());
+        q.setv("grp", groupName);
+        WnObj oR = io.getOne(q);
+
+        // 为了兼容老代码，如果试图用名字获取
+        if (null == oR) {
+            aph = Wn.appendPath("/sys/grp", groupName, user.getId());
+            oR = io.fetch(null, aph);
+            // 如果存在，则复制到新规则里
+            if (null != oR) {
+                role = oR.getInt("role", 0);
+                WnObj newR = io.create(oSysRoleDir, "${id}", WnRace.FILE);
+                NutMap meta = new NutMap();
+                meta.put("uid", user.getId());
+                meta.put("grp", groupName);
+                meta.put("role", role);
+                io.appendMeta(newR, meta);
             }
         }
-        return false;
-    }
-
-    @Override
-    public boolean isAdminOfGroup(WnAccount user, String... groupNames) {
-        return this.isRoleOfGroup(WnGroupRole.ADMIN, user, groupNames);
-    }
-
-    @Override
-    public boolean isMemberOfGroup(WnAccount user, String... groupNames) {
-        for (String groupName : groupNames) {
-            WnGroupRole r = setup.getGroupRole(user, groupName);
-            if (WnGroupRole.ADMIN == r || WnGroupRole.MEMBER == r) {
-                return true;
-            }
+        // 获取角色值
+        else {
+            role = oR.getInt("role", 0);
         }
-        return false;
+
+        // 默认是GUEST
+        return WnGroupRole.parseInt(role);
     }
 
     @Override
@@ -215,7 +241,7 @@ public class WnAuthServiceImpl implements WnAuthService {
 
         // 更新会话时间并返回数据
         long nowInMs = System.currentTimeMillis();
-        long se_du = setup.getSessionDuration();
+        long se_du = setup.getSessionDefaultDuration();
         NutMap meta = Lang.map("expi", nowInMs + (se_du * 1000L));
         WnObj oSe = io.setBy(q, meta, true);
 
@@ -242,7 +268,7 @@ public class WnAuthServiceImpl implements WnAuthService {
     public WnAuthSession createSession(WnAuthSession pse, WnAccount user) {
         NutMap by = Lang.map("by_tp", "session");
         by.put("by_val", pse.getId());
-        long se_du = setup.getSessionDuration();
+        long se_du = setup.getSessionDefaultDuration();
         return createSessionBy(se_du, user, by);
     }
 
@@ -344,7 +370,7 @@ public class WnAuthServiceImpl implements WnAuthService {
 
         // 如果已经存在了就直接创建 会话收工
         if (null != oU) {
-            long se_du = setup.getSessionDuration();
+            long se_du = setup.getSessionDefaultDuration();
             return this.createSessionBy(se_du, me, by);
         }
 
@@ -451,7 +477,7 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_vcode");
         by.put("by_val", account);
-        long se_du = setup.getSessionDuration();
+        long se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
@@ -473,7 +499,7 @@ public class WnAuthServiceImpl implements WnAuthService {
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_passwd");
         by.put("by_val", nameOrIdOrPhoneOrEmail);
-        long se_du = setup.getSessionDuration();
+        long se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
