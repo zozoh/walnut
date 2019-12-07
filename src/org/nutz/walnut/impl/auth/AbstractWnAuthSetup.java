@@ -1,13 +1,10 @@
 package org.nutz.walnut.impl.auth;
 
-import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.web.WnConfig;
 
 public abstract class AbstractWnAuthSetup implements WnAuthSetup {
 
@@ -85,13 +82,4 @@ public abstract class AbstractWnAuthSetup implements WnAuthSetup {
         return captcha;
     }
 
-    @Override
-    public long getSessionTransientDuration() {
-        return this.getConfLong("se-tmp-du", 60);
-    }
-
-    protected long getConfLong(String key, long dft) {
-        WnConfig conf = Mvcs.getIoc().get(WnConfig.class, "conf");
-        return conf.getLong("key", dft);
-    }
 }

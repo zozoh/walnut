@@ -5,18 +5,19 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
-import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAccountLoader;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.payment.WnPayInfo;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
 import org.nutz.walnut.ext.payment.WnPays;
-import org.nutz.walnut.impl.auth.WnAuthServiceImpl;
+import org.nutz.walnut.impl.auth.WnAccountLoaderImpl;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 
 public class pay_create implements JvmHdl {
 
@@ -46,19 +47,14 @@ public class pay_create implements JvmHdl {
 
         // 填充支付单的 buyer 的名称和ID，必须配对
         if (wpi.isWalnutBuyer()) {
-            throw Lang.noImplement();
+            WnAccount buyer = sys.auth.checkAccount(wpi.buyer_id);
+            wpi.buyer_nm = buyer.getName();
         }
         // 用域用户的方式检测
         else if (wpi.isDomainBuyer()) {
-            WnObj oAccountHome = sys.io.get(wpi.buyer_tp);
-            WnAuthService auth = new WnAuthServiceImpl(sys.io,
-                                                       null,
-                                                       null,
-                                                       null,
-                                                       oAccountHome,
-                                                       null,
-                                                       86400L);
-            WnAccount buyer = auth.checkAccount(wpi.buyer_id);
+            WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp + "/index");
+            WnAccountLoader alod = new WnAccountLoaderImpl(sys.io, oAccountDir);
+            WnAccount buyer = alod.checkAccount(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();
         }
         // 不可能

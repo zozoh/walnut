@@ -22,7 +22,9 @@ public class WnAuthSite {
 
     private String weixinConfPath;
 
-    private long sessionDuration;
+    private long seDftDu;
+
+    private long seTmpDu;
 
     /**
      * 从一个配置集合里设置各个字段信息
@@ -56,7 +58,8 @@ public class WnAuthSite {
             weixinConfPath = fullPath("~/.weixin/" + wxConfNm + "/wxconf");
         }
         // 默认会话时长
-        sessionDuration = bean.getLong("se_du", 86400);
+        seDftDu = bean.getLong("se_dft_du", 86400);
+        seTmpDu = bean.getLong("se_tmp_du", 60);
     }
 
     private String fullPath(String ph) {
@@ -123,12 +126,20 @@ public class WnAuthSite {
         this.weixinConfPath = weixinConfPath;
     }
 
-    public long getSessionDuration() {
-        return sessionDuration;
+    public long getSeDftDu() {
+        return seDftDu;
     }
 
-    public void setSessionDuration(long sessionDuration) {
-        this.sessionDuration = sessionDuration;
+    public void setSeDftDu(long seDftDu) {
+        this.seDftDu = seDftDu;
+    }
+
+    public long getSeTmpDu() {
+        return seTmpDu;
+    }
+
+    public void setSeTmpDu(long seTmpDu) {
+        this.seTmpDu = seTmpDu;
     }
 
 }

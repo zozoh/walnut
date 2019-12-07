@@ -6,10 +6,16 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 
-public class WnAuthSysSetup extends AbstractWnAuthSetup {
+public class WnSysAuthSetup extends AbstractWnAuthSetup {
 
-    public WnAuthSysSetup(WnIo io) {
+    private long seDftDu;
+
+    private long seTmpDu;
+
+    public WnSysAuthSetup(WnIo io, long seDftDu, long seTmpDu) {
         super(io);
+        this.seDftDu = seDftDu;
+        this.seTmpDu = seTmpDu;
     }
 
     @Override
@@ -37,7 +43,12 @@ public class WnAuthSysSetup extends AbstractWnAuthSetup {
 
     @Override
     public long getSessionDefaultDuration() {
-        return this.getConfLong("se-sys-du", 3600);
+        return seDftDu;
+    }
+
+    @Override
+    public long getSessionTransientDuration() {
+        return seTmpDu;
     }
 
     @Override
@@ -48,11 +59,11 @@ public class WnAuthSysSetup extends AbstractWnAuthSetup {
     @Override
     public void afterAccountCreated(WnAccount user) {
         // 为用户创建组
-        
+
         // 设置组管理员
-        
+
         // 为用户创建主目录
-        
+
         // 更新用户元数据，设置主目录，OPEN 等
     }
 

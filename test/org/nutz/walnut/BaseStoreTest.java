@@ -17,7 +17,6 @@ public abstract class BaseStoreTest extends BaseApiTest {
 
     protected void on_before(PropertiesProxy pp) {
         super.on_before(pp);
-
         store = _create_store();
         store._clean_for_unit_test();
     }
@@ -25,8 +24,8 @@ public abstract class BaseStoreTest extends BaseApiTest {
     private WnStore _create_store() {
         store = new WnStoreImpl();
 
-        ZMoCo co = db.getCollection(pp.get("bucket-colnm"));
-        File home = Files.createDirIfNoExists(pp.get("bucket-home"));
+        ZMoCo co = db.getCollection(conf.get("bucket-colnm"));
+        File home = Files.createDirIfNoExists(conf.get("bucket-home"));
         MongoLocalBucketManager buckets = new MongoLocalBucketManager(home, co);
 
         WnHandleManagerImpl handles = new WnHandleManagerImpl();

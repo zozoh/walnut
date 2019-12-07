@@ -8,6 +8,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAccountLoader;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnCaptchaService;
@@ -24,62 +25,19 @@ import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public class WnAuthServiceImpl extends WnGroupRoleServiceWrapper implements WnAuthService {
+public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
 
-    private WnIo io;
+    WnIo io;
 
     private WnAuthSetup setup;
+
+    private WnAccountLoader accountLoader;
 
     public WnAuthServiceImpl(WnIo io, WnAuthSetup setup) {
         super(io);
         this.io = io;
         this.setup = setup;
-    }
-
-    @Override
-    public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
-        WnAccount info = new WnAccount(nameOrIdOrPhoneOrEmail);
-        return this.getAccount(info);
-    }
-
-    @Override
-    public WnAccount getAccount(WnAccount info) {
-        // 用 ID 获取
-        if (info.hasId()) {
-            String uid = info.getId();
-            return this.checkAccountById(uid);
-        }
-        // 将信息转换为查询条件
-        // 通常这个信息是手机号/邮箱/登录名等
-        NutMap qmap = info.toBean();
-        WnObj oAccountDir = setup.getAccountDir();
-        WnQuery q = Wn.Q.pid(oAccountDir);
-        q.setAll(qmap);
-
-        // 获取账户信息
-        WnObj oU = io.getOne(q);
-        if (null != oU) {
-            return new WnAccount(oU);
-        }
-        return null;
-    }
-
-    @Override
-    public WnAccount checkAccount(WnAccount info) {
-        WnAccount u = this.getAccount(info);
-        if (null == u) {
-            throw Er.create("e.auth.account.noexists", info);
-        }
-        return u;
-    }
-
-    @Override
-    public WnAccount checkAccount(String name) {
-        WnAccount u = this.getAccount(name);
-        if (null == u) {
-            throw Er.create("e.auth.account.noexists", name);
-        }
-        return u;
+        this.accountLoader = new WnAccountLoaderImpl(io, setup.getAccountDir());
     }
 
     @Override
@@ -532,15 +490,29 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceWrapper implements WnAu
         return se;
     }
 
-    private WnAccount checkAccountById(String uid) {
-        WnObj oAccountDir = setup.getAccountDir();
-        WnObj oU = io.get(uid);
-        if (null != oU) {
-            if (!oAccountDir.isSameId(oU.parentId())) {
-                throw Er.create("e.auth.acc_outof_home", uid);
-            }
-        }
-        return new WnAccount(oU);
+    @Override
+    public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
+        return accountLoader.getAccount(nameOrIdOrPhoneOrEmail);
+    }
+
+    @Override
+    public WnAccount checkAccount(String nameOrIdOrPhoneOrEmail) {
+        return accountLoader.checkAccount(nameOrIdOrPhoneOrEmail);
+    }
+
+    @Override
+    public WnAccount getAccount(WnAccount info) {
+        return accountLoader.getAccount(info);
+    }
+
+    @Override
+    public WnAccount checkAccount(WnAccount info) {
+        return accountLoader.checkAccount(info);
+    }
+
+    @Override
+    public WnAccount checkAccountById(String uid) {
+        return accountLoader.checkAccountById(uid);
     }
 
 }

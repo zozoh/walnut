@@ -247,6 +247,39 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
+    public void suCore(WnAccount user, WnSecurity secu, WnHookContext hc, Atom atom) {
+        // 记录旧的值
+        WnAccount old_me = this.account;
+        WnSecurity old_secu = this.security;
+        WnHookContext old_hc = this.hookContext;
+        // 执行
+        try {
+            this.account = user;
+            this.security = secu;
+            this.hookContext = hc;
+            atom.run();
+        }
+        // 还原
+        finally {
+            this.security = old_secu;
+            this.hookContext = old_hc;
+            this.account = old_me;
+        }
+    }
+
+    public <T> T suCore(WnAccount user, WnSecurity secu, WnHookContext hc, Proton<T> proton) {
+        suCore(user, secu, hc, (Atom) proton);
+        return proton.get();
+    }
+
+    public void suCoreNoSecurity(WnIo io, WnAccount user, Atom atom) {
+        suCore(user, new WnEvalLink(io), null, atom);
+    }
+
+    public <T> T suCoreNoSecurity(WnIo io, WnAccount user, Proton<T> proton) {
+        return suCore(user, new WnEvalLink(io), null, proton);
+    }
+
     public WnObj whenEnter(WnObj nd, boolean asNull) {
         if (null != security)
             return security.enter(nd, asNull);
@@ -290,12 +323,6 @@ public class WnContext extends NutMap {
     }
 
     public <T> T su(WnAccount u, Proton<T> proton) {
-        if (null == session) {
-            throw Er.create("e.wc.null.session");
-        }
-        if (null == u) {
-            throw Er.create("e.wc.null.user");
-        }
         WnAccount old_u = this.getMe();
         try {
             this.setMe(u);
@@ -309,12 +336,6 @@ public class WnContext extends NutMap {
     }
 
     public void su(WnAccount u, Atom atom) {
-        if (null == session) {
-            throw Er.create("e.wc.null.session");
-        }
-        if (null == u) {
-            throw Er.create("e.wc.null.user");
-        }
         WnAccount old_u = this.getMe();
         try {
             this.setMe(u);

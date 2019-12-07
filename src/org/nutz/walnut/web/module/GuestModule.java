@@ -43,7 +43,7 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
  */
 @IocBean
 @At("/gu")
-@Filters(@By(type = WnAsUsr.class, args = {"guest", "guest"}))
+@Filters(@By(type = WnAsUsr.class, args = {"guest"}))
 public class GuestModule extends AbstractWnModule {
 
     @Inject

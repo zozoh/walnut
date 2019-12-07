@@ -14,13 +14,16 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     private WnGroupRoleServiceImpl impl;
 
-    public WnGroupRoleServiceWrapper(WnIo io) {
-        impl = new WnGroupRoleServiceImpl(io);
+    private WnAccount root;
+
+    public WnGroupRoleServiceWrapper(WnIo io, WnAccount root) {
+        this.impl = new WnGroupRoleServiceImpl(io);
+        this.root = root;
     }
 
     @Override
     public WnGroupRole getGroupRole(WnAccount user, String groupName) {
-        return Wn.WC().nosecurity(impl.io, new Proton<WnGroupRole>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnGroupRole>() {
             protected WnGroupRole exec() {
                 return impl.getGroupRole(user, groupName);
             }
@@ -29,14 +32,14 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     @Override
     public void setGroupRole(WnAccount user, String groupName, WnGroupRole role) {
-        Wn.WC().nosecurity(impl.io, () -> {
+        Wn.WC().suCoreNoSecurity(impl.io, root, () -> {
             impl.setGroupRole(user, groupName, role);
         });
     }
 
     @Override
     public WnGroupRole removeGroupRole(WnAccount user, String groupName) {
-        return Wn.WC().nosecurity(impl.io, new Proton<WnGroupRole>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnGroupRole>() {
             protected WnGroupRole exec() {
                 return impl.removeGroupRole(user, groupName);
             }
@@ -45,7 +48,7 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     @Override
     public List<WnGroupAccount> getAccounts(String groupName) {
-        return Wn.WC().nosecurity(impl.io, new Proton<List<WnGroupAccount>>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<List<WnGroupAccount>>() {
             protected List<WnGroupAccount> exec() {
                 return impl.getAccounts(groupName);
             }
@@ -63,7 +66,7 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     @Override
     public boolean isRoleOfGroup(WnGroupRole role, WnAccount user, String... groupNames) {
-        return Wn.WC().nosecurity(impl.io, new Proton<Boolean>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<Boolean>() {
             protected Boolean exec() {
                 return impl.isRoleOfGroup(role, user, groupNames);
             }
@@ -72,7 +75,7 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     @Override
     public boolean isAdminOfGroup(WnAccount user, String... groupNames) {
-        return Wn.WC().nosecurity(impl.io, new Proton<Boolean>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<Boolean>() {
             protected Boolean exec() {
                 return impl.isAdminOfGroup(user, groupNames);
             }
@@ -81,7 +84,7 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
 
     @Override
     public boolean isMemberOfGroup(WnAccount user, String... groupNames) {
-        return Wn.WC().nosecurity(impl.io, new Proton<Boolean>() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<Boolean>() {
             protected Boolean exec() {
                 return impl.isMemberOfGroup(user, groupNames);
             }

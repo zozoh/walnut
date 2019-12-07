@@ -1,28 +1,50 @@
 package org.nutz.walnut.impl.auth;
 
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSite;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 
-public class WnAuthDomainSetup extends AbstractWnAuthSetup {
+public class WnDomainAuthSetup extends AbstractWnAuthSetup {
 
     private WnAuthSite site;
 
-    public WnAuthDomainSetup(WnIo io, WnAuthSite site) {
+    private WnObj oRoleDir;
+
+    public WnDomainAuthSetup(WnIo io, WnAuthSite site) {
         super(io);
         this.site = site;
+        if (!Strings.isBlank(site.getRoles())) {
+            String ph = site.getRoles();
+            if (!ph.endsWith("/index")) {
+                ph = Wn.appendPath(ph, "index");
+            }
+            oRoleDir = Wn.checkObj(io, ph);
+        }
     }
 
     @Override
     public String getDefaultRoleName() {
-        return null;
+        WnQuery q = Wn.Q.pid(oRoleDir);
+        q.setv("isdft", true);
+        WnObj oR = io.getOne(q);
+        if (null != oR) {
+            return oR.name();
+        }
+        return "user";
     }
 
     @Override
     public long getSessionDefaultDuration() {
-        return site.getSessionDuration();
+        return site.getSeDftDu();
+    }
+
+    @Override
+    public long getSessionTransientDuration() {
+        return site.getSeTmpDu();
     }
 
     @Override
@@ -35,7 +57,11 @@ public class WnAuthDomainSetup extends AbstractWnAuthSetup {
 
     @Override
     protected WnObj createOrFetchAccountDir() {
-        return Wn.checkObj(io, site.getAccounts());
+        String ph = site.getAccounts();
+        if (!ph.endsWith("/index")) {
+            ph = Wn.appendPath(ph, "index");
+        }
+        return Wn.checkObj(io, ph);
     }
 
     @Override
@@ -56,6 +82,6 @@ public class WnAuthDomainSetup extends AbstractWnAuthSetup {
 
     @Override
     public boolean beforeAccountDeleted(WnAccount user) {
-        return false;
+        return true;
     }
 }

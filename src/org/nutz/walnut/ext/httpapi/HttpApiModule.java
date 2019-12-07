@@ -48,7 +48,7 @@ import org.nutz.web.WebException;
 
 @IocBean
 @At("/api")
-@Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+@Filters(@By(type = WnAsUsr.class, args = {"root"}))
 public class HttpApiModule extends AbstractWnModule {
 
     private static final Log log = Logs.get();

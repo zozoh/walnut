@@ -78,6 +78,12 @@ public class WnAccount {
         this.setLoginStr(str);
     }
 
+    public WnAccount(String str, String passwd) {
+        this();
+        this.setLoginStr(str);
+        this.setRawPasswd(passwd);
+    }
+
     public WnAccount(NutBean bean) {
         this();
         this.updateBy(bean);

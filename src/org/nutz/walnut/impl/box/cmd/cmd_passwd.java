@@ -5,6 +5,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.usr.WnUsr;
@@ -33,7 +34,7 @@ public class cmd_passwd extends JvmExecutor {
         }
         // 否则第一个参数是密码
         else {
-            passwd = params.val(0);
+            passwd = params.val_check(0);
         }
 
         boolean printOut = false;
@@ -54,7 +55,7 @@ public class cmd_passwd extends JvmExecutor {
         else {
             u = sys.getMe();
         }
-        // .....................................................
+        
         // 修改随便的用户
         if (null != oUsr) {
             // 设置加盐后的密码
@@ -83,6 +84,14 @@ public class cmd_passwd extends JvmExecutor {
         else {
             throw Lang.impossible();
         }
+        
+     // .....................................................
+        // 执行修改
+        u.setRawPasswd(passwd);
+        sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
+        
+        if (printOut)
+            sys.out.print(passwd);
     }
 
 }
