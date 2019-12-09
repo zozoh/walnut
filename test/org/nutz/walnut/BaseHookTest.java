@@ -32,6 +32,7 @@ public abstract class BaseHookTest extends BaseBoxTest {
 
         hc = new WnHookContext(boxes, bc);
         hc.service = new CachedWnHookService().setIo(io);
+
     }
 
     @Override

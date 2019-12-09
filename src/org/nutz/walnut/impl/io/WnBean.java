@@ -461,7 +461,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s:{%s:%s:%s}", path(), id(), creator(), group());
+        return String.format("%s;ID(%s)<%s/%s>", path(), id(), creator(), group());
     }
 
     // -----------------------------------------

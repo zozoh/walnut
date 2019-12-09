@@ -259,19 +259,18 @@ public class TestWnIoImpl extends BaseIoTest {
 
     @Test
     public void test_quey_not() {
-        WnObj a = io.create(null, "/a", WnRace.FILE);
+        WnObj a = io.create(null, "/HT/a", WnRace.FILE);
         io.appendMeta(a, "x:100");
-        WnObj b = io.create(null, "/b", WnRace.FILE);
+        WnObj b = io.create(null, "/HT/b", WnRace.FILE);
         io.appendMeta(b, "x:99");
-        WnObj c = io.create(null, "/c", WnRace.FILE);
+        WnObj c = io.create(null, "/HT/c", WnRace.FILE);
         io.appendMeta(c, "x:98");
 
-        WnQuery q;
-        List<WnObj> list;
+        WnObj oHT = io.check(null, "/HT");
 
-        q = new WnQuery();
+        WnQuery q = Wn.Q.pid(oHT);
         q.setv("x", Lang.map("$ne:100")).asc("nm");
-        list = io.query(q);
+        List<WnObj> list = io.query(q);
         assertEquals(2, list.size());
         assertEquals(b.id(), list.get(0).id());
         assertEquals(c.id(), list.get(1).id());
@@ -279,42 +278,41 @@ public class TestWnIoImpl extends BaseIoTest {
 
     @Test
     public void test_query_no_null() {
-        WnObj a = io.create(null, "/a", WnRace.FILE);
+        WnObj a = io.create(null, "/HT/a", WnRace.FILE);
         io.appendMeta(a, "alias:'aaa'");
-        WnObj b = io.create(null, "/b", WnRace.FILE);
+        WnObj b = io.create(null, "/HT/b", WnRace.FILE);
         io.appendMeta(b, "alias:null");
-        WnObj c = io.create(null, "/c", WnRace.FILE);
+        WnObj c = io.create(null, "/HT/c", WnRace.FILE);
 
-        WnQuery q;
-        List<WnObj> list;
+        WnObj oHT = io.check(null, "/HT");
 
-        q = new WnQuery();
+        WnQuery q = Wn.Q.pid(oHT);
         q.setv("alias", Lang.map("$ne:null"));
-        list = io.query(q);
+        List<WnObj> list = io.query(q);
         assertEquals(1, list.size());
         assertEquals(a.id(), list.get(0).id());
 
-        q = new WnQuery();
+        q = Wn.Q.pid(oHT);
         q.setv("alias", null).asc("nm");
         list = io.query(q);
         assertEquals(2, list.size());
         assertEquals(b.id(), list.get(0).id());
         assertEquals(c.id(), list.get(1).id());
 
-        q = new WnQuery();
+        q = Wn.Q.pid(oHT);
         q.setv("$and", Json.fromJson("[{alias:null}, {alias:{$exists:true}}]"));
         list = io.query(q);
         assertEquals(1, list.size());
         assertEquals(b.id(), list.get(0).id());
 
-        q = new WnQuery();
+        q = Wn.Q.pid(oHT);
         q.setv("alias", Lang.map("$exists:true")).asc("nm");
         list = io.query(q);
         assertEquals(2, list.size());
         assertEquals(a.id(), list.get(0).id());
         assertEquals(b.id(), list.get(1).id());
 
-        q = new WnQuery();
+        q = Wn.Q.pid(oHT);
         q.setv("alias", Lang.map("$exists:false"));
         list = io.query(q);
         assertEquals(1, list.size());
@@ -669,7 +667,8 @@ public class TestWnIoImpl extends BaseIoTest {
         Wn.WC().setSecurity(new WnEvalLink(io));
         try {
             File f = Files.findFile("org/nutz/walnut");
-            String mnt = "file://" + f.getAbsolutePath();
+            String ph = f.getAbsolutePath().replace('\\', '/');
+            String mnt = "file://" + ph;
 
             WnObj b = io.create(null, "/a/b", WnRace.DIR);
             WnObj y = io.create(null, "/x/y", WnRace.DIR);
@@ -683,7 +682,7 @@ public class TestWnIoImpl extends BaseIoTest {
 
             // 试图找找文件
             WnObj x = io.fetch(null, "/x");
-            WnObj o = io.fetch(x, "y/WnIoImplTest.class");
+            WnObj o = io.fetch(x, "y/" + TestWnIoImpl.class.getSimpleName() + ".class");
 
             // 验证
             assertTrue(o.isMount());
@@ -843,18 +842,20 @@ public class TestWnIoImpl extends BaseIoTest {
         io.create(null, "/a/x/y", WnRace.FILE);
         io.create(null, "/a/x/z", WnRace.FILE);
 
+        WnObj a = io.check(null, "/a");
+
         WalkTest wt = new WalkTest();
 
-        io.walk(null, wt.reset(), WalkMode.BREADTH_FIRST);
-        assertEquals("abxcdeyz", wt.toString());
+        io.walk(a, wt.reset(), WalkMode.BREADTH_FIRST);
+        assertEquals("bxcdeyz", wt.toString());
 
-        io.walk(null, wt.reset(), WalkMode.DEPTH_NODE_FIRST);
-        assertEquals("abcdexyz", wt.toString());
+        io.walk(a, wt.reset(), WalkMode.DEPTH_NODE_FIRST);
+        assertEquals("bcdexyz", wt.toString());
 
-        io.walk(null, wt.reset(), WalkMode.DEPTH_LEAF_FIRST);
-        assertEquals("cdebyzxa", wt.toString());
+        io.walk(a, wt.reset(), WalkMode.DEPTH_LEAF_FIRST);
+        assertEquals("cdebyzx", wt.toString());
 
-        io.walk(null, wt.reset(), WalkMode.LEAF_ONLY);
+        io.walk(a, wt.reset(), WalkMode.LEAF_ONLY);
         assertEquals("cdeyz", wt.toString());
     }
 

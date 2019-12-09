@@ -671,11 +671,11 @@ public class WnAccount {
 
     public String toString() {
         String px = sysAccount ? "SYS" : "DMN";
-        return String.format("%s<%s:%s:%s>@%s[HOME'%s']",
+        return String.format("%s<%s:%s:%s>@%s{HOME=%s}",
                              px,
                              name,
-                             phone,
-                             email,
+                             Strings.sBlank(phone),
+                             Strings.sBlank(email),
                              groupName,
                              this.getHomePath());
     }

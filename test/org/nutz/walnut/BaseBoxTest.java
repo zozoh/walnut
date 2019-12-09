@@ -65,15 +65,14 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
         boxes = _create_box_service();
 
-        WnAccount info = new WnAccount();
-        info.setName("xiaobai");
-        info.setRawPasswd("123456");
+        WnAccount info = new WnAccount("xiaobai", "123456");
         me = auth.createAccount(info);
         se = auth.createSession(me);
 
         // 将测试线程切换到当前测试账号
         __old_me = Wn.WC().getMe();
         Wn.WC().setSession(se);
+        Wn.WC().setMe(null);
 
         out = new StringBuilder();
         err = new StringBuilder();

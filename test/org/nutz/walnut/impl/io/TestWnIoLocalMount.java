@@ -48,7 +48,14 @@ public class TestWnIoLocalMount extends BaseIoTest {
             // 挂载目录
             WnContext wc = Wn.WC();
             WnAccount me = wc.getMe();
-            String grp = me.getGroupName();
+            String myName = wc.getMyName();
+            String myGroup = wc.getMyGroup();
+
+            // 顺便测测上下文的帮助函数
+            assertEquals(me.getName(), myName);
+            assertEquals(me.getGroupName(), myGroup);
+
+            // 切换上下文用户为新用户
             WnAccount nobody = WnAccount.create("nobody", "nogrp");
             wc.setMe(nobody);
             try {
@@ -58,30 +65,30 @@ public class TestWnIoLocalMount extends BaseIoTest {
                 WnObj o = io.check(null, "/a/b/x/y.txt");
                 assertEquals("y.txt", o.name());
                 assertTrue(o.isFILE());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
+                assertEquals(myName, o.creator());
+                assertEquals(myName, o.mender());
+                assertEquals(myGroup, o.group());
 
                 o = io.check(null, "/a/b/x");
                 assertEquals("x", o.name());
                 assertTrue(o.isDIR());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
+                assertEquals(myName, o.creator());
+                assertEquals(myName, o.mender());
+                assertEquals(myGroup, o.group());
 
                 o = io.check(o, "y.txt");
                 assertEquals("y.txt", o.name());
                 assertTrue(o.isFILE());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
+                assertEquals(myName, o.creator());
+                assertEquals(myName, o.mender());
+                assertEquals(myGroup, o.group());
 
                 o = io.check(null, "/a/b");
                 assertEquals("b", o.name());
                 assertTrue(o.isDIR());
-                assertEquals(me, o.creator());
-                assertEquals(me, o.mender());
-                assertEquals(grp, o.group());
+                assertEquals(myName, o.creator());
+                assertEquals(myName, o.mender());
+                assertEquals(myGroup, o.group());
 
                 // 读取
                 o = io.check(null, "/a/b/x/y.txt");

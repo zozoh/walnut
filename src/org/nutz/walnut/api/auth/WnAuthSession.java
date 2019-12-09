@@ -18,6 +18,8 @@ public class WnAuthSession {
 
     private NutMap vars;
 
+    private String currentPath;
+
     /**
      * 创建的会话方式，可能的值为：
      * 
@@ -41,6 +43,7 @@ public class WnAuthSession {
 
     private WnAuthSession() {
         this.vars = new NutMap();
+        this.currentPath = "~";
     }
 
     public WnAuthSession(String ticket, WnAccount me) {
@@ -60,14 +63,20 @@ public class WnAuthSession {
         if (!me.isSameId(uid)) {
             throw Er.create("e.auth.session.nomatched", uid);
         }
-        this.me = me;
 
         // 赋值
         this.id = oSe.id();
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
+        this.currentPath = oSe.getString("pwd", "~");
         this.byType = oSe.getString("by_tp");
         this.byValue = oSe.getString("by_val");
+
+        // 设置会话所属用户，同时初始化 vars
+        // 这里会根据用户的主目录加载 HOME 以及 根据 currentPath 加载环境变量 PWD
+        // 因为 PWD 被假设为总是变化的，所以放到元数据里比较好，又为了兼容老的调用者预期
+        // 所以 VARS 里面也放上一份
+        this.setMe(me);
     }
 
     public NutMap toMeta() {
@@ -76,6 +85,8 @@ public class WnAuthSession {
             map.put("uid", me.getId());
             map.put("unm", me.getName());
         }
+        // 当前路径
+        map.put("pwd", Strings.sBlank(currentPath, "~"));
         // 过期时间
         if (expi > 0) {
             map.put("expi", expi);
@@ -102,6 +113,7 @@ public class WnAuthSession {
         map.put("grp", this.getMyGroup());
         map.put("expi", expi);
         map.put("du", expi - System.currentTimeMillis());
+        map.put("pwd", this.currentPath);
         map.put("envs", vars);
         return map;
     }
@@ -207,9 +219,12 @@ public class WnAuthSession {
         if (null == this.vars) {
             this.vars = new NutMap();
         }
+        // 加入用户的环境变量
         if (null != map) {
             this.vars.putAll(map);
         }
+        // 加入 PWD
+        this.vars.put("PWD", this.currentPath);
     }
 
     public String getTicket() {
@@ -226,6 +241,15 @@ public class WnAuthSession {
 
     public void setExpi(long expi) {
         this.expi = expi;
+    }
+
+    public String getCurrentPath() {
+        return currentPath;
+    }
+
+    public void setCurrentPath(String currentPath) {
+        this.currentPath = Strings.sBlank(currentPath, "~");
+        this.getVars().put("PWD", this.currentPath);
     }
 
     public String getByType() {
