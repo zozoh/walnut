@@ -35,19 +35,20 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
-import org.nutz.trans.Proton;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnSession;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.vcode.VCodes;
 import org.nutz.walnut.ext.vcode.WnVCodeService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.util.WnWeb;
@@ -101,10 +102,10 @@ public class UsrModule extends AbstractWnModule {
     @Fail(">>:/")
     public View show_login(String rph, @Attr("wn_www_host") String host) {
         // 确保没有登录过
-        if (Wn.WC().hasSEID()) {
+        if (Wn.WC().hasTicket()) {
             try {
-                String seid = Wn.WC().SEID();
-                sess.check(seid, true);
+                String ticket = Wn.WC().getTicket();
+                auth.checkSession(ticket);
                 throw Lang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
@@ -123,11 +124,12 @@ public class UsrModule extends AbstractWnModule {
                           @ReqHeader("If-None-Match") String etag,
                           @ReqHeader("Range") String range,
                           HttpServletRequest req) {
+        WnContext wc = Wn.WC();
         // 确保没有登录过
-        if (Wn.WC().hasSEID() && "login.html".equals(rph)) {
+        if (wc.hasTicket() && "login.html".equals(rph)) {
             try {
-                String seid = Wn.WC().SEID();
-                sess.check(seid, true);
+                String ticket = wc.getTicket();
+                auth.checkSession(ticket);
                 throw Lang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
@@ -158,7 +160,7 @@ public class UsrModule extends AbstractWnModule {
                 WnObj o = io.check(oPageHome, rph);
 
                 // 确保可读，同时处理链接文件
-                o = Wn.WC().whenRead(o, false);
+                o = wc.whenRead(o, false);
 
                 // 如果不是html，那么必然是资源
                 if (!o.name().matches("^.*[.]html?")) {
@@ -191,15 +193,14 @@ public class UsrModule extends AbstractWnModule {
                 if ("rename.html".equals(o.name())) {
 
                     // 得到会话信息
-                    String seid = Wn.WC().SEID();
-                    WnSession se = sess.check(seid, false);
-                    Wn.WC().SE(se);
-                    Wn.WC().me(se.me(), se.group());
-                    WnUsr me = Wn.WC().getMyUsr(usrs);
+                    String ticket = wc.getTicket();
+                    WnAuthSession se = auth.checkSession(ticket);
+                    wc.setSession(se);
+                    WnAccount me = se.getMe();
 
                     // 创建转换上下文
-                    context.put("grp", se.group());
-                    context.put("me", me);
+                    context.put("grp", me.getGroupName());
+                    context.put("me", me.toBean());
 
                     // 创建一下解析服务
                     // WnBoxContext bc = createBoxContext(se);
@@ -242,7 +243,7 @@ public class UsrModule extends AbstractWnModule {
 
     @At("/vcode/captcha/get")
     @Ok("raw:image/png")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public byte[] vcode_captcha_get(@Param("d") String domain, @Param("a") String accountName) {
         String vcodePath = VCodes.getCaptchaPath(domain, accountName);
         String code = R.captchaNumber(4);
@@ -257,7 +258,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/vcode/phone/get")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean vcode_phone_get(@Param("d") String domain,
                                    @Param("a") String phone,
                                    @Param("s") String scene,
@@ -308,7 +309,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/vcode/email/get")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean vcode_email_get(@Param("d") String domain,
                                    @Param("a") String email,
                                    @Param("s") String scene,
@@ -358,12 +359,12 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/signup")
     @Ok(">>:/")
     @Fail("jsp:jsp.show_text")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnUsr do_signup(@Param("str") String str,
-                           @Param("domain") String domain,
-                           @Param("vcode") String vcode,
-                           @Param("passwd") String passwd,
-                           @Param("mode") String mode) {
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
+    public WnAccount do_signup(@Param("str") String str,
+                               @Param("domain") String domain,
+                               @Param("vcode") String vcode,
+                               @Param("passwd") String passwd,
+                               @Param("mode") String mode) {
         if (Strings.isBlank(str)) {
             throw Er.create("e.usr.signup.blank");
         }
@@ -375,10 +376,10 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 分析注册信息
-        WnUsrInfo info = new WnUsrInfo(str);
+        WnAccount info = new WnAccount(str);
 
         // 如果是手机，需要校验验证码
-        if (info.isByPhone()) {
+        if (info.hasPhone()) {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getSignupPath(domain, info.getPhone());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
@@ -387,7 +388,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 如果是邮箱，则输入校验验证码
-        if (info.isByEmail()) {
+        if (info.hasEmail()) {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getSignupPath(domain, info.getEmail());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
@@ -396,15 +397,15 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 创建账户
-        info.setLoginPassword(passwd);
-        WnUsr u = usrs.create(info);
+        info.setRawPasswd(passwd);
+        WnAccount u = auth.createAccount(info);
 
         // 执行创建后初始化脚本
-        String cmd = "setup -quiet -u '" + u.name() + "' usr/create";
+        String cmd = "setup -quiet -u '" + u.getName() + "' usr/create";
         if (!Strings.isBlank(mode) && mode.matches("[a-zA-Z0-9_]+")) {
             cmd += " -m " + mode;
         }
-        this.exec("do_signup", u.name(), cmd);
+        this.exec("do_signup", u.getName(), cmd);
 
         // 返回
         return u;
@@ -413,12 +414,12 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/signup/ajax")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
-    public WnUsr do_signup_ajax(@Param("str") String str,
-                                @Param("domain") String domain,
-                                @Param("vcode") String vcode,
-                                @Param("passwd") String passwd,
-                                @Param("mode") String mode) {
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
+    public WnAccount do_signup_ajax(@Param("str") String str,
+                                    @Param("domain") String domain,
+                                    @Param("vcode") String vcode,
+                                    @Param("passwd") String passwd,
+                                    @Param("mode") String mode) {
         return do_signup(str, domain, vcode, passwd, mode);
     }
 
@@ -434,13 +435,13 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/login")
     @Ok("++cookie>>:/")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutMap do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnSession se = sess.login(nm, passwd);
-        Wn.WC().SE(se);
+        WnAuthSession se = auth.loginByPasswd(nm, passwd);
+        Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+        this.exec("do_login", se, "setup -quiet -u 'id:" + se.getMyId() + "' usr/login");
 
         return se.toMapForClient();
     }
@@ -449,7 +450,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/login/ajax")
     @Ok("++cookie->ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutMap do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
         return do_login(nm, passwd);
     }
@@ -463,9 +464,11 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("--cookie>>:/")
     public NutMap do_logout() {
-        if (Wn.WC().hasSEID()) {
-            String seid = Wn.WC().SEID();
-            WnSession pse = sess.logout(seid);
+        WnContext wc = Wn.WC();
+        if (wc.hasTicket()) {
+            String ticket = wc.getTicket();
+            // 退出登录：延迟几秒以便给后续操作机会
+            WnAuthSession pse = auth.logout(ticket, WnAuths.LOGOUT_DELAY);
             if (null != pse)
                 return pse.toMapForClient();
         }
@@ -478,9 +481,11 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
     public boolean do_logout_ajax() {
-        if (Wn.WC().hasSEID()) {
-            String seid = Wn.WC().SEID();
-            sess.logout(seid);
+        WnContext wc = Wn.WC();
+        if (wc.hasTicket()) {
+            String ticket = wc.getTicket();
+            // 退出登录：延迟几秒以便给后续操作机会
+            auth.logout(ticket, WnAuths.LOGOUT_DELAY);
             return true;
         }
         return false;
@@ -502,7 +507,9 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(passwd))
             throw Er.create("e.usr.blank.passwd");
 
-        if (!usrs.checkPassword(nm, passwd)) {
+        WnAccount u = auth.getAccount(nm);
+
+        if (null == u || !u.isMatchedRawPasswd(passwd)) {
             throw Er.create("e.usr.invalid.login");
         }
         return true;
@@ -515,8 +522,11 @@ public class UsrModule extends AbstractWnModule {
     @Filters(@By(type = WnCheckSession.class))
     public Object do_change_password(@Param("oldpasswd") String oldpasswd,
                                      @Param("passwd") String passwd) {
-        String seid = Wn.WC().SEID();
-        String me = sess.check(seid, true).me();
+        // 得到会话和用户
+        String ticket = Wn.WC().getTicket();
+        WnAuthSession se = auth.checkSession(ticket);
+        WnAccount me = se.getMe();
+
         if (Strings.isBlank(passwd)) {
             throw Er.create("e.usr.pwd.blank");
         }
@@ -524,16 +534,14 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.usr.pwd.invalid");
         }
 
-        // 得到用户
-        WnUsr uMe = usrs.check(me);
-
         // 检查旧密码是否正确
-        if (!usrs.checkPassword(uMe, oldpasswd)) {
+        if (!me.isMatchedRawPasswd(oldpasswd)) {
             throw Er.create("e.usr.pwd.old.invalid");
         }
 
         // 设置新密码
-        usrs.setPassword(uMe, passwd);
+        me.setRawPasswd(passwd);
+        auth.saveAccount(me, WnAuths.ABMM.PASSWD);
         return Ajax.ok();
     }
 
@@ -566,7 +574,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/passwd/reset/ajax")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean do_passwd_reset_ajax(@Param("str") String str,
                                         @Param("domain") String domain,
                                         @Param("vcode") String vcode,
@@ -583,10 +591,10 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 分析注册信息
-        WnUsrInfo info = new WnUsrInfo(str);
+        WnAccount info = new WnAccount(str);
 
         // 如果是手机，需要校验验证码
-        if (info.isByPhone()) {
+        if (info.hasPhone()) {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getPasswdBackPath(domain, info.getPhone());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
@@ -595,7 +603,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 如果是邮箱，则输入校验验证码
-        if (info.isByEmail()) {
+        if (info.hasEmail()) {
             domain = Strings.sBlank(domain, "walnut");
             String vcodePath = VCodes.getPasswdBackPath(domain, info.getEmail());
             if (!vcodes.checkAndRemove(vcodePath, vcode)) {
@@ -604,10 +612,11 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 得到用户
-        WnUsr u = usrs.check(str);
+        WnAccount u = auth.checkAccount(info);
 
         // 修改密码
-        usrs.setPassword(u, passwd);
+        u.setRawPasswd(passwd);
+        auth.saveAccount(u, WnAuths.ABMM.PASSWD);
 
         // 返回
         return true;
@@ -618,63 +627,54 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
     public void do_rename(@Param("nm") String newName, @Param("passwd") String passwd) {
-        WnSession se = Wn.WC().checkSE();
-        WnUsr me = Wn.WC().getMyUsr(usrs);
+        WnAuthSession se = Wn.WC().checkSession();
+        WnAccount me = se.getMe();
 
         // 先检查一下有没有必要改名
-        if (me.name().equals(newName)) {
+        if (me.isSameName(newName)) {
             throw Er.create("e.u.rename.same");
         }
+
         // 再检查一下名字是否合法
-        WnUsrInfo ui = new WnUsrInfo(newName);
-        if (!ui.isByName()) {
-            if (ui.isByPhone()) {
-                throw Er.create("e.u.rename.byphone");
-            }
-            if (ui.isByEmail()) {
-                throw Er.create("e.u.rename.byemail");
-            }
+        WnAccount info = new WnAccount(newName);
+        if (info.hasPhone()) {
+            throw Er.create("e.u.rename.byphone");
+        }
+        if (info.hasEmail()) {
+            throw Er.create("e.u.rename.byemail");
+        }
+        if (!info.hasName()) {
             throw Er.create("e.u.rename.invalid");
         }
 
         // 看看是否存在
-        WnUsr u = this.nosecurity(new Proton<WnUsr>() {
-            @Override
-            protected WnUsr exec() {
-                return usrs.fetchBy(ui);
-            }
-        });
+        WnAccount u = auth.getAccount(info);
+
         // 如果用户存在，那么则必须要检查一下密码
         if (null != u) {
-            if (null == passwd || !usrs.checkPassword(u, passwd)) {
+            if (null == passwd || !u.isMatchedRawPasswd(passwd)) {
                 throw Er.create("e.usr.invalid.login");
             }
 
-            // 进入内核态
-            this.nosecurity(new Atom() {
-                @Override
-                public void run() {
-                    // 更新一下用户的登录信息
-                    NutMap meta = NutMap.WRAP(me.pickBy("^(email|phone|oauth_.+)$"));
-                    usrs.set(u, meta);
+            // 更新一下用户的登录信息
+            me.mergeTo(u);
+            auth.saveAccount(u);
 
-                    // 切换当前会话到新用户
-                    se.putUsrVars(u);
-                    se.save();
+            // 切换当前会话到新用户
+            se.setMe(u);
+            auth.saveSession(se);
 
-                    // 原来那个用户就不要了
-                    exec("Urnm", "root", "jsc /jsbin/delete_user.js " + me.id());
-                }
-            });
+            // 原来那个用户就不要了
+            auth.deleteAccount(me);
         }
         // 不存在，则搞一下
         else {
             // 正式执行改名
-            usrs.rename(me, newName);
+            auth.renameAccount(me, newName);
 
             // 更新 Session
-            se.putUsrVars(me);
-            se.save();
+            se.setMe(me);
+            auth.saveSessionVars(se);
         }
     }
 
@@ -685,7 +685,8 @@ public class UsrModule extends AbstractWnModule {
     @At("/avatar/me")
     @Ok("raw")
     public Object usrAvatar() {
-        WnSession se = sess.check(Wn.WC().SEID(), true);
+        WnContext wc = Wn.WC();
+        WnAuthSession se = wc.checkSession(auth);
         String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
         WnObj oAvatar = io.fetch(null, avatarPath);
         // 有自定义的
@@ -702,7 +703,7 @@ public class UsrModule extends AbstractWnModule {
 
     @At("/avatar/usr")
     @Ok("raw")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public Object usrAvatar(@Param("nm") String nm) {
         String avatarPath = null;
         // 按照名称
@@ -716,9 +717,9 @@ public class UsrModule extends AbstractWnModule {
             return io.getInputStream(avatarObj, 0);
         } else {
             // 尝试查找用户
-            WnUsr fUsr = usrs.fetch(nm);
+            WnAccount fUsr = auth.getAccount(nm);
             if (fUsr != null) {
-                avatarPath = Wn.appendPath(fUsr.home(), ".avatar");
+                avatarPath = Wn.appendPath(fUsr.getHomePath(), ".avatar");
                 avatarObj = io.fetch(null, avatarPath);
                 if (avatarObj != null) {
                     return io.getInputStream(avatarObj, 0);
@@ -733,19 +734,14 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public boolean usrExists(@Param("str") String str) {
-        WnUsr u = Wn.WC().security(new WnEvalLink(io), new Proton<WnUsr>() {
-            @Override
-            protected WnUsr exec() {
-                return usrs.fetch(str);
-            }
-        });
+        WnAccount u = auth.getAccount(str);
         return u == null ? false : true;
     }
 
     @At("/booking/exists")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean bookExists(@Param("str") String str) {
         // 已经被预定了
         WnObj oBook = io.fetch(null, "/var/booking/" + str);
@@ -755,7 +751,7 @@ public class UsrModule extends AbstractWnModule {
             return true;
 
         // 已经存在这个用户
-        WnUsr u = usrs.fetch(str);
+        WnAccount u = auth.getAccount(str);
 
         // 已存在
         if (null != u)
@@ -768,7 +764,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/do/booking/ajax")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public WnObj do_booking_ajax(@Param("str") String str,
                                  @Param("domain") String domain,
                                  @Param("vcode") String vcode) {
@@ -858,10 +854,10 @@ public class UsrModule extends AbstractWnModule {
             @Override
             public void run() {
                 // 查询
-                List<WnUsr> us = usrs.query(q);
+                List<WnAccount> us = auth.queryAccount(q);
                 // 提取内容
-                for (WnUsr u : us) {
-                    list.add(u.pick("nm", "nickname"));
+                for (WnAccount u : us) {
+                    list.add(u.toBeanOf("nm", "nickname"));
                 }
             }
         });
@@ -880,7 +876,7 @@ public class UsrModule extends AbstractWnModule {
      * <li><code>isExit == false</code> : 进入子会话，那么给定的会话ID必须是当前会话的子会话
      * </ul>
      * 
-     * @param seid
+     * @param ticket
      *            新的会话 ID
      * @param isExit
      *            切换会话是从当前会话退出到父会话。false 则表示创建当前会话的子会话
@@ -891,19 +887,19 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnCheckSession.class))
-    public NutMap ajax_change_session(@Param("seid") String seid, @Param("exit") boolean isExit) {
+    public NutMap ajax_change_session(@Param("seid") String ticket, @Param("exit") boolean isExit) {
         // 得到当前会话的
-        WnSession se = Wn.WC().checkSE();
+        WnAuthSession se = Wn.WC().checkSession();
 
         // 不用切换
-        if (se.isSame(seid)) {
+        if (se.isSameTicket(ticket)) {
             throw Er.create("e.web.u.chse.self");
         }
 
         // 得到新会话
-        WnSession seNew = this.sess.check(seid, false);
+        WnAuthSession seNew = auth.checkSession(ticket);
 
-        // 退出: 这个新回话必须是当前会话的父会话
+        // 退出: 这个新会话必须是当前会话的父会话
         if (isExit) {
             if (!seNew.isParentOf(se)) {
                 throw Er.create("e.web.u.chse.exit");
@@ -930,7 +926,7 @@ public class UsrModule extends AbstractWnModule {
     @GET
     @At("/do/login/auto")
     @Ok("++cookie>>:${a.target}")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public Object do_login_auto(@Param("user") String nm,
                                 @Param("sign") String sign,
                                 @Param("time") long time,
@@ -940,15 +936,15 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(nm)) {
             return new HttpStatusView(403);
         }
-        WnUsr usr = sess.usrs().fetch(nm);
+        WnAccount usr = auth.getAccount(nm);
         if (usr == null) {
             return new HttpStatusView(403);
         }
-        String ackey = usr.getString("ackey");
+        String ackey = usr.getMetaString("ackey");
         if (ackey == null) {
             return new HttpStatusView(403);
         }
-        int timeout = usr.getInt("ackey_timeout", 1800) * 1000;
+        int timeout = usr.getMetaInt("ackey_timeout", 1800) * 1000;
         if (timeout == 0) {
             return new HttpStatusView(403);
         }
@@ -961,11 +957,11 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
         }
 
-        WnSession se = sess.create(sess.usrs().check(usr.name()));
-        Wn.WC().SE(se);
+        WnAuthSession se = auth.createSession(usr);
+        Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+        this.exec("do_login", se, "setup -quiet -u 'id:" + se.getMyId() + "' usr/login");
 
         if (!Strings.isBlank(target))
             req.setAttribute("target", target);
@@ -978,7 +974,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/check/mplogin")
     @Ok("++cookie>>:/")
     // zozoh: 应该不用切换到 root 目录吧，当前线程的权限就是免检的
-    // @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    // @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public Object do_check_mplogin(@Param("uu32") String uu32) {
         // zozoh ?? 为啥要 contains("..") ?? 求解释
         if (Strings.isBlank(uu32) || uu32.contains(".."))
@@ -1009,14 +1005,14 @@ public class UsrModule extends AbstractWnModule {
         io.delete(obj);
 
         // 扫码成功，看看给出 uid 是否正确
-        WnUsr usr = usrs.check(uid);
+        WnAccount usr = auth.checkAccountById(uid);
 
         // 为这个用户创建一个会话
-        WnSession se = sess.create(usr);
-        Wn.WC().SE(se);
+        WnAuthSession se = auth.createSession(usr);
+        Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u '" + se.me() + "' usr/login");
+        this.exec("do_login", se, "setup -quiet -u '" + se.getMyName() + "' usr/login");
 
         // 搞定，返回
         return se.toMapForClient();

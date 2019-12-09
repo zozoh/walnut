@@ -103,7 +103,7 @@ public class cmd_setup extends JvmExecutor {
         }
         // 释放 session
         finally {
-            sys.auth.removeSession(se);
+            sys.auth.removeSession(se, 0);
         }
 
     }

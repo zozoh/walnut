@@ -17,7 +17,7 @@ var ioc = {
                 java : '$conf.initUsrEnvs'
             },
             rootDefaultPasswd : {
-                java : '$conf.getString("root-init-passwd", "123456")'
+                java : '$conf.getTrim("root-init-passwd", "123456")'
             },
             seDftDu : {
                 java : '$conf.getLong("se-sys-du", 3600)'

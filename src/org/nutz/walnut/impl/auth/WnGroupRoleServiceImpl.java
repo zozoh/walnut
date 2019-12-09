@@ -48,7 +48,7 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
 
         // 为了兼容老代码，如果试图用名字获取
         if (null == oR) {
-            String aph = Wn.appendPath("/sys/grp", groupName, user.getId());
+            String aph = Wn.appendPath("/sys/grp", groupName, "people", user.getId());
             oR = io.fetch(null, aph);
             // 如果存在，则复制到新规则里
             if (null != oR) {

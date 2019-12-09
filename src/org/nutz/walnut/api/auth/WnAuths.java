@@ -8,6 +8,11 @@ import org.nutz.lang.util.Regex;
 public abstract class WnAuths {
 
     /**
+     * 延迟 10 秒退出登录，以便有机会切换会话
+     */
+    public static final long LOGOUT_DELAY = 10000L;
+
+    /**
      * Account Bean Merge Mode
      * 
      * @author zozoh(zozohtnt@gmail.com)

@@ -297,7 +297,7 @@ public class WnSystem implements WnExecutable {
             // 切换 session
             this.session = old_se;
             wc.setSession(old_se);
-            this.auth.removeSession(newSession);
+            this.auth.removeSession(newSession, 0);
         }
     }
 

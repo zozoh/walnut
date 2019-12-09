@@ -12,6 +12,7 @@ import org.nutz.walnut.api.auth.WnGroupAccount;
 import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 
 public class WnSysAuthServiceWrapper implements WnAuthService {
@@ -73,6 +74,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
                 }
                 // 创建吧
                 return impl.createAccount(user);
+            }
+        });
+    }
+
+    public List<WnAccount> queryAccount(WnQuery q) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<List<WnAccount>>() {
+            protected List<WnAccount> exec() {
+                return impl.queryAccount(q);
             }
         });
     }
@@ -277,10 +286,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAuthSession removeSession(WnAuthSession se) {
+    public WnAuthSession removeSession(WnAuthSession se, long delay) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.removeSession(se);
+                return impl.removeSession(se, delay);
             }
         });
     }
@@ -320,10 +329,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAuthSession logout(String ticket) {
+    public WnAuthSession logout(String ticket, long delay) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.logout(ticket);
+                return impl.logout(ticket, delay);
             }
         });
     }

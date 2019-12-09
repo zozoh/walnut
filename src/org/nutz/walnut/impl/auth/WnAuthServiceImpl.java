@@ -1,18 +1,18 @@
 package org.nutz.walnut.impl.auth;
 
+import java.util.List;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnCaptchaService;
-import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
@@ -21,9 +21,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
 
@@ -136,60 +134,6 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnGroupRole getGroupRole(WnAccount user, String groupName) {
-        WnContext wc = Wn.WC();
-        // 进入内核态
-        return wc.core(new WnEvalLink(io), true, null, new Proton<WnGroupRole>() {
-            protected WnGroupRole exec() {
-                // 本操作由 ROOT 账户完成
-                WnAccount root = getAccount("root");
-                // 切换账户并执行
-                return wc.su(root, new Proton<WnGroupRole>() {
-                    protected WnGroupRole exec() {
-                        return __get_sys_role_without_security(user, groupName);
-                    }
-                });
-            }
-        });
-    }
-
-    private WnGroupRole __get_sys_role_without_security(WnAccount user, String groupName) {
-        // 准备主组权限主目录
-        String aph = "/sys/role/";
-        final WnObj oSysRoleDir = io.createIfNoExists(null, aph, WnRace.DIR);
-        // 默认组权限： 0 - GUEST
-        int role = 0;
-        // 尝试获取
-        WnQuery q = Wn.Q.pid(oSysRoleDir);
-        q.setv("uid", user.getId());
-        q.setv("grp", groupName);
-        WnObj oR = io.getOne(q);
-
-        // 为了兼容老代码，如果试图用名字获取
-        if (null == oR) {
-            aph = Wn.appendPath("/sys/grp", groupName, user.getId());
-            oR = io.fetch(null, aph);
-            // 如果存在，则复制到新规则里
-            if (null != oR) {
-                role = oR.getInt("role", 0);
-                WnObj newR = io.create(oSysRoleDir, "${id}", WnRace.FILE);
-                NutMap meta = new NutMap();
-                meta.put("uid", user.getId());
-                meta.put("grp", groupName);
-                meta.put("role", role);
-                io.appendMeta(newR, meta);
-            }
-        }
-        // 获取角色值
-        else {
-            role = oR.getInt("role", 0);
-        }
-
-        // 默认是GUEST
-        return WnGroupRole.parseInt(role);
-    }
-
-    @Override
     public WnAuthSession getSession(String ticket) {
         WnObj oSessionDir = setup.getSessionDir();
         WnObj oSe = io.fetch(oSessionDir, ticket);
@@ -283,7 +227,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession removeSession(WnAuthSession se) {
+    public WnAuthSession removeSession(WnAuthSession se, long delay) {
         // 删除
         if (null != se) {
             WnObj oSe = io.get(se.getId());
@@ -291,7 +235,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             se = new WnAuthSession(oSe, se.getMe());
             // 删除数据
             if (null != oSe) {
-                io.delete(oSe);
+                // 立即删除
+                if (0 == delay) {
+                    io.delete(oSe);
+                }
+                // 设置过期时间
+                else {
+                    long expi = System.currentTimeMillis() + delay;
+                    oSe.expireTime(expi);
+                    io.set(oSe, "^(expi)$");
+                }
             }
             // 子会话的话，获取其父会话
             if (se.hasParentSession()) {
@@ -311,12 +264,12 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession logout(String ticket) {
+    public WnAuthSession logout(String ticket, long delay) {
         // 重新取得
         WnAuthSession se = this.checkSession(ticket);
 
         // 删除
-        return this.removeSession(se);
+        return this.removeSession(se, delay);
     }
 
     @Override
@@ -521,6 +474,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 搞定
         return se;
+    }
+
+    @Override
+    public List<WnAccount> queryAccount(WnQuery q) {
+        return accountLoader.queryAccount(q);
     }
 
     @Override

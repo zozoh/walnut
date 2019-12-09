@@ -1,6 +1,19 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.List;
+
+import org.nutz.walnut.api.io.WnQuery;
+
 public interface WnAccountLoader {
+
+    /**
+     * 查询一定数量的账户，如果没有在查询条件里设置限制，默认会查询 100 个
+     * 
+     * @param q
+     *            查询条件
+     * @return 结果列表
+     */
+    List<WnAccount> queryAccount(WnQuery q);
 
     /**
      * 获取账户对象

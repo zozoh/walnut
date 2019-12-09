@@ -21,7 +21,7 @@ public class WnAddCookieViewWrapper implements View {
         String[] ss = Strings.splitIgnoreBlank(value);
         // 只有一个: @Ok("++cookie>>:/")
         if (ss.length == 1) {
-            this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+            this.cookie = Tmpl.parsef("%s=${ticket}", Wn.AT_SEID);
             this.view = new ServerRedirectView(ss[0]);
         }
         // 两个: @Ok("++cookie>>:DSEID=${dseid},${obj.url}")
@@ -32,14 +32,14 @@ public class WnAddCookieViewWrapper implements View {
     }
 
     public WnAddCookieViewWrapper(View view) {
-        this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+        this.cookie = Tmpl.parsef("%s=${ticket}", Wn.AT_SEID);
         this.view = view;
     }
 
     public WnAddCookieViewWrapper(View view, String value) {
         // 默认 cookie 模板
         if (Strings.isBlank(value)) {
-            this.cookie = Tmpl.parsef("%s=${id}", Wn.AT_SEID);
+            this.cookie = Tmpl.parsef("%s=${ticket}", Wn.AT_SEID);
             this.view = view;
         }
         // 指定了 cookie 模板

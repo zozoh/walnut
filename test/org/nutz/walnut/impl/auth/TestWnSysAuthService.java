@@ -275,7 +275,7 @@ public class TestWnSysAuthService extends BaseUsrTest {
             assertNull(se.getVars().get("say"));
 
             // 注销
-            auth.logout(se.getTicket());
+            auth.logout(se.getTicket(), 0);
             se = auth.getSession(se.getTicket());
             assertNull(se);
 

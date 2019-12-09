@@ -15,6 +15,7 @@ import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
@@ -434,13 +435,24 @@ public class WnContext extends NutMap {
     }
 
     public WnAuthSession checkSession() {
+        return checkSession(null);
+    }
+
+    public WnAuthSession checkSession(WnAuthService auth) {
         // 必须有 Session ID
         if (null == ticket) {
             throw Er.create("e.wc.null.ticket");
         }
         // 必须有 Session 对象
         if (null == session) {
-            throw Er.create("e.wc.null.se");
+            // 如果没有，那么获取一个
+            if (null != auth) {
+                session = auth.checkSession(ticket);
+            }
+            // 没戏了，抛错吧
+            else {
+                throw Er.create("e.wc.null.se");
+            }
         }
         // SessionID 与对象必须匹配
         if (!session.isSameTicket(ticket)) {

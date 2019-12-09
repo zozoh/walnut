@@ -1,5 +1,8 @@
 package org.nutz.walnut.impl.auth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
@@ -19,6 +22,30 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
     public WnAccountLoaderImpl(WnIo io, WnObj oAccountDir) {
         this.io = io;
         this.oAccountDir = oAccountDir;
+    }
+
+    @Override
+    public List<WnAccount> queryAccount(WnQuery q) {
+        // 默认
+        if (null == q) {
+            q = Wn.Q.pid(oAccountDir);
+        }
+        // 强制设置 pid
+        else {
+            q.setv("pid", oAccountDir.id());
+        }
+        if (!q.hasLimit()) {
+            q.limit(100);
+        }
+
+        List<WnObj> objs = io.query(q);
+        List<WnAccount> list = new ArrayList<>(objs.size());
+        for (WnObj obj : objs) {
+            list.add(new WnAccount(obj));
+        }
+
+        return list;
+
     }
 
     @Override

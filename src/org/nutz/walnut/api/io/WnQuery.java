@@ -135,6 +135,10 @@ public class WnQuery {
         limit(-1);
     }
 
+    public boolean hasSkip() {
+        return skip > 0;
+    }
+
     public int skip() {
         return skip;
     }
@@ -142,6 +146,10 @@ public class WnQuery {
     public WnQuery skip(int skip) {
         this.skip = skip;
         return this;
+    }
+
+    public boolean hasLimit() {
+        return limit > 0;
     }
 
     public int limit() {

@@ -157,9 +157,12 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * 
      * @param se
      *            会话对象
+     * @param delay
+     *            延迟多少毫秒移除（这个是一个大概的值，因为要等清理进程回收） 0 表示立即删除。
+     *            如果是负数，则清理进程一启动就会删除，如果是正数，清理进程会判断是否大于这个设定的过期时间
      * @return 被注销的会话对象的父会话，null 表示给入的是顶级会话
      */
-    WnAuthSession removeSession(WnAuthSession se);
+    WnAuthSession removeSession(WnAuthSession se, long delay);
 
     /**
      * 用微信的权限码自动登录
@@ -234,10 +237,13 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * 
      * @param ticket
      *            用户登录的票据（必须是已经登录的用户才能绑定啊）
+     * @param delay
+     *            延迟多少毫秒移除（这个是一个大概的值，因为要等清理进程回收） 0 表示立即删除。
+     *            如果是负数，则清理进程一启动就会删除，如果是正数，清理进程会判断是否大于这个设定的过期时间
      * @return 被注销的会话对象的父会话，null 表示给入的是顶级会话
      * @throws "e.auth.ticket.noexist"
      *             : 票据找不到对应会话
      */
-    WnAuthSession logout(String ticket);
+    WnAuthSession logout(String ticket, long delay);
 
 }

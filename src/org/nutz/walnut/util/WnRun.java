@@ -84,7 +84,7 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            auth.removeSession(se);
+            auth.removeSession(se, 0);
         }
     }
 
@@ -105,7 +105,7 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            auth.removeSession(se);
+            auth.removeSession(se, 0);
         }
     }
 
@@ -219,7 +219,7 @@ public class WnRun {
             this.runWithHook(se, callback);
         }
         finally {
-            auth.removeSession(se);
+            auth.removeSession(se, 0);
         }
     }
 

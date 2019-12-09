@@ -5,6 +5,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnEvalLink;
@@ -20,8 +21,8 @@ public class cmd_exit extends JvmExecutor {
     }
 
     private void __exec_without_security(final WnSystem sys) {
-        // 退出登录
-        WnAuthSession newSe = sys.auth.removeSession(sys.session);
+        // 退出登录：延迟几秒以便给后续操作机会
+        WnAuthSession newSe = sys.auth.removeSession(sys.session, WnAuths.LOGOUT_DELAY);
 
         // 输出这个新会话
         if (null != newSe) {

@@ -420,9 +420,9 @@ public class AppModule extends AbstractWnModule {
             }
         }
         final WnAuthSession my_se = Wn.WC().checkSession();
-        
+
         WnAuthSession su_se = null;
-        if(isSudo) {
+        if (isSudo) {
             WnAccount root = auth().checkAccount("root");
             su_se = auth().createSession(root);
         }
@@ -467,7 +467,7 @@ public class AppModule extends AbstractWnModule {
                     }
                 }
                 if (the_su_se != null) {
-                    auth().removeSession(the_su_se);
+                    auth().removeSession(the_su_se, 0);
                 }
             }
         });

@@ -138,7 +138,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
             // 确保退出登录
             finally {
-                auth.removeSession(se);
+                auth.removeSession(se, 0);
                 wc.setSession(null);
             }
         }

@@ -277,7 +277,7 @@ return ZUI.def("ui.console", {
                 c = ps1.charAt(++i);
                 switch(c){
                 case "u":
-                    re += envs["MY_NM"];
+                    re += se.me;
                     break;
                 case "w":
                     var pwd = envs["PWD"];
@@ -296,7 +296,7 @@ return ZUI.def("ui.console", {
                     }
                     break;
                 case "$":
-                    re += envs["MY_NM"]=="root" ? "#" : "$";
+                    re += se.me=="root" ? "#" : "$";
                     break;
                 default:
                     re += c;

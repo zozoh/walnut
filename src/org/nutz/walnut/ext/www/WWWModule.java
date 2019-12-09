@@ -224,7 +224,7 @@ public class WWWModule extends AbstractWnModule {
 
     @At("/vcode/captcha/?/?")
     @Ok("raw:image/png")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public byte[] vcode_captcha_get(String wwwId, String accountName) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);
@@ -244,7 +244,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/vcode/phone/?/?")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean vcode_phone_get(String wwwId,
                                    String phone,
                                    @Param("s") String scene,
@@ -302,7 +302,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/login/phone/?")
     @Ok("++cookie->ajax:www=${sid}/${nm}")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutBean do_login_by_phone(String wwwId,
                                      @Param("s") String scene,
                                      @Param("a") String phone,
@@ -419,7 +419,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/login/passwd/?")
     @Ok("++cookie->ajax:www=${sid}/${nm}")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutBean do_login_by_passwd(String wwwId,
                                       @Param("a") String phone,
                                       @Param("w") String passwd,
@@ -450,7 +450,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/update/meta/?")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutBean u_update_meta(String wwwId,
                                  @Param("a") String phone,
                                  @Param("m") String meta,
@@ -488,7 +488,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/modify/passwd/?")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutBean u_modify_passwd(String wwwId,
                                    @Param("a") String phone,
                                    @Param("o") String opasswd,
@@ -651,7 +651,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/logout/?")
     @Ok("--cookie>>:www,${obj}")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public String do_logout(String wwwId, @Param("url") String theURL, HttpServletRequest req)
             throws URISyntaxException {
         // 根据 siteId 获取一下对应域名
@@ -675,7 +675,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/check/phone/?")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean is_logined_and_has_phone(String wwwId, HttpServletRequest req)
             throws URISyntaxException {
         // 根据 siteId 获取一下对应域名
@@ -704,7 +704,7 @@ public class WWWModule extends AbstractWnModule {
     @At("/u/exists/phone/?/?")
     @Ok("ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root", "root"}))
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean is_phone_exists(String wwwId, String phone) {
         // 根据 siteId 获取一下对应域名
         WnObj oWWW = io.checkById(wwwId);

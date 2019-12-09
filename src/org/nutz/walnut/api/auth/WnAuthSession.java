@@ -105,6 +105,7 @@ public class WnAuthSession {
     public NutMap toMapForClient() {
         NutMap map = new NutMap();
         map.put("id", id);
+        map.put("ticket", ticket);
         if (this.hasParentSession()) {
             map.put("p_se_id", this.getParentSessionId());
         }
@@ -165,6 +166,16 @@ public class WnAuthSession {
         return false;
     }
 
+    public boolean isParentOf(WnAuthSession se) {
+        String pSeId = se.getParentSessionId();
+        return this.isSameId(pSeId);
+    }
+
+    public boolean isChildOf(WnAuthSession se) {
+        String pSeId = this.getParentSessionId();
+        return se.isSameId(pSeId);
+    }
+
     public String getId() {
         return id;
     }
@@ -203,14 +214,20 @@ public class WnAuthSession {
     }
 
     public String getMyId() {
+        if (null == me)
+            return null;
         return this.me.getId();
     }
 
     public String getMyName() {
+        if (null == me)
+            return null;
         return this.me.getName();
     }
 
     public String getMyGroup() {
+        if (null == me)
+            return null;
         return this.me.getGroupName();
     }
 

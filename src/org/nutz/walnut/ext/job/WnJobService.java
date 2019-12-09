@@ -56,7 +56,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
         }
 
         if (null != _se) {
-            this.auth.removeSession(_se);
+            this.auth.removeSession(_se, 0);
         }
     }
 

@@ -65,7 +65,7 @@ public class WnMainModule extends AbstractWnModule {
 
         try {
             String ticket = Wn.WC().getTicket();
-            WnAuthSession se = auth.touchSession(ticket);
+            WnAuthSession se = auth.checkSession(ticket);
             Wn.WC().setSession(se);
             WnAccount me = se.getMe();
 

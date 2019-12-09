@@ -253,6 +253,16 @@ public class WnAccount {
         return bean;
     }
 
+    public NutMap toBeanOf(String... keys) {
+        NutMap bean = this.toBean();
+        return bean.pick(keys);
+    }
+
+    public NutMap toBeanBy(String regex) {
+        NutMap bean = this.toBean();
+        return bean.pickBy(regex);
+    }
+
     public boolean isSysAccount() {
         return sysAccount;
     }
@@ -577,6 +587,26 @@ public class WnAccount {
         return meta.getString(key);
     }
 
+    public String getMetaString(String key, String dft) {
+        return meta.getString(key, dft);
+    }
+
+    public int getMetaInt(String key) {
+        return meta.getInt(key);
+    }
+
+    public int getMetaInt(String key, int dft) {
+        return meta.getInt(key, dft);
+    }
+
+    public long getMetaLong(String key) {
+        return meta.getLong(key);
+    }
+
+    public long getMetaLong(String key, long dft) {
+        return meta.getLong(key, dft);
+    }
+
     public boolean hasHomePath() {
         return this.hasMeta("HOME");
     }
@@ -642,10 +672,12 @@ public class WnAccount {
     }
 
     public void setRawPasswd(String passwd) {
-        if (Strings.isBlank(this.salt)) {
-            this.salt = R.UU32();
+        if (!Strings.isBlank(passwd)) {
+            if (Strings.isBlank(this.salt)) {
+                this.salt = R.UU32();
+            }
+            this.passwd = Wn.genSaltPassword(passwd, salt);
         }
-        this.passwd = Wn.genSaltPassword(passwd, salt);
     }
 
     public boolean hasSaltedPasswd() {
@@ -657,6 +689,12 @@ public class WnAccount {
     }
 
     public boolean isMatchedRawPasswd(String passwd) {
+        if (null == this.passwd) {
+            return false;
+        }
+        if (Strings.isBlank(salt)) {
+            return this.passwd.equals(passwd);
+        }
         String pwd = Wn.genSaltPassword(passwd, salt);
         return this.passwd.equals(pwd);
     }
