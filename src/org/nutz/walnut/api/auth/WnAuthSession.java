@@ -77,15 +77,15 @@ public class WnAuthSession {
             map.put("unm", me.getName());
         }
         // 过期时间
-        if(expi > 0) {
-        map.put("expi", expi);
+        if (expi > 0) {
+            map.put("expi", expi);
         }
-        // by_type 
-        if(!Strings.isBlank(byType)) {
+        // by_type
+        if (!Strings.isBlank(byType)) {
             map.put("by_tp", byType);
         }
         // by_value
-        if(!Strings.isBlank(byValue)) {
+        if (!Strings.isBlank(byValue)) {
             map.put("by_val", byValue);
         }
         return map;
@@ -207,7 +207,9 @@ public class WnAuthSession {
         if (null == this.vars) {
             this.vars = new NutMap();
         }
-        this.vars.putAll(map);
+        if (null != map) {
+            this.vars.putAll(map);
+        }
     }
 
     public String getTicket() {

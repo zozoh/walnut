@@ -238,17 +238,17 @@ public class TestWnSysAuthService extends BaseUsrTest {
         assertEquals(se.getVars().getString("HOME"), xiaobai.getHomePath());
 
         // 检查对象
-        WnObj oSe = io.check(null, "/sys/session/" + se.getId());
+        WnObj oSe = io.check(null, "/var/session/" + se.getTicket());
         assertTrue(oSe.expireTime() > (System.currentTimeMillis() + 5000));
 
         // 获取
         WnAuthSession se2 = auth.checkSession(se.getTicket());
-        assertEquals(se.getId(), se2.getId());
+        assertEquals(se2.getId(), se2.getId());
         assertTrue(se.isSame(se2));
-        assertEquals(se.getMyId(), xiaobai.getId());
-        assertEquals(se.getMyName(), xiaobai.getName());
-        assertEquals(se.getMyGroup(), xiaobai.getGroupName());
-        assertEquals(se.getVars().getString("HOME"), xiaobai.getHomePath());
+        assertEquals(se2.getMyId(), xiaobai.getId());
+        assertEquals(se2.getMyName(), xiaobai.getName());
+        assertEquals(se2.getMyGroup(), xiaobai.getGroupName());
+        assertEquals(se2.getVars().getString("HOME"), xiaobai.getHomePath());
 
         // 当前会话是重读出来的那个
         se = se2;
@@ -286,7 +286,7 @@ public class TestWnSysAuthService extends BaseUsrTest {
             se = auth.checkSession(se.getTicket());
             System.out.println(Json.toJson(se.toMapForClient()));
             System.out.println("--------------------Obj:");
-            WnObj oSe2 = io.check(null, "/sys/session/" + se.getId());
+            WnObj oSe2 = io.check(null, "/sys/session/" + se.getTicket());
             System.out.println(Json.toJson(oSe2));
             throw e;
         }
@@ -426,6 +426,7 @@ public class TestWnSysAuthService extends BaseUsrTest {
     @Test
     public void usr_create_delete() {
         WnAccount xiaobai = auth.createAccount(new WnAccount("xiaobai", "123456"));
+        WnAccount xiaohei = auth.createAccount(new WnAccount("xiaohei", "123456"));
 
         assertEquals("/home/xiaobai/", xiaobai.getHomePath());
 
@@ -439,20 +440,26 @@ public class TestWnSysAuthService extends BaseUsrTest {
         assertNull(u.getPhone());
         assertNull(u.getEmail());
 
+        // 重新获取一遍
+        xiaobai = auth.checkAccount("xiaobai");
+        xiaohei = auth.checkAccount("xiaohei");
+
         // 检查 HOME
         WnObj oHome = io.check(null, u.getHomePath());
 
         // 检查权限设定
-        WnObj oMe = io.check(oHome, "/sys/grp/" + u.getGroupName() + "/people/" + u.getId());
-        assertEquals(WnGroupRole.ADMIN.getValue(), oMe.getInt("role"));
-        assertEquals(WnGroupRole.ADMIN, auth.getGroupRole(u, u.getGroupName()));
+        assertEquals(WnGroupRole.ADMIN, auth.getGroupRole(xiaobai, xiaobai.getGroupName()));
+        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(xiaohei, xiaobai.getGroupName()));
+
+        assertEquals(WnGroupRole.ADMIN, auth.getGroupRole(xiaohei, xiaohei.getGroupName()));
+        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(xiaobai, xiaohei.getGroupName()));
 
         // 删除就什么也没了
         auth.deleteAccount(u);
         assertNull(auth.getAccount("xiaobai"));
 
-        // 组目录也被删除了
-        assertNull(io.fetch(null, "/sys/grp/" + u.getGroupName()));
+        // 权限也就是访客了
+        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(u, u.getGroupName()));
 
         // 但是主目录还在
         WnObj oHome2 = io.check(null, u.getHomePath());

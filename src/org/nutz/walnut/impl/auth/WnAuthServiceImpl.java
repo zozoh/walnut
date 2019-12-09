@@ -198,8 +198,14 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             // 取得用户
             String uid = oSe.getString("uid");
             WnAccount me = this.checkAccountById(uid);
+            // 取得环境变量
+            NutMap vars = io.readJson(oSe, NutMap.class);
             // 返回对象
-            return new WnAuthSession(oSe, me);
+            WnAuthSession se = new WnAuthSession(oSe, me);
+            if (null != vars) {
+                se.getVars().putAll(vars);
+            }
+            return se;
         }
 
         return null;
@@ -509,6 +515,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         WnObj oU = io.setBy(me.getId(), "login", oSe.lastModified(), true);
         me = new WnAccount(oU);
         se.setMe(me);
+
+        // 保存会话的环境变量
+        this.saveSessionVars(se);
 
         // 搞定
         return se;
