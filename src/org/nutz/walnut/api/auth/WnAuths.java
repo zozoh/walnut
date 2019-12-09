@@ -1,5 +1,10 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.regex.Pattern;
+
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.Regex;
+
 public abstract class WnAuths {
 
     /**
@@ -72,6 +77,24 @@ public abstract class WnAuths {
 
     public static boolean isValidAccountName(String nm) {
         return null != nm && nm.matches("^[0-9a-zA-Z_]{2,}$");
+    }
+
+    public static boolean isValidMetaName(String name) {
+        if (Strings.isBlank(name))
+            return false;
+        String regex = "^(nm|ph|race|tp|mime|pid|len|sha1"
+                       + "|ct|lm|login"
+                       + "|c|m|g|md"
+                       + "|thumb|phone|email|sex"
+                       + "|oauth_.+"
+                       + "|wx_.+"
+                       + "|nickname|th_set|th_live"
+                       + "|d0|d1"
+                       + "|passwd|salt)$";
+        Pattern p = Regex.getPattern(regex);
+        if (p.matcher(name).find())
+            return false;
+        return true;
     }
 
 }

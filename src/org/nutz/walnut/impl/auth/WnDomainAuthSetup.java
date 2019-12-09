@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.auth;
 
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSite;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -75,13 +76,15 @@ public class WnDomainAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
-    public void afterAccountCreated(WnAccount user) {}
+    public void afterAccountCreated(WnAuthService auth, WnAccount user) {}
 
     @Override
-    public void afterAccountRenamed(WnAccount user) {}
+    public boolean beforeAccountRenamed(WnAuthService auth, WnAccount user, String newName) {
+        return true;
+    }
 
     @Override
-    public boolean beforeAccountDeleted(WnAccount user) {
+    public boolean beforeAccountDeleted(WnAuthService auth, WnAccount user) {
         return true;
     }
 }

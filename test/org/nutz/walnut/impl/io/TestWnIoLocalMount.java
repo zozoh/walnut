@@ -14,7 +14,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
-public class WnIoLocalMountTest extends BaseIoTest {
+public class TestWnIoLocalMount extends BaseIoTest {
 
     @Test
     public void test_mount_local_mime() {

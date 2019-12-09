@@ -1,17 +1,13 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 /**
@@ -40,56 +36,54 @@ public class cmd_passwd extends JvmExecutor {
         boolean printOut = false;
         if (passwd.length() < 4) {
             throw Er.create("e.cmd.passwd.tooshort");
-        } else if ("wxgh_reset".equals(passwd)) {
+        }
+        // TODO 这个是干啥的？
+        else if ("wxgh_reset".equals(passwd)) {
             passwd = sg.next().toLowerCase();
             printOut = true;
         }
         // .....................................................
         // 确定用户
+        WnAccount me = sys.getMe();
         String unm = params.get("u");
-        WnAccount u = null;
+        WnAccount u;
         if (!Strings.isBlank(unm)) {
             u = sys.auth.checkAccount(unm);
         }
         // 否则就用当前会话
         else {
-            u = sys.getMe();
+            u = me;
         }
-        
-        // 修改随便的用户
-        if (null != oUsr) {
-            // 设置加盐后的密码
-            String salt = R.UU32();
-            String salt_pass = Wn.genSaltPassword(passwd, salt);
-            oUsr.put("salt", salt);
-            oUsr.put("passwd", salt_pass);
-            sys.io.set(oUsr, "^(passwd|salt)$");
-        }
+
         // .....................................................
-        // 修改 walnut 用户
-        else if (null != u) {
-            // 只有 root 组的管理员才能修改其他人的密码
-            if (!u.isSameId(sys.me)) {
-                if (!sys.usrService.isMemberOfGroup(sys.me, "root")) {
+        // 对于非 root/op 组的操作用户，深入检查权限
+        if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+            // 如果要修改的是系统用户，那么，必须是自己修改自己才成
+            if (u.isSysAccount()) {
+                if (!u.isSame(me)) {
                     throw Er.create("e.cmd.passwd.nopvg");
                 }
             }
+            // 如果要修改的是普通域用户，那么必须是其主组的管理员才行
+            else {
+                if (!sys.auth.isAdminOfGroup(me, u.getGroupName())) {
+                    throw Er.create("e.cmd.passwd.nopvg");
+                }
+            }
+        }
 
-            // 执行密码修改
-            sys.usrService.setPassword(u, passwd);
-            if (printOut)
-                sys.out.print(passwd);
-        }
-        // 不可能
-        else {
-            throw Lang.impossible();
-        }
-        
-     // .....................................................
+        // .....................................................
+        // 设置并保存新密码
+        u.setRawPasswd(passwd);
+        sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
+
+        // .....................................................
         // 执行修改
         u.setRawPasswd(passwd);
         sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
-        
+
+        // .....................................................
+        // 给 wxgh_reset 用的
         if (printOut)
             sys.out.print(passwd);
     }

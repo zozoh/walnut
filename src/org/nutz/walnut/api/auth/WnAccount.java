@@ -1,14 +1,12 @@
 package org.nutz.walnut.api.auth;
 
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.Wn;
 
@@ -66,6 +64,11 @@ public class WnAccount {
     @JsonIgnore
     private String salt;
 
+    /**
+     * 是否是系统账户
+     */
+    private boolean sysAccount;
+
     public WnAccount() {
         this.OAuth2s = new NutMap();
         this.wxOpenIds = new NutMap();
@@ -90,6 +93,10 @@ public class WnAccount {
     }
 
     public void updateBy(NutBean bean) {
+        // 根据 d0/d1 判断是否为系统用户
+        this.sysAccount = "sys".equals(bean.get("d0")) && "usr".equals(bean.get("d1"));
+
+        // 循环设置值
         for (String key : bean.keySet()) {
             // id
             if ("id".equals(key)) {
@@ -246,12 +253,24 @@ public class WnAccount {
         return bean;
     }
 
+    public boolean isSysAccount() {
+        return sysAccount;
+    }
+
+    public void setSysAccount(boolean sysAccount) {
+        this.sysAccount = sysAccount;
+    }
+
     public boolean isSameId(String uid) {
         return null != id && null != uid && id.equals(uid);
     }
 
     public boolean isSameName(String uname) {
         return null != name && null != uname && name.equals(uname);
+    }
+
+    public boolean isSameGroup(String grp) {
+        return null != groupName && null != grp && groupName.equals(grp);
     }
 
     public boolean isSame(WnAccount ta) {
@@ -320,6 +339,7 @@ public class WnAccount {
     }
 
     public void mergeTo(WnAccount ta) {
+        ta.setSysAccount(this.sysAccount);
         if (!Strings.isBlank(this.email)) {
             ta.email = this.email;
         }
@@ -368,6 +388,10 @@ public class WnAccount {
 
     public String getName() {
         return name;
+    }
+
+    public String getName(String dft) {
+        return Strings.sBlank(name, dft);
     }
 
     public void setName(String name) {
@@ -553,19 +577,37 @@ public class WnAccount {
         return meta.getString(key);
     }
 
+    public boolean hasHomePath() {
+        return this.hasMeta("HOME");
+    }
+
     public String getHomePath() {
         String home = this.getMetaString("HOME");
         if (!Strings.isBlank(home)) {
             return home;
         }
         if (this.isRoot()) {
-            return "/root";
+            return "/root/";
         }
-        return "/home/" + this.getId();
+        if (this.hasName()) {
+            return "/home/" + this.getName() + "/";
+        }
+        return "/home/" + this.getId() + "/";
+    }
+
+    public void setHomePath(String path) {
+        this.setMeta("HOME", path);
+    }
+
+    public boolean hasMeta(String key) {
+        if (null == this.meta) {
+            return false;
+        }
+        return this.meta.has(key);
     }
 
     public void setMeta(String key, Object val) {
-        if (isValidMetaName(key)) {
+        if (WnAuths.isValidMetaName(key)) {
             if (null == this.meta) {
                 this.meta = new NutMap();
             }
@@ -589,24 +631,6 @@ public class WnAccount {
             for (String key : keys) {
                 this.meta.remove(key);
             }
-    }
-
-    public static boolean isValidMetaName(String name) {
-        if (Strings.isBlank(name))
-            return false;
-        String regex = "^(nm|ph|race|tp|mime|pid|len|sha1"
-                       + "|ct|lm|login"
-                       + "|c|m|g|md"
-                       + "|thumb|phone|email|sex"
-                       + "|oauth_.+"
-                       + "|wx_.+"
-                       + "|nickname|th_set|th_live"
-                       + "|d0|d1"
-                       + "|passwd|salt)$";
-        Pattern p = Regex.getPattern(regex);
-        if (p.matcher(name).find())
-            return false;
-        return true;
     }
 
     public String getPasswd() {
@@ -643,6 +667,17 @@ public class WnAccount {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    public String toString() {
+        String px = sysAccount ? "SYS" : "DMN";
+        return String.format("%s<%s:%s:%s>@%s[HOME'%s']",
+                             px,
+                             name,
+                             phone,
+                             email,
+                             groupName,
+                             this.getHomePath());
     }
 
 }

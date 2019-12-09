@@ -237,11 +237,11 @@ public abstract class Wn {
             return ph;
         // 主目录开头
         if (ph.startsWith("~")) {
-            ph = vars.getString("HOME") + ph.substring(1);
+            ph = Wn.appendPath(vars.getString("HOME"), ph.substring(1));
         }
         // 当前目录开头
         else if (ph.startsWith("./")) {
-            ph = vars.getString("PWD", "") + ph.substring(1);
+            ph = Wn.appendPath(vars.getString("PWD", ""), ph.substring(1));
         }
 
         return normalizeStr(ph, vars);
@@ -499,6 +499,11 @@ public abstract class Wn {
 
         public static final int NO_PVG = -999;
 
+        public static String octalModeToStr(String octalMode) {
+            int mode = Integer.parseInt(octalMode, 8);
+            return modeToStr(mode);
+        }
+
         public static String modeToStr(int md) {
             StringBuilder sb = new StringBuilder();
             for (int i = 2; i >= 0; i--) {
@@ -508,6 +513,19 @@ public abstract class Wn {
                 sb.append((m & X) > 0 ? 'x' : '-');
             }
             return sb.toString();
+        }
+
+        public static String modeToOctal(int md) {
+            return Integer.toOctalString(md);
+        }
+
+        public static String octalModeFromStr(String mds) {
+            int md = modeFromStr(mds);
+            return Integer.toOctalString(md);
+        }
+
+        public static int modeFromOctalMode(String octalMode) {
+            return Integer.parseInt(octalMode, 8);
         }
 
         public static int modeFromStr(String mds) {

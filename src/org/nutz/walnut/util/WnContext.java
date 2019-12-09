@@ -387,10 +387,6 @@ public class WnContext extends NutMap {
         this.account = me;
     }
 
-    public void clearMe() {
-        this.account = null;
-    }
-
     public String getMyId() {
         WnAccount me = this.getMe();
         if (null != me) {

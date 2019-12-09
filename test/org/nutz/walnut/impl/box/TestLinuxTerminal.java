@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class LinuxTerminalTest {
+public class TestLinuxTerminal {
 
     @Test
     public void test_wrap_unwrap() {

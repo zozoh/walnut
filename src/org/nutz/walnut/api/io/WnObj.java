@@ -31,6 +31,8 @@ public interface WnObj extends NutBean {
 
     boolean isSameId(String id);
 
+    boolean isSameName(String nm);
+
     boolean isMyParent(WnObj p);
 
     boolean isMyAncestor(WnObj an);

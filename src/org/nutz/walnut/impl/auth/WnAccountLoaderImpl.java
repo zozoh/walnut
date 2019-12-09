@@ -3,6 +3,7 @@ package org.nutz.walnut.impl.auth;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -44,7 +45,7 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
         }
         // 将信息转换为查询条件
         // 通常这个信息是手机号/邮箱/登录名等
-        NutMap qmap = info.toBean();
+        NutMap qmap = info.toBean(WnAuths.ABMM.LOGIN);
         WnQuery q = Wn.Q.pid(oAccountDir);
         q.setAll(qmap);
 

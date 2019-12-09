@@ -2,12 +2,19 @@ package org.nutz.walnut.api.auth;
 
 import java.util.List;
 
+import org.nutz.walnut.api.io.WnObj;
+
 /**
  * 封装系统账组角色的的操作
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
 public interface WnGroupRoleService {
+
+    /**
+     * @return 系统的组角色存放的目录
+     */
+    WnObj getSysRoleDir();
 
     /**
      * 获取某账户对象在指定的系统组中的权限

@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public class JvmBoxTest extends BaseBoxTest {
+public class TestJvmBox extends BaseBoxTest {
 
     @Test
     public void test_subsitution_in_pipe() {

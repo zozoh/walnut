@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.auth;
 
+import org.nutz.lang.util.NutMap;
+
 public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
 
     /**
@@ -36,6 +38,19 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * @see WnAuths.ABMM#ALL
      */
     void saveAccount(WnAccount user, int mode);
+
+    /**
+     * 持久化账户的信息字段（不包括元数据集）
+     * 
+     * @param user
+     *            账户对象。它也会通过 WnAccount.updateBy 函数自动被传入元数据更新
+     * 
+     * @param meta
+     *            要保存的元数据
+     * 
+     * @return 更新后的账户（新对象）
+     */
+    WnAccount saveAccount(WnAccount user, NutMap meta);
 
     /**
      * 将指定账户修改为新名称

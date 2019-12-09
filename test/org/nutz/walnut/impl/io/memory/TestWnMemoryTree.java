@@ -12,7 +12,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public class WnMemoryTreeTest extends BaseIoTest {
+public class TestWnMemoryTree extends BaseIoTest {
     
     @Override
     protected void on_before(PropertiesProxy pp) {

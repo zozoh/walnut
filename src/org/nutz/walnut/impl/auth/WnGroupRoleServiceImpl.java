@@ -25,7 +25,8 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
         this.io = io;
     }
 
-    private WnObj getSysRoleDir() {
+    @Override
+    public WnObj getSysRoleDir() {
         if (null == __dir) {
             synchronized (WnGroupRoleServiceImpl.class) {
                 if (null == __dir) {
@@ -102,7 +103,7 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
             NutMap meta = new NutMap();
             meta.put("uid", user.getId());
             meta.put("grp", groupName);
-            meta.put("role", role);
+            meta.put("role", role.getValue());
             io.appendMeta(oR, meta);
         }
     }

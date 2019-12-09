@@ -13,7 +13,7 @@ import org.nutz.walnut.api.io.AbstractBucketTest;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.web.WebException;
 
-public class MongoLocalBucketTest extends AbstractBucketTest {
+public class TestMongoLocalBucket extends AbstractBucketTest {
 
     private MongoLocalBucketManager buckets;
 

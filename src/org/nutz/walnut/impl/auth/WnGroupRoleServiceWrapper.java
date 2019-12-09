@@ -8,6 +8,7 @@ import org.nutz.walnut.api.auth.WnGroupAccount;
 import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.auth.WnGroupRoleService;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
 public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
@@ -15,6 +16,15 @@ public class WnGroupRoleServiceWrapper implements WnGroupRoleService {
     private WnGroupRoleServiceImpl impl;
 
     private WnAccount root;
+
+    @Override
+    public WnObj getSysRoleDir() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return impl.getSysRoleDir();
+            }
+        });
+    }
 
     public WnGroupRoleServiceWrapper(WnIo io, WnAccount root) {
         this.impl = new WnGroupRoleServiceImpl(io);

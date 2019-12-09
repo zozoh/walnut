@@ -55,15 +55,17 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         }
 
         // 创建账户对象
-        WnObj oU = io.create(oAccountDir, u.getName(), WnRace.FILE);
+        String unm = u.getName("${id}");
+        WnObj oU = io.create(oAccountDir, unm, WnRace.FILE);
 
         // 保存之
+        u.setId(oU.id());
         NutMap meta = u.toBean();
         io.appendMeta(oU, meta);
 
         // 初始化
         WnAccount newUser = new WnAccount(oU);
-        setup.afterAccountCreated(newUser);
+        setup.afterAccountCreated(this, newUser);
         return newUser;
     }
 
@@ -88,8 +90,33 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
+    public WnAccount saveAccount(WnAccount user, NutMap meta) {
+        // 取得账户对象
+        WnObj oU = io.checkById(user.getId());
+
+        // 执行更新
+        io.appendMeta(oU, meta);
+
+        // 更新对象
+        user.updateBy(oU);
+
+        // 返回新对象
+        return new WnAccount(oU);
+    }
+
+    @Override
     public void renameAccount(WnAccount user, String newName) {
         if (!user.isSameName(newName)) {
+            // 看看是否有同名账户存在
+            WnAccount ta = this.getAccount(newName);
+            if (null != ta) {
+                throw Er.create("e.auth.rename.exists", newName);
+            }
+            // 预处理确保可以重命名
+            if (!setup.beforeAccountRenamed(this, user, newName)) {
+                return;
+            }
+
             // 为了最小化更新数据集，重新建立一个只有 id/name 的账户对象
             // 这样执行 save 的时候，仅仅会更新 name 字段
             String uid = user.getId();
@@ -97,15 +124,12 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             u2.setId(uid);
             u2.setName(newName);
             this.saveAccount(u2, WnAuths.ABMM.LOGIN);
-
-            // 执行后续操作
-            setup.afterAccountRenamed(u2);
         }
     }
 
     @Override
     public void deleteAccount(WnAccount user) {
-        if (setup.beforeAccountDeleted(user)) {
+        if (setup.beforeAccountDeleted(this, user)) {
             WnObj oU = io.checkById(user.getId());
             io.delete(oU);
         }

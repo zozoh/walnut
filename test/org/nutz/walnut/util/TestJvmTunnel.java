@@ -10,7 +10,7 @@ import org.nutz.trans.Atom;
 import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.util.JvmTunnel;
 
-public class JvmTunnelTest {
+public class TestJvmTunnel {
 
     private WnTunnel tnl;
 

@@ -11,6 +11,7 @@ import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnGroupAccount;
 import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
 public class WnSysAuthServiceWrapper implements WnAuthService {
@@ -104,6 +105,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
+    public WnAccount saveAccount(WnAccount user, NutMap meta) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
+            protected WnAccount exec() {
+                return impl.saveAccount(user, meta);
+            }
+        });
+    }
+
     public WnAccount getAccount(WnAccount info) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
             protected WnAccount exec() {
@@ -137,6 +146,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
     public void deleteAccount(WnAccount user) {
         Wn.WC().suCoreNoSecurity(impl.io, root, () -> {
             impl.deleteAccount(user);
+        });
+    }
+
+    public WnObj getSysRoleDir() {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return impl.getSysRoleDir();
+            }
         });
     }
 

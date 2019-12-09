@@ -8,7 +8,7 @@
 ## 系统核心概念`core-l0`
 
 - Walnut的简要介绍
-- 数据存储模型
+- [数据存储模型][c0-ios]
 - [基础账户模型][c0-acc]
 - [核心会话服务][c0-ses]
 - 环境变量
@@ -89,6 +89,7 @@
 - 购物与订单模型
 - Ti 的 www 支持
 
+[c0-ios]: core-l0/c0-io-store.md
 [c0-acc]: core-l0/c0-account-basic.md
 [c0-ses]: core-l0/c0-session-top.md
 [c0-pvg]: core-l0/c0-pvg-basic.md

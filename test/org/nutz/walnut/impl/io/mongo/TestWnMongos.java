@@ -10,7 +10,7 @@ import org.nutz.walnut.util.Wn;
 
 import com.mongodb.DBObject;
 
-public class WnMongosTest {
+public class TestWnMongos {
 
     @Test
     public void test_int_range() {

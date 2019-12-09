@@ -27,7 +27,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 import org.w3c.dom.Document;
 
-public class WnIoImplTest extends BaseIoTest {
+public class TestWnIoImpl extends BaseIoTest {
 
     @Test
     public void test_fnm_special_0() {

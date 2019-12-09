@@ -115,8 +115,8 @@ public class WnBean extends NutMap implements WnObj {
         return id().equals(id);
     }
 
-    public WnObj genID() {
-        throw Er.create("e.io.obj.forbiden.genid");
+    public boolean isSameName(String nm) {
+        return name().equals(nm);
     }
 
     public String checkString(String key) {

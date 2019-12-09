@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.BaseUsrTest;
@@ -19,7 +20,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public class WnSysAuthServiceTest extends BaseUsrTest {
+public class TestWnSysAuthService extends BaseUsrTest {
 
     @Test
     public void test_forbidden_write() {
@@ -33,7 +34,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         wc.setSecurity(security);
         try {
             // A 用户建立一个文件，改变权限
-            final String path = ua.getHomePath() + "/aaa.txt";
+            final String path = Wn.appendPath(ua.getHomePath(), "/aaa.txt");
             wc.su(ua, new Atom() {
                 public void run() {
                     WnObj o = io.create(null, path, WnRace.FILE);
@@ -52,7 +53,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA", e.toString());
+                // 因为没加到组里，所以不能进入这个目录
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 将文件改成变成同组能写
@@ -95,7 +97,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA", e.toString());
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 只有变成管理员
@@ -127,8 +129,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         wc.setSecurity(security);
         try {
-            // A 用户建立一个文件，改变权限
-            final String path = ua.getHomePath() + "/aaa.txt";
+            // A 用户建立一个文件
+            final String path = Wn.appendPath(ua.getHomePath(), "/aaa.txt");
             wc.su(ua, new Atom() {
                 public void run() {
                     WnObj o = io.create(null, path, WnRace.FILE);
@@ -156,6 +158,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
+                // 因为没加到组里，所以不能进入这个目录
                 assertEquals("e.io.forbidden : /home/userA", e.toString());
             }
 
@@ -180,6 +183,19 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
             // B 又不能读了
             try {
+                str = wc.su(ub, new Proton<String>() {
+                    protected String exec() {
+                        io.check(null, path);
+                        throw Lang.impossible();
+                    }
+                });
+                fail();
+            }
+            catch (Exception e) {
+                // 因为加到组里，但是没有读取目标文件的权限，所以 check 的时候就为不存在
+                assertEquals("e.io.obj.noexists : /home/userA/aaa.txt", e.toString());
+            }
+            try {
                 final WnObj o = io.check(null, path);
                 str = wc.su(ub, new Proton<String>() {
                     protected String exec() {
@@ -189,7 +205,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA", e.toString());
+                // 因为加到组里，但是没有读取目标文件的权限，所以 check 的时候就为不存在
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
             }
 
             // 只有变成管理员
@@ -285,11 +302,20 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName(xiaobai.getName()));
+        assertTrue(u.isSameId(xiaobai.getGroupName()));
+        assertTrue(u.isSameGroup(xiaobai.getGroupName()));
+        assertTrue(u.isSameGroup(u.getId()));
         assertEquals("xiaobai@nutzam.com", u.getEmail());
         assertNull(u.getPhone());
 
+        // 检查主目录
+        assertEquals("/home/" + xiaobai.getId() + "/", xiaobai.getHomePath());
         WnObj oHome = io.check(null, u.getHomePath());
         assertEquals(u.getId(), oHome.name());
+        assertEquals("root", oHome.mender());
+        assertEquals(u.getName(), oHome.creator());
+        assertEquals(u.getId(), oHome.group());
+        assertEquals(488, oHome.mode());
 
         // 改个名
         auth.renameAccount(u, "xiaobai");
@@ -302,8 +328,14 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals("xiaobai@nutzam.com", u.getEmail());
         assertNull(u.getPhone());
 
+        // 检查主目录
         oHome = io.check(null, u.getHomePath());
         assertEquals(u.getName(), oHome.name());
+        assertEquals(u.getName(), oHome.name());
+        assertEquals("root", oHome.mender());
+        assertEquals(u.getName(), oHome.creator());
+        assertEquals(u.getName(), oHome.group());
+        assertEquals(488, oHome.mode());
 
         // 按照 Name 获取
         u = auth.getAccount("xiaobai");
@@ -317,8 +349,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         u.setPhone("13910110054");
         auth.saveAccount(u, WnAuths.ABMM.LOGIN);
 
-        // 按照 Name 获取
-        u = auth.getAccount("xiaobai");
+        // 按照 手机 获取
+        u = auth.getAccount("13910110054");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -327,12 +359,19 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         oHome = io.check(null, u.getHomePath());
         assertEquals(u.getName(), oHome.name());
+        assertEquals(u.getName(), oHome.name());
+        assertEquals("root", oHome.mender());
+        assertEquals(u.getName(), oHome.creator());
+        assertEquals(u.getName(), oHome.group());
+        assertEquals(488, oHome.mode());
 
     }
 
     @Test
     public void usr_create_by_phone() {
         WnAccount xiaobai = auth.createAccount(new WnAccount("13910110054", "123456"));
+
+        assertEquals("/home/" + xiaobai.getId() + "/", xiaobai.getHomePath());
 
         // 获取一个
         WnAccount u = auth.getAccount("13910110054");
@@ -387,6 +426,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     @Test
     public void usr_create_delete() {
         WnAccount xiaobai = auth.createAccount(new WnAccount("xiaobai", "123456"));
+
+        assertEquals("/home/xiaobai/", xiaobai.getHomePath());
 
         // 获取一个
         WnAccount u = auth.getAccount("xiaobai");

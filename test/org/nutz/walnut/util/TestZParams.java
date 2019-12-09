@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 
-public class ZParamsTest {
+public class TestZParams {
 
     @Test
     public void test_pairs() {

@@ -16,8 +16,8 @@ public abstract class BaseUsrTest extends BaseIoTest {
         security = new WnSecurityImpl(io, auth);
         // security = new WnSecurityImpl(indexer, tree, usrs);
 
-        // 为了 JUnit 测试，每次都要清空线程的用户缓存
-        Wn.WC().clearMe();
+        // 为了 JUnit 测试，每次都要重置线程的当前用户
+        Wn.WC().setMe(root);
     }
 
 }

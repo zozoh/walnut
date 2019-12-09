@@ -3,7 +3,7 @@ package org.nutz.walnut.impl.io.bucket;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.walnut.api.io.AbstractBucketTest;
 
-public class MemoryBucketTest extends AbstractBucketTest {
+public class TestMemoryBucket extends AbstractBucketTest {
 
     @Override
     protected void on_before(PropertiesProxy pp) {
