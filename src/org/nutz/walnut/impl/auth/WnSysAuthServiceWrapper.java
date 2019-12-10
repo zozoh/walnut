@@ -294,10 +294,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAuthSession loginByWxCode(String code) {
+    public WnAuthSession loginByWxCode(String code, String wxCodeType) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.loginByWxCode(code);
+                return impl.loginByWxCode(code, wxCodeType);
             }
         });
     }

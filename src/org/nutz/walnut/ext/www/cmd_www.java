@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.www.bean.WnOrder;
@@ -37,12 +38,18 @@ public class cmd_www extends JvmHdlExecutor {
      * @param bu
      *            支付者
      */
-    public static void prepareToPayOrder(WnSystem sys, WnWebService webs, WnOrder or, WnObj bu) {
+    public static void prepareToPayOrder(WnSystem sys,
+                                         WnWebService webs,
+                                         WnOrder or,
+                                         WnAccount bu) {
 
         // 防守一下
         if (null == bu || null == or) {
             return;
         }
+
+        // 得到账户目录
+        WnObj oAccountDir = webs.getSite().getAccountDir();
 
         // -------------------------------
         // 得到支付类型
@@ -66,7 +73,7 @@ public class cmd_www extends JvmHdlExecutor {
             cmds.add("-ta strato");
         }
         cmds.add("-br '" + or.getTitle() + "'");
-        cmds.add("-bu " + bu.parentId() + ":" + bu.id());
+        cmds.add("-bu " + oAccountDir.id() + ":" + bu.getId());
         cmds.add("-fee " + (int) (or.getFee() * 100f));
         if (null != oCallback) {
             cmds.add("-callback id:" + oCallback.id());
@@ -87,7 +94,7 @@ public class cmd_www extends JvmHdlExecutor {
         or.setStatus(WnOrderStatus.WT);
         or.setWaitAt(System.currentTimeMillis());
         NutMap orMeta = or.toMeta("^(pay_id|wt_at)$", null);
-        webs.updateOrder(or.getId(), orMeta);
+        webs.getOrderApi().updateOrder(or.getId(), orMeta);
 
         // -------------------------------
         // 设置返回结果

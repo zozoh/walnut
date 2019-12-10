@@ -75,12 +75,25 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
         NutMap qmap = info.toBean(WnAuths.ABMM.LOGIN);
         WnQuery q = Wn.Q.pid(oAccountDir);
         q.setAll(qmap);
+        q.limit(10);
 
-        // 获取账户信息
-        WnObj oU = io.getOne(q);
-        if (null != oU) {
+        // 获取账户信息的备选列表
+        List<WnObj> list = io.query(q);
+
+        for (WnObj oU : list) {
+            // 无视过期的对象
+            if (oU.isExpired()) {
+                continue;
+            }
+            // 忽略已经被删除的 Thing
+            if (oU.getInt("th_live", 1) == -1) {
+                continue;
+            }
+            // 嗯就是要找的
             return new WnAccount(oU);
         }
+
+        // 神马都木有查到 ...
         return null;
     }
 

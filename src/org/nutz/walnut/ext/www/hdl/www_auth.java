@@ -2,9 +2,10 @@ package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -32,20 +33,20 @@ public class www_auth implements JvmHdl {
         // -------------------------------
         // 准备服务类
         WnObj oWWW = Wn.checkObj(sys, site);
-        WnObj oDomain = Wn.checkObj(sys, "~/.domain");
-        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
-        WnWebSession se = null;
+        WnWebService webs = new WnWebService(sys, oWWW);
+        WnAuthSession se = null;
 
         try {
+            WnAuthService auth = webs.getAuthApi();
             // -------------------------------
             // 微信票据代码登录
             if (!Strings.isBlank(wxCodeType)) {
-                se = webs.loginByWxCode(account, wxCodeType);
+                se = auth.loginByWxCode(account, wxCodeType);
             }
             // -------------------------------
             // 密码登录
             else if (!Strings.isBlank(passwd)) {
-                se = webs.loginByPasswd(account, passwd);
+                se = auth.loginByPasswd(account, passwd);
             }
             // -------------------------------
             // 验证码 /绑定
@@ -53,11 +54,11 @@ public class www_auth implements JvmHdl {
                 String scene = hc.params.getString("scene", "auth");
                 // 绑定手机
                 if (!Strings.isBlank(ticket)) {
-                    se = webs.bindAccount(account, scene, vcode, ticket);
+                    se = auth.bindAccount(account, scene, vcode, ticket);
                 }
                 // 验证码登录
                 else {
-                    se = webs.loginByVcode(account, scene, vcode);
+                    se = auth.loginByVcode(account, scene, vcode);
                 }
             }
         }

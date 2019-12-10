@@ -16,6 +16,17 @@ public interface WnAuthSetup {
     WnObj getAccountDir();
 
     /**
+     * @param user
+     *            账户对象
+     * 
+     * @param authCreate
+     *            true 表示如果不存在就创建
+     * 
+     * @return 账户对象对应的头像对象
+     */
+    WnObj getAvatarObj(WnAccount user, boolean autoCreate);
+
+    /**
      * @return 会话数据所在目录
      */
     WnObj getSessionDir();

@@ -43,6 +43,11 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
+    public WnObj getAvatarObj(WnAccount user, boolean autoCreate) {
+        return null;
+    }
+
+    @Override
     protected WnObj createOrFetchSessionDir() {
         String aph = "/var/session/";
         return io.createIfNoExists(null, aph, WnRace.DIR);

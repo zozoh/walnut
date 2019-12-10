@@ -169,9 +169,13 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * 
      * @param code
      *            微信的权限码
+     * 
+     * @param wxCodeType
+     *            微信票据代码类型: mp(小程序) gh(公众号)，默认为 gh
+     * 
      * @return 登录成功后的会话
      */
-    WnAuthSession loginByWxCode(String code);
+    WnAuthSession loginByWxCode(String code, String wxCodeType);
 
     /**
      * 绑定手机/邮箱

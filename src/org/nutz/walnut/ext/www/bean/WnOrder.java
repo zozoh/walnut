@@ -53,6 +53,9 @@ public class WnOrder {
     @JsonField("lm")
     private long lastModified;
 
+    @JsonField("expi")
+    private long expireTime;
+
     @JsonField("wt_at")
     private long waitAt;
 
@@ -111,6 +114,7 @@ public class WnOrder {
             or.status = this.status;
             or.createTime = this.createTime;
             or.lastModified = this.lastModified;
+            or.expireTime = this.expireTime;
             or.payId = this.payId;
             or.waitAt = this.waitAt;
             or.okAt = this.okAt;
@@ -305,6 +309,14 @@ public class WnOrder {
 
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public long getExpireTime() {
+        return expireTime;
+    }
+
+    public void setExpireTime(long expireTime) {
+        this.expireTime = expireTime;
     }
 
     public long getWaitAt() {

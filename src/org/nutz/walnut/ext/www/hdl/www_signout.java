@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -25,12 +25,11 @@ public class www_signout implements JvmHdl {
         // -------------------------------
         // 准备服务类
         WnObj oWWW = Wn.checkObj(sys, site);
-        WnObj oDomain = Wn.checkObj(sys, "~/.domain");
-        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
+        WnWebService webs = new WnWebService(sys, oWWW);
 
         // -------------------------------
         // 检查
-        WnWebSession se = webs.logout(ticket);
+        WnAuthSession se = webs.getAuthApi().logout(ticket, 0);
         if (null == se) {
             AjaxReturn re = Ajax.fail().setErrCode("e.www.logout.nosession");
             sys.out.println(Json.toJson(re));

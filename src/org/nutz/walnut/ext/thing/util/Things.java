@@ -78,6 +78,16 @@ public abstract class Things {
         String thId = hc.params.val_check(0);
         return checkThIndex(sys.io, hc.oRefer, thId);
     }
+    
+    /**
+     * @param o 对象
+     * @return 给定对象是否是一个 ThingSet 的主目录
+     */
+    public static boolean isThingSet(WnObj o) {
+        if(null==o)
+            return false;
+        return o.isType("thing_set");
+    }
 
     /**
      * 找到一个对象所在的 ThingSet
@@ -88,14 +98,14 @@ public abstract class Things {
      */
     public static WnObj getThingSet(WnObj o) {
         // 自己就是
-        if (o.isType("thing_set")) {
+        if (isThingSet(o)) {
             return o;
         }
 
         // 找祖先
         while (o.hasParent()) {
             o = o.parent();
-            if (o.isType("thing_set"))
+            if (isThingSet(o))
                 return o;
         }
 

@@ -1,10 +1,14 @@
 package org.nutz.walnut.api.auth;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
 
 public class WnAuthSession {
 
@@ -110,7 +114,8 @@ public class WnAuthSession {
             map.put("p_se_id", this.getParentSessionId());
         }
         map.put("uid", this.getMyId());
-        map.put("me", this.getMyName());
+        map.put("unm", this.getMyName());
+        map.put("me", this.getMe().toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO));
         map.put("grp", this.getMyGroup());
         map.put("expi", expi);
         map.put("du", expi - System.currentTimeMillis());
@@ -296,6 +301,15 @@ public class WnAuthSession {
         if (null != vars) {
             this.vars = vars;
         }
+    }
+
+    public String formatJson(JsonFormat jfmt, boolean ajax) {
+        NutMap bean = this.toMapForClient();
+        if (ajax) {
+            AjaxReturn re = Ajax.ok().setData(bean);
+            return Json.toJson(re, jfmt);
+        }
+        return Json.toJson(bean, jfmt);
     }
 
 }

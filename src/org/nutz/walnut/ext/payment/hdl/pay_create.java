@@ -52,7 +52,7 @@ public class pay_create implements JvmHdl {
         }
         // 用域用户的方式检测
         else if (wpi.isDomainBuyer()) {
-            WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp + "/index");
+            WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp);
             WnAccountLoader alod = new WnAccountLoaderImpl(sys.io, oAccountDir);
             WnAccount buyer = alod.checkAccount(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();

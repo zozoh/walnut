@@ -10,23 +10,21 @@ import org.nutz.walnut.ext.www.bean.WnCoupon;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnOrderStatus;
 import org.nutz.walnut.ext.www.bean.WnProduct;
+import org.nutz.walnut.ext.www.bean.WnWebSite;
 
 public class WnOrderService {
 
     private NutMap sellers;
+
     private WnThingService orders;
     private WnThingService products;
     private WnThingService coupons;
 
-    public WnOrderService(WnIo io,
-                          WnObj oOrderHome,
-                          WnObj oProductHome,
-                          WnObj oCouponHome,
-                          NutMap sellers) {
-        this.sellers = sellers;
-        this.orders = new WnThingService(io, oOrderHome);
-        this.products = new WnThingService(io, oProductHome);
-        this.coupons = new WnThingService(io, oCouponHome);
+    public WnOrderService(WnIo io, WnWebSite site) {
+        this.sellers = site.getSellers();
+        this.orders = new WnThingService(io, site.getOrderHome());
+        this.products = new WnThingService(io, site.getProductHome());
+        this.coupons = new WnThingService(io, site.getCouponHome());
         if (null == sellers || sellers.isEmpty()) {
             throw Er.create("e.www.order.nil.sellers");
         }

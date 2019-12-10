@@ -1,10 +1,11 @@
 package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.bean.WnOrder;
-import org.nutz.walnut.ext.www.bean.WnWebSession;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -25,13 +26,13 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 准备服务类
         WnObj oWWW = Wn.checkObj(sys, site);
-        WnObj oDomain = Wn.checkObj(sys, "~/.domain");
-        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
+        WnWebService webs = new WnWebService(sys, oWWW);
 
         // -------------------------------
         // 检查会话
-        WnWebSession se = webs.checkSession(ticket);
-        WnObj bu = se.getMe();
+        WnAuthSession se = webs.getAuthApi().checkSession(ticket);
+        WnAccount bu = se.getMe();
+        WnObj oAccontHome = webs.getSite().getAccountHome();
 
         // -------------------------------
         // 读取订单数据
@@ -40,12 +41,12 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 准备订单数据
         WnOrder or = Json.fromJson(WnOrder.class, input);
-        or.setBuyerId(bu.id());
-        or.setAccounts(webs.getAccountHome().id());
+        or.setBuyerId(bu.getId());
+        or.setAccounts(oAccontHome.id());
 
         // -------------------------------
         // 执行订单的创建
-        or = webs.createOrder(or);
+        or = webs.getOrderApi().createOrder(or);
 
         // -------------------------------
         // 准备支付单

@@ -31,9 +31,8 @@ public class www_captcha implements JvmHdl {
         String scene = hc.params.val_check(1);
         String account = hc.params.val_check(2);
         WnObj oWWW = Wn.checkObj(sys, site);
-        WnObj oDomain = Wn.checkObj(sys, "~/.domain");
         // -------------------------------
-        WnWebService webs = new WnWebService(sys, oWWW, oDomain);
+        WnWebService webs = new WnWebService(sys, oWWW);
         String as = hc.params.getString("as", "json");
         // -------------------------------
         // 短信或者邮箱验证码，需要先校验一下机器人
@@ -41,7 +40,7 @@ public class www_captcha implements JvmHdl {
             String cap = hc.params.check("cap");
             String capScene = hc.params.get("capscene", "robot");
             // 看看是否有效
-            if (!webs.removeCaptcha(capScene, account, cap)) {
+            if (!webs.getCaptchaApi().removeCaptcha(capScene, account, cap)) {
                 AjaxReturn re = Ajax.fail().setErrCode("e.www.invalid.captcha");
                 sys.out.println(Json.toJson(re, hc.jfmt));
                 return;
@@ -70,7 +69,7 @@ public class www_captcha implements JvmHdl {
         cap.setExpiFromNowByMin(du);
         // -------------------------------
         // 保存验证码
-        webs.saveCaptcha(cap);
+        webs.getCaptchaApi().saveCaptcha(cap);
         // -------------------------------
         // 准备输出
         // -------------------------------

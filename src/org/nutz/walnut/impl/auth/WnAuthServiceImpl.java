@@ -1,7 +1,11 @@
 package org.nutz.walnut.impl.auth;
 
+import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
+import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -273,13 +277,21 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession loginByWxCode(String code) {
+    public WnAuthSession loginByWxCode(String code, String wxCodeType) {
         WnIoWeixinApi wxApi = setup.getWeixinApi();
         WnObj oSessionDir = setup.getSessionDir();
-        WnObj oAccountDir = setup.getAccountDir();
 
         // 得到用户的 OpenId
-        String openid = wxApi.user_openid_by_gh_code(code);
+        String openid;
+        wxCodeType = Strings.sBlank(wxCodeType, "gh");
+        // 小程序的权限码
+        if ("mp".equals(wxCodeType)) {
+            openid = wxApi.user_openid_by_mp_code(code);
+        }
+        // 微信公号的登录码
+        else {
+            openid = wxApi.user_openid_by_gh_code(code);
+        }
         if (Strings.isBlank(openid)) {
             throw Er.create("e.auth.login.invalid.weixin_code");
         }
@@ -302,20 +314,88 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         }
 
         // 看看这个用户是否存在
-        NutMap qmap = Lang.map(key, openid);
-
-        q = Wn.Q.pid(oAccountDir);
-        q.setAll(qmap);
-        WnObj oU = io.getOne(q);
-        WnAccount me = new WnAccount(oU);
+        WnAccount info = new WnAccount();
+        info.setWxOpenId(ghName, openid);
+        WnAccount me = accountLoader.getAccount(info);
 
         // 如果已经存在了就直接创建 会话收工
-        if (null != oU) {
+        if (null != me) {
             long se_du = setup.getSessionDefaultDuration();
             return this.createSessionBy(se_du, me, by);
         }
 
-        throw Lang.noImplement();
+        // 选择一个默认角色
+        String role = setup.getDefaultRoleName();
+
+        // 看来要创建一个用户，嗯嗯，如果是公号的话，先获取信息
+        String headimgurl = null;
+        NutMap meta = new NutMap();
+        if ("gh".equals(wxCodeType)) {
+            NutMap re = wxApi.user_info(openid, null);
+            /**
+             * 得到的返回信息格式为：
+             * 
+             * <pre>
+             {
+                subscribe: 1,
+                openid: "xxx",
+                nickname: "小白",
+                sex: 1,
+                language: "zh_CN",
+                city: "海淀",
+                province: "北京",
+                country: "中国",
+                headimgurl: "http://..",
+                subscribe_time: 1474388443,
+                remark: "",
+                groupid: 0,
+                tagid_list: [],
+                subscribe_scene: "ADD_SCENE_OTHERS",
+                qr_scene: 0,
+                qr_scene_str: ""
+             }
+             * </pre>
+             */
+            String nickname = re.getString("nickname", "anonymous");
+            meta = re.pickBy("^(language|city|province|country)$");
+            info.setNickname(nickname);
+            info.setSex(re.getInt("sex", 0));
+            info.putAllMeta(meta);
+
+            // 记录一下头像
+            headimgurl = re.getString("headimgurl");
+        }
+        // 小程序的话，获得不了，那么就用默认的吧
+        else {
+            info.setNickname(openid);
+        }
+        info.setRoleName(role);
+
+        // 创建账户
+        me = this.createAccount(info);
+
+        // 如果有头像的话，搞一下
+        if (!Strings.isBlank(headimgurl)) {
+            WnObj oThumb = this.setup.getAvatarObj(me, true);
+            // 读取 Image
+            try {
+                URL thumb_url = new URL(headimgurl);
+                BufferedImage im = Images.read(thumb_url);
+                io.writeImage(oThumb, im);
+
+                // 保存头像
+                me.setThumb("id:" + oThumb.id());
+                NutMap map = me.toBeanOf("thumb");
+                this.saveAccount(me, map);
+            }
+            catch (MalformedURLException e) {
+                throw Er.wrap(e);
+            }
+        }
+
+        // 创建完毕，收工
+        long se_du = setup.getSessionDefaultDuration();
+        return createSessionBy(se_du, me, by);
     }
 
     @Override
@@ -405,7 +485,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         }
 
         // 首先查询出对应的用户对象
-        WnAccount me = this.checkAccount(phoneOrEmail);
+        WnAccount me = this.getAccount(phoneOrEmail);
 
         // 如果手机号未注册，创建一个新账号
         if (null == me) {
