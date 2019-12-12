@@ -33,7 +33,7 @@ public class cmd_adduser extends JvmExecutor {
         }
         // 不存在，创建吧
         else {
-            u = new WnAccount();
+            u = new WnAccount(str);
             // 分析密码
             if (params.has("p")) {
                 String passwd = params.get("p");

@@ -20,6 +20,8 @@ public class WnAuthSession {
 
     private long expi;
 
+    private boolean dead;
+
     private NutMap vars;
 
     private String currentPath;
@@ -44,6 +46,8 @@ public class WnAuthSession {
      * 具体依靠什么值创建的会话
      */
     private String byValue;
+
+    private WnObj obj;
 
     private WnAuthSession() {
         this.vars = new NutMap();
@@ -72,9 +76,13 @@ public class WnAuthSession {
         this.id = oSe.id();
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
+        this.dead = oSe.getBoolean("dead");
         this.currentPath = oSe.getString("pwd", "~");
         this.byType = oSe.getString("by_tp");
         this.byValue = oSe.getString("by_val");
+
+        // 保存原始对象
+        this.setObj(oSe);
 
         // 设置会话所属用户，同时初始化 vars
         // 这里会根据用户的主目录加载 HOME 以及 根据 currentPath 加载环境变量 PWD
@@ -94,6 +102,10 @@ public class WnAuthSession {
         // 过期时间
         if (expi > 0) {
             map.put("expi", expi);
+        }
+        // Dead
+        if (this.dead) {
+            map.put("dead", true);
         }
         // by_type
         if (!Strings.isBlank(byType)) {
@@ -141,12 +153,20 @@ public class WnAuthSession {
         se.id = this.id;
         se.ticket = this.ticket;
         se.expi = this.expi;
+        se.dead = this.dead;
+
         se.byType = this.byType;
         se.byValue = this.byValue;
+
         if (null != this.me)
             se.me = this.me.clone();
+
         if (null != this.vars)
             se.vars = this.vars.duplicate();
+
+        if (null != this.obj)
+            se.obj = this.obj.clone();
+
         return se;
     }
 
@@ -265,6 +285,14 @@ public class WnAuthSession {
         this.expi = expi;
     }
 
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
     public String getCurrentPath() {
         return currentPath;
     }
@@ -301,6 +329,14 @@ public class WnAuthSession {
         if (null != vars) {
             this.vars = vars;
         }
+    }
+
+    public WnObj getObj() {
+        return obj;
+    }
+
+    public void setObj(WnObj obj) {
+        this.obj = obj;
     }
 
     public String formatJson(JsonFormat jfmt, boolean ajax) {

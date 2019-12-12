@@ -129,8 +129,10 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket() && "login.html".equals(rph)) {
             try {
                 String ticket = wc.getTicket();
-                auth.checkSession(ticket);
-                throw Lang.makeThrow("already login, go to /");
+                WnAuthSession se = auth.checkSession(ticket);
+                if (!se.isDead()) {
+                    throw Lang.makeThrow("already login, go to /");
+                }
             }
             catch (WebException e) {}
         }
@@ -886,7 +888,7 @@ public class UsrModule extends AbstractWnModule {
     @At("/ajax/chse")
     @Ok("++cookie->ajax")
     @Fail("ajax")
-    @Filters(@By(type = WnCheckSession.class))
+    @Filters(@By(type = WnCheckSession.class, args = {"true", "true"}))
     public NutMap ajax_change_session(@Param("seid") String ticket, @Param("exit") boolean isExit) {
         // 得到当前会话的
         WnAuthSession se = Wn.WC().checkSession();

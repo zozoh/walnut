@@ -170,26 +170,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
     @Override
     public WnAuthSession touchSession(String ticket) {
-        // 准备查询条件
-        WnObj oSessionDir = setup.getSessionDir();
-        WnQuery q = Wn.Q.pid(oSessionDir);
-        q.setv("nm", ticket);
+        WnAuthSession se = this.getSession(ticket);
 
-        // 更新会话时间并返回数据
-        long nowInMs = System.currentTimeMillis();
-        long se_du = setup.getSessionDefaultDuration();
-        NutMap meta = Lang.map("expi", nowInMs + (se_du * 1000L));
-        WnObj oSe = io.setBy(q, meta, true);
-
-        if (null != oSe) {
-            // 获取用户
-            String uid = oSe.getString("uid");
-            WnAccount me = this.checkAccountById(uid);
-
-            // 返回会话
-            return new WnAuthSession(oSe, me);
+        if (null != se && !se.isDead()) {
+            long nowInMs = System.currentTimeMillis();
+            long se_du = setup.getSessionDefaultDuration();
+            se.setExpi(nowInMs + (se_du * 1000L));
+            io.appendMeta(se.getObj(), Lang.map("expi", se.getExpi()));
         }
-        return null;
+
+        return se;
     }
 
     @Override
@@ -247,7 +237,8 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
                 else {
                     long expi = System.currentTimeMillis() + delay;
                     oSe.expireTime(expi);
-                    io.set(oSe, "^(expi)$");
+                    oSe.put("dead", true);
+                    io.set(oSe, "^(expi|dead)$");
                 }
             }
             // 子会话的话，获取其父会话

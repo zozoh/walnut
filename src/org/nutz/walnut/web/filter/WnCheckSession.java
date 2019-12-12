@@ -29,6 +29,8 @@ public class WnCheckSession implements ActionFilter {
 
     private boolean ajax;
 
+    private boolean allowDead;
+
     public WnCheckSession() {
         this(false);
     }
@@ -37,22 +39,30 @@ public class WnCheckSession implements ActionFilter {
         this.ajax = ajax;
     }
 
-    public static WnAuthSession testSession(WnContext wc, WnAuthService auth) {
-        // 如果上下文已经有了 Session，就直接返回
+    public WnCheckSession(boolean ajax, boolean allowDead) {
+        this.ajax = ajax;
+        this.allowDead = allowDead;
+    }
+
+    public WnAuthSession testSession(WnContext wc, WnAuthService auth) {
+        // 先看看上下文中的Session
         WnAuthSession se = wc.getSession();
-        if (null != se) {
-            return se;
+
+        // 尝试从票据中获取
+        if (null == se && wc.hasTicket()) {
+            // 看看有没有合法的 Session 对象
+            String ticket = wc.getTicket();
+
+            // 获取并更新 Sessoion 对象的最后访问时间
+            se = auth.touchSession(ticket);
+
+            // 默认，已经 dead 的会话不被采用，除非特别声明
+            if (null == se || (se.isDead() && !this.allowDead)) {
+                return null;
+            }
         }
 
-        // 获取 SessionID
-        if (!wc.hasTicket())
-            return null;
-
-        // 看看有没有合法的 Session 对象
-        String ticket = wc.getTicket();
-
-        // 获取并更新 Sessoion 对象的最后访问时间
-        return auth.touchSession(ticket);
+        return se;
     }
 
     @Override

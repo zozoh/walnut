@@ -66,6 +66,11 @@ public class WnMainModule extends AbstractWnModule {
         try {
             String ticket = Wn.WC().getTicket();
             WnAuthSession se = auth.checkSession(ticket);
+
+            if (null == se || se.isDead()) {
+                return this._get_entry_page_url(host);
+            }
+
             Wn.WC().setSession(se);
             WnAccount me = se.getMe();
 
@@ -83,7 +88,8 @@ public class WnMainModule extends AbstractWnModule {
         catch (WebException e) {
             if (log.isInfoEnabled())
                 log.info(e.toString());
-            return "/u/h/login.html";
+            // return "/u/h/login.html";
+            return this._get_entry_page_url(host);
         }
 
     }

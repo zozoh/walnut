@@ -284,10 +284,18 @@ public abstract class Wn {
     }
 
     public static String normalizeFullPath(String ph, NutMap vars) {
+        // 防空
         if (Strings.isBlank(ph))
             return ph;
-        String path = normalizePath(ph, vars);
+
+        // 组合上当前目录
         String pwd = vars.getString("PWD", "");
+        if (!ph.startsWith("/") && !ph.startsWith("~")) {
+            ph = Wn.appendPath(pwd, ph);
+        }
+
+        // 格式化当前路径
+        String path = normalizePath(ph, vars);
 
         String re;
 
@@ -301,11 +309,6 @@ public abstract class Wn {
                 re = path.substring(0, path.length() - 2);
             } else {
                 re = path;
-            }
-
-            // 组合上当前目录
-            if (!path.startsWith("/")) {
-                re = Wn.appendPath(pwd, path);
             }
         }
         // 特殊诡异情况
