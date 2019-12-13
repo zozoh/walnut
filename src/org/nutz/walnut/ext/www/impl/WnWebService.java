@@ -27,7 +27,10 @@ public class WnWebService {
 
         setup = new WnWebAuthSetup(sys.io, site);
         auth = new WnAuthServiceImpl(sys.io, setup);
-        order = new WnOrderService(sys.io, site);
+        // 如果定义了订单，那么创建订单服务（以便处理产品/优惠券/订单）
+        if (site.hasOrderHome()) {
+            order = new WnOrderService(sys.io, site);
+        }
     }
 
     /**

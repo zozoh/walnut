@@ -16,15 +16,22 @@ public class WnOrderService {
 
     private NutMap sellers;
 
+    private WnWebSite site;
+
     private WnThingService orders;
     private WnThingService products;
     private WnThingService coupons;
 
     public WnOrderService(WnIo io, WnWebSite site) {
+        this.site = site;
         this.sellers = site.getSellers();
         this.orders = new WnThingService(io, site.getOrderHome());
-        this.products = new WnThingService(io, site.getProductHome());
-        this.coupons = new WnThingService(io, site.getCouponHome());
+        if (site.hasProductHome()) {
+            this.products = new WnThingService(io, site.getProductHome());
+        }
+        if (site.hasCouponHome()) {
+            this.coupons = new WnThingService(io, site.getCouponHome());
+        }
         if (null == sellers || sellers.isEmpty()) {
             throw Er.create("e.www.order.nil.sellers");
         }
@@ -61,7 +68,7 @@ public class WnOrderService {
         }
 
         // 检查优惠券列表
-        if (or.hasCoupons()) {
+        if (or.hasCoupons() && site.hasCouponHome()) {
             for (WnCoupon cpn : or.getCoupons()) {
                 WnObj oCpn = coupons.checkThing(cpn.getId(), false);
                 cpn.updateBy(oCpn);

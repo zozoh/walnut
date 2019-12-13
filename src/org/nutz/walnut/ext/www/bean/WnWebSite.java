@@ -139,20 +139,40 @@ public class WnWebSite {
         return roleDir;
     }
 
+    public boolean hasOrderHome() {
+        return null != orderHome;
+    }
+
     public WnObj getOrderHome() {
         return orderHome;
+    }
+
+    public boolean hasProductHome() {
+        return null != productHome;
     }
 
     public WnObj getProductHome() {
         return productHome;
     }
 
+    public boolean hasCouponHome() {
+        return null != couponHome;
+    }
+
     public WnObj getCouponHome() {
         return couponHome;
     }
 
+    public boolean hasWeixinConf() {
+        return null != weixinConf;
+    }
+
     public WnObj getWeixinConf() {
         return weixinConf;
+    }
+
+    public boolean hasSellers() {
+        return null != sellers && !sellers.isEmpty();
     }
 
     public NutMap getSellers() {
@@ -181,9 +201,13 @@ public class WnWebSite {
 
     private WnObj FetchThingSet(String ph) {
         String aph = Wn.normalizeFullPath(ph, vars);
-        WnObj oDir = io.check(null, aph);
-        // 尝试获取 ThingSet
-        return Things.getThingSet(oDir);
+        if (!Strings.isBlank(aph)) {
+            WnObj oDir = io.fetch(null, aph);
+            // 尝试获取 ThingSet
+            if (null != oDir)
+                return Things.getThingSet(oDir);
+        }
+        return null;
     }
 
     private WnObj CheckDirOrFile(String ph) {
