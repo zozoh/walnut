@@ -125,11 +125,19 @@ task sassc << {
 	} catch(e){}
 	FileTree tree = fileTree(lesscDir) {
 		include "**/*.scss"
+		include "**\\*.scss"
 		exclude "**/fontawesome*/**/*.*"
+	}
+	if (tree.size() == 0) {
+		tree = fileTree('./ROOT/') {
+			include "**/*.scss"
+			include "**\\*.scss"
+			exclude "**/fontawesome*/**/*.*"
+		}
 	}
     File fHome = Files.findFile(".");
     String phHome = fHome.getCanonicalPath();
-    println "do sassc in HOME: " + phHome
+    println "do sassc in HOME: " + phHome + tree
     //String phLess = Files.getParent(phHome)+"/walnut/ROOT/rs/theme/scss"
 	tree.each {File _file ->
     	def _src = _file.path
