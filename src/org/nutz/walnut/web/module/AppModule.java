@@ -201,12 +201,26 @@ public class AppModule extends AbstractWnModule {
             c.putAll(map);
 
         // 这些优先级最高
+        String rs = conf.get("app-rs", "/gu/rs");
         c.put("session", app.getSession());
-        c.put("rs", conf.get("app-rs"));
+        c.put("rs", rs);
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
-        c.put("theme", se.getVars().getString("THEME", "light"));
+
+        // 得到 Theme 的路径
+        String theme = se.getVars().getString("THEME", "light");
+        if (!theme.endsWith(".css")) {
+            theme += ".css";
+        }
+        // 这里声明的是一个自定义的全路径主题
+        if (theme.startsWith("/")) {
+            c.put("theme", theme);
+        }
+        // 自带主题
+        else {
+            c.put("theme", Wn.appendPath(rs, "ti/theme", theme));
+        }
 
         // 渲染视图
         String cnt = Tmpl.exec(tmpl, c);
