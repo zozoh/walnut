@@ -85,8 +85,7 @@
 
 - WNML支持
 - 验证码模型
-- [域账户模型][w0-acc]
-- 购物与订单模型
+- [购物与订单模型][w0-buy]
 - Ti 的 www 支持
 
 [c0-ios]: core-l0/c0-io-store.md
@@ -97,4 +96,6 @@
 [f0-wxp]: func-l0/f0-weixin-payment.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f1-pay]: func-l1/f1-payment.md
-[w0-acc]: webs-l0/w0-account-in-domain.md
+[w0-acc]: webs-l0/w0-account.md
+[w0-buy]: webs-l0/w0-buy.md
+
