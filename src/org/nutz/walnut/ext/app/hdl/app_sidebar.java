@@ -29,7 +29,7 @@ public class app_sidebar implements JvmHdl {
         // 确保会话有关键变量,自己的域名
         NutMap vars = sys.session.getVars();
         if (!vars.has("SIDEBAR_DOMAIN"))
-            vars.put("SIDEBAR_DOMAIN", vars.getString("MY_GRP"));
+            vars.put("SIDEBAR_DOMAIN", sys.getMyGroup());
 
         // 得到所有的 UI 主目录
         List<WnObj> oUIHomes = WnApps.getUIHomes(sys);

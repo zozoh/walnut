@@ -344,6 +344,7 @@ return ZUI.def("ui.obrowser_sky", {
     update : function(o, asetup){
         var UI  = this;
         var opt = UI.opt();
+        //console.log(opt)
 
         // 标识禁止主目录点击
         if(opt.forbidClickHomeInCrumb){

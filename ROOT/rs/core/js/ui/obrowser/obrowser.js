@@ -345,6 +345,7 @@
                 // Chute
                 if (opt.sidebar) {
                     uiTypes.push("chute");
+                    //console.log("Churte", opt)
                     new ChuteUI({
                         parent: UI,
                         gasketName: "chute",
