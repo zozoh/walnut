@@ -54,6 +54,10 @@ public class cmd_count extends JvmExecutor {
             String json = params.get("match", "{}");
             q.setAll(Lang.map(json));
         }
+        if (phObj.d0() != null)
+            q.setv("d0", phObj.d0());
+        if (phObj.d1() != null)
+            q.setv("d1", phObj.d1());
         long childrenNum = sys.io.count(q);
         sys.out.print("" + childrenNum);
     }
