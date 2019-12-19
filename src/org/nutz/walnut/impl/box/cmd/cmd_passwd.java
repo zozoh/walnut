@@ -78,11 +78,6 @@ public class cmd_passwd extends JvmExecutor {
         sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
 
         // .....................................................
-        // 执行修改
-        u.setRawPasswd(passwd);
-        sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
-
-        // .....................................................
         // 给 wxgh_reset 用的
         if (printOut)
             sys.out.print(passwd);

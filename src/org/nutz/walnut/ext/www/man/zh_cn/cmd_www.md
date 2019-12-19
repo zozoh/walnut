@@ -19,6 +19,7 @@ www checkme      # 获取当前会话信息
 www auth         # 登录/绑定手机/注册
 www signout      # 注销会话 
 www buy          # 创建购买商品的订单
+www passwd       # 修改账户密码
 www pay          # 根据订单创建支付单
 www payafter     # 支付成功后，对于订单的后续处理
 ```

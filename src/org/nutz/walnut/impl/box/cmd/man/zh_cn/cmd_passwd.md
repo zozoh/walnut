@@ -1,20 +1,32 @@
-# 命令简介 
+命令简介 
+=======
 
-	`passwd` 修改用户密码
+`passwd` 修改系统用户的密码
 
-# 用法
+用法
+=======
 
-	passwd {password} -u {user}
+```bash
+www passwd
+    [PASSWD]        # 【必须】新密码
+    [-u 1391..]     # 【选】用户的登录名/手机号/邮箱/ID
+```
+
+> 如果是 -u 模式，则当前操作会话必须为 root/op组成员
+> 如果是 root/op 组成员不能修改其他成员
 	
-# 示例
+示例
+=======
 
-	// 修改用户密码，系统自动给新密码
-    passwd wxgh_reset -u xiaobai
-    
-    // 修改用户密码，手动指定新密码
-	passwd xxxxxx -u xiaobai
-    
-    // 修改自己密码
-    passwd xxxxxx
+```bash
+// 修改用户密码，系统自动给新密码
+passwd wxgh_reset -u xiaobai
+
+// 修改用户密码，手动指定新密码
+passwd 123456 -u xiaobai
+
+// 修改自己密码
+passwd 123456
+```
 	
 	
