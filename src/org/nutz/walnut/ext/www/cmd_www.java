@@ -69,8 +69,9 @@ public class cmd_www extends JvmHdlExecutor {
         List<String> cmds = new LinkedList<>();
         cmds.add("pay create");
         if (!Strings.isBlank(payType)) {
+            String sellerName = webs.getSite().getSellerName(payType);
             cmds.add("-pt '" + payType + "'");
-            cmds.add("-ta strato");
+            cmds.add("-ta '" + sellerName + "'");
         }
         cmds.add("-br '" + or.getTitle() + "'");
         cmds.add("-bu " + oAccountDir.id() + ":" + bu.getId());

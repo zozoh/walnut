@@ -19,9 +19,7 @@ import org.nutz.walnut.api.usr.WnRole;
 import org.nutz.walnut.api.usr.WnUsr;
 import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.api.usr.WnUsrService;
-import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
 /**
@@ -29,6 +27,7 @@ import org.nutz.web.WebException;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
+@Deprecated
 public class IoWnUsrService implements WnUsrService {
 
     private static final Log log = Logs.get();
@@ -42,7 +41,7 @@ public class IoWnUsrService implements WnUsrService {
     WnObj oGrpHome;
 
     public void on_create() {
-        //Wn.WC().me("root", "root");
+        // Wn.WC().me("root", "root");
         oUsrHome = io.createIfNoExists(null, "/sys/usr", WnRace.DIR);
         oGrpHome = io.createIfNoExists(null, "/sys/grp", WnRace.DIR);
     }
@@ -89,21 +88,21 @@ public class IoWnUsrService implements WnUsrService {
         String aph = Wn.appendPath("/sys/grp", u.mainGroup(), "/people");
         WnObj oPeople = io.createIfNoExists(null, aph, WnRace.DIR);
         WnObj oMe = io.create(oPeople, u.id(), WnRace.FILE);
-        //oMe.setv("role", Wn.ROLE.ADMIN);
+        // oMe.setv("role", Wn.ROLE.ADMIN);
         io.set(oMe, "^(role)$");
 
         // 创建组的主目录
         final String phHome = Wn.getUsrHome(u.name());
-        final WnContext wc = Wn.WC();
-//        wc.su(u, () -> {
-//            wc.me(u.name(), u.mainGroup());
-//            wc.security(new WnEvalLink(io), () -> {
-//                WnObj oHome = io.createIfNoExists(null, phHome, WnRace.DIR);
-//                // 保护主目录
-//                oHome.mode(0750);
-//                io.set(oHome, "^md$");
-//            });
-//        });
+        // final WnContext wc = Wn.WC();
+        // wc.su(u, () -> {
+        // wc.me(u.name(), u.mainGroup());
+        // wc.security(new WnEvalLink(io), () -> {
+        // WnObj oHome = io.createIfNoExists(null, phHome, WnRace.DIR);
+        // // 保护主目录
+        // oHome.mode(0750);
+        // io.set(oHome, "^md$");
+        // });
+        // });
 
         // 写入用户注册信息
         u.home(phHome);
@@ -369,26 +368,26 @@ public class IoWnUsrService implements WnUsrService {
         if (null != oMe) {
             return oMe.getInt("role", 0);
         }
-        return 1; //Wn.ROLE.OTHERS;
+        return 1; // Wn.ROLE.OTHERS;
     }
 
     @Override
     public boolean isMemberOfGroup(WnUsr u, String... grps) {
-        for (String grp : grps) {
-            int role = this.getRoleInGroup(u, grp);
-//            if (Wn.ROLE.ADMIN == role || Wn.ROLE.MEMBER == role)
-//                return true;
-        }
+        // for (String grp : grps) {
+        // int role = this.getRoleInGroup(u, grp);
+        // if (Wn.ROLE.ADMIN == role || Wn.ROLE.MEMBER == role)
+        // return true;
+        // }
         return false;
     }
 
     @Override
     public boolean isAdminOfGroup(WnUsr u, String... grps) {
-        for (String grp : grps) {
-            int role = this.getRoleInGroup(u, grp);
-//            if (Wn.ROLE.ADMIN == role)
-//                return true;
-        }
+        // for (String grp : grps) {
+        // int role = this.getRoleInGroup(u, grp);
+        // if (Wn.ROLE.ADMIN == role)
+        // return true;
+        // }
         return false;
     }
 
@@ -410,8 +409,8 @@ public class IoWnUsrService implements WnUsrService {
         // 查询
         String aph = Wn.appendPath("/sys/grp", grp, "/people", u.id());
         WnObj oMe = io.createIfNoExists(null, aph, WnRace.FILE);
-//        if (null == oMe)
-//            return Wn.ROLE.OTHERS;
+        // if (null == oMe)
+        // return Wn.ROLE.OTHERS;
 
         // 删除索引
         int re = oMe.getInt("role", 0);
@@ -438,8 +437,8 @@ public class IoWnUsrService implements WnUsrService {
 
     @Override
     public boolean isInGroup(WnUsr u, String grp) {
-        int role = this.getRoleInGroup(u, grp);
-        //return Wn.ROLE.OTHERS == role;
+        // int role = this.getRoleInGroup(u, grp);
+        // return Wn.ROLE.OTHERS == role;
         return false;
     }
 
@@ -457,7 +456,7 @@ public class IoWnUsrService implements WnUsrService {
                     r.grp = grp;
                     r.usr = o.name();
                     r.role = o.getInt("role", 0);
-                    //r.roleName = Wn.ROLE.getRoleName(r.role);
+                    // r.roleName = Wn.ROLE.getRoleName(r.role);
                     callback.invoke(index, r, len);
                 });
             }

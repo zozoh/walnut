@@ -214,7 +214,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -396,7 +396,7 @@ public final class Tracker {
         hash = (53 * hash) + getTrackMode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -969,7 +969,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1427,7 +1427,7 @@ public final class Tracker {
         hash = (53 * hash) + getParamVersion();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -1453,21 +1453,25 @@ public final class Tracker {
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceLogin parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2543,7 +2547,7 @@ public final class Tracker {
         if (extensionRegistry == null) {
           throw new java.lang.NullPointerException();
         }
-        int mutable_bitField0_ = 0;
+        //int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
         try {
@@ -2813,7 +2817,7 @@ public final class Tracker {
           hash = (53 * hash) + getCno();
         }
         hash = (29 * hash) + unknownFields.hashCode();
-        memoizedHashCode = hash;
+        //memoizedHashCode = hash;
         return hash;
       }
 
@@ -2822,6 +2826,7 @@ public final class Tracker {
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
+      @java.lang.Deprecated
       public static org.nutz.walnut.ext.gpstracker.Tracker.SateStatus.sateMessage parseFrom(
           java.nio.ByteBuffer data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -3559,7 +3564,7 @@ public final class Tracker {
         hash = (53 * hash) + getStaeItemsList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -5482,7 +5487,7 @@ public final class Tracker {
         hash = (53 * hash) + getCellInfo().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -7012,7 +7017,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -7547,7 +7552,7 @@ public final class Tracker {
             getIsFix());
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -8581,7 +8586,6 @@ public final class Tracker {
               break;
             case 8: {
               int rawValue = input.readEnum();
-                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID value = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
@@ -8791,8 +8795,8 @@ public final class Tracker {
      *
      * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
      */
+    @java.lang.Deprecated
     public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
-      @SuppressWarnings("deprecation")
       org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(id_);
       return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN : result;
     }
@@ -9038,7 +9042,7 @@ public final class Tracker {
         hash = (53 * hash) + getTrackMsgList().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -9395,7 +9399,6 @@ public final class Tracker {
        * <code>required .tracker.DeviceMessage.DeviceMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID getId() {
-        @SuppressWarnings("deprecation")
         org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.valueOf(id_);
         return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.DeviceMessage.DeviceMessageID.LOGIN : result;
       }
@@ -10179,7 +10182,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -10192,7 +10195,6 @@ public final class Tracker {
               break;
             case 8: {
               int rawValue = input.readEnum();
-                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
@@ -10260,7 +10262,6 @@ public final class Tracker {
      * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-      @SuppressWarnings("deprecation")
       org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
       return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
     }
@@ -10378,7 +10379,7 @@ public final class Tracker {
             getResult());
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -10414,11 +10415,13 @@ public final class Tracker {
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -10426,11 +10429,13 @@ public final class Tracker {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -10438,12 +10443,14 @@ public final class Tracker {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
+    @java.lang.Deprecated
     public static org.nutz.walnut.ext.gpstracker.Tracker.DeviceResponse parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -10664,7 +10671,6 @@ public final class Tracker {
        * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-        @SuppressWarnings("deprecation")
         org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
         return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
       }
@@ -10918,7 +10924,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -10931,7 +10937,6 @@ public final class Tracker {
               break;
             case 8: {
               int rawValue = input.readEnum();
-                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID value = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
@@ -11123,7 +11128,6 @@ public final class Tracker {
      * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
-      @SuppressWarnings("deprecation")
       org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(id_);
       return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE : result;
     }
@@ -11324,7 +11328,7 @@ public final class Tracker {
         hash = (53 * hash) + getDeviceParam().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -11634,7 +11638,6 @@ public final class Tracker {
        * <code>required .tracker.ServerMessage.ServerMessageID id = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID getId() {
-        @SuppressWarnings("deprecation")
         org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID result = org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.valueOf(id_);
         return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.ServerMessage.ServerMessageID.LOGIN_RESPONSE : result;
       }
@@ -12036,7 +12039,7 @@ public final class Tracker {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
+      //int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -12049,7 +12052,6 @@ public final class Tracker {
               break;
             case 8: {
               int rawValue = input.readEnum();
-                @SuppressWarnings("deprecation")
               org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand value = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
@@ -12117,7 +12119,6 @@ public final class Tracker {
      * <code>required .tracker.RequestCommand cmd = 1;</code>
      */
     public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-      @SuppressWarnings("deprecation")
       org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
       return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
     }
@@ -12223,7 +12224,7 @@ public final class Tracker {
             getValue());
       }
       hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
+      //memoizedHashCode = hash;
       return hash;
     }
 
@@ -12502,7 +12503,6 @@ public final class Tracker {
        * <code>required .tracker.RequestCommand cmd = 1;</code>
        */
       public org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand getCmd() {
-        @SuppressWarnings("deprecation")
         org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand result = org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.valueOf(cmd_);
         return result == null ? org.nutz.walnut.ext.gpstracker.Tracker.RequestCommand.REMOTE_WAKEN : result;
       }

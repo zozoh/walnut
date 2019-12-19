@@ -12,6 +12,7 @@ import org.nutz.walnut.api.usr.WnSession;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
+@Deprecated
 public class IoWnSession extends AbstractWnSession {
 
     private NutMap vars;
