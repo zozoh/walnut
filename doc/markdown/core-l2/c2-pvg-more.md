@@ -17,11 +17,11 @@ tags:
 
  Roles | Action-A | Action-B | Action-C | Action-D | Action-E 
 -------|----------|----------|----------|----------|----------
- Role0 | **Yes**  | *N/A*    | *N/A*    | *N/A*    | *N/A*    
- Role1 | **Yes**  | *N/A*    | **Yes**  | **Yes**  | *N/A*    
- Role2 | **Yes**  | **Yes**  | *N/A*    | *N/A*    | *N/A*    
- Role3 | **Yes**  | **Yes**  | **Yes**  | **Yes**  | **Yes**  
- Role4 | **Yes**  | *N/A*    | **Yes**  | **Yes**  | **Yes**
+ Role0 | Yes      | --       | --       | --       | --    
+ Role1 | Yes      | --       | Yes      | Yes      | --    
+ Role2 | Yes      | Yes      | --       | --       | --    
+ Role3 | Yes      | Yes      | Yes      | Yes      | Yes  
+ Role4 | Yes      | --       | Yes      | Yes      | Yes
 
 --------------------------------------
 # 计划应用场景
@@ -97,23 +97,23 @@ pvgMoreService.canOr("Role1", "Action-B", "Action-C")
 
 ```bash
 # 是否具备某个行为的权限
-demo:> pvg can Role1 Action-B
+demo:> pvg ~/my-pvg.json can Role1 Action-B
 true
 
 # 是否全部具备某几个行为的权限
-demo:> pvg can Role1 Action-B Action-C
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C
 false
 
 # 是否具备某几个行为中至少一个的权限
-demo:> pvg can -or Role1 Action-B Action-C
+demo:> pvg ~/my-pvg.json can -or Role1 Action-B Action-C
 true
 
 # 返回结果用 Ajax 格式包裹
-demo:> pvg can Role1 Action-B Action-C -ajax -cqn
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C -ajax -cqn
 {"ok":true,"data":{"Action-B":true,"Action-C":true}}
 
 # 返回结果用 Ajax 格式包裹
-demo:> pvg can Role1 Action-B Action-E -ajax -cqn
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-E -ajax -cqn
 {"ok":false,"data":{"Action-B":true,"Action-E":false}}
 ```
 
