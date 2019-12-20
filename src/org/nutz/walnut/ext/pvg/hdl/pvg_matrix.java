@@ -46,8 +46,9 @@ public class pvg_matrix implements JvmHdl {
         else {
             List<String> anms = pvgs.getActionNames();
             int len = anms.size() + 1;
+            boolean showIndex = hc.params.has("ibase");
             List<String> cols = new ArrayList<>(len);
-            if (hc.params.has("ibase")) {
+            if (showIndex) {
                 cols.add("#");
             }
             cols.add("Role");
@@ -68,12 +69,11 @@ public class pvg_matrix implements JvmHdl {
                     continue;
                 }
                 List<String> cells = new ArrayList<String>(len);
+                if (showIndex) {
+                    cells.add("" + (i++));
+                }
                 cells.add(role);
                 for (String key : anms) {
-                    if ("#".equals(key)) {
-                        cells.add("" + (i++));
-                        continue;
-                    }
                     Object v = Mapl.cell(map, key);
                     String s = pmc.toCell(v);
                     cells.add(s);
