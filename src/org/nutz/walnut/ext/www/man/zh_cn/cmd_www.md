@@ -15,9 +15,10 @@ www renew       # 【废弃】处理域名的续费成功的后续操作
 www conf        # 【废弃】得到域名映射方面的配置文件信息(JSON)
 
 www captcha      # 验证码
-www checkme      # 获取当前会话信息
+www checkme      # 查看当前会话信息（可同时修改会话账户元数据）
+www account      # 查看指定用户信息（可同时修改元数据）
 www auth         # 登录/绑定手机/注册
-www signout      # 注销会话 
+www logout       # 注销会话 
 www buy          # 创建购买商品的订单
 www passwd       # 修改账户密码
 www pay          # 根据订单创建支付单

@@ -6,12 +6,12 @@ import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
@@ -23,7 +23,7 @@ public class www_auth implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // -------------------------------
         // 站点/账户/密码/票据
-        String site = hc.params.val_check(0);
+        WnObj oWWW = cmd_www.checkSite(sys, hc);
         String account = hc.params.val_check(1);
         String passwd = hc.params.get("p");
         String vcode = hc.params.get("v");
@@ -32,7 +32,6 @@ public class www_auth implements JvmHdl {
 
         // -------------------------------
         // 准备服务类
-        WnObj oWWW = Wn.checkObj(sys, site);
         WnWebService webs = new WnWebService(sys, oWWW);
         WnAuthSession se = null;
 

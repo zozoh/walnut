@@ -262,6 +262,10 @@ public class WnAccount {
         NutMap bean = this.toBean();
         return bean.pickBy(regex);
     }
+    
+    public NutMap toBeanForClient() {
+        return this.toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO);
+    }
 
     public boolean isSysAccount() {
         return sysAccount;

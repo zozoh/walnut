@@ -26,6 +26,19 @@ import org.nutz.web.ajax.Ajax;
  */
 public class cmd_www extends JvmHdlExecutor {
 
+    public static WnObj checkSite(WnSystem sys, JvmHdlContext hc) {
+        String site = hc.params.val_check(0);
+        return checkSite(sys, site);
+    }
+
+    public static WnObj checkSite(WnSystem sys, String site) {
+        if (Wn.isFullObjId(site)) {
+            return sys.io.checkById(site);
+        }
+
+        return Wn.checkObj(sys, site);
+    }
+
     /**
      * 为订单准备支付单
      * 
@@ -121,4 +134,17 @@ public class cmd_www extends JvmHdlExecutor {
         sys.out.println(json);
     }
 
+    public static void outputJsonOrAjax(WnSystem sys, Object data, JvmHdlContext hc) {
+        boolean ajax = hc.params.is("ajax");
+        outputJsonOrAjax(sys, data, hc.jfmt, ajax);
+    }
+
+    public static void outputJsonOrAjax(WnSystem sys, Object data, JsonFormat jfmt, boolean ajax) {
+        Object reo = data;
+        if (ajax) {
+            reo = Ajax.ok().setData(data);
+        }
+        String json = Json.toJson(reo, jfmt);
+        sys.out.println(json);
+    }
 }

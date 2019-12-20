@@ -10,12 +10,12 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnCaptcha;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.captcha.Captchas;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
@@ -27,10 +27,9 @@ public class www_captcha implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // -------------------------------
         // 站点/场景/账户
-        String site = hc.params.val_check(0);
+        WnObj oWWW = cmd_www.checkSite(sys, hc);
         String scene = hc.params.val_check(1);
         String account = hc.params.val_check(2);
-        WnObj oWWW = Wn.checkObj(sys, site);
         // -------------------------------
         WnWebService webs = new WnWebService(sys, oWWW);
         String as = hc.params.getString("as", "json");

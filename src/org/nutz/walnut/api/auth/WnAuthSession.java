@@ -127,7 +127,7 @@ public class WnAuthSession {
         }
         map.put("uid", this.getMyId());
         map.put("unm", this.getMyName());
-        map.put("me", this.getMe().toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO));
+        map.put("me", this.getMe().toBeanForClient());
         map.put("grp", this.getMyGroup());
         map.put("expi", expi);
         map.put("du", expi - System.currentTimeMillis());

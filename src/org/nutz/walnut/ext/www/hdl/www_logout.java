@@ -5,12 +5,12 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
@@ -32,7 +32,7 @@ public class www_logout implements JvmHdl {
         try {
             if (!Strings.isBlank(site) && !Strings.isBlank(ticket)) {
                 // 准备服务类
-                WnObj oWWW = Wn.checkObj(sys, site);
+                WnObj oWWW = cmd_www.checkSite(sys, site);
                 WnWebService webs = new WnWebService(sys, oWWW);
 
                 // 检查

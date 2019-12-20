@@ -5,11 +5,11 @@ import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
 public class www_passwd implements JvmHdl {
 
@@ -26,7 +26,7 @@ public class www_passwd implements JvmHdl {
         String unm = hc.params.get("u");
         // -------------------------------
         // 准备服务类
-        WnObj oWWW = Wn.checkObj(sys, site);
+        WnObj oWWW = cmd_www.checkSite(sys, site);
         WnWebService webs = new WnWebService(sys, oWWW);
         // -------------------------------
         // 确定用户

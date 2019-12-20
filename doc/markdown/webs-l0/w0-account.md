@@ -1,5 +1,5 @@
 ---
-title: 域账户模型
+title: 站点账户模型
 author: zozohtnt@gmail.com
 tags:
 - 功能扩展
@@ -7,66 +7,296 @@ tags:
 ---
 
 --------------------------------------
-# 动机：为什么要有域账户
+# 动机：为什么要有站点账户模型
 
-[基础账户模型][c0-acc]提供了`Walnut`的登录校验能力。但是作为一个域的用户，很多时候想拥有一套甚至多套自己的账户体系。
-
+基于[基础账户模型][c0-acc]，对于域的某个站点，我们可以做更多的假设，以便封装更多的逻辑。
 
 --------------------------------------
 # 计划应用场景
 
 - 用户自建的网站
-- 用户域多账户协同工作
+- 微信/移动应用
 
 --------------------------------------
 # 设计思路与边界
 
-首先允许用户在自己的域中自建`通用数据集`，数据集的字段符合一定的约定。
-用户可以通过`HttpApi`对外提供本域的注册登录功能，会话数据也存放在本域中
-
-如果用户登录Walnut账户，只要指定用户的这个`通用数据集`，那么也可以创建一个标准系统级会话。
-但是账户的数据访问权限仅限于当前域。
+- 采用[基础账户模型][c0-acc]的域站点用户管理会话和权限
+- 提供一套标准的 HTTP 接口封装客户端操作
 
 --------------------------------------
 # 数据结构描述
 
-域账户的`通用数据集`必须具备如下元数据
+> 域结构如下：
 
 ```bash
-id : ID            # 【唯一】唯一的用户 ID
-thumb : "id:xxx"   # 用户的头像文件
-#-------------------------------------------------
-# 关键信息
-grp   : "xiaobai"  # 用户的主组
-role  : "user"     # 用户业务角色名，角色库的 'nm' 段值
-nm    : "xxx"      # 【唯一】用户的登录名，默认为 ID
-phone : "139.."    # 【唯一】绑定手机
-email : "x@y.z"    # 【唯一】绑定邮箱
-#-------------------------------------------------
-# 密码/盐
-passwd : "xxx"     # 加盐后密码
-salt   : "xxx"     # 盐值（随机数）
-#-------------------------------------------------
-# 基本信息
-sex : 1,           # 性别：1=男; 2=女
-nickname : "xxx"   # 用户昵称
-country  : "xxx"   # 国家
-province : "xxx"   # 省/直辖市
-city     : "xxx"   # 市/市辖区
-#-------------------------------------------------
-# 微信公号
-wx_gh_xxx : "xxx"     # 某微信公号下的 OpenId
-#-------------------------------------------------
-# 时间戳
-ct    : AMS     # 创建/注册时间
-lm    : AMS     # 最后修改时间
-login : AMS     # 最后登录时间
+~/
+#-----------------------------
+# 域的 Web 服务临时数据存放区
+|-- .domain/
+|   |-- session/     # 存放会话信息
+|   |-- captcha/          # 验证码存放目录
+#-----------------------------
+|-- www/      # 存放站点的文件夹
+#-----------------------------
+|-- accounts/ # 用户库：ThingSet
+|-- roles/    # 角色库：ThingSet
+#-----------------------------
+# 接口定义文件
+|-- .regapi/api/auth/     # 接口文档存放的目录
+    |-- site              # 获取当前默认站点信息
+    |-- checkme           # 根据票据获取当前账户会话信息
+    |-- setme             # 设置当前账户元数据
+    |-- login_by_wxcode   # 微信自动登录
+    |-- login_by_passwd   # 账号密码登录
+    |-- login_by_phone    # 短信密码登录
+    |-- bind_account      # 绑定手机/邮箱
+    |-- get_sms_vcode     # 获取短信验证码
+    |-- get_email_vcode   # 获取邮箱验证码
+    |-- captcha           # 获取各个场景下的图形验证码
+    |-- logout            # 注销当前会话
 ```
 
 --------------------------------------
 # 使用方式
 
-通过命令 `www auth` 可以实现用户的登录操作
+客户端通过 `Ajax` 方式调用接口
+
+--------------------------------------
+## `/auth/site`获取当前默认站点信息
+
+### 请求头
+
+```bash
+HTTP GET /api/${YourDomain}/auth/site
+#---------------------------------
+# Query String
+# 无
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考《基础账户模型》站点数据结构*/
+  }
+}
+```
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "www.order.nil.products",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.www.order.nil.products` : 空订单
+- `e.www.order.nil.accounts` : 没有设置账户库
+- `e.www.order.nil.buyer_id` : 找不到买主账户信息
+- `e.www.order.nil.pay_tp` : 未指定支付类型
+- `e.www.order.invalid.pay_tp` : 错误的支付类型
+
+
+### 初始化脚本
+
+```bash
+# API(auth): 取得当前站点信息
+@FILE .regapi/api/auth/site
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+obj ~/www -cqn
+%END%
+```
+
+--------------------------------------
+## `/auth/checkme`创建订单和支付单
+
+### 请求头
+
+```bash
+HTTP GET /api/${YourDomain}/auth/checkme
+#---------------------------------
+# Query String
+site   : "34t6..8aq1"     # 【必】站点的ID
+ticket : "34t6..8aq1"     # 【必】登录会话的票据
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考《基础账户模型》会话数据结构*/
+  }
+}
+```
+
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "e.auth.ticked.noexist",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.www.api.auth.nologin` : 未指定会话票据
+- `e.auth.ticked.noexist` : 会话票据不存在
+
+
+### 初始化脚本
+
+```bash
+# API(auth): 取得当前会话信息
+@FILE .regapi/api/auth/checkme
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www checkme id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
+%END%
+```
+
+--------------------------------------
+## `/auth/setme`设置当前账户元数据
+
+### 请求头
+
+```bash
+HTTP POST /api/${YourDomain}/auth/setme
+#---------------------------------
+# Query String
+site   : "34t6..8aq1"     # 【必】站点的ID
+ticket : "34t6..8aq1"     # 【必】登录会话的票据
+```
+
+### 请求体:JSON
+
+> 就是一个要修改的用户元数据 JSON
+
+```js
+{
+  nickname : "小白",
+  sex : 2
+}
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考《基础账户模型》会话数据结构*/
+  }
+}
+```
+
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "e.auth.ticked.noexist",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.www.api.auth.nologin` : 未指定会话票据
+- `e.auth.ticked.noexist` : 会话票据不存在
+
+
+### 初始化脚本
+
+```bash
+# API(auth): 修改当前会话账户元数据
+@FILE .regapi/api/auth/setme
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+cat id:${id} \
+  | www checkme id:${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -u -ajax -cqn
+%END%
+```
+
+--------------------------------------
+## `/auth/getaccount`获取指定账户信息
+
+### 请求头
+
+```bash
+HTTP GET /api/${YourDomain}/auth/getaccount
+#---------------------------------
+# Query String
+site : "34t6..8aq1"     # 【必】站点的ID
+uid  : "34t6..8aq1"     # 【必】目标用户ID
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考《基础账户模型》账户数据结构*/
+  }
+}
+```
+
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "e.auth.account.noexists",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.auth.account.noexists` : 目标账户不存在
+
+
+### 初始化脚本
+
+```bash
+# API(auth): 获取指定账户信息
+@FILE .regapi/api/auth/getaccount
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+www account id:${http-qs-site?unkonw} ${http-qs-uid?-nil-} -ajax -cqn
+%END%
+```
+
+--------------------------------------
+## `/auth/login_by_wxcode`微信自动登录
+--------------------------------------
+## `/auth/login_by_passwd`账号密码登录
+--------------------------------------
+## `/auth/login_by_phone`短信密码登录
+--------------------------------------
+## `/auth/bind_account`绑定手机/邮箱
+--------------------------------------
+## `/auth/get_sms_vcode`获取短信验证码
+--------------------------------------
+## `/auth/get_email_vcode`获取邮箱验证码
+--------------------------------------
+## `/auth/captcha`获取各个场景下的图形验证码
+--------------------------------------
+## `/auth/logout`注销当前会话
 
 --------------------------------------
 # 相关知识点
