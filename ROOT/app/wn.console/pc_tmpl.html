@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link rel="stylesheet" type="text/css" href="${rs}/core/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="${rs}/core/css/animate.css">
+    <link rel="stylesheet" type="text/css" href="${rs}/core/css/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" 
+          href="${rs}/core/css/fontawesome-free-5.0.6/css/fontawesome-all.css">
+    <link rel="stylesheet" type="text/css"
+          href="${rs}/core/css/font-md/css/material-design-iconic-font.css">
+    <script src="${rs}/core/js/seajs/seajs-2.3.0/sea-debug.js" id="seajsnode"></script>
+    <script src="${rs}/core/js/seajs/seajs-2.3.0/seajs-text-debug.js"></script>
+    <script src="${rs}/core/js/seajs/seajs-2.3.0/seajs-css-debug.js"></script>
+    <script src="${rs}/core/js/jquery/2.x/jquery.min.js"></script>
+    <script src="${rs}/core/js/backbone/underscore-1.8.2/underscore.js"></script>
+    <script src="${rs}/core/js/backbone/backbone-1.1.2/backbone.js"></script>
+    <script src="${rs}/core/js/js.cookie.min.js"></script>
+    <script src="${rs}/core/js/nutz/zhttp.js"></script>
+    <script src="${rs}/core/js/nutz/zutil.js"></script>
+    <script src="${rs}/core/js/nutz/zdimension.js"></script>
+    <script src="${rs}/core/js/vue2/vue.js"></script>
+    <script src="${rs}/core/js/clipboard.min.js"></script>
+    <script src="${rs}/core/js/canvas-to-blob.min.js"></script>
+    <script src="${rs}/core/js/exif.js"></script>
+    <script src="${rs}/core/js/websocket/reconnecting-websocket.min.js"></script>
+</head>
+<body class="zui-app-${appClass} ui-body ui-oicon-16" appnm="${appName}" dui-debuger="show">
+<!-- div class="ui-debug"></div>
+<div class="ui-body"></div-->
+<script>
+    window._app = ${app};
+
+    window.$zui_i18n = "zh-cn";
+    window.$zui_theme = "light";
+
+    seajs.config({
+        base: "${rs}",
+        debug: true,
+        alias: {
+            "walnut": "wn/walnut.js",
+            "zui": "core/js/nutz/zui.js",
+            "zui_css": "core/js/nutz/zui.css",
+            "echart" : "core/js/echart/4.2.0-rc.1/echarts.common.min.js"
+        },
+        paths: {
+            //"theme": "/theme/r",
+            "nutz" : "core/js/nutz",
+            "ui": "core/js/ui",
+            "uix": "${session.envs.MY_UIX?ext/js/ui}",
+            "wn": "core/js/walnut",
+            "app": "/a/load",
+            "jquery-plugin": "core/js/jquery-plugin",
+            "jquery-ui": "core/js/jquery-ui",
+            "vue-component": "core/js/vue-component"
+        },
+        charset: 'utf-8'
+    });
+
+    //define.amd = define.cmd;
+    seajs.on("error", function (data) {
+        throw "load '" + data.uri + "' failed!!!'";
+    });
+
+    seajs.use("zui", function (ZUI) {
+        ZUI.loadi18n("ui/i18n/{{lang}}.js", function () {
+        	    // 修改一下 dataFormat
+            if(dateFormat && dateFormat.i18n) {
+                //console.log(dateFormat.i18n)
+                dateFormat.i18n.dayNames = ZUI.g_msg_map.dt.dayNames;
+                dateFormat.i18n.monthNames = ZUI.g_msg_map.dt.month;
+                //console.log(dateFormat.i18n)
+            }
+            // 加载一下主函数
+            seajs.use("app/" + _app.name + "/main.js", function (main) {
+                main.init();
+            });
+        });
+    });
+
+</script>
+</body>
+</html>
