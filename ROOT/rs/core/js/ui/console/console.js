@@ -281,6 +281,9 @@ return ZUI.def("ui.console", {
                     break;
                 case "w":
                     var pwd = envs["PWD"];
+                    if(!/\/$/.test(pwd)) {
+                        pwd += "/"
+                    }
                     re += pwd==envs["HOME"] ? "~" : envs["PWD"];
                     break;
                 case "W":

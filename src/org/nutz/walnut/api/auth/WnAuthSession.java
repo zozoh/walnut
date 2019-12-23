@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -263,7 +265,12 @@ public class WnAuthSession {
         }
         // 加入用户的环境变量
         if (null != map) {
-            this.vars.putAll(map);
+            for (Map.Entry<String, Object> en : map.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                String k2 = key.toUpperCase();
+                this.vars.put(k2, val);
+            }
         }
         // 加入 PWD
         this.vars.put("PWD", this.currentPath);

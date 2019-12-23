@@ -262,9 +262,9 @@ public class WnAccount {
         NutMap bean = this.toBean();
         return bean.pickBy(regex);
     }
-    
+
     public NutMap toBeanForClient() {
-        return this.toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO);
+        return this.toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO | WnAuths.ABMM.META);
     }
 
     public boolean isSysAccount() {
@@ -645,8 +645,8 @@ public class WnAccount {
             if (null == this.meta) {
                 this.meta = new NutMap();
             }
-            String k2 = key.toUpperCase();
-            this.meta.put(k2, val);
+            //String k2 = key.toUpperCase();
+            this.meta.put(key, val);
         }
     }
 

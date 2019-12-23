@@ -54,7 +54,8 @@ public class www_checkme implements JvmHdl {
                 }
 
                 // 输出
-                cmd_www.outputJsonOrAjax(sys, se, hc);
+                NutMap seMap = se.toMapForClient();
+                cmd_www.outputJsonOrAjax(sys, seMap, hc);
                 return;
             }
         }
