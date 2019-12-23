@@ -40,7 +40,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.web.bean.WalnutApp;
+import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.impl.WnAppService;
 import org.nutz.walnut.web.util.WnWeb;
@@ -66,9 +66,18 @@ public class AppModule extends AbstractWnModule {
                      @ReqHeader("If-None-Match") String etag)
             throws UnsupportedEncodingException {
 
-        // 得到应用
         try {
-            WalnutApp app = apps.checkApp(appName, str);
+            // 得到应用
+            WnApp app = apps.checkApp(appName);
+
+            // 得到数据对象
+            if (Strings.isBlank(str)) {
+                str = app.getSession().getVars().getString("OBJ_DFT_PATH", "~");
+            }
+            WnObj obj = apps.getObj(app, str);
+            app.setObj(obj);
+
+            // 渲染模板
             String html = apps.renderAppHtml(app);
             String sha1 = Lang.sha1(html);
             if (etag != null && sha1.equals(etag)) {
@@ -170,7 +179,7 @@ public class AppModule extends AbstractWnModule {
         // cmdText = URLDecoder.decode(cmdText, "UTF-8");
 
         // 找到 app 所在目录
-        WnObj oAppHome = this._check_app_home(appName);
+        WnApp app = apps.checkApp(appName);
 
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
@@ -182,70 +191,10 @@ public class AppModule extends AbstractWnModule {
         OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
         OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
-        final Writer w = new OutputStreamWriter(out);
-
-        // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
-        cmdText = cmdText.trim();
-        Matcher sudoM = Regex.getPattern("^wndo[ ]+(.+)$").matcher(cmdText);
-        boolean isSudo = sudoM.find();
-        if (isSudo) {
-            cmdText = sudoM.group(1);
-            if ("root".equals(Wn.WC().checkMyName())) { // root还干啥sudo
-                isSudo = false;
-            }
-        }
-        final WnAuthSession my_se = Wn.WC().checkSession();
-
-        WnAuthSession su_se = null;
-        if (isSudo) {
-            WnAccount root = auth().checkAccount("root");
-            su_se = auth().createSession(root);
-        }
-
-        // 运行
-        WnAuthSession se = isSudo ? su_se : my_se;
-        my_se.getVars().put("PWD", PWD);
-        my_se.getVars().put("APP_HOME", oAppHome.path());
-
-        // 执行命令
-        final WnAuthSession the_su_se = su_se;
-        exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
-            @Override
-            public void invoke(WnBoxContext bc) {
-                WnAuthSession se = my_se; // 强制使用原来的se
-                // 有宏的分隔符，表示客户端可以接受更多的宏命令
-                if (!Strings.isBlank(metaOutputSeparator)) {
-                    try {
-                        // 无论怎样，都设置环境变量
-                        w.write("\n"
-                                + metaOutputSeparator
-                                + ":MACRO:"
-                                + Wn.MACRO.UPDATE_ENVS
-                                + "\n");
-                        w.write(Json.toJson(se.getVars()));
-                        w.flush();
-                        // 修改当前客户端的 session
-                        if (bc.attrs.has(Wn.MACRO.CHANGE_SESSION)) {
-                            String json = Json.toJson(bc.attrs.get(Wn.MACRO.CHANGE_SESSION),
-                                                      JsonFormat.compact());
-                            w.write("\n"
-                                    + metaOutputSeparator
-                                    + ":MACRO:"
-                                    + Wn.MACRO.CHANGE_SESSION
-                                    + "\n");
-                            w.write(json);
-                            w.flush();
-                        }
-                    }
-                    catch (IOException e) {
-                        throw Lang.wrapThrow(e);
-                    }
-                }
-                if (the_su_se != null) {
-                    auth().removeSession(the_su_se, 0);
-                }
-            }
-        });
+        
+        
+        // 执行
+        apps.runCommand(app, metaOutputSeparator, PWD, cmdText, out, err, ins);
     }
 
 }
