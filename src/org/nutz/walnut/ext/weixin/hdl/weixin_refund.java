@@ -43,7 +43,7 @@ import org.nutz.weixin.util.Wxs;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @JvmHdlParamArgs("^(json|c|n|q)$")
-public class weixin_refun implements JvmHdl {
+public class weixin_refund implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {

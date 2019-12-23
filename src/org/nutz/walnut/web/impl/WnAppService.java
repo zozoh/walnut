@@ -15,6 +15,10 @@ import org.nutz.walnut.web.bean.WalnutApp;
 
 @IocBean
 public class WnAppService extends WnRun {
+    
+//    public WnObj getResource(WalnutApp app, String rsName) {
+//        
+//    }
 
     public String renderAppHtml(WalnutApp app) {
         NutMap c = new NutMap();
