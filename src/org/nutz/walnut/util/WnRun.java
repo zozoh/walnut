@@ -26,6 +26,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
+import org.nutz.walnut.web.WnConfig;
 
 @IocBean
 public class WnRun {
@@ -49,6 +50,9 @@ public class WnRun {
 
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
+
+    @Inject("refer:conf")
+    protected WnConfig conf;
 
     public WnIo io() {
         return io;

@@ -18,14 +18,10 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.WWW;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
-import org.nutz.walnut.web.WnConfig;
 
 public abstract class AbstractWnModule extends WnRun {
 
     public static View HTTP_304 = new HttpStatusView(304);
-
-    @Inject("refer:conf")
-    protected WnConfig conf;
 
     @Inject("refer:mimes")
     protected MimeMap mimes;
