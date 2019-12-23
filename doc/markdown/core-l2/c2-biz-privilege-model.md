@@ -11,17 +11,17 @@ tags:
 --------------------------------------
 # 动机：为什么要有业务权限模型
 
-**Walnut**的[基础权限模型][c0-pvg]虽然非常通用和灵活，但是正因为通用和灵活，在具体的业务应用上，如果要想设置的非常贴合业务，必然是非常繁琐的。如果业务足够复杂，采用[基础权限模型][c0-pvg]来描述权限，甚至是不可能的。
+**Walnut**的[基础权限模型][c0-bpm]虽然非常通用和灵活，但是正因为通用和灵活，在具体的业务应用上，如果要想设置的非常贴合业务，必然是非常繁琐的。如果业务足够复杂，采用[基础权限模型][c0-bpm]来描述权限，甚至是不可能的。
 
 因此，我们希望能有一个权限模型，针对业务来划分动作和角色，只需要简单的勾选即可完成权限的设定：
 
  Roles | Action-A | Action-B | Action-C | Action-D | Action-E 
 -------|----------|----------|----------|----------|----------
- Role0 | **Yes**  | *N/A*    | *N/A*    | *N/A*    | *N/A*    
- Role1 | **Yes**  | *N/A*    | **Yes**  | **Yes**  | *N/A*    
- Role2 | **Yes**  | **Yes**  | *N/A*    | *N/A*    | *N/A*    
- Role3 | **Yes**  | **Yes**  | **Yes**  | **Yes**  | **Yes**  
- Role4 | **Yes**  | *N/A*    | **Yes**  | **Yes**  | **Yes**
+ Role0 | Yes      | --       | --       | --       | --    
+ Role1 | Yes      | --       | Yes      | Yes      | --    
+ Role2 | Yes      | Yes      | --       | --       | --    
+ Role3 | Yes      | Yes      | Yes      | Yes      | Yes  
+ Role4 | Yes      | --       | Yes      | Yes      | Yes
 
 --------------------------------------
 # 计划应用场景
@@ -37,11 +37,11 @@ tags:
 --------------------------------------
 # 设计思路与边界
 
-因为应对几乎是各种场景，这个模型与[基础权限模型][c0-pvg]最大的不同是：
+因为应对几乎是各种场景，这个模型与[基础权限模型][c0-bpm]最大的不同是：
 
 **它必须是被动的**
 
-即，[基础权限模型][c0-pvg]守卫的是数据安全性的底线，因此它在 IO 层之下对所有
+即，[基础权限模型][c0-bpm]守卫的是数据安全性的底线，因此它在 IO 层之下对所有
 业务几乎是透明的（除非特意声明内核态），而**业务权限模型**为了考虑更广阔的应用场景和使用方式，它必须是被动式的等待调用者来询问。
 
 为此，这个模型，我们只能添加下面几点约束：
@@ -97,30 +97,29 @@ pvgMoreService.canOr("Role1", "Action-B", "Action-C")
 
 ```bash
 # 是否具备某个行为的权限
-demo:> pvg can Role1 Action-B
+demo:> pvg ~/my-pvg.json can Role1 Action-B
 true
 
 # 是否全部具备某几个行为的权限
-demo:> pvg can Role1 Action-B Action-C
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C
 false
 
 # 是否具备某几个行为中至少一个的权限
-demo:> pvg can -or Role1 Action-B Action-C
+demo:> pvg ~/my-pvg.json can -or Role1 Action-B Action-C
 true
 
 # 返回结果用 Ajax 格式包裹
-demo:> pvg can Role1 Action-B Action-C -ajax -cqn
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C -ajax -cqn
 {"ok":true,"data":{"Action-B":true,"Action-C":true}}
 
 # 返回结果用 Ajax 格式包裹
-demo:> pvg can Role1 Action-B Action-E -ajax -cqn
+demo:> pvg ~/my-pvg.json can Role1 Action-B Action-E -ajax -cqn
 {"ok":false,"data":{"Action-B":true,"Action-E":false}}
 ```
 
 --------------------------------------
 # 相关知识点
 
-- [基础权限模型][c0-pvg]
+- [基础权限模型][c0-bpm]
 
-[c0-pvg]: ../core-l0/c0-pvg-basic.md
-[c2-pvg]: ../core-l2/c2-pvg-more.md
+[c0-bpm]: ../core-l0/c0-basic-privilege-model.md

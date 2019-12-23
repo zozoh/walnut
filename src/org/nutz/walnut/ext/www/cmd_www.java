@@ -26,6 +26,19 @@ import org.nutz.web.ajax.Ajax;
  */
 public class cmd_www extends JvmHdlExecutor {
 
+    public static WnObj checkSite(WnSystem sys, JvmHdlContext hc) {
+        String site = hc.params.val_check(0);
+        return checkSite(sys, site);
+    }
+
+    public static WnObj checkSite(WnSystem sys, String site) {
+        if (Wn.isFullObjId(site)) {
+            return sys.io.checkById(site);
+        }
+
+        return Wn.checkObj(sys, site);
+    }
+
     /**
      * 为订单准备支付单
      * 
@@ -37,11 +50,14 @@ public class cmd_www extends JvmHdlExecutor {
      *            订单
      * @param bu
      *            支付者
+     * @param upick
+     *            创建支付单时，从用户元数据挑选选数据
      */
     public static void prepareToPayOrder(WnSystem sys,
                                          WnWebService webs,
                                          WnOrder or,
-                                         WnAccount bu) {
+                                         WnAccount bu,
+                                         NutMap upick) {
 
         // 防守一下
         if (null == bu || null == or) {
@@ -69,8 +85,9 @@ public class cmd_www extends JvmHdlExecutor {
         List<String> cmds = new LinkedList<>();
         cmds.add("pay create");
         if (!Strings.isBlank(payType)) {
+            String sellerName = webs.getSite().getSellerName(payType);
             cmds.add("-pt '" + payType + "'");
-            cmds.add("-ta strato");
+            cmds.add("-ta '" + sellerName + "'");
         }
         cmds.add("-br '" + or.getTitle() + "'");
         cmds.add("-bu " + oAccountDir.id() + ":" + bu.getId());
@@ -78,7 +95,20 @@ public class cmd_www extends JvmHdlExecutor {
         if (null != oCallback) {
             cmds.add("-callback id:" + oCallback.id());
         }
-        cmds.add("-meta");
+        if (null != upick && !upick.isEmpty()) {
+            NutMap buBean = bu.toBean();
+            NutMap umeta = new NutMap();
+            for (String key : upick.keySet()) {
+                Object val = buBean.get(key);
+                String k2 = upick.getString(key);
+                umeta.put(k2, val);
+            }
+            if (!umeta.isEmpty()) {
+                cmds.add("-meta");
+                JsonFormat fmt = JsonFormat.compact().setQuoteName(true);
+                cmds.add("'" + Json.toJson(umeta, fmt) + "'");
+            }
+        }
 
         String cmdText = Strings.join(" ", cmds);
 
@@ -120,4 +150,17 @@ public class cmd_www extends JvmHdlExecutor {
         sys.out.println(json);
     }
 
+    public static void outputJsonOrAjax(WnSystem sys, Object data, JvmHdlContext hc) {
+        boolean ajax = hc.params.is("ajax");
+        outputJsonOrAjax(sys, data, hc.jfmt, ajax);
+    }
+
+    public static void outputJsonOrAjax(WnSystem sys, Object data, JsonFormat jfmt, boolean ajax) {
+        Object reo = data;
+        if (ajax) {
+            reo = Ajax.ok().setData(data);
+        }
+        String json = Json.toJson(reo, jfmt);
+        sys.out.println(json);
+    }
 }

@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -127,7 +129,7 @@ public class WnAuthSession {
         }
         map.put("uid", this.getMyId());
         map.put("unm", this.getMyName());
-        map.put("me", this.getMe().toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO));
+        map.put("me", this.getMe().toBeanForClient());
         map.put("grp", this.getMyGroup());
         map.put("expi", expi);
         map.put("du", expi - System.currentTimeMillis());
@@ -263,7 +265,12 @@ public class WnAuthSession {
         }
         // 加入用户的环境变量
         if (null != map) {
-            this.vars.putAll(map);
+            for (Map.Entry<String, Object> en : map.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                String k2 = key.toUpperCase();
+                this.vars.put(k2, val);
+            }
         }
         // 加入 PWD
         this.vars.put("PWD", this.currentPath);

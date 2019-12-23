@@ -179,6 +179,22 @@ public class WnWebSite {
         return sellers;
     }
 
+    public String getSellerName(String nameOrPayType) {
+        if (null == sellers || Strings.isBlank(nameOrPayType)) {
+            return null;
+        }
+        // 如果是支付类型，譬如:
+        // - wx.qrcode : 微信主动扫二维码付款
+        // - wx.jsapi : 微信公众号内支付
+        // - wx.scan : 微信被物理码枪扫付款码支付
+        // - zfb.qrcode : 支付宝主动扫二维码付款
+        // - zfb.scan : 支付宝被物理码枪扫付款码支付
+        // 需要之取前缀
+        int pos = nameOrPayType.indexOf('.');
+        String sellerName = pos > 0 ? nameOrPayType.substring(0, pos) : nameOrPayType;
+        return sellers.getString(sellerName);
+    }
+
     public long getSeDftDu() {
         return seDftDu;
     }

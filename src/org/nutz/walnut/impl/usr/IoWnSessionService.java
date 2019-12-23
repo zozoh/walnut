@@ -20,6 +20,7 @@ import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
+@Deprecated
 public class IoWnSessionService implements WnSessionService {
 
     private static final Log log = Logs.get();

@@ -349,18 +349,7 @@ public abstract class Cmds {
 
         // 打印分页信息的 JSON 对象
         if (null != wp && wp.countPage) {
-            NutMap re = new NutMap();
-            re.setv("list", outs);
-            re.setv("pager",
-                    Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
-                              wp.pn,
-                              wp.pgsz,
-                              wp.sum_page,
-                              wp.sum_count,
-                              wp.skip,
-                              outs.size(),
-                              wp.sum_page,
-                              outs.size()));
+            NutMap re = createQueryResult(wp, outs);
             json = Json.toJson(re, fmt);
         }
         // 强制输出列表
@@ -374,6 +363,22 @@ public abstract class Cmds {
 
         // 输出
         sys.out.println(json);
+    }
+
+    public static NutMap createQueryResult(WnPager wp, List<?> list) {
+        NutMap re = new NutMap();
+        re.setv("list", list);
+        re.setv("pager",
+                Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
+                          wp.pn,
+                          wp.pgsz,
+                          wp.sum_page,
+                          wp.sum_count,
+                          wp.skip,
+                          list.size(),
+                          wp.sum_page,
+                          list.size()));
+        return re;
     }
 
     public static JsonFormat gen_json_format(ZParams params) {

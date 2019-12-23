@@ -11,6 +11,7 @@ import org.nutz.walnut.impl.io.WnBean;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
+@Deprecated
 public class IoWnUsr extends WnBean implements WnUsr {
 
     @Override

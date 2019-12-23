@@ -107,14 +107,24 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
     }
 
     @Override
-    public WnAccount checkAccountById(String uid) {
+    public WnAccount getAccountById(String uid) {
         WnObj oU = io.get(uid);
-        if (null != oU) {
+        if (null != oU && oU.getInt("th_live", 1) != -1) {
             if (!oAccountDir.isSameId(oU.parentId())) {
                 throw Er.create("e.auth.acc_outof_home", uid);
             }
+            return new WnAccount(oU);
         }
-        return new WnAccount(oU);
+        return null;
+    }
+
+    @Override
+    public WnAccount checkAccountById(String uid) {
+        WnAccount u = this.getAccountById(uid);
+        if (null == u) {
+            throw Er.create("e.auth.noexists", uid);
+        }
+        return u;
     }
 
 }

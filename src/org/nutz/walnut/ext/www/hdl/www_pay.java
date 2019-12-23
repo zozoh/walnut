@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.hdl;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
@@ -10,7 +11,6 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
 public class www_pay implements JvmHdl {
@@ -19,13 +19,12 @@ public class www_pay implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // -------------------------------
         // 站点/账户/密码/票据
-        String site = hc.params.val_check(0);
+        WnObj oWWW = cmd_www.checkSite(sys, hc);
         String orId = hc.params.val_check(1);
         String ticket = hc.params.check("ticket");
 
         // -------------------------------
         // 准备服务类
-        WnObj oWWW = Wn.checkObj(sys, site);
         WnWebService webs = new WnWebService(sys, oWWW);
 
         // -------------------------------
@@ -39,7 +38,8 @@ public class www_pay implements JvmHdl {
 
         // -------------------------------
         // 准备支付单
-        cmd_www.prepareToPayOrder(sys, webs, or, bu);
+        NutMap upick = hc.params.getAs("upick", NutMap.class);
+        cmd_www.prepareToPayOrder(sys, webs, or, bu, upick);
 
         // -------------------------------
         // 输出结果

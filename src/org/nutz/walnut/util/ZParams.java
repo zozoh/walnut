@@ -268,7 +268,7 @@ public class ZParams implements Cloneable {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public NutMap getMap(String key, NutMap dft) {
         Object val = map.get(key);
-        if (null == val)
+        if (null == val || "true".equals(val) || val instanceof Boolean)
             return dft;
 
         if (val instanceof Map)

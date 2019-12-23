@@ -33,7 +33,7 @@ tags:
 - 优惠券
 
 这三个数据结构都是`ThingSet`，关联在站点元数据据里。
-请参看[基础账户模型][c0-acc]的`站点元数据`一节获取更多详情。
+请参看[基础账户模型][c0-bam]的`站点元数据`一节获取更多详情。
 
 --------------------------------------
 ## 订单的数据结构
@@ -132,9 +132,9 @@ cpn_expi : AMS
 > 当然，优惠券还可以有各种各样的其他字段，但是本模型仅关心上面这几个字段
 
 --------------------------------------
-# 数据接口
+# 使用方式
 
-通过 REGAPI 提供接口
+客户端通过 `Ajax` 方式调用接口
 
 --------------------------------------
 ## `/pay/buy`创建订单和支付单
@@ -200,7 +200,7 @@ ticket : "34t6..8aq1"     # 【必】登录会话的票据
 - `e.www.order.invalid.pay_tp` : 错误的支付类型
 
 
-> 初始化脚本示例：
+### 初始化脚本
 
 ```bash
 # API : 支付:创建订单和支付单
@@ -243,7 +243,7 @@ id : "34t6..8aq1"     # 【必】订单ID
 }
 ```
 
-> 初始化脚本示例：
+### 初始化脚本
 
 ```bash
 # API : 支付:检查订单支付状态
@@ -271,7 +271,7 @@ HTTP GET /api/${YourDomain}/pay/check_order
 out_trade_no : "34t6..8aq1"     # 【必】订单ID
 ```
 
-> 初始化脚本示例：
+### 初始化脚本
 
 ```bash
 # API : 支付:支付宝回调
@@ -299,7 +299,7 @@ HTTP GET /api/${YourDomain}/pay/check_order
 out_trade_no : "34t6..8aq1"     # 【必】订单ID
 ```
 
-> 初始化脚本示例：
+### 初始化脚本
 
 ```bash
 # API : 支付:微信回调
@@ -309,7 +309,7 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 %END%
 ```
 
-[c0-acc]: ../core-l0/c0-account-basic.md
+[c0-bam]: ../core-l0/c0-baice-auth-model.md
 [f1-pay]: ../func-l1/f1-payment.md
 [f0-wxp]: ../func-l0/f0-weixin-payment.md
 [f0-zfb]: ../func-l0/f0-alipay.md

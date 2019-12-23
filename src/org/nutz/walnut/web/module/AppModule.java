@@ -7,12 +7,9 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -36,7 +33,6 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
-import org.nutz.mvc.view.JspView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -45,10 +41,6 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.impl.srv.WnActiveCode;
-import org.nutz.walnut.impl.srv.WnAppLicenceInfo;
-import org.nutz.walnut.impl.srv.WnLicence;
-import org.nutz.walnut.impl.srv.WnLicenceService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnCheckSession;
@@ -57,25 +49,9 @@ import org.nutz.walnut.web.view.WnObjDownloadView;
 
 @IocBean
 @At("/a")
-@Filters(@By(type = WnCheckSession.class, args = {"true"}))
 public class AppModule extends AbstractWnModule {
 
     private static final Log log = Logs.get();
-
-    @Inject("java:$conf.get('page-licence-fail', 'licence_fail')")
-    private String page_licence_fail;
-
-    @Inject("java:$conf.get('page-licence-gone', 'licence_gone')")
-    private String page_licence_gone;
-
-    @Inject("java:$conf.get('page-app', 'app')")
-    private String page_app;
-
-    @Inject("refer:licenceService")
-    private WnLicenceService licences;
-
-    public static final Pattern P_APP_LOAD = Pattern.compile("^var +\\w+ += *([\\[{].+[\\]}]);$",
-                                                             Pattern.DOTALL);
 
     public static View V_304 = new HttpStatusView(304);
 
@@ -137,15 +113,6 @@ public class AppModule extends AbstractWnModule {
         View reView = null;
 
         // .............................................
-        // 检查 Licence 的逻辑
-        WnObj oAppLicence = io.fetch(oAppHome, "app_licence");
-        if (null != oAppLicence) {
-            WnAppLicenceInfo ali = io.readJson(oAppLicence, WnAppLicenceInfo.class);
-            reView = __check_licence(app, se, ali);
-        }
-
-        // .............................................
-        // 如果 null 表示过了许可证检查
         // 后续正常的 APP 打开逻辑
         if (null == reView) {
             reView = __open_page(app, oAppHome, se, etag);
@@ -232,50 +199,6 @@ public class AppModule extends AbstractWnModule {
         return new ViewWrapper(new RawView("html"), cnt);
     }
 
-    private View __check_licence(WnApp app, WnAuthSession se, WnAppLicenceInfo ali) {
-        // 得到有效的激活码
-        String clientName = se.getMyGroup();
-        WnActiveCode acode = licences.getActiveCode(ali, clientName);
-
-        // 根据激活码，找到许可证本身
-        if (null != acode && !acode.isExpired()) {
-            WnLicence licn = licences.getLicence(acode);
-
-            // 没找到许可证那么显示许可证不存在页面
-            if (null == licn)
-                return new ViewWrapper(new JspView("jsp." + page_licence_gone), ali.toContextMap());
-
-            // 看看是否需要动态判断
-            StringBuilder err = new StringBuilder();
-            if (licn.hasVerify()) {
-                String cmdText = licn.getVerify();
-                StringBuilder out = new StringBuilder();
-
-                // 用客户的账号去验证
-                this.exec("app-licence-check", clientName, null, cmdText, out, err);
-            }
-
-            // 嗯，通过验证
-            if (err.length() == 0) {
-                // 为 app 添加权限字段
-                app.setPrivilege(licn.getPrivilege());
-
-                // 总之，返回 null，放过你了
-                return null;
-            }
-
-            // 添加错误的信息
-            ali.setErrMessage(err.toString());
-        }
-        // 激活码过期或者不存在
-        else {
-            ali.setErrMessage("e.licence.acode_noexists");
-        }
-
-        // 错误，不能通过许可证验证，返回错误视图
-        return new ViewWrapper(new JspView("jsp." + page_licence_fail), ali.toContextMap());
-    }
-
     private String __find_tmpl(String appName, WnObj oAppHome) {
         // 找到主界面模板
         String tt = "pc"; // 可以是 "pc" 或者 "mobile"
@@ -311,6 +234,7 @@ public class AppModule extends AbstractWnModule {
         return tmpl;
     }
 
+    @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/load/?/**")
     @Ok("void")
     @Fail("http:404")
@@ -318,7 +242,6 @@ public class AppModule extends AbstractWnModule {
                      String rsName,
                      @Param("mime") String mimeType,
                      @Param("d") String download,
-                     @Param("auto_unwrap") boolean auto_unwrap,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
                      @ReqHeader("Range") String range,
@@ -348,17 +271,6 @@ public class AppModule extends AbstractWnModule {
             String text = null;
             if (log.isDebugEnabled())
                 sw.tag("check_rs " + rsName);
-
-            // TODO 这个木用，应该删掉，先去掉界面上那坨 var xxx = 就好
-            if (auto_unwrap) {
-                text = io.readText(o);
-                Matcher m = P_APP_LOAD.matcher(text);
-                if (m.find()) {
-                    text = m.group(1);
-                }
-                if (log.isDebugEnabled())
-                    sw.tag("auto_unwrap ");
-            }
 
             // 纠正一下下载模式
             ua = WnWeb.autoUserAgent(o, ua, download);
@@ -393,6 +305,7 @@ public class AppModule extends AbstractWnModule {
         }
     }
 
+    @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/run/**")
     @Ok("void")
     @Fail("ajax")
