@@ -20,6 +20,8 @@ public class WxConf {
 
     public long pay_time_expire;
 
+    public String key_password;
+
     public WxMsgHandler[] handlers;
 
 }
