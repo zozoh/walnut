@@ -216,7 +216,7 @@ public class WnAccount {
                 bean.put("login", loginAt);
 
             // 性别
-            if (null != sex)
+            if (null != sex && WnHumanSex.UNKNOWN != sex)
                 bean.put("sex", sex.getValue());
         }
 
@@ -251,8 +251,10 @@ public class WnAccount {
             // Other Meta
             if (null != this.meta)
                 bean.putAll(this.meta);
+        }
 
-            // 最后强制输出 HOME
+        // 强制处理 HOME
+        if (WnAuths.ABMM.asHOME(mode)) {
             bean.put("HOME", this.getHomePath());
         }
     }

@@ -65,7 +65,7 @@ public abstract class WnAuths {
         }
 
         /**
-         * 仅处理 META 字段（包括强制设置 "HOME"）
+         * 仅处理 META 字段
          */
         public static final int META = 1 << 5;
 
@@ -74,9 +74,22 @@ public abstract class WnAuths {
         }
 
         /**
+         * 强制设置 "HOME"
+         */
+        public static final int HOME = 1 << 6;
+
+        public static boolean asHOME(int mode) {
+            return (mode & HOME) > 0;
+        }
+
+        /**
+         * 全部字段，除了 "HOME"
+         */
+        public static final int ALL_INFO = LOGIN | INFO | PASSWD | OAUTH2 | WXOPEN | META;
+        /**
          * 全部字段，并强制设置 "HOME"
          */
-        public static final int ALL = LOGIN | INFO | PASSWD | OAUTH2 | WXOPEN | META;
+        public static final int ALL = ALL_INFO | HOME;
 
     }
 
