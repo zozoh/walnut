@@ -55,6 +55,8 @@ public interface WnAccountLoader {
      */
     WnAccount checkAccount(WnAccount info);
 
+    WnAccount getAccountById(String uid);
+    
     WnAccount checkAccountById(String uid);
 
 }

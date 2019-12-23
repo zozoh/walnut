@@ -146,6 +146,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
+    public WnAccount getAccountById(String uid) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
+            protected WnAccount exec() {
+                return impl.getAccountById(uid);
+            }
+        });
+    }
+
     public void renameAccount(WnAccount user, String newName) {
         Wn.WC().suCoreNoSecurity(impl.io, root, () -> {
             impl.renameAccount(user, newName);

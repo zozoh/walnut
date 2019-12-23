@@ -3,6 +3,7 @@ package org.nutz.walnut.api.auth;
 import java.util.Map;
 
 import org.nutz.json.JsonIgnore;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
@@ -54,7 +55,10 @@ public class WnAccount {
     private NutMap OAuth2s;
 
     @JsonIgnore
-    private NutMap wxOpenIds;
+    private NutMap wxGhOpenIds;
+
+    @JsonIgnore
+    private NutMap wxMpOpenIds;
 
     private NutMap meta;
 
@@ -71,7 +75,7 @@ public class WnAccount {
 
     public WnAccount() {
         this.OAuth2s = new NutMap();
-        this.wxOpenIds = new NutMap();
+        this.wxGhOpenIds = new NutMap();
         this.meta = new NutMap();
         this.sex = WnHumanSex.UNKNOWN;
     }
@@ -152,7 +156,11 @@ public class WnAccount {
             }
             // wx_gh_xxx
             else if (key.startsWith("wx_gh_")) {
-                this.setWxOpenId(key, bean.getString(key));
+                this.setWxGhOpenId(key, bean.getString(key));
+            }
+            // wx_mp_xxx
+            else if (key.startsWith("wx_mp_")) {
+                this.setWxMpOpenId(key, bean.getString(key));
             }
             // Others put to "meta"
             else {
@@ -221,22 +229,28 @@ public class WnAccount {
         }
 
         // OAUTH2 : 第三方登录信息
-        if (WnAuths.ABMM.asPASSWD(mode)) {
+        if (WnAuths.ABMM.asPASSWD(mode) && null != OAuth2s) {
             for (String key : OAuth2s.keySet()) {
                 bean.put("oauth_" + key, OAuth2s.get(key));
             }
         }
         // WXOPEN : 微信公众号登录信息
         if (WnAuths.ABMM.asWXOPEN(mode)) {
-            for (String key : wxOpenIds.keySet()) {
-                bean.put("wx_gh_" + key, wxOpenIds.get(key));
-            }
+            if (null != wxGhOpenIds)
+                for (String key : wxGhOpenIds.keySet()) {
+                    bean.put("wx_gh_" + key, wxGhOpenIds.get(key));
+                }
+            if (null != wxMpOpenIds)
+                for (String key : wxMpOpenIds.keySet()) {
+                    bean.put("wx_mp_" + key, wxMpOpenIds.get(key));
+                }
         }
 
         // 要处理 Meta
         if (WnAuths.ABMM.asMETA(mode)) {
             // Other Meta
-            bean.putAll(this.meta);
+            if (null != this.meta)
+                bean.putAll(this.meta);
 
             // 最后强制输出 HOME
             bean.put("HOME", this.getHomePath());
@@ -380,7 +394,7 @@ public class WnAccount {
             ta.salt = this.salt;
         }
         ta.putAllOAuth2(this.OAuth2s);
-        ta.putAllWxOpenId(this.wxOpenIds);
+        ta.putAllWxGhOpenId(this.wxGhOpenIds);
         ta.putAllMeta(this.meta);
     }
 
@@ -538,41 +552,93 @@ public class WnAccount {
         }
     }
 
-    public NutMap getWxOpenIdMap() {
-        return wxOpenIds;
+    public void setWxOpenId(String mode, String ghOrMpName, String openId) {
+        // 小程序
+        if ("mp".equals(mode)) {
+            this.setWxMpOpenId(ghOrMpName, openId);
+        }
+        // 微信公号
+        else if ("gh".equals(mode)) {
+            this.setWxGhOpenId(ghOrMpName, openId);
+        }
+        // 不可能
+        else {
+            throw Lang.impossible();
+        }
     }
 
-    public String getWxOpenId(String ghName) {
-        if (null == this.wxOpenIds) {
+    public NutMap getWxGhOpenIdMap() {
+        return wxGhOpenIds;
+    }
+
+    public String getWxGhOpenId(String ghName) {
+        if (null == this.wxGhOpenIds) {
             return null;
         }
         if (ghName.startsWith("wx_gh_")) {
             ghName = ghName.substring("wx_gh_".length());
         }
-        return wxOpenIds.getString(ghName);
+        return wxGhOpenIds.getString(ghName);
     }
 
-    public void setWxOpenId(String ghName, String openId) {
-        if (null == this.wxOpenIds) {
-            wxOpenIds = new NutMap();
+    public void setWxGhOpenId(String ghName, String openId) {
+        if (null == this.wxGhOpenIds) {
+            wxGhOpenIds = new NutMap();
         }
         if (ghName.startsWith("wx_gh_")) {
             ghName = ghName.substring("wx_gh_".length());
         }
-        wxOpenIds.put(ghName, openId);
+        wxGhOpenIds.put(ghName, openId);
     }
 
-    public void putAllWxOpenId(NutBean map) {
+    public void putAllWxGhOpenId(NutBean map) {
         if (null != map) {
             for (String key : map.keySet()) {
                 String val = map.getString(key);
-                this.setWxOpenId(key, val);
+                this.setWxGhOpenId(key, val);
             }
         }
     }
 
-    public void setWxOpenIds(NutMap wxOpenIds) {
-        this.wxOpenIds = wxOpenIds;
+    public void setWxGhOpenIds(NutMap wxGhOpenIds) {
+        this.wxGhOpenIds = wxGhOpenIds;
+    }
+
+    public NutMap getWxMpOpenIdMap() {
+        return wxMpOpenIds;
+    }
+
+    public String getWxMpOpenId(String mpName) {
+        if (null == this.wxMpOpenIds) {
+            return null;
+        }
+        if (mpName.startsWith("wx_mp_")) {
+            mpName = mpName.substring("wx_mp_".length());
+        }
+        return wxMpOpenIds.getString(mpName);
+    }
+
+    public void setWxMpOpenId(String mpName, String openId) {
+        if (null == this.wxMpOpenIds) {
+            wxMpOpenIds = new NutMap();
+        }
+        if (mpName.startsWith("wx_mp_")) {
+            mpName = mpName.substring("wx_mp_".length());
+        }
+        wxMpOpenIds.put(mpName, openId);
+    }
+
+    public void putAllWxMpOpenId(NutBean map) {
+        if (null != map) {
+            for (String key : map.keySet()) {
+                String val = map.getString(key);
+                this.setWxMpOpenId(key, val);
+            }
+        }
+    }
+
+    public void setWxMpOpenIds(NutMap wxOpenIds) {
+        this.wxMpOpenIds = wxOpenIds;
     }
 
     public NutMap getMetaMap() {
@@ -645,7 +711,7 @@ public class WnAccount {
             if (null == this.meta) {
                 this.meta = new NutMap();
             }
-            //String k2 = key.toUpperCase();
+            // String k2 = key.toUpperCase();
             this.meta.put(key, val);
         }
     }

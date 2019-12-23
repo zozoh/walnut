@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.hdl;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
@@ -37,7 +38,8 @@ public class www_pay implements JvmHdl {
 
         // -------------------------------
         // 准备支付单
-        cmd_www.prepareToPayOrder(sys, webs, or, bu);
+        NutMap upick = hc.params.getAs("upick", NutMap.class);
+        cmd_www.prepareToPayOrder(sys, webs, or, bu, upick);
 
         // -------------------------------
         // 输出结果

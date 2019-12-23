@@ -82,7 +82,7 @@ public class weixin_scan implements JvmHdl {
             c.put("eventkey", eventkey);
             c.put("scene", scene);
             WnAccount info = new WnAccount();
-            info.setWxOpenId(pnb, openid);
+            info.setWxGhOpenId(pnb, openid);
             WnAccount usr = sys.auth.getAccount(info);
             if (usr != null) {
                 c.put("uid", usr.getId());

@@ -33,7 +33,7 @@ tags:
 - 优惠券
 
 这三个数据结构都是`ThingSet`，关联在站点元数据据里。
-请参看[基础账户模型][c0-acc]的`站点元数据`一节获取更多详情。
+请参看[基础账户模型][c0-bam]的`站点元数据`一节获取更多详情。
 
 --------------------------------------
 ## 订单的数据结构
@@ -309,7 +309,7 @@ xml tojson id:${id} | pay re -idkey out_trade_no -s
 %END%
 ```
 
-[c0-acc]: ../core-l0/c0-account-basic.md
+[c0-bam]: ../core-l0/c0-baice-auth-model.md
 [f1-pay]: ../func-l1/f1-payment.md
 [f0-wxp]: ../func-l0/f0-weixin-payment.md
 [f0-zfb]: ../func-l0/f0-alipay.md

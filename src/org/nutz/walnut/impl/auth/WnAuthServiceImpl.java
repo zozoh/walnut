@@ -16,9 +16,9 @@ import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
-import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnAuths;
+import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -275,6 +275,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         // 得到用户的 OpenId
         String openid;
         wxCodeType = Strings.sBlank(wxCodeType, "gh");
+        if (!wxCodeType.matches("^(mp|gh)$")) {
+            throw Er.create("e.auth.login.invalid.wxCodeType");
+        }
         // 小程序的权限码
         if ("mp".equals(wxCodeType)) {
             openid = wxApi.user_openid_by_mp_code(code);
@@ -284,11 +287,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             openid = wxApi.user_openid_by_gh_code(code);
         }
         if (Strings.isBlank(openid)) {
-            throw Er.create("e.auth.login.invalid.weixin_code");
+            throw Er.create("e.auth.login.invalid.wxCode");
         }
         // 得到公众号名称
-        String ghName = wxApi.getHomeObj().name();
-        String key = "wx_gh_" + ghName;
+        String ghOrMpName = wxApi.getHomeObj().name();
+        String key = "wx_" + wxCodeType + "_" + ghOrMpName;
 
         // 如果已经有了这个用户的微信会话，重用之
         NutMap by = Lang.map("by_tp", key);
@@ -298,7 +301,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         WnObj oSe = io.getOne(q);
         if (null != oSe) {
             String uid = oSe.getString("uid");
-            WnAccount me = checkAccountById(uid);
+            WnAccount me = getAccountById(uid);
             if (null != me) {
                 return new WnAuthSession(oSe, me);
             }
@@ -306,7 +309,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 看看这个用户是否存在
         WnAccount info = new WnAccount();
-        info.setWxOpenId(ghName, openid);
+        info.setWxOpenId(wxCodeType, ghOrMpName, openid);
         WnAccount me = accountLoader.getAccount(info);
 
         // 如果已经存在了就直接创建 会话收工
@@ -575,6 +578,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     @Override
     public WnAccount checkAccountById(String uid) {
         return accountLoader.checkAccountById(uid);
+    }
+
+    @Override
+    public WnAccount getAccountById(String uid) {
+        return accountLoader.getAccountById(uid);
     }
 
 }

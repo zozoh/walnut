@@ -50,11 +50,14 @@ public class cmd_www extends JvmHdlExecutor {
      *            订单
      * @param bu
      *            支付者
+     * @param upick
+     *            创建支付单时，从用户元数据挑选选数据
      */
     public static void prepareToPayOrder(WnSystem sys,
                                          WnWebService webs,
                                          WnOrder or,
-                                         WnAccount bu) {
+                                         WnAccount bu,
+                                         NutMap upick) {
 
         // 防守一下
         if (null == bu || null == or) {
@@ -92,7 +95,20 @@ public class cmd_www extends JvmHdlExecutor {
         if (null != oCallback) {
             cmds.add("-callback id:" + oCallback.id());
         }
-        cmds.add("-meta");
+        if (null != upick && !upick.isEmpty()) {
+            NutMap buBean = bu.toBean();
+            NutMap umeta = new NutMap();
+            for (String key : upick.keySet()) {
+                Object val = buBean.get(key);
+                String k2 = upick.getString(key);
+                umeta.put(k2, val);
+            }
+            if (!umeta.isEmpty()) {
+                cmds.add("-meta");
+                JsonFormat fmt = JsonFormat.compact().setQuoteName(true);
+                cmds.add("'" + Json.toJson(umeta, fmt) + "'");
+            }
+        }
 
         String cmdText = Strings.join(" ", cmds);
 

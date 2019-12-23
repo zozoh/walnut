@@ -9,11 +9,10 @@
 
 - Walnut的简要介绍
 - [数据存储模型][c0-ios]
-- [基础账户模型][c0-acc]
-- [核心会话服务][c0-ses]
+- [基础账户授权模型][c0-bam]
+- [核心会话服务][c0-css]
 - 环境变量
 - 命令机制
-- [基础权限模型][c0-pvg]
 
 -----------------------------------------
 ## 系统延申概念`core-l1`
@@ -25,7 +24,7 @@
 -----------------------------------------
 ## 系统高阶概念`core-l2`
 
-- [业务权限模型][c2-pvg]
+- [业务权限模型][c2-bpm]
 - 应用机制
 - 自动登录
 - 域名映射
@@ -83,20 +82,22 @@
 -----------------------------------------
 ## Web 核心`webs-l0`
 
-- WNML支持
-- [站点账户模型][w0-acc]
+- [站点账户授权接口][w0-saa]
+- [采用域用户登录系统][w0-abd]
 - 验证码模型
+- WNML支持
 - [购物与订单模型][w0-buy]
 - Ti 的 www 支持
 
 [c0-ios]: core-l0/c0-io-store.md
-[c0-acc]: core-l0/c0-account-basic.md
-[c0-ses]: core-l0/c0-session-top.md
-[c0-pvg]: core-l0/c0-pvg-basic.md
-[c2-pvg]: core-l2/c2-pvg-more.md
+[c0-bam]: core-l0/c0-baice-auth-model.md
+[c0-css]: core-l0/c0-core-session-service.md
+[c0-bpm]: core-l0/c0-basic-privilege-model.md
+[c2-bpm]: core-l2/c2-biz-privilege-model.md
 [f0-wxp]: func-l0/f0-weixin-payment.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f1-pay]: func-l1/f1-payment.md
-[w0-acc]: webs-l0/w0-account.md
+[w0-abd]: webs-l0/w0-auth-by-domain.md
+[w0-saa]: webs-l0/w0-site-auth-api.md
 [w0-buy]: webs-l0/w0-buy.md
 
