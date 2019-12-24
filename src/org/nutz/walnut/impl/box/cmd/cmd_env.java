@@ -43,6 +43,7 @@ public class cmd_env extends JvmExecutor {
                 String val = str.substring(pos + 1);
                 String v2 = Wn.normalizeStr(val, sys);
                 vars.put(key, v2);
+                sys.auth.saveSessionVars(sys.session);
             }
             // 列出变量的值
             else {

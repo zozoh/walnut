@@ -15,6 +15,10 @@ public class WnWebSite {
 
     private WnIo io;
 
+    /**
+     * 站点所在域的主目录路径。这个参数之所以必须是因为它在设置时会自动给 vars 添加 <code>HOME</code> 键，这样，各种指定的
+     * session/accounts ... 之类的路径就能支持 <code>~/</code> 前缀了。
+     */
     private String domainHomePath;
     private NutMap vars;
 

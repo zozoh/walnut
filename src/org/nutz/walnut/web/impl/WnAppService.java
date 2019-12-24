@@ -1,33 +1,48 @@
 package org.nutz.walnut.web.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.regex.Matcher;
-
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
-import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
-import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
-import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.web.bean.WnApp;
 
+/**
+ * 封装系统 应用的相关逻辑
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 @IocBean
 public class WnAppService extends WnRun {
 
+    /**
+     * 运行一个命令
+     * 
+     * @param app
+     *            应用
+     * @param metaOutputSeparator
+     *            写入输出流的宏分隔符，如果为空，则不输出宏指令（这个交给客户端来决定）
+     * @param PWD
+     *            当前目录路径，默认为 <code>~</code>
+     * @param cmdText
+     *            运行指令
+     * @param out
+     *            标准输出流
+     * @param err
+     *            错误输出流
+     * @param ins
+     *            标准输入流
+     */
     public void runCommand(WnApp app,
                            final String metaOutputSeparator,
                            String PWD,
@@ -38,74 +53,64 @@ public class WnAppService extends WnRun {
         // app 所在目录
         WnObj oAppHome = app.getHome();
 
-        // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
-        cmdText = cmdText.trim();
-        Matcher sudoM = Regex.getPattern("^wndo[ ]+(.+)$").matcher(cmdText);
-        boolean isSudo = sudoM.find();
-        if (isSudo) {
-            cmdText = sudoM.group(1);
-            if ("root".equals(Wn.WC().checkMyName())) { // root还干啥sudo
-                isSudo = false;
-            }
-        }
-        final WnAuthSession my_se = app.getSession();
+        // TODO zozoh: 下这段古老的逻辑应木有用了，找个时间删了吧:
+        // // FIXME sudo临时解决方案，防止有人知道sudo，特将命令改为wndo
+        // cmdText = cmdText.trim();
+        // Matcher sudoM = Regex.getPattern("^wndo[ ]+(.+)$").matcher(cmdText);
+        // boolean isSudo = sudoM.find();
+        // if (isSudo) {
+        // cmdText = sudoM.group(1);
+        // if ("root".equals(Wn.WC().checkMyName())) { // root还干啥sudo
+        // isSudo = false;
+        // }
+        // }
+        // final WnAuthSession my_se = app.getSession();
+        //
+        // WnAuthSession su_se = null;
+        // if (isSudo) {
+        // WnAccount root = auth().checkAccount("root");
+        // su_se = auth().createSession(root);
+        // }
+        //
+        // // 运行
+        // WnAuthSession se = isSudo ? su_se : my_se;
+        // NutMap vars = my_se.getVars();
+        // vars.put("PWD", Strings.sBlank(PWD, "~"));
+        // vars.put("APP_HOME", oAppHome.path());
+        //
+        // // 准备变量，以便在回调里释放
+        // final WnAuthSession the_su_se = su_se;
+        //
+        // // 准备命令执行后的回调
+        // Writer w = new OutputStreamWriter(out);
+        // AppCommandCallback callback = new AppCommandCallback(my_se, w,
+        // metaOutputSeparator, () -> {
+        // if (the_su_se != null) {
+        // auth().removeSession(the_su_se, 0);
+        // }
+        // });
+        // 准备会话变量
+        WnAuthSession se = app.getSession();
+        NutMap vars = se.getVars();
+        vars.put("PWD", Strings.sBlank(PWD, "~"));
+        vars.put("APP_HOME", oAppHome.path());
 
-        WnAuthSession su_se = null;
-        if (isSudo) {
-            WnAccount root = auth().checkAccount("root");
-            su_se = auth().createSession(root);
-        }
-
-        // 运行
-        WnAuthSession se = isSudo ? su_se : my_se;
-        my_se.getVars().put("PWD", PWD);
-        my_se.getVars().put("APP_HOME", oAppHome.path());
-
-        // 准备变量，以便在回调里释放
-        final WnAuthSession the_su_se = su_se;
+        // 准备命令执行后的回调
+        Writer w = new OutputStreamWriter(out);
+        AppCommandCallback callback = new AppCommandCallback(se, w, metaOutputSeparator, null);
 
         // 执行命令
-        final Writer w = new OutputStreamWriter(out);
-        exec("", se, cmdText, out, err, ins, new Callback<WnBoxContext>() {
-            @Override
-            public void invoke(WnBoxContext bc) {
-                WnAuthSession se = my_se; // 强制使用原来的se
-                // 有宏的分隔符，表示客户端可以接受更多的宏命令
-                if (!Strings.isBlank(metaOutputSeparator)) {
-                    try {
-                        // 无论怎样，都设置环境变量
-                        w.write("\n"
-                                + metaOutputSeparator
-                                + ":MACRO:"
-                                + Wn.MACRO.UPDATE_ENVS
-                                + "\n");
-                        w.write(Json.toJson(se.getVars()));
-                        w.flush();
-                        // 修改当前客户端的 session
-                        if (bc.attrs.has(Wn.MACRO.CHANGE_SESSION)) {
-                            String json = Json.toJson(bc.attrs.get(Wn.MACRO.CHANGE_SESSION),
-                                                      JsonFormat.compact());
-                            w.write("\n"
-                                    + metaOutputSeparator
-                                    + ":MACRO:"
-                                    + Wn.MACRO.CHANGE_SESSION
-                                    + "\n");
-                            w.write(json);
-                            w.flush();
-                        }
-                    }
-                    catch (IOException e) {
-                        throw Lang.wrapThrow(e);
-                    }
-                }
-                if (the_su_se != null) {
-                    auth().removeSession(the_su_se, 0);
-                }
-            }
-        });
+        exec("", se, cmdText, out, err, ins, callback);
 
     }
 
+    /**
+     * 渲染应用的界面前端引导代码
+     * 
+     * @param app
+     *            应用
+     * @return 应用的界面 HTML引导代码
+     */
     public String renderAppHtml(WnApp app) {
         NutMap c = new NutMap();
         String appName = app.getName();
@@ -181,6 +186,15 @@ public class WnAppService extends WnRun {
         return html;
     }
 
+    /**
+     * 获取一个数据对象
+     * 
+     * @param app
+     *            应用
+     * @param str
+     *            对象路径。如果是相对路径，则从应用主目录起始查找
+     * @return 数据对象，null 表示不存在
+     */
     public WnObj getObj(WnApp app, String str) {
         // 获取会话
         WnAuthSession se = app.getSession();
@@ -197,6 +211,13 @@ public class WnAppService extends WnRun {
         return Wn.checkObj(io, se, str);
     }
 
+    /**
+     * 获取一个应用。如果不存在，则抛错
+     * 
+     * @param appName
+     *            应用名。形式类似 "xx.xxx" 如果没有前缀会自动补齐 <code>wn.</code>
+     * @return 应用对象
+     */
     public WnApp checkApp(String appName) {
         // 防空
         if (Strings.isBlank(appName))

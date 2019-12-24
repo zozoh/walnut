@@ -11,6 +11,7 @@
 - [数据存储模型][c0-ios]
 - [基础账户授权模型][c0-bam]
 - [核心会话服务][c0-css]
+- [采用域用户登录系统][c0-abd]
 - 环境变量
 - 命令机制
 
@@ -83,7 +84,6 @@
 ## Web 核心`webs-l0`
 
 - [站点账户授权接口][w0-saa]
-- [采用域用户登录系统][w0-abd]
 - 验证码模型
 - WNML支持
 - [购物与订单模型][w0-buy]
@@ -91,13 +91,13 @@
 
 [c0-ios]: core-l0/c0-io-store.md
 [c0-bam]: core-l0/c0-baice-auth-model.md
+[c0-abd]: webs-l0/w0-auth-by-domain.md
 [c0-css]: core-l0/c0-core-session-service.md
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
 [c2-bpm]: core-l2/c2-biz-privilege-model.md
 [f0-wxp]: func-l0/f0-weixin-payment.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f1-pay]: func-l1/f1-payment.md
-[w0-abd]: webs-l0/w0-auth-by-domain.md
 [w0-saa]: webs-l0/w0-site-auth-api.md
 [w0-buy]: webs-l0/w0-buy.md
 
