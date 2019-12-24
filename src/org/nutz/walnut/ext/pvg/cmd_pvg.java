@@ -24,7 +24,7 @@ public class cmd_pvg extends JvmHdlExecutor {
         int pos;
         // 没有参数
         if (hc.args.length == 0) {
-            throw Er.create("e.cmd.thing.lackArgs", hc.args);
+            throw Er.create("e.cmd.pvg.lackArgs", hc.args);
         }
         // 第一个参数就是 hdl，那么权限矩阵内容来自管道
         else if (null != this.getHdl(hc.args[0])) {
