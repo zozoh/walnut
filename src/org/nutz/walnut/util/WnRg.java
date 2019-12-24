@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Regex;
 
 public abstract class WnRg {
 
@@ -52,7 +53,7 @@ public abstract class WnRg {
      * @see org.nutz.walnut.util.Wn#fmt_str_macro(String)
      */
     public static String extend_rg_macro(String s) {
-        Matcher m = Pattern.compile(any()).matcher(s);
+        Matcher m = Regex.getPattern(any()).matcher(s);
         if (m.find()) {
             String s_match = m.group(2);
             int pos = s_match.indexOf(',');
