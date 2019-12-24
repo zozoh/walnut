@@ -67,7 +67,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
 
         WnAccount info = new WnAccount("xiaobai", "123456");
         me = auth.createAccount(info);
-        se = auth.createSession(me);
+        se = auth.createSession(me, false);
 
         // 将测试线程切换到当前测试账号
         __old_me = Wn.WC().getMe();

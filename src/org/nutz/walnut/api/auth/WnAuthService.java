@@ -77,6 +77,8 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      */
     WnAuthSession getSession(String ticket);
 
+    WnAuthSession getSession(String byType, String byValue);
+
     /**
      * 根据会话票据，找回自身。如果不存在则抛错。
      * 
@@ -92,12 +94,14 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      */
     WnAuthSession checkSession(String ticket);
 
+    WnAuthSession checkSession(String byType, String byValue);
+
     /**
      * 根据会话票据，找回自身。如果不存在则抛错。<br>
      * 执行本次操作将会自动更新票据
      * 
-     * @param ticket
-     *            票据
+     * @param se
+     *            会话对象
      * @return 更新后的会话对象
      * @throws "e.auth.ticket.noexist"
      *             : 票据找不到对应会话
@@ -106,19 +110,21 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * @throws "e.auth.account.invalid"
      *             : 会话对应用户非法
      */
-    WnAuthSession touchSession(String ticket);
+    WnAuthSession touchSession(WnAuthSession se);
 
     /**
      * 根据指定用户，创建一个顶级会话
      * 
      * @param user
      *            账户对象
+     * @param longSession
+     *            是创建长会话还是短会话.true 表示长会话
      * @return 新创建的会话对象
      */
-    WnAuthSession createSession(WnAccount user);
+    WnAuthSession createSession(WnAccount user, boolean longSession);
 
     /**
-     * 为一个会话创建子会话
+     * 为一个会话创建子会话(一定是长会话)
      * 
      * @param pse
      *            父会话对象

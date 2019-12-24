@@ -32,7 +32,7 @@ public class WnWebService {
 
     public WnWebService(WnIo io, WnObj oWWW) {
         // 默认域路径为 /$d0/$d1
-        String homePath = Wn.appendPath("/", oWWW.d0(), oWWW.d1());
+        String homePath = Wn.getObjHomePath(oWWW);
 
         this._init(io, homePath, oWWW);
     }

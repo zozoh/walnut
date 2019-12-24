@@ -273,7 +273,7 @@ public class WnSystem implements WnExecutable {
         }
 
         // 创建新会话
-        WnAuthSession newSession = this.auth.createSession(this.getMe());
+        WnAuthSession newSession = this.auth.createSession(this.getMe(), true);
 
         // 记录旧的 Session
         WnAuthSession old_se = this.session;

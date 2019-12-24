@@ -238,7 +238,7 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                     log.debugf(" - www.$ (%s)@%s : %s", o.id(), usr, a_path);
 
                 // 首先创建一个会话
-                WnAuthSession se = this.creatSession(usr);
+                WnAuthSession se = this.creatSession(usr, false);
 
                 // 得到文件内容
                 String input = io.readText(o);

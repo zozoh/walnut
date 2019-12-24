@@ -212,6 +212,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
+    public WnAuthSession getSession(String byType, String byValue) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
+            protected WnAuthSession exec() {
+                return impl.getSession(byType, byValue);
+            }
+        });
+    }
+
     public List<WnGroupAccount> getGroups(WnAccount user) {
         return Wn.WC().nosecurity(impl.io, new Proton<List<WnGroupAccount>>() {
             protected List<WnGroupAccount> exec() {
@@ -252,18 +260,26 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAuthSession touchSession(String ticket) {
+    public WnAuthSession checkSession(String byType, String byValue) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.touchSession(ticket);
+                return impl.checkSession(byType, byValue);
             }
         });
     }
 
-    public WnAuthSession createSession(WnAccount user) {
+    public WnAuthSession touchSession(WnAuthSession se) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.createSession(user);
+                return impl.touchSession(se);
+            }
+        });
+    }
+
+    public WnAuthSession createSession(WnAccount user, boolean longSession) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
+            protected WnAuthSession exec() {
+                return impl.createSession(user, longSession);
             }
         });
     }

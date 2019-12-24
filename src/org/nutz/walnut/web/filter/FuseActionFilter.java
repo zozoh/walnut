@@ -35,7 +35,7 @@ public class FuseActionFilter implements ActionFilter {
         WnAuthService auth = Wn.Service.auth();
         WnAuthSession se = null;
         if (ticket != null) {
-            se = auth.touchSession(ticket);
+            se = auth.checkSession(ticket);
         } else {
             // 不允许新建
             return HttpStatusView.HTTP_502;

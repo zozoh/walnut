@@ -26,18 +26,47 @@ public class WnWebSite {
 
     private WnObj sessionDir;
     private WnObj captchaDir;
+    /**
+     * 账户库所在目录
+     */
     private WnObj accountHome;
+    /**
+     * 账户库的索引目录
+     */
     private WnObj accountDir;
+    /**
+     * 角色库的索引目录
+     */
     private WnObj roleDir;
+    /**
+     * 订单库所在目录
+     */
     private WnObj orderHome;
+    /**
+     * 产品库所在目录
+     */
     private WnObj productHome;
+    /**
+     * 优惠券库所在目录
+     */
     private WnObj couponHome;
+    /**
+     * 微信配置文件对象
+     */
     private WnObj weixinConf;
-
+    /**
+     * 支付商户名集合
+     */
     private NutMap sellers;
 
+    /**
+     * 默认会话时长
+     */
     private long seDftDu;
 
+    /**
+     * 临时会话时长
+     */
     private long seTmpDu;
 
     /**
