@@ -30,13 +30,19 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
+import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.impl.WnAppService;
 import org.nutz.walnut.web.util.WnWeb;
+import org.nutz.walnut.web.view.WnAddCookieViewWrapper;
 import org.nutz.walnut.web.view.WnObjDownloadView;
+import org.nutz.web.ajax.AjaxView;
 
 @IocBean
 @At("/a")
@@ -183,10 +189,49 @@ public class AppModule extends AbstractWnModule {
         OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
         OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
-        
-        
+
         // 执行
         apps.runCommand(app, metaOutputSeparator, PWD, cmdText, out, err, ins);
+    }
+
+    /**
+     * @param ticket
+     * @return
+     */
+    @At
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
+    public View auth_by_domain(@Param("site") String siteId,
+                                 @Param("ticket") String ticket,
+                                 @Param("ajax") boolean ajax) {
+        // -------------------------------
+        // 站点/票据/服务类
+        WnObj oWWW = io.checkById(siteId);
+        WnWebService webs = new WnWebService(io, oWWW);
+
+        // 得到站点的会话票据
+        WnAuthSession seDmn = webs.getAuthApi().checkSession(ticket);
+
+        // 得到用户
+        WnAccount u = seDmn.getMe();
+
+        // 注册新会话
+        WnAuthSession seSys = auth.createSession(u);
+
+        // 准备返回数据
+        NutMap se = seSys.toMapForClient();
+        
+        View view;
+        // 返回AJAX 视图
+        if(ajax) {
+            view = new WnAddCookieViewWrapper(new AjaxView(), null);
+        }
+        // 重定向视图
+        else {
+            view = new WnAddCookieViewWrapper("/");
+        }
+        
+        // 包裹数据对象并返回
+        return new ViewWrapper(view, se);
     }
 
 }
