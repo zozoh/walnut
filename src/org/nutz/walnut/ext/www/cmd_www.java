@@ -95,18 +95,17 @@ public class cmd_www extends JvmHdlExecutor {
         if (null != oCallback) {
             cmds.add("-callback id:" + oCallback.id());
         }
+        cmds.add("-meta");
+
+        // 从 buyer 的元数据中 copy 更多的的元数据信息，譬如 wx_openid 之类的
+        // 这里是要做一个映射，因为 buyer 那边可能是 wx_mp_abc:"XXX"
+        // 到支付单这边，就应该变成 "wx_openid" 因为微信支付(JSAPI)的实现，需要这个固定的元数据
         if (null != upick && !upick.isEmpty()) {
             NutMap buBean = bu.toBean();
-            NutMap umeta = new NutMap();
             for (String key : upick.keySet()) {
                 Object val = buBean.get(key);
                 String k2 = upick.getString(key);
-                umeta.put(k2, val);
-            }
-            if (!umeta.isEmpty()) {
-                cmds.add("-meta");
-                JsonFormat fmt = JsonFormat.compact().setQuoteName(true);
-                cmds.add("'" + Json.toJson(umeta, fmt) + "'");
+                meta.put(k2, val);
             }
         }
 
@@ -123,7 +122,7 @@ public class cmd_www extends JvmHdlExecutor {
         or.setPayId(payId);
         or.setStatus(WnOrderStatus.WT);
         or.setWaitAt(System.currentTimeMillis());
-        NutMap orMeta = or.toMeta("^(pay_id|wt_at)$", null);
+        NutMap orMeta = or.toMeta("^(pay_id|st|wt_at)$", null);
         webs.getOrderApi().updateOrder(or.getId(), orMeta);
 
         // -------------------------------
