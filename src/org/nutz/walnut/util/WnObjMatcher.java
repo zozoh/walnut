@@ -14,6 +14,7 @@ import org.nutz.lang.util.FloatRegion;
 import org.nutz.lang.util.IntRegion;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -56,7 +57,7 @@ public class WnObjMatcher {
             }
             // 正则表达式
             else if (s.startsWith("^")) {
-                Pattern p = Pattern.compile(s);
+                Pattern p = Regex.getPattern(s);
                 __map.put(key, p);
             }
             // 正则表达式取反
