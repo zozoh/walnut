@@ -224,6 +224,15 @@ public abstract class Wn {
         return "root".equals(usr) ? "/root" : "/home/" + usr;
     }
 
+    public static String getObjHomePath(WnObj obj) {
+        String d0 = obj.d0();
+        if ("root".equals(d0)) {
+            return "/root";
+        }
+        String d1 = obj.d1();
+        return Wn.appendPath("/", d0, d1);
+    }
+
     public static String normalizePath(String ph, WnSystem sys) {
         return normalizePath(ph, sys.session);
     }

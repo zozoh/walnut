@@ -54,7 +54,10 @@ public class WnCheckSession implements ActionFilter {
             String ticket = wc.getTicket();
 
             // 获取并更新 Sessoion 对象的最后访问时间
-            se = auth.touchSession(ticket);
+            se = auth.getSession(ticket);
+            if (null != se) {
+                se = auth.touchSession(se);
+            }
 
             // 默认，已经 dead 的会话不被采用，除非特别声明
             if (null == se || (se.isDead() && !this.allowDead)) {

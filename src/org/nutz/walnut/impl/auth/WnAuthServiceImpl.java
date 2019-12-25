@@ -25,6 +25,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
+import org.nutz.walnut.ext.www.bean.WnWebSite;
 import org.nutz.walnut.util.Wn;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
@@ -144,18 +145,53 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         if (null != oSe) {
             // 取得用户
-            String uid = oSe.getString("uid");
-            WnAccount me = this.checkAccountById(uid);
-            // 取得环境变量
-            NutMap vars = io.readJson(oSe, NutMap.class);
-            // 返回对象
-            WnAuthSession se = new WnAuthSession(oSe, me);
-            if (null != vars) {
-                se.getVars().putAll(vars);
+            WnAccount me = __load_session_account(oSe);
+            if (null != me) {
+                // 会话文件的内容就是 JSON，记录这个会话的全部环境变量
+                NutMap vars = io.readJson(oSe, NutMap.class);
+                // 组装会话对象
+                WnAuthSession se = new WnAuthSession(oSe, me);
+                if (null != vars) {
+                    se.getVars().putAll(vars);
+                }
+                // 并返回
+                return se;
             }
-            return se;
         }
 
+        return null;
+    }
+
+    private WnAccount __load_session_account(WnObj oSe) {
+        String uid = oSe.getString("uid");
+        // 域用户登录的会话，创立一个账户读取器
+        if (oSe.is("by_tp", "auth_by_domain")) {
+            String[] ss = Strings.splitIgnoreBlank(oSe.getString("by_val"), ":");
+            String siteId = ss[0];
+            WnObj oWWW = io.checkById(siteId);
+            String siteHomePath = Wn.getObjHomePath(oWWW);
+            WnWebSite site = new WnWebSite(io, siteHomePath, siteId, oWWW);
+            WnAccountLoader accLoader = new WnAccountLoaderImpl(io, site.getAccountDir());
+            return accLoader.getAccountById(uid);
+        }
+        // 自身的账户体系直接获取
+        return this.getAccountById(uid);
+    }
+
+    @Override
+    public WnAuthSession getSession(String byType, String byValue) {
+        WnObj oSessionDir = setup.getSessionDir();
+        NutMap by = Lang.map("by_tp", byType);
+        by.put("by_val", byValue);
+        WnQuery q = Wn.Q.pid(oSessionDir);
+        q.setAll(by);
+        WnObj oSe = io.getOne(q);
+        if (null != oSe) {
+            WnAccount me = __load_session_account(oSe);
+            if (null != me) {
+                return new WnAuthSession(oSe, me);
+            }
+        }
         return null;
     }
 
@@ -169,9 +205,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession touchSession(String ticket) {
-        WnAuthSession se = this.getSession(ticket);
+    public WnAuthSession checkSession(String byType, String byValue) {
+        WnAuthSession se = this.getSession(byType, byValue);
+        if (null == se) {
+            throw Er.create("e.auth.session.noexist", byType + "=" + byValue);
+        }
+        return se;
+    }
 
+    @Override
+    public WnAuthSession touchSession(WnAuthSession se) {
         if (null != se && !se.isDead()) {
             long nowInMs = System.currentTimeMillis();
             long se_du = setup.getSessionDefaultDuration();
@@ -183,10 +226,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession createSession(WnAccount user) {
+    public WnAuthSession createSession(WnAccount user, boolean longSession) {
         NutMap by = Lang.map("by_tp", "transient");
         by.put("by_val", null);
-        long se_du = setup.getSessionTransientDuration();
+        long se_du = longSession ? setup.getSessionDefaultDuration()
+                                 : setup.getSessionTransientDuration();
         return createSessionBy(se_du, user, by);
     }
 
@@ -207,16 +251,14 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     @Override
     public void saveSessionInfo(WnAuthSession se) {
         NutMap meta = se.toMeta();
-        String seId = se.getId();
-        io.setBy(seId, meta, false);
+        io.appendMeta(se.getObj(), meta);
     }
 
     @Override
     public void saveSessionVars(WnAuthSession se) {
         NutMap vars = se.getVars();
         String json = Json.toJson(vars, JsonFormat.compact());
-        String seId = se.getId();
-        WnObj oSe = io.checkById(seId);
+        WnObj oSe = se.getObj();
         io.writeText(oSe, json);
     }
 
@@ -530,6 +572,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         WnAuthSession se = new WnAuthSession(ticket, me);
         se.setId(oSe.id());
         se.setExpi(expi);
+        se.setObj(oSe);
 
         // 更新会话
         NutMap seMeta = se.toMeta();

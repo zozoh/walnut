@@ -201,35 +201,63 @@ public class AppModule extends AbstractWnModule {
     @At
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public View auth_by_domain(@Param("site") String siteId,
-                                 @Param("ticket") String ticket,
-                                 @Param("ajax") boolean ajax) {
+                               @Param("ticket") String ticket,
+                               @Param("ajax") boolean ajax) {
         // -------------------------------
         // 站点/票据/服务类
         WnObj oWWW = io.checkById(siteId);
         WnWebService webs = new WnWebService(io, oWWW);
 
-        // 得到站点的会话票据
-        WnAuthSession seDmn = webs.getAuthApi().checkSession(ticket);
+        // 特殊会话类型
+        String byType = "auth_by_domain";
+        String byValue = siteId + ":" + ticket;
 
-        // 得到用户
-        WnAccount u = seDmn.getMe();
+        // -------------------------------
+        // 查找之前的会话
+        WnAuthSession seSys = auth.getSession(byType, byValue);
 
-        // 注册新会话
-        WnAuthSession seSys = auth.createSession(u);
+        // -------------------------------
+        // 嗯，看来要自动创建一个新的咯
+        // -------------------------------
+        if (null == seSys) {
+            // 得到站点的会话票据
+            WnAuthSession seDmn = webs.getAuthApi().checkSession(ticket);
+
+            // 得到用户
+            WnAccount u = seDmn.getMe();
+
+            // 注册新会话
+            seSys = auth.createSession(u, true);
+
+            // 标注新会话的类型，以便指明用户来源
+            seSys.setByType(byType);
+            seSys.setByValue(byValue);
+
+            // 确保用户会话有足够的环境变量
+            NutMap vars = seSys.getVars();
+            vars.putDefault("PATH", "/bin:/sbin:~/bin");
+            vars.putDefault("APP_PATH", "/rs/ti/app:/app");
+            vars.putDefault("VIEW_PATH", "/rs/ti/view/");
+            vars.putDefault("SIDEBAR_PATH", "~/.ti/sidebar.json:/rs/ti/view/sidebar.json");
+            vars.putDefault("OPEN", "wn.manager");
+
+            // 保存会话
+            auth.saveSession(seSys);
+        }
 
         // 准备返回数据
         NutMap se = seSys.toMapForClient();
-        
+
         View view;
         // 返回AJAX 视图
-        if(ajax) {
+        if (ajax) {
             view = new WnAddCookieViewWrapper(new AjaxView(), null);
         }
         // 重定向视图
         else {
             view = new WnAddCookieViewWrapper("/");
         }
-        
+
         // 包裹数据对象并返回
         return new ViewWrapper(view, se);
     }

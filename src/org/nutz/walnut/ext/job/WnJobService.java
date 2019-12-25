@@ -72,7 +72,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
         io.createIfNoExists(null, root, WnRace.DIR);
         io.createIfNoExists(null, tmpRoot, WnRace.DIR);
 
-        _se = this.creatSession("root");
+        _se = this.creatSession("root", true);
 
         if (es == null || es.isTerminated())
             es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);

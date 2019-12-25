@@ -959,7 +959,7 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
         }
 
-        WnAuthSession se = auth.createSession(usr);
+        WnAuthSession se = auth.createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
@@ -1010,7 +1010,7 @@ public class UsrModule extends AbstractWnModule {
         WnAccount usr = auth.checkAccountById(uid);
 
         // 为这个用户创建一个会话
-        WnAuthSession se = auth.createSession(usr);
+        WnAuthSession se = auth.createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本

@@ -56,7 +56,7 @@ public class cmd_setup extends JvmExecutor {
         }
 
         // 为其创建会话
-        WnAuthSession se = sys.auth.createSession(u);
+        WnAuthSession se = sys.auth.createSession(u, false);
 
         try {
             // 开始记时

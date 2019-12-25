@@ -88,16 +88,12 @@ public class HttpApiModule extends AbstractWnModule {
             WnAuthSession oldSe = null;
             String ticket = Wn.WC().getTicket();
             if (!Strings.isBlank(ticket)) {
-                oldSe = this.auth.checkSession(ticket);
+                oldSe = this.auth.getSession(ticket);
             }
 
             // 将当前线程切换到指定的用户
             WnContext wc = Wn.WC();
-            WnAuthSession se = wc.nosecurity(io, new Proton<WnAuthSession>() {
-                protected WnAuthSession exec() {
-                    return auth.createSession(u);
-                }
-            });
+            WnAuthSession se = auth.createSession(u, false);
             wc.setSession(se);
 
             // 如果 API 文件声明了需要 copy 的 cookie 到线程上下文 ...

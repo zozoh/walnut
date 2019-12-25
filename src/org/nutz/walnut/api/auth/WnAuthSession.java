@@ -49,6 +49,9 @@ public class WnAuthSession {
      */
     private String byValue;
 
+    /**
+     * 会话的数据对象
+     */
     private WnObj obj;
 
     private WnAuthSession() {

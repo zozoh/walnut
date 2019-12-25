@@ -54,7 +54,7 @@ public class WnSshdServer extends WnRun {
                 }
             }
             if (re) {
-                WnAuthSession se = auth.createSession(usr);
+                WnAuthSession se = auth.createSession(usr, true);
                 session.setAttribute(WnSshd.KEY_WN_SESSION, se);
             }
             return re;
@@ -74,7 +74,7 @@ public class WnSshdServer extends WnRun {
                                                                           entries)
                                                    .authenticate(username, key, session);
                     if (re) {
-                        WnAuthSession se = auth.createSession(usr);
+                        WnAuthSession se = auth.createSession(usr, true);
                         session.setAttribute(WnSshd.KEY_WN_SESSION, se);
                     }
                     return re;

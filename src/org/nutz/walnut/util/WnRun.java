@@ -77,11 +77,8 @@ public class WnRun {
     public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
         final WnAccount u = auth.checkAccount(unm);
-        final WnAuthSession se = Wn.WC().su(u, new Proton<WnAuthSession>() {
-            protected WnAuthSession exec() {
-                return auth.createSession(u);
-            }
-        });
+        final WnAuthSession se = auth.createSession(u, false);
+
         // 执行命令
         try {
             return exec(logPrefix, se, input, cmdText);
@@ -99,7 +96,7 @@ public class WnRun {
                      StringBuilder sbOut,
                      StringBuilder sbErr) {
         // 检查用户和会话
-        final WnAuthSession se = creatSession(unm);
+        final WnAuthSession se = creatSession(unm, false);
         InputStream in = null == input ? null : Lang.ins(input);
         OutputStream out = Lang.ops(sbOut);
         OutputStream err = Lang.ops(sbErr);
@@ -113,7 +110,7 @@ public class WnRun {
         }
     }
 
-    public WnAuthSession creatSession(String unm) {
+    public WnAuthSession creatSession(String unm, boolean longSession) {
         final WnAccount u = auth.checkAccount(unm);
 
         // zozoh: 为啥？考，应该直接创建就好了吧 ...
@@ -123,7 +120,7 @@ public class WnRun {
         // }
         // });
 
-        return auth.createSession(u);
+        return auth.createSession(u, longSession);
     }
 
     public String exec(String logPrefix, WnAuthSession se, String cmdText) {
@@ -213,7 +210,7 @@ public class WnRun {
                             String grp,
                             NutMap env,
                             Callback<WnAuthSession> callback) {
-        WnAuthSession se = auth.createSession(usr);
+        WnAuthSession se = auth.createSession(usr, false);
         try {
             // 附加环境变量
             if (env != null) {
