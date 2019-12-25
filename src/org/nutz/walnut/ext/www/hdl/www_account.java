@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.hdl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
@@ -7,6 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.www.cmd_www;
@@ -61,25 +63,33 @@ public class www_account implements JvmHdl {
             q.sort(sort);
             list = webs.getAuthApi().queryAccount(q);
             wp.setupQuery(sys, q);
+        }
 
+        // 转换输出列表
+        List<NutMap> outputs = new ArrayList<>(list.size());
+        for (WnAccount u : list) {
+            outputs.add(u.toBean(WnAuths.ABMM.LOGIN
+                                 | WnAuths.ABMM.INFO
+                                 | WnAuths.ABMM.META
+                                 | WnAuths.ABMM.HOME));
         }
 
         // 准备返回值
         Object reo;
 
         // 木有东东
-        if (list.size() == 0 && !asList) {
+        if (outputs.size() == 0 && !asList) {
             reo = null;
-        } else if (list.size() == 1 && !asList) {
-            reo = list.get(0);
+        } else if (outputs.size() == 1 && !asList) {
+            reo = outputs.get(0);
         }
         // 分页模式
         else if (hc.params.has("limit")) {
-            reo = Cmds.createQueryResult(wp, list);
+            reo = Cmds.createQueryResult(wp, outputs);
         }
         // 列表模式
         else {
-            reo = list;
+            reo = outputs;
         }
 
         // 修改账户信息
