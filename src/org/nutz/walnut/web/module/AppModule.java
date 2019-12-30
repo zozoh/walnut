@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -219,7 +222,7 @@ public class AppModule extends AbstractWnModule {
         // -------------------------------
         // 嗯，看来要自动创建一个新的咯
         // -------------------------------
-        if (null == seSys) {
+        if (null == seSys || seSys.isDead()) {
             // 得到站点的会话票据
             WnAuthSession seDmn = webs.getAuthApi().checkSession(ticket);
 
@@ -235,11 +238,14 @@ public class AppModule extends AbstractWnModule {
 
             // 确保用户会话有足够的环境变量
             NutMap vars = seSys.getVars();
-            vars.putDefault("PATH", "/bin:/sbin:~/bin");
-            vars.putDefault("APP_PATH", "/rs/ti/app:/app");
-            vars.putDefault("VIEW_PATH", "/rs/ti/view/");
-            vars.putDefault("SIDEBAR_PATH", "~/.ti/sidebar.json:/rs/ti/view/sidebar.json");
-            vars.putDefault("OPEN", "wn.manager");
+            // 先搞一轮站点的默认环境变量
+            for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
+                vars.putDefault(en.getKey(), en.getValue());
+            }
+            // 再搞一轮系统的默认环境变量
+            for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
+                vars.putDefault(en.getKey(), en.getValue());
+            }
 
             // 保存会话
             auth.saveSession(seSys);

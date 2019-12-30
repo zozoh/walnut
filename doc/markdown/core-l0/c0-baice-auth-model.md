@@ -117,6 +117,18 @@ orders   : "~/orders"     # 订单库
 products : "~/products"   # 商品库
 coupons  : "~/coupons"    # 优惠券库
 
+# 这里是站点所属账户库，如果登录系统账户后默认的环境变量
+# 它会替换在 init-usr-envs: 声明的环境变量值
+env : {
+  OPEN      : "wn.console",
+	PATH      : "/bin:/sbin:~/bin",
+	THEME     : "light",
+	APP_PATH  : "/rs/ti/app:/app",
+	VIEW_PATH : "/rs/ti/view/",
+	QUIT      : "/www/abc",
+	SIDEBAR_PATH : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json"
+}
+
 # 微信配置目录名，用来做公众号登录等操作
 # 如果未配置，则会尝试寻找 sellers.wx 的设定
 weixin   : "theName"

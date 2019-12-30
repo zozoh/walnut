@@ -112,6 +112,12 @@ public class WnWebSite {
         productHome = FetchThingSet(bean.getString("products"));
         couponHome = FetchThingSet(bean.getString("coupons"));
 
+        // 初始化站点用户默认系统环境变量
+        if (bean.has("env")) {
+            NutMap env = bean.getAs("env", NutMap.class);
+            this.vars.putAll(env);
+        }
+
         // 获取支付商户号配置
         // 同时获取微信配置文件路径，以便 weixin 设置如果为空，尝试用 sellers.wx
         String wxConfNm = null;
@@ -146,6 +152,10 @@ public class WnWebSite {
 
     public void setSiteId(String siteId) {
         this.siteId = siteId;
+    }
+
+    public NutMap getVars() {
+        return vars;
     }
 
     public WnObj getSessionDir() {
