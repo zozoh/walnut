@@ -98,7 +98,16 @@ public class WnAccount {
 
     public void updateBy(NutBean bean) {
         // 根据 d0/d1 判断是否为系统用户
-        this.sysAccount = "sys".equals(bean.get("d0")) && "usr".equals(bean.get("d1"));
+        String d0 = bean.getString("d0");
+        String d1 = bean.getString("d1");
+        this.sysAccount = "sys".equals(d0) && "usr".equals(d1);
+
+        // 域站点用户，设置默认主组
+        if (!this.sysAccount) {
+            if (!bean.has("grp")) {
+                this.setGroupName(d1);
+            }
+        }
 
         // 循环设置值
         for (String key : bean.keySet()) {
