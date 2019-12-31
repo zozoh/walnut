@@ -49,7 +49,7 @@ thing xxx file xxx -dir media -cat abc.jpg
 
 # 同理，如果想输出一个附件内容，可以是
 # 如果附件是文件会按照文本输出，否则输出二进制 
-thing xxx attachment xxx -cat xyz.txt
+thing xxx file -dir attachment xxx -cat xyz.txt
     
 # 添加一个图片，内容来自标准输入，如果已存在则抛错
 cat abc.jpg | thing xxx file xxx -dir media -add abc.jpg -read  
