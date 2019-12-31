@@ -62,7 +62,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         WnObj oU = io.create(oAccountDir, unm, WnRace.FILE);
 
         // 保存之
-        u.setId(oU.id());
+        u.updateBy(oU);
         NutMap meta = u.toBean();
         io.appendMeta(oU, meta);
 

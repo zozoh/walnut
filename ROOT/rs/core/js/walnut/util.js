@@ -1836,8 +1836,11 @@ var Wn = {
     },
     readObj: function (UI, obj, readS) {
         obj = obj || UI.app.obj;
+        // 解析参数标志位
+        var href = $z.parseHref(window.location.href)
+        var params = href.params || {}
         // 读元数据
-        if (obj.__obj_meta_rw) {
+        if (obj.__obj_meta_rw || obj.race=="DIR" || params.m) {
             Wn.exec("obj id:" + obj.id, function (re) {
                 obj = $z.fromJson(re);
                 if (readS) {
@@ -1859,8 +1862,11 @@ var Wn = {
         if (readB) {
             readB.call(UI);
         }
+        // 解析参数标志位
+        var href = $z.parseHref(window.location.href)
+        var params = href.params || {}
         // 写入元数据
-        if (obj.__obj_meta_rw) {
+        if (obj.__obj_meta_rw || obj.race=="DIR" || params.m) {
             var o2 = $z.fromJson(content) || {};
             o2.id = obj.id;
             _.extend(obj, o2);

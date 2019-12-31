@@ -700,6 +700,9 @@ public class WnAccount {
         if (this.isRoot()) {
             return "/root/";
         }
+        if (this.hasGroupName()) {
+            return "/home/" + this.getGroupName() + "/";
+        }
         if (this.hasName()) {
             return "/home/" + this.getName() + "/";
         }
