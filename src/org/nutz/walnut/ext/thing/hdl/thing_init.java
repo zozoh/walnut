@@ -27,7 +27,7 @@ public class thing_init implements JvmHdl {
 
         // 如果 thing 目录木有 icon 标记一个
         if (!oTS.has("icon")) {
-            oTS.setv("icon", "<i class=\"fa fa-cubes\"></i>");
+            oTS.setv("icon", "fas-cubes");
             sys.io.set(oTS, "^icon$");
             if (!isQ)
                 sys.out.printlnf("%-12s: %s", " ++ icon", oTS.getString("icon"));

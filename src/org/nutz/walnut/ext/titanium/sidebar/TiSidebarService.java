@@ -10,6 +10,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -24,8 +25,8 @@ public class TiSidebarService {
     @Inject("refer:io")
     private WnIo io;
 
-//    @Inject("refer:sysAuthService")
-//    protected WnAuthService auth;
+    // @Inject("refer:sysAuthService")
+    // protected WnAuthService auth;
 
     private WnObjCachedFactory<TiSidebarInput> cache;
 
@@ -50,20 +51,8 @@ public class TiSidebarService {
             }
         }
 
-        // 组
-        if (inIt.isGroup() && inIt.hasItems()) {
-            TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null);
-            List<TiSidebarOutputItem> items = new LinkedList<>();
-            for (TiSidebarInputItem subIt : inIt.getItems()) {
-                __join_output(depth + 1, subIt, items, sess, check, runtime);
-            }
-            if (items.size() > 0) {
-                grp.setItems(items);
-                list.add(grp);
-            }
-        }
         // 动态项目
-        else if (inIt.hasCommand()) {
+        if (inIt.hasCommand()) {
             String cmdText = inIt.getCommand();
             String re = Strings.trim(runtime.exec2(cmdText));
 
@@ -82,6 +71,9 @@ public class TiSidebarService {
                 for (Object ele : reList) {
                     NutMap o = Lang.obj2nutmap(ele);
                     TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+                    // 计算子项目
+                    __check_dynamic_item_children(depth, inIt, sess, check, runtime, o, it);
+                    // 加入结果列表
                     list.add(it);
                 }
             }
@@ -89,7 +81,22 @@ public class TiSidebarService {
             else {
                 NutMap o = Lang.obj2nutmap(reObj);
                 TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+                // 计算子项目
+                __check_dynamic_item_children(depth, inIt, sess, check, runtime, o, it);
+                // 加入结果列表
                 list.add(it);
+            }
+        }
+        // 组
+        else if (inIt.isGroup() && inIt.hasItems()) {
+            TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null);
+            List<TiSidebarOutputItem> items = new LinkedList<>();
+            for (TiSidebarInputItem subIt : inIt.getItems()) {
+                __join_output(depth + 1, subIt, items, sess, check, runtime);
+            }
+            if (items.size() > 0) {
+                grp.setItems(items);
+                list.add(grp);
             }
         }
         // 静态项目
@@ -101,6 +108,28 @@ public class TiSidebarService {
             }
             TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
             list.add(it);
+        }
+    }
+
+    private void __check_dynamic_item_children(int depth,
+                                               TiSidebarInputItem inIt,
+                                               WnAuthSession sess,
+                                               WnCheckRoleOfByName check,
+                                               WnExecutable runtime,
+                                               NutMap o,
+                                               TiSidebarOutputItem it) {
+        if (inIt.hasItems()) {
+            List<TiSidebarOutputItem> items = new LinkedList<>();
+            for (TiSidebarInputItem subIt : inIt.getItems()) {
+                // 这个子对象的路径需要格式化一下
+                if (subIt.hasPath()) {
+                    String ph = Tmpl.exec(subIt.getPath(), o);
+                    subIt.setPath(ph);
+                }
+                // 计入
+                __join_output(depth + 1, subIt, items, sess, check, runtime);
+            }
+            it.setItems(items);
         }
     }
 

@@ -56,6 +56,10 @@ public class TiSidebarInputItem {
         this.items = items;
     }
 
+    public boolean hasKey() {
+        return !Strings.isBlank(key);
+    }
+
     public String getKey() {
         return key;
     }

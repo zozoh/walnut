@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.titanium.sidebar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 
@@ -47,15 +48,32 @@ public class TiSidebarOutputItem {
         Object dft_icon = null == o ? null : o.pick("tp", "mime", "race");
 
         this.depth = depth;
-        this.key = _Vs(null, o, "id", it.getKey(), null);
-        this.path = _Vs(null, o, "ph", it.getPath(), null);
-        this.icon = _V(it.getIcon(), o, "icon", it.getDefaultIcon(), dft_icon);
-        this.title = _Vs(it.getTitle(), o, "title", it.getDefaultTitle(), dft_title);
-        this.view = _Vs(it.getView(), o, "view", it.getDefaultView(), null);
-
+        // ----------------------------------
+        // ID
         if (null != o) {
             this.id = o.getString("id");
         }
+        // ----------------------------------
+        // Path
+        this.path = _Vs(null, o, "ph", it.getPath(), null);
+        // ----------------------------------
+        // Key
+        if (it.hasKey()) {
+            this.key = it.getKey();
+        }
+        // Key by Path
+        else if (this.hasPath()) {
+            this.key = Files.getName(this.path);
+        }
+        // Key by Id
+        else {
+            this.key = this.id;
+        }
+        // ----------------------------------
+        // Other fields
+        this.icon = _V(it.getIcon(), o, "icon", it.getDefaultIcon(), dft_icon);
+        this.title = _Vs(it.getTitle(), o, "title", it.getDefaultTitle(), dft_title);
+        this.view = _Vs(it.getView(), o, "view", it.getDefaultView(), null);
     }
 
     private Object _V(String val, NutBean o, String okey, String dftval, Object dftobj) {
@@ -107,12 +125,20 @@ public class TiSidebarOutputItem {
         this.items = items;
     }
 
+    public boolean hasKey() {
+        return !Strings.isBlank(key);
+    }
+
     public String getKey() {
         return key;
     }
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public boolean hasPath() {
+        return !Strings.isBlank(path);
     }
 
     public String getPath() {
