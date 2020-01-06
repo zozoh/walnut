@@ -71,8 +71,10 @@ public class TiSidebarService {
                 for (Object ele : reList) {
                     NutMap o = Lang.obj2nutmap(ele);
                     TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+                    // 克隆一份自身
+                    TiSidebarInputItem inIt2 = inIt.clone();
                     // 计算子项目
-                    __check_dynamic_item_children(depth, inIt, sess, check, runtime, o, it);
+                    __check_dynamic_item_children(depth, inIt2, sess, check, runtime, o, it);
                     // 加入结果列表
                     list.add(it);
                 }

@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.titanium.sidebar;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.lang.Strings;
@@ -27,6 +29,30 @@ public class TiSidebarInputItem {
     private String defaultView;
 
     private Map<String, String> roles;
+
+    public TiSidebarInputItem clone() {
+        TiSidebarInputItem it2 = new TiSidebarInputItem();
+        if (null != this.items) {
+            it2.items = new TiSidebarInputItem[this.items.length];
+            for (int i = 0; i < it2.items.length; i++) {
+                it2.items[i] = this.items[i].clone();
+            }
+        }
+        it2.command = this.command;
+        it2.key = this.key;
+        it2.path = this.path;
+        it2.icon = this.icon;
+        it2.title = this.title;
+        it2.view = this.view;
+        it2.defaultIcon = this.defaultIcon;
+        it2.defaultTitle = this.defaultTitle;
+        it2.defaultView = this.defaultView;
+        if (null != roles) {
+            it2.roles = new HashMap<>();
+            it2.roles.putAll(this.roles);
+        }
+        return it2;
+    }
 
     public boolean isGroup() {
         return null != items && items.length > 0;
