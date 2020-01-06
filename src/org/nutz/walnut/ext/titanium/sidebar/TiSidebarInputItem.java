@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.titanium.sidebar;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
