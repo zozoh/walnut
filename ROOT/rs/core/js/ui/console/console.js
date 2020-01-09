@@ -280,15 +280,12 @@ return ZUI.def("ui.console", {
                     re += se.unm;
                     break;
                 case "w":
-                    var pwd = envs["PWD"];
-                    if(!/\/$/.test(pwd)) {
-                        pwd += "/"
-                    }
-                    re += pwd==envs["HOME"] ? "~" : envs["PWD"];
-                    break;
                 case "W":
                     var pwd = envs["PWD"];
                     if(pwd == envs["HOME"]){
+                        re += "~";
+                    }
+                    else if(!/\/$/.test(pwd) && (pwd+"/")==envs["HOME"]) {
                         re += "~";
                     }
                     else if(pwd=="/"){

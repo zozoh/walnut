@@ -198,10 +198,10 @@ public class WnAppService extends WnRun {
     public WnObj getObj(WnApp app, String str) {
         // 获取会话
         WnAuthSession se = app.getSession();
-        NutMap vars = se.getVars();
+        //NutMap vars = se.getVars();
 
-        // 当前目录设置为 appHome
-        vars.put("PWD", app.getHome().getRegularPath());
+        // 当前目录设置为 appHome，这样，str 如果是相对路径，则直接访问应用内文件夹
+        //vars.put("PWD", app.getHome().getRegularPath());
 
         // 默认就是主目录
         if (Strings.isBlank(str)) {
