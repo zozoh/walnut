@@ -187,7 +187,7 @@ ticket : "34t6..8aq1"     # 【必】登录会话的票据
 ```js
 {
   ok : false,
-  errCode : "www.order.nil.products",
+  errCode : "e.www.order.nil.products",
   msg : "xxx"
 }
 ```

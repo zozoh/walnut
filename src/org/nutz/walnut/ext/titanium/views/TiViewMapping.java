@@ -1,11 +1,13 @@
 package org.nutz.walnut.ext.titanium.views;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.nutz.json.JsonIgnore;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
@@ -21,7 +23,41 @@ public class TiViewMapping {
         }
     }
 
+    static class ArrayMatchView {
+        String[] list;
+        String viewName;
+
+        ArrayMatchView(String path, String view) {
+            this.list = Strings.splitIgnoreBlank(path, "[/\\\\]");
+            this.viewName = view;
+        }
+
+        boolean isMatch(String[] paths) {
+            if (list.length != paths.length) {
+                return false;
+            }
+            for (int i = 0; i < list.length; i++) {
+                String li = list[i];
+                String pi = paths[i];
+                if (null == li || null == pi) {
+                    return false;
+                }
+                // 通配
+                if ("*".equals(li)) {
+                    continue;
+                }
+                // 精确匹配
+                if (!li.equals(pi)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     private Map<String, String> paths;
+
+    private List<ArrayMatchView> __wildcard_paths;
 
     private Map<String, String> types;
 
@@ -33,6 +69,7 @@ public class TiViewMapping {
     private List<RegExpMatchView> __type_views;
 
     public TiViewMapping() {
+        this.__wildcard_paths = new LinkedList<>();
         this.__type_views = new LinkedList<>();
     }
 
@@ -44,6 +81,16 @@ public class TiViewMapping {
             viewName = paths.get(path);
             if (null != viewName)
                 return viewName;
+        }
+
+        // 通配符路径匹配
+        if (null != this.__wildcard_paths && !this.__wildcard_paths.isEmpty()) {
+            String[] list = Strings.splitIgnoreBlank(path, "[/\\\\]");
+            for (ArrayMatchView amv : this.__wildcard_paths) {
+                if (amv.isMatch(list)) {
+                    return amv.viewName;
+                }
+            }
         }
 
         // 根据类型（精确）
@@ -91,7 +138,21 @@ public class TiViewMapping {
     }
 
     public void setPaths(Map<String, String> paths) {
-        this.paths = paths;
+        this.paths = new HashMap<>();
+        this.__wildcard_paths.clear();
+
+        for (Map.Entry<String, String> en : paths.entrySet()) {
+            String key = en.getKey();
+            String val = en.getValue();
+            // 通配符
+            if (key.contains("*")) {
+                this.__wildcard_paths.add(new ArrayMatchView(key, val));
+            }
+            // 通用路径
+            else {
+                this.paths.put(key, val);
+            }
+        }
     }
 
     public Map<String, String> getTypes() {
@@ -100,8 +161,8 @@ public class TiViewMapping {
 
     public void setTypes(Map<String, String> types) {
         this.types = types;
-        // 收集正则表达式匹配的键
         __type_views.clear();
+
         for (Map.Entry<String, String> en : types.entrySet()) {
             String regex = en.getKey();
             String viewName = en.getValue();
