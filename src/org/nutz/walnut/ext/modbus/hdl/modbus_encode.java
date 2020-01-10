@@ -65,7 +65,7 @@ public class modbus_encode implements JvmHdl {
             return;
         }
         if (hc.params.is("hex")) {
-            sys.out.print(Lang.fixedHexString(buf));
+            sys.out.print(Lang.fixedHexString(buf).toUpperCase());
         }
         else {
             if (hc.params.has("f")) {

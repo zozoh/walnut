@@ -38,7 +38,7 @@ public class modbus_decode implements JvmHdl {
         else if (hc.params.vals.length > 0){
             // 从命令行参数读取, hex字符串形式
             String tmp = hc.params.val(0).replace(" ", "").trim();
-            if (tmp.length() % 2 == 0) {
+            if (tmp.length() % 2 != 0) {
                 sys.err.print("e.cmd.modbus.decode.bad_hex_string");
                 return;
             }
