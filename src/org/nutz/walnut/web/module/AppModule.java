@@ -23,6 +23,7 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Attr;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
@@ -31,11 +32,13 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
+import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -197,14 +200,91 @@ public class AppModule extends AbstractWnModule {
     }
 
     /**
-     * @param ticket
-     * @return
+     * 混合登录。混合域站点账户模型和系统账户模型登录。
+     * 
+     * @param name
+     *            用户名
+     * @param passwd
+     *            密码
+     * @param ajax
+     *            返回的会话是否用 Ajax 形式包裹
+     * @param hostName
+     *            转接的域名
+     * @return 输出视图
      */
     @At
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public View auth_by_domain(@Param("site") String siteId,
-                               @Param("ticket") String ticket,
-                               @Param("ajax") boolean ajax) {
+    public View auth_login_by_passwd_mixture(@Param("name") String name,
+                                             @Param("passwd") String passwd,
+                                             @Param("ajax") boolean ajax,
+                                             @Attr("wn_www_host") String hostName) {
+        // 首先从 domain 表里查询 hostName 对应的域
+        WnDomainService domains = new WnDomainService(io);
+        WnObj oWWW = domains.getDomainDefaultWebsite(hostName);
+        // -------------------------------------------------
+        // 准备返回
+        View view = null;
+        WnAuthSession se = null;
+        Object reo = null;
+        // -------------------------------------------------
+        // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
+        if (null != oWWW) {
+            WnWebService webs = new WnWebService(io, oWWW);
+            WnAccount user = webs.getAuthApi().checkAccount(name);
+
+            // 检查登录密码
+            if (user.isMatchedRawPasswd(passwd)) {
+                se = auth.createSession(user, true);
+                reo = se;
+            }
+
+        }
+        // -------------------------------------------------
+        // 如果登录失败，尝试用系统账户模型登录
+        if (null == se) {
+            try {
+                se = auth.loginByPasswd(name, passwd);
+                reo = se;
+            }
+            catch (Exception e) {
+                if (ajax) {
+                    view = new AjaxView();
+                } else {
+                    view = new ServerRedirectView("/");
+                }
+                reo = e;
+            }
+        }
+        // -------------------------------------------------
+        // 返回AJAX 视图
+        if (ajax) {
+            view = new WnAddCookieViewWrapper(new AjaxView(), null);
+        }
+        // 重定向视图
+        else {
+            view = new WnAddCookieViewWrapper("/");
+        }
+        // -------------------------------------------------
+        // 包裹数据对象并返回
+        return new ViewWrapper(view, reo);
+    }
+
+    /**
+     * 根据域站点登录票据进行系统会话登录
+     * 
+     * @param siteId
+     *            站点的 ID
+     * @param ticket
+     *            用户登录票据
+     * @param ajax
+     *            是否要返回 ajax 形式的包裹
+     * @return 输出视图
+     */
+    @At
+    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
+    public View auth_login_by_domain_ticket(@Param("site") String siteId,
+                                            @Param("ticket") String ticket,
+                                            @Param("ajax") boolean ajax) {
         // -------------------------------
         // 站点/票据/服务类
         WnObj oWWW = io.checkById(siteId);

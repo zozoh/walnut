@@ -127,7 +127,8 @@ public class ObjModule extends AbstractWnModule {
 
         // 取得并写入
         WnObj o = Wn.checkObj(io, str);
-        io.writeMeta(o, map);
+        // io.writeMeta(o, map);
+        io.appendMeta(o, map);
         return o;
     }
 
