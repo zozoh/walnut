@@ -271,6 +271,11 @@ public class WnAuthSession {
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
                 Object val = en.getValue();
+                // 无视私有键
+                if (key.startsWith("__")) {
+                    continue;
+                }
+                // 强制大写
                 String k2 = key.toUpperCase();
                 this.vars.put(k2, val);
             }

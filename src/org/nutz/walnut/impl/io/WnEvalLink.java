@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.io;
 
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.AbstractWnSecurity;
@@ -42,6 +43,11 @@ public class WnEvalLink extends AbstractWnSecurity {
 
     @Override
     public boolean test(WnObj nd, int mode) {
+        return true;
+    }
+
+    @Override
+    public boolean test(WnObj nd, int mode, WnAccount user) {
         return true;
     }
 

@@ -50,6 +50,7 @@ author: zozohtnt@gmail.com
     |-- get_sms_vcode     # 获取短信验证码
     |-- get_email_vcode   # 获取邮箱验证码
     |-- captcha           # 获取各个场景下的图形验证码
+    |-- chpasswd          # 修改当前账户的用户名密码
     |-- logout            # 注销当前会话
 ```
 
@@ -292,6 +293,75 @@ www account id:${http-qs-site?unkonw} ${http-qs-uid?-nil-} -ajax -cqn
 ## `/auth/get_email_vcode`获取邮箱验证码
 --------------------------------------
 ## `/auth/captcha`获取各个场景下的图形验证码
+
+--------------------------------------
+## `/auth/chpasswd`修改当前账户的用户名密码
+
+### 请求头
+
+```bash
+HTTP POST /api/${YourDomain}/auth/chpasswd
+#---------------------------------
+# Query String
+site   : "34t6..8aq1"     # 【必】站点的ID
+ticket : "34t6..8aq1"     # 【必】登录会话的票据
+```
+
+### 请求体:JSON
+
+```js
+{
+  "oldpwd" : "123456",      // 【必】旧密码
+  "newpwd" : "654321"       // 【必】新密码
+}
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考《基础账户授权模型》账户数据结构*/
+  }
+}
+```
+
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "e.auth.ticked.noexist",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.www.site.noexists` : 站点不存在
+- `e.www.api.auth.nologin` : 未指定会话票据
+- `e.auth.ticked.noexist` : 会话票据不存在
+- `e.auth.passwd.old.invalid` : 旧密码不正确
+- `e.auth.passwd.new.invalid` : 新密码不符合规范
+
+
+### 初始化脚本
+
+```bash
+# API(auth): 获取指定账户信息
+@FILE .regapi/api/auth/getaccount
+{
+   "http-header-Content-Type" : "text/json"
+}
+%COPY:
+cat id:${id} \
+  | www passwd ${http-qs-site?~/www} \
+    -ticket ${http-qs-ticket?NoTicket} \
+    -check \
+    -ajax -cqn
+%END%
+```
+
 --------------------------------------
 ## `/auth/logout`注销当前会话
 

@@ -1,5 +1,7 @@
 package org.nutz.walnut.api.io;
 
+import org.nutz.walnut.api.auth.WnAccount;
+
 public interface WnSecurity {
 
     WnObj enter(WnObj nd, boolean asNull);
@@ -15,5 +17,7 @@ public interface WnSecurity {
     WnObj remove(WnObj nd, boolean asNull);
 
     boolean test(WnObj nd, int mode);
+
+    boolean test(WnObj nd, int mode, WnAccount user);
 
 }

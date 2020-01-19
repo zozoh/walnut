@@ -19,9 +19,15 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
 
     private WnObj oAccountDir;
 
-    public WnAccountLoaderImpl(WnIo io, WnObj oAccountDir) {
+    /**
+     * 确保账户对象在自己的 oAccountDir 里
+     */
+    private boolean forceInHome;
+
+    public WnAccountLoaderImpl(WnIo io, WnObj oAccountDir, boolean forceInHome) {
         this.io = io;
         this.oAccountDir = oAccountDir;
+        this.forceInHome = forceInHome;
     }
 
     @Override
@@ -110,7 +116,7 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
     public WnAccount getAccountById(String uid) {
         WnObj oU = io.get(uid);
         if (null != oU && oU.getInt("th_live", 1) != -1) {
-            if (!oAccountDir.isSameId(oU.parentId())) {
+            if (this.forceInHome && !oAccountDir.isSameId(oU.parentId())) {
                 throw Er.create("e.auth.acc_outof_home", uid);
             }
             return new WnAccount(oU);

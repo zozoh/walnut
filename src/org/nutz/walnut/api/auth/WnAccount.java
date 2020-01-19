@@ -111,6 +111,10 @@ public class WnAccount {
 
         // 循环设置值
         for (String key : bean.keySet()) {
+            // 无视私有键
+            if(key.startsWith("__")) {
+                continue;
+            }
             // id
             if ("id".equals(key)) {
                 this.setId(bean.getString(key));

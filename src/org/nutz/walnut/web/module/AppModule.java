@@ -36,9 +36,13 @@ import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.srv.WnDomainService;
+import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -200,8 +204,10 @@ public class AppModule extends AbstractWnModule {
     }
 
     /**
-     * 混合登录。混合域站点账户模型和系统账户模型登录。
+     * 采用域站点账户模型登录
      * 
+     * @param siteId
+     *            站点的 ID
      * @param name
      *            用户名
      * @param passwd
@@ -214,59 +220,127 @@ public class AppModule extends AbstractWnModule {
      */
     @At
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public View auth_login_by_passwd_mixture(@Param("name") String name,
-                                             @Param("passwd") String passwd,
-                                             @Param("ajax") boolean ajax,
-                                             @Attr("wn_www_host") String hostName) {
-        // 首先从 domain 表里查询 hostName 对应的域
+    public View auth_login_by_domain_passwd(@Param("site") String siteId,
+                                            @Param("name") String name,
+                                            @Param("passwd") String passwd,
+                                            @Param("ajax") boolean ajax,
+                                            @Attr("wn_www_host") String hostName) {
+        View view = null;
+        Object reo = null;
         WnDomainService domains = new WnDomainService(io);
-        WnObj oWWW = domains.getDomainDefaultWebsite(hostName);
+        WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
+        // -------------------------------------------------
+        if (null == si.oWWW) {
+            if (ajax) {
+                view = new AjaxView();
+            } else {
+                view = new ServerRedirectView("/");
+            }
+            reo = Er.create("e.auth.login.domain_without_www");
+            // 包裹返回
+            return new ViewWrapper(view, reo);
+        }
         // -------------------------------------------------
         // 准备返回
-        View view = null;
         WnAuthSession se = null;
-        Object reo = null;
         // -------------------------------------------------
         // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
-        if (null != oWWW) {
-            WnWebService webs = new WnWebService(io, oWWW);
-            WnAccount user = webs.getAuthApi().checkAccount(name);
-
-            // 检查登录密码
+        try {
+            WnAccount user = si.webs.getAuthApi().checkAccount(name);
+            // -----------------------------------------
+            // 检查登录密码，看看是否登录成功
             if (user.isMatchedRawPasswd(passwd)) {
-                se = auth.createSession(user, true);
-                reo = se;
-            }
+                // 特殊会话类型
+                String byType = "auth_by_domain";
+                String byValue = si.siteId + ":passwd";
 
-        }
-        // -------------------------------------------------
-        // 如果登录失败，尝试用系统账户模型登录
-        if (null == se) {
-            try {
-                se = auth.loginByPasswd(name, passwd);
+                // 注册新会话
+                se = auth.createSession(user, true);
+
+                // 更新会话元数据
+                __update_auth_session(se, si.webs, byType, byValue);
+
+                // 确保当前会话是可以访问域主目录的
+                __check_home_accessable(si.oHome, se, user);
+
+                // 准备返回值
                 reo = se;
-            }
-            catch (Exception e) {
                 if (ajax) {
-                    view = new AjaxView();
-                } else {
-                    view = new ServerRedirectView("/");
+                    view = new WnAddCookieViewWrapper(new AjaxView(), null);
                 }
-                reo = e;
+                // 重定向视图
+                else {
+                    view = new WnAddCookieViewWrapper("/");
+                }
+                // 返回
+                return new ViewWrapper(view, reo);
+            }
+            // -----------------------------------------
+            // 登录失败
+            else {
+                reo = Er.create("e.auth.login.invalid.passwd");
             }
         }
-        // -------------------------------------------------
-        // 返回AJAX 视图
+        // 通常是账户不存在，进入这个分支
+        catch (Exception e) {
+            reo = e;
+        }
+        // -----------------------------------------
+        // 进行到这里一定出现了错误，这里准备一下错误视图
         if (ajax) {
-            view = new WnAddCookieViewWrapper(new AjaxView(), null);
+            view = new AjaxView();
+        } else {
+            view = new ServerRedirectView("/");
         }
-        // 重定向视图
-        else {
-            view = new WnAddCookieViewWrapper("/");
-        }
-        // -------------------------------------------------
-        // 包裹数据对象并返回
+        // -----------------------------------------
+        // 包裹返回
         return new ViewWrapper(view, reo);
+    }
+
+    private void __check_home_accessable(WnObj oHome, WnAuthSession se, WnAccount user) {
+        WnSecurity secu = new WnSecurityImpl(io, auth);
+        // 不能读，那么注销会话，并返回错误
+        if (!secu.test(oHome, Wn.Io.R, user)) {
+            auth.removeSession(se, 0);
+            throw Er.create("e.auth.home.forbidden");
+        }
+    }
+
+    private void __update_auth_session(WnAuthSession se,
+                                       WnWebService webs,
+                                       String byType,
+                                       String byValue) {
+        // 标注新会话的类型，以便指明用户来源
+        se.setByType(byType);
+        se.setByValue(byValue);
+
+        // 确保用户会话有足够的环境变量
+        NutMap vars = se.getVars();
+
+        // 先搞一轮站点的环境变量，这个要强制加上
+        for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            boolean force = key.startsWith("!");
+            // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
+            // 这样就不用为每个用户设置了。有些时候又希望千人千面。
+            // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
+            if (force) {
+                key = key.substring(1).trim();
+                vars.put(key, val);
+            }
+            // 弱弱的补充一下
+            else {
+                vars.putDefault(key, val);
+            }
+        }
+        // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
+        for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
+            vars.putDefault(en.getKey(), en.getValue());
+        }
+
+        // 保存会话
+        auth.saveSession(se);
     }
 
     /**
@@ -278,73 +352,90 @@ public class AppModule extends AbstractWnModule {
      *            用户登录票据
      * @param ajax
      *            是否要返回 ajax 形式的包裹
+     * @param hostName
+     *            转接的域名
      * @return 输出视图
      */
     @At
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public View auth_login_by_domain_ticket(@Param("site") String siteId,
                                             @Param("ticket") String ticket,
-                                            @Param("ajax") boolean ajax) {
-        // -------------------------------
-        // 站点/票据/服务类
-        WnObj oWWW = io.checkById(siteId);
-        WnWebService webs = new WnWebService(io, oWWW);
-
-        // 特殊会话类型
-        String byType = "auth_by_domain";
-        String byValue = siteId + ":" + ticket;
-
-        // -------------------------------
-        // 查找之前的会话
-        WnAuthSession seSys = auth.getSession(byType, byValue);
-
-        // -------------------------------
-        // 嗯，看来要自动创建一个新的咯
-        // -------------------------------
-        if (null == seSys || seSys.isDead()) {
-            // 得到站点的会话票据
-            WnAuthSession seDmn = webs.getAuthApi().checkSession(ticket);
-
-            // 得到用户
-            WnAccount u = seDmn.getMe();
-
-            // 注册新会话
-            seSys = auth.createSession(u, true);
-
-            // 标注新会话的类型，以便指明用户来源
-            seSys.setByType(byType);
-            seSys.setByValue(byValue);
-
-            // 确保用户会话有足够的环境变量
-            NutMap vars = seSys.getVars();
-            // 先搞一轮站点的默认环境变量
-            for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
-                vars.putDefault(en.getKey(), en.getValue());
-            }
-            // 再搞一轮系统的默认环境变量
-            for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
-                vars.putDefault(en.getKey(), en.getValue());
-            }
-
-            // 保存会话
-            auth.saveSession(seSys);
-        }
-
-        // 准备返回数据
-        NutMap se = seSys.toMapForClient();
-
+                                            @Param("ajax") boolean ajax,
+                                            @Attr("wn_www_host") String hostName) {
         View view;
-        // 返回AJAX 视图
-        if (ajax) {
-            view = new WnAddCookieViewWrapper(new AjaxView(), null);
+        Object reo;
+        WnDomainService domains = new WnDomainService(io);
+        WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
+        // -------------------------------------------------
+        if (null == si.oWWW) {
+            if (ajax) {
+                view = new AjaxView();
+            } else {
+                view = new ServerRedirectView("/");
+            }
+            reo = Er.create("e.auth.login.domain_without_www");
+            // 包裹返回
+            return new ViewWrapper(view, reo);
         }
-        // 重定向视图
-        else {
-            view = new WnAddCookieViewWrapper("/");
-        }
+        try {
+            // -------------------------------
+            // 特殊会话类型
+            String byType = "auth_by_domain";
+            String byValue = si.siteId + ":" + ticket;
 
-        // 包裹数据对象并返回
-        return new ViewWrapper(view, se);
+            // -------------------------------
+            // 查找之前的会话
+            WnAuthSession seSys = auth.getSession(byType, byValue);
+
+            // -------------------------------
+            // 嗯，看来要自动创建一个新的咯
+            // -------------------------------
+            if (null == seSys || seSys.isDead()) {
+                // 得到站点的会话票据
+                WnAuthSession seDmn = si.webs.getAuthApi().checkSession(ticket);
+
+                // 得到用户
+                WnAccount u = seDmn.getMe();
+
+                // 注册新会话
+                seSys = auth.createSession(u, true);
+
+                // 更新会话元数据
+                __update_auth_session(seSys, si.webs, byType, byValue);
+
+                // 确保当前会话是可以访问域主目录的
+                __check_home_accessable(si.oHome, seSys, u);
+            }
+
+            // 准备返回数据
+            NutMap se = seSys.toMapForClient();
+
+            // 返回AJAX 视图
+            if (ajax) {
+                view = new WnAddCookieViewWrapper(new AjaxView(), null);
+            }
+            // 重定向视图
+            else {
+                view = new WnAddCookieViewWrapper("/");
+            }
+
+            // 包裹数据对象并返回
+            return new ViewWrapper(view, se);
+        }
+        // 通常是存在什么问题，则会进入这个分支
+        catch (Exception e) {
+            reo = e;
+        }
+        // -----------------------------------------
+        // 进行到这里一定出现了错误，这里准备一下错误视图
+        if (ajax) {
+            view = new AjaxView();
+        } else {
+            view = new ServerRedirectView("/");
+        }
+        // -----------------------------------------
+        // 包裹返回
+        return new ViewWrapper(view, reo);
     }
 
 }

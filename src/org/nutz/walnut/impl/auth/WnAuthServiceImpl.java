@@ -40,7 +40,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         super(io);
         this.io = io;
         this.setup = setup;
-        this.accountLoader = new WnAccountLoaderImpl(io, setup.getAccountDir());
+        this.accountLoader = new WnAccountLoaderImpl(io, setup.getAccountDir(), true);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             WnObj oWWW = io.checkById(siteId);
             String siteHomePath = Wn.getObjHomePath(oWWW);
             WnWebSite site = new WnWebSite(io, siteHomePath, siteId, oWWW);
-            WnAccountLoader accLoader = new WnAccountLoaderImpl(io, site.getAccountDir());
+            WnAccountLoader accLoader = new WnAccountLoaderImpl(io, site.getAccountDir(), false);
             return accLoader.getAccountById(uid);
         }
         // 自身的账户体系直接获取

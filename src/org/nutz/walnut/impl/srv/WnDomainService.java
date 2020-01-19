@@ -6,6 +6,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 
 public class WnDomainService {
@@ -49,13 +50,42 @@ public class WnDomainService {
 
     public WnObj getDomainDefaultWebsite(String host) {
         WnObj oHome = this.getDomainHome(host);
+        return getDomainDefaultWebsite(oHome);
+    }
+
+    public WnObj getDomainDefaultWebsite(WnObj oHome) {
         if (null != oHome && oHome.has("auth_site")) {
-            String sitePath = oHome.path();
-            NutMap vars = Lang.map("HOME", sitePath).setv("PWD", sitePath);
+            String homePath = oHome.path();
+            String sitePath = oHome.getString("auth_site");
+            NutMap vars = Lang.map("HOME", homePath).setv("PWD", homePath);
             String aph = Wn.normalizeFullPath(sitePath, vars);
             return io.fetch(null, aph);
         }
         return null;
+    }
+
+    public WwwSiteInfo getWwwSiteInfo(String siteId, String hostName) {
+        WwwSiteInfo si = new WwwSiteInfo();
+        // 直接指明了站点 ID
+        if (!Strings.isBlank(siteId)) {
+            si.oWWW = io.get(siteId);
+            if (null != si.oWWW) {
+                si.webs = new WnWebService(io, si.oWWW);
+                String domainHomePath = si.webs.getSite().getDomainHomePath();
+                si.oHome = io.check(null, domainHomePath);
+                si.siteId = si.oWWW.id();
+            }
+        }
+        // 首先从 domain 表里查询 hostName 对应的域
+        else {
+            si.oHome = this.getDomainHome(hostName);
+            si.oWWW = this.getDomainDefaultWebsite(si.oHome);
+            if (null != si.oWWW) {
+                si.webs = new WnWebService(io, si.oWWW);
+                si.siteId = si.oWWW.id();
+            }
+        }
+        return si;
     }
 
 }
