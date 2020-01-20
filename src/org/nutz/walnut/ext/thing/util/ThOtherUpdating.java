@@ -11,6 +11,9 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
+import org.nutz.trans.Proton;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
 
@@ -31,20 +34,66 @@ public class ThOtherUpdating {
      */
     public NutMap meta;
 
+    /**
+     * 要运行的命令列表
+     */
+    public List<ThingCommandProton> commands;
+
+    private WnExecutable executor;
+
+    public ThOtherUpdating(WnExecutable executor) {
+        this.executor = executor;
+    }
+
+    public boolean isRunCommands() {
+        return null != commands && commands.size() > 0 && null != executor;
+    }
+
+    /**
+     * @return true 当前的这个任务什么都不做
+     */
+    public boolean isIdle() {
+        if (isRunCommands()) {
+            return false;
+        }
+        if (null == list || list.isEmpty()) {
+            return true;
+        }
+        if (null == meta || meta.isEmpty()) {
+            return true;
+        }
+        if (null == service) {
+            return true;
+        }
+        return false;
+    }
+
     public void doUpdate() {
-        if (null == list || null == meta || null == service)
+        // 啥都不需要做
+        if (this.isIdle())
             return;
-        if (list.isEmpty() || meta.isEmpty())
-            return;
-        for (WnObj ot : this.list) {
-            this.service.updateThing(ot.id(), this.meta);
+
+        // 执行命令
+        if (this.isRunCommands()) {
+            for (Proton<String> pro : commands) {
+                String cmdText = pro.invoke();
+                if (!Strings.isBlank(cmdText)) {
+                    executor.exec(cmdText);
+                }
+            }
+        }
+        // 执行更新
+        else {
+            for (WnObj ot : this.list) {
+                this.service.updateThing(ot.id(), this.meta, this.executor);
+            }
         }
     }
 
     /**
      * @param meta
      *            要填充的元数据
-     * @param tmpl
+     * @param sets
      *            填充模板，格式类似
      * 
      *            <pre>
@@ -58,9 +107,15 @@ public class ThOtherUpdating {
      * 
      * @param context
      */
-    public void fillMeta(NutMap meta, NutMap tmpl, NutBean context) {
-        Pattern p = Pattern.compile("^@([^:]+)(:(int|float|boolean|string))?$");
-        for (Map.Entry<String, Object> en : tmpl.entrySet()) {
+    public void fillMeta(NutMap meta, NutMap sets, NutBean context) {
+        // 防守一下
+        if (null == sets || sets.isEmpty()) {
+            return;
+        }
+
+        // 开始填充
+        Pattern p = Regex.getPattern("^@([^:]+)(:(int|float|boolean|string))?$");
+        for (Map.Entry<String, Object> en : sets.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
             if (null == val)

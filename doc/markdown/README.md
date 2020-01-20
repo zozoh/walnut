@@ -75,10 +75,22 @@
 -----------------------------------------
 # 通用数据集核心概念`thing-l0`
 
-- Thing 概述
-- Thing 的数据结构
-- Thing 的操作方式
-- Thing 的界面框架
+- Thing·概述
+- Thing·数据结构
+- Thing·操作方式
+
+-----------------------------------------
+# 通用数据集·定制·服务端`thing-l1`
+
+- [Thing·服务器端配置][th1-sc]
+- [Thing·配置文件详解][th1-tj]
+- Thing·导入导出
+
+-----------------------------------------
+# 通用数据集·定制·界面层`thing-l2`
+
+- Thing·界面配置概述
+- Thing·引入自定义方法
 
 -----------------------------------------
 ## Web 核心`webs-l0`
@@ -98,6 +110,8 @@
 [f0-wxp]: func-l0/f0-weixin-payment.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f1-pay]: func-l1/f1-payment.md
+[th1-sc]: thing-l1/th1-server-customized.md
+[th1-tj]: thing-l1/th1-thing-json.md
 [w0-saa]: webs-l0/w0-site-auth-api.md
 [w0-buy]: webs-l0/w0-buy.md
 

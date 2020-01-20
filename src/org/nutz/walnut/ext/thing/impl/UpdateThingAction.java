@@ -1,7 +1,11 @@
 package org.nutz.walnut.ext.thing.impl;
 
 import java.util.List;
+
+import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
@@ -11,6 +15,8 @@ import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
 
 public class UpdateThingAction extends ThingAction<WnObj> {
+
+    protected WnExecutable executor;
 
     protected String id;
 
@@ -30,6 +36,11 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     public UpdateThingAction setConf(ThingConf conf) {
         this.conf = conf;
+        return this;
+    }
+
+    public UpdateThingAction setExecutor(WnExecutable executor) {
+        this.executor = executor;
         return this;
     }
 
@@ -53,7 +64,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         }
 
         // 根据链接键，修改对应的键值
-        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, false);
+        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
 
         // 更新这个 Thing
         io.appendMeta(oT, meta);
@@ -63,6 +74,20 @@ public class UpdateThingAction extends ThingAction<WnObj> {
             for (ThOtherUpdating other : others) {
                 other.doUpdate();
             }
+        }
+
+        // 看看是否有附加的创建执行脚本
+        String on_updated = conf.getOnUpdated();
+        if (null != this.executor && !Strings.isBlank(on_updated)) {
+            String cmdText = Tmpl.exec(on_updated, oT);
+            StringBuilder stdOut = new StringBuilder();
+            StringBuilder stdErr = new StringBuilder();
+            this.executor.exec(cmdText, stdOut, stdErr, null);
+
+            // 出错就阻止后续执行
+            if (stdErr.length() > 0)
+                throw Er.create("e.cmd.thing.on_updated", stdErr);
+
         }
 
         // 返回

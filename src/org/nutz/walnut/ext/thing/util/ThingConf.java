@@ -2,11 +2,10 @@ package org.nutz.walnut.ext.thing.util;
 
 import java.util.Map;
 
-import org.nutz.json.JsonField;
 import org.nutz.lang.util.NutBean;
 
 /**
- * 服务器端对 thing.js 的解析结果
+ * 服务器端对 thing.json 的解析结果
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
@@ -16,11 +15,14 @@ public class ThingConf {
 
     private ThingField[] fields;
 
-    @JsonField("lnKeys")
+    // zozoh: 先去掉这两个奇怪的键名，用原生的，看看会发生什么
+    // @JsonField("lnKeys")
     private Map<String, ThingLinkKey> linkKeys;
 
-    @JsonField("on_create")
-    private String onCreate;
+    // @JsonField("on_create")
+    private String onCreated;
+
+    private String onUpdated;
 
     public boolean hasUniqueKeys() {
         return null != uniqueKeys && uniqueKeys.length > 0;
@@ -46,12 +48,20 @@ public class ThingConf {
         this.linkKeys = linkKeys;
     }
 
-    public String getOnCreate() {
-        return onCreate;
+    public String getOnCreated() {
+        return onCreated;
     }
 
-    public void setOnCreate(String onCreate) {
-        this.onCreate = onCreate;
+    public void setOnCreated(String onCreate) {
+        this.onCreated = onCreate;
+    }
+
+    public String getOnUpdated() {
+        return onUpdated;
+    }
+
+    public void setOnUpdated(String onUpdated) {
+        this.onUpdated = onUpdated;
     }
 
     public ThingField[] getFields() {

@@ -14,6 +14,12 @@ public class ThingLinkKey {
 
     private NutMap set;
 
+    private String[] run;
+
+    public boolean isDoNothing() {
+        return !this.hasSet() && !this.hasRun();
+    }
+
     public boolean hasMatch() {
         return null != match;
     }
@@ -56,6 +62,18 @@ public class ThingLinkKey {
 
     public void setSet(NutMap set) {
         this.set = set;
+    }
+
+    public boolean hasRun() {
+        return null != run && run.length > 0;
+    }
+
+    public String[] getRun() {
+        return run;
+    }
+
+    public void setRun(String[] run) {
+        this.run = run;
     }
 
 }

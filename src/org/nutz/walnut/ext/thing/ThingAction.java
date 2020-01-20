@@ -8,12 +8,14 @@ import java.util.regex.Matcher;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.thing.util.ThQuery;
+import org.nutz.walnut.ext.thing.util.ThingCommandProton;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.ThingLinkKey;
 import org.nutz.walnut.ext.thing.util.ThingLinkKeyTarget;
@@ -44,7 +46,7 @@ public abstract class ThingAction<T> {
     public WnObj checkDirTsIndex() {
         return Things.dirTsIndex(io, oTs);
     }
-    
+
     public WnObj checkDirTsData() {
         return Things.dirTsData(io, oTs);
     }
@@ -193,7 +195,7 @@ public abstract class ThingAction<T> {
     protected List<ThOtherUpdating> evalOtherUpdating(WnObj oT,
                                                       NutMap meta,
                                                       ThingConf conf,
-                                                      boolean isCreate) {
+                                                      WnExecutable executor) {
         // 检查所有的元数据是否合法
         conf.validate(meta, true);
 
@@ -210,8 +212,8 @@ public abstract class ThingAction<T> {
                 if (null == val)
                     continue;
 
-                // 确保有 set，没有设置值的话也木有意义
-                if (!lnk.hasSet())
+                // 什么都没做的话，无视好了
+                if (lnk.isDoNothing())
                     continue;
 
                 // 准备 val 上下文
@@ -235,7 +237,7 @@ public abstract class ThingAction<T> {
                 }
 
                 // 准备
-                ThOtherUpdating other = new ThOtherUpdating();
+                ThOtherUpdating other = new ThOtherUpdating(executor);
 
                 // 指定目标
                 if (lnk.hasTarget()) {
@@ -267,18 +269,37 @@ public abstract class ThingAction<T> {
                     // 查找要修改的目标
                     other.list = other.service.queryList(tq2);
                 }
-                // 如果没有就更新自己，那么就直接修改自己的 meta，不用记录到 others 里了
-                else {
+                // 如果没有特别目标，就更新自己，那么就直接修改自己的 meta，不用记录到 others 里了
+                else if (lnk.hasSet()) {
                     other.fillMeta(meta, lnk.getSet(), valContext);
+                    continue;
+                }
+                // 如果指定了特别运行的脚本
+                else if (lnk.hasRun()) {
+                    // 生成脚本模板上下文
+                    List<ThingCommandProton> protons = new ArrayList<>(lnk.getRun().length);
+                    for (String cmdTmpl : lnk.getRun()) {
+                        protons.add(new ThingCommandProton(oT, valContext, cmdTmpl));
+                    }
+
+                    // 计入，等 oT 更新后，这个会执行
+                    // 这个采用了一个 Proton，是因为想用 oT 更新后的上下文
+                    // 作为命令的模板的上下文
+                    other.commands = protons;
+                }
+                // 啥都木有，那么过
+                else {
                     continue;
                 }
 
                 // 准备要更新的元数据表
-                other.meta = new NutMap();
-                other.fillMeta(other.meta, lnk.getSet(), valContext);
+                if (lnk.hasSet()) {
+                    other.meta = new NutMap();
+                    other.fillMeta(other.meta, lnk.getSet(), valContext);
+                }
 
                 // 计入列表
-                if (other.list.size() > 0 && null != other.meta && other.meta.size() > 0) {
+                if (!other.isIdle()) {
                     others.add(other);
                 }
             }

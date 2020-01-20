@@ -185,7 +185,10 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // meta.put("thumb", oTs.get("th_thumb"));
 
         // 根据链接键，修改对应的键值
-        List<ThOtherUpdating> others = evalOtherUpdating(new WnBean(), meta, this.conf, false);
+        List<ThOtherUpdating> others = evalOtherUpdating(new WnBean(),
+                                                         meta,
+                                                         this.conf,
+                                                         this.executor);
 
         // 设置更多的固有属性
         meta.put("th_set", oTs.id());
@@ -211,16 +214,16 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         }
 
         // 看看是否有附加的创建执行脚本
-        String on_create = conf.getOnCreate();
-        if (null != this.executor && !Strings.isBlank(on_create)) {
-            String cmdText = Tmpl.exec(on_create, oT);
+        String on_created = conf.getOnCreated();
+        if (null != this.executor && !Strings.isBlank(on_created)) {
+            String cmdText = Tmpl.exec(on_created, oT);
             StringBuilder stdOut = new StringBuilder();
             StringBuilder stdErr = new StringBuilder();
             this.executor.exec(cmdText, stdOut, stdErr, null);
 
             // 出错就阻止后续执行
             if (stdErr.length() > 0)
-                throw Er.create("e.cmd.thing.on_create", stdErr);
+                throw Er.create("e.cmd.thing.on_created", stdErr);
 
         }
 

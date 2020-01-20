@@ -11,11 +11,11 @@ public class ThingField {
 
     private String key;
 
-    private boolean required;
+    // private boolean required;
 
-    private boolean virtual;
+    // private boolean virtual;
 
-    private String type;
+    // private String type;
 
     private NutMap validate;
 
@@ -27,57 +27,57 @@ public class ThingField {
         this.key = key;
     }
 
-    public boolean isRequired() {
-        return required;
-    }
+    // public boolean isRequired() {
+    // return required;
+    // }
+    //
+    // public void setRequired(boolean required) {
+    // this.required = required;
+    // }
 
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
+    // public boolean isVirtual() {
+    // return virtual;
+    // }
+    //
+    // public void setVirtual(boolean virtual) {
+    // this.virtual = virtual;
+    // }
 
-    public boolean isVirtual() {
-        return virtual;
-    }
+    // public String getType() {
+    // return type;
+    // }
+    //
+    // public void setType(String type) {
+    // this.type = type;
+    // }
 
-    public void setVirtual(boolean virtual) {
-        this.virtual = virtual;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public boolean isObject() {
-        return "object".equals(type);
-    }
-
-    public boolean isDateRange() {
-        return "daterange".equals(type);
-    }
-
-    public boolean isDateTime() {
-        return "datetime".equals(type);
-    }
-
-    public boolean isTime() {
-        return "time".equals(type);
-    }
-
-    public boolean isInt() {
-        return "int".equals(type);
-    }
-
-    public boolean isFloat() {
-        return "float".equals(type);
-    }
-
-    public boolean isBoolean() {
-        return "boolean".equals(type);
-    }
+    // public boolean isObject() {
+    // return "object".equals(type);
+    // }
+    //
+    // public boolean isDateRange() {
+    // return "daterange".equals(type);
+    // }
+    //
+    // public boolean isDateTime() {
+    // return "datetime".equals(type);
+    // }
+    //
+    // public boolean isTime() {
+    // return "time".equals(type);
+    // }
+    //
+    // public boolean isInt() {
+    // return "int".equals(type);
+    // }
+    //
+    // public boolean isFloat() {
+    // return "float".equals(type);
+    // }
+    //
+    // public boolean isBoolean() {
+    // return "boolean".equals(type);
+    // }
 
     public NutMap getValidate() {
         return validate;
@@ -91,16 +91,20 @@ public class ThingField {
     private NutValidate __validate;
 
     public void validate(NutBean meta) {
-        if (this.virtual)
-            return;
+        // if (this.virtual)
+        // return;
+
+        // 自定义检查器
         if (null == this.validate || validate.isEmpty())
             return;
         // 懒加载
         if (null == this.__validate) {
             this.__validate = new NutValidate(this.validate);
         }
+
         // 执行检查
         Object val = meta.get(key);
+
         try {
             Object v2 = this.__validate.check(val);
             if (val != v2) {

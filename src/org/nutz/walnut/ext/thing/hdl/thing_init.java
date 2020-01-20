@@ -13,10 +13,10 @@ import org.nutz.walnut.impl.box.WnSystem;
 @JvmHdlParamArgs("Qf")
 public class thing_init implements JvmHdl {
 
-    private static final String DFT_THING_JS_PATH = thing_init.class.getPackage()
+    private static final String DFT_THING_JSON_PATH = thing_init.class.getPackage()
                                                                     .getName()
                                                                     .replace('.', '/')
-                                                    + "/dft_thing.js";
+                                                    + "/dft_thing.json";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -51,22 +51,22 @@ public class thing_init implements JvmHdl {
         if (!oData.isType("th_data")) {
             sys.io.set(oData.type("th_data"), "^(tp)$");
         }
-
-        // 确保有 thing.js
-        WnObj oDef = sys.io.createIfNoExists(oTS, "thing.js", WnRace.FILE);
+        //---------------------------------------------------
+        // 确保有 thing.json
+        WnObj oDef = sys.io.createIfNoExists(oTS, "thing.json", WnRace.FILE);
         if (!isQ)
-            sys.out.printlnf("%-12s: %s", "./thing.js", oDef.id());
-
+            sys.out.printlnf("%-12s: %s", "./thing.json", oDef.id());
+        
         // 试图读取一下
         String json = sys.io.readText(oDef);
 
-        // 写入 thing.js 默认内容
+        // 写入 thing.json 默认内容
         if (!oDef.isLink() && (Strings.isBlank(json) || hc.params.is("f"))) {
             if (!isQ)
-                sys.out.println(" >> default write thing.js");
+                sys.out.println(" >> default write thing.json");
 
             // 得到默认内容
-            String str = Files.read(DFT_THING_JS_PATH);
+            String str = Files.read(DFT_THING_JSON_PATH);
 
             // 写入
             sys.io.writeText(oDef, str);

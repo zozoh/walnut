@@ -65,7 +65,7 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备调用接口
-        hc.output = wts.updateThing(id, meta);
+        hc.output = wts.updateThing(id, meta, sys);
     }
 
 }

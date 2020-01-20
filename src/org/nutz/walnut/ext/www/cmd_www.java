@@ -123,7 +123,7 @@ public class cmd_www extends JvmHdlExecutor {
         or.setStatus(WnOrderStatus.WT);
         or.setWaitAt(System.currentTimeMillis());
         NutMap orMeta = or.toMeta("^(pay_id|st|wt_at)$", null);
-        webs.getOrderApi().updateOrder(or.getId(), orMeta);
+        webs.getOrderApi().updateOrder(or.getId(), orMeta, sys);
 
         // -------------------------------
         // 设置返回结果

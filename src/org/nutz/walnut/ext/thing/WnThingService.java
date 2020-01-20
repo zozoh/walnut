@@ -344,9 +344,10 @@ public class WnThingService {
         return a.invoke();
     }
 
-    public WnObj updateThing(String id, NutMap meta) {
+    public WnObj updateThing(String id, NutMap meta, WnExecutable executor) {
         UpdateThingAction a = _A(_action_update()).setId(id).setMeta(meta);
         a.setConf(this.checkConf());
+        a.setExecutor(executor);
         return a.invoke();
     }
 

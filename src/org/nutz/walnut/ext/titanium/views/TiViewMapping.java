@@ -21,6 +21,10 @@ public class TiViewMapping {
             this.regex = Pattern.compile(regex);
             this.viewName = view;
         }
+
+        public String toString() {
+            return String.format("[%s]: %s", viewName, regex);
+        }
     }
 
     static class ArrayMatchView {
@@ -52,6 +56,10 @@ public class TiViewMapping {
                 }
             }
             return true;
+        }
+
+        public String toString() {
+            return String.format("[%s]: %s", viewName, Strings.join("/", list));
         }
     }
 

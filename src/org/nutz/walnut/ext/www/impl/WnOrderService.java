@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.www.impl;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -138,8 +139,8 @@ public class WnOrderService {
         return null;
     }
 
-    public WnOrder updateOrder(String id, NutMap meta) {
-        WnObj oOr = orders.updateThing(id, meta);
+    public WnOrder updateOrder(String id, NutMap meta, WnExecutable executor) {
+        WnObj oOr = orders.updateThing(id, meta, executor);
         if (null != oOr) {
             WnOrder or = new WnOrder();
             or.updateBy(oOr);

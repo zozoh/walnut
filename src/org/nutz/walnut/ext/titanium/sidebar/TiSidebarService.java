@@ -11,6 +11,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -38,6 +39,7 @@ public class TiSidebarService {
                                TiSidebarInputItem inputItem,
                                List<TiSidebarOutputItem> list,
                                WnAuthSession sess,
+                               NutBean tmplContext,
                                WnCheckRoleOfByName check,
                                WnExecutable runtime) {
 
@@ -58,6 +60,7 @@ public class TiSidebarService {
         // 动态项目
         if (inIt.hasCommand()) {
             String cmdText = inIt.getCommand();
+            cmdText = Tmpl.exec(cmdText, tmplContext);
             String re = Strings.trim(runtime.exec2(cmdText));
 
             // 空
@@ -77,7 +80,14 @@ public class TiSidebarService {
                     TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
                     // 计算子项目
                     TiSidebarInputItem inIt2 = inIt.clone();
-                    __check_dynamic_item_children(depth, inIt2, sess, check, runtime, o, it);
+                    __check_dynamic_item_children(depth,
+                                                  inIt2,
+                                                  sess,
+                                                  tmplContext,
+                                                  check,
+                                                  runtime,
+                                                  o,
+                                                  it);
                     // 加入结果列表
                     list.add(it);
                 }
@@ -87,7 +97,14 @@ public class TiSidebarService {
                 NutMap o = Lang.obj2nutmap(reObj);
                 TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
                 // 计算子项目
-                __check_dynamic_item_children(depth, inIt, sess, check, runtime, o, it);
+                __check_dynamic_item_children(depth,
+                                              inIt,
+                                              sess,
+                                              tmplContext,
+                                              check,
+                                              runtime,
+                                              o,
+                                              it);
                 // 加入结果列表
                 list.add(it);
             }
@@ -97,7 +114,7 @@ public class TiSidebarService {
             TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null);
             List<TiSidebarOutputItem> items = new LinkedList<>();
             for (TiSidebarInputItem subIt : inIt.getItems()) {
-                __join_output(depth + 1, subIt, items, sess, check, runtime);
+                __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
             }
             if (items.size() > 0) {
                 grp.setItems(items);
@@ -108,7 +125,9 @@ public class TiSidebarService {
         else {
             WnObj o = null;
             if (inIt.hasPath()) {
-                String aph = Wn.normalizeFullPath(inIt.getPath(), sess);
+                String path = inIt.getPath();
+                path = Tmpl.exec(path, tmplContext);
+                String aph = Wn.normalizeFullPath(path, sess);
                 o = io.check(null, aph);
             }
             TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
@@ -119,6 +138,7 @@ public class TiSidebarService {
     private void __check_dynamic_item_children(int depth,
                                                TiSidebarInputItem inIt,
                                                WnAuthSession sess,
+                                               NutBean tmplContext,
                                                WnCheckRoleOfByName check,
                                                WnExecutable runtime,
                                                NutMap o,
@@ -132,7 +152,7 @@ public class TiSidebarService {
                     subIt.setPath(ph);
                 }
                 // 计入
-                __join_output(depth + 1, subIt, items, sess, check, runtime);
+                __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
             }
             it.setItems(items);
         }
@@ -145,10 +165,12 @@ public class TiSidebarService {
         TiSidebarOutput output = new TiSidebarOutput();
         List<TiSidebarOutputItem> sidebar = new LinkedList<>();
 
+        NutBean tmplContext = sess.toMapForClient();
+
         // 循环分析
         if (input.hasSidebar()) {
             for (TiSidebarInputItem inIt : input.getSidebar()) {
-                this.__join_output(0, inIt, sidebar, sess, check, runtime);
+                this.__join_output(0, inIt, sidebar, sess, tmplContext, check, runtime);
             }
         }
 

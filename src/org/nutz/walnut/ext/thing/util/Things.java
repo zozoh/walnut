@@ -143,7 +143,7 @@ public abstract class Things {
 
     public static WnObj fileTsConf(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
-        return io.check(oTS, "thing.js");
+        return io.check(oTS, "thing.json");
     }
 
     public static WnObj fileTsConf(WnSystem sys, JvmHdlContext hc) {
