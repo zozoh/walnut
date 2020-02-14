@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 
@@ -18,7 +19,7 @@ public class TiViewMapping {
         String viewName;
 
         RegExpMatchView(String regex, String view) {
-            this.regex = Pattern.compile(regex);
+            this.regex = Regex.getPattern(regex);
             this.viewName = view;
         }
 

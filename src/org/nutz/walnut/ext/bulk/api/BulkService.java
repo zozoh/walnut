@@ -17,6 +17,20 @@ public interface BulkService {
      */
     String backup(WnObj oHome, BulkIgnores ignores, BulkIo buIo);
 
+    /**
+     * 将指定备份还原到目标目录
+     * 
+     * @param oTarget
+     *            要还原的目标目录
+     * @param histroyId
+     *            历史记录 ID
+     * @param ignores
+     *            备份配置。如果为 null 则用 BulkIo 提供的默认 Ignore
+     * @param buIo
+     *            备份包读写接口
+     * @param setting
+     *            还原的设置
+     */
     void restore(WnObj oTarget,
                  String histroyId,
                  BulkIgnores ignores,

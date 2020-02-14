@@ -4,6 +4,10 @@ import java.util.List;
 
 public interface BulkIo {
 
+    BulkIgnores getIgnores();
+
+    void writeIgnores(BulkIgnores ignores);
+
     void writeTree(BulkTree tree);
 
     BulkTree readTree(String treeId);
