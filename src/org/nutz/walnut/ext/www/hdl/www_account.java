@@ -59,6 +59,7 @@ public class www_account implements JvmHdl {
                     q.setAll(map);
                 }
             }
+            q.setv("th_live", "[0,)");
             q.limit(wp.limit).skip(wp.skip);
             q.sort(sort);
             list = webs.getAuthApi().queryAccount(q);
