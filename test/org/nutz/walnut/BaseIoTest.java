@@ -59,6 +59,7 @@ public abstract class BaseIoTest extends BaseStoreTest {
     }
 
     protected void on_after(PropertiesProxy pp) {
+        super.on_after(pp);
         // 默认每个测试运行都是用 root
         Wn.WC().setMe(root);
     }

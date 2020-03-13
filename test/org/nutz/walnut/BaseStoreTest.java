@@ -20,6 +20,10 @@ public abstract class BaseStoreTest extends BaseApiTest {
         store = _create_store();
         store._clean_for_unit_test();
     }
+    
+    protected void on_after(PropertiesProxy pp) {
+        super.on_after(pp);
+    }
 
     private WnStore _create_store() {
         store = new WnStoreImpl();

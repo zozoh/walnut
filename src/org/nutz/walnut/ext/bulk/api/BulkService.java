@@ -35,5 +35,5 @@ public interface BulkService {
                  String histroyId,
                  BulkIgnores ignores,
                  BulkIo buIo,
-                 BulkRestoreSetting setting);
+                 BulkRestore setting);
 }

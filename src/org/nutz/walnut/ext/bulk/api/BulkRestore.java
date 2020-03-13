@@ -3,13 +3,20 @@ package org.nutz.walnut.ext.bulk.api;
 import static org.nutz.walnut.ext.bulk.api.BulkRLTree.*;
 import static org.nutz.walnut.ext.bulk.api.BulkRLObj.*;
 
-public class BulkRestoreSetting {
+/**
+ * 定义了恢复时的恢复级别设置
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+public class BulkRestore {
 
+    // 增删级别
     public BulkRLTree BSR;
     public BulkRLTree BDR;
     public BulkRLTree PKG;
     public BulkRLTree TREE;
 
+    // 修改级别
     public BulkRLObj path;
     public BulkRLObj oid;
     public BulkRLObj rid;
@@ -17,35 +24,35 @@ public class BulkRestoreSetting {
     public BulkRLObj mod;
     public BulkRLObj ln;
 
-    public BulkRestoreSetting asTree1() {
+    public BulkRestore asTree1() {
         return this.asTree(R, I, A, I);
     }
 
-    public BulkRestoreSetting asTree2() {
+    public BulkRestore asTree2() {
         return this.asTree(R, R, A, I);
     }
 
-    public BulkRestoreSetting asTree3() {
+    public BulkRestore asTree3() {
         return this.asTree(R, R, A, D);
     }
 
-    public BulkRestoreSetting asObj1() {
+    public BulkRestore asObj1() {
         return this.asObj(rl, nw, tr, ig, ig, ig);
     }
 
-    public BulkRestoreSetting asObj2() {
+    public BulkRestore asObj2() {
         return this.asObj(rl, nw, tr, cp, ig, tr);
     }
 
-    public BulkRestoreSetting asObj3() {
+    public BulkRestore asObj3() {
         return this.asObj(rl, nw, tr, cp, cp, tr);
     }
 
-    public BulkRestoreSetting asObj4() {
+    public BulkRestore asObj4() {
         return this.asObj(cp, cp, cp, cp, cp, cp);
     }
 
-    public BulkRestoreSetting asTree(BulkRLTree BSR,
+    public BulkRestore asTree(BulkRLTree BSR,
                                      BulkRLTree BDR,
                                      BulkRLTree PKG,
                                      BulkRLTree TREE) {
@@ -56,7 +63,7 @@ public class BulkRestoreSetting {
         return this;
     }
 
-    public BulkRestoreSetting asObj(BulkRLObj path,
+    public BulkRestore asObj(BulkRLObj path,
                                     BulkRLObj oid,
                                     BulkRLObj rid,
                                     BulkRLObj biz,
