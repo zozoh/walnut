@@ -348,6 +348,15 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             String uid = oSe.getString("uid");
             WnAccount me = getAccountById(uid);
             if (null != me) {
+            	if (session_key != null) {
+            		if (!Strings.isBlank(oSe.getString("mp_session_key")) && session_key.equals(oSe.getString("mp_session_key"))) {
+            			// nop
+            		}
+            		else {
+            			oSe.put("mp_session_key", session_key);
+            			io.appendMeta(oSe, new NutMap("mp_session_key", session_key));
+            		}
+            	}
                 return new WnAuthSession(oSe, me);
             }
         }
