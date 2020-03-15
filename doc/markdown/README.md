@@ -18,7 +18,7 @@
 -----------------------------------------
 ## 系统延申概念`core-l1`
 
-- 数据备份与导出
+- [数据备份与导出][c1-buk]
 - 钩子机制
 - HttpApi
 
@@ -106,6 +106,7 @@
 [c0-abd]: webs-l0/w0-auth-by-domain.md
 [c0-css]: core-l0/c0-core-session-service.md
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
+[c1-buk]: core-l1/c1-bulk-backup-restore.md
 [c2-bpm]: core-l2/c2-biz-privilege-model.md
 [f0-wxp]: func-l0/f0-weixin-payment.md
 [f0-zfb]: func-l0/f0-alipay.md
