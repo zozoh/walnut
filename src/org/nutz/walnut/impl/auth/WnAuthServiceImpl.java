@@ -316,13 +316,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 得到用户的 OpenId
         String openid;
+        String session_key = null;
         wxCodeType = Strings.sBlank(wxCodeType, "gh");
         if (!wxCodeType.matches("^(mp|gh)$")) {
             throw Er.create("e.auth.login.invalid.wxCodeType");
         }
         // 小程序的权限码
         if ("mp".equals(wxCodeType)) {
-            openid = wxApi.user_openid_by_mp_code(code);
+        	NutMap resp = wxApi.user_info_by_mp_code(code);
+            openid = resp.getString("openid");
+            session_key = resp.getString("session_key");
         }
         // 微信公号的登录码
         else {
@@ -431,6 +434,8 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 创建完毕，收工
         long se_du = setup.getSessionDefaultDuration();
+        if (session_key != null)
+        	by.put("mp_session_key", session_key);
         return createSessionBy(se_du, me, by);
     }
 
