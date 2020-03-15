@@ -351,6 +351,8 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
                 return new WnAuthSession(oSe, me);
             }
         }
+        if (session_key != null)
+        	by.put("mp_session_key", session_key);
 
         // 看看这个用户是否存在
         WnAccount info = new WnAccount();
@@ -434,8 +436,6 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 创建完毕，收工
         long se_du = setup.getSessionDefaultDuration();
-        if (session_key != null)
-        	by.put("mp_session_key", session_key);
         return createSessionBy(se_du, me, by);
     }
 
