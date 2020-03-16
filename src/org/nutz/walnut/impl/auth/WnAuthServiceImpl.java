@@ -12,6 +12,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
 import org.nutz.walnut.api.auth.WnAuthService;
@@ -29,6 +31,8 @@ import org.nutz.walnut.ext.www.bean.WnWebSite;
 import org.nutz.walnut.util.Wn;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
+	
+	private static final Log log = Logs.get();
 
     WnIo io;
 
@@ -326,6 +330,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         	NutMap resp = wxApi.user_info_by_mp_code(code);
             openid = resp.getString("openid");
             session_key = resp.getString("session_key");
+            log.info("user_info_by_mp_code " + Json.toJson(resp, JsonFormat.compact()));
         }
         // 微信公号的登录码
         else {
