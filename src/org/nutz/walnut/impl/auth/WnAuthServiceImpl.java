@@ -31,8 +31,8 @@ import org.nutz.walnut.ext.www.bean.WnWebSite;
 import org.nutz.walnut.util.Wn;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
-	
-	private static final Log log = Logs.get();
+
+    private static final Log log = Logs.get();
 
     WnIo io;
 
@@ -327,7 +327,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         }
         // 小程序的权限码
         if ("mp".equals(wxCodeType)) {
-        	NutMap resp = wxApi.user_info_by_mp_code(code);
+            NutMap resp = wxApi.user_info_by_mp_code(code);
             openid = resp.getString("openid");
             session_key = resp.getString("session_key");
             log.info("user_info_by_mp_code " + Json.toJson(resp, JsonFormat.compact()));
@@ -353,20 +353,26 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             String uid = oSe.getString("uid");
             WnAccount me = getAccountById(uid);
             if (null != me) {
-            	if (session_key != null) {
-            		if (!Strings.isBlank(oSe.getString("mp_session_key")) && session_key.equals(oSe.getString("mp_session_key"))) {
-            			// nop
-            		}
-            		else {
-            			oSe.put("mp_session_key", session_key);
-            			io.appendMeta(oSe, new NutMap("mp_session_key", session_key));
-            		}
-            	}
+                // 小程序的 session key 要保存一下，以便以后随时获取用户手机号等相关信息
+                if (session_key != null) {
+                    // 已经有存了（虽然不太可能）那就不用再存了
+                    if (!Strings.isBlank(oSe.getString("mp_session_key"))
+                        && session_key.equals(oSe.getString("mp_session_key"))) {
+                        // nop
+                    }
+                    // 保存并持久化
+                    else {
+                        oSe.put("mp_session_key", session_key);
+                        io.appendMeta(oSe, new NutMap("mp_session_key", session_key));
+                    }
+                }
                 return new WnAuthSession(oSe, me);
             }
         }
-        if (session_key != null)
-        	by.put("mp_session_key", session_key);
+        // 既然是微信小程序登录的，那么就固定记录一下 SessionKey，以便以后随时获取用户手机号等相关信息
+        if (session_key != null) {
+            by.put("mp_session_key", session_key);
+        }
 
         // 看看这个用户是否存在
         WnAccount info = new WnAccount();
