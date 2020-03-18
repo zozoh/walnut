@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.Disks;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,6 +19,8 @@ import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
 
 public class LocalFileMounter extends AbstractWnMounter {
+	
+	private static final Log log = Logs.get();
 
     private static final Pattern regex_id_mnt2 = Pattern.compile("^([\\d\\w]+)://(.+)$");
 
@@ -31,7 +36,8 @@ public class LocalFileMounter extends AbstractWnMounter {
         String mntPath = m.group(2);
         File base = new File(Disks.normalize(mntPath));
         if (!base.exists()) {
-            throw Er.create("e.io.mnt.local.noexists", mnt);
+        	log.errorf("e.io.mnt.local.noexists mnt=%s paths=%s", mnt, Json.toJson(paths));
+            return null;
         }
 
         // 从父对象开始循环
