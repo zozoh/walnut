@@ -48,6 +48,7 @@
 
     thing init          # 初始化数据集
     thing get           # 获取数据完整信息
+    thing getone        # 查询某条数据完整信息
     thing create        # 创建数据
     thing detail        # 获取数据详情
     thing delete        # 删除数据

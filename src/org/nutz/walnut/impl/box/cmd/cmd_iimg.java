@@ -45,6 +45,15 @@ public class cmd_iimg extends JvmExecutor {
         String imPh = params.val_check(0);
         WnObj oim = Wn.checkObj(sys, imPh);
 
+        // 如果这个图片是空的，那就啥也不干
+        if (Strings.isBlank(oim.sha1())) {
+            return;
+        }
+        // 如果不是图片，也不行
+        if (!oim.hasMime() || !oim.isMime("^image/.+")) {
+            return;
+        }
+
         // 如果是生成缩略图，那么是否指定了特殊的缩略图生成目标
         String thumbTa = params.get("thumbta");
         WnObj oThumbTa = oim;
@@ -213,7 +222,7 @@ public class cmd_iimg extends JvmExecutor {
                             WnObj oThumbTa) {
         // 当然，如果是 thumbnail 里面的图片 ...
         // 为了确保缩略图都能被读到，所以要放到 oim.d1 所在的路径下
-        String aph = "/home/"+oim.d1()+"/.thumbnail/gen/";
+        String aph = "/home/" + oim.d1() + "/.thumbnail/gen/";
         WnObj oThumbHome = sys.io.createIfNoExists(null, aph, WnRace.DIR);
 
         // 缩略图目录里的就不要再生成缩略图了，否则会递归的吧...
