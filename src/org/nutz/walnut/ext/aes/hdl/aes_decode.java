@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.aes.hdl;
 
+import java.util.Arrays;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,7 +21,7 @@ public class aes_decode implements JvmHdl {
 
 	@Override
 	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-		String cipherStr = hc.params.get("cipher", "AES/CBC/NoPadding");
+		String cipherStr = hc.params.get("cipher", "AES/CBC/PKCS5PADDING");
 		String text = Cmds.checkParamOrPipe(sys, hc.params, 0);
 		String aesKeyBase64 = hc.params.check("aeskey");
 		String ivBase64 = hc.params.check("iv");
@@ -68,4 +70,5 @@ public class aes_decode implements JvmHdl {
 			return null;
 		}
 	}
+
 }
