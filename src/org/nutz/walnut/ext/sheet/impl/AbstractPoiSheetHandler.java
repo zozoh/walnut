@@ -32,9 +32,12 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     protected abstract Workbook createWorkbook(InputStream ins) throws IOException;
 
     protected abstract Workbook createWorkbook();
+    
+    protected abstract List<SheetImage> exportImages(Workbook wb, NutMap conf);
 
     @Override
-    public List<NutMap> read(InputStream ins, NutMap conf) {
+    public SheetResult read(InputStream ins, NutMap conf) {
+        SheetResult result = new SheetResult();
         List<NutMap> list = new LinkedList<>();
         Workbook wb = null;
         try {
@@ -43,7 +46,10 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
             // 从工作表读取数据
             readFromSheet(wb, list, conf);
-
+            
+            if (conf.has("images")) {
+            	result.images = exportImages(wb, conf);
+            }
         }
         catch (IOException e) {
             throw Er.wrap(e);
@@ -51,8 +57,8 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         finally {
             Streams.safeClose(wb);
         }
-
-        return list;
+        result.list = list;
+        return result;
     }
 
     @Override
@@ -153,6 +159,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     }
 
     protected void readFromSheet(Workbook wb, List<NutMap> list, NutMap conf) {
+    	// 是否自动添加行号
+    	boolean addRowIndex = conf.getBoolean("addRowIndex");
+    	
         // 读取工作表
         Sheet sheet = __get_sheet(wb, conf);
         if (null == sheet)
@@ -218,6 +227,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
                 // 计入
                 obj.put(key, val);
+            }
+            if (addRowIndex) {
+            	obj.put("rowIndex", row.getRowNum());
             }
             // 计入结果
             list.add(obj);

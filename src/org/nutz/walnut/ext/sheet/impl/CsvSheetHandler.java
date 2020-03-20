@@ -21,7 +21,7 @@ import org.nutz.walnut.api.err.Er;
 public class CsvSheetHandler extends AbstractSheetHandler {
 
     @Override
-    public List<NutMap> read(InputStream ins, NutMap conf) {
+    public SheetResult read(InputStream ins, NutMap conf) {
         String sep = conf.getString("sep", ",");
         char[] sep_cs = sep.toCharArray();
 
@@ -35,7 +35,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             // 读取首行，作为键
             line = br.readLine();
             if (null == line) {
-                return list;
+                return new SheetResult(list);
             }
             String[] keys = Strings.split(line, false, true, sep_cs);
 
@@ -55,8 +55,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
         catch (IOException e) {
             throw Er.wrap(e);
         }
-
-        return list;
+        return new SheetResult(list);
     }
 
     @Override

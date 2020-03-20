@@ -105,6 +105,8 @@ Key 的全部写法为：
     noheader   : false,    // 是否输出标题栏，默认 false
     rowOffset  : 0,        // 起始行，默认 0
     colOffset  : 0,        // 起始列，默认 0
+    images     : "/xx/xx", // 导出图片数据
+    addRowIndex: 123 ,     // 添加行号
 }
 ```
 
