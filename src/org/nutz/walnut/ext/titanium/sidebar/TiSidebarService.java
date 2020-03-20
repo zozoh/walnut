@@ -17,8 +17,8 @@ import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnObjDataCachedFactory;
 
 @IocBean(create = "on_create")
 public class TiSidebarService {
@@ -29,10 +29,10 @@ public class TiSidebarService {
     // @Inject("refer:sysAuthService")
     // protected WnAuthService auth;
 
-    private WnObjCachedFactory<TiSidebarInput> cache;
+    private WnObjDataCachedFactory<TiSidebarInput> cache;
 
     public void on_create() {
-        this.cache = new WnObjCachedFactory<>(io);
+        this.cache = new WnObjDataCachedFactory<>(io);
     }
 
     private void __join_output(int depth,

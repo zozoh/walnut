@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.titanium.util;
+package org.nutz.walnut.util;
 
 import org.nutz.walnut.api.io.WnObj;
 

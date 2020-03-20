@@ -8,8 +8,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.titanium.util.WnObjCachedFactory;
-import org.nutz.walnut.ext.titanium.util.WnObjDataLoading;
+import org.nutz.walnut.util.WnObjDataCachedFactory;
+import org.nutz.walnut.util.WnObjDataLoading;
 
 @IocBean(create = "on_create")
 public class TiCreationService {
@@ -17,13 +17,13 @@ public class TiCreationService {
     @Inject("refer:io")
     private WnIo io;
 
-    private WnObjCachedFactory<TiCreation> creations;
+    private WnObjDataCachedFactory<TiCreation> creations;
 
-    private WnObjCachedFactory<TiTypes> types;
+    private WnObjDataCachedFactory<TiTypes> types;
 
     public void on_create() {
-        creations = new WnObjCachedFactory<>(io);
-        types = new WnObjCachedFactory<>(io);
+        creations = new WnObjDataCachedFactory<>(io);
+        types = new WnObjDataCachedFactory<>(io);
     }
 
     public TiTypes getTypes(WnObj oTypes) {

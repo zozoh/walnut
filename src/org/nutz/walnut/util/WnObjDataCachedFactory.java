@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.titanium.util;
+package org.nutz.walnut.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,15 +6,19 @@ import java.util.Map;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 
-public class WnObjCachedFactory<T> {
+public class WnObjDataCachedFactory<T> {
 
     private WnIo io;
 
-    private Map<String, WnObjCachedItem<T>> mapping;
+    private Map<String, WnObjDataCachedItem<T>> mapping;
 
-    public WnObjCachedFactory(WnIo io) {
+    public WnObjDataCachedFactory(WnIo io) {
         this.io = io;
         this.mapping = new HashMap<>();
+    }
+
+    public WnIo getIo() {
+        return this.io;
     }
 
     public synchronized T get(WnObj o) {
@@ -23,14 +27,15 @@ public class WnObjCachedFactory<T> {
 
     public synchronized T get(WnObj o, WnObjDataLoading<T> loading) {
         String oid = o.id();
-        WnObjCachedItem<T> ci = mapping.get(oid);
+        WnObjDataCachedItem<T> ci = mapping.get(oid);
         if (null == ci || !ci.isMatchFinger(io, o)) {
+            // 看来要重现加载一遍
             if (null != loading) {
                 T data = loading.load(o);
                 this.set(o, data);
                 return data;
             }
-            // 清除映射
+            // 嗯，那就智能清除映射了
             if (null != ci)
                 mapping.remove(oid);
             return null;
@@ -46,7 +51,7 @@ public class WnObjCachedFactory<T> {
         }
         // 设置
         else {
-            WnObjCachedItem<T> ci = new WnObjCachedItem<>();
+            WnObjDataCachedItem<T> ci = new WnObjDataCachedItem<>();
             ci.setObj(io, o);
             ci.setData(data);
             mapping.put(oid, ci);

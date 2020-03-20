@@ -1,10 +1,9 @@
-package org.nutz.walnut.ext.titanium.util;
+package org.nutz.walnut.util;
 
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.util.Wn;
 
-public class WnObjCachedItem<T> {
+public class WnObjDataCachedItem<T> {
 
     private T data;
 
