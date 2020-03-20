@@ -7,10 +7,11 @@ import java.util.List;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
+import org.nutz.walnut.ext.sheet.impl.SheetResult;
 
 public interface SheetHandler {
 
-    List<NutMap> read(InputStream ins, NutMap conf);
+    SheetResult read(InputStream ins, NutMap conf);
 
     void write(OutputStream ops, List<NutMap> list, NutMap conf);
 

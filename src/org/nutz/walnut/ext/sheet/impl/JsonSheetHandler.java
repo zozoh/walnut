@@ -16,9 +16,9 @@ import org.nutz.lang.util.NutMap;
 public class JsonSheetHandler extends AbstractSheetHandler {
 
     @Override
-    public List<NutMap> read(InputStream ins, NutMap conf) {
+    public SheetResult read(InputStream ins, NutMap conf) {
         Reader reader = new InputStreamReader(ins, Encoding.CHARSET_UTF8);
-        return Json.fromJsonAsList(NutMap.class, reader);
+        return new SheetResult(Json.fromJsonAsList(NutMap.class, reader));
     }
 
     @Override

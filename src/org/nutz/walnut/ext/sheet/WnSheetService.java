@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sheet;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -14,8 +15,11 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.sheet.impl.CsvSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.JsonSheetHandler;
+import org.nutz.walnut.ext.sheet.impl.SheetImage;
+import org.nutz.walnut.ext.sheet.impl.SheetResult;
 import org.nutz.walnut.ext.sheet.impl.XlsSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.XlsxSheetHandler;
 
@@ -54,7 +58,16 @@ public class WnSheetService {
     public List<NutMap> readAndClose(InputStream ins, String type, NutMap conf) {
         try {
             SheetHandler sh = __check_handler(type);
-            return sh.read(ins, conf);
+            SheetResult result = sh.read(ins, conf);
+            if (result.images != null) {
+        		String root = conf.getString("images", "~/.tmp/sheet_images/");
+            	for (SheetImage image : result.images) {
+            		String name = String.format("%d_%d.%s", image.sheetIndex, image.row, image.col, image.type == 0 ? "jpg" : "png");
+            		WnObj wobj = io.createIfNoExists(null, root + "/" + name, WnRace.FILE);
+            		io.writeAndClose(wobj, new ByteArrayInputStream(image.data));
+				}
+            }
+            return result.list;
         }
         finally {
             Streams.safeClose(ins);
