@@ -25,13 +25,13 @@ public abstract class WnDaos {
         return username + "@" + url;
     }
 
-    public static Dao getOrCreate(String url, String username, String passwd) {
-        String uri = KEY(url, username);
+    public static Dao getOrCreate(String url, String usernm, String passwd) {
+        String uri = KEY(url, usernm);
         Dao dao = daos.get(uri);
         if (null == dao) {
             DruidDataSource dataSource = new DruidDataSource();
             dataSource.setUrl(url);
-            dataSource.setUsername(username);
+            dataSource.setUsername(usernm);
             dataSource.setPassword(passwd);
             dataSource.setMaxActive(50);
             dataSource.setMaxWait(15000);

@@ -3,9 +3,10 @@ package org.nutz.walnut.ext.newsfeed;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
+import org.nutz.lang.Strings;
 
 @Table("${t_newsfeed}")
-public class WnNewsfeed {
+public class Newsfeed {
 
     // ------------------------------------------
     // 消息标识
@@ -21,7 +22,7 @@ public class WnNewsfeed {
      * 消息类型:
      */
     @Column("tp")
-    private WnNewsfeedType type;
+    private FeedType type;
 
     // ------------------------------------------
     // 状态: 联合索引 read-star 将用来快速获取可清除消息
@@ -31,13 +32,13 @@ public class WnNewsfeed {
      * 消息已读状态: 0.未读; 1.已读
      */
     @Column
-    private boolean read;
+    private boolean readed;
 
     /**
      * 消息标记状态: 0.普通; 1.加星
      */
     @Column
-    private boolean star;
+    private boolean stared;
 
     // ------------------------------------------
     // 时间戳
@@ -111,19 +112,27 @@ public class WnNewsfeed {
     // 帮助函数
     // ------------------------------------------
 
-    public WnNewsfeed autoComplete(boolean forCreate) {
+    public Newsfeed autoComplete(boolean forCreate) {
         // 默认为单播
         if (null == this.type) {
-            this.type = WnNewsfeedType.UNICAST;
+            this.type = FeedType.UNICAST;
+        }
+        // source 默认类型均为 "user"
+        if (null != this.sourceId && Strings.isBlank(sourceType)) {
+            this.sourceType = "user";
+        }
+        // target 默认类型均为 "user"
+        if (null != this.targetId && Strings.isBlank(targetType)) {
+            this.targetType = "user";
         }
         // 如果是创建的话，强制设置一下
         if (forCreate) {
             this.createTime = System.currentTimeMillis();
             this.readAt = 0;
             // 默认未读
-            this.read = false;
+            this.readed = false;
             // 默认未星
-            this.star = false;
+            this.stared = false;
         }
         // 创建时间
         else if (this.createTime <= 0) {
@@ -134,12 +143,12 @@ public class WnNewsfeed {
         return this;
     }
 
-    public WnNewsfeed clone() {
-        WnNewsfeed feed = new WnNewsfeed();
+    public Newsfeed clone() {
+        Newsfeed feed = new Newsfeed();
         feed.id = this.id;
         feed.type = this.type;
-        feed.read = this.read;
-        feed.star = this.star;
+        feed.readed = this.readed;
+        feed.stared = this.stared;
         feed.createTime = this.createTime;
         feed.readAt = this.readAt;
         feed.sourceId = this.sourceId;
@@ -175,6 +184,10 @@ public class WnNewsfeed {
     // Getter / Setter
     // ------------------------------------------
 
+    public boolean hasId() {
+        return !Strings.isBlank(this.id);
+    }
+
     public String getId() {
         return id;
     }
@@ -183,28 +196,28 @@ public class WnNewsfeed {
         this.id = id;
     }
 
-    public WnNewsfeedType getType() {
+    public FeedType getType() {
         return type;
     }
 
-    public void setType(WnNewsfeedType type) {
+    public void setType(FeedType type) {
         this.type = type;
     }
 
-    public boolean isRead() {
-        return read;
+    public boolean isReaded() {
+        return readed;
     }
 
-    public void setRead(boolean read) {
-        this.read = read;
+    public void setReaded(boolean read) {
+        this.readed = read;
     }
 
-    public boolean isStar() {
-        return star;
+    public boolean isStared() {
+        return stared;
     }
 
-    public void setStar(boolean star) {
-        this.star = star;
+    public void setStared(boolean star) {
+        this.stared = star;
     }
 
     public long getCreateTime() {

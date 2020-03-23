@@ -41,7 +41,7 @@
   "jdbcPassword" : "root",
   //--------------------------------------
   // 对应的账户表，默认为 "~/accounts"
-  "accounts" : "~/accounts",
+  // "accounts" : "~/accounts",
   //--------------------------------------
   // 数据表, 默认为 "t_newsfeed"
   "tableName" : "t_newsfeed"
@@ -79,8 +79,8 @@ ext7 : xxx
 ext8 : xxx
 #------------------------------------------
 # 状态: 联合索引 read-star 将用来快速获取可清除消息
-read  : 0            # 消息已读状态: 0.未读; 1.已读
-star  : 0            # 消息标记状态: 0.普通; 1.加星
+readed  : 0            # 消息已读状态: 0.未读; 1.已读
+stared  : 0            # 消息标记状态: 0.普通; 1.加星
 #------------------------------------------
 # 时间戳
 ct    : AMS          # 消息创建时间
@@ -98,7 +98,7 @@ content : "XXX"       # 消息正文
 # ctype   : "text"      # 消息正文内容类型, text|html|markdown
 #------------------------------------------
 ```
-> > 创建时 `cmd_newsfeed` 会自动补全消息的 `tp|ct|read|star`字段
+> 创建时 `cmd_newsfeed` 会自动补全消息的 `tp|ct|readed|stared`字段
 
 用法
 =======
@@ -108,8 +108,8 @@ content : "XXX"       # 消息正文
 newsfeed {FeedName} add      # 添加消息
 newsfeed {FeedName} query    # 获取某指定条件的消息
 newsfeed {FeedName} remove   # 删除消息
-newsfeed {FeedName} read     # 标记消息已读/未读
-newsfeed {FeedName} star     # 给消息加/减星
+newsfeed {FeedName} readed   # 标记消息已读/未读
+newsfeed {FeedName} stared   # 给消息加/减星
 newsfeed {FeedName} clean    # 清除所有已读消息
 
 # 为默认的 newsfeed 添加一条信息

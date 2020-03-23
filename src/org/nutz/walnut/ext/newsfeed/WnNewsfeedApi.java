@@ -9,92 +9,63 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.QueryResult;
 import org.nutz.dao.TableName;
 import org.nutz.dao.pager.Pager;
+import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sql.WnDaos;
+import org.nutz.walnut.util.Wn;
 
 public class WnNewsfeedApi {
 
     /**
-     * 获取接口的工厂方法
-     * 
-     * @param io
-     *            Io 接口
-     * @param se
-     *            会话（以便获取配置信息）
-     * @param configName
-     *            配置文件名
-     * @return WnNewsfeedApi 接口实例
-     */
-    public static WnNewsfeedApi getInstance(WnIo io, WnAuthSession se, String configName) {
-        // 主目录
-        WnObj oHome = io.check(null, se.getMe().getHomePath());
-        WnObj oFeedHome = io.check(oHome, ".domain/newsfeed");
-
-        // 配置对象
-        if (!configName.endsWith(".json")) {
-            configName += ".json";
-        }
-        WnObj oFeedConf = io.check(oFeedHome, configName);
-        WnNewsfeedConfig feedConf = io.readJson(oFeedConf, WnNewsfeedConfig.class);
-
-        // 数据源
-        Dao dao = WnDaos.getOrCreate(feedConf.getJdbcUrl(),
-                                                     feedConf.getJdbcUserName(),
-                                                     feedConf.getJdbcPassword());
-
-        // 返回
-        return new WnNewsfeedApi(feedConf, dao);
-    }
-
-    /**
      * 配置对象
      */
-    WnNewsfeedConfig config;
+    FeedConfig config;
 
     /**
      * SQL数据库操作接口
      */
     private Dao dao;
 
-    public WnNewsfeedApi(WnNewsfeedConfig config, Dao dao) {
+    public WnNewsfeedApi(FeedConfig config, Dao dao) {
         this.config = config;
         this.dao = dao;
     }
 
-    public WnNewsfeed fetch(String id) {
+    public Newsfeed fetch(String id) {
         String tableName = config.getTableName();
-        WnNewsfeed feed = TableName.run(tableName, new Proton<WnNewsfeed>() {
-            protected WnNewsfeed exec() {
-                return dao.fetch(WnNewsfeed.class, id);
+        Newsfeed feed = TableName.run(tableName, new Proton<Newsfeed>() {
+            protected Newsfeed exec() {
+                return dao.fetch(Newsfeed.class, id);
             }
         });
         return feed;
     }
 
-    public void update(WnNewsfeed feed, String... fields) {
+    public void update(Newsfeed feed, String... fields) {
         String tableName = config.getTableName();
-        TableName.run(tableName, () -> {
-            // 更新局部字段
-            if (fields.length > 0) {
-                String actived = "^" + Strings.join("|", fields) + "$";
-                dao.update(feed, actived);
-            }
-            // 更新全部字段
-            else {
-                dao.update(feed);
-            }
-        });
+        TableName.run(tableName,
+                      () -> {
+                          // 更新局部字段
+                          if (fields.length > 0) {
+                              String actived = "^" + Strings.join("|", fields) + "$";
+                              dao.update(feed, actived);
+                          }
+                          // 更新全部字段
+                          else {
+                              dao.update(feed);
+                          }
+                      });
     }
 
-    public WnNewsfeed setRead(String id, boolean read) {
+    public Newsfeed setRead(String id, boolean read) {
         // 获取
-        WnNewsfeed feed = this.fetch(id);
+        Newsfeed feed = this.fetch(id);
         // 设置
-        feed.setRead(read);
+        feed.setReaded(read);
         feed.setReadAt(System.currentTimeMillis());
         // 更新
         this.update(feed, "read", "readAt");
@@ -110,11 +81,11 @@ public class WnNewsfeedApi {
         return n;
     }
 
-    public WnNewsfeed setStar(String id, boolean star) {
+    public Newsfeed setStar(String id, boolean star) {
         // 获取
-        WnNewsfeed feed = this.fetch(id);
+        Newsfeed feed = this.fetch(id);
         // 设置
-        feed.setStar(star);
+        feed.setStared(star);
         // 更新
         this.update(feed, "star");
         // 返回
@@ -126,7 +97,7 @@ public class WnNewsfeedApi {
         String tableName = config.getTableName();
         int n = TableName.run(tableName, new Proton<Integer>() {
             protected Integer exec() {
-                return dao.clear(WnNewsfeed.class, cnd);
+                return dao.clear(Newsfeed.class, cnd);
             }
         });
         return n;
@@ -141,10 +112,21 @@ public class WnNewsfeedApi {
         String tableName = config.getTableName();
         int n = TableName.run(tableName, new Proton<Integer>() {
             protected Integer exec() {
-                return dao.delete(WnNewsfeed.class, id);
+                return dao.delete(Newsfeed.class, id);
             }
         });
         return n > 0;
+    }
+
+    public int batchRemove(String[] ids) {
+        if (null != ids && ids.length > 0) {
+            String tableName = config.getTableName();
+            SqlExpressionGroup we = new SqlExpressionGroup();
+            we.andIn("id", ids);
+            Cnd cnd = Cnd.where(we);
+            return dao.clear(tableName, cnd);
+        }
+        return 0;
     }
 
     /**
@@ -156,16 +138,16 @@ public class WnNewsfeedApi {
      *            页大小
      * @return 查询结果（当前页列表，以及翻页信息）
      */
-    public QueryResult query(WnNewsfeedQuery q, int pn, int pgsz) {
+    public QueryResult query(FeedQuery q, int pn, int pgsz) {
         // 准备条件
         Pager pager = new Pager(pn, pgsz);
         Condition cnd = q.toCondition();
 
         // 查询
         String tableName = config.getTableName();
-        List<WnNewsfeed> list = TableName.run(tableName, new Proton<List<WnNewsfeed>>() {
-            protected List<WnNewsfeed> exec() {
-                return dao.query(WnNewsfeed.class, cnd, pager);
+        List<Newsfeed> list = TableName.run(tableName, new Proton<List<Newsfeed>>() {
+            protected List<Newsfeed> exec() {
+                return dao.query(Newsfeed.class, cnd, pager);
             }
         });
 
@@ -180,14 +162,19 @@ public class WnNewsfeedApi {
      *            信息对象
      * @return 插入的信息对象
      */
-    public WnNewsfeed add(WnNewsfeed feed) {
+    public Newsfeed add(Newsfeed feed) {
         // 自动补全
         feed.autoComplete(true);
 
+        // 自动分配 ID
+        if (!feed.hasId()) {
+            feed.setId(Wn.genId());
+        }
+
         // 执行插入
         String tableName = config.getTableName();
-        WnNewsfeed re = TableName.run(tableName, new Proton<WnNewsfeed>() {
-            protected WnNewsfeed exec() {
+        Newsfeed re = TableName.run(tableName, new Proton<Newsfeed>() {
+            protected Newsfeed exec() {
                 return dao.insert(feed);
             }
         });

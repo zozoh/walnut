@@ -1,0 +1,40 @@
+package org.nutz.walnut.ext.newsfeed.hdl;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
+import org.nutz.walnut.impl.box.WnSystem;
+
+@JvmHdlParamArgs(value = "cqn", regex = "^(read)$")
+public class newsfeed_stared implements JvmHdl {
+
+    @Override
+    public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        // 准备接口
+        WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
+
+        // 参数
+        boolean star = hc.params.is("star", true);
+
+        // 准备返回值
+        NutMap re = Lang.map("n", 0);
+
+        // 标记单个消息
+        if (hc.params.vals.length > 0) {
+            for (String id : hc.params.vals) {
+                api.setStar(id, star);
+            }
+            re.put("n", hc.params.vals.length);
+        }
+
+        // 输出
+        String json = Json.toJson(re, hc.jfmt);
+        sys.out.println(json);
+    }
+
+}

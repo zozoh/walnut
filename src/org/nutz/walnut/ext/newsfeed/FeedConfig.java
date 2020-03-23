@@ -1,8 +1,9 @@
 package org.nutz.walnut.ext.newsfeed;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
-public class WnNewsfeedConfig {
+public class FeedConfig {
 
     private String feedName;
 
@@ -17,6 +18,10 @@ public class WnNewsfeedConfig {
     private String tableName;
 
     private NutMap extFieldsMapping;
+
+    public boolean hasFeedName() {
+        return !Strings.isBlank(this.feedName);
+    }
 
     public String getFeedName() {
         return feedName;

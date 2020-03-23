@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.newsfeed;
 
-public enum WnNewsfeedType {
+public enum FeedType {
 
     /**
      * 广播:全部用户
