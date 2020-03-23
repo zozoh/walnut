@@ -68,7 +68,7 @@ public class BizHook {
         return false;
     }
 
-    public void runCommands(WnExecutable runner, NutMap context) {
+    public void runCommands(WnExecutable runner, NutBean context) {
         for (Tmpl tmpl : this.commands) {
             String cmdText = tmpl.render(context);
             runner.exec(cmdText);

@@ -77,8 +77,16 @@ public class cmd_bizhook extends JvmHdlExecutor {
 
         // 参数输入
         for (String ph : hc.params.vals) {
-            WnObj o = Wn.checkObj(sys, ph);
-            beans.add(o);
+            // 直接就是对象
+            if (Strings.isQuoteBy(ph, '{', '}')) {
+                NutMap o = Json.fromJson(NutMap.class, ph);
+                beans.add(o);
+            }
+            // WnObj 的 id
+            else {
+                WnObj o = Wn.checkObj(sys, ph);
+                beans.add(o);
+            }
         }
         hc.put("beans", beans);
     }

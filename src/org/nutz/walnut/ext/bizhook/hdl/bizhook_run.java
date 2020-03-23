@@ -7,11 +7,9 @@ import org.nutz.walnut.ext.bizhook.BizHook;
 import org.nutz.walnut.ext.bizhook.BizHookGroup;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
-import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("^(batch|tail)$")
-public class bizhook_test implements JvmHdl {
+public class bizhook_run implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -30,23 +28,14 @@ public class bizhook_test implements JvmHdl {
         List<NutBean> beans = hc.getList("beans", NutBean.class);
 
         // 针对每个对象获取钩子
-        int i = 0;
         for (NutBean bean : beans) {
-            // 多个 Bean 则显示列表
-            if (beans.size() > 1)
-                sys.out.printlnf("Bean[%d]", i++);
-
             // 获取钩子
             List<BizHook> hooks = fromTail ? hgroups.getHooksFromTail(bean, limit)
                                            : hgroups.getHooks(bean, limit);
-            
-            // 汇总打印
-            sys.out.printlnf(" > Found %d hooks:", hooks.size());
-            
+
             // 详情打印
-            int x = 0;
             for (BizHook bh : hooks) {
-                sys.out.printlnf(" - [%d] %s", x++, bh.toString());
+                bh.runCommands(sys, bean);
             }
         }
     }
