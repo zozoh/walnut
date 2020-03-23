@@ -139,6 +139,7 @@ task sassc << {
     String phHome = fHome.getCanonicalPath();
     println "do sassc in HOME: " + phHome + tree
     //String phLess = Files.getParent(phHome)+"/walnut/ROOT/rs/theme/scss"
+	String importSass = Files.getParent(phHome) + "/titanium/src/theme";
 	tree.each {File _file ->
     	def _src = _file.path
     	def _dst = _src.substring(0, _src.length() - 4) + 'css'
@@ -154,12 +155,12 @@ task sassc << {
     	println "sass>> "  + Files.getName(_src) + " : "  + _rph
     	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
     		exec {
-    			commandLine "cmd.exe", "/c", "sassc", _src, _dst
+    			commandLine "cmd.exe", "/c", "sassc", "-I", importSass, _src, _dst
     			ignoreExitValue true
     		}
     	} else {
     		exec {
-    			commandLine "sassc", _src, _dst
+    			commandLine "sassc", "-I", importSass, _src, _dst
     			ignoreExitValue true
     		}
     	}
