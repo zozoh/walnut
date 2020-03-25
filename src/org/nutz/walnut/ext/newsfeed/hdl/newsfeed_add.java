@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.newsfeed.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.newsfeed.Newsfeed;
 import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -21,11 +22,24 @@ public class newsfeed_add implements JvmHdl {
         String json = Cmds.checkParamOrPipe(sys, hc.params, 0);
         Newsfeed feed = Json.fromJson(Newsfeed.class, json);
 
-        // 准备建表语句
-        feed = api.add(feed);
+        // 批量插入
+        String target = hc.params.get("target");
+        String[] taIds = Strings.splitIgnoreBlank(target);
+
+        // 准备返回值
+        Object re;
+
+        // 插入一个
+        if (null == taIds || taIds.length == 0) {
+            re = api.add(feed);
+        }
+        // 插入多个
+        else {
+            re = api.batchAdd(feed, taIds);
+        }
 
         // 输出
-        json = Json.toJson(feed, hc.jfmt);
+        json = Json.toJson(re, hc.jfmt);
         sys.out.println(json);
     }
 

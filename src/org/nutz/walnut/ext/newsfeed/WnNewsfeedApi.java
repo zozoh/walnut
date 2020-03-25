@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.newsfeed;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.dao.Chain;
@@ -12,10 +13,6 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Proton;
-import org.nutz.walnut.api.auth.WnAuthSession;
-import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 
 public class WnNewsfeedApi {
@@ -61,11 +58,11 @@ public class WnNewsfeedApi {
                       });
     }
 
-    public Newsfeed setRead(String id, boolean read) {
+    public Newsfeed setReaded(String id, boolean readed) {
         // 获取
         Newsfeed feed = this.fetch(id);
         // 设置
-        feed.setReaded(read);
+        feed.setReaded(readed);
         feed.setReadAt(System.currentTimeMillis());
         // 更新
         this.update(feed, "read", "readAt");
@@ -73,27 +70,29 @@ public class WnNewsfeedApi {
         return feed;
     }
 
-    public int setAllRead(String targetId, boolean read) {
+    public int setAllReaded(String targetId, boolean readed) {
         String tableName = config.getTableName();
-        Chain chain = Chain.make("read", read);
-        Cnd cnd = Cnd.where("targetId", "=", targetId).and("read", "!=", read);
+        Chain chain = Chain.make("readed", readed);
+        Cnd cnd = Cnd.where("ta_id", "=", targetId).andNot("readed", "=", readed);
         int n = dao.update(tableName, chain, cnd);
         return n;
     }
 
-    public Newsfeed setStar(String id, boolean star) {
+    public Newsfeed setStared(String id, boolean stared) {
         // 获取
         Newsfeed feed = this.fetch(id);
         // 设置
-        feed.setStared(star);
+        feed.setStared(stared);
         // 更新
-        this.update(feed, "star");
+        this.update(feed, "stared");
         // 返回
         return feed;
     }
 
     public int cleanAllReaded(String targetId) {
-        Cnd cnd = Cnd.where("targetId", "=", targetId).and("star", "=", 0).and("read", "=", 1);
+        Cnd cnd = Cnd.where("targetId", "=", targetId)
+                     .and("stared", "=", false)
+                     .and("readed", "=", true);
         String tableName = config.getTableName();
         int n = TableName.run(tableName, new Proton<Integer>() {
             protected Integer exec() {
@@ -141,7 +140,7 @@ public class WnNewsfeedApi {
     public QueryResult query(FeedQuery q, int pn, int pgsz) {
         // 准备条件
         Pager pager = new Pager(pn, pgsz);
-        Condition cnd = q.toCondition();
+        Condition cnd = null != q ? q.toCondition() : null;
 
         // 查询
         String tableName = config.getTableName();
@@ -181,6 +180,45 @@ public class WnNewsfeedApi {
 
         // 返回
         return re;
+    }
+
+    /***
+     * 执行消息的批量插入
+     * 
+     * @param feed
+     *            信息对象模板
+     * @param targetIds
+     *            目标 ID 列表
+     */
+    public List<Newsfeed> batchAdd(Newsfeed feed, String[] targetIds) {
+        // 防守
+        if (null == targetIds || targetIds.length == 0) {
+            return new ArrayList<>();
+        }
+
+        // 自动补全模板
+        feed.autoComplete(true);
+
+        // 准备插入对象
+        List<Newsfeed> list = new ArrayList<>(targetIds.length);
+        for (String taId : targetIds) {
+            Newsfeed fd = feed.clone();
+            fd.setId(Wn.genId());
+            fd.setTargetId(taId);
+            fd.autoComplete(true);
+            list.add(fd);
+        }
+
+        // 批量插入
+        String tableName = config.getTableName();
+        List<Newsfeed> reList = TableName.run(tableName, new Proton<List<Newsfeed>>() {
+            protected List<Newsfeed> exec() {
+                return dao.fastInsert(list);
+            }
+        });
+
+        // 搞定
+        return reList;
     }
 
 }

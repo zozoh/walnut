@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(read)$")
+@JvmHdlParamArgs("cqn")
 public class newsfeed_stared implements JvmHdl {
 
     @Override
@@ -18,7 +18,7 @@ public class newsfeed_stared implements JvmHdl {
         WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
 
         // 参数
-        boolean star = hc.params.is("star", true);
+        boolean stared = hc.params.is("star", true);
 
         // 准备返回值
         NutMap re = Lang.map("n", 0);
@@ -26,7 +26,7 @@ public class newsfeed_stared implements JvmHdl {
         // 标记单个消息
         if (hc.params.vals.length > 0) {
             for (String id : hc.params.vals) {
-                api.setStar(id, star);
+                api.setStared(id, stared);
             }
             re.put("n", hc.params.vals.length);
         }

@@ -10,7 +10,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(read)$")
+@JvmHdlParamArgs("cqn")
 public class newsfeed_readed implements JvmHdl {
 
     @Override
@@ -19,7 +19,7 @@ public class newsfeed_readed implements JvmHdl {
         WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
 
         // 参数
-        boolean read = hc.params.is("read", true);
+        boolean readed = hc.params.is("read", true);
         String targetId = hc.params.get("target");
 
         // 准备返回值
@@ -27,13 +27,13 @@ public class newsfeed_readed implements JvmHdl {
 
         // 标记所有消息
         if (!Strings.isBlank(targetId)) {
-            int n = api.setAllRead(targetId, read);
+            int n = api.setAllReaded(targetId, readed);
             re.put("n", n);
         }
         // 标记单个消息
         else if (hc.params.vals.length > 0) {
             for (String id : hc.params.vals) {
-                api.setRead(id, read);
+                api.setReaded(id, readed);
             }
             re.put("n", hc.params.vals.length);
         }

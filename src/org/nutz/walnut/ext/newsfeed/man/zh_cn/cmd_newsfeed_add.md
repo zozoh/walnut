@@ -9,6 +9,7 @@
 ```bash
 newsfeed {FeedName} add
   [Newsfeed Object]         # 消息对象
+  [-taget ID0,ID1..]        # 批量将给定的消息对象插入到目标
   [-pn 1]                   # 第几页（1 base 默认 1）
   [-pgsz 20]                # 每页数据，默认 20
   [-sort '{ct:1,ext0:-1}']  # 排序对象 1:asc, -1:desc
@@ -58,4 +59,7 @@ newsfeed add '{content:"haha",type:"BROADCAST",sourceId:"e7..9a"}'
 
 # 添加一条比较复杂的消息
 cat demo_message.json | newsfeed add -cqn
+
+# 批量插入一组消息
+cat demo_message.json | newsfeed add -cqn -target e8..2q 89..5a u3..3z
 ```
