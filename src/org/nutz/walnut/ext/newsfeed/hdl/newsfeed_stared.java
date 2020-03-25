@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.newsfeed.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
