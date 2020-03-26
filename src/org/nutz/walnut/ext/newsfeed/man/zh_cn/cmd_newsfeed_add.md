@@ -9,7 +9,7 @@
 ```bash
 newsfeed {FeedName} add
   [Newsfeed Object]         # 消息对象
-  [-taget ID0,ID1..]        # 批量将给定的消息对象插入到目标
+  [-target ID0,ID1..]       # 批量将给定的消息对象插入到目标
   [-pn 1]                   # 第几页（1 base 默认 1）
   [-pgsz 20]                # 每页数据，默认 20
   [-sort '{ct:1,ext0:-1}']  # 排序对象 1:asc, -1:desc

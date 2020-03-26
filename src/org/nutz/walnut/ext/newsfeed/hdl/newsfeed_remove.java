@@ -1,7 +1,11 @@
 package org.nutz.walnut.ext.newsfeed.hdl;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -17,8 +21,21 @@ public class newsfeed_remove implements JvmHdl {
         // 准备接口
         WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
 
+        // 准备解析列表
+        List<String> list = new LinkedList<>();
+        for (String val : hc.params.vals) {
+            String[] vs = Strings.splitIgnoreBlank(val);
+            for (String v : vs) {
+                list.add(v);
+            }
+        }
+
         // 获取指定的消息 ID 列表
-        int n = api.batchRemove(hc.params.vals);
+        int n = 0;
+        if (!list.isEmpty()) {
+            String[] ids = list.toArray(new String[list.size()]);
+            n = api.batchRemove(ids);
+        }
 
         // 输出结果
         NutMap re = Lang.map("count", n);

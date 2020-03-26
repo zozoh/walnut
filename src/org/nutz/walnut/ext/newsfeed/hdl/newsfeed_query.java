@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.newsfeed.hdl;
 
 import org.nutz.dao.QueryResult;
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.newsfeed.FeedQuery;
 import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
@@ -21,11 +22,13 @@ public class newsfeed_query implements JvmHdl {
 
         // 获取查询条件
         String json = Cmds.getParamOrPipe(sys, hc.params, 0);
-        FeedQuery fq = Json.fromJson(FeedQuery.class, json);
+        NutMap map = Lang.map(json);
+        FeedQuery fq = Lang.map2Object(map, FeedQuery.class);
 
         // 设置排序
         if (hc.params.has("sort")) {
-            NutMap sort = hc.params.getAs("sort", NutMap.class);
+            String str = hc.params.get("sort");
+            NutMap sort = Lang.map(str);
             fq.setSorts(sort);
         }
 

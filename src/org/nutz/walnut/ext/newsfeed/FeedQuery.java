@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
+import org.nutz.dao.util.cri.SimpleCriteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
+import org.nutz.walnut.util.WnRg;
 
 public class FeedQuery {
 
@@ -20,8 +22,8 @@ public class FeedQuery {
     private FeedType type;
     private Boolean readed;
     private Boolean stared;
-    private LongRegion createTime;
-    private LongRegion readAt;
+    private String createTime;
+    private String readAt;
     private String sourceId;
     private String sourceType;
     private String targetId;
@@ -56,11 +58,12 @@ public class FeedQuery {
 
         // ........................................
         // 准备条件
-        SqlExpressionGroup we = new SqlExpressionGroup();
+        SimpleCriteria cri = Cnd.cri();
+        SqlExpressionGroup we = cri.where();
 
         // 指定类型
         if (null != type) {
-            we.andEquals("tp", type);
+            we.andEquals("tp", type.ordinal());
         }
 
         // 已读/标记
@@ -97,20 +100,19 @@ public class FeedQuery {
 
         // ........................................
         // 排序
-        Cnd cnd = Cnd.where(we);
         if (null != sorts) {
             for (FeedSort sr : sorts) {
                 if (sr.isAsc()) {
-                    cnd.asc(sr.getName());
+                    cri.asc(sr.getName());
                 } else {
-                    cnd.desc(sr.getName());
+                    cri.desc(sr.getName());
                 }
             }
         }
 
         // ........................................
         // 搞定
-        return cnd;
+        return cri;
     }
 
     private void __join_like(SqlExpressionGroup we, String name, String val) {
@@ -119,9 +121,33 @@ public class FeedQuery {
         }
     }
 
-    private void __join_region(SqlExpressionGroup we, String name, LongRegion rg) {
-        if (null != rg && rg.isRegion()) {
-            we.andBetween(name, rg.left(), rg.right());
+    private void __join_region(SqlExpressionGroup we, String name, String str) {
+        if (!Strings.isBlank(str)) {
+            String s = WnRg.extend_rg_macro(str);
+            LongRegion rg = Region.Long(s);
+            // Region
+            if (rg.isRegion()) {
+                // [xxx, )
+                if (null == rg.right()) {
+                    if (rg.isLeftOpen()) {
+                        we.andGT(name, rg.left());
+                    } else {
+                        we.andGTE(name, rg.left());
+                    }
+                }
+                // (, xxx)
+                else if (null == rg.left()) {
+                    if (rg.isRightOpen()) {
+                        we.andLT(name, rg.right());
+                    } else {
+                        we.andLTE(name, rg.right());
+                    }
+                }
+                // [xxx, xxx]
+                else {
+                    we.andBetween(name, rg.left(), rg.right());
+                }
+            }
         }
     }
 
@@ -173,28 +199,20 @@ public class FeedQuery {
         this.stared = stared;
     }
 
-    public LongRegion getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(LongRegion createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
-    public void setCreateTime(String createTime) {
-        this.createTime = Region.Long(createTime);
-    }
-
-    public LongRegion getReadAt() {
+    public String getReadAt() {
         return readAt;
     }
 
-    public void setReadAt(LongRegion readAt) {
-        this.readAt = readAt;
-    }
-
     public void setReadAt(String readAt) {
-        this.readAt = Region.Long(readAt);
+        this.readAt = readAt;
     }
 
     public String getSourceId() {

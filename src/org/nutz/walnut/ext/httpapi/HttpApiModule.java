@@ -37,6 +37,7 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -110,7 +111,7 @@ public class HttpApiModule extends AbstractWnModule {
             });
 
             // 生成请求对象
-            WnObj oReq = __gen_req_obj(req, u, oApi, oTmp, oldSe);
+            WnObj oReq = __gen_req_obj(req, u, oApi, oTmp, oldSe, se);
 
             // 执行 API 文件
             try {
@@ -142,13 +143,18 @@ public class HttpApiModule extends AbstractWnModule {
             // 根据类型，设置 HTTP 错误码
             if (e instanceof WebException) {
                 String ek = ((WebException) e).getKey();
+                // 有东西木有找到
                 if ("e.io.obj.noexists".equals(ek)) {
                     respCode = 404;
                 }
+                // 没有权限
+                else if ("e.api.forbid".equals(ek)) {
+                    respCode = 403;
+                }
             }
             resp.sendError(respCode);
-            // 不是 404 的话，打印的详细一点
-            if (respCode != 404) {
+            // 不是 4xx 的话，打印的详细一点
+            if (respCode >= 500) {
                 if (log.isWarnEnabled()) {
                     log.warn("Fail to handle API", e);
                 }
@@ -271,49 +277,56 @@ public class HttpApiModule extends AbstractWnModule {
                                 WnAccount u,
                                 WnObj oApi,
                                 final WnObj oTmp,
+                                WnAuthSession oldSe,
                                 WnAuthSession se)
             throws UnsupportedEncodingException, IOException {
-        // 创建临时文件以便保存请求的内容
-        WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return io.create(oTmp, "${id}", WnRace.FILE);
-            }
-        });
+        // .........................................
+        // 准备请求对象元数据
         Enumeration<String> hnms = req.getHeaderNames();
         NutMap map = new NutMap();
 
         // 保存 http 参数
-        map.setv("http-usr", u.getName());
-        map.setv("http-api", oApi.name());
+        map.put("http-usr", u.getName());
+        map.put("http-grp", u.getGroupName());
+        map.put("http-home", u.getHomePath());
+        map.put("http-api", oApi.name());
 
+        // .........................................
         // 记录老的Session对象信息
-        if (null != se) {
-            map.setv("http-se-id", se.getId());
-            map.setv("http-se-ticket", se.getTicket());
-            map.setv("http-se-me-name", se.getMe().getName());
-            map.setv("http-se-me-group", se.getMe().getGroupName());
-            map.setv("http-se-vars", se.getVars());
+        if (null != oldSe) {
+            map.put("http-se-id", oldSe.getId());
+            map.put("http-se-ticket", oldSe.getTicket());
+            map.put("http-se-me-name", oldSe.getMe().getName());
+            map.put("http-se-me-group", oldSe.getMe().getGroupName());
+            map.put("http-se-vars", oldSe.getVars());
         }
 
+        // .........................................
         // 记录请求信息的其他数据
-        map.setv("http-protocol", req.getProtocol().toUpperCase());
-        map.setv("http-method", req.getMethod().toUpperCase());
-        map.setv("http-uri", req.getRequestURI());
-        map.setv("http-url", req.getRequestURL());
-        map.setv("http-remote-addr", req.getRemoteAddr());
-        map.setv("http-remote-host", req.getRemoteHost());
-        map.setv("http-remote-port", req.getRemotePort());
+        String uri = req.getRequestURI();
+        map.put("http-protocol", req.getProtocol().toUpperCase());
+        map.put("http-method", req.getMethod().toUpperCase());
+        map.put("http-uri", uri);
+        map.put("http-url", req.getRequestURL());
+        map.put("http-remote-addr", req.getRemoteAddr());
+        map.put("http-remote-host", req.getRemoteHost());
+        map.put("http-remote-port", req.getRemotePort());
 
+        // .........................................
         // 更新路径参数
-        map.setv("args", oApi.get("args"));
-        map.setv("params", oApi.get("params"));
+        map.put("args", oApi.get("args"));
+        map.put("params", oApi.get("params"));
 
-        // 将请求的对象设置一下清除标志（缓存 30 分钟)
-        map.setv("expi", System.currentTimeMillis() + 1800000L);
+        // .........................................
+        // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
+        long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
+        long tmpDu = oApi.getLong("http-tmp-duraion", dftDu);
+        map.put("expi", System.currentTimeMillis() + tmpDu);
 
+        // .........................................
         // 保存 QueryString，同时，看看有没必要更改 mime-type
         String qs = req.getQueryString();
-        map.setv("http-qs", qs);
+        map.put("http-qs", qs);
         if (!Strings.isBlank(qs)) {
             // 解码
             qs = URLDecoder.decode(qs, "UTF-8");
@@ -325,20 +338,21 @@ public class HttpApiModule extends AbstractWnModule {
                 if (pos > 0) {
                     String nm = s.substring(0, pos);
                     String val = s.substring(pos + 1);
-                    map.setv("http-qs-" + nm, val);
+                    map.put("http-qs-" + nm, val);
                 }
                 // 没值的用空串表示
                 else {
-                    map.setv("http-qs-" + s, "");
+                    map.put("http-qs-" + s, "");
                 }
             }
         }
 
+        // .........................................
         // 保存请求头
         while (hnms.hasMoreElements()) {
             String hnm = hnms.nextElement();
             String hval = req.getHeader(hnm);
-            map.setv("http-header-" + hnm.toUpperCase(), hval);
+            map.put("http-header-" + hnm.toUpperCase(), hval);
         }
 
         // .........................................
@@ -346,22 +360,65 @@ public class HttpApiModule extends AbstractWnModule {
         Cookie[] coos = req.getCookies();
         if (null != coos && coos.length > 0) {
             for (Cookie coo : coos) {
-                map.setv("http-cookie-" + coo.getName(), coo.getValue());
+                map.put("http-cookie-" + coo.getName(), coo.getValue());
             }
         }
 
+        // .........................................
+        // 自动登陆站点用户
+        String phWWW = oApi.getString("http-www-home");
+        boolean hasWWWHome = !Strings.isBlank(phWWW);
+        WnAuthSession wwwSe = null;
+        if (hasWWWHome) {
+            String ticketBy = oApi.getString("http-www-ticket", "http-qs-ticket");
+            String ticket = map.getString(ticketBy);
+            if (!Strings.isBlank(ticket)) {
+                WnObj oWWW = Wn.checkObj(io, se, phWWW);
+                String homePath = se.getMe().getHomePath();
+                WnWebService webs = new WnWebService(io, homePath, oWWW);
+                wwwSe = webs.getAuthApi().getSession(ticket);
+                if (null != wwwSe) {
+                    WnAccount wwwMe = wwwSe.getMe();
+                    // 会话信息
+                    map.put("http-www-se-id", wwwSe.getId());
+                    map.put("http-www-se-ticket", wwwSe.getTicket());
+                    // 用户信息
+                    map.put("http-www-me-id", wwwMe.getId());
+                    map.put("http-www-me-nm", wwwMe.getName());
+                    map.put("http-www-me-phone", wwwMe.getPhone());
+                    map.put("http-www-me-email", wwwMe.getEmail());
+                    map.put("http-www-me-role", wwwMe.getRoleName());
+                    map.put("http-www-me-nickname", wwwMe.getNickname());
+                }
+            }
+        }
+        // 检查一下权限
+        if (null == wwwSe && oApi.getBoolean("http-www-auth", hasWWWHome)) {
+            throw Er.create("e.api.forbid");
+        }
+
+        // .........................................
+        // 创建临时文件以便保存请求的内容
+        String uriName = uri.replaceAll("[/\\\\]", "_").substring(1);
+        WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.create(oTmp, uriName + "_${id}", WnRace.FILE);
+            }
+        });
+
+        // .........................................
         // 更新头信息
         io.appendMeta(oReq, map);
 
+        // .........................................
         // 保存请求体
         InputStream ins = req.getInputStream();
         try (OutputStream ops = io.getOutputStream(oReq, 0)) {
             Streams.write(ops, ins);
         }
 
-        // 将请求的对象设置一下清除标志（缓存 30 分钟)
-        // oReq.expireTime(System.currentTimeMillis() + 1800000L);
-        // io.set(oReq, "^expi$");
+        // .........................................
+        // 搞定
         return oReq;
     }
 

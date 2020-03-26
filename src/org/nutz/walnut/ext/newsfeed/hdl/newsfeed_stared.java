@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.newsfeed.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -25,10 +26,15 @@ public class newsfeed_stared implements JvmHdl {
 
         // 标记单个消息
         if (hc.params.vals.length > 0) {
-            for (String id : hc.params.vals) {
-                api.setStared(id, stared);
+            int n = 0;
+            for (String val : hc.params.vals) {
+                String[] ids = Strings.splitIgnoreBlank(val);
+                for (String id : ids) {
+                    api.setStared(id, stared);
+                    n++;
+                }
             }
-            re.put("n", hc.params.vals.length);
+            re.put("n", n);
         }
 
         // 输出

@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.newsfeed;
 
+import org.nutz.dao.entity.annotation.ColDefine;
+import org.nutz.dao.entity.annotation.ColType;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
@@ -22,6 +24,7 @@ public class Newsfeed {
      * 消息类型:
      */
     @Column("tp")
+    @ColDefine(type=ColType.INT)
     private FeedType type;
 
     // ------------------------------------------

@@ -139,13 +139,15 @@ public class WnNewsfeedApi {
      */
     public QueryResult query(FeedQuery q, int pn, int pgsz) {
         // 准备条件
-        Pager pager = new Pager(pn, pgsz);
+        Pager pager = dao.createPager(pn, pgsz);
         Condition cnd = null != q ? q.toCondition() : null;
 
         // 查询
         String tableName = config.getTableName();
         List<Newsfeed> list = TableName.run(tableName, new Proton<List<Newsfeed>>() {
             protected List<Newsfeed> exec() {
+                int count = dao.count(Newsfeed.class, cnd);
+                pager.setRecordCount(count);
                 return dao.query(Newsfeed.class, cnd, pager);
             }
         });

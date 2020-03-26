@@ -1,6 +1,6 @@
 CREATE TABLE t_newsfeed (
     id VARCHAR(128),
-    tp VARCHAR(20),
+    tp TINYINT(20),
     readed BOOLEAN,
     stared BOOLEAN,
     ct BIGINT(64),
