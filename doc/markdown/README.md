@@ -20,6 +20,7 @@
 
 - [数据备份与导出][c1-buk]
 - 钩子机制
+- [通知机制][c1-nti]
 - HttpApi
 
 -----------------------------------------
@@ -37,7 +38,8 @@
 ## 系统功能整合`func-l0`
 
 - 微信公众号平台整合
-  + [微信支付整合][f0-wxp]
+  + [微信支付整合][f0-wx-pay]
+  + [微信通知整合][f0-wx-nti]
 - [支付宝支付接口整合][f0-zfb]
 - 内容搜索(ESI)整合
 - websocket
@@ -107,8 +109,10 @@
 [c0-css]: core-l0/c0-core-session-service.md
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
 [c1-buk]: core-l1/c1-bulk-backup-restore.md
+[c1-nti]: core-l1/c1-notify.md
 [c2-bpm]: core-l2/c2-biz-privilege-model.md
-[f0-wxp]: func-l0/f0-weixin-payment.md
+[f0-wx-pay]: func-l0/f0-weixin-payment.md
+[f0-wx-pay]: func-l0/f0-weixin-notify.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f1-pay]: func-l1/f1-payment.md
 [th1-sc]: thing-l1/th1-server-customized.md

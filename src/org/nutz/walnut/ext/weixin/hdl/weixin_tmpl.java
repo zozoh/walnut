@@ -79,13 +79,13 @@ public class weixin_tmpl implements JvmHdl {
         }
         //
         // # 发送模板消息
-        // demo@~$ weixin xxx tmpl -content "{..}"
+        // demo@~$ weixin xxx tmpl -send "{..}"
         // -url http:xxx
         // -tid iPk5sOIt5X_flOVKn5GrTFpncEYTojx6ddbt8WYoV5s
         // -to OPENID
-        else if (hc.params.has("content")) {
+        else if (hc.params.has("send")) {
             // 读取发送内容
-            String json = Cmds.checkParamOrPipe(sys, hc.params, "content", true);
+            String json = Cmds.checkParamOrPipe(sys, hc.params, "send", true);
 
             // 解析 ...
             NutMap map = Lang.map(json);
@@ -108,13 +108,13 @@ public class weixin_tmpl implements JvmHdl {
             String url = hc.params.get("url");
             String tid = hc.params.check("tid");
             String to = hc.params.check("to");
-            
-            // 支持本地别名
-            if (tid.startsWith("nm:")) {
-                String tmplName = tid.substring(3);
-                WnObj t = sys.io.check(wxApi.getHomeObj(), "tmpl/"+tmplName);
-                tid = t.getString("weixin_tid");
-            }
+
+            // // 支持本地别名
+            // if (tid.startsWith("nm:")) {
+            // String tmplName = tid.substring(3);
+            // WnObj t = sys.io.check(wxApi.getHomeObj(), "tmpl/"+tmplName);
+            // tid = t.getString("weixin_tid");
+            // }
 
             // 调用接口
             WxResp re = wxApi.template_send(to, tid, url, data);

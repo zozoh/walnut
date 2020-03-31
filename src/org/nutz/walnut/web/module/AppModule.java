@@ -250,6 +250,9 @@ public class AppModule extends AbstractWnModule {
             // -----------------------------------------
             // 检查登录密码，看看是否登录成功
             if (user.isMatchedRawPasswd(passwd)) {
+                // 确保用户是可以访问域主目录的
+                __check_home_accessable(si.oHome, user);
+
                 // 特殊会话类型
                 String byType = "auth_by_domain";
                 String byValue = si.siteId + ":passwd";
@@ -259,9 +262,6 @@ public class AppModule extends AbstractWnModule {
 
                 // 更新会话元数据
                 __update_auth_session(se, si.webs, byType, byValue);
-
-                // 确保当前会话是可以访问域主目录的
-                __check_home_accessable(si.oHome, se, user);
 
                 // 准备返回值
                 reo = se;
@@ -297,11 +297,10 @@ public class AppModule extends AbstractWnModule {
         return new ViewWrapper(view, reo);
     }
 
-    private void __check_home_accessable(WnObj oHome, WnAuthSession se, WnAccount user) {
+    private void __check_home_accessable(WnObj oHome, WnAccount user) {
         WnSecurity secu = new WnSecurityImpl(io, auth);
         // 不能读，那么注销会话，并返回错误
         if (!secu.test(oHome, Wn.Io.R, user)) {
-            auth.removeSession(se, 0);
             throw Er.create("e.auth.home.forbidden");
         }
     }
@@ -397,14 +396,14 @@ public class AppModule extends AbstractWnModule {
                 // 得到用户
                 WnAccount u = seDmn.getMe();
 
+                // 确保用户是可以访问域主目录的
+                __check_home_accessable(si.oHome, u);
+
                 // 注册新会话
                 seSys = auth.createSession(u, true);
 
                 // 更新会话元数据
                 __update_auth_session(seSys, si.webs, byType, byValue);
-
-                // 确保当前会话是可以访问域主目录的
-                __check_home_accessable(si.oHome, seSys, u);
             }
 
             // 准备返回数据
