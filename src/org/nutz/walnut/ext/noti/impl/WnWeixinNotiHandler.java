@@ -38,7 +38,7 @@ public class WnWeixinNotiHandler implements WnNotiHandler {
         String content = Json.toJson(oN.get("noti_weixin_tmpl_content"), JsonFormat.compact());
         String url = oN.getString("noti_wx_tmpl_url");
 
-        String cmdText = String.format("weixin %s tmpl -to '%s' -tid '%s' -content",
+        String cmdText = String.format("weixin %s tmpl -to '%s' -tid '%s' -send",
                                        pnb,
                                        openid,
                                        tid);
