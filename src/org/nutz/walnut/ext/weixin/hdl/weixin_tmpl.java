@@ -47,7 +47,7 @@ public class weixin_tmpl implements JvmHdl {
                 }
                 // 打印空数组
                 else {
-                    sys.out.println("[]");
+                    sys.err.println(Json.toJson(re, hc.jfmt));
                 }
             }
         }
