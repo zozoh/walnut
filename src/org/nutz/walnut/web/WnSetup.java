@@ -25,6 +25,7 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.crontab.WnCronService;
 import org.nutz.walnut.ext.email.WnMailServer;
 import org.nutz.walnut.ext.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.job.WnJobService;
@@ -166,6 +167,10 @@ public class WnSetup implements Setup {
         
         // 初始化Thing的SQL实现
         ioc.get(SqlThingMaster.class);
+        
+        // 初始化Cron服务
+        if (conf.getBoolean("crontab.enable", true))
+        	ioc.get(WnCronService.class);
     }
 
     private void __load_init_setups(WnConfig conf) {
