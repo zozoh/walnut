@@ -21,7 +21,7 @@
 - [数据备份与导出][c1-buk]
 - 钩子机制
 - [通知机制][c1-nti]
-- HttpApi
+- [HttpApi][c1-api]
 
 -----------------------------------------
 ## 系统高阶概念`core-l2`
@@ -108,6 +108,7 @@
 [c0-abd]: webs-l0/w0-auth-by-domain.md
 [c0-css]: core-l0/c0-core-session-service.md
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
+[c1-api]: core-l1/c1-regapi.md
 [c1-buk]: core-l1/c1-bulk-backup-restore.md
 [c1-nti]: core-l1/c1-notify.md
 [c2-bpm]: core-l2/c2-biz-privilege-model.md
