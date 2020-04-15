@@ -8,7 +8,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.weixin.WxUtil;
 import org.nutz.walnut.impl.box.JvmHdl;

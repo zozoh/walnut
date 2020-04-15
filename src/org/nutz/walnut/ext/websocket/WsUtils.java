@@ -7,7 +7,6 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
