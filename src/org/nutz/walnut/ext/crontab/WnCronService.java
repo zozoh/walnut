@@ -15,8 +15,8 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.quartz.Quartz;
-import org.nutz.quartz.QzEach;
+import org.nutz.plugins.zcron.CronEach;
+import org.nutz.plugins.zcron.ZCron;
 import org.nutz.runner.NutRunner;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -69,7 +69,7 @@ public class WnCronService extends NutRunner {
 				continue;
 			if (cronJob.quartz == null)
 				continue;
-			cronJob.quartz.each(mats, new QzEach<JobTime>() {
+			cronJob.quartz.each(mats, new CronEach<JobTime>() {
 				public void invoke(JobTime[] array, int index) throws Exception {
 					if (array[index] == null) {
 						array[index] = new JobTime();
@@ -153,21 +153,20 @@ public class WnCronService extends NutRunner {
 				continue;
 			} else {
 				job.cronline = line;
-				String[] tmp2 = Strings.split(line, false, ' ', '\t');
-				if (tmp2.length < 8) {
-					// 最起码有8段, 秒 分 时 日 月 星期 用户名 命令
+				int pos_begin = line.indexOf('<');
+				if (pos_begin < 0) {
 					log.warnf("bad cron line = %s", line);
 					return null;
 				}
-				String[] _cron = new String[6];
-				System.arraycopy(tmp2, 0, _cron, 0, 6);
-				String cron = Strings.join(" ", _cron);
-				job.cron = cron;
-				job.user = tmp2[6];
-				String[] _cmd = new String[tmp2.length - 7];
-				System.arraycopy(tmp2, 7, _cmd, 0, _cmd.length);
-				job.cmd = Strings.join(" ", _cmd);
-				job.quartz = Quartz.NEW(cron);
+				int pos_end = line.indexOf('>', pos_begin);
+				if (pos_end < 0) {
+					log.warnf("bad cron line = %s", line);
+					return null;
+				}
+				job.cron = line.substring(0, pos_begin).trim();
+				job.user = line.substring(pos_begin+1, pos_end).trim();
+				job.cmd = line.substring(pos_end + 1);
+				job.quartz = new ZCron(job.cron);
 				if (Strings.isBlank(job.name)) {
 					job.name = "cron-" + job.user + "-" + i;
 				}

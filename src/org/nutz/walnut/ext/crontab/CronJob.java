@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.crontab;
 
-import org.nutz.quartz.Quartz;
+import org.nutz.plugins.zcron.ZCron;
 
 public class CronJob {
 
@@ -10,5 +10,5 @@ public class CronJob {
 	public String cronline;
 	public String cron;
 	public String cmd;
-	public Quartz quartz;
+	public ZCron quartz;
 }
