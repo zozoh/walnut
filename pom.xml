@@ -49,6 +49,16 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<repository>
+			<id>nutz-snapshots</id>
+			<url>https://jfrog.nutz.cn/artifactory/lib-releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -112,6 +122,11 @@
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-plugins-zdoc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>nutz-plugins-zcron</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -188,22 +203,22 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.15</version>
+			<version>4.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-scratchpad</artifactId>
-			<version>3.15</version>
+			<version>4.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.15</version>
+			<version>4.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.15</version>
+			<version>4.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -260,7 +275,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.44</version>
+			<version>8.0.18</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
 		<dependency>
