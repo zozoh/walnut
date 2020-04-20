@@ -81,7 +81,7 @@ public class WnCronService extends NutRunner {
 				};
 			}, today);
 		}
-		log.infof("共%d个时间点有job需要运行", jobTimes.size());
+		log.debugf("共%d个时间点有job需要运行", jobTimes.size());
 		if (jobTimes.isEmpty()) {
 			return 5000;
 		}
@@ -93,9 +93,9 @@ public class WnCronService extends NutRunner {
 				log.debugf("已经过了任务执行时间 %s", Times.sDT(new Date(jobTime.timeAt)));
 				continue;
 			}
-			log.infof("当前时间 %s 下一个任务的执行时间 %s", Times.sDT(new Date(timenow)), Times.sDT(new Date(jobTime.timeAt)));
+			log.debugf("当前时间 %s 下一个任务的执行时间 %s", Times.sDT(new Date(timenow)), Times.sDT(new Date(jobTime.timeAt)));
 			if (diff > timer_int * 1000) {
-				log.infof("休眠%dms到下一个任务的开始时间", diff);
+				log.debugf("休眠%dms到下一个任务的开始时间", diff);
 				getLock().wait(diff);
 			}
 			if (jobs != this.jobs) {
