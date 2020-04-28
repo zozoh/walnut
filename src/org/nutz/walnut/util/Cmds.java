@@ -234,7 +234,7 @@ public abstract class Cmds {
         Pattern p = null;
         boolean not = false;
         String regex = params.get("e");
-        if (!Strings.isBlank(regex)) {
+        if (!Strings.isBlank(regex) && !"true".equals(regex)) {
             if (regex.startsWith("!")) {
                 not = true;
                 regex = regex.substring(1);

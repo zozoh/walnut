@@ -8,10 +8,12 @@ import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.WnPager;
 
+@JvmHdlParamArgs(value = "cqn", regex = "^(content)$")
 public class thing_getone implements JvmHdl {
 
     @Override

@@ -512,34 +512,34 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                 vpages.add(new VirtualPage(str));
             }
         });
-        VirtualPage theVirtualPage = null;
+
         String[] remains = null;
+        WnObj obj = null;
         if (vpages.size() > 0) {
             String[] paths = Strings.splitIgnoreBlank(a_path, "/");
             for (VirtualPage vpage : vpages) {
                 remains = vpage.match(paths);
                 if (null != remains) {
-                    theVirtualPage = vpage;
+                    // 存在 VirtualPage 的话，读取这个页
+                    String entryPath = vpage.entryPath;
+                    // 直接使用 oWWW
+                    if (Strings.isBlank(entryPath)) {
+                        obj = oWWW;
+                    }
+                    // 读一下这个页
+                    else {
+                        obj = io.fetch(oWWW, entryPath);
+                    }
+                    // 设置一个 ContextName
+                    // 找到虚拟页对应的对象就退出
+                    if (null != obj) {
+                        obj.setv("CONTEXT_NAME", vpage.contextName);
+                        break;
+                    }
                 }
             }
         }
-        // 存在 VirtualPage 的话，读取这个页
-        WnObj obj = null;
-        if (null != theVirtualPage) {
-            String entryPath = theVirtualPage.entryPath;
-            // 直接使用 oWWW
-            if (Strings.isBlank(entryPath)) {
-                obj = oWWW;
-            }
-            // 读一下这个页
-            else {
-                obj = io.fetch(oWWW, entryPath);
-            }
-        }
-        // 设置一个 ContextName
-        if (null != obj) {
-            obj.setv("CONTEXT_NAME", theVirtualPage.contextName);
-        }
+
         return obj;
     }
 

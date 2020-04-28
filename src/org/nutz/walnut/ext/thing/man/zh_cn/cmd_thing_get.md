@@ -13,6 +13,7 @@
                  # 那么输出的元数据包括 `th_next` 和  `th_prev` 两字段
                  # 当然如果查不到数据，这两个字段的值是 null
        [-check]  # 严格模式，如果不存在要输出错误  e.thing.noexists
+       [-cqn]    # JSON 格式化输出
 
 # 示例
 
