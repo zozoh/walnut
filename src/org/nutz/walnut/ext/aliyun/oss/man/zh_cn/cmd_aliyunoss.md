@@ -1,0 +1,40 @@
+命令简介
+======= 
+
+`aliyunoss` 用于访问阿里云OSS服务
+    
+
+用法
+=======
+
+```
+aliyunoss put       # 把文件推送到OSS
+aliyunoss get       # 从OSS拉取文件
+aliyunoss rm    # 删除指定的文件
+aliyunoss meta      # 文件的元数据管理
+aliyunoss query     # 查询/枚举文件
+```
+
+配置文件  ~/.aliyun/oss/$name/conf
+```json
+{
+  endpoint : "oss-cn-qingdao.aliyuncs.com", // 本地调试写公网,服务器上写内存
+  accessKeyId : "ABC", // 通过阿里云RAM机制创建 
+  accessKeySecret : "ABCDEFG", // 通过阿里云RAM机制创建 
+  bucketName : "testoss" // OSS的bucket名称
+}
+```
+
+基本用法
+========
+
+```
+# 推送文件, OSS路径 js/jquery/jquery.js, 本地路径~/jquery_local.js
+aliyunoss testoss put js/jquery/jquery.js ~/jquery_local.js
+# 拉取文件, OSS路径 js/vue/vue.js, 本地路径~/vue_local.js
+aliyunoss testoss get js/vue/vue.js ~/vue_local.js
+# 删除文件
+aliyunoss testoss rm js/vue2/vue2.js
+# 查询文件
+aliyunoss testoss query '{prefix:"js/boot2"}' -limit 20
+```
