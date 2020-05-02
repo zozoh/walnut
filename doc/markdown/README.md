@@ -41,6 +41,7 @@
   + [微信支付整合][f0-wx-pay]
   + [微信通知整合][f0-wx-nti]
 - [支付宝支付接口整合][f0-zfb]
+- [阿里云整合][f0-aliyun]
 - 内容搜索(ESI)整合
 - websocket
 - weather
@@ -115,6 +116,7 @@
 [f0-wx-pay]: func-l0/f0-weixin-payment.md
 [f0-wx-pay]: func-l0/f0-weixin-notify.md
 [f0-zfb]: func-l0/f0-alipay.md
+[f0-aliyun]: func-l0/f0-aliyun.md
 [f1-pay]: func-l1/f1-payment.md
 [th1-sc]: thing-l1/th1-server-customized.md
 [th1-tj]: thing-l1/th1-thing-json.md

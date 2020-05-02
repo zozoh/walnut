@@ -7,16 +7,17 @@
 用法
 =======
 
-```
+```bash
 aliyunoss put       # 把文件推送到OSS
 aliyunoss get       # 从OSS拉取文件
-aliyunoss rm    # 删除指定的文件
+aliyunoss rm        # 删除指定的文件
 aliyunoss meta      # 文件的元数据管理
 aliyunoss query     # 查询/枚举文件
 ```
 
 配置文件  ~/.aliyun/oss/$name/conf
-```json
+
+```js
 {
   endpoint : "oss-cn-qingdao.aliyuncs.com", // 本地调试写公网,服务器上写内存
   accessKeyId : "ABC", // 通过阿里云RAM机制创建 
@@ -28,7 +29,7 @@ aliyunoss query     # 查询/枚举文件
 基本用法
 ========
 
-```
+```bash
 # 推送文件, OSS路径 js/jquery/jquery.js, 本地路径~/jquery_local.js
 aliyunoss testoss put js/jquery/jquery.js ~/jquery_local.js
 # 拉取文件, OSS路径 js/vue/vue.js, 本地路径~/vue_local.js
