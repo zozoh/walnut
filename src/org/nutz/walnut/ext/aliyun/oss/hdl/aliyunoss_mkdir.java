@@ -1,21 +1,17 @@
 package org.nutz.walnut.ext.aliyun.oss.hdl;
 
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.aliyun.oss.WnAliyunOssService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
-public class aliyunoss_upload extends aliyunoss_xxx {
+public class aliyunoss_mkdir extends aliyunoss_xxx {
 
 	@Override
 	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
 		WnAliyunOssService oss = getService(sys, hc);
-		String objectName = hc.params.val_check(0);
-		String path = hc.params.val_check(1);
-		path = Wn.normalizeFullPath(path, sys);
-		WnObj tmp = sys.io.check(null, path);
-		oss.upload(tmp, objectName);
+		for (String objectName : hc.params.vals) {
+			oss.mkdir(objectName);
+		}
 	}
 
 }

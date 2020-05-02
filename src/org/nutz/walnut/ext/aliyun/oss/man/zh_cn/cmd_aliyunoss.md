@@ -12,16 +12,17 @@ aliyunoss put       # 把文件推送到OSS
 aliyunoss get       # 从OSS拉取文件
 aliyunoss rm        # 删除指定的文件
 aliyunoss meta      # 文件的元数据管理
-aliyunoss query     # 查询/枚举文件
+aliyunoss lsdir     # 枚举文件
+aliyunoss mkdir     # 创建文件
 ```
 
-配置文件  ~/.aliyun/oss/$name/conf
+配置文件  ~/.aliyun/oss/$name.json
 
 ```js
 {
   endpoint : "oss-cn-qingdao.aliyuncs.com", // 本地调试写公网,服务器上写内存
-  accessKeyId : "ABC", // 通过阿里云RAM机制创建 
-  accessKeySecret : "ABCDEFG", // 通过阿里云RAM机制创建 
+  id : "ABC", // 通过阿里云RAM机制创建 
+  secret : "ABCDEFG", // 通过阿里云RAM机制创建 
   bucketName : "testoss" // OSS的bucket名称
 }
 ```
@@ -37,5 +38,5 @@ aliyunoss testoss get js/vue/vue.js ~/vue_local.js
 # 删除文件
 aliyunoss testoss rm js/vue2/vue2.js
 # 查询文件
-aliyunoss testoss query '{prefix:"js/boot2"}' -limit 20
+aliyunoss testoss lsdir js/
 ```

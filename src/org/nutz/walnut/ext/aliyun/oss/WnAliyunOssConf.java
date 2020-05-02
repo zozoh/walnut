@@ -4,30 +4,30 @@ import org.nutz.walnut.ext.aliyun.sdk.WnAliyunAccessKey;
 
 public class WnAliyunOssConf extends WnAliyunAccessKey {
 
-    /**
-     * 接入区域 ID，例如 "oss-cn-qingdao.aliyuncs.com"
-     */
-    private String endpoint;
+	/**
+	 * 接入区域 ID，例如 "oss-cn-qingdao.aliyuncs.com"
+	 */
+	private String endpoint;
 
-    /**
-     * 默认桶名称
-     */
-    private String bucketName;
+	/**
+	 * 默认桶名称
+	 */
+	private String bucketName;
 
-    public String getEndpoint() {
-        return endpoint;
-    }
+	public String getEndpoint() {
+		return endpoint;
+	}
 
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
+	}
 
-    public String getBucketName() {
-        return bucketName;
-    }
+	public String getBucketName() {
+		return bucketName;
+	}
 
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
+	public void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
 
 }
