@@ -9,12 +9,25 @@ public class WnAliyunOssConf extends WnAliyunAccessKey {
      */
     private String endpoint;
 
+    /**
+     * 默认桶名称
+     */
+    private String bucketName;
+
     public String getEndpoint() {
         return endpoint;
     }
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 
 }
