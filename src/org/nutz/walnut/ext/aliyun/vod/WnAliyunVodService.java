@@ -2,22 +2,27 @@ package org.nutz.walnut.ext.aliyun.vod;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.ext.aliyun.sdk.WnAliyunMediaQuery;
 import org.nutz.walnut.ext.aliyun.sdk.WnAliyunMessageCallback;
 
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.exceptions.ServerException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.vod.model.v20170321.CreateUploadVideoRequest;
 import com.aliyuncs.vod.model.v20170321.CreateUploadVideoResponse;
 import com.aliyuncs.vod.model.v20170321.GetPlayInfoRequest;
 import com.aliyuncs.vod.model.v20170321.GetPlayInfoResponse;
+import com.aliyuncs.vod.model.v20170321.GetVideoInfoRequest;
+import com.aliyuncs.vod.model.v20170321.GetVideoInfoResponse;
+import com.aliyuncs.vod.model.v20170321.GetVideoInfosRequest;
+import com.aliyuncs.vod.model.v20170321.GetVideoInfosResponse;
 import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthRequest;
 import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthResponse;
+import com.aliyuncs.vod.model.v20170321.SearchMediaRequest;
+import com.aliyuncs.vod.model.v20170321.SearchMediaResponse;
 
 /**
  * 视频点播服务的封装类（每次使用需要新建）
@@ -69,11 +74,64 @@ public class WnAliyunVodService {
         try {
             return client.getAcsResponse(request);
         }
-        catch (ServerException e) {
-            throw Lang.wrapThrow(e);
+        catch (Exception e) {
+            throw Er.create(e, "e.aliyun.vod.getVideoPlayAuth");
+        }
+    }
+
+    /**
+     * 查询一组媒体
+     * 
+     * @param mq
+     *            查询对象
+     * @return 查询结果
+     */
+    public SearchMediaResponse searchMedia(WnAliyunMediaQuery mq) {
+        SearchMediaRequest request = new SearchMediaRequest();
+        request.setFields(mq.getFeilds());
+        request.setMatch(mq.getMatch());
+        request.setPageNo(mq.getPageNo());
+        request.setPageSize(mq.getPageSize());
+        request.setSearchType(mq.getSearchType());
+        request.setSortBy(mq.getSortBy());
+        request.setScrollToken(mq.getScrollToken());
+        try {
+            return client.getAcsResponse(request);
         }
         catch (ClientException e) {
             throw Er.create(e, "e.aliyun.vod.getVideoPlayAuth");
+        }
+    }
+
+    /**
+     * @param videoId
+     *            视频ID
+     * @return 视频信息
+     */
+    public GetVideoInfoResponse getVideoInfo(String videoId) {
+        GetVideoInfoRequest request = new GetVideoInfoRequest();
+        request.setVideoId(videoId);
+        try {
+            return client.getAcsResponse(request);
+        }
+        catch (ClientException e) {
+            throw Er.create(e, "e.aliyun.vod.getVideoInfo");
+        }
+    }
+    
+    /**
+     * @param videoIds
+     *            视频ID
+     * @return 一组视频信息
+     */
+    public GetVideoInfosResponse getVideoInfos(String videoIds) {
+        GetVideoInfosRequest request = new GetVideoInfosRequest();
+        request.setVideoIds(videoIds);
+        try {
+            return client.getAcsResponse(request);
+        }
+        catch (ClientException e) {
+            throw Er.create(e, "e.aliyun.vod.getVideoInfos");
         }
     }
 
@@ -128,9 +186,5 @@ public class WnAliyunVodService {
         }
 
     }
-    
-//    public SearchMediaResponse searchMedia(WnQuery) {
-//        
-//    }
 
 }

@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
 @JvmHdlParamArgs("cqn")
-public class aliyunvod_play_info implements JvmHdl {
+public class aliyunvod_playauth implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -23,7 +23,7 @@ public class aliyunvod_play_info implements JvmHdl {
         WnAliyunVodService vods = new WnAliyunVodService(conf);
 
         // 输出结果
-        hc.output = vods.getPlayInfo(videoId);
+        hc.output = vods.getVideoPlayAuth(videoId);
     }
 
 }
