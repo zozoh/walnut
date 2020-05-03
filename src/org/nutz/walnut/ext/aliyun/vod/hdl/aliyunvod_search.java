@@ -95,7 +95,7 @@ public class aliyunvod_search implements JvmHdl {
             // 准备输出 Map
             NutMap out = Cmds.createQueryResult(wp, list);
             if (!Strings.isBlank(scroll)) {
-                out.put("scroll", scroll);
+                out.put("scrollToken", scroll);
             }
             hc.output = out;
         }
