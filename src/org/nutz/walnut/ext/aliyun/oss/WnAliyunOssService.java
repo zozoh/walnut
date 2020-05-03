@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -181,6 +183,15 @@ public class WnAliyunOssService {
 			upload(new ByteArrayInputStream(new byte[0]), objectName);
 		} catch (Exception e) {
 			throw Err.create("e.aliyun.oss.mkdir", e);
+		}
+	}
+	
+	public URL genURL(String objectName, String method, int timeout) {
+		try {
+			objectName = _name(objectName);
+			return oss.generatePresignedUrl(bucketName, objectName, new Date(System.currentTimeMillis()+timeout));
+		} catch (Exception e) {
+			throw Err.create("e.aliyun.oss.genurl", e);
 		}
 	}
 }
