@@ -106,6 +106,7 @@ dependencies {
     compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version : '6.4.0.jre8'
     compile group: 'com.aliyun', name: 'aliyun-java-sdk-iot', version : '5.0.0'
 	compile group: 'com.aliyun', name: 'aliyun-java-sdk-core', version : '3.5.1'
+	compile group: 'com.aliyun', name: 'aliyun-java-sdk-vod', version : '2.15.6'
 	compile group: 'com.aliyun.oss', name: 'aliyun-sdk-oss', version : '3.8.0'
 	// https://mvnrepository.com/artifact/gov.nist.math/jama
 	compile group: 'gov.nist.math', name: 'jama', version: '1.0.3'
