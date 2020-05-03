@@ -8,8 +8,8 @@
 =======
 
 ```bash
-aliyunoss put       # 把文件推送到OSS
-aliyunoss get       # 从OSS拉取文件
+aliyunoss upload    # 把文件推送到OSS
+aliyunoss download  # 从OSS拉取文件
 aliyunoss rm        # 删除指定的文件
 aliyunoss meta      # 文件的元数据管理
 aliyunoss lsdir     # 枚举文件
@@ -32,11 +32,13 @@ aliyunoss mkdir     # 创建文件
 
 ```bash
 # 推送文件, OSS路径 js/jquery/jquery.js, 本地路径~/jquery_local.js
-aliyunoss testoss put js/jquery/jquery.js ~/jquery_local.js
+aliyunoss testoss upload js/jquery/jquery.js ~/jquery_local.js
 # 拉取文件, OSS路径 js/vue/vue.js, 本地路径~/vue_local.js
-aliyunoss testoss get js/vue/vue.js ~/vue_local.js
+aliyunoss testoss download js/vue/vue.js ~/vue_local.js
 # 删除文件
 aliyunoss testoss rm js/vue2/vue2.js
 # 查询文件
 aliyunoss testoss lsdir js/
+# 建文件夹(非必须)
+aliyunoss testoss mkdir js/abc/
 ```
