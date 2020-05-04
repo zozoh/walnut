@@ -132,7 +132,7 @@ public class WnHttpResponse {
         // etag存在且相等, 304搞定
         if (objETag.equalsIgnoreCase(etag)) {
             this.status = 304;
-            this.headers.put("Walnut-Object-Id", wobj.id());
+            //this.headers.put("Walnut-Object-Id", wobj.id());
             return;
         }
         headers.put("ETag", objETag);
