@@ -11,8 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.web.Webs.Err;
@@ -26,6 +30,8 @@ import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.ObjectMetadata;
 
 public class WnAliyunOssService {
+	
+	private static final Log log = Logs.get();
 
 	public OSS oss;
 	public String bucketName;
@@ -41,10 +47,16 @@ public class WnAliyunOssService {
 	public void upload(WnObj wobj, String objectName, NutMap meta, boolean force) {
 		objectName = _name(objectName);
 		try {
+			String sha1 = wobj.sha1();
+			if (Strings.isBlank(sha1)) {
+				try (InputStream ins = io.getInputStream(wobj, 0)) {
+					sha1 = Lang.sha1(ins);
+				}
+			}
 			if (!force) {
 				try {
 					ObjectMetadata origin_meta = oss.getObjectMetadata(bucketName, objectName);
-					if (origin_meta != null && wobj.sha1().equals(origin_meta.getUserMetadata().get("walnut-sha1"))) {
+					if (sha1.equals(origin_meta.getUserMetadata().get("walnut-sha1"))) {
 						// SHA1相同,再对比一下meta
 						boolean flag = false;
 						for (Entry<String, Object> en : meta.entrySet()) {
@@ -55,8 +67,10 @@ public class WnAliyunOssService {
 								break; // 元数据不同,那就强制上传
 							}
 						}
-						if (!flag)
+						if (!flag) {
+							log.debug("sha1 match, meta match, no need to upload :" + objectName);
 							return; // 相同,无需上传
+						}
 					}
 				} catch (Exception e) {
 					// pass
@@ -69,7 +83,7 @@ public class WnAliyunOssService {
 				for (Entry<String, Object> en : meta.entrySet()) {
 					obj_meta.setHeader(en.getKey(), String.valueOf(en.getValue()));
 				}
-				obj_meta.addUserMetadata("walnut-sha1", wobj.sha1());
+				obj_meta.addUserMetadata("walnut-sha1", sha1);
 				
 				// 对mjs特殊处理一下
 				if (obj_meta.getContentType() == null && wobj.name().endsWith(".mjs")) {

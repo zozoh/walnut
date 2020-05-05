@@ -17,6 +17,9 @@ public class aliyunoss_upload extends aliyunoss_xxx {
 		String path = hc.params.val_check(1);
 		path = Wn.normalizeFullPath(path, sys);
 		WnObj tmp = sys.io.check(null, path);
+		if (tmp.isDIR()) {
+			return; // 文件夹就无视
+		}
 		NutMap meta = new NutMap();
 		if (hc.params.has("meta")) {
 			meta = Lang.map(hc.params.get("meta"));
