@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.aliyun.oss.hdl;
 
+import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.aliyun.oss.WnAliyunOssService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -15,7 +17,11 @@ public class aliyunoss_upload extends aliyunoss_xxx {
 		String path = hc.params.val_check(1);
 		path = Wn.normalizeFullPath(path, sys);
 		WnObj tmp = sys.io.check(null, path);
-		oss.upload(tmp, objectName);
+		NutMap meta = new NutMap();
+		if (hc.params.has("meta")) {
+			meta = Lang.map(hc.params.get("meta"));
+		}
+		oss.upload(tmp, objectName, meta, hc.params.is("force", false));
 	}
 
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
@@ -37,13 +38,45 @@ public class WnAliyunOssService {
 	}
 
 	// 上传
-	public void upload(WnObj wobj, String objectName) {
+	public void upload(WnObj wobj, String objectName, NutMap meta, boolean force) {
 		objectName = _name(objectName);
 		try {
+			if (!force) {
+				try {
+					ObjectMetadata origin_meta = oss.getObjectMetadata(bucketName, objectName);
+					if (origin_meta != null && wobj.sha1().equals(origin_meta.getUserMetadata().get("walnut-sha1"))) {
+						// SHA1相同,再对比一下meta
+						boolean flag = false;
+						for (Entry<String, Object> en : meta.entrySet()) {
+							String myValue = String.valueOf(en.getValue());
+							String ossValue = String.valueOf(origin_meta.getRawMetadata().get(en.getKey()));
+							if (!myValue.equalsIgnoreCase(ossValue)) {
+								flag = true;
+								break; // 元数据不同,那就强制上传
+							}
+						}
+						if (!flag)
+							return; // 相同,无需上传
+					}
+				} catch (Exception e) {
+					// pass
+				}
+			}
 			InputStream ins = null;
 			try {
 				ins = io.getInputStream(wobj, 0);
-				upload(ins, objectName);
+				ObjectMetadata obj_meta = new ObjectMetadata();
+				for (Entry<String, Object> en : meta.entrySet()) {
+					obj_meta.setHeader(en.getKey(), String.valueOf(en.getValue()));
+				}
+				obj_meta.addUserMetadata("walnut-sha1", wobj.sha1());
+				
+				// 对mjs特殊处理一下
+				if (obj_meta.getContentType() == null && wobj.name().endsWith(".mjs")) {
+					obj_meta.setContentType("application/x-javascript");
+				}
+				
+				oss.putObject(bucketName, objectName, ins, obj_meta);
 			} finally {
 				Streams.safeClose(ins);
 			}

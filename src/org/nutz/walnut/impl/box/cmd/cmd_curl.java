@@ -6,14 +6,15 @@ import org.nutz.http.Request.METHOD;
 import org.nutz.http.Response;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_curl extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "^(v|debug)$");
-        String url = params.val_check(0);
+        ZParams params = ZParams.parse(args, "^(I|v|debug)$");
+        String url = Cmds.checkParamOrPipe(sys, params, 0);
         Request req = Request.create(url, METHOD.GET);
 
         // 处理data参数
@@ -47,10 +48,15 @@ public class cmd_curl extends JvmExecutor {
             sender.setConnTimeout(params.getInt("connect-timeout"));
         }
         Response resp = sender.send();
-        if (resp.isOK()) {
-            sys.out.write(resp.getStream());
-        } else {
-            sys.err.print("code = " + resp.getStatus());
+        if (params.is("I")) {
+        	sys.out.print(resp.getHeader().toString());
+        }
+        else {
+            if (resp.isOK()) {
+                sys.out.write(resp.getStream());
+            } else {
+                sys.err.print("e.cmd.curl.code_" + resp.getStatus());
+            }
         }
     }
 
