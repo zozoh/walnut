@@ -7,14 +7,16 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
 
 public class cmd_find extends JvmExecutor {
 
     @Override
     public void exec(final WnSystem sys, String[] args) {
         WnObj p = sys.getCurrentObj();
+        ZParams params = ZParams.parse(args, null);
 
-        String ph = args.length > 0 ? args[0] : ".";
+        String ph = params.vals.length > 0 ? params.vals[0] : ".";
 
         WnObj o;
         if (".".equals(ph)) {
@@ -24,7 +26,13 @@ public class cmd_find extends JvmExecutor {
             o = sys.io.check(null, path);
         }
 
-        final String base = p.path();
+        final String base;
+        if (params.is("p")) {
+        	base = o.path();
+        }
+        else {
+        	base = p.path();
+        }
 
         sys.io.walk(o, new Callback<WnObj>() {
             public void invoke(WnObj obj) {
