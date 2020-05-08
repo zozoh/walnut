@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.www.hdl;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import org.nutz.json.Json;
@@ -8,6 +9,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnCaptcha;
+import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.www.cmd_www;
@@ -20,7 +22,7 @@ import org.nutz.walnut.util.WnHttpResponse;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(http|better|ajax)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(http|better|ajax|robot)$")
 public class www_captcha implements JvmHdl {
 
     @Override
@@ -32,21 +34,64 @@ public class www_captcha implements JvmHdl {
         String account = hc.params.val_check(2);
         // -------------------------------
         WnWebService webs = new WnWebService(sys, oWWW);
-        String as = hc.params.getString("as", "json");
+        WnCaptchaService capApi = webs.getCaptchaApi();
         // -------------------------------
-        // 短信或者邮箱验证码，需要先校验一下机器人
-        if ("sms".equals(as) || "email".equals(as)) {
-            String cap = hc.params.check("cap");
-            String capScene = hc.params.get("capscene", "robot");
-            // 看看是否有效
-            if (!webs.getCaptchaApi().removeCaptcha(capScene, account, cap)) {
-                AjaxReturn re = Ajax.fail().setErrCode("e.www.invalid.captcha");
-                sys.out.println(Json.toJson(re, hc.jfmt));
-                return;
+        Object out = null;
+        // -------------------------------
+        // 校验验证码
+        if (hc.params.has("verify")) {
+            String code = hc.params.getString("verify");
+            // 尝试校验一下 ...
+            if (capApi.removeCaptcha(scene, account, code)) {
+                out = Ajax.ok();
+            }
+            // 出错了
+            else {
+                out = Ajax.fail().setErrCode("e.www.invalid.captcha");
             }
         }
         // -------------------------------
         // 生成验证码
+        else {
+            String as = hc.params.getString("as", "json");
+            // 短信或者邮箱验证码，需要先校验一下机器人
+            if (!hc.params.is("robot")) {
+                if ("sms".equals(as) || "email".equals(as)) {
+                    String cap = hc.params.check("cap");
+                    String capScene = hc.params.get("capscene", "robot");
+                    // 看看是否有效
+                    if (!webs.getCaptchaApi().removeCaptcha(capScene, account, cap)) {
+                        AjaxReturn re = Ajax.fail().setErrCode("e.www.invalid.captcha");
+                        sys.out.println(Json.toJson(re, hc.jfmt));
+                        return;
+                    }
+                }
+            }
+            // 生成验证码，如果是短信或者
+            out = gen_vcode(sys, hc, scene, account, capApi, as);
+        }
+        // -------------------------------
+        // 输出验证码
+        if (null != out) {
+            if (!(out instanceof AjaxReturn)) {
+                // 默认是JSON 方式
+                if (hc.params.is("ajax")) {
+                    out = Ajax.ok().setData(out);
+                }
+            }
+            // 输出吧
+            sys.out.println(Json.toJson(out, hc.jfmt));
+        }
+        // -------------------------------
+    }
+
+    private Object gen_vcode(WnSystem sys,
+                             JvmHdlContext hc,
+                             String scene,
+                             String account,
+                             WnCaptchaService capApi,
+                             String as)
+            throws IOException {
         String type = hc.params.getString("type", "digital");
         int len = hc.params.getInt("len", 4);
         String code;
@@ -68,7 +113,7 @@ public class www_captcha implements JvmHdl {
         cap.setExpiFromNowByMin(du);
         // -------------------------------
         // 保存验证码
-        webs.getCaptchaApi().saveCaptcha(cap);
+        capApi.saveCaptcha(cap);
         // -------------------------------
         // 准备输出
         // -------------------------------
@@ -97,6 +142,8 @@ public class www_captcha implements JvmHdl {
             else {
                 sys.out.write(buf);
             }
+            // 总之不要继续输出了
+            return null;
         }
         // -------------------------------
         // 最后肯定是要输出 json 的，那么是否输出 code 则作为一个过滤条件
@@ -110,12 +157,11 @@ public class www_captcha implements JvmHdl {
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
             NutMap acMap = reMap.getAs(cap.getAccount(), NutMap.class);
+            // 靠，发送失败
             if (null == acMap || !acMap.is("code", 0)) {
-                AjaxReturn reo = Ajax.fail()
-                                     .setErrCode("e.www.captcha.fail_send_by_sms")
-                                     .setData(acMap.get("msg"));
-                sys.out.println(Json.toJson(reo, hc.jfmt));
-                return;
+                return Ajax.fail()
+                           .setErrCode("e.www.captcha.fail_send_by_sms")
+                           .setData(acMap.get("msg"));
             }
 
             // 按照 JSON 输出，但是不带 code
@@ -128,14 +174,7 @@ public class www_captcha implements JvmHdl {
             // 按照 JSON 输出，但是不带 code
             hc.jfmt.setLocked("^(code)$");
         }
-        // -------------------------------
-        // 默认是JSON 方式
-        Object out = cap;
-        if (hc.params.is("ajax")) {
-            out = Ajax.ok().setData(cap);
-        }
-        sys.out.println(Json.toJson(out, hc.jfmt));
-        // -------------------------------
+        return cap;
     }
 
 }
