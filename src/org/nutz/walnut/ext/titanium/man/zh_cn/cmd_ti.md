@@ -8,6 +8,7 @@
 ```bash
 ti version      # 显示命令版本
 ti views        # 获取某个对象的视图信息
+ti metas        # 获取某个对象的元数据信息
 ti sidebar      # 获取当前会话的侧边栏
 ti config       # 获取当前会话的特殊 Ti.Config 设置      
 ti coms         # 获取所有可编辑控件的定义信息  

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.titanium.views;
+package org.nutz.walnut.ext.titanium.impl;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -6,22 +6,32 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.titanium.util.TiViewMapping;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnObjDataCachedFactory;
 
 @IocBean(create = "on_create")
-public class TiViewService {
+public abstract class TiMappingService<T> {
 
     @Inject("refer:io")
     private WnIo io;
 
     private WnObjDataCachedFactory<TiViewMapping> mappings;
 
-    private WnObjDataCachedFactory<TiView> views;
+    private WnObjDataCachedFactory<T> mObjs;
+
+    private Class<T> defType;
+
+    private String dirName;
+
+    public TiMappingService(Class<T> defType, String dirName) {
+        this.defType = defType;
+        this.dirName = dirName;
+    }
 
     public void on_create() {
         mappings = new WnObjDataCachedFactory<>(io);
-        views = new WnObjDataCachedFactory<>(io);
+        mObjs = new WnObjDataCachedFactory<>(io);
     }
 
     public TiViewMapping getMapping(WnObj oMapping) {
@@ -34,7 +44,7 @@ public class TiViewService {
         return mapping;
     }
 
-    public TiView getView(WnObj oMapping, WnObj o, String[] viewHomePaths) {
+    public T getView(WnObj oMapping, WnObj o, String[] viewHomePaths) {
         // 获取映射
         TiViewMapping mapping = this.getMapping(oMapping);
 
@@ -49,7 +59,7 @@ public class TiViewService {
         return this.getView(oViewHome, viewName, viewHomePaths);
     }
 
-    public TiView getView(WnObj oViewHome, String viewName, String[] viewHomePaths) {
+    public T getView(WnObj oViewHome, String viewName, String[] viewHomePaths) {
         // 必须有视图名称
         if (Strings.isBlank(viewName)) {
             throw Er.create("e.ti.view.blankName");
@@ -61,12 +71,12 @@ public class TiViewService {
             fnm += ".json";
 
         // 得到视图对象
-        WnObj oView = io.fetch(oViewHome, "views/" + fnm);
+        WnObj oView = io.fetch(oViewHome, this.dirName + "/" + fnm);
 
         // 如果在指定 viewHome 里找不到，在给定查找路径下再找一轮
         if (null == oView) {
             for (String viewHomePath : viewHomePaths) {
-                String viewPath = Wn.appendPath(viewHomePath, "views", fnm);
+                String viewPath = Wn.appendPath(viewHomePath, this.dirName, fnm);
                 // 已经找过了，跳过之
                 if (oViewHome.path().equals(viewHomePath)) {
                     continue;
@@ -79,13 +89,13 @@ public class TiViewService {
         }
 
         // 获取视图
-        TiView view = views.get(oView, o -> {
-            return io.readJson(o, TiView.class);
+        T view = mObjs.get(oView, o -> {
+            return io.readJson(o, this.defType);
         });
         return view;
     }
 
-    public TiView getView(String viewName, String[] viewHomePaths) {
+    public T getView(String viewName, String[] viewHomePaths) {
         // 必须有视图名称
         if (Strings.isBlank(viewName)) {
             throw Er.create("e.ti.view.blankName");
@@ -102,7 +112,7 @@ public class TiViewService {
         // 如果在指定 viewHome 里找不到，在给定查找路径下再找一轮
         if (null == oView) {
             for (String viewHomePath : viewHomePaths) {
-                String viewPath = Wn.appendPath(viewHomePath, "views", fnm);
+                String viewPath = Wn.appendPath(viewHomePath, this.dirName, fnm);
                 // 找一哈，看看有木有
                 oView = io.fetch(null, viewPath);
                 if (null != oView)
@@ -111,8 +121,8 @@ public class TiViewService {
         }
 
         // 获取视图
-        TiView view = views.get(oView, o -> {
-            return io.readJson(o, TiView.class);
+        T view = mObjs.get(oView, o -> {
+            return io.readJson(o, this.defType);
         });
         return view;
     }

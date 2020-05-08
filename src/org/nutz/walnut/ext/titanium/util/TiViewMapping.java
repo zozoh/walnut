@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.titanium.views;
+package org.nutz.walnut.ext.titanium.util;
 
 import java.util.HashMap;
 import java.util.LinkedList;
