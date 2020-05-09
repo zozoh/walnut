@@ -152,7 +152,7 @@ public class www_captcha implements JvmHdl {
         if ("sms".equals(as)) {
             // 发送短信
             NutMap cc = cap.toMeta("account");
-            String cmdTmpl = "sms send -r ${account} -t 'i18n:${scene}' 'code:\"${code}\",min:${du_in_min}'";
+            String cmdTmpl = "sms send -r ${account} -t 'i18n:${scene}' 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
@@ -174,7 +174,7 @@ public class www_captcha implements JvmHdl {
             // email -r zozoh@qq.com -s i18n:signup -tmpl i18n:signup -vars
             // 'code:"AABBCC", hour:1'
             NutMap cc = cap.toMeta("account");
-            String cmdTmpl = "email -r ${account} -s 'i18n:${scene}' -tmpl 'i18n:${scene}' -vars 'code:\"${code}\",hour:${du_in_hr}'";
+            String cmdTmpl = "email -r ${account} -s 'i18n:${scene}' -tmpl 'i18n:${scene}' -vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
