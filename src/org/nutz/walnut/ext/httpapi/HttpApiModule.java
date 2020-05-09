@@ -482,8 +482,8 @@ public class HttpApiModule extends AbstractWnModule {
         box.setStderr(err);
 
         // 运行
-        if (log.isDebugEnabled())
-            log.debugf("box:run: %s", cmdText);
+        if (log.isInfoEnabled())
+            log.infof("box:run: %s", cmdText);
         box.run(cmdText);
 
         // 释放沙箱
