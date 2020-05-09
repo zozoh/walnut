@@ -52,11 +52,53 @@ www captcha
 
 ```bash
 # 输出一个四位数字的验证码的 JSON 形式
-www captcha id:xxx auth zozoh
+demo:~$ www captcha ~/www auth zozoh
+{
+   scene: "auth",
+   account: "zozoh@qq.com",
+   code: "7806",
+   retry: 0,
+   maxRetry: 3,
+   expi: 1589026614013,
+   duInMin: 10
+}
 
 # 输出一个四位数字的验证码，并发送短信
-www captcha id:xxx auth 18421964321 -cap 3421 -as sms
+demo:~$ www captcha ~/www auth 18421964321 -cap 3421 -as sms
+{scene:"auth",account:"18421964321",retry:0,maxRetry:3,expi:1589033131454,duInMin:10}
+
+# 跳过防机器人逻辑，输出一个四位数字的验证码，并发送短信
+demo:~$ www captcha ~/www auth 18421964321 -robot -as sms
+{scene:"auth",account:"18421964321",retry:0,maxRetry:3,expi:1589033131454,duInMin:10}
+
+# 输出一个四位数字的验证码，并发送邮件
+demo:~$ www captcha ~/www auth xiaobai@qq.com -cap 3421 -as email
+{scene:"auth",account:"zozoh@qq.com",retry:0,maxRetry:3,expi:1589033131454,duInMin:120}
+
+# 跳过防机器人逻辑，输出一个四位数字的验证码，并发送邮件
+# 输出的结果是 ajax 方式
+demo:~$ www captcha ~/www auth xiaobai@qq.com -robot -as email -ajax
+{ok:true,errCode:null,msg:null,data:{scene:"auth",account:"zozoh@qq.com",retry:0,maxRetry:3,expi:1589033131454,duInMin:120}}
+
+
+# 跳过防机器人逻辑，输出一个八位数字字母有效期为120分钟验证码，并发送邮件
+demo:~$ www captcha ~/www auth xiaobai@qq.com -du 120 -type alphabet -len 8 -robot -as email
+{scene:"auth",account:"zozoh@qq.com",retry:0,maxRetry:3,expi:1589033131454,duInMin:120}
 
 # 在 REGAPI 里，输出一个四位数字的验证码，并输出成一张图片
-www captcha id:xxx robot 18421964321 -as png -http
+demo:~$ www captcha ~/www robot 18421964321 -as png -http
+00 a9 f1 23 45 12 90 ..
+
+# 检查指定的验证码是否有效：返回失败
+demo:~$ www captcha ~/www auth xiaobai@qq.com -verify 7632
+{
+   ok: false,
+   errCode: "e.www.invalid.captcha"
+}
+
+# 检查指定的验证码是否有效：返回成功
+demo:~$ www captcha ~/www auth xiaobai@qq.com -verify 7632
+{
+   ok: true
+}
 ```

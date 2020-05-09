@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.email;
 
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.web.ajax.Ajax;
 
 /**
  * 发送email
@@ -79,14 +79,14 @@ public class cmd_email extends JvmExecutor {
                 clearLocalMail(mc, limit);
                 return;
             case "send":
-                send(mc);
+                send(sys, mc);
                 return;
             default:
                 sys.err.println("bad arg=" + type);
                 return;
             }
         }
-        send(mc);
+        send(sys, mc);
     }
 
     public List<WnObj> _listLocal(MailCtx mc, int limit) {
@@ -128,7 +128,7 @@ public class cmd_email extends JvmExecutor {
         }
     }
 
-    public void send(MailCtx mc) {
+    public void send(WnSystem sys, MailCtx mc) {
         if (mc.debug) {
             mc.sys.out.printf("/*\n%s\n*/", Json.toJson(mc));
         }
@@ -244,11 +244,16 @@ public class cmd_email extends JvmExecutor {
                 }
                 ihe.buildMimeMessage();
                 ihe.sendMimeMessage();
+
+                Object reo = Ajax.ok();
+                sys.out.println(Json.toJson(reo, JsonFormat.nice().setQuoteName(true)));
             }
             catch (EmailException | MalformedURLException e) {
-                e.printStackTrace(new PrintWriter(mc.sys.err.getWriter()));
+                // e.printStackTrace(new PrintWriter(mc.sys.err.getWriter()));
                 if (log.isWarnEnabled())
                     log.warn("send mail fail", e);
+                Object ree = Ajax.fail().setErrCode("e.cmd.mail.fail");
+                sys.err.println(Json.toJson(ree, JsonFormat.nice().setQuoteName(true)));
             }
         }
     }

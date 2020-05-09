@@ -171,6 +171,17 @@ public class www_captcha implements JvmHdl {
         // 邮件方式
         if ("email".equals(as)) {
             // TODO 发送邮件
+            // email -r zozoh@qq.com -s i18n:signup -tmpl i18n:signup -vars
+            // 'code:"AABBCC", hour:1'
+            NutMap cc = cap.toMeta("account");
+            String cmdTmpl = "email -r ${account} -s i18n:signup -tmpl i18n:signup -vars 'code:\"${code}\",hour:${du_in_hr}'";
+            String cmdText = Tmpl.exec(cmdTmpl, cc);
+            String re = sys.exec2(cmdText);
+            NutMap reMap = Json.fromJson(NutMap.class, re);
+            // 靠，发送失败
+            if (null == reMap || !reMap.getBoolean("ok")) {
+                return Ajax.fail().setErrCode("e.www.captcha.fail_send_by_email");
+            }
             // 按照 JSON 输出，但是不带 code
             hc.jfmt.setLocked("^(code)$");
         }
