@@ -38,7 +38,7 @@ import org.nutz.walnut.util.Wn;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@JvmHdlParamArgs("^(debug|c|n|q)$")
+@JvmHdlParamArgs(value="cqn", regex="^(debug)$")
 public class weixin_jssdk implements JvmHdl {
 
     @Override
