@@ -99,18 +99,18 @@ public class WnWebSite {
      */
     public void valueOf(NutBean bean) {
         // 会话和验证码
-        sessionDir = CheckDirOrCreate("~/.domain/session/" + siteId);
-        captchaDir = CheckDirOrCreate("~/.domain/captcha/" + siteId);
+        sessionDir = checkDirOrCreate("~/.domain/session/" + siteId);
+        captchaDir = checkDirOrCreate("~/.domain/captcha/" + siteId);
 
         // 账户/角色库路径
-        accountDir = CheckThingIndex(bean.getString("accounts"));
+        accountDir = checkThingIndex(bean.getString("accounts"));
         accountHome = accountDir.parent();
-        roleDir = CheckThingIndex(bean.getString("roles"));
+        roleDir = getThingIndex(bean.getString("roles"));
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
-        orderHome = FetchThingSet(bean.getString("orders"));
-        productHome = FetchThingSet(bean.getString("products"));
-        couponHome = FetchThingSet(bean.getString("coupons"));
+        orderHome = fetchThingSet(bean.getString("orders"));
+        productHome = fetchThingSet(bean.getString("products"));
+        couponHome = fetchThingSet(bean.getString("coupons"));
 
         // 初始化站点用户默认系统环境变量
         if (bean.has("env")) {
@@ -129,7 +129,7 @@ public class WnWebSite {
         // 微信配置文件路径
         wxConfNm = bean.getString("weixin", wxConfNm);
         if (!Strings.isBlank(wxConfNm)) {
-            weixinConf = CheckDirOrFile("~/.weixin/" + wxConfNm + "/wxconf");
+            weixinConf = checkDirOrFile("~/.weixin/" + wxConfNm + "/wxconf");
         }
 
         // 默认会话时长
@@ -246,19 +246,31 @@ public class WnWebSite {
         return seTmpDu;
     }
 
-    private WnObj CheckDirOrCreate(String ph) {
+    private WnObj checkDirOrCreate(String ph) {
         String aph = Wn.normalizeFullPath(ph, vars);
         return io.createIfNoExists(null, aph, WnRace.DIR);
     }
 
-    private WnObj CheckThingIndex(String ph) {
+    private WnObj checkThingIndex(String ph) {
         String aph = Wn.normalizeFullPath(ph, vars);
         WnObj oDir = io.check(null, aph);
         // 必须是 ThingSet 的索引目录
         return Things.dirTsIndex(io, oDir);
     }
 
-    private WnObj FetchThingSet(String ph) {
+    private WnObj getThingIndex(String ph) {
+        if(Strings.isBlank(ph)) {
+            return null;
+        }
+        String aph = Wn.normalizeFullPath(ph, vars);
+        WnObj oDir = io.fetch(null, aph);
+        if (null == oDir)
+            return null;
+        // 必须是 ThingSet 的索引目录
+        return Things.dirTsIndex(io, oDir);
+    }
+
+    private WnObj fetchThingSet(String ph) {
         String aph = Wn.normalizeFullPath(ph, vars);
         if (!Strings.isBlank(aph)) {
             WnObj oDir = io.fetch(null, aph);
@@ -269,7 +281,7 @@ public class WnWebSite {
         return null;
     }
 
-    private WnObj CheckDirOrFile(String ph) {
+    private WnObj checkDirOrFile(String ph) {
         String aph = Wn.normalizeFullPath(ph, vars);
         return io.check(null, aph);
     }
