@@ -24,7 +24,13 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
 public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
+	
+	protected Workbook tmpl;
 
+	public void setTmpl(InputStream ins) throws IOException {
+		tmpl = createWorkbook(ins);
+	}
+	
     public AbstractPoiSheetHandler() {
         super();
     }
@@ -66,7 +72,12 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         Workbook wb = null;
         try {
             // 加载工作表
-            wb = new HSSFWorkbook();
+        	if (tmpl != null) {
+        		wb = tmpl;
+        	}
+        	else {
+                wb = new HSSFWorkbook();
+        	}
 
             // 从工作表读取数据
             this.writeToSheet(wb, list, conf);
@@ -125,11 +136,17 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 keys = obj.keySet().toArray(new String[obj.size()]);
             }
             // 来，创建数据行吧
-            Row row = sheet.createRow(rowOffset++);
+            int _row = rowOffset++;
+            Row row = sheet.getRow(_row);
+            if (row == null) {
+            	row = sheet.createRow(_row);
+            }
             for (int col = 0; col < keys.length; col++) {
                 String key = keys[col];
                 Object val = obj.get(key);
-                Cell cell = row.createCell(colOffset + col);
+                Cell cell = row.getCell(colOffset + col);
+                if (cell == null)
+                	cell = row.createCell(colOffset + col);
                 this.__set_cell_val(cell, val);
             }
         }

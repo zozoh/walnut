@@ -1,12 +1,15 @@
 package org.nutz.walnut.ext.sheet;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Workbook;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.born.Borning;
@@ -16,6 +19,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.sheet.impl.AbstractPoiSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.CsvSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.JsonSheetHandler;
 import org.nutz.walnut.ext.sheet.impl.SheetImage;
@@ -93,6 +97,14 @@ public class WnSheetService {
         try {
             SheetHandler sh = __check_handler(type);
             sh.setProcess(out, process);
+            if (conf.has("tmpl") && sh instanceof AbstractPoiSheetHandler) {
+            	WnObj tmp = io.check(null, conf.getString("tmpl"));
+            	try {
+					((AbstractPoiSheetHandler)sh).setTmpl(io.getInputStream(tmp, 0));
+				} catch (IOException e) {
+					throw Lang.wrapThrow(e);
+				}
+            }
             sh.write(ops, list, conf);
             Streams.safeFlush(ops);
         }
