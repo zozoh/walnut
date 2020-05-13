@@ -314,7 +314,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
-    public WnAuthSession loginByWxCode(String code, String wxCodeType) {
+    public WnAuthSession loginByWxCode(String code, String wxCodeType, boolean forbidUnsubscribe) {
         WnIoWeixinApi wxApi = setup.getWeixinApi();
         WnObj oSessionDir = setup.getSessionDir();
 
@@ -417,8 +417,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
              }
              * </pre>
              */
+            if (forbidUnsubscribe && !re.is("subscribe", 1)) {
+                throw Er.create("e.auth.login.WxGhNoSubscribed");
+            }
             String nickname = re.getString("nickname", "anonymous");
-            meta = re.pickBy("^(language|city|province|country)$");
+            meta = re.pickBy("^(language|city|province|country|subscribe)$");
             info.setNickname(nickname);
             info.setSex(re.getInt("sex", 0));
             info.putAllMeta(meta);
