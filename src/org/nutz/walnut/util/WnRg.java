@@ -1,7 +1,6 @@
 package org.nutz.walnut.util;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;

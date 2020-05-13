@@ -152,7 +152,12 @@ public class www_captcha implements JvmHdl {
         if ("sms".equals(as)) {
             // 发送短信
             NutMap cc = cap.toMeta("account");
-            String cmdTmpl = "sms send -r ${account} -t i18n:signup 'code:\"${code}\",min:${du_in_min}'";
+            if (hc.params.has("by")) {
+                cc.put("scene", hc.params.get("by"));
+            }
+            String cmdTmpl = "sms send -r ${account} -t 'i18n:${scene}'"
+                             + " -lang '${lang?zh-cn}'"
+                             + " 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
@@ -174,7 +179,13 @@ public class www_captcha implements JvmHdl {
             // email -r zozoh@qq.com -s i18n:signup -tmpl i18n:signup -vars
             // 'code:"AABBCC", hour:1'
             NutMap cc = cap.toMeta("account");
-            String cmdTmpl = "email -r ${account} -s i18n:signup -tmpl i18n:signup -vars 'code:\"${code}\",hour:${du_in_hr}'";
+            if (hc.params.has("by")) {
+                cc.put("scene", hc.params.get("by"));
+            }
+            String cmdTmpl = "email -r ${account} -s 'i18n:${scene}'"
+                             + " -tmpl 'i18n:${scene}'"
+                             + " -lang '${lang?zh-cn}'"
+                             + " -vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);

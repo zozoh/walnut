@@ -16,7 +16,7 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(ajax|subscribe)$")
 public class www_auth implements JvmHdl {
 
     @Override
@@ -29,7 +29,6 @@ public class www_auth implements JvmHdl {
         String vcode = hc.params.get("v");
         String ticket = hc.params.get("ticket");
         String wxCodeType = hc.params.get("wxcode");
-
         // -------------------------------
         // 准备服务类
         WnWebService webs = new WnWebService(sys, oWWW);
@@ -40,7 +39,8 @@ public class www_auth implements JvmHdl {
             // -------------------------------
             // 微信票据代码登录
             if (!Strings.isBlank(wxCodeType)) {
-                se = auth.loginByWxCode(account, wxCodeType);
+                boolean subscribe = hc.params.is("subscribe", false);
+                se = auth.loginByWxCode(account, wxCodeType, subscribe);
             }
             // -------------------------------
             // 密码登录
