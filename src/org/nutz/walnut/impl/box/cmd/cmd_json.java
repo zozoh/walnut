@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
@@ -35,7 +36,7 @@ public class cmd_json extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
 
-        ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only|str)$");
+        ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only|str|keys)$");
 
         // 读取输入
         String json = Strings.trim(Streams.read(sys.in.getReader()).toString());
@@ -204,6 +205,18 @@ public class cmd_json extends JvmExecutor {
         // 添加模式
         if (params.has("put")) {
             obj = Lang.map(params.get("put"), obj);
+        }
+        // ----------------------------------------------
+        // 获取对象键值列表
+        if (params.is("keys")) {
+            List<Object> keys = new LinkedList<Object>();
+            if (obj instanceof Map<?, ?>) {
+                Map<?, ?> map = (Map<?, ?>) obj;
+                for (Object k : map.keySet()) {
+                    keys.add(k);
+                }
+            }
+            obj = keys;
         }
         // ----------------------------------------------
         // 作为字符串输出
