@@ -18,7 +18,8 @@ public class WnConfig extends WebConfig {
 
     public WnConfig(String path) {
         super(Streams.fileInr(path));
-
+        putAll(System.getProperties());
+        putAll(System.getenv());
     }
 
     public String[] getWebIocPkgs() {
