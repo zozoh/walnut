@@ -30,7 +30,7 @@ public class MongoDB {
             ServerAddress sa = ZMongo.NEW_SA(host, port);
             MongoCredential cred = null;
             if (!Strings.isBlank(usr))
-                cred = MongoCredential.createPlainCredential(usr, db, pwd.toCharArray());
+                cred = MongoCredential.createScramSha1Credential(usr, db, pwd.toCharArray());
             if (log.isInfoEnabled())
                 log.infof("MongoCredential : '%s'", cred);
             // 连接数据库
