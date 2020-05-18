@@ -1,0 +1,26 @@
+version: "3"
+volumes:
+  mongodata3:
+  walnutdata:
+
+services:
+  mongo:
+    image: mongo:3.2.4
+    container_name: "mongo"
+    ports:
+      - 27017:27017
+    command: --smallfiles
+    volumes:
+      - mongodata2:/data/db/
+  walnut:
+    container_name: "walnut"
+    image: wendal/walnut:1.0.1
+    ports:
+      - 8080:8080
+    links:
+      - mongo:mongo
+    volumes:
+      - walnutdata:/data/walnut
+networks:
+   walnut-net:
+
