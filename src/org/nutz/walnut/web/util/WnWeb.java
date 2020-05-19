@@ -120,7 +120,28 @@ public abstract class WnWeb {
     public static void setHttpRespHeaderContentDisposition(HttpServletResponse resp,
                                                            String fnm,
                                                            String ua) {
-        resp.setHeader("CONTENT-DISPOSITION", genHttpRespHeaderContentDisposition(fnm, ua));
+        resp.setHeader("Content-Disposition", genHttpRespHeaderContentDisposition(fnm, ua));
+    }
+
+    /**
+     * 将头的键变成大小写形式
+     * 
+     * @param name
+     * @return
+     */
+    public static String niceHeaderName(String name) {
+        char[] cs = name.toCharArray();
+        int last = cs.length - 1;
+        for (int i = 0; i < cs.length; i++) {
+            if ('-' == cs[i] && i < last) {
+                cs[++i] = Character.toUpperCase(cs[i]);
+            } else if (0 == i) {
+                cs[i] = Character.toUpperCase(cs[i]);
+            } else {
+                cs[i] = Character.toLowerCase(cs[i]);
+            }
+        }
+        return new String(cs);
     }
 
     public static String genHttpRespHeaderContentDisposition(String fnm, String ua) {

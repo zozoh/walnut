@@ -21,6 +21,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -103,6 +104,39 @@ public class HttpApiModule extends AbstractWnModule {
                 wc.copyCookieItems(req, copyCookieNames);
             }
 
+            // .......................................................
+            // 如果是跨域的 Preflighted 请求，直接根据设定返回就是
+            if ("OPTIONS".equals(req.getMethod())) {
+                NutMap headers = new NutMap();
+                headers.put("ACCESS-CONTROL-ALLOW-ORIGIN",
+                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-ORIGIN"));
+                headers.put("ACCESS-CONTROL-ALLOW-METHODS",
+                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-METHODS"));
+                headers.put("ACCESS-CONTROL-ALLOW-HEADERS",
+                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-HEADERS"));
+                headers.put("ACCESS-CONTROL-ALLOW-CREDENTIALS",
+                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-CREDENTIALS"));
+
+                // 设置默认值
+                String origin = req.getHeader("Origin");
+                __set_cross_origin_default_headers(oApi, origin, (name, value) -> {
+                    headers.putDefault(name, value);
+                });
+
+                // 拒绝跨域
+                if (headers.has("ACCESS-CONTROL-ALLOW-ORIGIN")) {
+                    // 返回跨域设置
+                    for (String key : headers.keySet()) {
+                        String val = headers.getString(key);
+                        resp.setHeader(WnWeb.niceHeaderName(key), val);
+                    }
+                }
+
+                // 无论如何，都不需要继续创建请求对象之类的了
+                return;
+            }
+
+            // .......................................................
             // 准备临时目录
             final WnObj oTmp = Wn.WC().su(u, new Proton<WnObj>() {
                 protected WnObj exec() {
@@ -165,6 +199,20 @@ public class HttpApiModule extends AbstractWnModule {
             return;
         }
 
+    }
+
+    private void __set_cross_origin_default_headers(WnObj oApi,
+                                                    String origin,
+                                                    Callback2<String, String> callback) {
+        String allowOrigin = oApi.getString("http-cross-origin");
+        if (!Strings.isBlank(allowOrigin)) {
+            callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", Strings.sBlank(origin, allowOrigin));
+            callback.invoke("ACCESS-CONTROL-ALLOW-METHODS",
+                            "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+            callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
+                            "Origin, Content-Type, Accept, X-Requested-With");
+            callback.invoke("ACCESS-CONTROL-ALLOW-CREDENTIALS", "true");
+        }
     }
 
     private WnObj __find_api_obj(final WnObj oHome, String api) {
@@ -523,9 +571,19 @@ public class HttpApiModule extends AbstractWnModule {
                 }
                 // 其他头，添加
                 else {
-                    resp.setHeader(nm, val);
+                    resp.setHeader(WnWeb.niceHeaderName(nm), val);
                 }
             }
+        }
+
+        // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
+        String origin = oReq.getString("http-header-ORIGIN");
+        if (!Strings.isBlank(origin)) {
+            __set_cross_origin_default_headers(oApi, origin, (name, value) -> {
+                if (!oApi.has("http-header-" + name)) {
+                    resp.setHeader(WnWeb.niceHeaderName(name), value);
+                }
+            });
         }
 
         // 最后设定响应内容

@@ -19,15 +19,16 @@
 ## 系统延申概念`core-l1`
 
 - [数据备份与导出][c1-buk]
-- 钩子机制
-- [通知机制][c1-nti]
+- [通知机制][c1-nti]  !等消息队列整合完，要重新设计
 - [HttpApi][c1-api]
+- 钩子机制
+- 应用机制
+- [通用实体][c1-gde]
 
 -----------------------------------------
 ## 系统高阶概念`core-l2`
 
 - [业务权限模型][c2-bpm]
-- 应用机制
 - 自动登录
 - 域名映射
 - 第三方登录(oAuth2)
@@ -111,6 +112,7 @@
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
 [c1-api]: core-l1/c1-regapi.md
 [c1-buk]: core-l1/c1-bulk-backup-restore.md
+[c1-gde]: core-l1/c1-general-data-entity.md
 [c1-nti]: core-l1/c1-notify.md
 [c2-bpm]: core-l2/c2-biz-privilege-model.md
 [f0-wx-pay]: func-l0/f0-weixin-payment.md

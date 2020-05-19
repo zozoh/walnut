@@ -159,7 +159,7 @@ public class WnAppService extends WnRun {
             c.putAll(map);
 
         // 这些优先级最高
-        String rs = conf.get("app-rs", "/gu/rs");
+        String rs = conf.get("app-rs", "/gu/rs/");
         c.put("session", se.toMapForClient());
         c.put("rs", rs);
         c.put("appName", appName);

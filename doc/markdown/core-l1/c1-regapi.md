@@ -79,6 +79,21 @@ http-resp-code : 302
 #--------------------------------------------------
 http-dynamic-header : true
 #--------------------------------------------------
+#               支持跨域
+#
+# 如果你的 API 需要支持跨域，采用 http-header-xxx 
+# 需要编写多个响应头，比较麻烦
+# 这里有一个快捷属性，声明了它，就相当于声明了
+# "http-header-Access-Control-Allow-Origin" : "*"
+# 并且，它会自动增加下面的响应头
+# "Access-Control-Allow-Methods" : "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+# "Access-Control-Allow-Headers" : "Origin, Content-Type, Accept, X-Requested-With"
+# "Access-Control-Allow-Credentials" : true
+# 当然，如果你通过 http-header-xxx 特殊指定，优先级更高
+# 如果你声明的是 "*"， API 的响应里，会自动用当前的 Origin 头来代替
+#--------------------------------------------------
+http-cross-origin : "*"
+#--------------------------------------------------
 #                 开启钩子
 #--------------------------------------------------
 # 开启这个选项，本接口所有的执行都会带上钩子

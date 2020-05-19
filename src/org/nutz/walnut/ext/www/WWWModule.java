@@ -244,9 +244,9 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                 String input = io.readText(o);
 
                 // 计算路径
-                String rootPath = oWWW.path();
+                String rootPath = oWWW.getRegularPath();
                 String currentPath = o.path();
-                String currentDir = o.parent().path();
+                String currentDir = o.parent().getRegularPath();
                 String pagePath = currentPath.substring(rootPath.length());
 
                 // 从请求对象得到上下文
@@ -255,7 +255,10 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                 context.put("CURRENT_DIR", currentDir);
                 String uriBase = context.getString("URI_BASE");
                 String ctxName = o.getString("CONTEXT_NAME");
-                String pageBase = Wn.appendPath(uriBase, ctxName) + "/";
+                String pageBase = Wn.appendPath(uriBase, ctxName);
+                if (!pageBase.endsWith("/")) {
+                    pageBase += "/";
+                }
                 context.put("PAGE_BASE", pageBase);
 
                 // 加入路径参数
@@ -265,7 +268,7 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                 context.put("grp", se.getMyGroup());
                 context.put("fnm", o.name());
                 context.put("majorName", Files.getMajorName(o.name()));
-                context.put("rs", "/gu/rs");
+                context.put("rs", "/gu/rs/");
 
                 // 如果上下文中有 "wn_www_path_new" 表示 WalnutFilter 已经修改了路径，那么
                 if (req.getAttribute("wn_www_path_new") != null) {
