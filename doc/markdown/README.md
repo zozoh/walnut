@@ -8,7 +8,7 @@
 ## 系统核心概念`core-l0`
 
 - Walnut的简要介绍
-- [数据存储模型][c0-ios]
+- [数据存储模型][c0-tab]
 - [基础账户授权模型][c0-bam]
 - [核心会话服务][c0-css]
 - [采用域用户登录系统][c0-abd]
@@ -105,7 +105,7 @@
 - [购物与订单模型][w0-buy]
 - Ti 的 www 支持
 
-[c0-ios]: core-l0/c0-io-store.md
+[c0-iob]: core-l0/c0-io-tree-and-bucket.md
 [c0-bam]: core-l0/c0-baice-auth-model.md
 [c0-abd]: webs-l0/w0-auth-by-domain.md
 [c0-css]: core-l0/c0-core-session-service.md
