@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.www.JvmWnmlRuntime;
@@ -121,8 +123,30 @@ public class ti_www implements JvmHdl {
 
             // .......................................
             // 转换 wnml
-            doIndexWnml(sys, quiet, vars, oSrc, oWWW, oWnml);
+            WnObj oIndex = doIndexWnml(sys, quiet, vars, oSrc, oWWW, oWnml);
             sw.tag("IndexWnml");
+
+            // .........................................
+            // 如果开启了 -wnml， 实体化的虚页路径
+            if (!quiet) {
+                sys.out.println("Gen virtual pages:");
+            }
+            String[] vPages = Strings.splitIgnoreBlank(hc.params.getString("vpages", "page"));
+            for (String vPage : vPages) {
+                if (!quiet) {
+                    sys.out.printf("@%s:\n", vPage);
+                }
+                WnObj oPageDir = sys.io.check(oWWW, vPage);
+                sys.io.walk(oPageDir, (o) -> {
+                    String name = Files.getMajorName(o.name()) + ".html";
+                    if (!quiet) {
+                        String rph = Wn.Io.getRelativePath(oPageDir, o);
+                        sys.out.printf("  -> %s => %s\n", rph, name);
+                    }
+                    WnObj oPage = sys.io.createIfNoExists(o.parent(), name, WnRace.FILE);
+                    Wn.Io.copyFile(sys.io, oIndex, oPage);
+                }, WalkMode.LEAF_ONLY);
+            }
         }
 
         // 结束
@@ -132,12 +156,12 @@ public class ti_www implements JvmHdl {
         }
     }
 
-    private void doIndexWnml(WnSystem sys,
-                             boolean quiet,
-                             NutMap vars,
-                             WnObj oSrc,
-                             WnObj oWWW,
-                             WnObj oWnml) {
+    private WnObj doIndexWnml(WnSystem sys,
+                              boolean quiet,
+                              NutMap vars,
+                              WnObj oSrc,
+                              WnObj oWWW,
+                              WnObj oWnml) {
         if (!quiet) {
             sys.out.println("Gen index.html");
         }
@@ -165,6 +189,8 @@ public class ti_www implements JvmHdl {
         if (!quiet) {
             sys.out.println(" - done");
         }
+
+        return oIndex;
 
     }
 

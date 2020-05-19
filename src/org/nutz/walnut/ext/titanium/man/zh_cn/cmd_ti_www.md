@@ -7,11 +7,14 @@
  
 ```bash
 ti www 
-  [/path/to/src]      # 站点的工程目录
-  [/path/to/dist]     # 站点的输出目录
-  [-wnml]             # 是否预先渲染 index.wnml
-  [-vars {..}]        #  -wnml 模式下，输入变量集合
-  [-ivar ~/xx/xx]     #  -wnml 模式下，输入变量集文件
+  [/path/to/src]        # 站点的工程目录
+  [/path/to/dist]       # 站点的输出目录
+  [-wnml]               # 是否预先渲染 index.wnml
+  [-vars {..}]          #  -wnml 模式下，输入变量集合
+  [-ivar ~/xx/xx]       #  -wnml 模式下，输入变量集文件
+  [-vpages page]        #  -wnml 模式下，实体化的虚页
+                        #   半角逗号分隔多个目录路径
+                        #   里面所有的 json 文件都被认为是虚页
 ```
 
 ## wnml 变量集合

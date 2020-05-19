@@ -7,6 +7,7 @@ import java.io.Writer;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
@@ -166,18 +167,36 @@ public class WnAppService extends WnRun {
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
+        // 看看是否需要提供 debug 版
+        WnObj oDomain = io.fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
+        if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
+            c.put("TiJs", "ti/core/ti.mjs");
+            c.put("WnJs", "ti/lib/walnut/walnut.mjs");
+        }
+        // 否则设置成 Release 版本
+        else {
+            c.put("TiJs", "ti/dist/ti-core.js");
+            c.put("WnJs", "ti/dist/ti-walnut.js");
+            c.put("preloads", Lang.array("@dist:ti-more-all.js"));
+        }
+
         // 得到 Theme 的路径
         String theme = se.getVars().getString("THEME", "light");
-        if (!theme.endsWith(".css")) {
-            theme += ".css";
+        c.put("theme", theme);
+
+        // 得到快捷的 theme css 路径
+        String themeCss = theme;
+        // 确保是一个 css
+        if (!themeCss.endsWith(".css")) {
+            themeCss += ".css";
         }
         // 这里声明的是一个自定义的全路径主题
-        if (theme.startsWith("/")) {
-            c.put("theme", theme);
+        if (themeCss.startsWith("/")) {
+            c.put("themeCss", themeCss);
         }
         // 自带主题
         else {
-            c.put("theme", Wn.appendPath(rs, "ti/theme", theme));
+            c.put("themeCss", Wn.appendPath(rs, "ti/theme", themeCss));
         }
 
         // 渲染视图
@@ -198,10 +217,10 @@ public class WnAppService extends WnRun {
     public WnObj getObj(WnApp app, String str) {
         // 获取会话
         WnAuthSession se = app.getSession();
-        //NutMap vars = se.getVars();
+        // NutMap vars = se.getVars();
 
         // 当前目录设置为 appHome，这样，str 如果是相对路径，则直接访问应用内文件夹
-        //vars.put("PWD", app.getHome().getRegularPath());
+        // vars.put("PWD", app.getHome().getRegularPath());
 
         // 默认就是主目录
         if (Strings.isBlank(str)) {
