@@ -18,7 +18,10 @@ tags:
 |   |-- xiaobai/
 |   |   |-- dir1/ --> Mount To SQL
 |   |   |-- dir2/ --> Mount To LocalFileSystem
-|   |   |-- dir2/ --> Mount To Memory
+|   |   |-- dir3/ --> Mount To Memory
+|   |   |-- dir4/ --> Mount To Redias
+            4578..aq12:78a2..8912  : {..}
+            4578..aq12:6tq2..8422  : {..}
 |   |-- zozoh/
 |-- sys/
 ```
@@ -72,6 +75,48 @@ AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
 同时应该有一个扫描程序，可以全局检查一下，并转移到新版目录。
 如果已经存在新版目录，则将旧版目录里的内容删除。
 
+**或者可以按照SHA1存储**
+
+或者桶写的时候，先写道临时区，然后计算SHA1 然后按存储 ...
+
+## LocalBM 的策略归总
+
+```bash
+>>> 输入文件流
+#
+# 小文件
+#
+# 它的 data 段应该是固定值 "SHA1"
+#
+#
+|-- 写入内存
+|   |-- 写入后计算 SHA1
+|       |-- 按 SHA1 存储
+|       |-- 分配一个UUID(data)存储
+#
+# 中型文件
+#
+# 它的 data 段应该是固定值 "SHA1"
+#
+#
+|-- 写入临时磁盘
+|   |-- 写入后计算 SHA1
+|       |-- 按 SHA1 存储
+|       |-- 分配一个UUID(data)存储
+#
+# 超大文件
+#
+# 它的 data 段与 sha1 不一致
+#
+|-- 直接写入目的地
+    |-- 分配一个UUID(data)存储
+        |-- 写入流
+            |-- 写入后计算 SHA1
+            |-- 如果重复
+                |-- 删除
+                |-- 依旧保留
+```
+
 ------------------------------------------
 # 映射
 
@@ -118,7 +163,6 @@ WnIo
 |      V                              
 |-- WnIoImpl2         # Io 实现
 |   |-- WnIoMappingFactory   # 映射工厂接口负责分析映射信息
-|   |-- WnIoHandleService    # 读写句柄服务
 #-------------------------------------------------------
 #
 #  映射管理接口
@@ -136,11 +180,11 @@ WnIo
 # 
 #-------------------------------------------------------
 |-- WnIoIndexer
-|   |-- WnIoDaoIndexer
-|   |-- WnIoMemIndexer
-|   |-- WnIoLocalFileIndexer
-|   |-- WnIoRedisIndexer
-|   |-- WnIoMQIndexer
+|   |-- WnIoDaoIndexer        # 元数据定制需要改表
+|   |-- WnIoMemIndexer        # 傻查询，无持久化
+|   |-- WnIoLocalFileIndexer  # 傻查询，元数据不可定制
+|   |-- WnIoRedisIndexer      # 不支持查询，仅支持按 ID 获取
+|   |-- WnIoMQIndexer         # 还不知道 ...
 #-------------------------------------------------------
 #
 #  桶管理器 & 实现类
@@ -159,16 +203,41 @@ WnIo
 #
 #-------------------------------------------------------
 #
-#  句柄管理器 & 实现类
+#  句柄（锁）管理器 & 实现类
+#
+#  句柄就是一种锁，这里的锁，有下面的信息：
+#
+#  - ID    : UUID    # 锁的唯一标识
+#  - ct    : AMS     # 创建时间
+#  - target: ID      # 锁的目标
+#  - value : INT     # 锁的值，具体业务具体理解
 #
 #  > 一个文件可以有多个读句柄，但是只能有一个写句柄
 #  > 写句柄默认有效期1分钟，每次写入都需要传入句柄，有效期也会被更新
 #  > 超过有效期的写句柄，如果没人创建新的写句柄，还是可以用的
 # 
 #-------------------------------------------------------
-|-- WnIoHandleService
-    |-- WnIoLocalHandleService
-    |-- WnIoRedisHandleService
+|-- WnIoLockerManager
+    |-- WnMemLockerManager
+    |-- WnRedisLockerManager
+```
+
+------------------------------------------
+# 关于三个主要的类
+
+```bash
+WnIoMapping
+|-- WnIoIndexer -> WnObj
+|   |-- 元数据创建删除
+|   |-- 元数据树形结构操作
+|   |-- 元数据树查询
+|-- WnIoBM <-- WnObj + Wn.S.AWRM
+|   |-- open   -> 句柄
+|   |-- remove <- 句柄
+|   |-- write  <- 句柄
+|   |-- read   <- 句柄
+|   |-- seek   <- 句柄
+|   |-- close  <- 句柄
 ```
 
 ------------------------------------------
