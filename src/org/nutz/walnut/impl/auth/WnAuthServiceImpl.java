@@ -67,6 +67,18 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 保存之
         u.updateBy(oU);
+
+        // 如果有邮箱但是没昵称，用邮箱名代替一下
+        if (Strings.isBlank(u.getNickname()) && u.hasEmail()) {
+            String email = u.getEmail();
+            int pos = email.indexOf('@');
+            if (pos > 0) {
+                u.setNickname(email.substring(0, pos));
+            } else {
+                u.setNickname(email);
+            }
+        }
+
         NutMap meta = u.toBean();
         io.appendMeta(oU, meta);
 

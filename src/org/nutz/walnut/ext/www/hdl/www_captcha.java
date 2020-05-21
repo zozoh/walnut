@@ -174,7 +174,7 @@ public class www_captcha implements JvmHdl {
         }
         // -------------------------------
         // 邮件方式
-        if ("email".equals(as)) {
+        else if ("email".equals(as)) {
             // TODO 发送邮件
             // email -r zozoh@qq.com -s i18n:signup -tmpl i18n:signup -vars
             // 'code:"AABBCC", hour:1'
