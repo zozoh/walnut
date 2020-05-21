@@ -99,7 +99,7 @@ public class WnAliyunVodService {
             return client.getAcsResponse(request);
         }
         catch (ClientException e) {
-            throw Er.create(e, "e.aliyun.vod.getVideoPlayAuth");
+            throw Er.create("e.aliyun.vod.searchMedia", e);
         }
     }
 
