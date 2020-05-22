@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.JsonField;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class MailCtx {
@@ -18,7 +19,7 @@ public class MailCtx {
     public String tmpl;
     public String vars;
     public String msg;
-    public List<String> attachs = new ArrayList<>();
+    public List<NutMap> attachs = new ArrayList<>();
     public boolean debug;
     public boolean local;
     public String sender;
