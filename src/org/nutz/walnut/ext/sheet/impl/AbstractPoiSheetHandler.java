@@ -155,13 +155,19 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         }
         // 有没有额外数据呀
         if (conf.has("exts")) {
-        	List<NutMap> exts = Json.fromJsonAsList(NutMap.class, conf.getString("exts"));
+        	List<NutMap> exts = conf.getList("exts", NutMap.class);
         	for (NutMap ext : exts) {
 				int ext_col_index = ext.getInt("col");
 				int ext_row_index = ext.getInt("row");
 				String value = ext.getString("val");
-				Row ext_row = sheet.getRow(ext_col_index);
-				Cell ext_cell = ext_row.getCell(ext_row_index);
+				Row ext_row = sheet.getRow(ext_row_index);
+				if (ext_row == null) {
+					ext_row = sheet.createRow(ext_row_index);
+				}
+				Cell ext_cell = ext_row.getCell(ext_col_index);
+				if (ext_cell == null) {
+					ext_cell = ext_row.createCell(ext_col_index);
+				}
 				this.__set_cell_val(wb, ext_cell, value);
 			}
         }
