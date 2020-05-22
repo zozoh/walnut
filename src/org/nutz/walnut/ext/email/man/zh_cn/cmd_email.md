@@ -30,7 +30,8 @@
           [-lang zh-cn]       # 指定模板语言，默认为从 conf 里读取，还是没有的话用 zh-cn
           [-vars {}]          # 占位符变量，提供给 -tmpl 和 -s 用的
                               # 如果没声明，则从标准输入读取 
-          [-a 附件] 
+          [-attach 单个附件]   # 附件路径或附件详情
+          [-attachs 多个附件]  # 附件详情数组 
           [-debug]            # 开启调试模式
                     [-vars map变量json字符串] 
           [list|clear] 
@@ -61,3 +62,13 @@
 	
 	异步发送(未完成)
 	email -async -r xiaobai@163.com -s 你好小白 -m 这是一封测试邮件
+	
+	单一附件发送
+	email -r vt400@qq.com -s 附件测试 -m 带附件的邮件 -attach ~/report/abc.xls
+	
+	单一附件带详情
+	email -r vt400@qq.com -s 附件测试 -m 带附件的邮件 -attach '{path:"~/report/abc.xls",name:"年报.xls",desc:"详情ABC"}'
+	
+	多附件发送
+	email -r vt400@qq.com -s 附件测试 -m 带附件的邮件 -attachs '[{path:"~/report/abc.xls",name:"年报.xls"},{path:"~/report/测试报告.xls"}]'
+
