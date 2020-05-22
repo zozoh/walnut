@@ -243,6 +243,9 @@ public class cmd_email extends JvmExecutor {
                 if (mc.dataSourceResolver != null) {
                     ihe.setDataSourceResolver(new DataSourceUrlResolver(new URL(mc.dataSourceResolver)));
                 }
+                else {
+                	ihe.setDataSourceResolver(new DataSourceUrlResolver(null));
+                }
                 String fnm = mc.from;
                 if (Strings.isBlank(fnm)) {
                     fnm = hostCnf.from == null ? mc.sys.getMyName() : hostCnf.from;

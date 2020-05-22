@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sheet.impl;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,11 +18,13 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.castor.Castors;
+import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.ext.sheet.SheetImageHolder;
 
 public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 	
@@ -147,9 +150,22 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 Cell cell = row.getCell(colOffset + col);
                 if (cell == null)
                 	cell = row.createCell(colOffset + col);
-                this.__set_cell_val(cell, val);
+                this.__set_cell_val(wb, cell, val);
             }
         }
+        // 有没有额外数据呀
+        if (conf.has("exts")) {
+        	List<NutMap> exts = Json.fromJsonAsList(NutMap.class, conf.getString("exts"));
+        	for (NutMap ext : exts) {
+				int ext_col_index = ext.getInt("col");
+				int ext_row_index = ext.getInt("row");
+				String value = ext.getString("val");
+				Row ext_row = sheet.getRow(ext_col_index);
+				Cell ext_cell = ext_row.getCell(ext_row_index);
+				this.__set_cell_val(wb, ext_cell, value);
+			}
+        }
+        
         // 结束日志
         this._on_end(len);
 
@@ -265,11 +281,16 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         // return !row.cellIterator().hasNext();
     }
 
-    private void __set_cell_val(Cell cell, Object val) {
+    private void __set_cell_val(Workbook wb, Cell cell, Object val) {
         // 空的
         if (null == val) {
             cell.setCellType(CellType.BLANK);
             return;
+        }
+        // 图片
+        if (val instanceof SheetImageHolder) {
+        	addImage(wb, ((SheetImageHolder)val).getImage(), cell.getRowIndex(), cell.getColumnIndex());
+        	return;
         }
         // 开始判断吧
         Mirror<?> mi = Mirror.me(val);
@@ -300,6 +321,8 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             cell.setCellValue(Castors.me().castToString(val));
         }
     }
+    
+    protected abstract void addImage(Workbook wb, BufferedImage image, int row, int col);
 
     @SuppressWarnings("deprecation")
     private Object __get_cell_value(Cell cell) {
