@@ -71,8 +71,11 @@ public class app_init implements JvmHdl {
 
     protected void __exec_init(WnSystem sys, JvmHdlContext hc) {
         // 得到关键目录
-        String ph_tmpl = hc.params.val_check(0);
+        String ph_tmpl = hc.params.vals.length > 0 ? hc.params.val_check(0) : "/mnt/project/" + sys.getMe().getName() + "/init/domain";
         String ph_dest = Strings.sBlank(hc.params.val(1), "~");
+        
+        sys.out.println("tmpl : " + ph_tmpl);
+        sys.out.println("dest : " + ph_dest);
 
         WnObj oTmpl = Wn.checkObj(sys, ph_tmpl);
         WnObj oDest = Wn.checkObj(sys, ph_dest);
@@ -90,7 +93,13 @@ public class app_init implements JvmHdl {
         }
         // 就来一个空的吧
         else {
-            c = new NutMap();
+        	WnObj tmp = sys.io.fetch(null, Wn.normalizeFullPath("~/.domain/vars.json", sys));
+        	if (tmp == null)
+        		c = new NutMap();
+        	else {
+        		sys.out.println("read vars from ~/.domain/vars.json");
+        		c = sys.io.readJson(tmp, NutMap.class);
+        	}
         }
 
         // 上下文一定要增加的键

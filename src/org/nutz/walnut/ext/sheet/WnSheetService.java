@@ -97,6 +97,7 @@ public class WnSheetService {
         try {
             SheetHandler sh = __check_handler(type);
             sh.setProcess(out, process);
+            // 加载模板文件
             if (conf.has("tmpl") && sh instanceof AbstractPoiSheetHandler) {
             	WnObj tmp = io.check(null, conf.getString("tmpl"));
             	try {
@@ -105,6 +106,24 @@ public class WnSheetService {
 					throw Lang.wrapThrow(e);
 				}
             }
+            // 有图片的话,处理一下
+        	for (NutMap tmp : list) {
+        		NutMap t = null;
+    			for (Map.Entry<String, Object> en : tmp.entrySet()) {
+    				if (en.getValue() != null && en.getValue() instanceof String) {
+    					String val = (String) en.getValue();
+    					if (val.startsWith("image:")) {
+    						SheetImageHolder holder = new WnSheetImageHolder(io, val.substring("image:".length()));
+    						if (t == null)
+    							t = new NutMap();
+    						t.put(en.getKey(), holder);
+    					}
+    				}
+    			}
+    			if (t != null) {
+    				tmp.putAll(t);
+    			}
+    		}
             sh.write(ops, list, conf);
             Streams.safeFlush(ops);
         }

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sheet.impl;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -69,4 +70,10 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
 		}
     	return images;
     }
+	
+	@Override
+	protected void addImage(Workbook wb, BufferedImage image, int row, int col) {
+		// TODO Auto-generated method stub
+		
+	}
 }

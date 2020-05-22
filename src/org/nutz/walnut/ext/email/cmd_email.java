@@ -1,10 +1,15 @@
 package org.nutz.walnut.ext.email;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.activation.DataSource;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.ImageHtmlEmail;
@@ -59,7 +64,15 @@ public class cmd_email extends JvmExecutor {
         mc.dataSourceResolver = params.get("dsr");
         mc.local = params.is("local");
         mc.vars = params.get("vars");
-        mc.attachs.add(params.get("attach"));
+        if (params.has("attachs")) { // 多附件用数组
+        	mc.attachs = Json.fromJsonAsList(NutMap.class, params.get("attachs"));
+        }
+        if (params.has("attach")) { // 单附件直接是map
+        	if (params.get("attach").contains("\""))
+        		mc.attachs.add(Lang.map(params.get("attach")));
+        	else
+        		mc.attachs.add(new NutMap("path", params.get("attach")));
+        }
 
         List<String> _args = Arrays.asList(params.vals);
         if (!_args.isEmpty()) {
@@ -230,6 +243,9 @@ public class cmd_email extends JvmExecutor {
                 if (mc.dataSourceResolver != null) {
                     ihe.setDataSourceResolver(new DataSourceUrlResolver(new URL(mc.dataSourceResolver)));
                 }
+                else {
+                	ihe.setDataSourceResolver(new DataSourceUrlResolver(null));
+                }
                 String fnm = mc.from;
                 if (Strings.isBlank(fnm)) {
                     fnm = hostCnf.from == null ? mc.sys.getMyName() : hostCnf.from;
@@ -241,6 +257,14 @@ public class cmd_email extends JvmExecutor {
                 }
                 for (MailReceiver mailReceiver : cc) {
                     ihe.addCc(mailReceiver.email, mailReceiver.name);
+                }
+                if (!mc.attachs.isEmpty()) {
+                	for (NutMap at : mc.attachs) {
+                		String path = Wn.normalizeFullPath(at.getString("path"), sys);
+                		WnObj wobj = io.check(null, path);
+                		DataSource ds = new WnFileDataSource(wobj, io);
+						ihe.attach(ds, at.getString("name", wobj.name()), at.getString("desc", wobj.name()));
+					}
                 }
                 ihe.buildMimeMessage();
                 ihe.sendMimeMessage();
@@ -304,5 +328,49 @@ public class cmd_email extends JvmExecutor {
             rs.add(mr);
         }
         return rs;
+    }
+    
+    static class WnFileDataSource implements javax.activation.DataSource {
+    	
+    	protected WnObj wobj;
+    	protected WnIo io;
+
+		public WnFileDataSource(WnObj wobj, WnIo io) {
+			this.wobj = wobj;
+			this.io = io;
+		}
+
+		public WnObj getWobj() {
+			return wobj;
+		}
+
+		public void setWobj(WnObj wobj) {
+			this.wobj = wobj;
+		}
+
+		public WnIo getIo() {
+			return io;
+		}
+
+		public void setIo(WnIo io) {
+			this.io = io;
+		}
+
+		public String getContentType() {
+			return wobj.mime();
+		}
+
+		public InputStream getInputStream() throws IOException {
+			return io.getInputStream(wobj, 0);
+		}
+
+		public String getName() {
+			return wobj.name();
+		}
+
+		public OutputStream getOutputStream() throws IOException {
+			return io.getOutputStream(wobj, 0);
+		}
+    	
     }
 }
