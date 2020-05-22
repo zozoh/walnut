@@ -122,11 +122,13 @@ public class TiViewMapping {
             String mime = o.mime();
             if (null != mimes) {
                 viewName = mimes.get(mime);
-            }
-            // 根据MIME（组）
-            if (null == viewName) {
-                String mimeGroup = Wn.Mime.getGroupName(mime, "");
-                viewName = mimes.get(mimeGroup);
+                // 根据MIME（组）
+                if (null == viewName) {
+                    String mimeGroup = Wn.Mime.getGroupName(mime, "");
+                    if (!Strings.isBlank(mimeGroup)) {
+                        viewName = mimes.get(mimeGroup);
+                    }
+                }
             }
             if (null != viewName)
                 return viewName;
