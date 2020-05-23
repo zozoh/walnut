@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.sheet;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 
+import org.nutz.img.Images;
 import org.nutz.walnut.api.io.WnIo;
 
 public class WnSheetImageHolder implements SheetImageHolder {
@@ -11,8 +13,12 @@ public class WnSheetImageHolder implements SheetImageHolder {
 	
 	
 	
-	public BufferedImage getImage() {
-		return io.readImage(io.check(null, path));
+	public byte[] getImage(int w, int h) {
+		BufferedImage image = io.readImage(io.check(null, path));
+		image = Images.clipScale(image, w, h);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Images.writeJpeg(image, out, 0.8f);
+		return out.toByteArray();
 	}
 
 

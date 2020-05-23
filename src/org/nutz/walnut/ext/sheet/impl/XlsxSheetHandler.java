@@ -1,12 +1,14 @@
 package org.nutz.walnut.ext.sheet.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFPictureData;
@@ -72,8 +74,10 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
     }
 	
 	@Override
-	protected void addImage(Workbook wb, BufferedImage image, int row, int col) {
-		// TODO Auto-generated method stub
-		
+	protected void addImage(Workbook wb, Drawing patriarch, byte[] image, int row, int col) {
+		int P = wb.addPicture(image, XSSFWorkbook.PICTURE_TYPE_JPEG);
+		XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, col, row, col+1, row+1);
+		anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
+		patriarch.createPicture(anchor, P);
 	}
 }

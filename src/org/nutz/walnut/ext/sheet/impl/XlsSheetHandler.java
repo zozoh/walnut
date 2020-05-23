@@ -23,10 +23,5 @@ public class XlsSheetHandler extends AbstractPoiSheetHandler {
     protected List<SheetImage> exportImages(Workbook wb, NutMap conf) {
     	return null;
     }
-    
-    @Override
-    protected void addImage(Workbook wb, BufferedImage image, int row, int col) {
-    	// TODO Auto-generated method stub
-    	
-    }
+
 }

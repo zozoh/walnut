@@ -11,14 +11,16 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.castor.Castors;
-import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -108,6 +110,8 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         if (sheet == null) {
             sheet = wb.createSheet(conf.getString("sheetName", "sheet1"));
         }
+
+        Drawing drawing = sheet.createDrawingPatriarch();
         // 准备迭代器
         Iterator<NutMap> it = list.iterator();
         if (!it.hasNext())
@@ -150,7 +154,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 Cell cell = row.getCell(colOffset + col);
                 if (cell == null)
                 	cell = row.createCell(colOffset + col);
-                this.__set_cell_val(wb, cell, val);
+                this.__set_cell_val(wb, drawing, cell, val);
             }
         }
         // 有没有额外数据呀
@@ -168,7 +172,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 				if (ext_cell == null) {
 					ext_cell = ext_row.createCell(ext_col_index);
 				}
-				this.__set_cell_val(wb, ext_cell, value);
+				this.__set_cell_val(wb, drawing, ext_cell, value);
 			}
         }
         
@@ -287,7 +291,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         // return !row.cellIterator().hasNext();
     }
 
-    private void __set_cell_val(Workbook wb, Cell cell, Object val) {
+    private void __set_cell_val(Workbook wb, Drawing drawing, Cell cell, Object val) {
         // 空的
         if (null == val) {
             cell.setCellType(CellType.BLANK);
@@ -295,7 +299,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         }
         // 图片
         if (val instanceof SheetImageHolder) {
-        	addImage(wb, ((SheetImageHolder)val).getImage(), cell.getRowIndex(), cell.getColumnIndex());
+        	// TODO 改成可配置的
+        	cell.getRow().setHeight((short)1500);
+        	addImage(wb, drawing, ((SheetImageHolder)val).getImage(400, 400), cell.getRowIndex(), cell.getColumnIndex());
         	return;
         }
         // 开始判断吧
@@ -328,7 +334,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         }
     }
     
-    protected abstract void addImage(Workbook wb, BufferedImage image, int row, int col);
+    protected void addImage(Workbook wb, Drawing patriarch, byte[] image, int row, int col) {
+    	// 子类自行搞定
+    }
 
     @SuppressWarnings("deprecation")
     private Object __get_cell_value(Cell cell) {
