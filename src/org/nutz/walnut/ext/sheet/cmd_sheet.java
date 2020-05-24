@@ -25,6 +25,10 @@ public class cmd_sheet extends JvmExecutor {
         // 准备处理器配置参数
         NutMap confInput = params.getMap("ci", new NutMap());
         NutMap confOutput = params.getMap("co", new NutMap());
+        
+        if (confInput.containsKey("images")) {
+        	confInput.put("images", Wn.normalizeFullPath(confInput.getString("images"), sys));
+        }
 
         // .................................................
         // 读取输入

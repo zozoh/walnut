@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
@@ -66,7 +65,7 @@ public class WnSheetService {
             if (result.images != null) {
         		String root = conf.getString("images", "~/.tmp/sheet_images/");
             	for (SheetImage image : result.images) {
-            		String name = String.format("%d_%d.%s", image.sheetIndex, image.row, image.col, image.type == 0 ? "jpg" : "png");
+            		String name = String.format("%d_%d_%d.%s", image.sheetIndex, image.row, image.col, image.type == 0 ? "jpg" : "png");
             		WnObj wobj = io.createIfNoExists(null, root + "/" + name, WnRace.FILE);
             		io.writeAndClose(wobj, new ByteArrayInputStream(image.data));
 				}
