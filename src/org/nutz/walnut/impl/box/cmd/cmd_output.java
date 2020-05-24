@@ -76,7 +76,7 @@ public class cmd_output extends JvmExecutor {
                         Thread.sleep(interval);
                 }
                 // 输出最后一条
-                __print(jbo, i, msg, t, showIndex);
+                //__print(jbo, i, msg, t, showIndex);
             }
         }
         catch (InterruptedException e) {}
