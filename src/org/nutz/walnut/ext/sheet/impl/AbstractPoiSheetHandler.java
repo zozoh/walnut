@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.sheet.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +7,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.castor.Castors;
@@ -44,7 +43,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
     protected abstract Workbook createWorkbook();
     
-    protected abstract List<SheetImage> exportImages(Workbook wb, NutMap conf);
+    protected abstract List<SheetImage> exportImages(Workbook wb, List<NutMap> list, NutMap conf);
 
     @Override
     public SheetResult read(InputStream ins, NutMap conf) {
@@ -59,7 +58,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             readFromSheet(wb, list, conf);
             
             if (conf.has("images")) {
-            	result.images = exportImages(wb, conf);
+            	result.images = exportImages(wb, list, conf);
             }
         }
         catch (IOException e) {
@@ -204,6 +203,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     protected void readFromSheet(Workbook wb, List<NutMap> list, NutMap conf) {
     	// 是否自动添加行号
     	boolean addRowIndex = conf.getBoolean("addRowIndex");
+    	NutMap matcher = conf.getAs("matcher", NutMap.class);
     	
         // 读取工作表
         Sheet sheet = __get_sheet(wb, conf);
@@ -274,6 +274,25 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             if (addRowIndex) {
             	obj.put("rowIndex", row.getRowNum());
             }
+            // 原始数据过来
+            if (matcher != null) {
+            	boolean flag = true;
+            	for (Map.Entry<String, Object> en : matcher.entrySet()) {
+					Object tmpval = obj.get(en.getKey());
+					if (tmpval == null && en.getValue() != null) {
+						flag = false;
+						break;
+					}
+					if (!tmpval.equals(en.getValue())) {
+						flag = false;
+						break;
+					}
+				}
+            	if (!flag) {
+            		continue; // 跳过当前记录
+            	}
+            }
+            
             // 计入结果
             list.add(obj);
         }
@@ -326,11 +345,16 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         else if (mi.isStringLike() && val.toString().startsWith("=")) {
             cell.setCellType(CellType.FORMULA);
             cell.setCellValue(val.toString());
+            
         }
         // 其他的就是字符串咯
         else {
             cell.setCellType(CellType.STRING);
-            cell.setCellValue(Castors.me().castToString(val));
+            String str = Castors.me().castToString(val);
+            cell.setCellValue(str);
+            if (str.contains("\n") || str.contains("\r")) {
+            	CellStyle cs = cell.getCellStyle();
+            }
         }
     }
     
