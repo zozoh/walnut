@@ -9,6 +9,11 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 
+/**
+ * 封装了域名与站点关系的服务类。
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class WnDomainService {
 
     private WnIo io;
