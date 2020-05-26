@@ -299,6 +299,19 @@ public class WnThingService {
         return a.invoke().get(0);
     }
 
+    public WnObj createThing(NutMap meta,
+                             String uniqueKey,
+                             NutMap fixedMeta,
+                             WnExecutable executor,
+                             String cmdTmpl) {
+        CreateThingAction a = _A(_action_create());
+        a.addMeta(meta).setUniqueKey(uniqueKey);
+        a.setConf(this.checkConf());
+        a.setFixedMeta(fixedMeta);
+        a.setExecutor(executor, cmdTmpl);
+        return a.invoke().get(0);
+    }
+
     public List<WnObj> createThings(List<NutMap> metaList, String uniqueKey) {
         return createThings(metaList, uniqueKey, null, null, null, null, null);
     }
@@ -311,12 +324,11 @@ public class WnThingService {
                                     WnExecutable executor,
                                     String cmdTmpl) {
         CreateThingAction a = _A(_action_create());
-        a.addAllMeta(metaList);
-        a.setUniqueKey(uniqueKey);
+        a.addAllMeta(metaList).setUniqueKey(uniqueKey);
+        a.setConf(this.checkConf());
         a.setProcess(out, process);
         a.setFixedMeta(fixedMeta);
         a.setExecutor(executor, cmdTmpl);
-        a.setConf(this.checkConf());
         return a.invoke();
     }
 

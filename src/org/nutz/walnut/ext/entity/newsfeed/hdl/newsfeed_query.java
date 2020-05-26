@@ -1,11 +1,11 @@
-package org.nutz.walnut.ext.newsfeed.hdl;
+package org.nutz.walnut.ext.entity.newsfeed.hdl;
 
 import org.nutz.dao.QueryResult;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.newsfeed.FeedQuery;
-import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
+import org.nutz.walnut.ext.entity.newsfeed.FeedQuery;
+import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;

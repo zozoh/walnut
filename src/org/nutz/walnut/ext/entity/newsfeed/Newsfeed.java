@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.newsfeed;
+package org.nutz.walnut.ext.entity.newsfeed;
 
 import org.nutz.dao.entity.annotation.ColDefine;
 import org.nutz.dao.entity.annotation.ColType;

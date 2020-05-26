@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.newsfeed;
+package org.nutz.walnut.ext.entity.newsfeed;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;

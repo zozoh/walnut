@@ -52,7 +52,7 @@ public class thing_create implements JvmHdl {
                 meta.put("th_nm", th_nm);
             }
             // 执行创建
-            hc.output = wts.createThing(meta, ukey, exec);
+            hc.output = wts.createThing(meta, ukey, fixedMeta, exec, afterCmd);
         }
 
     }

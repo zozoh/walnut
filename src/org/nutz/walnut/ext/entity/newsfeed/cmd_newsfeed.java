@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.newsfeed;
+package org.nutz.walnut.ext.entity.newsfeed;
 
 import java.util.Arrays;
 

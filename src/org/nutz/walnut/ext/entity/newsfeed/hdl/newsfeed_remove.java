@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.newsfeed.hdl;
+package org.nutz.walnut.ext.entity.newsfeed.hdl;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
+import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;

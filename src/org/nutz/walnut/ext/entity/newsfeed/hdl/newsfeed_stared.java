@@ -1,15 +1,17 @@
-package org.nutz.walnut.ext.newsfeed.hdl;
+package org.nutz.walnut.ext.entity.newsfeed.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.newsfeed.WnNewsfeedApi;
+import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class newsfeed_clean implements JvmHdl {
+@JvmHdlParamArgs("cqn")
+public class newsfeed_stared implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -17,14 +19,21 @@ public class newsfeed_clean implements JvmHdl {
         WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
 
         // 参数
-        String targetId = hc.params.get("target");
+        boolean stared = hc.params.is("star", true);
 
         // 准备返回值
         NutMap re = Lang.map("n", 0);
 
-        // 清除所有指定 target 的消息
-        if (!Strings.isBlank(targetId)) {
-            int n = api.cleanAllReaded(targetId);
+        // 标记单个消息
+        if (hc.params.vals.length > 0) {
+            int n = 0;
+            for (String val : hc.params.vals) {
+                String[] ids = Strings.splitIgnoreBlank(val);
+                for (String id : ids) {
+                    api.setStared(id, stared);
+                    n++;
+                }
+            }
             re.put("n", n);
         }
 

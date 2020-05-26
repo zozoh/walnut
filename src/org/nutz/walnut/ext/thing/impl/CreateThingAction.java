@@ -213,17 +213,27 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             }
         }
 
+        // 看看是否需要重新获取 Thing
+        boolean re_get = false;
+
         // 看看是否有附加的创建执行脚本
         String on_created = conf.getOnCreated();
         if (null != this.executor && !Strings.isBlank(on_created)) {
-            String cmdText = Tmpl.exec(on_created, oT);
+            String cmdText = Strings.trim(Tmpl.exec(on_created, oT));
+            String input = null;
+            if (cmdText.startsWith("|")) {
+                cmdText = cmdText.substring(1);
+                input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+            }
             StringBuilder stdOut = new StringBuilder();
             StringBuilder stdErr = new StringBuilder();
-            this.executor.exec(cmdText, stdOut, stdErr, null);
+            this.executor.exec(cmdText, stdOut, stdErr, input);
 
             // 出错就阻止后续执行
             if (stdErr.length() > 0)
                 throw Er.create("e.cmd.thing.on_created", stdErr);
+
+            re_get = true;
 
         }
 
@@ -234,11 +244,15 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 执行完毕的回调
         if (null != this.executor && null != this.cmdTmpl) {
-            String cmdText = cmdTmpl.render(oT);
-            String json = Json.toJson(oT, JsonFormat.full().setQuoteName(true));
+            String cmdText = Strings.trim(cmdTmpl.render(oT));
+            String input = null;
+            if (cmdText.startsWith("|")) {
+                cmdText = cmdText.substring(1);
+                input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+            }
             StringBuilder stdOut = new StringBuilder();
             StringBuilder stdErr = new StringBuilder();
-            this.executor.exec(cmdText, stdOut, stdErr, json);
+            this.executor.exec(cmdText, stdOut, stdErr, input);
 
             // 出错就阻止后续执行
             if (stdErr.length() > 0)
@@ -248,6 +262,12 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             if (null != out) {
                 out.printlnf("  - after OK: %s", stdOut);
             }
+
+            re_get = true;
+        }
+
+        if (re_get) {
+            oT = this.io.get(oT.id());
         }
 
         // 返回
