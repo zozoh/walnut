@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.sheet.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -20,7 +19,7 @@ public class XlsSheetHandler extends AbstractPoiSheetHandler {
     }
 
     @Override
-    protected List<SheetImage> exportImages(Workbook wb, NutMap conf) {
+    protected List<SheetImage> exportImages(Workbook wb, List<NutMap> list, NutMap conf) {
     	return null;
     }
 

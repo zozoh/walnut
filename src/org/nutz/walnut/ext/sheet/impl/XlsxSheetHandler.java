@@ -3,7 +3,9 @@ package org.nutz.walnut.ext.sheet.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.Drawing;
@@ -30,7 +32,7 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
 	}
 
 	@Override
-    protected List<SheetImage> exportImages(Workbook _wb, NutMap conf) {
+    protected List<SheetImage> exportImages(Workbook _wb, List<NutMap> list, NutMap conf) {
 		List<SheetImage> images = new ArrayList<SheetImage>();
     	XSSFWorkbook wb = (XSSFWorkbook)_wb;
     	int sheetCount = wb.getNumberOfSheets();
@@ -38,6 +40,12 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
     	int rowOffset = conf.getInt("rowOffset", 0);
     	int colOffset = conf.getInt("colOffset", 0);
     	String sheetName = conf.getString("sheetName");
+    	Set<Integer> rows = new HashSet<Integer>();
+    	for (NutMap re : list) {
+			if (re.containsKey("rowIndex")) {
+				rows.add(re.getInt("rowIndex"));
+			}
+		}
     	for (int i = 0; i < sheetCount; i++) {
 			XSSFSheet sheet = wb.getSheetAt(i);
     		if (sheetName != null) {
@@ -58,6 +66,9 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
                     int rowIndex = hssfPicture.getClientAnchor().getRow1();
                     int colIndex = hssfPicture.getClientAnchor().getCol1();
                     if (rowIndex < rowOffset || colIndex < colOffset) {
+                    	continue;
+                    }
+                    if (!rows.isEmpty() && !rows.contains(rowIndex)) {
                     	continue;
                     }
                     SheetImage image = new SheetImage();
