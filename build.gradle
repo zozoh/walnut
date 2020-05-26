@@ -125,6 +125,9 @@ dependencies {
 	
 	// paypal
 	compile ('com.paypal.sdk:checkout-sdk:1.0.2')
+	
+	// jedis
+	compile ('redis.clients:jedis:3.2.0')
 }
 
 buildscript {
