@@ -23,4 +23,5 @@ www buy          # 创建购买商品的订单
 www passwd       # 修改账户密码
 www pay          # 根据订单创建支付单
 www payafter     # 支付成功后，对于订单的后续处理
+www avatar       # 为某账户设置头像
 ```

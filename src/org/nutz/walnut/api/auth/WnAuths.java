@@ -106,7 +106,9 @@ public abstract class WnAuths {
                        + "|thumb|phone|email|sex"
                        + "|oauth_.+"
                        + "|wx_.+"
-                       + "|nickname|th_set|th_live"
+                       + "|th_.+"
+                       + "|_.+"
+                       + "|nickname"
                        + "|d0|d1"
                        + "|passwd|salt)$";
         Pattern p = Regex.getPattern(regex);

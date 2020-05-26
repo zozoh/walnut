@@ -129,9 +129,12 @@ env : {
 	SIDEBAR_PATH : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json"
 }
 
-# 微信配置目录名，用来做公众号登录等操作
-# 如果未配置，则会尝试寻找 sellers.wx 的设定
-weixin   : "theName"
+# 微信配置目录名，用来做公众号或小程序登录等操作
+weixin   : {
+  mp   : "{wxConfName}",    # 小程序配置
+  gh   : "{wxConfName}",    # 公众号配置
+  open : "{wxConfName}"     # 开放平台公号配置
+}
 
 # 商户映射表；根据支付类型前缀来决定
 sellers : {
@@ -202,6 +205,9 @@ oauth_wxlogin : "oSQW..cYq"
 #-------------------------------------------------
 # 微信公号 OpenID
 wx_gh_site0 : "OpenId"     # 某微信公号下的 OpenId
+#-------------------------------------------------
+# 微信开放平台 unionid
+wx_unionid : "unionid"     # 开放平台下的 UnionID
 #-------------------------------------------------
 # 时间戳
 ct    : AMS     # 创建/注册时间

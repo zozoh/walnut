@@ -51,9 +51,9 @@ public class WnWebSite {
      */
     private WnObj couponHome;
     /**
-     * 微信配置文件对象
+     * 微信配置目录名
      */
-    private WnObj weixinConf;
+    private NutMap weixin;
     /**
      * 支付商户名集合
      */
@@ -118,18 +118,14 @@ public class WnWebSite {
             this.vars.putAll(env);
         }
 
-        // 获取支付商户号配置
-        // 同时获取微信配置文件路径，以便 weixin 设置如果为空，尝试用 sellers.wx
-        String wxConfNm = null;
-        if (bean.has("sellers")) {
-            sellers = bean.getAs("sellers", NutMap.class);
-            wxConfNm = sellers.getString("wx");
+        // 获取微信配置目录名
+        if (bean.has("weixin")) {
+            weixin = bean.getAs("weixin", NutMap.class);
         }
 
-        // 微信配置文件路径
-        wxConfNm = bean.getString("weixin", wxConfNm);
-        if (!Strings.isBlank(wxConfNm)) {
-            weixinConf = checkDirOrFile("~/.weixin/" + wxConfNm + "/wxconf");
+        // 获取支付商户号配置
+        if (bean.has("sellers")) {
+            sellers = bean.getAs("sellers", NutMap.class);
         }
 
         // 默认会话时长
@@ -206,12 +202,27 @@ public class WnWebSite {
         return couponHome;
     }
 
-    public boolean hasWeixinConf() {
-        return null != weixinConf;
+    /**
+     * @param codeType
+     *            公号类型(mp | gh | open)
+     * @return 是否存在指定类型的微信配置
+     */
+    public boolean hasWeixinConf(String codeType) {
+        return null != weixin && weixin.has(codeType);
     }
 
-    public WnObj getWeixinConf() {
-        return weixinConf;
+    /**
+     * @param codeType
+     *            公号类型(mp | gh | open)
+     * @return 微信配置文件对象
+     */
+    public WnObj getWeixinConf(String codeType) {
+        if (!hasWeixinConf(codeType)) {
+            return null;
+        }
+        String confName = weixin.getString(codeType);
+        String ph = "~/.weixin/" + confName + "/wxconf";
+        return this.checkDirOrFile(ph);
     }
 
     public boolean hasSellers() {
@@ -259,7 +270,7 @@ public class WnWebSite {
     }
 
     private WnObj getThingIndex(String ph) {
-        if(Strings.isBlank(ph)) {
+        if (Strings.isBlank(ph)) {
             return null;
         }
         String aph = Wn.normalizeFullPath(ph, vars);

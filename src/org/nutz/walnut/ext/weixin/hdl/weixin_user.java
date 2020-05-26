@@ -46,6 +46,7 @@ public class weixin_user implements JvmHdl {
         String openid = hc.params.get("openid");
         String code = hc.params.get("code");
         String lang = hc.params.get("lang");
+        String codeType = hc.params.get("type", "gh");
         String infoLevel = hc.params.get("infol");
         WxResp resp;
 
@@ -57,7 +58,11 @@ public class weixin_user implements JvmHdl {
         else if (!Strings.isBlank(code)) {
             // follower: 根据 openid 获取信息
             if ("follower".equals(infoLevel)) {
-                openid = wxApi.user_openid_by_gh_code(code);
+                if ("mp".equals(codeType)) {
+                    openid = wxApi.user_openid_by_mp_code(codeType);
+                } else {
+                    openid = wxApi.user_openid_by_gh_code(code);
+                }
                 resp = wxApi.user_info(openid, lang);
             }
             // - others: 认为本次授权是 "snsapi_userinfo"，则试图根据 refresh_token 获取更多信息
@@ -66,7 +71,11 @@ public class weixin_user implements JvmHdl {
             }
             // 默认的，就是仅仅获取 openid 咯
             else {
-                resp = wxApi.user_info_by_gh_code(code);
+                if ("mp".equals(codeType)) {
+                    resp = wxApi.user_info_by_mp_code(code);
+                } else {
+                    resp = wxApi.user_info_by_gh_code(code);
+                }
             }
         }
         // 什么都没有，那么抛错

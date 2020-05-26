@@ -42,9 +42,11 @@ public interface WnAuthSetup {
     long getSessionTransientDuration();
 
     /**
+     * @param codeType
+     *            公号类型(mp | gh | open)
      * @return 微信公众号后台操作接口
      */
-    WnIoWeixinApi getWeixinApi();
+    WnIoWeixinApi getWeixinApi(String codeType);
 
     /**
      * @return 验证码服务实例

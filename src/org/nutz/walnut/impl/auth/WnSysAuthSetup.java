@@ -44,7 +44,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
 
     @Override
     public WnObj getAvatarObj(WnAccount user, boolean autoCreate) {
-        return null;
+        throw Lang.noImplement();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
-    protected WnObj getWeixinConf() {
+    protected WnObj getWeixinConf(String codeType) {
         throw Lang.noImplement();
     }
 

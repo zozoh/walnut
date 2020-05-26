@@ -58,7 +58,12 @@ public class WnAccount {
     private NutMap wxGhOpenIds;
 
     @JsonIgnore
+    private NutMap wxOpenOpenIds;
+
+    @JsonIgnore
     private NutMap wxMpOpenIds;
+
+    private String wxUnionId;
 
     private NutMap meta;
 
@@ -75,7 +80,9 @@ public class WnAccount {
 
     public WnAccount() {
         this.OAuth2s = new NutMap();
+        this.wxOpenOpenIds = new NutMap();
         this.wxGhOpenIds = new NutMap();
+        this.wxMpOpenIds = new NutMap();
         this.meta = new NutMap();
         this.sex = WnHumanSex.UNKNOWN;
     }
@@ -112,7 +119,7 @@ public class WnAccount {
         // 循环设置值
         for (String key : bean.keySet()) {
             // 无视私有键
-            if(key.startsWith("__")) {
+            if (key.startsWith("__")) {
                 continue;
             }
             // id
@@ -163,6 +170,10 @@ public class WnAccount {
             else if ("login".equals(key)) {
                 this.setLoginAt(bean.getLong(key));
             }
+            // wx_unionid
+            else if ("wx_unionid".equals(key)) {
+                this.setWxUnionId(bean.getString(key));
+            }
             // auth_xxx
             else if (key.startsWith("oauth_")) {
                 this.setOAuth2(key, bean.getString(key));
@@ -174,6 +185,10 @@ public class WnAccount {
             // wx_mp_xxx
             else if (key.startsWith("wx_mp_")) {
                 this.setWxMpOpenId(key, bean.getString(key));
+            }
+            // wx_open_xxx
+            else if (key.startsWith("wx_open_")) {
+                this.setWxOpenOpenId(key, bean.getString(key));
             }
             // Others put to "meta"
             else {
@@ -249,6 +264,9 @@ public class WnAccount {
         }
         // WXOPEN : 微信公众号登录信息
         if (WnAuths.ABMM.asWXOPEN(mode)) {
+            if (!Strings.isBlank(this.wxUnionId)) {
+                bean.put("wx_unionid", this.wxUnionId);
+            }
             if (null != wxGhOpenIds)
                 for (String key : wxGhOpenIds.keySet()) {
                     bean.put("wx_gh_" + key, wxGhOpenIds.get(key));
@@ -256,6 +274,10 @@ public class WnAccount {
             if (null != wxMpOpenIds)
                 for (String key : wxMpOpenIds.keySet()) {
                     bean.put("wx_mp_" + key, wxMpOpenIds.get(key));
+                }
+            if (null != wxOpenOpenIds)
+                for (String key : wxOpenOpenIds.keySet()) {
+                    bean.put("wx_open_" + key, wxOpenOpenIds.get(key));
                 }
         }
 
@@ -293,7 +315,10 @@ public class WnAccount {
     }
 
     public NutMap toBeanForClient() {
-        return this.toBean(WnAuths.ABMM.LOGIN | WnAuths.ABMM.INFO | WnAuths.ABMM.META);
+        return this.toBean(WnAuths.ABMM.LOGIN
+                           | WnAuths.ABMM.INFO
+                           | WnAuths.ABMM.WXOPEN
+                           | WnAuths.ABMM.META);
     }
 
     public boolean isSysAccount() {
@@ -329,6 +354,43 @@ public class WnAccount {
 
     public boolean isNameSameAsId() {
         return null != id && id.equals(name);
+    }
+
+    /**
+     * @return 昵称是否是原始的，譬如和 openId 或者 union ID 相等
+     */
+    public boolean hasRawNickname() {
+        if (Strings.isBlank(nickname)
+            || nickname.equals(this.wxUnionId)
+            || nickname.equals(this.id)
+            || nickname.equals("anonymous"))
+            return true;
+
+        for (Map.Entry<String, Object> en : this.wxGhOpenIds.entrySet()) {
+            if (nickname.equals(en.getValue())) {
+                return true;
+            }
+        }
+
+        for (Map.Entry<String, Object> en : this.wxMpOpenIds.entrySet()) {
+            if (nickname.equals(en.getValue())) {
+                return true;
+            }
+        }
+
+        for (Map.Entry<String, Object> en : this.wxOpenOpenIds.entrySet()) {
+            if (nickname.equals(en.getValue())) {
+                return true;
+            }
+        }
+
+        for (Map.Entry<String, Object> en : this.OAuth2s.entrySet()) {
+            if (nickname.equals(en.getValue())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void setLoginStr(String str) {
@@ -410,6 +472,8 @@ public class WnAccount {
         }
         ta.putAllOAuth2(this.OAuth2s);
         ta.putAllWxGhOpenId(this.wxGhOpenIds);
+        ta.putAllWxMpOpenId(this.wxMpOpenIds);
+        ta.putAllWxOpenOpenId(this.wxOpenOpenIds);
         ta.putAllMeta(this.meta);
     }
 
@@ -502,6 +566,10 @@ public class WnAccount {
         this.sex = WnHumanSex.valueOf(sex);
     }
 
+    public boolean isSexUnknown() {
+        return this.sex == null || this.sex == WnHumanSex.UNKNOWN;
+    }
+
     public long getLoginAt() {
         return loginAt;
     }
@@ -567,6 +635,18 @@ public class WnAccount {
         }
     }
 
+    public boolean hasWxUnionId() {
+        return !Strings.isBlank(this.wxUnionId);
+    }
+
+    public String getWxUnionId() {
+        return this.wxUnionId;
+    }
+
+    public void setWxUnionId(String wxUnionId) {
+        this.wxUnionId = wxUnionId;
+    }
+
     public void setWxOpenId(String mode, String ghOrMpName, String openId) {
         // 小程序
         if ("mp".equals(mode)) {
@@ -575,6 +655,10 @@ public class WnAccount {
         // 微信公号
         else if ("gh".equals(mode)) {
             this.setWxGhOpenId(ghOrMpName, openId);
+        }
+        // 开放平台
+        else if ("open".equals(mode)) {
+            this.setWxOpenOpenId(ghOrMpName, openId);
         }
         // 不可能
         else {
@@ -656,6 +740,43 @@ public class WnAccount {
         this.wxMpOpenIds = wxOpenIds;
     }
 
+    public NutMap getWxOpenOpenIdMap() {
+        return wxOpenOpenIds;
+    }
+
+    public String getWxOpenOpenId(String mpName) {
+        if (null == this.wxOpenOpenIds) {
+            return null;
+        }
+        if (mpName.startsWith("wx_mp_")) {
+            mpName = mpName.substring("wx_mp_".length());
+        }
+        return wxOpenOpenIds.getString(mpName);
+    }
+
+    public void setWxOpenOpenId(String mpName, String openId) {
+        if (null == this.wxOpenOpenIds) {
+            wxOpenOpenIds = new NutMap();
+        }
+        if (mpName.startsWith("wx_mp_")) {
+            mpName = mpName.substring("wx_mp_".length());
+        }
+        wxOpenOpenIds.put(mpName, openId);
+    }
+
+    public void putAllWxOpenOpenId(NutBean map) {
+        if (null != map) {
+            for (String key : map.keySet()) {
+                String val = map.getString(key);
+                this.setWxOpenOpenId(key, val);
+            }
+        }
+    }
+
+    public void setWxOpenOpenIds(NutMap wxOpenIds) {
+        this.wxOpenOpenIds = wxOpenIds;
+    }
+
     public NutMap getMetaMap() {
         NutMap map = new NutMap();
         if (null != this.meta) {
@@ -734,6 +855,20 @@ public class WnAccount {
         }
     }
 
+    public boolean setDefaultMeta(String key, Object val) {
+        if (WnAuths.isValidMetaName(key)) {
+            if (null == this.meta) {
+                this.meta = new NutMap();
+            }
+            // String k2 = key.toUpperCase();
+            if (!this.meta.has(key)) {
+                this.meta.put(key, val);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void putAllMeta(NutBean meta) {
         if (null != meta) {
             for (Map.Entry<String, Object> en : meta.entrySet()) {
@@ -742,6 +877,18 @@ public class WnAccount {
                 this.setMeta(key, val);
             }
         }
+    }
+
+    public boolean putAllDefaultMeta(NutBean meta) {
+        boolean putted = false;
+        if (null != meta) {
+            for (Map.Entry<String, Object> en : meta.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                putted |= this.setDefaultMeta(key, val);
+            }
+        }
+        return putted;
     }
 
     public void removeMeta(String... keys) {
