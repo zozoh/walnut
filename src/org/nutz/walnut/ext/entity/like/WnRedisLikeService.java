@@ -3,42 +3,40 @@ package org.nutz.walnut.ext.entity.like;
 import java.util.Set;
 
 import org.nutz.walnut.ext.entity.like.LikeApi;
-import org.nutz.walnut.ext.redis.WnRedis;
-import org.nutz.walnut.ext.redis.WnRedisConfig;
-
-import redis.clients.jedis.Jedis;
+import org.nutz.walnut.ext.redis.Wedis;
+import org.nutz.walnut.ext.redis.WedisConfig;
 
 public class WnRedisLikeService implements LikeApi {
 
-    private Jedis red;
+    private WedisConfig conf;
 
-    public WnRedisLikeService(WnRedisConfig conf) {
-        this.red = WnRedis.get(conf);
+    public WnRedisLikeService(WedisConfig conf) {
+        this.conf = conf;
     }
 
     @Override
     public long likeIt(String taId, String... uids) {
-        return red.sadd(taId, uids);
+        return Wedis.run(conf, jed -> jed.sadd(taId, uids));
     }
 
     @Override
     public long unlike(String taId, String... uids) {
-        return red.srem(taId, uids);
+        return Wedis.run(conf, jed -> jed.srem(taId, uids));
     }
 
     @Override
     public Set<String> getAll(String taId) {
-        return red.smembers(taId);
+        return Wedis.run(conf, jed -> jed.smembers(taId));
     }
 
     @Override
     public long summary(String taId) {
-        return red.scard(taId);
+        return Wedis.run(conf, jed -> jed.scard(taId));
     }
 
     @Override
     public boolean isLike(String taId, String uid) {
-        return red.sismember(taId, uid);
+        return Wedis.run(conf, jed -> jed.sismember(taId, uid));
     }
 
 }

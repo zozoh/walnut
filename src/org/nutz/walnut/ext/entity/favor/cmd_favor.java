@@ -8,7 +8,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Times;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.redis.WnRedisConfig;
+import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
@@ -35,7 +35,7 @@ public class cmd_favor extends JvmExecutor {
         WnObj oConf = Wn.checkObj(sys, phConf);
 
         // 准备接口
-        WnRedisConfig conf = sys.io.readJson(oConf, WnRedisConfig.class);
+        WedisConfig conf = sys.io.readJson(oConf, WedisConfig.class);
         FavorApi api = new WnRedisFavorService(conf);
 
         // 准备返回
@@ -94,10 +94,14 @@ public class cmd_favor extends JvmExecutor {
         // 输出集合
         else if (re instanceof Collection<?>) {
             Collection<FavorIt> co = (Collection<FavorIt>) re;
-            int i = params.getInt("i", 1);
-            String fmt = params.get("out", "%d) %s + %s");
-            for (FavorIt fi : co) {
-                sys.out.printlnf(fmt, i++, fi.getTimeText(), fi.getTarget());
+            if (co.isEmpty()) {
+                sys.out.println("(~nil~)");
+            } else {
+                int i = params.getInt("i", 1);
+                String fmt = params.get("out", "%d) %s + %s");
+                for (FavorIt fi : co) {
+                    sys.out.printlnf(fmt, i++, fi.getTimeText(), fi.getTarget());
+                }
             }
         }
         // 直接输出把

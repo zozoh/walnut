@@ -1,14 +1,14 @@
 package org.nutz.walnut.ext.entity.favor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.util.Callback;
 import org.nutz.walnut.ext.entity.favor.FavorApi;
-import org.nutz.walnut.ext.redis.WnRedis;
-import org.nutz.walnut.ext.redis.WnRedisConfig;
+import org.nutz.walnut.ext.redis.Wedis;
+import org.nutz.walnut.ext.redis.WedisConfig;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
@@ -17,10 +17,10 @@ import redis.clients.jedis.Tuple;
 
 public class WnRedisFavorService implements FavorApi {
 
-    private Jedis red;
+    private WedisConfig conf;
 
-    public WnRedisFavorService(WnRedisConfig conf) {
-        this.red = WnRedis.get(conf);
+    public WnRedisFavorService(WedisConfig conf) {
+        this.conf = conf;
     }
 
     @Override
@@ -30,65 +30,67 @@ public class WnRedisFavorService implements FavorApi {
         for (String taId : taIds) {
             map.put(taId, now);
         }
-        return red.zadd(uid, map);
+        return Wedis.run(conf, jed -> jed.zadd(uid, map));
     }
 
     @Override
     public long unfavor(String uid, String... taIds) {
-        return red.zrem(uid, taIds);
+        return Wedis.run(conf, jed -> jed.zrem(uid, taIds));
     }
 
     @Override
     public List<FavorIt> getAll(String uid, int limit) {
-        List<FavorIt> list;
-        String cursor = "0";
+        List<FavorIt> list = new LinkedList<>();
 
-        // 找全部
-        if (limit <= 0) {
-            list = new LinkedList<>();
-            while (true) {
-                ScanResult<Tuple> re = red.zscan(uid, cursor);
-                List<Tuple> result = re.getResult();
-                for (Tuple tu : result) {
-                    FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
-                    list.add(fi);
+        Wedis.exec(conf, new Callback<Jedis>() {
+            public void invoke(Jedis jed) {
+                String cursor = "0";
+                // 找全部
+                if (limit <= 0) {
+                    while (true) {
+                        ScanResult<Tuple> re = jed.zscan(uid, cursor);
+                        List<Tuple> result = re.getResult();
+                        for (Tuple tu : result) {
+                            FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
+                            list.add(fi);
+                        }
+                        if (re.isCompleteIteration()) {
+                            break;
+                        }
+                        cursor = re.getCursor();
+                    }
                 }
-                if (re.isCompleteIteration()) {
-                    break;
+                // 找有限个
+                else {
+                    ScanParams sp = new ScanParams();
+                    sp.count(limit);
+                    while (list.size() < limit) {
+                        ScanResult<Tuple> re = jed.zscan(uid, cursor, sp);
+                        List<Tuple> result = re.getResult();
+                        for (Tuple tu : result) {
+                            FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
+                            list.add(fi);
+                        }
+                        if (re.isCompleteIteration()) {
+                            break;
+                        }
+                        cursor = re.getCursor();
+                    }
                 }
-                cursor = re.getCursor();
             }
-        }
-        // 找有限个
-        else {
-            list = new ArrayList<>(limit);
-            ScanParams sp = new ScanParams();
-            sp.count(limit);
-            while (list.size() < limit) {
-                ScanResult<Tuple> re = red.zscan(uid, cursor, sp);
-                List<Tuple> result = re.getResult();
-                for (Tuple tu : result) {
-                    FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
-                    list.add(fi);
-                }
-                if (re.isCompleteIteration()) {
-                    break;
-                }
-                cursor = re.getCursor();
-            }
-        }
+        });
 
         return list;
     }
 
     @Override
     public long summary(String uid) {
-        return red.zcard(uid);
+        return Wedis.run(conf, jed -> jed.zcard(uid));
     }
 
     @Override
     public long whenFavor(String uid, String taId) {
-        return (long) ((double) red.zscore(uid, taId));
+        return Wedis.run(conf, jed -> (long) ((double) jed.zscore(uid, taId)));
     }
 
 }

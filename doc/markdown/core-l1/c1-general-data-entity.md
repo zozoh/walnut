@@ -78,6 +78,8 @@ author: zozoh
   "port"  : 6379,
   "ssl"   : false,
   "auth"  : "123456",
+  "connectionTimeout": 2000,
+  "soTimeout": 5000,
   "select": 0
 }
 ```
