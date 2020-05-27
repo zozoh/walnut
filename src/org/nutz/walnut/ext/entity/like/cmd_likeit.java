@@ -53,8 +53,8 @@ public class cmd_likeit extends JvmExecutor {
             re = api.getAll(taId);
         }
         // likeit sum
-        else if ("sum".equals(action)) {
-            re = api.summary(taId);
+        else if ("count".equals(action)) {
+            re = api.count(taId);
         }
         // likeit is
         else if ("is".equals(action)) {

@@ -30,7 +30,7 @@ public class WnRedisLikeService implements LikeApi {
     }
 
     @Override
-    public long summary(String taId) {
+    public long count(String taId) {
         return Wedis.run(conf, jed -> jed.scard(taId));
     }
 

@@ -8,9 +8,9 @@
 
 ```bash
 likeit 
-  [Action]            # 执行操作， yes|no|all|sum|is
+  [Action]            # 执行操作， yes|no|all|count|is
   [TargetId]          # 被赞目标 ID
-  [UID ...]           # 用户 ID 可多个, all|sum 不需要这个参数
+  [UID ...]           # 用户 ID 可多个, all|count 不需要这个参数
   [-ajax]             # 输出为 AJAX 格式
   [-json]             # 输出为 JSON 格式
   [-cqn]              # 对 JSON/AJAX 格式的格式化
@@ -30,7 +30,7 @@ demo:$> likeit yes cake wendal zozoh
 2
 
 # 获取 cake 的赞赏数量
-demo:$> likeit sum cake -json -c
+demo:$> likeit count cake -json -c
 2
 
 # 获取 cake 的赞赏人列表
@@ -42,7 +42,7 @@ demo:$> likeit no cake zozoh
 1
 
 # 获取 cake 的赞赏数量
-demo:$> likeit sum cake -ajax -c
+demo:$> likeit count cake -ajax -c
 {ok:true, data: 1}
 
 # 判断 wendal 是否赞赏 cake

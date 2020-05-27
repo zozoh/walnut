@@ -49,7 +49,7 @@ public interface LikeApi {
      *            被赞主体 ID
      * @return 赞赏人们的数量
      */
-    long summary(String taId);
+    long count(String taId);
 
     /**
      * 判断一个用户对某赞赏主体是否赞

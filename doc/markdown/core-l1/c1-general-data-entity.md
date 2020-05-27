@@ -118,7 +118,7 @@ SADD {TargetID} {UID1} {UID2}
  `yes`     | `TargetID`,`UID`   | 赞
  `no`      | `TargetID`,`UID`   | 取消赞
  `all`     | `TargetID`         | 谁在赞它
- `sum`     | `TargetID`         | 有多少人赞
+ `count`   | `TargetID`         | 有多少人赞
  `isLike`  | `TargetID`,`UID`   | 是否赞
 
 --------------------------------------
@@ -135,7 +135,7 @@ ZADD {UID} AMS {TargetID} AMS {TargetID}
  `yes`      | `UID`, `TargetID`, `AMS`   | 添加收藏
  `no`       | `UID`, `TargetID`          | 取消收藏
  `all`      | `UID`, `rever`             | 全部的收藏
- `sum`      | `UID`                      | 收藏了多少东西
+ `count`    | `UID`                      | 收藏了多少东西
  `when`     | `UID`, `TargetID`          | 收藏的时间
 
 --------------------------------------
@@ -143,19 +143,20 @@ ZADD {UID} AMS {TargetID} AMS {TargetID}
 
 ```bash
 ZADD {TargetID} 75 {UID} 100 {UID}
-SET   sum:{TargetID} 175
+SET   {sum:TargetID} 175
 ```
 
 ## 支持的操作
 
  Name       | Args                       | Description
 ------------|----------------------------|-------------
- `score`    | `TargetID`, `UID`, `AMS`   | 打分（如果已经打分了，就不能再打了）
- `rescore`  | `TargetID`, `UID`, `AMS`   | 重复打分，会引发 resum
- `unscore`  | `TargetID`, `UID`          | 取消打分
- `recount`  | `TargetID`                 | 重新计算总分
- `summary`  | `TargetID`                 | 获取总分
- `getScore` | `UID`, `TargetID`, `dft:-1`| 获取具体分值
+ `it`       | `TargetID`,`UID`,`N`       | 打分（如果已经打分了，就不能再打了）
+ `cancel`   | `TargetID`,`UID`           | 取消打分
+ `all`      | `UID`                      | 全部打分的人
+ `count`    | `TargetID`                 | 获取打分人数
+ `sum`      | `TargetID`                 | 获取总分
+ `resum`    | `TargetID`                 | 重新计算总分
+ `get`      | `TargetID`,`UID`,`dft:-1`  | 获取具体分值
 
 --------------------------------------
 # 历史记录`SQL`

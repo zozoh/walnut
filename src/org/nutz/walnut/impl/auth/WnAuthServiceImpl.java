@@ -398,15 +398,18 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 看看这个用户是否存在
         WnAccount info = new WnAccount();
+        WnAccount me = null;
         // 先尝试用 union ID
         if (!Strings.isBlank(unionid)) {
             info.setWxUnionId(unionid);
+            me = accountLoader.getAccount(info);
         }
         // 没有的话，用 openid
-        else {
+        if (null == me) {
+            info.setWxUnionId(null);
             info.setWxOpenId(wxCodeType, ghOrMpName, openid);
+            me = accountLoader.getAccount(info);
         }
-        WnAccount me = accountLoader.getAccount(info);
 
         // 看看是否有机会再次获取头像
         String headimgurl = null;
@@ -439,22 +442,30 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             // 创建账户
             me = this.createAccount(info);
         }
-        // 已经存在了的话，如果没有合法昵称，也搞一下信息
-        else if (me.isNameSameAsId() && "gh".equals(wxCodeType) && me.hasRawNickname()) {
-            headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
-            boolean needSave = false;
-            if (!info.hasRawNickname()) {
-                me.setNickname(info.getNickname());
-                needSave = true;
-            }
-            if (me.isSexUnknown() && !info.isSexUnknown()) {
-                me.setSex(info.getSex());
-                needSave = true;
-            }
-            needSave |= me.putAllDefaultMeta(me.getMetaMap());
+        // 已经存在了的话，当前是公众号登陆，可能会得到更多的信息
+        else if ("gh".equals(wxCodeType)) {
+            // 如果没设 unionid， 或者如果没有合法昵称，搞一下信息
+            if ((!me.hasWxUnionId() && !Strings.isBlank(unionid))
+                || (me.isNameSameAsId() && me.hasRawNickname())) {
+                headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
+                boolean needSave = false;
+                if (!me.hasWxUnionId() && !Strings.isBlank(unionid)) {
+                    me.setWxUnionId(unionid);
+                    needSave = true;
+                }
+                if (!info.hasRawNickname()) {
+                    me.setNickname(info.getNickname());
+                    needSave = true;
+                }
+                if (me.isSexUnknown() && !info.isSexUnknown()) {
+                    me.setSex(info.getSex());
+                    needSave = true;
+                }
+                needSave |= me.putAllDefaultMeta(me.getMetaMap());
 
-            if (needSave) {
-                this.saveAccount(me);
+                if (needSave) {
+                    this.saveAccount(me);
+                }
             }
         }
 

@@ -1,18 +1,15 @@
 package org.nutz.walnut.ext.entity.favor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.nutz.lang.util.Callback;
 import org.nutz.walnut.ext.entity.favor.FavorApi;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.Tuple;
 
 public class WnRedisFavorService implements FavorApi {
@@ -39,52 +36,37 @@ public class WnRedisFavorService implements FavorApi {
     }
 
     @Override
-    public List<FavorIt> getAll(String uid, int limit) {
-        List<FavorIt> list = new LinkedList<>();
-
-        Wedis.exec(conf, new Callback<Jedis>() {
-            public void invoke(Jedis jed) {
-                String cursor = "0";
-                // 找全部
-                if (limit <= 0) {
-                    while (true) {
-                        ScanResult<Tuple> re = jed.zscan(uid, cursor);
-                        List<Tuple> result = re.getResult();
-                        for (Tuple tu : result) {
-                            FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
-                            list.add(fi);
-                        }
-                        if (re.isCompleteIteration()) {
-                            break;
-                        }
-                        cursor = re.getCursor();
-                    }
-                }
-                // 找有限个
-                else {
-                    ScanParams sp = new ScanParams();
-                    sp.count(limit);
-                    while (list.size() < limit) {
-                        ScanResult<Tuple> re = jed.zscan(uid, cursor, sp);
-                        List<Tuple> result = re.getResult();
-                        for (Tuple tu : result) {
-                            FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
-                            list.add(fi);
-                        }
-                        if (re.isCompleteIteration()) {
-                            break;
-                        }
-                        cursor = re.getCursor();
-                    }
-                }
+    public List<FavorIt> getAll(String uid, int skip, int limit) {
+        return Wedis.run(conf, jed -> {
+            long start = Math.max(skip, 0);
+            long stop = limit > 0 ? start + limit - 1 : Long.MAX_VALUE;
+            Set<Tuple> set = jed.zrangeWithScores(uid, start, stop);
+            List<FavorIt> list = new ArrayList<>(set.size());
+            for (Tuple tu : set) {
+                FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
+                list.add(fi);
             }
+            return list;
         });
-
-        return list;
     }
 
     @Override
-    public long summary(String uid) {
+    public List<FavorIt> revAll(String uid, int skip, int limit) {
+        return Wedis.run(conf, jed -> {
+            long start = Math.max(skip, 0);
+            long stop = limit > 0 ? limit : Long.MAX_VALUE;
+            Set<Tuple> set = jed.zrevrangeWithScores(uid, start, stop);
+            List<FavorIt> list = new ArrayList<>(set.size());
+            for (Tuple tu : set) {
+                FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
+                list.add(fi);
+            }
+            return list;
+        });
+    }
+
+    @Override
+    public long count(String uid) {
         return Wedis.run(conf, jed -> jed.zcard(uid));
     }
 

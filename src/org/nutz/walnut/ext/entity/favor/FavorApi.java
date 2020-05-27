@@ -34,15 +34,30 @@ public interface FavorApi {
     long unfavor(String uid, String... taIds);
 
     /**
-     * 获取收藏主体ID列表
+     * 获取收藏主体列表
      * 
      * @param uid
      *            用户 ID
+     * @param skip
+     *            跳过多少个被打分主体
      * @param limit
      *            最多返回的数量，0 表示不限制
      * @return 收藏主体列表
      */
-    List<FavorIt> getAll(String uid, int limit);
+    List<FavorIt> getAll(String uid, int skip, int limit);
+
+    /**
+     * 获取收藏主体列表(反序）
+     * 
+     * @param uid
+     *            用户 ID
+     * @param skip
+     *            跳过多少个被打分主体
+     * @param limit
+     *            最多返回的数量，0 表示不限制
+     * @return 收藏主体列表
+     */
+    List<FavorIt> revAll(String uid, int skip, int limit);
 
     /**
      * 获取收藏主体ID数量
@@ -51,7 +66,7 @@ public interface FavorApi {
      *            用户 ID
      * @return 赞赏人们的数量
      */
-    long summary(String uid);
+    long count(String uid);
 
     /**
      * 判断一个用户对某主体是否已经收藏
