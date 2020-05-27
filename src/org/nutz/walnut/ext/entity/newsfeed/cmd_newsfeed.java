@@ -70,7 +70,7 @@ public class cmd_newsfeed extends JvmHdlExecutor {
         hc.put("dao", dao);
 
         // 准备 API
-        WnNewsfeedApi api = new WnNewsfeedApi(config, dao);
+        NewfeedApi api = new WnNewsfeedApi(config, dao);
         hc.put("api", api);
     }
 }

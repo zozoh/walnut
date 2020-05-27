@@ -142,6 +142,21 @@ public class ZParams implements Cloneable {
         return params;
     }
 
+    public String[] subvals(int fromIndex, int len) {
+        int max = vals.length - fromIndex;
+        max = Math.min(max, len);
+        if (max <= 0) {
+            return new String[0];
+        }
+        String[] re = new String[max];
+        System.arraycopy(vals, fromIndex, re, 0, max);
+        return re;
+    }
+
+    public String[] subvals(int fromIndex) {
+        return subvals(fromIndex, vals.length - fromIndex);
+    }
+
     public String val(int index) {
         int i = index >= 0 ? index : vals.length + index;
         if (i < 0 || i >= vals.length)

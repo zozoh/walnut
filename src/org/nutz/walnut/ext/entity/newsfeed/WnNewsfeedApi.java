@@ -15,7 +15,7 @@ import org.nutz.lang.Strings;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.util.Wn;
 
-public class WnNewsfeedApi {
+public class WnNewsfeedApi implements NewfeedApi {
 
     /**
      * 配置对象
@@ -32,6 +32,7 @@ public class WnNewsfeedApi {
         this.dao = dao;
     }
 
+    @Override
     public Newsfeed fetch(String id) {
         String tableName = config.getTableName();
         Newsfeed feed = TableName.run(tableName, new Proton<Newsfeed>() {
@@ -42,6 +43,7 @@ public class WnNewsfeedApi {
         return feed;
     }
 
+    @Override
     public void update(Newsfeed feed, String... fields) {
         String tableName = config.getTableName();
         TableName.run(tableName,
@@ -58,6 +60,7 @@ public class WnNewsfeedApi {
                       });
     }
 
+    @Override
     public Newsfeed setReaded(String id, boolean readed) {
         // 获取
         Newsfeed feed = this.fetch(id);
@@ -70,6 +73,7 @@ public class WnNewsfeedApi {
         return feed;
     }
 
+    @Override
     public int setAllReaded(String targetId, boolean readed) {
         String tableName = config.getTableName();
         Chain chain = Chain.make("readed", readed);
@@ -78,6 +82,7 @@ public class WnNewsfeedApi {
         return n;
     }
 
+    @Override
     public Newsfeed setStared(String id, boolean stared) {
         // 获取
         Newsfeed feed = this.fetch(id);
@@ -89,6 +94,7 @@ public class WnNewsfeedApi {
         return feed;
     }
 
+    @Override
     public int cleanAllReaded(String targetId) {
         Cnd cnd = Cnd.where("targetId", "=", targetId)
                      .and("stared", "=", false)
@@ -107,6 +113,7 @@ public class WnNewsfeedApi {
      *            消息 ID
      * @return true 表示删除成功
      */
+    @Override
     public boolean remove(String id) {
         String tableName = config.getTableName();
         int n = TableName.run(tableName, new Proton<Integer>() {
@@ -117,6 +124,7 @@ public class WnNewsfeedApi {
         return n > 0;
     }
 
+    @Override
     public int batchRemove(String[] ids) {
         if (null != ids && ids.length > 0) {
             String tableName = config.getTableName();
@@ -137,6 +145,7 @@ public class WnNewsfeedApi {
      *            页大小
      * @return 查询结果（当前页列表，以及翻页信息）
      */
+    @Override
     public QueryResult query(FeedQuery q, int pn, int pgsz) {
         // 准备条件
         Pager pager = dao.createPager(pn, pgsz);
@@ -163,6 +172,7 @@ public class WnNewsfeedApi {
      *            信息对象
      * @return 插入的信息对象
      */
+    @Override
     public Newsfeed add(Newsfeed feed) {
         // 自动补全
         feed.autoComplete(true);
@@ -192,6 +202,7 @@ public class WnNewsfeedApi {
      * @param targetIds
      *            目标 ID 列表
      */
+    @Override
     public List<Newsfeed> batchAdd(Newsfeed feed, String[] targetIds) {
         // 防守
         if (null == targetIds || targetIds.length == 0) {
