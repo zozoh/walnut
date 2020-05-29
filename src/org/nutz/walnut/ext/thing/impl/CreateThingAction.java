@@ -144,6 +144,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         String P = String.format("%%[%d/%d]", i++, len);
         // 创建或者取得一个一个 Thing
         WnObj oT = null;
+        boolean isDuplicated = false;
 
         // 默认增加固定字段
         if (null != this.fixedMeta && this.fixedMeta.size() > 0) {
@@ -155,6 +156,9 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             // 看看如果声明了唯一键(导入)
             if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
                 oT = this.checkUniqueKeys(oIndex, null, meta, this.uniqueKeys, true, false);
+                // 如果查出了数据，那么证明是之前数据库里就有
+                if (null != oT)
+                    isDuplicated = true;
             }
 
             // 根据唯一键约束检查重复
@@ -216,25 +220,27 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 看看是否需要重新获取 Thing
         boolean re_get = false;
 
-        // 看看是否有附加的创建执行脚本
-        String on_created = conf.getOnCreated();
-        if (null != this.executor && !Strings.isBlank(on_created)) {
-            String cmdText = Strings.trim(Tmpl.exec(on_created, oT));
-            String input = null;
-            if (cmdText.startsWith("|")) {
-                cmdText = cmdText.substring(1);
-                input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+        // 如果是第一次创建，则执行附加脚本
+        if (!isDuplicated) {
+            // 看看是否有附加的创建执行脚本
+            String on_created = conf.getOnCreated();
+            if (null != this.executor && !Strings.isBlank(on_created)) {
+                String cmdText = Strings.trim(Tmpl.exec(on_created, oT));
+                String input = null;
+                if (cmdText.startsWith("|")) {
+                    cmdText = cmdText.substring(1);
+                    input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+                }
+                StringBuilder stdOut = new StringBuilder();
+                StringBuilder stdErr = new StringBuilder();
+                this.executor.exec(cmdText, stdOut, stdErr, input);
+
+                // 出错就阻止后续执行
+                if (stdErr.length() > 0)
+                    throw Er.create("e.cmd.thing.on_created", stdErr);
+
+                re_get = true;
             }
-            StringBuilder stdOut = new StringBuilder();
-            StringBuilder stdErr = new StringBuilder();
-            this.executor.exec(cmdText, stdOut, stdErr, input);
-
-            // 出错就阻止后续执行
-            if (stdErr.length() > 0)
-                throw Er.create("e.cmd.thing.on_created", stdErr);
-
-            re_get = true;
-
         }
 
         if (null != process && null != out) {
@@ -242,8 +248,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             out.println(msg);
         }
 
-        // 执行完毕的回调
-        if (null != this.executor && null != this.cmdTmpl) {
+        // 执行完毕的回调也必须是不能重复执行的
+        if (!isDuplicated && null != this.executor && null != this.cmdTmpl) {
             String cmdText = Strings.trim(cmdTmpl.render(oT));
             String input = null;
             if (cmdText.startsWith("|")) {

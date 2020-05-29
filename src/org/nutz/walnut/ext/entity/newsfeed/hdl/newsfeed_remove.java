@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.entity.newsfeed.NewfeedApi;
 import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -19,7 +20,7 @@ public class newsfeed_remove implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备接口
-        WnNewsfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
+        NewfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
 
         // 准备解析列表
         List<String> list = new LinkedList<>();

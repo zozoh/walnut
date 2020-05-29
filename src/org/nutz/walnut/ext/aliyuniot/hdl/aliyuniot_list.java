@@ -25,6 +25,7 @@ import com.aliyuncs.profile.IClientProfile;
 @JvmHdlParamArgs(value="cqn",regex="^online$")
 public class aliyuniot_list implements JvmHdl {
 
+    @SuppressWarnings("deprecation")
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyuniot/" + hc.params.get("cnf", "default"), sys));
 

@@ -100,6 +100,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
+    public WnObj getAvatarObj(WnAccount user, boolean autoCreate) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return impl.getAvatarObj(user, autoCreate);
+            }
+        });
+    }
+
     public WnAccount checkAccount(String nameOrIdOrPhoneOrEmail) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
             protected WnAccount exec() {

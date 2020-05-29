@@ -1,5 +1,6 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -29,7 +30,7 @@ public class cmd_date extends JvmExecutor {
         }
         // 从管线里
         else if (sys.pipeId > 0) {
-            String s = sys.in.readAll();
+            String s = Strings.trim(sys.in.readAll());
             now = Times.D(s).getTime();
         }
         // 当前时间

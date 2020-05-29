@@ -1,6 +1,7 @@
 package org.nutz.walnut.api.auth;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnObj;
 
 public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
 
@@ -20,6 +21,17 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      *            账户对象
      */
     void saveAccount(WnAccount user);
+
+    /**
+     * @param user
+     *            账户对象
+     * 
+     * @param authCreate
+     *            true 表示如果不存在就创建
+     * 
+     * @return 账户对象对应的头像对象
+     */
+    WnObj getAvatarObj(WnAccount user, boolean autoCreate);
 
     /**
      * 持久化账户的信息字段（不包括元数据集）

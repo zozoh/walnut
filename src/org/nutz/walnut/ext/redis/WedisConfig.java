@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.redis;
 
 import org.nutz.lang.Strings;
 
-public class WnRedisConfig {
+public class WedisConfig {
 
     private String host;
 
@@ -12,25 +12,29 @@ public class WnRedisConfig {
 
     private String auth;
 
+    private int connectionTimeout;
+
+    private int soTimeout;
+
     private int select;
 
-    public WnRedisConfig() {
-        this("127.0.0.1", 6379, false, null, 0);
+    public WedisConfig() {
+        this("127.0.0.1", 6379, false, null, 2000, 5000, 0);
     }
 
-    public WnRedisConfig(String host, int port, String auth) {
-        this(host, port, false, auth, 0);
-    }
-
-    public WnRedisConfig(String host, int port, boolean ssl) {
-        this(host, port, ssl, null, 0);
-    }
-
-    public WnRedisConfig(String host, int port, boolean ssl, String auth, int select) {
+    public WedisConfig(String host,
+                         int port,
+                         boolean ssl,
+                         String auth,
+                         int connectionTimeout,
+                         int soTimeout,
+                         int select) {
         this.host = host;
         this.port = port;
         this.ssl = ssl;
         this.auth = auth;
+        this.connectionTimeout = connectionTimeout;
+        this.soTimeout = soTimeout;
         this.select = select;
     }
 
@@ -70,6 +74,22 @@ public class WnRedisConfig {
         this.auth = auth;
     }
 
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public int getSoTimeout() {
+        return soTimeout;
+    }
+
+    public void setSoTimeout(int soTimeout) {
+        this.soTimeout = soTimeout;
+    }
+
     public int getSelect() {
         return select;
     }
@@ -77,13 +97,18 @@ public class WnRedisConfig {
     public void setSelect(int select) {
         this.select = select;
     }
-    
+
     public String toKey() {
-        return String.format("%s:%d", host, port);
+        return String.format("%s:%d[%d]TO%s/%s",
+                             host,
+                             port,
+                             select,
+                             this.connectionTimeout,
+                             this.soTimeout);
     }
 
     public String toString() {
-        String s = String.format("%s:%d->%d", host, port, select);
+        String s = this.toKey();
         if (ssl) {
             s += "(SSL)";
         }

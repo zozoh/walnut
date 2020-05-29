@@ -58,10 +58,12 @@ public class WnWebService {
     }
 
     /**
+     * @param codeType
+     *            公号类型(mp | gh | open)
      * @return 微信服务接口
      */
-    public WnIoWeixinApi getWeixinApi() {
-        return setup.getWeixinApi();
+    public WnIoWeixinApi getWeixinApi(String codeType) {
+        return setup.getWeixinApi(codeType);
     }
 
     /**

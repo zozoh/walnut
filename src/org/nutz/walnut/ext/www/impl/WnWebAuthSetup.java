@@ -46,8 +46,8 @@ public class WnWebAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
-    protected WnObj getWeixinConf() {
-        return site.getWeixinConf();
+    protected WnObj getWeixinConf(String codeType) {
+        return site.getWeixinConf(codeType);
     }
 
     @Override

@@ -94,6 +94,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     }
 
     @Override
+    public WnObj getAvatarObj(WnAccount user, boolean autoCreate) {
+        return this.setup.getAvatarObj(user, autoCreate);
+    }
+
+    @Override
     public void saveAccount(WnAccount user, int mode) {
         // 取得账户对象
         WnObj oU = io.checkById(user.getId());
@@ -327,26 +332,31 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
     @Override
     public WnAuthSession loginByWxCode(String code, String wxCodeType, boolean forbidUnsubscribe) {
-        WnIoWeixinApi wxApi = setup.getWeixinApi();
+        WnIoWeixinApi wxApi = setup.getWeixinApi(wxCodeType);
         WnObj oSessionDir = setup.getSessionDir();
 
         // 得到用户的 OpenId
         String openid;
+        String unionid;
         String session_key = null;
         wxCodeType = Strings.sBlank(wxCodeType, "gh");
-        if (!wxCodeType.matches("^(mp|gh)$")) {
+        if (!wxCodeType.matches("^(mp|gh|open)$")) {
             throw Er.create("e.auth.login.invalid.wxCodeType");
         }
         // 小程序的权限码
         if ("mp".equals(wxCodeType)) {
             NutMap resp = wxApi.user_info_by_mp_code(code);
             openid = resp.getString("openid");
+            unionid = resp.getString("unionid");
             session_key = resp.getString("session_key");
-            log.info("user_info_by_mp_code " + Json.toJson(resp, JsonFormat.compact()));
+            if (log.isInfoEnabled())
+                log.infof("user_info_by_mp_code: %s ", Json.toJson(resp, JsonFormat.compact()));
         }
         // 微信公号的登录码
         else {
-            openid = wxApi.user_openid_by_gh_code(code);
+            NutMap resp = wxApi.user_info_by_gh_code(code);
+            openid = resp.getString("openid");
+            unionid = resp.getString("unionid");
         }
         if (Strings.isBlank(openid)) {
             throw Er.create("e.auth.login.invalid.wxCode");
@@ -388,70 +398,131 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 看看这个用户是否存在
         WnAccount info = new WnAccount();
-        info.setWxOpenId(wxCodeType, ghOrMpName, openid);
-        WnAccount me = accountLoader.getAccount(info);
-
-        // 如果已经存在了就直接创建 会话收工
-        if (null != me) {
-            long se_du = setup.getSessionDefaultDuration();
-            return this.createSessionBy(se_du, me, by);
+        WnAccount me = null;
+        // 先尝试用 union ID
+        if (!Strings.isBlank(unionid)) {
+            info.setWxUnionId(unionid);
+            me = accountLoader.getAccount(info);
+        }
+        // 没有的话，用 openid
+        if (null == me) {
+            info.setWxUnionId(null);
+            info.setWxOpenId(wxCodeType, ghOrMpName, openid);
+            me = accountLoader.getAccount(info);
         }
 
-        // 选择一个默认角色
-        String role = setup.getDefaultRoleName();
-
-        // 看来要创建一个用户，嗯嗯，如果是公号的话，先获取信息
+        // 看看是否有机会再次获取头像
         String headimgurl = null;
-        NutMap meta = new NutMap();
-        if ("gh".equals(wxCodeType)) {
-            NutMap re = wxApi.user_info(openid, null);
-            /**
-             * 得到的返回信息格式为：
-             * 
-             * <pre>
-             {
-                subscribe: 1,
-                openid: "xxx",
-                nickname: "小白",
-                sex: 1,
-                language: "zh_CN",
-                city: "海淀",
-                province: "北京",
-                country: "中国",
-                headimgurl: "http://..",
-                subscribe_time: 1474388443,
-                remark: "",
-                groupid: 0,
-                tagid_list: [],
-                subscribe_scene: "ADD_SCENE_OTHERS",
-                qr_scene: 0,
-                qr_scene_str: ""
-             }
-             * </pre>
-             */
-            if (forbidUnsubscribe && !re.is("subscribe", 1)) {
-                throw Er.create("e.auth.login.WxGhNoSubscribed");
+
+        // 不存在的话，就创建
+        if (null == me) {
+            // 选择一个默认角色
+            String role = setup.getDefaultRoleName();
+
+            // 公众号的话
+            if ("gh".equals(wxCodeType)) {
+                headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
             }
-            String nickname = re.getString("nickname", "anonymous");
-            meta = re.pickBy("^(language|city|province|country|subscribe)$");
-            info.setNickname(nickname);
-            info.setSex(re.getInt("sex", 0));
-            info.putAllMeta(meta);
+            // 开放平台的话，也设一下 openid 咯
+            else if ("open".equals(wxCodeType)) {
+                info.setNickname(openid);
+            }
+            // 小程序的话，获得不了，那么就用默认的吧
+            else {
+                info.setNickname(openid);
+            }
 
-            // 记录一下头像
-            headimgurl = re.getString("headimgurl");
-        }
-        // 小程序的话，获得不了，那么就用默认的吧
-        else {
-            info.setNickname(openid);
-        }
-        info.setRoleName(role);
+            // 设置默认角色
+            info.setRoleName(role);
 
-        // 创建账户
-        me = this.createAccount(info);
+            // 确保设置了 unionid 和 openid
+            info.setWxUnionId(unionid);
+            info.setWxOpenId(wxCodeType, ghOrMpName, openid);
+
+            // 创建账户
+            me = this.createAccount(info);
+        }
+        // 已经存在了的话，当前是公众号登陆，可能会得到更多的信息
+        else if ("gh".equals(wxCodeType)) {
+            // 如果没设 unionid， 或者如果没有合法昵称，搞一下信息
+            if ((!me.hasWxUnionId() && !Strings.isBlank(unionid))
+                || (me.isNameSameAsId() && me.hasRawNickname())) {
+                headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
+                boolean needSave = false;
+                if (!me.hasWxUnionId() && !Strings.isBlank(unionid)) {
+                    me.setWxUnionId(unionid);
+                    needSave = true;
+                }
+                if (!info.hasRawNickname()) {
+                    me.setNickname(info.getNickname());
+                    needSave = true;
+                }
+                if (me.isSexUnknown() && !info.isSexUnknown()) {
+                    me.setSex(info.getSex());
+                    needSave = true;
+                }
+                needSave |= me.putAllDefaultMeta(me.getMetaMap());
+
+                if (needSave) {
+                    this.saveAccount(me);
+                }
+            }
+        }
 
         // 如果有头像的话，搞一下
-        if (!Strings.isBlank(headimgurl)) {
+        updateUserAvatar(me, headimgurl);
+
+        // 创建完毕，收工
+        long se_du = setup.getSessionDefaultDuration();
+        return createSessionBy(se_du, me, by);
+    }
+
+    private String fillAccountInfo(WnIoWeixinApi wxApi,
+                                   String openid,
+                                   WnAccount info,
+                                   boolean forbidUnsubscribe) {
+        String headimgurl;
+        NutMap re = wxApi.user_info(openid, null);
+        /**
+         * 得到的返回信息格式为：
+         * 
+         * <pre>
+         {
+            subscribe: 1,
+            openid: "xxx",
+            nickname: "小白",
+            sex: 1,
+            language: "zh_CN",
+            city: "海淀",
+            province: "北京",
+            country: "中国",
+            headimgurl: "http://..",
+            subscribe_time: 1474388443,
+            remark: "",
+            groupid: 0,
+            tagid_list: [],
+            subscribe_scene: "ADD_SCENE_OTHERS",
+            qr_scene: 0,
+            qr_scene_str: ""
+         }
+         * </pre>
+         */
+        if (forbidUnsubscribe && !re.is("subscribe", 1)) {
+            throw Er.create("e.auth.login.WxGhNoSubscribed");
+        }
+        String nickname = re.getString("nickname", "anonymous");
+        NutMap meta = re.pickBy("^(language|city|province|country|subscribe)$");
+        info.setNickname(nickname);
+        info.setSex(re.getInt("sex", 0));
+        info.putAllMeta(meta);
+
+        // 记录一下头像
+        headimgurl = re.getString("headimgurl");
+        return headimgurl;
+    }
+
+    private void updateUserAvatar(WnAccount me, String headimgurl) {
+        if (!Strings.isBlank(headimgurl) && !me.hasThumb()) {
             WnObj oThumb = this.setup.getAvatarObj(me, true);
             // 读取 Image
             try {
@@ -468,10 +539,6 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
                 throw Er.wrap(e);
             }
         }
-
-        // 创建完毕，收工
-        long se_du = setup.getSessionDefaultDuration();
-        return createSessionBy(se_du, me, by);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class WnPropModule extends AbstractWnModule {
     @At("/version")
     @Ok("jsp:jsp.show_text")
     public String version() {
-        return "1.8" + io.toString();
+        return "4.2" + io.toString();
     }
 
     @At("/runtime")

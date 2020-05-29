@@ -35,11 +35,11 @@ author: zozoh
 
 数量庞大，且数据不是很关键，所以存放在`Redis`里
 
- Name   | Type        | Comments
---------|-------------|---------------
-`like`  | `Set`       | 点赞
-`favor` | `Sorted Set`| 收藏，分数为时间戳，以便排序
-`score` | `Hash`      | 打分
+ Name    | Type         | Comments
+---------|--------------|---------------
+`likeit` | `Set`        | 点赞
+`favor`  | `Sorted Set` | 收藏，分数为时间戳，以便排序
+`score`  | `Sorted Set` | 打分
 
 ## 操作历史/评论留言
 
@@ -78,6 +78,8 @@ author: zozoh
   "port"  : 6379,
   "ssl"   : false,
   "auth"  : "123456",
+  "connectionTimeout": 2000,
+  "soTimeout": 5000,
   "select": 0
 }
 ```
@@ -103,7 +105,7 @@ author: zozoh
 ```
 
 --------------------------------------
-# 点赞`like`
+# 点赞`likeit`
 
 ```bash
 SADD {TargetID} {UID1} {UID2}
@@ -111,12 +113,13 @@ SADD {TargetID} {UID1} {UID2}
 
 ## 支持的操作
 
- Name     | Args              | Description
-----------|-------------------|-------------
- `like`   | `UID`, `TargetID` | 赞
- `unlike` | `UID`, `TargetID` | 取消赞
- `all`    | `UID`, `TargetID` | 全部赞
- `isLike` | `UID`, `TargetID` | 是否赞
+ Name      | Args               | Description
+-----------|--------------------|-------------
+ `yes`     | `TargetID`,`UID`   | 赞
+ `no`      | `TargetID`,`UID`   | 取消赞
+ `all`     | `TargetID`         | 谁在赞它
+ `count`   | `TargetID`         | 有多少人赞
+ `isLike`  | `TargetID`,`UID`   | 是否赞
 
 --------------------------------------
 # 收藏`favor`
@@ -127,31 +130,33 @@ ZADD {UID} AMS {TargetID} AMS {TargetID}
 
 ## 支持的操作
 
- Name      | Args                       | Description
------------|----------------------------|-------------
- `favor`   | `UID`, `TargetID`, `AMS`   | 添加收藏
- `unfavor` | `UID`, `TargetID`          | 取消收藏
- `all`     | `UID`, `TargetID`, `rever` | 全部收藏
- `isFavor` | `UID`, `TargetID`          | 是否已收藏
+ Name       | Args                       | Description
+------------|----------------------------|-------------
+ `yes`      | `UID`, `TargetID`, `AMS`   | 添加收藏
+ `no`       | `UID`, `TargetID`          | 取消收藏
+ `all`      | `UID`, `rever`             | 全部的收藏
+ `count`    | `UID`                      | 收藏了多少东西
+ `when`     | `UID`, `TargetID`          | 收藏的时间
 
 --------------------------------------
 # 打分`score`
 
 ```bash
-HMSET {TargetID} {UID1} 75 {UID2} 100
-SET   sum:{TargetID} 175
+ZADD {TargetID} 75 {UID} 100 {UID}
+SET   {sum:TargetID} 175
 ```
 
 ## 支持的操作
 
  Name       | Args                       | Description
 ------------|----------------------------|-------------
- `score`    | `TargetID`, `UID`, `AMS`   | 打分（如果已经打分了，就不能再打了）
- `rescore`  | `TargetID`, `UID`, `AMS`   | 重复打分，会引发 resum
- `unscore`  | `TargetID`, `UID`          | 取消打分
- `resum`    | `TargetID`                 | 重新计算总分
+ `it`       | `TargetID`,`UID`,`N`       | 打分（如果已经打分了，就不能再打了）
+ `cancel`   | `TargetID`,`UID`           | 取消打分
+ `all`      | `UID`                      | 全部打分的人
+ `count`    | `TargetID`                 | 获取打分人数
  `sum`      | `TargetID`                 | 获取总分
- `getScore` | `UID`, `TargetID`, `dft:-1`| 获取具体分值
+ `resum`    | `TargetID`                 | 重新计算总分
+ `get`      | `TargetID`,`UID`,`dft:-1`  | 获取具体分值
 
 --------------------------------------
 # 历史记录`SQL`

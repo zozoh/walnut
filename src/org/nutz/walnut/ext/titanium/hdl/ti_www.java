@@ -138,6 +138,9 @@ public class ti_www implements JvmHdl {
                 }
                 WnObj oPageDir = sys.io.check(oWWW, vPage);
                 sys.io.walk(oPageDir, (o) -> {
+                    if (!o.isType("json")) {
+                        return;
+                    }
                     String name = Files.getMajorName(o.name()) + ".html";
                     if (!quiet) {
                         String rph = Wn.Io.getRelativePath(oPageDir, o);

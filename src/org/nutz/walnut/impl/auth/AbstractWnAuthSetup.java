@@ -22,7 +22,7 @@ public abstract class AbstractWnAuthSetup implements WnAuthSetup {
         this.io = io;
     }
 
-    protected abstract WnObj getWeixinConf();
+    protected abstract WnObj getWeixinConf(String codeType);
 
     protected abstract WnObj createOrFetchAccountDir();
 
@@ -55,11 +55,11 @@ public abstract class AbstractWnAuthSetup implements WnAuthSetup {
     }
 
     @Override
-    public WnIoWeixinApi getWeixinApi() {
+    public WnIoWeixinApi getWeixinApi(String codeType) {
         if (null == weixinApi) {
             synchronized (WnAuthSetup.class) {
                 if (null == weixinApi) {
-                    WnObj oWxConf = getWeixinConf();
+                    WnObj oWxConf = getWeixinConf(codeType);
                     if (null != oWxConf) {
                         weixinApi = new WnIoWeixinApi(io, oWxConf);
                     }
