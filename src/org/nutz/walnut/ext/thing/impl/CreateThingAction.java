@@ -43,6 +43,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     protected ThingConf conf;
 
+    protected int dupCount = 0;
+
     public CreateThingAction() {
         this.metas = new LinkedList<>();
     }
@@ -120,7 +122,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
                 __create_one(oIndex, meta, i++, len);
             }
             out.println(Strings.dup('-', 20));
-            out.printlnf("All done for %d records", i - 1);
+            out.printlnf("All done for %d records, %d is duplicated", i - 1, this.dupCount);
             return null;
         }
         // 普通创建模式
@@ -157,8 +159,10 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             if (null != this.uniqueKeys && this.uniqueKeys.length > 0) {
                 oT = this.checkUniqueKeys(oIndex, null, meta, this.uniqueKeys, true, false);
                 // 如果查出了数据，那么证明是之前数据库里就有
-                if (null != oT)
+                if (null != oT) {
                     isDuplicated = true;
+                    this.dupCount++;
+                }
             }
 
             // 根据唯一键约束检查重复
@@ -270,6 +274,13 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             }
 
             re_get = true;
+        }
+
+        // 输出一下重复
+        if (isDuplicated) {
+            if (null != out) {
+                out.println("  - !! isDuplicated");
+            }
         }
 
         if (re_get) {
