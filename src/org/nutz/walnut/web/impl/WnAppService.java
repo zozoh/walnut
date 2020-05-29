@@ -175,9 +175,9 @@ public class WnAppService extends WnRun {
         }
         // 否则设置成 Release 版本
         else {
-            c.put("TiJs", "ti/dist/ti-core.js");
-            c.put("WnJs", "ti/dist/ti-walnut.js");
-            c.put("preloads", Lang.array("@dist:ti-more-all.js"));
+            c.put("TiJs", "ti/dist/es6/ti-core.js");
+            c.put("WnJs", "ti/dist/es6/ti-walnut.js");
+            c.put("preloads", Lang.array("@dist:es6/ti-more-all.js"));
         }
 
         // 得到 Theme 的路径
