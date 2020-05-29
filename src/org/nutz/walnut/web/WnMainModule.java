@@ -64,7 +64,7 @@ public class WnMainModule extends AbstractWnModule {
     private long rt_ep_load_time;
 
     private void _reload_runtime_entry_pageMap() {
-        WnObj o = io.fetch(null, "/etc/hosts.d/entry_url/");
+        WnObj o = io.fetch(null, "/etc/hosts.d/entry_url");
         if (null != o) {
             this.runtimeEntryPageMap = io.readJson(o, NutMap.class);
         } else {
@@ -131,7 +131,7 @@ public class WnMainModule extends AbstractWnModule {
             }
 
             Wn.WC().setSession(se);
-            WnAccount me = se.getMe();
+            //WnAccount me = se.getMe();
 
             // 如果当前用户的 ID 和名字相等，则必须强迫其改个名字
             // 这个就在界面里控制比较好
