@@ -63,8 +63,9 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
             		XSSFPicture hssfPicture = (XSSFPicture) shape;
             		XSSFPictureData data = hssfPicture.getPictureData();
                     //byte [] picData = data.getData();
-                    int rowIndex = hssfPicture.getClientAnchor().getRow1();
-                    int colIndex = hssfPicture.getClientAnchor().getCol1();
+                    int rowIndex = hssfPicture.getClientAnchor().getRow2();
+                    int colIndex = hssfPicture.getClientAnchor().getCol2();
+                    //System.out.println(">>>> " + rowIndex + " -- " + colIndex);
                     if (rowIndex < rowOffset || colIndex < colOffset) {
                     	continue;
                     }
