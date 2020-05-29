@@ -22,6 +22,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.payment.alipay.ZfbQrcodePay3x;
 import org.nutz.walnut.ext.payment.alipay.ZfbScanPay3x;
 import org.nutz.walnut.ext.payment.free.FreePay3x;
+import org.nutz.walnut.ext.payment.paypal.PaypalPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxJsApiPay3x;
 import org.nutz.walnut.ext.payment.weixin.WxQrcodePay3x;
 import org.nutz.walnut.ext.payment.weixin.WxScanPay3x;
@@ -48,6 +49,7 @@ public class WnPayment {
         _3xes.put(WnPayType.WX_SCAN, new WxScanPay3x());
         _3xes.put(WnPayType.ZFB_QRCODE, new ZfbQrcodePay3x());
         _3xes.put(WnPayType.ZFB_SCAN, new ZfbScanPay3x());
+        _3xes.put(WnPayType.PAYPAL, new PaypalPay3x());
         _3xes.put(WnPayType.FREE, new FreePay3x());
     }
 

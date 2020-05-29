@@ -12,7 +12,9 @@ import org.nutz.walnut.impl.io.WnBean;
  */
 public class IoWnPayObj extends WnBean implements WnPayObj {
 
-    @Override
+	private static final long serialVersionUID = 1L;
+
+	@Override
     public boolean isStatusOk() {
         return WnPay3xStatus.OK == this.getStatus();
     }
