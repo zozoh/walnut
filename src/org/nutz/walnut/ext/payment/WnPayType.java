@@ -33,6 +33,11 @@ public enum WnPayType {
     ZFB_SCAN,
     
     /**
+     * Paypal支付
+     */
+    PAYPAL,
+    
+    /**
      * 免费
      */
     FREE
