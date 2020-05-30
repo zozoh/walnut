@@ -1,19 +1,13 @@
 package org.nutz.walnut.ext.entity.newsfeed;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.LongRegion;
-import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
-import org.nutz.walnut.util.WnRg;
+import org.nutz.walnut.ext.entity.DaoEntityQuery;
 
-public class FeedQuery {
+public class FeedQuery extends DaoEntityQuery {
 
     // ------------------------------------------
     // 查询条件
@@ -42,13 +36,8 @@ public class FeedQuery {
     private String ext8;
     private String ext9;
 
-    // ------------------------------------------
-    // 排序
-    // ------------------------------------------
-    private List<FeedSort> sorts;
-
     /**
-     * @return
+     * @return SQL 的查询条件
      */
     public Condition toCondition() {
         // 定义了 ID，其他就不看了
@@ -67,100 +56,44 @@ public class FeedQuery {
         }
 
         // 已读/标记
-        this.__join_bool(we, "readed", readed);
-        this.__join_bool(we, "stared", stared);
+        this.joinBool(we, "readed", readed);
+        this.joinBool(we, "stared", stared);
 
         // 时间戳
-        this.__join_region(we, "ct", createTime);
-        this.__join_region(we, "rd_at", readAt);
+        this.joinRegion(we, "ct", createTime);
+        this.joinRegion(we, "rd_at", readAt);
 
         // 源
-        this.__join_str(we, "src_id", sourceId);
-        this.__join_str(we, "src_tp", sourceType);
+        this.joinStr(we, "src_id", sourceId);
+        this.joinStr(we, "src_tp", sourceType);
 
         // 消息发送目标（接收者）
-        this.__join_str(we, "ta_id", targetId);
-        this.__join_str(we, "ta_tp", targetType);
+        this.joinStr(we, "ta_id", targetId);
+        this.joinStr(we, "ta_tp", targetType);
 
         // 消息标题/正文
-        this.__join_like(we, "title", title);
-        this.__join_like(we, "content", content);
+        this.joinLike(we, "title", title);
+        this.joinLike(we, "content", content);
 
         // 10个扩展字段
-        this.__join_str(we, "ext0", ext0);
-        this.__join_str(we, "ext1", ext1);
-        this.__join_str(we, "ext2", ext2);
-        this.__join_str(we, "ext3", ext3);
-        this.__join_str(we, "ext4", ext4);
-        this.__join_str(we, "ext5", ext5);
-        this.__join_str(we, "ext6", ext6);
-        this.__join_str(we, "ext7", ext7);
-        this.__join_str(we, "ext8", ext8);
-        this.__join_str(we, "ext9", ext9);
+        this.joinStr(we, "ext0", ext0);
+        this.joinStr(we, "ext1", ext1);
+        this.joinStr(we, "ext2", ext2);
+        this.joinStr(we, "ext3", ext3);
+        this.joinStr(we, "ext4", ext4);
+        this.joinStr(we, "ext5", ext5);
+        this.joinStr(we, "ext6", ext6);
+        this.joinStr(we, "ext7", ext7);
+        this.joinStr(we, "ext8", ext8);
+        this.joinStr(we, "ext9", ext9);
 
         // ........................................
         // 排序
-        if (null != sorts) {
-            for (FeedSort sr : sorts) {
-                if (sr.isAsc()) {
-                    cri.asc(sr.getName());
-                } else {
-                    cri.desc(sr.getName());
-                }
-            }
-        }
+        joinSorts(cri);
 
         // ........................................
         // 搞定
         return cri;
-    }
-
-    private void __join_like(SqlExpressionGroup we, String name, String val) {
-        if (!Strings.isBlank(val)) {
-            we.andLike(name, val);
-        }
-    }
-
-    private void __join_region(SqlExpressionGroup we, String name, String str) {
-        if (!Strings.isBlank(str)) {
-            String s = WnRg.extend_rg_macro(str);
-            LongRegion rg = Region.Long(s);
-            // Region
-            if (rg.isRegion()) {
-                // [xxx, )
-                if (null == rg.right()) {
-                    if (rg.isLeftOpen()) {
-                        we.andGT(name, rg.left());
-                    } else {
-                        we.andGTE(name, rg.left());
-                    }
-                }
-                // (, xxx)
-                else if (null == rg.left()) {
-                    if (rg.isRightOpen()) {
-                        we.andLT(name, rg.right());
-                    } else {
-                        we.andLTE(name, rg.right());
-                    }
-                }
-                // [xxx, xxx]
-                else {
-                    we.andBetween(name, rg.left(), rg.right());
-                }
-            }
-        }
-    }
-
-    private void __join_str(SqlExpressionGroup we, String name, String val) {
-        if (!Strings.isBlank(val)) {
-            we.andEquals(name, val);
-        }
-    }
-
-    private void __join_bool(SqlExpressionGroup we, String name, Boolean val) {
-        if (null != val) {
-            we.andEquals(name, val);
-        }
     }
 
     // ------------------------------------------
@@ -343,31 +276,4 @@ public class FeedQuery {
         this.ext9 = ext9;
     }
 
-    public List<FeedSort> getSorts() {
-        return sorts;
-    }
-
-    public void setSorts(List<FeedSort> sorts) {
-        this.sorts = sorts;
-    }
-
-    public void setSorts(NutMap sort) {
-        if (!sort.isEmpty()) {
-            for (String key : sort.keySet()) {
-                int val = sort.getInt(key);
-                this.addSort(key, val == 1);
-            }
-        }
-    }
-
-    public void addSort(FeedSort sort) {
-        if (null == this.sorts) {
-            this.sorts = new LinkedList<>();
-        }
-        this.sorts.add(sort);
-    }
-
-    public void addSort(String name, boolean asc) {
-        this.addSort(new FeedSort(name, asc));
-    }
 }

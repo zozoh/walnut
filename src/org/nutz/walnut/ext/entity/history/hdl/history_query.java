@@ -1,30 +1,28 @@
-package org.nutz.walnut.ext.entity.newsfeed.hdl;
+package org.nutz.walnut.ext.entity.history.hdl;
 
 import org.nutz.dao.QueryResult;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.entity.newsfeed.FeedQuery;
-import org.nutz.walnut.ext.entity.newsfeed.NewsfeedApi;
-import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedService;
+import org.nutz.walnut.ext.entity.history.HisQuery;
+import org.nutz.walnut.ext.entity.history.HistoryApi;
+import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
-import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
-@JvmHdlParamArgs("cqn")
-public class newsfeed_query implements JvmHdl {
+public class history_query implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备接口
-        NewsfeedApi api = hc.getAs("api", WnNewsfeedService.class);
+        HistoryApi api = hc.getAs("api", WnHistoryService.class);
 
         // 获取查询条件
         String json = Cmds.getParamOrPipe(sys, hc.params, 0);
         NutMap map = Lang.map(json);
-        FeedQuery q = Lang.map2Object(map, FeedQuery.class);
+        HisQuery q = Lang.map2Object(map, HisQuery.class);
 
         // 设置排序
         if (hc.params.has("sort")) {

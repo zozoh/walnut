@@ -1,14 +1,14 @@
-package org.nutz.walnut.ext.entity.newsfeed;
+package org.nutz.walnut.ext.entity;
 
-public class FeedSort {
+public class DaoEntitySort {
 
     private String name;
 
     private boolean asc;
 
-    public FeedSort() {}
+    public DaoEntitySort() {}
 
-    public FeedSort(String name, boolean asc) {
+    public DaoEntitySort(String name, boolean asc) {
         this.name = name;
         this.asc = asc;
     }

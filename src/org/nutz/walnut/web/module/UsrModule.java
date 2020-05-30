@@ -41,8 +41,6 @@ import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.usr.WnUsrInfo;
 import org.nutz.walnut.ext.captcha.Captchas;
 import org.nutz.walnut.ext.vcode.VCodes;
 import org.nutz.walnut.ext.vcode.WnVCodeService;
@@ -761,50 +759,6 @@ public class UsrModule extends AbstractWnModule {
 
         // 不存在
         return false;
-    }
-
-    @At("/do/booking/ajax")
-    @Ok("ajax")
-    @Fail("ajax")
-    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public WnObj do_booking_ajax(@Param("str") String str,
-                                 @Param("domain") String domain,
-                                 @Param("vcode") String vcode) {
-        if (Strings.isBlank(str)) {
-            throw Er.create("e.usr.signup.blank");
-        }
-
-        // 分析注册信息
-        WnUsrInfo info = new WnUsrInfo(str);
-
-        // 如果是手机，需要校验验证码
-        if (info.isByPhone()) {
-            domain = Strings.sBlank(domain, "walnut");
-            String vcodePath = VCodes.getBookingPath(domain, info.getPhone());
-            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
-                throw Er.create("e.usr.vcode.invalid");
-            }
-        }
-
-        // 如果是邮箱，则输入校验验证码
-        if (info.isByEmail()) {
-            domain = Strings.sBlank(domain, "walnut");
-            String vcodePath = VCodes.getBookingPath(domain, info.getEmail());
-            if (!vcodes.checkAndRemove(vcodePath, vcode)) {
-                throw Er.create("e.usr.vcode.invalid");
-            }
-        }
-
-        // 检查同名
-        if (this.bookExists(str)) {
-            throw Er.create("e.booking.exists", str);
-        }
-
-        // 创建登录记录
-        WnObj oBook = io.create(null, "/var/booking/" + str, WnRace.FILE);
-
-        // 返回
-        return oBook;
     }
 
     /**

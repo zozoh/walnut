@@ -6,6 +6,7 @@ import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.util.Wn;
 
 @Table("${t_newsfeed}")
 public class Newsfeed {
@@ -24,7 +25,7 @@ public class Newsfeed {
      * 消息类型:
      */
     @Column("tp")
-    @ColDefine(type=ColType.INT)
+    @ColDefine(type = ColType.INT)
     private FeedType type;
 
     // ------------------------------------------
@@ -116,6 +117,10 @@ public class Newsfeed {
     // ------------------------------------------
 
     public Newsfeed autoComplete(boolean forCreate) {
+        // 分配一个 ID
+        if (null == this.id) {
+            this.id = Wn.genId();
+        }
         // 默认为单播
         if (null == this.type) {
             this.type = FeedType.UNICAST;

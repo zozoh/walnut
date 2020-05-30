@@ -13,21 +13,22 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.util.Wn;
 
-public class WnNewsfeedApi implements NewfeedApi {
+public class WnNewsfeedService implements NewsfeedApi {
 
     /**
      * 配置对象
      */
-    FeedConfig config;
+    WnDaoConfig config;
 
     /**
      * SQL数据库操作接口
      */
     private Dao dao;
 
-    public WnNewsfeedApi(FeedConfig config, Dao dao) {
+    public WnNewsfeedService(WnDaoConfig config, Dao dao) {
         this.config = config;
         this.dao = dao;
     }
@@ -108,43 +109,30 @@ public class WnNewsfeedApi implements NewfeedApi {
         return n;
     }
 
-    /**
-     * @param id
-     *            消息 ID
-     * @return true 表示删除成功
-     */
     @Override
-    public boolean remove(String id) {
-        String tableName = config.getTableName();
-        int n = TableName.run(tableName, new Proton<Integer>() {
-            protected Integer exec() {
-                return dao.delete(Newsfeed.class, id);
-            }
-        });
-        return n > 0;
-    }
-
-    @Override
-    public int batchRemove(String[] ids) {
-        if (null != ids && ids.length > 0) {
-            String tableName = config.getTableName();
-            SqlExpressionGroup we = new SqlExpressionGroup();
-            we.andIn("id", ids);
-            Cnd cnd = Cnd.where(we);
-            return dao.clear(tableName, cnd);
+    public int remove(String... ids) {
+        if (ids.length <= 0) {
+            return 0;
         }
-        return 0;
+
+        String tableName = config.getTableName();
+
+        // 移除一条
+        if (ids.length == 0) {
+            return TableName.run(tableName, new Proton<Integer>() {
+                protected Integer exec() {
+                    return dao.delete(Newsfeed.class, ids[0]);
+                }
+            });
+        }
+
+        // 一次移除多个
+        SqlExpressionGroup we = new SqlExpressionGroup();
+        we.andIn("id", ids);
+        Cnd cnd = Cnd.where(we);
+        return dao.clear(tableName, cnd);
     }
 
-    /**
-     * @param q
-     *            查询条件
-     * @param pn
-     *            当前页（1 base）
-     * @param pgsz
-     *            页大小
-     * @return 查询结果（当前页列表，以及翻页信息）
-     */
     @Override
     public QueryResult query(FeedQuery q, int pn, int pgsz) {
         // 准备条件
@@ -165,13 +153,6 @@ public class WnNewsfeedApi implements NewfeedApi {
         return new QueryResult(list, pager);
     }
 
-    /**
-     * 向消息流里插入一条信息对象
-     * 
-     * @param feed
-     *            信息对象
-     * @return 插入的信息对象
-     */
     @Override
     public Newsfeed add(Newsfeed feed) {
         // 自动补全
@@ -194,14 +175,6 @@ public class WnNewsfeedApi implements NewfeedApi {
         return re;
     }
 
-    /***
-     * 执行消息的批量插入
-     * 
-     * @param feed
-     *            信息对象模板
-     * @param targetIds
-     *            目标 ID 列表
-     */
     @Override
     public List<Newsfeed> batchAdd(Newsfeed feed, String[] targetIds) {
         // 防守

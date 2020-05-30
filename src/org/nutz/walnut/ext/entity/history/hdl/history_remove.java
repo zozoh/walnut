@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.entity.newsfeed.hdl;
+package org.nutz.walnut.ext.entity.history.hdl;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,20 +7,18 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.entity.newsfeed.NewsfeedApi;
-import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedService;
+import org.nutz.walnut.ext.entity.history.HistoryApi;
+import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
-import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("cqn")
-public class newsfeed_remove implements JvmHdl {
+public class history_remove implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备接口
-        NewsfeedApi api = hc.getAs("api", WnNewsfeedService.class);
+        HistoryApi api = hc.getAs("api", WnHistoryService.class);
 
         // 准备解析列表
         List<String> list = new LinkedList<>();

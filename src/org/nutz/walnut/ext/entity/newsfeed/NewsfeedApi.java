@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.nutz.dao.QueryResult;
 
-public interface NewfeedApi {
+public interface NewsfeedApi {
 
     Newsfeed fetch(String id);
 
@@ -19,13 +19,11 @@ public interface NewfeedApi {
     int cleanAllReaded(String targetId);
 
     /**
-     * @param id
+     * @param ids
      *            消息 ID
-     * @return true 表示删除成功
+     * @return 实际移除的记录数量
      */
-    boolean remove(String id);
-
-    int batchRemove(String[] ids);
+    int remove(String... ids);
 
     /**
      * @param q

@@ -4,8 +4,8 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.entity.newsfeed.NewfeedApi;
-import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedApi;
+import org.nutz.walnut.ext.entity.newsfeed.NewsfeedApi;
+import org.nutz.walnut.ext.entity.newsfeed.WnNewsfeedService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -17,7 +17,7 @@ public class newsfeed_stared implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备接口
-        NewfeedApi api = hc.getAs("api", WnNewsfeedApi.class);
+        NewsfeedApi api = hc.getAs("api", WnNewsfeedService.class);
 
         // 参数
         boolean stared = hc.params.is("star", true);

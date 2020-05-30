@@ -27,17 +27,17 @@ public class WnRedisFavorService implements FavorApi {
         for (String taId : taIds) {
             map.put(taId, now);
         }
-        return Wedis.run(conf, jed -> jed.zadd(uid, map));
+        return Wedis.runGet(conf, jed -> jed.zadd(uid, map));
     }
 
     @Override
     public long unfavor(String uid, String... taIds) {
-        return Wedis.run(conf, jed -> jed.zrem(uid, taIds));
+        return Wedis.runGet(conf, jed -> jed.zrem(uid, taIds));
     }
 
     @Override
     public List<FavorIt> getAll(String uid, int skip, int limit) {
-        return Wedis.run(conf, jed -> {
+        return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? start + limit - 1 : Long.MAX_VALUE;
             Set<Tuple> set = jed.zrangeWithScores(uid, start, stop);
@@ -52,7 +52,7 @@ public class WnRedisFavorService implements FavorApi {
 
     @Override
     public List<FavorIt> revAll(String uid, int skip, int limit) {
-        return Wedis.run(conf, jed -> {
+        return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? limit : Long.MAX_VALUE;
             Set<Tuple> set = jed.zrevrangeWithScores(uid, start, stop);
@@ -67,12 +67,12 @@ public class WnRedisFavorService implements FavorApi {
 
     @Override
     public long count(String uid) {
-        return Wedis.run(conf, jed -> jed.zcard(uid));
+        return Wedis.runGet(conf, jed -> jed.zcard(uid));
     }
 
     @Override
     public long whenFavor(String uid, String taId) {
-        return Wedis.run(conf, jed -> (long) ((double) jed.zscore(uid, taId)));
+        return Wedis.runGet(conf, jed -> (long) ((double) jed.zscore(uid, taId)));
     }
 
 }

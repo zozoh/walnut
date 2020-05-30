@@ -1,21 +1,14 @@
 package org.nutz.walnut.ext.entity.score;
 
-import java.util.Collection;
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.entity.JvmRedisEntityExecutor;
+import org.nutz.walnut.ext.entity.RedisEntityPrinter;
 import org.nutz.walnut.ext.redis.WedisConfig;
-import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
-import org.nutz.web.ajax.Ajax;
 
-public class cmd_score extends JvmExecutor {
+public class cmd_score extends JvmRedisEntityExecutor {
 
-    @SuppressWarnings("unchecked")
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|rever)$");
@@ -25,15 +18,9 @@ public class cmd_score extends JvmExecutor {
         int skip = params.getInt("skip", 0);
 
         // 准备配置
-        String nmConf = params.get("conf", "_score");
-        if (!nmConf.endsWith(".json")) {
-            nmConf += ".json";
-        }
-        String phConf = "~/.domain/score/" + nmConf;
-        WnObj oConf = Wn.checkObj(sys, phConf);
+        WedisConfig conf = this.prepareConfig(sys, params, "score");
 
         // 准备接口
-        WedisConfig conf = sys.io.readJson(oConf, WedisConfig.class);
         ScoreApi api = new WnRedisScoreService(conf);
 
         // 准备返回
@@ -83,33 +70,12 @@ public class cmd_score extends JvmExecutor {
         }
 
         // 输出
-        boolean asJson = params.is("json");
-        if (params.is("ajax")) {
-            re = Ajax.ok().setData(re);
-            asJson = true;
-        }
-
-        if (asJson) {
-            JsonFormat jfmt = Cmds.gen_json_format(params);
-            sys.out.println(Json.toJson(re, jfmt));
-        }
-        // 输出集合
-        else if (re instanceof Collection<?>) {
-            Collection<ScoreIt> co = (Collection<ScoreIt>) re;
-            if (co.isEmpty()) {
-                sys.out.println("(~nil~)");
-            } else {
-                int i = params.getInt("i", 1) + skip;
-                String fmt = params.get("out", "%d) %d <- %s");
-                for (ScoreIt fi : co) {
-                    sys.out.printlnf(fmt, i++, fi.getScore(), fi.getName());
-                }
+        String fmt = params.get("out", "%d) %d <- %s");
+        output(sys, params, re, new RedisEntityPrinter<ScoreIt>() {
+            public void print(ScoreIt it, int i) {
+                sys.out.printlnf(fmt, i++, it.getScore(), it.getName());
             }
-        }
-        // 直接输出把
-        else {
-            sys.out.println(re.toString());
-        }
+        });
     }
 
 }

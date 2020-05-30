@@ -2,8 +2,8 @@ package org.nutz.walnut.ext.redis;
 
 import redis.clients.jedis.Jedis;
 
-public interface WedisRun {
+public interface WedisRunGet<T> {
 
-    void exec(Jedis jed);
-    
+    T exec(Jedis jed);
+
 }
