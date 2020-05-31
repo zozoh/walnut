@@ -2099,10 +2099,10 @@ define(function (require, exports, module) {
         }
 
         // 重置 DOM
-        jDebugRoot.html(`
-        <section class="uid-detail"></section>
-        <section class="uid-tree"></section>
-    `);
+        jDebugRoot.html(
+        '<section class="uid-detail"></section>'
+        +'<section class="uid-tree"></section>'
+        );
         if (inMask)
             $('<div class="uid-closer">').appendTo(jDebugRoot);
 

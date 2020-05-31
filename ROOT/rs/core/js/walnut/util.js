@@ -479,23 +479,23 @@ var Wn = {
         }, opt.maskConf)).render(function(){
             var uiMask = this;
             // 准备 DOM
-            var jP = $(`<div class="wn-process-panel" st="ing">
-                <header>
-                    <h4>Processing ... </h4>
-                    <div st="ing"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>
-                    <div st="ok"><i class="zmdi zmdi-check-circle"></i></div>
-                    <div st="fail"><i class="zmdi zmdi-alert-triangle"></i></div>
-                </header>
-                <section>
-                    <div class="wpp-bar"><em>0%</em><b><i style="width:0%;"></i></b></div>
-                    <div class="wpp-msg"></div>
-                </section>
-                <pre></pre>
-                <footer>
-                    <i class="zmdi zmdi-alert-circle"></i>
-                    <i class="zmdi zmdi-format-subject"></i>
-                </footer>
-            </div>`).appendTo(this.$main);
+            var jP = $('<div class="wn-process-panel" st="ing">'
+                +'<header>'
+                +'<h4>Processing ... </h4>'
+                +'<div st="ing"><i class="fa fa-spinner fa-pulse fa-fw"></i></div>'
+                +'<div st="ok"><i class="zmdi zmdi-check-circle"></i></div>'
+                +'<div st="fail"><i class="zmdi zmdi-alert-triangle"></i></div>'
+                +'</header>'
+                +'<section>'
+                +'<div class="wpp-bar"><em>0%</em><b><i style="width:0%;"></i></b></div>'
+                +'<div class="wpp-msg"></div>'
+                +'</section>'
+                +'<pre></pre>'
+                +'<footer>'
+                +'<i class="zmdi zmdi-alert-circle"></i>'
+                +'<i class="zmdi zmdi-format-subject"></i>'
+                +'</footer>'
+            '</div>').appendTo(this.$main);
 
             // 得到关键的 DOM 节点
             var jStatus = jP.find("header");
