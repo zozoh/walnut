@@ -3,8 +3,8 @@ package org.nutz.walnut.tool.ti;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -19,10 +19,7 @@ public class TidyI18nJsonMap {
         this.i18nFile = f;
     }
 
-    public String doTidy() {
-        // 解析
-        NutMap map = Json.fromJsonFile(NutMap.class, i18nFile);
-
+    private NutMap tidyMap(NutMap map) {
         // 排序
         List<String> keys = new ArrayList<>(map.size());
         keys.addAll(map.keySet());
@@ -32,8 +29,23 @@ public class TidyI18nJsonMap {
         NutMap out = new NutMap();
         for (String key : keys) {
             Object val = map.get(key);
+            // if (val instanceof Map) {
+            // NutMap m2 = NutMap.WRAP((Map<String, Object>) val);
+            // val = tidyMap(m2);
+            // }
             out.put(key, val);
         }
+
+        // 返回
+        return out;
+    }
+
+    public String doTidy() {
+        // 解析
+        NutMap map = Json.fromJsonFile(NutMap.class, i18nFile);
+
+        // 排序
+        NutMap out = tidyMap(map);
 
         // 返回
         JsonFormat jfmt = JsonFormat.nice();
