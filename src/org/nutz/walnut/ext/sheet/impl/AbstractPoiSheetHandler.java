@@ -354,6 +354,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             cell.setCellValue(str);
             if (str.contains("\n") || str.contains("\r")) {
             	CellStyle cs = cell.getCellStyle();
+            	cs.setWrapText(true);
+            	cell.setCellStyle(cs);
+            	cell.setCellValue(str);
             }
         }
     }

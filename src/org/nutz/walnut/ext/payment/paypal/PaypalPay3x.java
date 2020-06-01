@@ -23,10 +23,16 @@ import com.paypal.http.serializer.ObjectMapper;
 import com.paypal.orders.AmountWithBreakdown;
 import com.paypal.orders.Order;
 import com.paypal.orders.OrderRequest;
+import com.paypal.orders.OrdersCaptureRequest;
 import com.paypal.orders.OrdersCreateRequest;
 import com.paypal.orders.OrdersGetRequest;
 import com.paypal.orders.PurchaseUnitRequest;
-
+/**
+PayPal账单有多个状态
+CREATE: 新建订单
+APPROVED: 客户已提交付款信息,等待服务器做二次确认. 本实现中,如果是这个状态,会发起CAPTURE命令,自动确认订单.
+COMPLETED: 完成支付,完成确认
+ */
 public class PaypalPay3x extends WnPay3x {
 	
 	private static final Log log = Logs.get();
@@ -94,13 +100,23 @@ public class PaypalPay3x extends WnPay3x {
 			// If call returns body in response, you can get the de-serialized version by
 			// calling result() on the response
 			order = response.result();
+			// 如果状态是
+			if ("COMPLETED".equals(order.status())) {
+				re.setStatus(WnPay3xStatus.OK);
+			}
+			else if ("APPROVED".equals(order.status())) {
+				log.info("paypal order APPROVED, send Capture");
+				OrdersCaptureRequest req2 = new OrdersCaptureRequest(order.id());
+				HttpResponse<Order> resp2 = client.execute(req2);
+				order = resp2.result();
+				if ("COMPLETED".equals(order.status())) {
+					re.setStatus(WnPay3xStatus.OK);
+				}
+			}
 			Map<String, Object> ret = ObjectMapper.map(order);
 			po.put(PP_RE, ret);
 			po.put(PP_STAT, order.status());
 			re.addChangeKeys(PP_RE, PP_STAT); // 不要更新PP_ID
-			if ("COMPLETED".equals(order.status())) {
-				re.setStatus(WnPay3xStatus.OK);
-			}
 			re.setData(ret);
 		} catch (Exception ioe) {
 			log.info("paypal fail", ioe);
