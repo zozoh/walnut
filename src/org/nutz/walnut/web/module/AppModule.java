@@ -241,47 +241,55 @@ public class AppModule extends AbstractWnModule {
             return new ViewWrapper(view, reo);
         }
         // -------------------------------------------------
-        // 准备返回
-        WnAuthSession se = null;
-        // -------------------------------------------------
         // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
         try {
-            WnAccount user = si.webs.getAuthApi().checkAccount(name);
-            // -----------------------------------------
-            // 检查登录密码，看看是否登录成功
-            if (user.isMatchedRawPasswd(passwd)) {
-                // 确保用户是可以访问域主目录的
-                __check_home_accessable(si.oHome, user);
-
-                // 特殊会话类型
-                String byType = "auth_by_domain";
-                String byValue = si.siteId + ":passwd";
-
-                // 注册新会话
-                se = auth.createSession(user, true);
-
-                // 更新会话元数据
-                __update_auth_session(se, si.webs, byType, byValue);
-
-                // 准备返回值
-                reo = se;
-                if (ajax) {
-                    view = new WnAddCookieViewWrapper(new AjaxView(), null);
-                }
-                // 重定向视图
-                else {
-                    view = new WnAddCookieViewWrapper("/");
-                }
-                // 返回
-                return new ViewWrapper(view, reo);
+            // 如果采用域用户登陆，则校验系统账户
+            // 并返回 CookieView
+            if (si.oHome.isSameName(name)) {
+                reo = auth.loginByPasswd(name, passwd);
             }
-            // -----------------------------------------
-            // 登录失败
+            // 采用域用户库来登陆
             else {
-                reo = Er.create("e.auth.login.invalid.passwd");
+                WnAccount user = si.webs.getAuthApi().checkAccount(name);
+                // -----------------------------------------
+                // 检查登录密码，看看是否登录成功
+                if (user.isMatchedRawPasswd(passwd)) {
+                    // 确保用户是可以访问域主目录的
+                    __check_home_accessable(si.oHome, user);
+
+                    // 特殊会话类型
+                    String byType = "auth_by_domain";
+                    String byValue = si.siteId + ":passwd";
+
+                    // 注册新会话
+                    WnAuthSession se = auth.createSession(user, true);
+
+                    // 更新会话元数据
+                    __update_auth_session(se, si.webs, byType, byValue);
+
+                    // 准备返回值
+                    reo = se;
+                }
+                // -----------------------------------------
+                // 登录失败
+                else {
+                    reo = Er.create("e.auth.login.invalid.passwd");
+                }
             }
+
+            // 根据选项包裹返回视图
+            // AJAX 视图
+            if (ajax) {
+                view = new WnAddCookieViewWrapper(new AjaxView(), null);
+            }
+            // 重定向视图
+            else {
+                view = new WnAddCookieViewWrapper("/");
+            }
+            // 返回
+            return new ViewWrapper(view, reo);
         }
-        // 通常是账户不存在，进入这个分支
+        // 通常是账户不存在或者权限错误，进入这个分支
         catch (Exception e) {
             reo = e;
         }
@@ -295,51 +303,6 @@ public class AppModule extends AbstractWnModule {
         // -----------------------------------------
         // 包裹返回
         return new ViewWrapper(view, reo);
-    }
-
-    private void __check_home_accessable(WnObj oHome, WnAccount user) {
-        WnSecurity secu = new WnSecurityImpl(io, auth);
-        // 不能读，那么注销会话，并返回错误
-        if (!secu.test(oHome, Wn.Io.R, user)) {
-            throw Er.create("e.auth.home.forbidden");
-        }
-    }
-
-    private void __update_auth_session(WnAuthSession se,
-                                       WnWebService webs,
-                                       String byType,
-                                       String byValue) {
-        // 标注新会话的类型，以便指明用户来源
-        se.setByType(byType);
-        se.setByValue(byValue);
-
-        // 确保用户会话有足够的环境变量
-        NutMap vars = se.getVars();
-
-        // 先搞一轮站点的环境变量，这个要强制加上
-        for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            boolean force = key.startsWith("!");
-            // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
-            // 这样就不用为每个用户设置了。有些时候又希望千人千面。
-            // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
-            if (force) {
-                key = key.substring(1).trim();
-                vars.put(key, val);
-            }
-            // 弱弱的补充一下
-            else {
-                vars.putDefault(key, val);
-            }
-        }
-        // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
-        for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
-            vars.putDefault(en.getKey(), en.getValue());
-        }
-
-        // 保存会话
-        auth.saveSession(se);
     }
 
     /**
@@ -437,4 +400,48 @@ public class AppModule extends AbstractWnModule {
         return new ViewWrapper(view, reo);
     }
 
+    private void __check_home_accessable(WnObj oHome, WnAccount user) {
+        WnSecurity secu = new WnSecurityImpl(io, auth);
+        // 不能读，那么注销会话，并返回错误
+        if (!secu.test(oHome, Wn.Io.R, user)) {
+            throw Er.create("e.auth.home.forbidden");
+        }
+    }
+
+    private void __update_auth_session(WnAuthSession se,
+                                       WnWebService webs,
+                                       String byType,
+                                       String byValue) {
+        // 标注新会话的类型，以便指明用户来源
+        se.setByType(byType);
+        se.setByValue(byValue);
+
+        // 确保用户会话有足够的环境变量
+        NutMap vars = se.getVars();
+
+        // 先搞一轮站点的环境变量，这个要强制加上
+        for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            boolean force = key.startsWith("!");
+            // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
+            // 这样就不用为每个用户设置了。有些时候又希望千人千面。
+            // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
+            if (force) {
+                key = key.substring(1).trim();
+                vars.put(key, val);
+            }
+            // 弱弱的补充一下
+            else {
+                vars.putDefault(key, val);
+            }
+        }
+        // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
+        for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
+            vars.putDefault(en.getKey(), en.getValue());
+        }
+
+        // 保存会话
+        auth.saveSession(se);
+    }
 }

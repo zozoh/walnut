@@ -269,6 +269,7 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
                 context.put("fnm", o.name());
                 context.put("majorName", Files.getMajorName(o.name()));
                 context.put("rs", "/gu/rs/");
+                context.put("siteRs", "/www/" + se.getMyGroup() + "/");
 
                 // 如果上下文中有 "wn_www_path_new" 表示 WalnutFilter 已经修改了路径，那么
                 if (req.getAttribute("wn_www_path_new") != null) {

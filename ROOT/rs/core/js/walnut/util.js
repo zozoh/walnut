@@ -495,7 +495,7 @@ var Wn = {
                 +'<i class="zmdi zmdi-alert-circle"></i>'
                 +'<i class="zmdi zmdi-format-subject"></i>'
                 +'</footer>'
-            '</div>').appendTo(this.$main);
+            +'</div>').appendTo(this.$main);
 
             // 得到关键的 DOM 节点
             var jStatus = jP.find("header");

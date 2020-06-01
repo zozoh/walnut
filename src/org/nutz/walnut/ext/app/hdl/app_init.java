@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.app.hdl;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,14 +72,40 @@ public class app_init implements JvmHdl {
 
     protected void __exec_init(WnSystem sys, JvmHdlContext hc) {
         // 得到关键目录
-        String ph_tmpl = hc.params.vals.length > 0 ? hc.params.val_check(0) : "/mnt/project/" + sys.getMe().getName() + "/init/domain";
-        String ph_dest = Strings.sBlank(hc.params.val(1), "~");
-        
-        sys.out.println("tmpl : " + ph_tmpl);
-        sys.out.println("dest : " + ph_dest);
+        WnObj oTmpl, oDest;
+        // 自动模式
+        if (hc.params.vals.length <= 1) {
+            String ph_dest = Strings.sBlank(hc.params.val(0), "~");
+            oDest = Wn.checkObj(sys, ph_dest);
 
-        WnObj oTmpl = Wn.checkObj(sys, ph_tmpl);
-        WnObj oDest = Wn.checkObj(sys, ph_dest);
+            // 这个要寻找一下
+            String grp = sys.getMyGroup();
+            WnObj oMntHome = sys.io.check(null, "/mnt/project/" + grp);
+            oTmpl = sys.io.fetch(oMntHome, "init/domain");
+            // 向下找一层看看
+            if (null == oTmpl) {
+                List<WnObj> children = sys.io.getChildren(oMntHome, null);
+                for (WnObj oChild : children) {
+                    if (!oChild.isDIR()) {
+                        continue;
+                    }
+                    oTmpl = sys.io.fetch(oChild, "init/domain");
+                    if (null != oTmpl) {
+                        break;
+                    }
+                }
+            }
+        }
+        // 指定模式
+        else {
+            String ph_tmpl = hc.params.val_check(0);
+            String ph_dest = Strings.sBlank(hc.params.val(1), "~");
+            oTmpl = Wn.checkObj(sys, ph_tmpl);
+            oDest = Wn.checkObj(sys, ph_dest);
+        }
+
+        sys.out.println("tmpl : " + oTmpl.getRegularPath());
+        sys.out.println("dest : " + oDest.getRegularPath());
 
         // 得到上下文
         NutMap c;
@@ -93,13 +120,13 @@ public class app_init implements JvmHdl {
         }
         // 就来一个空的吧
         else {
-        	WnObj tmp = sys.io.fetch(null, Wn.normalizeFullPath("~/.domain/vars.json", sys));
-        	if (tmp == null)
-        		c = new NutMap();
-        	else {
-        		sys.out.println("read vars from ~/.domain/vars.json");
-        		c = sys.io.readJson(tmp, NutMap.class);
-        	}
+            WnObj tmp = sys.io.fetch(null, Wn.normalizeFullPath("~/.domain/vars.json", sys));
+            if (tmp == null)
+                c = new NutMap();
+            else {
+                sys.out.println("read vars from ~/.domain/vars.json");
+                c = sys.io.readJson(tmp, NutMap.class);
+            }
         }
 
         // 上下文一定要增加的键
