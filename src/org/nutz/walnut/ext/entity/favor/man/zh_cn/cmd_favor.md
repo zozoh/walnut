@@ -22,6 +22,7 @@ favor
                       # 配置文件存放在 ~/.domain/like/ 目录下
   [-i 1]              # 对于 all 命令按行输出， 起始行号，默认为 1
   [-ms]               # 对于when命令输出的时间格式，保持毫秒数的形式
+  [-dv nil]           # 对于when命令的非-ms输出，如果没有记录，返回什么, 默认nil
   [-df yyyyMMdd]      # 对于when命令输出的时间格式，默认 `yyyy-MM-dd HH:mm:ss`
   [-out '%d) %s + %s']  # 对于 all 命令按行输出， 输出模板
 ```
@@ -51,11 +52,11 @@ demo:$> favor count cake -ajax -c
 {ok:true, data: 1}
 
 # 判断 zozoh 什么时候收藏的 banana
-demo:$> favor is cake wendal
-159..231
+demo:$> favor when zozoh banana
+1591201918164
 
 # 判断 zozoh 什么时候收藏的 cake
-demo:$> favor is cake zozoh -json -cqn
+demo:$> favor when zozoh cake -json -cqn
 0
 
 ```

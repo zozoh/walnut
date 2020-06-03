@@ -74,11 +74,11 @@ public interface FavorApi {
      * @param uid
      *            用户 ID
      * 
-     * @param taId
+     * @param taIds
      *            被收藏主体
      * 
      * @return 具体收藏的时间（绝对毫秒数）
      */
-    long whenFavor(String uid, String taId);
+    long[] whenFavor(String uid, String... taId);
 
 }

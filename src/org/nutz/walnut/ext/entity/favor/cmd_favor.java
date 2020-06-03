@@ -55,16 +55,28 @@ public class cmd_favor extends JvmRedisEntityExecutor {
         // favor is
         else if ("when".equals(action)) {
             String taId = params.val_check(2);
-            long ams = api.whenFavor(uid, taId);
+            long[] amss = api.whenFavor(uid, taId);
             // 保持毫秒数
             if (params.is("ms")) {
-                re = ams;
+                re = amss;
             }
-            // 转换成可阅读文字
+            // 转换成可阅读文字: 日子
             else {
                 String df = params.getString("df", "yyyy-MM-dd HH:mm:ss");
-                Date d = Times.D(ams);
-                re = Times.format(df, d);
+                String[] ss = new String[amss.length];
+                for (int i = 0; i < amss.length; i++) {
+                    long ams = amss[i];
+                    // 转换成可阅读文字 : null
+                    if (ams <= 0) {
+                        ss[i] = params.get("dv", "nil");
+                    }
+                    // 转换成日期
+                    else {
+                        Date d = Times.D(ams);
+                        ss[i] = Times.format(df, d);
+                    }
+                }
+                re = amss;
             }
         }
         // 不支持的动作

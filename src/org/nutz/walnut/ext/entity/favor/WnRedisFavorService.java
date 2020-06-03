@@ -71,8 +71,20 @@ public class WnRedisFavorService implements FavorApi {
     }
 
     @Override
-    public long whenFavor(String uid, String taId) {
-        return Wedis.runGet(conf, jed -> (long) ((double) jed.zscore(uid, taId)));
+    public long[] whenFavor(String uid, String... taIds) {
+        return Wedis.runGet(conf, jed -> {
+            long[] re = new long[taIds.length];
+            for (int i = 0; i < taIds.length; i++) {
+                String taId = taIds[i];
+                Double score = jed.zscore(uid, taId);
+                if (null == score) {
+                    re[i] = 0L;
+                } else {
+                    re[i] = (long) ((double) score);
+                }
+            }
+            return re;
+        });
     }
 
 }

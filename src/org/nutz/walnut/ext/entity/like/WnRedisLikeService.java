@@ -36,7 +36,10 @@ public class WnRedisLikeService implements LikeApi {
 
     @Override
     public boolean isLike(String taId, String uid) {
-        return Wedis.runGet(conf, jed -> jed.sismember(taId, uid));
+        return Wedis.runGet(conf, jed -> {
+            Boolean rb = jed.sismember(taId, uid);
+            return null == rb ? false : rb;
+        });
     }
 
 }
