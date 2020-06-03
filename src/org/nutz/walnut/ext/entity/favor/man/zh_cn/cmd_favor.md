@@ -22,7 +22,9 @@ favor
                       # 配置文件存放在 ~/.domain/like/ 目录下
   [-i 1]              # 对于 all 命令按行输出， 起始行号，默认为 1
   [-ms]               # 对于when命令输出的时间格式，保持毫秒数的形式
-  [-dv nil]           # 对于when命令的非-ms输出，如果没有记录，返回什么, 默认nil
+  [-dv nil]           # 对于when命令，如果没有记录，返回什么
+                      # 如果是 nil 表示 null
+                      # 如果没有声明，则根据 -ms 和 -df 开关看输出结果
   [-df yyyyMMdd]      # 对于when命令输出的时间格式，默认 `yyyy-MM-dd HH:mm:ss`
   [-out '%d) %s + %s']  # 对于 all 命令按行输出， 输出模板
 ```

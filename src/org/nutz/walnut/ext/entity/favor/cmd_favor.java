@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.entity.favor;
 import java.util.Date;
 
 import org.nutz.lang.Times;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.entity.JvmRedisEntityExecutor;
 import org.nutz.walnut.ext.entity.RedisEntityPrinter;
@@ -10,7 +11,7 @@ import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class cmd_favor extends JvmRedisEntityExecutor {
+public class cmd_favor extends JvmRedisEntityExecutor<FavorIt> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -54,30 +55,50 @@ public class cmd_favor extends JvmRedisEntityExecutor {
         }
         // favor is
         else if ("when".equals(action)) {
-            String taId = params.val_check(2);
-            long[] amss = api.whenFavor(uid, taId);
+            String[] taIds = params.subvals(2);
+            long[] amss = api.whenFavor(uid, taIds);
+            NutMap map = new NutMap();
+
+            // 计算默认值
+            Object dftVal = params.get("dv", null);
+            if ("nil".equals(dftVal)) {
+                dftVal = null;
+            } else if (null != dftVal && dftVal.toString().matches("^([0-9]+)$")) {
+                dftVal = Long.parseLong(dftVal.toString());
+            }
+
             // 保持毫秒数
             if (params.is("ms")) {
-                re = amss;
+                for (int i = 0; i < amss.length; i++) {
+                    long ams = amss[i];
+                    if (ams <= 0) {
+                        map.put(taIds[i], dftVal);
+                    }
+                    // 有值
+                    else {
+                        map.put(taIds[i], ams);
+                    }
+                }
             }
             // 转换成可阅读文字: 日子
             else {
                 String df = params.getString("df", "yyyy-MM-dd HH:mm:ss");
-                String[] ss = new String[amss.length];
                 for (int i = 0; i < amss.length; i++) {
                     long ams = amss[i];
+                    Object v;
                     // 转换成可阅读文字 : null
                     if (ams <= 0) {
-                        ss[i] = params.get("dv", "nil");
+                        v = dftVal;
                     }
                     // 转换成日期
                     else {
                         Date d = Times.D(ams);
-                        ss[i] = Times.format(df, d);
+                        v = Times.format(df, d);
                     }
+                    map.put(taIds[i], v);
                 }
-                re = amss;
             }
+            re = map;
         }
         // 不支持的动作
         else {

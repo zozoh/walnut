@@ -7,7 +7,7 @@ import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class cmd_score extends JvmRedisEntityExecutor {
+public class cmd_score extends JvmRedisEntityExecutor<ScoreIt> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

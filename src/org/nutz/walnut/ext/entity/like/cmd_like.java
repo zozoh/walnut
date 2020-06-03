@@ -7,7 +7,7 @@ import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class cmd_like extends JvmRedisEntityExecutor {
+public class cmd_like extends JvmRedisEntityExecutor<String> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -55,9 +55,9 @@ public class cmd_like extends JvmRedisEntityExecutor {
 
         // 输出
         String fmt = params.get("out", "%d) %s");
-        output(sys, params, re, new RedisEntityPrinter<Object>() {
-            public void print(Object it, int i) {
-                sys.out.printlnf(fmt, i, it.toString());
+        output(sys, params, re, new RedisEntityPrinter<String>() {
+            public void print(String it, int i) {
+                sys.out.printlnf(fmt, i, it);
             }
         });
     }
