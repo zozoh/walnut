@@ -14,6 +14,7 @@ favor
   [-limit 0]          # all: 设定最大获取数量，0 表示不限制
   [-skip 0]           # all: 跳过多少条记录，默认 0
   [-rever]            # all: 反序
+  [-quiet]            # 静默模式，什么都不输出
   [-ajax]             # 输出为 AJAX 格式
   [-json]             # 输出为 JSON 格式
   [-cqn]              # 对 JSON/AJAX 格式的格式化

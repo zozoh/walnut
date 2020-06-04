@@ -11,6 +11,7 @@ likeit
   [Action]            # 执行操作， yes|no|all|count|is
   [TargetId]          # 被赞目标 ID
   [UID ...]           # 用户 ID 可多个, all|count 不需要这个参数
+  [-quiet]            # 静默模式，什么都不输出
   [-ajax]             # 输出为 AJAX 格式
   [-json]             # 输出为 JSON 格式
   [-cqn]              # 对 JSON/AJAX 格式的格式化

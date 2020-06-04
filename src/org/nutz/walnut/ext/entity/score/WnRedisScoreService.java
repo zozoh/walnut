@@ -105,6 +105,26 @@ public class WnRedisScoreService implements ScoreApi {
     }
 
     @Override
+    public long avg(String taId) {
+        String sumKey = "sum:" + taId;
+        return Wedis.runGet(conf, jed -> {
+            // 获取人数
+            long count = jed.zcard(taId);
+
+            if (count <= 0L) {
+                return 0L;
+            }
+
+            // 获取总分
+            String ss = jed.get(sumKey);
+            long sum = Strings.isBlank(ss) ? 0L : Long.parseLong(ss);
+
+            // 获取平均分
+            return sum / count;
+        });
+    }
+
+    @Override
     public long resum(String taId) {
         // String lua = "local res = 0;"
         // + "local totalCards;"

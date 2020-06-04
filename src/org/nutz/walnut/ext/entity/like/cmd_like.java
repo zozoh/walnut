@@ -11,7 +11,7 @@ public class cmd_like extends JvmRedisEntityExecutor<String> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json)$");
+        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|quiet)$");
 
         String action = params.val_check(0);
         String taId = params.val_check(1);
@@ -54,12 +54,14 @@ public class cmd_like extends JvmRedisEntityExecutor<String> {
         }
 
         // 输出
-        String fmt = params.get("out", "%d) %s");
-        output(sys, params, re, new RedisEntityPrinter<String>() {
-            public void print(String it, int i) {
-                sys.out.printlnf(fmt, i, it);
-            }
-        });
+        if (!params.is("quiet")) {
+            String fmt = params.get("out", "%d) %s");
+            output(sys, params, re, new RedisEntityPrinter<String>() {
+                public void print(String it, int i) {
+                    sys.out.printlnf(fmt, i, it);
+                }
+            });
+        }
     }
 
 }

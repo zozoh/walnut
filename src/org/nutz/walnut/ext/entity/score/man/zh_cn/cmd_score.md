@@ -8,13 +8,14 @@
 
 ```bash
 score
-  [Action]            # 执行操作， it|cancel|all|count|sum|resum|get
+  [Action]            # 执行操作， it|cancel|all|count|sum|avg|resum|get
   [TargetId]          # 被赞目标 ID
   [UID]               # 用户 ID，all|sum 不需要这个参数
   [N(80)]             # 分值，all|sum 不需要这个参数
   [-limit 100]        # all: 获取某个限定的人数打分详情，all 需要这个参数
   [-skip 0]           # all: 跳过多少条记录，默认 0
   [-rever]            # all: 反序
+  [-quiet]            # 静默模式，什么都不输出
   [-ajax]             # 输出为 AJAX 格式
   [-json]             # 输出为 JSON 格式
   [-cqn]              # 对 JSON/AJAX 格式的格式化
@@ -44,6 +45,10 @@ demo:$> score all cake -limit 100 -json -cqn
 # 获取 cake 被打总分
 demo:$> score sum cake
 117
+
+# 获取 cake 被打的平均分
+demo:$> score avg cake
+59
 
 # 获取 cake 被 wendal 打的分数
 demo:$> score get cake wendal

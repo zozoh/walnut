@@ -11,7 +11,7 @@ public class cmd_score extends JvmRedisEntityExecutor<ScoreIt> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|rever)$");
+        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|rever|quiet)$");
 
         String action = params.val_check(0);
         String taId = params.val_check(1);
@@ -54,6 +54,10 @@ public class cmd_score extends JvmRedisEntityExecutor<ScoreIt> {
         else if ("sum".equals(action)) {
             re = api.sum(taId);
         }
+        // score avg
+        else if ("avg".equals(action)) {
+            re = api.avg(taId);
+        }
         // score resum
         else if ("resum".equals(action)) {
             re = api.resum(taId);
@@ -70,12 +74,14 @@ public class cmd_score extends JvmRedisEntityExecutor<ScoreIt> {
         }
 
         // 输出
-        String fmt = params.get("out", "%d) %d <- %s");
-        output(sys, params, re, new RedisEntityPrinter<ScoreIt>() {
-            public void print(ScoreIt it, int i) {
-                sys.out.printlnf(fmt, i++, it.getScore(), it.getName());
-            }
-        });
+        if (!params.is("quiet")) {
+            String fmt = params.get("out", "%d) %d <- %s");
+            output(sys, params, re, new RedisEntityPrinter<ScoreIt>() {
+                public void print(ScoreIt it, int i) {
+                    sys.out.printlnf(fmt, i++, it.getScore(), it.getName());
+                }
+            });
+        }
     }
 
 }

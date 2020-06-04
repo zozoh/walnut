@@ -78,6 +78,15 @@ public interface ScoreApi {
      * @return 打分主体的总分
      */
     long sum(String taId);
+    
+    /**
+     * 获取打分主体的平均分
+     * 
+     * @param taId
+     *            被打分主体 ID
+     * @return 打分主体的总分
+     */
+    long avg(String taId);
 
     /**
      * 重新打分主体的总分（可能会比较慢）

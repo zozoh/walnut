@@ -15,7 +15,7 @@ public class cmd_favor extends JvmRedisEntityExecutor<FavorIt> {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|rever|ms)$");
+        ZParams params = ZParams.parse(args, "cqn", "^(ajax|json|rever|ms|quiet)$");
 
         String action = params.val_check(0);
         String uid = params.val_check(1);
@@ -106,12 +106,14 @@ public class cmd_favor extends JvmRedisEntityExecutor<FavorIt> {
         }
 
         // 输出
-        String fmt = params.get("out", "%d) %s + %s");
-        output(sys, params, re, new RedisEntityPrinter<FavorIt>() {
-            public void print(FavorIt fi, int i) {
-                sys.out.printlnf(fmt, i, fi.getTimeText(), fi.getTarget());
-            }
-        });
+        if (!params.is("quiet")) {
+            String fmt = params.get("out", "%d) %s + %s");
+            output(sys, params, re, new RedisEntityPrinter<FavorIt>() {
+                public void print(FavorIt fi, int i) {
+                    sys.out.printlnf(fmt, i, fi.getTimeText(), fi.getTarget());
+                }
+            });
+        }
     }
 
 }
