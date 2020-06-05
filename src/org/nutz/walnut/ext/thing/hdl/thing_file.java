@@ -19,7 +19,7 @@ public class thing_file implements JvmHdl {
         WnObj oT = Things.checkThIndex(sys, hc);
 
         // 找到操作目录
-        String dirPath = hc.params.get("dir", "media");
+        String dirPath = hc.params.get("dir", null);
 
         // 执行处理
         Things.doFileObj2(sys, hc, oTs, oT, dirPath);
