@@ -5,16 +5,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Regex;
@@ -31,6 +32,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 public class cmd_iimg extends JvmExecutor {
 
@@ -136,7 +139,7 @@ public class cmd_iimg extends JvmExecutor {
         // 原地压缩
         if (params.is("compress")) {
             // 是否指定了jpeg质量
-            double quality = params.getDouble("quality", 0.8f);
+            double quality = params.getDouble("quality", 0.9f);
             WnObj dsto = oim;
             if (params.has("dst"))
                 dsto = sys.io.createIfNoExists(null,
@@ -193,7 +196,8 @@ public class cmd_iimg extends JvmExecutor {
 
     }
 
-    private void __force_gen(WnSystem sys, ZParams params, WnObj oim, WnObj oThumbTa) {
+    private void __force_gen(WnSystem sys, ZParams params, WnObj oim, WnObj oThumbTa)
+            throws IOException {
         // 读取图片
         BufferedImage im = sys.io.readImage(oim);
         if (im == null) {
@@ -219,7 +223,8 @@ public class cmd_iimg extends JvmExecutor {
                             WnObj oim,
                             BufferedImage im,
                             WnObj o_old_thumb,
-                            WnObj oThumbTa) {
+                            WnObj oThumbTa)
+            throws IOException {
         // 当然，如果是 thumbnail 里面的图片 ...
         // 为了确保缩略图都能被读到，所以要放到 oim.d1 所在的路径下
         String aph = "/home/" + oim.d1() + "/.thumbnail/gen/";
@@ -285,11 +290,35 @@ public class cmd_iimg extends JvmExecutor {
                 BufferedImage im2 = null;
                 // 缩放
                 if ("zoom".equals(params.get("mode", "zoom"))) {
-                    Color bgColor = null;
-                    if (params.has("bgc"))
-                        bgColor = Colors.as(params.get("bgc"));
+                    // Color bgColor = null;
+                    // if (params.has("bgc"))
+                    // bgColor = Colors.as(params.get("bgc"));
+                    //
+                    // im2 = Images.zoomScale(im, w, h, bgColor);
+                    Thumbnails.Builder<BufferedImage> holder = Thumbnails.of(im);
+                    double quality = params.getDouble("quality", .9d);
+                    holder.outputQuality(quality);
+                    holder.outputFormat("JPEG");
+                    holder.size(w, h);
+                    im2 = holder.asBufferedImage();
 
-                    im2 = Images.zoomScale(im, w, h, bgColor);
+                    // File ddir = Files.findFile("D:\\Download");
+                    // File f1 = Files.getFile(ddir, "bb.jpg");
+                    // File f2 = Files.getFile(ddir, "ss.jpg");
+                    // Files.createFileIfNoExists(f1);
+                    // Files.createFileIfNoExists(f2);
+                    //
+                    // Images.write(im, f1);
+                    // Images.write(im2, f2);
+
+                    OutputStream ops = sys.io.getOutputStream(oThumb, 0);
+                    try {
+                        holder.toOutputStream(ops);
+                    }
+                    finally {
+                        Streams.safeFlush(ops);
+                        Streams.safeClose(ops);
+                    }
                 }
                 // 剪裁
                 else {
@@ -304,10 +333,8 @@ public class cmd_iimg extends JvmExecutor {
                                                    startPoint[1] + Integer.parseInt(parr[3])};
                         im2 = Images.clipScale(im, startPoint, endPoint);
                     }
+                    sys.io.writeImage(oThumb, im2);
                 }
-
-                // 最后写入
-                sys.io.writeImage(oThumb, Images.redraw(im2, Color.BLACK));
             }
         }
     }

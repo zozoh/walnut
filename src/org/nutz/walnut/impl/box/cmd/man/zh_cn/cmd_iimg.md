@@ -17,7 +17,7 @@
          [-c|n|q|l]         # 如果输出的话，JSON 的格式
          [-compress]        # 是否压缩,这影响到dst/quality/width/height 是否生效
          [-dst XXX]         # 压缩后的存放路径,若不指定,则原地压缩
-         [-quality 0.8]     # 压缩级别,默认是0.8f
+         [-quality 0.9]     # 压缩级别,默认是0.9f
          [-width 1920]      # 最大宽,优先级大于"高"
          [-height 1080]     # 最大高, 若宽高均不指定,则输出原来的大小 
          
