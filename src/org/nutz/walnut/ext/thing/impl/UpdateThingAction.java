@@ -69,11 +69,15 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         // 更新这个 Thing
         io.appendMeta(oT, meta);
 
+        // 看看是否需要重新获取一下 Thing
+        boolean reget = false;
+
         // 更新其他记录
         if (null != others && others.size() > 0) {
             for (ThOtherUpdating other : others) {
                 other.doUpdate();
             }
+            reget = true; // 标记要重新获取
         }
 
         // 看看是否有附加的创建执行脚本
@@ -84,13 +88,20 @@ public class UpdateThingAction extends ThingAction<WnObj> {
             StringBuilder stdErr = new StringBuilder();
             this.executor.exec(cmdText, stdOut, stdErr, null);
 
+            reget = true; // 标记要重新获取
+
             // 出错就阻止后续执行
             if (stdErr.length() > 0)
                 throw Er.create("e.cmd.thing.on_updated", stdErr);
 
         }
 
-        // 返回
+        // 重新获取
+        if (reget) {
+            return io.get(oT.id());
+        }
+
+        // 就这样返回即可
         return oT;
     }
 
