@@ -21,6 +21,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnObjWalkjFilter;
 
 @JvmHdlParamArgs(value = "Q", regex = "^wnml$")
 public class ti_www implements JvmHdl {
@@ -34,6 +35,13 @@ public class ti_www implements JvmHdl {
         String phSrc = hc.params.val_check(0);
         String phDist = hc.params.val_check(1);
         boolean transWnml = hc.params.is("wnml");
+        String fltRegExp = hc.params.getString("flt");
+        boolean fltNot = false;
+        if (fltRegExp.startsWith("!")) {
+            fltRegExp = fltRegExp.substring(1);
+            fltNot = true;
+        }
+
         String wnmlSetting = null;
         if (transWnml) {
             // 有木有直接声明呢
@@ -69,9 +77,27 @@ public class ti_www implements JvmHdl {
         // .........................................
         // Copy 站点资源
         int mode = Wn.Io.RECUR;
-        if (!quiet) {
-            mode |= Wn.Io.VERBOSE;
-        }
+
+        // .........................................
+        // 准备过滤器
+        String s_flt_reg = fltRegExp;
+        boolean s_flt_not = fltNot;
+        WnObjWalkjFilter flt = new WnObjWalkjFilter() {
+            public boolean match(WnObj o) {
+                String rph = Wn.Io.getRelativePath(oSrc, o);
+                boolean match = !o.isType("scss");
+                if (match && null != s_flt_reg) {
+                    match = rph.matches(s_flt_reg);
+                    if (s_flt_not) {
+                        match = !match;
+                    }
+                }
+                if (!quiet) {
+                    sys.out.printlnf("   %s %s", match ? "+>" : "~~", rph);
+                }
+                return match;
+            }
+        };
 
         // .........................................
         List<WnObj> tops = sys.io.getChildren(oSrc, null);
@@ -86,9 +112,9 @@ public class ti_www implements JvmHdl {
                 oWnml = oTop;
             }
             // 傻傻的 Copy 吧
-            else {
-                String ph = oWWW.getRegularPath() + oTop.name();
-                Wn.Io.copy(sys, mode, oTop, ph);
+            else if (flt.match(oTop)) {
+                String ph = oWWW.getRegularPath();
+                Wn.Io.copy(sys, mode, oTop, ph, flt);
             }
         }
         sw.tag("CopyResources");

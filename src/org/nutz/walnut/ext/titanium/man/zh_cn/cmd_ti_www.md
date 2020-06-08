@@ -10,6 +10,7 @@ ti www
   [/path/to/src]        # 站点的工程目录
   [/path/to/dist]       # 站点的输出目录
   [-wnml]               # 是否预先渲染 index.wnml
+  [-nocp ^com]          # 一个正则表达式过滤掉不要 copy 的资源
   [-vars {..}]          #  -wnml 模式下，输入变量集合
   [-ivar ~/xx/xx]       #  -wnml 模式下，输入变量集文件
   [-vpages page]        #  -wnml 模式下，实体化的虚页
