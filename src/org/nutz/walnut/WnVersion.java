@@ -11,7 +11,7 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "4.3.3";
+        return "4.3.4";
     }
 
     /**

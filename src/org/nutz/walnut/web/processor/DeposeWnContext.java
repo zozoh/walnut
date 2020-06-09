@@ -17,7 +17,11 @@ public class DeposeWnContext extends AbstractProcessor {
         if (log.isInfoEnabled()) {
             long ts = Wn.WC()._timestamp;
             long du = ts > 0 ? System.currentTimeMillis() - ts : ts;
-            log.infof("HTTPok:%3dms: %s", du, ac.getRequest().getServletPath());
+            String ph = ac.getRequest().getServletPath();
+            // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
+            if (!"/".equals(ph)) {
+                log.infof("HTTPok:%3dms: %s", du, ph);
+            }
         }
 
         // 执行清除

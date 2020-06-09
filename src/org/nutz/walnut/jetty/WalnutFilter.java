@@ -88,10 +88,6 @@ public class WalnutFilter implements Filter {
             }
         }
 
-        if (log.isInfoEnabled()) {
-            log.infof("HTTP(%s)%s>%s:%d", path, usrip, host, port);
-        }
-
         // 一定记录属性到请求对象
         req.setAttribute("wn_www_path_org", path);
         req.setAttribute("wn_www_host", host);
@@ -114,6 +110,13 @@ public class WalnutFilter implements Filter {
         // main-host 配置项目指定了哪些 host 是不要路由的
         if (null != rMainHost && !rMainHost.matcher(host).find()) {
             WnObj oDmn = null;
+
+            if (log.isInfoEnabled()) {
+                // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
+                if (!"/".equals(path)) {
+                    log.infof("HTTP(%s)%s>%s:%d", path, usrip, host, port);
+                }
+            }
 
             // 首先试图找到对应的映射记录
             if (null != oDmnHome) {
@@ -209,12 +212,12 @@ public class WalnutFilter implements Filter {
                 }
             }
         }
-        //
+          //
         else {
             // 这个通常还是要记录一下日志的
-            //if (log.isDebugEnabled()) {
-            //    log.debug(" - rMainHost without define! ");
-            //}
+            // if (log.isDebugEnabled()) {
+            // log.debug(" - rMainHost without define! ");
+            // }
         }
 
         // 继续执行
