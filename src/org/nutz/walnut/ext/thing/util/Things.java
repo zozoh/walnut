@@ -283,9 +283,9 @@ public abstract class Things {
 
         // 添加
         if (hc.params.has("add")) {
-            String read = hc.params.get("read");
-            String fnm = hc.params.get("add");
-            String dupp = hc.params.get("dupp");
+            String read = hc.params.getString("read");
+            String fnm = hc.params.getString("add");
+            String dupp = hc.params.getString("dupp");
             boolean overwrite = hc.params.is("overwrite");
             Object src = null;
             // 从输出流中读取

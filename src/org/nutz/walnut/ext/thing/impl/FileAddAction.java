@@ -70,7 +70,7 @@ public class FileAddAction extends ThingDataAction<WnObj> {
             }
             // 不能生成一个新的，并且还不能覆盖就抛错
             else if (!this.overwrite) {
-                throw Er.create("e.thing.add." + dirName + ".exists", oDir.path() + "/" + fnm);
+                throw Er.create("e.thing.file.exists", this.myFilePath(fnm));
             }
         }
         // ..............................................
@@ -88,8 +88,11 @@ public class FileAddAction extends ThingDataAction<WnObj> {
             }
         }
 
-        // 更新计数
-        Things.update_file_count(io, oT, dirName, _Q());
+        // 指定了 dir 就更新计数
+        if (this.hasDirName(fnm)) {
+            String dnm = this.myFileDirName(fnm);
+            Things.update_file_count(io, oT, dnm, _Q());
+        }
 
         // 返回
         return oM;
