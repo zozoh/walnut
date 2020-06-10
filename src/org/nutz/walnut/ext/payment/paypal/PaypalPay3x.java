@@ -21,6 +21,7 @@ import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.http.serializer.ObjectMapper;
 import com.paypal.orders.AmountWithBreakdown;
+import com.paypal.orders.LinkDescription;
 import com.paypal.orders.Order;
 import com.paypal.orders.OrderRequest;
 import com.paypal.orders.OrdersCaptureRequest;
@@ -45,7 +46,7 @@ public class PaypalPay3x extends WnPay3x {
 	public WnPay3xRe send(WnPayObj po, String... args) {
 		WnPay3xRe re = new WnPay3xRe();
         re.setStatus(WnPay3xStatus.WAIT);
-        re.setDataType(WnPay3xDataType.JSON);
+        //re.setDataType(WnPay3xDataType.JSON);
         
         PaypalConfig conf = createConfig(po);
         PayPalHttpClient client = createClient(conf);
@@ -75,7 +76,13 @@ public class PaypalPay3x extends WnPay3x {
 			po.put(PP_RE, ret);
 			po.put(PP_STAT, order.status());
 			re.addChangeKeys(PP_ID, PP_RE, PP_STAT);
-			re.setData(ret);
+			for (LinkDescription link : order.links()) {
+				if (link.method().equalsIgnoreCase("GET")) {
+					re.setData(link.href());
+					break;
+				}
+			}
+			re.setDataType(WnPay3xDataType.IFRAME);;
 		} catch (Exception ioe) {
 			log.info("paypal fail", ioe);
 		}
