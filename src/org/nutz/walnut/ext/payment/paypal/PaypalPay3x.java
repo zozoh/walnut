@@ -77,7 +77,7 @@ public class PaypalPay3x extends WnPay3x {
 			po.put(PP_STAT, order.status());
 			re.addChangeKeys(PP_ID, PP_RE, PP_STAT);
 			for (LinkDescription link : order.links()) {
-				if (link.method().equalsIgnoreCase("GET")) {
+				if ("approve".equalsIgnoreCase(link.rel())) {
 					re.setData(link.href());
 					break;
 				}

@@ -68,6 +68,9 @@ public class pay_create implements JvmHdl {
         // 填充费用
         String fee = hc.params.check("fee");
         wpi.fillFee(fee);
+        
+        // 填充货币类型
+        wpi.cur = hc.params.getString("cur", "RMB").toUpperCase();
 
         // 回调
         if (hc.params.has("callback")) {

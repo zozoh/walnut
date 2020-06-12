@@ -275,7 +275,8 @@ public class WnPayment {
         // 固定的初始化值
         meta.put("tp", "wn_payment");
         // meta.put("c", wpi.buyer_nm); // 将创建者设置成买家
-        meta.put(WnPays.KEY_CUR, "RMB");
+        if (!meta.containsKey(WnPays.KEY_CUR))
+        	meta.put(WnPays.KEY_CUR, "RMB");
         meta.setnx(WnPays.KEY_ST, WnPay3xStatus.NEW);
         meta.setnx(WnPays.KEY_SEND_AT, 0);
         meta.setnx(WnPays.KEY_CLOSE_AT, 0);
