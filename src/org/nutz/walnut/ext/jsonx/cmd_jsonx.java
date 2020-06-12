@@ -75,6 +75,7 @@ public class cmd_jsonx extends JvmExecutor {
         JsonXContext ctx = new JsonXContext();
         ctx.sys = sys;
         ctx.params = ZParams.parse(vals.toArray(new String[vals.size()]), "cqn");
+        ctx.jfmt = Cmds.gen_json_format(ctx.params);
 
         // 准备输入对象
         String json = sys.in.readAll();
@@ -92,8 +93,7 @@ public class cmd_jsonx extends JvmExecutor {
         }
 
         // 处理输出
-        JsonFormat jfmt = Cmds.gen_json_format(ctx.params);
-        String output = Json.toJson(ctx.obj, jfmt);
+        String output = Json.toJson(ctx.obj, ctx.jfmt);
         sys.out.println(output);
     }
 

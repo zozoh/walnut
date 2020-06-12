@@ -17,15 +17,15 @@ import org.nutz.walnut.util.ZParams;
 /**
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class jsonx_read implements JsonXFilter {
+public class jsonx_read extends JsonXFilter {
 
     @Override
-    public ZParams parseParams(String[] args) {
+    protected ZParams parseParams(String[] args) {
         return ZParams.parse(args, "^(map|list|auto)$");
     }
 
     @Override
-    public void process(WnSystem sys, JsonXContext ctx, ZParams params) {
+    protected void process(WnSystem sys, JsonXContext ctx, ZParams params) {
         // 读取输入
         Map<String, Object> map = new NutMap();
         for (String ph : params.vals) {
