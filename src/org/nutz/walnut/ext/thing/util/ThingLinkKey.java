@@ -2,9 +2,15 @@ package org.nutz.walnut.ext.thing.util;
 
 import java.util.regex.Pattern;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.validate.WnValidate;
 
 public class ThingLinkKey {
+
+    private NutMap[] testPrimary;
+
+    private NutMap[] testUpdate;
 
     private Pattern match;
 
@@ -18,6 +24,44 @@ public class ThingLinkKey {
 
     public boolean isDoNothing() {
         return !this.hasSet() && !this.hasRun();
+    }
+
+    public NutMap[] getTestPrimary() {
+        return testPrimary;
+    }
+
+    public void setTestPrimary(NutMap[] testPrimary) {
+        this.testPrimary = testPrimary;
+    }
+
+    public boolean matchTestPrimary(NutBean meta) {
+        return matchTest(meta, testPrimary);
+    }
+
+    public NutMap[] getTestUpdate() {
+        return testUpdate;
+    }
+
+    public void setTestUpdate(NutMap[] testUpdate) {
+        this.testUpdate = testUpdate;
+    }
+
+    public boolean matchTestUpdate(NutBean meta) {
+        return matchTest(meta, testUpdate);
+    }
+
+    private boolean matchTest(NutBean meta, NutMap[] tests) {
+        if (null != tests && tests.length > 0) {
+            for (NutMap vMap : tests) {
+                WnValidate wv = new WnValidate(vMap);
+                if (wv.match(meta)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        // 默认，没有的话永远为真，因为用户不设置 test 条件么
+        return true;
     }
 
     public boolean hasMatch() {

@@ -118,49 +118,68 @@ public class ThOtherUpdating {
         for (Map.Entry<String, Object> en : sets.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
-            if (null == val)
-                continue;
-            String str = val.toString();
-            Object v2 = null;
+            // ...............................................
+            // 空值
+            if (null == val) {
+                meta.put(key, null);
+            }
+            // ...............................................
+            // 数字
+            else if (val instanceof Number) {
+                meta.put(key, val);
+            }
+            // ...............................................
+            // 布尔
+            else if (val instanceof Boolean) {
+                meta.put(key, val);
+            }
+            // ...............................................
+            // 字符串
+            else {
+                String str = val.toString();
+                Object v2 = null;
 
-            // 直接填值
-            Matcher m = p.matcher(str);
-            if (m.find()) {
-                String k2 = m.group(1);
-                v2 = context.get(k2);
-                // 转换值
-                String valType = m.group(3);
-                if (null != v2 && !Strings.isBlank(valType)) {
-                    // int
-                    if ("int".equals(valType)) {
-                        v2 = Integer.parseInt(v2.toString());
+                // 直接填值
+                Matcher m = p.matcher(str);
+                if (m.find()) {
+                    String k2 = m.group(1);
+                    v2 = context.get(k2);
+                    // 转换值
+                    String valType = m.group(3);
+                    if (null != v2 && !Strings.isBlank(valType)) {
+                        // int
+                        if ("int".equals(valType)) {
+                            v2 = Integer.parseInt(v2.toString());
+                        }
+                        // float
+                        else if ("float".equals(valType)) {
+                            v2 = Float.parseFloat(v2.toString());
+                        }
+                        // boolean
+                        else if ("boolean".equals(valType)) {
+                            v2 = Castors.me().castTo(v2, Boolean.class);
+                        }
+                        // string
+                        else if ("int".equals(valType)) {
+                            v2 = v2.toString();
+                        }
+                        // 靠，不可能
+                        else {
+                            throw Lang.impossible();
+                        }
                     }
-                    // float
-                    else if ("float".equals(valType)) {
-                        v2 = Float.parseFloat(v2.toString());
-                    }
-                    // boolean
-                    else if ("boolean".equals(valType)) {
-                        v2 = Castors.me().castTo(v2, Boolean.class);
-                    }
-                    // string
-                    else if ("int".equals(valType)) {
-                        v2 = v2.toString();
-                    }
-                    // 靠，不可能
-                    else {
-                        throw Lang.impossible();
-                    }
+                    continue;
+                }
+                // 否则当做模板
+                else {
+                    v2 = Tmpl.exec(str, context);
+                }
+                // 计入
+                if (v2 != null) {
+                    meta.put(key, v2);
                 }
             }
-            // 否则当做模板
-            else {
-                v2 = Tmpl.exec(str, context);
-            }
-            // 计入
-            if (v2 != null) {
-                meta.put(key, v2);
-            }
+            // ...............................................
         }
     }
 

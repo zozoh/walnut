@@ -216,6 +216,15 @@ public abstract class ThingAction<T> {
                 if (lnk.isDoNothing())
                     continue;
 
+                // 看看是否匹配上条件，如果匹配不上，也无视
+                if (!lnk.matchTestUpdate(meta)) {
+                    continue;
+                }
+
+                if (!lnk.matchTestPrimary(oT)) {
+                    continue;
+                }
+
                 // 准备 val 上下文
                 NutMap valContext = new NutMap();
                 valContext.put("val", val);
@@ -223,16 +232,25 @@ public abstract class ThingAction<T> {
                 // 看看值是否能匹配上
                 if (lnk.hasMatch()) {
                     Matcher m = lnk.getMatch().matcher(val.toString());
-                    // 严格模式，抛错
-                    if (!m.find() && lnk.isStrict()) {
-                        throw Er.createf("e.cmd.thing.lnKey.NoMatch",
-                                         "Key:[%s], Val:[%s]",
-                                         key,
-                                         val);
+                    // 未匹配的话
+                    if (!m.find()) {
+                        // 严格模式，抛错
+                        if (lnk.isStrict()) {
+                            throw Er.createf("e.cmd.thing.lnKey.NoMatch",
+                                             "Key:[%s], Val:[%s]",
+                                             key,
+                                             val);
+                        }
+                        // 否则继续下一个
+                        else {
+                            continue;
+                        }
                     }
                     // 填充 val 上下文
-                    for (int i = 0; i <= m.groupCount(); i++) {
-                        valContext.put("g" + i, m.group(i));
+                    else {
+                        for (int i = 0; i <= m.groupCount(); i++) {
+                            valContext.put("g" + i, m.group(i));
+                        }
                     }
                 }
 
