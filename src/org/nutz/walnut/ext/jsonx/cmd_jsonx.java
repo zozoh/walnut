@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.resource.Scans;

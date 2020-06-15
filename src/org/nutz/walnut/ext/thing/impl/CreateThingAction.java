@@ -19,7 +19,6 @@ import org.nutz.walnut.ext.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.web.WebException;
 
 /**
@@ -192,12 +191,6 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // if (!meta.has("thumb") && !oT.has("thumb") && oTs.has("th_thumb"))
         // meta.put("thumb", oTs.get("th_thumb"));
 
-        // 根据链接键，修改对应的键值
-        List<ThOtherUpdating> others = evalOtherUpdating(new WnBean(),
-                                                         meta,
-                                                         this.conf,
-                                                         this.executor);
-
         // 设置更多的固有属性
         meta.put("th_set", oTs.id());
         meta.put("th_live", Things.TH_LIVE);
@@ -211,18 +204,22 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             oT = io.create(oIndex, "${id}", WnRace.FILE);
         }
 
+        // 根据链接键，自动修改元数据，返回的值是一组后续更新脚本
+        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
+
         // 更新这个 Thing
         io.appendMeta(oT, meta);
 
+        // 看看是否需要重新获取 Thing
+        boolean re_get = false;
+
         // 更新其他记录
         if (null != others && others.size() > 0) {
+            re_get = true;
             for (ThOtherUpdating other : others) {
                 other.doUpdate();
             }
         }
-
-        // 看看是否需要重新获取 Thing
-        boolean re_get = false;
 
         // 如果是第一次创建，则执行附加脚本
         if (!isDuplicated) {
