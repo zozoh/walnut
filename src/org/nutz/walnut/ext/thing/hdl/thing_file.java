@@ -7,7 +7,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs(value = "cnqVNHQ", regex = "^(quiet|overwrite|ufc)$")
+@JvmHdlParamArgs(value = "cnqVNHQ", regex = "^(del|quiet|overwrite|ufc)$")
 public class thing_file implements JvmHdl {
 
     @Override
