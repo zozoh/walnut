@@ -50,10 +50,10 @@ public abstract class Things {
         }
         default:
         case "wntree": {
-                WnQuery q = Wn.Q.pid(oIndex);
-                q.setv("id", id);
-                return io.getOne(q);
-            }
+            WnQuery q = Wn.Q.pid(oIndex);
+            q.setv("id", id);
+            return io.getOne(q);
+        }
         }
     }
 
@@ -78,13 +78,14 @@ public abstract class Things {
         String thId = hc.params.val_check(0);
         return checkThIndex(sys.io, hc.oRefer, thId);
     }
-    
+
     /**
-     * @param o 对象
+     * @param o
+     *            对象
      * @return 给定对象是否是一个 ThingSet 的主目录
      */
     public static boolean isThingSet(WnObj o) {
-        if(null==o)
+        if (null == o)
             return false;
         return o.isType("thing_set");
     }
@@ -362,6 +363,7 @@ public abstract class Things {
                              "thumb",
                              "mime",
                              "tp",
+                             "len",
                              "duration",
                              "width",
                              "height",
