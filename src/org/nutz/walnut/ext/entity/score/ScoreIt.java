@@ -8,9 +8,9 @@ public class ScoreIt {
 
     public ScoreIt() {}
 
-    public ScoreIt(String target, long time) {
+    public ScoreIt(String target, long score) {
         this.setName(target);
-        this.setScore(time);
+        this.setScore(score);
     }
 
     public String getName() {
@@ -25,8 +25,8 @@ public class ScoreIt {
         return score;
     }
 
-    public void setScore(long time) {
-        this.score = time;
+    public void setScore(long score) {
+        this.score = score;
     }
 
     public String toString() {

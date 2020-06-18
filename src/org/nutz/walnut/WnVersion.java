@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "4.3.9";
+        return "4.3.10";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "tree";
+        return "daylight";
     }
 
     /**

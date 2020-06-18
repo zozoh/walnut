@@ -62,7 +62,7 @@ public class WnRedisScoreService implements ScoreApi {
     public List<ScoreIt> getAll(String taId, int skip, int limit) {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
-            long stop = limit > 0 ? start + limit - 1 : Long.MAX_VALUE;
+            long stop = limit > 0 ? start + limit - 1 : -1;
             Set<Tuple> set = jed.zrangeWithScores(taId, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
@@ -77,7 +77,7 @@ public class WnRedisScoreService implements ScoreApi {
     public List<ScoreIt> revAll(String taId, int skip, int limit) {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
-            long stop = limit > 0 ? limit : Long.MAX_VALUE;
+            long stop = limit > 0 ? limit : -1;
             Set<Tuple> set = jed.zrevrangeWithScores(taId, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
