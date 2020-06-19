@@ -67,7 +67,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
 
         // 过期时间（增加 1 分钟作为通讯补偿）
         long pay_expired = Math.max(conf.pay_time_expire, 10) * 60 * 1000 + 60000;
-        Date d = Times.D(System.currentTimeMillis() + pay_expired);
+        long expiInMs = System.currentTimeMillis() + pay_expired;
+        Date d = Times.D(expiInMs);
         String ds = Times.format("yyyyMMddHHmmss", d);
         map.setv("time_expire", ds);
 
@@ -87,6 +88,9 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         // 记录发送的数据
         po.setv(KEY_wxpay_send, reqXML);
         re.addChangeKeys(KEY_wxpay_send);
+
+        po.expireTime(expiInMs);
+        re.addChangeKeys("expi");
 
         // 发送到统一下单接口
         Response resp = Http.postXML("https://api.mch.weixin.qq.com/pay/unifiedorder",
@@ -196,7 +200,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
 
     private WnPay3xRe __handle_result_for_check(WxConf conf, WnPayObj po, NutMap result) {
         WnPay3xRe re = new WnPay3xRe();
-        re.setDataType(WnPay3xDataType.JSON);
+        re.setDataType(po.getReturnType());
         re.addChangeKeys(KEY_wxpay_result);
         po.put(KEY_wxpay_result, result);
         // 通信状态,不是交易状态!!!
@@ -205,9 +209,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
             String ts = result.getString("trade_state");
             // 等待
             if ("USERPAYING".equals(ts) || "NOTPAY".equals(ts)) {
-                // 超时的话，就撤销订单，并标识
-                long ms = System.currentTimeMillis() - po.getLong("send_at", 0);
-                if (ms > 60000L) {
+                // 超时的话，就撤销订单，并标识(分钟)
+                if (po.isExpired()) {
                     // String url =
                     // "https://api.mch.weixin.qq.com/secapi/pay/reverse";
                     // NutMap params = new NutMap();

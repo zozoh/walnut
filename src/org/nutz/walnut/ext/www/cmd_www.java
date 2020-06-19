@@ -92,6 +92,9 @@ public class cmd_www extends JvmHdlExecutor {
         cmds.add("-br '" + or.getTitle() + "'");
         cmds.add("-bu " + oAccountDir.id() + ":" + bu.getId());
         cmds.add("-fee " + (int) (or.getFee() * 100f));
+        if (or.hasCurrency()) {
+            cmds.add("-cur " + or.getCurrency());
+        }
         if (null != oCallback) {
             cmds.add("-callback id:" + oCallback.id());
         }
@@ -119,15 +122,13 @@ public class cmd_www extends JvmHdlExecutor {
         String payId = payRe.getPayObjId();
 
         // 更新订单的支付单关联
+        or.setPayReturn(payRe);
         or.setPayId(payId);
         or.setStatus(WnOrderStatus.WT);
         or.setWaitAt(System.currentTimeMillis());
-        NutMap orMeta = or.toMeta("^(pay_id|st|wt_at)$", null);
+        NutMap orMeta = or.toMeta("^(pay_re|pay_id|st|wt_at|pay_tp)$", null);
         webs.getOrderApi().updateOrder(or.getId(), orMeta, sys);
 
-        // -------------------------------
-        // 设置返回结果
-        or.setPayReturn(payRe);
     }
 
     /**

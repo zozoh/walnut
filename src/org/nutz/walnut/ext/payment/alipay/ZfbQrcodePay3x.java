@@ -100,7 +100,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
         // AlipayConfig alipayConfig = this.getConfig(po);
         // 暂不实现
         WnPay3xRe re = new WnPay3xRe();
-        re.setDataType(WnPay3xDataType.TEXT);
+        re.setDataType(po.getReturnType());
         re.setStatus(WnPay3xStatus.WAIT);
         return re;
     }

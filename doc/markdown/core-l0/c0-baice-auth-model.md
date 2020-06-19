@@ -112,10 +112,9 @@ www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
 
 # 这里是站点关联的集合（ThingSet）
 accounts : "~/accounts"   # 账户库   
-roles    : "~/roles"      # 角色库
-orders   : "~/orders"     # 订单库
-products : "~/products"   # 商品库
-coupons  : "~/coupons"    # 优惠券库
+roles    : "~/roles"      # 【选】角色库
+orders   : "~/orders"     # 【选】订单库（购物功能必须）
+coupons  : "~/coupons"    # 【选】优惠券库
 
 # 这里是站点所属账户库，如果登录系统账户后默认的环境变量
 # 它会替换在 init-usr-envs: 声明的环境变量值
@@ -147,7 +146,16 @@ sellers : {
   # 支付宝支付等功能均在这个目录下配置
   # 当支付类型为 `zfb.` 时需要这个配置项目
   zfb : "theName"
+
+  # PayPal配置目录名称，该目录位于 ~/.paypal/ 目录下
+  # PayPal支付等功能均在这个目录下配置
+  # 当支付类型为 `paypal` 时需要这个配置项目
+  paypal : "theName"
 }
+
+# 站点支付默认采用的货币单位
+# 默认的话，用 RMB
+currency: "RMB"
 
 # 默认会话时长（秒）
 se_dft_du : 86400

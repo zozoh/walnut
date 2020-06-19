@@ -43,10 +43,6 @@ public class WnWebSite {
      */
     private WnObj orderHome;
     /**
-     * 产品库所在目录
-     */
-    private WnObj productHome;
-    /**
      * 优惠券库所在目录
      */
     private WnObj couponHome;
@@ -58,6 +54,11 @@ public class WnWebSite {
      * 支付商户名集合
      */
     private NutMap sellers;
+
+    /**
+     * 支付采用的默认货币结算单位 默认 RMB
+     */
+    private String currency;
 
     /**
      * 默认会话时长
@@ -109,7 +110,6 @@ public class WnWebSite {
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
         orderHome = fetchThingSet(bean.getString("orders"));
-        productHome = fetchThingSet(bean.getString("products"));
         couponHome = fetchThingSet(bean.getString("coupons"));
 
         // 初始化站点用户默认系统环境变量
@@ -127,6 +127,9 @@ public class WnWebSite {
         if (bean.has("sellers")) {
             sellers = bean.getAs("sellers", NutMap.class);
         }
+
+        // 获取默认货币单位
+        this.currency = bean.getString("currency", "RMB");
 
         // 默认会话时长
         seDftDu = bean.getLong("se_dft_du", 86400);
@@ -186,14 +189,6 @@ public class WnWebSite {
         return orderHome;
     }
 
-    public boolean hasProductHome() {
-        return null != productHome;
-    }
-
-    public WnObj getProductHome() {
-        return productHome;
-    }
-
     public boolean hasCouponHome() {
         return null != couponHome;
     }
@@ -247,6 +242,10 @@ public class WnWebSite {
         int pos = nameOrPayType.indexOf('.');
         String sellerName = pos > 0 ? nameOrPayType.substring(0, pos) : nameOrPayType;
         return sellers.getString(sellerName);
+    }
+
+    public String getCurrency() {
+        return currency;
     }
 
     public long getSeDftDu() {

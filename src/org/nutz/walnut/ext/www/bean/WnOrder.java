@@ -2,10 +2,11 @@ package org.nutz.walnut.ext.www.bean;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonField;
-import org.nutz.json.JsonFormat;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 
 public class WnOrder {
@@ -34,6 +35,8 @@ public class WnOrder {
     private float price;
 
     private float fee;
+
+    private String currency;
 
     @JsonField("pay_tp")
     private String payType;
@@ -121,6 +124,9 @@ public class WnOrder {
             or.failAt = this.failAt;
             or.shipAt = this.shipAt;
             or.doneAt = this.doneAt;
+
+            if (this.payReturn != null)
+                or.payReturn = this.payReturn.clone();
         }
     }
 
@@ -151,21 +157,18 @@ public class WnOrder {
     }
 
     public NutMap toMeta(String actived, String locked) {
-        JsonFormat jfmt = JsonFormat.compact();
-        // 黑名单字段
+        String json = Json.toJson(this);
+        NutMap map = Json.fromJson(NutMap.class, json);
+        if (!Strings.isBlank(actived)) {
+            map = map.pickBy(actived);
+        }
         if (!Strings.isBlank(locked)) {
-            jfmt.setLocked(locked);
+            map = map.pickBy(Regex.getPattern(locked), true);
         }
         // 默认的不输出字段
-        else {
-            jfmt.setLocked("^(c|m|g|d0|d1|md|tp|mime|ph|pid|sha1|len)$");
-        }
-        // 白名单字段
-        if (!Strings.isBlank(actived)) {
-            jfmt.setActived(actived);
-        }
-        String json = Json.toJson(this, jfmt);
-        return Json.fromJson(NutMap.class, json);
+        map.pickAndRemoveBy("^(c|m|g|d0|d1|md|tp|mime|ph|pid|sha1|len)$");
+
+        return map;
     }
 
     public String getId() {
@@ -248,6 +251,24 @@ public class WnOrder {
         this.fee = fee;
     }
 
+    public boolean hasCurrency() {
+        return !Strings.isBlank(this.currency);
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public void setDefaultCurrency(String currency) {
+        if (Strings.isBlank(this.currency)) {
+            this.currency = currency;
+        }
+    }
+
     public String getPayTypePrefix() {
         if (null != payType) {
             int pos = payType.indexOf('.');
@@ -277,6 +298,10 @@ public class WnOrder {
 
     public void setPayId(String payId) {
         this.payId = payId;
+    }
+
+    public boolean hasPayReturn() {
+        return null != payReturn;
     }
 
     public WnPay3xRe getPayReturn() {

@@ -13,6 +13,7 @@ public abstract class WnPays {
     public static final String KEY_SEND_AT = "send_at";
     public static final String KEY_CLOSE_AT = "close_at";
     public static final String KEY_APPLY_AT = "apply_at";
+    public static final String KEY_APPLY_RE = "apply_re";
     public static final String KEY_SELLER_NM = "seller_nm";
     public static final String KEY_SELLER_ID = "seller_id";
     public static final String KEY_BUYER_NM = "buyer_nm";
@@ -41,13 +42,15 @@ public abstract class WnPays {
         // 如果支付单成功，且没执行过回调的话，执行回调
         if (po.isStatusOk() && po.getLong(WnPays.KEY_APPLY_AT, 0) <= 0) {
             String cmdText = sys.io.readText(po);
+            String re = null;
             // 有效的回调
             if (!Strings.isBlank(cmdText)) {
-                sys.exec(cmdText);
+                re = sys.exec2(cmdText);
             }
             // 标识一下支付单已经被应用过了
             po.setv(WnPays.KEY_APPLY_AT, System.currentTimeMillis());
-            sys.io.set(po, "^(" + WnPays.KEY_APPLY_AT + ")$");
+            po.setv(WnPays.KEY_APPLY_RE, re);
+            sys.io.set(po, "^(" + WnPays.KEY_APPLY_AT + "|" + WnPays.KEY_APPLY_RE + ")$");
             // 试图通过 websocket 通知一下
             sys.execf("websocket event id:%s done", po.id());
         }

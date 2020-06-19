@@ -31,10 +31,10 @@ pay create
 demo@~$ pay create -br 测试支付 -bu walnut:xxx -fee 99
 
 # 创建一个美元支付单
-demo@~$ pay create -br 测试支付 -bu walnut:xxx -sl site0 -fee 199USD
+demo@~$ pay create -br 测试支付 -bu walnut:xxx -sl site0 -fee 199 -cur USD
 
 # 创建一个卖家域的支付单
-demo@~$ pay create -br 测试卖家域支付 -bu a9..3a:5t..8f -se site0 -fee 199USD
+demo@~$ pay create -br 测试卖家域支付 -bu a9..3a:5t..8f -se site0 -fee 199 -cur USD
 
 # 创建一个带后续任务的支付单
 demo@~$ pay create -br 测试支付 -bu walnut:xxx -se site0 -fee 99 -callback abc

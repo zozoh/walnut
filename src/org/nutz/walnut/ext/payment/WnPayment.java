@@ -84,6 +84,17 @@ public class WnPayment {
     }
 
     private WnPay3xRe __re(WnPayObj po, WnPay3xRe re) {
+        // 如果订单成功, 去掉过期时间
+        if (po.isStatusOk()) {
+            po.expireTime(-1);
+            re.addChangeKeys("expi");
+        }
+        // 如果订单失败，延长1天的过期时间，以便追踪问题
+        else if (po.isStatusFail()) {
+            po.expireTime(System.currentTimeMillis() + 86400000L);
+            re.addChangeKeys("expi");
+        }
+
         // 持久化改动
         if (re.hasChangedKeys()) {
             String regex = "^(" + Strings.join("|", re.getChangedKeys()) + ")$";
@@ -276,7 +287,7 @@ public class WnPayment {
         meta.put("tp", "wn_payment");
         // meta.put("c", wpi.buyer_nm); // 将创建者设置成买家
         if (!meta.containsKey(WnPays.KEY_CUR))
-        	meta.put(WnPays.KEY_CUR, "RMB");
+            meta.put(WnPays.KEY_CUR, "RMB");
         meta.setnx(WnPays.KEY_ST, WnPay3xStatus.NEW);
         meta.setnx(WnPays.KEY_SEND_AT, 0);
         meta.setnx(WnPays.KEY_CLOSE_AT, 0);

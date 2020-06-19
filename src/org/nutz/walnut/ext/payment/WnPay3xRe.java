@@ -22,6 +22,18 @@ public class WnPay3xRe {
 
     private Object data;
 
+    private String errMsg;
+
+    public WnPay3xRe clone() {
+        WnPay3xRe re = new WnPay3xRe();
+        re.payObjId = this.payObjId;
+        re.status = this.status;
+        re.dataType = this.dataType;
+        re.data = this.data;
+        re.errMsg = this.errMsg;
+        return re;
+    }
+
     public String getPayObjId() {
         return payObjId;
     }
@@ -90,12 +102,27 @@ public class WnPay3xRe {
         return this.data.toString();
     }
 
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
+
     public boolean hasChangedKeys() {
         return null != this.changedKeys && this.changedKeys.size() > 0;
     }
 
     public Collection<String> getChangedKeys() {
         return changedKeys;
+    }
+
+    public void setChangedKeys(Set<String> changedKeys) {
+        if (null == this.changedKeys) {
+            this.changedKeys = new HashSet<>();
+        }
+        this.changedKeys.addAll(changedKeys);
     }
 
     public void setChangedKeys(List<String> changedKeys) {

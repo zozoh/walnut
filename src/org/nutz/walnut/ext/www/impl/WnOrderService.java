@@ -15,21 +15,20 @@ import org.nutz.walnut.ext.www.bean.WnWebSite;
 
 public class WnOrderService {
 
+    private WnIo io;
+
     private NutMap sellers;
 
     private WnWebSite site;
 
     private WnThingService orders;
-    private WnThingService products;
     private WnThingService coupons;
 
     public WnOrderService(WnIo io, WnWebSite site) {
+        this.io = io;
         this.site = site;
         this.sellers = site.getSellers();
         this.orders = new WnThingService(io, site.getOrderHome());
-        if (site.hasProductHome()) {
-            this.products = new WnThingService(io, site.getProductHome());
-        }
         if (site.hasCouponHome()) {
             this.coupons = new WnThingService(io, site.getCouponHome());
         }
@@ -62,9 +61,12 @@ public class WnOrderService {
         }
         or.setSeller(seller);
 
+        // 设置默认货币单位
+        or.setDefaultCurrency(this.site.getCurrency());
+
         // 依次检查产品列表
         for (WnProduct pro : or.getProducts()) {
-            WnObj oPro = products.checkThing(pro.getId(), false);
+            WnObj oPro = io.checkById(pro.getId());
             pro.updateBy(oPro);
         }
 
