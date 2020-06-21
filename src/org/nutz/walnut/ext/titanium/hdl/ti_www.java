@@ -162,19 +162,21 @@ public class ti_www implements JvmHdl {
                 if (!quiet) {
                     sys.out.printf("@%s:\n", vPage);
                 }
-                WnObj oPageDir = sys.io.check(oWWW, vPage);
-                sys.io.walk(oPageDir, (o) -> {
-                    if (!o.isType("json")) {
-                        return;
-                    }
-                    String name = Files.getMajorName(o.name()) + ".html";
-                    if (!quiet) {
-                        String rph = Wn.Io.getRelativePath(oPageDir, o);
-                        sys.out.printf("  -> %s => %s\n", rph, name);
-                    }
-                    WnObj oPage = sys.io.createIfNoExists(o.parent(), name, WnRace.FILE);
-                    Wn.Io.copyFile(sys.io, oIndex, oPage);
-                }, WalkMode.LEAF_ONLY);
+                WnObj oPageDir = sys.io.fetch(oWWW, vPage);
+                if (null != oPageDir && oPageDir.isDIR()) {
+                    sys.io.walk(oPageDir, (o) -> {
+                        if (!o.isType("json")) {
+                            return;
+                        }
+                        String name = Files.getMajorName(o.name()) + ".html";
+                        if (!quiet) {
+                            String rph = Wn.Io.getRelativePath(oPageDir, o);
+                            sys.out.printf("  -> %s => %s\n", rph, name);
+                        }
+                        WnObj oPage = sys.io.createIfNoExists(o.parent(), name, WnRace.FILE);
+                        Wn.Io.copyFile(sys.io, oIndex, oPage);
+                    }, WalkMode.LEAF_ONLY);
+                }
             }
         }
 
