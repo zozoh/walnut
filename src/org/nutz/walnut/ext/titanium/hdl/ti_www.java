@@ -234,14 +234,12 @@ public class ti_www implements JvmHdl {
         WnObj oTaSS = sys.io.createIfNoExists(oDist, "site-state.json", WnRace.FILE);
 
         NutMap map = sys.io.readJson(oSiteState, NutMap.class);
-        map.put("base", vars.get("pageBase"));
-        map.put("apiBase", vars.get("apiBase"));
-        map.put("cdnBase", vars.get("cdnBase"));
+        map.putAll(vars);
 
         sys.io.writeJson(oTaSS, map, JsonFormat.full());
         if (!quiet) {
             JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
-            String brief = Json.toJson(vars.pick("pageBase", "apiBase", "cdnBase"), jfmt);
+            String brief = Json.toJson(vars, jfmt);
             sys.out.printlnf(" + site-state.json : {%s}", brief);
         }
 
