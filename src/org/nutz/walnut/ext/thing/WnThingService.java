@@ -346,13 +346,17 @@ public class WnThingService {
         return null;
     }
 
-    public List<WnObj> deleteThing(boolean hard, Collection<String> ids) {
+    public List<WnObj> deleteThing(WnExecutable executor, boolean hard, Collection<String> ids) {
         DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(ids);
+        a.setConf(this.checkConf());
+        a.setExecutor(executor);
         return a.invoke();
     }
 
-    public List<WnObj> deleteThing(boolean hard, String... ids) {
+    public List<WnObj> deleteThing(WnExecutable executor, boolean hard, String... ids) {
         DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(Lang.list(ids));
+        a.setConf(this.checkConf());
+        a.setExecutor(executor);
         return a.invoke();
     }
 

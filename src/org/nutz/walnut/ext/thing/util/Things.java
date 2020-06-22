@@ -7,10 +7,14 @@ import java.util.Map;
 
 import org.nutz.dao.Cnd;
 import org.nutz.dao.entity.Record;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -378,6 +382,42 @@ public abstract class Things {
 
         // 持久化
         io.set(oT, "^(th_" + countKey + "_(nb|ids|map|list))$");
+    }
+
+    public static void runCommand(WnObj oT,
+                                  String cmd,
+                                  WnExecutable executor,
+                                  StringBuilder stdOut,
+                                  StringBuilder stdErr) {
+        // Guard
+        if (null == oT || null == executor || Strings.isBlank(cmd)) {
+            return;
+        }
+
+        // 分析命令模板
+        String cmdText = Strings.trim(Tmpl.exec(cmd, oT));
+        String input = null;
+
+        // 要读取输入的
+        if (cmdText.startsWith("|")) {
+            cmdText = cmdText.substring(1);
+            input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+        }
+
+        // 执行
+        executor.exec(cmdText, stdOut, stdErr, input);
+    }
+
+    public static String runCommand(WnObj oT, String cmd, WnExecutable executor, String errKey) {
+        StringBuilder stdOut = new StringBuilder();
+        StringBuilder stdErr = new StringBuilder();
+        runCommand(oT, cmd, executor, stdOut, stdErr);
+
+        // 出错就阻止后续执行
+        if (stdErr.length() > 0)
+            throw Er.create(errKey, stdErr);
+
+        return stdOut.toString();
     }
 
     // ..........................................................

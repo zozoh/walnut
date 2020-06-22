@@ -15,13 +15,13 @@ public class thing_delete implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 分析参数
         boolean hard = hc.params.is("hard");
-        
+
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnThingService wts = new WnThingService(sys, oTs);
-        
+
         // 调用接口
-        hc.output = wts.deleteThing(hard, hc.params.vals);
+        hc.output = wts.deleteThing(sys, hard, hc.params.vals);
 
     }
 

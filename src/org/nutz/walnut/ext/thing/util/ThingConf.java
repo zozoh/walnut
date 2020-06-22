@@ -19,10 +19,13 @@ public class ThingConf {
     // @JsonField("lnKeys")
     private Map<String, ThingLinkKey> linkKeys;
 
-    // @JsonField("on_create")
     private String onCreated;
 
     private String onUpdated;
+
+    private String onBeforeDelete;
+
+    private String onDeleted;
 
     public boolean hasUniqueKeys() {
         return null != uniqueKeys && uniqueKeys.length > 0;
@@ -62,6 +65,22 @@ public class ThingConf {
 
     public void setOnUpdated(String onUpdated) {
         this.onUpdated = onUpdated;
+    }
+
+    public String getOnBeforeDelete() {
+        return onBeforeDelete;
+    }
+
+    public void setOnBeforeDelete(String onBeforeDelete) {
+        this.onBeforeDelete = onBeforeDelete;
+    }
+
+    public String getOnDeleted() {
+        return onDeleted;
+    }
+
+    public void setOnDeleted(String onDeleted) {
+        this.onDeleted = onDeleted;
     }
 
     public ThingField[] getFields() {

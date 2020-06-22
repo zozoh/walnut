@@ -8,7 +8,7 @@ import org.nutz.walnut.ext.entity.JvmRedisEntityExecutor;
 import org.nutz.walnut.ext.entity.RedisEntityPrinter;
 import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.WStr;
+import org.nutz.walnut.util.WnStr;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_buy extends JvmRedisEntityExecutor<BuyIt> {
@@ -58,7 +58,7 @@ public class cmd_buy extends JvmRedisEntityExecutor<BuyIt> {
             int len = params.vals.length - 2;
             if (len > 0) {
                 String[] taIds = new String[len];
-                String[] taIds2 = WStr.flatArray(taIds);
+                String[] taIds2 = WnStr.flatArray(taIds);
                 System.arraycopy(params.vals, 2, taIds2, 0, len);
                 re = api.remove(uid, taIds);
             } else {

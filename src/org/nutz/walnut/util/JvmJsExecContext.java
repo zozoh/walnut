@@ -167,8 +167,7 @@ public class JvmJsExecContext implements JsExecContext {
     public String safe(Object val) {
         if (val == null)
             return "null";
-        String value = val.toString();
-        return value.replaceAll("[\"\'\\n\\r\\$]", "").trim();
+        return WnStr.safeTrim(val.toString(), new char[]{'\r', '\n', ';', '$', '\'', '"'}, null);
     }
 
     /**
@@ -177,11 +176,11 @@ public class JvmJsExecContext implements JsExecContext {
     public Log nlog() {
         return _log;
     }
-    
+
     public void writeText(String path, String data) {
         sys.io.writeText(sys.io.check(null, Wn.normalizeFullPath(path, sys)), data);
     }
-    
+
     public String uu32() {
         return R.UU32();
     }

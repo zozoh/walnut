@@ -226,20 +226,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             // 看看是否有附加的创建执行脚本
             String on_created = conf.getOnCreated();
             if (null != this.executor && !Strings.isBlank(on_created)) {
-                String cmdText = Strings.trim(Tmpl.exec(on_created, oT));
-                String input = null;
-                if (cmdText.startsWith("|")) {
-                    cmdText = cmdText.substring(1);
-                    input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
-                }
-                StringBuilder stdOut = new StringBuilder();
-                StringBuilder stdErr = new StringBuilder();
-                this.executor.exec(cmdText, stdOut, stdErr, input);
-
-                // 出错就阻止后续执行
-                if (stdErr.length() > 0)
-                    throw Er.create("e.cmd.thing.on_created", stdErr);
-
+                Things.runCommand(oT, on_created, executor, "e.cmd.thing.on_created");
                 re_get = true;
             }
         }
