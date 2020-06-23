@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.www;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,11 +38,13 @@ import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.web.WebException;
@@ -49,7 +53,7 @@ import org.nutz.web.WebException;
 @At("/www")
 @Ok("void")
 @Fail("void")
-public class WWWModule extends TheMethodsShouldBeRemoved {
+public class WWWModule extends AbstractWnModule {
 
     private static final Log log = Logs.get();
 
@@ -75,6 +79,12 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
 
     @Inject("java:$conf.get('usr-email')")
     private Pattern regexEmail;
+    
+    /**
+     * 会话有效期(秒）默认 86400 秒
+     */
+    @Inject("java:$conf.getLong('session-du',86400)")
+    protected long sessionDu;
 
     @At("/?/**")
     @Filters({@By(type = WWWSetSessionID.class)})
@@ -348,6 +358,46 @@ public class WWWModule extends TheMethodsShouldBeRemoved {
             if (log.isWarnEnabled())
                 log.warn("Server Error!", e);
             return gen_errpage(tmpl_500, a_path, e.toString(), 500);
+        }
+    }
+
+    protected NutMap __gen_www_context(HttpServletRequest req,
+                                       WnObj oWWW,
+                                       String pagePath,
+                                       String a_path) {
+        try {
+            NutMap context = _gen_context_by_req(req);
+            String rootPath = oWWW.path();
+            String url = (String) req.getAttribute("wn_www_url");
+            if (url == null)
+                url = req.getRequestURL().toString();
+            URI uri = new URI(url);
+            String uriPath = uri.getPath();
+            String basePath;
+            // 用 pagePath
+            if (!Strings.isBlank(pagePath) && uriPath.endsWith(pagePath)) {
+                basePath = uriPath.substring(0, uriPath.length() - pagePath.length());
+            }
+            // 用 a_path 咯
+            else if (!Strings.isBlank(a_path) && uriPath.endsWith(a_path)) {
+                basePath = uriPath.substring(0, uriPath.length() - a_path.length());
+            }
+            // 嗯，没招了
+            else {
+                basePath = uriPath;
+            }
+
+            context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
+            context.put("SITE_HOME", rootPath);
+            context.put("PAGE_PATH", pagePath);
+            context.put("URL", url);
+            context.put("URI_PATH", uriPath);
+            context.put("URI_BASE", basePath);
+
+            return context;
+        }
+        catch (URISyntaxException e) {
+            throw Er.wrap(e);
         }
     }
 
