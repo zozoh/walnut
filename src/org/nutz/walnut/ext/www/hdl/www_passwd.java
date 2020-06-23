@@ -19,7 +19,7 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(ajax|init)$")
 public class www_passwd implements JvmHdl {
 
     @Override
@@ -84,9 +84,18 @@ public class www_passwd implements JvmHdl {
                 throw Er.create("e.cmd.www_passwd.TooShort");
             }
             // -------------------------------
+            // 设置初始化密码
+            if (hc.params.is("init")) {
+                if (!u.hasSaltedPasswd()) {
+                    u.setRawPasswd(passwd);
+                    webs.getAuthApi().saveAccount(u, WnAuths.ABMM.PASSWD);
+                }
+            }
             // 设置并保存新密码
-            u.setRawPasswd(passwd);
-            webs.getAuthApi().saveAccount(u, WnAuths.ABMM.PASSWD);
+            else {
+                u.setRawPasswd(passwd);
+                webs.getAuthApi().saveAccount(u, WnAuths.ABMM.PASSWD);
+            }
             // -------------------------------
             // 输出
             if (hc.params.is("ajax")) {

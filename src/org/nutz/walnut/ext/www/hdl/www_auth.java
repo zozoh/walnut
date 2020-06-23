@@ -2,8 +2,10 @@ package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.cmd_www;
@@ -58,6 +60,15 @@ public class www_auth implements JvmHdl {
                 // 验证码登录
                 else {
                     se = auth.loginByVcode(account, scene, vcode);
+                }
+            }
+
+            // 如果指定了密码，且当前账户没有设定密码，作为初始化密码设置进去
+            if (null != se) {
+                WnAccount u = se.getMe();
+                if (!Strings.isBlank(passwd) && !u.hasSaltedPasswd()) {
+                    u.setRawPasswd(passwd);
+                    auth.saveAccount(u, WnAuths.ABMM.PASSWD);
                 }
             }
         }

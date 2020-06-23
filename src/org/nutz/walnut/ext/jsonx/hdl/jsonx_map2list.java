@@ -22,6 +22,7 @@ public class jsonx_map2list extends JsonXFilter {
     @Override
     protected void process(WnSystem sys, JsonXContext ctx, ZParams params) {
         String keyName = params.getString("key", "key");
+        boolean joinKey = !"-nil-".equals(keyName);
 
         String[] ignores = params.getAs("ignore", String[].class);
 
@@ -66,7 +67,9 @@ public class jsonx_map2list extends JsonXFilter {
 
                     // 计入结果
                     if (!ignoreIt) {
-                        valMap.put(keyName, key);
+                        if (joinKey) {
+                            valMap.put(keyName, key);
+                        }
                         list.add(valMap);
                     }
                 }

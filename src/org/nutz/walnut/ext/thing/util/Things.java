@@ -408,14 +408,28 @@ public abstract class Things {
         executor.exec(cmdText, stdOut, stdErr, input);
     }
 
-    public static String runCommand(WnObj oT, String cmd, WnExecutable executor, String errKey) {
+    public static String runCommand(WnObj oT, String cmd, WnExecutable executor) {
+        if (!Strings.isBlank(cmd)) {
+            return runCommands(oT, Lang.array(cmd), executor);
+        }
+        return null;
+    }
+
+    public static String runCommands(WnObj oT, String[] cmds, WnExecutable executor) {
+        if (null == cmds || cmds.length == 0) {
+            return null;
+        }
+
         StringBuilder stdOut = new StringBuilder();
         StringBuilder stdErr = new StringBuilder();
-        runCommand(oT, cmd, executor, stdOut, stdErr);
 
-        // 出错就阻止后续执行
-        if (stdErr.length() > 0)
-            throw Er.create(errKey, stdErr);
+        for (String cmd : cmds) {
+            runCommand(oT, cmd, executor, stdOut, stdErr);
+
+            // 出错就阻止后续执行
+            if (stdErr.length() > 0)
+                throw Er.wrap(stdErr.toString());
+        }
 
         return stdOut.toString();
     }

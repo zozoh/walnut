@@ -11,7 +11,7 @@ public class cmd_str extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, null);
+        ZParams params = ZParams.parse(args, null, "^(trim)$");
 
         // 得到输入
         String str = sys.in.readAll();

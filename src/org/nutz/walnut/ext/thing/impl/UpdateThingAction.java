@@ -2,8 +2,6 @@ package org.nutz.walnut.ext.thing.impl;
 
 import java.util.List;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
@@ -81,19 +79,10 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         }
 
         // 看看是否有附加的创建执行脚本
-        String on_updated = conf.getOnUpdated();
-        if (null != this.executor && !Strings.isBlank(on_updated)) {
-            String cmdText = Tmpl.exec(on_updated, oT);
-            StringBuilder stdOut = new StringBuilder();
-            StringBuilder stdErr = new StringBuilder();
-            this.executor.exec(cmdText, stdOut, stdErr, null);
-
+        String[] on_updated = conf.getOnUpdated();
+        if (null != this.executor && null != on_updated && on_updated.length > 0) {
+            Things.runCommands(oT, on_updated, executor);
             reget = true; // 标记要重新获取
-
-            // 出错就阻止后续执行
-            if (stdErr.length() > 0)
-                throw Er.create("e.cmd.thing.on_updated", stdErr);
-
         }
 
         // 重新获取

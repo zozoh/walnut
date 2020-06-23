@@ -1,14 +1,7 @@
 package org.nutz.walnut.ext.jsonx;
 
-import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.impl.box.JvmFilter;
 
-public abstract class JsonXFilter {
-
-    protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, null);
-    }
-
-    abstract protected void process(WnSystem sys, JsonXContext ctx, ZParams params);
+public abstract class JsonXFilter extends JvmFilter<JsonXContext> {
 
 }

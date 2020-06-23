@@ -224,9 +224,9 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 如果是第一次创建，则执行附加脚本
         if (!isDuplicated) {
             // 看看是否有附加的创建执行脚本
-            String on_created = conf.getOnCreated();
-            if (null != this.executor && !Strings.isBlank(on_created)) {
-                Things.runCommand(oT, on_created, executor, "e.cmd.thing.on_created");
+            String[] on_created = conf.getOnCreated();
+            if (null != this.executor && null != on_created && on_created.length > 0) {
+                Things.runCommands(oT, on_created, executor);
                 re_get = true;
             }
         }

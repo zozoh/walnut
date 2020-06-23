@@ -356,7 +356,7 @@ public final class Hms {
      * 
      * @param sys
      *            运行上下文
-     * @param str
+     * @param data
      *            站点目录路径（或者是其内文件）
      * @return 站点目录对象，null 表示不在任何站点中
      */

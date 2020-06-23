@@ -198,7 +198,7 @@ lnKeys : {
 
 ```js
 {
-  onCreated : "jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"
+  onCreated : ["jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"]
 }
 ```
 
@@ -210,7 +210,7 @@ lnKeys : {
 
 ```js
 {
-  onUpdated : "jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"
+  onUpdated : ["jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"]
 }
 ```
 --------------------------------------
@@ -220,7 +220,9 @@ lnKeys : {
 脚本执行的模板，接受当前 thing 对象为上下文。
 
 ```js
-  onBeforeDelete: "jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"
+{
+  onBeforeDelete: ["jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"]
+}
 ```
 
 这个脚本的如果在错误输出写入数据，那么则会导致删除被终止，并抛出异常。
@@ -233,6 +235,8 @@ lnKeys : {
 脚本执行的模板，接受当前 thing 对象为上下文。
 
 ```js
-  onDeleted: "jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"
+{
+  onDeleted: ["jsc /jsbin/xxx.js -vars 'id:\"${id}\"'"]
+}
 ```
 

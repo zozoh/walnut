@@ -21,37 +21,50 @@ public class jsonx_read extends JsonXFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(map|list|auto)$");
+        return ZParams.parse(args, "^(list|auto|reset)$");
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    protected void process(WnSystem sys, JsonXContext ctx, ZParams params) {
+    protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
+        // ..............................................
         // 读取输入
         Map<String, Object> map = new NutMap();
         for (String ph : params.vals) {
-            WnObj o = Wn.checkObj(ctx.sys, ph);
+            WnObj o = Wn.checkObj(fc.sys, ph);
             String str = sys.io.readText(o);
             Object obj = Json.fromJson(str);
             String key = Files.getMajorName(o.name());
             map.put(key, obj);
         }
-
+        // ..............................................
         // 自动输出，如果只有一个，就是裸值
+        Object data = null;
         if (params.is("auto")) {
             if (map.size() == 1) {
-                ctx.obj = map.values().iterator().next();
-                return;
+                data = map.values().iterator().next();
             }
         }
         // 输出列表
-        if (params.is("list")) {
+        else if (params.is("list")) {
             List<Object> list = new ArrayList<Object>(map.size());
             list.addAll(map.values());
-            ctx.obj = list;
+            data = list;
         }
         // 默认输出 map
         else {
-            ctx.obj = map;
+            data = map;
+        }
+        // ..............................................
+        // 合并
+        if (!params.is("reset") && (fc.obj instanceof Map) && (data instanceof Map)) {
+            Map fc_map = (Map) fc.obj;
+            Map data_map = (Map) data;
+            fc_map.putAll(data_map);
+        }
+        // 替换
+        else {
+            fc.obj = data;
         }
     }
 
