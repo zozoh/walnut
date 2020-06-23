@@ -56,7 +56,7 @@ public abstract class WnStr {
     public static String safe(String str) {
         if (str == null)
             return null;
-        return __safe(str, new char[]{'\r', '\n', ';'}, new char[]{'\'', '"'});
+        return __safe(str, new char[]{'\r', '\n', ';'}, new char[]{'\'', '"', '`'});
     }
 
     /**
@@ -77,6 +77,25 @@ public abstract class WnStr {
     }
 
     /**
+     * 对字符串进行逃逸处理。
+     * 
+     * @param str
+     *            输入字符串
+     * @param removed
+     *            要被移除的字符
+     * @param encoded
+     *            要被编码的字符, 即将字符变成 '%XX' 形式
+     * @return 逃逸后的字符串
+     */
+    public static String safe(String str, String removed, String encoded) {
+        if (null == str)
+            return null;
+        return __safe(str,
+                      removed == null ? null : removed.toCharArray(),
+                      encoded == null ? null : encoded.toCharArray());
+    }
+
+    /**
      * 对字符串内容去掉空杯后进行逃逸处理。
      * 
      * <ul>
@@ -91,7 +110,7 @@ public abstract class WnStr {
     public static String safeTrim(String str) {
         if (str == null)
             return null;
-        return __safe(str.trim(), new char[]{'\r', '\n', ';'}, new char[]{'\'', '"'});
+        return __safe(str.trim(), new char[]{'\r', '\n', ';'}, new char[]{'\'', '"', '`'});
     }
 
     /**
@@ -109,6 +128,25 @@ public abstract class WnStr {
         if (null == str)
             return null;
         return __safe(str.trim(), removed, encoded);
+    }
+
+    /**
+     * 对字符串内容去掉空杯后进行逃逸处理。
+     * 
+     * @param str
+     *            输入字符串
+     * @param removed
+     *            要被移除的字符
+     * @param encoded
+     *            要被编码的字符, 即将字符变成 '%XX' 形式
+     * @return 逃逸后的字符串
+     */
+    public static String safeTrim(String str, String removed, String encoded) {
+        if (null == str)
+            return null;
+        return __safe(str.trim(),
+                      removed == null ? null : removed.toCharArray(),
+                      encoded == null ? null : encoded.toCharArray());
     }
 
     /**

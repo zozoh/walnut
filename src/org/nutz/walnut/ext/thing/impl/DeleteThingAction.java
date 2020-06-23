@@ -4,17 +4,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.json.Json;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.walnut.api.WnExecutable;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
 import org.nutz.walnut.ext.thing.util.ThingConf;
 import org.nutz.walnut.ext.thing.util.Things;
-import org.nutz.web.ajax.AjaxReturn;
 
 public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
@@ -72,7 +68,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
             WnObj oT = this.checkThIndex(id);
 
             // 删除前的回调，控制删除
-            Things.runCommand(oT, conf.getOnBeforeDelete(), executor, "e.cmd.thing.before_delete");
+            Things.runCommands(oT, conf.getOnBeforeDelete(), executor);
 
             // 硬删除，或者已经是删除的了，那么真实的删除数据对象
             if (this.hard || oT.getInt("th_live", 0) == Things.TH_DEAD) {
@@ -92,7 +88,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
             }
 
             // 删除后回调
-            Things.runCommand(oT, conf.getOnDeleted(), executor, "e.cmd.thing.after_delete");
+            Things.runCommands(oT, conf.getOnDeleted(), executor);
         }
 
         // 返回输出

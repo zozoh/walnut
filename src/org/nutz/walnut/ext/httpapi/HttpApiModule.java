@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,9 +38,10 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.pvg.BizPvgService;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.WnStr;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.module.AppRespOutputStreamWrapper;
@@ -63,142 +64,235 @@ public class HttpApiModule extends AbstractWnModule {
                        final HttpServletRequest req,
                        final HttpServletResponse resp)
             throws IOException {
-        final WnAccount u;
-        final WnObj oHome;
-        final WnObj oApi;
-        int respCode = 500;
+        final WnHttpApiContext apc = new WnHttpApiContext();
+        apc.usr = usr;
+        apc.api = api;
+        apc.req = req;
+        apc.resp = resp;
+        apc.reqMeta = new NutMap();
         // 找到用户和对应的命令
         try {
             if (log.isInfoEnabled())
                 log.infof("httpAPI(%s): /%s/%s", Lang.getIP(req), usr, api);
 
+            // .........................................
             // 得到用户和主目录
-            u = auth.checkAccount(usr);
-            String homePath = u.getHomePath();
-            oHome = io.check(null, homePath);
+            apc.u = auth.checkAccount(usr);
+            String homePath = apc.u.getHomePath();
+            apc.oHome = io.check(null, homePath);
 
+            // .........................................
             // 找到 API 对象
-            oApi = __find_api_obj(oHome, api);
+            apc.oApi = __find_api_obj(apc);
 
+            // .........................................
             // 如果没有这个 API 文件，就 404 吧
-            if (null == oApi) {
-                respCode = 404;
+            if (null == apc.oApi) {
+                apc.respCode = 404;
                 throw Er.create("e.api.nofound", api);
             }
 
+            // .........................................
             // 如果有原来的老会话，则记录一下操作会话
-            WnAuthSession oldSe = null;
+            apc.oldSe = null;
             String ticket = Wn.WC().getTicket();
             if (!Strings.isBlank(ticket)) {
-                oldSe = this.auth.getSession(ticket);
+                apc.oldSe = this.auth.getSession(ticket);
             }
 
+            // .........................................
             // 将当前线程切换到指定的用户
-            WnContext wc = Wn.WC();
-            WnAuthSession se = auth.createSession(u, false);
-            wc.setSession(se);
+            apc.se = __switch_op_user(apc);
 
+            // .........................................
             // 如果 API 文件声明了需要 copy 的 cookie 到线程上下文 ...
-            String[] copyCookieNames = oApi.getAs("copy-cookie", String[].class);
-            if (null != copyCookieNames && copyCookieNames.length > 0) {
-                wc.copyCookieItems(req, copyCookieNames);
-            }
+            __copy_cookie_to_wc_context(apc);
 
-            // .......................................................
+            // .........................................
             // 如果是跨域的 Preflighted 请求，直接根据设定返回就是
             if ("OPTIONS".equals(req.getMethod())) {
-                NutMap headers = new NutMap();
-                headers.put("ACCESS-CONTROL-ALLOW-ORIGIN",
-                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-ORIGIN"));
-                headers.put("ACCESS-CONTROL-ALLOW-METHODS",
-                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-METHODS"));
-                headers.put("ACCESS-CONTROL-ALLOW-HEADERS",
-                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-HEADERS"));
-                headers.put("ACCESS-CONTROL-ALLOW-CREDENTIALS",
-                            oApi.get("http-header-ACCESS-CONTROL-ALLOW-CREDENTIALS"));
-
-                // 设置默认值
-                String origin = req.getHeader("Origin");
-                __set_cross_origin_default_headers(oApi, origin, (name, value) -> {
-                    headers.putDefault(name, value);
-                });
-
-                // 拒绝跨域
-                if (headers.has("ACCESS-CONTROL-ALLOW-ORIGIN")) {
-                    // 返回跨域设置
-                    for (String key : headers.keySet()) {
-                        String val = headers.getString(key);
-                        resp.setHeader(WnWeb.niceHeaderName(key), val);
-                    }
-                }
+                __do_http_options(req, resp, apc);
 
                 // 无论如何，都不需要继续创建请求对象之类的了
                 return;
             }
 
-            // .......................................................
+            // .........................................
+            // 填充请求元数据
+            __fill_req_meta(apc);
+
+            // .........................................
+            // 对所有的元数据进行逃逸处理
+            __escape_req_meta(apc);
+
+            // .........................................
+            // 自动登陆站点用户
+            __do_www_auth(apc);
+
+            // .........................................
+            // 检查权限
+            if (null != apc.wwwSe) {
+                __do_www_check_pvg(apc);
+            }
+
+            // .........................................
             // 准备临时目录
-            final WnObj oTmp = Wn.WC().su(u, new Proton<WnObj>() {
-                protected WnObj exec() {
-                    return io.createIfNoExists(oHome, ".regapi/tmp", WnRace.DIR);
-                }
-            });
+            apc.oTmp = __gen_tmp_obj(apc);
 
+            // .........................................
             // 生成请求对象
-            WnObj oReq = __gen_req_obj(req, u, oApi, oTmp, oldSe, se);
+            apc.oReq = __gen_req_obj(apc);
 
+            // .........................................
             // 执行 API 文件
             try {
                 // 带钩子方式的运行
-                if (oApi.getBoolean("run-with-hook")) {
-                    this.runWithHook(se, new Callback<WnAuthSession>() {
-                        public void invoke(WnAuthSession se) {
-                            try {
-                                _do_api(oReq, resp, oHome, se, oApi);
-                            }
-                            catch (IOException e) {
-                                throw Er.wrap(e);
-                            }
-                        }
-                    });
+                if (apc.oApi.getBoolean("run-with-hook")) {
+                    _do_api_with_hook(apc);
                 }
                 // 不带钩子
                 else {
-                    _do_api(oReq, resp, oHome, se, oApi);
+                    _do_api(apc);
                 }
             }
             // 确保退出登录
             finally {
-                auth.removeSession(se, 0);
-                wc.setSession(null);
+                auth.removeSession(apc.se, 0);
+                apc.wc.setSession(null);
             }
         }
         catch (Exception e) {
+            // .........................................
             // 根据类型，设置 HTTP 错误码
             if (e instanceof WebException) {
                 String ek = ((WebException) e).getKey();
                 // 有东西木有找到
                 if ("e.io.obj.noexists".equals(ek)) {
-                    respCode = 404;
+                    apc.respCode = 404;
                 }
                 // 没有权限
                 else if ("e.api.forbid".equals(ek)) {
-                    respCode = 403;
+                    apc.respCode = 403;
                 }
             }
-            resp.sendError(respCode);
-            // 不是 4xx 的话，打印的详细一点
-            if (respCode >= 500) {
+            // .........................................
+            // 不是 4xx 的话，默认设置 500，并且打印的
+            if (apc.respCode < 500) {
+                apc.respCode = 500;
+            }
+            if (apc.respCode >= 500) {
                 if (log.isWarnEnabled()) {
                     log.warn("Fail to handle API", e);
                 }
                 e.printStackTrace(resp.getWriter());
             }
-
+            // .........................................
+            resp.sendError(apc.respCode);
             resp.flushBuffer();
             return;
         }
 
+    }
+
+    private void __do_www_check_pvg(final WnHttpApiContext apc) {
+        String phPvg = apc.oApi.getString("pvg-setup");
+        String[] assActions = apc.oApi.getArray("pvg-assert", String.class);
+
+        // 没设置不检
+        if (Strings.isBlank(phPvg)) {
+            return;
+        }
+
+        // 没有声明检查项，不捡
+        if (null == assActions) {
+            return;
+        }
+
+        // 木有检查项，那就是全都不通过
+        if (assActions.length == 0) {
+            throw Er.create("e.api.forbid");
+        }
+
+        // 读一下设置
+        apc.oPvgSetup = Wn.checkObj(io, apc.se, phPvg);
+        NutMap setup = io.readJson(apc.oPvgSetup, NutMap.class);
+        apc.bizPvgs = new BizPvgService(setup);
+
+        // 得到当前账户的角色
+        String roleName = apc.wwwSe.getMe().getRoleName("user");
+
+        // 开始检查咯
+        for (String assA : assActions) {
+            String[] actions = Strings.splitIgnoreBlank(assA, "[|]+");
+            if (!apc.bizPvgs.canOne(roleName, actions)) {
+                throw Er.create("e.api.forbid");
+            }
+        }
+
+    }
+
+    private WnAuthSession __switch_op_user(final WnHttpApiContext apc) {
+        apc.wc = Wn.WC();
+        WnAuthSession se = auth.createSession(apc.u, false);
+        apc.wc.setSession(se);
+        return se;
+    }
+
+    private void _do_api_with_hook(final WnHttpApiContext apc) {
+        this.runWithHook(apc.se, new Callback<WnAuthSession>() {
+            public void invoke(WnAuthSession se) {
+                try {
+                    _do_api(apc);
+                }
+                catch (IOException e) {
+                    throw Er.wrap(e);
+                }
+            }
+        });
+    }
+
+    private void __copy_cookie_to_wc_context(WnHttpApiContext apc) {
+        String[] copyCookieNames = apc.oApi.getAs("copy-cookie", String[].class);
+        if (null != copyCookieNames && copyCookieNames.length > 0) {
+            apc.wc.copyCookieItems(apc.req, copyCookieNames);
+        }
+    }
+
+    private void __do_http_options(final HttpServletRequest req,
+                                   final HttpServletResponse resp,
+                                   final WnHttpApiContext apc) {
+        NutMap headers = new NutMap();
+        headers.put("ACCESS-CONTROL-ALLOW-ORIGIN",
+                    apc.oApi.get("http-header-ACCESS-CONTROL-ALLOW-ORIGIN"));
+        headers.put("ACCESS-CONTROL-ALLOW-METHODS",
+                    apc.oApi.get("http-header-ACCESS-CONTROL-ALLOW-METHODS"));
+        headers.put("ACCESS-CONTROL-ALLOW-HEADERS",
+                    apc.oApi.get("http-header-ACCESS-CONTROL-ALLOW-HEADERS"));
+        headers.put("ACCESS-CONTROL-ALLOW-CREDENTIALS",
+                    apc.oApi.get("http-header-ACCESS-CONTROL-ALLOW-CREDENTIALS"));
+
+        // 设置默认值
+        String origin = req.getHeader("Origin");
+        __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
+            headers.putDefault(name, value);
+        });
+
+        // 拒绝跨域
+        if (headers.has("ACCESS-CONTROL-ALLOW-ORIGIN")) {
+            // 返回跨域设置
+            for (String key : headers.keySet()) {
+                String val = headers.getString(key);
+                resp.setHeader(WnWeb.niceHeaderName(key), val);
+            }
+        }
+    }
+
+    private WnObj __gen_tmp_obj(final WnHttpApiContext apc) {
+        return Wn.WC().su(apc.u, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.createIfNoExists(apc.oHome, ".regapi/tmp", WnRace.DIR);
+            }
+        });
     }
 
     private void __set_cross_origin_default_headers(WnObj oApi,
@@ -215,166 +309,197 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
-    private WnObj __find_api_obj(final WnObj oHome, String api) {
+    private WnObj __find_api_obj(WnHttpApiContext apc) {
         // 准备返回值
         WnObj oApi = null;
 
         // 首先准备路径参数
-        List<String> args = new LinkedList<>();
-        NutMap params = new NutMap();
+        apc.args = new LinkedList<>();
+        apc.params = new NutMap();
 
         // 得到 api 的主目录，分解要获取的路径
-        WnObj oApiHome = io.fetch(oHome, ".regapi/api");
-        String[] phs = Strings.splitIgnoreBlank(api, "/");
+        apc.oApiHome = io.fetch(apc.oHome, ".regapi/api");
+        String[] phs = Strings.splitIgnoreBlank(apc.api, "/");
 
         // 依次取得
         for (int i = 0; i < phs.length; i++) {
             String ph = phs[i];
 
             // 直接找一下看看有没有
-            oApi = io.fetch(oApiHome, ph);
+            oApi = io.fetch(apc.oApiHome, ph);
             if (null != oApi) {
-                oApiHome = oApi;
+                apc.oApiHome = oApi;
                 continue;
             }
 
             // 嗯，那就找 _ANY 咯
-            oApi = io.fetch(oApiHome, "_ANY");
+            oApi = io.fetch(apc.oApiHome, "_ANY");
 
             // 没有的话就是 null 咯
             if (null == oApi)
                 return null;
 
-            oApiHome = oApi;
+            apc.oApiHome = oApi;
 
             // 目录的话，继续
             if (oApi.isDIR()) {
-                args.add(ph);
+                apc.args.add(ph);
                 String pnm = oApi.getString("api-param-name");
                 if (!Strings.isBlank(pnm)) {
-                    params.put(pnm, ph);
+                    apc.params.put(pnm, ph);
                 }
             }
             // 文件，表示的是 * 嘛，那就不要继续了
             else {
                 String arg = Strings.join(i, phs.length - i, "/", phs);
-                args.add(arg);
+                apc.args.add(arg);
                 String pnm = oApi.getString("api-param-name");
                 if (!Strings.isBlank(pnm)) {
-                    params.put(pnm, arg);
+                    apc.params.put(pnm, arg);
                 }
                 break;
             }
         }
 
-        // 最后附加一下值
-        oApi.put("args", args);
-        oApi.put("params", params);
-
         // 搞定，收工
         return oApi;
     }
 
-    private void _do_api(WnObj oReq,
-                         HttpServletResponse resp,
-                         final WnObj oHome,
-                         WnAuthSession se,
-                         WnObj oApi)
-            throws IOException {
+    private void _do_api(WnHttpApiContext apc) throws IOException {
 
         // 记录是否客户端设定了响应的 ContentType
-        String mimeType = oReq.getString("http-qs-mime");
+        apc.mimeType = apc.oReq.getString("http-qs-mime");
 
         // 解析命令
         String cmdPattern;
         // 如果 oApi 是个路径参数
-        if (oApi.isDIR() && oApi.name().equals("_ANY")) {
-            WnObj oAA = io.check(oApi, "_action");
+        if (apc.oApi.isDIR() && apc.oApi.name().equals("_ANY")) {
+            WnObj oAA = io.check(apc.oApi, "_action");
             cmdPattern = io.readText(oAA);
         }
         // 否则直接使用
         else {
-            cmdPattern = io.readText(oApi);
+            cmdPattern = io.readText(apc.oApi);
         }
-        String cmdText = Tmpl.exec(cmdPattern, oReq);
+        apc.cmdText = Tmpl.exec(cmdPattern, apc.oReq);
 
         // 如果是 API 的执行是自动决定的文本
-        if (oApi.getBoolean("http-dynamic-header")) {
-            this.__setup_resp_header(oApi, oReq, mimeType, resp);
+        if (apc.oApi.getBoolean("http-dynamic-header")) {
+            this.__setup_resp_header(apc);
 
-            HttpApiDynamicRender render = new HttpApiDynamicRender(resp);
-            this.exec("box", se, cmdText, render.getStdout(), render.getStderr(), null, null);
+            HttpApiDynamicRender render = new HttpApiDynamicRender(apc.resp);
+            this.exec("box",
+                      apc.se,
+                      apc.cmdText,
+                      render.getStdout(),
+                      render.getStderr(),
+                      null,
+                      null);
             render.close();
             return;
         }
 
         // 根据返回码决定怎么处理
-        int respCode = oApi.getInt("http-resp-code", 200);
+        apc.respCode = apc.oApi.getInt("http-resp-code", 200);
 
         // 重定向
-        if (respCode == 301 || respCode == 302) {
-            _do_redirect(resp, cmdText, se);
+        if (apc.respCode == 301 || apc.respCode == 302) {
+            _do_redirect(apc);
         }
         // 肯定要写入返回流
         else {
-            _do_run_box(oApi, oReq, mimeType, resp, cmdText, se);
+            _do_run_box(apc);
         }
     }
 
-    private WnObj __gen_req_obj(HttpServletRequest req,
-                                WnAccount u,
-                                WnObj oApi,
-                                final WnObj oTmp,
-                                WnAuthSession oldSe,
-                                WnAuthSession se)
+    private WnObj __gen_req_obj(WnHttpApiContext apc)
             throws UnsupportedEncodingException, IOException {
+
+        // .........................................
+        // 创建临时文件以便保存请求的内容
+        String uriName = apc.uri.replaceAll("[/\\\\]", "_").substring(1);
+        WnObj oReq = Wn.WC().su(apc.u, new Proton<WnObj>() {
+            protected WnObj exec() {
+                return io.create(apc.oTmp, uriName + "_${id}", WnRace.FILE);
+            }
+        });
+
+        // .........................................
+        // 更新头信息
+        io.appendMeta(oReq, apc.reqMeta);
+
+        // .........................................
+        // 保存请求体
+        InputStream ins = apc.req.getInputStream();
+        try (OutputStream ops = io.getOutputStream(oReq, 0)) {
+            Streams.write(ops, ins);
+        }
+
+        // .........................................
+        // 搞定
+        return oReq;
+    }
+
+    private void __escape_req_meta(WnHttpApiContext apc) {
+        if (apc.oApi.getBoolean("http-safe-params", true)) {
+            for (Map.Entry<String, Object> en : apc.oApi.entrySet()) {
+                Object val = en.getValue();
+                if (val instanceof CharSequence) {
+                    String str = val.toString();
+                    String s2 = WnStr.safeTrim(str, "\r\n;", "`'");
+                    en.setValue(s2);
+                }
+            }
+        }
+    }
+
+    private void __fill_req_meta(WnHttpApiContext apc) throws UnsupportedEncodingException {
         // .........................................
         // 准备请求对象元数据
-        Enumeration<String> hnms = req.getHeaderNames();
-        NutMap map = new NutMap();
+        Enumeration<String> hnms = apc.req.getHeaderNames();
 
         // 保存 http 参数
-        map.put("http-usr", u.getName());
-        map.put("http-grp", u.getGroupName());
-        map.put("http-home", u.getHomePath());
-        map.put("http-api", oApi.name());
+        apc.reqMeta.put("http-usr", apc.u.getName());
+        apc.reqMeta.put("http-grp", apc.u.getGroupName());
+        apc.reqMeta.put("http-home", apc.u.getHomePath());
+        apc.reqMeta.put("http-api", apc.oApi.name());
 
         // .........................................
         // 记录老的Session对象信息
-        if (null != oldSe) {
-            map.put("http-se-id", oldSe.getId());
-            map.put("http-se-ticket", oldSe.getTicket());
-            map.put("http-se-me-name", oldSe.getMe().getName());
-            map.put("http-se-me-group", oldSe.getMe().getGroupName());
-            map.put("http-se-vars", oldSe.getVars());
+        if (null != apc.oldSe) {
+            apc.reqMeta.put("http-se-id", apc.oldSe.getId());
+            apc.reqMeta.put("http-se-ticket", apc.oldSe.getTicket());
+            apc.reqMeta.put("http-se-me-name", apc.oldSe.getMe().getName());
+            apc.reqMeta.put("http-se-me-group", apc.oldSe.getMe().getGroupName());
+            apc.reqMeta.put("http-se-vars", apc.oldSe.getVars());
         }
 
         // .........................................
         // 记录请求信息的其他数据
-        String uri = req.getRequestURI();
-        map.put("http-protocol", req.getProtocol().toUpperCase());
-        map.put("http-method", req.getMethod().toUpperCase());
-        map.put("http-uri", uri);
-        map.put("http-url", req.getRequestURL());
-        map.put("http-remote-addr", req.getRemoteAddr());
-        map.put("http-remote-host", req.getRemoteHost());
-        map.put("http-remote-port", req.getRemotePort());
+        apc.uri = apc.req.getRequestURI();
+        apc.reqMeta.put("http-protocol", apc.req.getProtocol().toUpperCase());
+        apc.reqMeta.put("http-method", apc.req.getMethod().toUpperCase());
+        apc.reqMeta.put("http-uri", apc.uri);
+        apc.reqMeta.put("http-url", apc.req.getRequestURL());
+        apc.reqMeta.put("http-remote-addr", apc.req.getRemoteAddr());
+        apc.reqMeta.put("http-remote-host", apc.req.getRemoteHost());
+        apc.reqMeta.put("http-remote-port", apc.req.getRemotePort());
 
         // .........................................
         // 更新路径参数
-        map.put("args", oApi.get("args"));
-        map.put("params", oApi.get("params"));
+        apc.reqMeta.put("args", apc.args);
+        apc.reqMeta.put("params", apc.params);
 
         // .........................................
         // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
         long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
-        long tmpDu = oApi.getLong("http-tmp-duraion", dftDu);
-        map.put("expi", System.currentTimeMillis() + tmpDu);
+        long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
+        apc.reqMeta.put("expi", System.currentTimeMillis() + tmpDu);
 
         // .........................................
         // 保存 QueryString，同时，看看有没必要更改 mime-type
-        String qs = req.getQueryString();
-        map.put("http-qs", qs);
+        String qs = apc.req.getQueryString();
+        apc.reqMeta.put("http-qs", qs);
         if (!Strings.isBlank(qs)) {
             // 解码
             qs = URLDecoder.decode(qs, "UTF-8");
@@ -386,11 +511,11 @@ public class HttpApiModule extends AbstractWnModule {
                 if (pos > 0) {
                     String nm = s.substring(0, pos);
                     String val = s.substring(pos + 1);
-                    map.put("http-qs-" + nm, val);
+                    apc.reqMeta.put("http-qs-" + nm, val);
                 }
                 // 没值的用空串表示
                 else {
-                    map.put("http-qs-" + s, "");
+                    apc.reqMeta.put("http-qs-" + s, "");
                 }
             }
         }
@@ -399,105 +524,75 @@ public class HttpApiModule extends AbstractWnModule {
         // 保存请求头
         while (hnms.hasMoreElements()) {
             String hnm = hnms.nextElement();
-            String hval = req.getHeader(hnm);
-            map.put("http-header-" + hnm.toUpperCase(), hval);
+            String hval = apc.req.getHeader(hnm);
+            apc.reqMeta.put("http-header-" + hnm.toUpperCase(), hval);
         }
 
         // .........................................
         // 计入请求 Cookie
-        Cookie[] coos = req.getCookies();
+        Cookie[] coos = apc.req.getCookies();
         if (null != coos && coos.length > 0) {
             for (Cookie coo : coos) {
-                map.put("http-cookie-" + coo.getName(), coo.getValue());
+                apc.reqMeta.put("http-cookie-" + coo.getName(), coo.getValue());
             }
         }
+    }
 
-        // .........................................
-        // 自动登陆站点用户
-        String phWWW = oApi.getString("http-www-home");
+    private void __do_www_auth(WnHttpApiContext apc) {
+        String phWWW = apc.oApi.getString("http-www-home");
         boolean hasWWWHome = !Strings.isBlank(phWWW);
-        WnAuthSession wwwSe = null;
+        apc.isNeedWWWAuth = apc.oApi.getBoolean("http-www-auth", hasWWWHome);
+        apc.wwwSe = null;
         if (hasWWWHome) {
-            String ticketBy = oApi.getString("http-www-ticket", "http-qs-ticket");
-            String ticket = map.getString(ticketBy);
+            String ticketBy = apc.oApi.getString("http-www-ticket", "http-qs-ticket");
+            String ticket = apc.reqMeta.getString(ticketBy);
             if (!Strings.isBlank(ticket)) {
-                WnObj oWWW = Wn.checkObj(io, se, phWWW);
-                String homePath = se.getMe().getHomePath();
+                WnObj oWWW = Wn.checkObj(io, apc.se, phWWW);
+                String homePath = apc.se.getMe().getHomePath();
                 WnWebService webs = new WnWebService(io, homePath, oWWW);
-                wwwSe = webs.getAuthApi().getSession(ticket);
-                if (null != wwwSe) {
-                    WnAccount wwwMe = wwwSe.getMe();
+                apc.wwwSe = webs.getAuthApi().getSession(ticket);
+                if (null != apc.wwwSe) {
+                    WnAccount wwwMe = apc.wwwSe.getMe();
                     // 会话信息
-                    map.put("http-www-se-id", wwwSe.getId());
-                    map.put("http-www-se-ticket", wwwSe.getTicket());
+                    apc.reqMeta.put("http-www-se-id", apc.wwwSe.getId());
+                    apc.reqMeta.put("http-www-se-ticket", apc.wwwSe.getTicket());
                     // 用户信息
-                    map.put("http-www-me-id", wwwMe.getId());
-                    map.put("http-www-me-nm", wwwMe.getName());
-                    map.put("http-www-me-phone", wwwMe.getPhone());
-                    map.put("http-www-me-email", wwwMe.getEmail());
-                    map.put("http-www-me-role", wwwMe.getRoleName());
-                    map.put("http-www-me-nickname", wwwMe.getNickname());
+                    apc.reqMeta.put("http-www-me-id", wwwMe.getId());
+                    apc.reqMeta.put("http-www-me-nm", wwwMe.getName());
+                    apc.reqMeta.put("http-www-me-phone", wwwMe.getPhone());
+                    apc.reqMeta.put("http-www-me-email", wwwMe.getEmail());
+                    apc.reqMeta.put("http-www-me-role", wwwMe.getRoleName());
+                    apc.reqMeta.put("http-www-me-nickname", wwwMe.getNickname());
                 }
             }
         }
         // 检查一下权限
-        if (null == wwwSe && oApi.getBoolean("http-www-auth", hasWWWHome)) {
+        if (null == apc.wwwSe && apc.isNeedWWWAuth) {
             throw Er.create("e.api.forbid");
         }
-
-        // .........................................
-        // 创建临时文件以便保存请求的内容
-        String uriName = uri.replaceAll("[/\\\\]", "_").substring(1);
-        WnObj oReq = Wn.WC().su(u, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return io.create(oTmp, uriName + "_${id}", WnRace.FILE);
-            }
-        });
-
-        // .........................................
-        // 更新头信息
-        io.appendMeta(oReq, map);
-
-        // .........................................
-        // 保存请求体
-        InputStream ins = req.getInputStream();
-        try (OutputStream ops = io.getOutputStream(oReq, 0)) {
-            Streams.write(ops, ins);
-        }
-
-        // .........................................
-        // 搞定
-        return oReq;
     }
 
-    private void _do_redirect(HttpServletResponse resp, String cmdText, WnAuthSession se)
-            throws IOException {
+    private void _do_redirect(WnHttpApiContext apc) throws IOException {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         OutputStream out = Lang.ops(sbOut);
         OutputStream err = Lang.ops(sbErr);
 
-        this.exec("apiR", se, cmdText, out, err, null, null);
+        this.exec("apiR", apc.se, apc.cmdText, out, err, null, null);
 
         // 处理出错了
         if (sbErr.length() > 0) {
-            resp.sendError(500, sbErr.toString());
+            apc.resp.sendError(500, sbErr.toString());
         }
         // 正常的重定向
         else {
-            resp.sendRedirect(sbOut.toString());
+            apc.resp.sendRedirect(sbOut.toString());
         }
     }
 
     private static final Pattern P = Pattern.compile("^(attachment; *filename=\")(.+)(\")$");
 
-    private void _do_run_box(WnObj oApi,
-                             WnObj oReq,
-                             String mimeType,
-                             HttpServletResponse resp,
-                             String cmdText,
-                             WnAuthSession se)
-            throws UnsupportedEncodingException {
+    private void _do_run_box(WnHttpApiContext apc) throws UnsupportedEncodingException {
         // 执行命令
         WnBox box = boxes.alloc(0);
 
@@ -507,7 +602,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 设置沙箱
         WnBoxContext bc = new WnBoxContext(new NutMap());
         bc.io = io;
-        bc.session = se;
+        bc.session = apc.se;
         bc.auth = auth;
 
         if (log.isDebugEnabled())
@@ -515,13 +610,13 @@ public class HttpApiModule extends AbstractWnModule {
         box.setup(bc);
 
         // 根据请求，设置响应的头
-        __setup_resp_header(oApi, oReq, mimeType, resp);
+        __setup_resp_header(apc);
 
         // 准备回调
         if (log.isDebugEnabled())
             log.debug("box:set stdin/out/err");
 
-        HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
+        HttpRespStatusSetter _resp = new HttpRespStatusSetter(apc.resp);
         OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
         OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
 
@@ -531,8 +626,8 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 运行
         if (log.isInfoEnabled())
-            log.infof("box:run: %s", cmdText);
-        box.run(cmdText);
+            log.infof("box:run: %s", apc.cmdText);
+        box.run(apc.cmdText);
 
         // 释放沙箱
         if (log.isDebugEnabled())
@@ -543,19 +638,16 @@ public class HttpApiModule extends AbstractWnModule {
             log.debug("box:done");
     }
 
-    private String __setup_resp_header(WnObj oApi,
-                                       WnObj oReq,
-                                       String mimeType,
-                                       HttpServletResponse resp) {
+    private void __setup_resp_header(WnHttpApiContext apc) {
         // 设置响应头，并看看是否指定了 content-type
-        for (String key : oApi.keySet()) {
+        for (String key : apc.oApi.keySet()) {
             if (key.startsWith("http-header-")) {
                 String nm = key.substring("http-header-".length()).toUpperCase();
-                String val = Strings.trim(oApi.getString(key));
-                val = Tmpl.exec(val, oReq);
+                String val = Strings.trim(apc.oApi.getString(key));
+                val = Tmpl.exec(val, apc.oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
-                    mimeType = val;
+                    apc.mimeType = val;
                 }
                 // 指定了下载目标
                 else if (nm.equals("CONTENT-DISPOSITION")) {
@@ -566,32 +658,29 @@ public class HttpApiModule extends AbstractWnModule {
                     } else {
                         fnm = val;
                     }
-                    String ua = oReq.getString("http-header-USER-AGENT", "");
-                    WnWeb.setHttpRespHeaderContentDisposition(resp, fnm, ua);
+                    String ua = apc.oReq.getString("http-header-USER-AGENT", "");
+                    WnWeb.setHttpRespHeaderContentDisposition(apc.resp, fnm, ua);
                 }
                 // 其他头，添加
                 else {
-                    resp.setHeader(WnWeb.niceHeaderName(nm), val);
+                    apc.resp.setHeader(WnWeb.niceHeaderName(nm), val);
                 }
             }
         }
 
         // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
-        String origin = oReq.getString("http-header-ORIGIN");
+        String origin = apc.oReq.getString("http-header-ORIGIN");
         if (!Strings.isBlank(origin)) {
-            __set_cross_origin_default_headers(oApi, origin, (name, value) -> {
-                if (!oApi.has("http-header-" + name)) {
-                    resp.setHeader(WnWeb.niceHeaderName(name), value);
+            __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
+                if (!apc.oApi.has("http-header-" + name)) {
+                    apc.resp.setHeader(WnWeb.niceHeaderName(name), value);
                 }
             });
         }
 
         // 最后设定响应内容
-        mimeType = Strings.sBlank(mimeType, "text/html");
-        resp.setContentType(mimeType);
-
-        // 返回最后更新的 mimeType
-        return mimeType;
+        apc.mimeType = Strings.sBlank(apc.mimeType, "text/html");
+        apc.resp.setContentType(apc.mimeType);
     }
 
 }

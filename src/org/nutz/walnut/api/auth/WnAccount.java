@@ -598,6 +598,10 @@ public class WnAccount {
         return roleName;
     }
 
+    public String getRoleName(String dftName) {
+        return Strings.sBlank(roleName, dftName);
+    }
+
     public void setRoleName(String role) {
         this.roleName = role;
     }
