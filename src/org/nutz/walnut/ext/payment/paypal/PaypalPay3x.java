@@ -21,6 +21,7 @@ import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
 import com.paypal.http.serializer.ObjectMapper;
 import com.paypal.orders.AmountWithBreakdown;
+import com.paypal.orders.ApplicationContext;
 import com.paypal.orders.Order;
 import com.paypal.orders.OrderRequest;
 import com.paypal.orders.OrdersCaptureRequest;
@@ -51,6 +52,17 @@ public class PaypalPay3x extends WnPay3x {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
+        
+		// 设置回调地址
+		ApplicationContext app = new ApplicationContext();
+		if (!Strings.isBlank(conf.cancelUrl)) {
+			app.cancelUrl(conf.cancelUrl);
+		}
+		if (!Strings.isBlank(conf.returnUrl)) {
+			app.returnUrl(conf.returnUrl);
+		}
+		orderRequest.applicationContext(app);
+        
         List<PurchaseUnitRequest> purchaseUnits = new ArrayList<>();
         AmountWithBreakdown abd = new AmountWithBreakdown();
         abd.currencyCode(Strings.sBlank(po.getCurrency(), "USD"));
