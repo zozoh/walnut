@@ -10,7 +10,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public class cmd_history extends JvmDaoEntityExecutor {
 
-    private static Borning<HistoryApi> born;
+    private static Borning<? extends HistoryApi> born;
 
     @Override
     protected void _find_hdl_name(WnSystem sys, JvmHdlContext hc) {
@@ -20,7 +20,7 @@ public class cmd_history extends JvmDaoEntityExecutor {
     @Override
     protected void _before_invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         if (null == born) {
-            Mirror<HistoryApi> mi = Mirror.me(HistoryApi.class);
+            Mirror<WnHistoryService> mi = Mirror.me(WnHistoryService.class);
             born = mi.getBorningByArgTypes(WnDaoConfig.class, Dao.class);
         }
 

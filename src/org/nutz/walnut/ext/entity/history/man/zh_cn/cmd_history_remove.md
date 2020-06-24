@@ -8,7 +8,7 @@
 
 ```bash
 history {HistoryName} remove
-  [ID1, ID2 ...]      # 消息 ID
+  [ID1, ID2 ...]      # 历史记录 ID
   [-cqn]              # JSON 输出格式
 ```
 
@@ -16,6 +16,6 @@ history {HistoryName} remove
 =======
 
 ```bash
-# 移除指定消息
+# 移除指定历史记录
 history remove 45..6a 8y..w2
 ```

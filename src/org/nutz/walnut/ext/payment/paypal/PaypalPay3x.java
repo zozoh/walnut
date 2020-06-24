@@ -52,17 +52,28 @@ public class PaypalPay3x extends WnPay3x {
 
         OrderRequest orderRequest = new OrderRequest();
         orderRequest.checkoutPaymentIntent("CAPTURE");
-        
-		// 设置回调地址
-		ApplicationContext app = new ApplicationContext();
-		if (!Strings.isBlank(conf.cancelUrl)) {
-			app.cancelUrl(conf.cancelUrl);
-		}
-		if (!Strings.isBlank(conf.returnUrl)) {
-			app.returnUrl(conf.returnUrl);
-		}
-		orderRequest.applicationContext(app);
-        
+
+        // 设置回调地址
+        ApplicationContext app = new ApplicationContext();
+        if (!Strings.isBlank(conf.cancelUrl)) {
+            app.cancelUrl(conf.cancelUrl);
+        }
+
+        // 返回 URL 看看能不能带上订单参数
+        if (!Strings.isBlank(conf.returnUrl)) {
+            String orId = po.getString("or_id");
+            String url = conf.returnUrl;
+            if (!Strings.isBlank(orId)) {
+                if (conf.returnUrl.indexOf('?') > 0) {
+                    url += "&orid=" + orId;
+                } else {
+                    url += "?orid=" + orId;
+                }
+            }
+            app.returnUrl(url);
+        }
+        orderRequest.applicationContext(app);
+
         List<PurchaseUnitRequest> purchaseUnits = new ArrayList<>();
         AmountWithBreakdown abd = new AmountWithBreakdown();
         abd.currencyCode(Strings.sBlank(po.getCurrency(), "USD"));
@@ -153,7 +164,7 @@ public class PaypalPay3x extends WnPay3x {
 
     protected PayPalHttpClient createClient(PaypalConfig pc) {
         PayPalEnvironment env;
-        if ("sanbox".equals(pc.mode)) {
+        if ("sandbox".equals(pc.mode)) {
             env = new PayPalEnvironment.Sandbox(pc.id, pc.secret);
         } else {
             env = new PayPalEnvironment.Live(pc.id, pc.secret);

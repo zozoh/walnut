@@ -64,17 +64,17 @@ author: zozoh
 # 业务场景
 |-- .domain/
 |   |-- like/
-|   |   |-- _like.json        # (Redis)点赞默认配置
+|   |   |-- _like.json        # (Redis)点赞默认配置（同时也是Redis数据源）
 |   |-- favor/
-|   |   |-- _favor.json       # (Redis)收藏默认配置
+|   |   |-- _favor.json       # (Redis)收藏默认配置（同时也是Redis数据源）
 |   |-- score/
-|   |   |-- _score.json       # (Redis)打分默认配置
+|   |   |-- _score.json       # (Redis)打分默认配置（同时也是Redis数据源）
 |   |-- history/
-|   |   |-- _history.json     # (SQL)历史记录默认配置
+|   |   |-- _history.json     # (SQL)历史记录默认配置（指向 SQL 数据源）
 |   |-- comment/
-|   |   |-- _comment.json     # (SQL)评论默认配置
+|   |   |-- _comment.json     # (SQL)评论默认配置（指向 SQL 数据源）
 |   |-- newsfeed/
-|   |   |-- _newsfeed.json    # (SQL)消息流默认配置
+|   |   |-- _newsfeed.json    # (SQL)消息流默认配置（指向 SQL 数据源）
 ```
 
 ## Redis数据源格式
@@ -137,7 +137,6 @@ ZADD {UID} AMS {TargetID} AMS {TargetID}
  `all`      | `UID`, `rever`             | 全部的收藏
  `count`    | `UID`                      | 收藏了多少东西
  `when`     | `UID`, `TargetID`          | 收藏的时间
-
 
 --------------------------------------
 # 打分`score`
@@ -202,6 +201,28 @@ mor : "xxx"    # 关于动作的更多细节，譬如更新的字段值等
 ```
 
 > 每个域一个`历史记录`表，配置在 `~/.domain/history/` 里
+
+## 示例建表语句
+
+```sql
+CREATE TABLE `t_history` (
+	`id` CHAR(26) NOT NULL,
+	`uid` CHAR(26) NOT NULL,
+	`unm` CHAR(20) NULL DEFAULT NULL,
+	`tid` CHAR(26) NULL DEFAULT NULL,
+	`tnm` CHAR(20) NULL DEFAULT NULL,
+	`opt` VARCHAR(50) NOT NULL,
+	`mor` VARCHAR(128) NULL DEFAULT NULL,
+	`ct` BIGINT(64) UNSIGNED NOT NULL,
+	PRIMARY KEY (`id`),
+	INDEX `UID` (`uid`),
+	INDEX `TID` (`tid`),
+	INDEX `UID_CT` (`uid`, `ct`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=MyISAM
+;
+```
 
 --------------------------------------
 # 评论留言`SQL`
@@ -343,3 +364,37 @@ content : "XXX"       # 消息正文
 ```
 
 > 创建时 `cmd_newsfeed` 会自动补全消息的 `tp|ct|readed|stared`字段
+
+## 示例建表语句
+
+```sql
+CREATE TABLE `t_newsfeed` (
+	`id` CHAR(26) NOT NULL,
+	`tp` TINYINT(20) NULL DEFAULT NULL,
+	`readed` TINYINT(1) NULL DEFAULT NULL,
+	`stared` TINYINT(1) NULL DEFAULT NULL,
+	`ct` BIGINT(64) NULL DEFAULT NULL,
+	`rd_at` BIGINT(64) NULL DEFAULT NULL,
+	`src_id` CHAR(26) NULL DEFAULT NULL,
+	`src_tp` CHAR(20) NULL DEFAULT NULL,
+	`ta_id` CHAR(26) NULL DEFAULT NULL,
+	`ta_tp` CHAR(20) NULL DEFAULT NULL,
+	`title` VARCHAR(128) NULL DEFAULT NULL,
+	`content` VARCHAR(128) NULL DEFAULT NULL,
+	`ext0` VARCHAR(128) NULL DEFAULT NULL,
+	`ext1` VARCHAR(128) NULL DEFAULT NULL,
+	`ext2` VARCHAR(128) NULL DEFAULT NULL,
+	`ext3` VARCHAR(128) NULL DEFAULT NULL,
+	`ext4` VARCHAR(128) NULL DEFAULT NULL,
+	`ext5` VARCHAR(128) NULL DEFAULT NULL,
+	`ext6` VARCHAR(128) NULL DEFAULT NULL,
+	`ext7` VARCHAR(128) NULL DEFAULT NULL,
+	`ext8` VARCHAR(128) NULL DEFAULT NULL,
+	`ext9` VARCHAR(128) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=MyISAM
+;
+
+```
