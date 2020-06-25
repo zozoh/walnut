@@ -8,25 +8,27 @@
 
 ```bash
 favor 
-  [Action]            # 执行操作， yes|no|all|count|when
-  [UID]               # 用户ID
-  [TargetId ...]      # 被收藏主体ID, all|count 不需要这个参数
-  [-limit 0]          # all: 设定最大获取数量，0 表示不限制
-  [-skip 0]           # all: 跳过多少条记录，默认 0
-  [-rever]            # all: 反序
-  [-quiet]            # 静默模式，什么都不输出
-  [-ajax]             # 输出为 AJAX 格式
-  [-json]             # 输出为 JSON 格式
-  [-cqn]              # 对 JSON/AJAX 格式的格式化
-  [-conf {Name}]      # 指定配置文件名，默认用 `_like`
-                      # 名称会自动加上 `.json` 后缀
-                      # 配置文件存放在 ~/.domain/like/ 目录下
-  [-i 1]              # 对于 all 命令按行输出， 起始行号，默认为 1
-  [-ms]               # 对于when命令输出的时间格式，保持毫秒数的形式
-  [-dv nil]           # 对于when命令，如果没有记录，返回什么
-                      # 如果是 nil 表示 null
-                      # 如果没有声明，则根据 -ms 和 -df 开关看输出结果
-  [-df yyyyMMdd]      # 对于when命令输出的时间格式，默认 `yyyy-MM-dd HH:mm:ss`
+  [Action]              # 执行操作， yes|no|all|count|when
+  [UID]                 # 用户ID
+  [TargetId ...]        # 被收藏主体ID, all|count 不需要这个参数
+  [-conf {Name}]        # 指定配置文件名，默认用 `_favor`
+                        # 名称会自动加上 `.json` 后缀
+                        # 配置文件存放在 ~/.domain/favor/ 目录下
+  [-obj id]             # all(ajax|json): target作为对象ID读取其元数据
+  [-limit 0]            # all: 设定最大获取数量，0 表示不限制
+  [-skip 0]             # all: 跳过多少条记录，默认 0
+  [-rever]              # all: 反序
+  [-quiet]              # 静默模式，什么都不输出
+  [-ajax]               # 输出为 AJAX 格式
+  [-json]               # 输出为 JSON 格式
+  [-pager]              # 当 AJAX|JSON 输出时，是否带上翻页信息
+  [-cqn]                # 对 JSON/AJAX 格式的格式化
+  [-i 1]                # 对于 all 命令按行输出， 起始行号，默认为 1
+  [-ms]                 # 对于when命令输出的时间格式，保持毫秒数的形式
+  [-dv nil]             # 对于when命令，如果没有记录，返回什么
+                        # 如果是 nil 表示 null
+                        # 如果没有声明，则根据 -ms 和 -df 开关看输出结果
+  [-df yyyyMMdd]        # 对于when命令输出的时间格式，默认 `yyyy-MM-dd HH:mm:ss`
   [-out '%d) %s + %s']  # 对于 all 命令按行输出， 输出模板
 ```
 

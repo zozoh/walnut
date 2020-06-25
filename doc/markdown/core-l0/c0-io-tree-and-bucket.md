@@ -20,8 +20,8 @@ tags:
 |   |   |-- dir2/ --> Mount To LocalFileSystem
 |   |   |-- dir3/ --> Mount To Memory
 |   |   |-- dir4/ --> Mount To Redias
-            4578..aq12:78a2..8912  : {..}
-            4578..aq12:6tq2..8422  : {..}
+|   |       4578..aq12:78a2..8912  : {..}
+|   |       4578..aq12:6tq2..8422  : {..}
 |   |-- zozoh/
 |-- sys/
 ```
@@ -46,7 +46,7 @@ MsgQueue   | `mq`    | 为消息队列提供一个通用操作接口
  Storage     | Position        | Scene
 -------------|-----------------|-------
 GlobalBM     | *nil*           | 系统默认的全局桶集(LocalBM)
-LocalBM      | `lcbm(MyBucket)`| 系统分配的一些本地桶集
+LocalBM      | `lbm(MyBucket)` | 系统分配的一些本地桶集
 LocalFileBM  | `C:\xxx\xx`     | 本地文件读写
 AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
 
@@ -131,18 +131,18 @@ mnt : "$IndexType[($Setting)][://$Storage]"
  Index | Storage       | Mapping
 -------|---------------|-----------------------
 `dao`  | `GlobalBM`    | `dao(abc/t_news)`               
-`dao`  | `LocalBM`     | `dao(abc/t_news)://lcbm(Abc)`
+`dao`  | `LocalBM`     | `dao(abc/t_news)://lbm(Abc)`
 `dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss`
 `dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss(news-data)`
 `mem`  | `GlobalBM`    | `mem`                         
-`mem`  | `LocalBM`     | `mem://lcbm(Abc)`               
+`mem`  | `LocalBM`     | `mem://lbm(Abc)`               
 `file` | `LocalFileBM` | `file://C:/data/demo/`
 `redis`| `GlobalBM`    | `redia`
 `redis`| `GlobalBM`    | `redia(tmp-files)`
-`redis`| `LocalBM`     | `redia(tmp-files)://lcbm(Tmp)`
+`redis`| `LocalBM`     | `redia(tmp-files)://lbm(Tmp)`
 `mq`   | `GlobalBM`    | `mq`
 `mq`   | `GlobalBM`    | `mq(messages)`
-`mq`   | `LocalBM`     | `mq(notify)://lcbm(QueueData)`
+`mq`   | `LocalBM`     | `mq(notify)://lbm(QueueData)`
 `mq`   | `AliyunOssBM` | `mq(notify)://aliyunoss`
 
 ------------------------------------------

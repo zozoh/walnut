@@ -54,7 +54,7 @@ public class WnRedisFavorService implements FavorApi {
     public List<FavorIt> revAll(String uid, int skip, int limit) {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
-            long stop = limit > 0 ? limit : Long.MAX_VALUE;
+            long stop = limit > 0 ? limit - 1 : Long.MAX_VALUE;
             Set<Tuple> set = jed.zrevrangeWithScores(uid, start, stop);
             List<FavorIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
