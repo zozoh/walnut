@@ -86,6 +86,12 @@ public abstract class WnAuths {
          * 全部字段，除了 "HOME"
          */
         public static final int ALL_INFO = LOGIN | INFO | PASSWD | OAUTH2 | WXOPEN | META;
+
+        /**
+         * 用来查询对象的字段
+         */
+        public static final int QUERY_INFO = LOGIN | OAUTH2 | WXOPEN;
+
         /**
          * 全部字段，并强制设置 "HOME"
          */

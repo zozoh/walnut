@@ -219,6 +219,7 @@ public class WnAccount {
             // 邮箱
             if (!Strings.isBlank(email))
                 bean.put("email", email);
+
         }
 
         // INFO : 账户基本信息
@@ -286,6 +287,9 @@ public class WnAccount {
             // Other Meta
             if (null != this.meta)
                 bean.putAll(this.meta);
+
+            // 是否设置了密码
+            bean.put("saltedPasswd", this.hasSaltedPasswd());
         }
 
         // 强制处理 HOME

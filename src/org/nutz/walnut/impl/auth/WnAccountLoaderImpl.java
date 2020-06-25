@@ -78,7 +78,7 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
         }
         // 将信息转换为查询条件
         // 通常这个信息是手机号/邮箱/登录名等
-        NutMap qmap = info.toBean(WnAuths.ABMM.ALL_INFO);
+        NutMap qmap = info.toBean(WnAuths.ABMM.QUERY_INFO);
         WnQuery q = Wn.Q.pid(oAccountDir);
         q.setAll(qmap);
         q.limit(10);
