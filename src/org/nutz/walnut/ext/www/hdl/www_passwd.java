@@ -64,11 +64,49 @@ public class www_passwd implements JvmHdl {
             if (hc.params.has("check")) {
                 String json = Cmds.checkParamOrPipe(sys, hc.params, "check", true);
                 NutMap form = Lang.map(json);
+                // 采用旧密码校验
                 String oldpwd = form.getString("oldpwd");
                 String newpwd = form.getString("newpwd");
-                if (u.hasSaltedPasswd() && !u.isMatchedRawPasswd(oldpwd)) {
-                    throw Er.create("e.cmd.www_passwd.CheckFailed");
+                
+                // 新密码无效
+                if(Strings.isBlank(newpwd) || newpwd.length() < 6) {
+                    throw Er.create("e.cmd.www_passwd.InvalidNewPasswd");
                 }
+
+                // 采用旧密码校验
+                if (!Strings.isBlank(oldpwd)) {
+                    if (u.hasSaltedPasswd() && !u.isMatchedRawPasswd(oldpwd)) {
+                        throw Er.create("e.cmd.www_passwd.CheckFailed");
+                    }
+                }
+                // 采用验证码验证
+                else {
+                    String account = form.getString("account");
+                    String scene = form.getString("scene", "resetpasswd");
+                    String code = form.getString("vcode");
+
+                    // 没有验证码
+                    if (Strings.isBlank(code)) {
+                        throw Er.create("e.cmd.www_passwd.CheckBlankCode");
+                    }
+
+                    // 没有账户
+                    if (Strings.isBlank(account)) {
+                        throw Er.create("e.cmd.www_passwd.CheckBlankAccount");
+                    }
+
+                    // 那么看一看，是邮箱还是电话, 不是邮箱也不是电话，抛错啊
+                    if (!u.isMyEmail(account) && !u.isMyPhone(account)) {
+                        throw Er.create("e.cmd.www_passwd.CheckWeirdAccount");
+                    }
+
+                    // 校验一下验证码
+                    if (!webs.getCaptchaApi().removeCaptcha(scene, account, code)) {
+                        throw Er.create("e.cmd.www_passwd.CheckCodeFail");
+                    }
+                }
+
+                // 嗯，设置新密码
                 passwd = newpwd;
             }
             // 直接修改密码

@@ -39,17 +39,24 @@ public class cmd_httpparam extends JvmExecutor {
         }
         // .......................................................
         // 解析
-        String[] ss = Strings.splitIgnoreBlank(str, "&");
-        NutMap c = new NutMap();
-
-        for (String s : ss) {
-            int pos = s.indexOf('=');
-            if (pos > 0) {
-                String key = URLDecoder.decode(s.substring(0, pos), "UTF-8");
-                String val = URLDecoder.decode(s.substring(pos + 1), "UTF-8");
-                c.setv(key, val);
-            } else {
-                c.setv(URLDecoder.decode(s, "UTF-8"), "");
+        NutMap c;
+        // 按照 JSON 方式解析
+        if (null != str && Strings.isQuoteBy(str, '{', '}')) {
+            c = Json.fromJson(NutMap.class, str);
+        }
+        // 按照 form 表单方式解析
+        else {
+            c = new NutMap();
+            String[] ss = Strings.splitIgnoreBlank(str, "&");
+            for (String s : ss) {
+                int pos = s.indexOf('=');
+                if (pos > 0) {
+                    String key = URLDecoder.decode(s.substring(0, pos), "UTF-8");
+                    String val = URLDecoder.decode(s.substring(pos + 1), "UTF-8");
+                    c.setv(key, val);
+                } else {
+                    c.setv(URLDecoder.decode(s, "UTF-8"), "");
+                }
             }
         }
         // .......................................................

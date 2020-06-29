@@ -15,11 +15,14 @@ www passwd
     [-ticket xxx]   # 【选1】用户的会话票据
     [-init]         # 【选】本次设置的是初始化密码，即
                     # 如果用户已经有了密码，则无视
+    [-ajax]         # 用 ajax 的格式输出结果 {ok:true}
 ```
 
 如果是 -u 模式，则当前操作会话必须为站点管理员或者`root/op`组成员
 
-如果开启了`-check`模式，则会读取参数JSON（或者从管线里读取），这个JSON表单的形式类似:
+如果开启了`-check`模式，则会读取参数JSON（或者从管线里读取），这个JSON表单有两种形式:
+
+**旧密码校验**
 
 ```js
 {
@@ -27,7 +30,18 @@ www passwd
   "newpwd" : "654321"       // 【必】新密码
 }
 ```
-    
+
+**验证码校验**
+
+```js
+{
+  "account": "abc@xyz.com",   // 【必】校验账户（邮箱或者手机）
+  "vcode"  : "341256",        // 【必】验证码
+  "scene"  : "resetpasswd",   // 【选】验证码场景，默认为resetpasswd
+  "newpwd" : "654321"       // 【必】新密码
+}
+```
+
 示例
 =======
 
@@ -41,5 +55,5 @@ www passwd ~/www 123456 -ticket 45u..91a
 # 校验模式修改自己的密码
 www passwd ~/www -ticket 43..u7 -check '{oldpwd:"123456",newpwd:"654321"}'
 ```
-    
-    
+
+​    

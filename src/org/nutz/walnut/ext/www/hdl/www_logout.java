@@ -24,6 +24,7 @@ public class www_logout implements JvmHdl {
         // 站点/票据
         String site = hc.params.val(0);
         String ticket = hc.params.val(1);
+        boolean ajax = hc.params.is("ajax");
 
         // -------------------------------
         // 检查会话
@@ -38,10 +39,14 @@ public class www_logout implements JvmHdl {
                 // 检查
                 se = webs.getAuthApi().logout(ticket, 0);
 
-                // 输出
-                String json = se.formatJson(hc.jfmt, hc.params.is("ajax"));
-                sys.out.println(json);
-                return;
+                // 输出: 子会话
+                if (null != se) {
+                    String json = se.formatJson(hc.jfmt, ajax);
+                    sys.out.println(json);
+                    return;
+                }
+                // 顶级会话退出的话，就没啥咯
+                re = Ajax.ok();
             }
         }
         // -------------------------------

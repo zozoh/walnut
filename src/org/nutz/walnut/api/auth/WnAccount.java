@@ -521,6 +521,13 @@ public class WnAccount {
         this.phone = phone;
     }
 
+    public boolean isMyPhone(String phone) {
+        if (null != this.phone && null != phone) {
+            return this.phone.equals(phone);
+        }
+        return false;
+    }
+
     public boolean hasEmail() {
         return !Strings.isBlank(email);
     }
@@ -531,6 +538,13 @@ public class WnAccount {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isMyEmail(String email) {
+        if (null != this.email && null != email) {
+            return this.email.equals(email);
+        }
+        return false;
     }
 
     public String getNickname() {
