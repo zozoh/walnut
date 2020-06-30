@@ -416,7 +416,7 @@ public abstract class Things {
     }
 
     public static String runCommands(WnObj oT, String[] cmds, WnExecutable executor) {
-        if (null == cmds || cmds.length == 0) {
+        if (null == cmds || cmds.length == 0 || null == executor) {
             return null;
         }
 

@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.ThingAction;
 import org.nutz.walnut.ext.thing.util.ThingConf;
@@ -21,6 +23,8 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
     protected ThingConf conf;
 
     protected WnExecutable executor;
+
+    protected NutMap match;
 
     protected Tmpl cmdTmpl;
 
@@ -55,6 +59,11 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
+    public DeleteThingAction setMatch(NutMap match) {
+        this.match = match;
+        return this;
+    }
+
     @Override
     public List<WnObj> invoke() {
         // 数据目录的主目录
@@ -66,6 +75,13 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
         for (String id : ids) {
             // 得到对应对 Thing
             WnObj oT = this.checkThIndex(id);
+
+            // 看看是否匹配给定条件
+            if (null != this.match) {
+                if (!match.match(oT)) {
+                    throw Er.create("e.cmd.thing.EvilDelete", oT.id());
+                }
+            }
 
             // 删除前的回调，控制删除
             Things.runCommands(oT, conf.getOnBeforeDelete(), executor);

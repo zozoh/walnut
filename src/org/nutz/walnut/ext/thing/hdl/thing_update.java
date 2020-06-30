@@ -32,6 +32,7 @@ public class thing_update implements JvmHdl {
 
         // 分析参数
         String id = hc.params.val_check(0);
+        NutMap match = hc.params.getMap("match");
 
         // 设置名称
         String th_nm = hc.params.val(1);
@@ -65,7 +66,7 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备调用接口
-        hc.output = wts.updateThing(id, meta, sys);
+        hc.output = wts.updateThing(id, meta, sys, match);
     }
 
 }

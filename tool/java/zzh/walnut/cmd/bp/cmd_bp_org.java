@@ -86,7 +86,7 @@ public class cmd_bp_org extends JvmExecutor {
             // 有的话，更新一下它的信息
             else {
                 sys.out.printlnf(" %04d) = update: %s : %s", i, nm, Json.toJson(map, jfmt));
-                tsOrg.updateThing(oT.id(), map, sys);
+                tsOrg.updateThing(oT.id(), map, sys, null);
             }
 
             // 很好，那么最后试图弄一下头像

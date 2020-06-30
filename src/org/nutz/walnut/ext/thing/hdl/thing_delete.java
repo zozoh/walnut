@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.hdl;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.Things;
@@ -15,13 +16,14 @@ public class thing_delete implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 分析参数
         boolean hard = hc.params.is("hard");
+        NutMap match = hc.params.getMap("match");
 
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnThingService wts = new WnThingService(sys, oTs);
 
         // 调用接口
-        hc.output = wts.deleteThing(sys, hard, hc.params.vals);
+        hc.output = wts.deleteThing(sys, match, hard, hc.params.vals);
 
     }
 

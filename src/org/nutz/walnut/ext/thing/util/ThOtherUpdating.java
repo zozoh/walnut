@@ -85,7 +85,7 @@ public class ThOtherUpdating {
         // 执行更新
         else {
             for (WnObj ot : this.list) {
-                this.service.updateThing(ot.id(), this.meta, this.executor);
+                this.service.updateThing(ot.id(), this.meta, this.executor, null);
             }
         }
     }

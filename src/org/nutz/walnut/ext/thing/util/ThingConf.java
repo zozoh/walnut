@@ -21,6 +21,8 @@ public class ThingConf {
 
     private String[] onCreated;
 
+    private String[] onBeforeUpdate;
+
     private String[] onUpdated;
 
     private String[] onBeforeDelete;
@@ -57,6 +59,14 @@ public class ThingConf {
 
     public void setOnCreated(String[] onCreate) {
         this.onCreated = onCreate;
+    }
+
+    public String[] getOnBeforeUpdate() {
+        return onBeforeUpdate;
+    }
+
+    public void setOnBeforeUpdate(String[] onBeforeUpdate) {
+        this.onBeforeUpdate = onBeforeUpdate;
     }
 
     public String[] getOnUpdated() {

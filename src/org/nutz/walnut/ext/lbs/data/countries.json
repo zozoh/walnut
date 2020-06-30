@@ -1,19 +1,5 @@
 [
   {
-    "key": "HK",
-    "name": {
-      "en_us": "Hong Kong",
-      "zh_cn": "香港"
-    }
-  },
-  {
-    "key": "TW",
-    "name": {
-      "en_us": "Taiwan",
-      "zh_cn": "台湾"
-    }
-  },
-  {
     "key": "MO",
     "name": {
       "en_us": "Macao",

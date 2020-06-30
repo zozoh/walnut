@@ -142,7 +142,7 @@ public class WnOrderService {
     }
 
     public WnOrder updateOrder(String id, NutMap meta, WnExecutable executor) {
-        WnObj oOr = orders.updateThing(id, meta, executor);
+        WnObj oOr = orders.updateThing(id, meta, executor, null);
         if (null != oOr) {
             WnOrder or = new WnOrder();
             or.updateBy(oOr);

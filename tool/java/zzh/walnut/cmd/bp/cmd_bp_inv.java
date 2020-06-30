@@ -111,7 +111,7 @@ public class cmd_bp_inv extends JvmExecutor {
             // 有的话，更新一下它的信息
             else {
                 sys.out.printlnf(" %04d) = update: %s : %s", i, nm, Json.toJson(map, jfmt));
-                tsInv.updateThing(oT.id(), map, sys);
+                tsInv.updateThing(oT.id(), map, sys, null);
             }
 
             // 很好，那么最后试图弄一下头像

@@ -22,6 +22,16 @@ public class cmd_lbs extends JvmHdlExecutor {
         return countries;
     }
 
+    public static NutMap getCountryMap(String lang, boolean asObj) {
+        NutMap re = new NutMap();
+        for (LbsCountry lc : countries) {
+            String key = lc.getKey();
+            Object val = asObj ? lc : lc.getName(lang, true);
+            re.put(key, val);
+        }
+        return re;
+    }
+
     public static List<NutMap> getCountries(String lang) {
         List<NutMap> list = new ArrayList<>(countries.size());
         for (LbsCountry lc : countries) {

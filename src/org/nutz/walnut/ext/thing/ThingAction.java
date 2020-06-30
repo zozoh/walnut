@@ -256,6 +256,7 @@ public abstract class ThingAction<T> {
 
                 // 准备
                 ThOtherUpdating other = new ThOtherUpdating(executor);
+                other.service = service;
 
                 // 指定目标
                 if (lnk.hasTarget()) {

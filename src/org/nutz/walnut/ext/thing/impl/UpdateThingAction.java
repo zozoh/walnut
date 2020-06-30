@@ -20,6 +20,8 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     protected NutMap meta;
 
+    protected NutMap match;
+
     protected ThingConf conf;
 
     public UpdateThingAction setId(String id) {
@@ -42,15 +44,30 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         return this;
     }
 
+    public UpdateThingAction setMatch(NutMap match) {
+        this.match = match;
+        return this;
+    }
+
     @Override
     public WnObj invoke() {
         // 得到对应对 Thing
         WnObj oT = this.checkThIndex(id);
 
+        // 看看是否匹配给定条件
+        if (null != this.match) {
+            if (!match.match(oT)) {
+                throw Er.create("e.cmd.thing.EvilUpdate", oT.id());
+            }
+        }
+
         // 确保 Thing 是可用的
         if (oT.getInt("th_live") != Things.TH_LIVE) {
             throw Er.create("e.cmd.thing.updateDead", oT.id());
         }
+
+        // 删除前的回调
+        Things.runCommands(oT, conf.getOnBeforeUpdate(), executor);
 
         // 根据唯一键约束检查重复
         if (conf.hasUniqueKeys()) {
@@ -79,11 +96,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         }
 
         // 看看是否有附加的创建执行脚本
-        String[] on_updated = conf.getOnUpdated();
-        if (null != this.executor && null != on_updated && on_updated.length > 0) {
-            Things.runCommands(oT, on_updated, executor);
-            reget = true; // 标记要重新获取
-        }
+        Things.runCommands(oT, conf.getOnUpdated(), executor);
 
         // 重新获取
         if (reget) {

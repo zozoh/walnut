@@ -346,24 +346,33 @@ public class WnThingService {
         return null;
     }
 
-    public List<WnObj> deleteThing(WnExecutable executor, boolean hard, Collection<String> ids) {
+    public List<WnObj> deleteThing(WnExecutable executor,
+                                   NutMap match,
+                                   boolean hard,
+                                   Collection<String> ids) {
         DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(ids);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
+        a.setMatch(match);
         return a.invoke();
     }
 
-    public List<WnObj> deleteThing(WnExecutable executor, boolean hard, String... ids) {
+    public List<WnObj> deleteThing(WnExecutable executor,
+                                   NutMap match,
+                                   boolean hard,
+                                   String... ids) {
         DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(Lang.list(ids));
         a.setConf(this.checkConf());
         a.setExecutor(executor);
+        a.setMatch(match);
         return a.invoke();
     }
 
-    public WnObj updateThing(String id, NutMap meta, WnExecutable executor) {
+    public WnObj updateThing(String id, NutMap meta, WnExecutable executor, NutMap match) {
         UpdateThingAction a = _A(_action_update()).setId(id).setMeta(meta);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
+        a.setMatch(match);
         return a.invoke();
     }
 
