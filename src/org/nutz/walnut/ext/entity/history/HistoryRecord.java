@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.entity.history;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
-import org.nutz.lang.Strings;
 
 @Table("${t_history}")
 public class HistoryRecord {
@@ -26,6 +25,12 @@ public class HistoryRecord {
     @Column("unm")
     private String userName;
 
+    /**
+     * 【选】用户类型
+     */
+    @Column("utp")
+    private String userType;
+
     @Column("ct")
     private long createTime;
 
@@ -42,6 +47,12 @@ public class HistoryRecord {
     private String targetName;
 
     /**
+     * 【选】关联对象类型
+     */
+    @Column("ttp")
+    private String targetType;
+
+    /**
      * 动作名称
      */
     @Column("opt")
@@ -54,7 +65,7 @@ public class HistoryRecord {
     private String more;
 
     public boolean hasId() {
-        return !Strings.isBlank(id);
+        return null != id;
     }
 
     public String getId() {
@@ -81,6 +92,14 @@ public class HistoryRecord {
         this.userName = userName;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
     public long getCreateTime() {
         return createTime;
     }
@@ -103,6 +122,14 @@ public class HistoryRecord {
 
     public void setTargetName(String targetName) {
         this.targetName = targetName;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
 
     public String getOperation() {

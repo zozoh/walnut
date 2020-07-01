@@ -184,6 +184,7 @@ SET   {sum:TargetID} 175
 #-------------------------------------
 uid  : ID      # 用户ID
 unm  : "xxx"   # 【冗】用户名
+utp  : "xxx"   # 【选】用户类型
 #-------------------------------------
 # 在什么时候？
 #-------------------------------------
@@ -193,6 +194,7 @@ ct : AMS       # 记录创建时间，绝对毫秒数
 #-------------------------------------
 tid : ID       # 关联对象的 ID
 tnm : "xxx"    # 【冗】关联对象名
+ttp : "xxx"    # 【选】关联对象类型
 #-------------------------------------
 # 做了什么？
 #-------------------------------------
@@ -206,18 +208,21 @@ mor : "xxx"    # 关于动作的更多细节，譬如更新的字段值等
 
 ```sql
 CREATE TABLE `t_history` (
-	`id` CHAR(26) NOT NULL,
+	`id` CHAR(26)  NOT NULL,
 	`uid` CHAR(26) NOT NULL,
 	`unm` CHAR(20) NULL DEFAULT NULL,
+	`utp` CHAR(20) NULL DEFAULT NULL,
 	`tid` CHAR(26) NULL DEFAULT NULL,
 	`tnm` CHAR(20) NULL DEFAULT NULL,
+	`ttp` CHAR(20) NULL DEFAULT NULL,
 	`opt` VARCHAR(50) NOT NULL,
 	`mor` VARCHAR(128) NULL DEFAULT NULL,
-	`ct` BIGINT(64) UNSIGNED NOT NULL,
+	`ct` BIGINT(20) UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `UID` (`uid`),
 	INDEX `TID` (`tid`),
-	INDEX `UID_CT` (`uid`, `ct`)
+	INDEX `UID_CT` (`uid`, `ct`),
+	INDEX `TID_CT` (`tid`, `ct`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=MyISAM
