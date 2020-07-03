@@ -23,6 +23,12 @@ public class WnPager extends Pager {
         this.sum_page = -1;
     }
 
+    public WnPager(Pager pg) {
+        this(pg.getPageSize(), pg.getOffset());
+        this.countPage = true;
+        this.setSumCount(pg.getRecordCount());
+    }
+
     public WnPager(int limit, int skip) {
         this();
         this.set(limit, skip);
@@ -83,7 +89,7 @@ public class WnPager extends Pager {
             this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
         }
     }
-    
+
     public WnPagerObj toPagerObj() {
         WnPagerObj wpo = new WnPagerObj(DEAULT_LIMIT, 5000);
         wpo.set(limit, skip);

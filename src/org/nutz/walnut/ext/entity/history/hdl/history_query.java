@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.entity.history.hdl;
 
 import org.nutz.dao.QueryResult;
+import org.nutz.dao.pager.Pager;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
@@ -9,9 +10,12 @@ import org.nutz.walnut.ext.entity.history.HistoryApi;
 import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.WnPager;
 
+@JvmHdlParamArgs("cqn")
 public class history_query implements JvmHdl {
 
     @Override
@@ -38,8 +42,13 @@ public class history_query implements JvmHdl {
         // 查询
         QueryResult qr = api.query(q, pn, pgsz);
 
+        // 转换结果
+        Pager pg = qr.getPager();
+        WnPager wp = new WnPager(pg);
+        NutMap re = Cmds.createQueryResult(wp, qr.getList());
+
         // 输出结果
-        json = Json.toJson(qr, hc.jfmt);
+        json = Json.toJson(re, hc.jfmt);
         sys.out.println(json);
     }
 
