@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.www.hdl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.json.Json;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
@@ -53,6 +57,7 @@ public class www_paycheck implements JvmHdl {
             String cmdText = String.format("pay check %s", payId);
             String re = sys.exec2(cmdText);
             WnPay3xRe payRe = Json.fromJson(WnPay3xRe.class, re);
+            List<String> keys = new ArrayList<>(5);
 
             // 重新获取支付单信息
             oOrder = sys.io.checkById(orId);
@@ -69,9 +74,26 @@ public class www_paycheck implements JvmHdl {
             else {
                 or.setPayReturn(payRe);
             }
+            keys.add("pay_re");
+
+            // 更新时间戳: OK
+            if (payRe.isStatusOk()) {
+                if (or.getOkAt() <= 0) {
+                    or.setOkAt(System.currentTimeMillis());
+                    keys.add("ok_at");
+                }
+            }
+            // 更新时间戳: FAIL
+            else if (payRe.isStatusFail()) {
+                if (or.getFailAt() <= 0) {
+                    or.setFailAt(System.currentTimeMillis());
+                    keys.add("fa_at");
+                }
+            }
 
             // 持久化一下
-            sys.io.appendMeta(oOrder, or.toMeta("^pay_re$", null));
+            String regex = String.format("^(%s)$", Strings.join("|", keys));
+            sys.io.appendMeta(oOrder, or.toMeta(regex, null));
         }
 
         // -------------------------------
