@@ -10,6 +10,7 @@ import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.pvg.BizPvgService;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.WnContext;
 
 /**
@@ -106,6 +107,11 @@ public class WnHttpApiContext {
      * API 对应的网站工作目录
      */
     WnObj oWWW;
+    
+    /**
+     * WWW 对于接口，声明了 oWWW 才会生成
+     */
+    WnWebService webs;
 
     /**
      * API 对应网站当前的用户登录会话

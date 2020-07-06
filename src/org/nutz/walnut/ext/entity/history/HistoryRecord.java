@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.entity.history;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
+import org.nutz.json.JsonField;
 
 @Table("${t_history}")
 public class HistoryRecord {
@@ -17,51 +18,60 @@ public class HistoryRecord {
      * 用户ID
      */
     @Column("uid")
+    @JsonField("uid")
     private String userId;
 
     /**
      * 【冗】用户名
      */
     @Column("unm")
+    @JsonField("unm")
     private String userName;
 
     /**
      * 【选】用户类型
      */
     @Column("utp")
+    @JsonField("utp")
     private String userType;
 
     @Column("ct")
+    @JsonField("ct")
     private long createTime;
 
     /**
      * 关联对象的 ID
      */
     @Column("tid")
+    @JsonField("tid")
     private String targetId;
 
     /**
      * 【冗】关联对象名
      */
     @Column("tnm")
+    @JsonField("tnm")
     private String targetName;
 
     /**
      * 【选】关联对象类型
      */
     @Column("ttp")
+    @JsonField("ttp")
     private String targetType;
 
     /**
      * 动作名称
      */
     @Column("opt")
+    @JsonField("opt")
     private String operation;
 
     /**
      * 动作更多细节
      */
     @Column("mor")
+    @JsonField("mor")
     private String more;
 
     public boolean hasId() {

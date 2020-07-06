@@ -33,15 +33,15 @@ Query Object
   //  - %ms:now+12s
   //  - %ms:2019-02-13T23:34:12
   // 譬如查找10分钟之内的消息  [%ms:now-10m, ]
-  createTime : "[%ms:now-10m,]" // 消息创建时间
+  ct : "[%ms:now-10m,]" // 消息创建时间
   //---------------------------------------
-  userId : "t6..8a",
-  userName : "xiaobai",
-  targetId : "t6..8a",
-  targetName : "xyz.json",
+  uid : "t6..8a",
+  unm : "xiaobai",
+  tid : "t6..8a",
+  tnm : "xyz.json",
   //---------------------------------------
-  operation : "update",
-  more : "{x:100,y:99}",
+  opt : "update",
+  mor : "{x:100,y:99}",
 }
 ```
 
@@ -53,8 +53,8 @@ Query Object
 
 ```bash
 # 根据一个复杂条件查询
-cat demo_message.json | history query
+demo:$ cat demo_message.json | history query
 
 # 仅仅获取某个指定 ID
-history query '{id:"r5a..78q"}' -cqn
+demo:$ history query '{id:"r5a..78q"}' -cqn
 ```

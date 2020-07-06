@@ -3,6 +3,8 @@ package org.nutz.walnut.web.module;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.nutz.lang.Lang;
+
 public class AppRespOutputStreamWrapper extends OutputStream {
 
     private int statusCode;
@@ -11,10 +13,22 @@ public class AppRespOutputStreamWrapper extends OutputStream {
 
     private OutputStream ops;
 
+    private OutputStream watch_ops;
+
     public AppRespOutputStreamWrapper(HttpRespStatusSetter resp, int statusCode) {
         this.resp = resp;
         this.ops = resp.getOutputStream();
         this.statusCode = statusCode;
+    }
+
+    /**
+     * 可以设置一个字符串缓冲，当写入输入流时，同时也会写到这个缓冲里
+     * 
+     * @param sb
+     *            字符串缓冲
+     */
+    public void addStringWatcher(StringBuilder sb) {
+        watch_ops = Lang.ops(sb);
     }
 
     public void write(int b) throws IOException {
@@ -23,6 +37,9 @@ public class AppRespOutputStreamWrapper extends OutputStream {
             statusCode = -1;
         }
         ops.write(b);
+        if (null != watch_ops) {
+            watch_ops.write(b);
+        }
     }
 
     public void write(byte[] b) throws IOException {
@@ -31,6 +48,9 @@ public class AppRespOutputStreamWrapper extends OutputStream {
             statusCode = -1;
         }
         ops.write(b);
+        if (null != watch_ops) {
+            watch_ops.write(b);
+        }
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
@@ -39,11 +59,17 @@ public class AppRespOutputStreamWrapper extends OutputStream {
             statusCode = -1;
         }
         ops.write(b, off, len);
+        if (null != watch_ops) {
+            watch_ops.write(b, off, len);
+        }
     }
 
     public void flush() throws IOException {
         ops.flush();
         resp.flushBuffer();
+        if (null != watch_ops) {
+            watch_ops.flush();
+        }
         // ops.close();
         // try {
         // ops = resp.getOutputStream();
@@ -56,6 +82,9 @@ public class AppRespOutputStreamWrapper extends OutputStream {
     public void close() throws IOException {
         ops.close();
         resp.flushBuffer();
+        if (null != watch_ops) {
+            watch_ops.close();
+        }
     }
 
 }

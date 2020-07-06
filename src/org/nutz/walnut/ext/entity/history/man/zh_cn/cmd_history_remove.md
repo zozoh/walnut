@@ -17,5 +17,5 @@ history {HistoryName} remove
 
 ```bash
 # 移除指定历史记录
-history remove 45..6a 8y..w2
+demo:$ history remove 45..6a 8y..w2
 ```

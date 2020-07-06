@@ -33,11 +33,11 @@ public abstract class JvmDaoEntityExecutor extends JvmHdlExecutor {
         // 第一个参数表示一个 newsfeed 的配置文件名
         // 路径固定是在 ~/.domain/${name}/ 目录下
         else if (hc.args.length >= 2) {
-            String feedName = hc.args[0];
-            if (!feedName.endsWith(".json")) {
-                feedName += ".json";
+            String confName = hc.args[0];
+            if (!confName.endsWith(".json")) {
+                confName += ".json";
             }
-            String feedPath = "~/.domain/" + name + "/" + feedName;
+            String feedPath = "~/.domain/" + name + "/" + confName;
             hc.oRefer = Wn.checkObj(sys, feedPath);
             hc.hdlName = hc.args[1];
             pos = 2;

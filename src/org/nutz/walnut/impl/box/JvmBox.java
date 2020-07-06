@@ -98,8 +98,11 @@ public class JvmBox implements WnBox {
         // 释放其他资源
         if (log.isDebugEnabled())
             log.debug("box: release resources");
-        Streams.safeClose(out);
+
         Streams.safeClose(in);
+        Streams.safeFlush(out);
+        Streams.safeFlush(err);
+        Streams.safeClose(out);
         Streams.safeClose(err);
 
     }

@@ -116,6 +116,12 @@ roles    : "~/roles"      # 【选】角色库
 orders   : "~/orders"     # 【选】订单库（购物功能必须）
 coupons  : "~/coupons"    # 【选】优惠券库
 
+# 这是一个站点权限表，访问这个站点的 API 默认采用的权限表
+# 参看靠下面列表，获取更多相关信息
+#  - c1-regapi.md > API对象 > pvg-setup
+#  - c2-biz-privilege-model.md
+pvg_setup: "~/.domain/pvg.json"
+
 # 这里是站点所属账户库，如果登录系统账户后默认的环境变量
 # 它会替换在 init-usr-envs: 声明的环境变量值
 env : {

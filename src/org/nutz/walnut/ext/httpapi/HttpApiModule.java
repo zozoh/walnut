@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,14 +16,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.stream.ComboOutputStream;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
@@ -38,10 +43,16 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.entity.history.HistoryApi;
+import org.nutz.walnut.ext.entity.history.HistoryRecord;
+import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.ext.pvg.BizPvgService;
+import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnStr;
+import org.nutz.walnut.validate.WnValidate;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.module.AppRespOutputStreamWrapper;
@@ -154,6 +165,9 @@ public class HttpApiModule extends AbstractWnModule {
                 else {
                     _do_api(apc);
                 }
+
+                // 最后执行历史记录
+                _record_history(apc);
             }
             // 确保退出登录
             finally {
@@ -196,6 +210,10 @@ public class HttpApiModule extends AbstractWnModule {
 
     private void __do_www_check_pvg(final WnHttpApiContext apc) {
         String phPvg = apc.oApi.getString("pvg-setup");
+        // 如果木有设置，那么看看站点有没有设置
+        if (Strings.isBlank(phPvg)) {
+            phPvg = apc.oWWW.getString("pvg_setup");
+        }
         String[] assActions = apc.oApi.getArray("pvg-assert", String.class);
 
         // 没设置不检
@@ -428,13 +446,51 @@ public class HttpApiModule extends AbstractWnModule {
         // 更新头信息
         io.appendMeta(oReq, apc.reqMeta);
 
+        // 增加一个输入缓冲
+        String in_tp = apc.oApi.getString("http-body");
+        StringBuilder in_sb = new StringBuilder();
+        OutputStream in_ops = null;
+        if (null != in_tp && in_tp.matches("^(text|form|json)$")) {
+            in_ops = Lang.ops(in_sb);
+        }
+
         // .........................................
         // 保存请求体
         InputStream ins = apc.req.getInputStream();
-        try (OutputStream ops = io.getOutputStream(oReq, 0)) {
-            Streams.write(ops, ins);
+        OutputStream ops = io.getOutputStream(oReq, 0);
+
+        // 需要同时将请求内容保存到元数据里，那么先复制一份把
+        if (null != in_ops) {
+            ops = new ComboOutputStream(ops, in_ops);
         }
 
+        // 写入流
+        try {
+            Streams.write(ops, ins);
+            Streams.safeFlush(ops);
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
+
+        // .........................................
+        // 计入元数据！注意！这个 http-body 是不持久化的，否则有可能太大
+        if (in_sb.length() > 0) {
+            // 纯文本
+            if ("text".equals(in_tp)) {
+                oReq.put("body", in_sb.toString());
+            }
+            // 表单
+            else if ("form".equals(in_tp)) {
+                NutMap map = WnStr.parseFormData(in_sb.toString());
+                oReq.put("body", map);
+            }
+            // JSON
+            else if ("json".equals(in_tp)) {
+                Object json = Json.fromJson(in_sb);
+                oReq.put("body", json);
+            }
+        }
         // .........................................
         // 搞定
         return oReq;
@@ -547,10 +603,10 @@ public class HttpApiModule extends AbstractWnModule {
             String ticketBy = apc.oApi.getString("http-www-ticket", "http-qs-ticket");
             String ticket = apc.reqMeta.getString(ticketBy);
             if (!Strings.isBlank(ticket)) {
-                WnObj oWWW = Wn.checkObj(io, apc.se, phWWW);
+                apc.oWWW = Wn.checkObj(io, apc.se, phWWW);
                 String homePath = apc.se.getMe().getHomePath();
-                WnWebService webs = new WnWebService(io, homePath, oWWW);
-                apc.wwwSe = webs.getAuthApi().getSession(ticket);
+                apc.webs = new WnWebService(io, homePath, apc.oWWW);
+                apc.wwwSe = apc.webs.getAuthApi().getSession(ticket);
                 if (null != apc.wwwSe) {
                     WnAccount wwwMe = apc.wwwSe.getMe();
                     // 会话信息
@@ -572,71 +628,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
-    private void _do_redirect(WnHttpApiContext apc) throws IOException {
-        StringBuilder sbOut = new StringBuilder();
-        StringBuilder sbErr = new StringBuilder();
-        OutputStream out = Lang.ops(sbOut);
-        OutputStream err = Lang.ops(sbErr);
-
-        this.exec("apiR", apc.se, apc.cmdText, out, err, null, null);
-
-        // 处理出错了
-        if (sbErr.length() > 0) {
-            apc.resp.sendError(500, sbErr.toString());
-        }
-        // 正常的重定向
-        else {
-            apc.resp.sendRedirect(sbOut.toString());
-        }
-    }
-
-    private static final Pattern P = Pattern.compile("^(attachment; *filename=\")(.+)(\")$");
-
-    private void _do_run_box(WnHttpApiContext apc) throws UnsupportedEncodingException {
-        // 执行命令
-        WnBox box = boxes.alloc(0);
-
-        if (log.isDebugEnabled())
-            log.debugf("box:alloc: %s", box.id());
-
-        // 设置沙箱
-        WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io;
-        bc.session = apc.se;
-        bc.auth = auth;
-
-        if (log.isDebugEnabled())
-            log.debugf("box:setup: %s", bc);
-        box.setup(bc);
-
-        // 根据请求，设置响应的头
-        __setup_resp_header(apc);
-
-        // 准备回调
-        if (log.isDebugEnabled())
-            log.debug("box:set stdin/out/err");
-
-        HttpRespStatusSetter _resp = new HttpRespStatusSetter(apc.resp);
-        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
-
-        box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
-        box.setStdout(out);
-        box.setStderr(err);
-
-        // 运行
-        if (log.isInfoEnabled())
-            log.infof("box:run: %s", apc.cmdText);
-        box.run(apc.cmdText);
-
-        // 释放沙箱
-        if (log.isDebugEnabled())
-            log.debugf("box:free: %s", box.id());
-        boxes.free(box);
-
-        if (log.isDebugEnabled())
-            log.debug("box:done");
-    }
+    private static final Pattern P = Regex.getPattern("^(attachment; *filename=\")(.+)(\")$");
 
     private void __setup_resp_header(WnHttpApiContext apc) {
         // 设置响应头，并看看是否指定了 content-type
@@ -681,6 +673,140 @@ public class HttpApiModule extends AbstractWnModule {
         // 最后设定响应内容
         apc.mimeType = Strings.sBlank(apc.mimeType, "text/html");
         apc.resp.setContentType(apc.mimeType);
+    }
+
+    void _do_redirect(WnHttpApiContext apc) throws IOException {
+        StringBuilder sbOut = new StringBuilder();
+        StringBuilder sbErr = new StringBuilder();
+        OutputStream out = Lang.ops(sbOut);
+        OutputStream err = Lang.ops(sbErr);
+
+        this.exec("apiR", apc.se, apc.cmdText, out, err, null, null);
+
+        // 处理出错了
+        if (sbErr.length() > 0) {
+            apc.resp.sendError(500, sbErr.toString());
+        }
+        // 正常的重定向
+        else {
+            apc.resp.sendRedirect(sbOut.toString());
+        }
+    }
+
+    void _do_run_box(WnHttpApiContext apc) throws UnsupportedEncodingException {
+        // 执行命令
+        WnBox box = boxes.alloc(0);
+
+        if (log.isDebugEnabled())
+            log.debugf("box:alloc: %s", box.id());
+
+        // 设置沙箱
+        WnBoxContext bc = new WnBoxContext(new NutMap());
+        bc.io = io;
+        bc.session = apc.se;
+        bc.auth = auth;
+
+        if (log.isDebugEnabled())
+            log.debugf("box:setup: %s", bc);
+        box.setup(bc);
+
+        // 根据请求，设置响应的头
+        __setup_resp_header(apc);
+
+        // 准备回调
+        if (log.isDebugEnabled())
+            log.debug("box:set stdin/out/err");
+
+        HttpRespStatusSetter _resp = new HttpRespStatusSetter(apc.resp);
+        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
+        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
+
+        // 增加一个输出缓冲
+        String out_tp = apc.oApi.getString("http-output");
+        StringBuilder out_sb = new StringBuilder();
+        if (null != out_tp && out_tp.matches("^(text|json)$")) {
+            ((AppRespOutputStreamWrapper) out).addStringWatcher(out_sb);
+        }
+
+        box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin
+        box.setStdout(out);
+        box.setStderr(err);
+
+        // 运行
+        if (log.isInfoEnabled())
+            log.infof("box:run: %s", apc.cmdText);
+        box.run(apc.cmdText);
+
+        // 释放沙箱
+        if (log.isDebugEnabled())
+            log.debugf("box:free: %s", box.id());
+        boxes.free(box);
+
+        if (log.isDebugEnabled())
+            log.debug("box:done");
+
+        // 记入返回
+        if (out_sb.length() > 0) {
+            if ("text".equals(out_tp)) {
+                apc.oReq.put("output", out_sb.toString());
+            }
+            // 解析一下
+            else if ("json".equals(out_tp)) {
+                Object json = Json.fromJson(out_sb);
+                apc.oReq.put("output", json);
+            }
+        }
+    }
+
+    void _record_history(WnHttpApiContext apc) {
+        NutMap history = apc.oApi.getAs("history", NutMap.class);
+
+        // 没有历史记录模板，嗯，无视
+        if (null == history || history.isEmpty()) {
+            return;
+        }
+
+        // 首先，获取一下历史记录的配置文件
+        String hisname = apc.oApi.getString("hisname", "_history");
+        WnObj oHis = Wn.getObj(io, apc.se, "~/.domain/history/" + hisname + ".json");
+
+        // 木有的话，打印个警告
+        if (null == oHis) {
+            if (log.isWarnEnabled()) {
+                log.warnf("!!! Fail to found history config(%s): %s.json",
+                          apc.se.getMyName(),
+                          hisname);
+            }
+            return;
+        }
+
+        // 生成服务类
+        WnDaoConfig conf = WnDaos.loadConfig(io, oHis, apc.se);
+        Dao dao = WnDaos.get(conf);
+        HistoryApi api = new WnHistoryService(conf, dao);
+
+        // 看看有木有替换的模板
+        List<NutMap> hismetas = apc.oApi.getAsList("hismetas", NutMap.class);
+        if (null != hismetas) {
+            for (NutMap hismeta : hismetas) {
+                NutMap test = hismeta.getAs("test", NutMap.class);
+                NutMap update = hismeta.getAs("update", NutMap.class);
+                WnValidate vali = new WnValidate(test);
+                // 找到了即可
+                if (vali.match(apc.oReq)) {
+                    history.putAll(update);
+                    break;
+                }
+            }
+        }
+
+        // 解析历史记录
+        String json = Json.toJson(history);
+        String json2 = Tmpl.exec(json, apc.oReq);
+
+        // 插入历史记录
+        HistoryRecord his = Json.fromJson(HistoryRecord.class, json2);
+        api.add(his);
     }
 
 }

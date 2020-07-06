@@ -13,13 +13,13 @@ public class HisQuery extends DaoEntityQuery {
     // 查询条件
     // ------------------------------------------
     private String id;
-    private String userId;
-    private String userName;
-    private String createTime;
-    private String targetId;
-    private String targetName;
-    private String operation;
-    private String more;
+    private String uid;
+    private String unm;
+    private String ct;
+    private String tid;
+    private String tnm;
+    private String opt;
+    private String mor;
 
     /**
      * @return SQL 的查询条件
@@ -36,13 +36,13 @@ public class HisQuery extends DaoEntityQuery {
         SqlExpressionGroup we = cri.where();
 
         this.joinStr(we, "id", id);
-        this.joinStr(we, "uid", userId);
-        this.joinStr(we, "unm", userName);
-        this.joinStr(we, "tid", targetId);
-        this.joinStr(we, "tnm", targetName);
-        this.joinStr(we, "opt", operation);
-        this.joinStr(we, "mor", more);
-        this.joinRegion(we, "ct", createTime);
+        this.joinStr(we, "uid", uid);
+        this.joinStr(we, "unm", unm);
+        this.joinStr(we, "tid", tid);
+        this.joinStr(we, "tnm", tnm);
+        this.joinStr(we, "opt", opt);
+        this.joinStr(we, "mor", mor);
+        this.joinRegion(we, "ct", ct);
 
         // // ........................................
         // 排序
@@ -65,60 +65,60 @@ public class HisQuery extends DaoEntityQuery {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUid() {
+        return uid;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUid(String userId) {
+        this.uid = userId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUnm() {
+        return unm;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUnm(String userName) {
+        this.unm = userName;
     }
 
-    public String getCreateTime() {
-        return createTime;
+    public String getCt() {
+        return ct;
     }
 
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
+    public void setCt(String createTime) {
+        this.ct = createTime;
     }
 
-    public String getTargetId() {
-        return targetId;
+    public String getTid() {
+        return tid;
     }
 
-    public void setTargetId(String targetId) {
-        this.targetId = targetId;
+    public void setTid(String targetId) {
+        this.tid = targetId;
     }
 
-    public String getTargetName() {
-        return targetName;
+    public String getTnm() {
+        return tnm;
     }
 
-    public void setTargetName(String targetName) {
-        this.targetName = targetName;
+    public void setTnm(String targetName) {
+        this.tnm = targetName;
     }
 
-    public String getOperation() {
-        return operation;
+    public String getOpt() {
+        return opt;
     }
 
-    public void setOperation(String operation) {
-        this.operation = operation;
+    public void setOpt(String operation) {
+        this.opt = operation;
     }
 
-    public String getMore() {
-        return more;
+    public String getMor() {
+        return mor;
     }
 
-    public void setMore(String more) {
-        this.more = more;
+    public void setMor(String more) {
+        this.mor = more;
     }
 
 }

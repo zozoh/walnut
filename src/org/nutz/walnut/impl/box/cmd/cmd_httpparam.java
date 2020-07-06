@@ -1,6 +1,5 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.net.URLDecoder;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -12,6 +11,7 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnStr;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_httpparam extends JvmExecutor {
@@ -46,18 +46,7 @@ public class cmd_httpparam extends JvmExecutor {
         }
         // 按照 form 表单方式解析
         else {
-            c = new NutMap();
-            String[] ss = Strings.splitIgnoreBlank(str, "&");
-            for (String s : ss) {
-                int pos = s.indexOf('=');
-                if (pos > 0) {
-                    String key = URLDecoder.decode(s.substring(0, pos), "UTF-8");
-                    String val = URLDecoder.decode(s.substring(pos + 1), "UTF-8");
-                    c.setv(key, val);
-                } else {
-                    c.setv(URLDecoder.decode(s, "UTF-8"), "");
-                }
-            }
+            c = WnStr.parseFormData(str);
         }
         // .......................................................
         // 如果是请求文件，那么也把 GET 参数也回复一下

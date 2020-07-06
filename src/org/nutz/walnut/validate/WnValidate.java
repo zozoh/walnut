@@ -31,6 +31,10 @@ public class WnValidate {
         VALIDATORS.put("isString", new IsString());
         VALIDATORS.put("isDate", new IsDate());
         VALIDATORS.put("inRange", new InRange());
+        VALIDATORS.put("isMatch", new IsMatch());
+        VALIDATORS.put("isEqual", new IsEqual());
+        VALIDATORS.put("isOf", new IsOf());
+        VALIDATORS.put("matchRegex", new MatchRegex());
     }
 
     public static WnValidator get(String name) {

@@ -8,9 +8,11 @@ import org.nutz.walnut.ext.entity.history.HistoryRecord;
 import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
+@JvmHdlParamArgs("cqn")
 public class history_add implements JvmHdl {
 
     @Override

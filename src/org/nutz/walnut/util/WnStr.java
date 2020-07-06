@@ -1,11 +1,15 @@
 package org.nutz.walnut.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.LinkedCharArray;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 
 public abstract class WnStr {
 
@@ -177,6 +181,34 @@ public abstract class WnStr {
     public static String[] flatArray(String... strs) {
         List<String> list = flatList(strs);
         return list.toArray(new String[list.size()]);
+    }
+
+    /**
+     * 将一个 HTTP FORM 表单字符串解析为一个 Map
+     * 
+     * @param str
+     *            表单内容
+     * @return 表单对象
+     */
+    public static NutMap parseFormData(String str) {
+        try {
+            NutMap re = new NutMap();
+            String[] ss = Strings.splitIgnoreBlank(str, "&");
+            for (String s : ss) {
+                int pos = s.indexOf('=');
+                if (pos > 0) {
+                    String key = URLDecoder.decode(s.substring(0, pos), "UTF-8");
+                    String val = URLDecoder.decode(s.substring(pos + 1), "UTF-8");
+                    re.addv(key, val);
+                } else {
+                    re.setv(URLDecoder.decode(s, "UTF-8"), "");
+                }
+            }
+            return re;
+        }
+        catch (UnsupportedEncodingException e) {
+            throw Er.wrap(e);
+        }
     }
 
 }
