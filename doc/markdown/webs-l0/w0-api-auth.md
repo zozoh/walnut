@@ -1,5 +1,5 @@
 ---
-title: 站点账户授权接口
+title: 接口·账户权鉴
 author: zozohtnt@gmail.com
 ---
 
@@ -21,43 +21,30 @@ author: zozohtnt@gmail.com
 - 提供一套标准的 HTTP 接口封装客户端操作
 
 --------------------------------------
-# 数据结构描述
+# 接口概览
 
-> 域结构如下：
-
-```bash
-~/
-#-----------------------------
-# 域的 Web 服务临时数据存放区
-|-- .domain/
-|   |-- session/     # 存放会话信息
-|   |-- captcha/     # 验证码存放目录
-#-----------------------------
-|-- www/      # 存放站点的文件夹
-#-----------------------------
-|-- accounts/ # 用户库：ThingSet
-|-- roles/    # 角色库：ThingSet
-#-----------------------------
-# 接口定义文件
-|-- .regapi/api/auth/     # 接口文档存放的目录
-    |-- site              # 获取当前默认站点信息
-    |-- checkme           # 根据票据获取当前账户会话信息
-    |-- setme             # 设置当前账户元数据
-    |-- login_by_wxcode   # 微信自动登录
-    |-- login_by_passwd   # 账号密码登录
-    |-- login_by_phone    # 短信密码登录
-    |-- bind_account      # 绑定手机/邮箱
-    |-- get_sms_vcode     # 获取短信验证码
-    |-- get_email_vcode   # 获取邮箱验证码
-    |-- captcha           # 获取各个场景下的图形验证码
-    |-- chpasswd          # 修改当前账户的用户名密码
-    |-- logout            # 注销当前会话
-```
+  URL                 |Method| Date |Auth | Description
+----------------------|------|------|-----|----------
+`auth/accounts`       |`POST`|`json`|`Pvg`| 账户列表（带翻页）
+`auth/bind_account`   |`GET` |`json`|`---`| 绑定手机/邮箱
+`auth/captcha`        |`GET` |`json`|`---`| 获取图形验证码
+`auth/checkme`        |`POST`|`json`|`---`| 校验 Ticket
+`auth/get_email_vcode`|`POST`|`json`|`---`| 发送邮件密码
+`auth/get_sms_vcode`  |`GET` |`json`|`---`| 发送短信密码
+`auth/getaccount`     |`GET` |`json`|`Pvg`| 获取指定账户信息
+`auth/login_by_email` |`POST`|`json`|`---`| 用邮箱密码登录
+`auth/login_by_passwd`|`POST`|`json`|`---`| 用密码登录
+`auth/login_by_phone` |`GET` |`json`|`---`| 用短信密码登录
+`auth/login_by_wxcode`|`GET` |`json`|`---`| 用微信票据登录
+`auth/logout`         |`POST`|`json`|`---`| 注销当前 Ticket
+`auth/chpasswd`       |`POST`|`json`|`Yes`| 重置密码
+`auth/setme`          |`GET` |`json`|`Yes`| 更新个人资料
+`auth/site`           |`GET` |`json`|`---`| 获取站点信息
 
 --------------------------------------
-# 使用方式
+# 接口详情
 
-客户端通过 `Ajax` 方式调用接口
+> 客户端通过 `Ajax` 方式调用接口
 
 --------------------------------------
 ## `/auth/site`获取当前默认站点信息
