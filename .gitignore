@@ -51,3 +51,4 @@ mysrc
 *.css.map
 
 .MWebMetaData
+.VSCodeCounter
