@@ -129,4 +129,4 @@
 [w0-api]: webs-l0/w0-api-overview.md
 [w0-saa]: webs-l0/w0-site-auth-api.md
 [w0-site]: webs-l0/w0-site.md
-[w1-shop]: "webs-l1/w1-shop.md"
+[w1-shop]: webs-l1/w1-shop.md
