@@ -99,13 +99,12 @@
 - [域站点模型][w0-site]
 - 验证码模型
 - WNML支持
-- [商城模型][w0-shop]
 - Ti 的 www 支持
 
 -----------------------------------------
 ## Web 扩展`webs-l1`
 
-- [商城套件][w1-shop]
+- [商城模型][w1-shop]
 
 [c0-iob]: core-l0/c0-io-tree-and-bucket.md
 [c0-bam]: core-l0/c0-baice-auth-model.md
