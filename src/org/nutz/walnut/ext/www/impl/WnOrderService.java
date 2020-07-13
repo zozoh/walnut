@@ -53,6 +53,18 @@ public class WnOrderService {
             throw Er.create("e.www.order.nil.pay_tp");
         }
 
+        // 设置产品的冗余字段
+        WnProduct[] pros = or.getProducts();
+        String[] proids = new String[pros.length];
+        // 第一个商品（因为检查过肯定不为空）
+        or.setProductId0(pros[0].getId());
+        proids[0] = pros[0].getId();
+        // 搞剩下的
+        for (int i = 1; i < pros.length; i++) {
+            proids[i] = pros[i].getId();
+        }
+        or.setProductIds(proids);
+
         // 根据付款类型找到销售方
         String ptPrefix = or.getPayTypePrefix();
         String seller = this.sellers.getString(ptPrefix);

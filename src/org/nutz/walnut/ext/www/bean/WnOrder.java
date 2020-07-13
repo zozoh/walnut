@@ -15,6 +15,12 @@ public class WnOrder {
 
     private WnProduct[] products;
 
+    @JsonField("proid0")
+    private String productId0;
+
+    @JsonField("proids")
+    private String[] productIds;
+
     private WnCoupon[] coupons;
 
     private String title;
@@ -189,6 +195,22 @@ public class WnOrder {
 
     public void setProducts(WnProduct[] products) {
         this.products = products;
+    }
+
+    public String getProductId0() {
+        return productId0;
+    }
+
+    public void setProductId0(String productId0) {
+        this.productId0 = productId0;
+    }
+
+    public String[] getProductIds() {
+        return productIds;
+    }
+
+    public void setProductIds(String[] productIds) {
+        this.productIds = productIds;
     }
 
     public boolean hasCoupons() {
