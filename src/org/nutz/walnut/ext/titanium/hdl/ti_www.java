@@ -234,7 +234,10 @@ public class ti_www implements JvmHdl {
         WnObj oTaSS = sys.io.createIfNoExists(oDist, "site-state.json", WnRace.FILE);
 
         NutMap map = sys.io.readJson(oSiteState, NutMap.class);
+        // 因为正在 ti-web-app-main.mjs 这个入口层面增加了 deps
+        // 这里就不要增加了
         map.putAll(vars);
+        map.remove("deps");
 
         sys.io.writeJson(oTaSS, map, JsonFormat.full());
         if (!quiet) {
