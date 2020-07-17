@@ -155,7 +155,8 @@ mnt : "$IndexType[($Setting)][://$Storage]"
 #
 #-------------------------------------------------------
 WnIo
-|-- WnIoCachedImpl    # 带缓存的 Io 包裹类
+|-- WnIoHookedWrapper    # 带钩子的 Io 包裹类
+|-- WnIoCachedWrapper    # 带缓存的 Io 包裹类
 |      |--> WnIoCacheService  # 缓存服务接口
 |      |    |-- WnIoObjCacheService   # 根据 ID/Path 缓存
 |      |    |-- WnIoHieCacheService   # 根据 ID 缓存子 ID 列表
@@ -194,7 +195,8 @@ WnIo
 |   |-- WnIoLocalBM
 |   |   |--> WnIoLBII                 # 对所有的桶信息进行索引的接口
 |   |   |    |-- WnIoDaoSimpleLBII    # 存放在一张 SQL 表里
-|   |-- WnIoLocalFileIndexer
+|   |-- WnIoLocalFileBM
+|   |   |-- WnIoLocalFileWritableBM
 |   |-- WnIoAliyunOssBM
 # 
 # 对于 WnIoLBII，可以有升级的策略，即按照桶的尺寸，存放到不同的表里
