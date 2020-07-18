@@ -56,6 +56,7 @@ public class WnIoImpl2 implements WnIo {
             }
             return ma.copyData(a, b);
         }
+
         // 否则只能硬 COPY 了
         long re = 0;
         WnIoHandle h_a = ma.open(a, Wn.S.R);
@@ -110,27 +111,27 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj flush(String hid) {
-        WnIoHandle h = handles.checkHandle(hid);
+        WnIoHandle h = handles.check(hid);
         h.flush();
         return h.getObj();
     }
 
     @Override
     public WnObj close(String hid) {
-        WnIoHandle h = handles.checkHandle(hid);
+        WnIoHandle h = handles.check(hid);
         h.close();
         return h.getObj();
     }
 
     @Override
     public int read(String hid, byte[] bs, int off, int len) {
-        WnIoHandle h = handles.checkHandle(hid);
+        WnIoHandle h = handles.check(hid);
         return h.read(bs, off, len);
     }
 
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
-        WnIoHandle h = handles.checkHandle(hid);
+        WnIoHandle h = handles.check(hid);
         h.write(bs, off, len);
     }
 
@@ -146,14 +147,14 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void seek(String hid, long pos) {
-        WnIoHandle h = handles.checkHandle(hid);
-        h.seek(pos);
+        WnIoHandle h = handles.check(hid);
+        h.setOffset(pos);
     }
 
     @Override
     public long getPos(String hid) {
-        WnIoHandle h = handles.checkHandle(hid);
-        return h.getPosition();
+        WnIoHandle h = handles.check(hid);
+        return h.getOffset();
     }
 
     @Override

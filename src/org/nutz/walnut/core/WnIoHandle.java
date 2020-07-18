@@ -2,28 +2,83 @@ package org.nutz.walnut.core;
 
 import org.nutz.walnut.api.io.WnObj;
 
-public interface WnIoHandle {
+/**
+ * 句柄类由桶的实现类构建。桶的实现类会在这个类构建或第一次写入时，分配缓冲
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+public abstract class WnIoHandle extends HandleInfo {
 
-    String getId();
+    /**
+     * 索引管理器，用来更新对象
+     */
+    private WnIoIndexer indexer;
 
-    String getTargetId();
+    /**
+     * 句柄处理的对象
+     */
+    private WnObj obj;
 
-    long getCreatTime();
+    public WnIoIndexer getIndexer() {
+        return indexer;
+    }
 
-    int getPosition();
+    public void setIndexer(WnIoIndexer indexer) {
+        this.indexer = indexer;
+    }
 
-    int read(byte[] bs, int off, int len);
+    public WnObj getObj() {
+        return obj;
+    }
 
-    void write(byte[] bs, int off, int len);
+    public void setObj(WnObj obj) {
+        this.obj = obj;
+        this.setTargetId(obj.id());
+        this.setMount(obj.mount());
+    }
 
-    void seek(long pos);
+    /**
+     * 读取到缓冲
+     * 
+     * @param buf
+     *            缓冲
+     * @param off
+     *            偏移（从缓冲何处开始写入）
+     * @param len
+     *            最多读取多少字节
+     * @return 实际读取的字节数，0 表示不在有字节可以读取了
+     */
+    public abstract int read(byte[] buf, int off, int len);
 
-    void flush();
+    public int read(byte[] buf) {
+        return read(buf, 0, buf.length);
+    }
 
-    void close();
+    /**
+     * 写入到缓冲
+     * 
+     * @param buf
+     *            输入字节数组
+     * @param off
+     *            偏移（从输入的何处开始写入）
+     * @param len
+     *            最多，写入多少字节。如果超过 buf 的长度，则自动停止
+     * @return 实际写入的字节数
+     */
+    public abstract int write(byte[] buf, int off, int len);
 
-    WnObj getObj();
+    public int write(byte[] buf) {
+        return write(buf, 0, buf.length);
+    }
 
-    WnIoMapping getMapping();
+    /**
+     * 将缓冲中的内容主动写入到对应的桶内。 当然，关闭前
+     */
+    public abstract void flush();
+
+    /**
+     * 关闭一个句柄
+     */
+    public abstract void close();
 
 }

@@ -14,11 +14,19 @@ public class WnIoMapping {
 
     private WnIoIndexer indexer;
 
-    private WnIoBM BM;
+    private WnIoBM bm;
 
-    public WnIoMapping(WnIoIndexer indexer, WnIoBM BM) {
+    public WnIoMapping(WnIoIndexer indexer, WnIoBM bm) {
         this.indexer = indexer;
-        this.BM = BM;
+        this.bm = bm;
+    }
+
+    public WnIoIndexer getIndexer() {
+        return indexer;
+    }
+
+    public WnIoBM getBucketManager() {
+        return bm;
     }
 
     public boolean exists(WnObj p, String path) {
@@ -111,7 +119,7 @@ public class WnIoMapping {
 
     public void delete(WnObj o) {
         indexer.delete(o);
-        BM.delete(o);
+        bm.remove(o.id());
     }
 
     public WnObj get(String id) {
@@ -175,43 +183,66 @@ public class WnIoMapping {
     }
 
     public boolean isSameBM(WnIoMapping mapping) {
-        return this.BM.isSame(mapping.BM);
+        return this.bm.isSame(mapping.bm);
     }
 
-    public long copyData(WnObj a, WnObj b) {
-        return BM.copyData(a, b);
+    /**
+     * 给出一个快捷的方法，将对象 A 的内容快速 copy 到对象B 中
+     * <p>
+     * 本函数会直接修改
+     * 
+     * @param oSr
+     *            源对象A
+     * @param oTa
+     *            目标对象B
+     * @return 复制后目标对象的长度。 -1 表示源对象也为空
+     */
+    public long copyData(WnObj oSr, WnObj oTa) {
+        // 防守一下
+        if (!oSr.hasData()) {
+            return -1;
+        }
+        // 如果目标不是空的，那么检查一下是否有必要 Copy
+        if (oTa.hasData()) {
+            // 数据区指向相同
+            if (oSr.isSameData(oTa.data())) {
+                // 嗯，木有必要 Copy
+                if (oSr.isSameSha1(oTa.sha1()) && oSr.len() == oTa.len()) {
+                    return oTa.len();
+                }
+                // 那么久更新一下指纹和长度咯
+                oTa.len(oSr.len()).sha1(oSr.sha1());
+                indexer.set(oTa, "^(len|sha1)$");
+                return oTa.len();
+            }
+            // 已经引用了其他的数据，取消一下引用
+            bm.remove(oTa.data());
+        }
+        // 增加引用
+        bm.copy(oSr.data());
+
+        // 直接将数据段Copy过去
+        oTa.data(oSr.data()).len(oSr.len()).sha1(oSr.sha1());
+        oTa.lastModified(System.currentTimeMillis());
+        indexer.set(oTa, "^(len|sha1|data|lm)$");
+        return oTa.len();
     }
 
     public WnIoHandle open(WnObj o, int mode) {
-        return BM.open(o, mode);
+        return bm.open(o, mode, indexer);
     }
 
-    public int read(String hid, byte[] bs, int off, int len) {
-        return BM.read(hid, bs, off, len);
-    }
-
-    public void write(String hid, byte[] bs, int off, int len) {
-        BM.write(hid, bs, off, len);
-    }
-
-    public int read(String hid, byte[] bs) {
-        return BM.read(hid, bs);
-    }
-
-    public void write(String hid, byte[] bs) {
-        BM.write(hid, bs);
-    }
-
-    public void seek(String hid, long pos) {
-        BM.seek(hid, pos);
+    public WnIoHandle getHandle(String hid) {
+        return bm.checkHandle(hid);
     }
 
     public void trancate(WnObj o, long len) {
-        BM.trancate(o, len);
-    }
-
-    public long getPos(String hid) {
-        return BM.getPos(hid);
+        long sz = bm.trancate(o.data(), len);
+        // 如果木有异常，那么就更新咯
+        if (sz >= 0) {
+            o.len(sz);
+            indexer.set(o, "^(len)$");
+        }
     }
 
 }
