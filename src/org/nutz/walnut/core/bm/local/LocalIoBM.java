@@ -56,7 +56,7 @@ public class LocalIoBM extends AbstractIoBM {
 
     private int minBucketIdLen;
 
-    private int bufSize;
+    int bufferSize;
 
     public LocalIoBM(String home,
                      boolean autoCreate,
@@ -92,7 +92,7 @@ public class LocalIoBM extends AbstractIoBM {
 
         // 一些常量
         minBucketIdLen = 8;
-        bufSize = 8192;
+        bufferSize = 8192;
     }
 
     @Override
@@ -113,14 +113,23 @@ public class LocalIoBM extends AbstractIoBM {
     }
 
     @Override
-    public WnIoHandle createHandle() {
-        return new LocalIoHandle(this);
+    public WnIoHandle createHandle(int mode) {
+        // 只读
+        if (Wn.S.isRead(mode)) {
+            return new LocalIoReadOnlyHandle(this);
+        }
+        // 只写
+        if (Wn.S.isWriteOnly(mode)) {
+            return new LocalIoWriteOnlyHandle(this);
+        }
+        throw Er.create("e.io.bm.local.UnsupportMode", mode);
     }
 
     @Override
     public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) {
         // 先搞一个句柄
-        WnIoHandle h = createHandle();
+        WnIoHandle h = createHandle(mode);
+        h.setManager(handles);
         h.setIndexer(indexer);
         h.setObj(o);
         h.setMode(mode);
@@ -263,7 +272,7 @@ public class LocalIoBM extends AbstractIoBM {
             try {
                 ins = Streams.fileIn(fOldBucket);
                 ops = Streams.fileOut(fNewBucket);
-                long len2 = Streams.write(ops, ins, len, bufSize);
+                long len2 = Streams.write(ops, ins, len, bufferSize);
                 Streams.safeClose(ins);
                 Streams.safeFlush(ops);
                 Streams.safeClose(ops);
@@ -303,6 +312,12 @@ public class LocalIoBM extends AbstractIoBM {
         // 得到桶的路径
         String ph = buckId.substring(0, 4) + "/" + buckId.substring(4);
         return Files.getFile(dBucket, ph);
+    }
+
+    File createSwapFile() {
+        String nm = R.UU32();
+        File f = Files.getFile(dSwap, nm);
+        return Files.createFileIfNoExists(f);
     }
 
 }

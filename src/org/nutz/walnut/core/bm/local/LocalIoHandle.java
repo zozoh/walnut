@@ -1,37 +1,22 @@
 package org.nutz.walnut.core.bm.local;
 
 import java.io.File;
-
 import org.nutz.walnut.core.WnIoHandle;
 
-public class LocalIoHandle extends WnIoHandle {
+public abstract class LocalIoHandle extends WnIoHandle {
 
-    private LocalIoBM bm;
-    
-    private File swap;
+    protected LocalIoBM bm;
+
+    protected File buck;
 
     LocalIoHandle(LocalIoBM bm) {
         this.bm = bm;
     }
-    
-    private void prepareSwap() {
-        
+
+    protected File getBuckFile() {
+        if (null == buck) {
+            buck = bm.getBucketFile(obj.data());
+        }
+        return buck;
     }
-
-    @Override
-    public int read(byte[] buf, int off, int len) {
-        return 0;
-    }
-
-    @Override
-    public int write(byte[] buf, int off, int len) {
-        return 0;
-    }
-
-    @Override
-    public void flush() {}
-
-    @Override
-    public void close() {}
-
 }

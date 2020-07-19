@@ -2,6 +2,7 @@ package org.nutz.walnut.core;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -41,8 +42,8 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public long copyData(WnObj a, WnObj b) {
-        WnIoMapping ma = mappings.checkMapping(a);
-        WnIoMapping mb = mappings.checkMapping(b);
+        WnIoMapping ma = mappings.check(a.mount());
+        WnIoMapping mb = mappings.check(b.mount());
         // 调试日志
         if (log.isDebugEnabled()) {
             log.debugf("copyData ma:%s, mb:%s",
@@ -71,6 +72,9 @@ public class WnIoImpl2 implements WnIo {
                 re += len;
                 h_b.write(buf, 0, len);
             }
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
         }
         // 确保关闭
         finally {
@@ -104,7 +108,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public String open(WnObj o, int mode) {
-        WnIoMapping im = mappings.checkMapping(o);
+        WnIoMapping im = mappings.check(o.mount());
         WnIoHandle h = im.open(o, mode);
         return h.getId();
     }
@@ -112,27 +116,47 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public WnObj flush(String hid) {
         WnIoHandle h = handles.check(hid);
-        h.flush();
+        try {
+            h.flush();
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
         return h.getObj();
     }
 
     @Override
     public WnObj close(String hid) {
         WnIoHandle h = handles.check(hid);
-        h.close();
+        try {
+            h.close();
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
         return h.getObj();
     }
 
     @Override
     public int read(String hid, byte[] bs, int off, int len) {
         WnIoHandle h = handles.check(hid);
-        return h.read(bs, off, len);
+        try {
+            return h.read(bs, off, len);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
     }
 
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
         WnIoHandle h = handles.check(hid);
-        h.write(bs, off, len);
+        try {
+            h.write(bs, off, len);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
     }
 
     @Override
@@ -159,7 +183,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void delete(WnObj o) {
-        WnIoMapping im = mappings.checkMapping(o);
+        WnIoMapping im = mappings.check(o.mount());
         im.delete(o);
     }
 
@@ -179,7 +203,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void trancate(WnObj o, long len) {
-        WnIoMapping im = mappings.checkMapping(o);
+        WnIoMapping im = mappings.check(o.mount());
         im.truncate(o, len);
     }
 

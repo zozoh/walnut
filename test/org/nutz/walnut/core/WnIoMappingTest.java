@@ -2,8 +2,8 @@ package org.nutz.walnut.core;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
+import java.io.IOException;
+
 import org.junit.Test;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -17,7 +17,7 @@ public abstract class WnIoMappingTest {
     protected WnIoMapping im;
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         WnObj o = im.create(null, "/a", WnRace.FILE);
         WnIoHandle h = im.open(o, Wn.S.W);
         byte[] buf1 = "Hello".getBytes();

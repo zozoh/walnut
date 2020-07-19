@@ -1,5 +1,8 @@
 package org.nutz.walnut.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 一个句柄的纯信息类，比较方便持久化...呃，再想想
  * 
@@ -89,8 +92,19 @@ public class HandleInfo {
         this.id = info.id;
         this.mode = info.mode;
         this.targetId = info.targetId;
+        this.mount = info.mount;
         this.creatTime = info.creatTime;
         this.offset = info.offset;
     }
 
+    public Map<String, String> toStringMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("id", id);
+        map.put("mode", mode + "");
+        map.put("targetId", targetId);
+        map.put("mount", mount);
+        map.put("creatTime", creatTime + "");
+        map.put("offset", offset + "");
+        return map;
+    }
 }

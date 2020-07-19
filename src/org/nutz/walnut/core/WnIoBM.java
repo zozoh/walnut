@@ -31,9 +31,12 @@ public interface WnIoBM {
      * 它可以通过持久化层得到 <code>HandleInfo</code>， 然后获取<code>WnIoMapping</code>。<br>
      * 这样，只要知道对应的<code>桶管理器</code>需要什么样的句柄，就能取得完整的句柄对象了
      * 
+     * @param mode
+     *            打开模式
+     * 
      * @return 新的空白句柄对象
      */
-    WnIoHandle createHandle();
+    WnIoHandle createHandle(int mode);
 
     /**
      * @param hid
