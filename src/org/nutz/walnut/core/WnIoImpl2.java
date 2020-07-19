@@ -180,7 +180,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public void trancate(WnObj o, long len) {
         WnIoMapping im = mappings.checkMapping(o);
-        im.trancate(o, len);
+        im.truncate(o, len);
     }
 
     @Override

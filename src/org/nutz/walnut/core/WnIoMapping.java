@@ -119,7 +119,9 @@ public class WnIoMapping {
 
     public void delete(WnObj o) {
         indexer.delete(o);
-        bm.remove(o.id());
+        if (o.hasData()) {
+            bm.remove(o.data(), o.id());
+        }
     }
 
     public WnObj get(String id) {
@@ -216,10 +218,10 @@ public class WnIoMapping {
                 return oTa.len();
             }
             // 已经引用了其他的数据，取消一下引用
-            bm.remove(oTa.data());
+            bm.remove(oTa.data(), oTa.id());
         }
         // 增加引用
-        bm.copy(oSr.data());
+        bm.copy(oSr.data(), oTa.id());
 
         // 直接将数据段Copy过去
         oTa.data(oSr.data()).len(oSr.len()).sha1(oSr.sha1());
@@ -236,13 +238,8 @@ public class WnIoMapping {
         return bm.checkHandle(hid);
     }
 
-    public void trancate(WnObj o, long len) {
-        long sz = bm.trancate(o.data(), len);
-        // 如果木有异常，那么就更新咯
-        if (sz >= 0) {
-            o.len(sz);
-            indexer.set(o, "^(len)$");
-        }
+    public void truncate(WnObj o, long len) {
+        bm.truncate(o, len, indexer);
     }
 
 }

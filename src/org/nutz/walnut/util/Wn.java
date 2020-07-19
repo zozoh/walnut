@@ -496,6 +496,8 @@ public abstract class Wn {
 
     public static class Io {
 
+        public static final String EMPTY_SHA1 = Lang.sha1("");
+
         public static final int R = 1 << 2;
 
         public static final int W = 1 << 1;

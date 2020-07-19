@@ -50,7 +50,79 @@ LocalBM      | `lbm(MyBucket)` | 系统分配的一些本地桶集
 LocalFileBM  | `C:\xxx\xx`     | 本地文件读写
 AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
 
-## 两段式存储
+------------------------------------------
+# 映射
+
+任何一个目录对象，都可以声明特殊的映射，声明的方法是：
+
+```bash
+mnt : "$IndexType[($Setting)][://$Storage]"
+```
+
+> 下面是一些例子:
+
+ Index | Storage       | Mapping
+-------|---------------|-----------------------
+`dao`  | `GlobalBM`    | `dao(abc/t_news)`               
+`dao`  | `LocalBM`     | `dao(abc/t_news)://lbm(Abc)`
+`dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss`
+`dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss(news-data)`
+`mem`  | `GlobalBM`    | `mem`                         
+`mem`  | `LocalBM`     | `mem://lbm(Abc)`               
+`file` | `LocalFileBM` | `file://C:/data/demo/`
+`redis`| `GlobalBM`    | `redia`
+`redis`| `GlobalBM`    | `redia(tmp-files)`
+`redis`| `LocalBM`     | `redia(tmp-files)://lbm(Tmp)`
+`mq`   | `GlobalBM`    | `mq`
+`mq`   | `GlobalBM`    | `mq(messages)`
+`mq`   | `LocalBM`     | `mq(notify)://lbm(QueueData)`
+`mq`   | `AliyunOssBM` | `mq(notify)://aliyunoss`
+
+------------------------------------------
+# 桶管理器实现细节
+
+## LocalIoBM:本地桶管理器
+
+**本地数据结构**
+
+```bash
+path/to/home/
+#-----------------------------------------
+# 桶文件
+|-- buck/           # 桶目录，obj.data 指向桶ID
+|   |-- 0evq/       # 采用首4字符散列目录
+|       |-- 89..g1  # 后面 28字符（可能更多）作为文件
+#-----------------------------------------
+# 交换文件
+|-- swap/
+    |-- 4tu..8q1    # 交换文件，文件名就是写句柄ID
+```
+
+- 句柄由传入的WnIoHandleManager管理，与 WnIoImpl2 共享。<br>
+- 而WnIoHandleManager需要通过WnIoMappingFactory取回句柄的索引管理器以及对象信息。
+- 因此我们说：通过 WnIoMappingFactory解开了直接的循环引用。
+- 每个桶的引用，由传入的引用计数管理器管理。
+
+**本地桶管理器实例**
+
+```bash
+<AbstractIoBM>
+# 句柄管理器，与 WnIoImpl2 共享，
+# 实际上所有的桶管理器都应该与 WnIoImpl2 共享这个管理器
+# 因此，这个成员应该放到抽象类里
+|--> handles<WnIoHandleManager>
+|
+|--:<LocalIoBM>
+     |-- dBucket<File>      # 本地桶目录
+     |-- dSwap<File>        # 本地交互区目录
+     |   # 本地桶管理器为了节约空间，将根据桶的 SHA1 和引用计数
+     |   # 归纳重复的桶引用，在 flush 的时候会进行 SHA1 计算
+     |   # 具体逻辑下文由描述
+     |-- refers<WnReferApi>
+```
+
+------------------------------------------
+# (草稿)两段式存储
 
 采用 `LocalBM` 存储，有一个问题，就是需要计算一下 SHA1，以便去重。
 如果这个本地路径映射到了远端(譬如 AliyunOSS)， 那么相当于写入到远端
@@ -79,7 +151,7 @@ AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
 
 或者桶写的时候，先写道临时区，然后计算SHA1 然后按存储 ...
 
-## LocalBM 的策略归总
+## (草稿)LocalBM 的策略归总
 
 ```bash
 >>> 输入文件流
@@ -118,35 +190,7 @@ AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
 ```
 
 ------------------------------------------
-# 映射
-
-任何一个目录对象，都可以声明特殊的映射，声明的方法是：
-
-```bash
-mnt : "$IndexType[($Setting)][://$Storage]"
-```
-
-> 下面是一些例子:
-
- Index | Storage       | Mapping
--------|---------------|-----------------------
-`dao`  | `GlobalBM`    | `dao(abc/t_news)`               
-`dao`  | `LocalBM`     | `dao(abc/t_news)://lbm(Abc)`
-`dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss`
-`dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss(news-data)`
-`mem`  | `GlobalBM`    | `mem`                         
-`mem`  | `LocalBM`     | `mem://lbm(Abc)`               
-`file` | `LocalFileBM` | `file://C:/data/demo/`
-`redis`| `GlobalBM`    | `redia`
-`redis`| `GlobalBM`    | `redia(tmp-files)`
-`redis`| `LocalBM`     | `redia(tmp-files)://lbm(Tmp)`
-`mq`   | `GlobalBM`    | `mq`
-`mq`   | `GlobalBM`    | `mq(messages)`
-`mq`   | `LocalBM`     | `mq(notify)://lbm(QueueData)`
-`mq`   | `AliyunOssBM` | `mq(notify)://aliyunoss`
-
-------------------------------------------
-# 实现接口
+# (草稿)实现接口
 
 ```bash
 #-------------------------------------------------------
@@ -241,7 +285,7 @@ WnIo
 ```
 
 ------------------------------------------
-# 关于三个主要的类
+# (草稿)关于三个主要的类
 
 ```bash
 WnIoMapping
@@ -259,7 +303,7 @@ WnIoMapping
 ```
 
 ------------------------------------------
-# 关于查询
+# (草稿)关于查询
 
 通过分析 `WnQuery` 得到 `pid`，
 如果找到对应的 `WnIoMapping`，就用其查询.

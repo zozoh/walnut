@@ -47,37 +47,43 @@ public interface WnIoBM {
      * <p>
      * 本函数会直接直接讲目标ID对应的引用计数加一
      * 
-     * @param id
-     *            目标ID
-     * @return 当前目标还有多少引用
+     * @param buckId
+     *            桶ID
+     * @param String
+     *            referId 引用这个桶的目标ID，通常为 obj.id
+     * @return 当前桶还有多少引用
      */
-    int copy(String id);
+    long copy(String buckId, String referId);
 
     /**
      * 删除对象对应的存储空间
      * <p>
      * 通常，桶管理器应该减去它的引用计数，当归零时，自动删除
      * 
-     * @param id
-     *            目标ID
+     * @param buckId
+     *            桶ID
+     * @param String
+     *            referId 引用这个桶的目标ID，通常为 obj.id
      * 
      * @return 当前目标还有多少引用。 0 表示这个对象被删除了
      */
-    int remove(String id);
+    long remove(String buckId, String referId);
 
     /**
-     * 将目标剪裁到给定大小
+     * 将对象剪裁到指定大小
      * 
-     * @param id
-     *            目标ID
+     * @param o
+     *            要剪裁的对象
      * @param len
      *            大小
+     * @param indexer
+     *            索引管理器，用来修改对象元数据
      * @return 如果为0或者正整数，则为剪裁后的桶大小（字节）否则表示剪裁失败。 <br>
      *         但是实现类不应该返回负数，直接抛出异常会是比较好的做法。<br>
      *         如果实现类真的逆天的返回负数，调用者应该什么也不做，立即返回就是。
      * @throws "e.io.bm.trancate"
      *             : 剪裁异常
      */
-    long trancate(String id, long len);
+    long truncate(WnObj o, long len, WnIoIndexer indexer);
 
 }
