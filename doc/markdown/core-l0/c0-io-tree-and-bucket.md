@@ -78,6 +78,33 @@ mnt : "$IndexType[($Setting)][://$Storage]"
 `mq`   | `LocalBM`     | `mq(notify)://lbm(QueueData)`
 `mq`   | `AliyunOssBM` | `mq(notify)://aliyunoss`
 
+对于映射对象，它的 ID 结构必须是两段式的：
+
+```bash
+# 用 : 分隔，前面是映射根目录ID，在对应映射管理器中的ID
+$HomeID:$ReferID
+#-----------------------------------------
+# 示例
+#-----------------------------------------
+# 文件映射
+#  'tdprqrhenege9p11mu9rh9a07n' 表示全局索引里的一个对象
+#  'path/to/file.txt' 表示在这个对象对应的索引管理器内的文件
+{
+  id   : "tdprqrhenege9p11mu9rh9a07n:path/to/file.txt",
+  mnt  : "file:///data/somedir/",
+  data : "path/to/file.txt"
+  # 对于 LocalFileBM 并不关心 data 段，这个data段仅仅是作者强迫症式的对称
+}
+# 本地通映射
+#  'tdprqrhenege9p11mu9rh9a07n' 表示全局索引里的一个对象
+#  '1f76d9055mjaip6167umc2g1jt' 表示在桶管理器的数据段ID
+{
+  id   : "tdprqrhenege9p11mu9rh9a07n",
+  mnt  : ":lbm(xyz)",
+  data : "1f76d9055mjaip6167umc2g1jt"
+}
+```
+
 ------------------------------------------
 # 桶管理器实现细节
 
@@ -103,7 +130,7 @@ path/to/home/
 - 因此我们说：通过 WnIoMappingFactory解开了直接的循环引用。
 - 每个桶的引用，由传入的引用计数管理器管理。
 
-**本地桶管理器实例**
+**实例结构**
 
 ```bash
 <AbstractIoBM>
@@ -120,6 +147,34 @@ path/to/home/
      |   # 具体逻辑下文由描述
      |-- refers<WnReferApi>
 ```
+
+## LocalFileBM:本地文件桶管理器
+
+**本地数据结构**
+
+```bash
+path/to/home/
+#-----------------------------------------
+# 桶文件就是下面的自然目录结构
+# 读写直接针对相应的文件
+|-- aaa/
+|   |-- bbb/
+|       |-- ccc.jpg
+```
+
+- 无交换区
+- 读写直接针对文件进行
+
+**实例结构**
+
+```bash
+<AbstractIoBM>
+|--> handles<WnIoHandleManager>
+|
+|--:<LocalIoBM>
+     |-- dHome<File>      # 本地文件桶主目录
+```
+
 
 ------------------------------------------
 # (草稿)两段式存储

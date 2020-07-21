@@ -9,15 +9,22 @@ import org.nutz.walnut.ext.redis.WedisConfig;
 /**
  * 这个是个 Redis 维护的引用集合。
  * <p>
- * 它占有 Redis 的一个数据库，键为 "io:ref:$ID"，值是SET
+ * 它占有 Redis 的一个数据库，默认键形为 "io:ref:$ID"，值是SET
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class RedisReferService implements WnReferApi {
 
+    private String prefix;
+
     private WedisConfig conf;
 
     public RedisReferService(WedisConfig conf) {
+        this("io:ref:", conf);
+    }
+
+    public RedisReferService(String prefix, WedisConfig conf) {
+        this.prefix = prefix;
         this.conf = conf;
     }
 
@@ -64,7 +71,6 @@ public class RedisReferService implements WnReferApi {
     }
 
     private String _KEY(String hid) {
-        String key = String.format("io:ref:%s", hid);
-        return key;
+        return this.prefix + hid;
     }
 }

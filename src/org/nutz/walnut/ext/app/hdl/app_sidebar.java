@@ -56,7 +56,7 @@ public class app_sidebar implements JvmHdl {
                     String json = sys.exec2(cmdText);
                     List<WnBean> objs = Json.fromJsonAsList(WnBean.class, json);
                     for (WnObj o : objs) {
-                        o.setTree(sys.io);
+                        ((WnBean) o).setTree(sys.io);
 
                         // 进一步检查侧边栏项目权限
                         if (__can_show(wc, o)) {

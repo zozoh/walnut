@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.bm.local;
+package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +19,7 @@ import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnReferApi;
+import org.nutz.walnut.core.bm.AbstractIoBM;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -58,9 +59,9 @@ public class LocalIoBM extends AbstractIoBM {
 
     int bufferSize;
 
-    public LocalIoBM(String home,
+    public LocalIoBM(WnIoHandleManager handles,
+                     String home,
                      boolean autoCreate,
-                     WnIoHandleManager handles,
                      WnReferApi refers) {
         super(handles);
 
@@ -101,10 +102,10 @@ public class LocalIoBM extends AbstractIoBM {
             return true;
         }
         if (bm instanceof LocalIoBM) {
-            LocalIoBM lib = (LocalIoBM) bm;
-            if (!lib.dBucket.equals(dBucket))
+            LocalIoBM libm = (LocalIoBM) bm;
+            if (!libm.dBucket.equals(dBucket))
                 return false;
-            if (!lib.dSwap.equals(dSwap))
+            if (!libm.dSwap.equals(dSwap))
                 return false;
             // 嗯，那就是自己了
             return true;
@@ -122,23 +123,7 @@ public class LocalIoBM extends AbstractIoBM {
         if (Wn.S.isWriteOnly(mode)) {
             return new LocalIoWriteOnlyHandle(this);
         }
-        throw Er.create("e.io.bm.local.UnsupportMode", mode);
-    }
-
-    @Override
-    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) {
-        // 先搞一个句柄
-        WnIoHandle h = createHandle(mode);
-        h.setManager(handles);
-        h.setIndexer(indexer);
-        h.setObj(o);
-        h.setMode(mode);
-        h.setOffset(0);
-
-        // 只能有一个写,保存一下，不出错就成
-        handles.save(h);
-
-        return h;
+        throw Er.create("e.io.bm.localbm.NonsupportMode", mode);
     }
 
     @Override

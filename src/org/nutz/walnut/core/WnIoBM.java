@@ -65,8 +65,8 @@ public interface WnIoBM {
      * 
      * @param buckId
      *            桶ID
-     * @param String
-     *            referId 引用这个桶的目标ID，通常为 obj.id
+     * @param referId
+     *            引用这个桶的目标ID，通常为 obj.id
      * 
      * @return 当前目标还有多少引用。 0 表示这个对象被删除了
      */

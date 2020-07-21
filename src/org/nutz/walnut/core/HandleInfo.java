@@ -26,19 +26,36 @@ public class HandleInfo {
     private String targetId;
 
     /**
+     * 如果本对象是映射对象，那么这个字段存放其顶端映射对象的ID
+     * <p>
+     * 映射工厂接口需要这个ID以便获取这个映射的完整信息
+     */
+    private String homeId;
+
+    /**
      * 关联对象映射。以便持久化后，取回桶管理器和索引管理器实例
      */
     private String mount;
 
     /**
-     * 句柄创建时间
+     * 句柄游标偏移量的值
+     */
+    private long offset;
+
+    /**
+     * 句柄创建时间（绝对毫秒）
      */
     private long creatTime;
 
     /**
-     * 句柄游标偏移量的值
+     * 句柄生命周期（毫秒）
      */
-    private long offset;
+    private long timeout;
+
+    /**
+     * 句柄过期时间（绝对毫秒）
+     */
+    private long expiTime;
 
     public String getId() {
         return id;
@@ -64,20 +81,20 @@ public class HandleInfo {
         this.targetId = targetId;
     }
 
+    public String getHomeId() {
+        return homeId;
+    }
+
+    public void setHomeId(String homeId) {
+        this.homeId = homeId;
+    }
+
     public String getMount() {
         return mount;
     }
 
     public void setMount(String mount) {
         this.mount = mount;
-    }
-
-    public long getCreatTime() {
-        return creatTime;
-    }
-
-    public void setCreatTime(long creatTime) {
-        this.creatTime = creatTime;
     }
 
     public long getOffset() {
@@ -88,13 +105,47 @@ public class HandleInfo {
         this.offset = offset;
     }
 
+    public long getCreatTime() {
+        return creatTime;
+    }
+
+    public void setCreatTime(long creatTime) {
+        this.creatTime = creatTime;
+    }
+
+    public long getTimeout() {
+        return timeout;
+    }
+
+    public boolean hasTimeout() {
+        return timeout > 0;
+    }
+
+    public int getTimeoutInSecond() {
+        return (int) timeout / 1000;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    public long getExpiTime() {
+        return expiTime;
+    }
+
+    public void setExpiTime(long expiTime) {
+        this.expiTime = expiTime;
+    }
+
     public void updateBy(HandleInfo info) {
         this.id = info.id;
         this.mode = info.mode;
         this.targetId = info.targetId;
         this.mount = info.mount;
-        this.creatTime = info.creatTime;
         this.offset = info.offset;
+        this.creatTime = info.creatTime;
+        this.timeout = info.timeout;
+        this.expiTime = info.expiTime;
     }
 
     public Map<String, String> toStringMap() {
@@ -103,8 +154,17 @@ public class HandleInfo {
         map.put("mode", mode + "");
         map.put("targetId", targetId);
         map.put("mount", mount);
-        map.put("creatTime", creatTime + "");
         map.put("offset", offset + "");
+        map.put("creatTime", creatTime + "");
+        map.put("timeout", timeout + "");
+        map.put("expiTime", expiTime + "");
+        return map;
+    }
+
+    public Map<String, String> toStringTouchMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("timeout", timeout + "");
+        map.put("expiTime", expiTime + "");
         return map;
     }
 }

@@ -9,9 +9,9 @@ import org.nutz.walnut.api.auth.WnAccount;
 
 public interface WnObj extends NutBean {
 
-    WnTree tree();
-
-    WnObj setTree(WnTree tree);
+    // WnTree tree();
+    //
+    // WnObj setTree(WnTree tree);
 
     boolean isRootNode();
 

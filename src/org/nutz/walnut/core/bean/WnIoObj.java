@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.io;
+package org.nutz.walnut.core.bean;
 
 import java.util.List;
 import java.util.Map;
@@ -14,25 +14,25 @@ import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.util.Wn;
 
-public class WnBean extends NutMap implements WnObj {
+public class WnIoObj extends NutMap implements WnObj {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 这个索引管理器是当前对象对应的索引管理器
+     * <p>
+     * 为了能一直查找 Parent，索引管理器也应该有父子结构
+     */
+    private WnIoIndexer indexer;
 
-    private WnTree tree;
-
-    public WnTree tree() {
-        return tree;
+    public WnIoObj() {
+        super();
     }
 
-    public WnObj setTree(WnTree tree) {
-        this.tree = tree;
-        return this;
+    public void setIndexer(WnIoIndexer indexer) {
+        this.indexer = indexer;
     }
-
-    public WnBean() {}
 
     public NutMap toMap4Update(String regex) {
         NutMap map = new NutMap();
@@ -138,7 +138,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("ln");
     }
 
-    public WnBean link(String lid) {
+    public WnIoObj link(String lid) {
         this.setv("ln", lid);
         return this;
     }
@@ -166,7 +166,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("tp");
     }
 
-    public WnBean type(String tp) {
+    public WnIoObj type(String tp) {
         this.setOrRemove("tp", tp);
         return this;
     }
@@ -175,7 +175,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("mime");
     }
 
-    public WnBean mime(String mime) {
+    public WnIoObj mime(String mime) {
         this.setOrRemove("mime", mime);
         return this;
     }
@@ -206,7 +206,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("sha1");
     }
 
-    public WnBean sha1(String sha1) {
+    public WnIoObj sha1(String sha1) {
         this.setv("sha1", sha1);
         return this;
     }
@@ -245,7 +245,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("data");
     }
 
-    public WnBean data(String data) {
+    public WnIoObj data(String data) {
         this.setv("data", data);
         return this;
     }
@@ -265,7 +265,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getLong("len", 0);
     }
 
-    public WnBean len(long len) {
+    public WnIoObj len(long len) {
         this.put("len", len);
         return this;
     }
@@ -274,7 +274,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getInt("remain");
     }
 
-    public WnBean remain(int remain) {
+    public WnIoObj remain(int remain) {
         this.put("remain", remain);
         return this;
     }
@@ -283,7 +283,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("c");
     }
 
-    public WnBean creator(String creator) {
+    public WnIoObj creator(String creator) {
         this.setOrRemove("c", creator);
         return this;
     }
@@ -292,7 +292,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("m");
     }
 
-    public WnBean mender(String mender) {
+    public WnIoObj mender(String mender) {
         this.setOrRemove("m", mender);
         return this;
     }
@@ -301,7 +301,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("g");
     }
 
-    public WnBean group(String grp) {
+    public WnIoObj group(String grp) {
         this.setOrRemove("g", grp);
         return this;
     }
@@ -310,7 +310,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getInt("md");
     }
 
-    public WnBean mode(int md) {
+    public WnIoObj mode(int md) {
         this.setOrRemove("md", md);
         return this;
     }
@@ -319,7 +319,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("d0");
     }
 
-    public WnBean d0(String d0) {
+    public WnIoObj d0(String d0) {
         this.setv("d0", d0);
         return this;
     }
@@ -328,7 +328,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getString("d1");
     }
 
-    public WnBean d1(String d1) {
+    public WnIoObj d1(String d1) {
         this.setv("d1", d1);
         return this;
     }
@@ -344,7 +344,7 @@ public class WnBean extends NutMap implements WnObj {
         return Lang.array(d0, d1);
     }
 
-    public WnBean update(Map<? extends String, ? extends Object> map) {
+    public WnIoObj update(Map<? extends String, ? extends Object> map) {
         this.putAll(map);
         return this;
     }
@@ -355,9 +355,9 @@ public class WnBean extends NutMap implements WnObj {
         this.putAll(o);
 
         // 更新自己的私有属性
-        if (o instanceof WnBean) {
-            this.tree = ((WnBean) o).tree;
-            this._parent = ((WnBean) o)._parent;
+        if (o instanceof WnIoObj) {
+            this.indexer = ((WnIoObj) o).indexer;
+            this._parent = ((WnIoObj) o)._parent;
         } else {
             this._parent = o.parent();
         }
@@ -374,7 +374,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getArray("lbls", String.class);
     }
 
-    public WnBean labels(String[] lbls) {
+    public WnIoObj labels(String[] lbls) {
         this.setOrRemove("lbls", lbls);
         return this;
     }
@@ -383,7 +383,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getLong("ct", -1);
     }
 
-    public WnBean createTime(long ct) {
+    public WnIoObj createTime(long ct) {
         this.setOrRemove("ct", ct);
         return this;
     }
@@ -403,7 +403,7 @@ public class WnBean extends NutMap implements WnObj {
         return this.getLong("expi", -1);
     }
 
-    public WnBean expireTime(long expi) {
+    public WnIoObj expireTime(long expi) {
         this.setOrRemove("expi", expi);
         return this;
     }
@@ -434,15 +434,15 @@ public class WnBean extends NutMap implements WnObj {
         return this.getLong("nano");
     }
 
-    public WnBean nanoStamp(long nano) {
+    public WnIoObj nanoStamp(long nano) {
         this.setv("nano", nano);
         this.setv("lm", nano / 1000000L);
         return this;
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof WnBean) {
-            WnBean o = (WnBean) obj;
+        if (obj instanceof WnIoObj) {
+            WnIoObj o = (WnIoObj) obj;
             if (o.size() != size())
                 return false;
             for (String key : o.keySet()) {
@@ -592,10 +592,10 @@ public class WnBean extends NutMap implements WnObj {
     public WnObj parent() {
         if (null == _parent && hasParent()) {
             String pid = this.parentId();
-            if (this.tree == null) {
-                throw Lang.makeThrow("NPE tree: %s/%s > %s", pid, this.id(), this.name());
+            if (this.indexer == null) {
+                throw Lang.makeThrow("NPE indexer: %s/%s > %s", pid, this.id(), this.name());
             }
-            WnObj oP = tree.get(pid);
+            WnObj oP = indexer.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
                 throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
@@ -666,7 +666,7 @@ public class WnBean extends NutMap implements WnObj {
             return this;
         }
 
-        WnObj p = tree.isRoot(pid) ? tree.getRoot() : tree.get(pid);
+        WnObj p = indexer.isRoot(pid) ? indexer.getRoot() : indexer.get(pid);
 
         // 没有父，是不可能的
         if (null == p) {
@@ -716,39 +716,36 @@ public class WnBean extends NutMap implements WnObj {
 
     @Override
     public boolean isRWMeta() {
-        return getBoolean("__obj_meta_rw");
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj setRWMeta(boolean rwmeta) {
-        this.setv("__obj_meta_rw", rwmeta);
-        return this;
+        throw Lang.noImplement();
     }
 
     @Override
     public boolean hasRWMetaKeys() {
-        return has("__store_update_meta");
+        throw Lang.noImplement();
     }
 
     @Override
     public String getRWMetaKeys() {
-        return getString("__store_update_meta");
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj setRWMetaKeys(String regex) {
-        this.setv("__store_update_meta", regex);
-        return this;
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj clearRWMetaKeys() {
-        this.remove("__store_update_meta");
-        return this;
+        throw Lang.noImplement();
     }
 
     public WnObj clone() {
-        return new WnBean().update2(this);
+        return new WnIoObj().update2(this);
     }
 
 }

@@ -21,17 +21,9 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
 
     private WedisConfig conf;
 
-    /**
-     * 创建一个句柄的过期时间（秒）
-     * <p>
-     * 负数和0表示永不过期
-     */
-    private int timeout;
-
-    public RedisIoHandleManager(WnIoMappingFactory mappings, WedisConfig conf, int timeout) {
-        super(mappings);
+    public RedisIoHandleManager(WnIoMappingFactory mappings, int timeout, WedisConfig conf) {
+        super(mappings, timeout);
         this.conf = conf;
-        this.timeout = timeout;
     }
 
     @Override
@@ -48,23 +40,27 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
     }
 
     @Override
-    public void save(WnIoHandle h) {
+    public void doSave(WnIoHandle h) {
         String key = _KEY(h.getId());
         Wedis.run(conf, jed -> {
             Map<String, String> map = h.toStringMap();
             jed.hmset(key, map);
-            if (timeout > 0) {
-                jed.expire(key, timeout);
+            if (h.hasTimeout()) {
+                int du = h.getTimeoutInSecond();
+                jed.expire(key, du);
             }
         });
     }
 
     @Override
-    public void touch(String hid) {
-        String key = _KEY(hid);
-        if (timeout > 0) {
+    public void doTouch(WnIoHandle h) {
+        if (h.hasTimeout()) {
+            String key = _KEY(h.getId());
             Wedis.run(conf, jed -> {
-                jed.expire(key, timeout);
+                Map<String, String> map = h.toStringTouchMap();
+                jed.hmset(key, map);
+                int du = h.getTimeoutInSecond();
+                jed.expire(key, du);
             });
         }
     }

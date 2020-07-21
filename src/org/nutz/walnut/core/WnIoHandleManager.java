@@ -57,11 +57,12 @@ public interface WnIoHandleManager {
      *             已经有一个打开的写句柄
      */
     void save(WnIoHandle h);
-    
+
     /**
-     * @param hid
+     * @param h
+     *            句柄对象
      */
-    void touch(String hid);
+    void touch(WnIoHandle h);
 
     /**
      * 移除一个句柄对象

@@ -49,6 +49,13 @@ public abstract class WnIoHandle extends HandleInfo {
     }
 
     /**
+     * 更新自身过期时间
+     */
+    protected void touch() {
+        manager.touch(this);
+    }
+
+    /**
      * 读取到缓冲
      * 
      * @param buf

@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.bm.local;
+package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,7 +48,7 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
 
     @Override
     public int read(byte[] buf, int off, int len) throws IOException {
-        throw Er.create("e.io.bm.local.hdl.WriteOnly");
+        throw Er.create("e.io.bm.localbm.hdl.writeonly");
     }
 
     @Override
@@ -65,7 +65,7 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
             swapChan = swapOutput.getChannel();
         }
         // 更新自身过期时间
-        manager.touch(this.getId());
+        this.touch();
 
         // 写入
         ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
@@ -125,6 +125,11 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
                 buf.clear();
             }
         }
+        // 强制更新桶文件
+        try {
+            buckChan.force(true);
+        }
+        catch (Exception e) {}
         // 写入计数归零
         this.written = 0;
     }
@@ -143,6 +148,10 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
         }
 
         // 关闭交换文件，准备移动
+        try {
+            swapChan.force(true);
+        }
+        catch (Exception e) {}
         Streams.safeClose(swapChan);
         Streams.safeClose(swapOutput);
 

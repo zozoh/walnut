@@ -19,7 +19,6 @@ import org.nutz.lang.util.Region;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.WnRg;
@@ -352,10 +351,10 @@ public abstract class WnMongos {
         return ZMoDoc.NEW("id", id);
     }
 
-    public static WnObj toWnObj(DBObject doc) {
+    public static WnBean toWnObj(DBObject doc) {
         if (null == doc)
             return null;
-        WnObj o = ZMo.me().fromDocToMap(doc, WnBean.class);
+        WnBean o = ZMo.me().fromDocToMap(doc, WnBean.class);
         o.unset("_id");
         return o;
     }

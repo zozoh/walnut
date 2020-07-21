@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.bm.local;
+package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
 import org.nutz.walnut.core.WnIoHandle;

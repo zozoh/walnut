@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.bm.local;
+package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ public class LocalIoReadOnlyHandle extends LocalIoHandle {
             chan = input.getChannel();
         }
         // 更新自身过期时间
-        manager.touch(this.getId());
+        this.touch();
         // 包裹一下
         ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
         return chan.read(bb);
@@ -40,7 +40,7 @@ public class LocalIoReadOnlyHandle extends LocalIoHandle {
 
     @Override
     public void write(byte[] buf, int off, int len) throws IOException {
-        throw Er.create("e.io.bm.local.hdl.Readonly");
+        throw Er.create("e.io.bm.localbm.hdl.readonly");
     }
 
     @Override

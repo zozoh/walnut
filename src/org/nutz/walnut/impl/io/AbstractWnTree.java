@@ -64,7 +64,7 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     public void setRoot(WnObj root) {
-        root.setTree(this);
+        ((WnBean) root).setTree(this);
         this.root = root;
     }
 
@@ -104,14 +104,15 @@ public abstract class AbstractWnTree implements WnTree {
                 return null;
             if (objs.size() > 1)
                 throw Er.create("e.io.obj.get.shortid", id);
-            return objs.get(0).setTree(this);
+            WnBean bean = (WnBean) objs.get(0);
+            return bean.setTree(this);
         }
 
         // 如果是完整的 ID
         WnObj o = _get_my_node(id);
         if (null != o) {
             o.remove("ph");
-            o.setTree(this);
+            ((WnBean) o).setTree(this);
         }
         // 木有找到
         else {
@@ -247,7 +248,7 @@ public abstract class AbstractWnTree implements WnTree {
                 return null;
 
             // 设置节点
-            nd.setTree(this);
+            ((WnBean) nd).setTree(this);
             nd.setParent(p);
             nd.path(p.path()).appendPath(nd.name());
 
@@ -303,7 +304,7 @@ public abstract class AbstractWnTree implements WnTree {
             return null;
 
         // 设置节点
-        nd.setTree(this);
+        ((WnBean) nd).setTree(this);
         nd.setParent(p);
         nd.path(p.path()).appendPath(nd.name());
 
@@ -725,7 +726,7 @@ public abstract class AbstractWnTree implements WnTree {
 
             if (null != o1) {
                 o1.remove("ph");
-                o1.setTree(this);
+                ((WnBean) o1).setTree(this);
             }
             o = o1;
         }
@@ -896,7 +897,7 @@ public abstract class AbstractWnTree implements WnTree {
         final WnContext wc = Wn.WC();
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                o.setTree(tree);
+                ((WnBean)o).setTree(tree);
                 o = wc.whenAccess(o, true);
                 if (null == o)
                     return;

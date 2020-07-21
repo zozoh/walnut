@@ -10,10 +10,18 @@ import org.nutz.walnut.core.WnIoMappingFactory;
 
 public abstract class AbstractIoHandleManager implements WnIoHandleManager {
 
-    protected WnIoMappingFactory mappings;
+    private WnIoMappingFactory mappings;
 
-    public AbstractIoHandleManager(WnIoMappingFactory mappings) {
+    /**
+     * 创建一个句柄的过期时间（秒）
+     * <p>
+     * 负数和0表示永不过期
+     */
+    private int timeout;
+
+    public AbstractIoHandleManager(WnIoMappingFactory mappings, int timeout) {
         this.mappings = mappings;
+        this.timeout = timeout;
     }
 
     @Override
@@ -23,7 +31,7 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
             throw Er.create("e.io.hdl.noexists", hid);
         }
         // 取得映射
-        WnIoMapping mp = mappings.check(info.getMount());
+        WnIoMapping mp = mappings.check(info.getHomeId(), info.getMount());
 
         // 创建真实句柄类
         WnIoHandle h = mp.getBucketManager().createHandle(info.getMode());
@@ -32,9 +40,37 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
     }
 
     @Override
+    public void save(WnIoHandle h) {
+        long now = System.currentTimeMillis();
+        h.setCreatTime(now);
+        if (timeout > 0) {
+            long du = timeout * 1000;
+            long expi = now + du;
+            h.setTimeout(du);
+            h.setExpiTime(expi);
+        }
+        doSave(h);
+    }
+
+    protected abstract void doSave(WnIoHandle h);
+
+    @Override
+    public void touch(WnIoHandle h) {
+        long du = h.getTimeout();
+        if (du > 0) {
+            long now = System.currentTimeMillis();
+            long expi = now + du;
+            h.setExpiTime(expi);
+        }
+        doTouch(h);
+    }
+
+    protected abstract void doTouch(WnIoHandle h);
+
+    @Override
     public void setup(WnIoHandle h, HandleInfo info) {
         // 取得映射
-        WnIoMapping mp = mappings.check(info.getMount());
+        WnIoMapping mp = mappings.check(info.getHomeId(), info.getMount());
 
         // 更新字段
         h.updateBy(info);

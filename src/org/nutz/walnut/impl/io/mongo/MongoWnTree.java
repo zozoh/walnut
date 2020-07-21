@@ -14,6 +14,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.impl.io.AbstractWnTree;
+import org.nutz.walnut.impl.io.WnBean;
 
 import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
@@ -87,7 +88,7 @@ public class MongoWnTree extends AbstractWnTree {
                 }
                 // 获取对象
                 DBObject dbobj = cu.next();
-                WnObj o = WnMongos.toWnObj(dbobj);
+                WnBean o = WnMongos.toWnObj(dbobj);
                 o.setTree(this);
                 try {
                     callback.invoke(i++, o, count);

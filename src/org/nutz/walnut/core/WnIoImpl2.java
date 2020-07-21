@@ -42,8 +42,8 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public long copyData(WnObj a, WnObj b) {
-        WnIoMapping ma = mappings.check(a.mount());
-        WnIoMapping mb = mappings.check(b.mount());
+        WnIoMapping ma = mappings.check(a);
+        WnIoMapping mb = mappings.check(b);
         // 调试日志
         if (log.isDebugEnabled()) {
             log.debugf("copyData ma:%s, mb:%s",
@@ -108,7 +108,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public String open(WnObj o, int mode) {
-        WnIoMapping im = mappings.check(o.mount());
+        WnIoMapping im = mappings.check(o);
         WnIoHandle h = im.open(o, mode);
         return h.getId();
     }
@@ -183,7 +183,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void delete(WnObj o) {
-        WnIoMapping im = mappings.check(o.mount());
+        WnIoMapping im = mappings.check(o);
         im.delete(o);
     }
 
@@ -203,7 +203,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void trancate(WnObj o, long len) {
-        WnIoMapping im = mappings.check(o.mount());
+        WnIoMapping im = mappings.check(o);
         im.truncate(o, len);
     }
 
