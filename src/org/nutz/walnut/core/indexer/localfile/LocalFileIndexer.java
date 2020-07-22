@@ -1,10 +1,12 @@
 package org.nutz.walnut.core.indexer.localfile;
 
+import java.io.File;
 import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -13,9 +15,26 @@ import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
+    private File dHome;
+
+    protected LocalFileIndexer(WnObj root, MimeMap mimes, File home) {
+        super(root, mimes);
+        this.dHome = home;
+    }
+
     @Override
-    public boolean exists(WnObj p, String path) {
-        return false;
+    public WnObj checkById(String id) {
+        return super.checkById(id);
+    }
+
+    @Override
+    public WnObj check(WnObj p, String path) {
+        return super.check(p, path);
+    }
+
+    @Override
+    protected void _do_walk_children(WnObj p, Callback<WnObj> callback) {
+        super._do_walk_children(p, callback);
     }
 
     @Override

@@ -16,12 +16,14 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 
 public class WnIoImpl2 implements WnIo {
@@ -209,32 +211,40 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public boolean exists(WnObj p, String path) {
-        return false;
+        return null != fetch(p, path);
     }
 
     @Override
     public boolean existsId(String id) {
-        return false;
+        return indexer.existsId(id);
     }
 
     @Override
     public WnObj checkById(String id) {
-        return null;
+        // 直接来吧
+        WnObj o = this.get(id);
+        if (null == o) {
+            throw Er.create("e.io.obj.noexists", "id:" + id);
+        }
+        return o;
     }
 
     @Override
     public WnObj check(WnObj p, String path) {
-        return null;
+        WnObj o = fetch(p, path);
+        if (null == o)
+            throw Er.create("e.io.obj.noexists", path);
+        return o;
     }
 
     @Override
     public WnObj fetch(WnObj p, String path) {
-        return null;
+        return indexer.fetch(p, path);
     }
 
     @Override
     public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return null;
+        return indexer.fetch(p, paths, fromIndex, toIndex);
     }
 
     @Override
@@ -325,7 +335,19 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj get(String id) {
-        return null;
+        WnObjId oid = new WnObjId(id);
+        // 两段式 ID, 前段必有 mount
+        if (oid.hasHomeId()) {
+            WnObj oHome = this.indexer.checkById(oid.getHomeId());
+            if (!oHome.isMount()) {
+                throw Er.create("e.io.weirdid.HomeNotMount", id);
+            }
+            WnIoMapping mapping = mappings.check(oHome);
+            return mapping.checkById(oid.getMyId());
+        }
+
+        // 直接来吧
+        return this.indexer.get(id);
     }
 
     @Override
@@ -370,7 +392,16 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public long count(WnQuery q) {
-        return 0;
+        // 如果指定了父，且有映射，则尝试用对应的索引管理器
+        String pid = q.first().getString("pid");
+        WnObj p = this.checkById(pid);
+        if (p.isMount()) {
+            WnIoMapping mapping = mappings.check(p);
+            return mapping.count(q);
+        }
+
+        // 否则用根索引管理器
+        return this.indexer.count(q);
     }
 
     @Override

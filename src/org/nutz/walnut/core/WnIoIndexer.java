@@ -11,12 +11,12 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 
 public interface WnIoIndexer {
-    
-    
-
-    boolean exists(WnObj p, String path);
 
     boolean existsId(String id);
+
+    WnObj checkById(String id);
+
+    WnObj check(WnObj p, String path);
 
     WnObj fetch(WnObj p, String path);
 

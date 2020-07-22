@@ -29,8 +29,12 @@ public class WnIoMapping {
         return bm;
     }
 
-    public boolean exists(WnObj p, String path) {
-        return indexer.exists(p, path);
+    public WnObj checkById(String id) {
+        return indexer.checkById(id);
+    }
+
+    public WnObj check(WnObj p, String path) {
+        return indexer.check(p, path);
     }
 
     public boolean existsId(String id) {
