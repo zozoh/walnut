@@ -3,9 +3,8 @@ package org.nutz.walnut.core;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -21,8 +20,6 @@ public interface WnIoIndexer {
     WnObj fetch(WnObj p, String path);
 
     WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
-
-    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
     WnObj move(WnObj src, String destPath);
 
@@ -116,7 +113,11 @@ public interface WnIoIndexer {
 
     List<WnObj> query(WnQuery q);
 
+    int eachChild(WnObj o, Each<WnObj> callback);
+
     List<WnObj> getChildren(WnObj o, String name);
+
+    long countChildren(WnObj o);
 
     long count(WnQuery q);
 
@@ -131,4 +132,6 @@ public interface WnIoIndexer {
     WnObj pull(String id, String key, Object val, boolean returnNew);
 
     void pull(WnQuery query, String key, Object val);
+
+    MimeMap mimes();
 }

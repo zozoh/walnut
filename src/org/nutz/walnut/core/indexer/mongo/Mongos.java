@@ -359,7 +359,11 @@ class Mongos {
         if (null == doc)
             return null;
         WnIoObj o = ZMo.me().fromDocToMap(doc, WnIoObj.class);
-        o.unset("_id");
+        // 这里，为了之前的程序错误（有时候吧 ph存到集合里了），强制删除一下
+        if (null != o) {
+            o.remove("ph");
+            o.remove("_id");
+        }
         return o;
     }
 }

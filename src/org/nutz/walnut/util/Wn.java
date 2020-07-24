@@ -25,10 +25,8 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import org.nutz.lang.segment.Segment;
-import org.nutz.lang.segment.Segments;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -400,13 +398,7 @@ public abstract class Wn {
     }
 
     public static String evalName(String name, String id) {
-        Segment seg = Segments.create(name);
-        if (seg.hasKey()) {
-            Context c = Lang.context();
-            c.set("id", id);
-            name = seg.render(c).toString();
-        }
-        return name;
+        return Tmpl.exec(name, Lang.map("id", id));
     }
 
     public static WnContext WC() {

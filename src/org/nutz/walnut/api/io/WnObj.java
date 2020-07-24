@@ -19,6 +19,10 @@ public interface WnObj extends NutBean {
 
     WnObj id(String id);
 
+    String myId();
+
+    boolean hasMountHomeId();
+
     boolean hasWriteHandle();
 
     String getWriteHandle();

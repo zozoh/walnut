@@ -91,20 +91,58 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public WnObj id(String id) {
         setv("id", id);
+        _oid = null;
         return this;
+    }
+
+    @Override
+    public Object put(String key, Object value) {
+        if ("id".equals(key)) {
+            _oid = null;
+        }
+        return super.put(key, value);
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends Object> m) {
+        if (m.containsKey("id")) {
+            _oid = null;
+        }
+        super.putAll(m);
+    }
+
+    private WnObjId _oid;
+
+    private WnObjId OID() {
+        if (null == _oid) {
+            String id = this.id();
+            if (!Strings.isBlank(id)) {
+                _oid = new WnObjId(id);
+            } else {
+                return new WnObjId(null);
+            }
+        }
+        return _oid;
+    }
+
+    public String myId() {
+        return OID().getMyId();
+    }
+
+    public boolean hasMountHomeId() {
+        return OID().hasHomeId();
     }
 
     public boolean hasWriteHandle() {
-        return this.has("_write_handle");
+        throw Lang.noImplement();
     }
 
     public String getWriteHandle() {
-        return this.getString("_write_handle");
+        throw Lang.noImplement();
     }
 
     public WnObj setWriteHandle(String hid) {
-        this.setv("_write_handle", hid);
-        return this;
+        throw Lang.noImplement();
     }
 
     public boolean hasID() {
@@ -560,15 +598,11 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public String mountRootId() {
-        String mrid = getString("mrid");
-        if (null == mrid)
-            return this.isMount() ? id() : null;
-        return mrid;
+        return OID().getHomeId();
     }
 
     public WnObj mountRootId(String mrid) {
-        setv("mrid", mrid);
-        return this;
+        throw Lang.noImplement();
     }
 
     @Override

@@ -94,6 +94,15 @@ public class WnBean extends NutMap implements WnObj {
         return this;
     }
 
+    public String myId() {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public boolean hasMountHomeId() {
+        throw Lang.noImplement();
+    }
+
     public boolean hasWriteHandle() {
         return this.has("_write_handle");
     }

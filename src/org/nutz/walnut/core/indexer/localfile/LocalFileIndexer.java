@@ -11,91 +11,14 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.WnIoMappingFactory;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
-    private File dHome;
-
-    protected LocalFileIndexer(WnObj root, MimeMap mimes, File home) {
-        super(root, mimes);
-        this.dHome = home;
-    }
-
-    @Override
-    public WnObj checkById(String id) {
-        return super.checkById(id);
-    }
-
-    @Override
-    public WnObj check(WnObj p, String path) {
-        return super.check(p, path);
-    }
-
-    @Override
-    protected void _do_walk_children(WnObj p, Callback<WnObj> callback) {
-        super._do_walk_children(p, callback);
-    }
-
-    @Override
-    public boolean existsId(String id) {
-        return false;
-    }
-
-    @Override
-    public WnObj fetch(WnObj p, String path) {
-        return null;
-    }
-
-    @Override
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return null;
-    }
-
-    @Override
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {}
-
-    @Override
-    public WnObj move(WnObj src, String destPath) {
-        return null;
-    }
-
-    @Override
-    public WnObj move(WnObj src, String destPath, int mode) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm, boolean keepType) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm, int mode) {
-        return null;
-    }
-
-    @Override
-    public void set(WnObj o, String regex) {}
-
-    @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public int inc(String id, String key, int val, boolean returnNew) {
-        return 0;
+    protected LocalFileIndexer(WnObj root, WnIoMappingFactory mappings, MimeMap mimes) {
+        super(root, mappings, mimes);
     }
 
     @Override
@@ -124,21 +47,6 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public WnObj create(WnObj p, String path, WnRace race) {
-        return null;
-    }
-
-    @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        return null;
-    }
-
-    @Override
-    public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        return null;
-    }
-
-    @Override
     public void delete(WnObj o) {}
 
     @Override
@@ -147,43 +55,23 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public WnObj getOne(WnQuery q) {
-        return null;
-    }
-
-    @Override
-    public WnObj getRoot() {
-        return null;
-    }
-
-    @Override
-    public String getRootId() {
-        return null;
-    }
-
-    @Override
-    public boolean isRoot(String id) {
-        return false;
-    }
-
-    @Override
-    public boolean isRoot(WnObj o) {
-        return false;
-    }
-
-    @Override
     public int each(WnQuery q, Each<WnObj> callback) {
         return 0;
     }
 
     @Override
-    public List<WnObj> query(WnQuery q) {
-        return null;
+    public int eachChild(WnObj o, Each<WnObj> callback) {
+        return 0;
     }
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
         return null;
+    }
+
+    @Override
+    public long countChildren(WnObj o) {
+        return 0;
     }
 
     @Override
@@ -211,5 +99,30 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public void pull(WnQuery query, String key, Object val) {}
+
+    @Override
+    protected WnObj _create(WnObj o) {
+        return null;
+    }
+
+    @Override
+    protected WnObj _fetch_one_by_name(WnObj p, String name) {
+        return null;
+    }
+
+    @Override
+    protected WnObj _get_by_id(String id) {
+        return null;
+    }
+
+    @Override
+    protected void _set(String id, NutMap map) {}
+
+    @Override
+    protected WnIoObj _set_by(WnQuery q, NutMap map, boolean returnNew) {
+        return null;
+    }
+
+    
 
 }

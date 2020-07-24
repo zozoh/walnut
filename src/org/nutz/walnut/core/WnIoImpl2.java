@@ -7,11 +7,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -30,10 +34,19 @@ public class WnIoImpl2 implements WnIo {
 
     private static final Log log = Logs.get();
 
+    /**
+     * 根索引管理器
+     */
     private WnIoIndexer indexer;
 
+    /**
+     * 映射工厂类
+     */
     private WnIoMappingFactory mappings;
 
+    /**
+     * 句柄管理器
+     */
     private WnIoHandleManager handles;
 
     public WnIoImpl2(WnIoIndexer indexer, WnIoMappingFactory mappings, WnIoHandleManager handles) {
@@ -186,7 +199,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public void delete(WnObj o) {
         WnIoMapping im = mappings.check(o);
-        im.delete(o);
+        im.delete(o, false);
     }
 
     @Override
@@ -239,7 +252,11 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
-        return indexer.fetch(p, path);
+        if (path.startsWith("/")) {
+            p = null;
+        }
+        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+        return fetch(p, ss, 0, ss.length);
     }
 
     @Override
@@ -248,16 +265,106 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {}
+    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
+        // DEPTH_LEAF_FIRST
+        if (WalkMode.DEPTH_LEAF_FIRST == mode) {
+            __walk_DEPTH_LEAF_FIRST(p, callback);
+        }
+        // DEPTH_NODE_FIRST
+        else if (WalkMode.DEPTH_NODE_FIRST == mode) {
+            __walk_DEPATH_NODE_FIRST(p, callback);
+        }
+        // 广度优先
+        else if (WalkMode.BREADTH_FIRST == mode) {
+            __walk_BREADTH_FIRST(p, callback);
+        }
+        // 仅叶子节点
+        else if (WalkMode.LEAF_ONLY == mode) {
+            __walk_LEAF_ONLY(p, callback);
+        }
+        // 不可能
+        else {
+            throw Lang.impossible();
+        }
+    }
+
+    protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
+        List<WnObj> list = this.getChildren(p, null);
+        for (WnObj o : list) {
+            try {
+                callback.invoke(o);
+            }
+            catch (ExitLoop e) {
+                break;
+            }
+            catch (ContinueLoop e) {
+                continue;
+            }
+        }
+    }
+
+    private void __walk_LEAF_ONLY(WnObj p, final Callback<WnObj> callback) {
+        _do_walk_children(p, new Callback<WnObj>() {
+            public void invoke(WnObj nd) {
+                if (nd.isFILE())
+                    callback.invoke(nd);
+                else
+                    __walk_LEAF_ONLY(nd, callback);
+            }
+        });
+    }
+
+    private void __walk_BREADTH_FIRST(WnObj p, final Callback<WnObj> callback) {
+        final List<WnObj> list = new LinkedList<WnObj>();
+        _do_walk_children(p, new Callback<WnObj>() {
+            public void invoke(WnObj nd) {
+                callback.invoke(nd);
+                if (!nd.isFILE())
+                    list.add(nd);
+            }
+        });
+        for (WnObj nd : list)
+            __walk_BREADTH_FIRST(nd, callback);
+    }
+
+    private void __walk_DEPATH_NODE_FIRST(WnObj p, final Callback<WnObj> callback) {
+        _do_walk_children(p, new Callback<WnObj>() {
+            public void invoke(WnObj nd) {
+                callback.invoke(nd);
+                if (!nd.isFILE()) {
+                    __walk_DEPATH_NODE_FIRST(nd, callback);
+                }
+            }
+        });
+    }
+
+    private void __walk_DEPTH_LEAF_FIRST(WnObj p, final Callback<WnObj> callback) {
+        _do_walk_children(p, new Callback<WnObj>() {
+            public void invoke(WnObj nd) {
+                if (!nd.isFILE()) {
+                    __walk_DEPTH_LEAF_FIRST(nd, callback);
+                }
+                callback.invoke(nd);
+            }
+        });
+    }
 
     @Override
     public WnObj move(WnObj src, String destPath) {
-        return null;
+        if (src.isMount()) {
+            WnIoMapping mapping = mappings.check(src);
+            return mapping.move(src, destPath);
+        }
+        return indexer.move(src, destPath);
     }
 
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
-        return null;
+        if (src.isMount()) {
+            WnIoMapping mapping = mappings.check(src);
+            return mapping.move(src, destPath, mode);
+        }
+        return indexer.move(src, destPath, mode);
     }
 
     @Override
@@ -276,21 +383,64 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public void set(WnObj o, String regex) {}
+    public void set(WnObj o, String regex) {
+        if (o.isMount()) {
+            WnIoMapping mapping = mappings.check(o);
+            mapping.set(o, regex);
+        }
+        // 根
+        else {
+            indexer.set(o, regex);
+        }
+    }
 
     @Override
     public WnObj setBy(String id, NutMap map, boolean returnNew) {
-        return null;
+        WnObjId oid = new WnObjId(id);
+        // 两段式 ID, 前段必有 mount
+        if (oid.hasHomeId()) {
+            WnObj oHome = this.indexer.checkById(oid.getHomeId());
+            if (!oHome.isMount()) {
+                throw Er.create("e.io.weirdid.HomeNotMount", id);
+            }
+            WnIoMapping mapping = mappings.check(oHome);
+            return mapping.setBy(oid.getMyId(), map, returnNew);
+        }
+
+        // 直接来吧
+        return this.indexer.setBy(id, map, returnNew);
     }
 
     @Override
     public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
-        return null;
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObj p = this.checkById(pid);
+            if (p.isMount()) {
+                WnIoMapping mapping = mappings.check(p);
+                return mapping.setBy(q, map, returnNew);
+            }
+        }
+        // 采用根索引管理器
+        return indexer.setBy(q, map, returnNew);
     }
 
     @Override
     public int inc(String id, String key, int val, boolean returnNew) {
-        return 0;
+        WnObjId oid = new WnObjId(id);
+        // 两段式 ID, 前段必有 mount
+        if (oid.hasHomeId()) {
+            WnObj oHome = this.indexer.checkById(oid.getHomeId());
+            if (!oHome.isMount()) {
+                throw Er.create("e.io.weirdid.HomeNotMount", id);
+            }
+            WnIoMapping mapping = mappings.check(oHome);
+            return mapping.inc(oid.getMyId(), key, val, returnNew);
+        }
+
+        // 直接来吧
+        return this.indexer.inc(id, key, val, returnNew);
     }
 
     @Override
@@ -352,27 +502,37 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj getOne(WnQuery q) {
-        return null;
+        final WnObj[] re = new WnObj[1];
+        if (q == null)
+            q = new WnQuery();
+        q.limit(1);
+
+        each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length) {
+                re[0] = obj;
+            }
+        });
+        return re[0];
     }
 
     @Override
     public WnObj getRoot() {
-        return null;
+        return indexer.getRoot();
     }
 
     @Override
     public String getRootId() {
-        return null;
+        return indexer.getRootId();
     }
 
     @Override
     public boolean isRoot(String id) {
-        return false;
+        return indexer.isRoot(id);
     }
 
     @Override
     public boolean isRoot(WnObj o) {
-        return false;
+        return indexer.isRoot(o);
     }
 
     @Override
@@ -521,7 +681,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public MimeMap mimes() {
-        return null;
+        return indexer.mimes();
     }
 
     @Override

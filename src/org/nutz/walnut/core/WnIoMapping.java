@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -47,10 +48,6 @@ public class WnIoMapping {
 
     public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
         return indexer.fetch(p, paths, fromIndex, toIndex);
-    }
-
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
-        indexer.walk(p, callback, mode);
     }
 
     public WnObj move(WnObj src, String destPath) {
@@ -121,11 +118,27 @@ public class WnIoMapping {
         return indexer.createById(p, id, name, race);
     }
 
-    public void delete(WnObj o) {
-        indexer.delete(o);
-        if (o.hasData()) {
-            bm.remove(o.data(), o.id());
+    public void delete(WnObj o, boolean r) {
+        // 仅仅是文件
+        if(o.isFILE()) {
+            if (o.hasData()) {
+                bm.remove(o.data(), o.id());
+            }
+            indexer.delete(o);
+            return;
         }
+        
+        // 递归删除所有的子孙
+        if(r) {
+            
+        }
+        // 否则必须确保自身不为空
+        else if(this.hasChild(o)) {
+            throw Er.create("e.io.rm.NoEmptyDir");
+        }
+        
+        // 删除自身
+        indexer.delete(o);
     }
 
     public WnObj get(String id) {
