@@ -18,10 +18,14 @@ public abstract class AbstractWnSecurity implements WnSecurity {
     protected WnObj __eval_obj(WnObj o) {
         // 处理链接文件
         if (null != o && o.isLink()) {
-            String oldPath = o.path();
+            // 准备保持旧的几个关键字段信息
+            WnObj oldParent = o.parent();
+            String oldName = o.name();
+            // 展开链接文件
             o = Wn.real(o, io, new HashMap<String, WnObj>());
-            // 恢复节点的 path
-            o.path(oldPath);
+            // 恢复节点的 path，setParent 会自动设置(pid|d0|d1|ph)的
+            o.name(oldName);
+            o.setParent(oldParent);
         }
         return o;
     }

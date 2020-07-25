@@ -18,7 +18,8 @@ public abstract class WnIoMappingTest {
 
     @Test
     public void test() throws IOException {
-        WnObj o = im.create(null, "/a", WnRace.FILE);
+        WnIoIndexer indexer = im.getIndexer();
+        WnObj o = indexer.create(null, "/a", WnRace.FILE);
         WnIoHandle h = im.open(o, Wn.S.W);
         byte[] buf1 = "Hello".getBytes();
         h.write(buf1);

@@ -11,9 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
-import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -27,8 +25,10 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.core.bean.WnObjId;
+import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.core.bean.WnObjMapping;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 
 public class WnIoImpl2 implements WnIo {
 
@@ -37,7 +37,7 @@ public class WnIoImpl2 implements WnIo {
     /**
      * 根索引管理器
      */
-    private WnIoIndexer indexer;
+    // private WnIoIndexer indexer;
 
     /**
      * 映射工厂类
@@ -50,15 +50,17 @@ public class WnIoImpl2 implements WnIo {
     private WnIoHandleManager handles;
 
     public WnIoImpl2(WnIoIndexer indexer, WnIoMappingFactory mappings, WnIoHandleManager handles) {
-        this.indexer = indexer;
+        // this.indexer = indexer;
         this.mappings = mappings;
         this.handles = handles;
     }
 
+    // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
+    // 如果不在同样的映射桶内，则，只能通过流 copy 了
     @Override
     public long copyData(WnObj a, WnObj b) {
-        WnIoMapping ma = mappings.check(a);
-        WnIoMapping mb = mappings.check(b);
+        WnIoMapping ma = mappings.checkMapping(a);
+        WnIoMapping mb = mappings.checkMapping(b);
         // 调试日志
         if (log.isDebugEnabled()) {
             log.debugf("copyData ma:%s, mb:%s",
@@ -123,7 +125,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public String open(WnObj o, int mode) {
-        WnIoMapping im = mappings.check(o);
+        WnIoMapping im = mappings.checkMapping(o);
         WnIoHandle h = im.open(o, mode);
         return h.getId();
     }
@@ -196,9 +198,10 @@ public class WnIoImpl2 implements WnIo {
         return h.getOffset();
     }
 
+    // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
     @Override
     public void delete(WnObj o) {
-        WnIoMapping im = mappings.check(o);
+        WnIoMapping im = mappings.checkMapping(o);
         im.delete(o, false);
     }
 
@@ -218,18 +221,24 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void trancate(WnObj o, long len) {
-        WnIoMapping im = mappings.check(o);
+        WnIoMapping im = mappings.checkMapping(o);
         im.truncate(o, len);
     }
 
     @Override
     public boolean exists(WnObj p, String path) {
-        return null != fetch(p, path);
+        WnIoMapping im = mappings.checkMapping(p);
+        WnObj obj = im.getIndexer().fetch(p, path);
+        return null != obj;
     }
 
     @Override
     public boolean existsId(String id) {
-        return indexer.existsId(id);
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSubIndexer();
+
+        // 查询
+        return indexer.existsId(om.getMyId());
     }
 
     @Override
@@ -261,7 +270,150 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return indexer.fetch(p, paths, fromIndex, toIndex);
+        WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
+        // null 表示从根路径开始
+        if (null == p) {
+            p = mappings.getRoot();
+        }
+        // ................................................
+        // 尝试从后查找，如果有 id:xxx 那么就截断，因为前面的就木有意义了
+        for (int i = toIndex - 1; i >= fromIndex; i--) {
+            String nm = paths[i];
+            if (nm.startsWith("id:")) {
+                p = this.get(nm.substring(3));
+                if (null == p)
+                    return null;
+                fromIndex = i + 1;
+                break;
+            }
+        }
+        // ................................................
+        // 用尽路径元素了，则直接返回
+        if (fromIndex >= toIndex)
+            return p;
+        // ................................................
+        // 确保读取所有的父
+        p.loadParents(null, false);
+        // ................................................
+        // 得到节点检查的回调接口
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
+
+        // 检查权限或者展开链接目录
+        if (null != secu) {
+            p = secu.enter(p, false);
+        }
+
+        // 确保是目录
+        if (!p.isDIR()) {
+            p = p.parent();
+        }
+        // ................................................
+        // 处理挂载节点
+        if (p.isMount()) {
+            WnIoMapping mapping = mappings.checkMapping(p);
+            return mapping.getIndexer().fetch(p, paths, fromIndex, toIndex);
+        }
+        // ................................................
+        // 逐个进入目标节点的父
+        WnObj nd;
+        String nm;
+        int lastIndex = toIndex - 1;
+        for (int i = fromIndex; i < lastIndex; i++) {
+            // 因为支持回退上一级，所以有可能 p 为空
+            if (null == p) {
+                p = mappings.getRoot();
+            }
+
+            nm = paths[i];
+
+            // 就是当前
+            if (".".equals(nm)) {
+                continue;
+            }
+
+            // 回退一级
+            if ("..".equals(nm)) {
+                nd = p.parent();
+                p = nd;
+                continue;
+            }
+            // 子节点采用的通配符或者正则表达式
+            // - 通配符 "*" 会在 WnQuery 转成真正查询条件时，正则表达式化
+            if (nm.startsWith("^") || nm.contains("*")) {
+                WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
+                nd = Lang.first(this.query(q));
+            }
+            // 找子节点，找不到，就返回 null
+            else {
+                nd = globalIndexer.fetchByName(p, nm);
+            }
+
+            // 找不到了，就返回
+            if (null == nd)
+                return null;
+
+            // 设置节点
+            nd.setParent(p);
+            nd.path(p.path()).appendPath(nd.name());
+
+            // 确保节点可进入
+            if (null != secu) {
+                nd = secu.enter(nd, false);
+            }
+
+            // 处理挂载节点
+            if (nd.isMount()) {
+                WnIoMapping mapping = mappings.checkMapping(nd);
+                return mapping.getIndexer().fetch(nd, paths, i + 1, toIndex);
+            }
+
+            // 指向下一个节点
+            p = nd;
+        }
+        // ................................................
+        // 最后再检查一下目标节点
+        nm = paths[lastIndex];
+
+        // 就是返回自己
+        if (nm.equals(".")) {
+            return p;
+        }
+
+        // 纯粹返回上一级
+        if (nm.equals("..")) {
+            return p.parent();
+        }
+
+        // 因为支持回退上一级，所以有可能 p 为空
+        if (null == p) {
+            p = mappings.getRoot();
+            ;
+        }
+
+        // 目标是通配符或正则表达式
+        if (nm.startsWith("^") || nm.contains("*")) {
+            WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
+            nd = Lang.first(this.query(q));
+        }
+        // 仅仅是普通名称
+        else {
+            nd = globalIndexer.fetchByName(p, nm);
+        }
+        // ................................................
+        // 最后，可惜，还是为空
+        if (null == nd)
+            return null;
+        // ................................................
+        // 设置节点
+        nd.setParent(p);
+        // ................................................
+        // 确保节点可以访问
+        nd = wc.whenAccess(nd, true);
+
+        // ................................................
+        // 搞定了，返回吧
+        return nd;
     }
 
     @Override
@@ -289,18 +441,14 @@ public class WnIoImpl2 implements WnIo {
     }
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
-        List<WnObj> list = this.getChildren(p, null);
-        for (WnObj o : list) {
-            try {
-                callback.invoke(o);
+        WnIoMapping mapping = mappings.checkMapping(p);
+        WnIoIndexer indexer = mapping.getIndexer();
+        Each<WnObj> looper = Wn.eachLooping(new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length) {
+                callback.invoke(obj);
             }
-            catch (ExitLoop e) {
-                break;
-            }
-            catch (ContinueLoop e) {
-                continue;
-            }
-        }
+        });
+        indexer.eachChild(p, looper);
     }
 
     private void __walk_LEAF_ONLY(WnObj p, final Callback<WnObj> callback) {
@@ -351,153 +499,265 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
-        if (src.isMount()) {
-            WnIoMapping mapping = mappings.check(src);
-            return mapping.move(src, destPath);
-        }
+        // TODO 这里还没考虑到在不同的映射间怎么移动的问题
+        WnObjMapping om = mappings.checkById(src.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
         return indexer.move(src, destPath);
     }
 
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
-        if (src.isMount()) {
-            WnIoMapping mapping = mappings.check(src);
-            return mapping.move(src, destPath, mode);
-        }
+        // TODO 这里还没考虑到在不同的映射间怎么移动的问题
+        WnObjMapping om = mappings.checkById(src.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
         return indexer.move(src, destPath, mode);
     }
 
     @Override
     public WnObj rename(WnObj o, String nm) {
-        return null;
+        WnObjMapping om = mappings.checkById(o.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.rename(o, nm);
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, boolean keepType) {
-        return null;
+        WnObjMapping om = mappings.checkById(o.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.rename(o, nm, keepType);
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        return null;
+        WnObjMapping om = mappings.checkById(o.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.rename(o, nm, mode);
     }
 
     @Override
     public void set(WnObj o, String regex) {
-        if (o.isMount()) {
-            WnIoMapping mapping = mappings.check(o);
-            mapping.set(o, regex);
-        }
-        // 根
-        else {
-            indexer.set(o, regex);
-        }
+        WnObjMapping om = mappings.checkById(o.id());
+        WnIoIndexer indexer = om.getSelfIndexer();
+        indexer.set(o, regex);
     }
 
     @Override
     public WnObj setBy(String id, NutMap map, boolean returnNew) {
-        WnObjId oid = new WnObjId(id);
-        // 两段式 ID, 前段必有 mount
-        if (oid.hasHomeId()) {
-            WnObj oHome = this.indexer.checkById(oid.getHomeId());
-            if (!oHome.isMount()) {
-                throw Er.create("e.io.weirdid.HomeNotMount", id);
-            }
-            WnIoMapping mapping = mappings.check(oHome);
-            return mapping.setBy(oid.getMyId(), map, returnNew);
-        }
-
-        // 直接来吧
-        return this.indexer.setBy(id, map, returnNew);
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.setBy(om.getMyId(), map, returnNew);
     }
 
     @Override
     public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+        // 声明了 ID 转到 setBy(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            return indexer.setBy(om.getMyId(), map, returnNew);
+        }
+
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObj p = this.checkById(pid);
-            if (p.isMount()) {
-                WnIoMapping mapping = mappings.check(p);
-                return mapping.setBy(q, map, returnNew);
-            }
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+            return indexer.setBy(q, map, returnNew);
         }
         // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
         return indexer.setBy(q, map, returnNew);
     }
 
     @Override
-    public int inc(String id, String key, int val, boolean returnNew) {
-        WnObjId oid = new WnObjId(id);
-        // 两段式 ID, 前段必有 mount
-        if (oid.hasHomeId()) {
-            WnObj oHome = this.indexer.checkById(oid.getHomeId());
-            if (!oHome.isMount()) {
-                throw Er.create("e.io.weirdid.HomeNotMount", id);
-            }
-            WnIoMapping mapping = mappings.check(oHome);
-            return mapping.inc(oid.getMyId(), key, val, returnNew);
-        }
+    public WnObj setBy(String id, String key, Object val, boolean returnNew) {
+        return this.setBy(id, Lang.map(key, val), returnNew);
+    }
 
-        // 直接来吧
-        return this.indexer.inc(id, key, val, returnNew);
+    @Override
+    public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
+        return this.setBy(q, Lang.map(key, val), returnNew);
+    }
+
+    @Override
+    public int inc(String id, String key, int val, boolean returnNew) {
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.inc(om.getMyId(), key, val, returnNew);
     }
 
     @Override
     public int inc(WnQuery q, String key, int val, boolean returnNew) {
-        return 0;
+        // 声明了 ID 转到 setBy(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            return indexer.inc(om.getMyId(), key, val, returnNew);
+        }
+
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+            return indexer.inc(q, key, val, returnNew);
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        return indexer.inc(q, key, val, returnNew);
     }
 
     @Override
     public int getInt(String id, String key, int dft) {
-        return 0;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.getInt(om.getMyId(), key, dft);
     }
 
     @Override
     public long getLong(String id, String key, long dft) {
-        return 0;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.getLong(om.getMyId(), key, dft);
     }
 
     @Override
     public String getString(String id, String key, String dft) {
-        return null;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.getString(om.getMyId(), key, dft);
     }
 
     @Override
     public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
-        return null;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.getAs(om.getMyId(), key, classOfT, dft);
     }
 
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {
-        return null;
+        // 是否从树的根部创建
+        if (path.startsWith("/")) {
+            p = this.getRoot();
+        }
+
+        // 分析路径
+        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+        String[] paths = new String[ss.length];
+        int len = 0;
+        for (String s : ss) {
+            // 回退
+            if ("..".equals(s)) {
+                len = Math.max(len - 1, 0);
+            }
+            // 当前
+            else if (".".equals(s)) {
+                continue;
+            }
+            // 增加
+            else {
+                paths[len++] = s;
+            }
+        }
+
+        // 创建
+        return create(p, paths, 0, len, race);
     }
 
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        return null;
+        // 默认从自己的根开始
+        if (null == p) {
+            p = this.getRoot();
+        }
+
+        // 准备创建
+        final int rightIndex = toIndex - 1;
+        final WnObj p0 = p;
+        final WnContext wc = Wn.WC();
+        final WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
+
+        // 创建所有的父
+        WnObj p1 = p0;
+        WnObj nd = null;
+        for (int i = fromIndex; i < rightIndex; i++) {
+            String name = paths[i];
+            nd = globalIndexer.fetchByName(p1, name);
+            // 确保节点可以进入
+            nd = wc.whenEnter(nd, false);
+
+            // 有节点的话继续下一个路径
+            if (null != nd) {
+                // 已经是映射了
+                if (nd.isMount()) {
+                    WnIoMapping mapping = mappings.checkMapping(nd);
+                    WnIoIndexer indexer = mapping.getIndexer();
+                    return indexer.create(nd, paths, i + 1, toIndex, race);
+                }
+                // 继续下一层路径
+                p1 = nd;
+                continue;
+            }
+            // 没有节点，创建目录节点Ï
+            for (; i < rightIndex; i++) {
+                p1 = globalIndexer.createById(p1, null, paths[i], WnRace.DIR);
+            }
+        }
+
+        // 创建自身节点
+        return createById(nd, null, paths[rightIndex], race);
     }
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        return null;
+        WnIoMapping mapping = mappings.checkMapping(p);
+        WnIoIndexer indexer = mapping.getIndexer();
+        return indexer.createById(p, id, name, race);
+    }
+
+    @Override
+    public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
+        WnIoMapping mapping = mappings.checkMapping(p);
+        WnIoIndexer indexer = mapping.getIndexer();
+        WnObj o = indexer.fetch(p, path);
+
+        // 存在就返回
+        if (null != o) {
+            // 种类冲突，不能忍啊
+            if (!o.isRace(race))
+                throw Er.create("e.io.create.invalid.race", path + " ! " + race);
+            return o;
+        }
+        // 不存在，就创建
+        return indexer.create(p, path, race);
+    }
+
+    @Override
+    public WnObj createIfExists(WnObj p, String path, WnRace race) {
+        WnIoMapping mapping = mappings.checkMapping(p);
+        WnIoIndexer indexer = mapping.getIndexer();
+        WnObj o = indexer.fetch(p, path);
+        // 如果存在，删了以便创建心的
+        if (null != o) {
+            mapping.delete(o, true);
+        }
+        // 先删除再创建
+        return indexer.create(p, path, race);
     }
 
     @Override
     public WnObj get(String id) {
-        WnObjId oid = new WnObjId(id);
-        // 两段式 ID, 前段必有 mount
-        if (oid.hasHomeId()) {
-            WnObj oHome = this.indexer.checkById(oid.getHomeId());
-            if (!oHome.isMount()) {
-                throw Er.create("e.io.weirdid.HomeNotMount", id);
-            }
-            WnIoMapping mapping = mappings.check(oHome);
-            return mapping.checkById(oid.getMyId());
-        }
-
-        // 直接来吧
-        return this.indexer.get(id);
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        WnObj o = indexer.get(om.getMyId());
+        return Wn.WC().whenAccess(o, true);
     }
 
     @Override
@@ -517,96 +777,204 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj getRoot() {
-        return indexer.getRoot();
+        return mappings.getRoot();
     }
 
     @Override
     public String getRootId() {
-        return indexer.getRootId();
+        return mappings.getRoot().id();
     }
 
     @Override
     public boolean isRoot(String id) {
-        return indexer.isRoot(id);
+        return mappings.getRoot().isSameId(id);
     }
 
     @Override
     public boolean isRoot(WnObj o) {
-        return indexer.isRoot(o);
+        return mappings.getRoot().isSameId(o);
     }
 
     @Override
     public int each(WnQuery q, Each<WnObj> callback) {
-        return 0;
+        // 声明了 ID 转到 get(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            WnObj o = indexer.get(id);
+            if (null == o) {
+                return 0;
+            }
+            callback.invoke(0, o, 1);
+            return 1;
+        }
+
+        // 准备回调
+        Each<WnObj> looper = Wn.eachLooping(callback);
+
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+            return indexer.each(q, looper);
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        return indexer.each(q, looper);
     }
 
     @Override
     public List<WnObj> query(WnQuery q) {
-        return null;
+        List<WnObj> list = new LinkedList<>();
+        this.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length) {
+                list.add(obj);
+            }
+        });
+        return list;
     }
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
-        return null;
+        // 确保解开了链接
+        o = Wn.WC().whenEnter(o, false);
+
+        // 查询
+        WnIoMapping mapping = mappings.checkMapping(o);
+        WnIoIndexer indexer = mapping.getIndexer();
+        return indexer.getChildren(o, name);
     }
 
     @Override
     public long count(WnQuery q) {
-        // 如果指定了父，且有映射，则尝试用对应的索引管理器
-        String pid = q.first().getString("pid");
-        WnObj p = this.checkById(pid);
-        if (p.isMount()) {
-            WnIoMapping mapping = mappings.check(p);
-            return mapping.count(q);
+        // 声明了 ID 转到 get(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            WnObj o = indexer.get(id);
+            if (null == o) {
+                return 0;
+            }
+            return 1;
         }
 
-        // 否则用根索引管理器
-        return this.indexer.count(q);
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+            return indexer.count(q);
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        return indexer.count(q);
     }
 
     @Override
     public boolean hasChild(WnObj p) {
-        return false;
+        WnQuery q = Wn.Q.pid(p);
+        long n = this.count(q);
+        return n > 0;
     }
 
     @Override
     public WnObj push(String id, String key, Object val, boolean returnNew) {
-        return null;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.push(om.getMyId(), key, val, returnNew);
     }
 
     @Override
-    public void push(WnQuery query, String key, Object val) {}
+    public void push(WnQuery q, String key, Object val) {
+        // 声明了 ID 转到 get(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            indexer.push(om.getMyId(), key, val, false);
+            return;
+        }
+
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+
+            indexer.push(q, key, val);
+            return;
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        indexer.push(q, key, val);
+    }
 
     @Override
     public WnObj pull(String id, String key, Object val, boolean returnNew) {
-        return null;
+        WnObjMapping om = mappings.checkById(id);
+        WnIoIndexer indexer = om.getSelfIndexer();
+        return indexer.pull(om.getMyId(), key, val, returnNew);
     }
 
     @Override
-    public void pull(WnQuery query, String key, Object val) {}
+    public void pull(WnQuery q, String key, Object val) {
+        // 声明了 ID 转到 get(id)
+        String id = q.first().getString("id");
+        if (!Strings.isBlank(id)) {
+            WnObjMapping om = mappings.checkById(id);
+            WnIoIndexer indexer = om.getSelfIndexer();
+            indexer.pull(om.getMyId(), key, val, false);
+            return;
+        }
 
-    @Override
-    public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
-        return null;
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObjMapping om = mappings.checkById(pid);
+            WnIoIndexer indexer = om.getSubIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", om.getMyId());
+
+            indexer.pull(q, key, val);
+            return;
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        indexer.pull(q, key, val);
     }
 
     @Override
-    public WnObj createIfExists(WnObj p, String path, WnRace race) {
-        return null;
+    public void setMount(WnObj o, String mnt) {
+        mnt = Strings.sBlank(mnt, null);
+        // 必须操作映射根节点
+        if (!o.isMount() || o.isSameId(o.mountRootId())) {
+            // 取消映射
+            if (null == mnt) {
+                if (o.isMount()) {
+                    appendMeta(o, new NutMap("!mnt", ""));
+                    o.remove("mnt");
+                }
+            }
+            // 设置映射
+            else {
+                o.setv("mnt", mnt);
+                set(o, "^mnt$");
+            }
+        }
+        // 否则抛个错
+        else {
+            throw Er.create("e.io.mount.NotRootNode", o.path());
+        }
     }
-
-    @Override
-    public WnObj setBy(String id, String key, Object val, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public void setMount(WnObj o, String mnt) {}
 
     @Override
     public void writeMeta(WnObj o, Object meta) {}
@@ -681,7 +1049,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public MimeMap mimes() {
-        return indexer.mimes();
+        return mappings.getGlobalIndexer().mimes();
     }
 
     @Override

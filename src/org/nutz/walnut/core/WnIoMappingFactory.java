@@ -1,6 +1,7 @@
 package org.nutz.walnut.core;
 
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.bean.WnObjMapping;
 
 public interface WnIoMappingFactory {
 
@@ -14,20 +15,38 @@ public interface WnIoMappingFactory {
      *            顶端映射对象ID。如果这个接口被调用，它不应该为 null
      * @param mount
      *            映射声明字符串
-     * @return 映射对象
+     * @return 子映射对象
      */
-    WnIoMapping check(String homeId, String mount);
+    WnIoMapping checkMapping(String homeId, String mount);
 
     /**
-     * 根据一个对象，获取其映射。
+     * 根据一个对象，获取其子映射。
      * <p>
      * 本函数是一个帮助函数，会自动获取对象的顶端映射对象ID，以及映射信息，<br>
-     * 并通过 {@link #check(String, String)} 获取映射对象
+     * 并通过 {@link #checkMapping(String, String)} 获取映射对象
      * 
      * @param obj
      *            某个对象
-     * @return 映射对象
+     * @return 子映射对象
      */
-    WnIoMapping check(WnObj obj);
+    WnIoMapping checkMapping(WnObj obj);
+
+    WnIoMapping getGlobalMapping();
+
+    WnIoIndexer getGlobalIndexer();
+
+    WnObj getRoot();
+
+    /**
+     * 根据一个两段式ID(<code>xxx:xxx</code>)获取一个映射对象
+     * <p>
+     * 如果不是两段式，则采用全局的索引管理器和桶管理器<br>
+     * 否则，第一段ID必须为映射的HOME对象，且可以由全局索引管理器获得
+     * 
+     * @param id
+     *            两段式 ID
+     * @return 映射信息对象（包括ID,obj以及mapping对象的组合）
+     */
+    WnObjMapping checkById(String id);
 
 }

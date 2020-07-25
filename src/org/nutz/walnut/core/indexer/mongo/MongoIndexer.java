@@ -18,14 +18,11 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnIoObj;
-import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 import org.nutz.walnut.impl.io.mongo.WnMongos;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnContext;
 
 import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
@@ -43,7 +40,7 @@ public class MongoIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    protected WnObj _fetch_one_by_name(WnObj p, String name) {
+    public WnObj fetchByName(WnObj p, String name) {
         ZMoDoc q = ZMoDoc.NEW("pid", p.id()).putv("nm", name);
         ZMoDoc doc = co.findOne(q);
         WnIoObj obj = Mongos.toWnObj(doc);
@@ -53,7 +50,6 @@ public class MongoIndexer extends AbstractIoIndexer {
         return obj;
     }
 
-    @Override
     protected WnObj _get_by_id(String id) {
         ZMoDoc q = WnMongos.qID(id);
         ZMoDoc doc = co.findOne(q);
@@ -215,13 +211,8 @@ public class MongoIndexer extends AbstractIoIndexer {
             return o;
         }
 
-        // 最后校验一下权限
-        return Wn.WC().whenAccess(o, true);
-    }
-
-    @Override
-    public int eachChild(WnObj o, Each<WnObj> callback) {
-        return 0;
+        // 搞定
+        return o;
     }
 
     @Override
@@ -233,8 +224,6 @@ public class MongoIndexer extends AbstractIoIndexer {
         // 准备查询
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : Mongos.toQueryDoc(q);
         DBCursor cu = co.find(qDoc);
-        final boolean autoPath = Wn.WC().isAutoPath();
-        final WnContext wc = Wn.WC();
 
         try {
             cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
@@ -256,15 +245,6 @@ public class MongoIndexer extends AbstractIoIndexer {
                 WnIoObj o = Mongos.toWnObj(dbobj);
                 o.setIndexer(this);
 
-                // 检查访问权限
-                o = (WnIoObj) wc.whenAccess(o, true);
-                if (null == o)
-                    continue;
-
-                // 确保有全路径
-                if (autoPath)
-                    o.path();
-
                 // 回调
                 try {
                     callback.invoke(i++, o, count);
@@ -284,25 +264,9 @@ public class MongoIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public List<WnObj> getChildren(WnObj o, String name) {
-        if (o == null)
-            o = root.clone();
-
-        // 确保解开了链接
-        o = Wn.WC().whenEnter(o, false);
-
-        // 挂载点
-        if (o.isMount()) {
-            WnIoMapping mapping = mappings.check(o);
-            return mapping.getChildren(o, name);
-        }
-
-        // 否则，直接查询子
-        WnQuery q = Wn.Q.pid(o);
-        if (null != name)
-            q.setv("nm", name);
-        q.asc("nm");
-        return query(q);
+    public int eachChild(WnObj o, Each<WnObj> callback) {
+        WnQuery q = Wn.Q.pid(o.myId());
+        return this.each(q, callback);
     }
 
     @Override

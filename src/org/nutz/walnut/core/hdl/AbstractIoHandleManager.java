@@ -31,7 +31,7 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
             throw Er.create("e.io.hdl.noexists", hid);
         }
         // 取得映射
-        WnIoMapping mp = mappings.check(info.getHomeId(), info.getMount());
+        WnIoMapping mp = mappings.checkMapping(info.getHomeId(), info.getMount());
 
         // 创建真实句柄类
         WnIoHandle h = mp.getBucketManager().createHandle(info.getMode());
@@ -70,13 +70,13 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
     @Override
     public void setup(WnIoHandle h, HandleInfo info) {
         // 取得映射
-        WnIoMapping mp = mappings.check(info.getHomeId(), info.getMount());
+        WnIoMapping mp = mappings.checkMapping(info.getHomeId(), info.getMount());
 
         // 更新字段
         h.updateBy(info);
 
         // 设置必要属性
-        WnObj o = mp.get(h.getTargetId());
+        WnObj o = mp.getIndexer().get(h.getTargetId());
         h.setManager(this);
         h.setObj(o);
         h.setIndexer(mp.getIndexer());

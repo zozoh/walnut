@@ -15,7 +15,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.WnIoIndexer;
-import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wn;
@@ -25,13 +24,13 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     protected WnObj root;
 
-    protected WnIoMappingFactory mappings;
+    // protected WnIoMappingFactory mappings;
 
     protected MimeMap mimes;
 
     protected AbstractIoIndexer(WnObj root, WnIoMappingFactory mappings, MimeMap mimes) {
         this.root = root;
-        this.mappings = mappings;
+        // this.mappings = mappings;
         this.mimes = mimes;
     }
 
@@ -107,12 +106,6 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
             p = p.parent();
         }
         // ................................................
-        // 处理挂载节点
-        if (p.isMount()) {
-            WnIoMapping mapping = mappings.check(p);
-            return mapping.fetch(p, paths, fromIndex, toIndex);
-        }
-        // ................................................
         // 逐个进入目标节点的父
         WnObj nd;
         String nm;
@@ -144,7 +137,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
             }
             // 找子节点，找不到，就返回 null
             else {
-                nd = this._fetch_one_by_name(p, nm);
+                nd = this.fetchByName(p, nm);
             }
 
             // 找不到了，就返回
@@ -158,12 +151,6 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
             // 确保节点可进入
             if (null != secu) {
                 nd = _enter_dir(nd, secu);
-            }
-
-            // 处理挂载节点
-            if (nd.isMount()) {
-                WnIoMapping mapping = mappings.check(nd);
-                return mapping.fetch(nd, paths, i + 1, toIndex);
             }
 
             // 指向下一个节点
@@ -195,7 +182,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         }
         // 仅仅是普通名称
         else {
-            nd = this._fetch_one_by_name(p, nm);
+            nd = this.fetchByName(p, nm);
         }
         // ................................................
         // 最后，可惜，还是为空
@@ -217,11 +204,24 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     @Override
     public List<WnObj> query(WnQuery q) {
         final List<WnObj> list = new LinkedList<WnObj>();
-        each(q, new Each<WnObj>() {
+        Each<WnObj> looper = Wn.eachLooping(new Each<WnObj>() {
             public void invoke(int index, WnObj obj, int length) {
                 list.add(obj);
             }
         });
+        this.each(q, looper);
+        return list;
+    }
+
+    @Override
+    public List<WnObj> getChildren(WnObj o, String name) {
+        final List<WnObj> list = new LinkedList<WnObj>();
+        Each<WnObj> looper = Wn.eachLooping(new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length) {
+                list.add(obj);
+            }
+        });
+        this.eachChild(o, looper);
         return list;
     }
 
@@ -292,6 +292,10 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
+        // 主目录
+        if (null == p)
+            p = root.clone();
+
         // 得到节点检查的回调接口
         WnContext wc = Wn.WC();
         WnSecurity secu = wc.getSecurity();
@@ -309,19 +313,8 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         // 展开名称
         name = Wn.evalName(name, id);
 
-        // 名称不能为空
-        if (Strings.isBlank(name)) {
-            throw Er.create("e.io.create.BlankName", p.path());
-        }
-
-        // 名称不能包括特殊符号
-        if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
-            throw Er.create("e.io.create.InvalidName", name + "@" + p.path());
-        }
-
-        // 主目录
-        if (null == p)
-            p = root.clone();
+        // 检查名称
+        Wn.assertValidName(name, p.path());
 
         // 文件下面不能再有子对象
         if (p.isFILE()) {
@@ -335,7 +328,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         }
 
         // 检查重名
-        if (null != this._fetch_one_by_name(p, name))
+        if (null != this.fetchByName(p, name))
             throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
 
         // 创建自身
@@ -395,6 +388,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     protected WnObj _enter_dir(WnObj o, WnSecurity secu) {
+        // 检查是否可以进入，同时如果是链接目录，将会被解开
         WnObj dir = secu.enter(o, false);
         // 肯定遇到了链接目录
         if (!dir.isSameId(o)) {
@@ -412,9 +406,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     protected abstract WnObj _create(WnObj o);
 
-    protected abstract WnObj _fetch_one_by_name(WnObj p, String name);
-
-    protected abstract WnObj _get_by_id(String id);
+    // protected abstract WnObj _get_by_id(String id);
 
     protected abstract void _set(String id, NutMap map);
 
@@ -435,6 +427,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
+        Wn.assertValidName(nm, o.path());
         String ph = o.path();
         ph = Files.renamePath(ph, nm);
         return move(o, ph, mode);
@@ -523,6 +516,11 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     @Override
     public void set(WnObj o, String regex) {
         NutMap map = o.toMap4Update(regex);
+
+        // 木有必要更新
+        if (map.isEmpty()) {
+            return;
+        }
 
         // 改名
         String nm = map.getString("nm");

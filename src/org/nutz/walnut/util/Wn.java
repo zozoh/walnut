@@ -17,9 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.LoopException;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -45,6 +48,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -399,6 +403,33 @@ public abstract class Wn {
 
     public static String evalName(String name, String id) {
         return Tmpl.exec(name, Lang.map("id", id));
+    }
+
+    public static void assertValidName(String name, String referPath) {
+        // 名称不能为空
+        if (Strings.isBlank(name)) {
+            throw Er.create("e.io.create.BlankName", referPath);
+        }
+        // 名称不能包括特殊符号
+        if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
+            throw Er.create("e.io.create.InvalidName", name + "@" + referPath);
+        }
+    }
+
+    public static Each<WnObj> eachLooping(Each<WnObj> callback) {
+        final WnContext wc = Wn.WC();
+        return new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length)
+                    throws ExitLoop, ContinueLoop, LoopException {
+                WnObj o = (WnIoObj) wc.whenAccess(obj, true);
+                if (null == o)
+                    Lang.Continue();
+                if (wc.isAutoPath()) {
+                    o.path();
+                }
+                callback.invoke(index, o, length);
+            }
+        };
     }
 
     public static WnContext WC() {

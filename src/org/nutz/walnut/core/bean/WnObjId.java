@@ -32,6 +32,10 @@ public class WnObjId {
         return null != homeId;
     }
 
+    public boolean isInSubMapping() {
+        return null != homeId;
+    }
+
     public String getHomeId() {
         return homeId;
     }

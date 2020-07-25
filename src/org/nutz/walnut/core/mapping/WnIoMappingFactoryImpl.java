@@ -2,11 +2,13 @@ package org.nutz.walnut.core.mapping;
 
 import java.util.Map;
 
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
+import org.nutz.walnut.core.bean.WnObjMapping;
 
 public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
 
@@ -31,7 +33,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     private Map<String, WnBMFactory> bms;
 
     @Override
-    public WnIoMapping check(String homeId, String mount) {
+    public WnIoMapping checkMapping(String homeId, String mount) {
         // 首先分析映射
         MountInfo mi = new MountInfo(mount);
 
@@ -64,17 +66,55 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     }
 
     @Override
-    public WnIoMapping check(WnObj obj) {
+    public WnIoMapping checkMapping(WnObj obj) {
         // 木有映射
         if (!obj.isMount()) {
-            return new WnIoMapping(globalIndexer, globalBM);
+            return getGlobalMapping();
         }
         // 获取其顶级映射
         String homeId = obj.mountRootId();
         String mount = obj.mount();
 
         // 返回
-        return check(homeId, mount);
+        return checkMapping(homeId, mount);
+    }
+
+    @Override
+    public WnObj getRoot() {
+        return this.globalIndexer.getRoot();
+    }
+
+    @Override
+    public WnIoMapping getGlobalMapping() {
+        return new WnIoMapping(globalIndexer, globalBM);
+    }
+
+    @Override
+    public WnIoIndexer getGlobalIndexer() {
+        return globalIndexer;
+    }
+
+    @Override
+    public WnObjMapping checkById(String id) {
+        WnObjMapping om = new WnObjMapping(id);
+        // 无论怎样，先设置一个全局映射
+        om.setGlobalMapping(this.getGlobalMapping());
+
+        // 两段式 ID，尝试获取子映射
+        if (om.hasHomeId()) {
+            WnObj oHome = globalIndexer.checkById(om.getHomeId());
+            if (!oHome.isMount()) {
+                throw Er.create("e.io.weirdid.HomeNotMount", id);
+            }
+            om.setHome(oHome);
+            WnIoMapping mapping = checkMapping(oHome);
+            om.setMapping(mapping);
+        }
+        // 非两段式ID
+        else {
+            om.setHome(globalIndexer.getRoot());
+        }
+        return om;
     }
 
 }

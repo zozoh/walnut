@@ -20,6 +20,8 @@ public interface WnIoIndexer {
     WnObj fetch(WnObj p, String path);
 
     WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
+    
+    WnObj fetchByName(WnObj p, String name);
 
     WnObj move(WnObj src, String destPath);
 
