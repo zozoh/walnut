@@ -1,5 +1,6 @@
 package org.nutz.walnut.core.mapping;
 
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoIndexer;
 
 public interface WnIndexerFactory {
@@ -7,8 +8,8 @@ public interface WnIndexerFactory {
     /**
      * 根据顶端映射对象（逐级查找遇到的第一个声明mnt的对象）获取一个索引管理器实例。
      * 
-     * @param homeId
-     *            顶端映射对象ID。如果这个接口被调用，它不应该为 null
+     * @param oHome
+     *            顶端映射对象。如果这个接口被调用，它不应该为 null
      * @param str
      *            一个关于索引管理器实现的配置字符串，除了不能包括<code>()</code>，其他随意，<br>
      *            由具体实现类自行理解起意义。<br>
@@ -18,6 +19,6 @@ public interface WnIndexerFactory {
      *            从而让索引管理器的创建具备更大的扩展性和可能性。
      * @return 索引管理器器的实现类
      */
-    WnIoIndexer load(String homeId, String str);
+    WnIoIndexer load(WnObj oHome, String str);
 
 }

@@ -9,10 +9,17 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import javax.imageio.ImageIO;
+
+import org.nutz.img.Images;
+import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
@@ -27,6 +34,8 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.bean.WnObjMapping;
+import org.nutz.walnut.core.stream.WnIoInputStream;
+import org.nutz.walnut.core.stream.WnIoOutputStream;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -543,6 +552,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj setBy(String id, NutMap map, boolean returnNew) {
+        __save_map_for_update_meta(map);
         WnObjMapping om = mappings.checkById(id);
         WnIoIndexer indexer = om.getSelfIndexer();
         return indexer.setBy(om.getMyId(), map, returnNew);
@@ -550,12 +560,11 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+        __save_map_for_update_meta(map);
         // 声明了 ID 转到 setBy(id)
         String id = q.first().getString("id");
         if (!Strings.isBlank(id)) {
-            WnObjMapping om = mappings.checkById(id);
-            WnIoIndexer indexer = om.getSelfIndexer();
-            return indexer.setBy(om.getMyId(), map, returnNew);
+            return this.setBy(id, map, returnNew);
         }
 
         // 如果声明了 pid ，则看看有木有映射
@@ -574,7 +583,8 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj setBy(String id, String key, Object val, boolean returnNew) {
-        return this.setBy(id, Lang.map(key, val), returnNew);
+        NutMap map = Lang.map(key, val);
+        return this.setBy(id, map, returnNew);
     }
 
     @Override
@@ -976,75 +986,210 @@ public class WnIoImpl2 implements WnIo {
         }
     }
 
-    @Override
-    public void writeMeta(WnObj o, Object meta) {}
+    @SuppressWarnings("unchecked")
+    private NutMap __any_to_map(Object meta) {
+        // 防守一下
+        if (null == meta)
+            return null;
+        // 转成 Map
+        NutMap map = null;
+        // 字符串
+        if (meta instanceof CharSequence) {
+            map = Json.fromJson(NutMap.class, meta.toString());
+        }
+        // 就是 Map
+        else if (meta instanceof Map) {
+            map = NutMap.WRAP((Map<String, Object>) meta);
+        }
+        // 其他的统统不支持
+        else {
+            throw Er.create("e.io.meta.unsupport", meta.getClass().getName());
+        }
 
-    @Override
-    public void appendMeta(WnObj o, Object meta) {}
+        return map;
+    }
 
-    @Override
-    public String readText(WnObj o) {
-        return null;
+    private void __save_map_for_update_meta(NutMap map) {
+        map.pickAndRemoveBy("^(ph|id|race|ct|d[0-9])$");
     }
 
     @Override
-    public BufferedImage readImage(WnObj o) {
-        return null;
+    public void writeMeta(WnObj o, Object meta) {
+        // 转换
+        NutMap map = __any_to_map(meta);
+
+        // 防守
+        if (null == map || map.isEmpty()) {
+            return;
+        }
+
+        // 循环对象
+        for (String key : o.keySet()) {
+            // id 等是绝对不可以改的
+            if (key.matches("^(ph|id|race|ct|lm|sha1|data|d[0-9])$")) {
+                continue;
+            }
+            // 如果不存在，就去掉，因为这是 write
+            if (!map.containsKey(key)) {
+                map.put("!" + key, true);
+            }
+        }
+
+        // 确保有最后修改时间
+        map.put("lm", System.currentTimeMillis());
+
+        // 执行写入
+        WnObj o2 = this.setBy(o.id(), map, true);
+        o.update(o2);
     }
 
     @Override
-    public long readAndClose(WnObj o, OutputStream ops) {
-        return 0;
-    }
+    public void appendMeta(WnObj o, Object meta) {
+        // 转换
+        NutMap map = __any_to_map(meta);
 
-    @Override
-    public <T> T readJson(WnObj o, Class<T> classOfT) {
-        return null;
-    }
+        // 防守
+        if (null == map || map.isEmpty()) {
+            return;
+        }
 
-    @Override
-    public long writeImage(WnObj o, RenderedImage im) {
-        return 0;
-    }
+        // 确保有最后修改时间
+        map.put("lm", System.currentTimeMillis());
 
-    @Override
-    public long writeText(WnObj o, CharSequence cs) {
-        return 0;
-    }
-
-    @Override
-    public long appendText(WnObj o, CharSequence cs) {
-        return 0;
-    }
-
-    @Override
-    public long writeJson(WnObj o, Object obj, JsonFormat fmt) {
-        return 0;
-    }
-
-    @Override
-    public long writeAndClose(WnObj o, InputStream ins) {
-        return 0;
-    }
-
-    @Override
-    public Reader getReader(WnObj o, long off) {
-        return null;
-    }
-
-    @Override
-    public Writer getWriter(WnObj o, long off) {
-        return null;
+        // 执行写入
+        WnObj o2 = this.setBy(o.id(), map, true);
+        o.update(o2);
     }
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
-        return null;
+        WnIoMapping im = mappings.checkMapping(o);
+        WnIoHandle h = im.open(o, Wn.S.R);
+        h.setOffset(off);
+        return new WnIoInputStream(h);
     }
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        return null;
+        WnIoMapping im = mappings.checkMapping(o);
+        WnIoHandle h = im.open(o, Wn.S.W);
+        h.setOffset(off);
+        return new WnIoOutputStream(h);
+    }
+
+    @Override
+    public String readText(WnObj o) {
+        InputStream ins = this.getInputStream(o, 0);
+        Reader r = Streams.buffr(Streams.utf8r(ins));
+        return Streams.readAndClose(r);
+    }
+
+    @Override
+    public BufferedImage readImage(WnObj o) {
+        InputStream ins = this.getInputStream(o, 0);
+        try {
+            return ImageIO.read(ins);
+        }
+        catch (IOException e) {
+            throw Er.create("e.io.read.img", o);
+        }
+        finally {
+            Streams.safeClose(ins);
+        }
+    }
+
+    @Override
+    public long readAndClose(WnObj o, OutputStream ops) {
+        InputStream ins = this.getInputStream(o, 0);
+        return Streams.writeAndClose(ops, ins);
+    }
+
+    @Override
+    public <T> T readJson(WnObj o, Class<T> classOfT) {
+        InputStream ins = this.getInputStream(o, 0);
+        Reader r = Streams.buffr(Streams.utf8r(ins));
+        try {
+            return Json.fromJson(classOfT, r);
+        }
+        finally {
+            Streams.safeClose(r);
+        }
+    }
+
+    @Override
+    public long writeImage(WnObj o, RenderedImage im) {
+        OutputStream ops = null;
+        try {
+            ops = this.getOutputStream(o, 0);
+            Images.write(im, o.type(), ops);
+            return o.len();
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
+    }
+
+    @Override
+    public long writeText(WnObj o, CharSequence cs) {
+        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        try (OutputStream ops = this.getOutputStream(o, 0)) {
+            ops.write(b);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        return o.len();
+    }
+
+    @Override
+    public long appendText(WnObj o, CharSequence cs) {
+        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        try (OutputStream ops = this.getOutputStream(o, -1)) {
+            ops.write(b);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        return o.len();
+    }
+
+    @Override
+    public long writeJson(WnObj o, Object obj, JsonFormat fmt) {
+        if (null == fmt)
+            fmt = JsonFormat.full().setQuoteName(true);
+
+        Object json = obj;
+        if (obj instanceof CharSequence) {
+            json = Json.fromJson(obj.toString());
+        }
+
+        OutputStream ops = this.getOutputStream(o, 0);
+        Writer w = Streams.buffw(Streams.utf8w(ops));
+        try {
+            Json.toJson(w, json, fmt);
+        }
+        finally {
+            Streams.safeClose(w);
+        }
+        return o.len();
+    }
+
+    @Override
+    public long writeAndClose(WnObj o, InputStream ins) {
+        OutputStream ops = this.getOutputStream(o, 0);
+        return Streams.writeAndClose(ops, ins);
+    }
+
+    @Override
+    public Reader getReader(WnObj o, long off) {
+        InputStream ins = this.getInputStream(o, off);
+        return Streams.utf8r(ins);
+    }
+
+    @Override
+    public Writer getWriter(WnObj o, long off) {
+        OutputStream ops = this.getOutputStream(o, off);
+        return Streams.utf8w(ops);
     }
 
     @Override

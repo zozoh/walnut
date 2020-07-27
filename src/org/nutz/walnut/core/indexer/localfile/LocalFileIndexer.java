@@ -1,217 +1,322 @@
 package org.nutz.walnut.core.indexer.localfile;
 
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
+import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.WnIoIndexer;
+import org.nutz.walnut.core.bean.WnLocalFileObj;
 
 public class LocalFileIndexer implements WnIoIndexer {
 
+    private MimeMap mimes;
+
+    private WnObj oHome;
+
+    private File dHome;
+
+    private String phHome;
+
+    public LocalFileIndexer(WnObj oHome, File dHome, MimeMap mimes) {
+        this.mimes = mimes;
+        this.oHome = oHome;
+        this.dHome = dHome;
+        this.phHome = dHome.getAbsolutePath();
+    }
+
+    private File __check_file_by(WnObj p) {
+        if (p instanceof WnLocalFileObj) {
+            WnLocalFileObj lp = (WnLocalFileObj) p;
+            File f = lp.getFile();
+            // 不在自己的范围内
+            String faph = f.getAbsolutePath();
+            if (faph.startsWith(this.phHome)) {
+                throw Er.create("e.io.localfile.OutOfHome", p.path());
+            }
+            return f;
+        }
+        throw Er.create("e.io.localfile.unacceptableParent", p.toString());
+    }
+
+    private WnLocalFileObj __gen_file_obj(File f) {
+        return new WnLocalFileObj(oHome, dHome, f, mimes);
+    }
+
     @Override
     public boolean existsId(String id) {
-        return false;
+        File f = Files.getFile(dHome, id);
+        return f.exists();
     }
 
     @Override
     public WnObj checkById(String id) {
-        return null;
+        WnObj o = this.get(id);
+        if (null == o) {
+            throw Er.create("e.io.noexists", id);
+        }
+        return o;
     }
 
     @Override
     public WnObj check(WnObj p, String path) {
-        return null;
+        WnObj o = this.fetch(p, path);
+        if (null == o) {
+            throw Er.create("e.io.noexists", path);
+        }
+        return o;
     }
 
     @Override
     public WnObj fetch(WnObj p, String path) {
-        return null;
+        File f = this.__check_file_by(p);
+        // 不是目录
+        if (!f.isDirectory()) {
+            throw Er.create("e.io.localfile.NotDir", p.path());
+        }
+        // 获取文件
+        File f2 = Files.getFile(f, path);
+        if (!f2.exists()) {
+            return null;
+        }
+        return __gen_file_obj(f2);
     }
 
     @Override
     public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return null;
+        int len = toIndex - fromIndex;
+        String path = Strings.join(fromIndex, len, "/", paths);
+        return fetch(p, path);
     }
 
     @Override
     public WnObj fetchByName(WnObj p, String name) {
-        return null;
+        return this.fetch(p, name);
     }
-
-    @Override
-    public WnObj move(WnObj src, String destPath) {
-        return null;
-    }
-
-    @Override
-    public WnObj move(WnObj src, String destPath, int mode) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm, boolean keepType) {
-        return null;
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm, int mode) {
-        return null;
-    }
-
-    @Override
-    public void set(WnObj o, String regex) {}
-
-    @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
-        return null;
-    }
-
-    @Override
-    public int inc(String id, String key, int val, boolean returnNew) {
-        return 0;
-    }
-
-    @Override
-    public int inc(WnQuery q, String key, int val, boolean returnNew) {
-        return 0;
-    }
-
-    @Override
-    public int getInt(String id, String key, int dft) {
-        return 0;
-    }
-
-    @Override
-    public long getLong(String id, String key, long dft) {
-        return 0;
-    }
-
-    @Override
-    public String getString(String id, String key, String dft) {
-        return null;
-    }
-
-    @Override
-    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
-        return null;
-    }
-
-    @Override
-    public WnObj create(WnObj p, String path, WnRace race) {
-        return null;
-    }
-
-    @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        return null;
-    }
-
-    @Override
-    public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        return null;
-    }
-
-    @Override
-    public void delete(WnObj o) {}
 
     @Override
     public WnObj get(String id) {
-        return null;
+        File f = Files.getFile(dHome, id);
+        if (!f.exists()) {
+            return null;
+        }
+        return __gen_file_obj(f);
     }
 
-    @Override
-    public WnObj getOne(WnQuery q) {
-        return null;
-    }
-
-    @Override
-    public WnObj getRoot() {
-        return null;
-    }
-
-    @Override
-    public String getRootId() {
-        return null;
-    }
-
-    @Override
-    public boolean isRoot(String id) {
-        return false;
-    }
-
-    @Override
-    public boolean isRoot(WnObj o) {
-        return false;
-    }
-
-    @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
-        return 0;
-    }
-
-    @Override
-    public List<WnObj> query(WnQuery q) {
-        return null;
-    }
+    //
+    // 遍历
+    //
 
     @Override
     public int eachChild(WnObj o, Each<WnObj> callback) {
-        return 0;
+        File f = this.__check_file_by(o);
+        if (f.isFile())
+            return 0;
+
+        File[] flist = f.listFiles();
+        for (int i = 0; i < flist.length; i++) {
+            File fi = flist[i];
+            WnObj ele = __gen_file_obj(fi);
+            callback.invoke(i, ele, flist.length);
+        }
+
+        return flist.length;
     }
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
-        return null;
+        List<WnObj> list = new LinkedList<>();
+        this.eachChild(o, new Each<WnObj>() {
+            public void invoke(int index, WnObj ele, int length) {
+                list.add(ele);
+            }
+        });
+        return list;
     }
 
     @Override
     public long countChildren(WnObj o) {
-        return 0;
-    }
-
-    @Override
-    public long count(WnQuery q) {
-        return 0;
+        File f = this.__check_file_by(o);
+        if (f.isFile())
+            return 0;
+        return f.list().length;
     }
 
     @Override
     public boolean hasChild(WnObj p) {
-        return false;
+        return countChildren(p) > 0;
+    }
+
+    //
+    // 简单获取根
+    //
+
+    @Override
+    public WnObj getRoot() {
+        return oHome;
+    }
+
+    @Override
+    public String getRootId() {
+        return oHome.id();
+    }
+
+    @Override
+    public boolean isRoot(String id) {
+        return oHome.isSameId(id);
+    }
+
+    @Override
+    public boolean isRoot(WnObj o) {
+        return oHome.isSameId(o);
+    }
+
+    //
+    // 下面的都暂时不实现
+    //
+
+    @Override
+    public WnObj move(WnObj src, String destPath) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj move(WnObj src, String destPath, int mode) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, boolean keepType) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, int mode) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public void set(WnObj o, String regex) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public int inc(String id, String key, int val, boolean returnNew) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public int inc(WnQuery q, String key, int val, boolean returnNew) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public int getInt(String id, String key, int dft) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public long getLong(String id, String key, long dft) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public String getString(String id, String key, String dft) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj create(WnObj p, String path, WnRace race) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj createById(WnObj p, String id, String name, WnRace race) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public void delete(WnObj o) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public WnObj getOne(WnQuery q) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public int each(WnQuery q, Each<WnObj> callback) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public List<WnObj> query(WnQuery q) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public long count(WnQuery q) {
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj push(String id, String key, Object val, boolean returnNew) {
-        return null;
+        throw Lang.noImplement();
     }
 
     @Override
-    public void push(WnQuery query, String key, Object val) {}
+    public void push(WnQuery query, String key, Object val) {
+        throw Lang.noImplement();
+    }
 
     @Override
     public WnObj pull(String id, String key, Object val, boolean returnNew) {
-        return null;
+        throw Lang.noImplement();
     }
 
     @Override
-    public void pull(WnQuery query, String key, Object val) {}
+    public void pull(WnQuery query, String key, Object val) {
+        throw Lang.noImplement();
+    }
 
     @Override
     public MimeMap mimes() {
-        return null;
+        return mimes;
     }
 
 }

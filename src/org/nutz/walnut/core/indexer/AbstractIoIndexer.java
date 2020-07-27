@@ -15,7 +15,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.WnIoIndexer;
-import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -28,9 +27,8 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     protected MimeMap mimes;
 
-    protected AbstractIoIndexer(WnObj root, WnIoMappingFactory mappings, MimeMap mimes) {
+    protected AbstractIoIndexer(WnObj root, MimeMap mimes) {
         this.root = root;
-        // this.mappings = mappings;
         this.mimes = mimes;
     }
 

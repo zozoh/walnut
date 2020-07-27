@@ -57,6 +57,8 @@ public class MountInfo {
                     bm.arg = bm.type;
                     bm.type = ix.type;
                 }
+                // 最后，索引管理器的参数也来一个咯
+                ix.arg = bm.arg;
             }
         }
     }

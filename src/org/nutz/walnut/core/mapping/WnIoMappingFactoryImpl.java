@@ -2,6 +2,7 @@ package org.nutz.walnut.core.mapping;
 
 import java.util.Map;
 
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
@@ -32,8 +33,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
      */
     private Map<String, WnBMFactory> bms;
 
-    @Override
-    public WnIoMapping checkMapping(String homeId, String mount) {
+    private WnIoMapping __check_mapping(WnObj oHome, String mount) {
         // 首先分析映射
         MountInfo mi = new MountInfo(mount);
 
@@ -48,7 +48,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         // 获取索引管理器
         else {
             WnIndexerFactory ixFa = indexers.get(mi.ix.type);
-            ix = ixFa.load(homeId, mi.ix.arg);
+            ix = ixFa.load(oHome, mi.ix.arg);
         }
 
         // 采用全局桶管理器
@@ -58,11 +58,23 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         // 获取桶管理器
         else {
             WnBMFactory bmFa = bms.get(mi.bm.type);
-            bm = bmFa.load(homeId, mi.bm.arg);
+            bm = bmFa.load(oHome, mi.bm.arg);
         }
 
         // 组合返回
         return new WnIoMapping(ix, bm);
+    }
+
+    @Override
+    public WnIoMapping checkMapping(String homeId, String mount) {
+        // 获取顶端映射对象
+        WnObj oHome = null;
+        if (!Strings.isBlank(homeId)) {
+            oHome = globalIndexer.checkById(homeId);
+        }
+
+        // 获取映射
+        return __check_mapping(oHome, mount);
     }
 
     @Override
@@ -74,6 +86,11 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         // 获取其顶级映射
         String homeId = obj.mountRootId();
         String mount = obj.mount();
+
+        // 自己就是顶端映射对象
+        if (obj.isSameId(homeId)) {
+            return __check_mapping(obj, mount);
+        }
 
         // 返回
         return checkMapping(homeId, mount);

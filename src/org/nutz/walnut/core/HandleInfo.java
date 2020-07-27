@@ -40,7 +40,7 @@ public class HandleInfo {
     /**
      * 句柄游标偏移量的值
      */
-    private long offset;
+    protected long offset;
 
     /**
      * 句柄创建时间（绝对毫秒）
@@ -163,6 +163,7 @@ public class HandleInfo {
 
     public Map<String, String> toStringTouchMap() {
         Map<String, String> map = new HashMap<>();
+        map.put("offset", offset + "");
         map.put("timeout", timeout + "");
         map.put("expiTime", expiTime + "");
         return map;

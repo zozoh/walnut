@@ -47,6 +47,11 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
     }
 
     @Override
+    public long skip(long n) throws IOException {
+        throw Lang.noImplement();
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         throw Er.create("e.io.bm.localbm.hdl.writeonly");
     }

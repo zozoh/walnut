@@ -39,6 +39,16 @@ public class LocalFileWriteHandle extends WnIoHandle {
     }
 
     @Override
+    public long skip(long n) throws IOException {
+        this.offset += n;
+        chan.position(this.offset);
+
+        this.touch();
+
+        return this.offset;
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         throw Er.create("e.io.bm.localfile.hdl.writeonly");
     }
@@ -46,7 +56,11 @@ public class LocalFileWriteHandle extends WnIoHandle {
     @Override
     public void write(byte[] buf, int off, int len) throws IOException {
         ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
-        chan.write(bb);
+        int re = chan.write(bb);
+
+        if (re > 0) {
+            this.offset += re;
+        }
 
         // 更新自身过期时间
         this.touch();

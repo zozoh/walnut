@@ -20,6 +20,16 @@ public class LocalIoReadOnlyHandle extends LocalIoHandle {
     }
 
     @Override
+    public long skip(long n) throws IOException {
+        this.offset += n;
+        chan.position(this.offset);
+
+        this.touch();
+
+        return this.offset;
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         if (null == input) {
             File buck = this.getBuckFile();
@@ -31,11 +41,20 @@ public class LocalIoReadOnlyHandle extends LocalIoHandle {
             input = new FileInputStream(buck);
             chan = input.getChannel();
         }
-        // 更新自身过期时间
-        this.touch();
+
         // 包裹一下
         ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
-        return chan.read(bb);
+
+        // 读取
+        int re = chan.read(bb);
+        if (re > 0) {
+            this.offset += re;
+        }
+
+        // 更新自身过期时间
+        this.touch();
+
+        return re;
     }
 
     @Override

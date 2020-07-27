@@ -18,7 +18,6 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 import org.nutz.walnut.impl.io.mongo.WnMongos;
@@ -34,8 +33,8 @@ public class MongoIndexer extends AbstractIoIndexer {
 
     private ZMoCo co;
 
-    protected MongoIndexer(WnObj root, WnIoMappingFactory mappings, MimeMap mimes, ZMoCo co) {
-        super(root, mappings, mimes);
+    protected MongoIndexer(WnObj root, MimeMap mimes, ZMoCo co) {
+        super(root, mimes);
         this.co = co;
     }
 

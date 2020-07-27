@@ -55,6 +55,8 @@ public abstract class WnIoHandle extends HandleInfo {
         manager.touch(this);
     }
 
+    public abstract long skip(long n) throws IOException;
+
     /**
      * 读取到缓冲
      * 

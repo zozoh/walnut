@@ -39,12 +39,31 @@ public class LocalFileReadHandle extends WnIoHandle {
     }
 
     @Override
-    public int read(byte[] buf, int off, int len) throws IOException {
-        // 更新自身过期时间
+    public long skip(long n) throws IOException {
+        this.offset += n;
+        chan.position(this.offset);
+
         this.touch();
+
+        return this.offset;
+    }
+
+    @Override
+    public int read(byte[] buf, int off, int len) throws IOException {
         // 填充缓冲
         ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
-        return chan.read(bb);
+
+        // 读取
+        int re = chan.read(bb);
+        if (re > 0) {
+            this.offset += re;
+        }
+
+        // 更新自身过期时间
+        this.touch();
+
+        // 返回
+        return re;
     }
 
     @Override

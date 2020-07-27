@@ -10,6 +10,12 @@ public class WnIoMapping {
     private WnIoBM bm;
 
     public WnIoMapping(WnIoIndexer indexer, WnIoBM bm) {
+        if (null == indexer) {
+            throw Er.create("e.io.mapping.nilIndexer");
+        }
+        if (null == bm) {
+            throw Er.create("e.io.mapping.nilBM");
+        }
         this.indexer = indexer;
         this.bm = bm;
     }

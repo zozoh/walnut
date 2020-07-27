@@ -522,7 +522,7 @@ public class WnIoObj extends NutMap implements WnObj {
     @Override
     public String getRegularPath() {
         String aph = this.path();
-        if (this.isDIR())
+        if (this.isDIR() && !aph.endsWith("/"))
             return aph + "/";
         return aph;
     }
