@@ -95,6 +95,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
                 }
                 // 删除索引
                 io.delete(oT);
+                output.add(oT);
             }
             // 标记为删除
             else {
