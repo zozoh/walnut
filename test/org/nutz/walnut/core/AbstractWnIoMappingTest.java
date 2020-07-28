@@ -1,6 +1,6 @@
 package org.nutz.walnut.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public abstract class WnIoMappingTest {
+public abstract class AbstractWnIoMappingTest {
 
     /**
      * 子类需要设置这个实例

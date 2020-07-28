@@ -15,12 +15,12 @@ public class MongoDB {
 
     private static final Log log = Logs.get();
 
-    private String host;
-    private int port;
-    private String usr;
-    private String pwd;
-    private String db;
-    private String uri;
+    public String host;
+    public int port;
+    public String usr;
+    public String pwd;
+    public String db;
+    public String uri;
 
     private ZMongo _zm;
     private ZMoDB _zdb;
@@ -38,7 +38,7 @@ public class MongoDB {
         } else {
             _zm = ZMongo.uri(uri);
         }
-        
+
         _zdb = _zm.db(db);
 
     }
@@ -54,4 +54,5 @@ public class MongoDB {
     public DB getRaw() {
         return _zdb.getNativeDB();
     }
+
 }

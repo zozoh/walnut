@@ -33,7 +33,7 @@ public class MongoIndexer extends AbstractIoIndexer {
 
     private ZMoCo co;
 
-    protected MongoIndexer(WnObj root, MimeMap mimes, ZMoCo co) {
+    public MongoIndexer(WnObj root, MimeMap mimes, ZMoCo co) {
         super(root, mimes);
         this.co = co;
     }

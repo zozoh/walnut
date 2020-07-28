@@ -267,9 +267,8 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
         // 创建所有的父
         WnObj p1 = p0;
-        WnObj nd = null;
         for (int i = fromIndex; i < rightIndex; i++) {
-            nd = fetch(p1, paths, i, i + 1);
+            WnObj nd = fetch(p1, paths, i, i + 1);
             // 确保节点可以进入
             nd = wc.whenEnter(nd, false);
 
@@ -285,7 +284,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         }
 
         // 创建自身节点
-        return createById(nd, null, paths[rightIndex], race);
+        return createById(p1, null, paths[rightIndex], race);
     }
 
     @Override

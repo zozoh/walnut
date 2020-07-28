@@ -696,10 +696,9 @@ public class WnIoImpl2 implements WnIo {
 
         // 创建所有的父
         WnObj p1 = p0;
-        WnObj nd = null;
         for (int i = fromIndex; i < rightIndex; i++) {
             String name = paths[i];
-            nd = globalIndexer.fetchByName(p1, name);
+            WnObj nd = globalIndexer.fetchByName(p1, name);
             // 确保节点可以进入
             nd = wc.whenEnter(nd, false);
 
@@ -722,7 +721,7 @@ public class WnIoImpl2 implements WnIo {
         }
 
         // 创建自身节点
-        return createById(nd, null, paths[rightIndex], race);
+        return createById(p1, null, paths[rightIndex], race);
     }
 
     @Override
@@ -995,7 +994,7 @@ public class WnIoImpl2 implements WnIo {
         NutMap map = null;
         // 字符串
         if (meta instanceof CharSequence) {
-            map = Json.fromJson(NutMap.class, meta.toString());
+            map = Lang.map(meta.toString());
         }
         // 就是 Map
         else if (meta instanceof Map) {
