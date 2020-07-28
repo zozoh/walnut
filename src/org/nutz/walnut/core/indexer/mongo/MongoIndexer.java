@@ -263,8 +263,11 @@ public class MongoIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public int eachChild(WnObj o, Each<WnObj> callback) {
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
         WnQuery q = Wn.Q.pid(o.myId());
+        if (null != name)
+            q.setv("nm", name);
+        q.asc("nm");
         return this.each(q, callback);
     }
 

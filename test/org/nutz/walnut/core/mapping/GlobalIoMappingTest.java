@@ -1,15 +1,15 @@
-package org.nutz.walnut.core.indexer.mongo;
+package org.nutz.walnut.core.mapping;
 
 import org.junit.After;
 import org.junit.Before;
-import org.nutz.walnut.core.AbstractWnIoIndexerTest;
+import org.nutz.walnut.core.AbstractWnIoMappingTest;
 
-public class MongoIndexerTest extends AbstractWnIoIndexerTest {
+public class GlobalIoMappingTest extends AbstractWnIoMappingTest {
 
     @Before
     public void setUp() throws Exception {
         this.setup.cleanAllData();
-        indexer = this.setup.getGlobalIndexer();
+        im = this.setup.getGlobalIoMapping();
     }
 
     @After

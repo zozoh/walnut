@@ -66,7 +66,7 @@ public class LocalIoWriteOnlyHandle extends LocalIoHandle {
         // 因为是第一次打开，所以就 "w" 就好，因为第一次 flush 会是直接移动文件的
         if (null == swap) {
             swap = bm.createSwapFile();
-            swapOutput = new RandomAccessFile(swap, "w");
+            swapOutput = new RandomAccessFile(swap, "rw");
             swapChan = swapOutput.getChannel();
         }
         // 更新自身过期时间

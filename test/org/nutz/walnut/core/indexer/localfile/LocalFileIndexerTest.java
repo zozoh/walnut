@@ -3,12 +3,16 @@ package org.nutz.walnut.core.indexer.localfile;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.AbstractIoCoreTest;
@@ -21,6 +25,7 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
 
     @Before
     public void setUp() throws Exception {
+        this.setup.cleanAllData();
         indexer = this.setup.getLocalFileIndexer();
         dHome = indexer.getFileHome();
 
@@ -68,10 +73,10 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
         assertFalse(o.isDIR());
 
         // 试试转换成 JSON
-        String json = Json.toJson(o);
+        String json = Json.toJson(o, JsonFormat.full());
         NutMap map0 = Json.fromJson(NutMap.class, json);
         NutMap map1 = o.toMap(null);
-        assertTrue(map0.equals(map1));
+        assertTrue(Lang.equals(map0, map1));
 
         //
         // 目录
@@ -85,10 +90,56 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
         assertFalse(o.isFILE());
         assertTrue(o.isDIR());
         // 试试转换成 JSON
-        json = Json.toJson(o);
+        json = Json.toJson(o, JsonFormat.full());
         map0 = Json.fromJson(NutMap.class, json);
         map1 = o.toMap(null);
-        assertTrue(map0.equals(map1));
+        assertTrue(Lang.equals(map0, map1));
+    }
+
+    /**
+     * 获取子
+     */
+    @Test
+    public void test_02() {
+        //
+        // 全部
+        //
+        WnObj p = indexer.fetch(null, "a/b");
+        List<WnObj> list = indexer.getChildren(p, null);
+        assertEquals(3, list.size());
+        // 确保一致排序
+        list.sort(new Comparator<WnObj>() {
+            public int compare(WnObj o1, WnObj o2) {
+                return o1.name().compareTo(o2.name());
+            }
+        });
+        // 校验
+        assertEquals("c.txt", list.get(0).name());
+        assertEquals("d.txt", list.get(1).name());
+        assertEquals("e.txt", list.get(2).name());
+
+        //
+        // 部分x2
+        //
+        list = indexer.getChildren(p, "^[cd]\\.txt$");
+        assertEquals(2, list.size());
+        // 确保一致排序
+        list.sort(new Comparator<WnObj>() {
+            public int compare(WnObj o1, WnObj o2) {
+                return o1.name().compareTo(o2.name());
+            }
+        });
+        // 校验
+        assertEquals("c.txt", list.get(0).name());
+        assertEquals("d.txt", list.get(1).name());
+
+        //
+        // 部分x1
+        //
+        list = indexer.getChildren(p, "!^[cd].txt$");
+        assertEquals(1, list.size());
+        // 校验
+        assertEquals("e.txt", list.get(0).name());
     }
 
 }

@@ -13,7 +13,17 @@ public class LocalFileBMFactory implements WnBMFactory {
 
     private WnIoHandleManager handles;
 
+    public LocalFileBMFactory() {}
+
     public LocalFileBMFactory(WnIoHandleManager handles) {
+        this.handles = handles;
+    }
+
+    public WnIoHandleManager getHandles() {
+        return handles;
+    }
+
+    public void setHandles(WnIoHandleManager handles) {
         this.handles = handles;
     }
 

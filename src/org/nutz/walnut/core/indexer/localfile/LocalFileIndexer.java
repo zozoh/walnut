@@ -9,6 +9,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.validate.NutValidate;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -31,7 +32,7 @@ public class LocalFileIndexer implements WnIoIndexer {
         this.mimes = mimes;
         this.oHome = oHome;
         this.dHome = dHome;
-        this.phHome = dHome.getAbsolutePath();
+        this.phHome = Files.getAbsPath(dHome);
     }
 
     public File getFileHome() {
@@ -46,8 +47,8 @@ public class LocalFileIndexer implements WnIoIndexer {
             WnLocalFileObj lp = (WnLocalFileObj) p;
             File f = lp.getFile();
             // 不在自己的范围内
-            String faph = f.getAbsolutePath();
-            if (faph.startsWith(this.phHome)) {
+            String faph = Files.getAbsPath(f);
+            if (!faph.startsWith(this.phHome)) {
                 throw Er.create("e.io.localfile.OutOfHome", p.path());
             }
             return f;
@@ -124,14 +125,28 @@ public class LocalFileIndexer implements WnIoIndexer {
     //
 
     @Override
-    public int eachChild(WnObj o, Each<WnObj> callback) {
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
         File f = this.__check_file_by(o);
         if (f.isFile())
             return 0;
 
+        // 过滤条件
+        NutValidate nv = null;
+        if (null != name) {
+            nv = new NutValidate(name);
+        }
+
         File[] flist = f.listFiles();
         for (int i = 0; i < flist.length; i++) {
             File fi = flist[i];
+            // 根据名称过滤
+            if (null != nv) {
+                String fnm = fi.getName();
+                if (!nv.match(fnm)) {
+                    continue;
+                }
+            }
+            // 生成对象
             WnObj ele = __gen_file_obj(fi);
             callback.invoke(i, ele, flist.length);
         }
@@ -142,7 +157,7 @@ public class LocalFileIndexer implements WnIoIndexer {
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
         List<WnObj> list = new LinkedList<>();
-        this.eachChild(o, new Each<WnObj>() {
+        this.eachChild(o, name, new Each<WnObj>() {
             public void invoke(int index, WnObj ele, int length) {
                 list.add(ele);
             }

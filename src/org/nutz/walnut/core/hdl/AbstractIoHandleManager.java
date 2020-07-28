@@ -1,5 +1,6 @@
 package org.nutz.walnut.core.hdl;
 
+import org.nutz.lang.random.R;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.HandleInfo;
@@ -48,6 +49,10 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
             long expi = now + du;
             h.setTimeout(du);
             h.setExpiTime(expi);
+        }
+        // 分配ID
+        if (!h.hasId()) {
+            h.setId(R.UU32());
         }
         doSave(h);
     }

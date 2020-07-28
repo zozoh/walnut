@@ -219,7 +219,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
                 list.add(obj);
             }
         });
-        this.eachChild(o, looper);
+        this.eachChild(o, name, looper);
         return list;
     }
 

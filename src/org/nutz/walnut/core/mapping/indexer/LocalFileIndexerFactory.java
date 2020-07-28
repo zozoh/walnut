@@ -14,6 +14,12 @@ public class LocalFileIndexerFactory implements WnIndexerFactory {
 
     private MimeMap mimes;
 
+    public LocalFileIndexerFactory() {}
+
+    public LocalFileIndexerFactory(MimeMap mimes) {
+        this.mimes = mimes;
+    }
+
     @Override
     public WnIoIndexer load(WnObj oHome, String str) {
         File dHome = Files.findFile(str);

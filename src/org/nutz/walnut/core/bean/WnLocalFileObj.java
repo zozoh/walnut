@@ -443,6 +443,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         return Json.toJson(map, jfmt);
     }
 
+    public String toString() {
+        return String.format("%s;ID(%s)<%s/%s>", path(), id(), creator(), group());
+    }
+
     @Override
     public boolean hasWriteHandle() {
         throw Lang.noImplement();

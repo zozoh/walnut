@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnIoMappingTest {
+public abstract class AbstractWnIoMappingTest extends AbstractIoCoreTest {
 
     /**
      * 子类需要设置这个实例

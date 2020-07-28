@@ -12,6 +12,12 @@ public class LocalIoBMFactory implements WnBMFactory {
 
     private Map<String, LocalIoBM> bms;
 
+    public LocalIoBMFactory() {}
+
+    public void setBms(Map<String, LocalIoBM> bms) {
+        this.bms = bms;
+    }
+
     @Override
     public WnIoBM load(WnObj oHome, String str) {
         LocalIoBM bm = bms.get(str);

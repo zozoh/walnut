@@ -134,4 +134,20 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         return om;
     }
 
+    public void setGlobalIndexer(WnIoIndexer globalIndexer) {
+        this.globalIndexer = globalIndexer;
+    }
+
+    public void setGlobalBM(WnIoBM globalBM) {
+        this.globalBM = globalBM;
+    }
+
+    public void setIndexers(Map<String, WnIndexerFactory> indexers) {
+        this.indexers = indexers;
+    }
+
+    public void setBms(Map<String, WnBMFactory> bms) {
+        this.bms = bms;
+    }
+
 }

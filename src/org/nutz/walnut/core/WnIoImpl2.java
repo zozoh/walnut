@@ -457,7 +457,7 @@ public class WnIoImpl2 implements WnIo {
                 callback.invoke(obj);
             }
         });
-        indexer.eachChild(p, looper);
+        indexer.eachChild(p, null, looper);
     }
 
     private void __walk_LEAF_ONLY(WnObj p, final Callback<WnObj> callback) {

@@ -20,7 +20,7 @@ public interface WnIoIndexer {
     WnObj fetch(WnObj p, String path);
 
     WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
-    
+
     WnObj fetchByName(WnObj p, String name);
 
     WnObj move(WnObj src, String destPath);
@@ -115,7 +115,7 @@ public interface WnIoIndexer {
 
     List<WnObj> query(WnQuery q);
 
-    int eachChild(WnObj o, Each<WnObj> callback);
+    int eachChild(WnObj o, String name, Each<WnObj> callback);
 
     List<WnObj> getChildren(WnObj o, String name);
 

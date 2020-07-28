@@ -3,6 +3,8 @@ package org.nutz.walnut.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.lang.Strings;
+
 /**
  * 一个句柄的纯信息类，比较方便持久化...呃，再想想
  * 
@@ -56,6 +58,10 @@ public class HandleInfo {
      * 句柄过期时间（绝对毫秒）
      */
     private long expiTime;
+
+    public boolean hasId() {
+        return !Strings.isBlank(id);
+    }
 
     public String getId() {
         return id;
@@ -153,7 +159,9 @@ public class HandleInfo {
         map.put("id", id);
         map.put("mode", mode + "");
         map.put("targetId", targetId);
-        map.put("mount", mount);
+        if (null != mount) {
+            map.put("mount", mount);
+        }
         map.put("offset", offset + "");
         map.put("creatTime", creatTime + "");
         map.put("timeout", timeout + "");

@@ -3,6 +3,7 @@ package org.nutz.walnut.core.hdl.redis;
 import java.util.Map;
 
 import org.nutz.lang.Lang;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.HandleInfo;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoMappingFactory;
@@ -41,6 +42,9 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
 
     @Override
     public void doSave(WnIoHandle h) {
+        if (!h.hasId()) {
+            throw Er.create("e.io.hdl.doSave.withoutID");
+        }
         String key = _KEY(h.getId());
         Wedis.run(conf, jed -> {
             Map<String, String> map = h.toStringMap();
