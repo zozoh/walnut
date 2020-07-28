@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.json.ToJson;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -17,6 +18,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
+@ToJson
 public class WnLocalFileObj extends NutMap implements WnObj {
 
     private WnObj oHome;
@@ -35,6 +37,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         this.oHome = oHome;
         this.dHome = dHome;
         this.file = f;
+        this.mimes = mimes;
         this.rph = Disks.getRelativePath(dHome, file);
         this._id = oHome.id() + ":" + rph;
     }
@@ -259,12 +262,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String type() {
-        return Files.getSuffixName(file);
+        if (this.isFILE())
+            return Files.getSuffixName(file);
+        return null;
     }
 
     @Override
     public String mime() {
-        return mimes.getMime(type());
+        if (this.isFILE())
+            return mimes.getMime(type());
+        return null;
     }
 
     @Override
@@ -319,7 +326,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String data() {
-        return "file://" + file.getAbsolutePath();
+        return "file://" + file.getAbsolutePath().replace('\\', '/');
     }
 
     @Override
@@ -412,10 +419,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         map.put("g", group());
         map.put("id", id());
         map.put("nm", name());
-        map.put("tp", type());
+
         map.put("ph", path());
         map.put("ct", createTime());
         map.put("lm", lastModified());
+        map.put("tp", type());
         map.put("d0", d0());
         map.put("d1", d1());
         map.put("md", mode());

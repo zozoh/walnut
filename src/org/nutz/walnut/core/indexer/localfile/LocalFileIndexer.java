@@ -34,7 +34,14 @@ public class LocalFileIndexer implements WnIoIndexer {
         this.phHome = dHome.getAbsolutePath();
     }
 
+    public File getFileHome() {
+        return dHome;
+    }
+
     private File __check_file_by(WnObj p) {
+        if (null == p) {
+            return dHome;
+        }
         if (p instanceof WnLocalFileObj) {
             WnLocalFileObj lp = (WnLocalFileObj) p;
             File f = lp.getFile();
