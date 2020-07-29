@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public abstract class AbstractWnIoMappingTest extends AbstractIoCoreTest {
+public abstract class AbstractWnIoMappingTest extends IoCoreTest {
 
     /**
      * 子类需要设置这个实例
@@ -17,7 +17,7 @@ public abstract class AbstractWnIoMappingTest extends AbstractIoCoreTest {
     protected WnIoMapping im;
 
     @Test
-    public void test() throws IOException {
+    public void test_00() throws IOException {
         WnIoIndexer indexer = im.getIndexer();
         WnObj o = indexer.create(null, "/a", WnRace.FILE);
         WnIoHandle h = im.open(o, Wn.S.W);

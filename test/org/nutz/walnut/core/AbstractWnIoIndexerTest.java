@@ -16,7 +16,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
-public abstract class AbstractWnIoIndexerTest extends AbstractIoCoreTest {
+public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
 
     /**
      * 子类需要设置这个实例

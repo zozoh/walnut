@@ -13,6 +13,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -692,7 +693,7 @@ public abstract class AbstractWnTree implements WnTree {
 
     protected abstract void _set(String id, NutMap map);
 
-    private void __format_set_by_map(NutMap map) {
+    private void __format_set_by_map(NutBean map) {
         if (null != map) {
             map.remove("nm");
             map.remove("pid");
@@ -700,12 +701,12 @@ public abstract class AbstractWnTree implements WnTree {
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
         return setBy(Wn.Q.id(id), map, returnNew);
     }
 
     @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         // 不支持改名和移动目录
         __format_set_by_map(map);
 
@@ -735,7 +736,7 @@ public abstract class AbstractWnTree implements WnTree {
         return o;
     }
 
-    protected abstract WnObj _set_by(WnQuery q, NutMap map, boolean returnNew);
+    protected abstract WnObj _set_by(WnQuery q, NutBean map, boolean returnNew);
 
     public int inc(String id, String key, int val, boolean returnNew) {
         return this.inc(Wn.Q.id(id), key, val, returnNew);

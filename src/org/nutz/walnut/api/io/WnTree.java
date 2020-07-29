@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.UnitTestable;
 
 public interface WnTree extends UnitTestable {
@@ -46,7 +46,7 @@ public interface WnTree extends UnitTestable {
      *            如果是 true 返回修改后的值
      * @return 修改前/后 对象
      */
-    WnObj setBy(String id, NutMap map, boolean returnNew);
+    WnObj setBy(String id, NutBean map, boolean returnNew);
 
     /**
      * 设置符合条件的某一对象的一组值，并直接返回设置前/后的对象元数据
@@ -59,7 +59,7 @@ public interface WnTree extends UnitTestable {
      *            如果是 true 返回修改后的值
      * @return 修改前/后 对象
      */
-    WnObj setBy(WnQuery q, NutMap map, boolean returnNew);
+    WnObj setBy(WnQuery q, NutBean map, boolean returnNew);
 
     /**
      * 返回修改前/后值

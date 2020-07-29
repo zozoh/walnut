@@ -23,16 +23,16 @@ import org.nutz.walnut.util.Wn;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WriteableLocalFileBM extends LocalFileBM {
+public class LocalFileWBM extends LocalFileBM {
 
-    public WriteableLocalFileBM(WnIoHandleManager handles, File home) {
+    public LocalFileWBM(WnIoHandleManager handles, File home) {
         super(handles, home);
     }
 
     @Override
     public boolean isSame(WnIoBM bm) {
         if (super.isSame(bm)) {
-            return (bm instanceof WriteableLocalFileBM);
+            return (bm instanceof LocalFileWBM);
         }
         return false;
     }
@@ -66,6 +66,7 @@ public class WriteableLocalFileBM extends LocalFileBM {
             raf = new RandomAccessFile(f, "w");
             chan = raf.getChannel();
             chan.truncate(len);
+            chan.force(false);
         }
         catch (Exception e) {
             throw Lang.wrapThrow(e);

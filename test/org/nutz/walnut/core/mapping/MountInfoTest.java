@@ -74,15 +74,15 @@ public class MountInfoTest {
         assertTrue(mi.hasIndexer());
         assertTrue(mi.hasBM());
         assertEquals("file", mi.ix.type);
-        assertNull(mi.ix.arg);
+        assertEquals("C:/data/demo/", mi.ix.arg);
         assertEquals("file", mi.bm.type);
         assertEquals("C:/data/demo/", mi.bm.arg);
-        
+
         mi = new MountInfo("filew://C:/data/demo/");
         assertTrue(mi.hasIndexer());
         assertTrue(mi.hasBM());
         assertEquals("filew", mi.ix.type);
-        assertNull(mi.ix.arg);
+        assertEquals("C:/data/demo/", mi.ix.arg);
         assertEquals("filew", mi.bm.type);
         assertEquals("C:/data/demo/", mi.bm.arg);
     }

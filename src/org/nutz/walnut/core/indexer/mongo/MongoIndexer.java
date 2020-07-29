@@ -8,6 +8,7 @@ import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -70,7 +71,7 @@ public class MongoIndexer extends AbstractIoIndexer {
         }
     }
 
-    private ZMoDoc __map_to_doc_for_update(NutMap map) {
+    private ZMoDoc __map_to_doc_for_update(NutBean map) {
         ZMoDoc doc = ZMoDoc.NEW();
 
         // 提炼字段
@@ -98,7 +99,7 @@ public class MongoIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    protected WnIoObj _set_by(WnQuery q, NutMap map, boolean returnNew) {
+    protected WnIoObj _set_by(WnQuery q, NutBean map, boolean returnNew) {
         WnIoObj o = null;
 
         // 更新或者创建

@@ -15,9 +15,10 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.AbstractIoCoreTest;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.IoCoreTest;
 
-public class LocalFileIndexerTest extends AbstractIoCoreTest {
+public class LocalFileIndexerTest extends IoCoreTest {
 
     private LocalFileIndexer indexer;
 
@@ -27,11 +28,6 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
     public void setUp() throws Exception {
         this.setup.cleanAllData();
         indexer = this.setup.getLocalFileIndexer();
-        dHome = indexer.getFileHome();
-
-        Files.createFileIfNoExists(Files.getFile(dHome, "a/b/c.txt"));
-        Files.createFileIfNoExists(Files.getFile(dHome, "a/b/d.txt"));
-        Files.createFileIfNoExists(Files.getFile(dHome, "a/b/e.txt"));
     }
 
     @After
@@ -44,6 +40,9 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
      */
     @Test
     public void test_00() {
+        indexer.create(null, "a/b/c.txt", WnRace.FILE);
+        indexer.create(null, "a/b/d.txt", WnRace.FILE);
+        indexer.create(null, "a/b/e.txt", WnRace.FILE);
         assertTrue(indexer.existsId("a"));
         assertTrue(indexer.existsId("a/b"));
         assertTrue(indexer.existsId("a/b/c.txt"));
@@ -60,6 +59,9 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
      */
     @Test
     public void test_01() {
+        indexer.create(null, "a/b/c.txt", WnRace.FILE);
+        indexer.create(null, "a/b/d.txt", WnRace.FILE);
+        indexer.create(null, "a/b/e.txt", WnRace.FILE);
         //
         // 目录
         //
@@ -101,6 +103,9 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
      */
     @Test
     public void test_02() {
+        indexer.create(null, "a/b/c.txt", WnRace.FILE);
+        indexer.create(null, "a/b/d.txt", WnRace.FILE);
+        indexer.create(null, "a/b/e.txt", WnRace.FILE);
         //
         // 全部
         //
@@ -140,6 +145,51 @@ public class LocalFileIndexerTest extends AbstractIoCoreTest {
         assertEquals(1, list.size());
         // 校验
         assertEquals("e.txt", list.get(0).name());
+    }
+
+    /**
+     * 删除
+     */
+    @Test
+    public void test_03() {
+        indexer.create(null, "a/b/c.txt", WnRace.FILE);
+        indexer.create(null, "a/b/d.txt", WnRace.FILE);
+        indexer.create(null, "a/b/e.txt", WnRace.FILE);
+        //
+        // 全部
+        //
+        WnObj p = indexer.fetch(null, "a/b");
+        WnObj o = indexer.fetchByName(p, "e.txt");
+        indexer.delete(o);
+        List<WnObj> list = indexer.getChildren(p, null);
+        assertEquals(2, list.size());
+        // 确保一致排序
+        list.sort(new Comparator<WnObj>() {
+            public int compare(WnObj o1, WnObj o2) {
+                return o1.name().compareTo(o2.name());
+            }
+        });
+        // 校验
+        assertEquals("c.txt", list.get(0).name());
+        assertEquals("d.txt", list.get(1).name());
+
+        //
+        // 部分x2
+        //
+        o = indexer.fetchByName(p, "c.txt");
+        indexer.delete(o);
+        list = indexer.getChildren(p, null);
+        assertEquals(1, list.size());
+        // 校验
+        assertEquals("d.txt", list.get(0).name());
+
+        //
+        // 部分x1
+        //
+        o = indexer.fetchByName(p, "d.txt");
+        indexer.delete(o);
+        list = indexer.getChildren(p, null);
+        assertEquals(0, list.size());
     }
 
 }

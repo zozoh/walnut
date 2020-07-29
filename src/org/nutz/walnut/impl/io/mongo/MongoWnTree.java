@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
@@ -137,7 +138,7 @@ public class MongoWnTree extends AbstractWnTree {
     }
 
     @Override
-    protected WnObj _set_by(WnQuery q, NutMap map, boolean returnNew) {
+    protected WnObj _set_by(WnQuery q, NutBean map, boolean returnNew) {
         WnObj o = null;
 
         // 必须得有条件
@@ -163,7 +164,7 @@ public class MongoWnTree extends AbstractWnTree {
         return o;
     }
 
-    private ZMoDoc __map_to_doc_for_update(NutMap map) {
+    private ZMoDoc __map_to_doc_for_update(NutBean map) {
         ZMoDoc doc = ZMoDoc.NEW();
 
         // 提炼字段

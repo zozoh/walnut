@@ -8,7 +8,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import org.nutz.validate.NutValidate;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
@@ -20,13 +20,13 @@ import org.nutz.walnut.core.bean.WnLocalFileObj;
 
 public class LocalFileIndexer implements WnIoIndexer {
 
-    private MimeMap mimes;
+    protected MimeMap mimes;
 
-    private WnObj oHome;
+    protected WnObj oHome;
 
-    private File dHome;
+    protected File dHome;
 
-    private String phHome;
+    protected String phHome;
 
     public LocalFileIndexer(WnObj oHome, File dHome, MimeMap mimes) {
         this.mimes = mimes;
@@ -39,7 +39,7 @@ public class LocalFileIndexer implements WnIoIndexer {
         return dHome;
     }
 
-    private File __check_file_by(WnObj p) {
+    protected File _check_file_by(WnObj p) {
         if (null == p) {
             return dHome;
         }
@@ -56,7 +56,7 @@ public class LocalFileIndexer implements WnIoIndexer {
         throw Er.create("e.io.localfile.unacceptableParent", p.toString());
     }
 
-    private WnLocalFileObj __gen_file_obj(File f) {
+    protected WnLocalFileObj _gen_file_obj(File f) {
         return new WnLocalFileObj(oHome, dHome, f, mimes);
     }
 
@@ -86,7 +86,7 @@ public class LocalFileIndexer implements WnIoIndexer {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
-        File f = this.__check_file_by(p);
+        File f = this._check_file_by(p);
         // 不是目录
         if (!f.isDirectory()) {
             throw Er.create("e.io.localfile.NotDir", p.path());
@@ -96,7 +96,7 @@ public class LocalFileIndexer implements WnIoIndexer {
         if (!f2.exists()) {
             return null;
         }
-        return __gen_file_obj(f2);
+        return _gen_file_obj(f2);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class LocalFileIndexer implements WnIoIndexer {
         if (!f.exists()) {
             return null;
         }
-        return __gen_file_obj(f);
+        return _gen_file_obj(f);
     }
 
     //
@@ -126,7 +126,7 @@ public class LocalFileIndexer implements WnIoIndexer {
 
     @Override
     public int eachChild(WnObj o, String name, Each<WnObj> callback) {
-        File f = this.__check_file_by(o);
+        File f = this._check_file_by(o);
         if (f.isFile())
             return 0;
 
@@ -147,7 +147,7 @@ public class LocalFileIndexer implements WnIoIndexer {
                 }
             }
             // 生成对象
-            WnObj ele = __gen_file_obj(fi);
+            WnObj ele = _gen_file_obj(fi);
             callback.invoke(i, ele, flist.length);
         }
 
@@ -167,7 +167,7 @@ public class LocalFileIndexer implements WnIoIndexer {
 
     @Override
     public long countChildren(WnObj o) {
-        File f = this.__check_file_by(o);
+        File f = this._check_file_by(o);
         if (f.isFile())
             return 0;
         return f.list().length;
@@ -237,12 +237,12 @@ public class LocalFileIndexer implements WnIoIndexer {
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
         throw Lang.noImplement();
     }
 
     @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         throw Lang.noImplement();
     }
 

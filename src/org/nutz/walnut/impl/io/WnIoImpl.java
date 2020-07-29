@@ -22,6 +22,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
@@ -97,7 +98,7 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
         WnObj o = tree.setBy(id, map, returnNew);
 
         // 处理元数据修改的后续事宜
@@ -108,7 +109,7 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         WnObj o = tree.setBy(q, map, returnNew);
 
         // 处理元数据修改的后续事宜
@@ -271,8 +272,8 @@ public class WnIoImpl implements WnIo {
         String nm = Files.getName(path);
         boolean rwmeta = false;
         if (nm.startsWith(Wn.OBJ_META_PREFIX)) {
-            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length())).replace('\\',
-                                                                                             '/');
+            path = Files.renamePath(path, nm.substring(Wn.OBJ_META_PREFIX.length()))
+                        .replace('\\', '/');
             rwmeta = true;
         }
 

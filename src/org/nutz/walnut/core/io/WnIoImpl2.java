@@ -1,4 +1,4 @@
-package org.nutz.walnut.core;
+package org.nutz.walnut.core.io;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -22,6 +22,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -33,6 +34,11 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleManager;
+import org.nutz.walnut.core.WnIoIndexer;
+import org.nutz.walnut.core.WnIoMapping;
+import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnObjMapping;
 import org.nutz.walnut.core.stream.WnIoInputStream;
 import org.nutz.walnut.core.stream.WnIoOutputStream;
@@ -44,11 +50,6 @@ public class WnIoImpl2 implements WnIo {
     private static final Log log = Logs.get();
 
     /**
-     * 根索引管理器
-     */
-    // private WnIoIndexer indexer;
-
-    /**
      * 映射工厂类
      */
     private WnIoMappingFactory mappings;
@@ -58,8 +59,7 @@ public class WnIoImpl2 implements WnIo {
      */
     private WnIoHandleManager handles;
 
-    public WnIoImpl2(WnIoIndexer indexer, WnIoMappingFactory mappings, WnIoHandleManager handles) {
-        // this.indexer = indexer;
+    public WnIoImpl2(WnIoMappingFactory mappings, WnIoHandleManager handles) {
         this.mappings = mappings;
         this.handles = handles;
     }
@@ -551,7 +551,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
         __save_map_for_update_meta(map);
         WnObjMapping om = mappings.checkById(id);
         WnIoIndexer indexer = om.getSelfIndexer();
@@ -559,7 +559,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         __save_map_for_update_meta(map);
         // 声明了 ID 转到 setBy(id)
         String id = q.first().getString("id");
@@ -986,15 +986,23 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @SuppressWarnings("unchecked")
-    private NutMap __any_to_map(Object meta) {
+    private NutBean __any_to_map(WnObj o, Object meta) {
         // 防守一下
         if (null == meta)
             return null;
         // 转成 Map
-        NutMap map = null;
+        NutBean map = null;
         // 字符串
         if (meta instanceof CharSequence) {
-            map = Lang.map(meta.toString());
+            String str = meta.toString();
+            // 是一个正则表达式
+            if (str.startsWith("!^") || str.startsWith("^")) {
+                map = o.pickBy(str);
+            }
+            // 当作 JSON
+            else {
+                map = Lang.map(str);
+            }
         }
         // 就是 Map
         else if (meta instanceof Map) {
@@ -1008,14 +1016,14 @@ public class WnIoImpl2 implements WnIo {
         return map;
     }
 
-    private void __save_map_for_update_meta(NutMap map) {
+    private void __save_map_for_update_meta(NutBean map) {
         map.pickAndRemoveBy("^(ph|id|race|ct|d[0-9])$");
     }
 
     @Override
     public void writeMeta(WnObj o, Object meta) {
         // 转换
-        NutMap map = __any_to_map(meta);
+        NutBean map = __any_to_map(o, meta);
 
         // 防守
         if (null == map || map.isEmpty()) {
@@ -1030,6 +1038,10 @@ public class WnIoImpl2 implements WnIo {
             }
             // 如果不存在，就去掉，因为这是 write
             if (!map.containsKey(key)) {
+                // 内置属性，不要去掉
+                if (key.matches("^(nm|pid|c|m|g|md|tp|mime|ln|mnt|expi|width|height)$"))
+                    continue;
+                // 非内置属性，去掉
                 map.put("!" + key, true);
             }
         }
@@ -1045,7 +1057,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public void appendMeta(WnObj o, Object meta) {
         // 转换
-        NutMap map = __any_to_map(meta);
+        NutBean map = __any_to_map(o, meta);
 
         // 防守
         if (null == map || map.isEmpty()) {

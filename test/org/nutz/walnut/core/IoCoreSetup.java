@@ -10,14 +10,18 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.io.MimeMap;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileBM;
+import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
 import org.nutz.walnut.core.indexer.localfile.LocalFileIndexer;
+import org.nutz.walnut.core.indexer.localfile.LocalFileWIndexer;
 import org.nutz.walnut.core.indexer.mongo.MongoIndexer;
+import org.nutz.walnut.core.io.WnIoImpl2;
 import org.nutz.walnut.core.mapping.WnBMFactory;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
 import org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl;
@@ -52,6 +56,8 @@ public class IoCoreSetup {
 
     private static WnReferApi refers;
 
+    private static WnIo io;
+
     static {
         // 测试配置初始化
         if (null == pp)
@@ -60,6 +66,16 @@ public class IoCoreSetup {
         // MimeMap 初始化
         if (null == mimes)
             mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
+    }
+
+    public WnIo getIo() {
+        if (null == io) {
+            WnIoMappingFactory mappings = this.getWnIoMappingFactory();
+            WnIoHandleManager handles = this.getWnIoHandleManager();
+            this.setupWnIoMappingFactory();
+            io = new WnIoImpl2(mappings, handles);
+        }
+        return io;
     }
 
     public void setupWnIoMappingFactory() {
@@ -148,7 +164,7 @@ public class IoCoreSetup {
         if (!dHome.exists()) {
             Files.createDirIfNoExists(dHome);
         }
-        return new LocalFileBM(handles, dHome);
+        return new LocalFileWBM(handles, dHome);
     }
 
     public LocalFileIndexer getLocalFileIndexer() {
@@ -157,7 +173,7 @@ public class IoCoreSetup {
             Files.createDirIfNoExists(dHome);
         }
         WnObj oHome = this.getRootNode();
-        return new LocalFileIndexer(oHome, dHome, mimes);
+        return new LocalFileWIndexer(oHome, dHome, mimes);
     }
 
     public File getLocalFileHome() {

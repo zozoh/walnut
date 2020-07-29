@@ -7,6 +7,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
@@ -407,7 +408,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
 
     protected abstract void _set(String id, NutMap map);
 
-    protected abstract WnIoObj _set_by(WnQuery q, NutMap map, boolean returnNew);
+    protected abstract WnIoObj _set_by(WnQuery q, NutBean map, boolean returnNew);
 
     @Override
     public WnObj rename(WnObj o, String nm) {
@@ -550,12 +551,12 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     @Override
-    public WnObj setBy(String id, NutMap map, boolean returnNew) {
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
         return setBy(Wn.Q.id(id), map, returnNew);
     }
 
     @Override
-    public WnObj setBy(WnQuery q, NutMap map, boolean returnNew) {
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         // 空条件
         if (null == q || q.isEmptyMatch()) {
             return null;
