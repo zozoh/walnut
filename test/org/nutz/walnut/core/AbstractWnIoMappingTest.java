@@ -27,11 +27,11 @@ public abstract class AbstractWnIoMappingTest extends AbstractIoCoreTest {
 
         h = im.open(o, Wn.S.R);
         byte[] buf2 = new byte[100];
-        h.read(buf2);
+        int n = h.read(buf2);
         h.close();
 
         String s1 = new String(buf1);
-        String s2 = new String(buf2);
+        String s2 = new String(buf2, 0, n);
         assertEquals(s1, s2);
     }
 

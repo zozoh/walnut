@@ -176,7 +176,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("ln");
     }
 
-    public WnIoObj link(String lid) {
+    public WnObj link(String lid) {
         this.setv("ln", lid);
         return this;
     }
@@ -204,7 +204,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("tp");
     }
 
-    public WnIoObj type(String tp) {
+    public WnObj type(String tp) {
         this.setOrRemove("tp", tp);
         return this;
     }
@@ -213,7 +213,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("mime");
     }
 
-    public WnIoObj mime(String mime) {
+    public WnObj mime(String mime) {
         this.setOrRemove("mime", mime);
         return this;
     }
@@ -237,14 +237,15 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasSha1() {
-        return !Strings.isBlank(sha1());
+        String sha1 = sha1();
+        return !Wn.Io.isEmptySha1(sha1);
     }
 
     public String sha1() {
         return this.getString("sha1");
     }
 
-    public WnIoObj sha1(String sha1) {
+    public WnObj sha1(String sha1) {
         this.setv("sha1", sha1);
         return this;
     }
@@ -276,34 +277,26 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasData() {
-        return !Strings.isBlank(data());
+        throw Lang.makeThrow("data not supported anymore");
     }
 
     public String data() {
-        return this.getString("data");
+        throw Lang.makeThrow("data not supported anymore");
     }
 
-    public WnIoObj data(String data) {
-        this.setv("data", data);
-        return this;
+    public WnObj data(String data) {
+        throw Lang.makeThrow("data not supported anymore");
     }
 
     public boolean isSameData(String data) {
-        String myData = data();
-        if (null == data)
-            return null == myData;
-
-        if (null == myData)
-            return false;
-
-        return myData.equals(data);
+        throw Lang.makeThrow("data not supported anymore");
     }
 
     public long len() {
         return this.getLong("len", 0);
     }
 
-    public WnIoObj len(long len) {
+    public WnObj len(long len) {
         this.put("len", len);
         return this;
     }
@@ -312,7 +305,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getInt("remain");
     }
 
-    public WnIoObj remain(int remain) {
+    public WnObj remain(int remain) {
         this.put("remain", remain);
         return this;
     }
@@ -321,7 +314,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("c");
     }
 
-    public WnIoObj creator(String creator) {
+    public WnObj creator(String creator) {
         this.setOrRemove("c", creator);
         return this;
     }
@@ -330,7 +323,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("m");
     }
 
-    public WnIoObj mender(String mender) {
+    public WnObj mender(String mender) {
         this.setOrRemove("m", mender);
         return this;
     }
@@ -339,7 +332,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("g");
     }
 
-    public WnIoObj group(String grp) {
+    public WnObj group(String grp) {
         this.setOrRemove("g", grp);
         return this;
     }
@@ -348,7 +341,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getInt("md");
     }
 
-    public WnIoObj mode(int md) {
+    public WnObj mode(int md) {
         this.setOrRemove("md", md);
         return this;
     }
@@ -357,7 +350,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("d0");
     }
 
-    public WnIoObj d0(String d0) {
+    public WnObj d0(String d0) {
         this.setv("d0", d0);
         return this;
     }
@@ -366,7 +359,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getString("d1");
     }
 
-    public WnIoObj d1(String d1) {
+    public WnObj d1(String d1) {
         this.setv("d1", d1);
         return this;
     }
@@ -382,7 +375,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return Lang.array(d0, d1);
     }
 
-    public WnIoObj update(Map<? extends String, ? extends Object> map) {
+    public WnObj update(Map<? extends String, ? extends Object> map) {
         this.putAll(map);
         return this;
     }
@@ -412,7 +405,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getArray("lbls", String.class);
     }
 
-    public WnIoObj labels(String[] lbls) {
+    public WnObj labels(String[] lbls) {
         this.setOrRemove("lbls", lbls);
         return this;
     }
@@ -421,7 +414,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getLong("ct", -1);
     }
 
-    public WnIoObj createTime(long ct) {
+    public WnObj createTime(long ct) {
         this.setOrRemove("ct", ct);
         return this;
     }
@@ -441,7 +434,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getLong("expi", -1);
     }
 
-    public WnIoObj expireTime(long expi) {
+    public WnObj expireTime(long expi) {
         this.setOrRemove("expi", expi);
         return this;
     }
@@ -472,7 +465,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return this.getLong("nano");
     }
 
-    public WnIoObj nanoStamp(long nano) {
+    public WnObj nanoStamp(long nano) {
         this.setv("nano", nano);
         this.setv("lm", nano / 1000000L);
         return this;

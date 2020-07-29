@@ -2,75 +2,38 @@ package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.bm.WnLocalReadHandle;
 
-public class LocalIoReadOnlyHandle extends LocalIoHandle {
+public class LocalIoReadOnlyHandle extends WnLocalReadHandle {
 
-    private FileInputStream input;
+    private LocalIoBM bm;
 
-    private FileChannel chan;
+    private InputStream ins;
 
     LocalIoReadOnlyHandle(LocalIoBM bm) {
-        super(bm);
+        this.bm = bm;
     }
 
-    @Override
-    public long skip(long n) throws IOException {
-        this.offset += n;
-        chan.position(this.offset);
-
-        this.touch();
-
-        return this.offset;
-    }
-
-    @Override
-    public int read(byte[] buf, int off, int len) throws IOException {
-        if (null == input) {
-            File buck = this.getBuckFile();
+    // 因为要考虑到滞后设置 obj，所以在第一次读取的时候，才初始化流
+    protected InputStream input() throws FileNotFoundException {
+        WnObj o = this.obj;
+        if (null != o && null == ins) {
             // 虚桶
-            if (!buck.exists()) {
-                return 0;
+            if (!o.hasSha1()) {
+                ins = Lang.ins("");
             }
-            // 准备吧
-            input = new FileInputStream(buck);
-            chan = input.getChannel();
+            // 获取文件
+            else {
+                File buck = bm.checkBucketFile(o.sha1());
+                ins = Streams.chan(new FileInputStream(buck));
+            }
         }
-
-        // 包裹一下
-        ByteBuffer bb = ByteBuffer.wrap(buf, off, len);
-
-        // 读取
-        int re = chan.read(bb);
-        if (re > 0) {
-            this.offset += re;
-        }
-
-        // 更新自身过期时间
-        this.touch();
-
-        return re;
+        return ins;
     }
 
-    @Override
-    public void write(byte[] buf, int off, int len) throws IOException {
-        throw Er.create("e.io.bm.localbm.hdl.readonly");
-    }
-
-    @Override
-    public void flush() {}
-
-    @Override
-    public void close() {
-        Streams.safeClose(chan);
-        Streams.safeClose(input);
-
-        // 删除句柄
-        manager.remove(this.getId());
-    }
 }

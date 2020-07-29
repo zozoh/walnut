@@ -294,19 +294,27 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         return myMime.equals(mime);
     }
 
-    @Override
     public boolean hasSha1() {
-        return false;
+        return !Strings.isBlank(sha1());
     }
 
-    @Override
     public String sha1() {
-        return null;
+        return this.getString("sha1");
     }
 
-    @Override
+    public WnObj sha1(String sha1) {
+        this.setv("sha1", sha1);
+        return this;
+    }
+
     public boolean isSameSha1(String sha1) {
-        return false;
+        String mySha1 = sha1();
+        if (null == sha1)
+            return null == mySha1;
+
+        if (null == mySha1)
+            return false;
+        return mySha1.equals(sha1);
     }
 
     @Override
@@ -317,28 +325,6 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public String thumbnail() {
         return null;
-    }
-
-    @Override
-    public boolean hasData() {
-        return true;
-    }
-
-    @Override
-    public String data() {
-        return "file://" + file.getAbsolutePath().replace('\\', '/');
-    }
-
-    @Override
-    public boolean isSameData(String data) {
-        String myData = data();
-        if (null == data)
-            return null == myData;
-
-        if (null == myData)
-            return false;
-
-        return myData.equals(data);
     }
 
     @Override
@@ -431,7 +417,6 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         map.put("mnt", oHome.mount());
         map.put("race", race());
         map.put("mime", mime());
-        map.put("data", data());
 
         if (null != regex)
             return map.pickBy(regex);
@@ -561,13 +546,23 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public WnObj sha1(String sha1) {
+    public WnObj thumbnail(String thumbnail) {
         throw Lang.noImplement();
     }
 
     @Override
-    public WnObj thumbnail(String thumbnail) {
-        throw Lang.noImplement();
+    public boolean hasData() {
+        throw Lang.makeThrow("data not supported anymore");
+    }
+
+    @Override
+    public String data() {
+        throw Lang.makeThrow("data not supported anymore");
+    }
+
+    @Override
+    public boolean isSameData(String data) {
+        throw Lang.makeThrow("data not supported anymore");
     }
 
     @Override

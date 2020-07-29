@@ -3,8 +3,6 @@ package org.nutz.walnut.core.bm.localbm;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Files;
@@ -146,7 +144,7 @@ public class LocalIoBM extends AbstractIoBM {
     @Override
     public long truncate(WnObj o, long len, WnIoIndexer indexer) {
         // 没有桶，剪裁个屁
-        if (!o.hasData()) {
+        if (!o.hasSha1()) {
             if (len != 0) {
                 throw Er.create("e.io.bm.trancate", "VirtualBucket to size(" + len + ")");
             }
@@ -157,131 +155,107 @@ public class LocalIoBM extends AbstractIoBM {
             return len;
         }
 
-        // 首先看看桶
-        String buckId = o.data();
-        long count = refers.count(buckId);
+        // 得到桶文件
+        File buck = this.checkBucketFile(o.sha1());
 
-        // 如果桶的引用多余一个，那么建立一个新的桶
-        if (count > 1) {
-            return truncateToNewBucket(o, len, indexer);
-        }
-        // 否则直接剪裁桶文件
-        if (count > 0) {
-            return truncateSelfBucket(o, len, indexer);
-        }
-        // 木有引用，那么就是虚桶咯
-        // 将一个虚桶剪裁到某个尺寸，臣妾做不到啊
-        if (len > 0) {
-            throw Er.create("e.io.bm.trancate", "VirtualBucket to size(" + len + ")");
-        }
-        return 0;
+        // 首先生成一个交换文件
+        File swap = this.createSwapFile();
 
-    }
-
-    private long truncateSelfBucket(WnObj o, long len, WnIoIndexer indexer) {
-        // 准备桶文件
-        String oldBuckId = o.data();
-        File fOldBucket = this.getBucketFile(oldBuckId);
-
-        // 剪裁到 0 了，那么就虚桶吧
-        if (0 == len) {
-            if (fOldBucket.exists())
-                fOldBucket.delete();
-            o.len(0).sha1(Wn.Io.EMPTY_SHA1);
-            indexer.set(o, "^(len|sha1)$");
-            return 0;
-        }
-
-        // 虚桶
-        if (!fOldBucket.exists()) {
-            throw Er.create("e.io.bm.trancate", "VirtualBucket to size(" + len + ")");
-        }
-
-        // 剪裁
-        FileOutputStream ops = null;
-        FileChannel chan = null;
         try {
-            ops = new FileOutputStream(fOldBucket);
-            chan = ops.getChannel();
-            chan.truncate(len);
-            chan.close();
-            Streams.safeClose(chan);
-            Streams.safeClose(ops);
-            chan = null;
-            ops = null;
-            String sha1 = Lang.sha1(fOldBucket);
-            o.len(fOldBucket.length()).sha1(sha1);
-            indexer.set(o, "^(len|sha1)$");
-            return o.len();
-        }
-        catch (Exception e) {
-            throw Lang.wrapThrow(e);
-        }
-        finally {
-            Streams.safeClose(chan);
-            Streams.safeClose(ops);
-        }
-    }
+            Files.copy(buck, swap);
 
-    private long truncateToNewBucket(WnObj o, long len, WnIoIndexer indexer) {
-        // 那么首先 建立个新桶文件
-        String newBuckId = this.genBuckId();
-
-        // 剪裁到 0 了，那么就虚桶吧
-        if (0 == len) {
-            o.data(newBuckId).len(0).sha1(Wn.Io.EMPTY_SHA1);
-            indexer.set(o, "^(data|len|sha1)$");
-            return 0;
-        }
-        // 准备桶文件
-        String oldBuckId = o.data();
-        File fOldBucket = this.getBucketFile(oldBuckId);
-        // 虚桶
-        if (!fOldBucket.exists()) {
-            throw Er.create("e.io.bm.trancate", "VirtualBucket to size(" + len + ")");
-        }
-
-        // 新的桶文件
-        File fNewBucket = this.getBucketFile(newBuckId);
-        fNewBucket = Files.createFileIfNoExists(fNewBucket);
-
-        // 完整 copy
-        if (len == o.len()) {
-            Files.copy(fOldBucket, fNewBucket);
-            o.data(newBuckId).len(len);
-        }
-        // copy 一部分
-        else {
-            InputStream ins = null;
-            OutputStream ops = null;
+            // 剪裁交换文件
+            FileOutputStream ops = null;
+            FileChannel chan = null;
             try {
-                ins = Streams.fileIn(fOldBucket);
-                ops = Streams.fileOut(fNewBucket);
-                long len2 = Streams.write(ops, ins, len, bufferSize);
-                Streams.safeClose(ins);
-                Streams.safeFlush(ops);
+                ops = new FileOutputStream(swap);
+                chan = ops.getChannel();
+                chan.truncate(len);
+                chan.close();
+                Streams.safeClose(chan);
                 Streams.safeClose(ops);
-                ins = null;
-                ops = null;
-                String sha1 = Lang.sha1(fNewBucket);
-                o.data(newBuckId).len(len2).sha1(sha1);
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 throw Lang.wrapThrow(e);
             }
             finally {
-                Streams.safeClose(ins);
+                Streams.safeClose(chan);
                 Streams.safeClose(ops);
             }
-        }
 
-        // 更新索引
-        indexer.set(o, "^(data|len|sha1)$");
-        return o.len();
+            // 根据交换文件更新对象的索引
+            this.updateObjSha1(o, swap, indexer);
+            swap = null;
+
+            // 搞定
+            return o.len();
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        // 无论怎样，确保删除交换文件
+        finally {
+            if (null != swap && swap.exists()) {
+                Files.deleteFile(swap);
+            }
+        }
     }
 
-    String genBuckId() {
-        return R.UU32();
+    /**
+     * 根据给定的交换文件，更新文件对象的 <code>sha1|len|lm</code> 三个字段。
+     * <p>
+     * 它会考虑到下面的情况：
+     * <ul>
+     * <li>如果文件对象为空(empty sha1)
+     * <li>文件对象的内容与交换文件一致
+     * <li>文件对象的内容与交换文件不一致
+     * </ul>
+     * 
+     * @param o
+     *            对象
+     * @param swap
+     *            交换文件
+     * @param indexer
+     *            索引管理器
+     * @throws IOException
+     *             IO 读写发生异常
+     */
+    void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
+        String sha1 = Lang.sha1(swap);
+        try {
+            // 如果和原来的一样,那就无语了，啥也不用做了
+            if (o.isSameSha1(sha1)) {
+                return;
+            }
+
+            String oldSha1 = o.sha1();
+            o.sha1(sha1);
+            o.lastModified(swap.lastModified());
+            o.len(swap.length());
+
+            // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
+            File buck = this.getBucketFile(sha1);
+            if (!buck.exists()) {
+                Files.move(swap, buck);
+                swap = null;
+            }
+
+            // 记录引用
+            if (Wn.Io.isEmptySha1(oldSha1)) {
+                this.refers.remove(oldSha1, o.id());
+            }
+            this.refers.add(sha1, o.id());
+
+            // 更新索引
+            indexer.set(o, "^(sha1|len|lm)$");
+
+        }
+        // 无论如何，尝试移除交换文件
+        finally {
+            if (null != swap) {
+                Files.deleteFile(swap);
+            }
+        }
     }
 
     File getBucketFile(String buckId) {
@@ -297,6 +271,14 @@ public class LocalIoBM extends AbstractIoBM {
         // 得到桶的路径
         String ph = buckId.substring(0, 4) + "/" + buckId.substring(4);
         return Files.getFile(dBucket, ph);
+    }
+
+    File checkBucketFile(String buckId) {
+        File buck = this.getBucketFile(buckId);
+        if (!buck.exists()) {
+            throw Er.create("e.io.bm.local.LostBucket", buckId);
+        }
+        return buck;
     }
 
     File createSwapFile() {

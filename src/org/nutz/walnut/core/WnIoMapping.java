@@ -47,8 +47,8 @@ public class WnIoMapping {
     public void delete(WnObj o, boolean r) {
         // 仅仅是文件
         if (o.isFILE()) {
-            if (o.hasData()) {
-                bm.remove(o.data(), o.id());
+            if (o.hasSha1()) {
+                bm.remove(o.sha1(), o.id());
             }
             indexer.delete(o);
             return;
@@ -80,32 +80,26 @@ public class WnIoMapping {
      */
     public long copyData(WnObj oSr, WnObj oTa) {
         // 防守一下
-        if (!oSr.hasData()) {
+        if (!oSr.hasSha1()) {
             return -1;
         }
         // 如果目标不是空的，那么检查一下是否有必要 Copy
-        if (oTa.hasData()) {
-            // 数据区指向相同
-            if (oSr.isSameData(oTa.data())) {
-                // 嗯，木有必要 Copy
-                if (oSr.isSameSha1(oTa.sha1()) && oSr.len() == oTa.len()) {
-                    return oTa.len();
-                }
-                // 那么久更新一下指纹和长度咯
-                oTa.len(oSr.len()).sha1(oSr.sha1());
-                indexer.set(oTa, "^(len|sha1)$");
+        if (oTa.hasSha1()) {
+            // 嗯，木有必要 Copy
+            if (oSr.isSameSha1(oTa.sha1())) {
                 return oTa.len();
             }
             // 已经引用了其他的数据，取消一下引用
-            bm.remove(oTa.data(), oTa.id());
+            bm.remove(oTa.sha1(), oTa.id());
         }
+        
         // 增加引用
-        bm.copy(oSr.data(), oTa.id());
+        bm.copy(oSr.sha1(), oTa.id());
 
         // 直接将数据段Copy过去
-        oTa.data(oSr.data()).len(oSr.len()).sha1(oSr.sha1());
+        oTa.len(oSr.len()).sha1(oSr.sha1());
         oTa.lastModified(System.currentTimeMillis());
-        indexer.set(oTa, "^(len|sha1|data|lm)$");
+        indexer.set(oTa, "^(len|sha1|lm)$");
         return oTa.len();
     }
 

@@ -41,11 +41,11 @@ public class WriteableLocalFileBM extends LocalFileBM {
     public WnIoHandle createHandle(int mode) {
         // 只读
         if (Wn.S.isRead(mode)) {
-            return new LocalFileReadHandle(this);
+            return new LocalFileReadHandle();
         }
         // 只写
         if (Wn.S.isWriteOnly(mode)) {
-            return new LocalFileWriteHandle(this);
+            return new LocalFileWriteHandle();
         }
         throw Er.create("e.io.bm.localfile.NonsupportMode", mode);
     }

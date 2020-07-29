@@ -537,6 +537,10 @@ public abstract class Wn {
 
         public static final int NO_PVG = -999;
 
+        public static boolean isEmptySha1(String sha1) {
+            return Strings.isBlank(sha1) || EMPTY_SHA1.equals(sha1);
+        }
+
         public static String octalModeToStr(String octalMode) {
             int mode = Integer.parseInt(octalMode, 8);
             return modeToStr(mode);
