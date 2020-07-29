@@ -102,29 +102,29 @@ public class WnStoreImpl implements WnStore {
         }
 
         // secu下
-        if (Wn.S.isRead(mode)) {
+        if (Wn.S.canRead(mode)) {
             o = Wn.WC().whenRead(o, false);
         }
-        if (Wn.S.isWriteOrAppend(mode)) {
+        if (Wn.S.canWriteOrAppend(mode)) {
             o = Wn.WC().whenWrite(o, false);
         }
 
         // 一个对象只能打开一个写句柄
-        if (Wn.S.isWite(mode) && o.hasWriteHandle()) {
+        if (Wn.S.canWite(mode) && o.hasWriteHandle()) {
             throw Er.create("e.io.obj.w.opened", o);
         }
 
         // 检查一些读写权限
         WnContext wc = Wn.WC();
-        if (Wn.S.isWriteOrAppend(mode)) {
+        if (Wn.S.canWriteOrAppend(mode)) {
             o = wc.whenWrite(o, false);
         }
-        if (Wn.S.isRead(mode)) {
+        if (Wn.S.canRead(mode)) {
             o = wc.whenRead(o, false);
         }
         
         // 检查一下空间配额
-        if (quota != null && Wn.S.isWriteOrAppend(mode)) {
+        if (quota != null && Wn.S.canWriteOrAppend(mode)) {
             quota.checkQuota("disk", wc.getMyName(), true);
         }
 
@@ -133,7 +133,7 @@ public class WnStoreImpl implements WnStore {
         handles.save(hdl);
         hdl.mode = mode;
         hdl.obj = o;
-        hdl.pos = Wn.S.isAppend(mode) ? o.len() : 0;
+        hdl.pos = Wn.S.canAppend(mode) ? o.len() : 0;
         hdl.updated = false;
 
         // 分析文件数据
@@ -157,14 +157,14 @@ public class WnStoreImpl implements WnStore {
         // 对象元数据句柄
         if (o.isRWMeta()) {
             hdl.bucket = new MemoryBucket(64*1024);
-            if (Wn.S.isRead(mode)) {
+            if (Wn.S.canRead(mode)) {
                 String json = Json.toJson(o, JsonFormat.full());
                 hdl.bucket.write(json);
             }
         }
         // 如果是映射到本地文件
         else if (null != data && data.startsWith("file://")) {
-            if (!Wn.S.isReadOnly(mode)) {
+            if (!Wn.S.isRead(mode)) {
                 throw Er.create("e.io.local.readonly", o);
             }
             String ph = data.substring("file://".length());
@@ -182,7 +182,7 @@ public class WnStoreImpl implements WnStore {
             WnBucket bu = Strings.isBlank(data) ? null : buckets.checkById(data);
 
             // 写入模式无论如何都要弄个新桶
-            if (Wn.S.isWriteOrAppend(mode)) {
+            if (Wn.S.canWriteOrAppend(mode)) {
                 // 如果没有桶，则分配一个
                 if (null == bu) {
                     hdl.bucket = buckets.alloc(DFT_BUCKET_BLOCK_SIZE);
@@ -228,7 +228,7 @@ public class WnStoreImpl implements WnStore {
         __flush(hdl);
 
         // 写操作的句柄需要额外处理，读操作就神马也表用做了
-        if (Wn.S.isWite(hdl.mode)) {
+        if (Wn.S.canWite(hdl.mode)) {
             // 如果是修改元数据
             if (hdl.obj.isRWMeta()) {
                 String json = hdl.bucket.getString();
@@ -245,7 +245,7 @@ public class WnStoreImpl implements WnStore {
             // 仅仅是修改内容
             else if (hdl.updated) {
                 // 如果是修改模式，采用桶的长度作为对象的长度
-                if (Wn.S.isModify(hdl.mode)) {
+                if (Wn.S.canModify(hdl.mode)) {
                     hdl.obj.len(hdl.bucket.getSize());
                 }
                 // 否则将会剪裁桶的长度
@@ -307,7 +307,7 @@ public class WnStoreImpl implements WnStore {
         WnHandle hdl = __check_hdl(hid);
 
         // 读操作不需要刷新缓冲
-        if (Wn.S.isReadOnly(hdl.mode))
+        if (Wn.S.isRead(hdl.mode))
             return hdl.obj;
 
         // 刷新缓冲
@@ -395,7 +395,7 @@ public class WnStoreImpl implements WnStore {
     @Override
     public void seek(String hid, long pos) {
         WnHandle hdl = __check_hdl(hid);
-        if (Wn.S.isAppend(hdl.mode))
+        if (Wn.S.canAppend(hdl.mode))
             throw Er.create("e.io.seek.append", hdl.obj);
 
         hdl.pos = pos;

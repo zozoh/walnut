@@ -7,15 +7,16 @@ import java.io.InputStream;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.bm.WnLocalReadHandle;
+import org.nutz.walnut.core.bm.WnIoReadHandle;
+import org.nutz.walnut.util.Wn;
 
-public class LocalIoReadOnlyHandle extends WnLocalReadHandle {
+public class LocalIoReadHandle extends WnIoReadHandle {
 
     private LocalIoBM bm;
 
     private InputStream ins;
 
-    LocalIoReadOnlyHandle(LocalIoBM bm) {
+    LocalIoReadHandle(LocalIoBM bm) {
         this.bm = bm;
     }
 
@@ -24,7 +25,7 @@ public class LocalIoReadOnlyHandle extends WnLocalReadHandle {
         WnObj o = this.obj;
         if (null != o && null == ins) {
             // 虚桶
-            if (!o.hasSha1()) {
+            if (Wn.Io.isEmptySha1(o.sha1())) {
                 ins = Lang.ins("");
             }
             // 获取文件

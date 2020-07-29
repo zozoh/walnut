@@ -8,13 +8,23 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 
-public abstract class WnLocalWriteHandle extends WnIoHandle {
+public abstract class WnIoWriteHandle extends WnIoHandle {
 
     abstract protected OutputStream outout() throws FileNotFoundException;
 
+    public void ready() throws WnIoHandleMutexException {
+        manager.alloc(this);
+    }
+
     @Override
     public long skip(long n) throws IOException {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public long seek(long n) throws IOException {
         throw Lang.noImplement();
     }
 

@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.bm.WnLocalWriteHandle;
+import org.nutz.walnut.core.bm.WnIoWriteHandle;
 
-public class LocalIoWriteOnlyHandle extends WnLocalWriteHandle {
+public class LocalIoWriteHandle extends WnIoWriteHandle {
 
     private LocalIoBM bm;
 
@@ -19,7 +19,7 @@ public class LocalIoWriteOnlyHandle extends WnLocalWriteHandle {
 
     private OutputStream ops;
 
-    LocalIoWriteOnlyHandle(LocalIoBM bm) {
+    LocalIoWriteHandle(LocalIoBM bm) {
         this.bm = bm;
     }
 
@@ -33,14 +33,18 @@ public class LocalIoWriteOnlyHandle extends WnLocalWriteHandle {
 
     @Override
     public void close() throws IOException {
+        // 肯定已经关闭过了
+        if (null == obj) {
+            return;
+        }
         // 无论如何，刷一下
         Streams.safeFlush(ops);
 
         // 关闭交换文件
         Streams.safeClose(ops);
-        WnObj o = this.obj;
 
         // 根据交换文件更新对象的索引
+        WnObj o = this.obj;
         try {
             bm.updateObjSha1(o, swap, indexer);
         }
@@ -48,6 +52,8 @@ public class LocalIoWriteOnlyHandle extends WnLocalWriteHandle {
         finally {
             manager.remove(this.getId());
             obj = null; // 标志一下，这个句柄实例就不能再使用了
+            swap = null;
+            ops = null;
         }
     }
 

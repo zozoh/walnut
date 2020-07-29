@@ -17,7 +17,7 @@ public abstract class AbstractWnIoMappingTest extends IoCoreTest {
     protected WnIoMapping im;
 
     @Test
-    public void test_00() throws IOException {
+    public void test_00() throws IOException, WnIoHandleMutexException {
         WnIoIndexer indexer = im.getIndexer();
         WnObj o = indexer.create(null, "/a", WnRace.FILE);
         WnIoHandle h = im.open(o, Wn.S.W);

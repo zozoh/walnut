@@ -1,5 +1,7 @@
 package org.nutz.walnut.core;
 
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 
 import org.nutz.walnut.api.io.WnObj;
@@ -9,7 +11,7 @@ import org.nutz.walnut.api.io.WnObj;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public abstract class WnIoHandle extends HandleInfo {
+public abstract class WnIoHandle extends HandleInfo implements Closeable, Flushable {
 
     /**
      * 句柄管理器，用来更新句柄过期时间
@@ -55,7 +57,37 @@ public abstract class WnIoHandle extends HandleInfo {
         manager.touch(this);
     }
 
+    /**
+     * 当句柄对象被创建，且相关成员都被设置好后。这个函数会被调用
+     * <p>
+     * 实现类可以通过句柄管理器持久化自己，或者检查有没有重复<br>
+     * 譬如写句柄，这里是一个好时机去判断是否有其他的写句柄存在，如果存在就抛错
+     */
+    public abstract void ready() throws WnIoHandleMutexException;
+
+    /**
+     * 从当前位置偏移
+     * 
+     * @param n
+     *            偏移的字节数
+     * @return 实际的偏移量
+     * @throws IOException
+     */
     public abstract long skip(long n) throws IOException;
+
+    /**
+     * 移动到某个指定的位置
+     * <p>
+     * !!! 注意，这个函数与 setOffset 不同。它会检查边界，并更新句柄管理器的 touch 导致句柄过期时间更新。<br>
+     * 而<code>setOffset</code>仅仅是设置一个内存里的值，并且不检查边界
+     * 
+     * 
+     * @param n
+     *            移动到位置（字节下标）
+     * @return 实际移动到的位置。相当于（getOffset()）
+     * @throws IOException
+     */
+    public abstract long seek(long n) throws IOException;
 
     /**
      * 读取到缓冲
@@ -89,15 +121,5 @@ public abstract class WnIoHandle extends HandleInfo {
     public void write(byte[] buf) throws IOException {
         write(buf, 0, buf.length);
     }
-
-    /**
-     * 将缓冲中的内容主动写入到对应的桶内。 当然，关闭前
-     */
-    public abstract void flush() throws IOException;
-
-    /**
-     * 关闭一个句柄
-     */
-    public abstract void close() throws IOException;
 
 }

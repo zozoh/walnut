@@ -2,6 +2,7 @@ package org.nutz.walnut.core;
 
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 public class WnIoMapping {
 
@@ -32,7 +33,7 @@ public class WnIoMapping {
         return this.bm.isSame(mapping.bm);
     }
 
-    public WnIoHandle open(WnObj o, int mode) {
+    public WnIoHandle open(WnObj o, int mode) throws WnIoHandleMutexException {
         return bm.open(o, mode, indexer);
     }
 
@@ -84,7 +85,7 @@ public class WnIoMapping {
             return -1;
         }
         // 如果目标不是空的，那么检查一下是否有必要 Copy
-        if (oTa.hasSha1()) {
+        if (!Wn.Io.isEmptySha1(oTa.sha1())) {
             // 嗯，木有必要 Copy
             if (oSr.isSameSha1(oTa.sha1())) {
                 return oTa.len();
@@ -92,7 +93,7 @@ public class WnIoMapping {
             // 已经引用了其他的数据，取消一下引用
             bm.remove(oTa.sha1(), oTa.id());
         }
-        
+
         // 增加引用
         bm.copy(oSr.sha1(), oTa.id());
 

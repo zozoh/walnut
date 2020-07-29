@@ -40,12 +40,20 @@ public class LocalFileWBM extends LocalFileBM {
     @Override
     public WnIoHandle createHandle(int mode) {
         // 只读
-        if (Wn.S.isRead(mode)) {
+        if (Wn.S.canRead(mode)) {
             return new LocalFileReadHandle();
         }
         // 只写
-        if (Wn.S.isWriteOnly(mode)) {
+        if (Wn.S.isWrite(mode)) {
             return new LocalFileWriteHandle();
+        }
+        // 追加
+        if (Wn.S.isAppend(mode)) {
+            return new LocalFileReadWriteHandle();
+        }
+        // 修改
+        if (Wn.S.canModify(mode) || Wn.S.isReadWrite(mode)) {
+            return new LocalFileReadWriteHandle();
         }
         throw Er.create("e.io.bm.localfile.NonsupportMode", mode);
     }

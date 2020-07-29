@@ -238,15 +238,22 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public boolean hasSha1() {
         String sha1 = sha1();
-        return !Wn.Io.isEmptySha1(sha1);
+        return !Strings.isBlank(sha1);
     }
 
     public String sha1() {
-        return this.getString("sha1");
+        String sha1 = this.getString("sha1");
+        // if (Wn.Io.isEmptySha1(sha1))
+        // return Wn.Io.EMPTY_SHA1;
+        return sha1;
     }
 
     public WnObj sha1(String sha1) {
-        this.setv("sha1", sha1);
+        if (Wn.Io.isEmptySha1(sha1)) {
+            this.setv("sha1", null);
+        } else {
+            this.setv("sha1", sha1);
+        }
         return this;
     }
 

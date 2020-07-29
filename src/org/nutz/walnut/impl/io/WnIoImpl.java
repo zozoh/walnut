@@ -34,6 +34,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnStore;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -708,9 +709,14 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnIoHandle openHandle(WnObj o, int mode) {
+        throw Lang.noImplement();
+    }
+
+    @Override
     public String open(final WnObj o, int mode) {
         // 首先确保对象本身不会被篡改，那么重新从数据库里拿一遍是好办法
-        if (Wn.S.isWite(mode)) {
+        if (Wn.S.canWite(mode)) {
             Wn.WC().security(null, new Atom() {
                 public void run() {
                     WnObj o2 = tree.checkById(o.id());

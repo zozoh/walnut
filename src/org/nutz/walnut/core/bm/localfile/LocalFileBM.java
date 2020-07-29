@@ -54,7 +54,7 @@ public class LocalFileBM extends AbstractIoBM {
     @Override
     public WnIoHandle createHandle(int mode) {
         // 只读
-        if (Wn.S.isRead(mode)) {
+        if (Wn.S.canRead(mode)) {
             return new LocalFileReadHandle();
         }
         throw Er.create("e.io.bm.localfile.NonsupportMode", mode);

@@ -519,6 +519,7 @@ public abstract class Wn {
 
     public static class Io {
 
+        // da39a3ee5e6b4b0d3255bfef95601890afd80709
         public static final String EMPTY_SHA1 = Lang.sha1("");
 
         public static final int R = 1 << 2;
@@ -931,6 +932,14 @@ public abstract class Wn {
 
     public static class S {
 
+        // A : 1 : 1
+        // W : 2 : 10
+        // R : 4 : 100
+        // M : 8 : 1000
+        // RW: 6 : 110
+        // WM: 10 : 1010
+        // WA: 3 : 11
+
         /**
          * 追加模式，句柄不可 seek，只会向后面添加内容
          */
@@ -952,37 +961,50 @@ public abstract class Wn {
          */
         public static final int RW = R | W;
         public static final int WM = W | M;
+        public static final int WA = W | A;
 
-        public static boolean isRead(int mode) {
+        public static boolean canRead(int mode) {
             return Maths.isMask(mode, R);
         }
 
-        public static boolean isReadOnly(int mode) {
-            return Maths.isMaskAll(mode, R);
-        }
-
-        public static boolean isWite(int mode) {
+        public static boolean canWite(int mode) {
             return Maths.isMask(mode, W);
         }
 
-        public static boolean isModify(int mode) {
-            return Maths.isMask(mode, M);
-        }
-
-        public static boolean isWriteOnly(int mode) {
-            return Maths.isMaskAll(mode, W);
-        }
-
-        public static boolean isAppend(int mode) {
+        public static boolean canAppend(int mode) {
             return Maths.isMask(mode, A);
         }
 
-        public static boolean isWriteOrAppend(int mode) {
-            return Maths.isMask(mode, W | A);
+        public static boolean canModify(int mode) {
+            return Maths.isMask(mode, M);
+        }
+
+        public static boolean canWriteOrAppend(int mode) {
+            return Maths.isMask(mode, WA);
+        }
+
+        public static boolean isRead(int mode) {
+            return mode == R;
+        }
+
+        public static boolean isWrite(int mode) {
+            return mode == W;
+        }
+
+        public static boolean isAppend(int mode) {
+            return mode == A;
+        }
+
+        public static boolean isWriteModify(int mode) {
+            return mode == WM;
+        }
+
+        public static boolean isWriteAppend(int mode) {
+            return mode == WA;
         }
 
         public static boolean isReadWrite(int mode) {
-            return Maths.isMask(mode, RW);
+            return mode == RW;
         }
     }
 

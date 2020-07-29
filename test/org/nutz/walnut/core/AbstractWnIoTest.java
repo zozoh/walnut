@@ -1,10 +1,6 @@
 package org.nutz.walnut.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +23,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.impl.io.TestWnIoImpl;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
@@ -36,9 +33,11 @@ import org.w3c.dom.Document;
 public abstract class AbstractWnIoTest extends IoCoreTest {
 
     /**
-     * 子类需要设置这个实例
+     * 子类需要设置这三个实例
      */
     protected WnIo io;
+    protected WnReferApi refers;
+    protected WnIoHandleManager handles;
 
     @Test
     public void test_fnm_special_0() {
@@ -136,19 +135,14 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         assertEquals(4, b.len());
         assertEquals(4, io.get(b.id()).len());
         assertTrue(a.isSameSha1(b.sha1()));
-        assertTrue(a.isSameData(b.data()));
         assertTrue(io.get(a.id()).isSameSha1(io.get(b.id()).sha1()));
-        assertTrue(io.get(a.id()).isSameData(io.get(b.id()).data()));
 
         io.writeText(a, "xyzmmm");
         io.copyData(a, b);
         assertEquals(6, b.len());
         assertEquals(6, io.get(b.id()).len());
         assertTrue(a.isSameSha1(b.sha1()));
-        assertTrue(a.isSameData(b.data()));
         assertTrue(io.get(a.id()).isSameSha1(io.get(b.id()).sha1()));
-        assertTrue(io.get(a.id()).isSameData(io.get(b.id()).data()));
-
     }
 
     @Test
@@ -764,10 +758,14 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
             assertEquals("haha", io.readText(a));
             assertEquals("haha", io.readText(b));
 
-            io.writeText(b, "hehe");
+            io.writeText(b, "dada");
 
-            assertEquals("hehe", io.readText(a));
-            assertEquals("hehe", io.readText(b));
+            // 重新读取一下两个文件
+            a = io.fetch(null, "/linktest/a");
+            b = io.fetch(null, "/linktest/b");
+
+            assertEquals("dada", io.readText(a));
+            assertEquals("dada", io.readText(b));
 
         }
         finally {
@@ -874,11 +872,10 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         WnObj o = io.create(null, "/a", WnRace.FILE);
         io.appendMeta(o, "x:100, y:99");
 
-        o = io.create(null, Wn.metaPath("/a"), WnRace.FILE);
-        NutMap map = io.readJson(o, NutMap.class);
+        o = io.fetch(null, "/a");
 
-        assertEquals(100, map.getInt("x"));
-        assertEquals(99, map.getInt("y"));
+        assertEquals(100, o.getInt("x"));
+        assertEquals(99, o.getInt("y"));
     }
 
     @Test
@@ -928,7 +925,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     @Test
     public void test_write_meta2() {
         io.create(null, "/a", WnRace.FILE);
-        WnObj o = io.fetch(null, Wn.metaPath("/a"));
+        WnObj o = io.fetch(null, "/a");
         io.writeMeta(o, "x:100,y:99");
         assertEquals(100, o.getInt("x"));
         assertEquals(99, o.getInt("y"));
@@ -1034,19 +1031,50 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     }
 
     @Test
-    public void test_random_write() throws IOException {
+    public void test_random_write() throws IOException, WnIoHandleMutexException {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
 
         assertEquals("/a/b/c", o.path());
 
         io.writeText(o, "abc");
+        String oldSha1 = o.sha1();
 
-        String hid = io.open(o, Wn.S.WM);
-        io.seek(hid, 1);
-        io.write(hid, "z".getBytes());
-        io.close(hid);
+        WnIoHandle h = io.openHandle(o, Wn.S.WM);
+        h.seek(1);
+        h.write("z".getBytes());
+        h.close();
 
         assertEquals("azc", io.readText(o));
+        String newSha1 = o.sha1();
+
+        // 重新读取，sha1 是新的
+        o = io.fetch(null, "/a/b/c");
+        assertEquals(newSha1, o.sha1());
+        assertFalse(newSha1.equals(oldSha1));
+
+        // 句柄应该全部都关闭了
+        try {
+            handles.check(h.getId());
+            fail();
+        }
+        catch (Exception e) {}
+
+        // 旧的 SHA1 已经没人引用了
+        assertEquals(0, refers.count(oldSha1));
+
+        // 新的 SHA1 有一个引用
+        assertEquals(1, refers.count(newSha1));
+
+        // 得到全局桶
+        LocalIoBM bm = setup.getGlobalIoBM();
+
+        // 旧的SHA1 文件被删掉了
+        File fOld = bm.getBucketFile(oldSha1);
+        assertFalse(fOld.exists());
+
+        // 新的SHA1 文件存在
+        File fNew = bm.getBucketFile(newSha1);
+        assertTrue(fNew.exists());
     }
 
     @Test

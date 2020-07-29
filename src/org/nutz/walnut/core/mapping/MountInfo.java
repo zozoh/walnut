@@ -30,9 +30,9 @@ public class MountInfo {
     private static final Pattern _P = Regex.getPattern(regex);
 
     MountInfo(String str) {
-        // 为空！不科学啊
+        // 为空！那就是木有任何映射咯
         if (Strings.isBlank(str)) {
-            throw Er.create("e.io.mapping.BlankMount");
+            return;
         }
         // 保险一点，抹去前后空白吧
         str = str.trim();

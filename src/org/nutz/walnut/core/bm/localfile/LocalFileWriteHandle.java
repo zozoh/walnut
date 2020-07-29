@@ -4,26 +4,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.bean.WnLocalFileObj;
-import org.nutz.walnut.core.bm.WnLocalWriteHandle;
+import org.nutz.walnut.core.bm.WnIoWriteHandle;
 
-public class LocalFileWriteHandle extends WnLocalWriteHandle {
+public class LocalFileWriteHandle extends WnIoWriteHandle {
 
     private OutputStream ops;
 
     protected OutputStream outout() throws FileNotFoundException {
-        if (null != obj) {
+        if (null != obj && null == ops) {
             if (obj instanceof WnLocalFileObj) {
                 File f = ((WnLocalFileObj) obj).getFile();
-                try {
-                    this.ops = Streams.chanOps(f, false);
-                }
-                catch (FileNotFoundException e) {
-                    throw Lang.wrapThrow(e);
-                }
+                this.ops = Streams.chanOps(f, false);
             }
             // 不能支持的文件类型
             else {
@@ -35,6 +29,10 @@ public class LocalFileWriteHandle extends WnLocalWriteHandle {
 
     @Override
     public void close() throws IOException {
+     // 肯定已经关闭过了
+        if (null == obj) {
+            return;
+        }
         // 无论如何，刷一下
         Streams.safeFlush(ops);
 
@@ -44,6 +42,7 @@ public class LocalFileWriteHandle extends WnLocalWriteHandle {
         // 删除句柄
         manager.remove(this.getId());
         obj = null; // 标志一下，这个句柄实例就不能再使用了
+        ops = null;
     }
 
 }

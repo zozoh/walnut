@@ -87,4 +87,19 @@ public class MountInfoTest {
         assertEquals("C:/data/demo/", mi.bm.arg);
     }
 
+    @Test
+    public void test_7() {
+        MountInfo mi = new MountInfo(null);
+        assertFalse(mi.hasIndexer());
+        assertFalse(mi.hasBM());
+
+        mi = new MountInfo("");
+        assertFalse(mi.hasIndexer());
+        assertFalse(mi.hasBM());
+
+        mi = new MountInfo("\r\n\t  ");
+        assertFalse(mi.hasIndexer());
+        assertFalse(mi.hasBM());
+    }
+
 }

@@ -9,6 +9,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import org.nutz.mongo.ZMoCo;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -33,6 +34,7 @@ import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
+import org.nutz.walnut.util.Wn;
 
 public class IoCoreSetup {
 
@@ -68,12 +70,18 @@ public class IoCoreSetup {
             mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
     }
 
+    public WnAccount genAccount(String name) {
+        WnAccount u = new WnAccount(name);
+        u.setGroupName(name);
+        u.setId(Wn.genId());
+        return u;
+    }
+
     public WnIo getIo() {
         if (null == io) {
             WnIoMappingFactory mappings = this.getWnIoMappingFactory();
-            WnIoHandleManager handles = this.getWnIoHandleManager();
             this.setupWnIoMappingFactory();
-            io = new WnIoImpl2(mappings, handles);
+            io = new WnIoImpl2(mappings);
         }
         return io;
     }
@@ -251,7 +259,10 @@ public class IoCoreSetup {
         if (d.exists()) {
             String aph = Files.getAbsPath(d);
             if (aph.endsWith(".walnut/test/localbm")) {
-                Files.clearDir(d);
+                File dBuck = Files.getFile(d, "buck");
+                Files.clearDir(dBuck);
+                File dSwap = Files.getFile(d, "swap");
+                Files.clearDir(dSwap);
             } else {
                 throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }

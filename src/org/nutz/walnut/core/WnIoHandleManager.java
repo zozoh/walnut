@@ -8,6 +8,16 @@ package org.nutz.walnut.core;
 public interface WnIoHandleManager {
 
     /**
+     * 根据传入的句柄对象，分配句柄。
+     * <p>
+     * 这个函数保证了写模式（包括追加）只能有一个句柄
+     * 
+     * @param h
+     *            待分配的句柄对象
+     */
+    void alloc(WnIoHandle h);
+
+    /**
      * 取回一个句柄。这个主要是给 IO 层实现类用的
      * 
      * @param hid

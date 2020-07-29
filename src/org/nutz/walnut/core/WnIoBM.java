@@ -21,8 +21,11 @@ public interface WnIoBM {
      * @param mode
      *            打开模式
      * @return 句柄对象
+     * 
+     * @throws WnIoHandleMutexException
+     *             创建句柄的条件不具备，譬如支持互斥写的句柄管理器会抛出这个异常
      */
-    WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer);
+    WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) throws WnIoHandleMutexException;
 
     /**
      * 创建一个属于自己的句柄对象。

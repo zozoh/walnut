@@ -6,6 +6,7 @@ import org.nutz.walnut.core.HandleInfo;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoIndexer;
 
 public abstract class AbstractIoBM implements WnIoBM {
@@ -17,7 +18,7 @@ public abstract class AbstractIoBM implements WnIoBM {
     }
 
     @Override
-    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) {
+    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) throws WnIoHandleMutexException {
         // 先搞一个句柄
         WnIoHandle h = createHandle(mode);
         h.setManager(handles);
@@ -26,8 +27,10 @@ public abstract class AbstractIoBM implements WnIoBM {
         h.setMode(mode);
         h.setOffset(0);
 
-        // 只能有一个写,保存一下，不出错就成
-        handles.save(h);
+        // 声明准备完成，句柄实现类可能会调用管理器持久化自己
+        // 之前，管理器实现类可能会依据持久化的数据进行写互斥
+        // 如果当前这个句柄不能创建，这个方法会抛出异常
+        h.ready();
 
         return h;
     }

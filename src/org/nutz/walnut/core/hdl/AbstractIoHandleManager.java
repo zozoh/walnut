@@ -26,6 +26,14 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
     }
 
     @Override
+    public void alloc(WnIoHandle h) {
+        if (!h.hasId()) {
+            h.setId(R.UU32());
+        }
+        this.save(h);
+    }
+
+    @Override
     public WnIoHandle check(String hid) {
         HandleInfo info = this.load(hid);
         if (null == info) {
@@ -42,6 +50,9 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
 
     @Override
     public void save(WnIoHandle h) {
+        // 未分配的句柄，不予保存
+        if (!h.hasId())
+            return;
         long now = System.currentTimeMillis();
         h.setCreatTime(now);
         if (timeout > 0) {
@@ -50,10 +61,7 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
             h.setTimeout(du);
             h.setExpiTime(expi);
         }
-        // 分配ID
-        if (!h.hasId()) {
-            h.setId(R.UU32());
-        }
+        // 执行保存
         doSave(h);
     }
 
@@ -61,13 +69,20 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
 
     @Override
     public void touch(WnIoHandle h) {
+        // 未分配的句柄，不予持久化
+        if (!h.hasId())
+            return;
         long du = h.getTimeout();
         if (du > 0) {
             long now = System.currentTimeMillis();
-            long expi = now + du;
-            h.setExpiTime(expi);
+            long pas = h.getExpiTime() - now;
+            // 如果已经经过了一半过期时间，为了防止删除，更新一下过期时间
+            if (pas < (du * 500)) {
+                long expi = now + du;
+                h.setExpiTime(expi);
+                doTouch(h);
+            }
         }
-        doTouch(h);
     }
 
     protected abstract void doTouch(WnIoHandle h);

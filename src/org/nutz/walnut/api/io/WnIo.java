@@ -10,11 +10,13 @@ import java.util.Map;
 
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 
 public interface WnIo extends WnStore, WnTree {
-    
+
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
-    
+
     WnObj createIfExists(WnObj p, String path, WnRace race);
 
     /**
@@ -56,6 +58,8 @@ public interface WnIo extends WnStore, WnTree {
     Reader getReader(WnObj o, long off);
 
     Writer getWriter(WnObj o, long off);
+
+    WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException;
 
     /**
      * 获取一个对象的输入流

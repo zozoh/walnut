@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.WnIoHandle;
-import org.nutz.walnut.core.WnIoHandleManager;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
@@ -54,14 +55,8 @@ public class WnIoImpl2 implements WnIo {
      */
     private WnIoMappingFactory mappings;
 
-    /**
-     * 句柄管理器
-     */
-    private WnIoHandleManager handles;
-
-    public WnIoImpl2(WnIoMappingFactory mappings, WnIoHandleManager handles) {
+    public WnIoImpl2(WnIoMappingFactory mappings) {
         this.mappings = mappings;
-        this.handles = handles;
     }
 
     // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
@@ -86,12 +81,14 @@ public class WnIoImpl2 implements WnIo {
 
         // 否则只能硬 COPY 了
         long re = 0;
-        WnIoHandle h_a = ma.open(a, Wn.S.R);
-        WnIoHandle h_b = mb.open(b, Wn.S.W);
-        if (log.isDebugEnabled()) {
-            log.debugf("copyData open h_a:%s, h_b:%s", h_a, h_b);
-        }
+        WnIoHandle h_a = null;
+        WnIoHandle h_b = null;
         try {
+            h_a = ma.open(a, Wn.S.R);
+            h_b = mb.open(b, Wn.S.W);
+            if (log.isDebugEnabled()) {
+                log.debugf("copyData open h_a:%s, h_b:%s", h_a, h_b);
+            }
             byte[] buf = new byte[8192];
             int len;
             while ((len = h_a.read(buf, 0, buf.length)) > 0) {
@@ -100,6 +97,9 @@ public class WnIoImpl2 implements WnIo {
             }
         }
         catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        catch (WnIoHandleMutexException e) {
             throw Lang.wrapThrow(e);
         }
         // 确保关闭
@@ -133,78 +133,54 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public String open(WnObj o, int mode) {
+    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException {
         WnIoMapping im = mappings.checkMapping(o);
-        WnIoHandle h = im.open(o, mode);
-        return h.getId();
+        return im.open(o, mode);
+    }
+
+    @Override
+    public String open(WnObj o, int mode) {
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj flush(String hid) {
-        WnIoHandle h = handles.check(hid);
-        try {
-            h.flush();
-        }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
-        return h.getObj();
+        throw Lang.noImplement();
     }
 
     @Override
     public WnObj close(String hid) {
-        WnIoHandle h = handles.check(hid);
-        try {
-            h.close();
-        }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
-        return h.getObj();
+        throw Lang.noImplement();
     }
 
     @Override
     public int read(String hid, byte[] bs, int off, int len) {
-        WnIoHandle h = handles.check(hid);
-        try {
-            return h.read(bs, off, len);
-        }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
+        throw Lang.noImplement();
     }
 
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
-        WnIoHandle h = handles.check(hid);
-        try {
-            h.write(bs, off, len);
-        }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
+        throw Lang.noImplement();
     }
 
     @Override
     public int read(String hid, byte[] bs) {
-        return this.read(hid, bs, 0, bs.length);
+        throw Lang.noImplement();
     }
 
     @Override
     public void write(String hid, byte[] bs) {
-        write(hid, bs, 0, bs.length);
+        throw Lang.noImplement();
     }
 
     @Override
     public void seek(String hid, long pos) {
-        WnIoHandle h = handles.check(hid);
-        h.setOffset(pos);
+        throw Lang.noImplement();
     }
 
     @Override
     public long getPos(String hid) {
-        WnIoHandle h = handles.check(hid);
-        return h.getOffset();
+        throw Lang.noImplement();
     }
 
     // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
@@ -236,6 +212,10 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public boolean exists(WnObj p, String path) {
+        // null 表示从根路径开始
+        if (null == p || path.startsWith("/")) {
+            p = mappings.getRoot();
+        }
         WnIoMapping im = mappings.checkMapping(p);
         WnObj obj = im.getIndexer().fetch(p, path);
         return null != obj;
@@ -547,6 +527,7 @@ public class WnIoImpl2 implements WnIo {
     public void set(WnObj o, String regex) {
         WnObjMapping om = mappings.checkById(o.id());
         WnIoIndexer indexer = om.getSelfIndexer();
+        Wn.Io.eval_dn(o);
         indexer.set(o, regex);
     }
 
@@ -654,7 +635,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {
         // 是否从树的根部创建
-        if (path.startsWith("/")) {
+        if (null == p || path.startsWith("/")) {
             p = this.getRoot();
         }
 
@@ -726,6 +707,10 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
+        // null 表示从根路径开始
+        if (null == p) {
+            p = mappings.getRoot();
+        }
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
         return indexer.createById(p, id, name, race);
@@ -733,6 +718,10 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
+        // null 表示从根路径开始
+        if (null == p || path.startsWith("/")) {
+            p = mappings.getRoot();
+        }
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
         WnObj o = indexer.fetch(p, path);
@@ -750,6 +739,10 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj createIfExists(WnObj p, String path, WnRace race) {
+        // null 表示从根路径开始
+        if (null == p || path.startsWith("/")) {
+            p = mappings.getRoot();
+        }
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
         WnObj o = indexer.fetch(p, path);
@@ -1051,7 +1044,8 @@ public class WnIoImpl2 implements WnIo {
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
-        o.update(o2);
+        o.clear();
+        o.update2(o2);
     }
 
     @Override
@@ -1069,37 +1063,76 @@ public class WnIoImpl2 implements WnIo {
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
-        o.update(o2);
+        o.clear();
+        o.update2(o2);
     }
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
-        WnIoMapping im = mappings.checkMapping(o);
-        WnIoHandle h = im.open(o, Wn.S.R);
-        h.setOffset(off);
-        return new WnIoInputStream(h);
+        // 展开链接为成真正的文件
+        o = Wn.real(o, this, new HashMap<>());
+
+        // 获取映射
+        try {
+            WnIoMapping im = mappings.checkMapping(o);
+            WnIoHandle h;
+            // 从头读
+            if (off == 0) {
+                h = im.open(o, Wn.S.R);
+            }
+            // 在某位置读
+            else {
+                h = im.open(o, Wn.S.RW);
+                h.seek(off);
+            }
+            h.setOffset(off);
+            return new WnIoInputStream(h);
+        }
+        catch (Exception e) {
+            throw Er.wrap(e);
+        }
     }
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        WnIoMapping im = mappings.checkMapping(o);
-        WnIoHandle h = im.open(o, Wn.S.W);
-        h.setOffset(off);
-        return new WnIoOutputStream(h);
+        // 展开链接为成真正的文件
+        o = Wn.real(o, this, new HashMap<>());
+
+        try {
+            WnIoMapping im = mappings.checkMapping(o);
+            WnIoHandle h;
+            // 从头写
+            if (off == 0) {
+                h = im.open(o, Wn.S.W);
+            }
+            // 在某位置写
+            else {
+                h = im.open(o, Wn.S.WM);
+                h.seek(off);
+            }
+            return new WnIoOutputStream(h);
+        }
+        catch (Exception e) {
+            throw Er.wrap(e);
+        }
     }
 
     @Override
     public String readText(WnObj o) {
-        InputStream ins = this.getInputStream(o, 0);
-        Reader r = Streams.buffr(Streams.utf8r(ins));
+        InputStream ins = null;
+        Reader r = null;
+        ins = this.getInputStream(o, 0);
+        r = Streams.buffr(Streams.utf8r(ins));
         return Streams.readAndClose(r);
     }
 
     @Override
     public BufferedImage readImage(WnObj o) {
-        InputStream ins = this.getInputStream(o, 0);
+        InputStream ins = null;
         try {
-            return ImageIO.read(ins);
+            ins = this.getInputStream(o, 0);
+            InputStream bins = Streams.buff(ins);
+            return ImageIO.read(bins);
         }
         catch (IOException e) {
             throw Er.create("e.io.read.img", o);
@@ -1117,13 +1150,16 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public <T> T readJson(WnObj o, Class<T> classOfT) {
-        InputStream ins = this.getInputStream(o, 0);
-        Reader r = Streams.buffr(Streams.utf8r(ins));
+        InputStream ins = null;
+        Reader r = null;
         try {
+            ins = this.getInputStream(o, 0);
+            r = Streams.buffr(Streams.utf8r(ins));
             return Json.fromJson(classOfT, r);
         }
         finally {
             Streams.safeClose(r);
+            Streams.safeClose(ins);
         }
     }
 
@@ -1143,11 +1179,16 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public long writeText(WnObj o, CharSequence cs) {
         byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
-        try (OutputStream ops = this.getOutputStream(o, 0)) {
+        OutputStream ops = null;
+        try {
+            ops = this.getOutputStream(o, 0);
             ops.write(b);
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ops);
         }
         return o.len();
     }
@@ -1155,11 +1196,16 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public long appendText(WnObj o, CharSequence cs) {
         byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
-        try (OutputStream ops = this.getOutputStream(o, -1)) {
+        OutputStream ops = null;
+        try {
+            ops = this.getOutputStream(o, -1);
             ops.write(b);
         }
         catch (IOException e) {
             throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(ops);
         }
         return o.len();
     }
@@ -1173,14 +1219,16 @@ public class WnIoImpl2 implements WnIo {
         if (obj instanceof CharSequence) {
             json = Json.fromJson(obj.toString());
         }
-
-        OutputStream ops = this.getOutputStream(o, 0);
-        Writer w = Streams.buffw(Streams.utf8w(ops));
+        OutputStream ops = null;
+        Writer w = null;
         try {
+            ops = this.getOutputStream(o, 0);
+            w = Streams.buffw(Streams.utf8w(ops));
             Json.toJson(w, json, fmt);
         }
         finally {
             Streams.safeClose(w);
+            Streams.safeClose(ops);
         }
         return o.len();
     }

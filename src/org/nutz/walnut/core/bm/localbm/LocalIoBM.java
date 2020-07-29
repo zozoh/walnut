@@ -18,6 +18,7 @@ import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnReferApi;
 import org.nutz.walnut.core.bm.AbstractIoBM;
+import org.nutz.walnut.core.bm.localfile.LocalFileReadWriteHandle;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -115,11 +116,19 @@ public class LocalIoBM extends AbstractIoBM {
     public WnIoHandle createHandle(int mode) {
         // 只读
         if (Wn.S.isRead(mode)) {
-            return new LocalIoReadOnlyHandle(this);
+            return new LocalIoReadHandle(this);
         }
         // 只写
-        if (Wn.S.isWriteOnly(mode)) {
-            return new LocalIoWriteOnlyHandle(this);
+        if (Wn.S.isWrite(mode)) {
+            return new LocalIoWriteHandle(this);
+        }
+        // 追加
+        if (Wn.S.isAppend(mode)) {
+            return new LocalFileReadWriteHandle();
+        }
+        // 修改
+        if (Wn.S.canModify(mode) || Wn.S.isReadWrite(mode)) {
+            return new LocalIoReadWriteHandle(this);
         }
         throw Er.create("e.io.bm.localbm.NonsupportMode", mode);
     }
@@ -221,7 +230,21 @@ public class LocalIoBM extends AbstractIoBM {
      *             IO 读写发生异常
      */
     void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
-        String sha1 = Lang.sha1(swap);
+        // 无需更新，因为没有对象，对应的句柄肯定已经关闭了
+        if (null == o) {
+            return;
+        }
+        String sha1 = null;
+        long olen = 0;
+        long lm = System.currentTimeMillis();
+        // 某些时候，没有调用写接口的句柄实例，或者仅仅写了空字节的实例
+        // 并不会生成 swap 文件
+        if (null != swap) {
+            sha1 = Lang.sha1(swap);
+            olen = swap.length();
+            lm = swap.lastModified();
+        }
+        boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
         try {
             // 如果和原来的一样,那就无语了，啥也不用做了
             if (o.isSameSha1(sha1)) {
@@ -230,21 +253,32 @@ public class LocalIoBM extends AbstractIoBM {
 
             String oldSha1 = o.sha1();
             o.sha1(sha1);
-            o.lastModified(swap.lastModified());
-            o.len(swap.length());
+            o.lastModified(lm);
+            o.len(olen);
 
             // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
-            File buck = this.getBucketFile(sha1);
-            if (!buck.exists()) {
-                Files.move(swap, buck);
-                swap = null;
+            if (!isEmptySha1) {
+                File buck = this.getBucketFile(sha1);
+                if (!buck.exists()) {
+                    Files.move(swap, buck);
+                    swap = null;
+                }
             }
 
             // 记录引用
-            if (Wn.Io.isEmptySha1(oldSha1)) {
-                this.refers.remove(oldSha1, o.id());
+            if (!Wn.Io.isEmptySha1(oldSha1)) {
+                long count = this.refers.remove(oldSha1, o.id());
+                // 木有用了，删掉这个文件
+                if (count <= 0) {
+                    File oldBuck = this.getBucketFile(oldSha1);
+                    Files.deleteFile(oldBuck);
+                }
             }
-            this.refers.add(sha1, o.id());
+
+            // 非空的 SHA1，增加引用计数
+            if (!isEmptySha1) {
+                this.refers.add(sha1, o.id());
+            }
 
             // 更新索引
             indexer.set(o, "^(sha1|len|lm)$");
@@ -258,7 +292,7 @@ public class LocalIoBM extends AbstractIoBM {
         }
     }
 
-    File getBucketFile(String buckId) {
+    public File getBucketFile(String buckId) {
         // 桶ID是空的，什么情况！
         if (Strings.isBlank(buckId)) {
             throw Er.create("e.io.bm.local.BlankBucketId");
@@ -273,7 +307,7 @@ public class LocalIoBM extends AbstractIoBM {
         return Files.getFile(dBucket, ph);
     }
 
-    File checkBucketFile(String buckId) {
+    public File checkBucketFile(String buckId) {
         File buck = this.getBucketFile(buckId);
         if (!buck.exists()) {
             throw Er.create("e.io.bm.local.LostBucket", buckId);
@@ -281,7 +315,7 @@ public class LocalIoBM extends AbstractIoBM {
         return buck;
     }
 
-    File createSwapFile() {
+    public File createSwapFile() {
         String nm = R.UU32();
         File f = Files.getFile(dSwap, nm);
         return Files.createFileIfNoExists(f);

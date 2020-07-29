@@ -4,13 +4,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 
-public abstract class WnLocalReadHandle extends WnIoHandle {
+public abstract class WnIoReadHandle extends WnIoHandle {
 
     abstract protected InputStream input() throws FileNotFoundException;
+
+    public void ready() throws WnIoHandleMutexException {}
 
     @Override
     public long skip(long n) throws IOException {
@@ -18,8 +22,14 @@ public abstract class WnLocalReadHandle extends WnIoHandle {
         if (null == obj) {
             throw Er.create("e.io.hdl.closed", this.getId());
         }
-        this.offset += input().skip(n);
-        return this.offset;
+        long n2 = input().skip(n);
+        this.offset += n2;
+        return n2;
+    }
+
+    @Override
+    public long seek(long n) throws IOException {
+        throw Lang.noImplement();
     }
 
     @Override
@@ -47,6 +57,10 @@ public abstract class WnLocalReadHandle extends WnIoHandle {
 
     @Override
     public void close() throws IOException {
+        // 肯定已经关闭过了
+        if (null == obj) {
+            return;
+        }
         obj = null; // 标志一下，这个句柄实例就不能再使用了
         Streams.safeClose(input());
     }
