@@ -48,6 +48,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
@@ -605,6 +606,46 @@ public abstract class Wn {
                     o.put("d" + i, null);
             }
             return ss;
+        }
+
+        /**
+         * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
+         * 
+         * @param indexer
+         *            索引管理器
+         * @param o
+         *            对象
+         * @param includeSelf
+         *            是否也检视自身的同步时间
+         */
+        public static void update_ancestor_synctime(final WnIoIndexer indexer,
+                                                    final WnObj o,
+                                                    final boolean includeSelf,
+                                                    final long now) {
+            WnContext wc = Wn.WC();
+
+            // 防止无穷递归
+            if (wc.isSynctimeOff())
+                return;
+
+            final List<WnObj> list = new LinkedList<WnObj>();
+            o.loadParents(list, false);
+            final long synctime = now > 0 ? now : System.currentTimeMillis();
+            wc.synctimeOff(new Atom() {
+                @Override
+                public void run() {
+                    for (WnObj an : list) {
+                        if (an.syncTime() > 0) {
+                            an.syncTime(synctime);
+                            indexer.set(an, "^st$");
+                        }
+                    }
+                    if (includeSelf && o.syncTime() > 0) {
+                        o.syncTime(synctime);
+                        indexer.set(o, "^st$");
+                    }
+                }
+            });
         }
 
         /**

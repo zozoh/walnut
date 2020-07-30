@@ -108,6 +108,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String path() {
+        if (null != _parent) {
+            String pph = _parent.path();
+            String nm = this.name();
+            return Wn.appendPath(pph, nm);
+        }
         String ph = oHome.path();
         return Wn.appendPath(ph, rph);
     }
@@ -136,7 +141,20 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String name() {
+        String nm = this.getString("nm");
+        if (!Strings.isBlank(nm))
+            return nm;
         return file.getName();
+    }
+
+    @Override
+    public WnObj name(String nm) {
+        if (Strings.isBlank(nm)) {
+            this.remove("nm");
+        } else {
+            this.put("nm", nm);
+        }
+        return this;
     }
 
     @Override
@@ -180,6 +198,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         }
         File p = file.getParentFile();
         return new WnLocalFileObj(oHome, dHome, p, mimes);
+    }
+
+    /**
+     * 有时候链接文件，需要修改这个文件的父，以便呈现链接后的目录
+     */
+    private WnObj _parent;
+
+    @Override
+    public void setParent(WnObj parent) {
+        this._parent = parent;
     }
 
     @Override
@@ -493,17 +521,9 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public WnObj name(String nm) {
-        throw Lang.noImplement();
-    }
-
-    @Override
     public WnObj race(WnRace race) {
         throw Lang.noImplement();
     }
-
-    @Override
-    public void setParent(WnObj parent) {}
 
     @Override
     public WnObj mount(String mnt) {

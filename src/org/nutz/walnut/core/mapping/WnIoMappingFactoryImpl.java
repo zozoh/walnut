@@ -88,7 +88,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         String mount = obj.mount();
 
         // 自己就是顶端映射对象
-        if (obj.isSameId(homeId)) {
+        if (Strings.isBlank(homeId) || obj.isSameId(homeId)) {
             return __check_mapping(obj, mount);
         }
 

@@ -259,11 +259,12 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public boolean isSameSha1(String sha1) {
         String mySha1 = sha1();
-        if (null == sha1)
-            return null == mySha1;
+        if (Wn.Io.isEmptySha1(sha1))
+            return Wn.Io.isEmptySha1(mySha1);
 
-        if (null == mySha1)
+        if (Wn.Io.isEmptySha1(mySha1))
             return false;
+
         return mySha1.equals(sha1);
     }
 

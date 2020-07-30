@@ -26,7 +26,7 @@ public class LocalFileIndexerFactory implements WnIndexerFactory {
         if (null == dHome) {
             throw Er.create("e.io.mapping.file.noexists", str);
         }
-        return new LocalFileIndexer(oHome, dHome, mimes);
+        return new LocalFileIndexer(oHome, mimes, dHome);
     }
 
 }

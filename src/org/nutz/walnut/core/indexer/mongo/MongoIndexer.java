@@ -20,7 +20,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
-import org.nutz.walnut.core.indexer.AbstractIoIndexer;
+import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.impl.io.mongo.WnMongos;
 import org.nutz.walnut.util.Wn;
 
@@ -28,7 +28,7 @@ import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-public class MongoIndexer extends AbstractIoIndexer {
+public class MongoIndexer extends AbstractIoDataIndexer {
 
     private static final Log log = Logs.get();
 
@@ -278,7 +278,7 @@ public class MongoIndexer extends AbstractIoIndexer {
             o = root.clone();
 
         // 否则，直接查询子
-        ZMoDoc qDoc = Mongos.qID(o.myId());
+        ZMoDoc qDoc = ZMoDoc.NEW("pid", o.myId());
         return co.count(qDoc);
     }
 

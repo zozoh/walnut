@@ -28,20 +28,12 @@ public class LocalFileWriteHandle extends WnIoWriteHandle {
     }
 
     @Override
-    public void close() throws IOException {
-     // 肯定已经关闭过了
-        if (null == obj) {
-            return;
-        }
+    public void on_close() throws IOException {
         // 无论如何，刷一下
         Streams.safeFlush(ops);
 
         // 关闭交换文件
         Streams.safeClose(ops);
-
-        // 删除句柄
-        manager.remove(this.getId());
-        obj = null; // 标志一下，这个句柄实例就不能再使用了
         ops = null;
     }
 

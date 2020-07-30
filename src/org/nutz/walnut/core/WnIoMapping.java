@@ -1,5 +1,6 @@
 package org.nutz.walnut.core;
 
+import org.nutz.lang.Each;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
@@ -45,27 +46,56 @@ public class WnIoMapping {
         bm.truncate(o, len, indexer);
     }
 
-    public void delete(WnObj o, boolean r) {
+    public void delete(WnObj o, boolean r, WnIoActionCallback callback) {
         // 仅仅是文件
         if (o.isFILE()) {
             if (o.hasSha1()) {
                 bm.remove(o.sha1(), o.id());
             }
+            //
+            // 删除存储
+            //
+            if (!Wn.Io.isEmptySha1(o.sha1())) {
+                bm.remove(o.sha1(), o.id());
+            }
+            //
+            // 删除索引
+            //
+            // 之前的回调
+            if (null != callback) {
+                callback.on_before(o);
+            }
             indexer.delete(o);
+            // 之后的回调
+            if (null != callback) {
+                callback.on_after(o);
+            }
             return;
         }
 
         // 递归删除所有的子孙
         if (r) {
-
+            indexer.eachChild(o, null, new Each<WnObj>() {
+                public void invoke(int index, WnObj child, int length) {
+                    delete(child, r, callback);
+                }
+            });
         }
         // 否则必须确保自身不为空
         else if (indexer.hasChild(o)) {
             throw Er.create("e.io.rm.NoEmptyDir");
         }
 
+        // 之前的回调
+        if (null != callback) {
+            callback.on_before(o);
+        }
         // 删除自身
         indexer.delete(o);
+        // 之后的回调
+        if (null != callback) {
+            callback.on_after(o);
+        }
     }
 
     /**

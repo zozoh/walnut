@@ -6,6 +6,7 @@ import java.nio.channels.FileChannel;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
+import org.nutz.walnut.util.Wn;
 
 public abstract class WnIoReadWriteHandle extends WnIoHandle {
 
@@ -120,6 +121,28 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
     public void flush() throws IOException {
         FileChannel chan = channel();
         chan.force(false);
+    }
+    
+    protected abstract void on_close() throws IOException;
+
+    @Override
+    public void close() throws IOException {
+        // 肯定已经关闭过了
+        if (null == obj) {
+            return;
+        }
+
+        // 调用子类的清除逻辑
+        this.on_close();
+
+        // 删除句柄
+        manager.remove(this.getId());
+
+        // 更新同步时间
+        Wn.Io.update_ancestor_synctime(indexer, obj, false, 0);
+
+        // 标志一下，这个句柄实例就不能再使用了
+        obj = null;
     }
 
 }

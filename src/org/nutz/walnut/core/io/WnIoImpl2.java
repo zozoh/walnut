@@ -35,6 +35,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.core.WnIoActionCallback;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoIndexer;
@@ -54,6 +55,13 @@ public class WnIoImpl2 implements WnIo {
      * 映射工厂类
      */
     private WnIoMappingFactory mappings;
+
+    /**
+     * 子类可以添加一个删除动作的回调。
+     * <p>
+     * 因为删除动作可能涉及递归深层删除，因此不能用在子类函数覆盖super方法进行拦截
+     */
+    protected WnIoActionCallback whenDelete;
 
     public WnIoImpl2(WnIoMappingFactory mappings) {
         this.mappings = mappings;
@@ -186,22 +194,17 @@ public class WnIoImpl2 implements WnIo {
     // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
     @Override
     public void delete(WnObj o) {
-        WnIoMapping im = mappings.checkMapping(o);
-        im.delete(o, false);
+        this.delete(o, false);
     }
 
     @Override
     public void delete(WnObj o, boolean r) {
-        if (o.isDIR() && r) {
-            // 递归
-            each(Wn.Q.pid(o.id()), new Each<WnObj>() {
-                public void invoke(int index, WnObj child, int length) {
-                    delete(child, true);
-                }
-            });
-        }
-        // 删除自己
-        delete(o);
+        WnIoMapping im = mappings.checkMapping(o);
+        im.delete(o, r, this.whenDelete);
+
+        // 更新同步时间
+        WnIoIndexer indexer = im.getIndexer();
+        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
     }
 
     @Override
@@ -407,83 +410,9 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
-        // DEPTH_LEAF_FIRST
-        if (WalkMode.DEPTH_LEAF_FIRST == mode) {
-            __walk_DEPTH_LEAF_FIRST(p, callback);
-        }
-        // DEPTH_NODE_FIRST
-        else if (WalkMode.DEPTH_NODE_FIRST == mode) {
-            __walk_DEPATH_NODE_FIRST(p, callback);
-        }
-        // 广度优先
-        else if (WalkMode.BREADTH_FIRST == mode) {
-            __walk_BREADTH_FIRST(p, callback);
-        }
-        // 仅叶子节点
-        else if (WalkMode.LEAF_ONLY == mode) {
-            __walk_LEAF_ONLY(p, callback);
-        }
-        // 不可能
-        else {
-            throw Lang.impossible();
-        }
-    }
-
-    protected void _do_walk_children(WnObj p, final Callback<WnObj> callback) {
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
-        Each<WnObj> looper = Wn.eachLooping(new Each<WnObj>() {
-            public void invoke(int index, WnObj obj, int length) {
-                callback.invoke(obj);
-            }
-        });
-        indexer.eachChild(p, null, looper);
-    }
-
-    private void __walk_LEAF_ONLY(WnObj p, final Callback<WnObj> callback) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                if (nd.isFILE())
-                    callback.invoke(nd);
-                else
-                    __walk_LEAF_ONLY(nd, callback);
-            }
-        });
-    }
-
-    private void __walk_BREADTH_FIRST(WnObj p, final Callback<WnObj> callback) {
-        final List<WnObj> list = new LinkedList<WnObj>();
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                callback.invoke(nd);
-                if (!nd.isFILE())
-                    list.add(nd);
-            }
-        });
-        for (WnObj nd : list)
-            __walk_BREADTH_FIRST(nd, callback);
-    }
-
-    private void __walk_DEPATH_NODE_FIRST(WnObj p, final Callback<WnObj> callback) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                callback.invoke(nd);
-                if (!nd.isFILE()) {
-                    __walk_DEPATH_NODE_FIRST(nd, callback);
-                }
-            }
-        });
-    }
-
-    private void __walk_DEPTH_LEAF_FIRST(WnObj p, final Callback<WnObj> callback) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                if (!nd.isFILE()) {
-                    __walk_DEPTH_LEAF_FIRST(nd, callback);
-                }
-                callback.invoke(nd);
-            }
-        });
+        indexer.walk(p, callback, mode);
     }
 
     @Override
@@ -713,7 +642,12 @@ public class WnIoImpl2 implements WnIo {
         }
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
-        return indexer.createById(p, id, name, race);
+        WnObj o = indexer.createById(p, id, name, race);
+
+        // 更新父节点同步时间
+        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+
+        return o;
     }
 
     @Override
@@ -734,7 +668,12 @@ public class WnIoImpl2 implements WnIo {
             return o;
         }
         // 不存在，就创建
-        return indexer.create(p, path, race);
+        o = indexer.create(p, path, race);
+
+        // 更新父节点同步时间
+        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+
+        return o;
     }
 
     @Override
@@ -748,10 +687,15 @@ public class WnIoImpl2 implements WnIo {
         WnObj o = indexer.fetch(p, path);
         // 如果存在，删了以便创建心的
         if (null != o) {
-            mapping.delete(o, true);
+            mapping.delete(o, true, this.whenDelete);
         }
         // 先删除再创建
-        return indexer.create(p, path, race);
+        o = indexer.create(p, path, race);
+
+        // 更新父节点同步时间
+        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+
+        return o;
     }
 
     @Override
@@ -958,8 +902,11 @@ public class WnIoImpl2 implements WnIo {
     public void setMount(WnObj o, String mnt) {
         mnt = Strings.sBlank(mnt, null);
         // 必须操作映射根节点
-        if (!o.isMount() || o.isSameId(o.mountRootId())) {
-            // 取消映射
+        // 即，这个节点是 mount 但是 mountRootId 又为空，那么它就是映射的根节点
+        // 如果没有映射的节点，当然也能修改映射
+        String mntId = o.mountRootId();
+        if (!o.isMount() || (null == mntId)) {
+            // 取消映射:
             if (null == mnt) {
                 if (o.isMount()) {
                     appendMeta(o, new NutMap("!mnt", ""));

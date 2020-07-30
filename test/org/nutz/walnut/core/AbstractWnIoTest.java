@@ -23,8 +23,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnObjIdTest;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
-import org.nutz.walnut.impl.io.TestWnIoImpl;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
@@ -179,62 +179,47 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     @Test
     public void test_fetch_link_mnt_obj() {
         // 创建临时文件夹，并写入两个文件
-        File d = Files.createDirIfNoExists("~/tmp/walnut/ua");
+        File d = setup.getLocalFileHome();
+        String aph = Files.getAbsPath(d);
         Files.write(d.getAbsolutePath() + "/aa", "AAA");
         Files.write(d.getAbsolutePath() + "/bb", "BBB");
 
-        Wn.WC().setSecurity(new WnEvalLink(io));
-        try {
+        // 创建一个映射文件一个链接文件
+        WnObj oM = io.create(null, "/test/m", WnRace.DIR);
+        WnObj o = io.create(null, "/mydir/a", WnRace.DIR);
 
-            // 创建一个映射文件一个链接文件
-            WnObj oM = io.create(null, "/test/m", WnRace.DIR);
-            WnObj o = io.create(null, "/mydir/a", WnRace.DIR);
+        io.setMount(oM, "file://" + aph);
 
-            io.setMount(oM, "file://~/tmp/walnut/ua");
+        o.link("/test/m");
+        io.set(o, "^ln$");
 
-            o.link("/test/m");
-            io.set(o, "^ln$");
+        // 试着读取一下
+        WnObj o_a = io.check(null, "/mydir/a/aa");
+        assertEquals("/mydir/a/aa", o_a.path());
+        assertEquals("AAA", io.readText(o_a));
 
-            // 试着读取一下
-            WnObj o_a = io.check(null, "/mydir/a/aa");
-            assertEquals("/mydir/a/aa", o_a.path());
-            assertEquals("AAA", io.readText(o_a));
+        WnObj o_b = io.check(null, "/mydir/a/bb");
+        assertEquals("/mydir/a/bb", o_b.path());
+        assertEquals("BBB", io.readText(o_b));
 
-            WnObj o_b = io.check(null, "/mydir/a/bb");
-            assertEquals("/mydir/a/bb", o_b.path());
-            assertEquals("BBB", io.readText(o_b));
-
-        }
-        finally {
-            Wn.WC().setSecurity(null);
-            Files.deleteDir(d);
-        }
     }
 
     @Test
     public void test_create_delete_ln_obj() {
-        Wn.WC().setSecurity(new WnEvalLink(io));
-        try {
-            WnObj c = io.create(null, "/a/b/c", WnRace.DIR);
-            WnObj o = io.create(null, "/m", WnRace.FILE);
-            o.link("/a");
-            io.set(o, "^ln$");
+        WnObj c = io.create(null, "/a/b/c", WnRace.DIR);
+        WnObj o = io.create(null, "/m", WnRace.FILE);
+        o.link("/a");
+        io.set(o, "^ln$");
 
-            o = io.fetch(null, "/m");
+        o = io.fetch(null, "/m");
 
-            assertTrue(o.isLink());
+        assertTrue(o.isLink());
 
-            WnObj c2 = io.fetch(o, "b/c");
-            assertEquals(c.id(), c2.id());
+        WnObj c2 = io.fetch(o, "b/c");
+        assertEquals(c.id(), c2.id());
 
-            io.delete(o);
-            assertNull(io.fetch(null, "/m"));
-
-        }
-        finally {
-            Wn.WC().setSecurity(null);
-        }
-
+        io.delete(o);
+        assertNull(io.fetch(null, "/m"));
     }
 
     @Test
@@ -668,34 +653,30 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
 
     @Test
     public void test_mount_and_ln() {
-        Wn.WC().setSecurity(new WnEvalLink(io));
-        try {
-            File f = Files.findFile("org/nutz/walnut");
-            String ph = f.getAbsolutePath().replace('\\', '/');
-            String mnt = "file://" + ph;
+        File f = Files.findFile("org/nutz/walnut");
+        String aph = Files.getAbsPath(f);
+        String mnt = "file://" + aph;
 
-            WnObj b = io.create(null, "/a/b", WnRace.DIR);
-            WnObj y = io.create(null, "/x/y", WnRace.DIR);
+        WnObj b = io.create(null, "/a/b", WnRace.DIR);
+        WnObj y = io.create(null, "/x/y", WnRace.DIR);
 
-            // 挂载
-            io.setMount(b, mnt);
+        // 挂载
+        io.setMount(b, mnt);
 
-            // 链接
-            y.link("/a/b/impl/io");
-            io.set(y, "^ln$");
+        // 链接
+        y.link("/a/b/core/bean");
+        io.set(y, "^ln$");
 
-            // 试图找找文件
-            WnObj x = io.fetch(null, "/x");
-            WnObj o = io.fetch(x, "y/" + TestWnIoImpl.class.getSimpleName() + ".class");
+        // 试图找找文件
+        String fnm = WnObjIdTest.class.getSimpleName() + ".class";
+        WnObj x = io.fetch(null, "/x");
+        WnObj o = io.fetch(x, "y/" + fnm);
 
-            // 验证
-            assertTrue(o.isMount());
-
-        }
-        finally {
-            Wn.WC().setSecurity(null);
-        }
-
+        // 验证
+        assertTrue(o.isMount());
+        assertEquals(mnt, o.mount());
+        assertEquals(fnm, o.name());
+        assertEquals("bean", o.parent().name());
     }
 
     /**
@@ -705,19 +686,19 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     public void test_mount_unmount() {
         WnObj b = io.create(null, "/a/b", WnRace.DIR);
 
-        String oldmnt = b.mount();
-
         io.setMount(b, "file://~/noexists/dir");
         assertEquals("file://~/noexists/dir", b.mount());
+        assertTrue(b.isMount());
 
         b = io.checkById(b.id());
         assertEquals("file://~/noexists/dir", b.mount());
+        assertTrue(b.isMount());
 
         io.setMount(b, null);
-        assertEquals(oldmnt, b.mount());
+        assertFalse(b.isMount());
 
         b = io.checkById(b.id());
-        assertEquals(oldmnt, b.mount());
+        assertFalse(b.isMount());
     }
 
     @Test
@@ -748,7 +729,6 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
 
     @Test
     public void test_read_write_link_file() throws Exception {
-        Wn.WC().setSecurity(new WnEvalLink(io));
         WnObj a = io.create(null, "/linktest/a", WnRace.FILE);
         WnObj b = io.create(null, "/linktest/b", WnRace.FILE);
         try {
@@ -771,13 +751,11 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         finally {
             io.delete(a);
             io.delete(b);
-            Wn.WC().setSecurity(null);
         }
     }
 
     @Test
     public void test_read_write_link_dir() throws Exception {
-        Wn.WC().setSecurity(new WnEvalLink(io));
         WnObj a = io.create(null, "/linktest/a", WnRace.DIR);
         WnObj a1 = io.create(null, "/linktest/a/a1", WnRace.FILE);
         WnObj b = io.create(null, "/linktest/b", WnRace.DIR);
@@ -798,7 +776,6 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
             io.delete(a1);
             io.delete(a);
             io.delete(b);
-            Wn.WC().setSecurity(null);
         }
     }
 

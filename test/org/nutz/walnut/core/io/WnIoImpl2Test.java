@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.core.AbstractWnIoTest;
+import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 
 public class WnIoImpl2Test extends AbstractWnIoTest {
@@ -18,6 +19,7 @@ public class WnIoImpl2Test extends AbstractWnIoTest {
 
         WnAccount me = setup.genAccount("root");
         Wn.WC().setMe(me);
+        Wn.WC().setSecurity(new WnEvalLink(io));
     }
 
     @After

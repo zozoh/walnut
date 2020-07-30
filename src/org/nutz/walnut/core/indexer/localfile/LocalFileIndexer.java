@@ -15,22 +15,17 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.bean.WnLocalFileObj;
+import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 
-public class LocalFileIndexer implements WnIoIndexer {
-
-    protected MimeMap mimes;
-
-    protected WnObj oHome;
+public class LocalFileIndexer extends AbstractIoIndexer {
 
     protected File dHome;
 
     protected String phHome;
 
-    public LocalFileIndexer(WnObj oHome, File dHome, MimeMap mimes) {
-        this.mimes = mimes;
-        this.oHome = oHome;
+    public LocalFileIndexer(WnObj root, MimeMap mimes, File dHome) {
+        super(root, mimes);
         this.dHome = dHome;
         this.phHome = Files.getAbsPath(dHome);
     }
@@ -40,7 +35,7 @@ public class LocalFileIndexer implements WnIoIndexer {
     }
 
     protected File _check_file_by(WnObj p) {
-        if (null == p) {
+        if (null == p || root.isSameId(p)) {
             return dHome;
         }
         if (p instanceof WnLocalFileObj) {
@@ -57,7 +52,7 @@ public class LocalFileIndexer implements WnIoIndexer {
     }
 
     protected WnLocalFileObj _gen_file_obj(File f) {
-        return new WnLocalFileObj(oHome, dHome, f, mimes);
+        return new WnLocalFileObj(root, dHome, f, mimes);
     }
 
     @Override
@@ -179,28 +174,10 @@ public class LocalFileIndexer implements WnIoIndexer {
     }
 
     //
-    // 简单获取根
+    // 下面的就是弄个幌子，啥也不做
     //
-
     @Override
-    public WnObj getRoot() {
-        return oHome;
-    }
-
-    @Override
-    public String getRootId() {
-        return oHome.id();
-    }
-
-    @Override
-    public boolean isRoot(String id) {
-        return oHome.isSameId(id);
-    }
-
-    @Override
-    public boolean isRoot(WnObj o) {
-        return oHome.isSameId(o);
-    }
+    public void set(WnObj o, String regex) {}
 
     //
     // 下面的都暂时不实现
@@ -228,11 +205,6 @@ public class LocalFileIndexer implements WnIoIndexer {
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public void set(WnObj o, String regex) {
         throw Lang.noImplement();
     }
 
@@ -334,11 +306,6 @@ public class LocalFileIndexer implements WnIoIndexer {
     @Override
     public void pull(WnQuery query, String key, Object val) {
         throw Lang.noImplement();
-    }
-
-    @Override
-    public MimeMap mimes() {
-        return mimes;
     }
 
 }

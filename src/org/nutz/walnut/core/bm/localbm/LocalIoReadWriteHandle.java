@@ -7,7 +7,6 @@ import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.bm.WnIoReadWriteHandle;
 import org.nutz.walnut.util.Wn;
 
@@ -45,11 +44,7 @@ public class LocalIoReadWriteHandle extends WnIoReadWriteHandle {
     }
 
     @Override
-    public void close() throws IOException {
-        // 肯定已经关闭过了
-        if (null == obj) {
-            return;
-        }
+    public void on_close() throws IOException {
         // 无论如何，刷一下
         if (null != chan) {
             chan.force(false);
@@ -60,18 +55,12 @@ public class LocalIoReadWriteHandle extends WnIoReadWriteHandle {
         Streams.safeClose(raf);
 
         // 根据交换文件更新对象的索引
-        WnObj o = this.obj;
-        try {
-            bm.updateObjSha1(o, swap, indexer);
-        }
-        // 无论如何，删除句柄
-        finally {
-            manager.remove(this.getId());
-            obj = null; // 标志一下，这个句柄实例就不能再使用了
-            swap = null;
-            raf = null;
-            chan = null;
-        }
+        bm.updateObjSha1(this.obj, swap, indexer);
+
+        // 重置成员
+        swap = null;
+        raf = null;
+        chan = null;
     }
 
 }

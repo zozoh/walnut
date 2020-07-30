@@ -36,11 +36,7 @@ public class LocalFileReadWriteHandle extends WnIoReadWriteHandle {
     }
 
     @Override
-    public void close() throws IOException {
-        // 肯定已经关闭过了
-        if (null == obj) {
-            return;
-        }
+    public void on_close() throws IOException {
         // 无论如何，刷一下
         if (null != chan) {
             chan.force(false);
@@ -50,9 +46,7 @@ public class LocalFileReadWriteHandle extends WnIoReadWriteHandle {
         Streams.safeClose(chan);
         Streams.safeClose(raf);
 
-        // 删除句柄
-        manager.remove(this.getId());
-        obj = null; // 标志一下，这个句柄实例就不能再使用了
+        // 重置成员
         raf = null;
         chan = null;
 
