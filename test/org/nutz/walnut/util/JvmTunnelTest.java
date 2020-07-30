@@ -8,14 +8,13 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.box.WnTunnel;
-import org.nutz.walnut.util.JvmTunnel;
 
-public class TestJvmTunnel {
+public class JvmTunnelTest {
 
     private WnTunnel tnl;
 
     @Before
-    public void before() {
+    public void setUp() {
         tnl = new JvmTunnel(3);
     }
 
@@ -24,7 +23,8 @@ public class TestJvmTunnel {
         tnl = new JvmTunnel(8192);
         String src = Strings.dup('B', 99999999);
         final byte[] sbs = src.getBytes();
-        //System.out.printf("gen %d bytes ~ %d Mbytes\n", sbs.length, sbs.length / 1000 / 1000);
+        // System.out.printf("gen %d bytes ~ %d Mbytes\n", sbs.length,
+        // sbs.length / 1000 / 1000);
         final Object lock = new Object();
         final byte[] bs = new byte[sbs.length];
 
@@ -56,7 +56,7 @@ public class TestJvmTunnel {
         // 等待结果
         while (aT.isAlive() || bT.isAlive()) {
             Lang.wait(lock, 100);
-            // System.out.printf("aT:%b,  bT:%b\n", aT.isAlive(), bT.isAlive());
+            // System.out.printf("aT:%b, bT:%b\n", aT.isAlive(), bT.isAlive());
         }
 
         // 检查结果

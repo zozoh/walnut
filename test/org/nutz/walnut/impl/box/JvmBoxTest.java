@@ -9,7 +9,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public class TestJvmBox extends BaseBoxTest {
+public class JvmBoxTest extends BaseBoxTest {
 
     @Test
     public void test_subsitution_in_pipe() {
@@ -52,7 +52,7 @@ public class TestJvmBox extends BaseBoxTest {
 
     @Test
     public void test_simple_pipe() {
-        box.run("output -delay 500 'hello' | md5sum");
+        box.run("output -delay 500 'hello' | md5sum -t");
 
         assertEquals(Lang.md5("hello\n"), touts());
     }
@@ -78,16 +78,4 @@ public class TestJvmBox extends BaseBoxTest {
         assertEquals("hello\n", outs());
     }
 
-    @Test
-    public void test_memory_mount_redir_stdout() {
-        Wn.WC().remove("_memory_tree");
-        String homePath = Wn.normalizeFullPath("~/", se);
-        WnObj tmpDir = io.createIfNoExists(null, homePath + "/tmp2", WnRace.DIR);
-        io.setMount(tmpDir, "memory://_");
-        
-        box.run("echo 'hello' > "+homePath + "/tmp2/abc");
-        box.run("cat "+homePath + "/tmp2/abc");
-        assertEquals("hello\n", outs());
-        Wn.WC().remove("_memory_tree");
-    }
 }

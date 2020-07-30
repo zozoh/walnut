@@ -6,16 +6,16 @@ import org.nutz.lang.Files;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandleManager;
-import org.nutz.walnut.core.bm.localfile.LocalFileBM;
+import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.mapping.WnBMFactory;
 
-public class LocalFileBMFactory implements WnBMFactory {
+public class LocalFileWBMFactory implements WnBMFactory {
 
     private WnIoHandleManager handles;
 
-    public LocalFileBMFactory() {}
+    public LocalFileWBMFactory() {}
 
-    public LocalFileBMFactory(WnIoHandleManager handles) {
+    public LocalFileWBMFactory(WnIoHandleManager handles) {
         this.handles = handles;
     }
 
@@ -30,7 +30,7 @@ public class LocalFileBMFactory implements WnBMFactory {
     @Override
     public WnIoBM load(WnObj oHome, String str) {
         File f = Files.findFile(str);
-        return new LocalFileBM(handles, f);
+        return new LocalFileWBM(handles, f);
     }
 
 }

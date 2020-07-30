@@ -55,11 +55,15 @@ public class cmd_output extends JvmExecutor {
         // 输出的休息间隔（默认1s一个），最快不能超过1ms
         long interval = Math.max(1L, params.getLong("interval", 1000L));
 
+        // 准备计数
+        int i = 0;
         try {
-            // 计数
-            int i = 0;
+            // 只输出一次
+            if (n < 0) {
+                __print(jbo, i++, msg, t, showIndex);
+            }
             // 无限循环输出
-            if (0 == n) {
+            else if (0 == n) {
                 while (true) {
                     __print(jbo, i++, msg, t, showIndex);
                     if (interval > 0)
@@ -76,7 +80,7 @@ public class cmd_output extends JvmExecutor {
                         Thread.sleep(interval);
                 }
                 // 输出最后一条
-                //__print(jbo, i, msg, t, showIndex);
+                // __print(jbo, i, msg, t, showIndex);
             }
         }
         catch (InterruptedException e) {}

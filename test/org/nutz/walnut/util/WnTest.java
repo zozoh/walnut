@@ -8,7 +8,7 @@ import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class TestWn {
+public class WnTest {
 
     @Test
     public void test_appendPath() {

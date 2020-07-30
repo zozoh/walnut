@@ -573,6 +573,16 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj setBy(String id, NutBean map, boolean returnNew) {
+        // 如果改名，先改一下
+        if (map.has("nm")) {
+            String nm = map.getString("nm");
+            map.remove("nm");
+            WnObj o = this.checkById(id);
+            if (!o.isSameName(nm)) {
+                this.rename(o, nm);
+            }
+        }
+        // 然后改其他的
         return setBy(Wn.Q.id(id), map, returnNew);
     }
 
@@ -593,10 +603,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (null == o)
             return null;
 
-        o = Wn.WC().whenMeta(o, false);
-
         // 执行修改
         if (map.size() > 0) {
+            o = Wn.WC().whenMeta(o, false);
+
             // 这里再次确保只匹配一个
             q.limit(1);
 

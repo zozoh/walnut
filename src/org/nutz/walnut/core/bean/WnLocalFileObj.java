@@ -31,6 +31,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     private String _id; // 用来缓存一下
 
+    private String phHome;
+
+    private String phFile;
+
     private String rph;
 
     public WnLocalFileObj(WnObj oHome, File dHome, File f, MimeMap mimes) {
@@ -38,7 +42,12 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         this.dHome = dHome;
         this.file = f;
         this.mimes = mimes;
-        this.rph = Disks.getRelativePath(dHome, file);
+        this.phHome = Files.getAbsPath(dHome);
+        this.phFile = Files.getAbsPath(file);
+        this.rph = Disks.getRelativePath(phHome, phFile);
+        if (file.isDirectory() && !this.rph.endsWith("/")) {
+            this.rph += "/";
+        }
         this._id = oHome.id() + ":" + rph;
     }
 
@@ -193,7 +202,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj parent() {
-        if ("./".equals(rph)) {
+        if (null != _parent) {
+            return _parent;
+        }
+        String ph = Wn.appendPath(phHome, rph);
+        if (ph.equals(this.phFile)) {
             return oHome;
         }
         File p = file.getParentFile();
@@ -219,7 +232,9 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     public WnObj loadParents(List<WnObj> list, boolean force) {
         WnObj p = this.parent();
         p.loadParents(list, force);
-        list.add(p);
+        if (null != list) {
+            list.add(p);
+        }
         return p;
     }
 

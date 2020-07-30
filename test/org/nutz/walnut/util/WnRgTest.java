@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestWnRg {
+public class WnRgTest {
 
     @Test
     public void test_int_region() {

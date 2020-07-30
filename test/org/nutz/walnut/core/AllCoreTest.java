@@ -12,4 +12,4 @@ import org.nutz.walnut.core.mapping.TestAllIoMapping;
                      TestAllIndexer.class,
                      TestAllIo.class,
                      TestAllIoMapping.class})
-public class TestAllCore {}
+public class AllCoreTest {}

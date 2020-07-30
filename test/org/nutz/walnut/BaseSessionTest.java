@@ -1,6 +1,5 @@
 package org.nutz.walnut;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -11,11 +10,12 @@ import org.nutz.walnut.util.Wn;
 public class BaseSessionTest extends BaseUsrTest {
 
     protected WnAccount me;
+
     protected WnAuthSession session;
 
     @Override
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
+    protected void on_before() {
+        super.on_before();
 
         // 准备测试用户
         WnAccount me = auth.getAccount("wendal");
@@ -31,8 +31,8 @@ public class BaseSessionTest extends BaseUsrTest {
     }
 
     @Override
-    protected void on_after(PropertiesProxy pp) {
-        super.on_after(pp);
+    protected void on_after() {
+        super.on_after();
     }
 
     protected void _init_files(String confPath) {
@@ -49,4 +49,5 @@ public class BaseSessionTest extends BaseUsrTest {
             io.create(null, aph, race);
         }
     }
+
 }

@@ -1,11 +1,7 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import org.nutz.lang.Lang;
-import org.nutz.lang.Streams;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -40,21 +36,22 @@ public abstract class cmd_xxxsum extends JvmExecutor {
                 sys.out.printf("%s : %s(%s)", _sum, algorithm.toUpperCase(), val);
             }
         }
-        // 如果有管道输入
-        else if (sys.pipeId > 0) {
-            InputStream ins = sys.in.getInputStream();
-            if (params.is("t")) {
-                String tmp = Streams.readAndClose(new InputStreamReader(ins));
-                tmp = tmp.trim();
-                ins = new ByteArrayInputStream(tmp.getBytes());
-            }
-            String _sum = sum(ins);
-            sys.out.print(_sum);
-        }
         // 字符串
         else if (params.has("s")) {
             String str = params.get("s");
             String _sum = sum(str);
+            sys.out.print(_sum);
+        }
+        // 管道：读字符串去掉空白
+        else if (params.is("t")) {
+            String str = sys.in.readAll();
+            String _sum = sum(str);
+            sys.out.print(_sum);
+        }
+        // 默认就读管道吧
+        else {
+            InputStream ins = sys.in.getInputStream();
+            String _sum = sum(ins);
             sys.out.print(_sum);
         }
         // 输出换行

@@ -1,6 +1,5 @@
 package org.nutz.walnut;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -60,8 +59,8 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     }
 
     @Override
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
+    protected void on_before() {
+        super.on_before();
 
         boxes = _create_box_service();
 
@@ -95,11 +94,11 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     }
 
     @Override
-    protected void on_after(PropertiesProxy pp) {
+    protected void on_after() {
         boxes.free(box);
         Wn.WC().setSession(null);
         Wn.WC().setMe(__old_me);
-        super.on_after(pp);
+        super.on_after();
     }
 
     private WnBoxService _create_box_service() {

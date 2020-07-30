@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.nutz.lang.random.R;
 import org.nutz.walnut.api.auth.WnAccount;
 
-public class TestWnAccount {
+public class WnAccountTest {
 
     @Test
     public void test_getHomePath() {

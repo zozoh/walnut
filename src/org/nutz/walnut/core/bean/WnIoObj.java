@@ -499,7 +499,15 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s;ID(%s)<%s/%s>", path(), id(), creator(), group());
+        String lnk = "";
+        if (this.isLink()) {
+            lnk = "->" + this.link();
+        }
+        String mnt = "";
+        if (this.isMount()) {
+            mnt = "::" + mnt;
+        }
+        return String.format("%s;ID(%s)%s%s", path(), id(), mnt, lnk);
     }
 
     // -----------------------------------------
@@ -630,11 +638,17 @@ public class WnIoObj extends NutMap implements WnObj {
             if (this.indexer == null) {
                 throw Lang.makeThrow("NPE indexer: %s/%s > %s", pid, this.id(), this.name());
             }
+            // 自己的父就是根了
+            if (this.indexer.isRoot(pid)) {
+                return this.indexer.getRoot();
+            }
+            // 尝试获取自己的老父亲
             WnObj oP = indexer.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
                 throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
             }
+            // 调用这个函数，触发 pid|ph... 等一系列属性自动修改
             this.setParent(oP);
         }
         return _parent;

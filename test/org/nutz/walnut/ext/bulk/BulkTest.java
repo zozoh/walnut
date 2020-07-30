@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.bulk;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.walnut.BaseSessionTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.bulk.api.BulkIo;
@@ -19,8 +18,8 @@ public class BulkTest extends BaseSessionTest {
     }
 
     @Override
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
+    protected void on_before() {
+        super.on_before();
 
         bulks = new WnBulkServiceImpl();
         buIo = new WnBulkIoImpl();

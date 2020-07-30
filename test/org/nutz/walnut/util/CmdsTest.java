@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestCmds {
+public class CmdsTest {
 
     @Test
     public void test_split() {

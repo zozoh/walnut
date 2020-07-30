@@ -27,6 +27,7 @@ import org.nutz.walnut.core.mapping.WnBMFactory;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
 import org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl;
 import org.nutz.walnut.core.mapping.bm.LocalFileBMFactory;
+import org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalIoBMFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
@@ -103,6 +104,7 @@ public class IoCoreSetup {
         Map<String, WnBMFactory> bmfs = new HashMap<>();
         bmfs.put("lbm", new LocalIoBMFactory());
         bmfs.put("file", new LocalFileBMFactory(handles));
+        bmfs.put("filew", new LocalFileWBMFactory(handles));
         mappings.setBms(bmfs);
     }
 
@@ -213,7 +215,7 @@ public class IoCoreSetup {
         o.lastModified(System.currentTimeMillis());
         o.createTime(System.currentTimeMillis());
         o.creator("root").mender("root").group("root");
-        o.mode(0750);
+        o.mode(0755);
 
         return o;
     }

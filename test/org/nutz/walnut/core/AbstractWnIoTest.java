@@ -342,7 +342,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     @Test
     public void test_read_text() {
         WnObj o = io.create(null, "/a.xml", WnRace.FILE);
-        String path = "org/nutz/walnut/impl/io/test.xml";
+        String path = "org/nutz/walnut/core/test.xml";
         String xml = Files.read(path);
         io.writeText(o, xml);
 
@@ -357,7 +357,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     @Test
     public void test_read_xml() {
         WnObj o = io.create(null, "/a.xml", WnRace.FILE);
-        String path = "org/nutz/walnut/impl/io/test.xml";
+        String path = "org/nutz/walnut/core/test.xml";
         String xml = Files.read(path);
         io.writeText(o, xml);
 
@@ -671,12 +671,14 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         String fnm = WnObjIdTest.class.getSimpleName() + ".class";
         WnObj x = io.fetch(null, "/x");
         WnObj o = io.fetch(x, "y/" + fnm);
+        String oph = "/x/y/" + fnm;
 
         // 验证
         assertTrue(o.isMount());
         assertEquals(mnt, o.mount());
         assertEquals(fnm, o.name());
-        assertEquals("bean", o.parent().name());
+        assertEquals(oph, o.path());
+        assertEquals("y", o.parent().name());
     }
 
     /**
@@ -881,6 +883,16 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         assertEquals(100, o2.getInt("x"));
         assertEquals(99, o2.getInt("y"));
         assertEquals(888, o2.getInt("z"));
+    }
+
+    @Test
+    public void test_append_meta_rename() {
+        WnObj o = io.create(null, "/a", WnRace.FILE);
+        io.appendMeta(o, "nm:'b'");
+        assertEquals("b", o.name());
+
+        WnObj o2 = io.fetch(null, "/b");
+        assertEquals("b", o2.name());
     }
 
     @Test
@@ -1140,6 +1152,23 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         assertNotNull(o);
         assertEquals(0, Lang.eleSize(o.get("pets")));
 
+    }
+
+    @Test
+    public void test_mount_local_mime() {
+        WnObj x = io.create(null, "/x", WnRace.DIR);
+        try {
+            File f = Files.createFileIfNoExists2("~/.walnut/tmp/css/my.css");
+            io.setMount(x, "file://~/.walnut/tmp/css");
+            WnObj o = io.check(null, "/x/my.css");
+            assertEquals("my.css", o.name());
+            assertEquals("css", o.type());
+            assertEquals("text/css", o.mime());
+            assertEquals(f.length(), o.len());
+        }
+        finally {
+            Files.deleteDir(Files.findFile("~/.walnut/tmp"));
+        }
     }
 
 }

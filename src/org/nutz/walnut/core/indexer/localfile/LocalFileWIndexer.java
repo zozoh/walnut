@@ -25,7 +25,7 @@ public class LocalFileWIndexer extends LocalFileIndexer {
         }
         try {
             Files.createNewFile(f);
-            return this._gen_file_obj(f);
+            return this._gen_file_obj(p, f);
         }
         catch (IOException e) {
             throw Er.wrap(e);

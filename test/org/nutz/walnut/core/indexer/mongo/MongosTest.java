@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.io.mongo;
+package org.nutz.walnut.core.indexer.mongo;
 
 import static org.junit.Assert.*;
 
@@ -10,13 +10,13 @@ import org.nutz.walnut.util.Wn;
 
 import com.mongodb.DBObject;
 
-public class TestWnMongos {
+public class MongosTest {
 
     @Test
     public void test_int_range() {
         WnQuery q = Wn.Q.pid("--pid--");
         q.setv("nb", Region.Int("[1,)"));
-        ZMoDoc doc = WnMongos.toQueryDoc(q);
+        ZMoDoc doc = Mongos.toQueryDoc(q);
 
         assertEquals("--pid--", doc.get("pid"));
 
@@ -29,7 +29,7 @@ public class TestWnMongos {
     public void test_int_range_s() {
         WnQuery q = Wn.Q.pid("--pid--");
         q.setv("nb", "[1,)");
-        ZMoDoc doc = WnMongos.toQueryDoc(q);
+        ZMoDoc doc = Mongos.toQueryDoc(q);
 
         assertEquals("--pid--", doc.get("pid"));
 

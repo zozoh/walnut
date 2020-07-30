@@ -21,7 +21,7 @@ import org.mockito.stubbing.Answer;
 import org.nutz.img.Images;
 import org.nutz.lang.util.NutMap;
 
-public class TestHttpApiDynamicRender {
+public class HttpApiDynamicRenderTest {
 
     protected HttpServletResponse resp;
     protected ByteArrayOutputStream respOut;

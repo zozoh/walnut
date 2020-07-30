@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestJvmCmd {
+public class JvmCmdTest {
 
     @Test
     public void test_parse_with_escape() {

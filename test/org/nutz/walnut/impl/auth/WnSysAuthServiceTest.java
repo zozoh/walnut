@@ -20,7 +20,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
-public class TestWnSysAuthService extends BaseUsrTest {
+public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void test_forbidden_write() {
@@ -294,7 +294,8 @@ public class TestWnSysAuthService extends BaseUsrTest {
 
     @Test
     public void usr_create_by_email() {
-        WnAccount xiaobai = auth.createAccount(new WnAccount("xiaobai@nutzam.com", "123456"));
+        WnAccount acc = new WnAccount("xiaobai@nutzam.com", "123456");
+        WnAccount xiaobai = auth.createAccount(acc);
 
         // 获取一个
         WnAccount u = auth.getAccount("xiaobai@nutzam.com");

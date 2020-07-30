@@ -1,6 +1,5 @@
 package org.nutz.walnut;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.hook.WnHookContext;
@@ -17,8 +16,8 @@ public abstract class BaseHookTest extends BaseBoxTest {
     protected WnHookContext hc;
 
     @Override
-    protected void on_before(PropertiesProxy pp) {
-        super.on_before(pp);
+    protected void on_before() {
+        super.on_before();
 
         // 检查钩子目录
         oHome = io.check(null, me.getHomePath());
@@ -36,8 +35,8 @@ public abstract class BaseHookTest extends BaseBoxTest {
     }
 
     @Override
-    protected void on_after(PropertiesProxy pp) {
-        super.on_after(pp);
+    protected void on_after() {
+        super.on_after();
     }
 
 }

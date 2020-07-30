@@ -13,7 +13,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
-public class TestIoHook extends BaseHookTest {
+public class IoHookTest extends BaseHookTest {
 
     @Test
     public void test_mount() {

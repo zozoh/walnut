@@ -1016,8 +1016,8 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public InputStream getInputStream(WnObj o, long off) {
-        // 展开链接为成真正的文件
-        o = Wn.real(o, this, new HashMap<>());
+        // 检查权限同时展开链接为成真正的文件
+        o = Wn.WC().whenRead(o, false);
 
         // 获取映射
         try {
@@ -1042,8 +1042,8 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public OutputStream getOutputStream(WnObj o, long off) {
-        // 展开链接为成真正的文件
-        o = Wn.real(o, this, new HashMap<>());
+        // 检查权限同时展开链接为成真正的文件
+        o = Wn.WC().whenWrite(o, false);
 
         try {
             WnIoMapping im = mappings.checkMapping(o);

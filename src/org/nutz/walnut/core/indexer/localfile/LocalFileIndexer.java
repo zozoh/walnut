@@ -51,8 +51,10 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         throw Er.create("e.io.localfile.unacceptableParent", p.toString());
     }
 
-    protected WnLocalFileObj _gen_file_obj(File f) {
-        return new WnLocalFileObj(root, dHome, f, mimes);
+    protected WnLocalFileObj _gen_file_obj(WnObj p, File f) {
+        WnLocalFileObj o = new WnLocalFileObj(root, dHome, f, mimes);
+        o.setParent(p);
+        return o;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         if (!f2.exists()) {
             return null;
         }
-        return _gen_file_obj(f2);
+        return _gen_file_obj(p, f2);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         if (!f.exists()) {
             return null;
         }
-        return _gen_file_obj(f);
+        return _gen_file_obj(null, f);
     }
 
     //
@@ -142,7 +144,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
                 }
             }
             // 生成对象
-            WnObj ele = _gen_file_obj(fi);
+            WnObj ele = _gen_file_obj(o, fi);
             callback.invoke(i, ele, flist.length);
         }
 
