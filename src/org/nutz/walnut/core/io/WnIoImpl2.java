@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +61,15 @@ public class WnIoImpl2 implements WnIo {
      * 因为删除动作可能涉及递归深层删除，因此不能用在子类函数覆盖super方法进行拦截
      */
     protected WnIoActionCallback whenDelete;
+
+    /**
+     * 子类可以设置一个写操作的回调。
+     * <p>
+     * 在打开输出流时，会附加这个回调，当流关闭时，也会调用。
+     * <p>
+     * !!! 注意，直接采用句柄操作，则不会触发这个回调
+     */
+    protected WnIoActionCallback whenWrite;
 
     public WnIoImpl2(WnIoMappingFactory mappings) {
         this.mappings = mappings;
@@ -604,7 +612,7 @@ public class WnIoImpl2 implements WnIo {
         final WnContext wc = Wn.WC();
         final WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
 
-        // 创建所有的父
+        // 检查所有的父是否都被创建
         WnObj p1 = p0;
         for (int i = fromIndex; i < rightIndex; i++) {
             String name = paths[i];
@@ -1057,7 +1065,7 @@ public class WnIoImpl2 implements WnIo {
                 h = im.open(o, Wn.S.WM);
                 h.seek(off);
             }
-            return new WnIoOutputStream(h);
+            return new WnIoOutputStream(h, this.whenWrite);
         }
         catch (Exception e) {
             throw Er.wrap(e);

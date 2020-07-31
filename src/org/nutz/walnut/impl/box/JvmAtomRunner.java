@@ -204,7 +204,6 @@ public class JvmAtomRunner {
         }
     }
 
-    @SuppressWarnings("resource")
     private void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
         WnAuthSession se = bc.session;
@@ -342,6 +341,14 @@ public class JvmAtomRunner {
         }
     }
 
+    /**
+     * 每当一个命令运行原子运行结束，就会通过这个方法标志自己任务结束了
+     * <p>
+     * 这样，如果全部原子都通知了一遍，在<code>wait_for_idle</code>阻塞的调用者线程会得到通知
+     * 
+     * @param atom
+     *            命令运行原子对象
+     */
     synchronized void _finish(JvmAtom atom) {
         atoms[atom.id] = null;
         for (JvmAtom a : atoms)
@@ -351,32 +358,34 @@ public class JvmAtomRunner {
         Lang.notifyAll(idleLock);
     }
 
+    /**
+     * 这是一个阻塞函数，让调用者在自己的线程死等沙箱运行结束
+     */
     public void wait_for_idle() {
         // 如果只有一个原子，根本不用等，否则等通知，等原子运行结束
         if (null != atoms && atoms.length > 1) {
-            if (!__is_all_stopped()) {
-                Lang.wait(idleLock, 0);
-            }
-
-            if (log.isDebugEnabled())
-                log.debug("box: check all stopped");
-
-            // 如果收到了通知，那么等1毫秒，然后频繁检查
-            // 睡1ms，会导致后面的线程都被执行一遍再执行当前线程
-            try {
-                Thread.sleep(1);
-            }
-            catch (InterruptedException e) {
-                throw Lang.wrapThrow(e);
-            }
-
             // 直到全部线程退出，才结束循环
             while (!__is_all_stopped()) {
-                if (log.isDebugEnabled())
-                    log.debug("box: no stopped yet, sleep 5ms");
-                Lang.wait(idleLock, 5);
+                // 进入同步块
+                synchronized (idleLock) {
+                    // 再查一遍，还没结束的话就死等！
+                    if (!__is_all_stopped()) {
+                        if (log.isDebugEnabled())
+                            log.debug("box: no stopped yet, sleep");
+                        try {
+                            idleLock.wait(0);
+                        }
+                        catch (InterruptedException e) {
+                            throw Lang.wrapThrow(e);
+                        }
+                    }
+                }
             }
         }
+
+        // 刷新一下输出流
+        Streams.safeFlush(out);
+        Streams.safeFlush(err);
 
         // 标记状态
         status = WnBoxStatus.IDLE;
@@ -385,9 +394,16 @@ public class JvmAtomRunner {
 
     private boolean __is_all_stopped() {
         if (null != threads)
-            for (Thread t : threads)
+            for (Thread t : threads) {
+                try {
+                    t.join();
+                }
+                catch (InterruptedException e) {
+                    throw Lang.wrapThrow(e);
+                }
                 if (t.isAlive())
                     return false;
+            }
         return true;
     }
 
@@ -407,13 +423,17 @@ public class JvmAtomRunner {
         // 释放其他资源
         if (log.isDebugEnabled())
             log.debug("box: release resources");
+
+        Streams.safeFlush(out);
+        Streams.safeFlush(err);
         Streams.safeClose(out);
         Streams.safeClose(in);
         Streams.safeClose(err);
 
         if (null != tnls)
-            for (WnTunnel tnl : tnls)
+            for (WnTunnel tnl : tnls) {
                 Streams.safeClose(tnl);
+            }
 
         // 全部退出了，标记状态
         if (log.isDebugEnabled())

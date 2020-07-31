@@ -5,7 +5,7 @@ import java.util.List;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.io.WnObj;
 
-public class HookReload {
+public class HookInfo {
     
     public List<WnHook> hooks;
     

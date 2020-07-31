@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -86,6 +87,11 @@ public class JvmBox implements WnBox {
     }
 
     void free() {
+        // 已经释放过了
+        if (WnBoxStatus.FREE == runner.status) {
+            return;
+        }
+
         // 调用回调
         if (null != this.on_before_free) {
             this.on_before_free.invoke(runner.bc);
@@ -104,6 +110,9 @@ public class JvmBox implements WnBox {
         Streams.safeFlush(err);
         Streams.safeClose(out);
         Streams.safeClose(err);
+
+        // 让渡一下CPU控制权
+        Lang.sleep(1);
 
     }
 

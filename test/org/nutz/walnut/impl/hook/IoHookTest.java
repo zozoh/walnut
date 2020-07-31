@@ -19,13 +19,13 @@ public class IoHookTest extends BaseHookTest {
     public void test_mount() {
         // 准备钩子
         WnObj oHook = io.createIfNoExists(oHookHome, "mount/do_log", WnRace.FILE);
-        io.writeText(oHook, "echo '${nm} mnt:[${mnt}] old:[${_old_mnt}]' >> ~/testlog");
+        io.writeText(oHook, "echo '${nm} mnt:[${mnt}] old:[${_mnt_from}]' >> ~/testlog");
 
         // 执行
         Wn.WC().hooking(hc, new Atom() {
             public void run() {
-                WnObj o = io.create(null, "~/mydir", WnRace.DIR);
-                io.setMount(o, "file://~/tmp/walnuta");
+                WnObj o = io.create(oHome, "mydir", WnRace.DIR);
+                io.setMount(o, "file://~/tmp/walnut");
                 io.setMount(o, null);
             }
         });
@@ -35,8 +35,8 @@ public class IoHookTest extends BaseHookTest {
         String log = io.readText(oLog);
         String[] lines = Strings.splitIgnoreBlank(log, "\n");
         assertEquals(2, lines.length);
-        assertEquals("mydir mnt:[file://~/tmp/walnuta] old:[]", lines[0]);
-        assertEquals("mydir mnt:[] old:[file://~/tmp/walnuta]", lines[1]);
+        assertEquals("mydir mnt:[file://~/tmp/walnut] old:[]", lines[0]);
+        assertEquals("mydir mnt:[] old:[file://~/tmp/walnut]", lines[1]);
     }
 
     @Test
@@ -49,6 +49,7 @@ public class IoHookTest extends BaseHookTest {
         Wn.WC().hooking(hc, new Atom() {
             public void run() {
                 WnObj o = io.create(oHome, "abc.js", WnRace.FILE);
+                o.put("__debug_hook", true);
                 io.appendMeta(o, "x:19");
                 io.appendMeta(o, "y:89");
                 io.appendMeta(o, "z:64");
@@ -68,8 +69,8 @@ public class IoHookTest extends BaseHookTest {
     @Test
     public void test_move() {
         // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "move/do_log", WnRace.FILE);
-        io.writeText(oHook, "echo 'mv:${nm} to ${_mv_dest}' >> ~/testlog");
+        WnObj oHook = io.createIfNoExists(oHookHome, "before_move/do_log", WnRace.FILE);
+        io.writeText(oHook, "echo 'mv:${nm} to ${_mv_to}' >> ~/testlog");
 
         // 执行
         Wn.WC().hooking(hc, new Atom() {
@@ -130,7 +131,7 @@ public class IoHookTest extends BaseHookTest {
     @Test
     public void test_delete_in_cmd_pipe() {
         // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "delete/before_delete", WnRace.FILE);
+        WnObj oHook = io.createIfNoExists(oHookHome, "before_delete/cp_backup", WnRace.FILE);
         io.writeText(oHook, "cp ${ph} ${ph}.bak");
 
         // 准备素材
@@ -157,7 +158,7 @@ public class IoHookTest extends BaseHookTest {
     @Test
     public void test_delete_in_cmd() {
         // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "delete/before_delete", WnRace.FILE);
+        WnObj oHook = io.createIfNoExists(oHookHome, "before_delete/cp_backup", WnRace.FILE);
         io.writeText(oHook, "cp ${ph} ${ph}.bak");
 
         // 准备素材
@@ -184,7 +185,7 @@ public class IoHookTest extends BaseHookTest {
     @Test
     public void test_delete() {
         // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "delete/before_delete", WnRace.FILE);
+        WnObj oHook = io.createIfNoExists(oHookHome, "before_delete/cp_backup", WnRace.FILE);
         io.writeText(oHook, "cp ${ph} ${ph}.bak");
 
         // 准备素材
@@ -224,10 +225,7 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         WnObj o = io.check(oHome, "abc.txt");
         String txt = io.readText(o);
-        assertEquals(Lang.md5("hello\n")
-                     + "\n"
-                     + Lang.sha1(Lang.md5("hello\n") + "\n")
-                     + "\n",
+        assertEquals(Lang.md5("hello\n") + "\n" + Lang.sha1(Lang.md5("hello\n") + "\n") + "\n",
                      txt);
         assertEquals(Lang.sha1(txt), o.sha1());
     }
@@ -290,28 +288,4 @@ public class IoHookTest extends BaseHookTest {
         assertEquals(Lang.sha1(txt), o.sha1());
     }
 
-    
-    @Test
-    public void test_create_memory_mount() {
-        // 准备钩子
-        WnObj oHook = io.createIfNoExists(oHookHome, "create/show_ph", WnRace.FILE);
-        io.writeText(oHook, "echo '${ph}' > id:${id}\n");
-
-        WnObj tmpDir = io.createIfNoExists(oHome, "tmp", WnRace.DIR);
-        io.setMount(tmpDir, "memory://_");
-        // 执行创建
-        WnObj o = Wn.WC().hooking(hc, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return io.create(tmpDir, "abc.txt", WnRace.FILE);
-            }
-        });
-        assertNotNull(o);
-        System.out.println(o.path());
-        System.out.println(o.size());
-        // 验证
-        String txt = io.readText(o);
-        assertNotNull(txt);
-        assertEquals(tmpDir.path() + "/abc.txt\n", txt);
-        assertEquals(Lang.sha1(txt), o.sha1());
-    }
 }

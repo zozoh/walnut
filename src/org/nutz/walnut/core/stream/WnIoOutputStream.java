@@ -4,14 +4,26 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.nutz.lang.Lang;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.WnIoActionCallback;
 import org.nutz.walnut.core.WnIoHandle;
 
 public class WnIoOutputStream extends OutputStream {
 
+    private WnObj obj;
+
+    private WnIoActionCallback callback;
+
     private WnIoHandle h;
 
-    public WnIoOutputStream(WnIoHandle h) {
+    public WnIoOutputStream(WnIoHandle h, WnIoActionCallback callback) {
         this.h = h;
+        this.callback = callback;
+        this.obj = h.getObj();
+        if (null != callback) {
+            WnObj o = callback.on_before(obj);
+            this.obj.update2(o);
+        }
     }
 
     @Override
@@ -37,6 +49,11 @@ public class WnIoOutputStream extends OutputStream {
     @Override
     public void close() throws IOException {
         h.close();
+
+        if (null != callback) {
+            WnObj o = callback.on_after(obj);
+            this.obj.update2(o);
+        }
     }
 
 }

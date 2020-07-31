@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.BaseBoxTest;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.util.Wn;
 
 public class JvmBoxTest extends BaseBoxTest {
 

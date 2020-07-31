@@ -49,9 +49,9 @@ public class WnIoObj extends NutMap implements WnObj {
             if (Wn.matchs(key, "^(ph|parent|id|race)$")) {
                 continue;
             }
-            // 如果 regex 为空，不是 "__" 开头（表隐藏），则全要
+            // 如果 regex 为空，不是 "_" 开头（表隐藏），则全要
             else if (null == pattern) {
-                if (!key.startsWith("__"))
+                if (!key.startsWith("_"))
                     map.put(key, en.getValue());
             }
             // 否则只给出正则表达式匹配的部分
@@ -390,6 +390,10 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public WnObj update2(WnObj o) {
+        // 木有必要更新
+        if (this == o || null == o) {
+            return this;
+        }
         // 更新全部元数据
         this.putAll(o);
 

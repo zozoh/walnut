@@ -4,8 +4,8 @@ import org.nutz.walnut.api.io.WnObj;
 
 public interface WnIoActionCallback {
 
-    void on_before(WnObj o);
+    WnObj on_before(WnObj o);
 
-    void on_after(WnObj o);
+    WnObj on_after(WnObj o);
 
 }

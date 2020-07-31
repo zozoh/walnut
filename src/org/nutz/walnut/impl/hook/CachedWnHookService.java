@@ -15,23 +15,55 @@ import org.nutz.walnut.util.Wn;
 
 public class CachedWnHookService extends IoWnHookService {
 
-    private Map<String, HookReload> caches;// 组级钩子
-    private Map<String, HookReload> gcaches;// 系统级钩子
+    /**
+     * 用户钩子缓存，键为组名
+     */
+    private Map<String, Map<String, HookInfo>> userCache;
+
+    /**
+     * 系统级钩，键为动作名
+     */
+    private Map<String, HookInfo> globalCache;
 
     public CachedWnHookService() {
-        caches = new HashMap<String, HookReload>();
-        gcaches = new HashMap<String, HookReload>();
+        userCache = new HashMap<>();
+        globalCache = new HashMap<>();
+    }
+
+    @Override
+    public String toString() {
+        String s = "CacheHooks: G:" + globalCache.size();
+        for (String key : userCache.keySet()) {
+            Map<String, HookInfo> val = userCache.get(key);
+            s += ", " + key + ":" + val.size();
+        }
+        return s;
     }
 
     @Override
     public List<WnHook> get(final String action, WnObj o) {
         List<WnHook> list = new ArrayList<>();
-
         // 根据对象，得到其组的主目录
         String grp = o.group();
+
+        //
+        // 获取用户自己的钩子
+        //
+        Map<String, HookInfo> cache;
+        // 首先得到用户自己的缓存
+        synchronized (this) {
+            cache = userCache.get(grp);
+            if (null == cache) {
+                cache = new HashMap<>();
+                userCache.put(grp, cache);
+            }
+        }
+
+        // 自己钩子的主目录
         String hph = "root".equals(grp) ? "/root" : "/home/" + grp;
         // 添加用户自身的钩子
-        List<WnHook> userHooks = getHooks(hph + "/.hook/" + action, action, o, caches);
+        String hookActionHomePath = hph + "/.hook/" + action;
+        List<WnHook> userHooks = getHooks(hookActionHomePath, action, o, cache);
         if (userHooks.size() > 0) {
             for (WnHook wnHook : userHooks) {
                 wnHook.setRunby(null); // 非全局钩子,不允许使用runby
@@ -39,16 +71,31 @@ public class CachedWnHookService extends IoWnHookService {
             }
         }
 
+        //
         // 获取全局钩子
-        list.addAll(getHooks("/sys/hook/" + action, action, o, gcaches));
+        //
+        String gHookActionHome = "/sys/hook/" + action;
+        List<WnHook> glist = getHooks(gHookActionHome, action, o, globalCache);
+        list.addAll(glist);
 
         return list;
     }
 
+    /**
+     * @param hookHomePath
+     *            钩子主目录
+     * @param action
+     *            动作，譬如 <code>write|read|create|delete</code> 等
+     * @param o
+     *            触发这个钩子是，操作的对象
+     * @param cache
+     *            缓存
+     * @return 针对该动作，合适的钩子列表
+     */
     protected List<WnHook> getHooks(String hookHomePath,
                                     String action,
                                     WnObj o,
-                                    Map<String, HookReload> caches) {
+                                    Map<String, HookInfo> cache) {
 
         // 得到钩子的主目录，同时确保这个目录被标记上了 st 元数据，这样子文件有更新可以立即知道
         WnObj oHookHome = __refetch_hook_home(hookHomePath);
@@ -66,23 +113,23 @@ public class CachedWnHookService extends IoWnHookService {
 
         // 开始查找相关的钩子
         if (null != oHookHome) {
-            HookReload cache = caches.get(action);
+            HookInfo hi = cache.get(action);
             // 在必要的时候重新加载缓存
-            if (null == cache || cache.st != oHookHome.syncTime()) {
+            if (null == hi || hi.st != oHookHome.syncTime()) {
                 // 这里保证一下线程安全性
                 synchronized (this) {
                     oHookHome = __refetch_hook_home(hookHomePath);
                     if (null != oHookHome) {
-                        cache = caches.get(action);
-                        if (null == cache || cache.st != oHookHome.syncTime()) {
-                            cache = this.reload(oHookHome);
-                            caches.put(action, cache);
+                        hi = cache.get(action);
+                        if (null == hi || hi.st != oHookHome.syncTime()) {
+                            hi = this.reload(oHookHome);
+                            cache.put(action, hi);
                         }
                     }
                 }
             }
             // 逐个看看钩子是否匹配
-            for (WnHook hook : cache.hooks) {
+            for (WnHook hook : hi.hooks) {
                 if (hook.match(o))
                     list.add(hook);
             }

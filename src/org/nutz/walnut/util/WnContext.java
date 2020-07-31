@@ -21,6 +21,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHook;
 import org.nutz.walnut.api.hook.WnHookBreak;
 import org.nutz.walnut.api.hook.WnHookContext;
+import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
@@ -92,10 +93,14 @@ public class WnContext extends NutMap {
         if (null != hookContext) {
             Stopwatch sw = Stopwatch.begin();
 
-            List<WnHook> hooks = hookContext.service.get(action, o);
+            WnHookService srv = hookContext.service;
+            if (log.isInfoEnabled()) {
+                log.infof("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
+            }
+            List<WnHook> hooks = srv.get(action, o);
             if (null != hooks && hooks.size() > 0) {
                 if (log.isInfoEnabled())
-                    log.infof("HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
+                    log.infof(" - HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
 
                 // 为了防止无穷递归，钩子里不再触发钩子
                 WnHookContext hc = hookContext;
@@ -142,12 +147,17 @@ public class WnContext extends NutMap {
 
                 sw.stop();
                 if (log.isInfoEnabled())
-                    log.infof("HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
+                    log.infof(" - HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io().checkById(o.id());
             }
 
+        }
+        // 木有钩子，是不符合预期的
+        // （为单元测试开的一个支线逻辑）
+        else if (o.getBoolean("__debug_hook")) {
+            log.warnf("%s : %s ! without find hooks !", action, o.toString());
         }
         // 没有调用钩子，返回自身
         return o;

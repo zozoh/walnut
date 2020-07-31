@@ -1,10 +1,10 @@
 package org.nutz.walnut;
 
-import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.hook.WnHookContext;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.io.WnIoHookedWrapper;
 import org.nutz.walnut.impl.hook.CachedWnHookService;
 
 public abstract class BaseHookTest extends BaseBoxTest {
@@ -24,14 +24,16 @@ public abstract class BaseHookTest extends BaseBoxTest {
         oHookHome = io.createIfNoExists(oHome, ".hook", WnRace.DIR);
 
         // 准备钩子上下文
-        WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io;
-        bc.session = se;
-        bc.auth = auth;
-
         hc = new WnHookContext(boxes, bc);
         hc.service = new CachedWnHookService().setIo(io);
 
+        //System.out.printf("\nTestCase: %s\n", hc.service.toString());
+    }
+
+    // 改用钩子版的 IO
+    @Override
+    protected WnIo prepareIo() {
+        return new WnIoHookedWrapper(setup.getIo());
     }
 
     @Override

@@ -4,11 +4,13 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmBoxService;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
@@ -35,7 +37,14 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     }
 
     protected String touts() {
-        return Strings.trim(out.toString());
+        String re = Strings.trim(out.toString());
+        // 这玩意有问题，看看 mongo 那边还有多少数据
+        if (Strings.isBlank(re)) {
+            ZMoCo co = setup.getMongoCollection();
+            long n = co.count();
+            System.out.printf("靠!!!数据库里还有记录 【%d】条\n", n);
+        }
+        return re;
     }
 
     protected String errs() {
@@ -62,6 +71,9 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected void on_before() {
         super.on_before();
 
+        // 子类可能需要包裹 Io 实现类
+        this.io = this.prepareIo();
+
         boxes = _create_box_service();
 
         WnAccount info = new WnAccount("xiaobai", "123456");
@@ -76,12 +88,17 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         out = new StringBuilder();
         err = new StringBuilder();
 
+        // 准备上下文
         bc = new WnBoxContext(new NutMap());
         bc.io = io;
         bc.session = se;
         bc.auth = auth;
 
         box = _alloc_box();
+    }
+
+    protected WnIo prepareIo() {
+        return this.io;
     }
 
     protected WnBox _alloc_box() {
@@ -99,6 +116,9 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         Wn.WC().setSession(null);
         Wn.WC().setMe(__old_me);
         super.on_after();
+
+        // 最后等一下再第二个测试
+        Lang.sleep(200);
     }
 
     private WnBoxService _create_box_service() {

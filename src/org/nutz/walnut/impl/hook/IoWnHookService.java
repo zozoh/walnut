@@ -28,8 +28,8 @@ public abstract class IoWnHookService implements WnHookService {
 
     public void on_create() {}
 
-    protected HookReload reload(WnObj ohh) {
-        HookReload hr = new HookReload();
+    protected HookInfo reload(WnObj ohh) {
+        HookInfo hr = new HookInfo();
 
         hr.oDir = ohh;
         if (!hr.oDir.isDIR())
