@@ -310,4 +310,6 @@ for lbu in lostBucks:
   print(" %d. %s"%(i, lbu))
   i += 1
 print("-"*60)
+print("SHA1 bucket x(%d)"%(len(sha1Cache)))
+print("-"*60)
 print("All done in %d seconds (%dms)\n"%(duInS, duInMs))
