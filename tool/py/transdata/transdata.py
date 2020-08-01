@@ -225,6 +225,10 @@ def TransBucket(buck):
       "bu_sz"   : size,
       "bu_sha1" : sha1
     })
+    # 嗯，目标比桶大，那么真实的截一下
+    if taSize > size:
+      with open(phTa) as f:
+        f.truncate(size)
   print(" =  ~~~ 转换完毕 ~~~ =")
 #===================================================
 #
