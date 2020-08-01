@@ -1,6 +1,6 @@
 package org.nutz.walnut.core.mapping;
 
-import java.util.Map;
+import java.util.HashMap;
 
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
@@ -26,12 +26,12 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     /**
      * 索引管理器工厂映射
      */
-    private Map<String, WnIndexerFactory> indexers;
+    private HashMap<String, WnIndexerFactory> indexers;
 
     /**
      * 桶管理器工厂映射
      */
-    private Map<String, WnBMFactory> bms;
+    private HashMap<String, WnBMFactory> bms;
 
     private WnIoMapping __check_mapping(WnObj oHome, String mount) {
         // 首先分析映射
@@ -142,11 +142,11 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         this.globalBM = globalBM;
     }
 
-    public void setIndexers(Map<String, WnIndexerFactory> indexers) {
+    public void setIndexers(HashMap<String, WnIndexerFactory> indexers) {
         this.indexers = indexers;
     }
 
-    public void setBms(Map<String, WnBMFactory> bms) {
+    public void setBms(HashMap<String, WnBMFactory> bms) {
         this.bms = bms;
     }
 

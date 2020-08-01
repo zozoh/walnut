@@ -2,7 +2,6 @@ package org.nutz.walnut.core;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
@@ -93,7 +92,7 @@ public class IoCoreSetup {
         mappings.setGlobalBM(this.getGlobalIoBM());
 
         // 索引管理器工厂映射
-        Map<String, WnIndexerFactory> indexers = new HashMap<>();
+        HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(mimes));
         // TODO 还有 "dao|mem|redis|mq" 几种索引管理器
         // ...
@@ -101,7 +100,7 @@ public class IoCoreSetup {
 
         // 桶管理器工厂映射
         WnIoHandleManager handles = this.getWnIoHandleManager();
-        Map<String, WnBMFactory> bmfs = new HashMap<>();
+        HashMap<String, WnBMFactory> bmfs = new HashMap<>();
         bmfs.put("lbm", new LocalIoBMFactory());
         bmfs.put("file", new LocalFileBMFactory(handles));
         bmfs.put("filew", new LocalFileWBMFactory(handles));

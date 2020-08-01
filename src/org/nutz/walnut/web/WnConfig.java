@@ -11,7 +11,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.web.WebConfig;
 
 public class WnConfig extends WebConfig {
@@ -72,7 +72,7 @@ public class WnConfig extends WebConfig {
     public WnObj getRootTreeNode() {
         String id = this.get("root-id");
 
-        WnObj o = new WnBean();
+        WnObj o = new WnIoObj();
         o.id(id);
         o.path("/");
         o.race(WnRace.DIR);
