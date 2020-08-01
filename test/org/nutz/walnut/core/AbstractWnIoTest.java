@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.nutz.json.Json;
@@ -38,6 +40,30 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIo io;
     protected WnReferApi refers;
     protected WnIoHandleManager handles;
+
+    @Test
+    public void test_write_cause_2_refer() {
+        WnObj f1 = io.create(null, "/f1", WnRace.FILE);
+        WnObj f2 = io.create(null, "/f2", WnRace.FILE);
+
+        io.writeText(f1, "hello");
+        String sha1 = f1.sha1();
+
+        assertEquals(1, refers.count(sha1));
+
+        io.writeText(f2, "hello");
+        assertEquals(2, refers.count(sha1));
+
+        Set<String> ids = refers.all(sha1);
+        assertEquals(2, ids.size());
+        HashMap<String, Boolean> map = new HashMap<>();
+        for (String id : ids) {
+            map.put(id, true);
+        }
+
+        assertTrue(map.get(f1.id()));
+        assertTrue(map.get(f2.id()));
+    }
 
     @Test
     public void test_fnm_special_0() {
