@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+#
+"""
+依赖组件
+pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple pymongo
+pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple redis
+"""
 import sys, os
 import hashlib, json
 from getopt  import getopt
