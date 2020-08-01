@@ -121,6 +121,7 @@ lostBucks = list()
 emptyBucks = list()
 sha1Cache = {}
 koBucks = list()
+neqBucks = list()
 
 now = time() * 1000
 #===================================================
@@ -211,6 +212,19 @@ def TransBucket(buck):
       name = os.path.basename(fn)
       print(" = + %3s >> %s"%(name, phTa))
       AppendFile(phTa, fn)
+
+  # 转换完毕，得到一下真实的文件大小
+  taSize = os.path.getsize(phTa)
+  taSha1 = GetFileSha1(phTa)
+  if taSize != size:
+    neqBucks.append({
+      "oid"     : oid,
+      "data"    : data,
+      "ta_sz"   : taSize,
+      "ta_sha1" : taSha1,
+      "bu_sz"   : size,
+      "bu_sha1" : sha1
+    })
   print(" =  ~~~ 转换完毕 ~~~ =")
 #===================================================
 #
@@ -328,6 +342,12 @@ print("-"*60)
 print("KO Buckets x(%d)"%(len(koBucks)))
 i = 0
 for lbu in koBucks:
+  print(" %d. %s"%(i, json.dumps(lbu)))
+  i += 1
+print("-"*60)
+print("NE Buckets x(%d)"%(len(koBucks)))
+i = 0
+for lbu in neqBucks:
   print(" %d. %s"%(i, json.dumps(lbu)))
   i += 1
 print("-"*60)
