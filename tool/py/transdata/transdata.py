@@ -227,7 +227,7 @@ def TransBucket(buck):
     })
     # 嗯，目标比桶大，那么真实的截一下
     if taSize > size:
-      with open(phTa) as f:
+      with open(phTa, "a") as f:
         f.truncate(size)
   print(" =  ~~~ 转换完毕 ~~~ =")
 #===================================================
