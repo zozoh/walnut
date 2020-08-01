@@ -19,7 +19,7 @@ Walnut 数据迁移程序
 
 # 调用示例
 
-    python transdata.py --limit 5 --skip 10 --bunb
+    python transdata.py --limit 5 --skip 10 --flt filter.json
 '''
 #===================================================
 VERSION = "1.0"
