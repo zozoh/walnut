@@ -120,6 +120,7 @@ print("...成功的连接了 Redis")
 lostBucks = list()
 emptyBucks = list()
 sha1Cache = {}
+koBucks = list()
 
 now = time() * 1000
 #===================================================
@@ -160,6 +161,7 @@ def AppendFile(target, src):
 # 转换桶文件的帮助方法
 #
 def TransBucket(buck):
+  oid   = buck['oid']
   sha1  = buck['sha1']
   data  = buck['data']
   size  = buck['sz']
@@ -183,6 +185,12 @@ def TransBucket(buck):
     else:
       print(" = KO ! 校验失败，移除这个文件")
       del sha1Cache[phTa]
+      koBucks.append({
+        "oid"       : oid,
+        "data"      : data,
+        "mongoSha1" : sha1,
+        "fileSha1"  : taSha1
+      })
       os.remove(phTa)
   
   # 确保目标桶的散列目录存在
@@ -311,13 +319,19 @@ duInS  = int(round(duInMs/1000))
 # 打印一下
 #
 print("-"*60)
-print("Found %d buckets"%(count))
 print("Lost Buckets x(%d)"%(len(lostBucks)))
 i = 0
 for lbu in lostBucks:
   print(" %d. %s"%(i, lbu))
   i += 1
 print("-"*60)
+print("KO Buckets x(%d)"%(len(koBucks)))
+i = 0
+for lbu in koBucks:
+  print(" %d. %s"%(i, json.dumps(lbu)))
+  i += 1
+print("-"*60)
 print("SHA1 bucket x(%d)"%(len(sha1Cache)))
+print("Found %d buckets"%(count))
 print("-"*60)
 print("All done in %d seconds (%dms)\n"%(duInS, duInMs))
