@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing.hdl;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQr;
@@ -29,6 +30,12 @@ public class thing_query implements JvmHdl {
         // 准备查询条件
         tq.qStr = Cmds.getParamOrPipe(sys, hc.params, 0);
 
+        // 如果还需要查询关联对象的内容指纹
+        String sha1 = hc.params.getString("sha1");
+        if (!Strings.isBlank(sha1)) {
+            tq.sha1Fields = Strings.splitIgnoreBlank(sha1);
+        }
+
         // ..............................................
         // 确保限定了集合
         tq.tss = hc.params.getAs("tss", String[].class);
@@ -55,6 +62,7 @@ public class thing_query implements JvmHdl {
 
         // 调用接口
         ThQr qr = wts.queryThing(tq);
+
         hc.pager = qr.pager;
         hc.output = qr.data;
     }

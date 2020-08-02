@@ -120,6 +120,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
         // 执行查询并返回结果
         List<WnObj> list = io.query(q);
 
+        // ..............................................
         // 循环补充上 ThingSet 的集合名称
         for (WnObj oT : list) {
             WnObj oTs = oTsCache.get(oT.getString("th_set"));
@@ -135,6 +136,24 @@ public class QueryThingAction extends ThingAction<ThQr> {
             }
         }
 
+        // ..............................................
+        // 读取指定字段的 SHA1 指纹
+        if (null != tq.sha1Fields && tq.sha1Fields.length > 0) {
+            for (WnObj oT : list) {
+                for (String key : tq.sha1Fields) {
+                    String val = oT.getString(key);
+                    if (!Strings.isBlank(val)) {
+                        WnObj o = io.fetch(oT, val);
+                        if (null != o) {
+                            oT.put(key + "_obj",
+                                   o.pickBy("^(id|nm|title|sha1|len|mime|tp|width|height)$"));
+                        }
+                    }
+                }
+            }
+        }
+
+        // ..............................................
         // 如果只输出一个对象
         if (tq.autoObj) {
             // 空

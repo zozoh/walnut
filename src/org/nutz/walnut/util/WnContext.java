@@ -90,6 +90,8 @@ public class WnContext extends NutMap {
     }
 
     public WnObj doHook(String action, WnObj o) {
+        if (null == o)
+            return null;
         if (null != hookContext) {
             Stopwatch sw = Stopwatch.begin();
 

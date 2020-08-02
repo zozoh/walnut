@@ -78,6 +78,10 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
+            // 搞一下，否则 MongoDB 可能会挂
+            if (val instanceof CharSequence) {
+                val = val.toString();
+            }
             boolean unset = key.startsWith("!");
             if (unset)
                 key = key.substring(1);

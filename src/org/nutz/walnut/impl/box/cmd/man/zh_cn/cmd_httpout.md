@@ -12,10 +12,10 @@ httpout xxxx               # 参数就是响应体的内容，如果指定 -body
    [-body /path/to/file]   # 指定了一个文件，将其内容作为响应体
    [-etag xxx]             # 输出为标准 HTTP 响应，同时根据 etag 判断是否输出 304
    [-range bytes=0-7183]   # 当输出 HTTP 响应时，分段下载表示，符合 Http头的 Range 规范
-   [-ct text/plain]        # 指定响应头的 Content-Type，当然  headers 里指定的要更优先
    [-UserAgent xxx]        # 当输出 HTTP 响应时，指定下载客户端的信息
                            # 只有 -download 模式才有效，因为需要根据
                            # 这个信息编码下载目标名称
+   [-mime text/plain]      # 【选】指明内容类型
    [-download]             # 指定 Content-Disposition 的名称，在这种模式下
                            # -UserAgent 才会生效
                            # 当然，如果 -headers 里指定了  Content-Disposition

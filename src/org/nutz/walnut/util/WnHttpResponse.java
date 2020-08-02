@@ -1,5 +1,6 @@
 package org.nutz.walnut.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,6 +23,7 @@ import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.RawView2;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.web.util.WnWeb;
@@ -132,7 +134,7 @@ public class WnHttpResponse {
         // etag存在且相等, 304搞定
         if (objETag.equalsIgnoreCase(etag)) {
             this.status = 304;
-            //this.headers.put("Walnut-Object-Id", wobj.id());
+            // this.headers.put("Walnut-Object-Id", wobj.id());
             return;
         }
         headers.put("ETag", objETag);
@@ -156,6 +158,103 @@ public class WnHttpResponse {
                             String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
                 status = 206;
                 ins = io.getInputStream(wobj, rr.start);
+                ins = new LimitInputStream(ins, rr.end - rr.start);
+            }
+        }
+    }
+
+    /**
+     * 写入前的准备
+     * 
+     * @param f
+     *            内容文件
+     * @param mime
+     *            输入流内容类型。如果为空，需要另行 setContentType
+     * @param insETag
+     *            指纹，如果为空，则用文件直接计算
+     * @param range
+     *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
+     */
+    public void prepare(File f, String mime, String insETag, String range) {
+        InputStream is = Streams.fileIn(f);
+        long len = f.length();
+
+        prepare(is, mime, null, insETag, len, range);
+    }
+
+    /**
+     * 写入前的准备
+     * 
+     * @param is
+     *            输入流（如果想支持范围下载，必须实现 skip）
+     * @param mime
+     *            输入流内容类型。如果为空，需要另行 setContentType
+     * @param name
+     *            如果是需要下载，这里可以指定文件名
+     * @param insETag
+     *            这个输入流输出结果的指纹，如果有的话，可能会生成 304 提高效率
+     * 
+     * @param len
+     *            输入流全部内容的长度，以便支持 范围下载
+     * 
+     * @param range
+     *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
+     */
+    public void prepare(InputStream is,
+                        String mime,
+                        String name,
+                        String insETag,
+                        long len,
+                        String range) {
+        // 默认采用 obj 的 mime
+        if (Strings.isBlank(this.contentType))
+            this.contentType = mime;
+
+        // 默认用 obj 的名称作为下载名
+        if (Strings.isBlank(this.downloadName)) {
+            this.downloadName = name;
+        }
+
+        // 没有声明长度，用流的
+        if (len <= 0) {
+            try {
+                len = is.available();
+            }
+            catch (IOException e) {
+                throw Er.wrap(e);
+            }
+        }
+
+        // 准备记录 ETag
+        // etag存在且相等, 304搞定
+        if (null != insETag && insETag.equalsIgnoreCase(etag)) {
+            this.status = 304;
+            // this.headers.put("Walnut-Object-Id", wobj.id());
+            return;
+        }
+        headers.put("ETag", insETag);
+
+        // 记录流
+        this.ins = is;
+
+        if (Strings.isBlank(range) || len <= 0) {
+            if (len > 0)
+                headers.put("Content-Length", len);
+        } else {
+            // 解析 Range
+            List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
+            if (!RawView2.parseRange(range, rs, (int) len) || rs.size() != 1) {
+                this.status = 400;
+                this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
+            }
+            // 解析成功
+            else {
+                RangeRange rr = rs.get(0);
+                headers.put("Content-Length", rr.end - rr.start);
+                headers.put("Accept-Ranges", "bytes");
+                headers.put("Content-Range",
+                            String.format("bytes %d-%d/%d", rr.start, rr.end - 1, len));
+                status = 206;
                 ins = new LimitInputStream(ins, rr.end - rr.start);
             }
         }

@@ -42,6 +42,23 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIoHandleManager handles;
 
     @Test
+    public void test_append_complex_meta() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        File f = Files.findFile("org/nutz/walnut/core/req_meta.json");
+        NutMap meta = Json.fromJsonFile(NutMap.class, f);
+
+        io.appendMeta(o, meta);
+        WnObj o2 = io.get(o.id());
+        assertEquals("demo", o2.getString("http-usr"));
+        assertEquals("http://api.local.io:8080/api/demo/thing/list", o2.getString("http-url"));
+        for (String key : meta.keySet()) {
+            Object val = meta.get(key);
+            Object v2 = o2.get(key);
+            assertTrue(val.equals(v2));
+        }
+    }
+
+    @Test
     public void test_write_cause_2_refer() {
         WnObj f1 = io.create(null, "/f1", WnRace.FILE);
         WnObj f2 = io.create(null, "/f2", WnRace.FILE);

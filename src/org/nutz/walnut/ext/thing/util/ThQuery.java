@@ -13,6 +13,8 @@ public class ThQuery {
 
     public String[] tss;
 
+    public String[] sha1Fields;
+
     public NutMap sort;
 
     public boolean needContent;

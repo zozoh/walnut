@@ -2,12 +2,14 @@ package org.nutz.walnut.core;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -520,4 +522,22 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
 
     }
 
+    /**
+     * 设置负责元数据
+     */
+    @Test
+    public void test_19() {
+        WnObj o = indexer.create(null, "/a", WnRace.FILE);
+        File f = Files.findFile("org/nutz/walnut/core/req_meta.json");
+        NutMap meta = Json.fromJsonFile(NutMap.class, f);
+
+        WnObj o2 = indexer.setBy(o.id(), meta, true);
+        assertEquals("demo", o2.getString("http-usr"));
+        assertEquals("http://api.local.io:8080/api/demo/thing/list", o2.getString("http-url"));
+        for (String key : meta.keySet()) {
+            Object val = meta.get(key);
+            Object v2 = o2.get(key);
+            assertTrue(val.equals(v2));
+        }
+    }
 }

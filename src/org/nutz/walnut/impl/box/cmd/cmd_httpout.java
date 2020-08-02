@@ -1,10 +1,13 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -38,20 +41,37 @@ public class cmd_httpout extends JvmExecutor {
             // 因为有下载名，所以要设置一下 UA，以便编码下载名
             resp.setUserAgent(params.getString("UserAgent", DFT_UA));
         }
-        
-        // 指定内容类型
-        if(params.has("ct")) {
-            resp.setContentType(params.get("ct"));
+
+        // 指明了内容类型
+        String mime = params.getString("mime");
+        if (!Strings.isBlank(mime)) {
+            resp.setContentType(mime);
         }
 
         // 准备响应体
         String body = params.getString("body");
 
         // 输入来自文件对象
-        if (!Strings.isBlank(body) || "true".equals(body)) {
-            WnObj wobj = Wn.checkObj(sys, body);
+        if (!Strings.isBlank(body)) {
             String range = params.getString("range");
-            resp.prepare(sys.io, wobj, range);
+            // 如果是一个SHA1 指纹
+            // 凑合先用全局桶支应一阵
+            if (body.startsWith("sha1:")) {
+                String sha1 = body.substring(5).trim();
+                // 兼容一下，有些时候，真实生产，客户端会将其变成 xxxx/xxx... 的路径形式
+                sha1 = sha1.replace("/", "");
+                LocalIoBM bm = this.ioc.get(LocalIoBM.class, "globalBM");
+                File f = bm.getBucketFile(sha1);
+                if (!f.exists()) {
+                    throw Er.create("e.io.bm.global.noexist", sha1);
+                }
+                resp.prepare(f, null, sha1, range);
+            }
+            // 那么就是一个对象的路径咯
+            else {
+                WnObj wobj = Wn.checkObj(sys, body);
+                resp.prepare(sys.io, wobj, range);
+            }
         }
         // 直接在参数里指定了内容
         else if (params.vals.length > 0) {
