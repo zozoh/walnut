@@ -114,6 +114,8 @@ public interface WnTree extends UnitTestable {
     int each(WnQuery q, Each<WnObj> callback);
 
     List<WnObj> query(WnQuery q);
+    
+    int eachChild(WnObj o, String name, Each<WnObj> callback);
 
     List<WnObj> getChildren(WnObj o, String name);
 

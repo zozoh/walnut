@@ -793,6 +793,17 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        // 确保解开了链接
+        o = Wn.WC().whenEnter(o, false);
+
+        // 查询
+        WnIoMapping mapping = mappings.checkMapping(o);
+        WnIoIndexer indexer = mapping.getIndexer();
+        return indexer.eachChild(o, name, callback);
+    }
+
+    @Override
     public List<WnObj> getChildren(WnObj o, String name) {
         // 确保解开了链接
         o = Wn.WC().whenEnter(o, false);

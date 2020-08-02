@@ -42,6 +42,45 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIoHandleManager handles;
 
     @Test
+    public void test_link_in_mount_2() {
+        WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
+        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+
+        File dHome = setup.getLocalFileHome();
+        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
+        Files.createFileIfNoExists(f);
+        WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
+        String aph = Files.getAbsPath(dHome);
+        String mnt = "file://" + aph + "/titanium/";
+        io.setMount(dMnTi, mnt);
+
+        WnObj o = io.fetch(null, "/rs/ti/view/creation.json");
+        assertEquals("/rs/ti/view/creation.json", o.path());
+
+        WnObj p = o.parent();
+        assertEquals("/rs/ti/view", p.path());
+        assertTrue(o.isMount());
+        assertFalse(p.isLink());
+        assertEquals(mnt, o.mount());
+
+        p = p.parent();
+        assertEquals("/rs/ti", p.path());
+        assertTrue(p.isMount());
+        assertFalse(p.isLink());
+        assertEquals(mnt, p.mount());
+
+        p = p.parent();
+        assertEquals("/rs", p.path());
+        assertFalse(p.isMount());
+        assertFalse(p.isLink());
+
+        p = p.parent();
+        assertEquals("/", p.path());
+        assertFalse(p.isMount());
+        assertFalse(p.isLink());
+    }
+
+    @Test
     public void test_append_complex_meta() {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
         File f = Files.findFile("org/nutz/walnut/core/req_meta.json");

@@ -110,9 +110,9 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 找到用户
-        WnAccount u = auth.checkAccount(usr);
+        WnAccount u = auth().checkAccount(usr);
         String homePath = u.getHomePath();
-        WnObj oHome = io.fetch(null, homePath);
+        WnObj oHome = io().fetch(null, homePath);
 
         if (log.isDebugEnabled())
             log.debugf(" - www:usrHome: %s : [%s]", homePath, oHome);
@@ -136,14 +136,14 @@ public class WWWModule extends AbstractWnModule {
         Object host = req.getAttribute("wn_www_host");
         if (null != host && !"localhost".equals(host) && !"127.0.0.1".equals(host)) {
             q.setv("www", host.toString());
-            oWWW = io.getOne(q);
+            oWWW = io().getOne(q);
         }
         if (log.isDebugEnabled())
             log.debugf(" - www:regHost: %s -> %s", host, oWWW);
 
         // 实在找不到用 www 目录
         if (null == oWWW) {
-            oWWW = io.getOne(q.setv("www", "ROOT"));
+            oWWW = io().getOne(q.setv("www", "ROOT"));
         }
 
         if (log.isDebugEnabled())
@@ -164,7 +164,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 文件对象不存在，直接 404 咯
         if (null == o) {
-            o = io.fetch(oWWW, oWWW.getString("hm_page_404", "404.html"));
+            o = io().fetch(oWWW, oWWW.getString("hm_page_404", "404.html"));
             resp.setStatus(404);
             if (o == null)
                 return gen_errpage(tmpl_404, a_path);
@@ -214,7 +214,7 @@ public class WWWModule extends AbstractWnModule {
             }
             // 依次尝试入口对象
             for (String entry : entries) {
-                WnObj o2 = io.fetch(o, entry);
+                WnObj o2 = io().fetch(o, entry);
                 if (null != o2 && o2.isFILE()) {
                     o = o2;
                     break;
@@ -226,7 +226,7 @@ public class WWWModule extends AbstractWnModule {
 
             // 还是目录，那请求一定是错的
             if (o.isDIR()) {
-                o = io.fetch(oWWW, oWWW.getString("hm_page_400", "400.html"));
+                o = io().fetch(oWWW, oWWW.getString("hm_page_400", "400.html"));
                 resp.setStatus(400);
                 if (o == null)
                     return gen_errpage(tmpl_400, a_path);
@@ -251,7 +251,7 @@ public class WWWModule extends AbstractWnModule {
                 WnAuthSession se = this.creatSession(usr, false);
 
                 // 得到文件内容
-                String input = io.readText(o);
+                String input = io().readText(o);
 
                 // 计算路径
                 String rootPath = oWWW.getRegularPath();
@@ -292,7 +292,7 @@ public class WWWModule extends AbstractWnModule {
 
                 // 放置一些上下文的接口
                 try {
-                    WWWPageAPI api = new WWWPageAPI(io, oHome, sessionDu, oWWW, context);
+                    WWWPageAPI api = new WWWPageAPI(io(), oHome, sessionDu, oWWW, context);
                     context.put("API", api);
                 }
                 // 如果 oWWW 没有 hm_site_id, 会构建失败的那么上下文中就不会放置 API 这个对象
@@ -311,7 +311,7 @@ public class WWWModule extends AbstractWnModule {
                 WnBoxContext bc = createBoxContext(se);
                 StringBuilder sbOut = new StringBuilder();
                 StringBuilder sbErr = new StringBuilder();
-                WnSystem sys = Jvms.createWnSystem(this, jef, bc, sbOut, sbErr, null);
+                WnSystem sys = Jvms.createWnSystem(this, jef(), bc, sbOut, sbErr, null);
                 WnmlRuntime wrt = new JvmWnmlRuntime(sys);
                 WnmlService ws = new WnmlService();
 
@@ -351,7 +351,7 @@ public class WWWModule extends AbstractWnModule {
             ua = WnWeb.autoUserAgent(o, ua, download);
 
             // 返回下载视图
-            return new WnObjDownloadView(io, o, ua, etag, range);
+            return new WnObjDownloadView(io(), o, ua, etag, range);
 
         }
         catch (Exception e) {
@@ -543,11 +543,11 @@ public class WWWModule extends AbstractWnModule {
             if ("/".equals(p_ph))
                 oDir = oWWW;
             else
-                oDir = io.fetch(oWWW, p_ph);
+                oDir = io().fetch(oWWW, p_ph);
 
             // 如果有所在目录，来一下
             if (null != oDir) {
-                o = io.fetch(oDir, pgnm);
+                o = io().fetch(oDir, pgnm);
                 // TODO 这是老的 hmaker 需要的特殊处理，重构完了 Ti 需要删掉
                 // 如果没有的话，那么依次找找 `hm_pg_args` 声明的网页能不能匹配上
                 if (null == o) {
@@ -582,7 +582,7 @@ public class WWWModule extends AbstractWnModule {
                     }
                     // 读一下这个页
                     else {
-                        obj = io.fetch(oWWW, entryPath);
+                        obj = io().fetch(oWWW, entryPath);
                     }
                     // 设置一个 ContextName
                     // 找到虚拟页对应的对象就退出
@@ -601,7 +601,7 @@ public class WWWModule extends AbstractWnModule {
     private WnObj __for_hmaker_dynamic(NutMap args, WnObj o, WnObj oDir, String pgnm) {
         WnQuery q2 = Wn.Q.pid(oDir);
         q2.setv("hm_pg_args", true);
-        List<WnObj> oCas = io.query(q2);
+        List<WnObj> oCas = io().query(q2);
         for (WnObj oCa : oCas) {
             // 首先先获取一下页面的正则表达式和名称
             String regex = oCa.getString("hm_pg_args_regex");
@@ -635,7 +635,7 @@ public class WWWModule extends AbstractWnModule {
                 NutMap meta = new NutMap();
                 meta.put("hm_pg_args_regex", regex);
                 meta.put("hm_pg_args_names", argNames);
-                io.appendMeta(oCa, meta);
+                io().appendMeta(oCa, meta);
             }
             // 木有占位符，那么放弃吧
             if (argNames.isEmpty())

@@ -103,7 +103,7 @@ public class UsrModule extends AbstractWnModule {
         if (Wn.WC().hasTicket()) {
             try {
                 String ticket = Wn.WC().getTicket();
-                auth.checkSession(ticket);
+                auth().checkSession(ticket);
                 throw Lang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
@@ -127,7 +127,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket() && "login.html".equals(rph)) {
             try {
                 String ticket = wc.getTicket();
-                WnAuthSession se = auth.checkSession(ticket);
+                WnAuthSession se = auth().checkSession(ticket);
                 if (!se.isDead()) {
                     throw Lang.makeThrow("already login, go to /");
                 }
@@ -139,25 +139,25 @@ public class UsrModule extends AbstractWnModule {
         WnObj oHostHome = null;
 
         // 看看有没有配置目录
-        WnObj oHosts = io.fetch(null, "/etc/hosts.d");
+        WnObj oHosts = io().fetch(null, "/etc/hosts.d");
         if (null != oHosts) {
             if (!Strings.isBlank(host)) {
-                oHostHome = io.fetch(oHosts, host);
+                oHostHome = io().fetch(oHosts, host);
             }
             // 默认的域名为 default
             if (null == oHostHome) {
-                oHostHome = io.fetch(oHosts, "default");
+                oHostHome = io().fetch(oHosts, "default");
             }
         }
 
         // 获取页面主目录
-        WnObj oPageHome = io.fetch(oHostHome, "pages");
+        WnObj oPageHome = io().fetch(oHostHome, "pages");
 
         // 有配置目录，那么就要确保有内容哦
         if (null != oPageHome) {
             try {
                 // 得到文件内容
-                WnObj o = io.check(oPageHome, rph);
+                WnObj o = io().check(oPageHome, rph);
 
                 // 确保可读，同时处理链接文件
                 o = wc.whenRead(o, false);
@@ -168,10 +168,10 @@ public class UsrModule extends AbstractWnModule {
                     ua = WnWeb.autoUserAgent(o, ua, download);
 
                     // 返回下载视图
-                    return new WnObjDownloadView(io, o, ua, etag, range);
+                    return new WnObjDownloadView(io(), o, ua, etag, range);
                 }
 
-                String input = io.readText(o);
+                String input = io().readText(o);
 
                 // 准备转换上下文
                 NutMap context = _gen_context_by_req(req);
@@ -179,12 +179,12 @@ public class UsrModule extends AbstractWnModule {
                 context.put("rs", "/gu/rs");
 
                 // 试图获取代码模板
-                WnObj oFragmentHome = io.fetch(oHostHome, "fragment");
+                WnObj oFragmentHome = io().fetch(oHostHome, "fragment");
                 if (null != oFragmentHome) {
-                    List<WnObj> oFrags = io.getChildren(oFragmentHome, null);
+                    List<WnObj> oFrags = io().getChildren(oFragmentHome, null);
                     for (WnObj oFrag : oFrags) {
                         String key = Files.getMajorName(oFrag.name());
-                        String str = io.readText(oFrag);
+                        String str = io().readText(oFrag);
                         context.put(key, str);
                     }
                 }
@@ -194,7 +194,7 @@ public class UsrModule extends AbstractWnModule {
 
                     // 得到会话信息
                     String ticket = wc.getTicket();
-                    WnAuthSession se = auth.checkSession(ticket);
+                    WnAuthSession se = auth().checkSession(ticket);
                     wc.setSession(se);
                     WnAccount me = se.getMe();
 
@@ -398,7 +398,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 创建账户
         info.setRawPasswd(passwd);
-        WnAccount u = auth.createAccount(info);
+        WnAccount u = auth().createAccount(info);
 
         // 执行创建后初始化脚本
         String cmd = "setup -quiet -u '" + u.getName() + "' usr/create";
@@ -437,7 +437,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutMap do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnAuthSession se = auth.loginByPasswd(nm, passwd);
+        WnAuthSession se = auth().loginByPasswd(nm, passwd);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
@@ -468,7 +468,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录：延迟几秒以便给后续操作机会
-            WnAuthSession pse = auth.logout(ticket, WnAuths.LOGOUT_DELAY);
+            WnAuthSession pse = auth().logout(ticket, WnAuths.LOGOUT_DELAY);
             if (null != pse)
                 return pse.toMapForClient();
         }
@@ -485,7 +485,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录：延迟几秒以便给后续操作机会
-            auth.logout(ticket, WnAuths.LOGOUT_DELAY);
+            auth().logout(ticket, WnAuths.LOGOUT_DELAY);
             return true;
         }
         return false;
@@ -507,7 +507,7 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(passwd))
             throw Er.create("e.usr.blank.passwd");
 
-        WnAccount u = auth.getAccount(nm);
+        WnAccount u = auth().getAccount(nm);
 
         if (null == u || !u.isMatchedRawPasswd(passwd)) {
             throw Er.create("e.usr.invalid.login");
@@ -524,7 +524,7 @@ public class UsrModule extends AbstractWnModule {
                                      @Param("passwd") String passwd) {
         // 得到会话和用户
         String ticket = Wn.WC().getTicket();
-        WnAuthSession se = auth.checkSession(ticket);
+        WnAuthSession se = auth().checkSession(ticket);
         WnAccount me = se.getMe();
 
         if (Strings.isBlank(passwd)) {
@@ -541,7 +541,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 设置新密码
         me.setRawPasswd(passwd);
-        auth.saveAccount(me, WnAuths.ABMM.PASSWD);
+        auth().saveAccount(me, WnAuths.ABMM.PASSWD);
         return Ajax.ok();
     }
 
@@ -612,11 +612,11 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 得到用户
-        WnAccount u = auth.checkAccount(info);
+        WnAccount u = auth().checkAccount(info);
 
         // 修改密码
         u.setRawPasswd(passwd);
-        auth.saveAccount(u, WnAuths.ABMM.PASSWD);
+        auth().saveAccount(u, WnAuths.ABMM.PASSWD);
 
         // 返回
         return true;
@@ -648,7 +648,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 看看是否存在
-        WnAccount u = auth.getAccount(info);
+        WnAccount u = auth().getAccount(info);
 
         // 如果用户存在，那么则必须要检查一下密码
         if (null != u) {
@@ -658,23 +658,23 @@ public class UsrModule extends AbstractWnModule {
 
             // 更新一下用户的登录信息
             me.mergeTo(u);
-            auth.saveAccount(u);
+            auth().saveAccount(u);
 
             // 切换当前会话到新用户
             se.setMe(u);
-            auth.saveSession(se);
+            auth().saveSession(se);
 
             // 原来那个用户就不要了
-            auth.deleteAccount(me);
+            auth().deleteAccount(me);
         }
         // 不存在，则搞一下
         else {
             // 正式执行改名
-            auth.renameAccount(me, newName);
+            auth().renameAccount(me, newName);
 
             // 更新 Session
             se.setMe(me);
-            auth.saveSessionVars(se);
+            auth().saveSessionVars(se);
         }
     }
 
@@ -686,12 +686,12 @@ public class UsrModule extends AbstractWnModule {
     @Ok("raw")
     public Object usrAvatar() {
         WnContext wc = Wn.WC();
-        WnAuthSession se = wc.checkSession(auth);
+        WnAuthSession se = wc.checkSession(auth());
         String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
-        WnObj oAvatar = io.fetch(null, avatarPath);
+        WnObj oAvatar = io().fetch(null, avatarPath);
         // 有自定义的
         if (oAvatar != null) {
-            InputStream ins = io.getInputStream(oAvatar, 0);
+            InputStream ins = io().getInputStream(oAvatar, 0);
             String atype = oAvatar.type();
             String amime = oAvatar.mime();
             return new ViewWrapper(new WnImageView(atype, amime), ins);
@@ -712,17 +712,17 @@ public class UsrModule extends AbstractWnModule {
         } else {
             avatarPath = "/home/" + nm + "/.avatar";
         }
-        WnObj avatarObj = io.fetch(null, avatarPath);
+        WnObj avatarObj = io().fetch(null, avatarPath);
         if (avatarObj != null) {
-            return io.getInputStream(avatarObj, 0);
+            return io().getInputStream(avatarObj, 0);
         } else {
             // 尝试查找用户
-            WnAccount fUsr = auth.getAccount(nm);
+            WnAccount fUsr = auth().getAccount(nm);
             if (fUsr != null) {
                 avatarPath = Wn.appendPath(fUsr.getHomePath(), ".avatar");
-                avatarObj = io.fetch(null, avatarPath);
+                avatarObj = io().fetch(null, avatarPath);
                 if (avatarObj != null) {
-                    return io.getInputStream(avatarObj, 0);
+                    return io().getInputStream(avatarObj, 0);
                 }
             }
         }
@@ -734,7 +734,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public boolean usrExists(@Param("str") String str) {
-        WnAccount u = auth.getAccount(str);
+        WnAccount u = auth().getAccount(str);
         return u == null ? false : true;
     }
 
@@ -744,14 +744,14 @@ public class UsrModule extends AbstractWnModule {
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public boolean bookExists(@Param("str") String str) {
         // 已经被预定了
-        WnObj oBook = io.fetch(null, "/var/booking/" + str);
+        WnObj oBook = io().fetch(null, "/var/booking/" + str);
 
         // 已预定
         if (null != oBook)
             return true;
 
         // 已经存在这个用户
-        WnAccount u = auth.getAccount(str);
+        WnAccount u = auth().getAccount(str);
 
         // 已存在
         if (null != u)
@@ -806,11 +806,11 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 执行查询
-        Wn.WC().security(new WnEvalLink(io), new Atom() {
+        Wn.WC().security(new WnEvalLink(io()), new Atom() {
             @Override
             public void run() {
                 // 查询
-                List<WnAccount> us = auth.queryAccount(q);
+                List<WnAccount> us = auth().queryAccount(q);
                 // 提取内容
                 for (WnAccount u : us) {
                     list.add(u.toBeanOf("nm", "nickname"));
@@ -853,7 +853,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 得到新会话
-        WnAuthSession seNew = auth.checkSession(ticket);
+        WnAuthSession seNew = auth().checkSession(ticket);
 
         // 退出: 这个新会话必须是当前会话的父会话
         if (isExit) {
@@ -892,7 +892,7 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(nm)) {
             return new HttpStatusView(403);
         }
-        WnAccount usr = auth.getAccount(nm);
+        WnAccount usr = auth().getAccount(nm);
         if (usr == null) {
             return new HttpStatusView(403);
         }
@@ -913,7 +913,7 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
         }
 
-        WnAuthSession se = auth.createSession(usr, true);
+        WnAuthSession se = auth().createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
@@ -939,32 +939,32 @@ public class UsrModule extends AbstractWnModule {
         // 嗯，那么用哪个账号的微信设置呢？
         // 需要读取 /etc/mplogin 文件，文件内容就是一个字符串，表示处理的路径
         // 如果没有这个文件，那么就采用 /root/.weixin/mplogin/tickets 目录
-        WnObj oConf = io.fetch(null, "/etc/mplogin");
+        WnObj oConf = io().fetch(null, "/etc/mplogin");
         String ticketsHomePath = "/root/.weixin/mplogin/tickets";
         if (null != oConf) {
-            ticketsHomePath = Strings.trim(io.readText(oConf));
+            ticketsHomePath = Strings.trim(io().readText(oConf));
         }
 
         // 检查扫码结果
-        WnObj obj = io.fetch(null, Wn.appendPath(ticketsHomePath, uu32));
+        WnObj obj = io().fetch(null, Wn.appendPath(ticketsHomePath, uu32));
 
         // 还木有生成，大约是没有被扫码吧
         if (obj == null)
             return new HttpStatusView(403);
 
         // 生成了文件，但是内容为空，也容忍一下吧
-        String uid = Strings.trim(io.readText(obj));
+        String uid = Strings.trim(io().readText(obj));
         if (Strings.isBlank(uid))
             return new HttpStatusView(403);
 
         // 清除登陆信息
-        io.delete(obj);
+        io().delete(obj);
 
         // 扫码成功，看看给出 uid 是否正确
-        WnAccount usr = auth.checkAccountById(uid);
+        WnAccount usr = auth().checkAccountById(uid);
 
         // 为这个用户创建一个会话
-        WnAuthSession se = auth.createSession(usr, true);
+        WnAuthSession se = auth().createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本

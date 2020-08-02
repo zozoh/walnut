@@ -62,13 +62,13 @@ public class GuestModule extends AbstractWnModule {
                      HttpServletRequest req,
                      HttpServletResponse resp) {
         // 获取对象
-        WnObj o = Wn.checkObj(io, str);
+        WnObj o = Wn.checkObj(io(), str);
         // 安全性 检查
         // 确保可读，同时处理链接文件
         if (enableSecurity) {
             WnSecurity wns = Wn.WC().getSecurity();
             try {
-                Wn.WC().setSecurity(new WnSecurityImpl(io, auth));
+                Wn.WC().setSecurity(new WnSecurityImpl(io(), auth()));
                 o = Wn.WC().whenRead(o, false);
             }
             finally {
@@ -82,7 +82,7 @@ public class GuestModule extends AbstractWnModule {
         ua = WnWeb.autoUserAgent(o, ua, download);
 
         // 返回下载视图
-        return new WnObjDownloadView(io, o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, ua, etag, range);
     }
 
     @At("/qrcode")

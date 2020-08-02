@@ -191,6 +191,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        return tree.eachChild(o, name, callback);
+    }
+
+    @Override
     public List<WnObj> getChildren(WnObj o, String name) {
         return tree.getChildren(o, name);
     }

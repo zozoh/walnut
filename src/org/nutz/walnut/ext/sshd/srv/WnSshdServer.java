@@ -41,32 +41,32 @@ public class WnSshdServer extends WnRun {
             return;
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("/tmp/hostkey.ser")));
         sshd.setPasswordAuthenticator((String username, String password, ServerSession session) -> {
-            WnAccount usr = auth.getAccount(username);
+            WnAccount usr = auth().getAccount(username);
             if (usr == null)
                 return false;
             boolean re = usr.isMatchedRawPasswd(password);
             if (!re) {
                 String aph = usr.getHomePath() + "/.ssh/token";
-                WnObj wobj = io.fetch(null, aph);
+                WnObj wobj = io().fetch(null, aph);
                 if (wobj != null && wobj.isFILE()) {
-                    String token = io.readText(wobj);
+                    String token = io().readText(wobj);
                     re = password.equals(token);
                 }
             }
             if (re) {
-                WnAuthSession se = auth.createSession(usr, true);
+                WnAuthSession se = auth().createSession(usr, true);
                 session.setAttribute(WnSshd.KEY_WN_SESSION, se);
             }
             return re;
         });
         sshd.setPublickeyAuthenticator((username, key, session) -> {
-            WnAccount usr = auth.getAccount(username);
+            WnAccount usr = auth().getAccount(username);
             if (usr == null)
                 return false;
             String aph = usr.getHomePath() + "/.ssh/authorized_keys";
-            WnObj wobj = io.fetch(null, aph);
+            WnObj wobj = io().fetch(null, aph);
             if (wobj != null && wobj.isFILE() && wobj.len() > 64) {
-                String authorized_keys = io.readText(wobj);
+                String authorized_keys = io().readText(wobj);
                 try {
                     List<AuthorizedKeyEntry> entries = AuthorizedKeyEntry.readAuthorizedKeys(new StringReader(authorized_keys),
                                                                                              false);
@@ -74,7 +74,7 @@ public class WnSshdServer extends WnRun {
                                                                           entries)
                                                    .authenticate(username, key, session);
                     if (re) {
-                        WnAuthSession se = auth.createSession(usr, true);
+                        WnAuthSession se = auth().createSession(usr, true);
                         session.setAttribute(WnSshd.KEY_WN_SESSION, se);
                     }
                     return re;
@@ -91,7 +91,7 @@ public class WnSshdServer extends WnRun {
         });
         sshd.setFileSystemFactory((session) -> {
             try {
-                return new WnJdkFileSystemProvider(session, io).getFileSystem(new URI("/"));
+                return new WnJdkFileSystemProvider(session, io()).getFileSystem(new URI("/"));
             }
             catch (URISyntaxException e) {
                 throw Lang.impossible();

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -404,6 +405,81 @@ public abstract class Cmds {
         return Tmpl.parse(tmpl, "@");
     }
 
+    private static void joinObjs(WnSystem sys,
+                                 WnObj p,
+                                 String[] path,
+                                 int index,
+                                 List<WnObj> list,
+                                 int mode) {
+        String name = path[index];
+        // 中间路径，递归
+        if (index < path.length - 1) {
+            List<WnObj> children = sys.io.getChildren(p, name);
+            for (WnObj child : children) {
+                joinObjs(sys, child, path, index + 1, list, mode);
+            }
+        }
+        // 最后一个了，计入列表
+        else {
+            sys.io.eachChild(p, name, new Each<WnObj>() {
+                public void invoke(int index, WnObj ele, int length) {
+                    list.add(ele);
+                }
+            });
+        }
+    }
+
+    public static WnObj evalCandidateObjs(WnSystem sys,
+                                          String[] paths,
+                                          final List<WnObj> list,
+                                          int mode) {
+        WnObj cuo = sys.getCurrentObj();
+
+        if (null != paths) {
+            for (String ph : paths) {
+                String aph = Wn.normalizePath(ph, sys);
+                WnObj p = cuo;
+
+                // 顶级路径
+                if (aph.startsWith("/")) {
+                    p = null;
+                }
+
+                // 如果有通配符，那么逐层进入
+                if (aph.contains("*")) {
+                    String[] phList = Strings.splitIgnoreBlank(aph, "/");
+                    joinObjs(sys, p, phList, 0, list, mode);
+                }
+                // 就是一个路径，直接获取
+                else {
+                    WnObj o = Wn.getObj(sys, ph);
+                    if (null == o) {
+                        // 输出 null
+                        if (Wn.Cmd.isNoExistsNull(mode)) {
+                            list.add(null);
+                        }
+                          // 忽略
+                        else if (Wn.Cmd.isNoExistsIgnore(mode)) {
+
+                        }
+                        // 抛错
+                        else {
+                            throw Er.create("e.io.noexist", ph);
+                        }
+                    } else {
+                        list.add(o);
+                    }
+                }
+            }
+        }
+
+        if (list.isEmpty() && Wn.Cmd.isJoinCurrent(mode)) {
+            list.add(cuo);
+        }
+
+        return cuo;
+    }
+
     public static List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys, String[] paths, int mode) {
         LinkedList<WnObj> list = new LinkedList<WnObj>();
         evalCandidateObjs(sys, paths, list, mode);
@@ -424,41 +500,6 @@ public abstract class Cmds {
         WnObj re = evalCandidateObjs(sys, paths, list, mode);
         checkCandidateObjsNoEmpty(paths, list);
         return re;
-    }
-
-    public static WnObj evalCandidateObjs(WnSystem sys,
-                                          String[] paths,
-                                          final List<WnObj> list,
-                                          int mode) {
-        WnObj p = sys.getCurrentObj();
-
-        if (null != paths) {
-            for (String ph : paths) {
-                WnObj o = Wn.getObj(sys, ph);
-                if (null == o) {
-                    // 输出 null
-                    if (Wn.Cmd.isNoExistsNull(mode)) {
-                        list.add(null);
-                    }
-                      // 忽略
-                    else if (Wn.Cmd.isNoExistsIgnore(mode)) {
-
-                    }
-                    // 抛错
-                    else {
-                        throw Er.create("e.io.noexist", ph);
-                    }
-                } else {
-                    list.add(o);
-                }
-            }
-        }
-
-        if (list.isEmpty() && Wn.Cmd.isJoinCurrent(mode)) {
-            list.add(p);
-        }
-
-        return p;
     }
 
     public static WnObj evalCandidateObjs(WnSystem sys,

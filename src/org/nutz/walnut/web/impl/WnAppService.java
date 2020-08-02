@@ -128,9 +128,9 @@ public class WnAppService extends WnRun {
 
         // 如果存在 `init_tmpl` 文件，则执行，将其结果作为模板
 
-        WnObj oInitTmpl = io.fetch(oAppHome, "init_tmpl");
+        WnObj oInitTmpl = io().fetch(oAppHome, "init_tmpl");
         if (null != oInitTmpl) {
-            String cmdText = io.readText(oInitTmpl);
+            String cmdText = io().readText(oInitTmpl);
             tmpl = this.exec("app-init-tmpl:", se, appJson, cmdText);
         }
         // 否则查找静态模板文件
@@ -140,9 +140,9 @@ public class WnAppService extends WnRun {
 
         // 如果存在 `init_context` 文件，则执行，将其结果合并到渲染上下文中
         NutMap map = null;
-        WnObj oInitContext = io.fetch(oAppHome, "init_context");
+        WnObj oInitContext = io().fetch(oAppHome, "init_context");
         if (null != oInitContext) {
-            String cmdText = io.readText(oInitContext);
+            String cmdText = io().readText(oInitContext);
             String contextJson = this.exec("app-init-context:", se, appJson, cmdText);
             map = Json.fromJson(NutMap.class, contextJson);
         }
@@ -168,7 +168,7 @@ public class WnAppService extends WnRun {
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
         // 看看是否需要提供 debug 版
-        WnObj oDomain = io.fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
+        WnObj oDomain = io().fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
         if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
             c.put("TiJs", "ti/core/ti.mjs");
             c.put("WnJs", "ti/lib/walnut/walnut.mjs");
@@ -227,7 +227,7 @@ public class WnAppService extends WnRun {
             return null;
         }
         // 指定的用户
-        return Wn.checkObj(io, se, str);
+        return Wn.checkObj(io(), se, str);
     }
 
     /**
@@ -267,7 +267,7 @@ public class WnAppService extends WnRun {
         String tt = "pc"; // 可以是 "pc" 或者 "mobile"
 
         // 首先看看有木有自定义的模板
-        WnObj oTmpl = io.fetch(oAppHome, tt + "_tmpl.html");
+        WnObj oTmpl = io().fetch(oAppHome, tt + "_tmpl.html");
 
         // 没有模板，那么从所有的 APP_PATH 里寻找
         if (null == oTmpl) {
@@ -280,7 +280,7 @@ public class WnAppService extends WnRun {
                 String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
                 for (String base : bases) {
                     String phTmpl = Wn.appendPath(base, nmTmpl);
-                    oTmpl = io.fetch(null, phTmpl);
+                    oTmpl = io().fetch(null, phTmpl);
                     if (null != oTmpl)
                         break;
                 }
@@ -293,7 +293,7 @@ public class WnAppService extends WnRun {
         }
 
         // 读取模板并分析
-        String tmpl = io.readText(oTmpl);
+        String tmpl = io().readText(oTmpl);
         return tmpl;
     }
 
@@ -309,7 +309,7 @@ public class WnAppService extends WnRun {
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
-            WnObj o = io.fetch(null, ph);
+            WnObj o = io().fetch(null, ph);
             if (null != o)
                 return o;
         }

@@ -88,9 +88,9 @@ public class HttpApiModule extends AbstractWnModule {
 
             // .........................................
             // 得到用户和主目录
-            apc.u = auth.checkAccount(usr);
+            apc.u = auth().checkAccount(usr);
             String homePath = apc.u.getHomePath();
-            apc.oHome = io.check(null, homePath);
+            apc.oHome = io().check(null, homePath);
 
             // .........................................
             // 找到 API 对象
@@ -108,7 +108,7 @@ public class HttpApiModule extends AbstractWnModule {
             apc.oldSe = null;
             String ticket = Wn.WC().getTicket();
             if (!Strings.isBlank(ticket)) {
-                apc.oldSe = this.auth.getSession(ticket);
+                apc.oldSe = this.auth().getSession(ticket);
             }
 
             // .........................................
@@ -171,7 +171,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
             // 确保退出登录
             finally {
-                auth.removeSession(apc.se, 0);
+                auth().removeSession(apc.se, 0);
                 apc.wc.setSession(null);
             }
         }
@@ -232,8 +232,8 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 读一下设置
-        apc.oPvgSetup = Wn.checkObj(io, apc.se, phPvg);
-        NutMap setup = io.readJson(apc.oPvgSetup, NutMap.class);
+        apc.oPvgSetup = Wn.checkObj(io(), apc.se, phPvg);
+        NutMap setup = io().readJson(apc.oPvgSetup, NutMap.class);
         apc.bizPvgs = new BizPvgService(setup);
 
         // 得到当前账户的角色
@@ -251,7 +251,7 @@ public class HttpApiModule extends AbstractWnModule {
 
     private WnAuthSession __switch_op_user(final WnHttpApiContext apc) {
         apc.wc = Wn.WC();
-        WnAuthSession se = auth.createSession(apc.u, false);
+        WnAuthSession se = auth().createSession(apc.u, false);
         apc.wc.setSession(se);
         return se;
     }
@@ -308,7 +308,7 @@ public class HttpApiModule extends AbstractWnModule {
     private WnObj __gen_tmp_obj(final WnHttpApiContext apc) {
         return Wn.WC().su(apc.u, new Proton<WnObj>() {
             protected WnObj exec() {
-                return io.createIfNoExists(apc.oHome, ".regapi/tmp", WnRace.DIR);
+                return io().createIfNoExists(apc.oHome, ".regapi/tmp", WnRace.DIR);
             }
         });
     }
@@ -336,7 +336,7 @@ public class HttpApiModule extends AbstractWnModule {
         apc.params = new NutMap();
 
         // 得到 api 的主目录，分解要获取的路径
-        apc.oApiHome = io.fetch(apc.oHome, ".regapi/api");
+        apc.oApiHome = io().fetch(apc.oHome, ".regapi/api");
         String[] phs = Strings.splitIgnoreBlank(apc.api, "/");
 
         // 依次取得
@@ -344,14 +344,14 @@ public class HttpApiModule extends AbstractWnModule {
             String ph = phs[i];
 
             // 直接找一下看看有没有
-            oApi = io.fetch(apc.oApiHome, ph);
+            oApi = io().fetch(apc.oApiHome, ph);
             if (null != oApi) {
                 apc.oApiHome = oApi;
                 continue;
             }
 
             // 嗯，那就找 _ANY 咯
-            oApi = io.fetch(apc.oApiHome, "_ANY");
+            oApi = io().fetch(apc.oApiHome, "_ANY");
 
             // 没有的话就是 null 咯
             if (null == oApi)
@@ -392,12 +392,12 @@ public class HttpApiModule extends AbstractWnModule {
         String cmdPattern;
         // 如果 oApi 是个路径参数
         if (apc.oApi.isDIR() && apc.oApi.name().equals("_ANY")) {
-            WnObj oAA = io.check(apc.oApi, "_action");
-            cmdPattern = io.readText(oAA);
+            WnObj oAA = io().check(apc.oApi, "_action");
+            cmdPattern = io().readText(oAA);
         }
         // 否则直接使用
         else {
-            cmdPattern = io.readText(apc.oApi);
+            cmdPattern = io().readText(apc.oApi);
         }
         apc.cmdText = Tmpl.exec(cmdPattern, apc.oReq);
 
@@ -438,13 +438,13 @@ public class HttpApiModule extends AbstractWnModule {
         String uriName = apc.uri.replaceAll("[/\\\\]", "_").substring(1);
         WnObj oReq = Wn.WC().su(apc.u, new Proton<WnObj>() {
             protected WnObj exec() {
-                return io.create(apc.oTmp, uriName + "_${id}", WnRace.FILE);
+                return io().create(apc.oTmp, uriName + "_${id}", WnRace.FILE);
             }
         });
 
         // .........................................
         // 更新头信息
-        io.appendMeta(oReq, apc.reqMeta);
+        io().appendMeta(oReq, apc.reqMeta);
 
         // 增加一个输入缓冲
         String in_tp = apc.oApi.getString("http-body");
@@ -457,7 +457,7 @@ public class HttpApiModule extends AbstractWnModule {
         // .........................................
         // 保存请求体
         InputStream ins = apc.req.getInputStream();
-        OutputStream ops = io.getOutputStream(oReq, 0);
+        OutputStream ops = io().getOutputStream(oReq, 0);
 
         // 需要同时将请求内容保存到元数据里，那么先复制一份把
         if (null != in_ops) {
@@ -603,9 +603,9 @@ public class HttpApiModule extends AbstractWnModule {
             String ticketBy = apc.oApi.getString("http-www-ticket", "http-qs-ticket");
             String ticket = apc.reqMeta.getString(ticketBy);
             if (!Strings.isBlank(ticket)) {
-                apc.oWWW = Wn.checkObj(io, apc.se, phWWW);
+                apc.oWWW = Wn.checkObj(io(), apc.se, phWWW);
                 String homePath = apc.se.getMe().getHomePath();
-                apc.webs = new WnWebService(io, homePath, apc.oWWW);
+                apc.webs = new WnWebService(io(), homePath, apc.oWWW);
                 apc.wwwSe = apc.webs.getAuthApi().getSession(ticket);
                 if (null != apc.wwwSe) {
                     WnAccount wwwMe = apc.wwwSe.getMe();
@@ -695,16 +695,16 @@ public class HttpApiModule extends AbstractWnModule {
 
     void _do_run_box(WnHttpApiContext apc) throws UnsupportedEncodingException {
         // 执行命令
-        WnBox box = boxes.alloc(0);
+        WnBox box = boxes().alloc(0);
 
         if (log.isDebugEnabled())
             log.debugf("box:alloc: %s", box.id());
 
         // 设置沙箱
         WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io;
+        bc.io = io();
         bc.session = apc.se;
-        bc.auth = auth;
+        bc.auth = auth();
 
         if (log.isDebugEnabled())
             log.debugf("box:setup: %s", bc);
@@ -740,7 +740,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 释放沙箱
         if (log.isDebugEnabled())
             log.debugf("box:free: %s", box.id());
-        boxes.free(box);
+        boxes().free(box);
 
         if (log.isDebugEnabled())
             log.debug("box:done");
@@ -768,7 +768,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 首先，获取一下历史记录的配置文件
         String hisname = apc.oApi.getString("hisname", "_history");
-        WnObj oHis = Wn.getObj(io, apc.se, "~/.domain/history/" + hisname + ".json");
+        WnObj oHis = Wn.getObj(io(), apc.se, "~/.domain/history/" + hisname + ".json");
 
         // 木有的话，打印个警告
         if (null == oHis) {
@@ -781,7 +781,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 生成服务类
-        WnDaoConfig conf = WnDaos.loadConfig(io, oHis, apc.se);
+        WnDaoConfig conf = WnDaos.loadConfig(io(), oHis, apc.se);
         Dao dao = WnDaos.get(conf);
         HistoryApi api = new WnHistoryService(conf, dao);
 

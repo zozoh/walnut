@@ -10,6 +10,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
@@ -49,6 +50,9 @@ public class WnLocalFileObj extends NutMap implements WnObj {
             this.rph += "/";
         }
         this._id = oHome.id() + ":" + rph;
+
+        // 填充一下自己，防止有贱人 get(key)
+        this._fill_vals(this);
     }
 
     public File getFile() {
@@ -117,10 +121,44 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String path() {
-        if (null != _parent) {
+        if (null != _parent && !_parent.isSameId(oHome)) {
             String pph = _parent.path();
-            String nm = this.name();
-            return Wn.appendPath(pph, nm);
+            String rph;
+            /**
+             * 父也是一个本地文件，那么就比较一下rph 来获取 自己真正相对与父的路径
+             * <p>
+             * 这个特殊的判断是针对下面的深层链接做的优化
+             * 
+             * <pre>
+             * /rs/ti/
+             *     +----+
+             *          | link
+             *          v
+             * /mnt/ti/src/view/creation.o
+             *      +->mount: file://d:/git/github/titnaium/
+             * </pre>
+             * 
+             * 当获取 fetch(null, "/rs/ti/view/creation.o") 时导致的一系列问题
+             * 
+             */
+            if (_parent instanceof WnLocalFileObj) {
+                WnLocalFileObj lfp = (WnLocalFileObj) _parent;
+                // 如果映射不一致，那么不能够啊
+                if (!lfp.mount().equals(this.mount())) {
+                    throw Lang.impossible();
+                }
+                // 我的相对路径比父的还长？ 不能够啊
+                if (!this.rph.startsWith(lfp.rph)) {
+                    throw Lang.impossible();
+                }
+                // 得到自己的相对路径
+                rph = this.rph.substring(lfp.rph.length());
+            }
+            // 直接将自己的名字拼合上父的路径
+            else {
+                rph = this.name();
+            }
+            return Wn.appendPath(pph, rph);
         }
         String ph = oHome.path();
         return Wn.appendPath(ph, rph);
@@ -203,6 +241,46 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public WnObj parent() {
         if (null != _parent) {
+            /**
+             * 父也是一个本地文件，那么就比较一下rph 来获取 自己真正相对与父的路径
+             * <p>
+             * 这个特殊的判断是针对下面的深层链接做的优化
+             * 
+             * <pre>
+             * /rs/ti/
+             *     +----+
+             *          | link
+             *          v
+             * /mnt/ti/src/view/creation.o
+             *      +->mount: file://d:/git/github/titnaium/
+             * </pre>
+             * 
+             * 当获取 fetch(null, "/rs/ti/view/creation.o") 时导致的一系列问题
+             * 
+             */
+            if (_parent instanceof WnLocalFileObj) {
+                WnLocalFileObj lfp = (WnLocalFileObj) _parent;
+                // 如果映射不一致，那么不能够啊
+                if (!lfp.mount().equals(this.mount())) {
+                    throw Lang.impossible();
+                }
+                // 我的相对路径比父的还长？ 不能够啊
+                if (!this.rph.startsWith(lfp.rph)) {
+                    throw Lang.impossible();
+                }
+                // 得到自己的相对父路径
+                String rph2 = this.rph.substring(lfp.rph.length());
+
+                // 如果这个路径还没有用尽，则搞一个新的 parent 出来
+                int pos = rph2.lastIndexOf('/', rph2.length() - 2);
+                if (pos > 0) {
+                    File d = this.file.getParentFile();
+                    WnLocalFileObj p2 = new WnLocalFileObj(oHome, dHome, d, mimes);
+                    p2.setParent(_parent);
+                    return p2;
+                }
+            }
+            // rph 用尽了，直接返回自己的父就好了
             return _parent;
         }
         String ph = Wn.appendPath(phHome, rph);
@@ -443,6 +521,15 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public NutMap toMap(String regex) {
         NutMap map = new NutMap();
+        _fill_vals(map);
+
+        if (null != regex)
+            return map.pickBy(regex);
+
+        return map;
+    }
+
+    private void _fill_vals(NutBean map) {
         map.put("m", mender());
         map.put("c", creator());
         map.put("g", group());
@@ -460,10 +547,6 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         map.put("mnt", oHome.mount());
         map.put("race", race());
         map.put("mime", mime());
-
-        if (null != regex)
-            return map.pickBy(regex);
-        return map;
     }
 
     public String toJson(JsonFormat jfmt) {

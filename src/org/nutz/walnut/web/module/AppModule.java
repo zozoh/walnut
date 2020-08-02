@@ -127,7 +127,7 @@ public class AppModule extends AbstractWnModule {
                 sw.tag("appHome " + rsName);
 
             // 读取资源对象
-            WnObj o = io.check(oAppHome, rsName);
+            WnObj o = io().check(oAppHome, rsName);
 
             // 确保可读，同时处理链接文件
             o = Wn.WC().whenRead(o, false);
@@ -158,7 +158,7 @@ public class AppModule extends AbstractWnModule {
             }
 
             // 其他就默认咯
-            return new WnObjDownloadView(io, o, ua, etag, range);
+            return new WnObjDownloadView(io(), o, ua, etag, range);
         }
         // 最后打印总时长
         finally {
@@ -227,7 +227,7 @@ public class AppModule extends AbstractWnModule {
                                             @Attr("wn_www_host") String hostName) {
         View view = null;
         Object reo = null;
-        WnDomainService domains = new WnDomainService(io);
+        WnDomainService domains = new WnDomainService(io());
         WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
         // -------------------------------------------------
         if (null == si.oWWW) {
@@ -246,7 +246,7 @@ public class AppModule extends AbstractWnModule {
             // 如果采用域用户登陆，则校验系统账户
             // 并返回 CookieView
             if (si.oHome.isSameName(name)) {
-                reo = auth.loginByPasswd(name, passwd);
+                reo = auth().loginByPasswd(name, passwd);
             }
             // 采用域用户库来登陆
             else {
@@ -262,7 +262,7 @@ public class AppModule extends AbstractWnModule {
                     String byValue = si.siteId + ":passwd";
 
                     // 注册新会话
-                    WnAuthSession se = auth.createSession(user, true);
+                    WnAuthSession se = auth().createSession(user, true);
 
                     // 更新会话元数据
                     __update_auth_session(se, si.webs, byType, byValue);
@@ -326,7 +326,7 @@ public class AppModule extends AbstractWnModule {
                                             @Attr("wn_www_host") String hostName) {
         View view;
         Object reo;
-        WnDomainService domains = new WnDomainService(io);
+        WnDomainService domains = new WnDomainService(io());
         WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
         // -------------------------------------------------
         if (null == si.oWWW) {
@@ -347,7 +347,7 @@ public class AppModule extends AbstractWnModule {
 
             // -------------------------------
             // 查找之前的会话
-            WnAuthSession seSys = auth.getSession(byType, byValue);
+            WnAuthSession seSys = auth().getSession(byType, byValue);
 
             // -------------------------------
             // 嗯，看来要自动创建一个新的咯
@@ -363,7 +363,7 @@ public class AppModule extends AbstractWnModule {
                 __check_home_accessable(si.oHome, u);
 
                 // 注册新会话
-                seSys = auth.createSession(u, true);
+                seSys = auth().createSession(u, true);
 
                 // 更新会话元数据
                 __update_auth_session(seSys, si.webs, byType, byValue);
@@ -401,7 +401,7 @@ public class AppModule extends AbstractWnModule {
     }
 
     private void __check_home_accessable(WnObj oHome, WnAccount user) {
-        WnSecurity secu = new WnSecurityImpl(io, auth);
+        WnSecurity secu = new WnSecurityImpl(io(), auth());
         // 不能读，那么注销会话，并返回错误
         if (!secu.test(oHome, Wn.Io.R, user)) {
             throw Er.create("e.auth.home.forbidden");
@@ -442,6 +442,6 @@ public class AppModule extends AbstractWnModule {
         }
 
         // 保存会话
-        auth.saveSession(se);
+        auth().saveSession(se);
     }
 }

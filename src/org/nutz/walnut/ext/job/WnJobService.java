@@ -56,7 +56,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 		}
 
 		if (null != _se) {
-			this.auth.removeSession(_se, 0);
+			this.auth().removeSession(_se, 0);
 		}
 	}
 
@@ -69,8 +69,8 @@ public class WnJobService extends WnRun implements Callable<Object> {
 	}
 
 	public void init() {
-		io.createIfNoExists(null, root, WnRace.DIR);
-		io.createIfNoExists(null, tmpRoot, WnRace.DIR);
+		io().createIfNoExists(null, root, WnRace.DIR);
+		io().createIfNoExists(null, tmpRoot, WnRace.DIR);
 
 		_se = this.creatSession("root", true);
 
@@ -98,20 +98,20 @@ public class WnJobService extends WnRun implements Callable<Object> {
 
 	public WnObj next() {
 		Date now = new Date();
-		String pid = io.check(null, root).id();
+		String pid = io().check(null, root).id();
 		WnQuery query = new WnQuery();
 		query.setv("pid", pid);
 		query.limit(1);
 		query.sortBy("job_ava", 1);
 		query.setv("job_ava", new NutMap().setv("$lt", now.getTime()));
 		query.setv("job_st", "wait");
-		List<WnObj> list = io.query(query);
+		List<WnObj> list = io().query(query);
 		if (list == null || list.isEmpty())
 			return null;
 		final WnObj jobDir = list.get(0);
 		String cron = jobDir.getString("job_cron");
 		if (Strings.isBlank(cron)) {
-			io.appendMeta(jobDir, "job_ava:" + (now.getTime() + 24 * 60 * 60 * 1000L));
+			io().appendMeta(jobDir, "job_ava:" + (now.getTime() + 24 * 60 * 60 * 1000L));
 			return jobDir;
 		}
 		final Calendar calendar = Calendar.getInstance();
@@ -119,11 +119,11 @@ public class WnJobService extends WnRun implements Callable<Object> {
 		if (calendar.get(Calendar.HOUR_OF_DAY) == 23 && calendar.get(Calendar.MINUTE) > 55) {
 			calendar.set(Calendar.MINUTE, 56);
 			calendar.add(Calendar.DAY_OF_YEAR, 1);
-			io.appendMeta(jobDir, "job_ava:" + calendar.getTimeInMillis());
+			io().appendMeta(jobDir, "job_ava:" + calendar.getTimeInMillis());
 		} else {
 			calendar.set(Calendar.HOUR_OF_DAY, 23);
 			calendar.set(Calendar.MINUTE, 56);
-			io.appendMeta(jobDir, "job_ava:" + calendar.getTimeInMillis());
+			io().appendMeta(jobDir, "job_ava:" + calendar.getTimeInMillis());
 		}
 		// TODO 如果cron是非法的,就挂了
 		Quartz quartz = Quartz.NEW(cron);
@@ -143,7 +143,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 				String tmpName = "." + R.UU32();
 				String tmpDir = tmpRoot + "/" + tmpName;
 				exec("job.cron.copy ", _se, "cp -r -p " + jobDir.path() + " " + tmpDir);
-				WnObj tmp = io.fetch(null, tmpDir);
+				WnObj tmp = io().fetch(null, tmpDir);
 				if (tmp == null)
 					return;
 				Map<String, Object> meta = Lang.filter(jobDir, null, "^job_.+$", "^job_cron$", null);
@@ -151,7 +151,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 				meta.put("job_st", "wait");
 				meta.put("job_name", jobDir.get("job_name", jobDir.id()) + "_" + Times.sDT(calendar.getTime()));
 				meta.put("job_pid", jobDir.id());
-				io.appendMeta(tmp, meta);
+				io().appendMeta(tmp, meta);
 				exec("job.cron.copy ", _se, "mv " + tmpDir + " " + root + "/" + tmpName);
 
 				if (log.isDebugEnabled()) {
@@ -191,11 +191,11 @@ public class WnJobService extends WnRun implements Callable<Object> {
 
 		public Object call() throws Exception {
 			try {
-				io.appendMeta(jobDir, new NutMap("job_start", now()).setv("job_st", "run"));
-				WnObj cmdFile = io.fetch(jobDir, "cmd");
+				io().appendMeta(jobDir, new NutMap("job_start", now()).setv("job_st", "run"));
+				WnObj cmdFile = io().fetch(jobDir, "cmd");
 				if (cmdFile != null) {
-					String cmdText = io.readText(cmdFile);
-					WnAccount usr = auth.getAccount(jobDir.getString("job_user"));
+					String cmdText = io().readText(cmdFile);
+					WnAccount usr = auth().getAccount(jobDir.getString("job_user"));
 					if (usr != null) {
 						WnJobService.this.runWithHook(usr, jobDir.getString("job_group"),
 								jobDir.getAs("job_env", NutMap.class),
@@ -203,7 +203,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 					}
 				}
 			} finally {
-				io.appendMeta(jobDir, new NutMap("job_end", now()).setv("job_st", "done"));
+				io().appendMeta(jobDir, new NutMap("job_end", now()).setv("job_st", "done"));
 			}
 			return null;
 		}
@@ -229,9 +229,9 @@ public class WnJobService extends WnRun implements Callable<Object> {
 			jobData.runAt = System.currentTimeMillis();
 
 		String id = R.UU32();
-		WnObj jobDir = io.create(null, WnJobService.root + "/" + id, WnRace.DIR);
-		WnObj cmdFile = io.create(jobDir, "cmd", WnRace.FILE);
-		io.writeText(cmdFile, jobData.cmdText);
+		WnObj jobDir = io().create(null, WnJobService.root + "/" + id, WnRace.DIR);
+		WnObj cmdFile = io().create(jobDir, "cmd", WnRace.FILE);
+		io().writeText(cmdFile, jobData.cmdText);
 		NutMap metas = new NutMap();
 		metas.put("job_name", jobData.name);
 		metas.put("job_cron", jobData.cron);
@@ -241,7 +241,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 		metas.put("job_create_user", jobData.createByUser);
 		metas.put("job_st", "wait");
 		metas.put("job_env", jobData.env);
-		io.appendMeta(jobDir, metas);
+		io().appendMeta(jobDir, metas);
 		return jobDir.id();
 	}
 }

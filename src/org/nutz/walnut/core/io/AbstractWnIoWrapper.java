@@ -301,6 +301,11 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.query(q);
     }
 
+    @Override
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        return io.eachChild(o, name, callback);
+    }
+
     public List<WnObj> getChildren(WnObj o, String name) {
         return io.getChildren(o, name);
     }

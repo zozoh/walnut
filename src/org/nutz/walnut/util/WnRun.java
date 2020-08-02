@@ -34,19 +34,19 @@ public class WnRun {
     private static final Log log = Logs.get();
 
     @Inject("refer:io")
-    protected WnIo io;
+    private WnIo io;
 
     @Inject("refer:sysAuthService")
-    protected WnAuthService auth;
+    private WnAuthService auth;
 
     @Inject("refer:jvmExecutorFactory")
-    protected JvmExecutorFactory jef;
+    private JvmExecutorFactory jef;
 
     @Inject("refer:boxService")
-    protected WnBoxService boxes;
+    private WnBoxService boxes;
 
     @Inject("refer:hookService")
-    protected WnHookService hooks;
+    private WnHookService hooks;
 
     @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
@@ -68,6 +68,10 @@ public class WnRun {
 
     public WnHookService hooks() {
         return hooks;
+    }
+
+    public JvmExecutorFactory jef() {
+        return jef;
     }
 
     public String exec(String logPrefix, String unm, final String cmdText) {

@@ -269,9 +269,25 @@ public class MongoIndexer extends AbstractIoDataIndexer {
 
     @Override
     public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        if (null == o) {
+            o = this.getRoot();
+        }
         WnQuery q = Wn.Q.pid(o.myId());
-        if (null != name)
-            q.setv("nm", name);
+        if (null != name) {
+            // 正则
+            if (name.startsWith("^")) {
+                q.setv("nm", name);
+            }
+            // 通配符
+            else if (name.contains("*")) {
+                String regex = "^" + name.replace("*", ".*");
+                q.setv("nm", regex);
+            }
+            // 精确等于
+            else {
+                q.setv("nm", name);
+            }
+        }
         q.asc("nm");
         return this.each(q, callback);
     }

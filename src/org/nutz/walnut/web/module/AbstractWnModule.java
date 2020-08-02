@@ -31,7 +31,7 @@ public abstract class AbstractWnModule extends WnRun {
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
-            WnObj o = io.fetch(null, ph);
+            WnObj o = io().fetch(null, ph);
             if (null != o)
                 return o;
         }

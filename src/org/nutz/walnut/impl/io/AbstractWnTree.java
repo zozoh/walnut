@@ -898,7 +898,7 @@ public abstract class AbstractWnTree implements WnTree {
         final WnContext wc = Wn.WC();
         return _each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                ((WnBean)o).setTree(tree);
+                ((WnBean) o).setTree(tree);
                 o = wc.whenAccess(o, true);
                 if (null == o)
                     return;
@@ -937,6 +937,11 @@ public abstract class AbstractWnTree implements WnTree {
             }
         });
         return list;
+    }
+
+    @Override
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        throw Lang.noImplement();
     }
 
     @Override

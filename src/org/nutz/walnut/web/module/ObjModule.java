@@ -76,13 +76,13 @@ public class ObjModule extends AbstractWnModule {
     @At("/get/**")
     public WnObj get(String str, @Param("aph") boolean isAbsolutePath) {
         str = __format_str(str, isAbsolutePath);
-        return Wn.checkObj(io, str);
+        return Wn.checkObj(io(), str);
     }
 
     @At("/fetch")
     public WnObj fetch(@Param("str") String str) {
         WnAuthSession se = Wn.WC().checkSession();
-        return Wn.checkObj(io, se, str);
+        return Wn.checkObj(io(), se, str);
     }
 
     /**
@@ -99,7 +99,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/ancestors")
     public List<WnObj> ancestors(@Param("str") String str) {
         WnAuthSession se = Wn.WC().checkSession();
-        WnObj meta = Wn.checkObj(io, se, str);
+        WnObj meta = Wn.checkObj(io(), se, str);
         LinkedList<WnObj> ans = new LinkedList<>();
         meta.loadParents(ans, false);
         return ans;
@@ -126,9 +126,9 @@ public class ObjModule extends AbstractWnModule {
         str = __format_str(str, isAbsolutePath);
 
         // 取得并写入
-        WnObj o = Wn.checkObj(io, str);
-        // io.writeMeta(o, map);
-        io.appendMeta(o, map);
+        WnObj o = Wn.checkObj(io(), str);
+        // io().writeMeta(o, map);
+        io().appendMeta(o, map);
         return o;
     }
 
@@ -148,8 +148,8 @@ public class ObjModule extends AbstractWnModule {
         WnAuthSession se = Wn.WC().checkSession();
 
         // 取得并写入
-        WnObj o = Wn.checkObj(io, se, str);
-        io.appendMeta(o, map);
+        WnObj o = Wn.checkObj(io(), se, str);
+        io().appendMeta(o, map);
         return o;
     }
 
@@ -192,12 +192,12 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 查询列表
-        List<WnObj> list = io.query(q);
+        List<WnObj> list = io().query(q);
 
         // 需要分页
         if (isPaging) {
             WnPagerObj pager = new WnPagerObj().setBy(q);
-            long tc = io.count(q);
+            long tc = io().count(q);
             pager.setTotal(tc);
             return new NutMap("list", list).setv("pager", pager);
         }
@@ -209,10 +209,10 @@ public class ObjModule extends AbstractWnModule {
     @At("/children")
     public Object children(@Param("str") String str, @Param("pg") Boolean paging) {
         WnAuthSession se = Wn.WC().checkSession();
-        WnObj o = Wn.checkObj(io, se, str);
+        WnObj o = Wn.checkObj(io(), se, str);
 
         // 查询
-        List<WnObj> list = io.getChildren(o, null);
+        List<WnObj> list = io().getChildren(o, null);
 
         // 不要翻页信息
         if (!paging)
@@ -292,10 +292,10 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 查询
-        List<WnObj> list = io.query(q);
+        List<WnObj> list = io().query(q);
 
         // 更新分页信息
-        long tc = io.count(q);
+        long tc = io().count(q);
         pager.setTotal(tc);
 
         // 返回
@@ -358,13 +358,13 @@ public class ObjModule extends AbstractWnModule {
         // 根据对象找吧
         else {
             // 首先读取对象
-            WnObj o = Wn.checkObj(io, str);
+            WnObj o = Wn.checkObj(io(), str);
             WnRace race = o.race();
 
             // 如果缩略图，使用
             if (o.hasThumbnail()) {
-                WnObj oThumb = Wn.getObj(io, o.thumbnail());
-                im = io.readImage(oThumb);
+                WnObj oThumb = Wn.getObj(io(), o.thumbnail());
+                im = io().readImage(oThumb);
                 mime = oThumb.mime();
                 imtp = oThumb.type();
             }
@@ -422,11 +422,11 @@ public class ObjModule extends AbstractWnModule {
         // 尝试从本域读取默认缩略图
         String ph = Wn.normalizeFullPath("~/.thumbnail/dft/" + tp + "/" + sz_key + ".png",
                                          Wn.WC().checkSession());
-        WnObj oThumb = io.fetch(null, ph);
+        WnObj oThumb = io().fetch(null, ph);
 
         // 如果找到了 ...
         if (null != oThumb) {
-            im = io.readImage(oThumb);
+            im = io().readImage(oThumb);
         }
         // 没找到就用系统的缩略图，这样可以利用上缓存
         else {
@@ -447,11 +447,11 @@ public class ObjModule extends AbstractWnModule {
             return im;
 
         // 从系统的缩略图目录里找
-        WnObj oThumbHome = io.fetch(null, "/etc/thumbnail/" + tp);
+        WnObj oThumbHome = io().fetch(null, "/etc/thumbnail/" + tp);
 
         // 如果是目录，没找到的话，试图读取 "folder" 作为缩略图
         if (null == oThumbHome && race == WnRace.DIR) {
-            oThumbHome = io.fetch(null, "/etc/thumbnail/folder");
+            oThumbHome = io().fetch(null, "/etc/thumbnail/folder");
         }
 
         // 没找到了对应文件的缩略图，直接用默认的
@@ -460,7 +460,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 如果就找的其实是个文件夹，那么根据尺寸来找，没给尺寸的话
-        WnObj oThumb = io.fetch(oThumbHome, sz_key + ".png");
+        WnObj oThumb = io().fetch(oThumbHome, sz_key + ".png");
 
         // 还是没有，用默认图片
         if (null == oThumb) {
@@ -468,7 +468,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 那么读取一下图片，并存入缓存
-        im = io.readImage(oThumb);
+        im = io().readImage(oThumb);
         thumbCache.put(thumb_key, im);
 
         // 返回
@@ -480,8 +480,8 @@ public class ObjModule extends AbstractWnModule {
         String thumb_key = "unknown_" + sz_key;
         im = thumbCache.get(thumb_key);
         if (null == im) {
-            WnObj oThumb = io.check(null, "/etc/thumbnail/unknown/" + sz_key + ".png");
-            im = io.readImage(oThumb);
+            WnObj oThumb = io().check(null, "/etc/thumbnail/unknown/" + sz_key + ".png");
+            im = io().readImage(oThumb);
             thumbCache.put("unknown_" + sz_key, im);
         }
         return im;
@@ -510,7 +510,7 @@ public class ObjModule extends AbstractWnModule {
         WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
-        WnObj o = Wn.checkObj(io, se, str);
+        WnObj o = Wn.checkObj(io(), se, str);
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
@@ -528,7 +528,7 @@ public class ObjModule extends AbstractWnModule {
         ua = WnWeb.autoUserAgent(o, ua, download);
 
         // 返回下载视图
-        return new WnObjDownloadView(io, o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, ua, etag, range);
 
     }
 
@@ -538,7 +538,7 @@ public class ObjModule extends AbstractWnModule {
         WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
-        WnObj o = Wn.checkObj(io, se, str);
+        WnObj o = Wn.checkObj(io(), se, str);
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
@@ -547,7 +547,7 @@ public class ObjModule extends AbstractWnModule {
         content = Strings.sNull(content, "");
 
         // 写入
-        io.writeText(o, content);
+        io().writeText(o, content);
 
         // 返回
         return o;
@@ -608,11 +608,11 @@ public class ObjModule extends AbstractWnModule {
         WnAuthSession se = Wn.WC().checkSession();
 
         // 取得对应对象
-        WnObj o = Wn.getObj(io, se, str);
+        WnObj o = Wn.getObj(io(), se, str);
 
         // 处理链接文件
         if (null != o)
-            o = Wn.real(o, io, new HashMap<>());
+            o = Wn.real(o, io(), new HashMap<>());
 
         // 默认模式
         mode = Strings.sBlank(mode, "r");
@@ -624,17 +624,17 @@ public class ObjModule extends AbstractWnModule {
                 // 目标是个目录
                 if (str.endsWith("/")) {
                     String aph = Wn.normalizeFullPath(Wn.appendPath(str, nm), se);
-                    o = io.createIfNoExists(null, aph, WnRace.FILE);
+                    o = io().createIfNoExists(null, aph, WnRace.FILE);
                 }
                 // 目标是个文件
                 else {
                     String aph = Wn.normalizeFullPath(str, se);
-                    o = io.createIfNoExists(null, aph, WnRace.FILE);
+                    o = io().createIfNoExists(null, aph, WnRace.FILE);
                 }
             }
             // 存在，且是目录，那么还是创建
             else if (o.isDIR()) {
-                o = io.createIfNoExists(o, nm, WnRace.FILE);
+                o = io().createIfNoExists(o, nm, WnRace.FILE);
             }
         }
         // s- 严格模式: str必须存在，且是一个文件，将会将其替换
@@ -657,7 +657,7 @@ public class ObjModule extends AbstractWnModule {
             // 目录的话，则按照 nm取一下
             if (o.isDIR()) {
                 oP = o;
-                o = io.fetch(o, nm);
+                o = io().fetch(o, nm);
                 fname = nm;
             }
             // 文件的话，取一下父目录
@@ -676,11 +676,11 @@ public class ObjModule extends AbstractWnModule {
                 c.put("nb", i++);
                 fname = seg.render(c);
                 // 一直找到一个不存在的名称
-                if (!io.exists(oP, fname))
+                if (!io().exists(oP, fname))
                     break;
             }
             // 创建这个文件
-            o = io.create(oP, fname, WnRace.FILE);
+            o = io().create(oP, fname, WnRace.FILE);
         }
         // 错误的模式
         else {
@@ -688,7 +688,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 写入
-        OutputStream ops = io.getOutputStream(o, 0);
+        OutputStream ops = io().getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins, 256 * 1024);
 
         // 计入原始数据
@@ -696,7 +696,7 @@ public class ObjModule extends AbstractWnModule {
         localMeta.put("name", nm);
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
-        io.appendMeta(o, Lang.map("local", localMeta));
+        io().appendMeta(o, Lang.map("local", localMeta));
 
         // 返回
         return o;
@@ -754,7 +754,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 首先得到目标对象
-        WnObj o = Wn.checkObj(io, Wn.WC().checkSession(), str);
+        WnObj o = Wn.checkObj(io(), Wn.WC().checkSession(), str);
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
@@ -775,7 +775,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 返回下载视图
-        return new WnObjDownloadView(io, o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, ua, etag, range);
     }
 
     @Deprecated
@@ -787,13 +787,13 @@ public class ObjModule extends AbstractWnModule {
         str = __format_str(str, isAbsolutePath);
 
         // 取得对象
-        WnObj o = Wn.checkObj(io, str);
+        WnObj o = Wn.checkObj(io(), str);
 
         // 确保可写，同时处理链接文件
         o = Wn.WC().whenWrite(o, false);
 
         // 写入
-        OutputStream ops = io.getOutputStream(o, 0);
+        OutputStream ops = io().getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins, 256 * 1024);
 
         // 确保有路径
@@ -866,11 +866,11 @@ public class ObjModule extends AbstractWnModule {
             // 确保 str 的形式正确
             str = __format_str(str, isAbsolutePath);
             String ph = Wn.normalizeFullPath(str, se);
-            ta = io.createIfNoExists(null, ph, race);
+            ta = io().createIfNoExists(null, ph, race);
         }
         // 通常为 id:xxx 形式的对象
         else {
-            ta = Wn.checkObj(io, se, str);
+            ta = Wn.checkObj(io(), se, str);
         }
 
         WnObj o;
@@ -883,11 +883,11 @@ public class ObjModule extends AbstractWnModule {
             String fname = nm;
             // 如果重名就覆盖的话 ...
             if (Strings.isBlank(dupp)) {
-                o = io.createIfNoExists(ta, fname, WnRace.FILE);
+                o = io().createIfNoExists(ta, fname, WnRace.FILE);
             }
             // 那么重名的话，则创建新文件
             else {
-                if (io.exists(ta, fname)) {
+                if (io().exists(ta, fname)) {
                     NutMap c = new NutMap();
                     c.put("major", Files.getMajorName(nm));
                     c.put("suffix", Files.getSuffix(nm));
@@ -896,10 +896,10 @@ public class ObjModule extends AbstractWnModule {
                     do {
                         c.put("nb", i++);
                         fname = seg.render(c);
-                    } while (io.exists(ta, fname));
+                    } while (io().exists(ta, fname));
                 }
                 // 创建文件对象
-                o = io.create(ta, fname, WnRace.FILE);
+                o = io().create(ta, fname, WnRace.FILE);
             }
         }
         // 否则则抛错
@@ -908,7 +908,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 写入
-        OutputStream ops = io.getOutputStream(o, 0);
+        OutputStream ops = io().getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins, 256 * 1024);
 
         // 返回
