@@ -2,6 +2,7 @@ package org.nutz.walnut.web;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.websocket.server.ServerContainer;
@@ -81,8 +82,14 @@ public class WnSetup implements Setup {
         nc.setAttribute("rs", conf.getAppRs());
 
         if (log.isInfoEnabled()) {
-            String json = Json.toJson(conf.toMap(), JsonFormat.nice());
-            log.infof("CONFIG: %s", json);
+            List<String> keys = conf.getKeys();
+            String str = "CONIFG:\n";
+            Collections.sort(keys);
+            for (String key : keys) {
+                String val = conf.get(key);
+                str += String.format("  @%s = %s\n", key, val);
+            }
+            log.info(str);
         }
 
         // 设置一下MemoryBucket的临时文件池
