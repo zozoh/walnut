@@ -28,15 +28,15 @@ public class cmd_find extends JvmExecutor {
 
         final String base;
         if (params.is("p")) {
-        	base = o.path();
-        }
-        else {
-        	base = p.path();
+            base = o.getRegularPath();
+        } else {
+            base = p.getRegularPath();
         }
 
         sys.io.walk(o, new Callback<WnObj>() {
             public void invoke(WnObj obj) {
-                String rph = Disks.getRelativePath(base, obj.path());
+                String ph = obj.getRegularPath();
+                String rph = Disks.getRelativePath(base, ph);
                 sys.out.println(rph);
             }
         }, WalkMode.DEPTH_NODE_FIRST);
