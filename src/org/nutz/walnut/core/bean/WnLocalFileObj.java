@@ -144,7 +144,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
             if (_parent instanceof WnLocalFileObj) {
                 WnLocalFileObj lfp = (WnLocalFileObj) _parent;
                 // 如果映射不一致，那么不能够啊
-                if (!lfp.mount().equals(this.mount())) {
+                // 如果是顶级，那么两个 mount 都是 null
+                if (!Lang.equals(lfp.mount(), this.mount())) {
                     throw Lang.impossible();
                 }
                 // 我的相对路径比父的还长？ 不能够啊
@@ -555,7 +556,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s;ID(%s)<%s/%s>", path(), id(), creator(), group());
+        return String.format("%s;ID(%s)==%s", path(), id(), mount());
     }
 
     @Override

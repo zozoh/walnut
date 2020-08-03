@@ -35,7 +35,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     protected File _check_file_by(WnObj p) {
-        if (null == p || root.isSameId(p)) {
+        if (null == p || root.isSameId(p) || root.path().equals(p.path())) {
             return dHome;
         }
         if (p instanceof WnLocalFileObj) {

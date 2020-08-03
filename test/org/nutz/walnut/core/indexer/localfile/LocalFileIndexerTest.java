@@ -3,6 +3,7 @@ package org.nutz.walnut.core.indexer.localfile;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,7 +14,9 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.IoCoreTest;
@@ -33,6 +36,30 @@ public class LocalFileIndexerTest extends IoCoreTest {
     @After
     public void tearDown() throws Exception {
         Files.clearDir(dHome);
+    }
+
+    @Test
+    /**
+     * 测试一下 walk
+     */
+    public void test_walk() {
+        indexer.create(null, "a/b/c.txt", WnRace.FILE);
+        indexer.create(null, "a/b/d.txt", WnRace.FILE);
+        indexer.create(null, "a/b/e.txt", WnRace.FILE);
+
+        List<WnObj> list = new ArrayList<>(3);
+        indexer.walk(null, new Callback<WnObj>() {
+            public void invoke(WnObj obj) {
+                list.add(obj);
+            }
+        }, WalkMode.DEPTH_NODE_FIRST);
+
+        assertEquals(5, list.size());
+        assertEquals("a", list.get(0).name());
+        assertEquals("b", list.get(1).name());
+        assertEquals("c.txt", list.get(2).name());
+        assertEquals("d.txt", list.get(3).name());
+        assertEquals("e.txt", list.get(4).name());
     }
 
     /**

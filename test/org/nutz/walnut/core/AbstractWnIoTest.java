@@ -42,6 +42,32 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIoHandleManager handles;
 
     @Test
+    public void test_walk_in_mount_2() {
+        WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
+        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+
+        File dHome = setup.getLocalFileHome();
+        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
+        Files.createFileIfNoExists(f);
+        WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
+        String aph = Files.getAbsPath(dHome);
+        String mnt = "file://" + aph + "/titanium/";
+        io.setMount(dMnTi, mnt);
+
+        WnObj o = io.fetch(null, "/rs/ti/");
+        List<WnObj> list = new ArrayList<>(3);
+        io.walk(o, new Callback<WnObj>() {
+            public void invoke(WnObj obj) {
+                list.add(obj);
+            }
+        }, WalkMode.DEPTH_NODE_FIRST);
+
+        assertEquals(2, list.size());
+        assertEquals("view", list.get(0).name());
+        assertEquals("creation.json", list.get(1).name());
+    }
+
+    @Test
     public void test_link_in_mount_2() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
         io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));

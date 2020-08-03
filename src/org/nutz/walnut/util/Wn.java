@@ -49,7 +49,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnTree;
 import org.nutz.walnut.core.WnIoIndexer;
-import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -422,7 +421,7 @@ public abstract class Wn {
         return new Each<WnObj>() {
             public void invoke(int index, WnObj obj, int length)
                     throws ExitLoop, ContinueLoop, LoopException {
-                WnObj o = (WnIoObj) wc.whenAccess(obj, true);
+                WnObj o = wc.whenAccess(obj, true);
                 if (null == o)
                     Lang.Continue();
                 if (wc.isAutoPath()) {

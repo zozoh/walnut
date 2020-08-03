@@ -418,9 +418,12 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
-        WnIoMapping mapping = mappings.checkMapping(p);
+        WnObj p2 = Wn.WC().whenEnter(p, true);
+        if (null == p2)
+            return;
+        WnIoMapping mapping = mappings.checkMapping(p2);
         WnIoIndexer indexer = mapping.getIndexer();
-        indexer.walk(p, callback, mode);
+        indexer.walk(p2, callback, mode);
     }
 
     @Override
