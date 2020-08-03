@@ -271,24 +271,11 @@ public class LocalIoBM extends AbstractIoBM {
                     if (canMoveSwap) {
                         Files.move(swap, buck);
                     }
-                    // Copy 过去
+                    // Copy 的方式移动过去
                     else {
-                        if (!buck.exists()) {
-                            if (!Files.createNewFile(buck)) {
-                                throw Er.create("e.io.bm.local.failCreateBuck",
-                                                Files.getAbsPath(buck));
-                            }
-                        }
-                        if (Files.copy(swap, buck)) {
-                            Files.deleteFile(swap);
-                        }
-                        // 打印错误日志
-                        else {
-                            log.warnf("copy file %s -> %s",
-                                      Files.getAbsPath(swap),
-                                      Files.getAbsPath(buck));
-                        }
+                        moveSwapToBuck(swap, buck);
                     }
+                    // 无论如何，空置一下缓冲
                     swap = null;
                 }
             }
@@ -317,6 +304,41 @@ public class LocalIoBM extends AbstractIoBM {
             if (null != swap) {
                 Files.deleteFile(swap);
             }
+        }
+    }
+
+    private void moveSwapToBuck(File swap, File buck) throws IOException {
+        boolean needCopy = true;
+        String buph = Files.getAbsPath(buck);
+        if (!buck.exists()) {
+            // 这个判断还是要在本节点同步一下
+            synchronized (this) {
+                if (!buck.exists()) {
+                    // 创建，如果失败，那么就是已经存在了
+                    // 这种情况，通常是其他节点写了这个 buck
+                    // 那么就警告一下就算了
+                    if (!Files.createNewFile(buck)) {
+                        log.warnf("LocalIoBM: buck(%s) exists!", buph);
+                        needCopy = false;
+                    }
+                }
+            }
+        }
+        // 执行 copy
+        if (needCopy) {
+            if (!Files.copy(swap, buck)) {
+                String swph = Files.getAbsPath(swap);
+                log.warnf("LocalIoBM: buck(%s) Fail to copy from %s!", buph, swph);
+            }
+            // Copy 成功，删除缓冲
+            // Copy 失败，则保留缓冲，以备后面调试
+            else {
+                Files.deleteFile(swap);
+            }
+        }
+        // 不需要 Copy 的话，直接删缓冲
+        else {
+            Files.deleteFile(swap);
         }
     }
 
