@@ -58,6 +58,8 @@ public class LocalIoBM extends AbstractIoBM {
 
     int bufferSize;
 
+    boolean canMoveSwap;
+
     public LocalIoBM(WnIoHandleManager handles,
                      String home,
                      boolean autoCreate,
@@ -259,8 +261,17 @@ public class LocalIoBM extends AbstractIoBM {
             // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
             if (!isEmptySha1) {
                 File buck = this.getBucketFile(sha1);
+
                 if (!buck.exists()) {
-                    Files.move(swap, buck);
+                    // OSS 映射的文件不支持 move，需要把这个开关关山
+                    if (canMoveSwap) {
+                        Files.move(swap, buck);
+                    }
+                    // Copy 过去
+                    else {
+                        Files.copy(swap, buck);
+                        Files.deleteFile(swap);
+                    }
                     swap = null;
                 }
             }
