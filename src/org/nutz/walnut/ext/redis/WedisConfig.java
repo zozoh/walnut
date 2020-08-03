@@ -164,4 +164,34 @@ public class WedisConfig {
         return s;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof WedisConfig) {
+            WedisConfig conf = (WedisConfig) obj;
+            if (null == host || host.equals(conf.host))
+                return false;
+
+            if (null == password) {
+                if (null != conf.password)
+                    return false;
+            } else if (null == conf.password) {
+                return false;
+            } else if (!password.equals(conf.password)) {
+                return false;
+            }
+
+            return port == conf.port
+                   && ssl == conf.ssl
+                   && database == conf.database
+                   && connectionTimeout == conf.connectionTimeout
+                   && soTimeout == conf.soTimeout
+                   && maxTotal == conf.maxTotal
+                   && maxIdle == conf.maxIdle;
+        }
+        return false;
+    }
+
 }

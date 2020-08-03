@@ -98,7 +98,7 @@ public abstract class WnIoHandle extends HandleInfo implements Closeable, Flusha
      *            偏移（从缓冲何处开始写入）
      * @param len
      *            最多读取多少字节
-     * @return 实际读取的字节数，0 表示不在有字节可以读取了
+     * @return 实际读取的字节数，-1 表示不在有字节可以读取了
      */
     public abstract int read(byte[] buf, int off, int len) throws IOException;
 
