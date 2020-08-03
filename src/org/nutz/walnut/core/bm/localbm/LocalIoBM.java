@@ -310,7 +310,7 @@ public class LocalIoBM extends AbstractIoBM {
     public File checkBucketFile(String buckId) {
         File buck = this.getBucketFile(buckId);
         if (!buck.exists()) {
-            throw Er.create("e.io.bm.local.LostBucket", buckId);
+            throw Er.create("e.io.bm.local.LostBucket", buckId + "::" + Files.getAbsPath(buck));
         }
         return buck;
     }
