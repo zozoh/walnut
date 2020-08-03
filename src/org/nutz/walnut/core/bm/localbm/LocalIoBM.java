@@ -10,6 +10,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
@@ -47,6 +49,8 @@ import org.nutz.walnut.util.Wn;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class LocalIoBM extends AbstractIoBM {
+
+    private static final Log log = Logs.get();
 
     private File dBucket;
 
@@ -269,8 +273,21 @@ public class LocalIoBM extends AbstractIoBM {
                     }
                     // Copy 过去
                     else {
-                        Files.copy(swap, buck);
-                        Files.deleteFile(swap);
+                        if (!buck.exists()) {
+                            if (!Files.createNewFile(buck)) {
+                                throw Er.create("e.io.bm.local.failCreateBuck",
+                                                Files.getAbsPath(buck));
+                            }
+                        }
+                        if (Files.copy(swap, buck)) {
+                            Files.deleteFile(swap);
+                        }
+                        // 打印错误日志
+                        else {
+                            log.warnf("copy file %s -> %s",
+                                      Files.getAbsPath(swap),
+                                      Files.getAbsPath(buck));
+                        }
                     }
                     swap = null;
                 }
