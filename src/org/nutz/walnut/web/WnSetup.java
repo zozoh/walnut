@@ -9,6 +9,8 @@ import javax.websocket.server.ServerContainer;
 import org.nutz.filepool.UU32FilePool;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
@@ -78,6 +80,11 @@ public class WnSetup implements Setup {
         conf = ioc.get(WnConfig.class, "conf");
         nc.setAttribute("rs", conf.getAppRs());
 
+        if (log.isInfoEnabled()) {
+            String json = Json.toJson(conf.toMap(), JsonFormat.nice());
+            log.infof("CONFIG: %s", json);
+        }
+
         // 设置一下MemoryBucket的临时文件池
         MemoryBucket.pool = new UU32FilePool(conf.get("memory-bucket-home",
                                                       System.getProperty("java.io.tmpdir")));
@@ -85,7 +92,7 @@ public class WnSetup implements Setup {
         // 尝试看看组装的结果
         WnIo io = Wn.Service.io(ioc);
         WnAuthService auth = Wn.Service.auth(ioc);
-        
+
         // 获取根用户
         WnAccount root = auth.checkAccount("root");
 
@@ -161,16 +168,16 @@ public class WnSetup implements Setup {
         // 挂载流量统计的钩子
         JettyHandlerHook.me().setCallback(new JettyMonitorHandler(ioc.get(QuotaService.class)));
         log.debug("setup network quota hook");
-        
+
         // 初始化jvm box
         ioc.get(JvmExecutorFactory.class).get("time");
-        
+
         // 初始化Thing的SQL实现
         ioc.get(SqlThingMaster.class);
-        
+
         // 初始化Cron服务
         if (conf.getBoolean("crontab.enable", true))
-        	ioc.get(WnCronService.class);
+            ioc.get(WnCronService.class);
     }
 
     private void __load_init_setups(WnConfig conf) {
