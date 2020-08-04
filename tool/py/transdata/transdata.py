@@ -240,7 +240,6 @@ print("-" * 60)
 count = 0
 colls = monDB['bucket'].find(
   filter = flt,
-  sort   = [("_id", 1)],
   skip   = skip,
   limit  = limit
 )
@@ -259,7 +258,10 @@ for bu in colls:
   index = skip + count
   #-------------------------------------
   # 查询一下这个桶对应的对象 ID
-  obj = objs.find_one({"data": data})
+  obj = objs.find_one(
+    filter = {"data": data, "sha1": sha1},
+    projection= {"_id":0, "id":1}
+  )
   if obj is None:
     lostBucks.append(data)
     continue
