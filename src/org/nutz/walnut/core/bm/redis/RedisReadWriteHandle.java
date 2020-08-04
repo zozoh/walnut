@@ -3,7 +3,7 @@ package org.nutz.walnut.core.bm.redis;
 import java.io.IOException;
 
 import org.nutz.lang.Streams;
-import org.nutz.lang.util.LinkedByteArray;
+import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
@@ -15,11 +15,11 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
     private boolean baseOnOldContent;
 
-    private LinkedByteArray bytes;
+    private LinkedByteBuffer bytes;
 
     RedisReadWriteHandle(RedisIoBM bm) {
         this.bm = bm;
-        this.bytes = new LinkedByteArray();
+        this.bytes = new LinkedByteBuffer();
     }
 
     RedisReadWriteHandle(RedisIoBM bm, boolean baseOnOldContent) {
@@ -58,12 +58,16 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
     @Override
     public long skip(long n) throws IOException {
-        return 0;
+        bytes.skipRead((int) n);
+        bytes.skipWrite((int) n);
+        return bytes.getReadIndex();
     }
 
     @Override
     public long seek(long n) throws IOException {
-        return 0;
+        bytes.seekRead((int) n);
+        bytes.seekWrite((int) n);
+        return bytes.getReadIndex();
     }
 
     @Override
