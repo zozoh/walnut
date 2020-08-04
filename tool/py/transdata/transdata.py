@@ -363,6 +363,12 @@ i = 0
 for lbu in neqBucks:
   print(" %d. %s"%(i, json.dumps(lbu)))
   i += 1
+  print("-"*60)
+print("BAD Buckets x(%d)"%(len(badBucks)))
+i = 0
+for lbu in badBucks:
+  print(" %d. %s"%(i, json.dumps(lbu)))
+  i += 1
 print("-"*60)
 print("SHA1 bucket x(%d)"%(len(sha1Cache)))
 print("Found %d buckets"%(count))
