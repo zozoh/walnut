@@ -122,6 +122,7 @@ emptyBucks = list()
 sha1Cache = {}
 koBucks = list()
 neqBucks = list()
+badBucks = list()
 
 now = time() * 1000
 #===================================================
@@ -272,10 +273,18 @@ for bu in colls:
   path = "%s/%s/%s"%(phBucketHome, data[0:2], data[2:])
   files = list()
   #-------------------------------------
+  isbad = False
   for i in range(buNb):
     aph = "%s/%d"%(path, i)
     print("      %3d) %s : %s"%(i, os.path.exists(aph), aph))
-    files.append(aph)
+    if os.path.exists(aph):
+      files.append(aph)
+    else:
+      isbad = True
+      badBucks.append(data)
+      break
+  if isbad:
+      continue
   #-------------------------------------
   # 在 Redis 里记录索引
   rkey = "io:ref:%s"%(sha1)
