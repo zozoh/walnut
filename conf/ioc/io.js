@@ -19,6 +19,10 @@ var ioc = {
             {java  : '$conf.getInt("hdl-timeout", 20)'},
             {refer : "redis"}]
     },
+    redisBM : {
+        type : 'org.nutz.walnut.core.bm.redis.RedisBM',
+        args : [{refer : 'redis'}]
+    },
     globalBM : {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
         args : [
@@ -45,6 +49,14 @@ var ioc = {
             bms : {}
         }
     },
+    "redisBMFactory": {
+        type : "org.nutz.walnut.core.mapping.bm.LocalIoBMFactory",
+        fields : {
+            bms : {
+                "_": {refer:"redisBM"}
+            }
+        }
+    },
     "localFileBMFactory" : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileBMFactory",
         args : [{refer:"ioHandleManager"}]
@@ -68,6 +80,7 @@ var ioc = {
             },
             bms : {
                 "lbm": {refer:"localIoBMFactory"},
+                "redis": {refer:"redisBMFactory"},
                 "file": {refer:"localFileBMFactory"},
                 "filew": {refer:"localFileWBMFactory"},
             }

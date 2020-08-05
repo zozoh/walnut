@@ -1,5 +1,7 @@
 package org.nutz.walnut.core;
 
+import java.io.IOException;
+
 import org.nutz.walnut.api.io.WnObj;
 
 public interface WnIoBM {
@@ -24,8 +26,11 @@ public interface WnIoBM {
      * 
      * @throws WnIoHandleMutexException
      *             创建句柄的条件不具备，譬如支持互斥写的句柄管理器会抛出这个异常
+     * @throws IOException
+     *             创建句柄时数据读写发生的异常
      */
-    WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) throws WnIoHandleMutexException;
+    WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer)
+            throws WnIoHandleMutexException, IOException;
 
     /**
      * 创建一个属于自己的句柄对象。
@@ -53,27 +58,26 @@ public interface WnIoBM {
      * <p>
      * 本函数会直接直接讲目标ID对应的引用计数加一
      * 
-     * @param buckId
-     *            桶ID
-     * @param String
-     *            referId 引用这个桶的目标ID，通常为 obj.id
+     * @param oSr
+     *            源对象A
+     * @param oTa
+     *            目标对象B
+     * 
      * @return 当前桶还有多少引用
      */
-    long copy(String buckId, String referId);
+    long copy(WnObj oSr, WnObj oTa);
 
     /**
      * 删除对象对应的存储空间
      * <p>
      * 通常，桶管理器应该减去它的引用计数，当归零时，自动删除
      * 
-     * @param buckId
-     *            桶ID
-     * @param referId
-     *            引用这个桶的目标ID，通常为 obj.id
+     * @param o
+     *            对象
      * 
      * @return 当前目标还有多少引用。 0 表示这个对象被删除了
      */
-    long remove(String buckId, String referId);
+    long remove(WnObj o);
 
     /**
      * 将对象剪裁到指定大小

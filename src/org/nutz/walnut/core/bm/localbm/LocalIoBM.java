@@ -1,8 +1,8 @@
 package org.nutz.walnut.core.bm.localbm;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Files;
@@ -140,13 +140,29 @@ public class LocalIoBM extends AbstractIoBM {
     }
 
     @Override
-    public long copy(String buckId, String referId) {
-        return refers.add(buckId, referId);
+    public long copy(WnObj oSr, WnObj oTa) {
+        // 防守一下
+        if (!oSr.hasSha1()) {
+            return -1;
+        }
+        // 如果目标不是空的，那么检查一下是否有必要 Copy
+        if (!Wn.Io.isEmptySha1(oTa.sha1())) {
+            // 嗯，木有必要 Copy
+            if (oSr.isSameSha1(oTa.sha1())) {
+                return oTa.len();
+            }
+            // 已经引用了其他的数据，取消一下引用
+            this.remove(oTa);
+        }
+
+        // 增加引用
+        return refers.add(oSr.sha1(), oTa.id());
     }
 
     @Override
-    public long remove(String buckId, String referId) {
-        long rec = refers.remove(buckId, referId);
+    public long remove(WnObj o) {
+        String buckId = o.sha1();
+        long rec = refers.remove(buckId, o.id());
         // 归零了，那么要删除
         if (rec <= 0) {
             File fBuck = this.getBucketFile(buckId);
@@ -180,22 +196,20 @@ public class LocalIoBM extends AbstractIoBM {
             Files.copy(buck, swap);
 
             // 剪裁交换文件
-            FileOutputStream ops = null;
+            RandomAccessFile raf = null;
             FileChannel chan = null;
             try {
-                ops = new FileOutputStream(swap);
-                chan = ops.getChannel();
+                raf = new RandomAccessFile(swap, "rw");
+                chan = raf.getChannel();
                 chan.truncate(len);
-                chan.close();
-                Streams.safeClose(chan);
-                Streams.safeClose(ops);
+                chan.force(false);
             }
             catch (Exception e) {
                 throw Lang.wrapThrow(e);
             }
             finally {
                 Streams.safeClose(chan);
-                Streams.safeClose(ops);
+                Streams.safeClose(raf);
             }
 
             // 根据交换文件更新对象的索引

@@ -63,7 +63,7 @@ public abstract class WnIoHandle extends HandleInfo implements Closeable, Flusha
      * 实现类可以通过句柄管理器持久化自己，或者检查有没有重复<br>
      * 譬如写句柄，这里是一个好时机去判断是否有其他的写句柄存在，如果存在就抛错
      */
-    public abstract void ready() throws WnIoHandleMutexException;
+    public abstract void ready() throws WnIoHandleMutexException, IOException;
 
     /**
      * 从当前位置偏移

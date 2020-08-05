@@ -2,27 +2,25 @@ package org.nutz.walnut.core.bm.redis;
 
 import java.io.IOException;
 
-import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
-import org.nutz.walnut.util.Wn;
 
 public class RedisReadWriteHandle extends WnIoHandle {
 
-    private RedisIoBM bm;
+    private RedisBM bm;
 
     private boolean baseOnOldContent;
 
     private LinkedByteBuffer bytes;
 
-    RedisReadWriteHandle(RedisIoBM bm) {
+    RedisReadWriteHandle(RedisBM bm) {
         this.bm = bm;
         this.bytes = new LinkedByteBuffer();
     }
 
-    RedisReadWriteHandle(RedisIoBM bm, boolean baseOnOldContent) {
+    RedisReadWriteHandle(RedisBM bm, boolean baseOnOldContent) {
         this(bm);
         this.baseOnOldContent = baseOnOldContent;
     }
@@ -32,32 +30,20 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
     // 因为本实现主要考虑的是效率。且似乎没有什么情境需要加锁。所以就不用句柄管理器持久化了
     @Override
-    public void ready() throws WnIoHandleMutexException {
+    public void ready() throws WnIoHandleMutexException, IOException {
         // 因为依赖于旧内容，先打开一个读句柄，读取一下
         if (baseOnOldContent) {
-            WnIoHandle h = null;
-            try {
-                h = bm.open(obj, Wn.S.R, indexer);
-                byte[] buf = new byte[8192];
-                int len = 0;
-                while ((len = h.read(buf)) >= 0) {
-                    bytes.write(buf, 0, len);
-                }
-            }
-            catch (WnIoHandleMutexException e) {
-                throw Er.wrap(e);
-            }
-            catch (IOException e) {
-                throw Er.wrap(e);
-            }
-            finally {
-                Streams.safeClose(h);
-            }
+            byte[] bs = this.bm.getBytes(this.obj.id());
+            bytes.write(bs);
         }
     }
 
     @Override
     public long skip(long n) throws IOException {
+        // 已然关闭
+        if (null == obj) {
+            throw Er.create("e.io.hdl.closed", this.getId());
+        }
         bytes.skipRead((int) n);
         bytes.skipWrite((int) n);
         return bytes.getReadIndex();
@@ -65,6 +51,10 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
     @Override
     public long seek(long n) throws IOException {
+        // 已然关闭
+        if (null == obj) {
+            throw Er.create("e.io.hdl.closed", this.getId());
+        }
         bytes.seekRead((int) n);
         bytes.seekWrite((int) n);
         return bytes.getReadIndex();
@@ -72,14 +62,41 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
     @Override
     public int read(byte[] buf, int off, int len) throws IOException {
+        // 已然关闭
+        if (null == obj) {
+            throw Er.create("e.io.hdl.closed", this.getId());
+        }
         return bytes.read(buf, off, len);
     }
 
     @Override
     public void write(byte[] buf, int off, int len) throws IOException {
+        // 已然关闭
+        if (null == obj) {
+            throw Er.create("e.io.hdl.closed", this.getId());
+        }
         bytes.write(buf, off, len);
     }
 
     @Override
-    public void close() throws IOException {}
+    public void close() throws IOException {
+        // 肯定已经关闭过了
+        if (null == obj) {
+            return;
+        }
+
+        // 保存数据
+        byte[] bs = this.bytes.toArray();
+        this.bm.setBytes(this.obj.id(), bs);
+
+        // 更新索引
+        obj.sha1(this.bytes.sha1sum());
+        obj.len(this.bytes.getLimit());
+        obj.lastModified(System.currentTimeMillis());
+        indexer.set(obj, "^(sha1|len|lm)$");
+
+        // 标志一下，这个句柄实例就不能再使用了
+        obj = null;
+
+    }
 }

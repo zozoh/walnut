@@ -1,5 +1,7 @@
 package org.nutz.walnut.core;
 
+import java.io.IOException;
+
 import org.nutz.lang.Each;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -34,7 +36,7 @@ public class WnIoMapping {
         return this.bm.isSame(mapping.bm);
     }
 
-    public WnIoHandle open(WnObj o, int mode) throws WnIoHandleMutexException {
+    public WnIoHandle open(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
         return bm.open(o, mode, indexer);
     }
 
@@ -50,13 +52,13 @@ public class WnIoMapping {
         // 仅仅是文件
         if (o.isFILE()) {
             if (o.hasSha1()) {
-                bm.remove(o.sha1(), o.id());
+                bm.remove(o);
             }
             //
             // 删除存储
             //
             if (!Wn.Io.isEmptySha1(o.sha1())) {
-                bm.remove(o.sha1(), o.id());
+                bm.remove(o);
             }
             //
             // 删除索引
@@ -110,24 +112,10 @@ public class WnIoMapping {
      * @return 复制后目标对象的长度。 -1 表示源对象也为空
      */
     public long copyData(WnObj oSr, WnObj oTa) {
-        // 防守一下
-        if (!oSr.hasSha1()) {
-            return -1;
-        }
-        // 如果目标不是空的，那么检查一下是否有必要 Copy
-        if (!Wn.Io.isEmptySha1(oTa.sha1())) {
-            // 嗯，木有必要 Copy
-            if (oSr.isSameSha1(oTa.sha1())) {
-                return oTa.len();
-            }
-            // 已经引用了其他的数据，取消一下引用
-            bm.remove(oTa.sha1(), oTa.id());
-        }
+        // 交给桶管理器处理
+        bm.copy(oSr, oTa);
 
-        // 增加引用
-        bm.copy(oSr.sha1(), oTa.id());
-
-        // 直接将数据段Copy过去
+        // 更新一下目标的索引
         oTa.len(oSr.len()).sha1(oSr.sha1());
         oTa.lastModified(System.currentTimeMillis());
         indexer.set(oTa, "^(len|sha1|lm)$");

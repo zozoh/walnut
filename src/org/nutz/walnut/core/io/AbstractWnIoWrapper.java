@@ -2,6 +2,7 @@ package org.nutz.walnut.core.io;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -193,7 +194,7 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.getWriter(o, off);
     }
 
-    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException {
+    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
         return io.openHandle(o, mode);
     }
 

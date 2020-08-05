@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
@@ -12,6 +13,7 @@ import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoIndexer;
+import org.nutz.walnut.core.bean.WnLocalFileObj;
 import org.nutz.walnut.util.Wn;
 
 /**
@@ -59,31 +61,49 @@ public class LocalFileWBM extends LocalFileBM {
     }
 
     @Override
-    public long remove(String buckId, String referId) {
-        File f = this.checkFile(buckId);
-        f.delete();
-        return 0;
+    public long copy(WnObj oSr, WnObj oTa) {
+        if ((oSr instanceof WnLocalFileObj) && (oTa instanceof WnLocalFileObj)) {
+            WnLocalFileObj ofSr = (WnLocalFileObj) oSr;
+            WnLocalFileObj ofTa = (WnLocalFileObj) oTa;
+            Files.copy(ofSr.getFile(), ofTa.getFile());
+            return oTa.len();
+        }
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public long remove(WnObj o) {
+        if ((o instanceof WnLocalFileObj)) {
+            WnLocalFileObj of = (WnLocalFileObj) o;
+            Files.deleteFile(of.getFile());
+            return 0;
+        }
+        throw Lang.noImplement();
     }
 
     @Override
     public long truncate(WnObj o, long len, WnIoIndexer indexer) {
-        File f = this.checkFile(o.data());
-        RandomAccessFile raf = null;
-        FileChannel chan = null;
-        try {
-            raf = new RandomAccessFile(f, "w");
-            chan = raf.getChannel();
-            chan.truncate(len);
-            chan.force(false);
+        if ((o instanceof WnLocalFileObj)) {
+            WnLocalFileObj of = (WnLocalFileObj) o;
+            File f = of.getFile();
+            RandomAccessFile raf = null;
+            FileChannel chan = null;
+            try {
+                raf = new RandomAccessFile(f, "rw");
+                chan = raf.getChannel();
+                chan.truncate(len);
+                chan.force(false);
+            }
+            catch (Exception e) {
+                throw Lang.wrapThrow(e);
+            }
+            finally {
+                Streams.safeClose(chan);
+                Streams.safeClose(raf);
+            }
+            return len;
         }
-        catch (Exception e) {
-            throw Lang.wrapThrow(e);
-        }
-        finally {
-            Streams.safeClose(chan);
-            Streams.safeClose(raf);
-        }
-        return len;
+        throw Lang.noImplement();
     }
 
 }

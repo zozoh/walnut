@@ -61,12 +61,12 @@ public class LocalFileBM extends AbstractIoBM {
     }
 
     @Override
-    public long copy(String buckId, String referId) {
+    public long copy(WnObj oSr, WnObj oTa) {
         throw Lang.noImplement();
     }
 
     @Override
-    public long remove(String buckId, String referId) {
+    public long remove(WnObj o) {
         throw Lang.noImplement();
     }
 

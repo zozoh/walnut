@@ -2,6 +2,7 @@ package org.nutz.walnut.api.io;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -59,7 +60,7 @@ public interface WnIo extends WnStore, WnTree {
 
     Writer getWriter(WnObj o, long off);
 
-    WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException;
+    WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException;
 
     /**
      * 获取一个对象的输入流

@@ -17,6 +17,7 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
+import org.nutz.walnut.core.bm.redis.RedisBM;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
 import org.nutz.walnut.core.indexer.localfile.LocalFileIndexer;
 import org.nutz.walnut.core.indexer.localfile.LocalFileWIndexer;
@@ -119,6 +120,12 @@ public class IoCoreSetup {
         return new WnIoMapping(indexer, bm);
     }
 
+    public WnIoMapping getGlobalRedisBMMapping() {
+        WnIoIndexer indexer = this.getGlobalIndexer();
+        WnIoBM bm = this.getRedisIoBM();
+        return new WnIoMapping(indexer, bm);
+    }
+
     public LocalIoBM getGlobalIoBM() {
         if (null == globalBM) {
             String bmHome = Disks.normalize(pp.get("io-bm-home"));
@@ -174,6 +181,11 @@ public class IoCoreSetup {
             Files.createDirIfNoExists(dHome);
         }
         return new LocalFileWBM(handles, dHome);
+    }
+
+    public RedisBM getRedisIoBM() {
+        WedisConfig conf = this.getWedisConfig();
+        return new RedisBM(conf);
     }
 
     public LocalFileIndexer getLocalFileIndexer() {

@@ -3,18 +3,18 @@ package org.nutz.walnut.ext.payment;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.auth.WnAccount;
-import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.core.bean.WnIoObj;
 
 /**
  * 封装一个支付单的数据
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class IoWnPayObj extends WnBean implements WnPayObj {
+public class IoWnPayObj extends WnIoObj implements WnPayObj {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
+    @Override
     public boolean isStatusOk() {
         return WnPay3xStatus.OK == this.getStatus();
     }
@@ -299,7 +299,7 @@ public class IoWnPayObj extends WnBean implements WnPayObj {
 
     @Override
     public boolean isTheSeller(WnAccount u) {
-        if(null==u)
+        if (null == u)
             return false;
         return u.isSameId(this.getString(WnPays.KEY_SELLER_ID));
     }

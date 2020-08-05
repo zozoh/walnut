@@ -140,10 +140,10 @@ public abstract class Wedis {
     public static WedisConfig loadConfig(WnIo io, String path, NutMap vars) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj oConf = io.check(null, aph);
-        return loadConfig(io, oConf, vars);
+        return loadConfig(io, oConf);
     }
 
-    public static WedisConfig loadConfig(WnIo io, WnObj oConf, NutMap vars) {
+    public static WedisConfig loadConfig(WnIo io, WnObj oConf) {
         return io.readJson(oConf, WedisConfig.class);
     }
 
@@ -156,7 +156,7 @@ public abstract class Wedis {
     }
 
     public static WedisConfig loadConfig(WnIo io, WnObj oConf, WnAuthSession se) {
-        return loadConfig(io, oConf, se.getVars());
+        return loadConfig(io, oConf);
     }
 
     public static WedisConfig loadConfig(WnSystem sys, WnObj oConf) {

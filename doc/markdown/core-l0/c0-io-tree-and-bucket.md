@@ -43,12 +43,13 @@ MsgQueue   | `mq`    | 为消息队列提供一个通用操作接口
 ------------------------------------------
 # 内容的存储方式
 
- Storage     | Position        | Scene
--------------|-----------------|-------
-GlobalBM     | *nil*           | 系统默认的全局桶集(LocalBM)
-LocalBM      | `lbm(MyBucket)` | 系统分配的一些本地桶集
-LocalFileBM  | `C:\xxx\xx`     | 本地文件读写
-AliyunOssBM  | `aliyunoss(xy)` | 阿里云OSS配置名
+ Storage     | Position           | Scene
+-------------|--------------------|-------
+GlobalBM     | *nil*              | 系统默认的全局桶集(LocalBM)
+LocalBM      | `lbm(BuckName)`    | 系统分配的一些本地桶集
+LocalFileBM  | `filew?:///xx/xxx` | 本地文件读写
+RedisBM      | `redis(BuckName)`  | Redis桶（频繁读写小文件）`redis(_)` 为全局默认 
+AliyunOssBM  | `aliyunoss(xy)`    | 阿里云OSS配置名
 
 ------------------------------------------
 # 关于映射
@@ -176,6 +177,23 @@ path/to/home/
 |--:<LocalIoBM>
      |-- dHome<File>      # 本地文件桶主目录
 ```
+
+## RedisIoBM:Redis桶管理器
+
+> 为了能应对 Session 等小文本文件的频繁读写
+
+**本地数据结构**
+
+```bash
+# Redis(STRING)
+io:bm:$ID = 0d 0a 12 39 a8 ...
+```
+
+- 无交换区，打开句柄，会直接读取对应的字符串字节数组
+- 不考虑 SHA1 重复等问题，为每个对象都开辟一个存储空间
+- 同时将 SHA1 字段固定设置为 "pending"
+- 即，桶ID 就是对象ID
+- 因此，本桶管理器管理的对象，一律不生成 sha1
 
 ------------------------------------------
 # 映射管理

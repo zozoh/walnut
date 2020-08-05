@@ -1,5 +1,7 @@
 package org.nutz.walnut.core.bm;
 
+import java.io.IOException;
+
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.HandleInfo;
@@ -18,7 +20,8 @@ public abstract class AbstractIoBM implements WnIoBM {
     }
 
     @Override
-    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer) throws WnIoHandleMutexException {
+    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer)
+            throws WnIoHandleMutexException, IOException {
         // 先搞一个句柄
         WnIoHandle h = createHandle(mode);
         h.setManager(handles);

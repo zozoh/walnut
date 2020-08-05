@@ -425,7 +425,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public WnObj sha1(String sha1) {
-        this.setv("sha1", sha1);
+        if (null == sha1) {
+            this.remove("sha1");
+        } else {
+            this.setv("sha1", sha1);
+        }
         return this;
     }
 
@@ -636,7 +640,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj lastModified(long lm) {
-        throw Lang.noImplement();
+        // 啥都不干就对了
+        return this;
     }
 
     @Override
@@ -691,7 +696,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj len(long len) {
-        throw Lang.noImplement();
+        // 啥都不干就对了
+        return this;
     }
 
     @Override

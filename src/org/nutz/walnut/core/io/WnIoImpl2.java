@@ -75,7 +75,6 @@ public class WnIoImpl2 implements WnIo {
         this.mappings = mappings;
     }
 
-    // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
     // 如果不在同样的映射桶内，则，只能通过流 copy 了
     @Override
     public long copyData(WnObj a, WnObj b) {
@@ -149,7 +148,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException {
+    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
         WnIoMapping im = mappings.checkMapping(o);
         return im.open(o, mode);
     }
