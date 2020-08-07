@@ -33,18 +33,45 @@ public class thing_get implements JvmHdl {
             }
         }
 
+        // 如果还需要查询关联对象的内容指纹
+        String sha1 = hc.params.getString("sha1");
+        String[] sha1Fields = null;
+        if (!Strings.isBlank(sha1)) {
+            sha1Fields = Strings.splitIgnoreBlank(sha1);
+        }
+
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);
         WnThingService wts = new WnThingService(sys, oTs);
 
+        // 获取对象
+        WnObj oT = null;
+
         // 调用接口·严格模式
         if (hc.params.is("check")) {
-            hc.output = wts.checkThing(thId, isFull, sortKey, isAsc);
+            oT = wts.checkThing(thId, isFull, sortKey, isAsc);
         }
         // 调用接口·普通模式
         else {
-            hc.output = wts.getThing(thId, isFull, sortKey, isAsc);
+            oT = wts.getThing(thId, isFull, sortKey, isAsc);
         }
+
+        // 要计算 sha1 扩展的 fields
+        if (null != oT && null != sha1Fields && sha1Fields.length > 0) {
+            for (String key : sha1Fields) {
+                String val = oT.getString(key);
+                if (!Strings.isBlank(val)) {
+                    WnObj o = sys.io.fetch(oT, val);
+                    if (null != o) {
+                        oT.put(key + "_obj",
+                               o.pickBy("^(id|nm|title|sha1|len|mime|tp|width|height)$"));
+                    }
+                }
+            }
+        }
+
+        // 得到返回
+        hc.output = oT;
     }
 
 }
