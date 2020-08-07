@@ -479,9 +479,7 @@ public class WnContext extends NutMap {
         // 设置
         if (null != se) {
             this.ticket = se.getTicket();
-            if (null == this.account) {
-                this.account = se.getMe();
-            }
+            this.account = se.getMe();
         }
         // 删除
         else {

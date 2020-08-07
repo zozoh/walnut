@@ -55,8 +55,6 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         return Strings.trim(err.toString());
     }
 
-    private WnAccount __old_me;
-
     protected WnObj check(String ph) {
         String path = Wn.normalizeFullPath(ph, se);
         return io.check(null, path);
@@ -81,9 +79,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         se = auth.createSession(me, false);
 
         // 将测试线程切换到当前测试账号
-        __old_me = Wn.WC().getMe();
         Wn.WC().setSession(se);
-        Wn.WC().setMe(null);
 
         out = new StringBuilder();
         err = new StringBuilder();
@@ -114,7 +110,6 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected void on_after() {
         boxes.free(box);
         Wn.WC().setSession(null);
-        Wn.WC().setMe(__old_me);
         super.on_after();
 
         // 最后等一下再第二个测试

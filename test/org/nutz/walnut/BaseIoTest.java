@@ -2,6 +2,7 @@ package org.nutz.walnut;
 
 import org.junit.After;
 import org.junit.Before;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.io.WnIo;
@@ -48,13 +49,17 @@ public abstract class BaseIoTest extends IoCoreTest {
     protected abstract void on_after();
 
     private WnAuthService _create_auth_service() {
-        WnSysAuthServiceWrapper auth = new WnSysAuthServiceWrapper();
-        auth.setIo(io);
-        auth.setRootDefaultPasswd("123456");
-        auth.setSeDftDu(3600);
-        auth.setSeTmpDu(60);
-        auth.on_create(); // 此时，会检查 root 用户，并确保自动创建
-        return auth;
+        return Wn.WC().nosecurity(io, new Proton<WnAuthService>() {
+            protected WnAuthService exec() {
+                WnSysAuthServiceWrapper auth = new WnSysAuthServiceWrapper();
+                auth.setIo(io);
+                auth.setRootDefaultPasswd("123456");
+                auth.setSeDftDu(3600);
+                auth.setSeTmpDu(60);
+                auth.on_create(); // 此时，会检查 root 用户，并确保自动创建
+                return auth;
+            }
+        });
     }
 
 }

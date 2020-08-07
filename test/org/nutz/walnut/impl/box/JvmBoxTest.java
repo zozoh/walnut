@@ -5,9 +5,31 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.BaseBoxTest;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 
 public class JvmBoxTest extends BaseBoxTest {
+
+    @Test
+    public void test_link_by_id() {
+        WnAccount u = Wn.WC().checkMe();
+        assertEquals(me.getName(), u.getName());
+
+        String aph = Wn.normalizeFullPath("~/x/abc.txt", this.se);
+        WnObj o = io.create(null, aph, WnRace.FILE);
+        io.writeText(o, "hello");
+
+        WnObj oHome = Wn.checkObj(io, se, "~");
+
+        box.run("ln -s ~/x " + "id:" + oHome.id() + "/mm");
+
+        WnObj o2 = Wn.checkObj(io, se, "~/mm/abc.txt");
+        String str = io.readText(o2);
+
+        assertEquals("hello", str);
+    }
 
     @Test
     public void test_subsitution_in_pipe() {

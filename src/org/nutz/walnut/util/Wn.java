@@ -236,6 +236,34 @@ public abstract class Wn {
         return Wn.appendPath("/", d0, d1);
     }
 
+    public static String tidyPath(WnIo io, String ph) {
+        String[] paths = Strings.splitIgnoreBlank(ph, "/");
+
+        // 从后面查找 id:xxx
+        String id = null;
+        int i = paths.length - 1;
+        for (; i >= 0; i--) {
+            String nm = paths[i];
+            if (nm.startsWith("id:")) {
+                id = nm.substring(3).trim();
+                break;
+            }
+        }
+
+        // 找到了
+        if (i >= 0) {
+            WnObj o = io.checkById(id);
+            i++;
+            int len = paths.length - i;
+            String rph = Strings.join(i, len, "/", paths);
+            String aph = o.path();
+            return Wn.appendPath(aph, rph);
+        }
+
+        // 木有找到
+        return ph;
+    }
+
     public static String normalizePath(String ph, WnSystem sys) {
         return normalizePath(ph, sys.session);
     }
@@ -256,6 +284,7 @@ public abstract class Wn {
             ph = Wn.appendPath(vars.getString("PWD", ""), ph.substring(1));
         }
 
+        // 展开环境变量
         return normalizeStr(ph, vars);
     }
 

@@ -21,6 +21,7 @@ public class cmd_ln extends JvmExecutor {
         String srcPath = params.vals[0];
         String src = Wn.normalizeFullPath(srcPath, sys.session);
         String dst = Wn.normalizePath(params.vals[1], sys.session);
+        dst = Wn.tidyPath(sys.io, dst);
 
         // 确保源存在
         WnObj oSrc = sys.io.check(null, src);

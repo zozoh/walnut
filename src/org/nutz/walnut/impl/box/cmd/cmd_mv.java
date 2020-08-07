@@ -38,6 +38,7 @@ public class cmd_mv extends JvmExecutor {
         // 检查目标
         String dest = params.vals[params.vals.length - 1];
         String destPath = Wn.normalizeFullPath(dest, sys);
+        destPath = Wn.tidyPath(sys.io, destPath);
         WnObj oDest = sys.io.fetch(p, destPath);
 
         // 如果移动的是多个，那么目标必须是一个目录
