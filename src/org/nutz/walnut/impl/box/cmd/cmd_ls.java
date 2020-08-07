@@ -103,7 +103,7 @@ public class cmd_ls extends JvmExecutor {
                                      final WnObjTable tab,
                                      WnObj o) {
         try {
-            Wn.Io.eachChildren(sys.io, o, new Each<WnObj>() {
+            sys.io.eachChild(o, null, new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     // 超过了最多显示的个数
                     if (index >= maxN) {

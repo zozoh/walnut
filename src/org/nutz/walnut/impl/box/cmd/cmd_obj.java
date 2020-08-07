@@ -284,7 +284,7 @@ public class cmd_obj extends JvmExecutor {
             if ("noroot".equals(anMode)) {
                 list.add(oSelf);
             }
-            // nodes 则表示返回: [节点1] [节点2]
+              // nodes 则表示返回: [节点1] [节点2]
             else if ("nodes".equals(anMode)) {}
             // full 则表示返回: [根] [节点1] [节点2] [自己]
             else if ("full".equals(anMode)) {
@@ -308,20 +308,21 @@ public class cmd_obj extends JvmExecutor {
         // 匹配的就展开
         if (o.isDIR() && flt.match(o)) {
             q.setv("pid", o.id());
-            sys.io.each(q, (int i, WnObj child, int len) -> {
-                // 设置父
-                child.setParent(o);
+            sys.io.each(q,
+                        (int i, WnObj child, int len) -> {
+                            // 设置父
+                            child.setParent(o);
 
-                // 深层递归展开
-                if (ExtendDeeply) {
-                    __do_extend(sys, list2, flt, q, child, ExtendDeeply);
-                }
-                // 仅仅展开一层
-                else {
-                    child.setParent(o);
-                    list2.add(child);
-                }
-            });
+                            // 深层递归展开
+                            if (ExtendDeeply) {
+                                __do_extend(sys, list2, flt, q, child, ExtendDeeply);
+                            }
+                            // 仅仅展开一层
+                            else {
+                                child.setParent(o);
+                                list2.add(child);
+                            }
+                        });
         }
         // 没匹配，加入到结果里
         else {
@@ -387,12 +388,19 @@ public class cmd_obj extends JvmExecutor {
             o.setv("children", children);
 
             q.setv("pid", o.id());
-            sys.io.each(q, (int i, WnObj child, int len) -> {
-                // 设置父
-                child.setParent(o);
-                // 深层递归展开
-                __do_tree_in_loop(sys, children, flt, q, child, wantDepth, currDepth + 1);
-            });
+            sys.io.each(q,
+                        (int i, WnObj child, int len) -> {
+                            // 设置父
+                            child.setParent(o);
+                            // 深层递归展开
+                            __do_tree_in_loop(sys,
+                                              children,
+                                              flt,
+                                              q,
+                                              child,
+                                              wantDepth,
+                                              currDepth + 1);
+                        });
         }
         // 加到结果集里
         resultList.add(o);

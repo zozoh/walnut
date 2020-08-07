@@ -220,6 +220,15 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void delete(WnObj o, boolean r) {
+        // 确保非空
+        if (null == o) {
+            o = mappings.getRoot();
+        }
+        // 确保解开了链接
+        else {
+            o = Wn.WC().whenRemove(o, false);
+        }
+
         WnIoMapping im = mappings.checkMapping(o);
         im.delete(o, r, this.whenDelete);
 
@@ -230,6 +239,15 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void trancate(WnObj o, long len) {
+        // 确保非空
+        if (null == o) {
+            o = mappings.getRoot();
+        }
+        // 确保解开了链接
+        else {
+            o = Wn.WC().whenRemove(o, false);
+        }
+
         WnIoMapping im = mappings.checkMapping(o);
         im.truncate(o, len);
     }
@@ -431,9 +449,15 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
-        WnObj p2 = Wn.WC().whenEnter(p, true);
-        if (null == p2)
-            return;
+        WnObj p2;
+        // 确保非空
+        if (null == p) {
+            p2 = mappings.getRoot();
+        }
+        // 确保解开了链接
+        else {
+            p2 = Wn.WC().whenEnter(p, false);
+        }
         WnIoMapping mapping = mappings.checkMapping(p2);
         WnIoIndexer indexer = mapping.getIndexer();
         indexer.walk(p2, callback, mode);
@@ -821,8 +845,14 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        // 确保非空
+        if (null == o) {
+            o = mappings.getRoot();
+        }
         // 确保解开了链接
-        o = Wn.WC().whenEnter(o, false);
+        else {
+            o = Wn.WC().whenEnter(o, false);
+        }
 
         // 查询
         WnIoMapping mapping = mappings.checkMapping(o);
@@ -832,8 +862,14 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public List<WnObj> getChildren(WnObj o, String name) {
+        // 确保非空
+        if (null == o) {
+            o = mappings.getRoot();
+        }
         // 确保解开了链接
-        o = Wn.WC().whenEnter(o, false);
+        else {
+            o = Wn.WC().whenEnter(o, false);
+        }
 
         // 查询
         WnIoMapping mapping = mappings.checkMapping(o);

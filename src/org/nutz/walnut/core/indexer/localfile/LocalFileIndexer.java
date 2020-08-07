@@ -9,7 +9,6 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.validate.NutValidate;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -17,6 +16,8 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnLocalFileObj;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
+import org.nutz.walnut.validate.WnValidator;
+import org.nutz.walnut.validate.impl.MatchWildcard;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
@@ -128,9 +129,9 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             return 0;
 
         // 过滤条件
-        NutValidate nv = null;
+        WnValidator nv = null;
         if (null != name) {
-            nv = new NutValidate(name);
+            nv = new MatchWildcard();
         }
 
         File[] flist = f.listFiles();
@@ -139,7 +140,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             // 根据名称过滤
             if (null != nv) {
                 String fnm = fi.getName();
-                if (!nv.match(fnm)) {
+                if (!nv.isTrue(fnm, Lang.array(fnm))) {
                     continue;
                 }
             }
