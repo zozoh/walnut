@@ -25,6 +25,8 @@ import org.nutz.walnut.core.WnIoHandleMutexException;
 public abstract class AbstractWnIoWrapper implements WnIo {
 
     protected WnIo io;
+    
+    protected AbstractWnIoWrapper() {}
 
     public AbstractWnIoWrapper(WnIo io) {
         this.io = io;

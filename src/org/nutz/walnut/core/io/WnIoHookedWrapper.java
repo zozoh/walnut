@@ -11,9 +11,17 @@ import org.nutz.walnut.core.WnIoActionCallback;
 
 public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
+    public WnIoHookedWrapper() {}
+
     public WnIoHookedWrapper(WnIo io) {
         super(io);
 
+        // 准备一个写操作的回调
+        this.setIo(io);
+    }
+
+    public void setIo(WnIo io) {
+        this.io = io;
         // 准备一个写操作的回调
         if (io instanceof WnIoImpl2) {
             WnIoImpl2 io2 = (WnIoImpl2) io;

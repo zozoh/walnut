@@ -27,6 +27,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnObjIdTest;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
+import org.nutz.walnut.core.bm.redis.RedisBM;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
@@ -40,6 +41,31 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIo io;
     protected WnReferApi refers;
     protected WnIoHandleManager handles;
+
+    @Test
+    public void test_mnt_global_and_redisBM() {
+        WnObj p = io.create(null, "/var/session", WnRace.DIR);
+        io.setMount(p, "://redis(_)");
+        String str;
+
+        // 创建一个文件
+        WnObj o = io.create(p, "a/b/c.txt", WnRace.FILE);
+        assertNull(o.get("mnt"));
+        assertEquals(p.mount(), o.mount());
+        assertTrue(o.isMount());
+
+        // 写一个
+        io.writeText(o, "hello");
+
+        // 在 Redis 里是存在的
+        RedisBM bm = setup.getRedisBM();
+        byte[] bs = bm.getBytes(o.id());
+        str = new String(bs);
+        assertEquals("hello", str);
+
+        str = io.readText(o);
+        assertEquals("hello", str);
+    }
 
     @Test
     public void test_walk_in_mount_2() {

@@ -10,18 +10,18 @@ var ioc = {
     },
     referApi: {
         type : "org.nutz.walnut.core.refer.redis.RedisReferService",
-        args : [{refer:"redis"}]
+        args : [{refer:"redis0"}]
+    },
+    redisBM : {
+        type : 'org.nutz.walnut.core.bm.redis.RedisBM',
+        args : [{refer : 'redis1'}]
     },
     ioHandleManager : {
         type : "org.nutz.walnut.core.hdl.redis.RedisIoHandleManager",
         args : [
             {refer : "ioMappingFactory"},
             {java  : '$conf.getInt("hdl-timeout", 20)'},
-            {refer : "redis"}]
-    },
-    redisBM : {
-        type : 'org.nutz.walnut.core.bm.redis.RedisBM',
-        args : [{refer : 'redis'}]
+            {refer : "redis2"}]
     },
     globalBM : {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
@@ -50,8 +50,9 @@ var ioc = {
         }
     },
     "redisBMFactory": {
-        type : "org.nutz.walnut.core.mapping.bm.LocalIoBMFactory",
+        type : "org.nutz.walnut.core.mapping.bm.RedisBMFactory",
         fields : {
+            io  : {refer:"io"},
             bms : {
                 "_": {refer:"redisBM"}
             }
@@ -88,10 +89,14 @@ var ioc = {
     },
     rawIo: {
         type : 'org.nutz.walnut.core.io.WnIoImpl2',
-        args : [{refer:"ioMappingFactory"}]
+        fields: {
+            mappings: {refer:"ioMappingFactory"}
+        }
     },
     io : {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
-        args : [{refer:"rawIo"}]
+        fields: {
+            io: {refer:"rawIo"}
+        }
     }
 }

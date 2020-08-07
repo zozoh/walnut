@@ -2,6 +2,7 @@ package org.nutz.walnut.core;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
@@ -29,6 +30,7 @@ import org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl;
 import org.nutz.walnut.core.mapping.bm.LocalFileBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalIoBMFactory;
+import org.nutz.walnut.core.mapping.bm.RedisBMFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
 import org.nutz.walnut.ext.redis.Wedis;
@@ -61,6 +63,8 @@ public class IoCoreSetup {
 
     private static WnIo io;
 
+    private static RedisBMFactory redisBMFactory;
+
     static {
         // 测试配置初始化
         if (null == pp)
@@ -83,6 +87,9 @@ public class IoCoreSetup {
             WnIoMappingFactory mappings = this.getWnIoMappingFactory();
             this.setupWnIoMappingFactory();
             io = new WnIoImpl2(mappings);
+
+            // 稍后设置一下 RedisBMFactory 自己的实例
+            redisBMFactory.setIo(io);
         }
         return io;
     }
@@ -103,6 +110,7 @@ public class IoCoreSetup {
         WnIoHandleManager handles = this.getWnIoHandleManager();
         HashMap<String, WnBMFactory> bmfs = new HashMap<>();
         bmfs.put("lbm", new LocalIoBMFactory());
+        bmfs.put("redis", this.getRedisBMFactory());
         bmfs.put("file", new LocalFileBMFactory(handles));
         bmfs.put("filew", new LocalFileWBMFactory(handles));
         mappings.setBms(bmfs);
@@ -122,7 +130,7 @@ public class IoCoreSetup {
 
     public WnIoMapping getGlobalRedisBMMapping() {
         WnIoIndexer indexer = this.getGlobalIndexer();
-        WnIoBM bm = this.getRedisIoBM();
+        WnIoBM bm = this.getRedisBM();
         return new WnIoMapping(indexer, bm);
     }
 
@@ -183,9 +191,19 @@ public class IoCoreSetup {
         return new LocalFileWBM(handles, dHome);
     }
 
-    public RedisBM getRedisIoBM() {
+    public RedisBM getRedisBM() {
         WedisConfig conf = this.getWedisConfig();
         return new RedisBM(conf);
+    }
+
+    public RedisBMFactory getRedisBMFactory() {
+        if (null == redisBMFactory) {
+            redisBMFactory = new RedisBMFactory();
+            Map<String, RedisBM> bms = new HashMap<>();
+            bms.put("_", this.getRedisBM());
+            redisBMFactory.setBms(bms);
+        }
+        return redisBMFactory;
     }
 
     public LocalFileIndexer getLocalFileIndexer() {

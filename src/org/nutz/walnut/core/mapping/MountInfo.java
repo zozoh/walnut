@@ -10,10 +10,35 @@ import org.nutz.walnut.api.err.Er;
 public class MountInfo {
 
     static class Item {
+        // 模式
+        boolean forBM;
+
         // 类型
         String type;
+
         // 参数
         String arg;
+
+        @Override
+        public String toString() {
+            // 特殊规则，如果是文件映射
+            if (type.startsWith("file")) {
+                // 对于索引，只输出类型
+                if (!this.forBM) {
+                    return type;
+                }
+                // 对于桶，只输出 arg
+                else {
+                    return arg;
+                }
+            }
+            // 只有类型
+            if (Strings.isBlank(arg)) {
+                return type;
+            }
+            // 混合输出
+            return String.format("%s(%s)", type, arg);
+        }
     }
 
     /**
@@ -29,7 +54,13 @@ public class MountInfo {
     private static final String regex = "^([^(]+)(\\(([^)]+)\\))?$";
     private static final Pattern _P = Regex.getPattern(regex);
 
-    MountInfo(String str) {
+    public MountInfo() {}
+
+    public MountInfo(String str) {
+        set(str);
+    }
+
+    public void set(String str) {
         // 为空！那就是木有任何映射咯
         if (Strings.isBlank(str)) {
             return;
@@ -44,11 +75,13 @@ public class MountInfo {
         // 第一个，那么表示索引用全局的，桶管理器是指定的
         else if (0 == pos) {
             bm = parseItem(str.substring(3));
+            bm.forBM = true;
         }
         // 两个都指定了
         else {
             ix = parseItem(str.substring(0, pos));
             bm = parseItem(str.substring(pos + 3));
+            bm.forBM = true;
 
             // 这个特殊规则用来兼容之前的 "file:///" 和 "file://C:/" 映射
             // 即，如果只有 bmArg 且 bmType 为空，那么 bmType 相当于 file
@@ -75,11 +108,28 @@ public class MountInfo {
         return it;
     }
 
-    boolean hasIndexer() {
+    public boolean hasIndexer() {
         return null != ix;
     }
 
-    boolean hasBM() {
+    public boolean hasBM() {
         return null != bm;
+    }
+
+    public boolean hasIndexerAndBM() {
+        return null != ix && null != bm;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (null != ix) {
+            sb.append(ix.toString());
+        }
+        if (null != bm) {
+            sb.append("://");
+            sb.append(bm.toString());
+        }
+        return sb.toString();
     }
 }

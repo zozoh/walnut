@@ -11,7 +11,7 @@ public class RedisBMTest extends AbstractWnIoBMTest {
     public void setUp() throws Exception {
         this.setup.cleanAllData();
         indexer = this.setup.getGlobalIndexer();
-        bm = this.setup.getRedisIoBM();
+        bm = this.setup.getRedisBM();
 
         o = indexer.create(null, "/a/b.txt", WnRace.FILE);
     }

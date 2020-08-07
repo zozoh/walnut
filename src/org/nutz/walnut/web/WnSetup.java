@@ -81,12 +81,13 @@ public class WnSetup implements Setup {
 
         if (log.isInfoEnabled()) {
             List<String> keys = conf.getKeys();
-            String str = "CONIFG:\n";
+            String str = "CONIFG:\n" + Strings.dup("-", 40) + "\n";
             Collections.sort(keys);
             for (String key : keys) {
                 String val = conf.get(key);
                 str += String.format("  @%s = %s\n", key, val);
             }
+            str += Strings.dup("-", 40) + "\n";
             log.info(str);
         }
 

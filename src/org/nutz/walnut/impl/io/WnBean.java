@@ -99,7 +99,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     @Override
-    public boolean hasMountHomeId() {
+    public boolean hasMountRootId() {
         throw Lang.noImplement();
     }
 

@@ -75,7 +75,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public boolean hasMountHomeId() {
+    public boolean hasMountRootId() {
         return true;
     }
 

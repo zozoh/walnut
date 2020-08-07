@@ -71,8 +71,22 @@ public class WnIoImpl2 implements WnIo {
      */
     protected WnIoActionCallback whenWrite;
 
+    public WnIoImpl2() {}
+
     public WnIoImpl2(WnIoMappingFactory mappings) {
         this.mappings = mappings;
+    }
+
+    public void setMappings(WnIoMappingFactory mappings) {
+        this.mappings = mappings;
+    }
+
+    public void setWhenDelete(WnIoActionCallback whenDelete) {
+        this.whenDelete = whenDelete;
+    }
+
+    public void setWhenWrite(WnIoActionCallback whenWrite) {
+        this.whenWrite = whenWrite;
     }
 
     // 如果不在同样的映射桶内，则，只能通过流 copy 了
@@ -614,6 +628,15 @@ public class WnIoImpl2 implements WnIo {
         final WnContext wc = Wn.WC();
         final WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
 
+        // 已经是映射了
+        if (p.isMount()) {
+            WnIoMapping mapping = mappings.checkMapping(p);
+            WnIoIndexer indexer = mapping.getIndexer();
+            if (indexer != globalIndexer) {
+                return indexer.create(p, paths, fromIndex, toIndex, race);
+            }
+        }
+
         // 检查所有的父是否都被创建
         WnObj p1 = p0;
         for (int i = fromIndex; i < rightIndex; i++) {
@@ -628,7 +651,9 @@ public class WnIoImpl2 implements WnIo {
                 if (nd.isMount()) {
                     WnIoMapping mapping = mappings.checkMapping(nd);
                     WnIoIndexer indexer = mapping.getIndexer();
-                    return indexer.create(nd, paths, i + 1, toIndex, race);
+                    if (indexer != globalIndexer) {
+                        return indexer.create(nd, paths, i + 1, toIndex, race);
+                    }
                 }
                 // 继续下一层路径
                 p1 = nd;

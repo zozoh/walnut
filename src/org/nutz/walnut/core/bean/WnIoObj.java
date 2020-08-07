@@ -15,6 +15,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.WnIoIndexer;
+import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
 
 public class WnIoObj extends NutMap implements WnObj {
@@ -129,7 +130,7 @@ public class WnIoObj extends NutMap implements WnObj {
         return OID().getMyId();
     }
 
-    public boolean hasMountHomeId() {
+    public boolean hasMountRootId() {
         return OID().hasHomeId();
     }
 
@@ -601,11 +602,39 @@ public class WnIoObj extends NutMap implements WnObj {
         return !Strings.isBlank(parentId());
     }
 
+    @Override
+    public boolean isMount() {
+        String mnt = mount();
+        return !Strings.isBlank(mnt);
+    }
+
+    /**
+     * null 表示未设置。 "" 表示读取了，但是没有映射
+     */
+    private String __mnt;
+
     public String mount() {
-        return getString("mnt");
+        String mnt = getString("mnt");
+        if (!Strings.isBlank(mnt)) {
+            return mnt;
+        }
+        if (null == __mnt) {
+            // 看看父映射
+            WnObj p = this;
+            MountInfo mi = new MountInfo();
+            while (!mi.hasIndexerAndBM() && p.hasParent()) {
+                p = p.parent();
+                String pmnt = p.mount();
+                mi.set(pmnt);
+            }
+            // 最后得到映射
+            __mnt = mi.toString();
+        }
+        return __mnt;
     }
 
     public WnObj mount(String mnt) {
+        mnt = Strings.sBlank(mnt, null);
         setv("mnt", mnt);
         return this;
     }
@@ -616,12 +645,6 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public WnObj mountRootId(String mrid) {
         throw Lang.noImplement();
-    }
-
-    @Override
-    public boolean isMount() {
-        String mnt = mount();
-        return !Strings.isBlank(mnt);
     }
 
     public boolean isHidden() {
@@ -688,6 +711,9 @@ public class WnIoObj extends NutMap implements WnObj {
         this.setv("pid", pid);
         this.path(parent.path()).appendPath(name());
         Wn.Io.eval_dn(this);
+
+        // 清除一下缓存
+        this.__mnt = null;
     }
 
     @Override
