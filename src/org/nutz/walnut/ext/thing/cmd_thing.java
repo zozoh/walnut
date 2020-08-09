@@ -126,6 +126,10 @@ public class cmd_thing extends JvmHdlExecutor {
                     sys.out.println(hc.output);
                 }
             }
+            // 一定要输出点什么
+            else if (hc.params.is("obj")) {
+                sys.out.println("null");
+            }
         }
     }
 

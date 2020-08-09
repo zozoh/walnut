@@ -53,6 +53,16 @@ public class WnOrderService {
             throw Er.create("e.www.order.nil.pay_tp");
         }
 
+        // 确保订单类型不为空
+        String orType = or.getType();
+        if (Strings.isBlank(orType)) {
+            or.setType("A");
+        }
+        // 检查订单类型合法性
+        else if (!orType.matches("^(A|Q)$")) {
+            throw Er.create("e.www.order.invalid.tp", orType);
+        }
+
         // 设置产品的冗余字段
         WnProduct[] pros = or.getProducts();
         String[] proids = new String[pros.length];

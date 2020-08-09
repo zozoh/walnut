@@ -7,6 +7,7 @@
     thing [TsID] getone 
         [Condition Map]  # 查询条件
         [-content]       # 输出内容
+        [-obj]           # 如果查询不到对象，也要输出个 null
         [-sort "nm:1"]   # 排序
         [-cqn]           # JSON 格式化输出
     ///////////////////////////////////

@@ -13,7 +13,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.WnPager;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(content)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(content|obj)$")
 public class thing_getone implements JvmHdl {
 
     @Override

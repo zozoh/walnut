@@ -13,6 +13,12 @@ public class WnOrder {
 
     private String id;
 
+    /**
+     * 订单类型，默认为 "order"
+     */
+    @JsonField("tp")
+    private String type;
+
     private WnProduct[] products;
 
     @JsonField("proid0")
@@ -96,9 +102,14 @@ public class WnOrder {
         // 产品
         if (null != this.products) {
             or.products = new WnProduct[this.products.length];
+            or.productIds = new String[this.products.length];
             for (int i = 0; i < this.products.length; i++) {
                 WnProduct pro = this.products[i];
                 or.products[i] = pro.clone();
+                or.productIds[i] = pro.getId();
+                if (0 == i) {
+                    or.productId0 = pro.getId();
+                }
             }
         }
         // 优惠券
@@ -120,6 +131,7 @@ public class WnOrder {
         // 其他字段
         if (fullCopy) {
             or.id = this.id;
+            or.type = this.type;
             or.status = this.status;
             or.createTime = this.createTime;
             or.lastModified = this.lastModified;
@@ -172,7 +184,10 @@ public class WnOrder {
             map = map.pickBy(Regex.getPattern(locked), true);
         }
         // 默认的不输出字段
-        map.pickAndRemoveBy("^(c|m|g|d0|d1|md|tp|mime|ph|pid|sha1|len)$");
+        map.pickAndRemoveBy("^(c|m|g|d0|d1|md|ph|pid|sha1|len)$");
+
+        // 强制一下 mime
+        map.put("mime", "text/plain");
 
         return map;
     }
@@ -183,6 +198,32 @@ public class WnOrder {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     * @return 是否为普通订单
+     *         <p>
+     *         所谓普通订单，即，值为"A": 会执行下单->支付->发货->完成这一标准步骤
+     */
+    public boolean isTypeA() {
+        return "A".equals(this.type);
+    }
+
+    /**
+     * @return 是否为简单订单
+     *         <p>
+     *         所谓普通订单，即，值为"Q": 适用于虚拟物品，支付成功就直接完成
+     */
+    public boolean isTypeQ() {
+        return "Q".equals(this.type);
     }
 
     public boolean hasProducts() {

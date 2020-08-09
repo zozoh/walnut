@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.thing.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -157,7 +158,8 @@ public abstract class Things {
 
     public static WnObj dirTsIndex(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
-        return io.check(oTS, "index");
+        WnObj oD = io.check(oTS, "index");
+        return Wn.real(oD, io, new HashMap<>());
     }
 
     public static WnObj dirTsIndex(WnSystem sys, JvmHdlContext hc) {
@@ -166,7 +168,8 @@ public abstract class Things {
 
     public static WnObj dirTsComment(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
-        return io.check(oTS, "comment");
+        WnObj oD = io.check(oTS, "comment");
+        return Wn.real(oD, io, new HashMap<>());
     }
 
     public static WnObj dirTsComment(WnSystem sys, JvmHdlContext hc) {
@@ -184,7 +187,8 @@ public abstract class Things {
 
     public static WnObj dirTsData(WnIo io, WnObj oRefer) {
         WnObj oTS = checkThingSet(oRefer);
-        return io.check(oTS, "data");
+        WnObj oD = io.check(oTS, "data");
+        return Wn.real(oD, io, new HashMap<>());
     }
 
     public static WnObj dirTsData(WnSystem sys, JvmHdlContext hc) {

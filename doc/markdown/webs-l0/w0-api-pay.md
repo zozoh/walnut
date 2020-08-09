@@ -36,6 +36,11 @@ ticket : "34t6..8aq1"     # 【必】登录会话的票据
 
 ```js
 {
+  // 订单标题，默认为 seller 的名称
+  "title": "xxx",
+  // 订单类型
+  // 默认为 "order"
+  "tp": "order",
   // 商品列表
   "products": [{
     "id": "78u..sg9",  // 商品 ID

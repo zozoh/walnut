@@ -54,14 +54,27 @@ public class www_payafter implements JvmHdl {
         NutMap meta = null;
 
         // 支付成功
-        if (null!=po && po.isStatusOk()) {
-            or.setStatus(WnOrderStatus.OK);
-            or.setExpireTime(0);
-            or.setOkAt(po.getLong("close_at"));
-            meta = or.toMeta("^(st|expi|ok_at)$", null);
+        if (null != po && po.isStatusOk()) {
+            // 【简单订单】的话，直接设置为完成
+            if (or.isTypeQ()) {
+                long now = System.currentTimeMillis();
+                or.setStatus(WnOrderStatus.DN);
+                or.setExpireTime(0);
+                or.setOkAt(now);
+                or.setShipAt(now);
+                or.setDoneAt(now);
+                meta = or.toMeta("^(st|expi|(ok|sp|dn)_at)$", null);
+            }
+            // 默认当作【标准订单】，那么就仅仅标志一下支付成功
+            else {
+                or.setStatus(WnOrderStatus.OK);
+                or.setExpireTime(0);
+                or.setOkAt(po.getLong("close_at"));
+                meta = or.toMeta("^(st|expi|ok_at)$", null);
+            }
         }
         // 支付失败
-        else if (null!=po && po.isStatusFail()) {
+        else if (null != po && po.isStatusFail()) {
             or.setStatus(WnOrderStatus.FA);
             or.setExpireTime(0);
             or.setFailAt(po.getLong("close_at"));
