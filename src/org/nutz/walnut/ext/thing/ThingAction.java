@@ -204,12 +204,12 @@ public abstract class ThingAction<T> {
         if (conf.hasLinkKeys()) {
             others = new ArrayList<>(conf.getLinkKeys().size());
             for (Map.Entry<String, ThingLinkKey> en : conf.getLinkKeys().entrySet()) {
+                // 获取链接键
                 String key = en.getKey();
                 ThingLinkKey lnk = en.getValue();
 
-                // 木有值的话，就忽略
-                Object val = meta.get(key);
-                if (null == val)
+                // 更新的元数据不包括这个键，就无视
+                if (!meta.containsKey(key))
                     continue;
 
                 // 什么都没做的话，无视好了
@@ -226,6 +226,7 @@ public abstract class ThingAction<T> {
                 }
 
                 // 准备 val 上下文
+                Object val = meta.get(key);
                 NutMap valContext = new NutMap();
                 valContext.put("val", val);
 
