@@ -1,55 +1,11 @@
 {
-  "dao": "default", 
-  "tableName": "t_pet",
+  "auth": {
+    "url": "jdbc:mysql://127.0.0.1/walnut_unit",
+    "username": "root",
+    "password": "root"
+  }, 
+  "tableName": "t_obj",
   "autoCreate" : true,
-  "fields": [{
-    "name": "id",
-    "type": "String",
-    "columnName": "id",
-    "wrapName" : false,
-    "columnType" : "AUTO",
-    "customDbType": null,
-    "defaultValue": "xxxx",
-    "isVersion" : false,
-    "readonly"  : false,
-    "notNull"   : false,
-    "unsigned"  : false,
-    "autoIncreasement" : false,
-    "casesensitive" : true,
-    "insert": true,
-    "update": true
-  }],
-  "pks": ["id"],
-  "objKeys": {
-    "id"  : "id",
-    "pid" : "pid",
-    "nm"  : "nm",
-    "c"   : "c",
-    "m"   : "m",
-    "g"   : "g",
-    "md"  : "md",
-    "race": "race",
-    "ln"  : "ln",
-    "tp"  : "tp",
-    "mime": "mime",
-    "sha1": "sha1",
-    "mnt" : "mnt",
-    "len" : "len",
-    "d0"  : "d0",
-    "d1"  : "d1",
-    "lbls": "lbls",
-    "ct"  : "ct",
-    "lm"  : "lm",
-    "st"  : "st",
-    "expi": "expi"
-  },
-  "indexes": [{
-      "unique" : true,
-      "name"   : "obj_id",
-      "fields" : ["id"]
-    },{
-      "unique" : true,
-      "name"   : "obj_pid_nm",
-      "fields" : ["pid","nm"]
-    }]
+  "fields": [],
+  "indexes": []
 }

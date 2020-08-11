@@ -1,13 +1,9 @@
 package org.nutz.walnut.core.indexer.dao;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.nutz.dao.impl.entity.NutEntity;
 import org.nutz.dao.impl.entity.field.NutMappingField;
-import org.nutz.json.Json;
-import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.bean.WnIoObj;
@@ -37,9 +33,13 @@ public class WnObjEntity extends NutEntity<WnIoObj> {
      * - ct | lm | st | expi
      * 
      * </pre>
+     * 
+     * @param pks
      */
-    void autoSetDefaultFields(Map<String, NutMappingField> builtIns, WnDaoConfig conf) {
-        // 查找所有标准字段
+    void autoSetDefaultFields(Map<String, NutMappingField> builtIns,
+                              WnDaoConfig conf,
+                              Map<String, Boolean> pks) {
+        // 查找所有标准字段，并确保实体包括所有标准字段
         NutMap objKeys = conf.getObjKeys();
         for (Map.Entry<String, Object> en : objKeys.entrySet()) {
             // 标准字段名
@@ -56,9 +56,18 @@ public class WnObjEntity extends NutEntity<WnIoObj> {
                 }
                 // 复制一份放入实体中
                 NutMappingField mf2 = mf.duplicate(fnm);
+
+                // 主键
+                if (pks.containsKey(mf2.getName())) {
+                    mf2.setAsName();
+                    mf2.setAsNotNull();
+                }
+
+                // 记入
                 this.addMappingField(mf2);
             }
         }
+
     }
 
 }

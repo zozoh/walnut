@@ -114,7 +114,7 @@ public abstract class Wn {
     }
 
     public static boolean isFullObjId(final String id) {
-        return id.matches("^[0-9a-v]{26}(:file:.+)?$");
+        return id.matches("^[0-9a-v]{26}(:.+)?$");
     }
 
     public static WnObj getObj(WnSystem sys, String str) {

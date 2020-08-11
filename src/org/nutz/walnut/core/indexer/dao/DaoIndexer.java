@@ -15,6 +15,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.ext.sql.WnDaoConfig;
@@ -29,7 +30,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     private WnDaoConfig config;
 
-    protected DaoIndexer(WnObj root, MimeMap mimes, WnDaoConfig config) {
+    public DaoIndexer(WnObj root, MimeMap mimes, WnDaoConfig config) {
         super(root, mimes);
         this.dao = WnDaos.get(config);
         this.config = config;
@@ -40,7 +41,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
         // 自动创建创建表
         if (config.isAutoCreate()) {
-            if (dao.exists(entity)) {
+            if (!dao.exists(entity)) {
                 dao.create(entity, false);
             }
         }
@@ -100,7 +101,11 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     @Override
     public WnObj get(String id) {
-        return dao.fetch(entity, id);
+        WnIoObj o = dao.fetch(entity, id);
+        if (null != o) {
+            o.setIndexer(this);
+        }
+        return o;
     }
 
     @Override
@@ -115,8 +120,12 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         Pager page = dq.getPager();
 
         // 执行查询
+        final WnIoIndexer indexer = this;
         return dao.each(entity, cond, page, new Each<WnIoObj>() {
             public void invoke(int index, WnIoObj o, int length) {
+                if (null != o) {
+                    o.setIndexer(indexer);
+                }
                 callback.invoke(index, o, length);
             }
         });
@@ -152,6 +161,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         }
 
         // 直接返回
+        o.setIndexer(this);
         return o;
     }
 
@@ -215,6 +225,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         }
 
         // 直接返回
+        o.setIndexer(this);
         return o;
     }
 
@@ -241,7 +252,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                 continue;
             int oldSize = list.size();
             if (null != list || list.isEmpty())
-                list.remove(val);
+                vals.remove(val);
 
             // 木有变化
             if (oldSize != list.size()) {
@@ -264,6 +275,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         if (!o.hasParent()) {
             o.setParent(this.root);
         }
+        o.setIndexer(this);
         return dao.insert(entity, o);
     }
 
@@ -273,6 +285,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         WnDaoQuery dq = genDaoQuery(q);
         Condition cnd = dq.getCondition();
         WnIoObj o = new WnIoObj();
+        o.setIndexer(this);
         o.putAll(map);
         dao.update(entity, o, cnd);
     }
@@ -282,6 +295,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         WnDaoQuery dq = genDaoQuery(q);
         Condition cnd = dq.getCondition();
         WnIoObj o = new WnIoObj();
+        o.setIndexer(this);
         o.putAll(map);
         dao.update(entity, o, cnd);
 

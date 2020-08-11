@@ -189,6 +189,8 @@ $HomeID:$ReferID
     // 支持 CHAR|BOOLEAN|VARCHAR|TEXT|INT|FLOAT|TIMESTAMP ...
     // @see org.nutz.dao.entity.annotation.ColType
     "columnType" : "AUTO",
+    // 字段类型的宽度
+    "width": 26,
     // 这里面可以声明更特殊的数据库类型，以便自动建表时使用
     // 如果声明了这个属性，在自动建表时，会覆盖 columnType 的设定
     "customDbType": null,

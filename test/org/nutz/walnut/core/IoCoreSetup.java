@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.dao.Dao;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
@@ -21,6 +23,8 @@ import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
+import org.nutz.walnut.core.indexer.dao.WnObjEntity;
+import org.nutz.walnut.core.indexer.dao.WnObjEntityGenerating;
 import org.nutz.walnut.core.indexer.localfile.LocalFileIndexer;
 import org.nutz.walnut.core.indexer.localfile.LocalFileWIndexer;
 import org.nutz.walnut.core.indexer.mongo.MongoIndexer;
@@ -36,6 +40,8 @@ import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.util.Wn;
@@ -55,7 +61,9 @@ public class IoCoreSetup {
     private static LocalIoBM globalBM;
 
     private static MongoIndexer globalIndexer;
-    
+
+    private static WnDaoConfig daoConfig;
+
     private static DaoIndexer daoIndexer;
 
     private static WnIoMappingFactoryImpl mappings;
@@ -235,10 +243,22 @@ public class IoCoreSetup {
     }
 
     public DaoIndexer getDaoIndexer() {
-        if(null == daoIndexer) {
-            
+        if (null == daoIndexer) {
+            WnDaoConfig conf = getWnDaoConfig();
+            WnObj root = this.getRootNode();
+            MimeMap mimes = this.getMimes();
+            daoIndexer = new DaoIndexer(root, mimes, conf);
         }
         return daoIndexer;
+    }
+
+    public WnDaoConfig getWnDaoConfig() {
+        if (null == daoConfig) {
+            String aph = "org/nutz/walnut/core/indexer/dao/dao_indexer.json";
+            String json = Files.read(aph);
+            daoConfig = Json.fromJson(WnDaoConfig.class, json);
+        }
+        return daoConfig;
     }
 
     public MimeMap getMimes() {
@@ -283,6 +303,15 @@ public class IoCoreSetup {
             co.drop();
         }
 
+        // 清空 MySQL
+        WnDaoConfig daoConf = this.getWnDaoConfig();
+        Dao dao = WnDaos.get(daoConf);
+        WnObjEntityGenerating ing = new WnObjEntityGenerating(daoConf, dao.getJdbcExpert());
+        WnObjEntity entity = ing.generate();
+
+        // 自动创建创建表
+        dao.create(entity, true);
+
         // 清空目录: 本地文件
         File d = getLocalFileHome();
         if (d.exists()) {
@@ -309,8 +338,8 @@ public class IoCoreSetup {
             }
         }
         // 清空 Redis 当前数据库
-        WedisConfig conf = this.getWedisConfig();
-        Wedis.run(conf, jed -> {
+        WedisConfig redisConf = this.getWedisConfig();
+        Wedis.run(redisConf, jed -> {
             jed.flushDB();
         });
     }
