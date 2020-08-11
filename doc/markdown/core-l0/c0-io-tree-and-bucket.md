@@ -34,11 +34,11 @@ tags:
  Index     | Type    | Scene
 -----------|---------|-------
 MongoDB    | *nil*   | 默认场景
-SQL Table  | `dao`   | 海量数据
-Memory     | `mem`   | 用完即抛，譬如请求对象
+SQL Table  | `dao`   | 海量数据 dao(name) 
+Memory     | `mem`   | 用完即抛，譬如请求对象 mem(key) 
 LocalFile  | `file`  | 本地文件读写
-Redis      | `redis` | 非永久保存，可多实例协同
-MsgQueue   | `mq`    | 为消息队列提供一个通用操作接口
+Redis      | `redis` | 非永久保存，可多实例协同 redis(key) 
+MsgQueue   | `mq`    | 为消息队列提供一个通用操作接口 mq(key) 
 
 ------------------------------------------
 # 内容的存储方式
@@ -107,6 +107,157 @@ $HomeID:$ReferID
 ```
 
 ------------------------------------------
+# 索引管理器实现细节
+
+## DaoIndexer:数据库索引管理器
+
+```bash
+~/
+#-----------------------------------------
+# 数据源定义
+|-- .dao/
+|   |-- [$DaoName].dao.json    # 每个定义就是一个数据源
+#-----------------------------------------
+# 索引管理器数据映射定义
+|-- .domain/
+    |-- entity/
+        |-- [$Key].json    # 每个索引管理器的映射细节
+```
+> 数据源定义文件的内容格式请参看  [通用实体][c1-gde] **SQL数据源格式** 一节
+
+索引管理器实体映射文件主要是将一个数据表的 ResultSet 对象与 `WnIoObj` 对象的字段
+映射。其中 `WnIoObj` 对象，你可以认为就是一个普通的 `Map` 对象。
+
+```js
+{
+  //------------------------------------------------
+  // 数据源名称
+  "dao": "default",    // 默认用 default
+  // 这个实体是由数据源哪张表保存的
+  // 如果是分表，可以用形为 t_abc_${id} 的动态表名来表示
+  // 其中，占位符 ${id} 为实体本身的字段名(Java)
+  "tableName": "t_abc",
+  //------------------------------------------------
+  // 这个实体映射为 WnIoObj 映射
+  //------------------------------------------------
+  // 这个映射是否可以自动创建
+  // 默认为 true，如果 false，则如果不存在就抛错
+  "autoCreate" : true,
+  //------------------------------------------------
+  //
+  // 下面是字段映射
+  //
+  //------------------------------------------------
+  // 所有的字段
+  // 所有的内置字段，可以不声明，会使用默认的内置字段
+  // 这些内置字段包括:
+  // ```
+  // 构成对象树的关键
+  //  - id | pid | nm
+  // 权限
+  //  - c | m | g | md
+  // 内容相关
+  // - race | ln | tp | mime | sha1 | mnt 
+  // - len  | d0 | d1 | lbls
+  // 时间戳
+  // - ct | lm | st | expi
+  // ```
+  "fields": [{
+    // 本字段存放在 WnIoObj 中的名字
+    "name": "id",
+    // 本字段的类型
+    // 默认为 String
+    // 可选值为 String|Integer|Long|Float|Double|Boolean|Object|SArray|List|JSON
+    // 其中 Object|SArray|JSON 在数据表中实际存储的是 VARCHAR
+    //   - Object 应对到 Java 就是 NutMap
+    //   - SArray 应对到 Java 就是 String[]
+    //   - List   应对到 Java 就是 List
+    //   - JSON   应对到 Java 就是 Object，主要看 JSON 解析出来的是什么
+    // 读取回来的时候，会解析 JSON
+    // 这个字段在生成 SQL 的时候，也用来决定是否要用引号包裹值等形式
+    "type": "String",
+    // 【选】 本字段存放在数据表中的名字，如果不声明，则与 name 相同
+    "columnName": "id",
+    // 【选】 生成 SQL 的时候，是否要用引号包裹名称
+    // 默认的，会看如果与数据库关键字重名，则用引号包裹
+    "wrapName" : false,
+    //
+    // 下面是关于数据字段更多的设置
+    // 主要是自动建表时使用
+    // 
+    // 字段类型（必须大写）默认 AUTO
+    // 支持 CHAR|BOOLEAN|VARCHAR|TEXT|INT|FLOAT|TIMESTAMP ...
+    // @see org.nutz.dao.entity.annotation.ColType
+    "columnType" : "AUTO",
+    // 这里面可以声明更特殊的数据库类型，以便自动建表时使用
+    // 如果声明了这个属性，在自动建表时，会覆盖 columnType 的设定
+    "customDbType": null,
+    // 默认值，支持 ${key} 占位符，其中 key 为更新或者插入的对象
+    "defaultValue": "xxxx",
+    // 本字段为版本字段，在乐观锁场景下用来恢复数据
+    "isVersion" : false,
+    "readonly"  : false,    // 只读字段
+    "notNull"   : false,    // 非空字段
+    "unsigned"  : false,    // 无符号字段
+    // 自增字段：插入时，会自动忽略它
+    "autoIncreasement" : false,
+    // 字段大小写敏感，默认 true
+    "casesensitive" : true,
+    // 描述当前字段是否可插入
+    "insert": true,
+    // 描述当前字段是否可更新
+    "update": true,
+  }],
+  //------------------------------------------------
+  // 主键，通常就是 ["id"]，名称为 (field.name)
+  "pks": ["id"],
+  //------------------------------------------------
+  // 声明一些关键的字段
+  // 这些字段是一个　WnObj 所必须的
+  // 键为： WnObj 的 key
+  // 值为： 之前定义的 field.name
+  // 如果没有声明，则键值同名
+  // 在创建或者更新的时候，会把标准 WnObj 字段名（键）
+  // 翻译成对应的映射字段名（值：field.name）
+  "objKeys": {
+    // 构成对象树的关键
+    "id"  : "id",
+    "pid" : "pid",
+    "nm"  : "nm",
+    // 权限
+    "c"   : "c",
+    "m"   : "m",
+    "g"   : "g",
+    "md"  : "md",
+    // 内容相关
+    "race": "race",
+    "ln"  : "ln",
+    "tp"  : "tp",
+    "mime": "mime",
+    "sha1": "sha1",
+    "mnt" : "mnt",
+    "len" : "len",
+    "d0"  : "d0",
+    "d1"  : "d1",
+    "lbls": "lbls",
+    // 时间戳
+    "ct"  : "ct",
+    "lm"  : "lm",
+    "st"  : "st",
+    "expi": "expi"
+  },
+  ///------------------------------------------------
+  // 所有的索引
+  // 会在第一次创建表的时候自动创建
+  "indexes": [{
+    "unique" : false,    // 唯一性索引
+    "name"   : "xxx",    // 索引名称
+    "fields" : ["pid","nm"]  // 索引关联字段名（field.name/Java）
+  }]
+}
+```
+
+------------------------------------------
 # 桶管理器实现细节
 
 ## LocalIoBM:本地桶管理器
@@ -114,7 +265,7 @@ $HomeID:$ReferID
 **本地数据结构**
 
 ```bash
-path/to/home/
+~/
 #-----------------------------------------
 # 桶文件
 |-- buck/           # 桶目录，桶ID就文件内容的 SHA1
@@ -178,7 +329,7 @@ path/to/home/
      |-- dHome<File>      # 本地文件桶主目录
 ```
 
-## RedisIoBM:Redis桶管理器
+## RedisBM:Redis桶管理器
 
 > 为了能应对 Session 等小文本文件的频繁读写
 
@@ -424,3 +575,6 @@ WnIoMapping
 否则就全局查询。
 
 也就是说，所有的 `WnIoMapping->WnIoIndexer` 需要实现查询接口
+
+
+[c1-gde]: core-l1/c1-general-data-entity.md

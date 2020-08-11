@@ -20,6 +20,7 @@ import org.nutz.walnut.core.bm.localfile.LocalFileBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
+import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.indexer.localfile.LocalFileIndexer;
 import org.nutz.walnut.core.indexer.localfile.LocalFileWIndexer;
 import org.nutz.walnut.core.indexer.mongo.MongoIndexer;
@@ -54,6 +55,8 @@ public class IoCoreSetup {
     private static LocalIoBM globalBM;
 
     private static MongoIndexer globalIndexer;
+    
+    private static DaoIndexer daoIndexer;
 
     private static WnIoMappingFactoryImpl mappings;
 
@@ -229,6 +232,13 @@ public class IoCoreSetup {
             globalIndexer = new MongoIndexer(root, mimes, co);
         }
         return globalIndexer;
+    }
+
+    public DaoIndexer getDaoIndexer() {
+        if(null == daoIndexer) {
+            
+        }
+        return daoIndexer;
     }
 
     public MimeMap getMimes() {

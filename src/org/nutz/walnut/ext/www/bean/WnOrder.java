@@ -59,7 +59,7 @@ public class WnOrder {
     @JsonField("pay_re")
     private WnPay3xRe payReturn;
 
-    @JsonField("st")
+    @JsonField("or_st")
     private WnOrderStatus status;
 
     @JsonField("ct")

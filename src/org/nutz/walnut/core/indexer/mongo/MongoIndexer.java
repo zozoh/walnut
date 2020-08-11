@@ -9,7 +9,6 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mongo.ZMo;
@@ -61,7 +60,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    protected void _set(String id, NutMap map) {
+    protected void _set(String id, NutBean map) {
         if (map.size() > 0) {
             ZMoDoc q = Mongos.qID(id);
             ZMoDoc doc = __map_to_doc_for_update(map);
@@ -139,30 +138,6 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public int getInt(String id, String key, int dft) {
-        ZMoDoc q = ZMoDoc.NEW("id", id);
-        ZMoDoc flds = ZMoDoc.NEW(key, 1);
-        ZMoDoc doc = co.findOne(q, flds);
-        return doc.getInt(key, dft);
-    }
-
-    @Override
-    public long getLong(String id, String key, long dft) {
-        ZMoDoc q = ZMoDoc.NEW("id", id);
-        ZMoDoc flds = ZMoDoc.NEW(key, 1);
-        ZMoDoc doc = co.findOne(q, flds);
-        return doc.getLong(key, dft);
-    }
-
-    @Override
-    public String getString(String id, String key, String dft) {
-        ZMoDoc q = ZMoDoc.NEW("id", id);
-        ZMoDoc flds = ZMoDoc.NEW(key, 1);
-        ZMoDoc doc = co.findOne(q, flds);
-        return doc.getString(key, dft);
-    }
-
-    @Override
     public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
         ZMoDoc q = ZMoDoc.NEW("id", id);
         ZMoDoc flds = ZMoDoc.NEW(key, 1);
@@ -171,7 +146,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    protected WnObj _create(WnObj o) {
+    protected WnObj _create(WnIoObj o) {
         ZMoDoc doc = ZMo.me().toDoc(o).genID();
         doc.removeField("ph");
         co.save(doc);
@@ -267,40 +242,15 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         }
     }
 
-    @Override
-    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
-        if (null == o) {
-            o = this.getRoot();
-        }
-        WnQuery q = Wn.Q.pid(o.myId());
-        if (null != name) {
-            // 正则
-            if (name.startsWith("^")) {
-                q.setv("nm", name);
-            }
-            // 通配符
-            else if (name.contains("*")) {
-                String regex = "^" + name.replace("*", ".*");
-                q.setv("nm", regex);
-            }
-            // 精确等于
-            else {
-                q.setv("nm", name);
-            }
-        }
-        q.asc("nm");
-        return this.each(q, callback);
-    }
-
-    @Override
-    public long countChildren(WnObj o) {
-        if (o == null)
-            o = root.clone();
-
-        // 否则，直接查询子
-        ZMoDoc qDoc = ZMoDoc.NEW("pid", o.myId());
-        return co.count(qDoc);
-    }
+    // @Override
+    // public long countChildren(WnObj o) {
+    // if (o == null)
+    // o = root.clone();
+    //
+    // // 否则，直接查询子
+    // ZMoDoc qDoc = ZMoDoc.NEW("pid", o.myId());
+    // return co.count(qDoc);
+    // }
 
     @Override
     public long count(WnQuery q) {
@@ -319,11 +269,6 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         }
 
         return co.count(qDoc);
-    }
-
-    @Override
-    public boolean hasChild(WnObj p) {
-        return countChildren(p) > 0;
     }
 
     @Override

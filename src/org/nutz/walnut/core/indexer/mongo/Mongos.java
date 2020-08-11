@@ -279,7 +279,7 @@ class Mongos {
 
     private static void _set_enum_to_doc(ZMoDoc q, String key, Object[] ss) {
         // 指明了 in/all/nin
-        if (key.matches("^[$](n?in|all)$")) {
+        if (key.matches("^[%$](n?in|all)$")) {
             q.put(key, ss);
         }
         // 单个值

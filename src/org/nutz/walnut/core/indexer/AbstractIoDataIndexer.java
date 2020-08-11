@@ -393,11 +393,11 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         return list;
     }
 
-    protected abstract WnObj _create(WnObj o);
+    protected abstract WnObj _create(WnIoObj o);
 
     // protected abstract WnObj _get_by_id(String id);
 
-    protected abstract void _set(String id, NutMap map);
+    protected abstract void _set(String id, NutBean map);
 
     protected abstract WnIoObj _set_by(WnQuery q, NutBean map, boolean returnNew);
 
@@ -629,6 +629,42 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     }
 
     @Override
+    public int eachChild(WnObj o, String name, Each<WnObj> callback) {
+        if (null == o) {
+            o = this.getRoot();
+        }
+        WnQuery q = Wn.Q.pid(o.myId());
+        if (null != name) {
+            // 正则
+            if (name.startsWith("^")) {
+                q.setv("nm", name);
+            }
+            // 通配符
+            else if (name.contains("*")) {
+                String regex = "^" + name.replace("*", ".*");
+                q.setv("nm", regex);
+            }
+            // 精确等于
+            else {
+                q.setv("nm", name);
+            }
+        }
+        q.asc("nm");
+        return this.each(q, callback);
+    }
+
+    @Override
+    public long countChildren(WnObj o) {
+        WnQuery q = Wn.Q.pid(o);
+        return count(q);
+    }
+
+    @Override
+    public boolean hasChild(WnObj p) {
+        return countChildren(p) > 0;
+    }
+
+    @Override
     public WnObj getOne(WnQuery q) {
         final WnObj[] re = new WnObj[1];
         if (q == null)
@@ -641,6 +677,21 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             }
         });
         return re[0];
+    }
+
+    @Override
+    public int getInt(String id, String key, int dft) {
+        return this.getAs(id, key, Integer.class, dft);
+    }
+
+    @Override
+    public long getLong(String id, String key, long dft) {
+        return this.getAs(id, key, Long.class, dft);
+    }
+
+    @Override
+    public String getString(String id, String key, String dft) {
+        return this.getAs(id, key, String.class, dft);
     }
 
 }

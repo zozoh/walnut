@@ -14,7 +14,6 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.core.bean.WnLocalFileObj;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 import org.nutz.walnut.validate.WnValidator;
 import org.nutz.walnut.validate.impl.MatchRegex;

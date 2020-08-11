@@ -8,8 +8,8 @@ import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.core.bean.WnLocalFileObj;
 import org.nutz.walnut.core.bm.WnIoReadWriteHandle;
+import org.nutz.walnut.core.indexer.localfile.WnLocalFileObj;
 
 public class LocalFileReadWriteHandle extends WnIoReadWriteHandle {
 

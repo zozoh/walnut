@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.sql;
 
 import org.nutz.lang.Strings;
 
-public class WnDaoConnectionInfo {
+public class WnDaoAuth {
 
     private String url;
 
@@ -16,7 +16,7 @@ public class WnDaoConnectionInfo {
 
     private boolean testWhileIdle;
 
-    public WnDaoConnectionInfo() {
+    public WnDaoAuth() {
         this.maxActive = 50;
         this.maxWait = 15000;
         this.testWhileIdle = true;

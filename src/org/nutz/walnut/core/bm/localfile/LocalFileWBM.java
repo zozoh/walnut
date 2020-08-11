@@ -13,7 +13,7 @@ import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoIndexer;
-import org.nutz.walnut.core.bean.WnLocalFileObj;
+import org.nutz.walnut.core.indexer.localfile.WnLocalFileObj;
 import org.nutz.walnut.util.Wn;
 
 /**

@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.core.bean.WnLocalFileObj;
 import org.nutz.walnut.core.bm.WnIoWriteHandle;
+import org.nutz.walnut.core.indexer.localfile.WnLocalFileObj;
 
 public class LocalFileWriteHandle extends WnIoWriteHandle {
 

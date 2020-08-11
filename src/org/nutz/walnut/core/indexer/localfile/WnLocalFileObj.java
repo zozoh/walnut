@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.bean;
+package org.nutz.walnut.core.indexer.localfile;
 
 import java.io.File;
 import java.util.List;

@@ -26,10 +26,45 @@ public abstract class WnDaos {
 
     private static final Log log = Logs.get();
 
+    private static Map<String, DataSource> dss = new HashMap<>();
+
     private static Map<String, NutDao> daos = new HashMap<>();
 
+    public static DataSource getDataSource(WnDaoConfig conf) {
+        WnDaoAuth info = conf.getAuth();
+        String key = info.toKey();
+        DataSource ds = dss.get(key);
+        if (null == ds) {
+            synchronized (WnDaos.class) {
+                ds = __get_or_create_datasource(info, key);
+            }
+        }
+        return ds;
+    }
+
+    private static DataSource __get_or_create_datasource(WnDaoAuth info, String key) {
+        DataSource ds;
+        ds = dss.get(key);
+        if (null == ds) {
+            if (log.isDebugEnabled()) {
+                log.debugf("setup datasource: %s", key);
+            }
+            DruidDataSource dataSource = new DruidDataSource();
+            dataSource.setUrl(info.getUrl());
+            dataSource.setUsername(info.getUsername());
+            dataSource.setPassword(info.getPassword());
+            dataSource.setMaxActive(info.getMaxActive());
+            dataSource.setMaxWait(info.getMaxWait());
+            dataSource.setTestWhileIdle(info.isTestWhileIdle());
+
+            dss.put(key, dataSource);
+            ds = dataSource;
+        }
+        return ds;
+    }
+
     public static Dao get(WnDaoConfig conf) {
-        WnDaoConnectionInfo info = conf.getConnectionInfo();
+        WnDaoAuth info = conf.getAuth();
         String key = info.toKey();
         NutDao dao = daos.get(key);
         if (log.isDebugEnabled()) {
@@ -42,20 +77,15 @@ public abstract class WnDaos {
                     if (log.isDebugEnabled()) {
                         log.debugf("setup dao: %s", key);
                     }
-                    DruidDataSource dataSource = new DruidDataSource();
-                    dataSource.setUrl(info.getUrl());
-                    dataSource.setUsername(info.getUsername());
-                    dataSource.setPassword(info.getPassword());
-                    dataSource.setMaxActive(info.getMaxActive());
-                    dataSource.setMaxWait(info.getMaxWait());
-                    dataSource.setTestWhileIdle(info.isTestWhileIdle());
+                    DataSource ds = __get_or_create_datasource(info, key);
 
                     // Create Dao
-                    dao = new NutDao(dataSource);
+                    dao = new NutDao(ds);
                     daos.put(key, dao);
                 }
             }
         }
+        // 搞定
         return dao;
     }
 
@@ -64,12 +94,13 @@ public abstract class WnDaos {
     }
 
     public static void remove(WnDaoConfig conf) {
-        String key = conf.getConnectionInfo().toKey();
+        String key = conf.getAuth().toKey();
         NutDao dao = daos.get(key);
         if (null != dao) {
             DataSource ds = dao.getDataSource();
             Streams.safeClose((Closeable) ds);
             daos.remove(key);
+            dss.remove(key);
         }
     }
 
@@ -84,8 +115,8 @@ public abstract class WnDaos {
         String ph = "~/.dao/" + conf.getDaoName() + ".dao.json";
         String aph = Wn.normalizeFullPath(ph, vars);
         WnObj oDao = io.check(null, aph);
-        WnDaoConnectionInfo dci = io.readJson(oDao, WnDaoConnectionInfo.class);
-        conf.setConnectionInfo(dci);
+        WnDaoAuth dci = io.readJson(oDao, WnDaoAuth.class);
+        conf.setAuth(dci);
         return conf;
     }
 
