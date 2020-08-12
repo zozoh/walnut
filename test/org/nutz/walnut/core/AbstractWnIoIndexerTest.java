@@ -30,12 +30,43 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
      */
     @Test
     public void test_00() {
-        WnObj a = indexer.create(null, "/a/b/c", WnRace.DIR);
-        WnObj fx = indexer.create(a, "x(1).txt", WnRace.FILE);
+        WnObj dC = indexer.create(null, "/a/b/c", WnRace.DIR);
+        WnObj fX = indexer.create(dC, "x(1).txt", WnRace.FILE);
 
-        WnObj b = indexer.check(null, "/a/b");
-        WnObj fx2 = indexer.fetch(b, "c/x(1).txt");
-        assertEquals(fx.id(), fx2.id());
+        WnObj dB = indexer.check(null, "/a/b");
+        assertTrue(dB.isDIR());
+        assertEquals("/a/b/", dB.getRegularPath());
+
+        WnObj X2 = indexer.fetch(dB, "c/x(1).txt");
+
+        // 对象树
+        assertEquals(fX.id(), X2.id());
+        assertEquals(dC.id(), X2.parentId());
+        assertEquals("x(1).txt", X2.name());
+        assertTrue(X2.isFILE());
+
+        assertEquals("/a/b/c/x(1).txt", X2.path());
+
+        // 权限
+        assertEquals("root", X2.creator());
+        assertEquals("root", X2.mender());
+        assertEquals("root", X2.group());
+        assertEquals(dB.mode(), X2.mode());
+
+        // 内容相关
+        assertEquals("txt", X2.type());
+        assertEquals("text/plain", X2.mime());
+        assertNull(X2.sha1());
+        assertEquals(0, X2.len());
+
+        // 特殊元数据
+        assertEquals("a", X2.d0());
+        assertEquals("b", X2.d1());
+
+        // 时间戳
+        assertTrue(X2.createTime() > 5000);
+        assertTrue(X2.lastModified() > 5000);
+
     }
 
     /**
@@ -187,6 +218,13 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         assertEquals(b.id(), list.get(0).id());
         assertEquals(c.id(), list.get(1).id());
 
+        test_06_exists(a, b, c, oHT);
+    }
+
+    // 某些子类不支持 exists
+    protected void test_06_exists(WnObj a, WnObj b, WnObj c, WnObj oHT) {
+        WnQuery q;
+        List<WnObj> list;
         q = Wn.Q.pid(oHT);
         q.setv("$and", Json.fromJson("[{alias:null}, {alias:{$exists:true}}]"));
         list = indexer.query(q);

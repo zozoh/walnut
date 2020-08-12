@@ -1,11 +1,84 @@
 {
   "auth": {
-    "url": "jdbc:mysql://127.0.0.1/walnut_unit",
-    "username": "root",
-    "password": "root"
+      "url": "jdbc:mysql://127.0.0.1/walnut_unit",
+      "username": "root",
+      "password": "root"
   }, 
   "tableName": "t_obj",
   "autoCreate" : true,
-  "fields": [],
+  "fields": [{
+      "name": "age",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "weight",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "nb",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "x",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "y",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "realname",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "alias",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "brief",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "pets",
+      "type": "JSON",
+      "columnType" : "VARCHAR",
+      "width": 50,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }],
+  "objKeys" : ["id","nm","race","pid","tp","mime", "md", "ct","lm", ".."],
   "indexes": []
 }

@@ -19,7 +19,7 @@ public class WnDaoConfig {
 
     private String[] pks;
 
-    private NutMap objKeys;
+    private String[] objKeys;
 
     private List<NutMap> indexes;
 
@@ -75,19 +75,20 @@ public class WnDaoConfig {
         this.pks = pks;
     }
 
-    public NutMap getObjKeys() {
+    public boolean hasObjKeys() {
+        return null != objKeys && objKeys.length > 0;
+    }
+
+    public String[] getObjKeys() {
         return objKeys;
     }
 
-    public void setObjKeys(NutMap objKeys) {
+    public void setObjKeys(String[] objKeys) {
         this.objKeys = objKeys;
     }
 
-    public String getFieldName(String stdName) {
-        String nm = null;
-        if (null != objKeys)
-            nm = objKeys.getString(stdName);
-        return Strings.sBlank(nm, stdName);
+    public boolean hasIndexes() {
+        return null != indexes && indexes.size() > 0;
     }
 
     public List<NutMap> getIndexes() {

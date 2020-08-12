@@ -31,7 +31,6 @@ import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.util.WnRg;
 
 public class WnDaoQuery {
@@ -40,12 +39,10 @@ public class WnDaoQuery {
 
     private Entity<WnIoObj> entity;
 
-    private WnDaoConfig conf;
-
-    public WnDaoQuery(WnQuery q, WnObjEntity entity, WnDaoConfig conf) {
+    public WnDaoQuery(WnQuery q, WnObjEntity entity) {
         this.q = q;
         this.entity = entity;
-        this.conf = conf;
+
     }
 
     public Condition getCondition() {
@@ -171,7 +168,7 @@ public class WnDaoQuery {
             }
             // 通配符
             if (s.contains("*") || s.contains("?")) {
-                String s2 = s.replace('*', '_').replace('?', '_');
+                String s2 = s.replace('*', '%').replace('?', '_');
                 return Exps.create(colName, "LIKE", s2);
             }
             // 整数范围
@@ -276,15 +273,14 @@ public class WnDaoQuery {
         return grp;
     }
 
-    private String evalColName(String key) {
+    private String evalColName(String stdName) {
         // [$%](and|or) 这种键有特殊含义，不用检查
-        if (_P.matcher(key).find()) {
-            return key;
+        if (_P.matcher(stdName).find()) {
+            return stdName;
         }
-        String fldName = conf.getFieldName(key);
-        MappingField mf = entity.getField(fldName);
+        MappingField mf = entity.getField(stdName);
         if (null == mf) {
-            throw Er.create("e.io.dao.FieldNotDefined", key);
+            throw Er.create("e.io.dao.FieldNotDefined", stdName);
         }
         String colName = mf.getColumnName();
         return colName;

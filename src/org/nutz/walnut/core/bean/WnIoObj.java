@@ -745,6 +745,11 @@ public class WnIoObj extends NutMap implements WnObj {
             return this;
         }
 
+        // 没设置索引管理器
+        if (null == indexer) {
+            return null;
+        }
+
         WnObj p = indexer.isRoot(pid) ? indexer.getRoot() : indexer.get(pid);
 
         // 没有父，是不可能的

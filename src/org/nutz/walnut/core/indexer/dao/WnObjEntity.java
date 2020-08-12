@@ -1,10 +1,10 @@
 package org.nutz.walnut.core.indexer.dao;
 
+import java.util.HashSet;
 import java.util.Map;
 
 import org.nutz.dao.impl.entity.NutEntity;
 import org.nutz.dao.impl.entity.field.NutMappingField;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.sql.WnDaoConfig;
@@ -38,27 +38,22 @@ public class WnObjEntity extends NutEntity<WnIoObj> {
      */
     void autoSetDefaultFields(Map<String, NutMappingField> builtIns,
                               WnDaoConfig conf,
-                              Map<String, Boolean> pks) {
+                              HashSet<String> pks) {
         // 查找所有标准字段，并确保实体包括所有标准字段
-        NutMap objKeys = conf.getObjKeys();
-        for (Map.Entry<String, Object> en : objKeys.entrySet()) {
-            // 标准字段名
-            String key = en.getKey();
-            // 映射字段名（Java）
-            String fnm = en.getValue().toString();
+        for (String stdName : conf.getObjKeys()) {
 
             // 如果没有
-            if (null == this.getField(fnm)) {
+            if (null == this.getField(stdName)) {
                 // 从内置的里面搞一个
-                NutMappingField mf = builtIns.get(key);
+                NutMappingField mf = builtIns.get(stdName);
                 if (null == mf) {
-                    throw Er.create("e.io.dao.entity.LackStdField", key);
+                    throw Er.create("e.io.dao.entity.LackStdField", stdName);
                 }
                 // 复制一份放入实体中
-                NutMappingField mf2 = mf.duplicate(fnm);
+                NutMappingField mf2 = mf.clone();
 
                 // 主键
-                if (pks.containsKey(mf2.getName())) {
+                if (pks.contains(mf2.getName())) {
                     mf2.setAsName();
                     mf2.setAsNotNull();
                 }

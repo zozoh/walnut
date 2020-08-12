@@ -18,7 +18,7 @@
   "name": "nm",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 20,
+  "width": 50,
   "notNull": true,
   "insert": true,
   "update": true
@@ -64,18 +64,10 @@
   "insert": true,
   "update": true
 }, {
-  "name": "ln",
-  "type": "String",
-  "columnType" : "VARCHAR",
-  "width": 50,
-  "notNull": false,
-  "insert": true,
-  "update": true
-}, {
   "name": "tp",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 10,
+  "width": 20,
   "notNull": false,
   "insert": true,
   "update": true
@@ -83,7 +75,7 @@
   "name": "mime",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 30,
+  "width": 50,
   "notNull": false,
   "insert": true,
   "update": true
@@ -96,10 +88,26 @@
   "insert": true,
   "update": true
 }, {
+  "name": "ln",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 200,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
   "name": "mnt",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 50,
+  "width": 200,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "lbls",
+  "type": "SArray",
+  "columnType" : "VARCHAR",
+  "width": 200,
   "notNull": false,
   "insert": true,
   "update": true
@@ -116,7 +124,7 @@
   "name": "d0",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 10,
+  "width": 20,
   "notNull": false,
   "insert": true,
   "update": true
@@ -124,15 +132,7 @@
   "name": "d1",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 10,
-  "notNull": false,
-  "insert": true,
-  "update": true
-}, {
-  "name": "lbls",
-  "type": "SArray",
-  "columnType" : "VARCHAR",
-  "width": 50,
+  "width": 20,
   "notNull": false,
   "insert": true,
   "update": true
@@ -167,6 +167,14 @@
   "columnType" : "INT",
   "default": "0",
   "width": 16,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "..",
+  "type": "String",
+  "columnName" : "metas",
+  "columnType" : "TEXT",
   "notNull": false,
   "insert": true,
   "update": true

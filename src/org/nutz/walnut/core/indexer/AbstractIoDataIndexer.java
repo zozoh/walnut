@@ -195,6 +195,43 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     }
 
     @Override
+    public WnObj fetchByName(WnObj p, String name) {
+        WnObj o = _fetch_by_name(p, name);
+        _complete_obj_by_parent(p, o);
+        return o;
+    }
+
+    /**
+     * 补全对象的一些关键字段
+     * 
+     * @param p
+     *            父对象，如果为 null则用索引管理器根节点
+     * @param o
+     *            要被补全的对象
+     */
+    private void _complete_obj_by_parent(WnObj p, WnObj o) {
+        if (null != o) {
+            if (null == p) {
+                p = this.root;
+            }
+            // 补全:对象树
+            o.putDefault("nm", o.id());
+            o.putDefault("pid", p.id());
+            o.putDefault("race", WnRace.FILE);
+            // 补全:权限
+            o.putDefault("c", p.creator());
+            o.putDefault("m", p.mender());
+            o.putDefault("g", p.group());
+            o.putDefault("md", p.mode());
+            // 补全:时间戳
+            o.putDefault("ct", p.createTime());
+            o.putDefault("lm", p.lastModified());
+        }
+    }
+
+    protected abstract WnObj _fetch_by_name(WnObj p, String name);
+
+    @Override
     public WnObj create(WnObj p, String path, WnRace race) {
         // 是否从树的根部创建
         if (path.startsWith("/")) {
@@ -349,7 +386,9 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 真正执行创建
-        return _create(o);
+        WnObj o2 = _create(o);
+        this._complete_obj_by_parent(p, o2);
+        return o2;
     }
 
     protected WnObj _enter_dir(WnObj o, WnSecurity secu) {
@@ -652,6 +691,20 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         q.asc("nm");
         return this.each(q, callback);
     }
+    
+    
+
+    @Override
+    public int each(WnQuery q, Each<WnObj> callback) {
+        return _each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length){
+                _complete_obj_by_parent(root, o);
+                callback.invoke(index, o, length);
+            }
+        });
+    }
+    
+    protected abstract int _each(WnQuery q, Each<WnObj> callback);
 
     @Override
     public long countChildren(WnObj o) {

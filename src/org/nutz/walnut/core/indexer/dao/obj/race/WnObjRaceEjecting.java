@@ -1,12 +1,12 @@
-package org.nutz.walnut.core.indexer.dao;
+package org.nutz.walnut.core.indexer.dao.obj.race;
 
-import org.nutz.dao.entity.MappingField;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.indexer.dao.obj.WnObjEjecting;
 
 public class WnObjRaceEjecting extends WnObjEjecting {
 
-    public WnObjRaceEjecting(MappingField fld) {
-        super(fld);
+    public WnObjRaceEjecting(String stdName) {
+        super(stdName);
     }
 
     @Override

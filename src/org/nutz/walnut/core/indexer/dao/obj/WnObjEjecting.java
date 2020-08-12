@@ -1,17 +1,16 @@
-package org.nutz.walnut.core.indexer.dao;
+package org.nutz.walnut.core.indexer.dao.obj;
 
 import java.util.Map;
 
-import org.nutz.dao.entity.MappingField;
 import org.nutz.lang.eject.Ejecting;
 import org.nutz.walnut.api.err.Er;
 
 public class WnObjEjecting implements Ejecting {
 
-    private MappingField fld;
+    private String stdName;
 
-    public WnObjEjecting(MappingField fld) {
-        this.fld = fld;
+    public WnObjEjecting(String stdName) {
+        this.stdName = stdName;
     }
 
     @SuppressWarnings("unchecked")
@@ -19,7 +18,7 @@ public class WnObjEjecting implements Ejecting {
     public Object eject(Object obj) {
         if (obj instanceof Map<?, ?>) {
             Map<String, Object> map = (Map<String, Object>) obj;
-            return map.get(fld.getName());
+            return map.get(stdName);
         }
         throw Er.create("e.io.dao.entity.eject.NotSupportEjecting", obj.getClass().getName());
     }

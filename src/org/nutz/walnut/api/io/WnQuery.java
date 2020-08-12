@@ -209,6 +209,9 @@ public class WnQuery {
                              skip,
                              limit,
                              Json.toJson(sort, JsonFormat.compact().setQuoteName(false)),
-                             Json.toJson(list, JsonFormat.forLook().setQuoteName(false)));
+                             Json.toJson(list,
+                                         JsonFormat.forLook()
+                                                   .setQuoteName(false)
+                                                   .setIgnoreNull(false)));
     }
 }

@@ -2,16 +2,22 @@ package org.nutz.walnut.core.indexer.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.castor.Castors;
+import org.nutz.dao.Chain;
 import org.nutz.dao.Condition;
 import org.nutz.dao.Dao;
 import org.nutz.dao.FieldFilter;
 import org.nutz.dao.entity.Record;
+import org.nutz.dao.jdbc.JdbcExpert;
 import org.nutz.dao.pager.Pager;
 import org.nutz.lang.Each;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -24,19 +30,19 @@ import org.nutz.walnut.util.Wn;
 
 public class DaoIndexer extends AbstractIoDataIndexer {
 
+    private static final Log log = Logs.get();
+
     private Dao dao;
 
     private WnObjEntity entity;
 
-    private WnDaoConfig config;
-
     public DaoIndexer(WnObj root, MimeMap mimes, WnDaoConfig config) {
         super(root, mimes);
         this.dao = WnDaos.get(config);
-        this.config = config;
 
         // TODO 通过 config 生成 Entity
-        WnObjEntityGenerating ing = new WnObjEntityGenerating(config, dao.getJdbcExpert());
+        JdbcExpert expert = dao.getJdbcExpert();
+        WnObjEntityGenerating ing = new WnObjEntityGenerating(config, expert);
         this.entity = ing.generate();
 
         // 自动创建创建表
@@ -48,7 +54,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public WnObj fetchByName(WnObj p, String name) {
+    protected WnObj _fetch_by_name(WnObj p, String name) {
         WnQuery q = Wn.Q.pid(p);
         q.setv("nm", name);
         q.limit(1);
@@ -60,10 +66,12 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         final int[] vs = new int[1];
         this.each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
+                vs[0] = o.getInt(key);
                 o.intIncrement(key, val);
                 WnIoObj io = (WnIoObj) o;
                 dao.update(entity, io, "^(" + key + ")$");
-                vs[0] = o.getInt(key);
+                if (returnNew)
+                    vs[0] = o.getInt(key);
             }
         });
         if (returnNew) {
@@ -74,11 +82,20 @@ public class DaoIndexer extends AbstractIoDataIndexer {
     }
 
     private WnDaoQuery genDaoQuery(WnQuery q) {
-        return new WnDaoQuery(q, entity, config);
+        return new WnDaoQuery(q, entity);
     }
 
     @Override
     public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
+        // 木有声明的键，全都获取出来，再读取
+        if (null == entity.getField(key)) {
+            WnObj o = this.get(id);
+            if (null == o) {
+                return dft;
+            }
+            return o.getAs(key, classOfT, dft);
+        }
+
         WnQuery q = Wn.Q.id(id);
         WnDaoQuery dq = genDaoQuery(q);
         Condition cnd = dq.getCondition();
@@ -101,15 +118,43 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     @Override
     public WnObj get(String id) {
+        // 防守空 ID
+        if (Strings.isBlank(id)) {
+            return null;
+        }
+        // 如果是不完整的 ID ...
+        if (!Wn.isFullObjId(id)) {
+            WnQuery q = new WnQuery().limit(2);
+            q.setv("id", id + "*");
+            q.limit(2);
+            List<WnObj> objs = this.query(q);
+            if (objs.isEmpty())
+                return null;
+            if (objs.size() > 1)
+                throw Er.create("e.io.obj.get.shortid", id);
+            return objs.get(0);
+        }
+
+        // 那就是完整的 ID 咯
         WnIoObj o = dao.fetch(entity, id);
         if (null != o) {
             o.setIndexer(this);
         }
+
+        // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
+        if (o.isSameId(o.parentId())) {
+            if (log.isWarnEnabled()) {
+                log.warnf("!!! pid->self", o.id());
+            }
+            return o;
+        }
+
+        // 搞定
         return o;
     }
 
     @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, Each<WnObj> callback) {
         // 木有必要查询
         if (null == callback) {
             return 0;
@@ -250,12 +295,11 @@ public class DaoIndexer extends AbstractIoDataIndexer {
             List<Object> vals = o.getList(key, Object.class);
             if (null == vals)
                 continue;
-            int oldSize = list.size();
-            if (null != list || list.isEmpty())
-                vals.remove(val);
+            int oldSize = vals.size();
+            vals.remove(val);
 
             // 木有变化
-            if (oldSize != list.size()) {
+            if (oldSize != vals.size()) {
                 o.put(key, vals);
                 list2.add(o);
             }
@@ -282,27 +326,65 @@ public class DaoIndexer extends AbstractIoDataIndexer {
     @Override
     protected void _set(String id, NutBean map) {
         WnQuery q = Wn.Q.id(id);
+        // 准备值链
+        Chain chain = null;
+        for (Map.Entry<String, Object> en : map.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            // 木有字段的，不能直接更新，那么用 _set_by 吧
+            if (null == entity.getField(key)) {
+                _set_by(q, map, false);
+                return;
+            }
+            if (null == chain) {
+                chain = Chain.make(key, val);
+            } else {
+                chain.add(key, val);
+            }
+        }
+        chain.updateBy(entity);
+
+        // 准备查询条件
         WnDaoQuery dq = genDaoQuery(q);
         Condition cnd = dq.getCondition();
-        WnIoObj o = new WnIoObj();
-        o.setIndexer(this);
-        o.putAll(map);
-        dao.update(entity, o, cnd);
+
+        // 执行更新
+        dao.update(entity, chain, cnd);
     }
 
     @Override
     protected WnIoObj _set_by(WnQuery q, NutBean map, boolean returnNew) {
         WnDaoQuery dq = genDaoQuery(q);
         Condition cnd = dq.getCondition();
-        WnIoObj o = new WnIoObj();
+
+        // 先读取出来
+        WnIoObj o = dao.fetch(entity, cnd);
         o.setIndexer(this);
-        o.putAll(map);
-        dao.update(entity, o, cnd);
+        WnIoObj old = (WnIoObj) o.clone();
+        if (null != o) {
+            o.putAll(map);
 
-        if (returnNew)
-            return dao.fetch(entity, cnd);
+            // 准备键锁
+            List<String> fnms = new ArrayList<>(map.size());
+            for (String k : map.keySet()) {
+                // 直接更新的键
+                if (entity.getField(k) != null) {
+                    fnms.add(k);
+                }
+                // 否则就是收缩的键，当然，你必须是先在定义里声明了这个字段才有效
+                else {
+                    fnms.add("[.][.]");
+                }
+            }
+            String actived = "^(" + Strings.join("|", fnms) + ")$";
 
-        return o;
+            // 执行
+            dao.update(entity, o, actived);
+
+            if (returnNew)
+                return dao.fetch(entity, cnd);
+        }
+        return old;
     }
 
 }

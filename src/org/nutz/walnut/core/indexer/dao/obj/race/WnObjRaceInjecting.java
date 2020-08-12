@@ -1,13 +1,13 @@
-package org.nutz.walnut.core.indexer.dao;
+package org.nutz.walnut.core.indexer.dao.obj.race;
 
-import org.nutz.dao.entity.MappingField;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.indexer.dao.obj.WnObjInjecting;
 
 public class WnObjRaceInjecting extends WnObjInjecting {
 
-    public WnObjRaceInjecting(MappingField fld) {
-        super(fld);
+    public WnObjRaceInjecting(String stdName) {
+        super(stdName);
     }
 
     @Override

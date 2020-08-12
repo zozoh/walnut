@@ -2,10 +2,12 @@ package org.nutz.walnut.core.indexer.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.nutz.dao.entity.EntityField;
+import org.nutz.dao.entity.MappingField;
 import org.nutz.dao.impl.entity.NutEntityIndex;
 import org.nutz.dao.impl.entity.field.NutMappingField;
 import org.nutz.dao.jdbc.JdbcExpert;
@@ -16,6 +18,16 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.core.indexer.dao.obj.WnObjEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.WnObjInjecting;
+import org.nutz.walnut.core.indexer.dao.obj.json.WnObjJsonEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.json.WnObjJsonInjecting;
+import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceInjecting;
+import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayInjecting;
+import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasInjecting;
 import org.nutz.walnut.ext.sql.WnDaoConfig;
 
 public class WnObjEntityGenerating {
@@ -45,9 +57,28 @@ public class WnObjEntityGenerating {
 
     private WnDaoConfig conf;
 
+    /**
+     * conf.objKeys 的反转映射，以便通过 field.name 获取标准字段名
+     */
+    // private Map<String, String> revKeys;
+
+    /**
+     * 记录一个对象的主键的索引集合。这个会在开始生成实体时填充
+     */
+    private HashSet<String> pks;
+
+    /**
+     * 保存一下字段已经定义的字段名，除了这些字段，其他字段都算表外字段
+     * <p>
+     * 如果声明了 ".."，则会自动收缩进一个 JSON 字符串
+     */
+    private HashSet<String> fieldNames;
+
     public WnObjEntityGenerating(WnDaoConfig config, JdbcExpert expert) {
         this.conf = config;
         this.expert = expert;
+        this.fieldNames = new HashSet<>();
+        this.pks = new HashSet<>();
 
         // 读取默认的内置字段
         if (builtIns.isEmpty()) {
@@ -64,14 +95,14 @@ public class WnObjEntityGenerating {
         List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
         for (NutMap map : list) {
             // 转换
-            NutMappingField mf = this.mapToField(map, null);
+            NutMappingField mf = this.mapToField(map);
 
             // 记入
             builtIns.put(mf.getName(), mf);
         }
     }
 
-    NutMappingField mapToField(NutMap map, NutMap revKeys) {
+    NutMappingField mapToField(NutMap map) {
         // 填充默认值
         __fill_field_default_value(map);
 
@@ -81,9 +112,6 @@ public class WnObjEntityGenerating {
         // 得到 WnObj 标准字段名，如果 revKeys 没给，那么自然是初始化默认字段
         // 就直接用字段名称即可
         String stdName = mf.getName();
-        if (null != revKeys) {
-            stdName = revKeys.getString(stdName);
-        }
 
         // 字段值适配器
         ValueAdaptor va = expert.getAdaptor(mf);
@@ -91,13 +119,36 @@ public class WnObjEntityGenerating {
 
         // 对于 race 字段的输入输出，需要在 string 和 int 之间转换
         if ("race".equals(stdName)) {
-            mf.setInjecting(new WnObjRaceInjecting(mf));
-            mf.setEjecting(new WnObjRaceEjecting(mf));
+            mf.setInjecting(new WnObjRaceInjecting(stdName));
+            mf.setEjecting(new WnObjRaceEjecting(stdName));
         }
-        // 其他输入输出输入输出
+        // 如果是自动收集字段，也需要特殊设置取值器
+        else if ("..".equals(stdName)) {
+            mf.setInjecting(new WnObjMetasInjecting(fieldNames));
+            mf.setEjecting(new WnObjMetasEjecting(fieldNames));
+        }
+        // 根据类型搞一下
         else {
-            mf.setInjecting(new WnObjInjecting(mf));
-            mf.setEjecting(new WnObjEjecting(mf));
+            Class<?> typeClass = mf.getTypeClass();
+            if (typeClass.equals(Object.class)) {
+                mf.setInjecting(new WnObjJsonInjecting(stdName));
+                mf.setEjecting(new WnObjJsonEjecting(stdName));
+            }
+            // 如果是 SArray 字段
+            else if (typeClass.equals(String[].class)) {
+                mf.setInjecting(new WnObjSArrayInjecting(stdName, false));
+                mf.setEjecting(new WnObjSArrayEjecting(stdName));
+            }
+            // 如果是 SArray 字段
+            else if (typeClass.equals(List.class)) {
+                mf.setInjecting(new WnObjSArrayInjecting(stdName, true));
+                mf.setEjecting(new WnObjSArrayEjecting(stdName));
+            }
+            // 其他输入输出输入输出
+            else {
+                mf.setInjecting(new WnObjInjecting(stdName));
+                mf.setEjecting(new WnObjEjecting(stdName));
+            }
         }
 
         // 搞定
@@ -109,15 +160,17 @@ public class WnObjEntityGenerating {
 
         // ----------------------------------------
         // 配置默认索引
-        List<NutMap> indexes = __setup_default_indexes();
-
-        // ----------------------------------------
-        // 标准字段表的默认值
-        NutMap revKeys = __setup_default_objKeys();
+        __setup_default_indexes();
 
         // ----------------------------------------
         // 默认标准主键
-        Map<String, Boolean> pks = __setup_primary_keys(en);
+        __setup_primary_keys();
+
+        // ----------------------------------------
+        // 默认内置标准字段
+        if (!conf.hasObjKeys()) {
+            conf.setObjKeys(Lang.array("id", "pid", "nm", "race", ".."));
+        }
 
         // ----------------------------------------
         // 获得表名以及视图名称
@@ -129,10 +182,10 @@ public class WnObjEntityGenerating {
         if (null != conf.getFields() || conf.getFields().isEmpty()) {
             for (NutMap map : conf.getFields()) {
                 // 转换成字段
-                NutMappingField mf = this.mapToField(map, revKeys);
+                NutMappingField mf = this.mapToField(map);
 
                 // 主键
-                if (pks.containsKey(mf.getName())) {
+                if (pks.contains(mf.getName())) {
                     mf.setAsName();
                     mf.setAsNotNull();
                 }
@@ -146,11 +199,31 @@ public class WnObjEntityGenerating {
         en.autoSetDefaultFields(builtIns, conf, pks);
 
         // ----------------------------------------
+        // 最后，编制一下实体所有字段的索引，以便得到表外字段
+        this.fieldNames.clear();
+        for (MappingField mf : en.getMappingFields()) {
+            String stdName = mf.getName();
+            if (!"..".equals(stdName)) {
+                this.fieldNames.add(stdName);
+            }
+        }
+
+        // ----------------------------------------
         // 搜索主键
         en.checkCompositeFields(conf.getPks());
         // ----------------------------------------
         // 设置索引
-        for (NutMap map : indexes) {
+        if (conf.hasIndexes()) {
+            __add_indexes_to_entity(en);
+        }
+        // ----------------------------------------
+        // 搞定返回
+        en.setComplete(true);
+        return en;
+    }
+
+    private void __add_indexes_to_entity(WnObjEntity en) {
+        for (NutMap map : conf.getIndexes()) {
             NutEntityIndex ei = new NutEntityIndex();
             ei.setUnique(map.getBoolean("unique"));
             ei.setName(map.getString("name"));
@@ -169,13 +242,9 @@ public class WnObjEntityGenerating {
             // 记入
             en.addIndex(ei);
         }
-        // ----------------------------------------
-        // 搞定返回
-        en.setComplete(true);
-        return en;
     }
 
-    private List<NutMap> __setup_default_indexes() {
+    private void __setup_default_indexes() {
         List<NutMap> indexes = conf.getIndexes();
         if (null == indexes || indexes.isEmpty()) {
             indexes = new ArrayList<NutMap>(2);
@@ -187,22 +256,20 @@ public class WnObjEntityGenerating {
                             .setv("fields", Lang.list("pid", "nm")));
             conf.setIndexes(indexes);
         }
-        return indexes;
     }
 
-    private Map<String, Boolean> __setup_primary_keys(WnObjEntity en) {
-        String pkName = conf.getFieldName("id");
+    private HashSet<String> __setup_primary_keys() {
         if (null == conf.getPks()) {
-            conf.setPks(Lang.array(pkName));
+            conf.setPks(Lang.array("id"));
         }
 
         // 编制主键表
-        Map<String, Boolean> pks = new HashMap<>();
+        pks.clear();
         for (String pk : conf.getPks()) {
-            pks.put(pk, true);
+            pks.add(pk);
         }
         // 主键必须是 ID 啦，其他的情况我想起来头疼，暂时不支持
-        if (pks.size() != 1 || !pks.containsKey(pkName)) {
+        if (pks.size() != 1 || !pks.contains("id")) {
             throw Er.create("e.io.dao.InvalidPK", Json.toJson(pks));
         }
 
@@ -235,60 +302,25 @@ public class WnObjEntityGenerating {
         fld.put("columnNameInSql", colNameSql);
 
         // 处理字段类型
-        String type = fld.getString("type", "String");
-        // 填充类型
-        Class<?> javaType = javaTypes.get(type);
-        if (null == javaType) {
-            throw Er.create("e.io.dao.field.UnSupportType", fldName + ":" + type);
+        Object type = fld.get("type", "String");
+        if (type instanceof Class<?>) {
+            // 嗯已经转换过了，啥也不用做
         }
-        fld.put("type", javaType);
+        // 转换成 Java 类型
+        else {
+            // 填充类型
+            Class<?> javaType = javaTypes.get(type);
+            if (null == javaType) {
+                throw Er.create("e.io.dao.field.UnSupportType", fldName + ":" + type);
+            }
+            fld.put("type", javaType);
+        }
 
     }
 
     /**
-     * @return 返回一个反向索引
+     * 字段的 type 对应的 Java 类型
      */
-    private NutMap __setup_default_objKeys() {
-        if (null == conf.getObjKeys()) {
-            conf.setObjKeys(new NutMap());
-        }
-        NutMap objKeys = conf.getObjKeys();
-        // 构成对象树的关键
-        objKeys.putDefault("id", "id");
-        objKeys.putDefault("pid", "pid");
-        objKeys.putDefault("nm", "nm");
-        // 权限
-        objKeys.putDefault("c", "c");
-        objKeys.putDefault("m", "m");
-        objKeys.putDefault("g", "g");
-        objKeys.putDefault("md", "md");
-        // 内容相关
-        objKeys.putDefault("race", "race");
-        objKeys.putDefault("ln", "ln");
-        objKeys.putDefault("tp", "tp");
-        objKeys.putDefault("mime", "mime");
-        objKeys.putDefault("sha1", "sha1");
-        objKeys.putDefault("mnt", "mnt");
-        objKeys.putDefault("len", "len");
-        objKeys.putDefault("d0", "d0");
-        objKeys.putDefault("d1", "d1");
-        objKeys.putDefault("lbls", "lbls");
-        // 时间戳
-        objKeys.putDefault("ct", "ct");
-        objKeys.putDefault("lm", "lm");
-        objKeys.putDefault("st", "st");
-        objKeys.putDefault("expi", "expi");
-
-        NutMap revKeys = new NutMap();
-        for (Map.Entry<String, Object> en : objKeys.entrySet()) {
-            String k = en.getKey();
-            String v = en.getValue().toString();
-            revKeys.put(v, k);
-        }
-
-        return revKeys;
-    }
-
     private static final Map<String, Class<?>> javaTypes = new HashMap<>();
     static {
         javaTypes.put("String", String.class);

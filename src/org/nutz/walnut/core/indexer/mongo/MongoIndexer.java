@@ -39,7 +39,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public WnObj fetchByName(WnObj p, String name) {
+    protected WnObj _fetch_by_name(WnObj p, String name) {
         ZMoDoc q = ZMoDoc.NEW("pid", p.id()).putv("nm", name);
         ZMoDoc doc = co.findOne(q);
         WnIoObj obj = Mongos.toWnObj(doc);
@@ -195,7 +195,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, Each<WnObj> callback) {
         // 木有必要迭代
         if (null == callback)
             return 0;
