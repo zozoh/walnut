@@ -10,6 +10,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -19,6 +21,8 @@ import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
 
 public class WnIoObj extends NutMap implements WnObj {
+
+    private static final Log log = Logs.get();
 
     /**
      * 这个索引管理器是当前对象对应的索引管理器
@@ -624,6 +628,9 @@ public class WnIoObj extends NutMap implements WnObj {
             MountInfo mi = new MountInfo();
             while (!mi.hasIndexerAndBM() && p.hasParent()) {
                 p = p.parent();
+                if (null == p) {
+                    break;
+                }
                 String pmnt = p.mount();
                 mi.set(pmnt);
             }
@@ -676,7 +683,8 @@ public class WnIoObj extends NutMap implements WnObj {
             WnObj oP = indexer.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
-                throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
+                //throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
+                return null;
             }
             // 调用这个函数，触发 pid|ph... 等一系列属性自动修改
             this.setParent(oP);
@@ -757,7 +765,10 @@ public class WnIoObj extends NutMap implements WnObj {
 
         // 没有父，是不可能的
         if (null == p) {
-            throw Lang.impossible();
+            if (log.isWarnEnabled()) {
+                log.warnf("NilParent(%s): Obj(%s)", pid, this.id());
+            }
+            return null;
         }
 
         // 递归加载父节点的祖先
