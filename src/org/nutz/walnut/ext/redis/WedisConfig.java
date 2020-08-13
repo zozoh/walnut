@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 
 public class WedisConfig {
 
@@ -24,6 +25,8 @@ public class WedisConfig {
     private int maxIdle;
 
     private int minIdle;
+
+    private NutMap setup;
 
     public WedisConfig() {
         this("127.0.0.1", 6379, false, null, 2000, 5000);
@@ -130,6 +133,21 @@ public class WedisConfig {
         this.minIdle = minIdle;
     }
 
+    public NutMap getSetup() {
+        return setup;
+    }
+
+    public void setSetup(NutMap setup) {
+        this.setup = setup;
+    }
+
+    public NutMap setup() {
+        if (null == setup) {
+            this.setup = new NutMap();
+        }
+        return this.setup;
+    }
+
     public GenericObjectPoolConfig getPoolConfig() {
         GenericObjectPoolConfig pc = new GenericObjectPoolConfig();
         if (this.maxTotal > 0) {
@@ -180,6 +198,20 @@ public class WedisConfig {
             } else if (null == conf.password) {
                 return false;
             } else if (!password.equals(conf.password)) {
+                return false;
+            }
+
+            if (null != setup) {
+                if (null == conf.setup) {
+                    return false;
+                }
+                if (setup.size() != conf.setup.size()) {
+                    return false;
+                }
+                if (!setup.equals(conf.setup)) {
+                    return false;
+                }
+            } else if (null != conf.setup) {
                 return false;
             }
 

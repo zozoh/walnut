@@ -95,7 +95,7 @@ author: zozoh
 
 ```js
 {
-  "url" : "jdbc:mysql://127.0.0.1:3306/nutzbook",
+  "url" : "jdbc:mysql://127.0.0.1:3306/walnut",
   "username" : "root",
   "password" : "root",
   "maxActive": 50,

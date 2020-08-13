@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -29,8 +28,6 @@ import com.mongodb.DBObject;
 
 public class MongoIndexer extends AbstractIoDataIndexer {
 
-    private static final Log log = Logs.get();
-
     private ZMoCo co;
 
     public MongoIndexer(WnObj root, MimeMap mimes, ZMoCo co) {
@@ -49,7 +46,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         return obj;
     }
 
-    protected WnObj _get_by_id(String id) {
+    private WnIoObj __get_by_full_id(String id) {
         ZMoDoc q = WnMongos.qID(id);
         ZMoDoc doc = co.findOne(q);
         WnIoObj obj = Mongos.toWnObj(doc);
@@ -159,12 +156,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public WnObj get(String id) {
-        // 防守空 ID
-        if (Strings.isBlank(id)) {
-            return null;
-        }
-        // 如果是不完整的 ID ...
+    protected WnIoObj _get_by_id(String id) {
         if (!Wn.isFullObjId(id)) {
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", Pattern.compile("^" + id));
@@ -174,24 +166,10 @@ public class MongoIndexer extends AbstractIoDataIndexer {
                 return null;
             if (objs.size() > 1)
                 throw Er.create("e.io.obj.get.shortid", id);
-            return objs.get(0);
+            return (WnIoObj) objs.get(0);
         }
         // 那就是完整的 ID 咯
-        WnObj o = this._get_by_id(id);
-
-        if (null == o)
-            return null;
-
-        // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
-        if (o.isSameId(o.parentId())) {
-            if (log.isWarnEnabled()) {
-                log.warnf("!!! pid->self", o.id());
-            }
-            return o;
-        }
-
-        // 搞定
-        return o;
+        return this.__get_by_full_id(id);
     }
 
     @Override

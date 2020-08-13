@@ -14,7 +14,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
-public class TestWnIoLocalMount extends BaseIoTest {
+public class LocalMappingTest extends BaseIoTest {
 
     @Override
     protected void on_before() {}

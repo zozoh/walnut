@@ -7,7 +7,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 
-public interface WnObj extends NutBean {
+public interface WnObj extends NutBean, Comparable<WnObj> {
 
     // WnTree tree();
     //

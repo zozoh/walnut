@@ -1,0 +1,5 @@
+{
+  "url": "${jdbc-url}",
+  "username": "${jdbc-username}",
+  "password": "${jdbc-password}"
+}

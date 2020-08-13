@@ -4,6 +4,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 
@@ -18,9 +19,9 @@ public class BaseSessionTest extends BaseUsrTest {
         super.on_before();
 
         // 准备测试用户
-        WnAccount me = auth.getAccount("wendal");
+        WnAccount me = auth.getAccount("demo");
         if (null == me) {
-            me = auth.createAccount(new WnAccount("wendal"));
+            me = auth.createAccount(new WnAccount("demo"));
         }
 
         // 创建测试会话
@@ -33,6 +34,34 @@ public class BaseSessionTest extends BaseUsrTest {
     @Override
     protected void on_after() {
         super.on_after();
+    }
+
+    protected String APH(String ph) {
+        return Wn.normalizeFullPath(ph, session);
+    }
+
+    protected WnObj _created(String ph) {
+        String aph = APH(ph);
+        return io.createIfNoExists(null, aph, WnRace.DIR);
+    }
+
+    protected WnObj _createf(String ph) {
+        String aph = APH(ph);
+        return io.createIfNoExists(null, aph, WnRace.FILE);
+    }
+
+    protected WnObj _write(String ph, String text) {
+        WnObj o = _createf(ph);
+        io.writeText(o, text);
+        return o;
+    }
+
+    protected WnObj _write_by(String oph, String fph) {
+        WnObj o = _createf(oph);
+        String text = Files.read(fph);
+        text = setup.explainConfig(text);
+        io.writeText(o, text);
+        return o;
     }
 
     protected void _init_files(String confPath) {

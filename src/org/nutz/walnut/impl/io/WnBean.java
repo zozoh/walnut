@@ -760,4 +760,20 @@ public class WnBean extends NutMap implements WnObj {
         return new WnBean().update2(this);
     }
 
+    @Override
+    public int compareTo(WnObj o) {
+        String nm1 = this.name();
+        String nm2 = o.name();
+        if (null == nm1) {
+            if (null == nm2) {
+                return 0;
+            }
+            return -1;
+        }
+        if (null == nm2) {
+            return 1;
+        }
+        return nm1.compareTo(nm2);
+    }
+
 }

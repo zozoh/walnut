@@ -18,8 +18,11 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.indexer.dao.obj.WnObjEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.WnObjInjecting;
+import org.nutz.walnut.core.indexer.dao.obj.id.WnObjIdEjecting;
+import org.nutz.walnut.core.indexer.dao.obj.id.WnObjIdInjecting;
 import org.nutz.walnut.core.indexer.dao.obj.json.WnObjJsonEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.json.WnObjJsonInjecting;
 import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceEjecting;
@@ -51,7 +54,9 @@ public class WnObjEntityGenerating {
      * 
      * </pre>
      */
-    private static final Map<String, NutMappingField> builtIns = new HashMap<>();
+    private static final Map<String, NutMap> builtIns = new HashMap<>();
+
+    private WnObj root;
 
     private JdbcExpert expert;
 
@@ -74,7 +79,8 @@ public class WnObjEntityGenerating {
      */
     private HashSet<String> fieldNames;
 
-    public WnObjEntityGenerating(WnDaoConfig config, JdbcExpert expert) {
+    public WnObjEntityGenerating(WnObj root, WnDaoConfig config, JdbcExpert expert) {
+        this.root = root;
         this.conf = config;
         this.expert = expert;
         this.fieldNames = new HashSet<>();
@@ -95,10 +101,10 @@ public class WnObjEntityGenerating {
         List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
         for (NutMap map : list) {
             // 转换
-            NutMappingField mf = this.mapToField(map);
+            String nm = map.getString("name");
 
             // 记入
-            builtIns.put(mf.getName(), mf);
+            builtIns.put(nm, map);
         }
     }
 
@@ -117,8 +123,13 @@ public class WnObjEntityGenerating {
         ValueAdaptor va = expert.getAdaptor(mf);
         mf.setAdaptor(va);
 
+        // 对于 id 字段的输入输出，需要考虑两段式 ID
+        if ("id".equals(stdName)) {
+            mf.setInjecting(new WnObjIdInjecting(stdName, root));
+            mf.setEjecting(new WnObjIdEjecting(stdName));
+        }
         // 对于 race 字段的输入输出，需要在 string 和 int 之间转换
-        if ("race".equals(stdName)) {
+        else if ("race".equals(stdName)) {
             mf.setInjecting(new WnObjRaceInjecting(stdName));
             mf.setEjecting(new WnObjRaceEjecting(stdName));
         }
@@ -159,10 +170,6 @@ public class WnObjEntityGenerating {
         WnObjEntity en = new WnObjEntity();
 
         // ----------------------------------------
-        // 配置默认索引
-        __setup_default_indexes();
-
-        // ----------------------------------------
         // 默认标准主键
         __setup_primary_keys();
 
@@ -196,7 +203,7 @@ public class WnObjEntityGenerating {
         }
         // ----------------------------------------
         // 设置默认字段
-        en.autoSetDefaultFields(builtIns, conf, pks);
+        __auto_set_default_fields(en);
 
         // ----------------------------------------
         // 最后，编制一下实体所有字段的索引，以便得到表外字段
@@ -212,6 +219,8 @@ public class WnObjEntityGenerating {
         // 搜索主键
         en.checkCompositeFields(conf.getPks());
         // ----------------------------------------
+        // 配置默认索引
+        __setup_default_indexes(en);
         // 设置索引
         if (conf.hasIndexes()) {
             __add_indexes_to_entity(en);
@@ -220,6 +229,77 @@ public class WnObjEntityGenerating {
         // 搞定返回
         en.setComplete(true);
         return en;
+    }
+
+    /**
+     * 检查下面的字段，如果没有则补齐
+     * 
+     * <pre>
+     * 构成对象树的关键
+     *  - id | pid | nm
+     * 
+     * 权限
+     *  - c | m | g | md
+     * 
+     * 内容相关
+     * - race | ln | tp | mime | sha1 | mnt 
+     * - len  | d0 | d1 | lbls
+     * 
+     * 时间戳
+     * - ct | lm | st | expi
+     * 
+     * </pre>
+     * 
+     * @param pks
+     */
+    private void __auto_set_default_fields(WnObjEntity en) {
+        // 查找所有标准字段，并确保实体包括所有标准字段
+        for (String stdName : conf.getObjKeys()) {
+
+            // 如果没有
+            if (null == en.getField(stdName)) {
+                // 从内置的里面搞一个
+                NutMap map = builtIns.get(stdName);
+                NutMappingField mf = this.mapToField(map);
+                if (null == mf) {
+                    throw Er.create("e.io.dao.entity.LackStdField", stdName);
+                }
+
+                // 主键
+                if (pks.contains(mf.getName())) {
+                    mf.setAsName();
+                    mf.setAsNotNull();
+                }
+
+                // 记入
+                en.addMappingField(mf);
+            }
+        }
+
+    }
+
+    private void __setup_default_indexes(WnObjEntity en) {
+        List<NutMap> indexes = conf.getIndexes();
+        if (null == indexes || indexes.isEmpty()) {
+            indexes = new ArrayList<NutMap>(2);
+
+            // 有 ID
+            if (null != en.getField("id")) {
+                indexes.add(Lang.map("unique:true")
+                                .setv("name", "obj_id")
+                                .setv("fields", Lang.list("id")));
+            }
+
+            // 有 PID 和 NM
+            if (null != en.getField("pid") && null != en.getField("nm")) {
+                indexes.add(Lang.map("unique:true")
+                                .setv("name", "obj_pid_nm")
+                                .setv("fields", Lang.list("pid", "nm")));
+            }
+
+            // 记入
+            conf.setIndexes(indexes);
+        }
     }
 
     private void __add_indexes_to_entity(WnObjEntity en) {
@@ -241,20 +321,6 @@ public class WnObjEntityGenerating {
 
             // 记入
             en.addIndex(ei);
-        }
-    }
-
-    private void __setup_default_indexes() {
-        List<NutMap> indexes = conf.getIndexes();
-        if (null == indexes || indexes.isEmpty()) {
-            indexes = new ArrayList<NutMap>(2);
-            indexes.add(Lang.map("unique:true")
-                            .setv("name", "obj_id")
-                            .setv("fields", Lang.list("id")));
-            indexes.add(Lang.map("unique:true")
-                            .setv("name", "obj_pid_nm")
-                            .setv("fields", Lang.list("pid", "nm")));
-            conf.setIndexes(indexes);
         }
     }
 

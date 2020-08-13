@@ -26,6 +26,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -206,6 +207,14 @@ public class WnContext extends NutMap {
     public <T> T synctimeOff(Proton<T> proton) {
         synctimeOff((Atom) proton);
         return proton.get();
+    }
+
+    public boolean isSecurityNoCheck() {
+        if (null == security)
+            return true;
+        if (security.getClass().equals(WnSecurityImpl.class))
+            return false;
+        return true;
     }
 
     public WnSecurity getSecurity() {

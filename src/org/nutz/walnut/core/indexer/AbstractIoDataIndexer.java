@@ -10,6 +10,8 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
@@ -18,10 +20,13 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.bean.WnIoObj;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
+
+    private static final Log log = Logs.get();
 
     protected AbstractIoDataIndexer(WnObj root, MimeMap mimes) {
         super(root, mimes);
@@ -214,6 +219,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             if (null == p) {
                 p = this.root;
             }
+            // 确保设置索引管理器
+            if (o instanceof WnIoObj) {
+                ((WnIoObj) o).setIndexer(this);
+            }
             // 补全:对象树
             o.putDefault("nm", o.id());
             o.putDefault("pid", p.id());
@@ -223,6 +232,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             o.putDefault("m", p.mender());
             o.putDefault("g", p.group());
             o.putDefault("md", p.mode());
+            // 补全映射
+            if (p.isMount() && !o.isMount()) {
+                o.mount(p.mount());
+            }
             // 补全:时间戳
             o.putDefault("ct", p.createTime());
             o.putDefault("lm", p.lastModified());
@@ -313,6 +326,14 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 确保有 ID
         if (Strings.isBlank(id)) {
             id = Wn.genId();
+            // 如果对象是映射，则采用两段式ID
+            if (p.isMount()) {
+                String rootId = p.mountRootId();
+                if (Strings.isBlank(rootId)) {
+                    rootId = p.id();
+                }
+                id = rootId + ":" + id;
+            }
         }
 
         // 展开名称
@@ -691,19 +712,17 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         q.asc("nm");
         return this.each(q, callback);
     }
-    
-    
 
     @Override
     public int each(WnQuery q, Each<WnObj> callback) {
         return _each(q, new Each<WnObj>() {
-            public void invoke(int index, WnObj o, int length){
+            public void invoke(int index, WnObj o, int length) {
                 _complete_obj_by_parent(root, o);
                 callback.invoke(index, o, length);
             }
         });
     }
-    
+
     protected abstract int _each(WnQuery q, Each<WnObj> callback);
 
     @Override
@@ -716,6 +735,38 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     public boolean hasChild(WnObj p) {
         return countChildren(p) > 0;
     }
+
+    @Override
+    public WnObj get(String id) {
+        // 防守空 ID
+        if (Strings.isBlank(id)) {
+            return null;
+        }
+        // 两段式 ID
+        WnObjId oid = new WnObjId(id);
+
+        // 用子类获取
+        WnIoObj o = _get_by_id(oid.getMyId());
+        if (null == o) {
+            return null;
+        }
+
+        // 填充自己
+        this._complete_obj_by_parent(root, o);
+
+        // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
+        if (o.isSameId(o.parentId())) {
+            if (log.isWarnEnabled()) {
+                log.warnf("!!! pid->self", o.id());
+            }
+            return o;
+        }
+
+        // 搞定
+        return o;
+    }
+
+    protected abstract WnIoObj _get_by_id(String id);
 
     @Override
     public WnObj getOne(WnQuery q) {

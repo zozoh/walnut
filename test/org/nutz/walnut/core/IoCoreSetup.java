@@ -9,7 +9,10 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.MimeMap;
@@ -36,6 +39,7 @@ import org.nutz.walnut.core.mapping.bm.LocalFileBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalIoBMFactory;
 import org.nutz.walnut.core.mapping.bm.RedisBMFactory;
+import org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
 import org.nutz.walnut.ext.redis.Wedis;
@@ -74,6 +78,8 @@ public class IoCoreSetup {
 
     private static WnIo io;
 
+    private static DaoIndexerFactory daoIndexerFactory;
+
     private static RedisBMFactory redisBMFactory;
 
     static {
@@ -96,8 +102,8 @@ public class IoCoreSetup {
     public WnIo getIo() {
         if (null == io) {
             WnIoMappingFactory mappings = this.getWnIoMappingFactory();
-            this.setupWnIoMappingFactory();
             io = new WnIoImpl2(mappings);
+            this.setupWnIoMappingFactory(io);
 
             // 稍后设置一下 RedisBMFactory 自己的实例
             redisBMFactory.setIo(io);
@@ -105,7 +111,7 @@ public class IoCoreSetup {
         return io;
     }
 
-    public void setupWnIoMappingFactory() {
+    public void setupWnIoMappingFactory(WnIo io) {
         // 全局索引和桶管理器
         mappings.setGlobalIndexer(this.getGlobalIndexer());
         mappings.setGlobalBM(this.getGlobalIoBM());
@@ -113,7 +119,8 @@ public class IoCoreSetup {
         // 索引管理器工厂映射
         HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(mimes));
-        // TODO 还有 "dao|mem|redis|mq" 几种索引管理器
+        indexers.put("dao", getDaoIndexerFactory(io));
+        // TODO 还有 "mem|redis|mq" 几种索引管理器
         // ...
         mappings.setIndexers(indexers);
 
@@ -125,6 +132,18 @@ public class IoCoreSetup {
         bmfs.put("file", new LocalFileBMFactory(handles));
         bmfs.put("filew", new LocalFileWBMFactory(handles));
         mappings.setBms(bmfs);
+    }
+
+    public DaoIndexerFactory getDaoIndexerFactory(WnIo io) {
+        if (null == daoIndexerFactory) {
+            DaoIndexerFactory dif = new DaoIndexerFactory();
+            dif.setIo(io);
+            dif.setMimes(this.getMimes());
+            dif.setIndexers(new HashMap<>());
+
+            daoIndexerFactory = dif;
+        }
+        return daoIndexerFactory;
     }
 
     public WnIoMapping getGlobalIoMapping() {
@@ -237,6 +256,7 @@ public class IoCoreSetup {
         if (null == globalIndexer) {
             ZMoCo co = this.getMongoCollection();
             WnObj root = this.getRootNode();
+            MimeMap mimes = this.getMimes();
             globalIndexer = new MongoIndexer(root, mimes, co);
         }
         return globalIndexer;
@@ -256,9 +276,20 @@ public class IoCoreSetup {
         if (null == daoConfig) {
             String aph = "org/nutz/walnut/core/indexer/dao/dao_indexer.json";
             String json = Files.read(aph);
+            json = explainConfig(json);
             daoConfig = Json.fromJson(WnDaoConfig.class, json);
         }
         return daoConfig;
+    }
+
+    public PropertiesProxy getProperties() {
+        return pp;
+    }
+
+    public String explainConfig(String text) {
+        NutBean ctx = new NutMap();
+        ctx.putAll(pp.toMap());
+        return Tmpl.exec(text, ctx);
     }
 
     public MimeMap getMimes() {
@@ -306,7 +337,7 @@ public class IoCoreSetup {
         // 清空 MySQL
         WnDaoConfig daoConf = this.getWnDaoConfig();
         Dao dao = WnDaos.get(daoConf);
-        WnObjEntityGenerating ing = new WnObjEntityGenerating(daoConf, dao.getJdbcExpert());
+        WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
         WnObjEntity entity = ing.generate();
 
         // 自动创建创建表

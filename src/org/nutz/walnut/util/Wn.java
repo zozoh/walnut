@@ -1092,7 +1092,8 @@ public abstract class Wn {
         }
 
         public static WnQuery pid(WnObj p) {
-            return pid(p.id());
+            // return pid(p.id());
+            return pid(p.myId());
         }
 
         public static WnQuery pid(String pid) {

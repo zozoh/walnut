@@ -510,7 +510,7 @@ public class WnIoObj extends NutMap implements WnObj {
         }
         String mnt = "";
         if (this.isMount()) {
-            mnt = "::" + mnt;
+            mnt = "::" + this.mount();
         }
         return String.format("%s;ID(%s)%s%s", path(), id(), mnt, lnk);
     }
@@ -832,4 +832,19 @@ public class WnIoObj extends NutMap implements WnObj {
         return new WnIoObj().update2(this);
     }
 
+    @Override
+    public int compareTo(WnObj o) {
+        String nm1 = this.name();
+        String nm2 = o.name();
+        if (null == nm1) {
+            if (null == nm2) {
+                return 0;
+            }
+            return -1;
+        }
+        if (null == nm2) {
+            return 1;
+        }
+        return nm1.compareTo(nm2);
+    }
 }

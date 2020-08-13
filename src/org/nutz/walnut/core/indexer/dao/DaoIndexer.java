@@ -15,8 +15,6 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.lang.Each;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -30,8 +28,6 @@ import org.nutz.walnut.util.Wn;
 
 public class DaoIndexer extends AbstractIoDataIndexer {
 
-    private static final Log log = Logs.get();
-
     private Dao dao;
 
     private WnObjEntity entity;
@@ -42,7 +38,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
         // TODO 通过 config 生成 Entity
         JdbcExpert expert = dao.getJdbcExpert();
-        WnObjEntityGenerating ing = new WnObjEntityGenerating(config, expert);
+        WnObjEntityGenerating ing = new WnObjEntityGenerating(root, config, expert);
         this.entity = ing.generate();
 
         // 自动创建创建表
@@ -113,44 +109,32 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     @Override
     public void delete(WnObj o) {
-        dao.delete(entity, o.id());
+        dao.delete(entity, o.myId());
     }
 
     @Override
-    public WnObj get(String id) {
-        // 防守空 ID
-        if (Strings.isBlank(id)) {
-            return null;
-        }
+    protected WnIoObj _get_by_id(String id) {
         // 如果是不完整的 ID ...
         if (!Wn.isFullObjId(id)) {
+
+            // 处理查询条件
             WnQuery q = new WnQuery().limit(2);
             q.setv("id", id + "*");
-            q.limit(2);
-            List<WnObj> objs = this.query(q);
-            if (objs.isEmpty())
+            WnDaoQuery dq = genDaoQuery(q);
+            Condition cond = dq.getCondition();
+            Pager page = dq.getPager();
+
+            // 执行查询
+            List<WnIoObj> list = dao.query(entity, cond, page);
+            if (list.isEmpty())
                 return null;
-            if (objs.size() > 1)
+            if (list.size() > 1)
                 throw Er.create("e.io.obj.get.shortid", id);
-            return objs.get(0);
+            return list.get(0);
         }
 
         // 那就是完整的 ID 咯
-        WnIoObj o = dao.fetch(entity, id);
-        if (null != o) {
-            o.setIndexer(this);
-        }
-
-        // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
-        if (o.isSameId(o.parentId())) {
-            if (log.isWarnEnabled()) {
-                log.warnf("!!! pid->self", o.id());
-            }
-            return o;
-        }
-
-        // 搞定
-        return o;
+        return dao.fetch(entity, id);
     }
 
     @Override

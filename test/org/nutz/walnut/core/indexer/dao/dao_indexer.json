@@ -1,8 +1,8 @@
 {
   "auth": {
-      "url": "jdbc:mysql://127.0.0.1/walnut_unit",
-      "username": "root",
-      "password": "root"
+      "url": "${jdbc-url}",
+      "username": "${jdbc-username}",
+      "password": "${jdbc-password}"
   }, 
   "tableName": "t_obj",
   "autoCreate" : true,

@@ -18,13 +18,9 @@ public class RedisBM extends AbstractIoBM {
     private WedisConfig conf;
 
     public RedisBM(WedisConfig conf) {
-        this(conf, "io:bm:");
-    }
-
-    public RedisBM(WedisConfig conf, String prefix) {
         super(null);
         this.conf = conf;
-        this.prefix = prefix;
+        this.prefix = conf.setup().getString("prefix", "io:bm:");
     }
 
     @Override

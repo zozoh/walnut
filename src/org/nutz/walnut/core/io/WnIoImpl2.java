@@ -528,10 +528,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return null;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
             return indexer.setBy(q, map, returnNew);
         }
         // 采用根索引管理器
@@ -570,10 +573,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return -1;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
             return indexer.inc(q, key, val, returnNew);
         }
         // 采用根索引管理器
@@ -821,10 +827,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return 0;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
             return indexer.each(q, looper);
         }
         // 采用根索引管理器
@@ -894,10 +903,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return 0;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
             return indexer.count(q);
         }
         // 采用根索引管理器
@@ -933,10 +945,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
 
             indexer.push(q, key, val);
             return;
@@ -967,10 +982,13 @@ public class WnIoImpl2 implements WnIo {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
         if (!Strings.isBlank(pid)) {
-            WnObjMapping om = mappings.checkById(pid);
-            WnIoIndexer indexer = om.getSubIndexer();
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return;
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
-            q.setv("pid", om.getMyId());
+            q.setv("pid", oP.myId());
 
             indexer.pull(q, key, val);
             return;

@@ -1,0 +1,16 @@
+{
+  "dao": "demo",
+  "tableName": "t_pet",
+  "autoCreate": true,
+  "fields": [{
+      "name": "age",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }],
+  "objKeys": ["id","nm"],
+  
+}

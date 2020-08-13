@@ -103,6 +103,10 @@ public class WnDaoQuery {
         // 首先翻译一下数据库字段
         String colName = evalColName(key);
 
+        // 这个字段没有被声明，那么从查询条件里移除
+        if (null == colName)
+            return null;
+
         // 按条件判断值，决定采用哪种表达式
         if (null == val) {
             return Exps.isNull(colName);
@@ -280,10 +284,10 @@ public class WnDaoQuery {
         }
         MappingField mf = entity.getField(stdName);
         if (null == mf) {
-            throw Er.create("e.io.dao.FieldNotDefined", stdName);
+            // throw Er.create("e.io.dao.FieldNotDefined", stdName);
+            return null;
         }
-        String colName = mf.getColumnName();
-        return colName;
+        return mf.getColumnName();
     }
 
     private static final Pattern _P2 = Pattern.compile("^[$%](eq|ne|gt|gte|lt|lte|in|nin)$");
