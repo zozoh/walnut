@@ -2,6 +2,7 @@ package org.nutz.walnut.core.mapping.indexer;
 
 import java.util.Map;
 
+import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
@@ -18,6 +19,10 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public class DaoIndexerFactory implements WnIndexerFactory {
+
+    private Ioc ioc;
+
+    private String authServiceName;
 
     private WnAuthService auth;
 
@@ -48,6 +53,14 @@ public class DaoIndexerFactory implements WnIndexerFactory {
         DaoIndexer di = null;
         WnContext wc = Wn.WC();
         WnAccount me = wc.getMe();
+
+        // 懒加载验证接口
+        if (null == auth) {
+            if (null != ioc && null != this.authServiceName) {
+                this.auth = ioc.get(WnAuthService.class, authServiceName);
+            }
+        }
+
         // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
         if (null == auth || wc.isSecurityNoCheck() || auth.isMemberOfGroup(me, "root")) {
             di = indexers.get(str);

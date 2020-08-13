@@ -43,6 +43,19 @@ var ioc = {
         type : "org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory",
         args : [{refer:"mimes"}]
     },
+    "daoIndexerFactory" : {
+        type : "org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory",
+        fields: {
+            ioc   : {refer: "$Ioc"},
+            authServiceName: "sysAuthService",
+            io    : {refer: "io"},
+            mimes : {refer : 'mimes'},
+            indexers: {
+                "account": null,
+                "payment": null
+            }
+        }
+    },
     "localIoBMFactory" : {
         type : "org.nutz.walnut.core.mapping.bm.LocalIoBMFactory",
         fields : {
@@ -73,7 +86,7 @@ var ioc = {
             globalBM : {refer:"globalBM"},
             indexers : {
                 "file"  : {refer:"localFileIndexerFactory"},
-                "dao"   : null,
+                "dao"   : {refer:"daoIndexerFactory"},
                 "mem"   : null,
                 "redis" : null,
                 "mq"    : null

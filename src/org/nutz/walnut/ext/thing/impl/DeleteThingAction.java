@@ -99,7 +99,8 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
             }
             // 标记为删除
             else {
-                oT.setv("th_live", Things.TH_DEAD);
+                oT.put("th_live", Things.TH_DEAD);
+                oT.put("th_set", oTs.id());
                 io.set(oT, "^th_live$");
                 output.add(oT);
             }

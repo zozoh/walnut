@@ -319,6 +319,12 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (null == p)
             p = root.clone();
 
+        WnIoObj o = new WnIoObj();
+        o.id(id);
+        o.name(name);
+        o.race(race);
+        o.setParent(p);
+
         // 得到节点检查的回调接口
         WnContext wc = Wn.WC();
         WnSecurity secu = wc.getSecurity();
@@ -364,7 +370,6 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 创建自身
         long now = System.currentTimeMillis();
-        WnIoObj o = new WnIoObj();
         o.setIndexer(this);
         o.id(id);
         o.name(name);
@@ -413,6 +418,111 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 真正执行创建
         WnObj o2 = _create(o);
+        this._complete_obj_by_parent(p, o2);
+        return o2;
+    }
+
+    @Override
+    public WnObj create(WnObj p, WnObj o) {
+        if (null == p) {
+            throw Er.create("e.io.NilParent");
+        }
+        // 设置索引管理器
+        ((WnIoObj) o).setIndexer(this);
+        // 不匹配的父节点
+        if (!o.isMyParent(p)) {
+            throw Er.create("e.io.NotMyParent", p.id() + " <-> " + o.parentId());
+        }
+
+        // 文件下面不能再有子对象
+        if (p.isFILE()) {
+            throw Er.create("e.io.create.ParentShouldBeDir", p);
+        }
+
+        // 得到节点检查的回调接口
+        WnContext wc = Wn.WC();
+        WnSecurity secu = wc.getSecurity();
+
+        // 首先，对象必须具备一个 race
+        o.putDefault("race", WnRace.FILE);
+
+        // 确保有 ID
+        if (!o.hasID()) {
+            String id = Wn.genId();
+            // 如果对象是映射，则采用两段式ID
+            if (p.isMount()) {
+                String rootId = p.mountRootId();
+                if (Strings.isBlank(rootId)) {
+                    rootId = p.id();
+                }
+                id = rootId + ":" + id;
+            }
+            o.id(id);
+        }
+
+        // 展开名称
+        String name = Wn.evalName(o.name(), o.myId());
+
+        // 检查名称
+        Wn.assertValidName(name, p.path());
+        o.name(name);
+
+        // 应对一下回调
+        if (null != secu) {
+            p = _enter_dir(p, secu);
+            p = secu.write(p, false);
+        }
+
+        // 检查重名
+        if (null != this.fetchByName(p, name))
+            throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
+
+        // 创建自身
+        long now = System.currentTimeMillis();
+        o.createTime(now);
+        o.lastModified(now);
+
+        // 自动设置类型
+        Wn.set_type(mimes, o, o.type());
+
+        // 关联父节点
+        o.setParent(p);
+
+        // 顶级节点，均属于 root
+        if (Strings.isBlank(o.d1())) {
+            o.creator("root").mender("root").group("root");
+        }
+        // 设置创建者，以及权限相关
+        else {
+            try {
+                String g = wc.checkMyGroup();
+                String c = wc.checkMyName();
+                o.creator(c).mender(c).group(g);
+            }
+            // 线程没设置，用父对象的
+            catch (Exception e) {
+                o.creator(p.creator()).mender(p.mender()).group(p.group());
+            }
+        }
+
+        // 计算 d0,d1
+        String[] ss = o.dN();
+
+        // 主节点和 home 必须是可以进入的
+        if (ss.length == 0 || (ss.length == 1 && ss[0].equals("home"))) {
+            o.mode(0755);
+        }
+        // 二级节点参照父
+        else if (ss.length == 2) {
+            o.mode(p.mode());
+        }
+        // 其他的节点统统保护 >o<
+        else {
+            o.mode(0750);
+        }
+
+        // 真正执行创建
+        WnObj o2 = _create((WnIoObj) o);
         this._complete_obj_by_parent(p, o2);
         return o2;
     }

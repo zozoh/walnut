@@ -23,6 +23,14 @@
   "insert": true,
   "update": true
 }, {
+  "name": "title",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 100,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
   "name": "c",
   "type": "String",
   "columnType" : "VARCHAR",
@@ -165,6 +173,16 @@
   "name": "expi",
   "type": "Long",
   "columnType" : "INT",
+  "default": "0",
+  "width": 16,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "th_live",
+  "type": "Integer",
+  "columnType" : "INT",
+  "width": 1,
   "default": "0",
   "width": 16,
   "notNull": false,

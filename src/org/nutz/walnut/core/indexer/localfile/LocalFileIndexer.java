@@ -273,6 +273,11 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
+    public WnObj create(WnObj p, WnObj o) {
+        throw Lang.noImplement();
+    }
+
+    @Override
     public void delete(WnObj o) {
         throw Lang.noImplement();
     }

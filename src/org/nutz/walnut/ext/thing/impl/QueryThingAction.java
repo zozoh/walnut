@@ -125,6 +125,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
         for (WnObj oT : list) {
             WnObj oTs = oTsCache.get(oT.getString("th_set"));
             if (null != oTs) {
+                oT.put("th_set", oTs.id());
                 oT.put("th_set_nm", oTs.name());
             }
         }

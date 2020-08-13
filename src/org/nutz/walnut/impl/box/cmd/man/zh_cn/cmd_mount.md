@@ -26,5 +26,5 @@
     
     // 重新挂载配置文件中的挂载点
     
-    mount -a
+    mount -init
     

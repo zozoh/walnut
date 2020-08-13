@@ -716,6 +716,27 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
+    public WnObj create(WnObj p, WnObj o) {
+        // 首先父不能为空
+        if (null == p) {
+            p = this.getRoot();
+        }
+
+        // 确保自己是父的子
+        o.setParent(p);
+
+        // 创建吧
+        WnIoMapping mapping = mappings.checkMapping(p);
+        WnIoIndexer indexer = mapping.getIndexer();
+        o = indexer.create(p, o);
+
+        // 更新父节点同步时间
+        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+
+        return o;
+    }
+
+    @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
         // null 表示从根路径开始
         if (null == p || path.startsWith("/")) {

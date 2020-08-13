@@ -795,7 +795,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean isMyParent(WnObj p) {
-        return Lang.equals(this.parentId(), p.id());
+        return Lang.equals(this.parentId(), p.myId());
     }
 
     public boolean isMyAncestor(WnObj an) {

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.dao.Cnd;
-import org.nutz.dao.entity.Record;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -22,8 +20,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
-import org.nutz.walnut.ext.thing.impl.sql.SqlThingContext;
-import org.nutz.walnut.ext.thing.impl.sql.SqlThingMaster;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -45,21 +41,32 @@ public abstract class Things {
      */
     public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
         WnObj oIndex = dirTsIndex(io, oRefer);
-        switch (oRefer.getString("thing-by", "wntree")) {
-        case "sql": {
-            SqlThingContext ctx = SqlThingMaster.me().getSqlThingContext(oRefer);
-            Record re = ctx.dao.fetch(ctx.table, Cnd.where("id", "=", id));
-            if (re == null)
-                return null;
-            return SqlThingMaster.asWnObj(oRefer, oIndex, re.sensitive());
+        WnQuery q = Wn.Q.pid(oIndex);
+        q.setv("id", id);
+        WnObj oT = io.get(id);
+        if (null != oT) {
+            oT.put("th_set", oIndex.parentId());
         }
-        default:
-        case "wntree": {
-            WnQuery q = Wn.Q.pid(oIndex);
-            q.setv("id", id);
-            return io.getOne(q);
-        }
-        }
+        return oT;
+        // switch (oRefer.getString("thing-by", "wntree")) {
+        // case "sql": {
+        // SqlThingContext ctx = SqlThingMaster.me().getSqlThingContext(oRefer);
+        // Record re = ctx.dao.fetch(ctx.table, Cnd.where("id", "=", id));
+        // if (re == null)
+        // return null;
+        // return SqlThingMaster.asWnObj(oRefer, oIndex, re.sensitive());
+        // }
+        // default:
+        // case "wntree": {
+        // WnQuery q = Wn.Q.pid(oIndex);
+        // q.setv("id", id);
+        // WnObj oT = io.get(id);
+        // if (null != oT) {
+        // oT.put("th_set", oIndex.parentId());
+        // }
+        // return oT;
+        // }
+        // }
     }
 
     /**

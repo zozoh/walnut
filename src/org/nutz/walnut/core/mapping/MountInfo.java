@@ -9,7 +9,7 @@ import org.nutz.walnut.api.err.Er;
 
 public class MountInfo {
 
-    static class Item {
+    static public class Item {
         // 模式
         boolean forBM;
 
@@ -118,6 +118,50 @@ public class MountInfo {
 
     public boolean hasIndexerAndBM() {
         return null != ix && null != bm;
+    }
+
+    public boolean isIndexerType(String regex) {
+        if (null == ix) {
+            return false;
+        }
+        if (regex.startsWith("^")) {
+            return ix.type.matches(regex);
+        }
+        return ix.type.equals(regex);
+    }
+
+    public Item getIndexer() {
+        return ix;
+    }
+
+    public String getIndexerType() {
+        return null == ix ? null : ix.type;
+    }
+
+    public String getIndexerArg() {
+        return null == ix ? null : ix.arg;
+    }
+
+    public boolean isBMType(String regex) {
+        if (null == bm) {
+            return false;
+        }
+        if (regex.startsWith("^")) {
+            return bm.type.matches(regex);
+        }
+        return bm.type.equals(regex);
+    }
+
+    public Item getBM() {
+        return bm;
+    }
+
+    public String getBMType() {
+        return null == bm ? null : bm.type;
+    }
+
+    public String getBMArg() {
+        return null == bm ? null : bm.arg;
     }
 
     @Override

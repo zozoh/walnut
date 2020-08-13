@@ -1119,23 +1119,25 @@ public abstract class Wn {
 
     public static void set_type(MimeMap mimes, WnObj o, String tp) {
         if (o.isFILE()) {
+            // 根据名称自动获取类型
             if (Strings.isBlank(tp)) {
                 tp = Files.getSuffixName(o.name());
+                // 类型会被强制设置成小写
+                if (null != tp)
+                    tp = tp.toLowerCase();
             }
-
-            // 类型会被强制设置成小写
-            if (null != tp)
-                tp = tp.toLowerCase();
-
+            // 校验一下类型
             if (!o.hasType() || !o.isType(tp)) {
                 if (Strings.isBlank(tp)) {
                     tp = "txt";
                 }
                 o.type(tp);
             }
-
-            String mime = mimes.getMime(o.type());
-            o.mime(mime);
+            // 根据类型自动设置 MIME
+            if (!o.hasMime()) {
+                String mime = mimes.getMime(o.type());
+                o.mime(mime);
+            }
         }
     }
 

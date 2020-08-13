@@ -14,6 +14,7 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.thing.ThingAction;
 import org.nutz.walnut.ext.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.thing.util.ThingConf;
@@ -201,14 +202,18 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 还木有，那么就创建咯
         if (null == oT) {
-            oT = io.create(oIndex, "${id}", WnRace.FILE);
+            oT = new WnIoObj();
+            oT.putAll(meta);
+            oT.putDefault("nm", "${id}");
+            oT.race(WnRace.FILE);
         }
 
         // 根据链接键，自动修改元数据，返回的值是一组后续更新脚本
         List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
 
         // 更新这个 Thing
-        io.appendMeta(oT, meta);
+        // io.appendMeta(oT, meta);
+        oT = io.create(oIndex, oT);
 
         // 看看是否需要重新获取 Thing
         boolean re_get = false;
@@ -269,6 +274,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         if (re_get) {
             oT = this.io.get(oT.id());
+            oT.put("th_set", oTs.id());
         }
 
         // 返回

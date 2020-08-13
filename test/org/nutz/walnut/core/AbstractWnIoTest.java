@@ -59,7 +59,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
 
         // 在 Redis 里是存在的
         RedisBM bm = setup.getRedisBM();
-        byte[] bs = bm.getBytes(o.id());
+        byte[] bs = bm.getBytes(o.myId());
         str = new String(bs);
         assertEquals("hello", str);
 

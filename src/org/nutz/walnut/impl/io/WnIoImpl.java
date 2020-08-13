@@ -378,6 +378,11 @@ public class WnIoImpl implements WnIo {
     }
 
     @Override
+    public WnObj create(WnObj p, WnObj o) {
+        throw Lang.noImplement();
+    }
+
+    @Override
     public WnObj create(WnObj p, String path, WnRace race) {
         // 判断是否是获取对象索引
         String nm = Files.getName(path);

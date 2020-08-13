@@ -16,6 +16,8 @@ import org.nutz.walnut.core.WnIoHandleMutexException;
 
 public interface WnIo extends WnStore, WnTree {
 
+    WnObj create(WnObj p, WnObj o);
+
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
 
     WnObj createIfExists(WnObj p, String path, WnRace race);
