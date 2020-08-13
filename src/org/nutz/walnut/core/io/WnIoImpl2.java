@@ -768,6 +768,9 @@ public class WnIoImpl2 implements WnIo {
         WnObjMapping om = mappings.checkById(id);
         WnIoIndexer indexer = om.getSelfIndexer();
         WnObj o = indexer.get(om.getMyId());
+        if (null != o) {
+            o.mountRootId(om.getHomeId());
+        }
         return Wn.WC().whenAccess(o, true);
     }
 

@@ -33,7 +33,7 @@ public class RedisReadWriteHandle extends WnIoHandle {
     public void ready() throws WnIoHandleMutexException, IOException {
         // 因为依赖于旧内容，先打开一个读句柄，读取一下
         if (baseOnOldContent) {
-            byte[] bs = this.bm.getBytes(this.obj.id());
+            byte[] bs = this.bm.getBytes(this.obj.myId());
             bytes.write(bs);
         }
     }
@@ -87,7 +87,7 @@ public class RedisReadWriteHandle extends WnIoHandle {
 
         // 保存数据
         byte[] bs = this.bytes.toArray();
-        this.bm.setBytes(this.obj.id(), bs);
+        this.bm.setBytes(this.obj.myId(), bs);
 
         // 更新索引
         obj.sha1(this.bytes.sha1sum());

@@ -644,7 +644,10 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public WnObj mountRootId(String mrid) {
-        throw Lang.noImplement();
+        WnObjId oid = OID();
+        oid.setHomeId(mrid);
+        setv("id", oid.toString());
+        return this;
     }
 
     public boolean isHidden() {

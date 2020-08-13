@@ -8,8 +8,6 @@ import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
@@ -145,7 +143,12 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     @Override
     protected WnObj _create(WnIoObj o) {
         ZMoDoc doc = ZMo.me().toDoc(o).genID();
+        // 一定不要记录 ph
         doc.removeField("ph");
+        // 处理一下两段式 ID
+        String myId = o.myId();
+        doc.put("id", myId);
+        // 保存
         co.save(doc);
         return o;
     }

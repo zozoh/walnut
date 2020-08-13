@@ -4,5 +4,5 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({LocalMappingTest.class, DaoMappingTest.class})
+@Suite.SuiteClasses({LocalMappingTest.class, DaoMappingTest.class, RedisBMMappingTest.class})
 public class AllIoTest {}

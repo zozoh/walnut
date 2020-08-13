@@ -223,6 +223,11 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             if (o instanceof WnIoObj) {
                 ((WnIoObj) o).setIndexer(this);
             }
+            // 确保补全两段式 ID
+            if (p.isMount() && !o.hasMountRootId()) {
+                String rootId = Strings.sBlank(p.mountRootId(), p.id());
+                o.mountRootId(rootId);
+            }
             // 补全:对象树
             o.putDefault("nm", o.id());
             o.putDefault("pid", p.id());
@@ -425,7 +430,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     protected void _set_quiet(WnObj o, String regex) {
         NutMap map = o.toMap4Update(regex);
-        String id = o.id();
+        String id = o.myId();
         _set(id, map);
     }
 
@@ -628,7 +633,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         o = Wn.WC().whenMeta(o, false);
 
         // 修改元数据
-        _set(o.id(), map);
+        _set(o.myId(), map);
     }
 
     @Override
@@ -752,6 +757,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 填充自己
+        o.mountRootId(oid.getHomeId());
         this._complete_obj_by_parent(root, o);
 
         // 这里处理一下自己引用自己的对象问题，直接返回吧，这个对象一定是错误的
