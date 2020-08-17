@@ -1215,6 +1215,9 @@ public abstract class Wn {
      * @return 展开后的字符串
      */
     public static Object fmt_str_macro(String s) {
+        if (Strings.isBlank(s)) {
+            return s;
+        }
         Object v2;
         // 日期对象
         if (s.startsWith("%date:")) {

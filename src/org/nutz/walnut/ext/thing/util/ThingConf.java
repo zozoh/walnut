@@ -1,7 +1,12 @@
 package org.nutz.walnut.ext.thing.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 
 /**
@@ -17,7 +22,11 @@ public class ThingConf {
 
     // zozoh: 先去掉这两个奇怪的键名，用原生的，看看会发生什么
     // @JsonField("lnKeys")
-    private Map<String, ThingLinkKey> linkKeys;
+
+    /**
+     * 可以是 Map<String, ThingLinkKey> 或者 List<Map<String, ThingLinkKey>>
+     */
+    private Object linkKeys;
 
     private String[] onCreated;
 
@@ -42,15 +51,69 @@ public class ThingConf {
     }
 
     public boolean hasLinkKeys() {
-        return null != linkKeys && linkKeys.size() > 0;
+        return null != linkKeys && this.getLinkKeyList().size() > 0;
     }
 
-    public Map<String, ThingLinkKey> getLinkKeys() {
+    public Object getLinkKeys() {
         return linkKeys;
     }
 
-    public void setLinkKeys(Map<String, ThingLinkKey> linkKeys) {
+    public void setLinkKeys(Object linkKeys) {
         this.linkKeys = linkKeys;
+    }
+
+    private List<Map<String, ThingLinkKey>> _lnk_list;
+
+    public List<Map<String, ThingLinkKey>> getLinkKeyList() {
+        if (null == _lnk_list) {
+            if (null != linkKeys) {
+                // 自己就是一个 Map
+                if (linkKeys instanceof Map<?, ?>) {
+                    _lnk_list = new ArrayList<>(1);
+                    Map<String, ThingLinkKey> lkMap = __eval_linkKeyMap(linkKeys);
+                    _lnk_list.add(lkMap);
+                }
+                // 那就是列表咯
+                else if (linkKeys instanceof Collection<?>) {
+                    Collection<?> col = (Collection<?>) linkKeys;
+                    _lnk_list = new ArrayList<>(col.size());
+                    for (Object o : col) {
+                        Map<String, ThingLinkKey> lkMap = __eval_linkKeyMap(o);
+                        _lnk_list.add(lkMap);
+                    }
+                }
+                // 不支持
+                else {
+                    throw Lang.impossible();
+                }
+            }
+        }
+        return _lnk_list;
+    }
+
+    public int getLinkKeyMetaCapSize() {
+        int c = 0;
+        if (null != this.getLinkKeyList()) {
+            for (Map<String, ThingLinkKey> map : this.getLinkKeyList()) {
+                c += map.size();
+            }
+        }
+        return c;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, ThingLinkKey> __eval_linkKeyMap(Object obj) {
+        Map<String, Object> inMap = (Map<String, Object>) obj;
+        Map<String, ThingLinkKey> reMap = new HashMap<>();
+        for (Map.Entry<String, Object> en : inMap.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            if (null != val && val instanceof Map<?, ?>) {
+                ThingLinkKey lk = Lang.map2Object((Map<?, ?>) val, ThingLinkKey.class);
+                reMap.put(key, lk);
+            }
+        }
+        return reMap;
     }
 
     public String[] getOnCreated() {

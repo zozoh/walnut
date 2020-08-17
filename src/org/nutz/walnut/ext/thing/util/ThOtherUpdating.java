@@ -16,6 +16,7 @@ import org.nutz.trans.Proton;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
+import org.nutz.walnut.util.Wn;
 
 public class ThOtherUpdating {
 
@@ -174,6 +175,11 @@ public class ThOtherUpdating {
                 else {
                     v2 = Tmpl.exec(str, context);
                 }
+
+                // 最后展开宏
+                if (null != v2 && (v2 instanceof CharSequence))
+                    v2 = Wn.fmt_str_macro(v2.toString());
+
                 // 计入
                 if (v2 != null) {
                     meta.put(key, v2);

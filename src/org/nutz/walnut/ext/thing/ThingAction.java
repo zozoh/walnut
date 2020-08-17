@@ -202,125 +202,127 @@ public abstract class ThingAction<T> {
         // 查看链接字段
         List<ThOtherUpdating> others = null;
         if (conf.hasLinkKeys()) {
-            others = new ArrayList<>(conf.getLinkKeys().size());
-            for (Map.Entry<String, ThingLinkKey> en : conf.getLinkKeys().entrySet()) {
-                // 获取链接键
-                String key = en.getKey();
-                ThingLinkKey lnk = en.getValue();
+            others = new ArrayList<>(conf.getLinkKeyMetaCapSize());
+            for (Map<String, ThingLinkKey> linkKeys : conf.getLinkKeyList()) {
+                for (Map.Entry<String, ThingLinkKey> en : linkKeys.entrySet()) {
+                    // 获取链接键
+                    String key = en.getKey();
+                    ThingLinkKey lnk = en.getValue();
 
-                // 更新的元数据不包括这个键，就无视
-                if (!meta.containsKey(key))
-                    continue;
+                    // 更新的元数据不包括这个键，就无视
+                    if (!meta.containsKey(key))
+                        continue;
 
-                // 什么都没做的话，无视好了
-                if (lnk.isDoNothing())
-                    continue;
+                    // 什么都没做的话，无视好了
+                    if (lnk.isDoNothing())
+                        continue;
 
-                // 看看是否匹配上条件，如果匹配不上，也无视
-                if (!lnk.matchTestUpdate(meta)) {
-                    continue;
-                }
+                    // 看看是否匹配上条件，如果匹配不上，也无视
+                    if (!lnk.matchTestUpdate(meta)) {
+                        continue;
+                    }
 
-                if (!lnk.matchTestPrimary(oT)) {
-                    continue;
-                }
+                    if (!lnk.matchTestPrimary(oT)) {
+                        continue;
+                    }
 
-                // 准备 val 上下文
-                Object val = meta.get(key);
-                NutMap valContext = new NutMap();
-                valContext.put("val", val);
+                    // 准备 val 上下文
+                    Object val = meta.get(key);
+                    NutMap valContext = new NutMap();
+                    valContext.put("val", val);
 
-                // 看看值是否能匹配上
-                if (lnk.hasMatch()) {
-                    Matcher m = lnk.getMatch().matcher(val.toString());
-                    // 未匹配的话
-                    if (!m.find()) {
-                        // 严格模式，抛错
-                        if (lnk.isStrict()) {
-                            throw Er.createf("e.cmd.thing.lnKey.NoMatch",
-                                             "Key:[%s], Val:[%s]",
-                                             key,
-                                             val);
+                    // 看看值是否能匹配上
+                    if (lnk.hasMatch()) {
+                        Matcher m = lnk.getMatch().matcher(val.toString());
+                        // 未匹配的话
+                        if (!m.find()) {
+                            // 严格模式，抛错
+                            if (lnk.isStrict()) {
+                                throw Er.createf("e.cmd.thing.lnKey.NoMatch",
+                                                 "Key:[%s], Val:[%s]",
+                                                 key,
+                                                 val);
+                            }
+                            // 否则继续下一个
+                            else {
+                                continue;
+                            }
                         }
-                        // 否则继续下一个
+                        // 填充 val 上下文
                         else {
-                            continue;
+                            for (int i = 0; i <= m.groupCount(); i++) {
+                                valContext.put("g" + i, m.group(i));
+                            }
                         }
                     }
-                    // 填充 val 上下文
-                    else {
-                        for (int i = 0; i <= m.groupCount(); i++) {
-                            valContext.put("g" + i, m.group(i));
+
+                    // 准备
+                    ThOtherUpdating other = new ThOtherUpdating(executor);
+                    other.service = service;
+
+                    // 指定目标
+                    if (lnk.hasTarget()) {
+                        ThingLinkKeyTarget lnkTa = lnk.getTarget();
+                        // 准备服务类
+                        if (lnkTa.hasThingSet()) {
+                            String tsph = lnkTa.getThingSet();
+                            String tsaph = service.normalizeFullPath(tsph);
+                            WnObj oTsOther = io.check(null, tsaph);
+                            oTsOther = Things.checkThingSet(oTsOther);
+                            other.service = service.gen(oTsOther, false);
                         }
+
+                        // 准备查询
+                        ThQuery tq2;
+
+                        // 寻找对应的记录集合
+                        if (lnkTa.hasFilter()) {
+                            NutMap fltTmpl = lnkTa.getFilter();
+                            NutMap flt = new NutMap();
+                            other.fillMeta(flt, fltTmpl, oT);
+                            tq2 = new ThQuery(flt);
+                        }
+                        // 否则
+                        else {
+                            tq2 = new ThQuery();
+                        }
+
+                        // 查找要修改的目标
+                        other.list = other.service.queryList(tq2);
                     }
-                }
-
-                // 准备
-                ThOtherUpdating other = new ThOtherUpdating(executor);
-                other.service = service;
-
-                // 指定目标
-                if (lnk.hasTarget()) {
-                    ThingLinkKeyTarget lnkTa = lnk.getTarget();
-                    // 准备服务类
-                    if (lnkTa.hasThingSet()) {
-                        String tsph = lnkTa.getThingSet();
-                        String tsaph = service.normalizeFullPath(tsph);
-                        WnObj oTsOther = io.check(null, tsaph);
-                        oTsOther = Things.checkThingSet(oTsOther);
-                        other.service = service.gen(oTsOther, false);
+                    // 如果没有特别目标，就更新自己，那么就直接修改自己的 meta，不用记录到 others 里了
+                    else if (lnk.hasSet()) {
+                        other.fillMeta(meta, lnk.getSet(), valContext);
+                        continue;
                     }
+                    // 如果指定了特别运行的脚本
+                    else if (lnk.hasRun()) {
+                        // 生成脚本模板上下文
+                        List<ThingCommandProton> protons = new ArrayList<>(lnk.getRun().length);
+                        for (String cmdTmpl : lnk.getRun()) {
+                            protons.add(new ThingCommandProton(oT, valContext, cmdTmpl));
+                        }
 
-                    // 准备查询
-                    ThQuery tq2;
-
-                    // 寻找对应的记录集合
-                    if (lnkTa.hasFilter()) {
-                        NutMap fltTmpl = lnkTa.getFilter();
-                        NutMap flt = new NutMap();
-                        other.fillMeta(flt, fltTmpl, oT);
-                        tq2 = new ThQuery(flt);
+                        // 计入，等 oT 更新后，这个会执行
+                        // 这个采用了一个 Proton，是因为想用 oT 更新后的上下文
+                        // 作为命令的模板的上下文
+                        other.commands = protons;
                     }
-                    // 否则
+                    // 啥都木有，那么过
                     else {
-                        tq2 = new ThQuery();
+                        continue;
                     }
 
-                    // 查找要修改的目标
-                    other.list = other.service.queryList(tq2);
-                }
-                // 如果没有特别目标，就更新自己，那么就直接修改自己的 meta，不用记录到 others 里了
-                else if (lnk.hasSet()) {
-                    other.fillMeta(meta, lnk.getSet(), valContext);
-                    continue;
-                }
-                // 如果指定了特别运行的脚本
-                else if (lnk.hasRun()) {
-                    // 生成脚本模板上下文
-                    List<ThingCommandProton> protons = new ArrayList<>(lnk.getRun().length);
-                    for (String cmdTmpl : lnk.getRun()) {
-                        protons.add(new ThingCommandProton(oT, valContext, cmdTmpl));
+                    // 准备要更新的元数据表
+                    if (lnk.hasSet()) {
+                        other.meta = new NutMap();
+                        other.fillMeta(other.meta, lnk.getSet(), valContext);
                     }
 
-                    // 计入，等 oT 更新后，这个会执行
-                    // 这个采用了一个 Proton，是因为想用 oT 更新后的上下文
-                    // 作为命令的模板的上下文
-                    other.commands = protons;
-                }
-                // 啥都木有，那么过
-                else {
-                    continue;
-                }
-
-                // 准备要更新的元数据表
-                if (lnk.hasSet()) {
-                    other.meta = new NutMap();
-                    other.fillMeta(other.meta, lnk.getSet(), valContext);
-                }
-
-                // 计入列表
-                if (!other.isIdle()) {
-                    others.add(other);
+                    // 计入列表
+                    if (!other.isIdle()) {
+                        others.add(other);
+                    }
                 }
             }
         }
