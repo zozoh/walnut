@@ -26,7 +26,7 @@ author: zozohtnt@gmail.com
 ### 请求头
 
 ```bash
-HTTP POST /api/${YourDomain}/pay/buy
+HTTP POST /api/pay/buy
 #---------------------------------
 # Query String
 ticket : "34t6..8aq1"     # 【必】登录会话的票据
@@ -105,7 +105,7 @@ cat id:${id} | www buy ~/www -cqn -ajax -ticket "${http-qs-ticket}"
 ### 请求头
 
 ```bash
-HTTP GET /api/${YourDomain}/pay/check_order
+HTTP GET /api/pay/check_order
 #---------------------------------
 # Query String
 id : "34t6..8aq1"     # 【必】订单ID
@@ -154,7 +154,7 @@ www paycheck "${http-qs-id}" -cqn
 ### 请求头
 
 ```bash
-HTTP GET /api/${YourDomain}/pay/check_order
+HTTP GET /api/pay/check_order
 #---------------------------------
 # Query String
 out_trade_no : "34t6..8aq1"     # 【必】订单ID
@@ -182,7 +182,7 @@ httpparam -in id:${id} | pay re -idkey out_trade_no -s
 ### 请求头
 
 ```bash
-HTTP GET /api/${YourDomain}/pay/check_order
+HTTP GET /api/pay/check_order
 #---------------------------------
 # Query String
 out_trade_no : "34t6..8aq1"     # 【必】订单ID

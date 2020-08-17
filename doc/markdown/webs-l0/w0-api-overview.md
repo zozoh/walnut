@@ -8,8 +8,11 @@ author: zozohtnt@gmail.com
   URL   | Method| Date | Description
 --------|-------|------|----------
 `thumb` | `GET` |`img` | 获取对象缩略图
-`media` | `GET` |`img` | 获取对象本身
-`objs`  | `GET` |`json`| 我的收货地址
+`media` | `GET` |`img` | 获取对象内容
+`read`  | `GET` |`img` | 读取对象内容
+`objs`  | `GET` |`json`| 根据ID获取对象列表
+
+> [全局基础接口](w0-api-base.md)
 
 # 账户权鉴
 
@@ -31,20 +34,24 @@ author: zozohtnt@gmail.com
 `auth/setme`          |`GET` |`json`| 更新个人资料
 `auth/site`           |`GET` |`json`| 获取站点信息
 
+> [账户权鉴接口](w0-api-auth.md)
+
 # 通用·数据集
 
   URL              |Method| Date | Description
 -------------------|------|------|----------
 `thing/create`     |`POST`|`json`| 创建数据记录
 `thing/delete`     |`GET` |`json`| 删除数据数据
-`thing/file/add`   |`GET` |`json`| 上传附件
-`thing/file/get`   |`GET` |`json`| 获取附件元数据
-`thing/file/read`  |`GET` |`bin` | 获取附件内容
-`thing/file/remove`|`GET` |`json`| 删除附件
 `thing/get`        |`GET` |`json`| 获取记录元数据
 `thing/list`       |`GET` |`json`| 列出全部数据记录
 `thing/query`      |`GET` |`json`| 查询数据记录
 `thing/update`     |`POST`|`json`| 更新数据记录
+`thing/file/add`   |`GET` |`json`| 上传附件
+`thing/file/get`   |`GET` |`json`| 获取附件元数据
+`thing/file/read`  |`GET` |`bin` | 获取附件内容
+`thing/file/remove`|`GET` |`json`| 删除附件
+
+> [通用数据接口](w0-api-thing.md)
 
 # 订单及支付
 
@@ -56,6 +63,8 @@ author: zozohtnt@gmail.com
 `pay/re_paypal`  |`GET` |`json`| 处理 paypal 回调
 `pay/re_wx`      |`GET` |`json`| 处理微信支付回调
 `pay/re_zfb`     |`GET` |`json`| 处理支付宝回调
+
+> [订单及支付接口](w0-api-pay.md)
 
 # 实体·购物车
 
