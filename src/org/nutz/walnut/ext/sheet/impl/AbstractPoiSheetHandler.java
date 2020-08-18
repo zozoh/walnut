@@ -28,13 +28,13 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.sheet.SheetImageHolder;
 
 public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
-	
-	protected Workbook tmpl;
 
-	public void setTmpl(InputStream ins) throws IOException {
-		tmpl = createWorkbook(ins);
-	}
-	
+    protected Workbook tmpl;
+
+    public void setTmpl(InputStream ins) throws IOException {
+        tmpl = createWorkbook(ins);
+    }
+
     public AbstractPoiSheetHandler() {
         super();
     }
@@ -42,7 +42,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     protected abstract Workbook createWorkbook(InputStream ins) throws IOException;
 
     protected abstract Workbook createWorkbook();
-    
+
     protected abstract List<SheetImage> exportImages(Workbook wb, List<NutMap> list, NutMap conf);
 
     @Override
@@ -56,9 +56,9 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
             // 从工作表读取数据
             readFromSheet(wb, list, conf);
-            
+
             if (conf.has("images")) {
-            	result.images = exportImages(wb, list, conf);
+                result.images = exportImages(wb, list, conf);
             }
         }
         catch (IOException e) {
@@ -76,12 +76,11 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         Workbook wb = null;
         try {
             // 加载工作表
-        	if (tmpl != null) {
-        		wb = tmpl;
-        	}
-        	else {
+            if (tmpl != null) {
+                wb = tmpl;
+            } else {
                 wb = new HSSFWorkbook();
-        	}
+            }
 
             // 从工作表读取数据
             this.writeToSheet(wb, list, conf);
@@ -98,6 +97,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         }
     }
 
+    @SuppressWarnings({"deprecation", "rawtypes"})
     protected void writeToSheet(Workbook wb, List<NutMap> list, NutMap conf) {
         // 分析参数
         boolean noheader = conf.getBoolean("noheader");
@@ -145,36 +145,36 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             int _row = rowOffset++;
             Row row = sheet.getRow(_row);
             if (row == null) {
-            	row = sheet.createRow(_row);
+                row = sheet.createRow(_row);
             }
             for (int col = 0; col < keys.length; col++) {
                 String key = keys[col];
                 Object val = obj.get(key);
                 Cell cell = row.getCell(colOffset + col);
                 if (cell == null)
-                	cell = row.createCell(colOffset + col);
+                    cell = row.createCell(colOffset + col);
                 this.__set_cell_val(wb, drawing, cell, val);
             }
         }
         // 有没有额外数据呀
         if (conf.has("exts")) {
-        	List<NutMap> exts = conf.getList("exts", NutMap.class);
-        	for (NutMap ext : exts) {
-				int ext_col_index = ext.getInt("col");
-				int ext_row_index = ext.getInt("row");
-				String value = ext.getString("val");
-				Row ext_row = sheet.getRow(ext_row_index);
-				if (ext_row == null) {
-					ext_row = sheet.createRow(ext_row_index);
-				}
-				Cell ext_cell = ext_row.getCell(ext_col_index);
-				if (ext_cell == null) {
-					ext_cell = ext_row.createCell(ext_col_index);
-				}
-				this.__set_cell_val(wb, drawing, ext_cell, value);
-			}
+            List<NutMap> exts = conf.getList("exts", NutMap.class);
+            for (NutMap ext : exts) {
+                int ext_col_index = ext.getInt("col");
+                int ext_row_index = ext.getInt("row");
+                String value = ext.getString("val");
+                Row ext_row = sheet.getRow(ext_row_index);
+                if (ext_row == null) {
+                    ext_row = sheet.createRow(ext_row_index);
+                }
+                Cell ext_cell = ext_row.getCell(ext_col_index);
+                if (ext_cell == null) {
+                    ext_cell = ext_row.createCell(ext_col_index);
+                }
+                this.__set_cell_val(wb, drawing, ext_cell, value);
+            }
         }
-        
+
         // 结束日志
         this._on_end(len);
 
@@ -201,10 +201,10 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     }
 
     protected void readFromSheet(Workbook wb, List<NutMap> list, NutMap conf) {
-    	// 是否自动添加行号
-    	boolean addRowIndex = conf.getBoolean("addRowIndex");
-    	NutMap matcher = conf.getAs("matcher", NutMap.class);
-    	
+        // 是否自动添加行号
+        boolean addRowIndex = conf.getBoolean("addRowIndex");
+        NutMap matcher = conf.getAs("matcher", NutMap.class);
+
         // 读取工作表
         Sheet sheet = __get_sheet(wb, conf);
         if (null == sheet)
@@ -272,27 +272,27 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 obj.put(key, val);
             }
             if (addRowIndex) {
-            	obj.put("rowIndex", row.getRowNum());
+                obj.put("rowIndex", row.getRowNum());
             }
             // 原始数据过来
             if (matcher != null) {
-            	boolean flag = true;
-            	for (Map.Entry<String, Object> en : matcher.entrySet()) {
-					Object tmpval = obj.get(en.getKey());
-					if (tmpval == null && en.getValue() != null) {
-						flag = false;
-						break;
-					}
-					if (!tmpval.equals(en.getValue())) {
-						flag = false;
-						break;
-					}
-				}
-            	if (!flag) {
-            		continue; // 跳过当前记录
-            	}
+                boolean flag = true;
+                for (Map.Entry<String, Object> en : matcher.entrySet()) {
+                    Object tmpval = obj.get(en.getKey());
+                    if (tmpval == null && en.getValue() != null) {
+                        flag = false;
+                        break;
+                    }
+                    if (!tmpval.equals(en.getValue())) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    continue; // 跳过当前记录
+                }
             }
-            
+
             // 计入结果
             list.add(obj);
         }
@@ -310,6 +310,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         // return !row.cellIterator().hasNext();
     }
 
+    @SuppressWarnings({"rawtypes", "deprecation"})
     private void __set_cell_val(Workbook wb, Drawing drawing, Cell cell, Object val) {
         // 空的
         if (null == val) {
@@ -318,10 +319,14 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         }
         // 图片
         if (val instanceof SheetImageHolder) {
-        	// TODO 改成可配置的
-        	cell.getRow().setHeight((short)1500);
-        	addImage(wb, drawing, ((SheetImageHolder)val).getImage(400, 400), cell.getRowIndex(), cell.getColumnIndex());
-        	return;
+            // TODO 改成可配置的
+            cell.getRow().setHeight((short) 1500);
+            addImage(wb,
+                     drawing,
+                     ((SheetImageHolder) val).getImage(400, 400),
+                     cell.getRowIndex(),
+                     cell.getColumnIndex());
+            return;
         }
         // 开始判断吧
         Mirror<?> mi = Mirror.me(val);
@@ -345,7 +350,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         else if (mi.isStringLike() && val.toString().startsWith("=")) {
             cell.setCellType(CellType.FORMULA);
             cell.setCellValue(val.toString());
-            
+
         }
         // 其他的就是字符串咯
         else {
@@ -353,16 +358,17 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             String str = Castors.me().castToString(val);
             cell.setCellValue(str);
             if (str.contains("\n") || str.contains("\r")) {
-            	CellStyle cs = cell.getCellStyle();
-            	cs.setWrapText(true);
-            	cell.setCellStyle(cs);
-            	cell.setCellValue(str);
+                CellStyle cs = cell.getCellStyle();
+                cs.setWrapText(true);
+                cell.setCellStyle(cs);
+                cell.setCellValue(str);
             }
         }
     }
-    
+
+    @SuppressWarnings("rawtypes")
     protected void addImage(Workbook wb, Drawing patriarch, byte[] image, int row, int col) {
-    	// 子类自行搞定
+        // 子类自行搞定
     }
 
     @SuppressWarnings("deprecation")

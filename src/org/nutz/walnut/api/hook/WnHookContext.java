@@ -3,7 +3,6 @@ package org.nutz.walnut.api.hook;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.lang.stream.VoidOutputStream;
 import org.nutz.walnut.api.auth.WnAuthService;

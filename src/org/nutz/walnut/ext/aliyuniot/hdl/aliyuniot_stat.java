@@ -21,6 +21,7 @@ import com.aliyuncs.profile.IClientProfile;
 @JvmHdlParamArgs("cqn")
 public class aliyuniot_stat implements JvmHdl {
 
+    @SuppressWarnings("deprecation")
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         WnObj conf = sys.io.check(null, Wn.normalizeFullPath("~/.aliyuniot/" + hc.params.get("cnf", "default"), sys));
 

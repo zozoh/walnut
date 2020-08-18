@@ -23,6 +23,7 @@ public class TestJdbc {
 
         Connection conn = dataSource.getConnection();
         Dao dao = new NutDao(dataSource);
+        dao.exists("t_abc");
         conn.close();
     }
 

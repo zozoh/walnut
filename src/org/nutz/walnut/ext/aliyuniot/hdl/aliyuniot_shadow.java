@@ -66,6 +66,7 @@ public class aliyuniot_shadow implements JvmHdl {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void execute(WnObj conf, String imei, String update, WnOutputable out, boolean dry) throws Exception {
         String accessKey = conf.getString("accessKey");
         String accessSecret = conf.getString("accessSecret");
