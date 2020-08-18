@@ -286,7 +286,11 @@ public class WnIoImpl2 implements WnIo {
     public WnObj check(WnObj p, String path) {
         WnObj o = fetch(p, path);
         if (null == o)
-            throw Er.create("e.io.obj.noexists", path);
+            if (null == p) {
+                throw Er.create("e.io.obj.noexists", path);
+            } else {
+                throw Er.create("e.io.obj.noexists", path + ", p:" + p.path());
+            }
         return o;
     }
 
