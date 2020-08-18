@@ -43,6 +43,42 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     protected WnIoHandleManager handles;
 
     @Test
+    public void test_get_silbing_in_file_mount() {
+        WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
+        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+
+        File dHome = setup.getLocalFileHome();
+        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
+        Files.createFileIfNoExists(f);
+        File f2 = Files.getFile(dHome, "titanium/src/view/types/zh-cn/_types.json");
+        Files.write(f2, "hello");
+        Files.createFileIfNoExists(f2);
+
+        WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
+        String aph = Files.getAbsPath(dHome);
+        String mnt = "file://" + aph + "/titanium/";
+        io.setMount(dMnTi, mnt);
+
+        WnObj oC = io.check(null, "/rs/ti/view/creation.json");
+        WnObj oT = io.check(oC, "types/zh-cn/_types.json");
+
+        assertEquals("_types.json", oT.name());
+        String str = io.readText(oT);
+        assertEquals("hello", str);
+    }
+
+    @Test
+    public void test_get_silbing_file() {
+        io.create(null, "/a/x", WnRace.FILE);
+        io.create(null, "/a/y", WnRace.FILE);
+
+        WnObj oX = io.fetch(null, "/a/x");
+        WnObj oY = io.fetch(oX, "y");
+
+        assertEquals("y", oY.name());
+    }
+
+    @Test
     public void test_mnt_global_and_redisBM() {
         WnObj p = io.create(null, "/var/session", WnRace.DIR);
         io.setMount(p, "://redis(_)");

@@ -1138,6 +1138,13 @@ public abstract class Wn {
                 String mime = mimes.getMime(o.type());
                 o.mime(mime);
             }
+            // 如果定义了 mime 那么也改变
+            else if (null != tp) {
+                String mime = mimes.getMime(tp, null);
+                if (null != mime) {
+                    o.mime(mime);
+                }
+            }
         }
     }
 

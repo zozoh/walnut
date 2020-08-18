@@ -9,6 +9,8 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -20,6 +22,8 @@ import org.nutz.walnut.validate.impl.MatchRegex;
 import org.nutz.walnut.validate.impl.MatchWildcard;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
+
+    private static final Log log = Logs.get();
 
     protected File dHome;
 
@@ -88,6 +92,9 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         // 不是目录
         if (!f.isDirectory()) {
             throw Er.create("e.io.localfile.NotDir", p.path());
+        }
+        if (path.endsWith("_types.json")) {
+            log.infof("LocalFile.fetch : %s :: %s", f.getAbsolutePath(), path);
         }
         // 获取文件
         File f2 = Files.getFile(f, path);
