@@ -45,7 +45,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
     @Test
     public void test_get_silbing_in_file_mount() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
-        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti'"));
 
         File dHome = setup.getLocalFileHome();
         File f = Files.getFile(dHome, "titanium/src/view/creation.json");
@@ -56,11 +56,21 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
 
         WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
         String aph = Files.getAbsPath(dHome);
-        String mnt = "file://" + aph + "/titanium/";
+        String mnt = "file://" + aph + "/titanium/src";
         io.setMount(dMnTi, mnt);
 
-        WnObj oC = io.check(null, "/rs/ti/view/creation.json");
-        WnObj oT = io.check(oC, "types/zh-cn/_types.json");
+        WnObj oC = io.fetch(null, "/rs/ti/view/creation.json");
+
+        // 测试一下获取父
+        WnObj oView = oC.parent();
+        assertEquals("/rs/ti/view", oView.path());
+        assertEquals(WnRace.DIR, oView.race());
+
+        WnObj oTi = oView.parent();
+        assertEquals("/rs/ti", oTi.path());
+        assertEquals(dMnTi.id(), oTi.id());
+
+        WnObj oT = io.fetch(oC, "types/zh-cn/_types.json");
 
         assertEquals("_types.json", oT.name());
         String str = io.readText(oT);
@@ -827,6 +837,17 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         String aph = Files.getAbsPath(f);
         String mnt = "file://" + aph;
 
+        /*
+         * <pre>
+         * /a/b/ := org/nutz/walnut/core/bean/WnObjIdTest.class
+         *                                ^
+         *                                |
+         *    +-----------link------------+
+         *    |  
+         * /x/y/
+         * </pre>
+         */
+
         WnObj b = io.create(null, "/a/b", WnRace.DIR);
         WnObj y = io.create(null, "/x/y", WnRace.DIR);
 
@@ -840,6 +861,8 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         // 试图找找文件
         String fnm = WnObjIdTest.class.getSimpleName() + ".class";
         WnObj x = io.fetch(null, "/x");
+        
+        // o => /x/y/WnObjIdTest.class
         WnObj o = io.fetch(x, "y/" + fnm);
         String oph = "/x/y/" + fnm;
 

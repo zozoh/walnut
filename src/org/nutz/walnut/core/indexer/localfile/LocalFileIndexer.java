@@ -91,7 +91,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         File f = this._check_file_by(p);
         // 不是目录
         if (!f.isDirectory()) {
-            throw Er.create("e.io.localfile.NotDir", p.path());
+            f = f.getParentFile();
         }
         if (path.endsWith("_types.json")) {
             log.infof("LocalFile.fetch : %s :: %s", f.getAbsolutePath(), path);

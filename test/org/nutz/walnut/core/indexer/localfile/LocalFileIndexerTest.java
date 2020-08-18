@@ -20,6 +20,7 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.IoCoreTest;
+import org.nutz.walnut.core.bean.WnIoObj;
 
 public class LocalFileIndexerTest extends IoCoreTest {
 
@@ -36,6 +37,32 @@ public class LocalFileIndexerTest extends IoCoreTest {
     @After
     public void tearDown() throws Exception {
         Files.clearDir(dHome);
+    }
+
+    @Test
+    public void test_get_mount_parent() {
+        WnObj p = new WnIoObj();
+        p.id("@VirtualID");
+        p.race(WnRace.DIR);
+        p.path("/x/y");
+        indexer.create(null, "a/b/c/d.txt", WnRace.FILE);
+
+        WnObj b = indexer.fetch(null, "a/b");
+        b.setParent(p);
+        WnObj d = indexer.fetch(b, "c/d.txt");
+
+        assertEquals("/x/y/b/c/d.txt", d.path());
+
+        WnObj c = d.parent();
+        assertEquals("/x/y/b/c", c.path());
+
+        WnObj b2 = c.parent();
+        assertEquals("/x/y/b", b2.path());
+
+        WnObj y = b2.parent();
+        assertEquals("/x/y", y.path());
+        assertTrue(y.isSameId(p));
+
     }
 
     @Test

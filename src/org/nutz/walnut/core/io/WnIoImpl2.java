@@ -299,6 +299,13 @@ public class WnIoImpl2 implements WnIo {
         if (path.startsWith("/")) {
             p = null;
         }
+
+        // 处理挂载节点
+        if (null != p && p.isMount()) {
+            WnIoMapping mapping = mappings.checkMapping(p);
+            return mapping.getIndexer().fetch(p, path);
+        }
+
         String[] ss = Strings.splitIgnoreBlank(path, "[/]");
         return fetch(p, ss, 0, ss.length);
     }

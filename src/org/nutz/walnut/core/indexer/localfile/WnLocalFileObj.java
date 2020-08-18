@@ -280,9 +280,24 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                     p2.setParent(_parent);
                     return p2;
                 }
+                // 如果用尽了
+                else {
+                    return this._parent;
+                }
             }
+            // 计算自己相对于父的相对路径
+            String _p_rph = Disks.getRelativePath(this._parent.path(), this.path());
+            // 看看自己的 rph 是否用尽
+            int pos = _p_rph.lastIndexOf('/', _p_rph.length() - 1);
             // rph 用尽了，直接返回自己的父就好了
-            return _parent;
+            if (pos <= 0) {
+                return _parent;
+            }
+            // rph 未用尽，那么试图搞一个自己的父目录对象
+            File fP = this.file.getParentFile();
+            WnLocalFileObj oP = new WnLocalFileObj(oHome, dHome, fP, mimes);
+            oP.setParent(this._parent);
+            return oP;
         }
         String ph = Wn.appendPath(phHome, rph);
         if (ph.equals(this.phFile)) {
