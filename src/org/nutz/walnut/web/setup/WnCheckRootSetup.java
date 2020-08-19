@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.random.R;
@@ -8,6 +8,7 @@ import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
+import org.nutz.walnut.web.WnConfig;
 
 public class WnCheckRootSetup implements Setup {
 

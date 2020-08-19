@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import org.nutz.log.Log;
 import org.nutz.log.Logs;

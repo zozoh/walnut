@@ -22,6 +22,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.module.AbstractWnModule;
+import org.nutz.walnut.web.setup.WnSetup;
 import org.nutz.walnut.web.view.WnViewMaker;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.AjaxViewMaker;

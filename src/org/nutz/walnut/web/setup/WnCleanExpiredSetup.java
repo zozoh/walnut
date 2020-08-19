@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.log.Log;
@@ -6,6 +6,7 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.util.WnRun;
+import org.nutz.walnut.web.WnIoCleaner;
 
 public class WnCleanExpiredSetup implements Setup {
 

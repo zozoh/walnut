@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
+import org.nutz.walnut.web.WnConfig;
 
 public class WnLaunchNotiSetup implements Setup {
 

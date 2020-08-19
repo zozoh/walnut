@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
@@ -9,6 +9,7 @@ import org.nutz.mvc.Setup;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.web.WnConfig;
 
 /**
  * 执行一次就丢弃的

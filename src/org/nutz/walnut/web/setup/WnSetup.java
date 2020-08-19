@@ -1,4 +1,4 @@
-package org.nutz.walnut.web;
+package org.nutz.walnut.web.setup;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +39,8 @@ import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
+import org.nutz.walnut.web.WnConfig;
+import org.nutz.walnut.web.WnInitMount;
 import org.nutz.web.handler.JettyHandlerHook;
 
 public class WnSetup implements Setup {

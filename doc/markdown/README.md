@@ -15,6 +15,7 @@
 - [基础权限模型][c0-pvg]
 - 环境变量
 - 命令机制
+- [通知机制][c0-noti]
 
 -----------------------------------------
 ## 系统延申概念`core-l1`
@@ -113,6 +114,7 @@
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
 [c1-api]: core-l1/c1-regapi.md
 [c0-pvg]: core-l0/c0-basic-privilege-model.md
+[c0-noti]: core-l0/c0-notification.md
 [c1-buk]: core-l1/c1-bulk-backup-restore.md
 [c1-gde]: core-l1/c1-general-data-entity.md
 [c1-nti]: core-l1/c1-notify.md

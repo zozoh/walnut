@@ -1,5 +1,5 @@
 ---
-title: HTTP 注册接口
+title: HTTP注册接口
 author: zozohtnt@gmail.com
 ---
 

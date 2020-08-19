@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.mq;
 
-public class WnMqMsg {
+public enum WnMqMsgType {
+
+    CMD
 
 }
