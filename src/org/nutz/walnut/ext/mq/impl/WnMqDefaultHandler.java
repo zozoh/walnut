@@ -20,6 +20,11 @@ public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
 
     @Override
     public void inovke(WnMqMessage msg) {
+
+        if (log.isInfoEnabled()) {
+            log.infof("MQ:received message:\n%s", msg.toString());
+        }
+
         // 得到运行命令，如果为空，则无视
         // TODO 这里根据 msg.type 可以给出更多玩法
         String cmdText = msg.getBody();
