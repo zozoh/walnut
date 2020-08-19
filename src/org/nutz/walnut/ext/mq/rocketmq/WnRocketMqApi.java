@@ -64,7 +64,7 @@ public class WnRocketMqApi implements WnMqApi {
         if (null == consumer) {
             synchronized (this) {
                 if (null == consumer) {
-                    DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(consumerName);
+                    consumer = new DefaultMQPushConsumer(consumerName);
                     String addr = String.format("%s:%d", host, port);
                     consumer.setNamesrvAddr(addr);
                     consumer.registerMessageListener(new RocketMqMessageHandler(this));
@@ -80,20 +80,18 @@ public class WnRocketMqApi implements WnMqApi {
         return consumer;
     }
 
-    static Message toMessage(WnMqMessage mqMsg) {
+    static Message toMessage(String topic, WnMqMessage mqMsg) {
         Message roMsg = new Message();
-        roMsg.setTopic(mqMsg.getTopic());
+        roMsg.setTopic(topic);
         roMsg.setTags(mqMsg.getType().toString());
-        roMsg.setBody(mqMsg.getBodyBytes());
+        roMsg.setBody(mqMsg.toBytes());
         return roMsg;
     }
 
     static WnMqMessage fromMessage(MessageExt roMsg) {
         WnMqMessage mqMsg = new WnMqMessage();
-        mqMsg.setType(roMsg.getTags());
-        mqMsg.setTopic(roMsg.getTopic());
-        String body = new String(roMsg.getBody(), Encoding.CHARSET_UTF8);
-        mqMsg.setBody(body);
+        String str = new String(roMsg.getBody(), Encoding.CHARSET_UTF8);
+        mqMsg.parseText(str);
         return mqMsg;
     }
 
@@ -127,10 +125,10 @@ public class WnRocketMqApi implements WnMqApi {
     }
 
     @Override
-    public void send(WnMqMessage msg) throws WnMqException {
+    public void send(String topic, WnMqMessage msg) throws WnMqException {
         try {
             MQProducer pd = this.getProducer();
-            Message m = toMessage(msg);
+            Message m = toMessage(topic, msg);
             pd.send(m);
         }
         catch (Exception e) {
@@ -139,10 +137,10 @@ public class WnRocketMqApi implements WnMqApi {
     }
 
     @Override
-    public void send(WnMqMessage msg, int timeout) throws WnMqException {
+    public void send(String topic, WnMqMessage msg, int timeout) throws WnMqException {
         try {
             MQProducer pd = this.getProducer();
-            Message m = toMessage(msg);
+            Message m = toMessage(topic, msg);
             pd.send(m, timeout);
         }
         catch (Exception e) {

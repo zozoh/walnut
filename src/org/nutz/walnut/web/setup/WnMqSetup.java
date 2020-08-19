@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.ext.mq.WnMqApi;
 import org.nutz.walnut.ext.mq.WnMqException;
+import org.nutz.walnut.ext.mq.WnMqHandler;
+import org.nutz.walnut.ext.mq.impl.WnMqDefaultHandler;
 import org.nutz.walnut.web.WnConfig;
 
 public class WnMqSetup implements Setup {
@@ -22,18 +25,49 @@ public class WnMqSetup implements Setup {
     public void init(NutConfig nc) {
         Ioc ioc = nc.getIoc();
         WnConfig conf = ioc.get(WnConfig.class, "conf");
-        this.api = ioc.get(WnMqApi.class, "messageQueueApi");
 
-        // 获取主题
-        String beanName = conf.get("mq-api-name", "messageQueueApi");
-        List<String> topicList = conf.getList("mq-consumers");
-        if (null == topicList || topicList.isEmpty()) {
-            topicList.add("sys");
+        // 这个开关用来在配置文件里关闭消息队列消费者
+        if (!conf.getBoolean("mq-enabled", false)) {
+            log.infof("MqSetup: off");
+            return;
         }
 
-        // 循环主题列表，并注册
-        for (String topic : topicList) {
+        // 准备接口
+        String beanName = conf.get("mq-api-name", "messageQueueApi");
+        log.infof("MqSetup: api=%s", beanName);
+        this.api = ioc.get(WnMqApi.class, beanName);
 
+        // 获取监听器
+        List<String> lists = conf.getList("mq-listeners");
+        if (null == lists || lists.isEmpty()) {
+            lists.add("sys");
+        }
+
+        // 默认监听器
+        WnMqHandler dftHandler = ioc.get(WnMqDefaultHandler.class);
+
+        // 循环主题列表，并注册
+        log.infof("init %d listeners", lists.size());
+        for (String li : lists) {
+            try {
+                String[] ss = Strings.splitIgnoreBlank(li, ":");
+                // 采用默认监听器
+                if (ss.length == 1) {
+                    log.infof(" - listen [%s] by default", ss[0]);
+                    api.subscribe(ss[0], dftHandler);
+                }
+                // 指定监听器
+                else if (ss.length > 1) {
+                    String topic = ss[0];
+                    String lisnm = ss[1].substring(1).trim();
+                    log.infof(" - listen [%s] by IocBean('%s')", ss[0], lisnm);
+                    WnMqHandler hdl = ioc.get(WnMqHandler.class, lisnm);
+                    api.subscribe(topic, hdl);
+                }
+            }
+            catch (WnMqException e) {
+                throw Lang.wrapThrow(e);
+            }
         }
     }
 

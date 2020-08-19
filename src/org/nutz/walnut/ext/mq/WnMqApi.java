@@ -24,8 +24,8 @@ public interface WnMqApi extends Closeable {
      */
     void unsubscribe(String topic) throws WnMqException;
 
-    void send(WnMqMessage msg) throws WnMqException;
+    void send(String topic, WnMqMessage msg) throws WnMqException;
 
-    void send(WnMqMessage msg, int timeout) throws WnMqException;
+    void send(String topic, WnMqMessage msg, int timeout) throws WnMqException;
 
 }

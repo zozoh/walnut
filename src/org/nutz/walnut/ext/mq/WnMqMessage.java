@@ -7,22 +7,23 @@ import org.nutz.lang.meta.Pair;
 
 public class WnMqMessage {
 
-    private String topic;
-
     private WnMqMsgType type;
+
+    private String user;
+
+    private String secret;
 
     private String body;
 
     public WnMqMessage() {
-        this("sys", WnMqMsgType.CMD, null);
+        this(WnMqMsgType.CMD, null);
     }
 
-    public WnMqMessage(String topic, String body) {
-        this(topic, WnMqMsgType.CMD, body);
+    public WnMqMessage(WnMqMsgType type) {
+        this(type, null);
     }
 
-    public WnMqMessage(String topic, WnMqMsgType type, String body) {
-        this.topic = topic;
+    public WnMqMessage(WnMqMsgType type, String body) {
         this.type = type;
         this.body = body;
     }
@@ -67,13 +68,17 @@ public class WnMqMessage {
                 Pair<String> pa = Pair.create(line.substring(1).trim());
                 String name = pa.getName();
                 String value = pa.getValue();
-                // Topic
-                if ("topic".equals(name)) {
-                    this.setTopic(value);
-                }
                 // Type
-                else if ("type".equals(name)) {
+                if ("type".equals(name)) {
                     this.setType(value);
+                }
+                // User
+                else if ("user".equals(name)) {
+                    this.setUser(value);
+                }
+                // secret
+                else if ("secret".equals(name)) {
+                    this.setSecret(value);
                 }
                 continue;
             }
@@ -87,14 +92,6 @@ public class WnMqMessage {
         int len = lines.length - bodyIndex;
         String body = Strings.join(bodyIndex, len, "\n", lines);
         this.setBody(body);
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
     }
 
     public WnMqMsgType getType() {
@@ -114,8 +111,36 @@ public class WnMqMessage {
         }
     }
 
-    public byte[] getBodyBytes() {
-        return body.getBytes(Encoding.CHARSET_UTF8);
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setDefaultUser(String user) {
+        if (Strings.isBlank(this.user)) {
+            this.user = user;
+        }
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
+    public void setDefaultSecret(String secret) {
+        if (Strings.isBlank(this.secret)) {
+            this.secret = secret;
+        }
+    }
+
+    public boolean hasBody() {
+        return !Strings.isBlank(body);
     }
 
     public String getBody() {
@@ -126,16 +151,28 @@ public class WnMqMessage {
         this.body = body;
     }
 
+    public byte[] toBytes() {
+        String str = this.toString();
+        return str.getBytes(Encoding.CHARSET_UTF8);
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (!Strings.isBlank(topic)) {
-            sb.append(String.format("@topic=%s\n", topic));
-        }
+        // .........................................
         if (null == type) {
             sb.append("@type=CMD\n");
         } else {
             sb.append(String.format("@type=%s\n", type.toString()));
         }
+        // .........................................
+        if (!Strings.isBlank(user)) {
+            sb.append(String.format("@user=%s\n", user));
+        }
+        // .........................................
+        if (!Strings.isBlank(secret)) {
+            sb.append(String.format("@secret=%s\n", secret));
+        }
+        // .........................................
         if (sb.length() > 0) {
             sb.append("\n");
         }

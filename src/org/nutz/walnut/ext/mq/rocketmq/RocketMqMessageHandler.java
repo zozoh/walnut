@@ -23,7 +23,7 @@ public class RocketMqMessageHandler implements MessageListenerConcurrently {
                                                     ConsumeConcurrentlyContext context) {
         for (MessageExt msg : msgs) {
             WnMqMessage mqMsg = WnRocketMqApi.fromMessage(msg);
-            String topic = mqMsg.getTopic();
+            String topic = msg.getTopic();
             WnMqHandler handler = api.getHandler(topic);
             if (null != handler) {
                 handler.inovke(mqMsg);

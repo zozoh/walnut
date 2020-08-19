@@ -62,8 +62,6 @@ Walnut 系统通过内置模块以及[HTTP注册接口][c1-api]接受外部HTTP�
 ## JSON
 
 ```bash
-# 消息主题，默认为 "sys"（大小写敏感）
-topic : "sys"
 #
 # 消息的类型声明了消息的处理方式（必须大写）
 # 现在仅支持一种类型 "cmd"，同时也是默认设置
@@ -91,9 +89,10 @@ body : "echo  'hello' > ~/abc.txt"
 ## TEXT
 
 ```bash
-# 支持 # 开头的注释行
-@topic=sys
+# 支持 '#' 开头的注释行
 @type=CMD
+@user=demo
+@secret=xxxxx
 #
 # 连续两个空格以后，为 body 的内容
 #

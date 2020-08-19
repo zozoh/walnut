@@ -1,5 +1,6 @@
 {
-    "topic" : "xyz",
-    "type"  : "CMD",
-    "body"  : "echo  'hello' > ~/abc.txt"
+    "type"   : "CMD",
+    "user"   : "demo",
+    "secret" : "XXYYZZ",
+    "body"   : "echo  'hello' > ~/abc.txt"
 }
