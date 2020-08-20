@@ -783,7 +783,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
 
         // 添加同步时间描述
         long last_st = System.currentTimeMillis();
-        io.appendMeta(b, "st:" + last_st);
+        io.appendMeta(b, "synt:" + last_st);
 
         // 等几毫秒 ...
         Thread.sleep(5);

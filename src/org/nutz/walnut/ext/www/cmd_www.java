@@ -7,6 +7,8 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
@@ -25,6 +27,8 @@ import org.nutz.web.ajax.Ajax;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class cmd_www extends JvmHdlExecutor {
+
+    private static final Log log = Logs.get();
 
     public static WnObj checkSite(WnSystem sys, JvmHdlContext hc) {
         String site = hc.params.val_check(0);
@@ -116,6 +120,9 @@ public class cmd_www extends JvmHdlExecutor {
 
         // -------------------------------
         // 执行
+        if (log.isInfoEnabled()) {
+            log.infof("Create Payment for [%s] by:\n   %s", or.getId(), cmdText);
+        }
         String input = Json.toJson(meta, JsonFormat.compact());
         String re = sys.exec2(cmdText, input);
         WnPay3xRe payRe = Json.fromJson(WnPay3xRe.class, re);

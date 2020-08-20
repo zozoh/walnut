@@ -665,12 +665,12 @@ public abstract class Wn {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
                             an.syncTime(synctime);
-                            indexer.set(an, "^st$");
+                            indexer.set(an, "^synt$");
                         }
                     }
                     if (includeSelf && o.syncTime() > 0) {
                         o.syncTime(synctime);
-                        indexer.set(o, "^st$");
+                        indexer.set(o, "^synt$");
                     }
                 }
             });
@@ -704,12 +704,12 @@ public abstract class Wn {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
                             an.syncTime(synctime);
-                            tree.set(an, "^st$");
+                            tree.set(an, "^synt$");
                         }
                     }
                     if (includeSelf && o.syncTime() > 0) {
                         o.syncTime(synctime);
-                        tree.set(o, "^st$");
+                        tree.set(o, "^synt$");
                     }
                 }
             });

@@ -68,6 +68,26 @@ public class WnDaoQuery {
                 top.or(grp);
         }
 
+        // 获取排序
+        NutMap sort = q.sort();
+        if (null != sort && sort.size() > 0) {
+            for (Map.Entry<String, Object> en : sort.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                if (val instanceof Integer) {
+                    int vi = (Integer) val;
+                    // 升序
+                    if (vi > 0) {
+                        cri.asc(key);
+                    }
+                    // 降序
+                    else if (vi < 0) {
+                        cri.desc(key);
+                    }
+                }
+            }
+        }
+
         // 搞定
         return cri;
     }

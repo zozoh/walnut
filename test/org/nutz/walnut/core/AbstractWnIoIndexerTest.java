@@ -26,6 +26,74 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     protected WnIoIndexer indexer;
 
     /**
+     * 查询排序和分页
+     */
+    @Test
+    public void test_query_sort_page() {
+        indexer.create(null, "/h/a", WnRace.FILE);
+        indexer.create(null, "/h/b", WnRace.FILE);
+        indexer.create(null, "/h/c", WnRace.FILE);
+        indexer.create(null, "/h/d", WnRace.FILE);
+        indexer.create(null, "/h/e", WnRace.FILE);
+
+        WnObj o = indexer.fetch(null, "/h");
+
+        WnQuery q = Wn.Q.pid(o);
+        q.desc("nm");
+        List<WnObj> list = indexer.query(q);
+
+        assertEquals(5, list.size());
+        assertEquals("e", list.get(0).name());
+        assertEquals("d", list.get(1).name());
+        assertEquals("c", list.get(2).name());
+        assertEquals("b", list.get(3).name());
+        assertEquals("a", list.get(4).name());
+
+        q = Wn.Q.pid(o);
+        q.asc("nm");
+        list = indexer.query(q);
+
+        assertEquals(5, list.size());
+        assertEquals("a", list.get(0).name());
+        assertEquals("b", list.get(1).name());
+        assertEquals("c", list.get(2).name());
+        assertEquals("d", list.get(3).name());
+        assertEquals("e", list.get(4).name());
+
+        // 测测分页
+        q = Wn.Q.pid(o);
+        q.asc("nm");
+        q.limit(3);
+        list = indexer.query(q);
+        assertEquals(3, list.size());
+        assertEquals("a", list.get(0).name());
+        assertEquals("b", list.get(1).name());
+        assertEquals("c", list.get(2).name());
+
+        q.skip(3);
+        list = indexer.query(q);
+        assertEquals(2, list.size());
+        assertEquals("d", list.get(0).name());
+        assertEquals("e", list.get(1).name());
+
+        // 测测分页
+        q = Wn.Q.pid(o);
+        q.desc("nm");
+        q.limit(3);
+        list = indexer.query(q);
+        assertEquals(3, list.size());
+        assertEquals("e", list.get(0).name());
+        assertEquals("d", list.get(1).name());
+        assertEquals("c", list.get(2).name());
+
+        q.skip(3);
+        list = indexer.query(q);
+        assertEquals(2, list.size());
+        assertEquals("b", list.get(0).name());
+        assertEquals("a", list.get(1).name());
+    }
+
+    /**
      * 特殊文件名
      */
     @Test

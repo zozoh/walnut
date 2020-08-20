@@ -126,6 +126,7 @@ public class WnOrder {
         or.buyerId = this.buyerId;
         or.price = this.price;
         or.fee = this.fee;
+        or.currency = this.currency;
         or.payType = this.payType;
 
         // 其他字段

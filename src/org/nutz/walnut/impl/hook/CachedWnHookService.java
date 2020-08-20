@@ -148,7 +148,7 @@ public class CachedWnHookService extends IoWnHookService {
                 if (!oDir.isDIR())
                     throw Er.create("e.hook.home.noDir");
                 if (oDir.syncTime() <= 0) {
-                    io.appendMeta(oDir, "st:" + System.currentTimeMillis());
+                    io.appendMeta(oDir, "synt:" + System.currentTimeMillis());
                 }
                 return oDir;
             }

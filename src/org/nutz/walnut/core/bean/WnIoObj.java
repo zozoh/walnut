@@ -438,12 +438,12 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public long syncTime() {
-        return this.getLong("st", -1);
+        return this.getLong("synt", -1);
     }
 
     @Override
     public WnObj syncTime(long st) {
-        this.setOrRemove("st", st);
+        this.setOrRemove("synt", st);
         return this;
     }
 
