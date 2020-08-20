@@ -59,6 +59,7 @@ author: zozohtnt@gmail.com
 -----------------|------|------|----------
 `pay/buy`        |`POST`|`json`| 创建订单和支付单
 `pay/check`      |`GET` |`json`| 检查支付结果
+`pay/order`      |`GET` |`json`| 获取当前用户某份订单
 `pay/pay`        |`GET` |`json`| 根据订单创建支付单
 `pay/re_paypal`  |`GET` |`json`| 处理 paypal 回调
 `pay/re_wx`      |`GET` |`json`| 处理微信支付回调

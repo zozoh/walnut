@@ -14,30 +14,39 @@ public class WnRedisLikeService implements LikeApi {
         this.conf = conf;
     }
 
+    private String _KEY(String taId) {
+        return conf.setup().getString("prefix", "like:") + taId;
+    }
+
     @Override
     public long likeIt(String taId, String... uids) {
-        return Wedis.runGet(conf, jed -> jed.sadd(taId, uids));
+        String key = _KEY(taId);
+        return Wedis.runGet(conf, jed -> jed.sadd(key, uids));
     }
 
     @Override
     public long unlike(String taId, String... uids) {
-        return Wedis.runGet(conf, jed -> jed.srem(taId, uids));
+        String key = _KEY(taId);
+        return Wedis.runGet(conf, jed -> jed.srem(key, uids));
     }
 
     @Override
     public Set<String> getAll(String taId) {
-        return Wedis.runGet(conf, jed -> jed.smembers(taId));
+        String key = _KEY(taId);
+        return Wedis.runGet(conf, jed -> jed.smembers(key));
     }
 
     @Override
     public long count(String taId) {
-        return Wedis.runGet(conf, jed -> jed.scard(taId));
+        String key = _KEY(taId);
+        return Wedis.runGet(conf, jed -> jed.scard(key));
     }
 
     @Override
     public boolean isLike(String taId, String uid) {
+        String key = _KEY(taId);
         return Wedis.runGet(conf, jed -> {
-            Boolean rb = jed.sismember(taId, uid);
+            Boolean rb = jed.sismember(key, uid);
             return null == rb ? false : rb;
         });
     }

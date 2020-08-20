@@ -104,7 +104,7 @@ public class cmd_buy extends JvmRedisEntityExecutor<BuyIt> {
             if (params.vals.length > 3) {
                 dft = params.val_check_int(3);
             }
-            re = api.getBuy(taId, uid, dft);
+            re = api.getBuy(uid, taId, dft);
         }
         // 不支持的动作
         else {

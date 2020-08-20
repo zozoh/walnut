@@ -87,7 +87,10 @@ author: zozoh
   "password" : "123456",
   "database" : 0,
   "connectionTimeout": 2000,
-  "soTimeout": 5000
+  "soTimeout": 5000,
+  "setup": {
+    "prefix": "buy:"   // 用来规定键值前缀
+  }
 }
 ```
 
@@ -111,6 +114,8 @@ author: zozoh
 SADD {TargetID} {UID1} {UID2}
 ```
 
+> **默认前缀**: `like:`
+
 ## 支持的操作
 
  Name      | Args               | Description
@@ -127,6 +132,8 @@ SADD {TargetID} {UID1} {UID2}
 ```bash
 ZADD {UID} AMS {TargetID} AMS {TargetID}
 ```
+
+**默认前缀**: `favor:`
 
 ## 支持的操作
 
@@ -145,6 +152,8 @@ ZADD {UID} AMS {TargetID} AMS {TargetID}
 ZADD {TargetID} 75 {UID} 100 {UID}
 SET   {sum:TargetID} 175
 ```
+
+**默认前缀**: `score:`
 
 ## 支持的操作
 

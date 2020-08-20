@@ -21,13 +21,18 @@ public class WnRedisScoreService implements ScoreApi {
         this.conf = conf;
     }
 
+    private String _KEY(String taId) {
+        return conf.setup().getString("prefix", "like:") + taId;
+    }
+
     @Override
     public long scoreIt(String taId, String uid, long score) {
-        String sumKey = "sum:" + taId;
+        String key = _KEY(taId);
+        String sumKey = "sum_" + key;
         return Wedis.runGet(conf, jed -> {
-            Long rk = jed.zrank(taId, uid);
+            Long rk = jed.zrank(key, uid);
             if (rk == null) {
-                jed.zadd(taId, score, uid);
+                jed.zadd(key, score, uid);
                 return jed.incrBy(sumKey, score);
 
             }
@@ -41,13 +46,14 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public long cancel(String taId, String uid) {
-        String sumKey = "sum:" + taId;
+        String key = _KEY(taId);
+        String sumKey = "sum_" + key;
         return Wedis.runGet(conf, jed -> {
-            Long rk = jed.zrank(taId, uid);
+            Long rk = jed.zrank(key, uid);
             if (null != rk && rk >= 0) {
-                long score = (long) ((double) jed.zscore(taId, uid));
+                long score = (long) ((double) jed.zscore(key, uid));
 
-                jed.zrem(taId, uid);
+                jed.zrem(key, uid);
                 return jed.decrBy(sumKey, score);
             }
             // 获取总分
@@ -60,10 +66,11 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public List<ScoreIt> getAll(String taId, int skip, int limit) {
+        String key = _KEY(taId);
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? start + limit - 1 : -1;
-            Set<Tuple> set = jed.zrangeWithScores(taId, start, stop);
+            Set<Tuple> set = jed.zrangeWithScores(key, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 ScoreIt fi = new ScoreIt(tu.getElement(), (long) tu.getScore());
@@ -75,10 +82,11 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public List<ScoreIt> revAll(String taId, int skip, int limit) {
+        String key = _KEY(taId);
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? limit : -1;
-            Set<Tuple> set = jed.zrevrangeWithScores(taId, start, stop);
+            Set<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 ScoreIt fi = new ScoreIt(tu.getElement(), (long) tu.getScore());
@@ -90,12 +98,14 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public long count(String taId) {
-        return Wedis.runGet(conf, jed -> jed.zcard(taId));
+        String key = _KEY(taId);
+        return Wedis.runGet(conf, jed -> jed.zcard(key));
     }
 
     @Override
     public long sum(String taId) {
-        String sumKey = "sum:" + taId;
+        String key = _KEY(taId);
+        String sumKey = "sum_" + key;
         return Wedis.runGet(conf, jed -> {
             String ss = jed.get(sumKey);
             if (Strings.isBlank(ss))
@@ -106,10 +116,11 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public long avg(String taId) {
-        String sumKey = "sum:" + taId;
+        String key = _KEY(taId);
+        String sumKey = "sum_" + key;
         return Wedis.runGet(conf, jed -> {
             // 获取人数
-            long count = jed.zcard(taId);
+            long count = jed.zcard(key);
 
             if (count <= 0L) {
                 return 0L;
@@ -141,7 +152,8 @@ public class WnRedisScoreService implements ScoreApi {
         // + "end; "
         // + "end;"
         // + "return res;";
-        String sumKey = "sum:" + taId;
+        String key = _KEY(taId);
+        String sumKey = "sum_" + key;
 
         return Wedis.runGet(conf, new WedisRunGet<Long>() {
             public Long exec(Jedis jed) {
@@ -150,7 +162,7 @@ public class WnRedisScoreService implements ScoreApi {
 
                 // 计算求和
                 while (true) {
-                    ScanResult<Tuple> re = jed.zscan(taId, cursor);
+                    ScanResult<Tuple> re = jed.zscan(key, cursor);
                     List<Tuple> result = re.getResult();
                     for (Tuple tu : result) {
                         sum += (long) tu.getScore();
@@ -173,8 +185,9 @@ public class WnRedisScoreService implements ScoreApi {
 
     @Override
     public long getScore(String taId, String uid, long dft) {
+        String key = _KEY(taId);
         return Wedis.runGet(conf, jed -> {
-            Double score = jed.zscore(taId, uid);
+            Double score = jed.zscore(key, uid);
             if (null == score)
                 return dft;
             return (long) (double) score;

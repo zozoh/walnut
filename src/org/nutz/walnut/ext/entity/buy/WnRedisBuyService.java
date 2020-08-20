@@ -20,24 +20,29 @@ public class WnRedisBuyService implements BuyApi {
         this.conf = conf;
     }
 
+    private String _KEY(String uid) {
+        return conf.setup().getString("prefix", "buy:") + uid;
+    }
+
     @Override
     public int buyIt(String uid, String taId, int count, boolean reset) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
             int re = 0;
             if (reset) {
                 // 清除
                 if (count <= 0) {
-                    jed.zrem(uid, taId);
+                    jed.zrem(key, taId);
                 }
                 // 修改
                 else {
-                    jed.zadd(uid, count, taId);
-                    re = (int) ((double) jed.zscore(uid, taId));
+                    jed.zadd(key, count, taId);
+                    re = (int) ((double) jed.zscore(key, taId));
                 }
             } else {
-                re = (int) ((double) jed.zincrby(uid, count, taId));
+                re = (int) ((double) jed.zincrby(key, count, taId));
                 if (re <= 0) {
-                    jed.zrem(uid, taId);
+                    jed.zrem(key, taId);
                 }
             }
             return re;
@@ -46,22 +51,25 @@ public class WnRedisBuyService implements BuyApi {
 
     @Override
     public int remove(String uid, String... taIds) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            return (int) (long) jed.zrem(uid, taIds);
+            return (int) (long) jed.zrem(key, taIds);
         });
     }
 
     @Override
     public boolean clean(String uid) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            return jed.del(uid) > 0;
+            return jed.del(key) > 0;
         });
     }
 
     @Override
     public List<BuyIt> getAll(String uid) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            Set<Tuple> set = jed.zrangeWithScores(uid, 0, -1);
+            Set<Tuple> set = jed.zrangeWithScores(key, 0, -1);
             List<BuyIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 BuyIt fi = new BuyIt(tu.getElement(), (int) tu.getScore());
@@ -73,8 +81,9 @@ public class WnRedisBuyService implements BuyApi {
 
     @Override
     public List<BuyIt> revAll(String uid) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            Set<Tuple> set = jed.zrevrangeWithScores(uid, 0, -1);
+            Set<Tuple> set = jed.zrevrangeWithScores(key, 0, -1);
             List<BuyIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 BuyIt fi = new BuyIt(tu.getElement(), (int) tu.getScore());
@@ -86,11 +95,13 @@ public class WnRedisBuyService implements BuyApi {
 
     @Override
     public int count(String uid) {
-        return (int) (long) Wedis.runGet(conf, jed -> jed.zcard(uid));
+        String key = _KEY(uid);
+        return (int) (long) Wedis.runGet(conf, jed -> jed.zcard(key));
     }
 
     @Override
     public int sum(String uid) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, new WedisRunGet<Integer>() {
             public Integer exec(Jedis jed) {
                 long sum = 0;
@@ -98,7 +109,7 @@ public class WnRedisBuyService implements BuyApi {
 
                 // 计算求和
                 while (true) {
-                    ScanResult<Tuple> re = jed.zscan(uid, cursor);
+                    ScanResult<Tuple> re = jed.zscan(key, cursor);
                     List<Tuple> result = re.getResult();
                     for (Tuple tu : result) {
                         sum += (long) tu.getScore();
@@ -117,9 +128,10 @@ public class WnRedisBuyService implements BuyApi {
     }
 
     @Override
-    public int getBuy(String taId, String uid, int dft) {
+    public int getBuy(String uid, String taId, int dft) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            Double score = jed.zscore(taId, uid);
+            Double score = jed.zscore(key, taId);
             if (null == score)
                 return dft;
             return (int) (double) score;

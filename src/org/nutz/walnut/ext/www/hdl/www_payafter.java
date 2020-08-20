@@ -1,12 +1,14 @@
 package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnOrderStatus;
+import org.nutz.walnut.ext.www.bean.WnProduct;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -55,22 +57,44 @@ public class www_payafter implements JvmHdl {
 
         // 支付成功
         if (null != po && po.isStatusOk()) {
-            // 【简单订单】的话，直接设置为完成
-            if (or.isTypeQ()) {
-                long now = System.currentTimeMillis();
-                or.setStatus(WnOrderStatus.DN);
-                or.setExpireTime(0);
-                or.setOkAt(now);
-                or.setShipAt(now);
-                or.setDoneAt(now);
-                meta = or.toMeta("^(or_st|expi|(ok|sp|dn)_at)$", null);
-            }
-            // 默认当作【标准订单】，那么就仅仅标志一下支付成功
-            else {
-                or.setStatus(WnOrderStatus.OK);
-                or.setExpireTime(0);
-                or.setOkAt(po.getLong("close_at"));
-                meta = or.toMeta("^(or_st|expi|ok_at)$", null);
+            // 保持幂等，没有应用过回调才会应用一下
+            if (!po.isApplied()) {
+                // 【简单订单】的话，直接设置为完成
+                if (or.isTypeQ()) {
+                    long now = System.currentTimeMillis();
+                    or.setStatus(WnOrderStatus.DN);
+                    or.setExpireTime(0);
+                    or.setOkAt(now);
+                    or.setShipAt(now);
+                    or.setDoneAt(now);
+                    meta = or.toMeta("^(or_st|expi|(ok|sp|dn)_at)$", null);
+                }
+                // 默认当作【标准订单】，那么就仅仅标志一下支付成功
+                else {
+                    or.setStatus(WnOrderStatus.OK);
+                    or.setExpireTime(0);
+                    or.setOkAt(po.getLong("close_at"));
+                    meta = or.toMeta("^(or_st|expi|ok_at)$", null);
+
+                    // 从购物车里删除商品
+                    if (hc.params.has("basket") && or.hasProducts()) {
+                        String buyConf = hc.params.getString("buy");
+                        String cmd = "buy it -quiet ";
+                        if (!Strings.isBlank(buyConf)) {
+                            cmd += "-conf '" + buyConf + "' ";
+                        }
+                        // 逐个商品执行删除
+                        for (WnProduct wp : or.getProducts()) {
+                            String cmdText = cmd
+                                             + po.getBuyerId()
+                                             + " "
+                                             + wp.getId()
+                                             + " "
+                                             + wp.getAmount() * -1;
+                            sys.exec2(cmdText);
+                        }
+                    }
+                }
             }
         }
         // 支付失败

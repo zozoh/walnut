@@ -36,27 +36,7 @@ public class www_passwd implements JvmHdl {
             WnWebService webs = new WnWebService(sys, oWWW);
             // -------------------------------
             // 确定用户
-            WnAccount me = sys.getMe();
-            WnAccount u;
-            // -u 模式，则当前操作会话必须为站点管理员或者 root/op组成员
-            if (!Strings.isBlank(unm)) {
-                // 检查权限
-                if (!sys.auth.isAdminOfGroup(me, oWWW.group())) {
-                    if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
-                        throw Er.create("e.cmd.www_passwd.nopvg");
-                    }
-                }
-                // 通过
-                u = webs.getAuthApi().checkAccount(unm);
-            }
-            // 否则就用当前会话
-            else if (!Strings.isBlank(ticket)) {
-                u = webs.getAuthApi().checkSession(ticket).getMe();
-            }
-            // unm/ticket 必须得有一个啊
-            else {
-                throw Er.create("e.cmd.www_passwd.LackTarget");
-            }
+            WnAccount u = cmd_www.checkTargetUser(sys, webs, unm, ticket);
             // -------------------------------
             // 准备密码的修改
             String passwd;
@@ -67,9 +47,9 @@ public class www_passwd implements JvmHdl {
                 // 采用旧密码校验
                 String oldpwd = form.getString("oldpwd");
                 String newpwd = form.getString("newpwd");
-                
+
                 // 新密码无效
-                if(Strings.isBlank(newpwd) || newpwd.length() < 6) {
+                if (Strings.isBlank(newpwd) || newpwd.length() < 6) {
                     throw Er.create("e.cmd.www_passwd.InvalidNewPasswd");
                 }
 

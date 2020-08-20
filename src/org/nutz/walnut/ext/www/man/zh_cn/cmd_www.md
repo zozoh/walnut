@@ -18,9 +18,10 @@ www captcha      # 验证码
 www checkme      # 查看当前会话信息（可同时修改会话账户元数据）
 www account      # 查看指定用户信息（可同时修改元数据）
 www auth         # 登录/绑定手机/注册
-www logout       # 注销会话 
-www buy          # 创建购买商品的订单
 www passwd       # 修改账户密码
+www logout       # 注销会话 
+www buy          # 创建购买商品的订单（可自动创建支付单）
+www order        # 获取指定用户的某份订单详情
 www pay          # 根据订单创建支付单
 www payafter     # 支付成功后，对于订单的后续处理
 www avatar       # 为某账户设置头像

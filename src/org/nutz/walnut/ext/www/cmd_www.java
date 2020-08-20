@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPay3xRe;
 import org.nutz.walnut.ext.www.bean.WnOrder;
@@ -41,6 +42,35 @@ public class cmd_www extends JvmHdlExecutor {
         }
 
         return Wn.checkObj(sys, site);
+    }
+
+    public static WnAccount checkTargetUser(WnSystem sys,
+                                            WnWebService webs,
+                                            String unm,
+                                            String ticket) {
+        WnAccount me = sys.getMe();
+        WnAccount u;
+        // -u 模式，则当前操作会话必须为站点管理员或者 root/op组成员
+        if (!Strings.isBlank(unm)) {
+            // 检查权限
+            String domainGroup = webs.getSite().getDomainGroup();
+            if (!sys.auth.isAdminOfGroup(me, domainGroup)) {
+                if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+                    throw Er.create("e.cmd.www.nopvg");
+                }
+            }
+            // 通过
+            u = webs.getAuthApi().checkAccount(unm);
+        }
+        // 否则就用当前会话
+        else if (!Strings.isBlank(ticket)) {
+            u = webs.getAuthApi().checkSession(ticket).getMe();
+        }
+        // unm/ticket 必须得有一个啊
+        else {
+            throw Er.create("e.cmd.www.LackTarget");
+        }
+        return u;
     }
 
     /**
@@ -149,9 +179,16 @@ public class cmd_www extends JvmHdlExecutor {
      *            订单对象
      */
     public static void outputOrder(WnSystem sys, JvmHdlContext hc, WnOrder or) {
-        Object re = or.toMeta();
+        Object re = null;
+        if (null != or) {
+            re = or.toMeta();
+        }
         if (hc.params.is("ajax")) {
-            re = Ajax.ok().setData(re);
+            if (null != re) {
+                re = Ajax.ok().setData(re);
+            } else {
+                re = Ajax.fail().setErrCode("e.cmd.www.order.noexists");
+            }
         }
         String json = Json.toJson(re, hc.jfmt);
         sys.out.println(json);

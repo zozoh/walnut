@@ -7,11 +7,11 @@
 =======
 
 ```bash
-score
+buy
   [Action]            # 执行操作， it|rm|clean|all|count|sum|get
   [UID]               # 用户 ID，all|sum 不需要这个参数
   [TargetId]          # 商品 ID
-  [N(1)]              # 数量，all|sum 不需要这个参数
+  [N(1)]              # 数量，all|sum 不需要这个参数, get 则表示默认返回数量
   [-reset]            # 表示 N 是一个绝对数量，所以如果 N<=0 则表示删除
   [-rever]            # all: 反序
   [-obj]              # all: 同时获取对象内容（N+1）查询

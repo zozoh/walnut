@@ -80,7 +80,7 @@ public interface BuyApi {
     int sum(String uid);
 
     /**
-     * 判断一个用户对某主体打的具体分数
+     * 判断购物车内某商品购买数量
      * 
      * @param uid
      *            用户 ID
@@ -91,5 +91,5 @@ public interface BuyApi {
      * 
      * @return 购买数量
      */
-    int getBuy(String taId, String uid, int dft);
+    int getBuy(String uid, String taId, int dft);
 }

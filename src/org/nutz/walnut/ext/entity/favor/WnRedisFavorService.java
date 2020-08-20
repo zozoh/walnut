@@ -19,28 +19,35 @@ public class WnRedisFavorService implements FavorApi {
     public WnRedisFavorService(WedisConfig conf) {
         this.conf = conf;
     }
+    
+    private String _KEY(String uid) {
+        return conf.setup().getString("prefix", "favor:") + uid;
+    }
 
     @Override
     public long favorIt(String uid, String... taIds) {
+        String key = _KEY(uid);
         Map<String, Double> map = new HashMap<>();
         double now = System.currentTimeMillis();
         for (String taId : taIds) {
             map.put(taId, now);
         }
-        return Wedis.runGet(conf, jed -> jed.zadd(uid, map));
+        return Wedis.runGet(conf, jed -> jed.zadd(key, map));
     }
 
     @Override
     public long unfavor(String uid, String... taIds) {
-        return Wedis.runGet(conf, jed -> jed.zrem(uid, taIds));
+        String key = _KEY(uid);
+        return Wedis.runGet(conf, jed -> jed.zrem(key, taIds));
     }
 
     @Override
     public List<FavorIt> getAll(String uid, int skip, int limit) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? start + limit - 1 : Long.MAX_VALUE;
-            Set<Tuple> set = jed.zrangeWithScores(uid, start, stop);
+            Set<Tuple> set = jed.zrangeWithScores(key, start, stop);
             List<FavorIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
@@ -52,10 +59,11 @@ public class WnRedisFavorService implements FavorApi {
 
     @Override
     public List<FavorIt> revAll(String uid, int skip, int limit) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? limit - 1 : Long.MAX_VALUE;
-            Set<Tuple> set = jed.zrevrangeWithScores(uid, start, stop);
+            Set<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
             List<FavorIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
@@ -67,16 +75,18 @@ public class WnRedisFavorService implements FavorApi {
 
     @Override
     public long count(String uid) {
-        return Wedis.runGet(conf, jed -> jed.zcard(uid));
+        String key = _KEY(uid);
+        return Wedis.runGet(conf, jed -> jed.zcard(key));
     }
 
     @Override
     public long[] whenFavor(String uid, String... taIds) {
+        String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
             long[] re = new long[taIds.length];
             for (int i = 0; i < taIds.length; i++) {
                 String taId = taIds[i];
-                Double score = jed.zscore(uid, taId);
+                Double score = jed.zscore(key, taId);
                 if (null == score) {
                     re[i] = 0L;
                 } else {

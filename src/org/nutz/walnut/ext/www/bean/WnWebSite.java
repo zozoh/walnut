@@ -145,6 +145,10 @@ public class WnWebSite {
         this.vars = Lang.map("HOME", domainHomePath);
     }
 
+    public String getDomainGroup() {
+        return accountDir.group();
+    }
+
     public String getSiteId() {
         return siteId;
     }
