@@ -1,10 +1,13 @@
 package org.nutz.walnut.validate;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -79,13 +82,53 @@ public class WnValidate {
 
             // 读取校验器
             Object val = en.getValue();
-            WnValidating vldt = new WnValidating();
+
+            // 无视空
+            if (null == val) {
+                continue;
+            }
+
+            // 准备分析
+            Mirror<?> mi = Mirror.me(val);
             String vldtName;
+            WnValidating vldt = new WnValidating();
 
             // 如果仅仅是字符串
-            if (val instanceof CharSequence) {
-                vldtName = val.toString();
-                vldt.args = new Object[0];
+            if (mi.isStringLike()) {
+                String str = val.toString();
+                // 正则表达式
+                if (str.startsWith("^")) {
+                    vldtName = "matchRegex";
+                    vldt.args = Lang.array(str);
+                }
+                // 其他
+                else {
+                    vldtName = val.toString();
+                    vldt.args = new Object[0];
+                }
+            }
+            // 如果是简单对象
+            else if (mi.isSimple()) {
+                vldtName = "isEqual";
+                vldt.args = Lang.array(val);
+            }
+            // 数组
+            else if (val.getClass().isArray()) {
+                vldtName = Lang.first(val).toString();
+                int len = Lang.eleSize(val) - 1;
+                vldt.args = new Object[len - 1];
+                System.arraycopy(val, 1, vldt.args, 0, len);
+            }
+            // 集合
+            else if (val instanceof Collection<?>) {
+                int len = Lang.eleSize(val) - 1;
+                Iterator<?> it = ((Collection<?>) val).iterator();
+                vldtName = it.next().toString();
+                vldt.args = new Object[len - 1];
+                int i = 0;
+                while (it.hasNext()) {
+                    vldt.args[i++] = it.next();
+                }
             }
             // 可能又复杂点的参数设置
             else {
