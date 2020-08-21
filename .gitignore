@@ -18,6 +18,7 @@ hs_err_pid*
 .idea
 .tmp
 /target/
+/build/**
 /conf/web_local.properties
 build
 mysrc
@@ -52,3 +53,4 @@ mysrc
 
 .MWebMetaData
 .VSCodeCounter
+
