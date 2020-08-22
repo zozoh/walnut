@@ -55,7 +55,7 @@ import org.nutz.walnut.util.WnStr;
 import org.nutz.walnut.validate.WnValidate;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
-import org.nutz.walnut.web.module.AppRespOutputStreamWrapper;
+import org.nutz.walnut.web.module.AppRespOpsWrapper;
 import org.nutz.walnut.web.module.HttpRespStatusSetter;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.web.WebException;
@@ -81,6 +81,7 @@ public class HttpApiModule extends AbstractWnModule {
         apc.req = req;
         apc.resp = resp;
         apc.reqMeta = new NutMap();
+        apc.reqQueryMap = new NutMap();
         // 找到用户和对应的命令
         try {
             if (log.isInfoEnabled())
@@ -139,6 +140,12 @@ public class HttpApiModule extends AbstractWnModule {
             // .........................................
             // 自动登陆站点用户
             __do_www_auth(apc);
+
+            // .........................................
+            // 这里处理缓存
+            if (__try_cache(apc)) {
+                return;
+            }
 
             // .........................................
             // 检查权限
@@ -386,7 +393,7 @@ public class HttpApiModule extends AbstractWnModule {
     private void _do_api(WnHttpApiContext apc) throws IOException {
 
         // 记录是否客户端设定了响应的 ContentType
-        apc.mimeType = apc.oReq.getString("http-qs-mime");
+        apc.mimeType = apc.oReq.getString("http-qs-mime", apc.mimeType);
 
         // 解析命令
         String cmdPattern;
@@ -509,6 +516,110 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
+    private boolean __try_cache(WnHttpApiContext apc) throws IOException {
+        // 非GET请求无视
+        if (!"GET".equalsIgnoreCase(apc.req.getMethod())) {
+            return false;
+        }
+        // 需要校验auth的请求无视
+        if (apc.isNeedWWWAuth) {
+            return false;
+        }
+        // 动态请求头的 API无视
+        if (apc.oApi.getBoolean("http-dynamic-header")) {
+            return false;
+        }
+
+        // 是否启用了缓存
+        String cachePath = apc.oApi.getString("cache-path");
+        if (Strings.isBlank(cachePath))
+            return false;
+
+        // 是否命中缓存
+        NutMap cacheMatch = apc.oApi.getAs("cache-match", NutMap.class);
+        if (null != cacheMatch && !cacheMatch.isEmpty()) {
+            WnValidate vli = new WnValidate(cacheMatch);
+            if (!vli.match(apc.reqQueryMap)) {
+                return false;
+            }
+        }
+
+        // 得到缓存对象
+        boolean lazy = apc.oApi.getBoolean("cache-lazy");
+        String ph = Tmpl.exec(cachePath, apc.reqMeta);
+        String aph = Wn.normalizeFullPath(ph, apc.se);
+        WnObj oCache = this.io().fetch(null, aph);
+        // 木有命中，看看是否需要懒加载
+        if (null == oCache) {
+            if (lazy) {
+                apc.cacheObjPath = cachePath;
+            }
+            return false;
+        }
+
+        // 有缓存，但是过期了
+        int cache_du_in_s = apc.oApi.getInt("cache-duration", 0);
+        if (cache_du_in_s > 0) {
+            long duInMs = System.currentTimeMillis() - oCache.lastModified();
+            long cache_du_in_ms = cache_du_in_s * 1000;
+            if (duInMs > cache_du_in_ms) {
+                if (lazy) {
+                    apc.cacheObj = oCache;
+                }
+                return false;
+            }
+        }
+
+        // 有缓存，但是匹配不上请求签名
+        String fingerKey = apc.oApi.getString("cache-finger-key");
+        if (!Strings.isBlank(fingerKey)) {
+            String fingerAs = apc.oApi.getString("cache-finger-as", "MD5");
+            apc.reqQuerySign = Lang.digest(fingerAs, apc.reqQuery);
+            // 得到缓存的签名
+            String sign = oCache.getString(fingerKey);
+            if (Strings.isBlank(sign) || !sign.equals(apc.reqQuerySign)) {
+                if (lazy) {
+                    apc.cacheObj = oCache;
+                }
+                return false;
+            }
+        }
+        // -----------------------------------------
+        // 嗯，进行到了这里，那么就是命中缓存了
+        // 下面看看如何输出
+        // -----------------------------------------
+        // 按照 HTTP 302 的方式输出
+        String redirect = apc.oApi.getString("cache-redirect");
+        if (!Strings.isBlank(redirect)) {
+            NutMap vars = new NutMap();
+            if (oCache.hasSha1()) {
+                String sha1 = oCache.sha1();
+                String sha1Path = sha1.substring(0, 4) + "/" + sha1.substring(4);
+                vars.put("sha1Path", sha1Path);
+            }
+            vars.putAll(oCache);
+            String r_url = Tmpl.exec(redirect, vars);
+
+            // 重定向
+            apc.resp.sendRedirect(r_url);
+
+        }
+        // 直接输出缓存对象
+        else {
+            // 设置响应头
+            apc.mimeType = apc.oApi.getString("cache-mime", oCache.mime());
+            this.__setup_resp_header(apc);
+
+            // 写入响应流
+            OutputStream ops = apc.resp.getOutputStream();
+            InputStream ins = this.io().getInputStream(oCache, 0);
+            Streams.writeAndClose(ops, ins);
+        }
+
+        // 无论怎样，返回 true 表示不要继续后面的步骤了
+        return true;
+    }
+
     private void __fill_req_meta(WnHttpApiContext apc) throws UnsupportedEncodingException {
         // .........................................
         // 准备请求对象元数据
@@ -554,13 +665,13 @@ public class HttpApiModule extends AbstractWnModule {
 
         // .........................................
         // 保存 QueryString，同时，看看有没必要更改 mime-type
-        String qs = apc.req.getQueryString();
-        apc.reqMeta.put("http-qs", qs);
-        if (!Strings.isBlank(qs)) {
+        apc.reqQuery = apc.req.getQueryString();
+        apc.reqMeta.put("http-qs", apc.reqQuery);
+        if (!Strings.isBlank(apc.reqQuery)) {
             // 解码
-            qs = URLDecoder.decode(qs, "UTF-8");
+            apc.reqQuery = URLDecoder.decode(apc.reqQuery, "UTF-8");
             // 分析每个请求参数
-            String[] ss = Strings.splitIgnoreBlank(qs, "[&]");
+            String[] ss = Strings.splitIgnoreBlank(apc.reqQuery, "[&]");
             for (String s : ss) {
                 int pos = s.indexOf('=');
                 // 有值
@@ -568,10 +679,12 @@ public class HttpApiModule extends AbstractWnModule {
                     String nm = s.substring(0, pos);
                     String val = s.substring(pos + 1);
                     apc.reqMeta.put("http-qs-" + nm, val);
+                    apc.reqQueryMap.put(nm, val);
                 }
                 // 没值的用空串表示
                 else {
                     apc.reqMeta.put("http-qs-" + s, "");
+                    apc.reqQueryMap.put(s, true);
                 }
             }
         }
@@ -639,7 +752,7 @@ public class HttpApiModule extends AbstractWnModule {
                 val = Tmpl.exec(val, apc.oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
-                    apc.mimeType = val;
+                    apc.mimeType = Strings.sBlank(apc.mimeType, val);
                 }
                 // 指定了下载目标
                 else if (nm.equals("CONTENT-DISPOSITION")) {
@@ -718,14 +831,20 @@ public class HttpApiModule extends AbstractWnModule {
             log.debug("box:set stdin/out/err");
 
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(apc.resp);
-        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
+        AppRespOpsWrapper out = new AppRespOpsWrapper(_resp, 200);
+        AppRespOpsWrapper err = new AppRespOpsWrapper(_resp, 500);
 
-        // 增加一个输出缓冲
+        // 增加一个输出缓冲，这样就能知道最终输出的是什么内容，以便 History 机制记录
         String out_tp = apc.oApi.getString("http-output");
         StringBuilder out_sb = new StringBuilder();
         if (null != out_tp && out_tp.matches("^(text|json)$")) {
-            ((AppRespOutputStreamWrapper) out).addStringWatcher(out_sb);
+            out.addStringWatcher(out_sb);
+        }
+
+        // 如果有缓存对象，也计入观察者流
+        if (null != apc.cacheObj || null != apc.cacheObjPath) {
+            OutputStream cacheOps = new WnHttpCacheOutputStream(apc, this.io());
+            out.addWatcher(cacheOps);
         }
 
         box.setStdin(null); // HTTP GET 方式，不支持沙箱的 stdin

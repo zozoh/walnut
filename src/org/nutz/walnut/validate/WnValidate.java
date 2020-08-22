@@ -9,8 +9,11 @@ import java.util.Map;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
+import org.nutz.lang.util.DateRegion;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.WnRg;
 import org.nutz.walnut.validate.impl.*;
 
 public class WnValidate {
@@ -101,7 +104,40 @@ public class WnValidate {
                     vldtName = "matchRegex";
                     vldt.args = Lang.array(str);
                 }
-                // 其他
+                // 就是字符串
+                else if (str.startsWith("=")) {
+                    vldtName = "isEqual";
+                    vldt.args = Lang.array(str.substring(1));
+                }
+                // 整数范围
+                else if (str.matches(WnRg.intRegion())) {
+                    vldtName = "inRange";
+                    vldt.args = Lang.array(Region.Int(str));
+                }
+                // 长整数范围
+                else if (str.matches(WnRg.longRegion())) {
+                    vldtName = "inRange";
+                    vldt.args = Lang.array(Region.Long(str));
+                }
+                // 浮点范围
+                else if (str.matches(WnRg.floatRegion())) {
+                    vldtName = "inRange";
+                    vldt.args = Lang.array(Region.Float(str));
+                }
+                // 日期范围
+                else if (str.matches(WnRg.dateRegion("^"))) {
+                    vldtName = "inRange";
+                    vldt.args = Lang.array(Region.Date(str));
+                }
+                // 日期范围当做毫秒数
+                else if (str.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
+                    String s = str.substring(2);
+                    DateRegion rg = Region.Date(s);
+
+                    vldtName = "inRange";
+                    vldt.args = Lang.array(rg);
+                }
+                // 其他，就当作验证器名称吧
                 else {
                     vldtName = val.toString();
                     vldt.args = new Object[0];
@@ -115,14 +151,15 @@ public class WnValidate {
             // 数组
             else if (val.getClass().isArray()) {
                 vldtName = Lang.first(val).toString();
-                int len = Lang.eleSize(val) - 1;
+                int len = Lang.eleSize(val);
                 vldt.args = new Object[len - 1];
                 System.arraycopy(val, 1, vldt.args, 0, len);
             }
             // 集合
             else if (val instanceof Collection<?>) {
-                int len = Lang.eleSize(val) - 1;
-                Iterator<?> it = ((Collection<?>) val).iterator();
+                Collection<?> col = (Collection<?>) val;
+                int len = col.size();
+                Iterator<?> it = col.iterator();
                 vldtName = it.next().toString();
                 vldt.args = new Object[len - 1];
                 int i = 0;

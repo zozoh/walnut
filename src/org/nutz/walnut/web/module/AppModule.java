@@ -195,8 +195,8 @@ public class AppModule extends AbstractWnModule {
 
         // 准备输出
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
-        OutputStream out = new AppRespOutputStreamWrapper(_resp, 200);
-        OutputStream err = new AppRespOutputStreamWrapper(_resp, 500);
+        OutputStream out = new AppRespOpsWrapper(_resp, 200);
+        OutputStream err = new AppRespOpsWrapper(_resp, 500);
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
 
         // 执行

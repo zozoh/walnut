@@ -37,7 +37,7 @@ public class WnHttpApiContext {
      * 原始请求
      */
     HttpServletRequest req;
-    
+
     /**
      * 请求的 URI
      */
@@ -57,6 +57,35 @@ public class WnHttpApiContext {
      * 从请求对象里分析出的有用元数据
      */
     NutMap reqMeta;
+
+    /**
+     * 记录请求的 Query String 全文
+     */
+    String reqQuery;
+
+    /**
+     * 请求的 QueryString 签名，如果到了生成缓存对象这一步，<br>
+     * 且这个对象有值，表示API会验证签名，所以生成缓存对象时要加上这个签名
+     */
+    String reqQuerySign;
+
+    /**
+     * 这个标志位表示请求完毕后，需要把响应结果缓存起来的目标路径
+     */
+    String cacheObjPath;
+
+    /**
+     * 这个标志位表示请求完毕后，需要把响应结果缓存起来的目标对象
+     * <p>
+     * 如果声明了这个标志位，上面那个<code>cacheObjPath</code> 将被无视
+     */
+    WnObj cacheObj;
+
+    /**
+     * 分析请求对象时，也会顺便收集的 QueryString 参数表 <br>
+     * 启用缓存时会用到它
+     */
+    NutMap reqQueryMap;
 
     /**
      * 执行账户：当前执行 API 的账户
@@ -107,7 +136,7 @@ public class WnHttpApiContext {
      * API 对应的网站工作目录
      */
     WnObj oWWW;
-    
+
     /**
      * WWW 对于接口，声明了 oWWW 才会生成
      */
@@ -117,7 +146,7 @@ public class WnHttpApiContext {
      * API 对应网站当前的用户登录会话
      */
     WnAuthSession wwwSe;
-    
+
     /**
      * 是否要进行站点登录会话校验
      */
