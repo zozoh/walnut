@@ -45,10 +45,6 @@ public class WnHttpCacheOutputStream extends OutputStream {
         ops.write(b, off, len);
     }
 
-    public boolean equals(Object obj) {
-        return ops.equals(obj);
-    }
-
     public void flush() throws IOException {
         ops.flush();
     }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -505,7 +506,13 @@ public class HttpApiModule extends AbstractWnModule {
 
     private void __escape_req_meta(WnHttpApiContext apc) {
         if (apc.oApi.getBoolean("http-safe-params", true)) {
-            for (Map.Entry<String, Object> en : apc.oApi.entrySet()) {
+            for (Map.Entry<String, Object> en : apc.reqMeta.entrySet()) {
+                String key = en.getKey();
+                // 只搞 http-qs-
+                if (!key.startsWith("http-qs-")) {
+                    continue;
+                }
+                // TODO 慎重起见，是不是也要同时防守一下 "http-cookie-" 和 "http-header-" 涅？
                 Object val = en.getValue();
                 if (val instanceof CharSequence) {
                     String str = val.toString();
@@ -531,28 +538,40 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 是否启用了缓存
-        String cachePath = apc.oApi.getString("cache-path");
-        if (Strings.isBlank(cachePath))
+        List<NutMap> cacheTest = apc.oApi.getAsList("cache-test", NutMap.class);
+        if (null == cacheTest || cacheTest.isEmpty())
             return false;
 
         // 是否命中缓存
-        NutMap cacheMatch = apc.oApi.getAs("cache-match", NutMap.class);
-        if (null != cacheMatch && !cacheMatch.isEmpty()) {
-            WnValidate vli = new WnValidate(cacheMatch);
-            if (!vli.match(apc.reqQueryMap)) {
-                return false;
+        String cachePath = null;
+        for (NutMap test : cacheTest) {
+            String path = test.getString("path");
+
+            // 靠，您忘记写 path了吧，无视你！
+            if (Strings.isBlank(path))
+                continue;
+
+            Object cacheMatch = test.get("match");
+            if (this.__is_cache_match(cacheMatch, apc.reqQueryMap)) {
+                cachePath = path;
+                apc.mimeType = test.getString("mime");
+                break;
             }
+        }
+        // 找不到缓存路径，那么就意味着不命中缓存咯
+        if (Strings.isBlank(cachePath)) {
+            return false;
         }
 
         // 得到缓存对象
-        boolean lazy = apc.oApi.getBoolean("cache-lazy");
+        boolean lazy = apc.oApi.getBoolean("cache-lazy", true);
         String ph = Tmpl.exec(cachePath, apc.reqMeta);
         String aph = Wn.normalizeFullPath(ph, apc.se);
         WnObj oCache = this.io().fetch(null, aph);
         // 木有命中，看看是否需要懒加载
         if (null == oCache) {
             if (lazy) {
-                apc.cacheObjPath = cachePath;
+                apc.cacheObjPath = aph;
             }
             return false;
         }
@@ -600,6 +619,16 @@ public class HttpApiModule extends AbstractWnModule {
             vars.putAll(oCache);
             String r_url = Tmpl.exec(redirect, vars);
 
+            // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
+            String origin = apc.reqMeta.getString("http-header-ORIGIN");
+            if (!Strings.isBlank(origin)) {
+                __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
+                    if (!apc.oApi.has("http-header-" + name)) {
+                        apc.resp.setHeader(WnWeb.niceHeaderName(name), value);
+                    }
+                });
+            }
+
             // 重定向
             apc.resp.sendRedirect(r_url);
 
@@ -607,7 +636,6 @@ public class HttpApiModule extends AbstractWnModule {
         // 直接输出缓存对象
         else {
             // 设置响应头
-            apc.mimeType = apc.oApi.getString("cache-mime", oCache.mime());
             this.__setup_resp_header(apc);
 
             // 写入响应流
@@ -617,6 +645,35 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 无论怎样，返回 true 表示不要继续后面的步骤了
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean __is_cache_match(Object cacheMatch, NutMap reqQueryMap) {
+        if (null != cacheMatch) {
+            // 单个条件
+            if (cacheMatch instanceof Map<?, ?>) {
+                NutMap matchMap = NutMap.WRAP((Map<String, Object>) cacheMatch);
+                WnValidate vli = new WnValidate(matchMap);
+                if (!vli.match(reqQueryMap)) {
+                    return false;
+                }
+            }
+            // 一组条件（或的关系）
+            else if (cacheMatch instanceof Collection<?>) {
+                Collection<?> col = (Collection<?>) cacheMatch;
+                for (Object mc : col) {
+                    if (null != mc && mc instanceof Map<?, ?>) {
+                        NutMap matchMap = NutMap.WRAP((Map<String, Object>) mc);
+                        WnValidate vli = new WnValidate(matchMap);
+                        if (vli.match(reqQueryMap)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
         return true;
     }
 
@@ -774,7 +831,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
-        String origin = apc.oReq.getString("http-header-ORIGIN");
+        String origin = apc.reqMeta.getString("http-header-ORIGIN");
         if (!Strings.isBlank(origin)) {
             __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
                 if (!apc.oApi.has("http-header-" + name)) {

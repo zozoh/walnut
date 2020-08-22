@@ -76,7 +76,7 @@ public class AppRespOpsWrapper extends OutputStream {
         // 同步写入到观察者流
         if (!watchs.isEmpty()) {
             for (OutputStream wo : watchs)
-                wo.write(b);
+                wo.write(b, off, len);
         }
     }
 
