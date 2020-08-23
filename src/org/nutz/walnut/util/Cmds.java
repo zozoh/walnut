@@ -414,18 +414,40 @@ public abstract class Cmds {
         String name = path[index];
         // 中间路径，递归
         if (index < path.length - 1) {
-            List<WnObj> children = sys.io.getChildren(p, name);
-            for (WnObj child : children) {
-                joinObjs(sys, child, path, index + 1, list, mode);
+            // 如果是 ID 类型，就获取一个对象
+            if (name.startsWith("id:")) {
+                String id = name.substring(3);
+                WnObj o = sys.io.get(id);
+                if (null != o) {
+                    joinObjs(sys, o, path, index + 1, list, mode);
+                }
+            }
+            // 其他的查询一下子节点
+            else {
+                List<WnObj> children = sys.io.getChildren(p, name);
+                for (WnObj child : children) {
+                    joinObjs(sys, child, path, index + 1, list, mode);
+                }
             }
         }
         // 最后一个了，计入列表
         else {
-            sys.io.eachChild(p, name, new Each<WnObj>() {
-                public void invoke(int index, WnObj ele, int length) {
-                    list.add(ele);
+            // 如果是 ID 类型，就获取一个对象
+            if (name.startsWith("id:")) {
+                String id = name.substring(3);
+                WnObj o = sys.io.get(id);
+                if (null != o) {
+                    list.add(o);
                 }
-            });
+            }
+            // 其他的查询一下子节点
+            else {
+                sys.io.eachChild(p, name, new Each<WnObj>() {
+                    public void invoke(int index, WnObj ele, int length) {
+                        list.add(ele);
+                    }
+                });
+            }
         }
     }
 
