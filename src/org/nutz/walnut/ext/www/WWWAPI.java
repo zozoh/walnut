@@ -63,7 +63,7 @@ public class WWWAPI {
 
         // 更新会话
         NutMap map = new NutMap();
-        map.put("expi", System.currentTimeMillis() + (sessionDu * 1000));
+        map.put("expi", Wn.now() + (sessionDu * 1000));
         map.put("uid", oU.id());
         map.put("unm", oU.name());
         map.put("sid", siteId);
@@ -87,7 +87,7 @@ public class WWWAPI {
     public void chownSession(WnObj oSe, WnObj oU) {
         oSe.put("uid", oU.id());
         oSe.put("unm", oU.name());
-        oSe.expireTime(System.currentTimeMillis() + (sessionDu * 1000));
+        oSe.expireTime(Wn.now() + (sessionDu * 1000));
         io.set(oSe, "^(uid|unm|expi)$");
     }
 

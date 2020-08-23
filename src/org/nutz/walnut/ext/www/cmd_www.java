@@ -162,7 +162,7 @@ public class cmd_www extends JvmHdlExecutor {
         or.setPayReturn(payRe);
         or.setPayId(payId);
         or.setStatus(WnOrderStatus.WT);
-        or.setWaitAt(System.currentTimeMillis());
+        or.setWaitAt(Wn.now());
         NutMap orMeta = or.toMeta("^(pay_re|pay_id|st|wt_at|pay_tp)$", null);
         webs.getOrderApi().updateOrder(or.getId(), orMeta, sys);
 

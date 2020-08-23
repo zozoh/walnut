@@ -113,7 +113,7 @@ public class weixin_pay implements JvmHdl {
                     Date dStart = Times.parseq(_df, payMap.getString("time_start"));
                     start = dStart.getTime();
                 } else {
-                    start = System.currentTimeMillis();
+                    start = Wn.now();
                 }
                 Date d = Times.D(start + pay_expired);
                 String ds = Times.format(_df, d);

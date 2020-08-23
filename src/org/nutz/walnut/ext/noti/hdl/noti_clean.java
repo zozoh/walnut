@@ -71,7 +71,7 @@ public class noti_clean implements JvmHdl {
             q.setv("noti_st", Lang.map("$ne:1"));
 
             // 保留一定的消息
-            q.setv("ct", Region.Longf("(,%d)", System.currentTimeMillis() - keepInMs));
+            q.setv("ct", Region.Longf("(,%d)", Wn.now() - keepInMs));
 
             if (limit > 0)
                 q.limit(limit);

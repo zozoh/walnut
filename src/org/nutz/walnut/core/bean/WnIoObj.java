@@ -457,7 +457,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean isExpired() {
-        return isExpiredBy(System.currentTimeMillis());
+        return isExpiredBy(Wn.now());
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.nutz.walnut.api.auth;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 public class WnCaptcha {
 
@@ -29,7 +30,7 @@ public class WnCaptcha {
         this.retry = 0;
         this.maxRetry = 3;
         // 默认过期时间 10 分钟
-        this.expi = System.currentTimeMillis() + 600000L;
+        this.expi = Wn.now() + 600000L;
     }
 
     public WnCaptcha(WnObj oCa) {
@@ -123,12 +124,12 @@ public class WnCaptcha {
     }
 
     public void setExpiFromNowByMin(int duInMin) {
-        this.expi = System.currentTimeMillis() + duInMin * 60000L;
+        this.expi = Wn.now() + duInMin * 60000L;
         this.duInMin = duInMin;
     }
 
     public boolean isExpired() {
-        return this.expi <= System.currentTimeMillis();
+        return this.expi <= Wn.now();
     }
 
 }

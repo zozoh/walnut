@@ -10,18 +10,18 @@
 - Walnut的简要介绍
 - [数据存储模型][c0-tab]
 - [基础账户授权模型][c0-bam]
-- [核心会话服务][c0-css]
 - [采用域用户登录系统][c0-abd]
 - [基础权限模型][c0-pvg]
 - 环境变量
 - 命令机制
-- [通知机制][c0-noti]
+- [队列通知机制][c0-noti]
+- [对象过期机制][c0-expi]
+- [通用锁服务][c0-lock]
 
 -----------------------------------------
 ## 系统延申概念`core-l1`
 
 - [数据备份与导出][c1-buk]
-- [通知机制][c1-nti]  !等消息队列整合完，要重新设计
 - [HTTP API][c1-api]
 - 钩子机制
 - 应用机制
@@ -110,15 +110,15 @@
 [c0-iob]: core-l0/c0-io-tree-and-bucket.md
 [c0-bam]: core-l0/c0-baice-auth-model.md
 [c0-abd]: webs-l0/w0-auth-by-domain.md
-[c0-css]: core-l0/c0-core-session-service.md
 [c0-bpm]: core-l0/c0-basic-privilege-model.md
-[c1-api]: core-l1/c1-regapi.md
 [c0-pvg]: core-l0/c0-basic-privilege-model.md
 [c0-noti]: core-l0/c0-notification.md
+[c0-expi]: core-l0/c0-expi-objs.md
+[c0-lock]: core-l0/c0-lock-service.md
 [c1-buk]: core-l1/c1-bulk-backup-restore.md
 [c1-gde]: core-l1/c1-general-data-entity.md
-[c1-nti]: core-l1/c1-notify.md
-[c2-dmn]: core-l2/c2-domains.md
+[c1-api]: core-l1/c1-regapi.md
+[c2-dmn]: core-l2/c2-domain-host-mapping.md
 [c2-pvg]: core-l2/c2-biz-privilege-model.md
 [f0-wx-pay]: func-l0/f0-weixin-payment.md
 [f0-wx-pay]: func-l0/f0-weixin-notify.md

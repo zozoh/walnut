@@ -171,6 +171,24 @@ public class WedisConfig {
                              this.soTimeout);
     }
 
+    public WedisConfig clone() {
+        WedisConfig conf = new WedisConfig();
+        conf.host = this.host;
+        conf.port = this.port;
+        conf.ssl = this.ssl;
+        conf.password = this.password;
+        conf.database = this.database;
+        conf.connectionTimeout = this.connectionTimeout;
+        conf.soTimeout = this.soTimeout;
+        conf.maxTotal = this.maxTotal;
+        conf.maxIdle = this.maxIdle;
+        conf.minIdle = this.minIdle;
+        if (this.setup != null) {
+            conf.setup = this.setup.duplicate();
+        }
+        return conf;
+    }
+
     public String toString() {
         String s = this.toKey();
         if (ssl) {

@@ -17,7 +17,7 @@ public class CleanTmpFileAction extends ThingAction<List<WnObj>> {
     public List<WnObj> invoke() {
         // 准备查询条件
         WnObj oTmpd = Things.dirTsTmpFile(io, oTs);
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         WnQuery q = Wn.Q.pid(oTmpd);
         q.setv("expi", Region.Longf("(,%d]", now));
         q.asc("lm"); // 最后活跃时间升序清理

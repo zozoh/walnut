@@ -5,6 +5,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 public abstract class WnPays {
 
@@ -48,7 +49,7 @@ public abstract class WnPays {
                 re = sys.exec2(cmdText);
             }
             // 标识一下支付单已经被应用过了
-            po.setv(WnPays.KEY_APPLY_AT, System.currentTimeMillis());
+            po.setv(WnPays.KEY_APPLY_AT, Wn.now());
             po.setv(WnPays.KEY_APPLY_RE, re);
             sys.io.set(po, "^(" + WnPays.KEY_APPLY_AT + "|" + WnPays.KEY_APPLY_RE + ")$");
             // 试图通过 websocket 通知一下

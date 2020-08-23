@@ -239,7 +239,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         // 检查对象
         WnObj oSe = io.check(null, "/var/session/" + se.getTicket());
-        assertTrue(oSe.expireTime() > (System.currentTimeMillis() + 5000));
+        assertTrue(oSe.expireTime() > (Wn.now() + 5000));
 
         // 获取
         WnAuthSession se2 = auth.checkSession(se.getTicket());

@@ -99,7 +99,7 @@ public class noti_send implements JvmHdl {
         // 循环发送
         while (i++ < limit || limit <= 0) {
             // 得到当前系统时间
-            long nowInMs = System.currentTimeMillis();
+            long nowInMs = Wn.now();
 
             // 更新查询时间
             q.setv("noti_timeout_at", Region.Longf("(,%d)", nowInMs));

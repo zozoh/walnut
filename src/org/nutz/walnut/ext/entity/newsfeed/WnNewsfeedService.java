@@ -67,7 +67,7 @@ public class WnNewsfeedService implements NewsfeedApi {
         Newsfeed feed = this.fetch(id);
         // 设置
         feed.setReaded(readed);
-        feed.setReadAt(System.currentTimeMillis());
+        feed.setReadAt(Wn.now());
         // 更新
         this.update(feed, "read", "readAt");
         // 返回

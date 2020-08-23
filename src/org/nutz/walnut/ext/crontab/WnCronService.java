@@ -21,6 +21,7 @@ import org.nutz.runner.NutRunner;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean(create = "init", depose = "depose")
@@ -54,7 +55,7 @@ public class WnCronService extends NutRunner {
 
 		// 今天的零点是多少呢?
 		Calendar today = Calendar.getInstance();
-		today.setTimeInMillis(System.currentTimeMillis());
+		today.setTimeInMillis(Wn.now());
 		today.set(Calendar.HOUR_OF_DAY, 0);
 		today.set(Calendar.MINUTE, 0);
 		today.set(Calendar.SECOND, 0);
@@ -87,7 +88,7 @@ public class WnCronService extends NutRunner {
 		}
 		Collections.sort(jobTimes);
 		for (JobTime jobTime : jobTimes) {
-			long timenow = System.currentTimeMillis();
+			long timenow = Wn.now();
 			long diff = jobTime.timeAt - timenow;
 			if (diff < 0) {
 				log.debugf("已经过了任务执行时间 %s", Times.sDT(new Date(jobTime.timeAt)));
@@ -107,7 +108,7 @@ public class WnCronService extends NutRunner {
 			}
 		}
 		// }
-		long time2nextday = 86400 * 1000L - (System.currentTimeMillis() - dayOfBegin);
+		long time2nextday = 86400 * 1000L - (Wn.now() - dayOfBegin);
 		log.infof("今天的所有任务已经执行完, 休眠到午夜12:00分, 时长%dms", time2nextday);
 		return time2nextday;
 	}

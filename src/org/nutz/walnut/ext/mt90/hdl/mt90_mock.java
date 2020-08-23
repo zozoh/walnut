@@ -82,7 +82,7 @@ public class mt90_mock implements JvmHdl {
             WoozTools.convert(route, "gcj02", "wgs84");
             sys.out.printf(">> lat=%s, lng=%s, ele=%s", route.lat, route.lng, route.ele);
             Mt90Raw raw = new Mt90Raw();
-            raw.timestamp = System.currentTimeMillis();
+            raw.timestamp = Wn.now();
             raw.lat = route.lat;
             raw.lng = route.lng;
             raw.ele = (int)route.ele;

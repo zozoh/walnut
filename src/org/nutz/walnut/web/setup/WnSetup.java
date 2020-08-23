@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.websocket.server.ServerContainer;
 
-import org.nutz.filepool.UU32FilePool;
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
@@ -36,7 +35,6 @@ import org.nutz.walnut.ext.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.thing.impl.sql.SqlThingMaster;
 import org.nutz.walnut.ext.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
-import org.nutz.walnut.impl.io.bucket.MemoryBucket;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZType;
 import org.nutz.walnut.web.WnConfig;
@@ -93,9 +91,9 @@ public class WnSetup implements Setup {
             log.info(str);
         }
 
-        // 设置一下MemoryBucket的临时文件池
-        MemoryBucket.pool = new UU32FilePool(conf.get("memory-bucket-home",
-                                                      System.getProperty("java.io.tmpdir")));
+        // 初始化节点自身信息
+        String nodeName = conf.get("wn-node-name");
+        Wn.initRuntime(nodeName);
 
         // 尝试看看组装的结果
         WnIo io = Wn.Service.io(ioc);

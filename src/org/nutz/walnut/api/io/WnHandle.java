@@ -1,6 +1,7 @@
 package org.nutz.walnut.api.io;
 
 import org.nutz.lang.random.R;
+import org.nutz.walnut.util.Wn;
 
 /**
  * 句柄的结构体
@@ -29,7 +30,7 @@ public class WnHandle {
 
     public WnHandle() {
         this.id = R.UU32();
-        this.ct = System.currentTimeMillis();
+        this.ct = Wn.now();
         this.lm = this.ct;
     }
 

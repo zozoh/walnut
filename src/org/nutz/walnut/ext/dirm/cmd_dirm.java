@@ -60,7 +60,7 @@ public class cmd_dirm extends JvmExecutor {
         log.infof("dirm[%s] count: %d", ctar.id(), childrenNum);
         // 移动操作
         if (cp || mv) {
-            String outPath = params.get("out", "~/dirm_" + System.currentTimeMillis());
+            String outPath = params.get("out", "~/dirm_" + Wn.now());
             WnObj outDir = sys.io.createIfNoExists(null,
                                                    Wn.normalizeFullPath(outPath, sys),
                                                    WnRace.DIR);

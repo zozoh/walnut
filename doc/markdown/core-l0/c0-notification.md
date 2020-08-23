@@ -1,5 +1,5 @@
 ---
-title: 通知机制
+title: 队列通知机制
 author: zozohtnt@gmail.com
 tags:
 - 概念

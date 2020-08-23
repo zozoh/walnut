@@ -69,7 +69,7 @@ public abstract class IoWnHookService implements WnHookService {
 
         // 标记同步时间
         if (hr.oDir.syncTime() <= 0) {
-            io.appendMeta(hr.oDir, "synt:" + System.currentTimeMillis());
+            io.appendMeta(hr.oDir, "synt:" + Wn.now());
         }
         hr.st = hr.oDir.syncTime();
 

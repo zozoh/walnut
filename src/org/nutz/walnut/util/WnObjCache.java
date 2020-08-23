@@ -45,7 +45,7 @@ public class WnObjCache {
     }
 
     public void save(WnObj o, long duInMs) {
-        long expi = System.currentTimeMillis() + duInMs;
+        long expi = Wn.now() + duInMs;
         WnObjCacheItem item = new WnObjCacheItem(o, expi);
         byId.put(o.id(), item);
         byPath.put(o.path(), item);

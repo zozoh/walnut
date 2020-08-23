@@ -437,7 +437,7 @@ public abstract class AbstractWnTree implements WnTree {
         o.id(id);
         o.race(race);
         o.setTree(this);
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         o.createTime(now);
         o.lastModified(now);
         o.remove("ph");

@@ -47,7 +47,7 @@ public class CreateWnContext extends AbstractProcessor {
             }
             // 显示准备接受调用
             if (log.isInfoEnabled()) {
-                wc._timestamp = System.currentTimeMillis();
+                wc._timestamp = Wn.now();
                 if (log.isDebugEnabled()) {
                     log.debugf("ACCEPT: %s", req.getServletPath());
                 }

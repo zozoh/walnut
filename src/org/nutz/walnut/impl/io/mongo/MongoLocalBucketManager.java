@@ -12,6 +12,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketManager;
 import org.nutz.walnut.api.io.WnTree;
+import org.nutz.walnut.util.Wn;
 
 public class MongoLocalBucketManager implements WnBucketManager {
 
@@ -53,7 +54,7 @@ public class MongoLocalBucketManager implements WnBucketManager {
         // 创建桶对象
         MongoLocalBucket bu = new MongoLocalBucket().co(co).dir(dir).manager(this);
         bu.setId(id);
-        long nowms = System.currentTimeMillis();
+        long nowms = Wn.now();
         bu.setCreateTime(nowms);
         bu.setLastModified(nowms);
         bu.setLastOpened(nowms);

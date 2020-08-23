@@ -34,7 +34,7 @@ public class cmd_touch extends JvmExecutor {
             }
             // 否则更新最后修改时间
             else {
-                obj.lastModified(System.currentTimeMillis());
+                obj.lastModified(Wn.now());
                 sys.io.appendMeta(obj, "^lm$");
             }
             list.add(obj);

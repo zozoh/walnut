@@ -11,6 +11,7 @@ import org.nutz.walnut.ext.job.WnJobService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
@@ -57,7 +58,7 @@ public class job_add extends job_abstract {
 		// 用根用户权限执行
 		String cmdText = cmd;
 		String runByUser = "root".equals(sys.getMyName()) ? hc.params.get("user", "root") : sys.getMyName();
-		long runAt = hc.params.getLong("at", System.currentTimeMillis());
+		long runAt = hc.params.getLong("at", Wn.now());
 		WnRun.sudo(sys, () -> {
 			JobData jobData = new JobData(name, cmdText, cron, sys.getMe().getName(), runByUser, sys.session.getVars());
 			jobData.runAt = runAt;

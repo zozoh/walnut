@@ -14,7 +14,7 @@ public class WnObjCacheItem {
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() > expireAt;
+        return Wn.now() > expireAt;
     }
 
     public WnObj get() {

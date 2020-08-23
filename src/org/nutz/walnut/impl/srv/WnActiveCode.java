@@ -4,6 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 
 public class WnActiveCode {
 
@@ -54,7 +55,7 @@ public class WnActiveCode {
      * @return 是否是过期的
      */
     public boolean isExpired() {
-        return this.ac_expi > 0 && System.currentTimeMillis() > this.ac_expi;
+        return this.ac_expi > 0 && Wn.now() > this.ac_expi;
     }
 
     public NutMap toMap() {

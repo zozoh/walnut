@@ -9,6 +9,7 @@ import java.util.Set;
 import org.nutz.walnut.ext.entity.favor.FavorApi;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.util.Wn;
 
 import redis.clients.jedis.Tuple;
 
@@ -28,7 +29,7 @@ public class WnRedisFavorService implements FavorApi {
     public long favorIt(String uid, String... taIds) {
         String key = _KEY(uid);
         Map<String, Double> map = new HashMap<>();
-        double now = System.currentTimeMillis();
+        double now = Wn.now();
         for (String taId : taIds) {
             map.put(taId, now);
         }

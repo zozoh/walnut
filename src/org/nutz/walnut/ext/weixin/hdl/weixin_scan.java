@@ -65,7 +65,7 @@ public class weixin_scan implements JvmHdl {
         // 找到了
         if (obj != null) {
             // 防止重复
-            long nowInMs = System.currentTimeMillis();
+            long nowInMs = Wn.now();
             if (obj.getLong("scan_lock_at") > nowInMs)
                 return;
             WnObj obj2 = sys.io.setBy(Wn.Q.id(obj),

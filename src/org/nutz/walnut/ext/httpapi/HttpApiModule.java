@@ -579,7 +579,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 有缓存，但是过期了
         int cache_du_in_s = apc.oApi.getInt("cache-duration", 0);
         if (cache_du_in_s > 0) {
-            long duInMs = System.currentTimeMillis() - oCache.lastModified();
+            long duInMs = Wn.now() - oCache.lastModified();
             long cache_du_in_ms = cache_du_in_s * 1000;
             if (duInMs > cache_du_in_ms) {
                 if (lazy) {
@@ -718,7 +718,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
         long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
         long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
-        apc.reqMeta.put("expi", System.currentTimeMillis() + tmpDu);
+        apc.reqMeta.put("expi", Wn.now() + tmpDu);
 
         // .........................................
         // 保存 QueryString，同时，看看有没必要更改 mime-type

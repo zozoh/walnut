@@ -7,13 +7,14 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.impl.CreateThingAction;
+import org.nutz.walnut.util.Wn;
 
 public class SqlCreateThingAction extends CreateThingAction {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<WnObj> invoke() {
         SqlThingContext ctx = SqlThingMaster.me().getSqlThingContext(this.oTs);
-        long timenow = System.currentTimeMillis();
+        long timenow = Wn.now();
         for (NutMap meta : metas) {
             // 补齐id/ct/lm属性
             if (Strings.isBlank(meta.getString("id"))) {

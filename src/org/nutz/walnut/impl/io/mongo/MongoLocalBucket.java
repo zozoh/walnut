@@ -24,6 +24,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnBucket;
 import org.nutz.walnut.api.io.WnBucketBlockInfo;
 import org.nutz.walnut.impl.io.AbstractBucket;
+import org.nutz.walnut.util.Wn;
 
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
@@ -131,7 +132,7 @@ public class MongoLocalBucket extends AbstractBucket {
 
         // 记录
         this.setCountRead(countRead + 1);
-        this.setLastReaded(System.currentTimeMillis());
+        this.setLastReaded(Wn.now());
 
         // 返回读取的字节数
         return re;
@@ -192,7 +193,7 @@ public class MongoLocalBucket extends AbstractBucket {
 
         // 记录
         countRead++;
-        lastReaded = System.currentTimeMillis();
+        lastReaded = Wn.now();
 
         // 返回
         return re;
@@ -297,7 +298,7 @@ public class MongoLocalBucket extends AbstractBucket {
         sha1 = null;
 
         // 记录
-        this.lastWrited = System.currentTimeMillis();
+        this.lastWrited = Wn.now();
         this.lastModified = this.lastWrited;
 
         // 返回实际写入的字节数
@@ -314,7 +315,7 @@ public class MongoLocalBucket extends AbstractBucket {
                     f.delete();
             }
             this.blockNumber = nb;
-            this.lastModified = System.currentTimeMillis();
+            this.lastModified = Wn.now();
         }
     }
 
@@ -362,7 +363,7 @@ public class MongoLocalBucket extends AbstractBucket {
     public String seal() {
         sealed = true;
         nodup = true;
-        lastSealed = System.currentTimeMillis();
+        lastSealed = Wn.now();
         lastModified = lastSealed;
 
         // 确保生成指纹
@@ -378,7 +379,7 @@ public class MongoLocalBucket extends AbstractBucket {
     @Override
     public void unseal() {
         sealed = false;
-        lastOpened = System.currentTimeMillis();
+        lastOpened = Wn.now();
 
         update();
 
@@ -585,7 +586,7 @@ public class MongoLocalBucket extends AbstractBucket {
         if (this.size != size) {
             this.size = size;
             this.sha1 = null;
-            this.lastModified = System.currentTimeMillis();
+            this.lastModified = Wn.now();
 
             int lb_sz = (int) size % blockSize;
             int b_nb = (int) (size / blockSize) + (lb_sz > 0 ? 1 : 0);

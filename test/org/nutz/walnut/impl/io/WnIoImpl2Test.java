@@ -1,13 +1,12 @@
-package org.nutz.walnut.core.io;
+package org.nutz.walnut.impl.io;
 
 import org.junit.After;
 import org.junit.Before;
 import org.nutz.walnut.api.auth.WnAccount;
-import org.nutz.walnut.core.AbstractWnIoTest;
-import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.api.io.AbsractWnIoTest;
 import org.nutz.walnut.util.Wn;
 
-public class WnIoImpl2Test extends AbstractWnIoTest {
+public class WnIoImpl2Test extends AbsractWnIoTest {
 
     @Before
     public void setUp() throws Exception {

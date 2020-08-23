@@ -2,6 +2,7 @@ package org.nutz.walnut.tool;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.random.R;
+import org.nutz.walnut.util.Wn;
 
 public class GenAutoLoginUrl {
 
@@ -16,7 +17,7 @@ public class GenAutoLoginUrl {
         String user = "demo";
 
         // 请求者时间
-        long time = System.currentTimeMillis();
+        long time = Wn.now();
 
         // 随机字符串
         String once = R.UU64();

@@ -1122,7 +1122,7 @@ public class WnIoImpl2 implements WnIo {
         }
 
         // 确保有最后修改时间
-        map.put("lm", System.currentTimeMillis());
+        map.put("lm", Wn.now());
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
@@ -1141,7 +1141,7 @@ public class WnIoImpl2 implements WnIo {
         }
 
         // 确保有最后修改时间
-        map.put("lm", System.currentTimeMillis());
+        map.put("lm", Wn.now());
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);

@@ -1,4 +1,4 @@
-package org.nutz.walnut.core;
+package org.nutz.walnut.api.io;
 
 import static org.junit.Assert.*;
 
@@ -20,11 +20,12 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WalkMode;
-import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.IoCoreTest;
+import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleManager;
+import org.nutz.walnut.core.WnIoHandleMutexException;
+import org.nutz.walnut.core.WnReferApi;
 import org.nutz.walnut.core.bean.WnObjIdTest;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
@@ -33,7 +34,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 import org.w3c.dom.Document;
 
-public abstract class AbstractWnIoTest extends IoCoreTest {
+public abstract class AbsractWnIoTest extends IoCoreTest {
 
     /**
      * 子类需要设置这三个实例
@@ -782,7 +783,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         assertTrue(io.check(null, "/a/b").syncTime() <= 0);
 
         // 添加同步时间描述
-        long last_st = System.currentTimeMillis();
+        long last_st = Wn.now();
         io.appendMeta(b, "synt:" + last_st);
 
         // 等几毫秒 ...
@@ -838,14 +839,8 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         String mnt = "file://" + aph;
 
         /*
-         * <pre>
-         * /a/b/ := org/nutz/walnut/core/bean/WnObjIdTest.class
-         *                                ^
-         *                                |
-         *    +-----------link------------+
-         *    |  
-         * /x/y/
-         * </pre>
+         * <pre> /a/b/ := org/nutz/walnut/core/bean/WnObjIdTest.class ^ |
+         * +-----------link------------+ | /x/y/ </pre>
          */
 
         WnObj b = io.create(null, "/a/b", WnRace.DIR);
@@ -861,7 +856,7 @@ public abstract class AbstractWnIoTest extends IoCoreTest {
         // 试图找找文件
         String fnm = WnObjIdTest.class.getSimpleName() + ".class";
         WnObj x = io.fetch(null, "/x");
-        
+
         // o => /x/y/WnObjIdTest.class
         WnObj o = io.fetch(x, "y/" + fnm);
         String oph = "/x/y/" + fnm;

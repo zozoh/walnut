@@ -8,6 +8,7 @@ import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
+import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractIoHandleManager implements WnIoHandleManager {
 
@@ -53,7 +54,7 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
         // 未分配的句柄，不予保存
         if (!h.hasId())
             return;
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         h.setCreatTime(now);
         if (timeout > 0) {
             long du = timeout * 1000;
@@ -74,7 +75,7 @@ public abstract class AbstractIoHandleManager implements WnIoHandleManager {
             return;
         long du = h.getTimeout();
         if (du > 0) {
-            long now = System.currentTimeMillis();
+            long now = Wn.now();
             long pas = h.getExpiTime() - now;
             // 如果已经经过了一半过期时间，为了防止删除，更新一下过期时间
             if (pas < (du * 500)) {

@@ -256,7 +256,7 @@ public class LocalIoBM extends AbstractIoBM {
         }
         String sha1 = null;
         long olen = 0;
-        long lm = System.currentTimeMillis();
+        long lm = Wn.now();
         // 某些时候，没有调用写接口的句柄实例，或者仅仅写了空字节的实例
         // 并不会生成 swap 文件
         if (null != swap) {

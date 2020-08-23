@@ -456,7 +456,7 @@ public class WnStoreImpl implements WnStore {
             else {
                 o.len(len);
                 o.sha1(Lang.sha1(""));
-                o.lastModified(System.currentTimeMillis());
+                o.lastModified(Wn.now());
             }
 
             // 标记要修改的元数据

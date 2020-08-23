@@ -369,7 +369,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
 
         // 创建自身
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         o.setIndexer(this);
         o.id(id);
         o.name(name);
@@ -478,7 +478,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
 
         // 创建自身
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         o.createTime(now);
         o.lastModified(now);
 
@@ -693,7 +693,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 触发同步
         if (Wn.MV.isSYNC(mode)) {
-            long now = System.currentTimeMillis();
+            long now = Wn.now();
             // 触发同步时间修改
             Wn.Io.update_ancestor_synctime(this, src, false, now);
 

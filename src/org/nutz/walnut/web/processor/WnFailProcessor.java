@@ -38,7 +38,7 @@ public class WnFailProcessor extends ViewProcessor {
         // 显示调试信息
         if (log.isInfoEnabled()) {
             long ts = Wn.WC()._timestamp;
-            long du = ts > 0 ? System.currentTimeMillis() - ts : ts;
+            long du = ts > 0 ? Wn.now() - ts : ts;
             log.infof("HTTPfail:%dms: %s", du, ac.getRequest().getServletPath());
         }
 

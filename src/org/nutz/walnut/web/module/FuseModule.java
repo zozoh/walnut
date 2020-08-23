@@ -154,7 +154,7 @@ public class FuseModule extends AbstractWnModule {
     @At
     @Ok("json")
     public double[] utimens(@Param("path") String path) {
-        return new double[]{System.currentTimeMillis() / 100.0, _obj().lastModified() / 100.0};
+        return new double[]{Wn.now() / 100.0, _obj().lastModified() / 100.0};
     }
 
     @At

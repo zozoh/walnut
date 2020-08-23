@@ -19,6 +19,7 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.Webs.Err;
 
 import com.aliyun.oss.OSS;
@@ -236,7 +237,7 @@ public class WnAliyunOssService {
 	public URL genURL(String objectName, String method, int timeout) {
 		try {
 			objectName = _name(objectName);
-			return oss.generatePresignedUrl(bucketName, objectName, new Date(System.currentTimeMillis()+timeout));
+			return oss.generatePresignedUrl(bucketName, objectName, new Date(Wn.now()+timeout));
 		} catch (Exception e) {
 			throw Err.create("e.aliyun.oss.genurl", e);
 		}

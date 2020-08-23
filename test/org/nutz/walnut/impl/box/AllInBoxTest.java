@@ -4,5 +4,5 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({LinuxTerminalTest.class, JvmCmdTest.class, JvmBoxTest.class})
-public class AllBoxTest {}
+@Suite.SuiteClasses({LinuxTerminalTest.class, JvmCmdTest.class})
+public class AllInBoxTest {}

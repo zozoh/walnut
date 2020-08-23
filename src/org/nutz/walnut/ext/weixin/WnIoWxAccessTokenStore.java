@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.weixin;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.weixin.at.WxAccessToken;
 import org.nutz.weixin.spi.WxAccessTokenStore;
 
@@ -45,7 +46,7 @@ public class WnIoWxAccessTokenStore implements WxAccessTokenStore {
     public void save(String token, int expires, long lastCacheTimeMillis) {
         WnObj oAt = io.createIfNoExists(home, "access_token", WnRace.FILE);
         oAt.setv("wx_at_token", token);
-        oAt.setv("wx_at_expires", System.currentTimeMillis() / 1000 + expires);
+        oAt.setv("wx_at_expires", Wn.now() / 1000 + expires);
         io.appendMeta(oAt, "^wx_at_.*$");
     }
 

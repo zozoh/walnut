@@ -21,6 +21,7 @@ import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.jetty.AccessLogFilter;
 import org.nutz.walnut.jetty.log.AccessLog;
+import org.nutz.walnut.util.Wn;
 
 public class aclog_analysis implements JvmHdl {
 
@@ -34,7 +35,7 @@ public class aclog_analysis implements JvmHdl {
             toDate = Times.D(hc.params.get("to"));
         }
         else {
-            toDate = new Date(System.currentTimeMillis());
+            toDate = new Date(Wn.now());
         }
         if (hc.params.has("from")) {
             fromDate = Times.D(hc.params.get("from"));

@@ -15,6 +15,7 @@ import org.nutz.walnut.ext.websocket.WsUtils;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZParams;
 
@@ -41,7 +42,7 @@ public class websocket_event implements JvmHdl {
                     NutMap meta = new NutMap();
                     meta.put("ws_usr", sys.getMyName());
                     meta.put("ws_grp", sys.getMyGroup());
-                    meta.put("expi", System.currentTimeMillis() + 300 * 1000);
+                    meta.put("expi", Wn.now() + 300 * 1000);
                     sys.io.writeMeta(cfile, meta);
                 }
             });

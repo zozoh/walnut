@@ -73,7 +73,7 @@ public class httpapi_invoke implements JvmHdl {
                 meta.put("http-usr", c.usr.getName());
                 meta.put("http-api", rph);
                 meta.put("http-protocol", "HTTP/1.1");
-                meta.put("expi", System.currentTimeMillis() + 1800000L);
+                meta.put("expi", Wn.now() + 1800000L);
                 // .....................................................
                 // 得到请求文件
                 WnObj oReq = null;

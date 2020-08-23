@@ -122,7 +122,7 @@ public class WalnutFilter implements Filter {
             if (null != oDmnHome) {
                 WnQuery q = Wn.Q.pid(oDmnHome);
                 q.setv("dmn_host", host);
-                // q.setv("dmn_expi", "[" + System.currentTimeMillis() + ",]");
+                // q.setv("dmn_expi", "[" + Wn.now() + ",]");
                 if (log.isDebugEnabled()) {
                     log.debugf(" - query: %s", q.toString());
                 }
@@ -139,7 +139,7 @@ public class WalnutFilter implements Filter {
             }
 
             // 找到了记录，但是过期了，显示错误页
-            if (oDmn.isExpired() || oDmn.getLong("dmn_expi", 0) < System.currentTimeMillis()) {
+            if (oDmn.isExpired() || oDmn.getLong("dmn_expi", 0) < Wn.now()) {
                 Mvcs.updateRequestAttributes(req);
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");

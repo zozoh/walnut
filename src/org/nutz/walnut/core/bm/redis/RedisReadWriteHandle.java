@@ -6,6 +6,7 @@ import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
+import org.nutz.walnut.util.Wn;
 
 public class RedisReadWriteHandle extends WnIoHandle {
 
@@ -92,7 +93,7 @@ public class RedisReadWriteHandle extends WnIoHandle {
         // 更新索引
         obj.sha1(this.bytes.sha1sum());
         obj.len(this.bytes.getLimit());
-        obj.lastModified(System.currentTimeMillis());
+        obj.lastModified(Wn.now());
         indexer.set(obj, "^(sha1|len|lm)$");
 
         // 标志一下，这个句柄实例就不能再使用了

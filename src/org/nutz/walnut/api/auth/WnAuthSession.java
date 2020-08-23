@@ -9,6 +9,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -135,7 +136,7 @@ public class WnAuthSession {
         map.put("me", this.getMe().toBeanForClient());
         map.put("grp", this.getMyGroup());
         map.put("expi", expi);
-        map.put("du", expi - System.currentTimeMillis());
+        map.put("du", expi - Wn.now());
         map.put("pwd", this.currentPath);
         map.put("envs", vars);
         return map;

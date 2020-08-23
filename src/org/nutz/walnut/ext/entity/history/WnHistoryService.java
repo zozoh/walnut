@@ -98,7 +98,7 @@ public class WnHistoryService implements HistoryApi {
     @Override
     public HistoryRecord add(HistoryRecord his) {
         // 自动设置创建时间
-        his.setCreateTime(System.currentTimeMillis());
+        his.setCreateTime(Wn.now());
 
         // 自动分配 ID
         if (!his.hasId()) {

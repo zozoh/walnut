@@ -70,11 +70,11 @@ public class WnMainModule extends AbstractWnModule {
         } else {
             this.runtimeEntryPageMap = null;
         }
-        this.rt_ep_load_time = System.currentTimeMillis();
+        this.rt_ep_load_time = Wn.now();
     }
 
     private void _check_runtime_entry_pageMap() {
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         long du = now - this.rt_ep_load_time;
         // 采用系统运行时 URL 映射
         if (null != this.runtimeEntryPageMap) {

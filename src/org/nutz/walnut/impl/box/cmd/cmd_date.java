@@ -4,6 +4,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_date extends JvmExecutor {
@@ -35,7 +36,7 @@ public class cmd_date extends JvmExecutor {
         }
         // 当前时间
         else {
-            now = System.currentTimeMillis();
+            now = Wn.now();
         }
 
         // -fmt

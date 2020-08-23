@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileBM;
@@ -48,6 +49,7 @@ import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.impl.io.MimeMapImpl;
 import org.nutz.walnut.impl.io.mongo.MongoDB;
+import org.nutz.walnut.impl.lock.redis.RedisLockApi;
 import org.nutz.walnut.util.Wn;
 
 public class IoCoreSetup {
@@ -198,6 +200,13 @@ public class IoCoreSetup {
         return refers;
     }
 
+    public WnLockApi getRedisLockApi(int askDu) {
+        WedisConfig conf = this.getWedisConfig();
+        conf = conf.clone();
+        conf.setup().put("ask-du", askDu);
+        return new RedisLockApi(conf);
+    }
+
     public WedisConfig getWedisConfig() {
         if (null == wedisConf) {
             wedisConf = new WedisConfig();
@@ -302,8 +311,8 @@ public class IoCoreSetup {
         o.path("/");
         o.race(WnRace.DIR);
         o.name("");
-        o.lastModified(System.currentTimeMillis());
-        o.createTime(System.currentTimeMillis());
+        o.lastModified(Wn.now());
+        o.createTime(Wn.now());
         o.creator("root").mender("root").group("root");
         o.mode(0755);
 
@@ -329,12 +338,29 @@ public class IoCoreSetup {
 
     public void cleanAllData() {
         // 清空 Mongo
+        cleanMongo();
+
+        // 清空 MySQL
+        cleanDaoData();
+
+        // 清空目录: 本地文件
+        cleanLocalFileHome();
+
+        // 清空目录: 本地桶
+        cleanLocalIoBM();
+
+        // 清空 Redis 当前数据库
+        cleanRedisData();
+    }
+
+    public void cleanMongo() {
         ZMoCo co = this.getMongoCollection();
         if (co.getDB().getNativeDB().collectionExists(co.getName())) {
             co.drop();
         }
+    }
 
-        // 清空 MySQL
+    public void cleanDaoData() {
         WnDaoConfig daoConf = this.getWnDaoConfig();
         Dao dao = WnDaos.get(daoConf);
         WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
@@ -342,8 +368,9 @@ public class IoCoreSetup {
 
         // 自动创建创建表
         dao.create(entity, true);
+    }
 
-        // 清空目录: 本地文件
+    public void cleanLocalFileHome() {
         File d = getLocalFileHome();
         if (d.exists()) {
             String aph = Files.getAbsPath(d);
@@ -353,7 +380,10 @@ public class IoCoreSetup {
                 throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
-        // 清空目录: 本地桶
+    }
+
+    public void cleanLocalIoBM() {
+        File d;
         String bmPath = pp.get("io-bm-home");
         String bmHome = Disks.normalize(bmPath);
         d = new File(bmHome);
@@ -368,7 +398,9 @@ public class IoCoreSetup {
                 throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
-        // 清空 Redis 当前数据库
+    }
+
+    public void cleanRedisData() {
         WedisConfig redisConf = this.getWedisConfig();
         Wedis.run(redisConf, jed -> {
             jed.flushDB();

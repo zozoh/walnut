@@ -25,7 +25,7 @@ public class CreateTmpFileAction extends ThingAction<WnObj> {
 
         // 设置过期时间
         if (duInMs > 0) {
-            oTmp.expireTime(System.currentTimeMillis() + duInMs);
+            oTmp.expireTime(Wn.now() + duInMs);
             io.set(oTmp, "^expi$");
         }
 

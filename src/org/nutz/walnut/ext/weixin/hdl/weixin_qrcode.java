@@ -16,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.weixin.spi.WxApi2;
 import org.nutz.weixin.spi.WxResp;
 
@@ -113,7 +114,7 @@ public class weixin_qrcode implements JvmHdl {
             // 计算过期时间
             long expire_time = -1;
             if (resp.has("expire_seconds"))
-                expire_time = System.currentTimeMillis()
+                expire_time = Wn.now()
                               + resp.getInt("expire_seconds", 0) * 1000
                               - 15 * 1000;
 

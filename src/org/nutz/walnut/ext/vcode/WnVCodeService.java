@@ -7,6 +7,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 
 @IocBean
 public class WnVCodeService implements VCodeService {
@@ -21,7 +22,7 @@ public class WnVCodeService implements VCodeService {
         WnObj oCode = io.createIfNoExists(null, vcodePath, WnRace.FILE);
 
         // 得到过期时间
-        long expi = System.currentTimeMillis() + (duInMin * 60000L);
+        long expi = Wn.now() + (duInMin * 60000L);
 
         // 准备验证码的元数据
         oCode.expireTime(expi);

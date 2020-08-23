@@ -62,13 +62,21 @@ public abstract class Wn {
     /**
      * 记录系统运行时信息
      */
-    private static WnSysRuntime _rt = new WnSysRuntime("standalone");
+    private static WnSysRuntime _rt = null;
 
     /**
      * @return 系统运行时对象
      */
     public static WnSysRuntime getRuntime() {
-        return _rt.clone();
+        return _rt;
+    }
+
+    public static void initRuntime(String nodeName) {
+        _rt = new WnSysRuntime(nodeName);
+    }
+
+    public static long now() {
+        return System.currentTimeMillis();
     }
 
     private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhd])?$");
@@ -658,7 +666,7 @@ public abstract class Wn {
 
             final List<WnObj> list = new LinkedList<WnObj>();
             o.loadParents(list, false);
-            final long synctime = now > 0 ? now : System.currentTimeMillis();
+            final long synctime = now > 0 ? now : Wn.now();
             wc.synctimeOff(new Atom() {
                 @Override
                 public void run() {
@@ -697,7 +705,7 @@ public abstract class Wn {
 
             final List<WnObj> list = new LinkedList<WnObj>();
             o.loadParents(list, false);
-            final long synctime = System.currentTimeMillis();
+            final long synctime = Wn.now();
             wc.synctimeOff(new Atom() {
                 @Override
                 public void run() {
@@ -1252,7 +1260,7 @@ public abstract class Wn {
 
         // 当前时间
         if (m.find()) {
-            ms = System.currentTimeMillis();
+            ms = Wn.now();
 
             // 嗯要加点偏移量
             if (!Strings.isBlank(m.group(1))) {

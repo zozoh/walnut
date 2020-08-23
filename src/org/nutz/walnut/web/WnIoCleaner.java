@@ -11,6 +11,7 @@ import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 public class WnIoCleaner implements Atom {
@@ -49,7 +50,7 @@ public class WnIoCleaner implements Atom {
     }
 
     private void __in_loop() {
-        long now = System.currentTimeMillis();
+        long now = Wn.now();
         WnQuery q = new WnQuery();
         q.setv("expi", Region.Longf("(,%d]", now));
         q.limit(100);

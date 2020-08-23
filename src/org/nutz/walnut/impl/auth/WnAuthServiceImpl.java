@@ -237,7 +237,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     @Override
     public WnAuthSession touchSession(WnAuthSession se) {
         if (null != se && !se.isDead()) {
-            long nowInMs = System.currentTimeMillis();
+            long nowInMs = Wn.now();
             long se_du = setup.getSessionDefaultDuration();
             se.setExpi(nowInMs + (se_du * 1000L));
             io.appendMeta(se.getObj(), Lang.map("expi", se.getExpi()));
@@ -298,7 +298,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
                 }
                 // 设置过期时间
                 else {
-                    long expi = System.currentTimeMillis() + delay;
+                    long expi = Wn.now() + delay;
                     oSe.expireTime(expi);
                     oSe.put("dead", true);
                     io.set(oSe, "^(expi|dead)$");
@@ -580,7 +580,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
             me.mergeTo(ta);
 
             // 同时也更新用户最后登录时间咯
-            ta.setLoginAt(System.currentTimeMillis());
+            ta.setLoginAt(Wn.now());
             this.saveAccount(ta);
 
             // 删除当前账号
@@ -671,7 +671,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     private WnAuthSession createSessionBy(long duInSec, WnAccount me, NutMap meta) {
         WnObj oSessionDir = setup.getSessionDir();
         // 过期时间
-        long expi = System.currentTimeMillis() + (duInSec * 1000L);
+        long expi = Wn.now() + (duInSec * 1000L);
 
         // 验证通过后，创建会话
         String ticket = R.UU32();

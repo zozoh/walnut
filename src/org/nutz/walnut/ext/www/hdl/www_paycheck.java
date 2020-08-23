@@ -17,6 +17,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
 public class www_paycheck implements JvmHdl {
@@ -79,14 +80,14 @@ public class www_paycheck implements JvmHdl {
             // 更新时间戳: OK
             if (payRe.isStatusOk()) {
                 if (or.getOkAt() <= 0) {
-                    or.setOkAt(System.currentTimeMillis());
+                    or.setOkAt(Wn.now());
                     keys.add("ok_at");
                 }
             }
             // 更新时间戳: FAIL
             else if (payRe.isStatusFail()) {
                 if (or.getFailAt() <= 0) {
-                    or.setFailAt(System.currentTimeMillis());
+                    or.setFailAt(Wn.now());
                     keys.add("fa_at");
                 }
             }

@@ -381,7 +381,7 @@ public abstract class backup_xxx {
         ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
         BackupPackage bzip = new BackupPackage();
         ZipEntry en;
-        long time_for_expired = System.currentTimeMillis() + 30000;
+        long time_for_expired = Wn.now() + 30000;
         while (true) {
             en = zis.getNextEntry();
             if (en == null)

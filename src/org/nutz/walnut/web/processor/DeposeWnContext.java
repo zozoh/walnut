@@ -16,7 +16,7 @@ public class DeposeWnContext extends AbstractProcessor {
         // 显示调试信息
         if (log.isInfoEnabled()) {
             long ts = Wn.WC()._timestamp;
-            long du = ts > 0 ? System.currentTimeMillis() - ts : ts;
+            long du = ts > 0 ? Wn.now() - ts : ts;
             String ph = ac.getRequest().getServletPath();
             // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
             if (!"/".equals(ph)) {

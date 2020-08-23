@@ -418,7 +418,7 @@ public class WnBean extends NutMap implements WnObj {
     }
 
     public boolean isExpired() {
-        return isExpiredBy(System.currentTimeMillis());
+        return isExpiredBy(Wn.now());
     }
 
     @Override

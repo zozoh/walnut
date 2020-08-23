@@ -82,7 +82,7 @@ public class RedisBM extends AbstractIoBM {
             System.arraycopy(bs, 0, bs2, 0, n);
             this.setBytes(o.id(), bs2);
 
-            o.lastModified(System.currentTimeMillis());
+            o.lastModified(Wn.now());
             o.sha1("pending");
             o.len(n);
             indexer.set(o, "^(lm|len|sha1)$");

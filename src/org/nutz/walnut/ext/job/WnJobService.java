@@ -25,6 +25,7 @@ import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean(create = "init", depose = "depose", name = "wnJob")
@@ -211,7 +212,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 	}
 
 	public long now() {
-		return System.currentTimeMillis();
+		return Wn.now();
 	}
 
 	// ----------------------------------------
@@ -226,7 +227,7 @@ public class WnJobService extends WnRun implements Callable<Object> {
 			log.debug("quartz cron=" + quartz);
 		}
 		if (jobData.runAt == 0)
-			jobData.runAt = System.currentTimeMillis();
+			jobData.runAt = Wn.now();
 
 		String id = R.UU32();
 		WnObj jobDir = io().create(null, WnJobService.root + "/" + id, WnRace.DIR);

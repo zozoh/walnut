@@ -83,7 +83,7 @@ public class weixin_out implements JvmHdl {
         }
 
         // 设置创建时间
-        om.setCreateTime(System.currentTimeMillis() / 1000);
+        om.setCreateTime(Wn.now() / 1000);
 
         if (!Strings.isBlank(openid))
             om.setToUserName(openid);

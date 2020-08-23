@@ -9,6 +9,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 public class WnMqttSub implements IMqttMessageListener {
@@ -37,7 +38,7 @@ public class WnMqttSub implements IMqttMessageListener {
         NutMap metas = new NutMap();
         metas.put("mqtt_topic", topic);
         metas.put("mqtt_qos", message.getQos());
-        metas.put("expi", System.currentTimeMillis() + 10 * 60 * 1000); // 10分钟过期
+        metas.put("expi", Wn.now() + 10 * 60 * 1000); // 10分钟过期
         io.appendMeta(wobj, metas);
         try (OutputStream out = io.getOutputStream(wobj, 0)) {
             out.write(message.getPayload());

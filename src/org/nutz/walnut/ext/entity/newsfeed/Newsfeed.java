@@ -135,7 +135,7 @@ public class Newsfeed {
         }
         // 如果是创建的话，强制设置一下
         if (forCreate) {
-            this.createTime = System.currentTimeMillis();
+            this.createTime = Wn.now();
             this.readAt = 0;
             // 默认未读
             this.readed = false;
@@ -144,7 +144,7 @@ public class Newsfeed {
         }
         // 创建时间
         else if (this.createTime <= 0) {
-            this.createTime = System.currentTimeMillis();
+            this.createTime = Wn.now();
         }
 
         // 返回自身以便链式赋值

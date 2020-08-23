@@ -1,5 +1,10 @@
 package org.nutz.walnut.util;
 
+import org.nutz.json.Json;
+import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
+
 /**
  * 系统运行时信息
  * 
@@ -7,17 +12,55 @@ package org.nutz.walnut.util;
  */
 public class WnSysRuntime {
 
-    private String nodeName;
+    /**
+     * 节点唯一名称
+     */
+    String nodeName;
 
-    private long nodeStartAtInMs;
+    /**
+     * 节点启动时间（唯一毫秒数）
+     */
+    long nodeStartAtInMs;
 
-    private long nodeNowInMs;
+    /**
+     * 本机机器名
+     */
+    String machineName;
 
-    private long nodeLiveTimeInMs;
+    /**
+     * 本机默认 IP 地址
+     */
+    String localAddress;
+
+    /**
+     * 本机默认网卡地址
+     */
+    String localMac;
+
+    String javaVersion;
+    String osArch;
+    String osName;
+    String osType;
+    String osVersion;
+    String userCountry;
+    String userLanguage;
+    String userName;
+    String userTimezone;
 
     public WnSysRuntime(String nodeName) {
-        this.nodeName = nodeName;
-        this.nodeStartAtInMs = System.currentTimeMillis();
+        WnOS.fillRuntimeInfo(this);
+
+        // 默认拼合一个自己的节点的名称
+        if (Strings.isBlank(nodeName)) {
+            this.nodeName = this.machineName + "-" + this.localMac;
+        }
+        // 指定了节点
+        else {
+            NutMap context = this.toMap();
+            this.nodeName = Tmpl.exec(nodeName, context);
+        }
+
+        this.nodeStartAtInMs = Wn.now();
     }
 
     public String getNodeName() {
@@ -28,21 +71,57 @@ public class WnSysRuntime {
         return nodeStartAtInMs;
     }
 
-    public long getNodeNowInMs() {
-        return nodeNowInMs;
+    public String getMachineName() {
+        return machineName;
     }
 
-    public long getNodeLiveTimeInMs() {
-        return nodeLiveTimeInMs;
+    public String getLocalAddress() {
+        return localAddress;
     }
 
-    public WnSysRuntime clone() {
-        WnSysRuntime rt = new WnSysRuntime(this.nodeName);
-        rt.nodeName = this.nodeName;
-        rt.nodeStartAtInMs = this.nodeStartAtInMs;
-        rt.nodeNowInMs = System.currentTimeMillis();
-        rt.nodeLiveTimeInMs = rt.nodeNowInMs - rt.nodeStartAtInMs;
-        return rt;
+    public String getLocalMac() {
+        return localMac;
+    }
+
+    public String getJavaVersion() {
+        return javaVersion;
+    }
+
+    public String getOsArch() {
+        return osArch;
+    }
+
+    public String getOsName() {
+        return osName;
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public String getUserCountry() {
+        return userCountry;
+    }
+
+    public String getUserLanguage() {
+        return userLanguage;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getUserTimezone() {
+        return userTimezone;
+    }
+
+    public NutMap toMap() {
+        String json = Json.toJson(this);
+        return Json.fromJson(NutMap.class, json);
     }
 
 }

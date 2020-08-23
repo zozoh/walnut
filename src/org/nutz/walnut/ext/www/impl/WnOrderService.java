@@ -12,6 +12,7 @@ import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnOrderStatus;
 import org.nutz.walnut.ext.www.bean.WnProduct;
 import org.nutz.walnut.ext.www.bean.WnWebSite;
+import org.nutz.walnut.util.Wn;
 
 public class WnOrderService {
 
@@ -131,7 +132,7 @@ public class WnOrderService {
 
         // 设置订单过期时间，默认 15 分钟
         long du = 15 * 60000L;
-        or.setExpireTime(System.currentTimeMillis() + du);
+        or.setExpireTime(Wn.now() + du);
 
         // 准备订单元数据
         NutMap meta = or.toMeta();

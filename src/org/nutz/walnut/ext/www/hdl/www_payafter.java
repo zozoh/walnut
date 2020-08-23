@@ -13,6 +13,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -61,7 +62,7 @@ public class www_payafter implements JvmHdl {
             if (!po.isApplied()) {
                 // 【简单订单】的话，直接设置为完成
                 if (or.isTypeQ()) {
-                    long now = System.currentTimeMillis();
+                    long now = Wn.now();
                     or.setStatus(WnOrderStatus.DN);
                     or.setExpireTime(0);
                     or.setOkAt(now);

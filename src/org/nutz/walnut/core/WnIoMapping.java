@@ -117,7 +117,7 @@ public class WnIoMapping {
 
         // 更新一下目标的索引
         oTa.len(oSr.len()).sha1(oSr.sha1());
-        oTa.lastModified(System.currentTimeMillis());
+        oTa.lastModified(Wn.now());
         indexer.set(oTa, "^(len|sha1|lm)$");
         return oTa.len();
     }

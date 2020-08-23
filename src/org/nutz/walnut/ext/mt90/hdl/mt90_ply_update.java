@@ -51,7 +51,7 @@ public class mt90_ply_update implements JvmHdl {
         meta.put("u_lat", point.lat);
         meta.put("u_lng", point.lng);
         meta.put("u_ele", point.ele);
-        meta.put("u_trk_tm", System.currentTimeMillis());
+        meta.put("u_trk_tm", Wn.now());
         meta.put("u_trk_tm_gps", raw.timestamp);
         meta.put("u_tkr_rssi", raw.gsmRssi); // 信号强度
         meta.put("u_tkr_satellite", raw.satellite); // 卫星数量

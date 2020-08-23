@@ -21,6 +21,7 @@ import org.nutz.walnut.ext.payment.WnPay3xStatus;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.weixin.WxConf;
+import org.nutz.walnut.util.Wn;
 import org.nutz.weixin.util.Wxs;
 
 public abstract class AbstractWeixinPay3x extends WnPay3x {
@@ -67,7 +68,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
 
         // 过期时间（增加 1 分钟作为通讯补偿）
         long pay_expired = Math.max(conf.pay_time_expire, 10) * 60 * 1000 + 60000;
-        long expiInMs = System.currentTimeMillis() + pay_expired;
+        long expiInMs = Wn.now() + pay_expired;
         Date d = Times.D(expiInMs);
         String ds = Times.format("yyyyMMddHHmmss", d);
         map.setv("time_expire", ds);
@@ -126,7 +127,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
                     // js api需要下面的参数, 签名并返回之
                     NutMap params = new NutMap();
                     params.put("appId", conf.appID);
-                    params.put("timeStamp", "" + (System.currentTimeMillis() / 1000));
+                    params.put("timeStamp", "" + (Wn.now() / 1000));
                     params.put("nonceStr", "" + R.random(10000000, 100000000));
                     params.put("package", "prepay_id=" + respMap.get("prepay_id"));
                     params.put("signType", "MD5");

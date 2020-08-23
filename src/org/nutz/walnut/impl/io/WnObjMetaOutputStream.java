@@ -14,6 +14,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.box.WnTunnel;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.JvmTunnel;
+import org.nutz.walnut.util.Wn;
 
 public class WnObjMetaOutputStream extends OutputStream {
 
@@ -41,7 +42,7 @@ public class WnObjMetaOutputStream extends OutputStream {
             NutMap newObj = Json.fromJson(NutMap.class, json);
 
             // 计入最后修改时间
-            newObj.put("lm", System.currentTimeMillis());
+            newObj.put("lm", Wn.now());
 
             // 准备统计要修改的 keys
             List<String> keys = new ArrayList<String>(newObj.size() + o.size());

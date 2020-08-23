@@ -904,7 +904,7 @@ public class UsrModule extends AbstractWnModule {
         if (timeout == 0) {
             return new HttpStatusView(403);
         }
-        if (timeout > 0 && System.currentTimeMillis() - time > timeout) {
+        if (timeout > 0 && Wn.now() - time > timeout) {
             return new HttpStatusView(403);
         }
         String str = ackey + "," + nm + "," + time + "," + once;

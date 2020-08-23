@@ -16,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.weixin.util.Wxs;
 
@@ -114,7 +115,7 @@ public class weixin_order implements JvmHdl {
 
             // 修改账单状态
             oOrder.setv("pay_result", map);
-            oOrder.setv("pay_time", System.currentTimeMillis());
+            oOrder.setv("pay_time", Wn.now());
             oOrder.setv("or_status", 2);
             oOrder.setv("expi", null);
             sys.io.set(oOrder, "^(pay_result|pay_time|or_status|expi)$");
@@ -260,7 +261,7 @@ public class weixin_order implements JvmHdl {
         // 这个输出是一段 JSON，主要是给浏览器的 JSSDK 准备微信支付调用用的
         String prepay_id = mapResp.getString("prepay_id");
         mapPay = new NutMap();
-        mapPay.setv("timestamp", System.currentTimeMillis() + "");
+        mapPay.setv("timestamp", Wn.now() + "");
         mapPay.setv("nonceStr", R.random(100000000, 1000000000) + "");
         mapPay.setv("package", "prepay_id=" + prepay_id);
         mapPay.setv("signType", "MD5");

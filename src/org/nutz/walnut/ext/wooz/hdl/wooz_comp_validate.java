@@ -16,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -122,7 +123,7 @@ public class wooz_comp_validate implements JvmHdl {
         long d_ready = obj.getLong("d_ready", -1);
         long d_start = obj.getLong("d_start", -1);
         long d_end = obj.getLong("d_end", -1);
-        long today = System.currentTimeMillis();
+        long today = Wn.now();
         String prefix = obj.has("cm_tp") ? "comp" : "proj";
         // d_ready 必须在 d_apply 以后，否则报名区间木有啊
         if (d_ready < 0)

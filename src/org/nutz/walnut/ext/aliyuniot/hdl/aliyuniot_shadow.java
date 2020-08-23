@@ -39,7 +39,7 @@ public class aliyuniot_shadow implements JvmHdl {
     
     public static ExecutorService es = Executors.newFixedThreadPool(16, new ThreadFactory() {
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r, "aliyuniot_shadow-" + System.currentTimeMillis());
+            Thread t = new Thread(r, "aliyuniot_shadow-" + Wn.now());
             t.setDaemon(true);
             return t;
         }

@@ -91,7 +91,7 @@ public class WnPayment {
         }
         // 如果订单失败，延长1天的过期时间，以便追踪问题
         else if (po.isStatusFail()) {
-            po.expireTime(System.currentTimeMillis() + 86400000L);
+            po.expireTime(Wn.now() + 86400000L);
             re.addChangeKeys("expi");
         }
 
@@ -403,7 +403,7 @@ public class WnPayment {
         po.setStatus(re.getStatus());
         po.setReturnType(re.getDataType());
         po.setReturnData(re.getData());
-        po.setSendAt(System.currentTimeMillis());
+        po.setSendAt(Wn.now());
         re.addChangeKeys(WnPays.KEY_PAY_TP,
                          WnPays.KEY_PAY_TARGET,
                          WnPays.KEY_ST,
@@ -455,7 +455,7 @@ public class WnPayment {
             po.setStatus(re.getStatus());
             po.setReturnType(re.getDataType());
             po.setReturnData(re.getData());
-            po.setCloseAt(System.currentTimeMillis());
+            po.setCloseAt(Wn.now());
             re.addChangeKeys(WnPays.KEY_ST,
                              WnPays.KEY_RE_TP,
                              WnPays.KEY_RE_OBJ,
