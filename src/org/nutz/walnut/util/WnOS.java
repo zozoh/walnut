@@ -44,6 +44,10 @@ public abstract class WnOS {
         NetworkInterface addr = NetworkInterface.getByInetAddress(ia);
         byte[] mac = addr.getHardwareAddress();
 
+        if (null == mac) {
+            return "NOTMACADDR";
+        }
+
         StringBuffer sb = new StringBuffer("");
         for (int i = 0; i < mac.length; i++) {
             // 字节转换为整数
