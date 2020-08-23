@@ -8,20 +8,24 @@ var ioc = {
             } ]
         } ]
     },
+    lockApi: {
+        type : "org.nutz.walnut.impl.lock.redis.RedisLockApi",
+        args : [{refer:"redisConfForLockApi"}]
+    },
     referApi: {
         type : "org.nutz.walnut.core.refer.redis.RedisReferService",
-        args : [{refer:"redis0"}]
+        args : [{refer:"redisConfForIoRefers"}]
     },
     redisBM : {
         type : 'org.nutz.walnut.core.bm.redis.RedisBM',
-        args : [{refer : 'redis1'}]
+        args : [{refer : 'redisConfForIoBM'}]
     },
     ioHandleManager : {
         type : "org.nutz.walnut.core.hdl.redis.RedisIoHandleManager",
         args : [
             {refer : "ioMappingFactory"},
             {java  : '$conf.getInt("hdl-timeout", 20)'},
-            {refer : "redis2"}]
+            {refer : "redisConfForIoHandle"}]
     },
     globalBM : {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
@@ -109,7 +113,8 @@ var ioc = {
     io : {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
         fields: {
-            io: {refer:"rawIo"}
+            io: {refer:"rawIo"},
+            locks: {refer: "lockApi"}
         }
     }
 }

@@ -19,13 +19,16 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 
 public abstract class AbstractWnIoWrapper implements WnIo {
 
+    protected WnLockApi locks;
+
     protected WnIo io;
-    
+
     protected AbstractWnIoWrapper() {}
 
     public AbstractWnIoWrapper(WnIo io) {
