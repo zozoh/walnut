@@ -8,6 +8,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 
 public class TidyI18nJsonMap {
@@ -54,34 +55,44 @@ public class TidyI18nJsonMap {
     }
 
     public static void _tidy_file(File f) {
-        System.out.printf(" - tidy: %s\n", f.getName());
         String json = new TidyI18nJsonMap(f).doTidy();
         Files.write(f, json);
     }
 
+    private static void _tidy_dir(File dHome, File dir) {
+        File[] files = dir.listFiles();
+        for (File f : files) {
+            // 目录递归
+            if (f.isDirectory()) {
+                _tidy_dir(dHome, f);
+                continue;
+            }
+            // 确保是文件
+            if (!f.isFile()) {
+                continue;
+            }
+            // 必须是 ".i18n.json"
+            if (!f.getName().endsWith(".i18n.json")) {
+                continue;
+            }
+            // 嗯，处理吧
+            String rph = Disks.getRelativePath(dHome, f);
+            System.out.printf(" - tidy: %s\n", rph);
+            _tidy_file(f);
+        }
+    }
+
     public static void main(String[] args) {
-        String path = "D:/workspace/git/github/titanium/src/i18n/zh-cn/";
+        String path = "D:/workspace/git/github/titanium/src/i18n/";
 
-        File fOrDir = Files.findFile(path);
+        File dHome = Files.findFile(path);
 
-        if (fOrDir.isFile()) {
-            _tidy_file(fOrDir);
+        if (dHome.isFile()) {
+            _tidy_file(dHome);
         }
         // 目录的话，查找一下
-        else if (fOrDir.isDirectory()) {
-            File[] files = fOrDir.listFiles();
-            for (File f : files) {
-                // 只处理文件
-                if (!f.isFile()) {
-                    continue;
-                }
-                // 必须是 ".i18n.json"
-                if (!f.getName().endsWith(".i18n.json")) {
-                    continue;
-                }
-                // 嗯，处理吧
-                _tidy_file(f);
-            }
+        else if (dHome.isDirectory()) {
+            _tidy_dir(dHome, dHome);
         }
     }
 
