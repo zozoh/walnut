@@ -1091,8 +1091,16 @@ public abstract class Wn {
             if (Strings.isBlank(tp)) {
                 tp = Files.getSuffixName(o.name());
                 // 类型会被强制设置成小写
-                if (null != tp)
-                    tp = tp.toLowerCase();
+                if (null != tp) {
+                    // 如果仅仅是数字，全当没有
+                    if (tp.matches("^\\d+$")) {
+                        tp = null;
+                    }
+                    // 否则强制转小写
+                    else {
+                        tp = tp.toLowerCase();
+                    }
+                }
             }
             // 校验一下类型
             if (!o.hasType() || !o.isType(tp)) {
@@ -1555,7 +1563,7 @@ public abstract class Wn {
         else {
             throw Er.create("e.io.meta.unsupport", meta.getClass().getName());
         }
-    
+
         return map;
     }
 }
