@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.abb.hdl;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -58,6 +60,7 @@ public class abb_ckimp implements JvmHdl {
 		int rowIndex = 4;
 		String reportValue = null, groupValue = null, itemValue = null;
 		Map<String, AbbCheckListItem> items = new LinkedHashMap<>();
+		List<AbbCheckListItem> list = new ArrayList<>();
 		while (true) {
 			XSSFRow row = preSheet.getRow(rowIndex);
 			rowIndex++;
@@ -129,9 +132,11 @@ public class abb_ckimp implements JvmHdl {
 			item.sf = row.getCell(7).getStringCellValue();
 			item.outfiles = (String) __get_cell_value(row.getCell(8));
 			item.owner = (String) __get_cell_value(row.getCell(9));
+			
+			list.add(item);
 		}
 		
-		sys.out.writeJson(items, JsonFormat.full());
+		sys.out.writeJson(list, JsonFormat.full());
 	}
 
 	@SuppressWarnings("deprecation")
