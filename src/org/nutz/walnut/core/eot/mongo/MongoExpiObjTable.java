@@ -15,6 +15,7 @@ import org.nutz.walnut.util.Wn;
 import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class MongoExpiObjTable implements WnExpiObjTable {
 
@@ -34,9 +35,18 @@ public class MongoExpiObjTable implements WnExpiObjTable {
     }
 
     @Override
-    public void remove(String id) {
+    public void insertOrUpdate(String id, long expi) {
+        MoExpiObj eo = new MoExpiObj();
+        eo.setId(id);
+        eo.setExpiTime(expi);
+        this.insertOrUpdate(eo);
+    }
+
+    @Override
+    public boolean remove(String id) {
         ZMoDoc q = ZMoDoc.NEW("id", id);
-        co.remove(q);
+        WriteResult wr = co.remove(q);
+        return wr.getN() > 0;
     }
 
     @Override
@@ -48,7 +58,8 @@ public class MongoExpiObjTable implements WnExpiObjTable {
 
         // 我持有对象的时间
         long myHold = now + duInMs;
-        ZMoDoc o_u = ZMoDoc.NEW("hold", myHold).set("ow", owner);
+        ZMoDoc o_u = ZMoDoc.NEW();
+        o_u.set("hold", myHold).set("ow", owner);
 
         // 必须要有个限制
         if (limit <= 0) {
@@ -57,6 +68,7 @@ public class MongoExpiObjTable implements WnExpiObjTable {
 
         // 设置游标
         DBCursor cu = co.find(q);
+        cu.sort(ZMoDoc.NEW("expi", 1));
         cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
         int count = cu.count();
         cu.limit(limit);
@@ -67,11 +79,12 @@ public class MongoExpiObjTable implements WnExpiObjTable {
             while (cu.hasNext()) {
                 DBObject dbobj = cu.next();
                 MoExpiObj o = ZMo.me().fromDocToObj(dbobj, MoExpiObj.class);
+                o.setHoldTime(myHold);
                 list.add(o);
 
                 // 占用住
                 ZMoDoc o_q = ZMoDoc.ID(dbobj.get("_id"));
-                co.update(o_q, o_u);
+                co.update(o_q, o_u, true, false);
             }
         }
         catch (Exception e) {
@@ -86,9 +99,11 @@ public class MongoExpiObjTable implements WnExpiObjTable {
     }
 
     @Override
-    public void clean(String owner, long hold) {
-        ZMoDoc q = ZMoDoc.NEW("hold", hold).set("ow", owner);
-        co.remove(q);
+    public int clean(String owner, long hold) {
+        ZMoDoc q = ZMoDoc.NEW("hold", hold);
+        q.put("ow", owner);
+        WriteResult wr = co.remove(q);
+        return wr.getN();
     }
 
 }

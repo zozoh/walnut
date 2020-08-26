@@ -7,7 +7,9 @@ import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.app.WnApps;
 import org.nutz.walnut.ext.app.bean.SidebarGroup;
 import org.nutz.walnut.ext.app.bean.SidebarItem;
@@ -15,7 +17,6 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
@@ -54,9 +55,10 @@ public class app_sidebar implements JvmHdl {
                 if (si.isType("objs")) {
                     String cmdText = si.getCmd();
                     String json = sys.exec2(cmdText);
-                    List<WnBean> objs = Json.fromJsonAsList(WnBean.class, json);
+                    List<WnIoObj> objs = Json.fromJsonAsList(WnIoObj.class, json);
                     for (WnObj o : objs) {
-                        ((WnBean) o).setTree(sys.io);
+                        WnIoIndexer indexer = sys.io.getIndexer(o);
+                        ((WnIoObj) o).setIndexer(indexer);
 
                         // 进一步检查侧边栏项目权限
                         if (__can_show(wc, o)) {

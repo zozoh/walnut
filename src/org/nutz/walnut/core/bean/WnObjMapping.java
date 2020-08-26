@@ -1,7 +1,7 @@
 package org.nutz.walnut.core.bean;
 
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnIoMapping;
 
 public class WnObjMapping extends WnObjId {

@@ -1,4 +1,4 @@
-package org.nutz.walnut.impl.io.mongo;
+package org.nutz.walnut.util;
 
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;

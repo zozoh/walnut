@@ -8,8 +8,8 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.Callback;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractIoIndexer implements WnIoIndexer {

@@ -12,4 +12,4 @@ import org.nutz.walnut.core.indexer.mongo.MongosTest;
                      MongosTest.class,
                      MongoIndexerTest.class,
                      DaoIndexerTest.class})
-public class TestAllIndexer {}
+public class AllIndexerTest {}

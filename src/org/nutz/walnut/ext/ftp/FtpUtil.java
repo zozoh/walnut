@@ -13,7 +13,7 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wn;
 
 public class FtpUtil {
@@ -78,7 +78,7 @@ public class FtpUtil {
 
 
     public static WnObj toWnObj(MimeMap mimes, FTPFile ftpFile, WnObj parent) {
-        WnObj wobj = new WnBean();
+        WnObj wobj = new WnIoObj();
         wobj.name(ftpFile.getName());
         if (parent.id().contains(":ftp:")) {
             wobj.id(parent.id() + "%" + wobj.name());

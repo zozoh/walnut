@@ -37,12 +37,12 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.backup.BackupDumpContext;
 import org.nutz.walnut.ext.backup.BackupPackage;
 import org.nutz.walnut.ext.backup.BackupRestoreContext;
 import org.nutz.walnut.ext.backup.WobjLine;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.WnBean;
 import org.nutz.walnut.util.Wn;
 
 public abstract class backup_xxx {
@@ -91,11 +91,12 @@ public abstract class backup_xxx {
             } else {
                 WnObj dstWnObj = io.createIfNoExists(null, dst, WnRace.FILE);
                 if (io.exists(null, Wn.normalizeFullPath("~/.dump/to_local", ctx.se))) {
-                    try (OutputStream out = new FileOutputStream("/data/dump/" + R.UU32() + ".zip")) {
+                    try (OutputStream out = new FileOutputStream("/data/dump/"
+                                                                 + R.UU32()
+                                                                 + ".zip")) {
                         dump_write_zip(out, tmpDir, log);
                     }
-                }
-                else {
+                } else {
                     try (OutputStream out = io.getOutputStream(dstWnObj, 0)) {
                         dump_write_zip(out, tmpDir, log);
                     }
@@ -195,9 +196,10 @@ public abstract class backup_xxx {
             }
             // 格式 $id:$path:$obj_sha1:$data_sha1
             String line = new WobjLine(wobj.id(),
-                                        wobj.path().substring(ctx.base.length()),
-                                        o_sha1,
-                                        Strings.sBlank(wobj.sha1())).toString() + "\r\n";
+                                       wobj.path().substring(ctx.base.length()),
+                                       o_sha1,
+                                       Strings.sBlank(wobj.sha1())).toString()
+                          + "\r\n";
             fw_objs.write(line);
         }
         catch (IOException e) {
@@ -347,8 +349,7 @@ public abstract class backup_xxx {
                     BackupPackage pkg = sha1Map.get(sha1);
                     if (pkg == null) {
                         log.warnf("miss data : %s  : %s", rpath, wobj.sha1());
-                    }
-                    else {
+                    } else {
                         log.debugf("restore data   : %s : %s", rpath, wobj.sha1());
                         if (!readAndWrite(pkg, sha1, io, dstWnObj, log)) {
                             log.warnf("miss data   : %s : %s", rpath, wobj.sha1());
@@ -357,7 +358,12 @@ public abstract class backup_xxx {
                 }
                 log.debugf("restore meta   : %s -> %s", rpath, dstPath);
                 wobj.clearRWMetaKeys();
-                io.appendMeta(dstWnObj, Lang.filter(wobj, null, null, "^(id|race|d0|d1|nm|pid|ph|sha1|data|c|m|g)$", null));
+                io.appendMeta(dstWnObj,
+                              Lang.filter(wobj,
+                                          null,
+                                          null,
+                                          "^(id|race|d0|d1|nm|pid|ph|sha1|data|c|m|g)$",
+                                          null));
             }
         }
         catch (Exception e) {
@@ -376,8 +382,9 @@ public abstract class backup_xxx {
         }
         return null;
     }
-    
-    public static BackupPackage _readBackupPackage(InputStream ins, boolean readObjs) throws IOException {
+
+    public static BackupPackage _readBackupPackage(InputStream ins, boolean readObjs)
+            throws IOException {
         ZipInputStream zis = new ZipInputStream(ins, Encoding.CHARSET_UTF8);
         BackupPackage bzip = new BackupPackage();
         ZipEntry en;
@@ -403,7 +410,8 @@ public abstract class backup_xxx {
                         bzip.sha1Set.add(wline.fdata_sha1);
                 }
             } else if (readObjs && en.getName().startsWith("objs/")) {
-                WnObj wobj = Json.fromJson(WnBean.class, new InputStreamReader(zis, Encoding.CHARSET_UTF8));
+                WnObj wobj = Json.fromJson(WnIoObj.class,
+                                           new InputStreamReader(zis, Encoding.CHARSET_UTF8));
                 if (wobj.isExpiredBy(time_for_expired))
                     continue;
                 bzip.objs.add(wobj);
@@ -420,12 +428,17 @@ public abstract class backup_xxx {
             BackupPackage pkg = _readBackupPackage(ins, readObjs);
             pkg.self = self;
             return pkg;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw Lang.wrapThrow(e);
         }
     }
-    
-    public static boolean readAndWrite(BackupPackage pkg, String sha1, WnIo io, WnObj wobj, Log log) {
+
+    public static boolean readAndWrite(BackupPackage pkg,
+                                       String sha1,
+                                       WnIo io,
+                                       WnObj wobj,
+                                       Log log) {
         if (sha1.equals(wobj.sha1()))
             return true;
         File tmp = checkZipTmpFile(pkg.self, io, log);
@@ -433,21 +446,23 @@ public abstract class backup_xxx {
             String path = "bucket/" + sha1.substring(0, 2) + "/" + sha1.substring(2);
             io.writeAndClose(wobj, zip.getInputStream(zip.getEntry(path)));
             return true;
-        } catch (Throwable e) {
+        }
+        catch (Throwable e) {
             log.warn("something happen!!", e);
         }
         return false;
     }
-    
+
     public static File checkZipTmpFile(WnObj wobj, WnIo io, Log log) {
         File tmp = new File("/tmp/bk/" + wobj.id() + ".zip");
         if (!tmp.exists()) {
             try (InputStream ins = io.getInputStream(wobj, 0)) {
                 Files.write(Files.createFileIfNoExists(tmp), ins);
-            } catch (Throwable e) {
+            }
+            catch (Throwable e) {
                 log.warn("something happen!!", e);
             }
-            //ctx.tmpFiles.add(tmp.getAbsolutePath());
+            // ctx.tmpFiles.add(tmp.getAbsolutePath());
         }
         return tmp;
     }

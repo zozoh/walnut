@@ -5,8 +5,8 @@ import java.io.File;
 import org.nutz.lang.Files;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.indexer.localfile.LocalFileIndexer;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
 

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 
 /**

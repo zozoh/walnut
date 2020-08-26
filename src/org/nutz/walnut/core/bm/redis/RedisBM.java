@@ -2,10 +2,10 @@ package org.nutz.walnut.core.bm.redis;
 
 import org.nutz.lang.Encoding;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.bm.AbstractIoBM;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;

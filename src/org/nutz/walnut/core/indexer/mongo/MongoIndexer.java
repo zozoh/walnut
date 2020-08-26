@@ -17,7 +17,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
-import org.nutz.walnut.impl.io.mongo.WnMongos;
 import org.nutz.walnut.util.Wn;
 
 import com.mongodb.Bytes;
@@ -45,7 +44,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     private WnIoObj __get_by_full_id(String id) {
-        ZMoDoc q = WnMongos.qID(id);
+        ZMoDoc q = Mongos.qID(id);
         ZMoDoc doc = co.findOne(q);
         WnIoObj obj = Mongos.toWnObj(doc);
         if (null != obj) {

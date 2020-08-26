@@ -40,7 +40,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         String re = Strings.trim(out.toString());
         // 这玩意有问题，看看 mongo 那边还有多少数据
         if (Strings.isBlank(re)) {
-            ZMoCo co = setup.getMongoCollection();
+            ZMoCo co = setup.getMongoCoObj();
             long n = co.count();
             System.out.printf("靠!!!数据库里还有记录 【%d】条\n", n);
         }

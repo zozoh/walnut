@@ -4,13 +4,14 @@ import java.util.Map;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
 import org.nutz.walnut.ext.sql.WnDaoConfig;
@@ -50,6 +51,15 @@ public class DaoIndexerFactory implements WnIndexerFactory {
 
     @Override
     public WnIoIndexer load(WnObj oHome, String str) {
+        // 防守一下
+        if (null == oHome) {
+            throw Er.create("e.io.ixf.dao.NilHome");
+        }
+        if (Strings.isBlank(str)) {
+            throw Er.create("e.io.ixf.dao.BlankStr");
+        }
+
+        // 预备 ...
         DaoIndexer di = null;
         WnContext wc = Wn.WC();
         WnAccount me = wc.getMe();
@@ -62,22 +72,31 @@ public class DaoIndexerFactory implements WnIndexerFactory {
         }
 
         // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
-        if (null == auth || wc.isSecurityNoCheck() || auth.isMemberOfGroup(me, "root")) {
+        if (null == me
+            || null == auth
+            || wc.isSecurityNoCheck()
+            || auth.isMemberOfGroup(me, "root")) {
             di = indexers.get(str);
         }
         // 尝试从自己的域读取
-        if (null == di && null != me) {
+        if (null == di) {
+            String homePath;
+            if (null != me) {
+                homePath = me.getHomePath();
+            } else {
+                homePath = Wn.appendPath("/" + oHome.d0(), oHome.d1());
+            }
             String fnm = str + ".json";
-            String aph = Wn.appendPath(me.getHomePath(), ".io/ix", fnm);
+            String aph = Wn.appendPath(homePath, ".io/ix", fnm);
             WnObj o = io.fetch(null, aph);
             if (null != o) {
-                WnDaoConfig conf = WnDaos.loadConfig(io, o, Lang.map("HOME", me.getHomePath()));
+                WnDaoConfig conf = WnDaos.loadConfig(io, o, Lang.map("HOME", homePath));
                 return new DaoIndexer(oHome, mimes, conf);
             }
         }
         // 抛错
         if (null == di) {
-            throw Er.create("e.io.bm.UndefinedRedisBM", str);
+            throw Er.create("e.io.ixf.dao.NilIndexer", str);
         }
         return di;
     }

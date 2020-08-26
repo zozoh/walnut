@@ -44,11 +44,10 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.api.io.WnTree;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -679,45 +678,6 @@ public abstract class Wn {
                     if (includeSelf && o.syncTime() > 0) {
                         o.syncTime(synctime);
                         indexer.set(o, "^synt$");
-                    }
-                }
-            });
-        }
-
-        /**
-         * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
-         * 
-         * @param tree
-         *            元数据读写接口
-         * @param o
-         *            对象
-         * @param includeSelf
-         *            是否也检视自身的同步时间
-         */
-        public static void update_ancestor_synctime(final WnTree tree,
-                                                    final WnObj o,
-                                                    final boolean includeSelf) {
-            WnContext wc = Wn.WC();
-
-            // 防止无穷递归
-            if (wc.isSynctimeOff())
-                return;
-
-            final List<WnObj> list = new LinkedList<WnObj>();
-            o.loadParents(list, false);
-            final long synctime = Wn.now();
-            wc.synctimeOff(new Atom() {
-                @Override
-                public void run() {
-                    for (WnObj an : list) {
-                        if (an.syncTime() > 0) {
-                            an.syncTime(synctime);
-                            tree.set(an, "^synt$");
-                        }
-                    }
-                    if (includeSelf && o.syncTime() > 0) {
-                        o.syncTime(synctime);
-                        tree.set(o, "^synt$");
                     }
                 }
             });
@@ -1566,5 +1526,36 @@ public abstract class Wn {
 
         // 返回吧
         return trim ? Strings.trim(re) : re.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static NutBean anyToMap(WnObj o, Object meta) {
+        // 防守一下
+        if (null == meta)
+            return null;
+        // 转成 Map
+        NutBean map = null;
+        // 字符串
+        if (meta instanceof CharSequence) {
+            String str = meta.toString();
+            // 是一个正则表达式
+            if (str.startsWith("!^") || str.startsWith("^")) {
+                map = o.pickBy(str);
+            }
+            // 当作 JSON
+            else {
+                map = Lang.map(str);
+            }
+        }
+        // 就是 Map
+        else if (meta instanceof Map) {
+            map = NutMap.WRAP((Map<String, Object>) meta);
+        }
+        // 其他的统统不支持
+        else {
+            throw Er.create("e.io.meta.unsupport", meta.getClass().getName());
+        }
+    
+        return map;
     }
 }

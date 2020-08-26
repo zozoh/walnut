@@ -17,6 +17,7 @@ import org.nutz.mongo.ZMoCo;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.lock.WnLockApi;
@@ -25,6 +26,7 @@ import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
+import org.nutz.walnut.core.eot.mongo.MongoExpiObjTable;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.indexer.dao.WnObjEntity;
@@ -47,16 +49,17 @@ import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
 import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
-import org.nutz.walnut.impl.io.MimeMapImpl;
-import org.nutz.walnut.impl.io.mongo.MongoDB;
 import org.nutz.walnut.impl.lock.redis.RedisLockApi;
+import org.nutz.walnut.util.MongoDB;
 import org.nutz.walnut.util.Wn;
 
 public class IoCoreSetup {
 
     private static MongoDB mongo;
 
-    private static ZMoCo co;
+    private static ZMoCo co_obj;
+
+    private static ZMoCo co_expi;
 
     private static PropertiesProxy pp;
 
@@ -263,7 +266,7 @@ public class IoCoreSetup {
 
     public MongoIndexer getGlobalIndexer() {
         if (null == globalIndexer) {
-            ZMoCo co = this.getMongoCollection();
+            ZMoCo co = this.getMongoCoObj();
             WnObj root = this.getRootNode();
             MimeMap mimes = this.getMimes();
             globalIndexer = new MongoIndexer(root, mimes, co);
@@ -319,7 +322,7 @@ public class IoCoreSetup {
         return o;
     }
 
-    public ZMoCo getMongoCollection() {
+    public ZMoCo getMongoCoObj() {
         // MongoDB 连接初始化
         if (null == mongo) {
             mongo = new MongoDB();
@@ -329,11 +332,32 @@ public class IoCoreSetup {
             mongo.pwd = pp.get("mongo-pwd");
             mongo.db = pp.get("mongo-db", "walnut_unit");
             mongo.on_create();
-            String coName = pp.get("mongo-co", "obj");
-            co = mongo.getCollection(coName);
-            co.drop();
         }
-        return co;
+        if (null == co_obj) {
+            String coName = pp.get("mongo-co-obj", "obj");
+            co_obj = mongo.getCollection(coName);
+            co_obj.drop();
+        }
+        return co_obj;
+    }
+
+    public ZMoCo getMongoCoExpi() {
+        // MongoDB 连接初始化
+        if (null == mongo) {
+            mongo = new MongoDB();
+            mongo.host = pp.get("mongo-host");
+            mongo.port = pp.getInt("mongo-port", 27017);
+            mongo.usr = pp.get("mongo-usr");
+            mongo.pwd = pp.get("mongo-pwd");
+            mongo.db = pp.get("mongo-db", "walnut_unit");
+            mongo.on_create();
+        }
+        if (null == co_expi) {
+            String coName = pp.get("mongo-co-expi", "expi");
+            co_expi = mongo.getCollection(coName);
+            co_expi.drop();
+        }
+        return co_expi;
     }
 
     public void cleanAllData() {
@@ -354,7 +378,7 @@ public class IoCoreSetup {
     }
 
     public void cleanMongo() {
-        ZMoCo co = this.getMongoCollection();
+        ZMoCo co = this.getMongoCoObj();
         if (co.getDB().getNativeDB().collectionExists(co.getName())) {
             co.drop();
         }

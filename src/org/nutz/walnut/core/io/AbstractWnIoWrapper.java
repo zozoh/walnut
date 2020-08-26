@@ -15,15 +15,20 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
+import org.nutz.walnut.util.Wn;
 
 public abstract class AbstractWnIoWrapper implements WnIo {
+
+    protected WnExpiObjTable expiTable;
 
     protected WnLockApi locks;
 
@@ -35,8 +40,22 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         this.io = io;
     }
 
-    public void _clean_for_unit_test() {
-        io._clean_for_unit_test();
+    protected void tryAddExpiObj(WnObj o) {
+        if (null != expiTable && null != o) {
+            this.tryAddExpiObj(o.id(), o.expireTime());
+        }
+    }
+
+    protected void tryAddExpiObj(String id, long expi) {
+        if (null != expiTable && null != id && expi > 0) {
+            expiTable.insertOrUpdate(id, expi);
+        }
+    }
+
+    protected void tryRemoveExpiObj(WnObj o) {
+        if (null != expiTable && null != o) {
+            expiTable.remove(o.id());
+        }
     }
 
     public long copyData(WnObj a, WnObj b) {
@@ -87,10 +106,6 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.flush(hid);
     }
 
-    public WnObj setBy(String id, String key, Object val, boolean returnNew) {
-        return io.setBy(id, key, val, returnNew);
-    }
-
     public WnObj move(WnObj src, String destPath) {
         return io.move(src, destPath);
     }
@@ -111,8 +126,22 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.close(hid);
     }
 
+    public WnObj setBy(String id, String key, Object val, boolean returnNew) {
+        WnObj o2 = io.setBy(id, key, val, returnNew);
+        if ("expi".equals(key) && (val instanceof Long)) {
+            long expi = (Long) val;
+            this.tryAddExpiObj(id, expi);
+        }
+        return o2;
+    }
+
     public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
-        return io.setBy(q, key, val, returnNew);
+        WnObj o = io.setBy(q, key, val, returnNew);
+        if (null != o && "expi".equals(key) && (val instanceof Long)) {
+            long expi = (Long) val;
+            this.tryAddExpiObj(o.id(), expi);
+        }
+        return o;
     }
 
     public WnObj rename(WnObj o, String nm, int mode) {
@@ -121,10 +150,18 @@ public abstract class AbstractWnIoWrapper implements WnIo {
 
     public void set(WnObj o, String regex) {
         io.set(o, regex);
+        NutBean map = o.pickBy(regex);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     public WnObj setBy(String id, NutBean map, boolean returnNew) {
-        return io.setBy(id, map, returnNew);
+        WnObj o = io.setBy(id, map, returnNew);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(id, map.getLong("expi"));
+        }
+        return o;
     }
 
     public void setMount(WnObj o, String mnt) {
@@ -132,11 +169,19 @@ public abstract class AbstractWnIoWrapper implements WnIo {
     }
 
     public void writeMeta(WnObj o, Object meta) {
-        io.writeMeta(o, meta);
+        NutBean map = Wn.anyToMap(o, meta);
+        io.writeMeta(o, map);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     public void appendMeta(WnObj o, Object meta) {
-        io.appendMeta(o, meta);
+        NutBean map = Wn.anyToMap(o, meta);
+        io.appendMeta(o, map);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     public String readText(WnObj o) {
@@ -156,7 +201,11 @@ public abstract class AbstractWnIoWrapper implements WnIo {
     }
 
     public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
-        return io.setBy(q, map, returnNew);
+        WnObj o = io.setBy(q, map, returnNew);
+        if (null != o && map.containsKey("expi")) {
+            this.tryAddExpiObj(o.id(), map.getLong("expi"));
+        }
+        return o;
     }
 
     public <T> T readJson(WnObj o, Class<T> classOfT) {
@@ -197,6 +246,11 @@ public abstract class AbstractWnIoWrapper implements WnIo {
 
     public Writer getWriter(WnObj o, long off) {
         return io.getWriter(o, off);
+    }
+
+    @Override
+    public WnIoIndexer getIndexer(WnObj o) {
+        return io.getIndexer(o);
     }
 
     public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
@@ -243,10 +297,6 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.getAs(id, key, classOfT, dft);
     }
 
-    public void delete(WnObj o) {
-        io.delete(o);
-    }
-
     public WnObj create(WnObj p, String path, WnRace race) {
         return io.create(p, path, race);
     }
@@ -255,12 +305,24 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.create(p, paths, fromIndex, toIndex, race);
     }
 
+    public WnObj create(WnObj p, WnObj o) {
+        WnObj o2 = io.create(p, o);
+        this.tryAddExpiObj(o2);
+        return o2;
+    }
+
     public MimeMap mimes() {
         return io.mimes();
     }
 
+    public void delete(WnObj o) {
+        io.delete(o);
+        this.tryRemoveExpiObj(o);
+    }
+
     public void delete(WnObj o, boolean r) {
         io.delete(o, r);
+        this.tryRemoveExpiObj(o);
     }
 
     public WnObj createById(WnObj p, String id, String name, WnRace race) {

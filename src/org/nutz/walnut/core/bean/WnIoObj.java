@@ -14,9 +14,9 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
 

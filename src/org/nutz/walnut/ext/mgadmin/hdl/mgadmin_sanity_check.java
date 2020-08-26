@@ -7,7 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.impl.io.mongo.MongoDB;
+import org.nutz.walnut.util.MongoDB;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.Cursor;

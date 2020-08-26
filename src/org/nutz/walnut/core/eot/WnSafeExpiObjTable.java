@@ -1,4 +1,4 @@
-package org.nutz.walnut.core.eot.mongo;
+package org.nutz.walnut.core.eot;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,8 +35,13 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
     }
 
     @Override
-    public void remove(String id) {
-        table.remove(id);
+    public void insertOrUpdate(String id, long expi) {
+        table.insertOrUpdate(id, expi);
+    }
+
+    @Override
+    public boolean remove(String id) {
+        return table.remove(id);
     }
 
     @Override
@@ -69,8 +74,8 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
     }
 
     @Override
-    public void clean(String owner, long hold) {
-        table.clean(owner, hold);
+    public int clean(String owner, long hold) {
+        return table.clean(owner, hold);
     }
 
     public WnExpiObjTable getTable() {

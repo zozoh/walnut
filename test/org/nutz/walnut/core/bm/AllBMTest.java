@@ -8,4 +8,4 @@ import org.nutz.walnut.core.bm.redis.RedisBMTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({LocalIoBMTest.class, LocalFileBMTest.class, RedisBMTest.class})
-public class TestAllBM {}
+public class AllBMTest {}

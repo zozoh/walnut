@@ -1,6 +1,6 @@
 var ioc = {
     mimes : {
-        type : 'org.nutz.walnut.impl.io.MimeMapImpl',
+        type : 'org.nutz.walnut.core.MimeMapImpl',
         args : [ {
             type : 'org.nutz.ioc.impl.PropertiesProxy',
             args : [ {
@@ -43,11 +43,11 @@ var ioc = {
             {refer : 'mimes'}, 
             {java  : '$mongoDB.getCollection("obj")'}]
     },
-    "localFileIndexerFactory" : {
+    localFileIndexerFactory : {
         type : "org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory",
         args : [{refer:"mimes"}]
     },
-    "daoIndexerFactory" : {
+    daoIndexerFactory : {
         type : "org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory",
         fields: {
             ioc   : {refer: "$Ioc"},
@@ -60,13 +60,13 @@ var ioc = {
             }
         }
     },
-    "localIoBMFactory" : {
+    localIoBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalIoBMFactory",
         fields : {
             bms : {}
         }
     },
-    "redisBMFactory": {
+    redisBMFactory: {
         type : "org.nutz.walnut.core.mapping.bm.RedisBMFactory",
         fields : {
             io  : {refer:"io"},
@@ -75,11 +75,11 @@ var ioc = {
             }
         }
     },
-    "localFileBMFactory" : {
+    localFileBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileBMFactory",
         args : [{refer:"ioHandleManager"}]
     },
-    "localFileWBMFactory" : {
+    localFileWBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory",
         args : [{refer:"ioHandleManager"}]
     },
@@ -114,7 +114,8 @@ var ioc = {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
         fields: {
             io: {refer:"rawIo"},
-            locks: {refer: "lockApi"}
+            locks: {refer: "lockApi"},
+            expiTable: {refer: "safeExpiObjTable"}
         }
     }
 }

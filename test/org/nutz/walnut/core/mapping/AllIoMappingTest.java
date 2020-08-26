@@ -8,4 +8,4 @@ import org.junit.runners.Suite;
                      LocalFileIoMappingTest.class,
                      GlobalIoMappingTest.class,
                      GlobalRedisBMTest.class})
-public class TestAllIoMapping {}
+public class AllIoMappingTest {}

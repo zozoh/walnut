@@ -28,14 +28,24 @@ public class WnSysRuntime {
     String machineName;
 
     /**
-     * 本机默认 IP 地址
+     * 本机默认网卡名称
      */
-    String localAddress;
+    String netName;
 
     /**
-     * 本机默认网卡地址
+     * 本机默认网卡显示名
      */
-    String localMac;
+    String netDisplayName;
+
+    /**
+     * 本机默认网卡 IPv4 地址
+     */
+    String netIpv4;
+
+    /**
+     * 本机默认网卡硬件地址
+     */
+    String netMac;
 
     String javaVersion;
     String osArch;
@@ -52,7 +62,7 @@ public class WnSysRuntime {
 
         // 默认拼合一个自己的节点的名称
         if (Strings.isBlank(nodeName)) {
-            this.nodeName = this.machineName + "-" + this.localMac;
+            this.nodeName = this.machineName + "-" + this.netMac;
         }
         // 指定了节点
         else {
@@ -75,12 +85,20 @@ public class WnSysRuntime {
         return machineName;
     }
 
-    public String getLocalAddress() {
-        return localAddress;
+    public String getNetName() {
+        return netName;
     }
 
-    public String getLocalMac() {
-        return localMac;
+    public String getNetDisplayName() {
+        return netDisplayName;
+    }
+
+    public String getNetIpv4() {
+        return netIpv4;
+    }
+
+    public String getNetMac() {
+        return netMac;
     }
 
     public String getJavaVersion() {

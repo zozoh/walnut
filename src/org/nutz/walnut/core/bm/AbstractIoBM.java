@@ -3,13 +3,13 @@ package org.nutz.walnut.core.bm;
 import java.io.IOException;
 
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.HandleInfo;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoHandleMutexException;
-import org.nutz.walnut.core.WnIoIndexer;
 
 public abstract class AbstractIoBM implements WnIoBM {
 

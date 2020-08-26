@@ -6,11 +6,11 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.bm.AbstractIoBM;
 import org.nutz.walnut.util.Wn;
 

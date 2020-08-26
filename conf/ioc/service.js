@@ -73,5 +73,28 @@ var ioc = {
                 refer : "esi"
             }
         }
+    },
+    lockApi : {
+        type : 'org.nutz.walnut.impl.lock.redis.RedisLockApi',
+        args : [{
+            refer : "redisConfForLockApi"
+        }]
+    },
+    expiObjTable : {
+        type : 'org.nutz.walnut.core.eot.mongo.MongoExpiObjTable',
+        args : [{
+            java  : '$mongoDB.getCollection("expi")'
+        }]
+    },
+    safeExpiObjTable : {
+        type : 'org.nutz.walnut.core.eot.WnSafeExpiObjTable',
+        fields : {
+            table : {
+                refer : 'expiObjTable'
+            },
+            locks : {
+                refer : 'lockApi'
+            }
+        }
     }
 }

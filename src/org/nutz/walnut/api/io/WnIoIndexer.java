@@ -1,15 +1,10 @@
-package org.nutz.walnut.core;
+package org.nutz.walnut.api.io;
 
 import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
-import org.nutz.walnut.api.io.MimeMap;
-import org.nutz.walnut.api.io.WalkMode;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.WnRace;
 
 public interface WnIoIndexer {
 

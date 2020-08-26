@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnObjMapping;

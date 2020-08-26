@@ -25,6 +25,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         // 准备一个写操作的回调
         if (io instanceof WnIoImpl2) {
             WnIoImpl2 io2 = (WnIoImpl2) io;
+            // 对象写入前后的钩子
             io2.whenWrite = new WnIoActionCallback() {
                 public WnObj on_before(WnObj o) {
                     WnContext wc = Wn.WC();
@@ -34,6 +35,17 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
                 public WnObj on_after(WnObj o) {
                     WnContext wc = Wn.WC();
                     return wc.doHook("write", o);
+                }
+            };
+            // 对象删除后，从过期记录表里移除
+            io2.whenDelete = new WnIoActionCallback() {
+                public WnObj on_before(WnObj o) {
+                    return o;
+                }
+
+                public WnObj on_after(WnObj o) {
+                    tryRemoveExpiObj(o);
+                    return o;
                 }
             };
         }
@@ -91,7 +103,11 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     public WnObj create(WnObj p, WnObj o) {
         WnObj o2 = io.create(p, o);
         WnContext wc = Wn.WC();
-        return wc.doHook("create", o2);
+        WnObj o3 = wc.doHook("create", o2);
+        // 是否有过期？
+        this.tryAddExpiObj(o3);
+
+        return o3;
     }
 
     @Override
@@ -118,18 +134,26 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
     @Override
     public void writeMeta(WnObj o, Object meta) {
+        NutBean map = Wn.anyToMap(o, meta);
         WnContext wc = Wn.WC();
-        io.writeMeta(o, meta);
+        io.writeMeta(o, map);
         WnObj o2 = wc.doHook("meta", o);
         o.update2(o2);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     @Override
     public void appendMeta(WnObj o, Object meta) {
+        NutBean map = Wn.anyToMap(o, meta);
         WnContext wc = Wn.WC();
-        io.appendMeta(o, meta);
+        io.appendMeta(o, map);
         WnObj o2 = wc.doHook("meta", o);
         o.update2(o2);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     @Override
@@ -138,12 +162,20 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         io.set(o, regex);
         WnObj o2 = wc.doHook("meta", o);
         o.update2(o2);
+        NutBean map = o.pickBy(regex);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(o);
+        }
     }
 
     @Override
     public WnObj setBy(String id, String key, Object val, boolean returnNew) {
         WnContext wc = Wn.WC();
         WnObj o = io.setBy(id, key, val, returnNew);
+        if ("expi".equals(key) && (val instanceof Long)) {
+            long expi = (Long) val;
+            this.tryAddExpiObj(id, expi);
+        }
         return wc.doHook("meta", o);
     }
 
@@ -151,6 +183,10 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
         WnContext wc = Wn.WC();
         WnObj o = io.setBy(q, key, val, returnNew);
+        if (null != o && "expi".equals(key) && (val instanceof Long)) {
+            long expi = (Long) val;
+            this.tryAddExpiObj(o.id(), expi);
+        }
         return wc.doHook("meta", o);
     }
 
@@ -158,6 +194,9 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
         WnContext wc = Wn.WC();
         WnObj o = io.setBy(q, map, returnNew);
+        if (null != o && map.containsKey("expi")) {
+            this.tryAddExpiObj(o.id(), map.getLong("expi"));
+        }
         return wc.doHook("meta", o);
     }
 
@@ -165,6 +204,9 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     public WnObj setBy(String id, NutBean map, boolean returnNew) {
         WnContext wc = Wn.WC();
         WnObj o = io.setBy(id, map, returnNew);
+        if (map.containsKey("expi")) {
+            this.tryAddExpiObj(id, map.getLong("expi"));
+        }
         return wc.doHook("meta", o);
     }
 

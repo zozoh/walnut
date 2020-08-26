@@ -18,10 +18,21 @@ public interface WnExpiObjTable {
     void insertOrUpdate(WnExpiObj o);
 
     /**
+     * 插入一条对象的过期记录
+     * 
+     * @param id
+     *            对象 ID
+     * @param expi
+     *            过期时间
+     */
+    void insertOrUpdate(String id, long expi);
+
+    /**
      * @param id
      *            对象过期记录 ID
+     * @return true 移除成功， false 移除失败或者不存在
      */
-    void remove(String id);
+    boolean remove(String id);
 
     /**
      * 请求记录表持有一定数量的对象。
@@ -36,7 +47,7 @@ public interface WnExpiObjTable {
      * @param limit
      *            最多预期接管多少记录。如果负数或者零，相当于 100
      * 
-     * @return 记录列表
+     * @return 记录列表，顺序一定是最老的在前，较新过期的在后
      */
     List<WnExpiObj> takeover(String owner, long duInMs, int limit);
 
@@ -47,7 +58,8 @@ public interface WnExpiObjTable {
      *            持有者名称
      * @param hold
      *            持有时间
+     * @return 清除了多少条数据
      */
-    void clean(String owner, long hold);
+    int clean(String owner, long hold);
 
 }

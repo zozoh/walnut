@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.nutz.lang.Each;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 

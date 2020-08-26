@@ -9,6 +9,8 @@ import javax.websocket.server.ServerContainer;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
@@ -93,11 +95,16 @@ public class WnSetup implements Setup {
 
         // 初始化节点自身信息
         String nodeName = conf.get("wn-node-name");
+        log.infof("Init runtime: %s", nodeName);
         Wn.initRuntime(nodeName);
+        log.infof(Json.toJson(Wn.getRuntime().toMap(), JsonFormat.nice()));
 
         // 尝试看看组装的结果
         WnIo io = Wn.Service.io(ioc);
+        log.info("WnIo created");
+
         WnAuthService auth = Wn.Service.auth(ioc);
+        log.info("WnAuthService created");
 
         // 获取根用户
         WnAccount root = auth.checkAccount("root");
@@ -114,7 +121,9 @@ public class WnSetup implements Setup {
         if (hostsd != null && hostsd.has("mnt")) {
             io.setBy(hostsd.id(), new NutMap("!mnt", ""), false);
         }
+
         // 看看初始的 mount 是否被加载
+        log.info("init mount:");
         for (WnInitMount wim : conf.getInitMount()) {
             try {
                 WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);

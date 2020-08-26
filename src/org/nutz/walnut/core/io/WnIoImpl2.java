@@ -9,7 +9,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -30,6 +29,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -37,7 +37,6 @@ import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.core.WnIoActionCallback;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
-import org.nutz.walnut.core.WnIoIndexer;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.bean.WnObjMapping;
@@ -56,14 +55,14 @@ public class WnIoImpl2 implements WnIo {
     private WnIoMappingFactory mappings;
 
     /**
-     * 子类可以添加一个删除动作的回调。
+     * 子类或包裹类可以添加一个删除动作的回调。
      * <p>
      * 因为删除动作可能涉及递归深层删除，因此不能用在子类函数覆盖super方法进行拦截
      */
     protected WnIoActionCallback whenDelete;
 
     /**
-     * 子类可以设置一个写操作的回调。
+     * 子类或包裹类可以设置一个写操作的回调。
      * <p>
      * 在打开输出流时，会附加这个回调，当流关闭时，也会调用。
      * <p>
@@ -159,6 +158,12 @@ public class WnIoImpl2 implements WnIo {
             log.debugf("copyData done: %d", re);
         }
         return re;
+    }
+
+    @Override
+    public WnIoIndexer getIndexer(WnObj o) {
+        WnIoMapping im = mappings.checkMapping(o);
+        return im.getIndexer();
     }
 
     @Override
@@ -1060,37 +1065,6 @@ public class WnIoImpl2 implements WnIo {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private NutBean __any_to_map(WnObj o, Object meta) {
-        // 防守一下
-        if (null == meta)
-            return null;
-        // 转成 Map
-        NutBean map = null;
-        // 字符串
-        if (meta instanceof CharSequence) {
-            String str = meta.toString();
-            // 是一个正则表达式
-            if (str.startsWith("!^") || str.startsWith("^")) {
-                map = o.pickBy(str);
-            }
-            // 当作 JSON
-            else {
-                map = Lang.map(str);
-            }
-        }
-        // 就是 Map
-        else if (meta instanceof Map) {
-            map = NutMap.WRAP((Map<String, Object>) meta);
-        }
-        // 其他的统统不支持
-        else {
-            throw Er.create("e.io.meta.unsupport", meta.getClass().getName());
-        }
-
-        return map;
-    }
-
     private void __save_map_for_update_meta(NutBean map) {
         map.pickAndRemoveBy("^(ph|id|race|ct|d[0-9])$");
     }
@@ -1098,7 +1072,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public void writeMeta(WnObj o, Object meta) {
         // 转换
-        NutBean map = __any_to_map(o, meta);
+        NutBean map = Wn.anyToMap(o, meta);
 
         // 防守
         if (null == map || map.isEmpty()) {
@@ -1133,7 +1107,7 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public void appendMeta(WnObj o, Object meta) {
         // 转换
-        NutBean map = __any_to_map(o, meta);
+        NutBean map = Wn.anyToMap(o, meta);
 
         // 防守
         if (null == map || map.isEmpty()) {
@@ -1336,11 +1310,6 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public MimeMap mimes() {
         return mappings.getGlobalIndexer().mimes();
-    }
-
-    @Override
-    public void _clean_for_unit_test() {
-        throw Lang.noImplement();
     }
 
 }

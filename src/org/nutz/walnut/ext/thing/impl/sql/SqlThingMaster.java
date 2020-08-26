@@ -15,7 +15,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.impl.io.WnBean;
+import org.nutz.walnut.core.bean.WnIoObj;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -81,7 +81,7 @@ public class SqlThingMaster {
     }
 
     public static WnObj asWnObj(WnObj oTs, WnObj parent, Map<String, Object> map) {
-        WnObj wobj = new WnBean();
+        WnObj wobj = new WnIoObj();
         wobj.putAll(map);
         wobj.race(WnRace.FILE);
         wobj.d0(oTs.d0());
