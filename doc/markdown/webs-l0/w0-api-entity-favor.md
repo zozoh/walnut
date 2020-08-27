@@ -141,6 +141,7 @@ HTTP GET /api/entity/favor/all
 ticket : "4ih..23d"    # 会话票据
 limit  : 100           # 最多获取的记录数，默认 100
 skip   : 0             # 跳过的记录数，默认 0
+by     : id            # 【选】如果指定了这个参数，则会为列表增加 "obj" 字段
 ```
 
 ### 响应成功(text/json)
@@ -149,10 +150,10 @@ skip   : 0             # 跳过的记录数，默认 0
 {
   // 这个列表列出了所有的收藏对象
   "list": [
-      {"target": "reading", "time": 1598526759659},
-      {"target": "movie", "time": 1598526754477},
-      {"target": "book", "time": 1598526747339},
-      {"target": "cake", "time": 1598526681534}],
+      {"target": "reading", "time": 1598526759659, obj: {/*如果声明了by:id*/}},
+      {"target": "movie", "time": 1598526754477, obj: {/*如果声明了by:id*/}},
+      {"target": "book", "time": 1598526747339, obj: {/*如果声明了by:id*/}},
+      {"target": "cake", "time": 1598526681534, obj: {/*如果声明了by:id*/}],
   // 翻页信息
   "pager": {
       "pn": 1,       // 当前第几页（1BASE）
