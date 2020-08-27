@@ -76,6 +76,8 @@ author: zozohtnt@gmail.com
 `entity/buy/it`      |`GET` |`json`| 加减购物车商品
 `entity/buy/rm`      |`GET` |`json`| 从购物车删除
 
+> [订单及支付接口](w0-api-entity-favor.md)
+
 # 实体·收藏夹
 
   URL                |Method| Date | Description
