@@ -76,7 +76,7 @@ author: zozohtnt@gmail.com
 `entity/buy/it`      |`GET` |`json`| 加减购物车商品
 `entity/buy/rm`      |`GET` |`json`| 从购物车删除
 
-> [订单及支付接口](w0-api-entity-favor.md)
+> [实体购物车接口](w0-api-entity-buy.md)
 
 # 实体·收藏夹
 
@@ -85,6 +85,8 @@ author: zozohtnt@gmail.com
 `entity/favor/all`   |`GET` |`json`| 获取全部收藏（翻页）
 `entity/favor/it`    |`GET` |`json`| 收藏/取消一个对象
 `entity/favor/when`  |`GET` |`json`| 判断是否收藏（可多个）
+
+> [实体收藏夹接口](w0-api-entity-favor.md)
 
 # 实体·打分
 

@@ -29,9 +29,9 @@ HTTP GET /api/entity/favor/it
 ticket : "4ih..23d"    # 会话票据
 ta     : "xxx"         # 收藏对象（通常是一个ID）
 #
-# true 表示收藏, false 表示取消收藏
-# 默认不传这个参数就是 true
-md : true
+# "yes" 表示收藏, "no" 表示取消收藏
+# 默认不传这个参数就是 "yes"
+md : "yes"
 #
 # 收藏分类，这个不同的域可以指定不同的默认值
 # 通常为 "pro" 表示商品。即你不传这个参数就

@@ -58,6 +58,7 @@ public class cmd_buy extends JvmRedisEntityExecutor<BuyIt> {
             int len = params.vals.length - 2;
             if (len > 0) {
                 String[] taIds = new String[len];
+                System.arraycopy(params.vals, 2, taIds, 0, len);
                 String[] taIds2 = WnStr.flatArray(taIds);
                 System.arraycopy(params.vals, 2, taIds2, 0, len);
                 re = api.remove(uid, taIds);

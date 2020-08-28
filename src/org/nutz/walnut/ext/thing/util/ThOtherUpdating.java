@@ -115,7 +115,7 @@ public class ThOtherUpdating {
         }
 
         // 开始填充
-        Pattern p = Regex.getPattern("^@([^:]+)(:(int|float|boolean|string))?$");
+        Pattern p = Regex.getPattern("^(@[^:]+)(:(int|float|boolean|string))?$");
         for (Map.Entry<String, Object> en : sets.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -139,6 +139,13 @@ public class ThOtherUpdating {
             else {
                 String str = val.toString();
                 Object v2 = null;
+
+                // =xxx
+                if (str.startsWith("=")) {
+                    v2 = context.get(str.substring(1));
+                    meta.put(key, v2);
+                    continue;
+                }
 
                 // 直接填值
                 Matcher m = p.matcher(str);
@@ -169,7 +176,6 @@ public class ThOtherUpdating {
                             throw Lang.impossible();
                         }
                     }
-                    continue;
                 }
                 // 否则当做模板
                 else {

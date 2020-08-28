@@ -229,7 +229,9 @@ public abstract class ThingAction<T> {
                     // 准备 val 上下文
                     Object val = meta.get(key);
                     NutMap valContext = new NutMap();
-                    valContext.put("val", val);
+                    valContext.putAll(oT);
+                    valContext.putAll(meta);
+                    valContext.put("@val", val);
 
                     // 看看值是否能匹配上
                     if (lnk.hasMatch()) {
@@ -251,7 +253,7 @@ public abstract class ThingAction<T> {
                         // 填充 val 上下文
                         else {
                             for (int i = 0; i <= m.groupCount(); i++) {
-                                valContext.put("g" + i, m.group(i));
+                                valContext.put("@g" + i, m.group(i));
                             }
                         }
                     }
