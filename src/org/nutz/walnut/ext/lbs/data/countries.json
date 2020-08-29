@@ -1,12 +1,5 @@
 [
   {
-    "key": "MO",
-    "name": {
-      "en_us": "Macao",
-      "zh_cn": "澳门"
-    }
-  },
-  {
     "key": "US",
     "name": {
       "en_us": "United States of America (USA)",

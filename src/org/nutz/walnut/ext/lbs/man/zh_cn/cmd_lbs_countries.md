@@ -5,15 +5,13 @@
 程序缓存了全部国家的信息，每个国家信息的格式如下：
 
 ```js
-[
-  {
-    "key": "HK",
-    "name": {
-      "en_us": "Hong Kong",
-      "zh_cn": "香港"
-    }
+{
+  "key": "CN",
+  "name": {
+    "en_us": "China",
+    "zh_cn": "中国"
   }
-]
+}
 ```
     
 用法
@@ -33,7 +31,19 @@ lbs countries
 =======
 
 ```bash
-# 得到一个国家列表
-demo@~$ lbs countries -lang en_us -map name -ajax -cqn
-{"ok":true,"data":{"HK":"Hong Kong"... }}
+# 得到一个国家的列表
+demo@~$ lbs countries -lang en_us -cq
+[{"key":"US","name":"United States of America (USA)"}, ...]
+
+# 得到指定几个国家的列表
+demo@~$ lbs countries CN US -lang en_us -cq
+[{"key":"CN","name":"China"}, {"key":"US","name":"United States of America (USA)"}]
+
+# 得到一个国家的映射表
+demo@~$ lbs countries -lang en_us -map name -ajax -cq
+{"ok":true,"data":{"CN":"China"... }}
+
+# 得到某几个国家的映射表
+demo@~$ lbs countries CN US -lang en_us -map name -ajax -cq
+{"ok":true,"data":{"US":"United States of America (USA)","CN":"China"}}
 ```
