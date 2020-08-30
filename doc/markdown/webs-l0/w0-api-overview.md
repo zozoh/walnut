@@ -112,6 +112,9 @@ author: zozohtnt@gmail.com
   URL           |Method| Date | Description
 ----------------|------|------|----------
 `lbs/countries` |`GET` |`json`| 获取全部国家列表和编码
+`lbs/cn`        |`GET` |`json`| 获取中国国家行政区信息
+
+> [地理及地址接口](w0-api-lbs.md)
 
 # 收货地址
 
