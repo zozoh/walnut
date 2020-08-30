@@ -118,6 +118,7 @@ http-www-ticket : "http-qs-ticket"  # 从哪里获取票据，默认http-qs-tick
 # 默认会看看是否设置了 http-www-home
 http-www-auth   : true
 #--------------------------------------------------
+#
 #                 记录历史
 #
 #   如果你开启了 http-www-auth，那么你还可以记录历史
@@ -157,10 +158,7 @@ history: {
 # 这里给了一个列表，匹配上的项目，会和上面的历史记录模板融合
 hismetas: [{
     test: {
-        "http-qs-ts": {
-            name: "matchRegex",
-            args: ["^~/(projects|projworks)$"]
-        }
+        "http-qs-ts": "^~/(projects|projworks)$"
     },
     update: {
         tnm: "${output.nm}"
@@ -189,6 +187,27 @@ hisname: "xxx"
 http-body: "text"
 # 将响应流内容放入上下文 "output" 中
 http-ouput: "json"
+#--------------------------------------------------
+#
+# 这个是对 body 为 JSON 的 POST 请求的优化
+# 这个选项生效的前提是 http-body 选项设置为 "json"
+#
+#--------------------------------------------------
+# 逐个遍历下面的条件，将第一个匹配项目于请求 body 合并
+http-post-json-merge : [{
+    # 这个为一个测试, 参见 WnValidate
+    # 如果为一个空 {}，则表示一定跳过
+    # 如果为 null 或者未定义，则表示一定匹配
+    # 通常用作默认分支。当然你可能也不需要默认分支
+    test : {
+        "ts" : "^(comments|profile)$"
+    },
+    # 将这个对象融合到 post json 对象里
+    # 如果嵌套了对象，将会深层融合
+    update : {
+        "uid" : "=http-www-me-id"
+    }
+}]
 #--------------------------------------------------
 #                 权限验证
 #--------------------------------------------------
@@ -309,6 +328,7 @@ http-www-se-id     : "y6..91"     # 站点会话ID
 http-www-se-ticket : "8um..32q"   # 站点会话票据
 http-www-me-id     : "5e..g1"     # 会话用户ID
 http-www-me-nm     : "xiaobai"    # 会话用户登陆名
+http-www-me-thumb  : "id:xxx"     # 会话用户头像路径
 http-www-me-phone  : "139..."     # 会话用户手机号
 http-www-me-email  : "x@xx.com"   # 会话用户邮箱
 http-www-me-role   : "user"       # 会话用户业务角色名

@@ -3,13 +3,42 @@ package org.nutz.walnut.util;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.lang.Lang;
 import org.nutz.lang.random.R;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class WnTest {
-    
+
+    @Test
+    public void test_explain_obj() {
+        NutMap context = Lang.map("x:100,name:'xiaobai',male:true");
+        context.put("pet", Lang.map("race:'dog',age:8"));
+
+        NutMap map = Lang.map("size:'=x',age:'=pet.age'");
+        NutMap m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals(100, m2.getInt("size"));
+        assertEquals(8, m2.getInt("age"));
+
+        map = Lang.map("hasAge:'==pet.age'");
+        m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals(true, m2.getBoolean("hasAge"));
+
+        map = Lang.map("hasSex:'==pet.sex'");
+        m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals(false, m2.getBoolean("hasAge"));
+
+        map = Lang.map("brief:'->${pet.age}:${pet.race}@${name}'");
+        m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals("8:dog@xiaobai", m2.getString("brief"));
+        
+        map = Lang.map("petName:'=page.name?AA'");
+        m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals("AA", m2.getString("petName"));
+    }
+
     @Test
     public void test_s() {
         int mode = Wn.S.WM;

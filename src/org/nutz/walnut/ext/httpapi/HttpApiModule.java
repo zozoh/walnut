@@ -36,7 +36,6 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
-import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
@@ -314,11 +313,7 @@ public class HttpApiModule extends AbstractWnModule {
     }
 
     private WnObj __gen_tmp_obj(final WnHttpApiContext apc) {
-        return Wn.WC().su(apc.u, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return io().createIfNoExists(apc.oHome, ".regapi/tmp", WnRace.DIR);
-            }
-        });
+        return io().createIfNoExists(apc.oHome, ".regapi/tmp", WnRace.DIR);
     }
 
     private void __set_cross_origin_default_headers(WnObj oApi,
@@ -438,17 +433,14 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private WnObj __gen_req_obj(WnHttpApiContext apc)
             throws UnsupportedEncodingException, IOException {
 
         // .........................................
         // 创建临时文件以便保存请求的内容
         String uriName = apc.uri.replaceAll("[/\\\\]", "_").substring(1);
-        WnObj oReq = Wn.WC().su(apc.u, new Proton<WnObj>() {
-            protected WnObj exec() {
-                return io().create(apc.oTmp, uriName + "_${id}", WnRace.FILE);
-            }
-        });
+        WnObj oReq = io().create(apc.oTmp, uriName + "_${id}", WnRace.FILE);
 
         // .........................................
         // 更新头信息
@@ -463,13 +455,34 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // .........................................
+        // 看看是否声明了有效的 http-post-json-merge
+        NutMap jsonUpdate = null;
+        boolean needUpdateBody = false;
+        if ("json".equals(in_tp)) {
+            NutMap juMap = this.__find_post_json_merge_update(apc);
+            if (null != juMap) {
+                jsonUpdate = (NutMap) Wn.explainObj(apc.reqMeta, juMap);
+                needUpdateBody = (null != jsonUpdate && !jsonUpdate.isEmpty());
+            }
+        }
+
+        // .........................................
         // 保存请求体
         InputStream ins = apc.req.getInputStream();
-        OutputStream ops = io().getOutputStream(oReq, 0);
+        OutputStream ops;
 
+        // 嗯？ 需要动态更新一下内容，那么就先读取吧
+        if (needUpdateBody) {
+            ops = in_ops;
+        }
         // 需要同时将请求内容保存到元数据里，那么先复制一份把
-        if (null != in_ops) {
-            ops = new ComboOutputStream(ops, in_ops);
+        else if (null != in_ops) {
+            OutputStream ioOps = io().getOutputStream(oReq, 0);
+            ops = new ComboOutputStream(ioOps, in_ops);
+        }
+        // 直接写咯
+        else {
+            ops = io().getOutputStream(oReq, 0);
         }
 
         // 写入流
@@ -495,13 +508,56 @@ public class HttpApiModule extends AbstractWnModule {
             }
             // JSON
             else if ("json".equals(in_tp)) {
-                Object json = Json.fromJson(in_sb);
-                oReq.put("body", json);
+                Object body = Json.fromJson(in_sb);
+                // 更新一下 json，进入了这个分支，意味着请求对象的 body并未被写入
+                // 因为内容需要被 update， 等合并完，需要补写一下。
+                if (needUpdateBody) {
+                    // 安全起见，只有 Map 才能融合 Map
+                    if (body instanceof Map) {
+                        NutMap map = NutMap.WRAP((Map<String, Object>) body);
+                        map.mergeWith(jsonUpdate);
+                        body = map;
+                    }
+                    // 写入
+                    String json = Json.toJson(body);
+                    io().writeText(oReq, json);
+                }
+                oReq.put("body", body);
             }
         }
         // .........................................
         // 搞定
         return oReq;
+    }
+
+    private NutMap __find_post_json_merge_update(WnHttpApiContext apc) {
+        List<NutMap> list = apc.oApi.getAsList("http-post-json-merge", NutMap.class);
+        if (null == list || list.isEmpty()) {
+            return null;
+        }
+        // 逐个判断
+        for (NutMap jm : list) {
+            NutMap test = jm.getAs("test", NutMap.class);
+            // 需要判断
+            if (null != test) {
+                // 一定跳过
+                if (test.isEmpty()) {
+                    continue;
+                }
+                // 木有匹配，则跳过
+                WnValidate vali = new WnValidate(test);
+                if (!vali.match(apc.reqMeta)) {
+                    continue;
+                }
+            }
+            // 嗯就是这个条件咯
+            NutMap update = jm.getAs("update", NutMap.class);
+            if (null == update || update.isEmpty()) {
+                return null;
+            }
+            return update;
+        }
+        return null;
     }
 
     private void __escape_req_meta(WnHttpApiContext apc) {
@@ -785,6 +841,7 @@ public class HttpApiModule extends AbstractWnModule {
                     // 用户信息
                     apc.reqMeta.put("http-www-me-id", wwwMe.getId());
                     apc.reqMeta.put("http-www-me-nm", wwwMe.getName());
+                    apc.reqMeta.put("http-www-me-thumb", wwwMe.getThumb());
                     apc.reqMeta.put("http-www-me-phone", wwwMe.getPhone());
                     apc.reqMeta.put("http-www-me-email", wwwMe.getEmail());
                     apc.reqMeta.put("http-www-me-role", wwwMe.getRoleName());
@@ -977,11 +1034,10 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 解析历史记录
-        String json = Json.toJson(history);
-        String json2 = Tmpl.exec(json, apc.oReq);
+        NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, history);
 
         // 插入历史记录
-        HistoryRecord his = Json.fromJson(HistoryRecord.class, json2);
+        HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
         api.add(his);
     }
 
