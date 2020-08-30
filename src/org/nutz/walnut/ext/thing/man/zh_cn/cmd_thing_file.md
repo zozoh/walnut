@@ -8,7 +8,7 @@
 ```bash
 thing [TsID] file 
   [ID]            # Thing 对象的 ID
-  [-dir media]    # 操作目录，在data目录下的路径，默认为 media
+  [-dir media]    # 操作目录，在data目录下的路径，如果为空，则表示直接放置于数据目录
   [-add xxx.jpg]  # 添加文件
   [-dupp '@{major}(@{nb})@{suffix}']  # 重名时如何修改文件名
   [-overwrite]            # 重名时覆盖
@@ -16,6 +16,7 @@ thing [TsID] file
   [-del xxx.jpg]          # 删除指定文件
   [-get xxx.jpg]          # 获取指定文件的元数据
   [-ufc]                  # 重新计算 Thing 的附件数量和元数据
+  [-ukey thumb]           # 将当前文件的 ID 设置到 Thing 对象指定字段
   [-cat abc.txt]          # 输出指定文件的内容为 HTTP 响应
   [-etag xxx]             # 输出为标准 HTTP 响应，同时根据 etag 判断是否输出 304
   [-range bytes=0-7183]   # 当输出 HTTP 响应时，分段下载表示，符合 Http头的 Range 规范

@@ -303,6 +303,7 @@ public abstract class Things {
             String fnm = hc.params.getString("add");
             String dupp = hc.params.getString("dupp");
             boolean overwrite = hc.params.is("overwrite");
+            String ukey = hc.params.getString("ukey");
             Object src = null;
             // 从输出流中读取
             if ("true".equals(read)) {
@@ -314,7 +315,13 @@ public abstract class Things {
             }
 
             // 最后计入输出
-            hc.output = ths.fileAdd(dirName, oT, fnm, src, dupp, overwrite);
+            WnObj oMedia = ths.fileAdd(dirName, oT, fnm, src, dupp, overwrite);
+            hc.output = oMedia;
+
+            // 如果指定了更新键
+            if (!Strings.isBlank(ukey) && null != oMedia) {
+                sys.io.appendMeta(oT, Lang.map(ukey, "id:" + oMedia.id()));
+            }
         }
         // 仅仅是更新计数
         else if (hc.params.is("ufc")) {
