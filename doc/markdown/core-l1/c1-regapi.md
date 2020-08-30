@@ -324,15 +324,16 @@ http-se-vars : {..}            # 会话内的环境变量
 #--------------------------------------------------
 # 如果你已经在域里建立一个有用户系统的站点
 # 当前会话信息会自动增加在这里
-http-www-se-id     : "y6..91"     # 站点会话ID 
-http-www-se-ticket : "8um..32q"   # 站点会话票据
-http-www-me-id     : "5e..g1"     # 会话用户ID
-http-www-me-nm     : "xiaobai"    # 会话用户登陆名
-http-www-me-thumb  : "id:xxx"     # 会话用户头像路径
-http-www-me-phone  : "139..."     # 会话用户手机号
-http-www-me-email  : "x@xx.com"   # 会话用户邮箱
-http-www-me-role   : "user"       # 会话用户业务角色名
-http-www-me-nickname : "小白"      # 会话用户昵称
+http-www-se-id       : "y6..91"     # 站点会话ID 
+http-www-se-ticket   : "8um..32q"   # 站点会话票据
+http-www-me-id       : "5e..g1"     # 会话用户ID
+http-www-me-nm       : "xiaobai"    # 会话用户登陆名
+http-www-me-nickname : "xiaobai"    # 会话用户昵称
+http-www-me-thumb    : "id:xxx"     # 会话用户头像路径
+http-www-me-phone    : "139..."     # 会话用户手机号
+http-www-me-email    : "x@xx.com"   # 会话用户邮箱
+http-www-me-role     : "user"       # 会话用户业务角色名
+http-www-me-nickname : "小白"        # 会话用户昵称
 #--------------------------------------------------
 #
 #                 请求信息
