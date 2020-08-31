@@ -8,6 +8,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 
@@ -84,8 +85,10 @@ public class TidyI18nJsonMap {
 
     public static void main(String[] args) {
         String path = "D:/workspace/git/github/titanium/src/i18n/";
-
-        File dHome = Files.findFile(path);
+        if (args.length == 0) {
+            args = Lang.array(path);
+        }
+        File dHome = Files.findFile(args[0]);
 
         if (dHome.isFile()) {
             _tidy_file(dHome);
