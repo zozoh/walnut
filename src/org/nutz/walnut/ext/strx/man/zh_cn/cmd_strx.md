@@ -8,7 +8,7 @@
 =======
 
 ```
-strx [options] [[filter filter-args...]...]
+strx [options] [[@filter filter-args...]...]
 ```
 
 它支持的`options`有
@@ -21,7 +21,7 @@ strx [options] [[filter filter-args...]...]
 它支持的过滤器有：
 
 ```bash
-test      # 根据条件输出新的字符串
+@test      # 根据条件输出新的字符串
 ```
 
 本命一开始会自动从标准输入读取 字符串内容作为初始内容。

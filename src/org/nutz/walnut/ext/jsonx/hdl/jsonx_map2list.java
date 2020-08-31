@@ -21,6 +21,10 @@ public class jsonx_map2list extends JsonXFilter {
     @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, JsonXContext ctx, ZParams params) {
+        // 防守
+        if (null == ctx.obj)
+            return;
+
         String keyName = params.getString("key", "key");
         boolean joinKey = !"-nil-".equals(keyName);
 

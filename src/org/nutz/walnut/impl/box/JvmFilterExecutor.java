@@ -10,6 +10,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.web.Webs.Err;
 
 public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends JvmFilter<C>>
         extends JvmExecutor {
@@ -86,10 +87,13 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
 
         // 开始循环
         for (String arg : args) {
-            T hdl = this.hdls.get(arg);
-
             // 发现 hdl
-            if (null != hdl) {
+            if (arg.startsWith("@")) {
+                T hdl = this.hdls.get(arg.substring(1));
+                if (null == hdl) {
+                    String cmdName = this.getClass().getSimpleName();
+                    throw Err.create("e.cmd." + cmdName + ".invalid_hdl", arg);
+                }
                 // 存入最后一个
                 if (null != lastHdl) {
                     String[] h_args = lastArgs.toArray(new String[lastArgs.size()]);
