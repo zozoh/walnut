@@ -37,7 +37,7 @@ function _main(params) {
     //sys.out.printlnf("\naes decode:%s", reJSON);
     log.info("reJSON=" + reJSON)
     var data = JSON.parse(reJSON)
-    if (data.phoneNumber) {
+    if (!params.getOnly && data.phoneNumber) {
        sys.exec2f("obj -u '%s' id:%s", JSON.stringify({phone:data.phoneNumber}), me.id)
     }
     // 业务结束, 生成响应
