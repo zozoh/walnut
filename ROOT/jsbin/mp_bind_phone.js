@@ -41,6 +41,14 @@ function _main(params) {
        sys.exec2f("obj -u '%s' id:%s", JSON.stringify({phone:data.phoneNumber}), me.id)
     }
     // 业务结束, 生成响应
-    sys.exec("ajaxre -cqn", sys.exec2("www checkme -cqn '"+www+"' " + sys.safe(params.ticket)))
+    // 仅仅是手机号
+    if(params.getOnly) {
+        return sys.exec("ajaxre -cqn", '{phoneNumber: "'+data.phoneNumber+'"}')
+    }
+    // 显示用户信息
+    else {
+        sys.exec("ajaxre -cqn", sys.exec2(
+            "www checkme -cqn '"+www+"' " + sys.safe(params.ticket)))
+    }
 }
 _main(_paramObj)
