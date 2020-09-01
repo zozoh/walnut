@@ -43,7 +43,7 @@ function _main(params) {
     // 业务结束, 生成响应
     // 仅仅是手机号
     if(params.getOnly) {
-        return sys.exec("ajaxre -cqn", '{phoneNumber: "'+data.phoneNumber+'"}')
+        return sys.exec("ajaxre -cqn", '{"phoneNumber": "'+data.phoneNumber+'"}')
     }
     // 显示用户信息
     else {
