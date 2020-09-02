@@ -26,7 +26,6 @@ import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileBM;
 import org.nutz.walnut.core.bm.localfile.LocalFileWBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
-import org.nutz.walnut.core.eot.mongo.MongoExpiObjTable;
 import org.nutz.walnut.core.hdl.redis.RedisIoHandleManager;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.indexer.dao.WnObjEntity;
@@ -171,10 +170,11 @@ public class IoCoreSetup {
 
     public LocalIoBM getGlobalIoBM() {
         if (null == globalBM) {
-            String bmHome = Disks.normalize(pp.get("io-bm-home"));
+            String phBucket = Disks.normalize(pp.get("io-bm-bucket"));
+            String phSwap = Disks.normalize(pp.get("io-bm-swap"));
             WnIoHandleManager handles = this.getWnIoHandleManager();
             WnReferApi refers = this.getWnReferApi();
-            globalBM = new LocalIoBM(handles, bmHome, true, refers);
+            globalBM = new LocalIoBM(handles, phBucket, phSwap, true, refers);
         }
         return globalBM;
     }
@@ -408,16 +408,25 @@ public class IoCoreSetup {
 
     public void cleanLocalIoBM() {
         File d;
-        String bmPath = pp.get("io-bm-home");
-        String bmHome = Disks.normalize(bmPath);
-        d = new File(bmHome);
+        String phBucket = pp.get("io-bm-bucket");
+        String aphBucket = Disks.normalize(phBucket);
+        d = new File(aphBucket);
         if (d.exists()) {
             String aph = Files.getAbsPath(d);
-            if (aph.endsWith(".walnut/test/localbm")) {
-                File dBuck = Files.getFile(d, "buck");
-                Files.clearDir(dBuck);
-                File dSwap = Files.getFile(d, "swap");
-                Files.clearDir(dSwap);
+            if (aph.endsWith(".walnut/test/localbm/bucket")) {
+                Files.clearDir(d);
+            } else {
+                throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
+            }
+        }
+
+        String phSwap = pp.get("io-bm-swap");
+        String aphSwap = Disks.normalize(phSwap);
+        d = new File(aphSwap);
+        if (d.exists()) {
+            String aph = Files.getAbsPath(d);
+            if (aph.endsWith(".walnut/test/localbm/swap")) {
+                Files.clearDir(d);
             } else {
                 throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }

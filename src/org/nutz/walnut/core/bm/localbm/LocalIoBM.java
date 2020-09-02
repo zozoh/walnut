@@ -65,30 +65,39 @@ public class LocalIoBM extends AbstractIoBM {
     boolean canMoveSwap;
 
     public LocalIoBM(WnIoHandleManager handles,
-                     String home,
+                     String phBucket,
+                     String phSWap,
                      boolean autoCreate,
                      WnReferApi refers) {
         super(handles);
 
-        File dHome = Files.findFile(home);
-        if (null == dHome) {
+        // 获取桶目录
+        dBucket = Files.findFile(phBucket);
+        if (null == dBucket) {
             // 不自动创建，就自裁！！！
             if (!autoCreate) {
-                throw Er.create("e.io.bm.local.HomeNotFound", home);
+                throw Er.create("e.io.bm.local.BucketHomeNotFound", phBucket);
             }
-            dHome = Files.createDirIfNoExists(home);
+            dBucket = Files.createDirIfNoExists(phBucket);
         }
         // 不是目录，自裁
-        if (!dHome.isDirectory()) {
-            throw Er.create("e.io.bm.local.HomeMustBeDirectory", dHome.getAbsolutePath());
+        if (!dBucket.isDirectory()) {
+            throw Er.create("e.io.bm.local.BucketHomeMustBeDirectory", dBucket.getAbsolutePath());
         }
-        // 获取桶目录
-        dBucket = Files.getFile(dHome, "buck");
-        dBucket = Files.createDirIfNoExists(dBucket);
 
         // 获取交换区目录
-        dSwap = Files.getFile(dHome, "swap");
-        dSwap = Files.createDirIfNoExists(dSwap);
+        dSwap = Files.findFile(phSWap);
+        if (null == dSwap) {
+            // 不自动创建，就自裁！！！
+            if (!autoCreate) {
+                throw Er.create("e.io.bm.local.SwapHomeNotFound", phSWap);
+            }
+            dSwap = Files.createDirIfNoExists(phBucket);
+        }
+        // 不是目录，自裁
+        if (!dSwap.isDirectory()) {
+            throw Er.create("e.io.bm.local.SwapHomeMustBeDirectory", dSwap.getAbsolutePath());
+        }
 
         // 句柄管理器
         this.handles = handles;

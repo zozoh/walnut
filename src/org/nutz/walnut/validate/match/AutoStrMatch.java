@@ -17,6 +17,10 @@ public class AutoStrMatch implements WnMatch {
         if (str.startsWith("!^") || str.startsWith("^")) {
             this.m = new RegexMatch(str);
         }
+        // 通配符
+        else if (str.contains("*")) {
+            this.m = new WildcardMatch(str);
+        }
         // 默认就是字符串匹配
         else {
             this.m = new StringMatch(str);

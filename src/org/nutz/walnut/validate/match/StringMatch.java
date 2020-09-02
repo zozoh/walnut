@@ -4,10 +4,18 @@ import org.nutz.walnut.validate.WnMatch;
 
 public class StringMatch implements WnMatch {
 
+    private boolean ignoreCase;
+
     private String str;
 
     public StringMatch(String str) {
-        this.str = str;
+        if (str.startsWith("~~")) {
+            ignoreCase = true;
+            this.str = str.substring(2);
+        } else {
+            ignoreCase = false;
+            this.str = str;
+        }
     }
 
     @Override
@@ -17,6 +25,11 @@ public class StringMatch implements WnMatch {
         }
         if (null == val)
             return false;
+
+        if (ignoreCase) {
+            return str.equalsIgnoreCase(val.toString());
+        }
+
         return str.equals(val);
     }
 

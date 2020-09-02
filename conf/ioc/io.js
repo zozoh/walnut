@@ -31,7 +31,9 @@ var ioc = {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
         args : [
             {refer : 'ioHandleManager'},
-            {java  :'$conf.get("bucket-home")'},
+            {java  :'$conf.get("global-bm-bucket")'},
+            {java  :'$conf.get("global-bm-swap")'},
+            {java  :'$conf.getBoolean("global-bm-autocreate", true)'},
             true,
             {refer : 'referApi'},
         ]

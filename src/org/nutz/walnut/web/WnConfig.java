@@ -1,11 +1,9 @@
 package org.nutz.walnut.web;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -89,11 +87,6 @@ public class WnConfig extends WebConfig {
     public NutMap getEntryPages() {
         String json = this.get("entry-pages", "{}");
         return Json.fromJson(NutMap.class, json);
-    }
-
-    public File getBucketHome() {
-        String path = get("bucket-home");
-        return Files.createDirIfNoExists(path);
     }
 
 }

@@ -9,7 +9,7 @@ import org.nutz.walnut.validate.WnMatch;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class AutoEnumStrMatch implements WnMatch {
+public class AutoMultiStrMatch implements WnMatch {
 
     /**
      * true 表示所有条件为真才为真，否则一个为真即为真
@@ -18,14 +18,14 @@ public class AutoEnumStrMatch implements WnMatch {
 
     private WnMatch[] ms;
 
-    public AutoEnumStrMatch(String[] strs) {
+    public AutoMultiStrMatch(String[] strs) {
         ms = new WnMatch[strs.length];
         for (int i = 0; i < strs.length; i++) {
             ms[i] = new AutoStrMatch(strs[i]);
         }
     }
 
-    public AutoEnumStrMatch(Collection<? extends CharSequence> coll) {
+    public AutoMultiStrMatch(Collection<? extends CharSequence> coll) {
         ms = new WnMatch[coll.size()];
         int i = 0;
         for (CharSequence cs : coll) {
@@ -41,12 +41,12 @@ public class AutoEnumStrMatch implements WnMatch {
         this.and = and;
     }
 
-    public AutoEnumStrMatch asAnd() {
+    public AutoMultiStrMatch asAnd() {
         this.and = true;
         return this;
     }
 
-    public AutoEnumStrMatch asOr() {
+    public AutoMultiStrMatch asOr() {
         this.and = false;
         return this;
     }

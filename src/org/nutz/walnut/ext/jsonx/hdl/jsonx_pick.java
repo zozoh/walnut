@@ -13,7 +13,7 @@ import org.nutz.walnut.ext.jsonx.JsonXFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.match.AutoEnumStrMatch;
+import org.nutz.walnut.validate.match.AutoMultiStrMatch;
 
 public class jsonx_pick extends JsonXFilter {
 
@@ -25,7 +25,7 @@ public class jsonx_pick extends JsonXFilter {
             return;
 
         // 准备条件
-        WnMatch wm = new AutoEnumStrMatch(params.vals);
+        WnMatch wm = new AutoMultiStrMatch(params.vals);
 
         // 对于 Map
         if (fc.obj instanceof Map) {
