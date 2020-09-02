@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.nutz.walnut.ext.thing.impl.FileGetAction;
 import org.nutz.walnut.ext.thing.impl.FileQueryAction;
 import org.nutz.walnut.ext.thing.impl.FileReadAction;
 import org.nutz.walnut.ext.thing.impl.FileUpdateCountAction;
+import org.nutz.walnut.ext.thing.impl.FileUploadAction;
 import org.nutz.walnut.ext.thing.impl.GetThingAction;
 import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
@@ -119,6 +121,23 @@ public class WnThingService {
     }
 
     // .....................................................................
+
+    public List<WnObj> fileUpload(String dirName,
+                                  WnObj oT,
+                                  String fnm,
+                                  InputStream ins,
+                                  String boundary,
+                                  String dupp,
+                                  boolean overwrite) {
+        FileUploadAction a = _AD(new FileUploadAction(), dirName, oT);
+        a.fnm = fnm;
+        a.dupp = dupp;
+        a.overwrite = overwrite;
+        a.ins = ins;
+        a.boundary = boundary;
+        return a.invoke();
+    }
+
     public WnObj fileAdd(String dirName,
                          WnObj oT,
                          String fnm,

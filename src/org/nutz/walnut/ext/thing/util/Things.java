@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.thing.util;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -22,6 +24,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -219,6 +222,26 @@ public abstract class Things {
         return io.createIfNoExists(oData, oT.id() + "/resource", WnRace.DIR);
     }
 
+    public static WnObj createFileNoDup(WnIo io, WnObj oDir, String fnm, String dupp) {
+        // 准备默认的模板
+        if ("true".equals(dupp)) {
+            dupp = "@{major}(@{nb})@{suffix}";
+        }
+        // 准备文件名模板
+        NutMap c = new NutMap();
+        c.put("major", Files.getMajorName(fnm));
+        c.put("suffix", Files.getSuffix(fnm));
+        Tmpl seg = Cmds.parse_tmpl(dupp);
+        // 挨个尝试新的文件名
+        int i = 1;
+        do {
+            c.put("nb", i++);
+            fnm = seg.render(c);
+        } while (io.exists(oDir, fnm));
+        // 创建
+        return io.create(oDir, fnm, WnRace.FILE);
+    }
+
     // /**
     // * 根据格式如 “TsID[/ThID]” 的字符串，得到 ThingSet 或者 Thing 对象
     // *
@@ -298,25 +321,59 @@ public abstract class Things {
         WnThingService ths = new WnThingService(sys, oTs);
 
         // 添加
-        if (hc.params.has("add")) {
+        if (hc.params.has("add") || hc.params.has("upload")) {
+            // 分析参数
             String read = hc.params.getString("read");
             String fnm = hc.params.getString("add");
             String dupp = hc.params.getString("dupp");
             boolean overwrite = hc.params.is("overwrite");
             String ukey = hc.params.getString("ukey");
-            Object src = null;
-            // 从输出流中读取
-            if ("true".equals(read)) {
-                src = sys.in.getInputStream();
-            }
-            // 从文件读取
-            else if (!Strings.isBlank(read)) {
-                src = Wn.getObj(sys, read);
+
+            // 分析一下是上传还是添加
+            String upload = hc.params.getString("upload");
+            if (Strings.isBlank(upload) || upload.indexOf("boundary=") < 0) {
+                upload = null;
             }
 
-            // 最后计入输出
-            WnObj oMedia = ths.fileAdd(dirName, oT, fnm, src, dupp, overwrite);
-            hc.output = oMedia;
+            // 准备一个代表性的文件对象，以便 处理 ukey
+            WnObj oMedia = null;
+
+            // 文件上传流
+            if (null != upload) {
+                InputStream ins = null;
+                // 从输出流中读取
+                if ("true".equals(read)) {
+                    ins = sys.in.getInputStream();
+                }
+                // 从文件读取
+                else if (!Strings.isBlank(read)) {
+                    WnObj o = Wn.getObj(sys, read);
+                    ins = sys.io.getInputStream(o, 0);
+                }
+
+                List<WnObj> oList = ths.fileUpload(dirName, oT, fnm, ins, upload, dupp, overwrite);
+                if (!oList.isEmpty()) {
+                    oMedia = oList.get(0);
+                }
+                hc.output = oList;
+            }
+            // 普通文件输入流
+            else {
+                // 准备输入
+                Object src = null;
+                // 从输出流中读取
+                if ("true".equals(read)) {
+                    src = sys.in.getInputStream();
+                }
+                // 从文件读取
+                else if (!Strings.isBlank(read)) {
+                    src = Wn.getObj(sys, read);
+                }
+
+                // 最后计入输出
+                oMedia = ths.fileAdd(dirName, oT, fnm, src, dupp, overwrite);
+                hc.output = oMedia;
+            }
 
             // 如果指定了更新键
             if (!Strings.isBlank(ukey) && null != oMedia) {
@@ -384,6 +441,7 @@ public abstract class Things {
                              "nm",
                              "thumb",
                              "mime",
+                             "sha1",
                              "tp",
                              "len",
                              "duration",

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
@@ -35,9 +36,47 @@ public class HttpFormUploadTest {
         InputStream ins = Streams.fileIn(fBody);
 
         String bound = head.getString("http-header-CONTENT-TYPE");
-        HttpFormUpload upload = new HttpFormUpload(ins, bound, 240);
+        HttpFormUpload upload = new HttpFormUpload(ins, bound, 300);
 
         return upload.parseDataAndClose();
+    }
+
+    @Test
+    public void test_2() throws IOException {
+        NutMap map = doUpload("c2");
+
+        assertEquals(1, map.size());
+
+        byte[] be, bs;
+
+        List<HttpFormFile> files = map.getList("f0", HttpFormFile.class);
+
+        assertEquals(2, files.size());
+
+        HttpFormFile p0 = files.get(0);
+        assertEquals("nutz-logo_28.jpg", p0.getName());
+        assertEquals("image/jpeg", p0.getContentType());
+        bs = p0.getBytes();
+        File f0 = Files.findFile(getMyDataFile("nutz-logo_28.jpg"));
+        be = Files.readBytes(f0);
+        assertTrue(bs.length > 0);
+        assertEquals(be.length, bs.length);
+        for (int i = 0; i < bs.length; i++) {
+            assertEquals(be[i], bs[i]);
+        }
+
+        HttpFormFile p1 = files.get(1);
+        assertEquals("nutz-logo_28.png", p1.getName());
+        assertEquals("image/png", p1.getContentType());
+        bs = p1.getBytes();
+        File f1 = Files.findFile(getMyDataFile("nutz-logo_28.png"));
+        be = Files.readBytes(f1);
+        assertTrue(bs.length > 0);
+        assertEquals(be.length, bs.length);
+        for (int i = 0; i < bs.length; i++) {
+            assertEquals(be[i], bs[i]);
+        }
+
     }
 
     @Test
@@ -64,8 +103,8 @@ public class HttpFormUploadTest {
         HttpFormFile p1 = map.getAs("p1", HttpFormFile.class);
         assertEquals("c1_p1.jpg", p1.getName());
         assertEquals("image/jpeg", p1.getContentType());
-        bs = p0.getBytes();
-        File f1 = Files.findFile(getMyDataFile("c1_p0.png"));
+        bs = p1.getBytes();
+        File f1 = Files.findFile(getMyDataFile("c1_p1.jpg"));
         be = Files.readBytes(f1);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);

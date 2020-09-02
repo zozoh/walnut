@@ -1,6 +1,7 @@
 package org.nutz.walnut.util.upload;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.nutz.lang.util.LinkedByteBuffer;
 
@@ -20,6 +21,10 @@ public class HttpFormField extends FormField {
     public HttpFormField(HttpFormUpload upload, String str) {
         super(str);
         this.upload = upload;
+    }
+
+    public InputStream getInputStream() {
+        return new HttpFormFieldInputStream(this);
     }
 
     public LinkedByteBuffer readAll() throws IOException {

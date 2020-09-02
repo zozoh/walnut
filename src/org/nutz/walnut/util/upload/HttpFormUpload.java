@@ -213,6 +213,10 @@ public class HttpFormUpload {
             len = ins.read(buffer, limit, capacity - limit);
         }
         if (len < 0) {
+            // 如果还有内容没有读完，则返回 0 以便继续
+            if (rIndex < limit) {
+                return 0;
+            }
             return -1;
         }
         limit += len;
@@ -404,13 +408,13 @@ public class HttpFormUpload {
                 String key = field.getName();
                 if (field.isText()) {
                     String text = field.readAllString();
-                    re.put(key, text);
+                    re.addv(key, text);
                 }
                 // 文件
                 else if (field.isFile()) {
                     byte[] bs = field.readAllBytes();
                     HttpFormFile ff = new HttpFormFile(field, bs);
-                    re.put(key, ff);
+                    re.addv(key, ff);
                 }
             }
 
@@ -427,7 +431,7 @@ public class HttpFormUpload {
             public void handle(HttpFormField field) throws IOException {
                 String key = field.getName();
                 String text = field.readAllString();
-                re.put(key, text);
+                re.addv(key, text);
             }
 
         });

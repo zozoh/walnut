@@ -61,14 +61,34 @@ public class WnWebSite {
     private String currency;
 
     /**
-     * 默认会话时长
+     * 站点的订单默认过期时间（分钟）
+     * <ul>
+     * <li>0 或者负数 表示永不过期
+     * <li>>0 表示秒
+     * <li>默认为 15 分钟
+     * </ul>
      */
-    private long seDftDu;
+    private int orderDuMin;
 
     /**
-     * 临时会话时长
+     * 默认会话时长（秒）
      */
-    private long seTmpDu;
+    private int seDftDu;
+
+    /**
+     * 临时会话时长（秒）
+     */
+    private int seTmpDu;
+
+    /**
+     * 站点的接口，请求对象缓存默认时长
+     * <ul>
+     * <li>0 表示请求完毕立即删除
+     * <li>> 0 表示 秒
+     * <li>负数相当于没有设置
+     * </ul>
+     */
+    private int apiReqDu;
 
     /**
      * @param homeFullPath
@@ -132,8 +152,15 @@ public class WnWebSite {
         this.currency = bean.getString("currency", "RMB");
 
         // 默认会话时长
-        seDftDu = bean.getLong("se_dft_du", 86400);
-        seTmpDu = bean.getLong("se_tmp_du", 60);
+        seDftDu = bean.getInt("se_dft_du", 86400);
+        seTmpDu = bean.getInt("se_tmp_du", 60);
+
+        // 站点的订单默认过期时间
+        orderDuMin = bean.getInt("order_du_min", 15);
+
+        // 请求对象缓存默认时长
+        apiReqDu = bean.getInt("api_req_du", -1);
+
     }
 
     public String getDomainHomePath() {
@@ -252,12 +279,20 @@ public class WnWebSite {
         return currency;
     }
 
-    public long getSeDftDu() {
+    public int getSeDftDu() {
         return seDftDu;
     }
 
-    public long getSeTmpDu() {
+    public int getSeTmpDu() {
         return seTmpDu;
+    }
+
+    public int getOrderDuMin() {
+        return orderDuMin;
+    }
+
+    public int getApiReqDu() {
+        return apiReqDu;
     }
 
     private WnObj checkDirOrCreate(String ph) {

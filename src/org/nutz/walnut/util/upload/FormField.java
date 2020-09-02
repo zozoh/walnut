@@ -119,12 +119,20 @@ public class FormField {
         this.name = name;
     }
 
+    public boolean hasFileName() {
+        return !Strings.isBlank(this.fileName);
+    }
+
     public String getFileName() {
         return fileName;
     }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public boolean hasContentType() {
+        return !Strings.isBlank(this.contentType);
     }
 
     public String getContentType() {

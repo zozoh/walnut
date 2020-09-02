@@ -131,8 +131,11 @@ public class WnOrderService {
         }
 
         // 设置订单过期时间，默认 15 分钟
-        long du = 15 * 60000L;
-        or.setExpireTime(Wn.now() + du);
+        int duInMin = site.getOrderDuMin();
+        if (duInMin > 0) {
+            long duInMs = duInMin * 60000L;
+            or.setExpireTime(Wn.now() + duInMs);
+        }
 
         // 准备订单元数据
         NutMap meta = or.toMeta();

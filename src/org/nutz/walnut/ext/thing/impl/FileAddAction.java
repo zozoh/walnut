@@ -2,16 +2,12 @@ package org.nutz.walnut.ext.thing.impl;
 
 import java.io.InputStream;
 
-import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.thing.ThingDataAction;
 import org.nutz.walnut.ext.thing.util.Things;
-import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
 public class FileAddAction extends ThingDataAction<WnObj> {
@@ -50,23 +46,7 @@ public class FileAddAction extends ThingDataAction<WnObj> {
 
             // 是否生成一个新的
             if (!Strings.isBlank(dupp)) {
-                // 准备默认的模板
-                if ("true".equals(dupp)) {
-                    dupp = "@{major}(@{nb})@{suffix}";
-                }
-                // 准备文件名模板
-                NutMap c = new NutMap();
-                c.put("major", Files.getMajorName(fnm));
-                c.put("suffix", Files.getSuffix(fnm));
-                Tmpl seg = Cmds.parse_tmpl(dupp);
-                // 挨个尝试新的文件名
-                int i = 1;
-                do {
-                    c.put("nb", i++);
-                    fnm = seg.render(c);
-                } while (io.exists(oDir, fnm));
-                // 创建
-                oM = io.create(oDir, fnm, WnRace.FILE);
+                oM = Things.createFileNoDup(io, oDir, fnm, dupp);
             }
             // 不能生成一个新的，并且还不能覆盖就抛错
             else if (!this.overwrite) {

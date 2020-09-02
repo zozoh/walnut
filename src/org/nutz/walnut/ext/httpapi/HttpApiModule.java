@@ -173,11 +173,35 @@ public class HttpApiModule extends AbstractWnModule {
                     _do_api(apc);
                 }
 
-                // 最后执行历史记录
+                // 执行历史记录
                 _record_history(apc);
             }
             // 确保退出登录
             finally {
+                // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
+                if (null != apc.oReq) {
+                    long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
+                    // 如果有站点的话，则看看站点的默认会话设定
+                    if (null != apc.oWWW) {
+                        int duInS = apc.oWWW.getInt("api_req_du", -1);
+                        if (duInS >= 0) {
+                            dftDu = duInS * 1000L;
+                        }
+                    }
+                    long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
+                    // 如果时间短于 1 秒，就直接删除了
+                    if (tmpDu < 1000) {
+                        io().delete(apc.oReq);
+                    }
+                    // 否则，让清理进程删除
+                    else {
+                        long expi = Wn.now() + tmpDu;
+                        apc.oReq.expireTime(expi);
+                        io().set(apc.oReq, "^(expi)$");
+                    }
+                }
+
+                // 注销会话
                 auth().removeSession(apc.se, 0);
                 apc.wc.setSession(null);
             }
@@ -769,12 +793,6 @@ public class HttpApiModule extends AbstractWnModule {
         // 更新路径参数
         apc.reqMeta.put("args", apc.args);
         apc.reqMeta.put("params", apc.params);
-
-        // .........................................
-        // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
-        long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
-        long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
-        apc.reqMeta.put("expi", Wn.now() + tmpDu);
 
         // .........................................
         // 保存 QueryString，同时，看看有没必要更改 mime-type
