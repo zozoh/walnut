@@ -83,15 +83,25 @@ public class WnExpiObjTableCleaner implements Atom {
             long hold = list.get(0).getHoldTime();
 
             // 逐个删除
-            int i = 0;
-            int count = 0;
+            int i = 0; // 循环计数
+            int count = 0; // 真实删除的个数
             for (WnExpiObj eo : list) {
                 String oid = eo.getId();
                 WnObj o = io.get(oid);
                 if (null != o) {
-                    io.delete(o);
-                    count++;
-                    log.debugf(" %d. rm %d", i, oid);
+                    // 过期了就删除
+                    if (o.isExpired()) {
+                        io.delete(o);
+                        count++;
+                        log.debugf(" %d. rm %d", i, oid);
+                    }
+                    // 其实未过期，直接从表格里移除，
+                    // 因为，如果后面还有人插入这个对象的过期记录，
+                    // 这个记录因为没有 hold 和 owner 就不会被后面的 clean 操作删除
+                    else {
+                        table.remove(oid);
+                        log.debugf(" %d. no expired %d", i, oid);
+                    }
                 }
                 // 迷失的对象，打印一下
                 else if (log.isInfoEnabled()) {
