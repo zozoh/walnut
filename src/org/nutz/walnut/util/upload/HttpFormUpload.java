@@ -207,8 +207,12 @@ public class HttpFormUpload {
         }
 
         // 缓冲不再有内容了，那么从流里读一下
-        int len = ins.readNBytes(buffer, limit, capacity - limit);
+        int len = ins.read(buffer, limit, capacity - limit);
+        // 再试图读一次
         if (len == 0) {
+            len = ins.read(buffer, limit, capacity - limit);
+        }
+        if (len < 0) {
             return -1;
         }
         limit += len;
