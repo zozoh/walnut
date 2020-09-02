@@ -34,7 +34,6 @@ var ioc = {
             {java  :'$conf.get("global-bm-bucket")'},
             {java  :'$conf.get("global-bm-swap")'},
             {java  :'$conf.getBoolean("global-bm-autocreate", true)'},
-            true,
             {refer : 'referApi'},
         ]
     },
