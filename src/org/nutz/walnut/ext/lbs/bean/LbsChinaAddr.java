@@ -68,6 +68,7 @@ public class LbsChinaAddr {
 
     private String code;
     private String name;
+    private String fullName;
     private String province;
     private String provinceCode;
     private String provinceName;
@@ -108,6 +109,7 @@ public class LbsChinaAddr {
         lca.noTown = this.noTown;
         lca.code = this.code;
         lca.name = this.name;
+        lca.fullName = this.fullName;
         lca.province = this.province;
         lca.provinceCode = this.provinceCode;
         lca.provinceName = this.provinceName;
@@ -119,6 +121,16 @@ public class LbsChinaAddr {
         lca.areaName = this.areaName;
         lca.town = this.town;
         return lca;
+    }
+
+    /**
+     * @return 当前地址的城市级是否为虚拟地址
+     */
+    public boolean isVirtualCity() {
+        if (this.city != null) {
+            return this.city.matches("^(01|02|90)$");
+        }
+        return false;
     }
 
     /**
@@ -263,21 +275,37 @@ public class LbsChinaAddr {
             this.provinceName = map.get(this.provinceCode).getName();
             this.cityName = map.get(this.cityCode).getName();
             this.areaName = map.get(this.areaCode).getName();
+            if (!this.isVirtualCity()) {
+                this.fullName = this.provinceName + this.cityName + this.areaName + this.name;
+            } else {
+                this.fullName = this.provinceName + this.areaName + this.name;
+            }
         }
         // 区县级
         else if (3 == this.level) {
             this.provinceName = map.get(this.provinceCode).getName();
             this.cityName = map.get(this.cityCode).getName();
             this.areaName = this.name;
+            if (!this.isVirtualCity()) {
+                this.fullName = this.provinceName + this.cityName + this.areaName;
+            } else {
+                this.fullName = this.provinceName + this.areaName;
+            }
         }
         // 地市级
         else if (2 == this.level) {
             this.provinceName = map.get(this.provinceCode).getName();
             this.cityName = this.name;
+            if (!this.isVirtualCity()) {
+                this.fullName = this.provinceName + this.cityName;
+            } else {
+                this.fullName = this.provinceName;
+            }
         }
         // 省级
         else if (1 == this.level) {
             this.provinceName = this.name;
+            this.fullName = this.provinceName;
         }
         // 不可能
         else {
@@ -392,6 +420,14 @@ public class LbsChinaAddr {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getProvince() {
