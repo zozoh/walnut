@@ -177,6 +177,10 @@ public class HttpFormUpload {
 
                 // 如果有不匹配，则退出子串匹配，主串下移一个字符
                 if (buffer[i + x] != bounds[x]) {
+                    // 好像这样可以的，可以加速
+                    // KMP 的索引表就不用建了，因为哪个字符失配
+                    // 子串的回退位置都应该是 0
+                    i = i + x;
                     match = false;
                     break;
                 }
