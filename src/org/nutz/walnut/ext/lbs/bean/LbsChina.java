@@ -133,6 +133,9 @@ public class LbsChina {
         if (Strings.isBlank(code)) {
             return _clone_list(tops);
         }
+        
+        // 格式化地址
+        code = __tidy_code(code);
 
         // 获取子地址
         LbsChinaAddr lca = map.get(code);
@@ -177,8 +180,18 @@ public class LbsChina {
      * @return 地址对象
      */
     public LbsChinaAddr getAddress(String code) {
+        code = __tidy_code(code);
         LbsChinaAddr lca = map.get(code);
         return lca == null ? lca : lca.clone();
+    }
+
+    private String __tidy_code(String code) {
+        // 整理为12位地址编码
+        if (code.length() > 6) {
+            return Strings.alignLeft(code, 12, '0');
+        }
+        // 不到 6 位的整理为 6 位
+        return Strings.alignLeft(code, 6, '0');
     }
 
     private List<LbsChinaAddr> _clone_list(List<LbsChinaAddr> addrList) {

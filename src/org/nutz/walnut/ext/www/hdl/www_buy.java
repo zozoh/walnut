@@ -10,6 +10,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.mq.WnMqApi;
 import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.bean.WnOrder;
+import org.nutz.walnut.ext.www.impl.WnOrderService;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -42,6 +43,7 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 准备服务类
         WnWebService webs = new WnWebService(sys, oWWW);
+        WnOrderService orderApi = webs.getOrderApi();
 
         // -------------------------------
         // 检查会话
@@ -61,7 +63,8 @@ public class www_buy implements JvmHdl {
 
         // -------------------------------
         // 执行订单的创建
-        or = webs.getOrderApi().createOrder(or);
+        String priceRuleKey = hc.params.getString("prices", "prices");
+        or = orderApi.createOrder(or, priceRuleKey, bu);
 
         // -------------------------------
         // 准备支付单

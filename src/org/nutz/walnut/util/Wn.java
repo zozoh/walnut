@@ -133,31 +133,41 @@ public abstract class Wn {
     }
 
     public static WnObj getObj(WnIo io, WnAuthSession se, String str) {
-        // // 用 ID
-        // if (str.startsWith("id:")) {
-        // String id = str.substring("id:".length());
-        // return io.get(id);
-        // }
-        // 用路径
-        String path = normalizeFullPath(str, se);
-        return io.fetch(null, path);
+        return getObj(io, se.getVars(), str);
 
+    }
+
+    public static WnObj getObj(WnIo io, NutBean vars, String str) {
+        // 用 ID
+        if (isFullObjId(str)) {
+            return io.get(str);
+        }
+        // 用路径
+        String path = normalizeFullPath(str, vars);
+        return io.fetch(null, path);
     }
 
     public static WnObj getObj(WnIo io, String str) {
         if (Strings.isBlank(str))
             return null;
 
-        // if (str.startsWith("id:")) {
-        // String id = str.substring("id:".length());
-        // return io.get(id);
-        // }
-
+        // 用 ID
+        if (isFullObjId(str)) {
+            return io.get(str);
+        }
+        // 用路径
         return io.fetch(null, str);
     }
 
     public static WnObj checkObj(WnIo io, String str) {
         WnObj o = getObj(io, str);
+        if (null == o)
+            throw Er.create("e.io.obj.noexists", str);
+        return o;
+    }
+
+    public static WnObj checkObj(WnIo io, NutBean vars, String str) {
+        WnObj o = getObj(io, vars, str);
         if (null == o)
             throw Er.create("e.io.obj.noexists", str);
         return o;
@@ -282,7 +292,7 @@ public abstract class Wn {
         return normalizePath(ph, se.getVars());
     }
 
-    public static String normalizePath(String ph, NutMap vars) {
+    public static String normalizePath(String ph, NutBean vars) {
         if (Strings.isBlank(ph))
             return ph;
         // 主目录开头
@@ -334,7 +344,7 @@ public abstract class Wn {
         return normalizeFullPath(ph, se.getVars());
     }
 
-    public static String normalizeFullPath(String ph, NutMap vars) {
+    public static String normalizeFullPath(String ph, NutBean vars) {
         // 防空
         if (Strings.isBlank(ph))
             return ph;
@@ -382,7 +392,7 @@ public abstract class Wn {
         return normalizeStr(str, se.getVars());
     }
 
-    public static String normalizeStr(String str, NutMap env) {
+    public static String normalizeStr(String str, NutBean env) {
         char[] cs = str.toCharArray();
         StringBuilder var = new StringBuilder();
         StringBuilder sb = new StringBuilder();

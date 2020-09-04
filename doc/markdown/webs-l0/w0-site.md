@@ -49,7 +49,8 @@ accounts  : "~/accounts"   # 账户库
 roles     : "~/roles"      # 【选】角色库
 orders    : "~/orders"     # 【选】订单库（购物功能必须）
 coupons   : "~/coupons"    # 【选】优惠券库
-addresses : "~/address"    # 【选】地址库
+addresses : "~/addresses"  # 【选】地址库
+freight_sheet : "~/.domain/freight_sheet.json" #【选】运费表
 
 # 这是一个站点权限表，访问这个站点的 API 默认采用的权限表
 # 参看靠下面列表，获取更多相关信息

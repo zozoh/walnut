@@ -27,7 +27,7 @@ public class WnWebSite {
     private WnObj sessionDir;
     private WnObj captchaDir;
     /**
-     * 账户库所在目录
+     * 账户库所在目录(Thing)
      */
     private WnObj accountHome;
     /**
@@ -39,13 +39,24 @@ public class WnWebSite {
      */
     private WnObj roleDir;
     /**
-     * 订单库所在目录
+     * 订单库所在目录(Thing)
      */
     private WnObj orderHome;
     /**
-     * 优惠券库所在目录
+     * 优惠券库所在目录(Thing)
      */
     private WnObj couponHome;
+
+    /**
+     * 地址库所在目录(Thing)
+     */
+    private WnObj addressesHome;
+
+    /**
+     * 运费表对象
+     */
+    private WnObj freightSheetObj;
+
     /**
      * 微信配置目录名
      */
@@ -131,6 +142,10 @@ public class WnWebSite {
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
         orderHome = fetchThingSet(bean.getString("orders"));
         couponHome = fetchThingSet(bean.getString("coupons"));
+
+        // 地址库
+        addressesHome = fetchThingSet(bean.getString("addresses"));
+        freightSheetObj = Wn.getObj(io, vars, bean.getString("freight_sheet"));
 
         // 初始化站点用户默认系统环境变量
         if (bean.has("env")) {
@@ -226,6 +241,22 @@ public class WnWebSite {
 
     public WnObj getCouponHome() {
         return couponHome;
+    }
+
+    public boolean hasAddressesHome() {
+        return null != addressesHome;
+    }
+
+    public WnObj getAddressesHome() {
+        return addressesHome;
+    }
+
+    public boolean hasFreightSheetObj() {
+        return null != freightSheetObj;
+    }
+
+    public WnObj getFreightSheetObj() {
+        return freightSheetObj;
     }
 
     /**

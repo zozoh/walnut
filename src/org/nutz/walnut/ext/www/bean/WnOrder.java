@@ -27,6 +27,47 @@ public class WnOrder {
     @JsonField("proids")
     private String[] productIds;
 
+    // -------------------------------
+    // 卖家发货地址
+    // -------------------------------
+    /**
+     * 国家编码，默认 CN
+     */
+    @JsonField("addr_ship_country")
+    private String addrShipCountry;
+    /**
+     * 12位地址编码
+     */
+    @JsonField("addr_ship_code")
+    private String addrShipCode;
+    /**
+     * 详细到门牌的地址
+     */
+    @JsonField("addr_ship_door")
+    private String addrShipDoor;
+
+    // -------------------------------
+    // 用户收货地址
+    // -------------------------------
+    /**
+     * 国家编码，默认 CN
+     */
+    @JsonField("addr_user_country")
+    private String addrUserCountry;
+    /**
+     * 12位地址编码
+     */
+    @JsonField("addr_user_code")
+    private String addrUserCode;
+    /**
+     * 详细到门牌的地址
+     */
+    @JsonField("addr_user_door")
+    private String addrUserDoor;
+
+    /**
+     * 优惠券列表
+     */
     private WnCoupon[] coupons;
 
     private String title;
@@ -44,8 +85,29 @@ public class WnOrder {
     @JsonField("buyer_id")
     private String buyerId;
 
+    /**
+     * 商品总金额
+     */
+    private float total;
+
+    /**
+     * 运费
+     */
+    private float freight;
+
+    /**
+     * 优惠金额
+     */
+    private float discount;
+
+    /**
+     * 订单总金额（包括运费）
+     */
     private float price;
 
+    /**
+     * 优惠后金额，用来实际支付
+     */
     private float fee;
 
     private String currency;
@@ -124,6 +186,9 @@ public class WnOrder {
         or.title = this.title;
         or.seller = this.seller;
         or.buyerId = this.buyerId;
+        or.total = this.total;
+        or.discount = this.discount;
+        or.freight = this.freight;
         or.price = this.price;
         or.fee = this.fee;
         or.currency = this.currency;
@@ -147,6 +212,15 @@ public class WnOrder {
             if (this.payReturn != null)
                 or.payReturn = this.payReturn.clone();
         }
+    }
+
+    public void updatePrice(OrderPrice price) {
+        this.total = price.total;
+        this.discount = price.discount;
+        this.freight = price.freight;
+        this.price = price.price;
+        this.fee = price.fee;
+        this.currency = price.currency;
     }
 
     /**
@@ -231,6 +305,12 @@ public class WnOrder {
         return null != products && products.length > 0;
     }
 
+    public int getProductsCount() {
+        if (null == products)
+            return 0;
+        return products.length;
+    }
+
     public WnProduct[] getProducts() {
         return products;
     }
@@ -255,8 +335,78 @@ public class WnOrder {
         this.productIds = productIds;
     }
 
+    public boolean hasAddrShip(boolean includeDoor) {
+        if (Strings.isBlank(addrShipCode))
+            return false;
+        if (includeDoor && Strings.isBlank(addrShipDoor))
+            return false;
+        return true;
+    }
+
+    public String getAddrShipCountry() {
+        return Strings.sBlank(addrShipCountry, "CN");
+    }
+
+    public void setAddrShipCountry(String addrShipCountry) {
+        this.addrShipCountry = addrShipCountry;
+    }
+
+    public String getAddrShipCode() {
+        return addrShipCode;
+    }
+
+    public void setAddrShipCode(String addrShipCode) {
+        this.addrShipCode = addrShipCode;
+    }
+
+    public String getAddrShipDoor() {
+        return addrShipDoor;
+    }
+
+    public void setAddrShipDoor(String addrShipDoor) {
+        this.addrShipDoor = addrShipDoor;
+    }
+
+    public boolean hasAddrUser(boolean includeDoor) {
+        if (Strings.isBlank(addrUserCode))
+            return false;
+        if (includeDoor && Strings.isBlank(addrUserDoor))
+            return false;
+        return true;
+    }
+
+    public String getAddrUserCountry() {
+        return Strings.sBlank(addrUserCountry, "CN");
+    }
+
+    public void setAddrUserCountry(String addrUserCountry) {
+        this.addrUserCountry = addrUserCountry;
+    }
+
+    public String getAddrUserCode() {
+        return addrUserCode;
+    }
+
+    public void setAddrUserCode(String addrUserCode) {
+        this.addrUserCode = addrUserCode;
+    }
+
+    public String getAddrUserDoor() {
+        return addrUserDoor;
+    }
+
+    public void setAddrUserDoor(String addrUserDoor) {
+        this.addrUserDoor = addrUserDoor;
+    }
+
     public boolean hasCoupons() {
         return null != coupons && coupons.length > 0;
+    }
+
+    public int getCouponsCount() {
+        if (null == coupons)
+            return 0;
+        return coupons.length;
     }
 
     public WnCoupon[] getCoupons() {
@@ -297,6 +447,30 @@ public class WnOrder {
 
     public void setBuyerId(String buyerId) {
         this.buyerId = buyerId;
+    }
+
+    public float getTotal() {
+        return total;
+    }
+
+    public void setTotal(float total) {
+        this.total = total;
+    }
+
+    public float getFreight() {
+        return freight;
+    }
+
+    public void setFreight(float freight) {
+        this.freight = freight;
+    }
+
+    public float getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(float discount) {
+        this.discount = discount;
     }
 
     public float getPrice() {

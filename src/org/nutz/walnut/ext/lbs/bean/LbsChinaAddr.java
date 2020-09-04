@@ -248,9 +248,12 @@ public class LbsChinaAddr {
             this.city = null;
             this.area = null;
         }
-        // 不可能
+        // 全国
         else {
-            throw Lang.makeThrow("Invalid Addr Code", this.code);
+            this.level = 0;
+            this.provinceCode = null;
+            this.city = null;
+            this.area = null;
         }
 
         // 判断省类型
@@ -307,6 +310,11 @@ public class LbsChinaAddr {
             this.provinceName = this.name;
             this.fullName = this.provinceName;
         }
+        // 全国
+        else if (0 == this.level) {
+            this.provinceName = null;
+            this.fullName = this.name;
+        }
         // 不可能
         else {
             throw Lang.impossible();
@@ -355,6 +363,13 @@ public class LbsChinaAddr {
     }
 
     /**
+     * @return 是否为全国级地址
+     */
+    public boolean isLevelCountry() {
+        return 0 == this.level;
+    }
+
+    /**
      * @return 是否为省或者直辖市级别地址
      */
     public boolean isLevelProvince() {
@@ -396,6 +411,70 @@ public class LbsChinaAddr {
 
     public void setNoTown(boolean noTown) {
         this.noTown = noTown;
+    }
+
+    /**
+     * 与一个地址码比较，看看相同的部分是多少
+     * 
+     * <ul>
+     * <li><code>-1</code> 不相同
+     * <li><code>0</code> 同国 : 只有自己或者传入地址为 level==0 时
+     * <li><code>1</code> 同省
+     * <li><code>2</code> 同城
+     * <li><code>3</code> 同区
+     * <li><code>4</code> 同区
+     * </ul>
+     * 
+     * 如果当前地址 level==0，则任何地址与他匹配，都是 0
+     * 
+     * @param code
+     *            地址码
+     * @return 相同的级别
+     * 
+     */
+    public int match(LbsChinaAddr addr) {
+        if (null == addr) {
+            return -1;
+        }
+        // 国家级地址无需匹配
+        if (this.isLevelCountry() || addr.isLevelCountry()) {
+            return 0;
+        }
+        // 逐级比较地址
+        int re = 0;
+        int lvMax = Math.min(this.level, addr.level);
+        for (int i = 1; i <= lvMax; i++) {
+            String myLc = this.getLevelCode(i);
+            String taLc = addr.getLevelCode(i);
+            if (!myLc.equals(taLc))
+                break;
+            re++;
+        }
+        return re == 0 ? -1 : re;
+    }
+
+    public int match(String code) {
+        LbsChinaAddr addr = LbsChina.getInstance().getAddress(code);
+        return match(addr);
+    }
+
+    public String getLevelCode(int lv) {
+        if (lv == 0) {
+            return "00";
+        }
+        if (lv == 1)
+            return this.province;
+
+        if (lv == 2)
+            return this.city;
+
+        if (lv == 3)
+            return this.area;
+
+        if (lv == 4)
+            return this.town;
+
+        throw Lang.makeThrow("Leval allow 0-4 only, level:", lv);
     }
 
     public String getCode() {

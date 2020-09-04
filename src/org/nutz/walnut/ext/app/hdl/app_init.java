@@ -149,8 +149,8 @@ public class app_init implements JvmHdl {
             FileProcess fp = new FileProcess().reset();
 
             // 准备段开始的正则表达式
-            Pattern p_fp_start = Pattern.compile("@(DIR|FILE) +(.+)");
-            Pattern p_fp_content = Pattern.compile("%(COPY|TMPL)([%>:])(.+)?");
+            Pattern P_R = Pattern.compile("@(DIR|FILE) +(.+)");
+            Pattern P_C = Pattern.compile("([%?])(COPY|TMPL)([%>:])(.+)?");
 
             // 处理每一行
             for (int i = 0; i < lines.length; i++) {
@@ -165,7 +165,7 @@ public class app_init implements JvmHdl {
 
                 // 一直寻找到正确的开始,看看是否开始一个对象
                 if (fp.is(FpSt.BLANK, FpSt.WAIT_META, FpSt.END_META, FpSt.DONE)) {
-                    Matcher m = p_fp_start.matcher(str);
+                    Matcher m = P_R.matcher(str);
                     if (m.find()) {
                         // 执行之前的处理器
                         fp.process(sys, oTmpl, oDest, c).reset();
@@ -189,12 +189,16 @@ public class app_init implements JvmHdl {
                         continue;
                     }
 
-                    Matcher m = p_fp_content.matcher(str);
+                    Matcher m = P_C.matcher(str);
                     // 遇到了内容描述行
                     if (m.find()) {
-                        String md = m.group(1);
-                        String tp = m.group(2);
-                        String s = Strings.sBlank(m.group(3), "");
+                        String fc = m.group(1);
+                        String md = m.group(2);
+                        String tp = m.group(3);
+                        String s = Strings.sBlank(m.group(4), "");
+
+                        // 强制
+                        fp.force = "%".equals(fc);
 
                         // 类型
                         fp.asFile = tp.equals(">");
@@ -282,6 +286,7 @@ public class app_init implements JvmHdl {
         String copyBy;
         String tmplBy;
         boolean asFile;
+        boolean force;
 
         FileProcess reset() {
             st = FpSt.BLANK;
@@ -311,38 +316,41 @@ public class app_init implements JvmHdl {
                 sys.io.appendMeta(o, meta);
             }
 
-            // Copy 内容
-            if (!Strings.isBlank(copyBy)) {
-                // 文件
-                if (this.asFile) {
-                    sys.out.printlnf("   <- %s", copyBy);
-                    WnObj oSrc = sys.io.check(oTmpl, copyBy);
-                    InputStream ins = sys.io.getInputStream(oSrc, 0);
-                    sys.io.writeAndClose(o, ins);
+            // 如果存在，且内容 > 0，不强制写入
+            if (this.force || o.len() == 0) {
+                // Copy 内容
+                if (!Strings.isBlank(copyBy)) {
+                    // 文件
+                    if (this.asFile) {
+                        sys.out.printlnf("   <- %s", copyBy);
+                        WnObj oSrc = sys.io.check(oTmpl, copyBy);
+                        InputStream ins = sys.io.getInputStream(oSrc, 0);
+                        sys.io.writeAndClose(o, ins);
+                    }
+                    // 文本内容
+                    else {
+                        sys.out.printlnf("   << %d chars", copyBy.length());
+                        sys.io.writeText(o, copyBy);
+                    }
                 }
-                // 文本内容
-                else {
-                    sys.out.printlnf("   << %d chars", copyBy.length());
-                    sys.io.writeText(o, copyBy);
+                // 执行模板
+                else if (!Strings.isBlank(tmplBy)) {
+                    String tmpl;
+                    // 文件
+                    if (this.asFile) {
+                        sys.out.printlnf("   $- %s", tmplBy);
+                        WnObj oSrc = sys.io.check(oTmpl, tmplBy);
+                        tmpl = sys.io.readText(oSrc);
+                    }
+                    // 文本内容
+                    else {
+                        sys.out.printlnf("   $$ %d chars", tmplBy.length());
+                        tmpl = tmplBy;
+                    }
+                    // 写入
+                    String text = Tmpl.exec(tmpl, c);
+                    sys.io.writeText(o, text);
                 }
-            }
-            // 执行模板
-            else if (!Strings.isBlank(tmplBy)) {
-                String tmpl;
-                // 文件
-                if (this.asFile) {
-                    sys.out.printlnf("   $- %s", tmplBy);
-                    WnObj oSrc = sys.io.check(oTmpl, tmplBy);
-                    tmpl = sys.io.readText(oSrc);
-                }
-                // 文本内容
-                else {
-                    sys.out.printlnf("   $$ %d chars", tmplBy.length());
-                    tmpl = tmplBy;
-                }
-                // 写入
-                String text = Tmpl.exec(tmpl, c);
-                sys.io.writeText(o, text);
             }
 
             // 返回自身以便链式赋值

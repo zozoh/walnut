@@ -121,7 +121,7 @@
 [c2-dmn]: core-l2/c2-domain-host-mapping.md
 [c2-pvg]: core-l2/c2-biz-privilege-model.md
 [f0-wx-pay]: func-l0/f0-weixin-payment.md
-[f0-wx-pay]: func-l0/f0-weixin-notify.md
+[f0-wx-nti]: func-l0/f0-weixin-notify.md
 [f0-zfb]: func-l0/f0-alipay.md
 [f0-aliyun]: func-l0/f0-aliyun.md
 [f1-pay]: func-l1/f1-payment.md

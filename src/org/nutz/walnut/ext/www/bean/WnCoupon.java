@@ -2,12 +2,16 @@ package org.nutz.walnut.ext.www.bean;
 
 import org.nutz.json.JsonField;
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.util.Wn;
 
 public class WnCoupon {
 
     private String id;
 
     private String title;
+
+    private String owner;
 
     /**
      * 类型，1:代金券，2:折扣券
@@ -59,6 +63,7 @@ public class WnCoupon {
     public void updateBy(NutBean bean) {
         id = bean.getString("id");
         title = bean.getString("title");
+        owner = bean.getString("owner");
         type = bean.getInt("type", 1);
         value = bean.getFloat("value", 0.0f);
         threshold = bean.getInt("thres", 0);
@@ -69,6 +74,7 @@ public class WnCoupon {
         WnCoupon pro = new WnCoupon();
         pro.id = this.id;
         pro.title = this.title;
+        pro.owner = this.owner;
         pro.type = this.type;
         pro.value = this.value;
         pro.threshold = this.threshold;
@@ -100,6 +106,24 @@ public class WnCoupon {
         this.title = title;
     }
 
+    public boolean isMine(WnAccount user) {
+        if (null == owner)
+            return true;
+
+        if (null == user)
+            return true;
+
+        return user.isSameId(owner);
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public int getType() {
         return type;
     }
@@ -122,6 +146,14 @@ public class WnCoupon {
 
     public void setThreshold(int thres) {
         this.threshold = thres;
+    }
+
+    public boolean isExpired() {
+        if (expi > 0) {
+            long now = Wn.now();
+            return now > expi;
+        }
+        return false;
     }
 
     public long getExpi() {

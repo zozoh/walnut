@@ -6,7 +6,6 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.lbs.bean.LbsChina;
 import org.nutz.walnut.ext.lbs.bean.LbsChinaAddr;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -28,7 +27,7 @@ public class lbs_cn implements JvmHdl {
         if (hc.params.is("list")) {
             // 查询某个地址下面的子地址
             if (hc.params.vals.length > 0) {
-                String code = _tidy_code(hc.params.val(0));
+                String code = hc.params.val(0);
                 re = CHINA.getAddressList(code);
             }
             // 那就是获取顶级地址咯
@@ -38,14 +37,14 @@ public class lbs_cn implements JvmHdl {
         }
         // 不是列表模式，那么看看是否是读取一个地址
         else if (hc.params.vals.length == 1) {
-            String code = _tidy_code(hc.params.val(0));
+            String code = hc.params.val(0);
             re = CHINA.getAddress(code);
         }
         // 读取多个地址?
         else if (hc.params.vals.length > 1) {
             List<LbsChinaAddr> list = new ArrayList<>(hc.params.vals.length);
             for (String val : hc.params.vals) {
-                String code = this._tidy_code(val);
+                String code = val;
                 LbsChinaAddr lca = CHINA.getAddress(code);
                 if (null != lca)
                     list.add(lca);
@@ -75,15 +74,6 @@ public class lbs_cn implements JvmHdl {
             });
         }
 
-    }
-
-    private String _tidy_code(String code) {
-        // 整理为12位地址编码
-        if (code.length() > 6) {
-            return Strings.alignLeft(code, 12, '0');
-        }
-        // 不到 6 位的整理为 6 位
-        return Strings.alignLeft(code, 6, '0');
     }
 
 }
