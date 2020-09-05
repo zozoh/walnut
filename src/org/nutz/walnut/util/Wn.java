@@ -124,6 +124,8 @@ public abstract class Wn {
     }
 
     public static boolean isFullObjId(final String id) {
+        if (null == id)
+            return false;
         return id.matches("^[0-9a-v]{26}(:.+)?$");
     }
 
