@@ -301,6 +301,9 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
+        if(null == path)
+            return null;
+        
         if (path.startsWith("/")) {
             p = null;
         }
