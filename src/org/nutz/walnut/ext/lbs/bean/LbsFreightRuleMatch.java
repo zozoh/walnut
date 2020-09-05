@@ -84,7 +84,11 @@ public class LbsFreightRuleMatch implements Comparable<LbsFreightRuleMatch> {
 
     @Override
     public int compareTo(LbsFreightRuleMatch o) {
-        return this.matchValue - o.matchValue;
+        return o.matchValue - this.matchValue;
+    }
+
+    public String toString() {
+        return String.format("'%s'%d->%d", rule.getTitle(), this.shipMatch, this.targetMatch);
     }
 
 }

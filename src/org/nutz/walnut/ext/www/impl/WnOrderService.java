@@ -291,7 +291,7 @@ public class WnOrderService {
             return false;
 
         // 读取发货地址
-        or.setAddrShipCode(shipAo.getString("nm"));
+        or.setAddrShipCode(shipAo.getString("code"));
         or.setAddrShipCountry(shipAo.getString("country"));
         or.setAddrShipDoor(shipAo.getString("door"));
 
