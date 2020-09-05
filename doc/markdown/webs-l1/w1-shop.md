@@ -362,7 +362,8 @@ code: "110108017000"
 postcode : "100085"   # 邮编
 province : "Beijing"  # 省/直辖市
 city     : "BeiJing"  # 城市
-street   : "xxx"      # 街道
+area     : "BeiJing"  # 区县
+street   : "xxx"      # 乡镇/街道
 door     : "xxx"      # 详细到门牌
 #-----------------------------
 # 联系人
