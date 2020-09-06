@@ -14,7 +14,11 @@ public class PriceRuleItem {
     public boolean isMatch(WnProduct pro) {
         if (null == skuRegion)
             return false;
-        return skuRegion.match(pro.getAmount());
+        int n = pro.getPcount();
+        if (n <= 0) {
+            pro.getAmount();
+        }
+        return skuRegion.match(n);
     }
 
     public String getSku() {

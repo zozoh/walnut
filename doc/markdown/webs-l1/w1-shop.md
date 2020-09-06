@@ -160,9 +160,11 @@ products: [{
   id : ID,      #【必】商品 ID 
   amount:3      #【必】购买数量
   title :"xxx", #【查】商品名
-  price :29.9,  #【查】商品订单价格（元）
+  price :29.9,  #【自】商品订单价格（元）
   weight : 10.23,  #【查】重量（公斤）（可作为运费计算依据）
-  freight : 5,     #【查】固定运费（元）
+  pcount: 53,          #【自】同一价格体系下的商品购买数量
+  subtotal: 4500.0,    #【自】小计 (price x amount)
+  freight : 5,         #【查】固定运费（元）
   pro_id : ID          #【查】价格规则对象的 ID
   price_by : "rule00"  #【查】价格规则名称
 }]

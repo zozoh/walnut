@@ -44,6 +44,11 @@ public class WnProduct {
     private int amount;
 
     /**
+     * 如果设置了价格体系，那么在相同价格体系下，所有商品购买的总数量
+     */
+    private int pcount;
+
+    /**
      * 小计： <code>price * amount</code>
      */
     private float subtotal;
@@ -151,6 +156,18 @@ public class WnProduct {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public int getPcount() {
+        return pcount;
+    }
+
+    public void setPcount(int pcount) {
+        this.pcount = pcount;
+    }
+
+    public String getPcountKey() {
+        return String.format("%s_%s", proId, priceBy);
     }
 
     public float getSubtotal() {

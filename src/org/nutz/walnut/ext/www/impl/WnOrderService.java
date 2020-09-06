@@ -141,14 +141,8 @@ public class WnOrderService {
         orpri.setCurrency(or.getCurrency(), site.getCurrency());
 
         // 依次检查产品列表
+        NutMap pcounts = new NutMap(); // 准备汇总各个价格体系下商品数量
         List<WnProduct> avapros = new ArrayList<>(or.getProductsCount());
-        float proWeight = 0; // 商品记录运费的总重
-        float fixFreight = 0; // 商品总固定运费
-        float total = 0; // 商品总金额
-        float freight = 0; // 总运费
-        float discount = 0; // 优惠总金额
-        float price = 0; // 订单总金额（包括运费）
-        float fee = 0; // 优惠后金额，用来实际支付
         for (WnProduct pro : or.getProducts()) {
             WnObj oPro = io.checkById(pro.getId());
             pro.updateBy(oPro);
@@ -157,6 +151,40 @@ public class WnOrderService {
             if (amo < 0) {
                 continue;
             }
+            // 记入
+            avapros.add(pro);
+            // 汇总
+            if (pro.hasProId() && pro.hasPriceBy()) {
+                String key = pro.getPcountKey();
+                int count = pcounts.getInt(key, 0);
+                count += amo;
+                pcounts.put(key, count);
+            }
+        }
+        or.setProducts(avapros.toArray(new WnProduct[avapros.size()]));
+
+        // !木有商品!
+        if (!or.hasProducts()) {
+            return null;
+        }
+
+        // 计算产品价格
+        float proWeight = 0; // 商品记录运费的总重
+        float fixFreight = 0; // 商品总固定运费
+        float total = 0; // 商品总金额
+        float freight = 0; // 总运费
+        float discount = 0; // 优惠总金额
+        float price = 0; // 订单总金额（包括运费）
+        float fee = 0; // 优惠后金额，用来实际支付
+        for (WnProduct pro : or.getProducts()) {
+            // 得到价格汇总数量
+            String key = pro.getPcountKey();
+            int pcount = pcounts.getInt(key, 0);
+            pro.setPcount(pcount);
+
+            // 数量
+            int amo = pro.getAmount();
+
             // 固定运费
             if (pro.hasFreight()) {
                 fixFreight += pro.getFreight() * amo;
@@ -172,18 +200,11 @@ public class WnOrderService {
 
             // 汇总&记入
             float subtotal = ppi * amo;
-            ;
             pro.setPrice(ppi);
             pro.setSubtotal(subtotal);
             total += subtotal;
-            avapros.add(pro);
         }
-        or.setProducts(avapros.toArray(new WnProduct[avapros.size()]));
         orpri.setProducts(or.getProducts());
-
-        if (!or.hasProducts()) {
-            return null;
-        }
 
         // 本单需要计算运费，并且站点可以计算运费
         if (__cal_load_addr(or)) {
