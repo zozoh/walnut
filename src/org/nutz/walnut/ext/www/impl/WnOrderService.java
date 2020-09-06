@@ -325,7 +325,7 @@ public class WnOrderService {
         return true;
     }
 
-    public WnOrder createOrder(WnOrder or, String priceRuleKey, WnAccount buyer) {
+    public WnOrder createOrder(WnOrder or, String priceRuleKey, WnAccount buyer, String skuKey) {
         // 防守检查：没产品不行啊
         if (!or.hasProducts()) {
             throw Er.create("e.www.order.nil.products");
@@ -402,6 +402,20 @@ public class WnOrderService {
         // 创建订单对象
         WnObj oOr = orders.createThing(meta);
         or.updateBy(oOr);
+
+        // 最后根据订单，依次减去商品的库存
+        if (null != skuKey && or.isTypeA()) {
+            pros = or.getProducts();
+            for (WnProduct pro : pros) {
+                // 无数量的商品不管（虽然不太可能走到这个分支，还是防一道吧）
+                if (pro.getAmount() <= 0)
+                    continue;
+
+                // 减去商品的库存
+                int val = pro.getAmount() * -1;
+                io.inc(pro.getId(), skuKey, val, false);
+            }
+        }
 
         // 返回创建后的订单
         return or;

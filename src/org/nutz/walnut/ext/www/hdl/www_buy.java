@@ -64,7 +64,11 @@ public class www_buy implements JvmHdl {
         // -------------------------------
         // 执行订单的创建
         String priceRuleKey = hc.params.getString("prices", "prices");
-        or = orderApi.createOrder(or, priceRuleKey, bu);
+        String skuKey = hc.params.getString("sku_by", "sku");
+        if("nil".equals(skuKey)) {
+            skuKey = null;
+        }
+        or = orderApi.createOrder(or, priceRuleKey, bu, skuKey);
 
         // -------------------------------
         // 准备支付单
