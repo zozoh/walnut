@@ -65,9 +65,15 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         if (oT.getInt("th_live") != Things.TH_LIVE) {
             throw Er.create("e.cmd.thing.updateDead", oT.id());
         }
+        
+        // 准备回调上下文
+        NutMap context = new NutMap();
+        context.put("old", oT.clone());
+        context.put("update", meta);
+        context.put("obj", oT);
 
         // 删除前的回调
-        Things.runCommands(oT, conf.getOnBeforeUpdate(), executor);
+        Things.runCommands(context, conf.getOnBeforeUpdate(), executor);
 
         // 根据唯一键约束检查重复
         if (conf.hasUniqueKeys()) {
@@ -96,7 +102,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         }
 
         // 看看是否有附加的创建执行脚本
-        Things.runCommands(oT, conf.getOnUpdated(), executor);
+        Things.runCommands(context, conf.getOnUpdated(), executor);
 
         // 重新获取
         if (reget) {

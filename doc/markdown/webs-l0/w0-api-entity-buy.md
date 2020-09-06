@@ -98,7 +98,7 @@ HTTP GET /api/entity/buy/rm
 #---------------------------------
 # Query String
 ticket : "4ih..23d"      # 会话票据
-ids    : "ID1 ID2 ID3"   # 商品ID，空格分隔
+ids    : "ID1,ID2,ID3"   # 商品ID，半角逗号分隔
 ```
 
 ### 响应成功(text/json)

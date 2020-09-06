@@ -71,6 +71,8 @@ public class WnOrder {
     private WnCoupon[] coupons;
 
     private String title;
+    
+    private String note;
 
     /**
      * 买家名称（支付配置目录名）
@@ -184,6 +186,7 @@ public class WnOrder {
         }
         // 其他关键字段
         or.title = this.title;
+        or.note = this.note;
         or.seller = this.seller;
         or.buyerId = this.buyerId;
         or.total = this.total;

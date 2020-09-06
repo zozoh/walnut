@@ -3,6 +3,10 @@ package org.nutz.walnut.ext.weixin.hdl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.http.Request;
+import org.nutz.http.Response;
+import org.nutz.http.Request.METHOD;
+import org.nutz.http.Sender;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -18,7 +22,7 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.weixin.bean.WxTemplateData;
 import org.nutz.weixin.spi.WxResp;
 
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value = "cqn", regex = "^(mp)$")
 public class weixin_tmpl implements JvmHdl {
 
     @Override
@@ -116,7 +120,46 @@ public class weixin_tmpl implements JvmHdl {
             // }
 
             // 调用接口
-            WxResp re = wxApi.template_send(to, tid, url, data);
+            WxResp re;
+            // 指明小程序消息模板
+            if (hc.params.is("mp")) {
+                // 准备 URL
+                String token = wxApi.getAccessToken();
+                String apiUrl = "https://api.weixin.qq.com/cgi-bin";
+                apiUrl += "/message/subscribe/send?access_token=" + token;
+
+                // 准备请求体
+                NutMap body = new NutMap();
+                body.put("touser", to);
+                body.put("template_id", tid);
+                body.put("data", data);
+                if (hc.params.has("page")) {
+                    body.put("page", hc.params.get("page"));
+                }
+                if (hc.params.has("mpstate")) {
+                    body.put("miniprogram_state", hc.params.get("mpstate"));
+                }
+                if (hc.params.has("lang")) {
+                    body.put("lang", hc.params.get("lang"));
+                }
+
+                String bodyJson = Json.toJson(body);
+
+                // 发送请求
+                Request req = Request.create(apiUrl, METHOD.POST);
+                req.setData(bodyJson);
+                Response resp = Sender.create(req).send();
+                if (!resp.isOK()) {
+                    throw Er.createf("e.cmd.weixin.tmpl.SendFail",
+                                     "HTTP response %s",
+                                     resp.getStatus());
+                }
+                re = Json.fromJson(WxResp.class, resp.getReader("UTF-8"));
+            }
+            // 默认为公众号消息模板
+            else {
+                re = wxApi.template_send(to, tid, url, data);
+            }
             if (!"true".equals(hc.params.get("quite")))
                 sys.out.println(Json.toJson(re, hc.jfmt));
         }

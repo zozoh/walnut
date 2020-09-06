@@ -460,38 +460,38 @@ public abstract class Things {
         io.set(oT, "^(th_" + countKey + "_(nb|ids|map|list))$");
     }
 
-    public static void runCommand(WnObj oT,
+    public static void runCommand(NutBean context,
                                   String cmd,
                                   WnExecutable executor,
                                   StringBuilder stdOut,
                                   StringBuilder stdErr) {
         // Guard
-        if (null == oT || null == executor || Strings.isBlank(cmd)) {
+        if (null == context || null == executor || Strings.isBlank(cmd)) {
             return;
         }
 
         // 分析命令模板
-        String cmdText = Strings.trim(Tmpl.exec(cmd, oT));
+        String cmdText = Strings.trim(Tmpl.exec(cmd, context));
         String input = null;
 
         // 要读取输入的
         if (cmdText.startsWith("|")) {
             cmdText = cmdText.substring(1);
-            input = Json.toJson(oT, JsonFormat.compact().setQuoteName(true));
+            input = Json.toJson(context, JsonFormat.compact().setQuoteName(true));
         }
 
         // 执行
         executor.exec(cmdText, stdOut, stdErr, input);
     }
 
-    public static String runCommand(WnObj oT, String cmd, WnExecutable executor) {
+    public static String runCommand(NutBean context, String cmd, WnExecutable executor) {
         if (!Strings.isBlank(cmd)) {
-            return runCommands(oT, Lang.array(cmd), executor);
+            return runCommands(context, Lang.array(cmd), executor);
         }
         return null;
     }
 
-    public static String runCommands(WnObj oT, String[] cmds, WnExecutable executor) {
+    public static String runCommands(NutBean context, String[] cmds, WnExecutable executor) {
         if (null == cmds || cmds.length == 0 || null == executor) {
             return null;
         }
@@ -500,7 +500,7 @@ public abstract class Things {
         StringBuilder stdErr = new StringBuilder();
 
         for (String cmd : cmds) {
-            runCommand(oT, cmd, executor, stdOut, stdErr);
+            runCommand(context, cmd, executor, stdOut, stdErr);
 
             // 出错就阻止后续执行
             if (stdErr.length() > 0)
