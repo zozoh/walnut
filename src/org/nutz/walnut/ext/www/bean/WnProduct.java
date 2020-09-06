@@ -1,8 +1,10 @@
 package org.nutz.walnut.ext.www.bean;
 
 import org.nutz.json.JsonField;
+import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.api.io.WnObj;
 
 public class WnProduct {
 
@@ -64,6 +66,9 @@ public class WnProduct {
      */
     @JsonField("price_by")
     private String priceBy;
+
+    @JsonIgnore
+    WnObj obj;
 
     public void updateBy(NutBean bean) {
         title = bean.getString("title");
@@ -200,6 +205,14 @@ public class WnProduct {
 
     public void setPriceBy(String priceBy) {
         this.priceBy = priceBy;
+    }
+
+    public WnObj getObj() {
+        return obj;
+    }
+
+    public void setObj(WnObj obj) {
+        this.obj = obj;
     }
 
 }

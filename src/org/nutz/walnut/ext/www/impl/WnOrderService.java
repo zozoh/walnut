@@ -146,6 +146,7 @@ public class WnOrderService {
         for (WnProduct pro : or.getProducts()) {
             WnObj oPro = io.checkById(pro.getId());
             pro.updateBy(oPro);
+            pro.setObj(oPro);
             // 数量
             int amo = pro.getAmount();
             if (amo < 0) {
@@ -359,8 +360,19 @@ public class WnOrderService {
             throw Er.create("e.www.order.nil_check.products");
         }
 
-        // 设置产品的冗余字段
+        // 检查订单库存，防止超卖
         WnProduct[] pros = or.getProducts();
+        if (null != skuKey && or.isTypeA()) {
+            for (WnProduct pro : pros) {
+                WnObj oPro = pro.getObj();
+                int sku = oPro.getInt(skuKey, 0);
+                if (pro.getAmount() > sku) {
+                    throw Er.create("e.www.order.OutOfStore", pro.getId());
+                }
+            }
+        }
+
+        // 设置产品的冗余字段
         String[] proids = new String[pros.length];
 
         // 第一个商品（因为检查过肯定不为空）
