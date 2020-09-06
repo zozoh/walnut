@@ -94,7 +94,7 @@ code : "210000"
 # 默认为 false 表示仅仅插叙指定地区编码的详情
 # 当然，如果你连 code 也没传，即使本参数为 false 
 # 本接口也只好返回顶级省份列表
-list : true
+list : false
 ```
 
 ### 响应成功(text/json)
