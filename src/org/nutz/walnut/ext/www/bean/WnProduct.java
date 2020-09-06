@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.www.bean;
 
 import org.nutz.json.JsonField;
-import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
@@ -67,7 +66,7 @@ public class WnProduct {
     @JsonField("price_by")
     private String priceBy;
 
-    @JsonIgnore
+    @JsonField(ignore = true)
     WnObj obj;
 
     public void updateBy(NutBean bean) {
