@@ -219,6 +219,59 @@ ticket : "34t6..8aq1"     # 【必】登录会话的票据
 - `e.www.order.nil.addr_ship` : 未指定收货地址
 - `e.www.order.invalid.pay_tp` : 错误的支付类型
 
+--------------------------------------
+## `/pay/pay`根据订单创建支付单
+
+### 请求头
+
+```bash
+HTTP POST /api/pay/buy
+#---------------------------------
+# Query String
+ticket : "34t6..8aq1"     #【必】登录会话的票据
+id     : "69a..e1q"       #【必】订单 ID
+#---------------------------------------------
+#【选】重新设置订单的支付类型
+#  - wx.qrcode  : 微信主动扫二维码付款
+#  - wx.jsapi   : 微信公众号内支付
+#  - wx.scan    : 微信被物理码枪扫付款码支付
+#  - zfb.qrcode : 支付宝主动扫二维码付款
+#  - zfb.scan   : 支付宝被物理码枪扫付款码支付
+# 如果支付类型改变，会强制生成新支付单
+pt     : "wx.qrcode"
+#---------------------------------------------
+#【选】指定为true，强制生成新支付单
+# 默认的，如果生成过支付单，就不再生成新支付单了
+force  : false
+```
+
+### 响应成功(JSON)
+
+```js
+{
+  ok : true,
+  data : {
+    /*请参考订单数据结构 w1-shop.md#order*/
+  }
+}
+```
+
+> @see [商城模型][w1-shop]
+
+### 响应失败(JSON)
+
+```js
+{
+  ok : false,
+  errCode : "e.www.order.nil.products",
+  msg : "xxx"
+}
+```
+其中 `errCode` 可能的值包括：
+
+- `e.www.order.nil.products` : 空订单
+- `e.www.order.invalid.pay_tp` : 错误的支付类型
+
 
 ### 初始化脚本
 
