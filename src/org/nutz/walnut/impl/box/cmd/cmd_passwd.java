@@ -33,6 +33,7 @@ public class cmd_passwd extends JvmExecutor {
             passwd = params.val_check(0);
         }
 
+        // .....................................................
         boolean printOut = false;
         if (passwd.length() < 4) {
             throw Er.create("e.cmd.passwd.tooshort");
@@ -52,7 +53,16 @@ public class cmd_passwd extends JvmExecutor {
         }
         // 否则就用当前会话
         else {
-            u = me;
+            u = sys.auth.checkAccountById(me.getId());
+        }
+
+        // .....................................................
+        // 需要验证旧密码
+        if (params.has("old") && u.hasSaltedPasswd()) {
+            String oldpwd = params.getString("old");
+            if (!u.isMatchedRawPasswd(oldpwd)) {
+                throw Er.create("e.cmd.passwd.old_invalid");
+            }
         }
 
         // .....................................................
