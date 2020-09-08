@@ -12,6 +12,8 @@ public class TiView {
 
     private String modType;
 
+    private String[] components;
+
     private Object actions;
 
     public String getComIcon() {
@@ -44,6 +46,14 @@ public class TiView {
 
     public void setModType(String modType) {
         this.modType = modType;
+    }
+
+    public String[] getComponents() {
+        return components;
+    }
+
+    public void setComponents(String[] components) {
+        this.components = components;
     }
 
     public Object getActions() {
