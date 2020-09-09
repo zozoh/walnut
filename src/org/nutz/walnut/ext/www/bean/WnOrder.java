@@ -28,6 +28,21 @@ public class WnOrder {
     private String[] productIds;
 
     // -------------------------------
+    // 发票信息
+    // -------------------------------
+    @JsonField("invoice_id")
+    private String invoiceId;
+
+    // -------------------------------
+    // 物流信息
+    // -------------------------------
+    @JsonField("waybil_com")
+    private String waybilCompany;
+
+    @JsonField("waybil_nb")
+    private String waybilNumber;
+
+    // -------------------------------
     // 卖家发货地址
     // -------------------------------
     /**
@@ -71,7 +86,7 @@ public class WnOrder {
     private WnCoupon[] coupons;
 
     private String title;
-    
+
     private String note;
 
     /**
@@ -187,6 +202,22 @@ public class WnOrder {
         // 其他关键字段
         or.title = this.title;
         or.note = this.note;
+
+        // 物流
+        or.waybilCompany = this.waybilCompany;
+        or.waybilNumber = this.waybilNumber;
+
+        // 收货
+        or.addrUserCountry = this.addrUserCountry;
+        or.addrUserCode = this.addrUserCode;
+        or.addrUserDoor = this.addrUserDoor;
+
+        // 发货地址
+        or.addrShipCountry = this.addrShipCountry;
+        or.addrShipCode = this.addrShipCode;
+        or.addrShipDoor = this.addrShipDoor;
+
+        // 支付信息
         or.seller = this.seller;
         or.buyerId = this.buyerId;
         or.total = this.total;
@@ -336,6 +367,46 @@ public class WnOrder {
 
     public void setProductIds(String[] productIds) {
         this.productIds = productIds;
+    }
+
+    public String getInvoiceId() {
+        return invoiceId;
+    }
+
+    public void setInvoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
+    }
+
+    public boolean hasWaybilCompany() {
+        return !Strings.isBlank(waybilCompany);
+    }
+
+    public String getWaybilCompany() {
+        return waybilCompany;
+    }
+
+    public void setWaybilCompany(String waybilCompany) {
+        this.waybilCompany = waybilCompany;
+    }
+
+    public boolean hasWaybilNumber() {
+        return !Strings.isBlank(waybilNumber);
+    }
+
+    public String getWaybilNumber() {
+        return waybilNumber;
+    }
+
+    public void setWaybilNumber(String waybilNumber) {
+        this.waybilNumber = waybilNumber;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public boolean hasAddrShip(boolean includeDoor) {

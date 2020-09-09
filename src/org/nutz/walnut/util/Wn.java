@@ -140,10 +140,10 @@ public abstract class Wn {
     }
 
     public static WnObj getObj(WnIo io, NutBean vars, String str) {
-        // 用 ID
-        if (isFullObjId(str)) {
-            return io.get(str);
-        }
+        // 用 ID! 不可以，否则的话，名字为 ID 的对象就取不到了
+        // if (isFullObjId(str)) {
+        // return io.get(str);
+        // }
         // 用路径
         String path = normalizeFullPath(str, vars);
         return io.fetch(null, path);
@@ -153,10 +153,10 @@ public abstract class Wn {
         if (Strings.isBlank(str))
             return null;
 
-        // 用 ID
-        if (isFullObjId(str)) {
-            return io.get(str);
-        }
+        // 用 ID! 不可以，否则的话，名字为 ID 的对象就取不到了
+        // if (isFullObjId(str)) {
+        // return io.get(str);
+        // }
         // 用路径
         return io.fetch(null, str);
     }

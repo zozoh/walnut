@@ -125,7 +125,7 @@ public class cmd_www extends JvmHdlExecutor {
         }
         cmds.add("-br '" + or.getTitle() + "'");
         cmds.add("-bu " + oAccountDir.id() + ":" + bu.getId());
-        cmds.add("-fee " + (int) (or.getFee() * 100f));
+        cmds.add("-fee " + Math.round(or.getFee() * 100f));
         if (or.hasCurrency()) {
             cmds.add("-cur " + or.getCurrency());
         }

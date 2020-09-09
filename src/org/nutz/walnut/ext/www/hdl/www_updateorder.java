@@ -1,18 +1,21 @@
 package org.nutz.walnut.ext.www.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Nums;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.www.bean.WnOrder;
+import org.nutz.walnut.ext.www.bean.WnOrderStatus;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(ajax)$")
-public class www_updateorderfee implements JvmHdl {
+public class www_updateorder implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -57,11 +60,21 @@ public class www_updateorderfee implements JvmHdl {
             }
 
             // 计算支付费用
-            float fee = total + freight - or.getDiscount();
-            or.setFee(fee);
+            float fee = Nums.precision(total + freight - or.getDiscount(), 2);
+            if (or.getFee() != fee) {
+                or.setFee(fee);
 
-            // 更新入订单
-            NutMap meta = or.toMeta("^(fee)$", null);
+                // 更新入订单
+                NutMap meta = or.toMeta("^(fee)$", null);
+                sys.io.appendMeta(oOrder, meta);
+            }
+        }
+
+        // 如果已经填写运单号，则修修改发货状态
+        if (or.getStatus() == WnOrderStatus.OK && or.hasWaybilCompany() && or.hasWaybilNumber()) {
+            or.setShipAt(Wn.now());
+            or.setStatus(WnOrderStatus.SP);
+            NutMap meta = or.toMeta("^(or_st|sp_at)$", null);
             sys.io.appendMeta(oOrder, meta);
         }
 

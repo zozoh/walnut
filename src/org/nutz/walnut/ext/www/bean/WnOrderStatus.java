@@ -25,7 +25,7 @@ public enum WnOrderStatus {
     /**
      * 卖家已发货
      */
-    SD,
+    SP,
     
     /**
      * 订单完成

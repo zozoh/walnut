@@ -58,7 +58,7 @@ public class www_pay implements JvmHdl {
         }
         // -------------------------------
         // 木有支付单的话，创建一个
-        if (!or.hasPayReturn()) {
+        if (!or.hasPayReturn() || force) {
             NutMap upick = hc.params.getAs("upick", NutMap.class);
             cmd_www.prepareToPayOrder(sys, webs, or, bu, upick);
         }
