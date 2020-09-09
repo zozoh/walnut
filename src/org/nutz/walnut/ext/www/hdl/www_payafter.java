@@ -23,7 +23,7 @@ public class www_payafter implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // -------------------------------
-        // 站点/账户/密码/票据
+        // 订单 ID
         String orId = hc.params.val_check(0);
 
         // -------------------------------

@@ -163,7 +163,7 @@ public class cmd_www extends JvmHdlExecutor {
         or.setPayId(payId);
         or.setStatus(WnOrderStatus.WT);
         or.setWaitAt(Wn.now());
-        NutMap orMeta = or.toMeta("^(pay_re|pay_id|st|wt_at|pay_tp)$", null);
+        NutMap orMeta = or.toMeta("^(pay_re|pay_id|or_st|wt_at|pay_tp)$", null);
         webs.getOrderApi().updateOrder(or.getId(), orMeta, sys);
 
     }

@@ -25,7 +25,7 @@ public abstract class WnPays {
     public static final String KEY_CUR = "cur";
     public static final String KEY_FEE = "fee";
     public static final String KEY_PRICE = "price";
-    public static final String KEY_ST = "st"; // @see WnPay3xStatus
+    public static final String KEY_ST = "pay_st"; // @see WnPay3xStatus
     public static final String KEY_RETURN_URL = "pay_return_url";
     public static final String KEY_RE_TP = "re_tp";
     public static final String KEY_RE_OBJ = "re_obj";

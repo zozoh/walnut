@@ -65,7 +65,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         if (oT.getInt("th_live") != Things.TH_LIVE) {
             throw Er.create("e.cmd.thing.updateDead", oT.id());
         }
-        
+
         // 准备回调上下文
         NutMap context = new NutMap();
         context.put("old", oT.clone());
@@ -103,6 +103,15 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
         // 看看是否有附加的创建执行脚本
         Things.runCommands(context, conf.getOnUpdated(), executor);
+
+        if (!reget) {
+            if (null != conf.getOnBeforeUpdate() && conf.getOnBeforeUpdate().length > 0) {
+                reget = true;
+            }
+            if (null != conf.getOnUpdated() && conf.getOnUpdated().length > 0) {
+                reget = true;
+            }
+        }
 
         // 重新获取
         if (reget) {
