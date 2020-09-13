@@ -72,8 +72,8 @@ public class LocalIoBM extends AbstractIoBM {
         super(handles);
 
         // 获取桶目录
-        dBucket = Files.findFile(phBucket);
-        if (null == dBucket) {
+        dBucket = new File(phBucket);
+        if (!dBucket.exists()) {
             // 不自动创建，就自裁！！！
             if (!autoCreate) {
                 throw Er.create("e.io.bm.local.BucketHomeNotFound", phBucket);
@@ -86,8 +86,8 @@ public class LocalIoBM extends AbstractIoBM {
         }
 
         // 获取交换区目录
-        dSwap = Files.findFile(phSWap);
-        if (null == dSwap) {
+        dSwap = new File(phSWap);
+        if (dSwap.exists()) {
             // 不自动创建，就自裁！！！
             if (!autoCreate) {
                 throw Er.create("e.io.bm.local.SwapHomeNotFound", phSWap);

@@ -21,6 +21,7 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
+import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.box.WnBoxService;
@@ -57,6 +58,18 @@ public class WnSetup implements Setup {
 
     @Override
     public void init(NutConfig nc) {
+        log.info("===============================================================");
+        log.info("");
+        log.info("   ( )  _  ( )      (_ )              ( )_    (_____  )");
+        log.info("   | | ( ) | |   _ _ | |  ___   _   _ | ,_)        /'/'");
+        log.info("   | | | | | | /'_` )| |/' _ `\\( ) ( )| |        /'/'  ");
+        log.info("   | (_/ \\_) |( (_| || || ( ) || (_) || |_     /'/'    ");
+        log.info("   `\\___x___/'`\\__,_|___|_) (_)`\\___/'`\\__)   (_/      ");
+        log.info("                                                   ");
+        log.info("");
+        log.info("===============================================================");
+        log.infof("                %s", WnVersion.get());
+        log.info("===============================================================");
         // 写入自身进程id
         try {
             String WL_PID_PATH = System.getenv("WL_PID_PATH");
@@ -193,6 +206,19 @@ public class WnSetup implements Setup {
         // 初始化Cron服务
         if (conf.getBoolean("crontab.enable", true))
             ioc.get(WnCronService.class);
+        
+        log.info("===============================================================");
+        log.info("");
+        log.info("   ( )  _  ( )      (_ )              ( )_    (_____  )");
+        log.info("   | | ( ) | |   _ _ | |  ___   _   _ | ,_)        /'/'");
+        log.info("   | | | | | | /'_` )| |/' _ `\\( ) ( )| |        /'/'  ");
+        log.info("   | (_/ \\_) |( (_| || || ( ) || (_) || |_     /'/'    ");
+        log.info("   `\\___x___/'`\\__,_|___|_) (_)`\\___/'`\\__)   (_/      ");
+        log.info("                                                   ");
+        log.info("");
+        log.info("===============================================================");
+        log.infof("                %s ready for you now", WnVersion.get());
+        log.info("===============================================================");
     }
 
     private void __load_init_setups(WnConfig conf) {
