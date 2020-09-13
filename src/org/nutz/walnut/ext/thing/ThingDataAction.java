@@ -60,7 +60,7 @@ public abstract class ThingDataAction<T> extends ThingAction<T> {
                 String rph = Wn.appendPath(oT.id(), dirName);
                 oDir = io.createIfNoExists(oData, rph, WnRace.DIR);
             } else {
-                oDir = oData;
+                oDir = io.createIfNoExists(oData, oT.id(), WnRace.DIR);
             }
         }
         return oDir;
