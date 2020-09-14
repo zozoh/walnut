@@ -348,6 +348,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
+    public WnObj mount(String mnt) {
+        return this;
+    }
+
+    @Override
+    public WnObj mountRootId(String mrid) {
+        return this;
+    }
+
+    @Override
     public boolean isMount() {
         return true;
     }
@@ -640,16 +650,6 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj race(WnRace race) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public WnObj mount(String mnt) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public WnObj mountRootId(String mrid) {
         throw Lang.noImplement();
     }
 
