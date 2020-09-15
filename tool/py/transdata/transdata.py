@@ -36,10 +36,10 @@ def printUsage():
 #===================================================
 # 桶的主目录: 这个是 Walnut 老数据的桶目录
 # 下面就是 om/t4djk9umhq0r0fklhveq1sge/ 这样的桶文件夹了
-phBucketHome = "D:/DB/walnut/rt/bucket"
+phBucketHome = "D:/DB/strato/rt/bucket"
 #
 # 目标目录: 要将上面的桶目录迁移的目标目录
-phTargetHome = "D:/DB/walnut/io/buck"
+phTargetHome = "D:/DB/strato/io/buck"
 #
 # Mongo 数据库连接
 _mongo = {
@@ -47,7 +47,7 @@ _mongo = {
   "port": 27017,
   "user": None,
   "passwd": None,
-  "db": "walnut"
+  "db": "strato"
 }
 # Redis 数据库连接
 _redis = {
@@ -55,7 +55,7 @@ _redis = {
   "port": 6379,
   "user": None,
   "passwd": None,
-  "db": 0
+  "db": 5
 }
 #===================================================
 # 获取命令行参数

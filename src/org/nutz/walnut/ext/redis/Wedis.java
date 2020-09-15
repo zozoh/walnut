@@ -109,7 +109,7 @@ public abstract class Wedis {
         try {
             T re = run.exec(jed);
             if (log.isDebugEnabled()) {
-                String msg = re.toString();
+                String msg = null == re ? "~nil" : re.toString();
                 if (msg.length() > 20) {
                     msg = msg.substring(0, 20) + "...";
                 }
@@ -120,7 +120,7 @@ public abstract class Wedis {
         // 打印错误
         catch (Throwable e) {
             if (log.isErrorEnabled()) {
-                log.errorf("wedis(%s) error: %s", e.getMessage());
+                log.errorf("wedis(%s) error: %s", conf.toString(), e.getMessage());
             }
             throw Er.wrap(e);
         }

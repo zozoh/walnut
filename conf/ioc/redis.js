@@ -14,7 +14,9 @@ var ioc = {
             password : {
                 java : '$conf.get("redis-password")'
             },
-            database : 0
+            database : {
+                java : '$conf.getInt("redis-db-refer", 0)'
+            }
         }
     },
     redisConfForIoBM : {
@@ -32,7 +34,9 @@ var ioc = {
             password : {
                 java : '$conf.get("redis-password")'
             },
-            database : 1
+            database : {
+                java : '$conf.getInt("redis-db-bm", 1)'
+            }
         }
     },
     redisConfForIoHandle : {
@@ -50,7 +54,9 @@ var ioc = {
             password : {
                 java : '$conf.get("redis-password")'
             },
-            database : 2
+            database : {
+                java : '$conf.getInt("redis-db-handle", 2)'
+            }
         }
     },
     redisConfForLockApi : {
@@ -68,7 +74,9 @@ var ioc = {
             password : {
                 java : '$conf.get("redis-password")'
             },
-            database : 2,
+            database : {
+                java : '$conf.getInt("redis-db-lock", 2)'
+            },
             setup : {
                 "prefix" : {
                     java: '$conf.get("lock-redis-prefix", "lock:")'
