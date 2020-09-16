@@ -93,14 +93,14 @@ public class WnExpiObjTableCleaner implements Atom {
                     if (o.isExpired()) {
                         io.delete(o);
                         count++;
-                        log.debugf(" %d. rm %d", i, oid);
+                        log.debugf(" %d. rm %s", i, oid);
                     }
                     // 其实未过期，直接从表格里移除，
                     // 因为，如果后面还有人插入这个对象的过期记录，
                     // 这个记录因为没有 hold 和 owner 就不会被后面的 clean 操作删除
                     else {
                         table.remove(oid);
-                        log.debugf(" %d. no expired %d", i, oid);
+                        log.debugf(" %d. no expired %s", i, oid);
                     }
                 }
                 // 迷失的对象，打印一下
