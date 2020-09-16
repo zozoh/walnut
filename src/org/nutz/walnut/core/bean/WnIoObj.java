@@ -608,7 +608,19 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean isMount() {
-        return this.has("mnt");
+        if (this.has("mnt") || OID().hasHomeId())
+            return true;
+
+        // 如果设置了映射管理器，那么看看自己的父
+        if (null != this.indexer && this.hasParent()) {
+            WnObj p = this.parent();
+            if (null != p) {
+                return p.isMount();
+            }
+        }
+
+        // 那就是木有咯
+        return false;
     }
 
     /**
