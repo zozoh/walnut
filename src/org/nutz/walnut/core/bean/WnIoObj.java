@@ -608,8 +608,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean isMount() {
-        String mnt = mount();
-        return !Strings.isBlank(mnt);
+        return this.has("mnt");
     }
 
     /**
@@ -683,7 +682,8 @@ public class WnIoObj extends NutMap implements WnObj {
             WnObj oP = indexer.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
-                //throw Lang.makeThrow("NPE parent: %s/%s > %s", pid, this.id(), this.name());
+                // throw Lang.makeThrow("NPE parent: %s/%s > %s", pid,
+                // this.id(), this.name());
                 return null;
             }
             // 调用这个函数，触发 pid|ph... 等一系列属性自动修改
