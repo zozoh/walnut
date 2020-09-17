@@ -258,6 +258,9 @@ public class WnOrderService {
         price = total + freight;
         fee = total + freight - discount;
 
+        // 运费不要小数
+        freight = Math.round(freight);
+
         // 更新订单
         or.setTotal(total);
         or.setFreight(freight);
