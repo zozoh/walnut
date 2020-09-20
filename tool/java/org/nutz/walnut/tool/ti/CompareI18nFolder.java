@@ -1,4 +1,4 @@
-package org.nutz.walnut.tool.thing;
+package org.nutz.walnut.tool.ti;
 
 import java.io.File;
 
