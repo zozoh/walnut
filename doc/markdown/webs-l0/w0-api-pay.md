@@ -173,9 +173,18 @@ ticket : "34t6..8aq1"     # 【必】登录会话的票据
   "pay_tp" : "wx.qrcode"
 
   //【选】需要物流信息的订单需要填写
-  "addr_ship_country" : "CN",         // 国家编码，默认 CN
-  "addr_user_code" : "110108017000",  // 收货地址（12位地址编码）
-  "addr_user_door" : "xxx xx A-302",  // 详细到门牌的地址
+  addr_user_country : "CN",             // 国家编码，默认 CN
+  addr_user_code    : "110108017000",   // 12位地址编码
+  addr_user_door    : "xxx xx A-302",   // 详细到门牌的地址
+  user_name  : "xxx"      // 联系人姓名
+  user_phone : "139.."    // 联系人手机
+  user_email : "zz@z.com" // 联系人邮箱
+
+  // 下面的是地址的冗余信息，通常可以通过 addr_user_code 查表得到
+  addr_user_province : "Beijing"  // 省/直辖市
+  addr_user_city     : "BeiJing"  // 城市
+  addr_user_area     : "BeiJing"  // 区县
+  addr_user_street   : "xxx"      // 乡镇/街道
 
   // 【选】发票信息
   "invoice_id" : ID

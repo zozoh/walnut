@@ -21,6 +21,9 @@ public class WnOrder {
 
     private WnProduct[] products;
 
+    @JsonField("pro_c")
+    private int productCount;
+
     @JsonField("proid0")
     private String productId0;
 
@@ -81,9 +84,58 @@ public class WnOrder {
     private String addrUserDoor;
 
     /**
+     * 【冗余】省/直辖市
+     */
+    @JsonField("addr_user_province")
+    private String addrUserProvince;
+
+    /**
+     * 【冗余】城市
+     */
+    @JsonField("addr_user_city")
+    private String addrUserCity;
+
+    /**
+     * 【冗余】区县
+     */
+    @JsonField("addr_user_area")
+    private String addrUserArea;
+
+    /**
+     * 【冗余】乡镇/街道
+     */
+    @JsonField("addr_user_street")
+    private String addrUserStreet;
+
+    /**
+     * 联系人姓名
+     */
+    @JsonField("user_name")
+    private String userName;
+
+    /**
+     * 联系人手机
+     */
+    @JsonField("user_phone")
+    private String userPhone;
+
+    /**
+     * 联系人邮箱
+     */
+    @JsonField("user_email")
+    private String userEmail;
+
+    // -------------------------------
+    // 优惠券
+    // -------------------------------
+    /**
      * 优惠券列表
      */
     private WnCoupon[] coupons;
+
+    // -------------------------------
+    // 其他订单信息
+    // -------------------------------
 
     private String title;
 
@@ -190,6 +242,7 @@ public class WnOrder {
                     or.productId0 = pro.getId();
                 }
             }
+            or.productCount = this.productCount;
         }
         // 优惠券
         if (null != this.coupons) {
@@ -211,6 +264,13 @@ public class WnOrder {
         or.addrUserCountry = this.addrUserCountry;
         or.addrUserCode = this.addrUserCode;
         or.addrUserDoor = this.addrUserDoor;
+        or.addrUserProvince = this.addrUserProvince;
+        or.addrUserCity = this.addrUserCity;
+        or.addrUserArea = this.addrUserArea;
+        or.addrUserStreet = this.addrUserStreet;
+        or.userName = this.userName;
+        or.userEmail = this.userEmail;
+        or.userPhone = this.userPhone;
 
         // 发货地址
         or.addrShipCountry = this.addrShipCountry;
@@ -353,6 +413,14 @@ public class WnOrder {
         this.products = products;
     }
 
+    public int getProductCount() {
+        return productCount;
+    }
+
+    public void setProductCount(int productCount) {
+        this.productCount = productCount;
+    }
+
     public String getProductId0() {
         return productId0;
     }
@@ -471,6 +539,62 @@ public class WnOrder {
 
     public void setAddrUserDoor(String addrUserDoor) {
         this.addrUserDoor = addrUserDoor;
+    }
+
+    public String getAddrUserProvince() {
+        return addrUserProvince;
+    }
+
+    public void setAddrUserProvince(String addrUserProvince) {
+        this.addrUserProvince = addrUserProvince;
+    }
+
+    public String getAddrUserCity() {
+        return addrUserCity;
+    }
+
+    public void setAddrUserCity(String addrUserCity) {
+        this.addrUserCity = addrUserCity;
+    }
+
+    public String getAddrUserArea() {
+        return addrUserArea;
+    }
+
+    public void setAddrUserArea(String addrUserArea) {
+        this.addrUserArea = addrUserArea;
+    }
+
+    public String getAddrUserStreet() {
+        return addrUserStreet;
+    }
+
+    public void setAddrUserStreet(String addrUserStreet) {
+        this.addrUserStreet = addrUserStreet;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public boolean hasCoupons() {

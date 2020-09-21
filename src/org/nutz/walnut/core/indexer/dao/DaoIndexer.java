@@ -365,8 +365,11 @@ public class DaoIndexer extends AbstractIoDataIndexer {
             // 执行
             dao.update(entity, o, actived);
 
-            if (returnNew)
-                return dao.fetch(entity, cnd);
+            if (returnNew) {
+                WnIoObj o3 = dao.fetch(entity, cnd);
+                o3.setIndexer(this);
+                return o3;
+            }
         }
         return old;
     }

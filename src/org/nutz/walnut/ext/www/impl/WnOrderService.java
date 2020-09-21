@@ -365,12 +365,21 @@ public class WnOrderService {
 
         // 检查订单库存，防止超卖
         WnProduct[] pros = or.getProducts();
+        int count = 0;
         if (null != skuKey && or.isTypeA()) {
             for (WnProduct pro : pros) {
                 WnObj oPro = pro.getObj();
+                int amo = pro.getAmount();
+                // 零购买
+                if (amo <= 0)
+                    continue;
+                count += amo;
+                // 无视库存
+                if (!oPro.has(skuKey))
+                    continue;
                 int sku = oPro.getInt(skuKey, 0);
-                if (pro.getAmount() > sku) {
-                    throw Er.create("e.www.order.OutOfStore", pro.getId());
+                if (amo > sku) {
+                    throw Er.create("e.www.order.OutOfStore", pro.getTitle());
                 }
             }
         }
@@ -386,6 +395,7 @@ public class WnOrderService {
             proids[i] = pros[i].getId();
         }
         or.setProductIds(proids);
+        or.setProductCount(count);
 
         // 根据付款类型找到销售方
         String ptPrefix = or.getPayTypePrefix();
@@ -420,10 +430,14 @@ public class WnOrderService {
 
         // 最后根据订单，依次减去商品的库存
         if (null != skuKey && or.isTypeA()) {
-            pros = or.getProducts();
             for (WnProduct pro : pros) {
                 // 无数量的商品不管（虽然不太可能走到这个分支，还是防一道吧）
                 if (pro.getAmount() <= 0)
+                    continue;
+
+                // 无视库存
+                WnObj oPro = pro.getObj();
+                if (null != oPro && !oPro.has("sku"))
                     continue;
 
                 // 减去商品的库存

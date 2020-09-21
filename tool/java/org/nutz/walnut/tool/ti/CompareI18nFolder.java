@@ -41,7 +41,8 @@ public class CompareI18nFolder {
             System.out.printf(" > check %s\n", lang0);
             for (String key : all.keySet()) {
                 if (!map0.has(key)) {
-                    System.out.printf("  - %s\n", key);
+                    Object val = map1.get(key);
+                    System.out.printf("  \"%s\" : \"%s\",\n", key, val);
                 }
             }
             System.out.println();
@@ -49,7 +50,8 @@ public class CompareI18nFolder {
             System.out.printf(" > check %s\n", lang1);
             for (String key : all.keySet()) {
                 if (!map1.has(key)) {
-                    System.out.printf("  - %s\n", key);
+                    Object val = map0.get(key);
+                    System.out.printf("  \"%s\" : \"%s\",\n", key, val);
                 }
             }
             System.out.println();

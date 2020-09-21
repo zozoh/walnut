@@ -198,6 +198,12 @@ addr_user_door    : "xxx xx A-302",   # 详细到门牌的地址
 user_name  : "xxx"      # 联系人姓名
 user_phone : "139.."    # 联系人手机
 user_email : "zz@z.com" # 联系人邮箱
+
+# 下面的是地址的冗余信息，通常可以通过 addr_user_code 查表得到
+addr_user_province : "Beijing"  # 省/直辖市
+addr_user_city     : "BeiJing"  # 城市
+addr_user_area     : "BeiJing"  # 区县
+addr_user_street   : "xxx"      # 乡镇/街道
 #-----------------------------
 # 财务信息
 #-----------------------------
