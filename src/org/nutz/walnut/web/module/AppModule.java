@@ -3,7 +3,6 @@ package org.nutz.walnut.web.module;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +19,6 @@ import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Attr;
@@ -45,12 +43,15 @@ import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.bean.WnApp;
+import org.nutz.walnut.web.bean.WnLoginPage;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.impl.WnAppService;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnAddCookieViewWrapper;
 import org.nutz.walnut.web.view.WnObjDownloadView;
+import org.nutz.web.WebException;
+import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxView;
 
 @IocBean
@@ -64,14 +65,48 @@ public class AppModule extends AbstractWnModule {
     @Inject
     protected WnAppService apps;
 
+    /**
+     * 打开系统默认登录界面
+     * 
+     * @return 登录界面视图
+     */
+    @At("/login/**")
+    public View login(String rph,
+                      @Attr("wn_www_host") String host,
+                      @ReqHeader("If-None-Match") String etag,
+                      @ReqHeader("Range") String range,
+                      HttpServletResponse resp) {
+
+        // 看看是否已经登录了
+        String ticket = Wn.WC().getTicket();
+        WnAuthSession se = auth().getSession(ticket);
+        if (null != se && !se.isDead()) {
+            return __get_session_default_view(se);
+        }
+
+        // 渲染登陆页面
+        WnLoginPage login = new WnLoginPage(io(), host, etag, range, resp);
+        return login.genView(rph);
+    }
+
+    /**
+     * 打开一个应用
+     * 
+     * @param appName
+     *            应用名
+     * @param str
+     *            主对象
+     * @param etag
+     *            应用主 HTML 的指纹，以便 403
+     * @return 应用视图
+     */
     @Filters(@By(type = WnCheckSession.class))
     @At("/open/**")
     @Fail("jsp:jsp.show_text")
     public View open(String appName,
                      @Param("ph") String str,
-                     @Param("m") boolean meta,
-                     @ReqHeader("If-None-Match") String etag)
-            throws UnsupportedEncodingException {
+                     @ReqHeader("If-None-Match") String etag,
+                     HttpServletResponse resp) {
 
         try {
             // 得到应用
@@ -90,7 +125,7 @@ public class AppModule extends AbstractWnModule {
             if (etag != null && sha1.equals(etag)) {
                 return V_304;
             }
-            Mvcs.getResp().setHeader("ETag", sha1);
+            resp.setHeader("ETag", sha1);
             return new ViewWrapper(new RawView("html"), html);
         }
         catch (Exception e) {
@@ -98,6 +133,30 @@ public class AppModule extends AbstractWnModule {
         }
     }
 
+    /**
+     * 加载应用内资源
+     * 
+     * @param appName
+     *            应用名
+     * @param rsName
+     *            资源路径
+     * @param mimeType
+     *            资源 MIME
+     * @param download
+     *            是否下载
+     * @param ua
+     *            下载的 UA
+     * @param etag
+     *            本地缓存指纹
+     * @param range
+     *            Range Download
+     * @param req
+     *            请求对象
+     * @param resp
+     *            象用对象
+     * @return 资源视图
+     * @throws IOException
+     */
     @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/load/?/**")
     @Ok("void")
@@ -169,6 +228,19 @@ public class AppModule extends AbstractWnModule {
         }
     }
 
+    /**
+     * 运行一条 Walnut 指令
+     * 
+     * @param appName
+     * @param mimeType
+     * @param metaOutputSeparator
+     * @param PWD
+     * @param cmdText
+     * @param in
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
     @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/run/**")
     @Ok("void")
@@ -204,6 +276,46 @@ public class AppModule extends AbstractWnModule {
     }
 
     /**
+     * 登录系统会话
+     * 
+     * @param name
+     *            用户名
+     * @param passwd
+     *            密码
+     * @param ajax
+     *            返回的会话是否用 Ajax 形式包裹
+     * @return 输出视图
+     */
+    @At
+    public View sys_login_by_passwd(@Param("name") String name,
+                                    @Param("passwd") String passwd,
+                                    @Param("ajax") boolean ajax,
+                                    @ReqHeader("Refer") String refer) {
+        refer = Strings.sBlank(refer, "/");
+        try {
+            WnAuthSession se = auth().loginByPasswd(name, passwd);
+            // 得到用户的主应用
+            return __get_session_default_view(se);
+        }
+        // 出错了
+        catch (WebException e) {
+            Object reo = Ajax.fail().setErrCode(e.getKey()).setData(e.getReason());
+            // 返回视图
+            if (ajax) {
+                return new ViewWrapper(new AjaxView(), reo);
+            }
+            // 返回到原先地址
+            return new ServerRedirectView(refer);
+        }
+    }
+
+    private View __get_session_default_view(WnAuthSession se) {
+        String appName = se.getVars().getString("OPEN", "wn.console");
+        String url = "/a/open/" + appName;
+        return new ViewWrapper(new WnAddCookieViewWrapper(url), se);
+    }
+
+    /**
      * 采用域站点账户模型登录
      * 
      * @param siteId
@@ -229,6 +341,7 @@ public class AppModule extends AbstractWnModule {
         Object reo = null;
         WnDomainService domains = new WnDomainService(io());
         WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
+        String redirectPath = "/";
         // -------------------------------------------------
         if (null == si.oWWW) {
             if (ajax) {
@@ -246,7 +359,9 @@ public class AppModule extends AbstractWnModule {
             // 如果采用域用户登陆，则校验系统账户
             // 并返回 CookieView
             if (si.oHome.isSameName(name)) {
-                reo = auth().loginByPasswd(name, passwd);
+                WnAuthSession se = auth().loginByPasswd(name, passwd);
+                redirectPath = se.getVars().getString("OPEN", "/");
+                reo = se;
             }
             // 采用域用户库来登陆
             else {
@@ -267,6 +382,9 @@ public class AppModule extends AbstractWnModule {
                     // 更新会话元数据
                     __update_auth_session(se, si.webs, byType, byValue);
 
+                    // 获取重定向路径
+                    redirectPath = se.getVars().getString("OPEN", "/");
+
                     // 准备返回值
                     reo = se;
                 }
@@ -284,7 +402,7 @@ public class AppModule extends AbstractWnModule {
             }
             // 重定向视图
             else {
-                view = new WnAddCookieViewWrapper("/");
+                view = new WnAddCookieViewWrapper(redirectPath);
             }
             // 返回
             return new ViewWrapper(view, reo);
@@ -298,7 +416,7 @@ public class AppModule extends AbstractWnModule {
         if (ajax) {
             view = new AjaxView();
         } else {
-            view = new ServerRedirectView("/");
+            view = new ServerRedirectView(redirectPath);
         }
         // -----------------------------------------
         // 包裹返回
