@@ -14,9 +14,9 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class thing_init implements JvmHdl {
 
     private static final String DFT_THING_JSON_PATH = thing_init.class.getPackage()
-                                                                    .getName()
-                                                                    .replace('.', '/')
-                                                    + "/dft_thing.json";
+                                                                      .getName()
+                                                                      .replace('.', '/')
+                                                      + "/dft_thing.json";
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
@@ -39,9 +39,9 @@ public class thing_init implements JvmHdl {
             sys.out.printlnf("%-12s: %s", "./index", oIndex.id());
 
         // 确保有注释目录
-        WnObj oComment = sys.io.createIfNoExists(oTS, "comment", WnRace.DIR);
-        if (!isQ)
-            sys.out.printlnf("%-12s: %s", "./comment", oComment.id());
+        // WnObj oComment = sys.io.createIfNoExists(oTS, "comment", WnRace.DIR);
+        // if (!isQ)
+        // sys.out.printlnf("%-12s: %s", "./comment", oComment.id());
 
         // 确保有 data 目录
         WnObj oData = sys.io.createIfNoExists(oTS, "data", WnRace.DIR);
@@ -51,12 +51,12 @@ public class thing_init implements JvmHdl {
         if (!oData.isType("th_data")) {
             sys.io.set(oData.type("th_data"), "^(tp)$");
         }
-        //---------------------------------------------------
+        // ---------------------------------------------------
         // 确保有 thing.json
         WnObj oDef = sys.io.createIfNoExists(oTS, "thing.json", WnRace.FILE);
         if (!isQ)
             sys.out.printlnf("%-12s: %s", "./thing.json", oDef.id());
-        
+
         // 试图读取一下
         String json = sys.io.readText(oDef);
 
