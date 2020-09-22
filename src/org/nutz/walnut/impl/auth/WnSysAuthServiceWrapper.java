@@ -23,6 +23,7 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
     private String rootDefaultPasswd;
     private long seDftDu;
     private long seTmpDu;
+    private String defaultQuitUrl;
 
     // 下面这俩是 on_create 创建的
     private WnAuthServiceImpl impl;
@@ -31,7 +32,7 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
     public void on_create() {
         WnAuthSetup setup = new WnSysAuthSetup(io, seDftDu, seTmpDu);
         impl = new WnAuthServiceImpl(io, setup);
-
+        impl.setDefaultQuitUrl(defaultQuitUrl);
         // 无论如何，确保有根用户
         root = impl.getAccount("root");
         if (null == root) {
@@ -63,6 +64,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
 
     public void setSeTmpDu(long seTmpDu) {
         this.seTmpDu = seTmpDu;
+    }
+
+    public void setDefaultQuitUrl(String defaultQuitUrl) {
+        this.defaultQuitUrl = defaultQuitUrl;
     }
 
     public WnAccount createAccount(WnAccount user) {

@@ -42,6 +42,7 @@ import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.bean.WnLoginPage;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -49,6 +50,7 @@ import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.impl.WnAppService;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnAddCookieViewWrapper;
+import org.nutz.walnut.web.view.WnDelCookieViewWrapper;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
@@ -65,17 +67,43 @@ public class AppModule extends AbstractWnModule {
     @Inject
     protected WnAppService apps;
 
-    /**
-     * 打开系统默认登录界面
-     * 
-     * @return 登录界面视图
-     */
-    @At("/login/**")
-    public View login(String rph,
+    @At("/login")
+    public View login(HttpServletRequest req,
+                      @Attr("wn_www_grp") String domainName,
                       @Attr("wn_www_host") String host,
                       @ReqHeader("If-None-Match") String etag,
                       @ReqHeader("Range") String range,
                       HttpServletResponse resp) {
+        String uri = req.getRequestURI();
+        if (uri.endsWith("/")) {
+            return login_page(null, domainName, host, etag, range, resp);
+        }
+        return new ServerRedirectView("/a/login/");
+    }
+
+    /**
+     * 打开系统登录界面
+     * 
+     * @param domainName
+     *            （来自 "wn_www_grp"）本次请求映射的 domain
+     * @param host
+     *            （来自 "wn_www_host"）本次请求映射的 host
+     * @param etag
+     *            登录页（资源）的 ETag
+     * @param range
+     *            登录页的（资源） RangeDownload
+     * @param resp
+     *            响应对象
+     * 
+     * @return 登录界面视图
+     */
+    @At("/login/**")
+    public View login_page(String rph,
+                           @Attr("wn_www_grp") String domainName,
+                           @Attr("wn_www_host") String host,
+                           @ReqHeader("If-None-Match") String etag,
+                           @ReqHeader("Range") String range,
+                           HttpServletResponse resp) {
 
         // 看看是否已经登录了
         String ticket = Wn.WC().getTicket();
@@ -84,8 +112,20 @@ public class AppModule extends AbstractWnModule {
             return __get_session_default_view(se);
         }
 
+        // 已经得到域用户
+        WnAccount domainUser = null;
+        if (null != domainName) {
+            domainUser = auth().getAccount(domainName);
+        }
+
         // 渲染登陆页面
-        WnLoginPage login = new WnLoginPage(io(), host, etag, range, resp);
+        WnLoginPage login = new WnLoginPage();
+        login.setIo(io());
+        login.setDomainUser(domainUser);
+        login.setHost(host);
+        login.setEtag(etag);
+        login.setRange(range);
+        login.setResp(resp);
         return login.genView(rph);
     }
 
@@ -284,17 +324,24 @@ public class AppModule extends AbstractWnModule {
      *            密码
      * @param ajax
      *            返回的会话是否用 Ajax 形式包裹
+     * @param referer
+     *            来源 URL
      * @return 输出视图
      */
     @At
     public View sys_login_by_passwd(@Param("name") String name,
                                     @Param("passwd") String passwd,
                                     @Param("ajax") boolean ajax,
-                                    @ReqHeader("Refer") String refer) {
-        refer = Strings.sBlank(refer, "/");
+                                    @ReqHeader("Referer") String referer) {
+        referer = Strings.sBlank(referer, "/");
         try {
             WnAuthSession se = auth().loginByPasswd(name, passwd);
-            // 得到用户的主应用
+            // 如果是 Ajax 视图
+            if (ajax) {
+                Object reo = se.toMapForClient();
+                return new ViewWrapper(new WnAddCookieViewWrapper(new AjaxView()), reo);
+            }
+            // 直接跳转到用户的主应用
             return __get_session_default_view(se);
         }
         // 出错了
@@ -305,7 +352,7 @@ public class AppModule extends AbstractWnModule {
                 return new ViewWrapper(new AjaxView(), reo);
             }
             // 返回到原先地址
-            return new ServerRedirectView(refer);
+            return new ServerRedirectView(referer);
         }
     }
 
@@ -313,6 +360,34 @@ public class AppModule extends AbstractWnModule {
         String appName = se.getVars().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
         return new ViewWrapper(new WnAddCookieViewWrapper(url), se);
+    }
+
+    /**
+     * 注销当前系统会话
+     * 
+     * @param ajax
+     *            返回的会话是否用 Ajax 形式包裹
+     * @return 输出视图
+     */
+    @At
+    public View sys_logout(@Param("ajax") boolean ajax) {
+        String entry = conf.getSysEntryUrl();
+        View view = ajax ? new AjaxView() : new ServerRedirectView(entry);
+        WnContext wc = Wn.WC();
+        if (wc.hasTicket()) {
+            String ticket = wc.getTicket();
+            // 退出登录
+            WnAuthSession pse = auth().logout(ticket, 0);
+
+            // 退到父会话
+            if (null != pse && !pse.isDead()) {
+                Object reo = pse.toMapForClient();
+                return new ViewWrapper(new WnAddCookieViewWrapper(view), reo);
+            }
+        }
+
+        // 直接删除会话收工
+        return new WnDelCookieViewWrapper(view);
     }
 
     /**

@@ -24,6 +24,9 @@ var ioc = {
             },
             seTmpDu : {
                 java : '$conf.getLong("se-tmp-du", 60)'
+            },
+            defaultQuitUrl : {
+                java : '$conf.get("sys-entry-url", "/a/login/")'
             }
         }
     },

@@ -40,6 +40,8 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
     private WnAccountLoader accountLoader;
 
+    private String defaultQuitUrl;
+
     public WnAuthServiceImpl(WnIo io, WnAuthSetup setup) {
         super(io);
         this.io = io;
@@ -693,6 +695,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         me = new WnAccount(oU);
         se.setMe(me);
 
+        // 登出的 URL
+        if (!se.getVars().has("QUIT") && !Strings.isBlank(this.defaultQuitUrl)) {
+            se.getVars().put("QUIT", this.defaultQuitUrl);
+        }
+
         // 保存会话的环境变量
         this.saveSessionVars(se);
 
@@ -733,6 +740,14 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
     @Override
     public WnAccount getAccountById(String uid) {
         return accountLoader.getAccountById(uid);
+    }
+
+    public String getDefaultQuitUrl() {
+        return defaultQuitUrl;
+    }
+
+    public void setDefaultQuitUrl(String defaultQuitUrl) {
+        this.defaultQuitUrl = defaultQuitUrl;
     }
 
 }

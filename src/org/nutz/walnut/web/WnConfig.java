@@ -84,9 +84,13 @@ public class WnConfig extends WebConfig {
         return o;
     }
 
-    public NutMap getEntryPages() {
-        String json = this.get("entry-pages", "{}");
-        return Json.fromJson(NutMap.class, json);
+    // public NutMap getEntryPages() {
+    // String json = this.get("entry-pages", "{}");
+    // return Json.fromJson(NutMap.class, json);
+    // }
+
+    public String getSysEntryUrl() {
+        return this.get("sys-entry-url", "/a/login/");
     }
 
 }

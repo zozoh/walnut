@@ -15,6 +15,11 @@ public class WnDelCookieViewWrapper implements View {
     private String cookieName;
 
     private View view;
+    
+    public WnDelCookieViewWrapper(View view) {
+        this.view = view;
+        this.cookieName = Wn.AT_SEID;
+    }
 
     public WnDelCookieViewWrapper(String value) {
         String[] ss = Strings.splitIgnoreBlank(value);
