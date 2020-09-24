@@ -157,6 +157,25 @@ public class WnSetup implements Setup {
             }
         }
 
+        // 看看默认的系统 hook 是否被创建了出来
+        log.info("check default sys hooks ...");
+        WnObj oSysHookWriteHome = io.createIfNoExists(null, "/sys/hook/write", WnRace.DIR);
+        WnObj oHookCreateThumb = io.fetch(oSysHookWriteHome, "create_thumbnail");
+        if (null == oHookCreateThumb) {
+            log.info("  ++ /sys/hook/write/create_thumbnail");
+            oHookCreateThumb = io.createIfNoExists(oSysHookWriteHome,
+                                                   "create_thumbnail",
+                                                   WnRace.FILE);
+            io.writeText(oHookCreateThumb, "iimg id:${id} -thumb 256x256 -Q");
+            NutMap hookBy = Lang.map("mime", "^image/");
+            hookBy.put("ph", "!^/home/.+/(.thumbnail/gen|.publish/gen|www)");
+            NutMap meta = Lang.map("hook_by", Lang.list(hookBy));
+            io.appendMeta(oHookCreateThumb, meta);
+
+        } else {
+            log.info("  == /sys/hook/write/create_thumbnail");
+        }
+
         // 获取沙箱服务
         boxes = Wn.Service.boxes(ioc);
 

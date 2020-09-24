@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.thing.util;
 
-import java.util.Map;
-
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
@@ -24,19 +22,21 @@ public class ThingCommandProton extends Proton<String> {
         // 合成新的上下文
         NutMap map = new NutMap();
 
+        // 合并 valContext
+        map.putAll(valContext);
+
         // 合并更新后的数据对象
         if (null != oT) {
             map.putAll(oT);
         }
 
-        // 合并 valContext
-        if (null != valContext) {
-            for (Map.Entry<String, Object> en : valContext.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                map.put("@" + key, val);
-            }
-        }
+        // if (null != valContext) {
+        // for (Map.Entry<String, Object> en : valContext.entrySet()) {
+        // String key = en.getKey();
+        // Object val = en.getValue();
+        // map.put("@" + key, val);
+        // }
+        // }
 
         // 展开模板
         return cmdTmpl.render(map);
