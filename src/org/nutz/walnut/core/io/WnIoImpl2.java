@@ -301,9 +301,9 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
-        if(null == path)
+        if (null == path)
             return null;
-        
+
         if (path.startsWith("/")) {
             p = null;
         }
@@ -669,6 +669,19 @@ public class WnIoImpl2 implements WnIo {
         // 默认从自己的根开始
         if (null == p) {
             p = this.getRoot();
+        }
+
+        // ................................................
+        // 尝试从后查找，如果有 id:xxx 那么就截断，因为前面的就木有意义了
+        for (int i = toIndex - 1; i >= fromIndex; i--) {
+            String nm = paths[i];
+            if (nm.startsWith("id:")) {
+                p = this.get(nm.substring(3));
+                if (null == p)
+                    return null;
+                fromIndex = i + 1;
+                break;
+            }
         }
 
         // 准备创建

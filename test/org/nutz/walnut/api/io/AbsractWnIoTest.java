@@ -44,6 +44,16 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     protected WnIoHandleManager handles;
 
     @Test
+    public void test_create_by_id_parent_dir() {
+        WnObj dir = io.create(null, "/a/b/c", WnRace.DIR);
+        WnObj obj = io.create(null, "id:" + dir.id() + "/abc.txt", WnRace.FILE);
+
+        WnObj o2 = io.fetch(null, "/a/b/c/abc.txt");
+        assertEquals(obj.id(), o2.id());
+        assertEquals("abc.txt", o2.name());
+    }
+
+    @Test
     public void test_get_silbing_in_file_mount() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
         io.appendMeta(dTi, Lang.map("ln:'/mnt/ti'"));
