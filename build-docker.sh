@@ -1,6 +1,6 @@
 #!/bin/bash
 
-image="registry.cn-beijing.aliyuncs.com/wendal/walnut"  
+image="registry-vpc.cn-beijing.aliyuncs.com/wendal/walnut"  
   
 #get timestamp for the tag  
 timestamp=$(date +%Y%m%d%H%M%S)  
@@ -10,8 +10,15 @@ latest=$image:latest
 
 
 #./gradlew clean lessc wtar
-cp .docker/* build/wzip
-cd build/wzip
+mkdir build/docker/
+mkdir build/docker/walnut/
+mkdir build/docker/titanium/
+cp .docker/* build/docker/
+cp -rf build/wzip/* build/docker/walnut/
+cp -rf /root/repo/titanium/src build/docker/titanium/
+
+cd build/docker/
+
 docker build . -t $tag
 docker tag $tag $latest
 docker push $tag
