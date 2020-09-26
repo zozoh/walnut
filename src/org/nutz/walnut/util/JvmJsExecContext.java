@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
@@ -189,6 +190,16 @@ public class JvmJsExecContext implements JsExecContext {
     public String readText(String path) {
         WnObj o = Wn.checkObj(sys, path);
         return sys.io.readText(o);
+    }
+
+    public String readTextAt(String path, int off, int len) {
+        byte[] bs = readBytes(path, off, len);
+        if (null == bs)
+            return null;
+        if (bs.length == 0)
+            return "";
+
+        return new String(bs, Encoding.CHARSET_UTF8);
     }
 
     public byte[] readBytes(String path, int off, int len) {
