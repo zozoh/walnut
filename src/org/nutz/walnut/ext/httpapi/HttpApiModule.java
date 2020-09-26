@@ -962,6 +962,8 @@ public class HttpApiModule extends AbstractWnModule {
         // 准备回调
         if (log.isDebugEnabled())
             log.debug("box:set stdin/out/err");
+        
+        apc.resp.setBufferSize(apc.oApi.getInt("http-resp-buff-size", 1024));
 
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(apc.resp);
         AppRespOpsWrapper out = new AppRespOpsWrapper(_resp, 200);
