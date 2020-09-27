@@ -1,11 +1,14 @@
 package org.nutz.walnut.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -14,6 +17,8 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.WnIoHandle;
+import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.impl.box.JvmBoxInput;
 import org.nutz.walnut.impl.box.JvmBoxOutput;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -178,7 +183,50 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public void writeText(String path, String data) {
-        sys.io.writeText(sys.io.check(null, Wn.normalizeFullPath(path, sys)), data);
+        WnObj o = Wn.checkObj(sys, path);
+        sys.io.writeText(o, data);
+    }
+
+    public String readText(String path) {
+        WnObj o = Wn.checkObj(sys, path);
+        return sys.io.readText(o);
+    }
+
+    public String readTextAt(String path, int off, int len) {
+        byte[] bs = readBytes(path, off, len);
+        if (null == bs)
+            return null;
+        if (bs.length == 0)
+            return "";
+
+        return new String(bs, Encoding.CHARSET_UTF8);
+    }
+
+    public byte[] readBytes(String path, int off, int len) {
+        WnObj o = Wn.checkObj(sys, path);
+        WnIoHandle h = null;
+        try {
+            h = sys.io.openHandle(o, Wn.Io.RW);
+            if (off > 0)
+                h.seek(off);
+            byte[] buf = new byte[len];
+            int sz = h.read(buf);
+            if (sz == len) {
+                return buf;
+            }
+            byte[] reb = new byte[sz];
+            System.arraycopy(buf, 0, reb, 0, sz);
+            return reb;
+        }
+        catch (WnIoHandleMutexException e) {
+            throw Lang.wrapThrow(e);
+        }
+        catch (IOException e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Streams.safeClose(h);
+        }
     }
 
     public String uu32() {
