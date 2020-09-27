@@ -40,7 +40,7 @@ public class crc_modbus16 implements JvmHdl {
 		if (hc.params.is("hex"))
 			sys.out.printf("%02X%02X", crc16.uchCRCLo, crc16.uchCRCHi);
 		else
-			sys.out.print("" + ( (((int)crc16.uchCRCLo) & 0xFF) << 8) + (((int)crc16.uchCRCHi) & 0xFF));
+			sys.out.print(""+Math.abs(Integer.parseInt(String.format("%02X%02X", crc16.uchCRCLo, crc16.uchCRCHi), 16)));
 	}
 
 	public static class CRC16M {
