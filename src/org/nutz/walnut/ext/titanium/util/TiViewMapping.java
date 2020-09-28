@@ -1,72 +1,21 @@
 package org.nutz.walnut.ext.titanium.util;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.nutz.json.JsonIgnore;
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.match.AutoStrMatch;
 
 public class TiViewMapping {
 
-    static class RegExpMatchView {
-        Pattern regex;
-        String viewName;
-
-        RegExpMatchView(String regex, String view) {
-            this.regex = Regex.getPattern(regex);
-            this.viewName = view;
-        }
-
-        public String toString() {
-            return String.format("[%s]: %s", viewName, regex);
-        }
-    }
-
-    static class ArrayMatchView {
-        String[] list;
-        String viewName;
-
-        ArrayMatchView(String path, String view) {
-            this.list = Strings.splitIgnoreBlank(path, "[/\\\\]");
-            this.viewName = view;
-        }
-
-        boolean isMatch(String[] paths) {
-            if (list.length != paths.length) {
-                return false;
-            }
-            for (int i = 0; i < list.length; i++) {
-                String li = list[i];
-                String pi = paths[i];
-                if (null == li || null == pi) {
-                    return false;
-                }
-                // 通配
-                if ("*".equals(li)) {
-                    continue;
-                }
-                // 精确匹配
-                if (!li.equals(pi)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public String toString() {
-            return String.format("[%s]: %s", viewName, Strings.join("/", list));
-        }
+    static class MappingItem {
+        WnMatch test;
+        String value;
     }
 
     private Map<String, String> paths;
-
-    private List<ArrayMatchView> __wildcard_paths;
 
     private Map<String, String> types;
 
@@ -75,63 +24,43 @@ public class TiViewMapping {
     private Map<String, String> races;
 
     @JsonIgnore
-    private List<RegExpMatchView> __type_views;
+    private List<MappingItem> _match_paths;
 
-    public TiViewMapping() {
-        this.__wildcard_paths = new LinkedList<>();
-        this.__type_views = new LinkedList<>();
-    }
+    @JsonIgnore
+    private List<MappingItem> _match_types;
+
+    @JsonIgnore
+    private List<MappingItem> _match_mimes;
 
     public String match(WnObj o) {
-        String viewName = null;
         // 根据路径，需要格式化为标准路径形式
-        String path = o.getFormedPath(true);
-        if (null != paths) {
-            viewName = paths.get(path);
-            if (null != viewName)
-                return viewName;
-        }
-
-        // 通配符路径匹配
-        if (null != this.__wildcard_paths && !this.__wildcard_paths.isEmpty()) {
-            String[] list = Strings.splitIgnoreBlank(path, "[/\\\\]");
-            for (ArrayMatchView amv : this.__wildcard_paths) {
-                if (amv.isMatch(list)) {
-                    return amv.viewName;
+        if (null != this._match_paths) {
+            String path = o.getFormedPath(true);
+            for (MappingItem it : this._match_paths) {
+                if (it.test.match(path)) {
+                    return it.value;
                 }
             }
         }
 
         // 根据类型（精确）
         String type = o.type();
-        if (null != types) {
-            viewName = types.get(type);
-            if (null != viewName)
-                return viewName;
-        }
-
-        // 根据类型（正则）
-        for (RegExpMatchView rmv : this.__type_views) {
-            if (rmv.regex.matcher(type).find()) {
-                return rmv.viewName;
+        if (null != this._match_types && null != type) {
+            for (MappingItem it : this._match_types) {
+                if (it.test.match(type)) {
+                    return it.value;
+                }
             }
         }
 
         // 根据MIME（精确）
-        if (o.hasMime()) {
+        if (o.hasMime() && o.isFILE() && null != this._match_mimes) {
             String mime = o.mime();
-            if (null != mimes) {
-                viewName = mimes.get(mime);
-                // 根据MIME（组）
-                if (null == viewName) {
-                    String mimeGroup = Wn.Mime.getGroupName(mime, "");
-                    if (!Strings.isBlank(mimeGroup)) {
-                        viewName = mimes.get(mimeGroup);
-                    }
+            for (MappingItem it : this._match_mimes) {
+                if (it.test.match(mime)) {
+                    return it.value;
                 }
             }
-            if (null != viewName)
-                return viewName;
         }
 
         // 根据 RACE
@@ -144,26 +73,28 @@ public class TiViewMapping {
         return null;
     }
 
+    private List<MappingItem> evalMap(Map<String, String> map) {
+        if (null == map)
+            return null;
+        List<MappingItem> list = new ArrayList<>(map.size());
+        for (Map.Entry<String, String> en : map.entrySet()) {
+            String key = en.getKey();
+            String val = en.getValue();
+            MappingItem it = new MappingItem();
+            it.test = new AutoStrMatch(key);
+            it.value = val;
+            list.add(it);
+        }
+        return list;
+    }
+
     public Map<String, String> getPaths() {
         return paths;
     }
 
     public void setPaths(Map<String, String> paths) {
-        this.paths = new HashMap<>();
-        this.__wildcard_paths.clear();
-
-        for (Map.Entry<String, String> en : paths.entrySet()) {
-            String key = en.getKey();
-            String val = en.getValue();
-            // 通配符
-            if (key.contains("*")) {
-                this.__wildcard_paths.add(new ArrayMatchView(key, val));
-            }
-            // 通用路径
-            else {
-                this.paths.put(key, val);
-            }
-        }
+        this.paths = paths;
+        this._match_paths = this.evalMap(paths);
     }
 
     public Map<String, String> getTypes() {
@@ -172,16 +103,7 @@ public class TiViewMapping {
 
     public void setTypes(Map<String, String> types) {
         this.types = types;
-        __type_views.clear();
-
-        for (Map.Entry<String, String> en : types.entrySet()) {
-            String regex = en.getKey();
-            String viewName = en.getValue();
-            if (regex.startsWith("^")) {
-                RegExpMatchView rmv = new RegExpMatchView(regex, viewName);
-                __type_views.add(rmv);
-            }
-        }
+        this._match_types = this.evalMap(types);
     }
 
     public Map<String, String> getMimes() {
@@ -190,6 +112,7 @@ public class TiViewMapping {
 
     public void setMimes(Map<String, String> mimes) {
         this.mimes = mimes;
+        this._match_mimes = this.evalMap(mimes);
     }
 
     public Map<String, String> getRaces() {
