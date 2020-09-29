@@ -153,7 +153,7 @@ public class abb_ckimp implements JvmHdl {
 			AbbCheckListAItem aitem = new AbbCheckListAItem();
 			aitem.nm = abbCheckListItem.no;
 			aitem.title = abbCheckListItem.selfStr;
-			aitem.p_ck_nm = abbCheckListItem.parentStr.split(" ", 2)[1];
+			aitem.p_ck_nm = abbCheckListItem.parentStr.split(" ", 2)[0];
 			clist.items.add(aitem);
 		}
 		sys.out.writeJson(clist, JsonFormat.full());
