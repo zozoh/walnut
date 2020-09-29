@@ -33,7 +33,8 @@ public class abb_ckimp implements JvmHdl {
 	@Override
 	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
 		String tmp = hc.params.val_check(0);
-		WnObj wobj = sys.io.check(null, Wn.normalizeFullPath(tmp, hc));
+		String aph = Wn.normalizeFullPath(tmp, sys);
+        WnObj wobj = sys.io.check(null, aph);
 		if (!wobj.isFILE()) {
 			sys.err.print("must be file");
 			return;
