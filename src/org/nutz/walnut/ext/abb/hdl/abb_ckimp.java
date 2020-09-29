@@ -2,9 +2,11 @@ package org.nutz.walnut.ext.abb.hdl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -25,7 +27,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
 public class abb_ckimp implements JvmHdl {
-	
+
 	private static final Log log = Logs.get();
 
 	@Override
@@ -80,8 +82,7 @@ public class abb_ckimp implements JvmHdl {
 			if (tmp != null) {
 				if (tmp instanceof Number) {
 					_noValue = String.format("%.1f", tmp);
-				}
-				else {
+				} else {
 					_noValue = tmp.toString().trim();
 				}
 			}
@@ -111,7 +112,7 @@ public class abb_ckimp implements JvmHdl {
 //					_itemValue);
 			items.put(_noValue, new AbbCheckListItem(_noValue, _groupValue, _itemValue));
 		}
-		
+
 		rowIndex = 6;
 		while (true) {
 			XSSFRow row = descSheet.getRow(rowIndex);
@@ -132,11 +133,29 @@ public class abb_ckimp implements JvmHdl {
 			item.sf = row.getCell(7).getStringCellValue();
 			item.outfiles = (String) __get_cell_value(row.getCell(8));
 			item.owner = (String) __get_cell_value(row.getCell(9));
-			
+
 			list.add(item);
 		}
+
+//		sys.out.writeJson(list, JsonFormat.full());
 		
-		sys.out.writeJson(list, JsonFormat.full());
+		AbbCheckList clist = new AbbCheckList();
+		Set<String> parents = new HashSet<>();
+		for (AbbCheckListItem abbCheckListItem : list) {
+			if (!parents.contains(abbCheckListItem.parentStr)) {
+				AbbCheckListAItem aitem = new AbbCheckListAItem();
+				aitem.nm = abbCheckListItem.parentStr.split(" ", 2)[0];
+				aitem.title = abbCheckListItem.parentStr.split(" ", 2)[1];
+				clist.items.add(aitem);
+				parents.add(abbCheckListItem.parentStr);
+			}
+			AbbCheckListAItem aitem = new AbbCheckListAItem();
+			aitem.nm = abbCheckListItem.no;
+			aitem.title = abbCheckListItem.selfStr;
+			aitem.p_ck_nm = abbCheckListItem.parentStr.split(" ", 2)[1];
+			clist.items.add(aitem);
+		}
+		sys.out.writeJson(clist, JsonFormat.full());
 	}
 
 	@SuppressWarnings("deprecation")

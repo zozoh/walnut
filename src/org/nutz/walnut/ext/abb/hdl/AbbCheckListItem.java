@@ -11,7 +11,7 @@ public class AbbCheckListItem {
 	public String outfiles;
 	public String owner;
 	public int min; // 耗时
-	
+
 	public AbbCheckListItem() {
 		// TODO Auto-generated constructor stub
 	}
@@ -22,6 +22,5 @@ public class AbbCheckListItem {
 		this.parentStr = parentStr;
 		this.selfStr = selfStr;
 	}
-	
-	
+
 }
