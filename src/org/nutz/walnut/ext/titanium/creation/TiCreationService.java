@@ -1,102 +1,11 @@
 package org.nutz.walnut.ext.titanium.creation;
 
-import java.util.Map;
+import org.nutz.walnut.ext.titanium.impl.TiMappingService;
 
-import org.nutz.ioc.loader.annotation.Inject;
-import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
-import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.util.WnObjDataCachedFactory;
-import org.nutz.walnut.util.WnObjDataLoading;
+public class TiCreationService extends TiMappingService<TiCreation> {
 
-@IocBean(create = "on_create")
-public class TiCreationService {
-
-    @Inject("refer:io")
-    private WnIo io;
-
-    private WnObjDataCachedFactory<TiCreation> creations;
-
-    private WnObjDataCachedFactory<TiTypes> types;
-
-    public void on_create() {
-        creations = new WnObjDataCachedFactory<>(io);
-        types = new WnObjDataCachedFactory<>(io);
+    public TiCreationService() {
+        super(TiCreation.class, "creation");
     }
 
-    public TiTypes getTypes(WnObj oTypes) {
-        return types.get(oTypes, (o) -> {
-            NutMap tt = io.readJson(o, NutMap.class);
-            TiTypes types = new TiTypes();
-            // 循环解析自己的 help段引用
-            for (Map.Entry<String, Object> en : tt.entrySet()) {
-                String typeName = en.getKey();
-                NutMap typeMap = (NutMap) en.getValue();
-                TiTypeInfo info = Lang.map2Object(typeMap, TiTypeInfo.class);
-                // Help
-                if (info.isHelpReferToFile()) {
-                    WnObj oHelp = io.check(oTypes, info.getHelp());
-                    String help = io.readText(oHelp);
-                    info.setHelp(help);
-                }
-                // Name/Mime
-                info.setName(typeName);
-                if (info.isFILE() && !info.hasMime()) {
-                    String mime = io.mimes().getMime(typeName);
-                    info.setMime(mime);
-                }
-                // 记录
-                types.put(typeName, info);
-            }
-            // 返回
-            return types;
-        });
-    }
-
-    public TiCreation getCreation(WnObj oCreation) {
-        if (null == oCreation)
-            return null;
-
-        // 输入文件的读取逻辑
-        WnObjDataLoading<TiCreation> loading = new WnObjDataLoading<TiCreation>() {
-            public TiCreation load(WnObj o) {
-                // 读取输入
-                TiCreationInput input = io.readJson(o, TiCreationInput.class);
-
-                // 准备输出
-                TiCreation tic = new TiCreation();
-
-                // 读取依赖
-                if (input.hasIncludes()) {
-                    for (String aph : input.getIncludes()) {
-                        WnObj oInclude = io.check(oCreation, aph);
-                        TiCreation pic = getCreation(oInclude);
-                        tic.mergeWith(pic);
-                    }
-                }
-
-                // 设置自己的 mapping
-                if (input.hasMapping())
-                    tic.addMapping(input.getMapping());
-
-                // 解析 types
-                if (input.hasTypes()) {
-                    for (Map.Entry<String, String> en : input.getTypes().entrySet()) {
-                        String lang = en.getKey();
-                        String path = en.getValue();
-                        WnObj oTypes = io.check(oCreation, path);
-                        TiTypes types = getTypes(oTypes);
-                        tic.addTypes(lang, types);
-                    }
-                }
-
-                // 输出
-                return tic;
-            }
-        };
-        // 读取输入文件
-        return creations.get(oCreation, loading);
-    }
 }

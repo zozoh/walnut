@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.titanium.creation;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnRace;
 
-public class TiTypeInfo {
+public class TiCreateType {
 
     private String name;
 

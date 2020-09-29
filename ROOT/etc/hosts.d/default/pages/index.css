@@ -1,0 +1,79 @@
+* {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%; 
+  font-size: 18px; margin:0;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFF;
+  background-color: #000;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  padding: 6em 0; 
+}
+form {
+  margin: 0 auto; text-align: center;
+  width: 24em; padding:1em;
+  background: rgba(255, 255, 255, 0.6);
+  color: #000;
+  border-radius: 1em;
+  transition: .5s; opacity: .2; transform: translateY(5em);
+}
+img.as-logo {
+  transition: .5s; opacity: .2; transform: scale(0.2);
+}
+hr {
+  height:1px; border:0;
+  border-top:1px solid rgba(255, 255, 255, 0.3);
+}
+section {
+  margin: 1em;
+}
+input {
+  width:100%; font-size: inherit; padding: 1em;
+  outline: none; border:1px solid #08F;
+  transition: .8s; opacity: 0;
+}
+input[name='name']   {
+  transition-delay: 0s;
+  transform: translateX(-5em);
+}
+input[name='passwd'] {
+  transition-delay: .3s;
+  transform: translateX(5em);
+}
+button {
+  width:100%; padding: 1em; font-size: inherit;
+  background: #08F; color:#FFF;
+  border:0; outline: none;
+  cursor: pointer;
+  transition: transform 1s; opacity: 0; transform: translateY(5em);
+}
+button:hover {
+  background: #F80; color:#FFF;
+}
+/*-------------------------------------------*/
+body.load-done form {
+  opacity: 1; transform: unset;
+}
+/*-------------------------------------------*/
+body.load-done img.as-logo {
+  opacity: 1; transform: unset;
+}
+/*-------------------------------------------*/
+body.load-done input[name='name'] {
+  opacity: 1; transform: unset;
+}
+/*-------------------------------------------*/
+body.load-done input[name='passwd'] {
+  opacity: 1; transform: unset;
+}
+/*-------------------------------------------*/
+body.load-done button {
+  opacity: 1; transform: unset;
+}
