@@ -365,6 +365,7 @@ return ZUI.def("ui.console", {
                 msgShow  : UI.on_show_txt,
                 msgError : UI.on_show_err,
                 msgEnd   : UI.on_show_end,
+                foreFlushBuffer : true,
                 complete : function () {
                     // 本地保存一下当前路径
                     UI.local("PWD", UI.app.session.envs.PWD);

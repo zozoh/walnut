@@ -712,6 +712,9 @@ var Wn = {
         sendData += "&PWD=" + encodeURIComponent(se.envs.PWD);
         sendData += "&cmd=" + encodeURIComponent(cmdText);
         sendData += "&in=" + encodeURIComponent(opt.input||"");
+        if(opt.foreFlushBuffer) {
+            sendData += "&ffb=true"
+        }
 
         var oReq = new XMLHttpRequest();
         oReq._last = 0;
