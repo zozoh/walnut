@@ -1,0 +1,295 @@
+package org.nutz.walnut.ext.titanium.www;
+
+import java.net.URLEncoder;
+import java.util.List;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
+import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.www.JvmWnmlRuntime;
+import org.nutz.walnut.ext.www.WnmlRuntime;
+import org.nutz.walnut.ext.www.WnmlService;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnObjWalkjFilter;
+
+public class WnWebsiteTranslating {
+
+    private WnSystem sys;
+
+    private WnmlRuntime wnmlRuntime;
+
+    private WnmlService wnmlService;
+
+    private WnObj srcDirObj;
+
+    private WnObj wwwDirObj;
+
+    private boolean quiet;
+
+    private NutMap vars;
+
+    private WnObj srcIndexWnmlObj;
+
+    private WnObj srcSiteStateObj;
+
+    private WebsiteState siteState;
+
+    private WnObj wwwIndexWnmlObj;
+
+    private Document wwwIndexDoc;
+
+    public WnWebsiteTranslating(WnSystem sys, WnObj oSrc, WnObj oWWW) {
+        this.wnmlRuntime = new JvmWnmlRuntime(sys);
+        this.wnmlService = new WnmlService();
+        this.sys = sys;
+        this.srcDirObj = oSrc;
+        this.wwwDirObj = oWWW;
+    }
+
+    public List<WnObj> copyResources(boolean transWnml, WnObjWalkjFilter flt) {
+        List<WnObj> tops = sys.io.getChildren(srcDirObj, null);
+        for (WnObj oTop : tops) {
+            // 要转换？ 嗯， site-state.json 稍后再处理吧
+            if (transWnml && oTop.isSameName("site-state.json")) {
+                this.srcSiteStateObj = oTop;
+            }
+            // 要转换？ 嗯， index.wnml 稍后再处理吧
+            else if (transWnml && oTop.isSameName("index.wnml")) {
+                this.srcIndexWnmlObj = oTop;
+            }
+            // 傻傻的 Copy 吧
+            else if (flt.match(oTop)) {
+                String ph = wwwDirObj.getRegularPath();
+                Wn.Io.copy(sys, Wn.Io.RECUR, oTop, ph, flt);
+            }
+        }
+        return tops;
+    }
+
+    public void doAllVirtualPages(String[] vPages) {
+        if (null == vPages || null == this.wwwIndexWnmlObj)
+            return;
+        for (String vPage : vPages) {
+            if (!quiet) {
+                sys.out.printf("@%s:\n", vPage);
+            }
+            WnObj oPageDir = sys.io.fetch(wwwDirObj, vPage);
+            if (null != oPageDir && oPageDir.isDIR()) {
+                sys.io.walk(oPageDir, (oJson) -> {
+                    if (!oJson.isType("json")) {
+                        return;
+                    }
+                    doVirtualPage(oPageDir, oJson);
+                }, WalkMode.LEAF_ONLY);
+            }
+        }
+    }
+
+    public void doVirtualPage(WnObj oPageDir, WnObj oJson) {
+        // .......................................
+        // 准备输出文件的名称
+        String name = Files.getMajorName(oJson.name()) + ".html";
+        if (!quiet) {
+            String rph = Wn.Io.getRelativePath(oPageDir, oJson);
+            sys.out.printf("  -> %s => %s\n", rph, name);
+        }
+
+        // .......................................
+        WnObj oPage = sys.io.createIfNoExists(oJson.parent(), name, WnRace.FILE);
+
+        // .......................................
+        // 准备转换上下文
+        NutMap context = getWnmlContext();
+
+        // .......................................
+        // 搞个新的并渲染
+        Document doc = wwwIndexDoc.clone();
+        this.wnmlService.invoke(this.wnmlRuntime, context, doc);
+
+        // .......................................
+        // 准备服务器端渲染
+        // .......................................
+        // 写入虚页内容
+        String json = sys.io.readText(oJson);
+        appendSSRResult(doc, "page-json", json);
+        
+        // TODO 这里寻找所有的可以预先被渲染的 api
+
+        // 写入
+        String html = doc.toString();
+        sys.io.writeText(oPage, html);
+    }
+
+    private void appendSSRResult(Document doc, String ssrKey, String json) {
+        Element $tmpl = doc.createElement("div");
+        $tmpl.addClass("wn-ssr-data");
+        $tmpl.attr("data-ssr-key", ssrKey);
+        $tmpl.appendText(Strings.escapeHtmlQuick(json));
+        doc.body().prependChild($tmpl);
+    }
+
+    public WnObj doIndexWnml(WnObj oWnml) {
+        if (!quiet) {
+            sys.out.println("Gen index.html");
+        }
+        // 读取文件
+        String input = sys.io.readText(oWnml);
+
+        // 准备转换上下文
+        NutMap context = getWnmlContext();
+
+        // 执行转换
+        this.wwwIndexWnmlObj = sys.io.createIfNoExists(wwwDirObj, "index.html", WnRace.FILE);
+        this.wwwIndexDoc = Jsoup.parse(input);
+
+        // 搞哥新的并渲染
+        Document doc = wwwIndexDoc.clone();
+        this.wnmlService.invoke(this.wnmlRuntime, context, doc);
+
+        // 输出
+        String html = doc.toString();
+        sys.io.writeText(this.wwwIndexWnmlObj, html);
+
+        if (!this.quiet) {
+            sys.out.println(" - done");
+        }
+
+        return this.wwwIndexWnmlObj;
+
+    }
+
+    private NutMap getWnmlContext() {
+        NutMap context = new NutMap();
+        String rootPath = wwwDirObj.path();
+
+        context.put("WWW", wwwDirObj.pickBy("^(id|hm_.+)$"));
+        context.put("SITE_HOME", rootPath);
+        context.put("grp", sys.getMyGroup());
+        context.putAll(this.vars);
+        return context;
+    }
+
+    public WnObj doSiteState(WnObj oSiteState) {
+        WnObj oTaSS = sys.io.createIfNoExists(wwwDirObj, "site-state.json", WnRace.FILE);
+        String text = sys.io.readText(oSiteState);
+        NutMap map = Json.fromJson(NutMap.class, text);
+        // 因为正在 ti-web-app-main.mjs 这个入口层面增加了 deps
+        // 这里就不要增加了
+        map.putAll(this.vars);
+        map.remove("deps");
+
+        // 解析
+        this.siteState = Lang.map2Object(map, WebsiteState.class);
+
+        sys.io.writeJson(oTaSS, map, JsonFormat.full());
+        if (!this.quiet) {
+            JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
+            String brief = Json.toJson(vars, jfmt);
+            sys.out.printlnf(" + site-state.json : {%s}", brief);
+        }
+
+        return oTaSS;
+    }
+
+    public boolean isQuiet() {
+        return quiet;
+    }
+
+    public void setQuiet(boolean quiet) {
+        this.quiet = quiet;
+    }
+
+    public NutMap getVars() {
+        return vars;
+    }
+
+    public void setVars(NutMap vars) {
+        this.vars = vars;
+        this.vars.put("CURRENT_DIR", wwwDirObj.getFormedPath(true));
+        this.vars.put("PAGE_BASE", this.vars.get("pageBase"));
+    }
+
+    public WnSystem getSys() {
+        return sys;
+    }
+
+    public void setSys(WnSystem sys) {
+        this.sys = sys;
+    }
+
+    public WnmlRuntime getWnmlRuntime() {
+        return wnmlRuntime;
+    }
+
+    public void setWnmlRuntime(WnmlRuntime wrt) {
+        this.wnmlRuntime = wrt;
+    }
+
+    public WnmlService getWnmlService() {
+        return wnmlService;
+    }
+
+    public void setWnmlService(WnmlService ws) {
+        this.wnmlService = ws;
+    }
+
+    public WnObj getSrcDirObj() {
+        return srcDirObj;
+    }
+
+    public void setSrcDirObj(WnObj oSrc) {
+        this.srcDirObj = oSrc;
+    }
+
+    public WnObj getWwwDirObj() {
+        return wwwDirObj;
+    }
+
+    public void setWwwDirObj(WnObj oWWW) {
+        this.wwwDirObj = oWWW;
+    }
+
+    public WnObj getSrcIndexWnmlObj() {
+        return srcIndexWnmlObj;
+    }
+
+    public void setSrcIndexWnmlObj(WnObj oSrcIndexWnml) {
+        this.srcIndexWnmlObj = oSrcIndexWnml;
+    }
+
+    public WnObj getSrcSiteStateObj() {
+        return srcSiteStateObj;
+    }
+
+    public void setSrcSiteStateObj(WnObj oSrcSiteState) {
+        this.srcSiteStateObj = oSrcSiteState;
+    }
+
+    public WnObj getWwwIndexWnmlObj() {
+        return wwwIndexWnmlObj;
+    }
+
+    public void setWwwIndexWnmlObj(WnObj oWWWIndexWnml) {
+        this.wwwIndexWnmlObj = oWWWIndexWnml;
+    }
+
+    public Document getWwwIndexDoc() {
+        return wwwIndexDoc;
+    }
+
+    public void setWwwIndexDoc(Document docWWWIndexWnml) {
+        this.wwwIndexDoc = docWWWIndexWnml;
+    }
+
+}

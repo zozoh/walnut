@@ -52,14 +52,13 @@ public class WnmlService {
      *            <li><code>CURRENT_DIR</code> : 当前页所在目录的路径，include 是相对路径，会从这里找
      *            <li><code>CURRENT_PATH</code> : 当前页的完整路径
      *            </ul>
-     * @param input
-     *            输入的 wnml 代码
+     * @param doc
+     *            输入的 wnml文档对象（这个对象会被修改）
+     * 
+     * @return 渲染后的 HTML文档
      * 
      */
-    public String invoke(WnmlRuntime wrt, NutMap context, String input) {
-        // 解析输入的文件
-        Document doc = Jsoup.parse(input);
-
+    public Document invoke(WnmlRuntime wrt, NutMap context, Document doc) {
         // 首先处理静态引入
         Elements eles = doc.select("include");
         for (Element ele : eles) {
@@ -67,8 +66,47 @@ public class WnmlService {
         }
 
         // 处理所有的节点的属性和文本的占位符
+        __do_node(wrt, doc, context);
+
+        // 处理特殊属性: wn:drop
+        eles = doc.getElementsByAttribute("wn:drop");
+        // 需要倒序，这样子节点会在父节点前被删除
+        Collections.reverse(eles);
+        for (Element ele : eles) {
+            __do_special_attr_wn_drop(ele);
+        }
+
+        // 返回 HTML
+        return doc;
+    }
+
+    /**
+     * @param wrt
+     * @param context
+     *            上下文，必须包括变量:
+     *            <ul>
+     *            <li><code>SITE_HOME</code> : 整个转换站点的根目录，include 如果是绝对路径，会从这里找
+     *            <li><code>CURRENT_DIR</code> : 当前页所在目录的路径，include 是相对路径，会从这里找
+     *            <li><code>CURRENT_PATH</code> : 当前页的完整路径
+     *            </ul>
+     * @param input
+     *            输入的 wnml 代码
+     * 
+     * @return 渲染后的 HTML
+     * 
+     */
+    public String invoke(WnmlRuntime wrt, NutMap context, String input) {
+        Document doc = Jsoup.parse(input);
+        // 处理所有的节点的属性和文本的占位符
         try {
-            __do_node(wrt, doc, context);
+            invoke(wrt, context, doc);
+
+            String html = doc.toString();
+
+            // 需要设置 Cookies
+            // html = setCookiesToResp(context, html);
+
+            return html;
         }
         // 看看是否会有 redirect 的错误
         catch (WebException e) {
@@ -82,18 +120,9 @@ public class WnmlService {
             }
         }
 
-        // 处理特殊属性: wn:drop
-        eles = doc.getElementsByAttribute("wn:drop");
-        // 需要倒序，这样子节点会在父节点前被删除
-        Collections.reverse(eles);
-        for (Element ele : eles) {
-            __do_special_attr_wn_drop(ele);
-        }
+    }
 
-        // 返回 HTML
-        String html = doc.toString();
-
-        // 需要设置 Cookies
+    String setCookiesToResp(NutMap context, String html) {
         Object setCookies = context.get(WWWPageAPI.CK_SET_COOKIE);
         NutMap header = context.getAs(WWWPageAPI.CK_SET_HTTP_HEADER, NutMap.class);
         List<String> cookies = new LinkedList<>();
@@ -132,10 +161,8 @@ public class WnmlService {
             // 输入内容
             sb.append("\n");
             sb.append(html);
-            return sb.toString();
+            html = sb.toString();
         }
-
-        // 直接返回就好
         return html;
     }
 

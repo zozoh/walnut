@@ -1,20 +1,10 @@
 package org.nutz.walnut.ext.titanium.hdl;
 
-import java.util.List;
-
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.www.JvmWnmlRuntime;
-import org.nutz.walnut.ext.www.WnmlRuntime;
-import org.nutz.walnut.ext.www.WnmlService;
+import org.nutz.walnut.ext.titanium.www.WnWebsiteTranslating;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -31,6 +21,8 @@ public class ti_www implements JvmHdl {
         // .........................................
         // 准备计时
         Stopwatch sw = Stopwatch.begin();
+
+        // .......................................
         // 分析参数
         String phSrc = hc.params.val_check(0);
         String phDist = hc.params.val_check(1);
@@ -74,9 +66,10 @@ public class ti_www implements JvmHdl {
         }
         sw.tag("EvalPath");
 
-        // .........................................
-        // Copy 站点资源
-        int mode = Wn.Io.RECUR;
+        // .......................................
+        // 准备服务类
+        WnWebsiteTranslating wwt = new WnWebsiteTranslating(sys, oSrc, oWWW);
+        wwt.setVars(Lang.map(wnmlSetting));
 
         // .........................................
         // 准备过滤器
@@ -100,56 +93,28 @@ public class ti_www implements JvmHdl {
         };
 
         // .........................................
-        List<WnObj> tops = sys.io.getChildren(oSrc, null);
-        WnObj oWnml = null, oSiteState = null;
-        for (WnObj oTop : tops) {
-            // 要转换？ 嗯， site-state.json 稍后再处理吧
-            if (transWnml && oTop.isSameName("site-state.json")) {
-                oSiteState = oTop;
-            }
-            // 要转换？ 嗯， index.wnml 稍后再处理吧
-            else if (transWnml && oTop.isSameName("index.wnml")) {
-                oWnml = oTop;
-            }
-            // 傻傻的 Copy 吧
-            else if (flt.match(oTop)) {
-                String ph = oWWW.getRegularPath();
-                Wn.Io.copy(sys, mode, oTop, ph, flt);
-            }
-        }
+        // Copy 站点资源
+        wwt.copyResources(transWnml, flt);
+        WnObj oWnml = wwt.getSrcIndexWnmlObj();
+        WnObj oSiteState = wwt.getSrcSiteStateObj();
         sw.tag("CopyResources");
 
+        //
+        // 要进行转换
+        //
         if (transWnml) {
-            // .......................................
-            // 准备标准上下文
-            // {
-            // # 网站的页面资源基础路径
-            // pageBase : "/",
-            // # HTTP接口的基础路径
-            // apiBase : "/api/",
-            // # CDN 服务器的基础路径
-            // cdnBase : null,
-            // # 静态资源基础路径
-            // rs : "/gu/rs/",
-            //
-            // # 预加载资源列表，没有的话，请保持空数组 []
-            // preloads : ["@dist:ti-more-all.js"]
-            // }
-            NutMap vars = Lang.map(wnmlSetting);
-            vars.put("CURRENT_DIR", oWWW.getFormedPath(true));
-            vars.put("PAGE_BASE", vars.get("pageBase"));
-
             // .......................................
             // Copy site-state.json
             if (!quiet) {
                 sys.out.println("Gen site-state.json:");
             }
-            doSiteState(sys, quiet, vars, oSrc, oWWW, oSiteState);
+            // doSiteState(sys, quiet, vars, oSrc, oWWW, oSiteState);
+            wwt.doSiteState(oSiteState);
             sw.tag("SiteState");
 
             // .......................................
-            // 转换 wnml
-            WnObj oIndex = doIndexWnml(sys, quiet, vars, oSrc, oWWW, oWnml);
+            // 转换 wnml（并同时会记住 index.wnml）
+            wwt.doIndexWnml(oWnml);
             sw.tag("IndexWnml");
 
             // .........................................
@@ -158,26 +123,7 @@ public class ti_www implements JvmHdl {
                 sys.out.println("Gen virtual pages:");
             }
             String[] vPages = Strings.splitIgnoreBlank(hc.params.getString("vpages", "page"));
-            for (String vPage : vPages) {
-                if (!quiet) {
-                    sys.out.printf("@%s:\n", vPage);
-                }
-                WnObj oPageDir = sys.io.fetch(oWWW, vPage);
-                if (null != oPageDir && oPageDir.isDIR()) {
-                    sys.io.walk(oPageDir, (o) -> {
-                        if (!o.isType("json")) {
-                            return;
-                        }
-                        String name = Files.getMajorName(o.name()) + ".html";
-                        if (!quiet) {
-                            String rph = Wn.Io.getRelativePath(oPageDir, o);
-                            sys.out.printf("  -> %s => %s\n", rph, name);
-                        }
-                        WnObj oPage = sys.io.createIfNoExists(o.parent(), name, WnRace.FILE);
-                        Wn.Io.copyFile(sys.io, oIndex, oPage);
-                    }, WalkMode.LEAF_ONLY);
-                }
-            }
+            wwt.doAllVirtualPages(vPages);
         }
 
         // 结束
@@ -185,67 +131,6 @@ public class ti_www implements JvmHdl {
         if (!quiet) {
             sys.out.println(sw.toString());
         }
-    }
-
-    private WnObj doIndexWnml(WnSystem sys,
-                              boolean quiet,
-                              NutMap vars,
-                              WnObj oSrc,
-                              WnObj oWWW,
-                              WnObj oWnml) {
-        if (!quiet) {
-            sys.out.println("Gen index.html");
-        }
-        // 读取文件
-        String input = sys.io.readText(oWnml);
-
-        // 准备转换上下文
-        NutMap context = new NutMap();
-        String rootPath = oWWW.path();
-
-        context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
-        context.put("SITE_HOME", rootPath);
-        context.put("grp", sys.getMyGroup());
-        context.putAll(vars);
-
-        // 准备转换服务类
-        WnmlRuntime wrt = new JvmWnmlRuntime(sys);
-        WnmlService ws = new WnmlService();
-
-        // 执行转换
-        WnObj oIndex = sys.io.createIfNoExists(oWWW, "index.html", WnRace.FILE);
-        String html = ws.invoke(wrt, context, input);
-        sys.io.writeText(oIndex, html);
-
-        if (!quiet) {
-            sys.out.println(" - done");
-        }
-
-        return oIndex;
-
-    }
-
-    private void doSiteState(WnSystem sys,
-                             boolean quiet,
-                             NutMap vars,
-                             WnObj oSrc,
-                             WnObj oDist,
-                             WnObj oSiteState) {
-        WnObj oTaSS = sys.io.createIfNoExists(oDist, "site-state.json", WnRace.FILE);
-
-        NutMap map = sys.io.readJson(oSiteState, NutMap.class);
-        // 因为正在 ti-web-app-main.mjs 这个入口层面增加了 deps
-        // 这里就不要增加了
-        map.putAll(vars);
-        map.remove("deps");
-
-        sys.io.writeJson(oTaSS, map, JsonFormat.full());
-        if (!quiet) {
-            JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
-            String brief = Json.toJson(vars, jfmt);
-            sys.out.printlnf(" + site-state.json : {%s}", brief);
-        }
-
     }
 
 }
