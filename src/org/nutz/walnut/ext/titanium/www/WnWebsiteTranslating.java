@@ -1,14 +1,13 @@
 package org.nutz.walnut.ext.titanium.www;
 
-import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -110,31 +109,57 @@ public class WnWebsiteTranslating {
 
         // .......................................
         // 准备转换上下文
-        NutMap context = getWnmlContext();
+        NutMap wnmlContext = getWnmlContext();
 
         // .......................................
         // 搞个新的并渲染
         Document doc = wwwIndexDoc.clone();
-        this.wnmlService.invoke(this.wnmlRuntime, context, doc);
+        this.wnmlService.invoke(this.wnmlRuntime, wnmlContext, doc);
 
         // .......................................
         // 准备服务器端渲染
         // .......................................
         // 写入虚页内容
         String json = sys.io.readText(oJson);
-        appendSSRResult(doc, "page-json", json);
-        
-        // TODO 这里寻找所有的可以预先被渲染的 api
+        appendSSRResult(doc, "page-json", null, json);
+
+        // 这里寻找所有的可以预先被渲染的 api
+        if (null != this.siteState) {
+            WebsitePage page = Json.fromJson(WebsitePage.class, json);
+            Map<String, WebsiteApi> apis = page.getPreloaSsrdApi(siteState);
+
+            // 依次调用每个 api 的接口
+            NutMap apiContext = new NutMap();
+            for (Map.Entry<String, WebsiteApi> en : apis.entrySet()) {
+                String key = en.getKey();
+                WebsiteApi api = en.getValue();
+                api.explainParams(apiContext);
+
+                // 准备参数
+                String qsJson = api.getParamsValueJson();
+                String qsFinger = Lang.sha1(qsJson);
+
+                // 准备命令
+                String cmdText = "httpapi invoke " + api.getPath() + " -get @pipe";
+                String apiRe = sys.exec2(cmdText, qsJson);
+
+                // 计入输出结果
+                appendSSRResult(doc, "api-" + key, qsFinger, apiRe);
+            }
+        }
 
         // 写入
         String html = doc.toString();
         sys.io.writeText(oPage, html);
     }
 
-    private void appendSSRResult(Document doc, String ssrKey, String json) {
+    private void appendSSRResult(Document doc, String ssrKey, String ssrFinger, String json) {
         Element $tmpl = doc.createElement("div");
         $tmpl.addClass("wn-ssr-data");
         $tmpl.attr("data-ssr-key", ssrKey);
+        if (null != ssrFinger) {
+            $tmpl.attr("data-ssr-finger", ssrFinger);
+        }
         $tmpl.appendText(Strings.escapeHtmlQuick(json));
         doc.body().prependChild($tmpl);
     }

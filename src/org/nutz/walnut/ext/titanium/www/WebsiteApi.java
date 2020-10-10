@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.titanium.www;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Wn;
 
 public class WebsiteApi {
 
@@ -17,6 +21,31 @@ public class WebsiteApi {
     private int preload;
 
     private boolean pages;
+
+    private boolean ssr;
+
+    public WebsiteApi() {
+        this.preload = -1;
+    }
+
+    public String toString() {
+        return String.format("[%d]%s:%s{}=>%s", preload, method, path, dataKey);
+    }
+
+    public WebsiteApi clone() {
+        WebsiteApi api = new WebsiteApi();
+        api.title = this.title;
+        api.path = this.path;
+        api.method = this.method;
+        if (null != this.params) {
+            String json = Json.toJson(this.params);
+            api.params = Json.fromJson(NutMap.class, json);
+        }
+        api.dataKey = this.dataKey;
+        api.preload = this.preload;
+        api.pages = this.pages;
+        return api;
+    }
 
     public String getTitle() {
         return title;
@@ -42,6 +71,18 @@ public class WebsiteApi {
         this.method = method;
     }
 
+    public boolean hasParams() {
+        return null != params && params.size() > 0;
+    }
+
+    public NutMap getParamDefine(String name) {
+        return params.getAs(name, NutMap.class);
+    }
+
+    public Object getParam(String name) {
+        return params.get(name);
+    }
+
     public NutMap getParams() {
         return params;
     }
@@ -50,12 +91,47 @@ public class WebsiteApi {
         this.params = params;
     }
 
+    public void explainParams(NutBean context) {
+        // 确保有上下文
+        if (null == context) {
+            context = new NutMap();
+        }
+        NutMap p2 = (NutMap) Wn.explainObj(context, this.params);
+        this.params = p2;
+    }
+
+    public NutMap getParamsValueMap() {
+        NutMap map = new NutMap();
+        for (String key : this.params.keySet()) {
+            NutMap pmv = this.params.getAs(key, NutMap.class);
+            Object val = pmv.get("value");
+            map.put(key, val);
+        }
+        return map;
+    }
+
+    public String getParamsValueJson(JsonFormat jfmt) {
+        if (null == jfmt) {
+            jfmt = JsonFormat.compact().setQuoteName(true).setIgnoreNull(false);
+        }
+        NutMap map = this.getParamsValueMap();
+        return Json.toJson(map, jfmt);
+    }
+
+    public String getParamsValueJson() {
+        return this.getParamsValueJson(null);
+    }
+
     public String getDataKey() {
         return dataKey;
     }
 
     public void setDataKey(String dataKey) {
         this.dataKey = dataKey;
+    }
+
+    public boolean isPreload() {
+        return this.preload >= 0;
     }
 
     public int getPreload() {
@@ -72,6 +148,14 @@ public class WebsiteApi {
 
     public void setPages(boolean pages) {
         this.pages = pages;
+    }
+
+    public boolean isSsr() {
+        return ssr;
+    }
+
+    public void setSsr(boolean ssr) {
+        this.ssr = ssr;
     }
 
 }
