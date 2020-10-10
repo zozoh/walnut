@@ -97,6 +97,7 @@ public class ti_www implements JvmHdl {
         wwt.copyResources(transWnml, flt);
         WnObj oWnml = wwt.getSrcIndexWnmlObj();
         WnObj oSiteState = wwt.getSrcSiteStateObj();
+        WnObj oAppJson = wwt.getSrcAppJsonObj();
         sw.tag("CopyResources");
 
         //
@@ -111,6 +112,11 @@ public class ti_www implements JvmHdl {
             // doSiteState(sys, quiet, vars, oSrc, oWWW, oSiteState);
             wwt.doSiteState(oSiteState);
             sw.tag("SiteState");
+
+            // .......................................
+            // 转换 _app.json 主要是融合 site-state.json
+            wwt.doAppJson(oAppJson);
+            sw.tag("AppJson");
 
             // .......................................
             // 转换 wnml（并同时会记住 index.wnml）

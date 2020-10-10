@@ -6,6 +6,7 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
@@ -38,11 +39,15 @@ public class WnWebsiteTranslating {
 
     private NutMap vars;
 
+    private WnObj srcAppJsonObj;
+
     private WnObj srcIndexWnmlObj;
 
     private WnObj srcSiteStateObj;
 
     private WebsiteState siteState;
+
+    private NutMap siteStateMap;
 
     private WnObj wwwIndexWnmlObj;
 
@@ -59,8 +64,12 @@ public class WnWebsiteTranslating {
     public List<WnObj> copyResources(boolean transWnml, WnObjWalkjFilter flt) {
         List<WnObj> tops = sys.io.getChildren(srcDirObj, null);
         for (WnObj oTop : tops) {
+            // 要转换？嗯， _app.json 稍后再处理吧
+            if (transWnml && oTop.isSameName("_app.json")) {
+                this.srcAppJsonObj = oTop;
+            }
             // 要转换？ 嗯， site-state.json 稍后再处理吧
-            if (transWnml && oTop.isSameName("site-state.json")) {
+            else if (transWnml && oTop.isSameName("site-state.json")) {
                 this.srcSiteStateObj = oTop;
             }
             // 要转换？ 嗯， index.wnml 稍后再处理吧
@@ -164,7 +173,7 @@ public class WnWebsiteTranslating {
         doc.body().prependChild($tmpl);
     }
 
-    public WnObj doIndexWnml(WnObj oWnml) {
+    public void doIndexWnml(WnObj oWnml) {
         if (!quiet) {
             sys.out.println("Gen index.html");
         }
@@ -178,9 +187,30 @@ public class WnWebsiteTranslating {
         this.wwwIndexWnmlObj = sys.io.createIfNoExists(wwwDirObj, "index.html", WnRace.FILE);
         this.wwwIndexDoc = Jsoup.parse(input);
 
-        // 搞哥新的并渲染
-        Document doc = wwwIndexDoc.clone();
+        // 搞个新的并渲染
+        Document doc = wwwIndexDoc;
         this.wnmlService.invoke(this.wnmlRuntime, context, doc);
+
+        // 寻找到入口函数
+        Elements $mains = doc.select("script[ssr-page-main]");
+        if (null != $mains && $mains.size() > 0) {
+            Element $main = $mains.get(0);
+            String mainJs = $main.html();
+            // 生成一个新的全局入口 JS
+            WnObj oMainJs = sys.io.createIfNoExists(wwwDirObj, "main.js", WnRace.FILE);
+            sys.io.writeText(oMainJs, mainJs);
+            // 不需要了
+            $mains.remove();
+
+            // 获取 pageBase
+            String base = context.getString("base", "/");
+
+            // 添加一个引入
+            $main = doc.createElement("script");
+            $main.attr("type", "module");
+            $main.attr("src", Wn.appendPath(base, "main.js"));
+            doc.body().appendChild($main);
+        }
 
         // 输出
         String html = doc.toString();
@@ -189,8 +219,6 @@ public class WnWebsiteTranslating {
         if (!this.quiet) {
             sys.out.println(" - done");
         }
-
-        return this.wwwIndexWnmlObj;
 
     }
 
@@ -205,26 +233,35 @@ public class WnWebsiteTranslating {
         return context;
     }
 
-    public WnObj doSiteState(WnObj oSiteState) {
+    public void doSiteState(WnObj oSiteState) {
         WnObj oTaSS = sys.io.createIfNoExists(wwwDirObj, "site-state.json", WnRace.FILE);
         String text = sys.io.readText(oSiteState);
-        NutMap map = Json.fromJson(NutMap.class, text);
+        this.siteStateMap = Json.fromJson(NutMap.class, text);
         // 因为正在 ti-web-app-main.mjs 这个入口层面增加了 deps
         // 这里就不要增加了
-        map.putAll(this.vars);
-        map.remove("deps");
+        siteStateMap.putAll(this.vars);
+        siteStateMap.remove("deps");
 
         // 解析
-        this.siteState = Lang.map2Object(map, WebsiteState.class);
+        this.siteState = Lang.map2Object(siteStateMap, WebsiteState.class);
 
-        sys.io.writeJson(oTaSS, map, JsonFormat.full());
+        sys.io.writeJson(oTaSS, siteStateMap, JsonFormat.full());
         if (!this.quiet) {
             JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
             String brief = Json.toJson(vars, jfmt);
             sys.out.printlnf(" + site-state.json : {%s}", brief);
         }
+    }
 
-        return oTaSS;
+    public void doAppJson(WnObj oAppJson) {
+        WnObj oTaApp = sys.io.createIfNoExists(wwwDirObj, "_app.json", WnRace.FILE);
+        NutMap app = sys.io.readJson(oAppJson, NutMap.class);
+        NutMap store = app.getAs("store", NutMap.class);
+        if (null != store) {
+            store.put("state", this.siteStateMap);
+            app.put("store", store);
+        }
+        sys.io.writeJson(oTaApp, app, JsonFormat.full());
     }
 
     public boolean isQuiet() {
@@ -295,6 +332,14 @@ public class WnWebsiteTranslating {
 
     public WnObj getSrcSiteStateObj() {
         return srcSiteStateObj;
+    }
+
+    public WnObj getSrcAppJsonObj() {
+        return srcAppJsonObj;
+    }
+
+    public void setSrcAppJsonObj(WnObj srcAppJsonObj) {
+        this.srcAppJsonObj = srcAppJsonObj;
     }
 
     public void setSrcSiteStateObj(WnObj oSrcSiteState) {
