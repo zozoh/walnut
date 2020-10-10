@@ -169,6 +169,9 @@ public class AppModule extends AbstractWnModule {
             return new ViewWrapper(new RawView("html"), html);
         }
         catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Fail to open", e);
+            }
             return HttpStatusView.HTTP_404;
         }
     }
