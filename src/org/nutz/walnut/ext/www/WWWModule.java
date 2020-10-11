@@ -79,7 +79,7 @@ public class WWWModule extends AbstractWnModule {
 
     @Inject("java:$conf.get('usr-email')")
     private Pattern regexEmail;
-    
+
     /**
      * 会话有效期(秒）默认 86400 秒
      */
@@ -525,6 +525,17 @@ public class WWWModule extends AbstractWnModule {
         }
         // 否则如果有 ROOT 在其内查找
         else if (null != oWWW) {
+            // 看看是否能直接读到，如果直接有，那么就证明虚页被服务器渲染了，直接读它
+            if (!a_path.startsWith("~")
+                && !a_path.startsWith("/")
+                && !a_path.contains("id:")
+                && a_path.endsWith(".html")) {
+                o = io().fetch(oWWW, a_path);
+                if (null != o) {
+                    return o;
+                }
+            }
+
             // 如果路径没后缀，或者是 xxx.html（虚网页） 那么试图根据 www_pages，处理一下虚页
             // www_pages : ["index.wnml:abc/page/*,xyz/page/*"]
             if (a_path.endsWith(".html") || !a_path.matches("^.+[.][a-z]+$")) {

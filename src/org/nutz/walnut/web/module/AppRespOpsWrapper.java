@@ -17,10 +17,20 @@ public class AppRespOpsWrapper extends OutputStream {
 
     private List<OutputStream> watchs;
 
+    private boolean forceFlush;
+
     public AppRespOpsWrapper(HttpRespStatusSetter resp, int statusCode) {
         this.resp = resp;
         this.ops = resp.getOutputStream();
         this.statusCode = statusCode;
+    }
+
+    public boolean isForceFlush() {
+        return forceFlush;
+    }
+
+    public void setForceFlush(boolean forceFlush) {
+        this.forceFlush = forceFlush;
     }
 
     /**
@@ -30,17 +40,17 @@ public class AppRespOpsWrapper extends OutputStream {
      *            字符串缓冲
      */
     public void addStringWatcher(StringBuilder sb) {
-    	addWatcher(Lang.ops(sb));
+        addWatcher(Lang.ops(sb));
     }
 
     public void addWatcher(OutputStream wo) {
-    	if (watchs == null)
-    		watchs = new ArrayList<OutputStream>(1);
+        if (watchs == null)
+            watchs = new ArrayList<OutputStream>(1);
         watchs.add(wo);
     }
 
     public void write(int b) throws IOException {
-        write(new byte[] {(byte)b}, 0, 1);
+        write(new byte[]{(byte) b}, 0, 1);
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
@@ -58,6 +68,10 @@ public class AppRespOpsWrapper extends OutputStream {
     }
 
     public void flush() throws IOException {
+        if (this.forceFlush) {
+            ops.flush();
+            resp.flushBuffer();
+        }
         // 同步刷新观察者流
         if (watchs != null) {
             for (OutputStream wo : watchs)
@@ -66,8 +80,9 @@ public class AppRespOpsWrapper extends OutputStream {
     }
 
     public void close() throws IOException {
-        ops.close();
+        ops.flush();
         resp.flushBuffer();
+        ops.close();
 
         // 同步关闭观察者流
         if (watchs != null) {

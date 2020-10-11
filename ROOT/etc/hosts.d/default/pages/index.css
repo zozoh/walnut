@@ -4,6 +4,7 @@
 html, body {
   height: 100%; 
   font-size: 18px; margin:0;
+  font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
 }
 body {
   display: flex;
@@ -35,14 +36,20 @@ section {
   margin: 1em;
 }
 input {
-  width:100%; font-size: inherit; padding: 1em;
+  width:100%; font-size: inherit; padding: .8em;
   outline: none; border:1px solid #08F;
   transition: .8s; opacity: 0;
+  font-family: inherit;
+  font-size: 1.2em;
 }
 input[name='name']   {
   transition-delay: 0s;
   transform: translateX(-5em);
 }
+::-webkit-input-placeholder {color: #CCC;}
+:-moz-placeholder           {color: #CCC;}
+::-moz-placeholder          {color: #CCC;}
+:-ms-input-placeholder      {color: #CCC;}
 input[name='passwd'] {
   transition-delay: .3s;
   transform: translateX(5em);
@@ -52,6 +59,7 @@ button {
   background: #08F; color:#FFF;
   border:0; outline: none;
   cursor: pointer;
+  font-family: inherit; font-size: inherit;
   transition: transform 1s; opacity: 0; transform: translateY(5em);
 }
 button:hover {

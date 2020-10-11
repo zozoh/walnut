@@ -2,7 +2,6 @@ package org.nutz.walnut.web.module;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -169,6 +168,9 @@ public class AppModule extends AbstractWnModule {
             return new ViewWrapper(new RawView("html"), html);
         }
         catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Fail to open", e);
+            }
             return HttpStatusView.HTTP_404;
         }
     }
@@ -277,6 +279,7 @@ public class AppModule extends AbstractWnModule {
      * @param PWD
      * @param cmdText
      * @param in
+     * @param forceFlushBuffer
      * @param req
      * @param resp
      * @throws IOException
@@ -291,6 +294,7 @@ public class AppModule extends AbstractWnModule {
                     @Param("PWD") String PWD,
                     @Param("cmd") String cmdText,
                     @Param("in") String in,
+                    @Param("ffb") boolean forceFlushBuffer,
                     HttpServletRequest req,
                     final HttpServletResponse resp)
             throws IOException {
@@ -307,9 +311,15 @@ public class AppModule extends AbstractWnModule {
 
         // 准备输出
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
-        OutputStream out = new AppRespOpsWrapper(_resp, 200);
-        OutputStream err = new AppRespOpsWrapper(_resp, 500);
+        AppRespOpsWrapper out = new AppRespOpsWrapper(_resp, 200);
+        AppRespOpsWrapper err = new AppRespOpsWrapper(_resp, 500);
         InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
+
+        // 强制触发响应刷新缓冲
+        if (forceFlushBuffer) {
+            out.setForceFlush(true);
+            err.setForceFlush(true);
+        }
 
         // 执行
         apps.runCommand(app, metaOutputSeparator, PWD, cmdText, out, err, ins);

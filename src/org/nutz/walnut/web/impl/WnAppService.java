@@ -11,12 +11,15 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.web.bean.WnApp;
+import org.nutz.web.WebException;
 
 /**
  * 封装系统 应用的相关逻辑
@@ -25,6 +28,8 @@ import org.nutz.walnut.web.bean.WnApp;
  */
 @IocBean
 public class WnAppService extends WnRun {
+
+    private static final Log log = Logs.get();
 
     /**
      * 运行一个命令
@@ -309,9 +314,17 @@ public class WnAppService extends WnRun {
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
-            WnObj o = io().fetch(null, ph);
-            if (null != o)
-                return o;
+            try {
+                WnObj o = io().fetch(null, ph);
+                if (null != o)
+                    return o;
+            }
+            catch (WebException e) {
+                log.warn("Fail to fetch " + ph, e);
+                if ("e.io.obj.noexists".equals(e.getKey())) {
+                    continue;
+                }
+            }
         }
         return null;
     }

@@ -134,6 +134,10 @@ public class HttpApiModule extends AbstractWnModule {
             __fill_req_meta(apc);
 
             // .........................................
+            // 验证 Access token
+            __check_api_access_token(apc);
+
+            // .........................................
             // 对所有的元数据进行逃逸处理
             __escape_req_meta(apc);
 
@@ -222,7 +226,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
             // .........................................
             // 不是 4xx 的话，默认设置 500，并且打印的
-            if (apc.respCode < 500) {
+            if (apc.respCode < 400) {
                 apc.respCode = 500;
             }
             if (apc.respCode >= 500) {
@@ -237,6 +241,37 @@ public class HttpApiModule extends AbstractWnModule {
             return;
         }
 
+    }
+
+    private void __check_api_access_token(final WnHttpApiContext apc) {
+        String at = apc.oApi.getString("api-access-token");
+        if (!Strings.isBlank(at)) {
+            // 分析 Key 和 Path
+            String atKey, atPath;
+            int pos = at.indexOf('=');
+            if (pos > 0) {
+                atKey = at.substring(0, pos).trim();
+                atPath = at.substring(pos + 1).trim();
+            } else {
+                atKey = at.trim();
+                atPath = "~/.domain/api_access_token";
+            }
+            // 读取 Key
+            String atClientKey = apc.reqMeta.getString(atKey);
+            if (Strings.isBlank(atClientKey)) {
+                throw Er.create("e.api.forbid");
+            }
+            // 读取验证 key
+            String phDmnKey = Wn.normalizeFullPath(atPath, apc.se);
+            WnObj oDmnKey = io().fetch(null, phDmnKey);
+            if (null == oDmnKey) {
+                throw Er.create("e.api.forbid");
+            }
+            String atDmnKey = io().readText(oDmnKey).trim();
+            if (!atClientKey.equals(atDmnKey)) {
+                throw Er.create("e.api.forbid");
+            }
+        }
     }
 
     private void __do_www_check_pvg(final WnHttpApiContext apc) {
