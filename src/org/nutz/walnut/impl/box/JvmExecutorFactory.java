@@ -42,23 +42,27 @@ public class JvmExecutorFactory {
                     for (String pkg : scanPkgs) {
                         List<Class<?>> list = Scans.me().scanPackage(pkg, "^cmd_.+[.]class$");
                         list.stream().parallel().forEach((klass)->{
-                         // 跳过抽象类
-                            if (Modifier.isAbstract(klass.getModifiers()))
-                                return;
-                            // 跳过内部类
-                            if (klass.getName().contains("$"))
-                                return;
+                        	try {
+								// 跳过抽象类
+								if (Modifier.isAbstract(klass.getModifiers()))
+								    return;
+								// 跳过内部类
+								if (klass.getName().contains("$"))
+								    return;
 
-                            // 看看是不是一个 JvmExecutor
-                            Mirror<?> mi = Mirror.me(klass);
-                            if (mi.isOf(JvmExecutor.class)) {
-                                JvmExecutor je = (JvmExecutor) mi.born();
-                                je.ioc = ioc;
-                                String nm = je.getMyName();
-                                map.put(nm, je);
-                                if (log.isInfoEnabled())
-                                    log.infof("jvmexec: '%s' -> %s", nm, klass.getName());
-                            }
+								// 看看是不是一个 JvmExecutor
+								Mirror<?> mi = Mirror.me(klass);
+								if (mi.isOf(JvmExecutor.class)) {
+								    JvmExecutor je = (JvmExecutor) mi.born();
+								    je.ioc = ioc;
+								    String nm = je.getMyName();
+								    map.put(nm, je);
+								    if (log.isInfoEnabled())
+								        log.infof("jvmexec: '%s' -> %s", nm, klass.getName());
+								}
+							} catch (Throwable e) {
+								log.warn("skip error cmd " + klass.getName(), e);
+							}
                         });
                     }
                     this.map = map;
