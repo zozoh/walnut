@@ -233,6 +233,7 @@ CREATE TABLE `t_history` (
 	PRIMARY KEY (`id`),
 	INDEX `UID` (`uid`),
 	INDEX `TID` (`tid`),
+	INDEX `CT` (`ct`),
 	INDEX `UID_CT` (`uid`, `ct`),
 	INDEX `TID_CT` (`tid`, `ct`)
 )

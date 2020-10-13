@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1356,13 +1357,13 @@ public abstract class Wn {
         // 日期对象
         if (s.startsWith("%date:")) {
             String str = Strings.trim(s.substring("%date:".length()));
-            long ms = __eval_time_macro(str);
+            long ms = __eval_datetime_str(str);
             v2 = Times.D(ms);
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {
             String str = Strings.trim(s.substring("%ms:".length()));
-            v2 = __eval_time_macro(str);
+            v2 = __eval_datetime_str(str);
         }
         // 默认采用原值
         else {
@@ -1371,7 +1372,7 @@ public abstract class Wn {
         return v2;
     }
 
-    private static long __eval_time_macro(String str) {
+    private static long __eval_datetime_str(String str) {
         long ms = -1;
 
         // 判断到操作符
@@ -1398,6 +1399,22 @@ public abstract class Wn {
             ms = Times.D(str).getTime();
         }
         return ms;
+    }
+
+    public static Date evalDateBy(String str) {
+        long ms = __eval_datetime_str(str);
+        if (ms > 0) {
+            return new Date(ms);
+        }
+        return Times.D(str);
+    }
+
+    public static long evalDateMs(String str) {
+        long ms = __eval_datetime_str(str);
+        if (ms > 0) {
+            return ms;
+        }
+        return Times.D(str).getTime();
     }
 
     /**
