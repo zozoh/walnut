@@ -31,7 +31,7 @@
 
 ```bash
 statistics {Name} aggregate
-  [-dbegin 2020-09-21]   # 时间范围（起始日期时间）默认从to向前7天
+  [-dbegin 2020-09-21]   # 时间范围（起始日期时间）默认从dend向前7天
   [-dend   now-1d]       # 时间范围（截止日期时间）默认昨天
 ```
 

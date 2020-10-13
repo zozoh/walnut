@@ -82,7 +82,7 @@ public abstract class Wn {
         return System.currentTimeMillis();
     }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhd])?$");
+    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
     private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
     protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
 
@@ -1421,10 +1421,12 @@ public abstract class Wn {
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒
      * 
      * <ul>
+     * <li><code>10s</code> 表示10秒
      * <li><code>20m</code> 表示20分钟
      * <li><code>1h</code> 表示1小时
      * <li><code>1d</code> 表示一天
-     * <li><code>100s</code> 表示 100 秒</li>
+     * <li><code>1w</code> 表示一周
+     * <li><code>100</code> 表示 100毫秒</li>
      * 
      * @param str
      *            描述时间的字符串
@@ -1451,6 +1453,10 @@ public abstract class Wn {
         // d 天
         else if ("d".equals(unit)) {
             return ms * 86400000L;
+        }
+        // w 周
+        else if ("w".equals(unit)) {
+            return ms * 86400000L * 7;
         }
         // 默认就是毫秒
         return ms;

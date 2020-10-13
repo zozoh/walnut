@@ -1,9 +1,13 @@
 package org.nutz.walnut.ext.entity.history;
 
+import java.util.Date;
+
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
 import org.nutz.json.JsonField;
+import org.nutz.lang.Times;
+import org.nutz.lang.util.NutMap;
 
 @Table("${t_history}")
 public class HistoryRecord {
@@ -74,6 +78,34 @@ public class HistoryRecord {
     @JsonField("mor")
     private String more;
 
+    public String toString() {
+        Date d = Times.D(this.createTime);
+        String ds = Times.format("yyyy-MM-dd HH:mm:ss.SSS", d);
+        return String.format("%s:U(%s)@%sDO(%s)->%s:%s",
+                             id,
+                             userId,
+                             ds,
+                             operation,
+                             targetId,
+                             targetType);
+    }
+
+    public NutMap toBean() {
+        NutMap map = new NutMap();
+        map.put("id", id);
+        map.put("uid", userId);
+        map.put("unm", userName);
+        map.put("utp", userType);
+        map.put("ct", createTime);
+        map.put("cts", Times.format("yyyy-MM-dd HH:mm:ss.SSS", new Date(createTime)));
+        map.put("tid", targetId);
+        map.put("tnm", targetName);
+        map.put("ttp", targetType);
+        map.put("opt", operation);
+        map.put("mor", more);
+        return map;
+    }
+
     public boolean hasId() {
         return null != id;
     }
@@ -108,6 +140,10 @@ public class HistoryRecord {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public boolean hasCreateTime() {
+        return createTime > 0;
     }
 
     public long getCreateTime() {

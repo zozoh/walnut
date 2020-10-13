@@ -10,7 +10,7 @@
 ```js
 {
   // 预先定义数据集合
-  schama : {
+  schema : {
     // 指向一个数据目录或者文件的路径，如果是目录则查找其内子对象
     // 如果是文件，则认为是一个 JSON 数据的文件
     "accounts" : {
@@ -32,25 +32,25 @@
     // 那么 Hisotry API 会自动为其分配一个真正的 ID
     gen : "FAKE-${seq}"
   },
-  uid : {
+  userId : {
     // 数据采用哪个 schema
     // 如果多个键采用相同的schema，则标识从对应对象上选取不同的 key
-    schama : "accounts",
+    schema : "accounts",
     // 对应数据集合的对象里面的哪个键
     key : "id"
   },
-  unm : {
-    schama : "accounts",
+  userName : {
+    schema : "accounts",
     key  : "nickname",
   },
-  tid : {
-    schama : "videos",
+  targetId : {
+    schema : "videos",
     key : "id"
   },
-  ttp : {
+  targetType : {
     value : "video"  // 直接采用一个静态值
   },
-  opt : {
+  operation : {
     cans : ["pay","view","like"]
   },
 
@@ -64,10 +64,19 @@
 ```bash
 history {HistoryName} fake 
   [/path/to/conf]        # Fake 的配置文件路径
-  [-dbegin 2020-09-21]   # 模拟数据的时间范围（起始日期时间）默认从to向前7天
-  [-dend   now-1d]       # 模拟数据的时间范围（截止日期时间）默认昨天
-  [-nb   100]            # 一共需要模拟多少条数据
-  [-seq  0]              # 伪记录的序号起始值，配置了声明了id:{gen:".."}时有效
+  [-date   now-1d]       # 模拟数据的起始时间，默认昨天
+  [-span   7d]           # 时间跨度，向过去多久
+  [-nb   100]            # 一共需要模拟多少条数据，默认 10
+  [-seq  0]              # 伪记录的序号起始值，默认 0
+                         # 配置了{gen:".."}的字段有效
+  [-idpad 6]             # 伪需要的补零位，默认 6
+  [-test]                # 并不真的执行数据的插入，只是预览
+  [-quiet]               # 静默输出
+  [-tmpl "@{xx}"]        # 输出为模板
+  [-t 'id,uid']          # 输出为表格
+  [-json]                # 输出为 JSON
+  [-cqn ]                # 输出为 JSON 时的格式化
+  [-bish]                # 输出位 -t 时的格式化
 ```
 
 示例
