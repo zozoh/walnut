@@ -8,5 +8,6 @@
 
 ```bash
 # 子命令
-history {Name} aggregate    # 数据聚合
+statistics aggregate    # 数据聚合
+statistics summary      # 数据汇总（譬如获取 Top10，以便显示饼柱折）
 ```

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.entity.history.HistoryApi;
 import org.nutz.walnut.ext.entity.history.HistoryRecord;
 import org.nutz.walnut.ext.entity.history.WnHistoryService;
@@ -23,7 +22,7 @@ public class history_fake implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 参数
-        int nb = hc.params.getInt("nb", 10);
+        int nb = hc.params.getInt("N", 10);
         int seq = hc.params.getInt("seq", 0);
         int pad = hc.params.getInt("pad", 6);
         boolean test = hc.params.is("test");
@@ -45,9 +44,7 @@ public class history_fake implements JvmHdl {
         }
 
         // 准备配置文件
-        String phConf = hc.params.val_check(0);
-        WnObj oConf = Wn.checkObj(sys, phConf);
-        HistoryFakeConfig config = sys.io.readJson(oConf, HistoryFakeConfig.class);
+        HistoryFakeConfig config = Cmds.readConfig(sys, hc.params, HistoryFakeConfig.class);
 
         // 准备接口
         HistoryApi api = hc.getAs("api", WnHistoryService.class);
