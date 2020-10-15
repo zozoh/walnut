@@ -34,7 +34,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     public DaoIndexer(WnObj root, MimeMap mimes, WnDaoConfig config) {
         super(root, mimes);
-        this.dao = WnDaos.get(config);
+        this.dao = WnDaos.get(config.getAuth());
 
         // TODO 通过 config 生成 Entity
         JdbcExpert expert = dao.getJdbcExpert();

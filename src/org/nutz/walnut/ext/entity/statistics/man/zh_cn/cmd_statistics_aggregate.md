@@ -3,36 +3,21 @@
 
 `statistics aggregate` 将一组数据表中的记录，聚合到另外一张数据表中
 
-它需要下面的输入：
-
-- 从哪个表?
-- 选择哪些数据？
-- 如何分组 (多个字段形成一个 KEY)
-- 如何处理时间
-  - 时间来自源数据的哪个字段
-  - 时间存储到目标数据的哪个字段
-  - 目标数据上标识时间（日期+00:00）以便可以跨月跨年选择时间段
-  - 时间也可以分解成，年，月，日，周，时，分，秒，以便进行环比统计
-- 聚集到哪个表？
-  + 聚集值`val`是什么字段 
-  + Copy(映射)哪些字段
-- 是否强制重新聚合
-  + 否则会先在结果表查一下，没有的日期会重新计算
-
 ```js
 {
-  // 来自哪个表
-  srcDao   : "default",      // 默认为 default
-  srcTable : "t_history",
+  // 原始来自哪个表
+  dao   : "default",      // 默认为 default
+  tableName : "t_history",
   // 将结果存放到哪个表
   targetDao   : "default",   // 默认与 srcDao 相同
-  targetTable : "t_agg_date",
+  targetTableName : "t_agg_date",
   // 选择哪些数据
   query : {},
   // 原始字段中，哪个代表日期时间
   // 根据日期时间，会拆分出如下的 key
+  //  - @key (根据 groupBy 生成的 key)
   //  - @year  (2009)
-  //  - @month (1base)
+  //  - @month (0base)
   //  - @date  (1base)
   //  - @week  (1base)
   //  - @day  (0-Sun. 1-6)
@@ -40,16 +25,21 @@
   //  - @minute (0-59)
   //  - @second (0-59)
   //  - @ams (绝对毫秒数)
+  //  - @format (根据 dateFormat 生成的格式化字符串)
+  //  - @value (累计值)
+  // 默认 ct
   dateTimeBy : "ct",
+  // 日期时间的格式化字符串，默认 "yyyy-MM-dd"
+  dateFormat : "yyyy-MM-dd",
   // 字段如何分组，根据这个模板算出一个键，就用它分组
   // 所有匹配的值，将会聚集在一起计数
-  // 形成一个聚集值 @aggValue， 并加入上下文
+  // 形成一个聚集值 @value 并加入上下文
   groupBy : "${tid}_${ttp}_${opt}_${@year}_${@month}_${@date}"
-  // 目标记录是怎样的
-  record : {
+  // 目标记录是怎样的映射
+  mapping : {
     tid   : "=tid",
     tp    : "->${ttp}-${opt}",
-    val   : "=@aggValue",
+    val   : "=@value",
     tams  : "=@ams",
     year  : "=@year",
     month : "=@month",
@@ -69,6 +59,7 @@
   //  - week1 : 开始周一 00:00:00 至 结尾周下一周一 00:00:00
   //  - day   : 开始日 00:00:00 至 结尾日下一天的 00:00:00
   //  - hour  : 开始小时的 00:00 至结尾小时下一小时的 00:00
+  // 默认为 day
   markUnit : "day"
   // 标记文件太大也会影响效率，所以每次存储前都会预先剪裁
   // 这里限制最多从今天向前存储 300天， 支持
@@ -77,8 +68,9 @@
   //  - 1h 表示1小时 
   //  - 1d 表示一天 
   //  - 1w 表示一周 
-  //  - 100 表示 100毫秒
-  markRemain : "300d"
+  //  - 100 表示 100毫秒】
+  // 默认为 366d 
+  markRemain : "366d"
 }
 ```
 

@@ -386,7 +386,7 @@ public class IoCoreSetup {
 
     public void cleanDaoData() {
         WnDaoConfig daoConf = this.getWnDaoConfig();
-        Dao dao = WnDaos.get(daoConf);
+        Dao dao = WnDaos.get(daoConf.getAuth());
         WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
         WnObjEntity entity = ing.generate();
 

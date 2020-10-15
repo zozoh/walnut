@@ -24,6 +24,6 @@ public class cmd_newsfeed extends JvmDaoEntityExecutor {
             born = mi.getBorningByArgTypes(WnDaoConfig.class, Dao.class);
         }
 
-        this.setupContext(sys, hc, born);
+        this.setupContext(sys, hc, WnDaoConfig.class, born);
     }
 }

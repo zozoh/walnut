@@ -30,7 +30,7 @@ public abstract class JvmDaoEntityExecutor extends JvmHdlExecutor {
             hc.hdlName = hc.args[0];
             pos = 1;
         }
-        // 第一个参数表示一个 newsfeed 的配置文件名
+        // 第一个参数表示配置文件名
         // 路径固定是在 ~/.domain/${name}/ 目录下
         else if (hc.args.length >= 2) {
             String confName = hc.args[0];
@@ -51,14 +51,17 @@ public abstract class JvmDaoEntityExecutor extends JvmHdlExecutor {
         hc.args = Arrays.copyOfRange(hc.args, pos, hc.args.length);
     }
 
-    protected <T> void setupContext(WnSystem sys, JvmHdlContext hc, Borning<T> born)
+    protected <T> void setupContext(WnSystem sys,
+                                    JvmHdlContext hc,
+                                    Class<? extends WnDaoConfig> configType,
+                                    Borning<T> born)
             throws Exception {
         // 读取数据源的配置信息
-        WnDaoConfig conf = WnDaos.loadConfig(sys, hc.oRefer);
+        WnDaoConfig conf = WnDaos.loadConfig(configType, sys, hc.oRefer);
         hc.put("config", conf);
 
         // 读取数据库连接信息
-        Dao dao = WnDaos.get(conf);
+        Dao dao = WnDaos.get(conf.getAuth());
         hc.put("dao", dao);
 
         // 准备 API

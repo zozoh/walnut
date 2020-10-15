@@ -1073,8 +1073,8 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 生成服务类
-        WnDaoConfig conf = WnDaos.loadConfig(io(), oHis, apc.se);
-        Dao dao = WnDaos.get(conf);
+        WnDaoConfig conf = WnDaos.loadConfig(WnDaoConfig.class, io(), oHis, apc.se);
+        Dao dao = WnDaos.get(conf.getAuth());
         HistoryApi api = new WnHistoryService(conf, dao);
 
         // 看看有木有替换的模板

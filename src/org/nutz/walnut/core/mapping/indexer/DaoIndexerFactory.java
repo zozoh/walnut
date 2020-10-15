@@ -90,7 +90,10 @@ public class DaoIndexerFactory implements WnIndexerFactory {
             String aph = Wn.appendPath(homePath, ".io/ix", fnm);
             WnObj o = io.fetch(null, aph);
             if (null != o) {
-                WnDaoConfig conf = WnDaos.loadConfig(io, o, Lang.map("HOME", homePath));
+                WnDaoConfig conf = WnDaos.loadConfig(WnDaoConfig.class,
+                                                     io,
+                                                     o,
+                                                     Lang.map("HOME", homePath));
                 return new DaoIndexer(oHome, mimes, conf);
             }
         }
