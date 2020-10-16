@@ -28,11 +28,11 @@ public class history_fake implements JvmHdl {
         boolean test = hc.params.is("test");
 
         // 参数:时间范围:结束日期
-        String date = hc.getString("date", "now-1d");
+        String date = hc.params.getString("date", "now-1d");
         long endInMs = Wn.evalDateMs(date);
 
         // 参数:时间范围:开始日期
-        String span = hc.getString("span", "7d");
+        String span = hc.params.getString("span", "7d");
         long spanInMs = Wn.msValueOf(span);
         long beginInMs = endInMs - spanInMs;
 

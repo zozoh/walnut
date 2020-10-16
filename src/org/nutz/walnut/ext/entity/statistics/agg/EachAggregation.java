@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.entity.statistics;
+package org.nutz.walnut.ext.entity.statistics.agg;
 
 import java.util.List;
 
