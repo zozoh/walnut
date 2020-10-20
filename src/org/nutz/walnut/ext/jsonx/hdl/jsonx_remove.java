@@ -13,7 +13,7 @@ import org.nutz.walnut.ext.jsonx.JsonXFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.match.AutoMultiStrMatch;
+import org.nutz.walnut.validate.impl.AutoMultiStrMatch;
 
 public class jsonx_remove extends JsonXFilter {
 

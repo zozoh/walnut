@@ -579,11 +579,16 @@ public abstract class Wn {
             // 仅仅是映射
             String valKey = map.getString("key");
             Object mapping = map.get("mapping");
+            Object dftValue = map.get("dft");
             if (!Strings.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
                 Object val = context.get(valKey);
                 if (null != val) {
                     Map<String, Object> valMapping = (Map<String, Object>) mapping;
-                    return valMapping.get(val);
+                    Object reVal = valMapping.get(val);
+                    if (null == reVal) {
+                        reVal = dftValue;
+                    }
+                    return reVal;
                 }
                 return val;
             }

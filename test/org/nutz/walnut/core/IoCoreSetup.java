@@ -46,7 +46,7 @@ import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.impl.lock.redis.RedisLockApi;
 import org.nutz.walnut.util.MongoDB;
@@ -70,7 +70,7 @@ public class IoCoreSetup {
 
     private static MongoIndexer globalIndexer;
 
-    private static WnDaoConfig daoConfig;
+    private static WnDaoMappingConfig daoConfig;
 
     private static DaoIndexer daoIndexer;
 
@@ -276,7 +276,7 @@ public class IoCoreSetup {
 
     public DaoIndexer getDaoIndexer() {
         if (null == daoIndexer) {
-            WnDaoConfig conf = getWnDaoConfig();
+            WnDaoMappingConfig conf = getWnDaoConfig();
             WnObj root = this.getRootNode();
             MimeMap mimes = this.getMimes();
             daoIndexer = new DaoIndexer(root, mimes, conf);
@@ -284,12 +284,12 @@ public class IoCoreSetup {
         return daoIndexer;
     }
 
-    public WnDaoConfig getWnDaoConfig() {
+    public WnDaoMappingConfig getWnDaoConfig() {
         if (null == daoConfig) {
             String aph = "org/nutz/walnut/core/indexer/dao/dao_indexer.json";
             String json = Files.read(aph);
             json = explainConfig(json);
-            daoConfig = Json.fromJson(WnDaoConfig.class, json);
+            daoConfig = Json.fromJson(WnDaoMappingConfig.class, json);
         }
         return daoConfig;
     }
@@ -385,7 +385,7 @@ public class IoCoreSetup {
     }
 
     public void cleanDaoData() {
-        WnDaoConfig daoConf = this.getWnDaoConfig();
+        WnDaoMappingConfig daoConf = this.getWnDaoConfig();
         Dao dao = WnDaos.get(daoConf.getAuth());
         WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
         WnObjEntity entity = ing.generate();

@@ -45,16 +45,16 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.entity.history.HistoryApi;
+import org.nutz.walnut.ext.entity.history.HistoryConfig;
 import org.nutz.walnut.ext.entity.history.HistoryRecord;
 import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.ext.pvg.BizPvgService;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnStr;
-import org.nutz.walnut.validate.WnValidate;
-import org.nutz.walnut.validate.match.AutoMatch;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoMatch;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.module.AppRespOpsWrapper;
@@ -602,16 +602,11 @@ public class HttpApiModule extends AbstractWnModule {
         }
         // 逐个判断
         for (NutMap jm : list) {
-            NutMap test = jm.getAs("test", NutMap.class);
+            Object test = jm.get("test");
             // 需要判断
             if (null != test) {
-                // 一定跳过
-                if (test.isEmpty()) {
-                    continue;
-                }
-                // 木有匹配，则跳过
-                WnValidate vali = new WnValidate(test);
-                if (!vali.match(apc.reqMeta)) {
+                WnMatch m = new AutoMatch(test);
+                if (!m.match(apc.reqMeta)) {
                     continue;
                 }
             }
@@ -769,31 +764,10 @@ public class HttpApiModule extends AbstractWnModule {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean __is_cache_match(Object cacheMatch, NutMap reqQueryMap) {
         if (null != cacheMatch) {
-            // 单个条件
-            if (cacheMatch instanceof Map<?, ?>) {
-                NutMap matchMap = NutMap.WRAP((Map<String, Object>) cacheMatch);
-                WnValidate vli = new WnValidate(matchMap);
-                if (!vli.match(reqQueryMap)) {
-                    return false;
-                }
-            }
-            // 一组条件（或的关系）
-            else if (cacheMatch instanceof Collection<?>) {
-                Collection<?> col = (Collection<?>) cacheMatch;
-                for (Object mc : col) {
-                    if (null != mc && mc instanceof Map<?, ?>) {
-                        NutMap matchMap = NutMap.WRAP((Map<String, Object>) mc);
-                        WnValidate vli = new WnValidate(matchMap);
-                        if (vli.match(reqQueryMap)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
+            WnMatch am = new AutoMatch(cacheMatch);
+            return am.match(reqQueryMap);
         }
         return true;
     }
@@ -917,19 +891,37 @@ public class HttpApiModule extends AbstractWnModule {
 
     @SuppressWarnings("unchecked")
     private void __do_preload(WnHttpApiContext apc) {
-        List<NutMap> preload = apc.oApi.getAsList("preload", NutMap.class);
-        if (null == preload || preload.isEmpty())
+        Object preloadObj = apc.oApi.get("preload");
+        if (null == preloadObj)
+            return;
+
+        List<NutMap> preloads = new LinkedList<>();
+        if (preloadObj instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) preloadObj;
+            for (Object o : coll) {
+                if (o instanceof Map<?, ?>) {
+                    preloads.add(NutMap.WRAP((Map<String, Object>) o));
+                }
+            }
+        }
+        // 单个
+        else if (preloadObj instanceof Map<?, ?>) {
+            preloads.add(NutMap.WRAP((Map<String, Object>) preloadObj));
+        }
+
+        if (preloads.isEmpty())
             return;
 
         // 寻找到第一个可被处理的预加载命令
-        for (NutMap plItem : preload) {
+        boolean isPreloaded = false;
+        for (NutMap plItem : preloads) {
             Object test = plItem.get("test");
             AutoMatch am = new AutoMatch(test);
 
             // 置否需要预先转换
-            NutMap translate = plItem.getAs("translate", NutMap.class);
-            if (null != translate && !translate.isEmpty()) {
-                NutMap more = (NutMap) Wn.explainObj(apc.reqMeta, translate);
+            NutMap appends = plItem.getAs("appends", NutMap.class);
+            if (null != appends && !appends.isEmpty()) {
+                NutMap more = (NutMap) Wn.explainObj(apc.reqMeta, appends);
                 if (null != more && !more.isEmpty()) {
                     apc.reqMeta.putAll(more);
                 }
@@ -939,9 +931,6 @@ public class HttpApiModule extends AbstractWnModule {
             if (!am.match(apc.reqMeta)) {
                 continue;
             }
-
-            // 准备存储执行结果
-            NutMap preloaded = new NutMap();
 
             // 执行
             NutMap run = plItem.getAs("run", NutMap.class);
@@ -961,33 +950,43 @@ public class HttpApiModule extends AbstractWnModule {
                     // 执行命令
                     Tmpl tmpl = Tmpl.parse(cmd.toString());
                     String cmdText = tmpl.render(apc.reqMeta);
-                    String re = this.exec("api-preload", apc.se, cmdText);
+                    try {
+                        String re = this.exec("api-preload", apc.se, cmdText);
 
-                    // 解析结果
-                    Object reo = re;
-                    if (!isPureText) {
-                        reo = Json.fromJson(re);
-                    }
+                        // 解析结果
+                        Object reo = re;
+                        if (!isPureText) {
+                            reo = Json.fromJson(re);
+                        }
 
-                    // 计入结果：全部
-                    if ("...".equals(key)) {
-                        if (reo instanceof Map) {
-                            preloaded.putAll((Map<String, Object>) reo);
+                        // 计入结果：全部
+                        if ("...".equals(key)) {
+                            if (reo instanceof Map) {
+                                apc.reqMeta.putAll((Map<String, Object>) reo);
+                            }
+                        }
+                        // 计入结果：指定键
+                        else {
+                            apc.reqMeta.put(key, reo);
                         }
                     }
-                    // 计入结果：指定键
-                    else {
-                        preloaded.put(key, reo);
+                    catch (Exception e) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Fail to run preload: " + key + " : " + cmd, e);
+                        }
                     }
                 }
-            }
 
-            // Join to meta
-            apc.reqMeta.putAll(preloaded);
+                // 标记一下已经执行了预加载
+                isPreloaded = true;
+            }
 
             // 跳出
             break;
         }
+
+        // 如果执行了 preload，则进行标志
+        apc.reqMeta.put("api-preloaded", isPreloaded);
     }
 
     private static final Pattern P = Regex.getPattern("^(attachment; *filename=\")(.+)(\")$");
@@ -1140,6 +1139,15 @@ public class HttpApiModule extends AbstractWnModule {
         if (null == history)
             return;
 
+        // 动态防守
+        Object histest = apc.oApi.get("histest");
+        if (null != histest) {
+            WnMatch wm = new AutoMatch(histest);
+            if (!wm.match(apc.oReq)) {
+                return;
+            }
+        }
+
         // 多个历史记录
         if (history instanceof Collection<?>) {
             Collection<?> coll = (Collection<?>) history;
@@ -1182,7 +1190,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 生成服务类
-        WnDaoConfig conf = WnDaos.loadConfig(WnDaoConfig.class, io(), oHis, apc.se);
+        HistoryConfig conf = WnDaos.loadConfig(HistoryConfig.class, io(), oHis, apc.se);
         Dao dao = WnDaos.get(conf.getAuth());
         HistoryApi api = new WnHistoryService(conf, dao);
 

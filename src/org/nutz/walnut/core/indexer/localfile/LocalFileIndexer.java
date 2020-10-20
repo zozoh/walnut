@@ -17,9 +17,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
-import org.nutz.walnut.validate.WnValidator;
-import org.nutz.walnut.validate.impl.MatchRegex;
-import org.nutz.walnut.validate.impl.MatchWildcard;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
@@ -136,15 +135,9 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             return 0;
 
         // 过滤条件
-        WnValidator nv = null;
-        Object[] args = null;
+        WnMatch nv = null;
         if (null != name) {
-            args = Lang.array(name);
-            if (name.startsWith("!^") || name.startsWith("^")) {
-                nv = new MatchRegex();
-            } else {
-                nv = new MatchWildcard();
-            }
+            nv = new AutoStrMatch(name);
         }
 
         File[] flist = f.listFiles();
@@ -153,7 +146,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             // 根据名称过滤
             if (null != nv) {
                 String fnm = fi.getName();
-                if (!nv.isTrue(fnm, args)) {
+                if (!nv.match(fnm)) {
                     continue;
                 }
             }

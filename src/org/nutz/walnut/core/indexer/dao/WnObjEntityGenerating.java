@@ -31,7 +31,7 @@ import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayInjecting;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasInjecting;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 
 public class WnObjEntityGenerating {
 
@@ -60,7 +60,7 @@ public class WnObjEntityGenerating {
 
     private JdbcExpert expert;
 
-    private WnDaoConfig conf;
+    private WnDaoMappingConfig conf;
 
     /**
      * conf.objKeys 的反转映射，以便通过 field.name 获取标准字段名
@@ -79,7 +79,7 @@ public class WnObjEntityGenerating {
      */
     private HashSet<String> fieldNames;
 
-    public WnObjEntityGenerating(WnObj root, WnDaoConfig config, JdbcExpert expert) {
+    public WnObjEntityGenerating(WnObj root, WnDaoMappingConfig config, JdbcExpert expert) {
         this.root = root;
         this.conf = config;
         this.expert = expert;

@@ -22,7 +22,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 
@@ -32,7 +32,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     private WnObjEntity entity;
 
-    public DaoIndexer(WnObj root, MimeMap mimes, WnDaoConfig config) {
+    public DaoIndexer(WnObj root, MimeMap mimes, WnDaoMappingConfig config) {
         super(root, mimes);
         this.dao = WnDaos.get(config.getAuth());
 

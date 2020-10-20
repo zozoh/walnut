@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
@@ -22,6 +23,7 @@ import org.nutz.walnut.ext.thing.util.ThingLinkKeyTarget;
 import org.nutz.walnut.ext.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.validate.WnMatch;
 
 public abstract class ThingAction<T> {
 
@@ -235,9 +237,8 @@ public abstract class ThingAction<T> {
 
                     // 看看值是否能匹配上
                     if (lnk.hasMatch()) {
-                        Matcher m = lnk.getMatch().matcher(val.toString());
-                        // 未匹配的话
-                        if (!m.find()) {
+                        WnMatch wm = lnk.getMatchObj();
+                        if (!wm.match(val)) {
                             // 严格模式，抛错
                             if (lnk.isStrict()) {
                                 throw Er.createf("e.cmd.thing.lnKey.NoMatch",
@@ -245,15 +246,17 @@ public abstract class ThingAction<T> {
                                                  key,
                                                  val);
                             }
-                            // 否则继续下一个
-                            else {
-                                continue;
-                            }
+                            continue;
                         }
-                        // 填充 val 上下文
-                        else {
-                            for (int i = 0; i <= m.groupCount(); i++) {
-                                valContext.put("@g" + i, m.group(i));
+
+                        Pattern p = lnk.getMatchPattern();
+                        if (null != p) {
+                            Matcher m = p.matcher(val.toString());
+                            // 匹配的话填充 val 上下文
+                            if (m.find()) {
+                                for (int i = 0; i <= m.groupCount(); i++) {
+                                    valContext.put("@g" + i, m.group(i));
+                                }
                             }
                         }
                     }

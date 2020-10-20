@@ -104,18 +104,18 @@ public abstract class WnDaos {
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnIo io,
-                                                       String path,
-                                                       NutMap vars) {
+                                                           WnIo io,
+                                                           String path,
+                                                           NutMap vars) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj oConf = io.check(null, aph);
         return loadConfig(configType, io, oConf, vars);
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnIo io,
-                                                       WnObj oConf,
-                                                       NutMap vars) {
+                                                           WnIo io,
+                                                           WnObj oConf,
+                                                           NutMap vars) {
         T conf = io.readJson(oConf, configType);
         String ph = "~/.dao/" + conf.getDaoName() + ".dao.json";
         String aph = Wn.normalizeFullPath(ph, vars);
@@ -137,28 +137,28 @@ public abstract class WnDaos {
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnIo io,
-                                                       String path,
-                                                       WnAuthSession se) {
+                                                           WnIo io,
+                                                           String path,
+                                                           WnAuthSession se) {
         return loadConfig(configType, io, path, se.getVars());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnSystem sys,
-                                                       String path) {
+                                                           WnSystem sys,
+                                                           String path) {
         return loadConfig(configType, sys.io, path, sys.session);
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnIo io,
-                                                       WnObj oConf,
-                                                       WnAuthSession se) {
+                                                           WnIo io,
+                                                           WnObj oConf,
+                                                           WnAuthSession se) {
         return loadConfig(configType, io, oConf, se.getVars());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                       WnSystem sys,
-                                                       WnObj oConf) {
+                                                           WnSystem sys,
+                                                           WnObj oConf) {
         return loadConfig(configType, sys.io, oConf, sys.session);
     }
 

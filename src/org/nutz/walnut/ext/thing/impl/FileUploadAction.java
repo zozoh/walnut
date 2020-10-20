@@ -17,7 +17,7 @@ import org.nutz.walnut.util.upload.HttpFormCallback;
 import org.nutz.walnut.util.upload.HttpFormField;
 import org.nutz.walnut.util.upload.HttpFormUpload;
 import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.match.AutoStrMatch;
+import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 /**
  * 处理 HTTP 上传流，返回所有符合过滤器的文件对象

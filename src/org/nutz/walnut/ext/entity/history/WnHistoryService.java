@@ -10,7 +10,6 @@ import org.nutz.dao.TableName;
 import org.nutz.dao.pager.Pager;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.trans.Proton;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.util.Wn;
 
 public class WnHistoryService implements HistoryApi {
@@ -18,14 +17,14 @@ public class WnHistoryService implements HistoryApi {
     /**
      * 配置对象
      */
-    WnDaoConfig config;
+    HistoryConfig config;
 
     /**
      * SQL数据库操作接口
      */
     private Dao dao;
 
-    public WnHistoryService(WnDaoConfig config, Dao dao) {
+    public WnHistoryService(HistoryConfig config, Dao dao) {
         this.config = config;
         this.dao = dao;
     }
@@ -105,6 +104,14 @@ public class WnHistoryService implements HistoryApi {
         // 自动分配 ID
         if (!his.hasId()) {
             his.setId(Wn.genId());
+        }
+
+        // 剪裁字段以防止溢出
+        this.config.truncate(his);
+
+        // 确保必须的字段都存在
+        if (this.config.isNotMatchRequires(his)) {
+            return null;
         }
 
         // 执行插入

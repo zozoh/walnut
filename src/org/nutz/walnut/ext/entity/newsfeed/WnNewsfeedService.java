@@ -13,7 +13,6 @@ import org.nutz.dao.pager.Pager;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Proton;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
 import org.nutz.walnut.util.Wn;
 
 public class WnNewsfeedService implements NewsfeedApi {
@@ -21,14 +20,14 @@ public class WnNewsfeedService implements NewsfeedApi {
     /**
      * 配置对象
      */
-    WnDaoConfig config;
+    NewsfeedConfig config;
 
     /**
      * SQL数据库操作接口
      */
     private Dao dao;
 
-    public WnNewsfeedService(WnDaoConfig config, Dao dao) {
+    public WnNewsfeedService(NewsfeedConfig config, Dao dao) {
         this.config = config;
         this.dao = dao;
     }
@@ -162,6 +161,9 @@ public class WnNewsfeedService implements NewsfeedApi {
         if (!feed.hasId()) {
             feed.setId(Wn.genId());
         }
+
+        // 剪裁字段以防止溢出
+        this.config.truncate(feed);
 
         // 执行插入
         String tableName = config.getTableName();

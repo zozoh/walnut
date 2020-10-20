@@ -6,7 +6,7 @@ import java.util.Map;
 import org.nutz.json.JsonIgnore;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.match.AutoStrMatch;
+import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class TiViewMapping {
 
