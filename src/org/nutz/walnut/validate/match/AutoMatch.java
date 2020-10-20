@@ -1,0 +1,79 @@
+package org.nutz.walnut.validate.match;
+
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Map;
+
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.validate.WnMatch;
+
+/**
+ * 将一个对象转换为任意的匹配
+ * 
+ * <ul>
+ * <li><code>Array|List</code> 并联(OR)
+ * <li><code>Map</code> 与(AND)
+ * <li><code>其他</code> 一个具体的匹配条件
+ * </ul>
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
+public class AutoMatch implements WnMatch {
+
+    private WnMatch m;
+
+    public AutoMatch(Object input) {
+        this.parse(input);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void parse(Object input) {
+        // null
+        if (null == input) {
+            this.m = new NullMatch();
+        }
+        // Boolean
+        else if (input instanceof Boolean) {
+            this.m = new BooleanMatch((Boolean) input);
+        }
+        // List
+        else if (input instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) input;
+            WnMatch[] ms = new WnMatch[coll.size()];
+            int i = 0;
+            for (Object o : coll) {
+                ms[i++] = new AutoMatch(o);
+            }
+            this.m = new ParallelMatch(ms);
+        }
+        // Array
+        else if (input.getClass().isArray()) {
+            int len = Array.getLength(input);
+            WnMatch[] ms = new WnMatch[len];
+            int i = 0;
+            for (i = 0; i < len; i++) {
+                Object o = Array.get(input, i);
+                ms[i] = new AutoMatch(o);
+            }
+            this.m = new ParallelMatch(ms);
+        }
+        // Map
+        else if (input instanceof Map<?, ?>) {
+            this.m = new MapMatch((Map<String, Object>) input);
+        }
+        // String
+        else if (input instanceof CharSequence) {
+            this.m = (new AutoStrMatch((CharSequence) input)).getMatch();
+        }
+        // Unsupported
+        else {
+            throw Er.create("e.match.unsupport", input);
+        }
+    }
+
+    @Override
+    public boolean match(Object val) {
+        return m.match(val);
+    }
+
+}

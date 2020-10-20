@@ -574,7 +574,21 @@ public abstract class Wn {
         // ....................................
         // Map
         else if (mi.isMap()) {
-            Map<String, Object> map = (Map<String, Object>) obj;
+            NutMap map = NutMap.WRAP((Map<String, Object>) obj);
+
+            // 仅仅是映射
+            String valKey = map.getString("key");
+            Object mapping = map.get("mapping");
+            if (!Strings.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
+                Object val = context.get(valKey);
+                if (null != val) {
+                    Map<String, Object> valMapping = (Map<String, Object>) mapping;
+                    return valMapping.get(val);
+                }
+                return val;
+            }
+
+            // 递归
             NutMap reMap = new NutMap();
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();

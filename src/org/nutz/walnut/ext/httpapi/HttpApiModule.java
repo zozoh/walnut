@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -53,6 +54,7 @@ import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnStr;
 import org.nutz.walnut.validate.WnValidate;
+import org.nutz.walnut.validate.match.AutoMatch;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.module.AppRespOpsWrapper;
@@ -144,6 +146,10 @@ public class HttpApiModule extends AbstractWnModule {
             // .........................................
             // 自动登陆站点用户
             __do_www_auth(apc);
+
+            // .........................................
+            // 预先加载数据
+            __do_preload(apc);
 
             // .........................................
             // 这里处理缓存
@@ -909,6 +915,81 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void __do_preload(WnHttpApiContext apc) {
+        List<NutMap> preload = apc.oApi.getAsList("preload", NutMap.class);
+        if (null == preload || preload.isEmpty())
+            return;
+
+        // 寻找到第一个可被处理的预加载命令
+        for (NutMap plItem : preload) {
+            Object test = plItem.get("test");
+            AutoMatch am = new AutoMatch(test);
+
+            // 置否需要预先转换
+            NutMap translate = plItem.getAs("translate", NutMap.class);
+            if (null != translate && !translate.isEmpty()) {
+                NutMap more = (NutMap) Wn.explainObj(apc.reqMeta, translate);
+                if (null != more && !more.isEmpty()) {
+                    apc.reqMeta.putAll(more);
+                }
+            }
+
+            // 判断是否符合条件
+            if (!am.match(apc.reqMeta)) {
+                continue;
+            }
+
+            // 准备存储执行结果
+            NutMap preloaded = new NutMap();
+
+            // 执行
+            NutMap run = plItem.getAs("run", NutMap.class);
+            if (null != run && !run.isEmpty()) {
+                for (Map.Entry<String, Object> en : run.entrySet()) {
+                    String key = en.getKey();
+                    Object cmd = en.getValue();
+                    if (null == cmd || "!...".equals(key))
+                        continue;
+
+                    // 分析键
+                    boolean isPureText = key.startsWith("!");
+                    if (isPureText) {
+                        key = key.substring(1).trim();
+                    }
+
+                    // 执行命令
+                    Tmpl tmpl = Tmpl.parse(cmd.toString());
+                    String cmdText = tmpl.render(apc.reqMeta);
+                    String re = this.exec("api-preload", apc.se, cmdText);
+
+                    // 解析结果
+                    Object reo = re;
+                    if (!isPureText) {
+                        reo = Json.fromJson(re);
+                    }
+
+                    // 计入结果：全部
+                    if ("...".equals(key)) {
+                        if (reo instanceof Map) {
+                            preloaded.putAll((Map<String, Object>) reo);
+                        }
+                    }
+                    // 计入结果：指定键
+                    else {
+                        preloaded.put(key, reo);
+                    }
+                }
+            }
+
+            // Join to meta
+            apc.reqMeta.putAll(preloaded);
+
+            // 跳出
+            break;
+        }
+    }
+
     private static final Pattern P = Regex.getPattern("^(attachment; *filename=\")(.+)(\")$");
 
     private void __setup_resp_header(WnHttpApiContext apc) {
@@ -1050,11 +1131,39 @@ public class HttpApiModule extends AbstractWnModule {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void _record_history(WnHttpApiContext apc) {
-        NutMap history = apc.oApi.getAs("history", NutMap.class);
+        List<NutMap> historyList = null;
+        Object history = apc.oApi.get("history");
+
+        // 防守
+        if (null == history)
+            return;
+
+        // 多个历史记录
+        if (history instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) history;
+            historyList = new ArrayList<>(coll.size());
+
+            for (Object it : coll) {
+                if (null != it && (it instanceof Map)) {
+                    NutMap itMap = NutMap.WRAP((Map<String, Object>) it);
+                    historyList.add(itMap);
+                }
+            }
+        }
+        // 单条历史记录
+        else if (history instanceof Map) {
+            NutMap itMap = NutMap.WRAP((Map<String, Object>) history);
+            historyList = Lang.list(itMap);
+        }
+        // 神马也不是
+        else {
+            return;
+        }
 
         // 没有历史记录模板，嗯，无视
-        if (null == history || history.isEmpty()) {
+        if (null == historyList || historyList.isEmpty()) {
             return;
         }
 
@@ -1079,25 +1188,33 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 看看有木有替换的模板
         List<NutMap> hismetas = apc.oApi.getAsList("hismetas", NutMap.class);
+        NutMap hisUpdate = null;
         if (null != hismetas) {
             for (NutMap hismeta : hismetas) {
-                NutMap test = hismeta.getAs("test", NutMap.class);
+                Object test = hismeta.get("test");
+                AutoMatch am = new AutoMatch(test);
                 NutMap update = hismeta.getAs("update", NutMap.class);
-                WnValidate vali = new WnValidate(test);
                 // 找到了即可
-                if (vali.match(apc.oReq)) {
-                    history.putAll(update);
+                if (am.match(apc.oReq)) {
+                    hisUpdate = update;
                     break;
                 }
             }
         }
 
-        // 解析历史记录
-        NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, history);
+        // 循环添加历史记录
+        for (NutMap hisTmpl : historyList) {
+            // 补充历史记录
+            if (null != hisUpdate)
+                hisTmpl.putAll(hisUpdate);
 
-        // 插入历史记录
-        HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
-        api.add(his);
+            // 解析历史记录
+            NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, hisTmpl);
+
+            // 插入历史记录
+            HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
+            api.add(his);
+        }
     }
 
 }
