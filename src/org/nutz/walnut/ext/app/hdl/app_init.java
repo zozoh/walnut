@@ -27,6 +27,8 @@ public class app_init implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
+        // 得到当前操作路径
+        String pwd = sys.session.getVars().getString("PWD");
 
         // 得到要操作的帐号
         Wn.WC().security(new WnEvalLink(sys.io), new Atom() {
@@ -35,6 +37,9 @@ public class app_init implements JvmHdl {
                 __exec_without_security(sys, hc);
             }
         });
+
+        // 恢复到当前操作路径
+        sys.exec("cd '" + pwd + "'");
 
     }
 

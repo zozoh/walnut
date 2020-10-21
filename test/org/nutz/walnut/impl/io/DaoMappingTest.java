@@ -12,7 +12,7 @@ import org.nutz.walnut.BaseSessionTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 
@@ -29,7 +29,7 @@ public class DaoMappingTest extends BaseSessionTest {
         io.create(p, "C", WnRace.FILE);
         io.create(p, "D", WnRace.FILE);
         io.create(p, "E", WnRace.FILE);
-        
+
         WnQuery q = Wn.Q.pid(p);
         io.setBy(q.setv("nm", "A"), Lang.map("age:5"), false);
         io.setBy(q.setv("nm", "B"), Lang.map("age:6"), false);
@@ -160,8 +160,8 @@ public class DaoMappingTest extends BaseSessionTest {
         io.setMount(oDir, "dao(" + cfnm + ")");
 
         // 读取 Dao 配置
-        WnDaoConfig conf = WnDaos.loadConfig(io, oph, this.session);
-        Dao dao = WnDaos.get(conf);
+        WnDaoMappingConfig conf = WnDaos.loadConfig(WnDaoMappingConfig.class, io, oph, this.session);
+        Dao dao = WnDaos.get(conf.getAuth());
 
         // 清理数据
         dao.drop(conf.getTableName());

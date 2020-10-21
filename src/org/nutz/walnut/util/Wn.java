@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -81,7 +82,7 @@ public abstract class Wn {
         return System.currentTimeMillis();
     }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhd])?$");
+    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
     private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
     protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
 
@@ -573,7 +574,26 @@ public abstract class Wn {
         // ....................................
         // Map
         else if (mi.isMap()) {
-            Map<String, Object> map = (Map<String, Object>) obj;
+            NutMap map = NutMap.WRAP((Map<String, Object>) obj);
+
+            // 仅仅是映射
+            String valKey = map.getString("key");
+            Object mapping = map.get("mapping");
+            Object dftValue = map.get("dft");
+            if (!Strings.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
+                Object val = context.get(valKey);
+                if (null != val) {
+                    Map<String, Object> valMapping = (Map<String, Object>) mapping;
+                    Object reVal = valMapping.get(val);
+                    if (null == reVal) {
+                        reVal = dftValue;
+                    }
+                    return reVal;
+                }
+                return val;
+            }
+
+            // 递归
             NutMap reMap = new NutMap();
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
@@ -1356,13 +1376,13 @@ public abstract class Wn {
         // 日期对象
         if (s.startsWith("%date:")) {
             String str = Strings.trim(s.substring("%date:".length()));
-            long ms = __eval_time_macro(str);
+            long ms = __eval_datetime_str(str);
             v2 = Times.D(ms);
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {
             String str = Strings.trim(s.substring("%ms:".length()));
-            v2 = __eval_time_macro(str);
+            v2 = __eval_datetime_str(str);
         }
         // 默认采用原值
         else {
@@ -1371,7 +1391,7 @@ public abstract class Wn {
         return v2;
     }
 
-    private static long __eval_time_macro(String str) {
+    private static long __eval_datetime_str(String str) {
         long ms = -1;
 
         // 判断到操作符
@@ -1400,14 +1420,32 @@ public abstract class Wn {
         return ms;
     }
 
+    public static Date evalDateBy(String str) {
+        long ms = __eval_datetime_str(str);
+        if (ms > 0) {
+            return new Date(ms);
+        }
+        return Times.D(str);
+    }
+
+    public static long evalDateMs(String str) {
+        long ms = __eval_datetime_str(str);
+        if (ms > 0) {
+            return ms;
+        }
+        return Times.D(str).getTime();
+    }
+
     /**
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒
      * 
      * <ul>
+     * <li><code>10s</code> 表示10秒
      * <li><code>20m</code> 表示20分钟
      * <li><code>1h</code> 表示1小时
      * <li><code>1d</code> 表示一天
-     * <li><code>100s</code> 表示 100 秒</li>
+     * <li><code>1w</code> 表示一周
+     * <li><code>100</code> 表示 100毫秒</li>
      * 
      * @param str
      *            描述时间的字符串
@@ -1434,6 +1472,10 @@ public abstract class Wn {
         // d 天
         else if ("d".equals(unit)) {
             return ms * 86400000L;
+        }
+        // w 周
+        else if ("w".equals(unit)) {
+            return ms * 86400000L * 7;
         }
         // 默认就是毫秒
         return ms;

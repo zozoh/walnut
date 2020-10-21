@@ -4,15 +4,17 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.validate.WnValidate;
+import org.nutz.lang.util.Regex;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoMatch;
 
 public class ThingLinkKey {
 
-    private NutMap[] testPrimary;
+    private Object testPrimary;
 
-    private NutMap[] testUpdate;
+    private Object testUpdate;
 
-    private Pattern match;
+    private Object match;
 
     private boolean strict;
 
@@ -26,7 +28,7 @@ public class ThingLinkKey {
         return !this.hasSet() && !this.hasRun();
     }
 
-    public NutMap[] getTestPrimary() {
+    public Object getTestPrimary() {
         return testPrimary;
     }
 
@@ -38,7 +40,7 @@ public class ThingLinkKey {
         return matchTest(meta, testPrimary);
     }
 
-    public NutMap[] getTestUpdate() {
+    public Object getTestUpdate() {
         return testUpdate;
     }
 
@@ -50,15 +52,10 @@ public class ThingLinkKey {
         return matchTest(meta, testUpdate);
     }
 
-    private boolean matchTest(NutBean meta, NutMap[] tests) {
-        if (null != tests && tests.length > 0) {
-            for (NutMap vMap : tests) {
-                WnValidate wv = new WnValidate(vMap);
-                if (wv.match(meta)) {
-                    return true;
-                }
-            }
-            return false;
+    private boolean matchTest(NutBean meta, Object test) {
+        if (null != test) {
+            WnMatch m = new AutoMatch(test);
+            return m.match(meta);
         }
         // 默认，没有的话永远为真，因为用户不设置 test 条件么
         return true;
@@ -68,11 +65,31 @@ public class ThingLinkKey {
         return null != match;
     }
 
-    public Pattern getMatch() {
+    public Pattern getMatchPattern() {
+        if (null == match) {
+            return null;
+        }
+        if (match instanceof CharSequence) {
+            String str = match.toString();
+            if (str.startsWith("^")) {
+                return Regex.getPattern(str);
+            }
+        }
+        return null;
+    }
+
+    public WnMatch getMatchObj() {
+        if (null == match) {
+            return null;
+        }
+        return new AutoMatch(this.match);
+    }
+
+    public Object getMatch() {
         return match;
     }
 
-    public void setMatch(Pattern match) {
+    public void setMatch(Object match) {
         this.match = match;
     }
 

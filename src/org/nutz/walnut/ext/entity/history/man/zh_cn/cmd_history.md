@@ -16,6 +16,7 @@ history {HistoryName} get      # 获取某一条指定的历史记录
 history {HistoryName} query    # 获取某指定条件的历史记录
 history {HistoryName} remove   # 删除一条或多条指定的历史记录
 history {HistoryName} clean    # 清除（按条件）历史记录
+history {HistoryName} fake     # 自动创建假的历史记录
 
 # 为默认的 history 添加一条记录
 cat history.json | history add

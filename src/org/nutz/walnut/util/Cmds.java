@@ -108,6 +108,17 @@ public abstract class Cmds {
 
     }
 
+    public static <T> T readConfig(WnSystem sys, ZParams params, Class<T> classOfT) {
+        if (params.vals.length > 0) {
+            String phConf = params.val_check(0);
+            WnObj oConf = Wn.checkObj(sys, phConf);
+            return sys.io.readJson(oConf, classOfT);
+        }
+        // 从标准输入读取
+        String json = sys.in.readAll();
+        return Json.fromJson(classOfT, json);
+    }
+
     // 静态帮助函数集合，不许实例化
     private Cmds() {}
 

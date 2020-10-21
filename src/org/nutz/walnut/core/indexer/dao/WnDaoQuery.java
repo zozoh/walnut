@@ -30,16 +30,19 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.WnRg;
 
 public class WnDaoQuery {
 
     private WnQuery q;
 
-    private Entity<WnIoObj> entity;
+    private Entity<?> entity;
 
-    public WnDaoQuery(WnQuery q, WnObjEntity entity) {
+    public WnDaoQuery(WnQuery q) {
+        this(q, null);
+    }
+
+    public WnDaoQuery(WnQuery q, Entity<?> entity) {
         this.q = q;
         this.entity = entity;
 
@@ -302,6 +305,11 @@ public class WnDaoQuery {
         if (_P.matcher(stdName).find()) {
             return stdName;
         }
+        // 木有指定 entity，则用原名
+        if (null == entity) {
+            return stdName;
+        }
+
         MappingField mf = entity.getField(stdName);
         if (null == mf) {
             // throw Er.create("e.io.dao.FieldNotDefined", stdName);

@@ -14,7 +14,7 @@ import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
-import org.nutz.walnut.ext.sql.WnDaoConfig;
+import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
@@ -90,7 +90,10 @@ public class DaoIndexerFactory implements WnIndexerFactory {
             String aph = Wn.appendPath(homePath, ".io/ix", fnm);
             WnObj o = io.fetch(null, aph);
             if (null != o) {
-                WnDaoConfig conf = WnDaos.loadConfig(io, o, Lang.map("HOME", homePath));
+                WnDaoMappingConfig conf = WnDaos.loadConfig(WnDaoMappingConfig.class,
+                                                     io,
+                                                     o,
+                                                     Lang.map("HOME", homePath));
                 return new DaoIndexer(oHome, mimes, conf);
             }
         }
