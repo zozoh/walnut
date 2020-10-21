@@ -50,7 +50,7 @@
 			</releases>
 		</repository>
 		<repository>
-			<id>nutz-snapshots</id>
+			<id>nutz-libs</id>
 			<url>https://jfrog.nutz.cn/artifactory/lib-releases</url>
 			<snapshots>
 				<enabled>false</enabled>
@@ -380,6 +380,11 @@
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 			<version>3.2.0</version>
+		</dependency>
+		<dependency>
+    		<groupId>ru.yandex.clickhouse</groupId>
+    		<artifactId>clickhouse-jdbc</artifactId>
+    		<version>0.2.4</version>
 		</dependency>
 	</dependencies>
 
