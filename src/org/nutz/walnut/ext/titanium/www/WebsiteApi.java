@@ -38,7 +38,7 @@ public class WebsiteApi {
         api.path = this.path;
         api.method = this.method;
         if (null != this.params) {
-            String json = Json.toJson(this.params);
+            String json = Json.toJson(this.params, JsonFormat.compact().setIgnoreNull(false));
             api.params = Json.fromJson(NutMap.class, json);
         }
         api.dataKey = this.dataKey;

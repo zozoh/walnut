@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -14,8 +13,12 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.auth.WnAuthEvent;
+import org.nutz.walnut.api.WnEventListener;
+import org.nutz.walnut.api.WnListenable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAccountLoader;
+import org.nutz.walnut.api.auth.WnAuthEventGenerator;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnAuthSetup;
@@ -28,9 +31,11 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.www.bean.WnWebSite;
+import org.nutz.walnut.impl.AbstractListenable;
 import org.nutz.walnut.util.Wn;
 
-public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthService {
+public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
+        implements WnAuthService, WnListenable<WnAuthEvent> {
 
     private static final Log log = Logs.get();
 
@@ -42,11 +47,39 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
     private String defaultQuitUrl;
 
+    private AbstractListenable<WnAuthEvent> listen;
+
+    private WnAuthEventGenerator eventGenerator;
+
     public WnAuthServiceImpl(WnIo io, WnAuthSetup setup) {
         super(io);
         this.io = io;
         this.setup = setup;
         this.accountLoader = new WnAccountLoaderImpl(io, setup.getAccountDir(), true);
+        this.listen = new AbstractListenable<WnAuthEvent>() {};
+    }
+
+    public void setEventGenerator(WnAuthEventGenerator eventGenerator) {
+        this.eventGenerator = eventGenerator;
+    }
+
+    @Override
+    public List<WnEventListener<WnAuthEvent>> getEventListener(String eventName) {
+        return listen.getEventListener(eventName);
+    }
+
+    @Override
+    public void fireEvent(String eventName, WnAuthEvent obj) {
+        listen.fireEvent(eventName, obj);
+    }
+
+    public void addEventListener(String eventName, WnEventListener<WnAuthEvent> li) {
+        listen.addEventListener(eventName, li);
+    }
+
+    public List<WnEventListener<WnAuthEvent>> removeEventListener(String eventName,
+                                                                  WnEventListener<WnAuthEvent> li) {
+        return listen.removeEventListener(eventName, li);
     }
 
     @Override
@@ -87,6 +120,13 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
         // 初始化
         WnAccount newUser = new WnAccount(oU);
         setup.afterAccountCreated(this, newUser);
+
+        // 创建账号的事件
+        if (null != this.eventGenerator) {
+            WnAuthEvent ev = this.eventGenerator.create(WnAuthEvent.ACCOUNT_CREATED, newUser, null);
+            this.listen.fireEvent(WnAuthEvent.ACCOUNT_CREATED, ev);
+        }
+
         return newUser;
     }
 
@@ -702,6 +742,12 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl implements WnAuthS
 
         // 保存会话的环境变量
         this.saveSessionVars(se);
+
+        // 创建账号的事件
+        if (null != this.eventGenerator) {
+            WnAuthEvent ev = this.eventGenerator.create(WnAuthEvent.SESSION_CREATED, me, se);
+            this.listen.fireEvent(WnAuthEvent.SESSION_CREATED, ev);
+        }
 
         // 搞定
         return se;

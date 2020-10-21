@@ -520,11 +520,7 @@ public abstract class Wn {
                     if (".." == m_val) {
                         return context;
                     }
-                    Object v = Mapl.cell(context, m_val);
-                    if (null == v) {
-                        return m_dft;
-                    }
-                    return v;
+                    return context.getOr(m_val, m_dft);
                 }
                 // Render template
                 if ("->".equals(m_type)) {
@@ -599,8 +595,7 @@ public abstract class Wn {
                 String key = en.getKey();
                 Object val = en.getValue();
                 Object v2 = explainObj(context, val);
-                if (null != v2)
-                    reMap.put(key, v2);
+                reMap.put(key, v2);
             }
             return reMap;
         }

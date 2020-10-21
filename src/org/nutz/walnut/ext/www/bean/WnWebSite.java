@@ -1,5 +1,9 @@
 package org.nutz.walnut.ext.www.bean;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.nutz.dao.Dao;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
@@ -8,6 +12,10 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.entity.history.HistoryApi;
+import org.nutz.walnut.ext.entity.history.HistoryConfig;
+import org.nutz.walnut.ext.entity.history.WnHistoryService;
+import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.util.Wn;
 
@@ -102,6 +110,21 @@ public class WnWebSite {
     private int apiReqDu;
 
     /**
+     * 哪些行为要记录历史
+     */
+    private NutMap history;
+
+    /**
+     * 历史记录的源，默认为 _history
+     */
+    private String hisname;
+
+    /**
+     * 缓存历史记录对象的实例
+     */
+    private HistoryApi historyApi;
+
+    /**
      * @param homeFullPath
      *            所在域的主目录路径
      * 
@@ -176,6 +199,40 @@ public class WnWebSite {
         // 请求对象缓存默认时长
         apiReqDu = bean.getInt("api_req_du", -1);
 
+        // 历史记录
+        history = bean.getAs("history", NutMap.class);
+        hisname = bean.getString("hisname", "_history");
+    }
+
+    public boolean hasHistory() {
+        return null != history && history.size() > 0;
+    }
+
+    public Set<String> getHistoryEventNames() {
+        if (null == history)
+            return new HashSet<>();
+        return history.keySet();
+    }
+
+    public NutBean getHistoryTmpl(String key) {
+        if (null == history) {
+            return null;
+        }
+        return history.getAs(key, NutBean.class);
+    }
+
+    public HistoryApi getHistoryApi() {
+        if (hasHistory()) {
+            if (null == historyApi) {
+                String ph = "~/.domain/history/" + hisname + ".json";
+                String aph = Wn.normalizeFullPath(ph, vars);
+                WnObj oHis = io.check(null, aph);
+                HistoryConfig conf = WnDaos.loadConfig(HistoryConfig.class, io, oHis, vars);
+                Dao dao = WnDaos.get(conf.getAuth());
+                historyApi = new WnHistoryService(conf, dao);
+            }
+        }
+        return historyApi;
     }
 
     public String getDomainHomePath() {

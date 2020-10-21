@@ -1,12 +1,15 @@
 package org.nutz.walnut.ext.www.impl;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnCaptchaService;
+import org.nutz.walnut.api.auth.WnAuthEvent;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
 import org.nutz.walnut.ext.www.bean.WnWebSite;
+import org.nutz.walnut.impl.auth.DomainAuthEventGenerator;
 import org.nutz.walnut.impl.auth.WnAuthServiceImpl;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -19,7 +22,7 @@ public class WnWebService {
 
     private WnOrderService order;
 
-    private WnAuthService auth;
+    private WnAuthServiceImpl auth;
 
     public WnWebService(WnSystem sys, WnObj oWWW) {
         String homePath = sys.getHome().getRegularPath();
@@ -44,10 +47,33 @@ public class WnWebService {
 
         setup = new WnWebAuthSetup(io, site);
         auth = new WnAuthServiceImpl(io, setup);
+
+        // 设置事件相关
+        __setup_events();
+
         // 如果定义了订单，那么创建订单服务（以便处理产品/优惠券/订单）
         if (site.hasOrderHome()) {
             order = new WnOrderService(io, site);
         }
+    }
+
+    private void __setup_events() {
+        if (!site.hasHistory())
+            return;
+
+        // 增加一个事件发生器
+        DomainAuthEventGenerator eg = new DomainAuthEventGenerator(site.getDomainGroup(),
+                                                                   site.getDomainHomePath());
+        auth.setEventGenerator(eg);
+
+        // 增加历史记录监听
+        for (String eventName : site.getHistoryEventNames()) {
+            NutBean hisTmpl = site.getHistoryTmpl(eventName);
+            if (null != hisTmpl && WnAuthEvent.isMyEvent(eventName)) {
+                auth.addEventListener(eventName, new WnAuthHistoryEventListener(site, hisTmpl));
+            }
+        }
+
     }
 
     /**

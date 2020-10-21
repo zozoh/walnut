@@ -52,6 +52,63 @@ coupons   : "~/coupons"    # 【选】优惠券库
 addresses : "~/addresses"  # 【选】地址库
 freight_sheet : "~/.domain/freight_sheet.json" #【选】运费表
 
+# 这里指定嵌入历史记录的埋点
+# 声明了这个元数据，那么指定的行为下创建历史记录
+#  - signup : 用户注册
+#  - login  : 用户创建会话
+#  - pay : 支付订单
+history : {
+  # 创建会话时的历史记录
+  # 上下文为对象
+  #  - @name   : "session:created"
+  #  - @domain : 当前域名
+  #  - @home   : 主目录路径
+  #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
+  #  - @session: 当前会话 {ticket ...}
+	"session:created" : {
+    uid : "=@me.id",
+    unm : "=@me.nickname|me.email|me.phone|me.nm",
+    utp : "=@me.role?user",
+    tid : "=@domain",
+    ttp : "user",
+    opt : "login"
+	},
+  # 创建用户时的历史记录
+  # 上下文为对象
+  #  - @name   : "account:created"
+  #  - @domain : 当前域名
+  #  - @home   : 主目录路径
+  #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
+	"account:created" : {
+    uid : "=@me.id",
+    unm : "=@me.nickname",
+    utp : "=@me.role?user",
+    tid : "=@domain",
+    ttp : "user",
+    opt : "signup"
+	},
+	# 订单支付后（A and Q)
+	"order:pay" : {
+	
+	},
+	# 订单支付后（A and Q)，每个商品的记录
+	"order:goods" : {
+	
+	},
+  # A订单支付后
+	"order:A:pay" : {..},
+  "order:A:goods" : {..},
+  # Q订单支付后
+	"order:Q:pay" : {..},
+  "order:Q:goods" : {..},
+}
+# 指定历史记录数据源的名称，默认为 _history
+# 这个需要在 ~/.domain/history/ 下面做自定义
+# 关于详情可以参看下列相关文档，了解历史记录机制更过细节
+#  - c1-general-data-entity.md#历史记录
+#  - cmd_history.md
+hisname: "web"
+
 # 这是一个站点权限表，访问这个站点的 API 默认采用的权限表
 # 参看靠下面列表，获取更多相关信息
 #  - c1-regapi.md > API对象 > pvg-setup
