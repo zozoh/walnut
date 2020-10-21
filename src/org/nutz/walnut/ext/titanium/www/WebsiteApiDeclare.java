@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.titanium.www;
 
-import org.nutz.lang.util.NutMap;
-
 public class WebsiteApiDeclare extends WebsiteApi {
 
     private String apiName;
@@ -23,17 +21,7 @@ public class WebsiteApiDeclare extends WebsiteApi {
         api = api.clone();
         // 合并参数
         if (api.hasParams() && this.hasParams()) {
-            for (String name : api.getParams().keySet()) {
-                // 全局定义 api 的参数
-                NutMap param = api.getParamDefine(name);
-
-                // 看看自己有木有特殊定义
-                Object val = this.getParam(name);
-                if (null != val) {
-                    param.put("value", val);
-                }
-
-            }
+            api.getParams().putAll(this.getParams());
         }
         // 返回
         return api;

@@ -75,10 +75,6 @@ public class WebsiteApi {
         return null != params && params.size() > 0;
     }
 
-    public NutMap getParamDefine(String name) {
-        return params.getAs(name, NutMap.class);
-    }
-
     public Object getParam(String name) {
         return params.get(name);
     }
@@ -100,21 +96,11 @@ public class WebsiteApi {
         this.params = p2;
     }
 
-    public NutMap getParamsValueMap() {
-        NutMap map = new NutMap();
-        for (String key : this.params.keySet()) {
-            NutMap pmv = this.params.getAs(key, NutMap.class);
-            Object val = pmv.get("value");
-            map.put(key, val);
-        }
-        return map;
-    }
-
     public String getParamsValueJson(JsonFormat jfmt) {
         if (null == jfmt) {
             jfmt = JsonFormat.compact().setQuoteName(true).setIgnoreNull(false);
         }
-        NutMap map = this.getParamsValueMap();
+        NutMap map = this.getParams();
         return Json.toJson(map, jfmt);
     }
 
