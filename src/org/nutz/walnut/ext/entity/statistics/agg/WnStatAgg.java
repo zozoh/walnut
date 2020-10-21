@@ -138,7 +138,9 @@ public class WnStatAgg extends WnStatistics {
             }
 
             // 标志
-            marks.put(nar.getName(), true);
+            if (!list.isEmpty()) {
+                marks.put(nar.getName(), true);
+            }
         }
 
         // 写入目标，并且更新mark
@@ -198,26 +200,35 @@ public class WnStatAgg extends WnStatistics {
         srcDao.each(tableName, cnd, null, new Each<Record>() {
             public void invoke(int index, Record rec, int length) {
                 NutMap ctx = NutMap.WRAP(rec);
+
+                // 计算时间以便分组
+                long ms = ctx.getLong(timeKey); // 因为有 SQL 条件，这个值一定是有的
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(ms);
+                ctx.put("@ams", ms);
+                ctx.put("@year", c.get(Calendar.YEAR));
+                ctx.put("@month", c.get(Calendar.MONTH));
+                ctx.put("@date", c.get(Calendar.DATE));
+                ctx.put("@week", c.get(Calendar.WEEK_OF_YEAR));
+                ctx.put("@day", c.get(Calendar.DAY_OF_WEEK));
+                ctx.put("@hour", c.get(Calendar.HOUR_OF_DAY));
+                ctx.put("@minute", c.get(Calendar.MINUTE));
+                ctx.put("@second", c.get(Calendar.SECOND));
+                ctx.put("@format", Times.format(fmt, c.getTime()));
+
+                // 计算分组的 Key
                 String key = keyBy.render(ctx);
                 NutBean bean = map.get(key);
+
+                // 如果是第一个记录，那么对齐时间至区间开始时间
                 if (null == bean) {
                     bean = new NutMap();
                     bean.putAll(ctx);
-                    // 第一个记录，将计算时间
-                    long ms = ar.getBeginInMs();
-                    Calendar c = Calendar.getInstance();
-                    c.setTimeInMillis(ms);
+                    // 第一个记录，设置区间时间
                     bean.put("@groupKey", key);
-                    bean.put("@ams", ms);
-                    bean.put("@year", c.get(Calendar.YEAR));
-                    bean.put("@month", c.get(Calendar.MONTH));
-                    bean.put("@date", c.get(Calendar.DATE));
-                    bean.put("@week", c.get(Calendar.WEEK_OF_YEAR));
-                    bean.put("@day", c.get(Calendar.DAY_OF_WEEK));
-                    bean.put("@hour", c.get(Calendar.HOUR_OF_DAY));
-                    bean.put("@minute", c.get(Calendar.MINUTE));
-                    bean.put("@second", c.get(Calendar.SECOND));
-                    bean.put("@format", Times.format(fmt, c.getTime()));
+                    bean.put("@begin", ar.getBeginInMs());
+                    bean.put("@end", ar.getEndInMs());
+
                     // 记入
                     map.put(key, bean);
                 }

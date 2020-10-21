@@ -77,6 +77,7 @@
 statistics sum
   [/path/to/conf]           # 配置文件路径
   [-agg /path/to/aggconf]   # 聚合配置文件路径，如果声明将会尝试先聚合
+  [-agg-force]              # 强制清空聚集结果的缓存
   [-date   now-1d]          # 起始时间，默认昨天
   [-span   7d]              # 时间跨度，向过去多久
   [-sort '{value:1}']       # 输出结果需要按照什么方式排序

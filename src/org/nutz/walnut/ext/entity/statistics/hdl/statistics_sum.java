@@ -17,7 +17,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 
-@JvmHdlParamArgs(value = "cqnbish", regex = "^(json|quiet|test|force)$")
+@JvmHdlParamArgs(value = "cqnbish", regex = "^(json|quiet|test|force|agg-force)$")
 public class statistics_sum implements JvmHdl {
 
     @Override
@@ -44,7 +44,7 @@ public class statistics_sum implements JvmHdl {
 
             // 加载服务类
             WnStatAgg agg = new WnStatAgg(aggConfig, sys);
-            agg.setForce(false);
+            agg.setForce(hc.params.is("agg-force"));
             agg.setTest(false);
 
             // 尝试聚合
@@ -55,7 +55,8 @@ public class statistics_sum implements JvmHdl {
         List<NutMap> list = sum.invoke(range);
         list = sum.normalizeList(list);
 
-        // 输出结果
+        // 输出结果(强制输出列表)
+        hc.params.setv("l", true);
         Cmds.output_beans(sys, hc.params, null, list);
     }
 

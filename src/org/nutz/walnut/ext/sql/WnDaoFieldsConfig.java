@@ -15,7 +15,14 @@ public class WnDaoFieldsConfig extends WnDaoConfig {
     }
 
     public String truncate(String key, String input) {
-        if (null == input || null == fieldSizes)
+        return truncate(key, input, null);
+    }
+
+    public String truncate(String key, String input, String nullAs) {
+        if (null == input)
+            return nullAs;
+
+        if (null == fieldSizes)
             return input;
 
         int len = fieldSizes.getInt(key, 0);

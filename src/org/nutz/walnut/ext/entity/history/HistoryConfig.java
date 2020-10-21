@@ -8,6 +8,8 @@ public class HistoryConfig extends WnDaoFieldsConfig {
 
     private String[] requires;
 
+    private String nullAs;
+
     public HistoryConfig() {
         requires = Lang.array("uid", "tid", "opt");
     }
@@ -61,15 +63,15 @@ public class HistoryConfig extends WnDaoFieldsConfig {
     }
 
     public void truncate(HistoryRecord re) {
-        re.setId(this.truncate("id", re.getId()));
-        re.setUserId(this.truncate("uid", re.getUserId()));
-        re.setUserName(this.truncate("unm", re.getUserName()));
-        re.setUserType(this.truncate("utp", re.getUserType()));
-        re.setTargetId(this.truncate("tid", re.getTargetId()));
-        re.setTargetName(this.truncate("tnm", re.getTargetName()));
-        re.setTargetType(this.truncate("ttp", re.getTargetType()));
-        re.setOperation(this.truncate("opt", re.getOperation()));
-        re.setMore(this.truncate("mor", re.getMore()));
+        re.setId(this.truncate("id", re.getId(), nullAs));
+        re.setUserId(this.truncate("uid", re.getUserId(), nullAs));
+        re.setUserName(this.truncate("unm", re.getUserName(), nullAs));
+        re.setUserType(this.truncate("utp", re.getUserType(), nullAs));
+        re.setTargetId(this.truncate("tid", re.getTargetId(), nullAs));
+        re.setTargetName(this.truncate("tnm", re.getTargetName(), nullAs));
+        re.setTargetType(this.truncate("ttp", re.getTargetType(), nullAs));
+        re.setOperation(this.truncate("opt", re.getOperation(), nullAs));
+        re.setMore(this.truncate("mor", re.getMore(), nullAs));
     }
 
     public String[] getRequires() {
@@ -78,6 +80,14 @@ public class HistoryConfig extends WnDaoFieldsConfig {
 
     public void setRequires(String[] requires) {
         this.requires = requires;
+    }
+
+    public String getNullAs() {
+        return nullAs;
+    }
+
+    public void setNullAs(String nullAs) {
+        this.nullAs = nullAs;
     }
 
 }

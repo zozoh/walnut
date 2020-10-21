@@ -11,6 +11,13 @@ public class NamedAmsRange extends AmsRange {
         this.name = name;
     }
 
+    public String toString() {
+        return String.format("%s(%s/%s)",
+                             this.name,
+                             this.formatBegin("yyyy-MM-dd"),
+                             this.formatEnd("yyyy-MM-dd"));
+    }
+
     public String getName() {
         return name;
     }

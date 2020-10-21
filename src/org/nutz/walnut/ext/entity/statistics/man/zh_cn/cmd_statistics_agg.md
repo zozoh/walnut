@@ -16,6 +16,8 @@
   // 原始字段中，哪个代表日期时间
   // 根据日期时间，会拆分出如下的 key
   //  - @groupKey (根据 groupBy 生成的 key)
+  //  - @begin (时间区间开始时间，区间参见 timeUnit)
+  //  - @end (时间区间开始时间，区间参见 timeUnit)
   //  - @year  (2009)
   //  - @month (0base)
   //  - @date  (1base)
@@ -24,7 +26,7 @@
   //  - @hour (0-23)
   //  - @minute (0-59)
   //  - @second (0-59)
-  //  - @ams (绝对毫秒数)
+  //  - @ams (记录的绝对毫秒数)
   //  - @format (根据 dateFormat 生成的格式化字符串)
   //  - @value (累计值)
   // 默认 ct

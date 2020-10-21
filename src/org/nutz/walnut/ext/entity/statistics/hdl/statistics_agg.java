@@ -51,6 +51,8 @@ public class statistics_agg implements JvmHdl {
 
         // 输出结果
         if (null != callback) {
+            // 强制输出列表
+            hc.params.setv("l", true);
             Cmds.output_beans(sys, hc.params, null, list);
         }
     }
