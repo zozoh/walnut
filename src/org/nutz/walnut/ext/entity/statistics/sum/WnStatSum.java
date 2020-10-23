@@ -93,7 +93,7 @@ public class WnStatSum extends WnStatistics {
                         if (v2 instanceof Comparable<?>) {
                             Comparable c1 = (Comparable) v1;
                             Comparable c2 = (Comparable) v2;
-                            return c1.compareTo(c2) * sortVal;
+                            return c1.compareTo(c2) * sortVal * -1;
                         }
                     }
                     return 0;
