@@ -3,12 +3,16 @@ package org.nutz.walnut.ext.www.hdl;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
+import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.bean.WnOrderStatus;
 import org.nutz.walnut.ext.www.bean.WnProduct;
+import org.nutz.walnut.ext.www.bean.WnWebSite;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -62,38 +66,22 @@ public class www_payafter implements JvmHdl {
             if (!po.isApplied()) {
                 // 【简单订单】的话，直接设置为完成
                 if (or.isTypeQ()) {
-                    long now = Wn.now();
-                    or.setStatus(WnOrderStatus.DN);
-                    or.setExpireTime(0);
-                    or.setOkAt(now);
-                    or.setShipAt(now);
-                    or.setDoneAt(now);
-                    meta = or.toMeta("^(or_st|expi|(ok|sp|dn)_at)$", null);
+                    meta = __do_Q_order(or);
                 }
                 // 默认当作【标准订单】，那么就仅仅标志一下支付成功
                 else {
-                    or.setStatus(WnOrderStatus.OK);
-                    or.setExpireTime(0);
-                    or.setOkAt(po.getLong("close_at"));
-                    meta = or.toMeta("^(or_st|expi|ok_at)$", null);
+                    meta = __do_A_order(sys, hc, or, po);
+                }
 
+                // 订单支付后的
+                if (or.hasProducts()) {
                     // 从购物车里删除商品
-                    if (hc.params.has("basket") && or.hasProducts()) {
-                        String buyConf = hc.params.getString("buy");
-                        String cmd = "buy it -quiet ";
-                        if (!Strings.isBlank(buyConf)) {
-                            cmd += "-conf '" + buyConf + "' ";
-                        }
-                        // 逐个商品执行删除
-                        for (WnProduct wp : or.getProducts()) {
-                            String cmdText = cmd
-                                             + po.getBuyerId()
-                                             + " "
-                                             + wp.getId()
-                                             + " "
-                                             + wp.getAmount() * -1;
-                            sys.exec2(cmdText);
-                        }
+                    if (hc.params.has("basket")) {
+                        __remove_products_from_basket(sys, hc, or, po);
+                    }
+                    // 记录历史记录
+                    if (hc.params.has("site")) {
+                        __add_order_history(sys, hc, or, meta);
                     }
                 }
             }
@@ -124,6 +112,81 @@ public class www_payafter implements JvmHdl {
         // -------------------------------
         // 解析命令结果并输出
         do_ouput(sys, hc, Ajax.ok().setData(or));
+    }
+
+    private void __add_order_history(WnSystem sys, JvmHdlContext hc, WnOrder or, NutMap meta) {
+        String sitePath = hc.params.getString("site");
+        WnObj oWWW = cmd_www.checkSite(sys, sitePath);
+
+        // 准备服务类
+        WnWebService webs = new WnWebService(sys, oWWW);
+        WnWebSite site = webs.getSite();
+
+        // 得到用户
+        WnAccount u = webs.getAuthApi().checkAccount(or.getBuyerId());
+
+        // 准备订单元数据
+        NutMap orBean = or.toMeta();
+        orBean.putAll(meta);
+
+        // 准备订单历史记录上下文
+        NutMap bean = new NutMap();
+        bean.put("@domain", site.getDomainGroup());
+        bean.put("@home", site.getDomainHomePath());
+        bean.put("@me", u.toBean());
+        bean.put("@order", orBean);
+
+        // 订单类型
+        String ortp = Strings.sBlank(or.getType(), "A");
+
+        // 插入订单历史记录:
+        __add_order_history(site, bean, "order:pay");
+        __add_order_history(site, bean, "order:" + ortp + ":pay");
+
+        // 处理商品历史记录
+        for (WnProduct prod : or.getProducts()) {
+            bean.put("@product", prod.toBean());
+            __add_order_history(site, bean, "order:products");
+            __add_order_history(site, bean, "order:" + ortp + ":products");
+        }
+    }
+
+    private void __add_order_history(WnWebSite site, NutMap bean, String eventName) {
+        bean.put("@name", eventName);
+        site.addHistoryRecord(bean, eventName);
+    }
+
+    private NutMap __do_A_order(WnSystem sys, JvmHdlContext hc, WnOrder or, WnPayObj po) {
+        or.setStatus(WnOrderStatus.OK);
+        or.setExpireTime(0);
+        or.setOkAt(po.getLong("close_at"));
+        return or.toMeta("^(or_st|expi|ok_at)$", null);
+    }
+
+    private void __remove_products_from_basket(WnSystem sys,
+                                               JvmHdlContext hc,
+                                               WnOrder or,
+                                               WnPayObj po) {
+        String buyConf = hc.params.getString("buy");
+        String cmd = "buy it -quiet ";
+        if (!Strings.isBlank(buyConf)) {
+            cmd += "-conf '" + buyConf + "' ";
+        }
+        // 逐个商品执行删除
+        for (WnProduct wp : or.getProducts()) {
+            String cmdText = cmd + po.getBuyerId() + " " + wp.getId() + " " + wp.getAmount() * -1;
+            sys.exec2(cmdText);
+        }
+    }
+
+    private NutMap __do_Q_order(WnOrder or) {
+        long now = Wn.now();
+        or.setStatus(WnOrderStatus.DN);
+        or.setExpireTime(0);
+        or.setOkAt(now);
+        or.setShipAt(now);
+        or.setDoneAt(now);
+        return or.toMeta("^(or_st|expi|(ok|sp|dn)_at)$", null);
     }
 
     private void do_ouput(WnSystem sys, JvmHdlContext hc, Object reo) {

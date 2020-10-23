@@ -38,6 +38,10 @@ public class WnRedisBuyService implements BuyApi {
                 else {
                     jed.zadd(key, count, taId);
                     re = (int) ((double) jed.zscore(key, taId));
+                    // 如果小于等于 0，表示购物车木有该商品了，删除
+                    if (re <= 0) {
+                        jed.zrem(key, taId);
+                    }
                 }
             } else {
                 re = (int) ((double) jed.zincrby(key, count, taId));

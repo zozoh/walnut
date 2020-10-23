@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.www.bean;
 import org.nutz.json.JsonField;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 
 public class WnProduct {
@@ -16,6 +17,11 @@ public class WnProduct {
      * 显示标题
      */
     private String title;
+
+    /**
+     * 商品分类名称
+     */
+    private String cate;
 
     /**
      * 产品单价
@@ -71,6 +77,7 @@ public class WnProduct {
 
     public void updateBy(NutBean bean) {
         title = bean.getString("title");
+        cate = bean.getString("cate");
         price = bean.getFloat("price", 0);
         weight = bean.getFloat("weight", 0);
         freight = bean.getFloat("freight", 0);
@@ -79,10 +86,26 @@ public class WnProduct {
         // id/amount/subtotal 应该不在更新之列
     }
 
+    public NutBean toBean() {
+        NutMap bean = new NutMap();
+        bean.put("id", this.id);
+        bean.put("title", this.title);
+        bean.put("cate", this.cate);
+        bean.put("price", this.price);
+        bean.put("weight", this.weight);
+        bean.put("freight", this.freight);
+        bean.put("amount", this.amount);
+        bean.put("subtotal", this.subtotal);
+        bean.put("pro_id", this.proId);
+        bean.put("price_by", this.priceBy);
+        return bean;
+    }
+
     public WnProduct clone() {
         WnProduct pro = new WnProduct();
         pro.id = this.id;
         pro.title = this.title;
+        pro.cate = this.cate;
         pro.price = this.price;
         pro.weight = this.weight;
         pro.freight = this.freight;

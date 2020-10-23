@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.www.bean;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.nutz.dao.Dao;
@@ -14,6 +18,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.entity.history.HistoryApi;
 import org.nutz.walnut.ext.entity.history.HistoryConfig;
+import org.nutz.walnut.ext.entity.history.HistoryRecord;
 import org.nutz.walnut.ext.entity.history.WnHistoryService;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.ext.thing.util.Things;
@@ -214,11 +219,58 @@ public class WnWebSite {
         return history.keySet();
     }
 
-    public NutBean getHistoryTmpl(String key) {
+    @SuppressWarnings("unchecked")
+    public List<NutBean> getHistoryTmpls(String key) {
+        List<NutBean> list = new LinkedList<>();
         if (null == history) {
-            return null;
+            return list;
         }
-        return history.getAs(key, NutBean.class);
+        Object obj = history.get(key);
+        if (null == obj)
+            return list;
+
+        // 多个模板
+        if (obj instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) obj;
+            for (Object ele : coll) {
+                if (ele instanceof Map) {
+                    NutMap eMap = NutMap.WRAP((Map<String, Object>) ele);
+                    list.add(eMap);
+                }
+            }
+        }
+        // 单一模板
+        else if (obj instanceof Map) {
+            NutMap eMap = NutMap.WRAP((Map<String, Object>) obj);
+            list.add(eMap);
+        }
+
+        return list;
+    }
+    
+    public void addHistoryRecord(NutBean context, String key) {
+        List<NutBean> hisTmpls = this.getHistoryTmpls(key);
+        this.addHistoryRecord(context, hisTmpls);
+    }
+
+    public void addHistoryRecord(NutBean context, List<NutBean> hisTmpls) {
+        if (null == context || null == hisTmpls || hisTmpls.isEmpty())
+            return;
+
+        // 获取历史记录 API
+        HistoryApi api = this.getHistoryApi();
+        if (null == api) {
+            return;
+        }
+
+        // 插入多条历史记录
+        for (NutBean hisTmpl : hisTmpls) {
+            NutMap hisre = (NutMap) Wn.explainObj(context, hisTmpl);
+
+            // 插入历史记录
+            HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
+            api.add(his);
+        }
     }
 
     public HistoryApi getHistoryApi() {

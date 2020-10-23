@@ -88,19 +88,42 @@ history : {
     opt : "signup"
 	},
 	# 订单支付后（A and Q)
+  #  - @name   : "order:pay"
+  #  - @domain : 当前域名
+  #  - @home   : 主目录路径
+  #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
+  #  - @order  : 当前订单 {id,tp,pro_c ...}
 	"order:pay" : {
-	
+	  uid : "=@me.id",
+    unm : "=@me.nickname",
+    utp : "=@me.role?user",
+    tid : "=@order.id",
+    tnm : "->${@order.tp}:${@order.title}",
+    ttp : "order",
+    opt : "pay"
 	},
 	# 订单支付后（A and Q)，每个商品的记录
-	"order:goods" : {
-	
+  #  - @name    : "order:pay"
+  #  - @domain  : 当前域名
+  #  - @home    : 主目录路径
+  #  - @me      : 当前账号 {id,nm, nickname,phone,email ...}
+  #  - @order   : 当前订单 {id,tp,pro_c ...}
+  #  - @product : 当前商品 {id,title,amount,cate,price ...}
+	"order:products" : {
+		uid : "=@me.id",
+    unm : "=@me.nickname",
+    utp : "=@me.role?user",
+    tid : "=@product.id",
+    tnm : "=@product.title",
+    ttp : "product",
+    opt : "pay"
 	},
   # A订单支付后
 	"order:A:pay" : {..},
-  "order:A:goods" : {..},
+  "order:A:products" : {..},
   # Q订单支付后
 	"order:Q:pay" : {..},
-  "order:Q:goods" : {..},
+  "order:Q:products" : {..},
 }
 # 指定历史记录数据源的名称，默认为 _history
 # 这个需要在 ~/.domain/history/ 下面做自定义

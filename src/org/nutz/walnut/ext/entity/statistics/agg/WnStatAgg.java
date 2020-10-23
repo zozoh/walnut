@@ -194,12 +194,21 @@ public class WnStatAgg extends WnStatistics {
         NutMap q = config.getQuery();
         Condition cnd = this.getCondition(timeKey, ar, q);
 
+        // 准备一下 sumbBy
+        AggSumBy sumBy = config.getAggSumBy();
+
         // 循环全部记录，并进行归纳
         String fmt = config.getDateFormat("yyyy-MM-dd");
         String tableName = config.getSrcTableName();
         srcDao.each(tableName, cnd, null, new Each<Record>() {
             public void invoke(int index, Record rec, int length) {
                 NutMap ctx = NutMap.WRAP(rec);
+
+                // 看看累加值，默认为 1
+                int val = sumBy.getSum(ctx);
+                if (val == 0) {
+                    return;
+                }
 
                 // 计算时间以便分组
                 long ms = ctx.getLong(timeKey); // 因为有 SQL 条件，这个值一定是有的
@@ -234,7 +243,7 @@ public class WnStatAgg extends WnStatistics {
                 }
 
                 // 获取累加值
-                bean.intIncrement("@value");
+                bean.intIncrement("@value", val);
 
             }
         }, "*");

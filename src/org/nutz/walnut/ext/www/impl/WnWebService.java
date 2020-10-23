@@ -1,10 +1,8 @@
 package org.nutz.walnut.ext.www.impl;
 
-import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnCaptchaService;
-import org.nutz.walnut.api.auth.WnAuthEvent;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
@@ -66,12 +64,12 @@ public class WnWebService {
                                                                    site.getDomainHomePath());
         auth.setEventGenerator(eg);
 
+        // 准备监听器实例
+        WnAuthHistoryEventListener lis = new WnAuthHistoryEventListener(site);
+
         // 增加历史记录监听
         for (String eventName : site.getHistoryEventNames()) {
-            NutBean hisTmpl = site.getHistoryTmpl(eventName);
-            if (null != hisTmpl && WnAuthEvent.isMyEvent(eventName)) {
-                auth.addEventListener(eventName, new WnAuthHistoryEventListener(site, hisTmpl));
-            }
+            auth.addEventListener(eventName, lis);
         }
 
     }

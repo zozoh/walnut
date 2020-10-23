@@ -57,6 +57,7 @@ author: zozohtnt@gmail.com
 ```bash
 id: ID         # 商品唯一ID
 nm: "xxx-xx"   # 可用作商品人类可识别的唯一编号
+cate: "xxx"    # 商品的分类名称
 #-----------------------------
 # 展示
 title: "xxx"   # 商品标题

@@ -11,6 +11,8 @@ public class WnStatAggConfig extends WnStatConfig {
 
     private String targetTimeBy;
 
+    private Object sumBy;
+
     private String markBy;
 
     private String markRemain;
@@ -41,6 +43,18 @@ public class WnStatAggConfig extends WnStatConfig {
 
     public void setTargetTimeBy(String targetTimeBy) {
         this.targetTimeBy = targetTimeBy;
+    }
+
+    public AggSumBy getAggSumBy() {
+        return new AggSumBy(sumBy);
+    }
+
+    public Object getSumBy() {
+        return sumBy;
+    }
+
+    public void setSumBy(Object sumBy) {
+        this.sumBy = sumBy;
     }
 
     public boolean hasMarkBy() {

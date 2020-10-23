@@ -38,6 +38,12 @@
   // 形成一个聚集值 @value 并加入上下文
   // 这个 key 则作为 @groupKey 也加入上下文
   groupBy : "${tid}_${ttp}_${opt}_${@year}_${@month}_${@date}"
+  // 每次查询出来的历史记录，该如何计算值呢？
+  // 如果历史记录的 mor 字段存放的就是一个数字，那么可以用 "=mor" 来获取
+  // 如果 mor 里面是个复杂的 JSON 字符串，则可以用
+  // "=mor.path.to.number" 来获取
+  // 默认这个值，相当于 1
+  sumBy : 1,
   // 目标记录是怎样的映射
   mapping : {
     tid   : "=tid",
