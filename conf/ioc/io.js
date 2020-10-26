@@ -12,9 +12,16 @@ var ioc = {
         type : "org.nutz.walnut.impl.lock.redis.RedisLockApi",
         args : [{refer:"redisConfForLockApi"}]
     },
+    lockApiByMemory: {
+        type : "org.nutz.walnut.impl.lock.memory.MemoryLockApi"
+    },
     referApi: {
         type : "org.nutz.walnut.core.refer.redis.RedisReferService",
         args : [{refer:"redisConfForIoRefers"}]
+    },
+    referApiByMongo: {
+        type : "org.nutz.walnut.core.refer.mongo.MongoReferService",
+        args : [{java : '$mongoDB.getCollection("refs")'}]
     },
     redisBM : {
         type : 'org.nutz.walnut.core.bm.redis.RedisBM',
@@ -27,14 +34,20 @@ var ioc = {
             {java  : '$conf.getInt("hdl-timeout", 20)'},
             {refer : "redisConfForIoHandle"}]
     },
+    ioHandleManagerByMemory : {
+        type : "org.nutz.walnut.core.hdl.memory.MemoryIoHandleManager",
+        args : [
+            {refer : "ioMappingFactory"},
+            {java  : '$conf.getInt("hdl-timeout", 20)'}]
+    },
     globalBM : {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
         args : [
-            {refer : 'ioHandleManager'},
+            {refer : 'ioHandleManagerByMemory'},
             {java  :'$conf.get("global-bm-bucket")'},
             {java  :'$conf.get("global-bm-swap")'},
             {java  :'$conf.getBoolean("global-bm-autocreate", true)'},
-            {refer : 'referApi'},
+            {refer : 'referApiByMongo'},
         ]
     },
     globalIndexer : {
@@ -78,11 +91,11 @@ var ioc = {
     },
     localFileBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileBMFactory",
-        args : [{refer:"ioHandleManager"}]
+        args : [{refer:"ioHandleManagerByMemory"}]
     },
     localFileWBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory",
-        args : [{refer:"ioHandleManager"}]
+        args : [{refer:"ioHandleManagerByMemory"}]
     },
     ioMappingFactory : {
         type : 'org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl',
@@ -115,7 +128,7 @@ var ioc = {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
         fields: {
             io: {refer:"rawIo"},
-            locks: {refer: "lockApi"},
+            locks: {refer: "lockApiByMemory"},
             expiTable: {refer: "safeExpiObjTable"}
         }
     }

@@ -42,7 +42,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
     }
 
     @Override
-    public void doSave(WnIoHandle h) {
+    protected void doSave(WnIoHandle h) {
         if (!h.hasId()) {
             throw Er.create("e.io.hdl.doSave.withoutID");
         }
@@ -58,7 +58,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
     }
 
     @Override
-    public void doTouch(WnIoHandle h) {
+    protected void doTouch(WnIoHandle h) {
         if (h.hasTimeout()) {
             String key = _KEY(h.getId());
             Wedis.run(conf, jed -> {

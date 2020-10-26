@@ -29,6 +29,17 @@ public class WnLockObj implements WnLock {
 
     private String hint;
 
+    public WnLockObj clone() {
+        WnLockObj lo = new WnLockObj();
+        lo.name = name;
+        lo.holdTime = holdTime;
+        lo.expiTime = expiTime;
+        lo.privateKey = privateKey;
+        lo.owner = owner;
+        lo.hint = hint;
+        return lo;
+    }
+
     public String getName() {
         return name;
     }

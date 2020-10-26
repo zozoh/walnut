@@ -55,6 +55,8 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxView;
 
+import redis.clients.jedis.exceptions.JedisException;
+
 @IocBean
 @At("/a")
 public class AppModule extends AbstractWnModule {
@@ -356,6 +358,12 @@ public class AppModule extends AbstractWnModule {
         }
         // 出错了
         catch (WebException e) {
+            Throwable eCause = e.getCause();
+            if (null != eCause && (eCause instanceof JedisException)) {
+                if (log.isWarnEnabled()) {
+                    log.warn("Jedis error", eCause);
+                }
+            }
             Object reo = Ajax.fail().setErrCode(e.getKey()).setData(e.getReason());
             // 返回视图
             if (ajax) {

@@ -113,6 +113,7 @@ public class RedisLockApi implements WnLockApi {
             return null;
         }
         // 去掉 privateKey 以防小人作祟
+        // 对方因为不知道 privateKey，所以没法 free 这个锁
         WnLockObj lo = Json.fromJson(WnLockObj.class, json);
         lo.setPrivateKey(null);
         lo.setName(lockName);
