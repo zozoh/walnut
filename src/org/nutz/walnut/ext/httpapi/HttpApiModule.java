@@ -22,6 +22,7 @@ import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.ComboOutputStream;
@@ -851,10 +852,26 @@ public class HttpApiModule extends AbstractWnModule {
                 apc.reqMeta.put("http-cookie-" + coo.getName(), coo.getValue());
             }
         }
+
+        // .........................................
+        // 请求的属性：只记录简单的可被序列化的属性
+        Enumeration<String> attrNames = apc.req.getAttributeNames();
+        while (attrNames.hasMoreElements()) {
+            String attrName = attrNames.nextElement();
+            Object attrVal = apc.req.getAttribute(attrName);
+            if (null == attrVal) {
+                continue;
+            }
+            Mirror<?> mi = Mirror.me(attrVal);
+            if (mi.isSimple()) {
+                apc.reqMeta.put(attrName, attrVal);
+            }
+        }
     }
 
     private void __do_www_auth(WnHttpApiContext apc) {
         String phWWW = apc.oApi.getString("http-www-home");
+        phWWW = (String) Wn.explainObj(apc.reqMeta, phWWW);
         boolean hasWWWHome = !Strings.isBlank(phWWW);
         apc.isNeedWWWAuth = apc.oApi.getBoolean("http-www-auth", hasWWWHome);
         apc.wwwSe = null;

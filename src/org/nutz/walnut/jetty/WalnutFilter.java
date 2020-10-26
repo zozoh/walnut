@@ -151,6 +151,7 @@ public class WalnutFilter implements Filter {
             }
 
             String grp = oDmn.getString("dmn_grp");
+            String siteName = oDmn.getString("dmn_site");
 
             // 看看流量还够不够
             if (quotaService == null) {
@@ -190,6 +191,7 @@ public class WalnutFilter implements Filter {
                 // 将一些必要的信息都记录到 req 对象里，便于 WWW 模块处理
                 req.setAttribute("wn_www_path_new", newPath);
                 req.setAttribute("wn_www_grp", grp);
+                req.setAttribute("wn_www_site", siteName);
                 req.setAttribute("wn_www_url", req.getRequestURL().toString());
 
                 // 这个通常还是要记录一下日志的

@@ -126,6 +126,11 @@ run-with-hook : true
 #--------------------------------------------------
 # 根据票据自动取得网站用户的账户信息
 # @see [获取网站会话] 一节获取更多信息
+# 为了适应多网站共存一个域的场景，本字段支持 explain 表达式
+# 你可以声明 "=wn_www_site?~/www/demo"
+# 它首先会从 HttpRequest 属性里尝试加载 wn_www_site 属性
+# 这个属性是 Walnut 全局过滤器，在碰到域名转发时加上的
+# 表示当前域名对应站点的全路径，支持 ~
 http-www-home   : "~/www"  # 站点目录
 http-www-ticket : "http-qs-ticket"  # 从哪里获取票据，默认http-qs-ticket
 # 如果为 true，则必须登陆，否则返回 403

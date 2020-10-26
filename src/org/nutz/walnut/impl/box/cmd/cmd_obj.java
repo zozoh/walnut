@@ -767,6 +767,7 @@ public class cmd_obj extends JvmExecutor {
             // 对每个对象对应的 key 执行操作
             for (Map.Entry<String, Object> en : pushMap.entrySet()) {
                 String key = en.getKey();
+                Object val = en.getValue();
 
                 // 准备一个空列表准备来拼合值
                 List<Object> vList = new LinkedList<Object>();
@@ -793,7 +794,8 @@ public class cmd_obj extends JvmExecutor {
                 Lang.each(o.get(key), callback);
 
                 // 搞一遍新值
-                Lang.each(en.getValue(), callback);
+                // Lang.each(val, callback);
+                vList.add(val);
 
                 // 更新到对象里
                 o.setv(key, vList);
