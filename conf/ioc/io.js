@@ -43,11 +43,11 @@ var ioc = {
     globalBM : {
         type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
         args : [
-            {refer : 'ioHandleManagerByMemory'},
+            {refer : 'ioHandleManager'},
             {java  :'$conf.get("global-bm-bucket")'},
             {java  :'$conf.get("global-bm-swap")'},
             {java  :'$conf.getBoolean("global-bm-autocreate", true)'},
-            {refer : 'referApiByMongo'},
+            {refer : 'referApi'},
         ]
     },
     globalIndexer : {
@@ -91,11 +91,11 @@ var ioc = {
     },
     localFileBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileBMFactory",
-        args : [{refer:"ioHandleManagerByMemory"}]
+        args : [{refer:"ioHandleManager"}]
     },
     localFileWBMFactory : {
         type : "org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory",
-        args : [{refer:"ioHandleManagerByMemory"}]
+        args : [{refer:"ioHandleManager"}]
     },
     ioMappingFactory : {
         type : 'org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl',
@@ -128,7 +128,7 @@ var ioc = {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
         fields: {
             io: {refer:"rawIo"},
-            locks: {refer: "lockApiByMemory"},
+            locks: {refer: "lockApi"},
             expiTable: {refer: "safeExpiObjTable"}
         }
     }

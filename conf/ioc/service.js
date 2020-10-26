@@ -96,7 +96,7 @@ var ioc = {
                 refer : 'expiObjTable'
             },
             locks : {
-                refer : 'lockApiByMemory'
+                refer : 'lockApi'
             }
         }
     }
