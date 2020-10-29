@@ -17,10 +17,10 @@ public class EmailServerConf {
     public String alias;
 
     public String password;
-    
+
     public boolean ssl;
-    
+
     public String from;
-    
+
     public String lang;
 }

@@ -167,7 +167,7 @@ public class ElasticsearchService implements BulkProcessor.Listener {
     /**
      * 删除记录
      * @param conf 配置对象
-     * @param wobj 数据对象
+     * @param obj 数据对象
      */
     public void delete(String user, EsiConf conf, String id) {
         DeleteRequest request = new DeleteRequest(user+"_"+conf.getName(), "_doc", id);
