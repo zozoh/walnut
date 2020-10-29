@@ -453,7 +453,8 @@ public class AppModule extends AbstractWnModule {
             // 并返回 CookieView
             if (si.oHome.isSameName(name)) {
                 WnAuthSession se = auth().loginByPasswd(name, passwd);
-                redirectPath = se.getVars().getString("OPEN", "/");
+                String appName = se.getVars().getString("OPEN", "wn.console");
+                redirectPath = "/a/open/" + appName;
                 reo = se;
             }
             // 采用域用户库来登陆
@@ -476,7 +477,8 @@ public class AppModule extends AbstractWnModule {
                     __update_auth_session(se, si.webs, byType, byValue);
 
                     // 获取重定向路径
-                    redirectPath = se.getVars().getString("OPEN", "/");
+                    String appName = se.getVars().getString("OPEN", "wn.manager");
+                    redirectPath = "/a/open/" + appName;
 
                     // 准备返回值
                     reo = se;
