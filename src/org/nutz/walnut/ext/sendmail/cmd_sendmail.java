@@ -2,7 +2,10 @@ package org.nutz.walnut.ext.sendmail;
 
 import org.apache.commons.mail.EmailException;
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sendmail.api.WnMailApi;
 import org.nutz.walnut.ext.sendmail.bean.WnMail;
@@ -14,6 +17,8 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.web.ajax.Ajax;
 
 public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFilter> {
+
+    private static final Log log = Logs.get();
 
     public cmd_sendmail() {
         super(SendmailContext.class, SendmailFilter.class);
@@ -37,6 +42,9 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
         if (fc.params.has("lang")) {
             fc.mail.setLang(fc.params.get("lang"));
         }
+        if (fc.params.has("base")) {
+            fc.mail.setBaseUrl(fc.params.get("base"));
+        }
     }
 
     @Override
@@ -58,7 +66,12 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
             }
         }
         catch (EmailException e) {
-            re = Ajax.fail().setData(fc.mail);
+            if (log.isDebugEnabled()) {
+                log.warn("Fail sendmail", e);
+            }
+            re = Ajax.fail()
+                     .setErrCode("e.cmd.sendmail.fail")
+                     .setData(Lang.map("mail", fc.mail).setv("error", e));
         }
 
         // 输出

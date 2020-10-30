@@ -10,6 +10,7 @@
 sendmail 
   [ConfigName]                   # 配置名称
   [-lang zh-cn]                  # 语言，默认 zh-cn
+  [-base http://...]             # HTML 邮件的 base URL
   [-quiet]                       # 静默输出
   [-cqn]                         # 非静默输出的 JSON 格式
   [-ajax]                        # 非静默输出时，要 ajax 包裹

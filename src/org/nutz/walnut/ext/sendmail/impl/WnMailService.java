@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.sendmail.impl;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,11 +11,13 @@ import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
+import org.apache.commons.mail.resolver.DataSourceUrlResolver;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sendmail.api.WnMailApi;
@@ -137,6 +141,25 @@ public class WnMailService implements WnMailApi {
         // 搞一个邮件对象
         Email mo = this.createEmailObj(mail);
 
+        // HTML 邮件
+        if (mo instanceof ImageHtmlEmail) {
+            ImageHtmlEmail ihe = (ImageHtmlEmail) mo;
+            // 设置
+            if (mail.hasBaseUrl()) {
+                try {
+                    URL url = new URL(mail.getBaseUrl());
+                    ihe.setDataSourceResolver(new DataSourceUrlResolver(url));
+                }
+                catch (MalformedURLException e) {
+                    throw Er.create("e.mail.base_url.invalid", mail.getBaseUrl());
+                }
+            }
+            // 木有，也要硬设一个，否则它会 NPE
+            else {
+                ihe.setDataSourceResolver(new DataSourceUrlResolver(null));
+            }
+        }
+
         // 准备发送资料
         mo.setHostName(config.getSmtpHost());
         mo.setSmtpPort(config.getSmtpPort());
@@ -191,6 +214,12 @@ public class WnMailService implements WnMailApi {
                 ((HtmlEmail) mo).setHtmlMsg(content);
             } else {
                 mo.setMsg(content);
+            }
+        } else {
+            if (mo instanceof HtmlEmail) {
+                ((HtmlEmail) mo).setHtmlMsg("");
+            } else {
+                mo.setMsg("");
             }
         }
 

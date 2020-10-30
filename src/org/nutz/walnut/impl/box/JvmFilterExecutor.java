@@ -97,7 +97,7 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
                 // 存入最后一个
                 if (null != lastHdl) {
                     String[] h_args = lastArgs.toArray(new String[lastArgs.size()]);
-                    ZParams params = hdl.parseParams(h_args);
+                    ZParams params = lastHdl.parseParams(h_args);
                     // 参数和执行器成对加入
                     hdlFilters.add(lastHdl);
                     hdlParams.add(params);
