@@ -6,8 +6,14 @@
 # 用法
 
 
-```
-sendmail [ConfigName] [[@filter filter-args...]...]
+```bash
+sendmail 
+  [ConfigName]                   # 配置名称
+  [-lang zh-cn]                  # 语言，默认 zh-cn
+  [-quiet]                       # 静默输出
+  [-cqn]                         # 非静默输出的 JSON 格式
+  [-ajax]                        # 非静默输出时，要 ajax 包裹
+  [[@filter filter-args...]...]  # 过滤器
 ```
 
 其中 `ConfigName` 表示配置文件名，对应为 `.mail/${ConfigName}.json`
@@ -26,4 +32,7 @@ sendmail [ConfigName] [[@filter filter-args...]...]
 @msg        # 邮件正文
 @tmpl       # 邮件模板
 @at         # 邮件附件
+@vars       # 添加上下文变量
+@meta       # 通过文件元数据向上下文增加一组变量
+@json       # 通过文件内容向上下文增加一组变量
 ```

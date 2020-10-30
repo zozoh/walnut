@@ -20,6 +20,6 @@
 =======
 
 ```bash
-sendmail @fto ~/accounts -match 'role:"ADMIN"' -mapping 'name:"nickname",email:"email"'
+sendmail @fto ~/accounts -match 'role:"ADMIN"' -mapping 'name:"=nickname",account:"=email"'
 ```
 

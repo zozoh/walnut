@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.sendmail.bean;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 
 public class WnMailReceiver {
 
@@ -19,6 +20,11 @@ public class WnMailReceiver {
     public WnMailReceiver(String account, String name) {
         this.account = account;
         this.name = name;
+    }
+    
+    public WnMailReceiver(NutBean bean) {
+        this.account = bean.getString("account");
+        this.name = bean.getString("name");
     }
 
     public String getAccount() {

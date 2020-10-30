@@ -10,6 +10,7 @@ import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -33,7 +34,9 @@ public class WnMailService implements WnMailApi {
 
     private WnObj oI18n;
 
-    private Map<String, String> cache;
+    private Map<String, String> cacheContent;
+
+    private Map<String, String> cacheSubject;
 
     /**
      * @param io
@@ -48,7 +51,8 @@ public class WnMailService implements WnMailApi {
         this.oHome = oHome;
         this.oI18n = io.fetch(oHome, "i18n");
         this.config = this.loadConfig(configName);
-        this.cache = new HashMap<>();
+        this.cacheContent = new HashMap<>();
+        this.cacheSubject = new HashMap<>();
     }
 
     private WnMailConfig loadConfig(String configName) {
@@ -73,7 +77,7 @@ public class WnMailService implements WnMailApi {
         return new SimpleEmail();
     }
 
-    private String loadTemplate(String lang, String tmplName) {
+    private String loadTemplateSubject(String lang, String tmplName) {
         if (null == this.oI18n || !this.oI18n.isDIR()) {
             return null;
         }
@@ -83,16 +87,43 @@ public class WnMailService implements WnMailApi {
         String key = lang + "_" + tmplName;
 
         // 缓存加速一把
-        if (cache.containsKey(key)) {
-            return cache.get(key);
+        if (cacheContent.containsKey(key)) {
+            return cacheSubject.get(key);
         }
 
         WnObj o = io.fetch(oI18n, Wn.appendPath(lang, tmplName));
         if (null == o) {
             return null;
         }
+        String subject = o.getString("subject", null);
+        cacheSubject.put(key, subject);
         String text = io.readText(o);
-        cache.put(key, text);
+        cacheContent.put(key, text);
+        return subject;
+    }
+
+    private String loadTemplateContent(String lang, String tmplName) {
+        if (null == this.oI18n || !this.oI18n.isDIR()) {
+            return null;
+        }
+        if (Strings.isBlank(lang) || Strings.isBlank(tmplName)) {
+            return null;
+        }
+        String key = lang + "_" + tmplName;
+
+        // 缓存加速一把
+        if (cacheContent.containsKey(key)) {
+            return cacheContent.get(key);
+        }
+
+        WnObj o = io.fetch(oI18n, Wn.appendPath(lang, tmplName));
+        if (null == o) {
+            return null;
+        }
+        String subject = o.getString("subject", null);
+        cacheSubject.put(key, subject);
+        String text = io.readText(o);
+        cacheContent.put(key, text);
         return text;
     }
 
@@ -114,8 +145,10 @@ public class WnMailService implements WnMailApi {
         mo.setCharset(mail.getCharset());
 
         // 邮件标题
-        String subject = mail.getSubject(vars);
-        mo.setSubject(subject);
+        if (mail.hasSubject()) {
+            String subject = mail.getSubject(vars);
+            mo.setSubject(subject);
+        }
 
         // 收件人
         for (WnMailReceiver r : mail.getReceivers()) {
@@ -139,7 +172,13 @@ public class WnMailService implements WnMailApi {
         // 处理邮件正文: 模板
         if (mail.hasTemplateName()) {
             String lang = mail.getLang(config.getLang());
-            String text = this.loadTemplate(lang, mail.getTemplateName());
+            String tmplName = mail.getTemplateName();
+            String text = this.loadTemplateContent(lang, tmplName);
+            if (!mail.hasSubject()) {
+                String sub = this.loadTemplateSubject(lang, tmplName);
+                String subject = Tmpl.exec(sub, vars);
+                mo.setSubject(subject);
+            }
             if (null != text) {
                 mail.setContent(text);
             }

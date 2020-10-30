@@ -76,6 +76,10 @@ public class WnMail {
      */
     private String lang;
 
+    public boolean hasSubject() {
+        return !Strings.isBlank(subject);
+    }
+
     public String getSubject(NutBean vars) {
         return Tmpl.exec(subject, vars);
     }
@@ -106,6 +110,15 @@ public class WnMail {
         }
     }
 
+    public void addReceivers(WnMailReceiver... res) {
+        if (null == this.receivers) {
+            this.receivers = new LinkedList<>();
+        }
+        for (WnMailReceiver r : res) {
+            this.receivers.add(r);
+        }
+    }
+
     public void setReceivers(List<WnMailReceiver> receivers) {
         this.receivers = receivers;
     }
@@ -120,6 +133,15 @@ public class WnMail {
         }
         for (String re : res) {
             WnMailReceiver r = new WnMailReceiver(re);
+            this.carbonCopies.add(r);
+        }
+    }
+
+    public void addCC(WnMailReceiver... res) {
+        if (null == this.carbonCopies) {
+            this.carbonCopies = new LinkedList<>();
+        }
+        for (WnMailReceiver r : res) {
             this.carbonCopies.add(r);
         }
     }
@@ -146,6 +168,15 @@ public class WnMail {
         }
         for (String re : res) {
             WnMailReceiver r = new WnMailReceiver(re);
+            this.blindCarbonCopies.add(r);
+        }
+    }
+
+    public void addBCC(WnMailReceiver... res) {
+        if (null == this.blindCarbonCopies) {
+            this.blindCarbonCopies = new LinkedList<>();
+        }
+        for (WnMailReceiver r : res) {
             this.blindCarbonCopies.add(r);
         }
     }

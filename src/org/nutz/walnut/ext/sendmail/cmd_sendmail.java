@@ -1,13 +1,27 @@
 package org.nutz.walnut.ext.sendmail;
 
+import org.apache.commons.mail.EmailException;
+import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.sendmail.api.WnMailApi;
 import org.nutz.walnut.ext.sendmail.bean.WnMail;
+import org.nutz.walnut.ext.sendmail.impl.WnMailService;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.ZParams;
+import org.nutz.web.ajax.Ajax;
 
 public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFilter> {
 
     public cmd_sendmail() {
         super(SendmailContext.class, SendmailFilter.class);
+    }
+
+    @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "cqn", "^(quiet|ajax)$");
     }
 
     @Override
@@ -19,9 +33,43 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
     protected void prepare(WnSystem sys, SendmailContext fc) {
         fc.configName = fc.params.val(0, "_default");
         fc.mail = new WnMail();
+        fc.vars = new NutMap();
+        if (fc.params.has("lang")) {
+            fc.mail.setLang(fc.params.get("lang"));
+        }
     }
 
     @Override
-    protected void output(WnSystem sys, SendmailContext fc) {}
+    protected void output(WnSystem sys, SendmailContext fc) {
+        // 读取主目录
+        WnObj oHome = Wn.checkObj(sys, "~/.mail");
+
+        // 准备服务类
+        WnMailApi api = new WnMailService(sys.io, oHome, fc.configName);
+
+        // 发送邮件
+        boolean ok = false;
+        Object re = fc.mail;
+        try {
+            api.smtp(fc.mail, fc.vars);
+            ok = true;
+            if (fc.params.is("ajax")) {
+                re = Ajax.ok().setData(fc.mail);
+            }
+        }
+        catch (EmailException e) {
+            re = Ajax.fail().setData(fc.mail);
+        }
+
+        // 输出
+        if (!fc.params.is("quiet")) {
+            String json = Json.toJson(re, fc.jfmt);
+            if (ok) {
+                sys.out.println(json);
+            } else {
+                sys.err.println(json);
+            }
+        }
+    }
 
 }
