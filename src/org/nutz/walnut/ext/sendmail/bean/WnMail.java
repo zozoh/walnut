@@ -263,6 +263,10 @@ public class WnMail {
         }
         for (WnObj o : this.attachments) {
             String name = o.getOr("title|nm", "un-title").toString();
+            String type = o.type();
+            if (!Strings.isBlank(type) && !name.endsWith("." + type)) {
+                name += "." + type;
+            }
             String desc = (String) o.getOr("brief");
             DataSource ds = new WnObjMailDataSource(io, o);
             mail.attach(ds, name, desc);
