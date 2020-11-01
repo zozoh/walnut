@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sendmail.bean;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,9 +9,11 @@ import javax.activation.DataSource;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -29,17 +32,17 @@ public class WnMail {
     /**
      * 接收者
      */
-    private List<WnMailReceiver> receivers;
+    private List<WnMailReceiver> mailTo;
 
     /**
      * 抄送
      */
-    private List<WnMailReceiver> carbonCopies;
+    private List<WnMailReceiver> mailCc;
 
     /**
      * 密送
      */
-    private List<WnMailReceiver> blindCarbonCopies;
+    private List<WnMailReceiver> mailBcc;
 
     /**
      * 字符集（默认 UTF-8）
@@ -76,6 +79,129 @@ public class WnMail {
      */
     private String lang;
 
+    public WnMail clone() {
+        WnMail mail = new WnMail();
+        mail.copyFrom(this);
+        return mail;
+    }
+
+    public String toString() {
+        return this.toString(new NutMap());
+    }
+
+    public String toString(NutBean vars) {
+        String HR = Strings.dup('-', 40);
+        List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
+        ss.add(HR);
+        if (this.hasSubject()) {
+            ss.add("Subject: " + this.getSubject(vars));
+        } else {
+            ss.add("-No Title-");
+        }
+        ss.add(HR);
+        ss.add("To: " + __str_list(this.mailTo));
+        if (this.hasMailCc()) {
+            ss.add(HR);
+            ss.add("CC: " + __str_list(this.mailCc));
+        }
+        if (this.hasMailBcc()) {
+            ss.add(HR);
+            ss.add("BCC: " + __str_list(this.mailBcc));
+        }
+        ss.add(HR);
+        if (this.hasTemplateName()) {
+            ss.add("TEMPLATE<" + this.templateName + ">\n");
+        }
+        if (this.hasContent()) {
+            ss.add(this.getContent(vars));
+        }
+        if (this.hasAttachments()) {
+            ss.add(HR);
+            ss.add("BCC: " + __str_list(this.attachments));
+        }
+        ss.add(HR);
+        ss.add("~ END ~");
+
+        return Strings.join("\n", ss);
+    }
+
+    private String __str_list(List<?> list) {
+        if (null != list && !list.isEmpty()) {
+            List<String> ss = new ArrayList<>(list.size());
+            for (Object li : list) {
+                ss.add(li.toString());
+            }
+            return Strings.join("; ", ss);
+        }
+        return "";
+    }
+
+    public void copyFrom(WnMail mail) {
+        if (null == mail)
+            return;
+
+        if (mail.hasSubject())
+            this.subject = mail.subject;
+
+        if (mail.hasMailTo()) {
+            this.mailTo = __copy_list(mail.mailTo);
+        }
+
+        if (mail.hasMailCc()) {
+            this.mailCc = __copy_list(mail.mailCc);
+        }
+
+        if (mail.hasMailBcc()) {
+            this.mailBcc = __copy_list(mail.mailBcc);
+        }
+
+        if (!Strings.isBlank(mail.charset)) {
+            this.charset = mail.charset;
+        }
+
+        if (!Strings.isBlank(mail.baseUrl)) {
+            this.baseUrl = mail.baseUrl;
+        }
+
+        if (mail.hasContent()) {
+            this.asHtml = mail.asHtml;
+            this.content = mail.content;
+        }
+
+        if (mail.hasTemplateName()) {
+            this.asHtml = mail.asHtml;
+            this.templateName = mail.templateName;
+        }
+
+        if (mail.hasAttachments()) {
+            this.attachments = new LinkedList<>();
+            for (WnObj o : mail.attachments) {
+                this.attachments.add(o.clone());
+            }
+        }
+    }
+
+    private List<WnMailReceiver> __copy_list(List<WnMailReceiver> src) {
+        if (null == src)
+            return src;
+        List<WnMailReceiver> list = new LinkedList<>();
+        if (!src.isEmpty())
+            for (WnMailReceiver r : src) {
+                list.add(r.clone());
+            }
+        return list;
+    }
+
+    public WnMailType getType() {
+        if (this.asHtml)
+            return WnMailType.HTML;
+
+        if (this.hasAttachments())
+            return WnMailType.MULTIPART;
+
+        return WnMailType.SIMPLE;
+    }
+
     public boolean hasSubject() {
         return !Strings.isBlank(subject);
     }
@@ -92,97 +218,97 @@ public class WnMail {
         this.subject = subject;
     }
 
-    public boolean hasReceivers() {
-        return null != receivers && receivers.size() > 0;
+    public boolean hasMailTo() {
+        return null != mailTo && mailTo.size() > 0;
     }
 
-    public List<WnMailReceiver> getReceivers() {
-        return receivers;
+    public List<WnMailReceiver> getMailTo() {
+        return mailTo;
     }
 
-    public void addReceivers(String... res) {
-        if (null == this.receivers) {
-            this.receivers = new LinkedList<>();
+    public void addMailTo(String... res) {
+        if (null == this.mailTo) {
+            this.mailTo = new LinkedList<>();
         }
         for (String re : res) {
             WnMailReceiver r = new WnMailReceiver(re);
-            this.receivers.add(r);
+            this.mailTo.add(r);
         }
     }
 
-    public void addReceivers(WnMailReceiver... res) {
-        if (null == this.receivers) {
-            this.receivers = new LinkedList<>();
+    public void addMailToR(WnMailReceiver... res) {
+        if (null == this.mailTo) {
+            this.mailTo = new LinkedList<>();
         }
         for (WnMailReceiver r : res) {
-            this.receivers.add(r);
+            this.mailTo.add(r);
         }
     }
 
-    public void setReceivers(List<WnMailReceiver> receivers) {
-        this.receivers = receivers;
+    public void setMailTo(List<WnMailReceiver> receivers) {
+        this.mailTo = receivers;
     }
 
-    public boolean hasCC() {
-        return null != carbonCopies && carbonCopies.size() > 0;
+    public boolean hasMailCc() {
+        return null != mailCc && mailCc.size() > 0;
     }
 
-    public void addCC(String... res) {
-        if (null == this.carbonCopies) {
-            this.carbonCopies = new LinkedList<>();
+    public void addMailCc(String... res) {
+        if (null == this.mailCc) {
+            this.mailCc = new LinkedList<>();
         }
         for (String re : res) {
             WnMailReceiver r = new WnMailReceiver(re);
-            this.carbonCopies.add(r);
+            this.mailCc.add(r);
         }
     }
 
-    public void addCC(WnMailReceiver... res) {
-        if (null == this.carbonCopies) {
-            this.carbonCopies = new LinkedList<>();
+    public void addMailCcR(WnMailReceiver... res) {
+        if (null == this.mailCc) {
+            this.mailCc = new LinkedList<>();
         }
         for (WnMailReceiver r : res) {
-            this.carbonCopies.add(r);
+            this.mailCc.add(r);
         }
     }
 
-    public List<WnMailReceiver> getCarbonCopies() {
-        return carbonCopies;
+    public List<WnMailReceiver> getMailCc() {
+        return mailCc;
     }
 
-    public void setCarbonCopies(List<WnMailReceiver> carbonCopies) {
-        this.carbonCopies = carbonCopies;
+    public void setMailCc(List<WnMailReceiver> carbonCopies) {
+        this.mailCc = carbonCopies;
     }
 
-    public List<WnMailReceiver> getBlindCarbonCopies() {
-        return blindCarbonCopies;
+    public List<WnMailReceiver> getMailBcc() {
+        return mailBcc;
     }
 
-    public boolean hasBCC() {
-        return null != blindCarbonCopies && blindCarbonCopies.size() > 0;
+    public boolean hasMailBcc() {
+        return null != mailBcc && mailBcc.size() > 0;
     }
 
-    public void addBCC(String... res) {
-        if (null == this.blindCarbonCopies) {
-            this.blindCarbonCopies = new LinkedList<>();
+    public void addMailBcc(String... res) {
+        if (null == this.mailBcc) {
+            this.mailBcc = new LinkedList<>();
         }
         for (String re : res) {
             WnMailReceiver r = new WnMailReceiver(re);
-            this.blindCarbonCopies.add(r);
+            this.mailBcc.add(r);
         }
     }
 
-    public void addBCC(WnMailReceiver... res) {
-        if (null == this.blindCarbonCopies) {
-            this.blindCarbonCopies = new LinkedList<>();
+    public void addMailBccR(WnMailReceiver... res) {
+        if (null == this.mailBcc) {
+            this.mailBcc = new LinkedList<>();
         }
         for (WnMailReceiver r : res) {
-            this.blindCarbonCopies.add(r);
+            this.mailBcc.add(r);
         }
     }
 
-    public void setBlindCarbonCopies(List<WnMailReceiver> blindCarbonCopies) {
-        this.blindCarbonCopies = blindCarbonCopies;
+    public void setMailBcc(List<WnMailReceiver> blindCarbonCopies) {
+        this.mailBcc = blindCarbonCopies;
     }
 
     public String getCharset() {

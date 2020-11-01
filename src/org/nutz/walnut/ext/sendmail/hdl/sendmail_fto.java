@@ -7,7 +7,7 @@ public class sendmail_fto extends sendmail_to_by_file {
 
     @Override
     protected void addReceivers(SendmailContext fc, WnMailReceiver[] res) {
-        fc.mail.addReceivers(res);
+        fc.mail.addMailToR(res);
     }
 
 }
