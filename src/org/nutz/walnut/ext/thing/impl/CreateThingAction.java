@@ -211,9 +211,14 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 根据链接键，自动修改元数据，返回的值是一组后续更新脚本
         List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
 
-        // 更新这个 Thing
-        // io.appendMeta(oT, meta);
-        oT = io.create(oIndex, oT);
+        // 更新这个 Thing （因为从 uniqueKeys 里得到了之前的记录，这样可以导入防重）
+        if (oT.hasID()) {
+            io.appendMeta(oT, meta);
+        }
+        // 创建一个
+        else {
+            oT = io.create(oIndex, oT);
+        }
 
         // 看看是否需要重新获取 Thing
         boolean re_get = false;

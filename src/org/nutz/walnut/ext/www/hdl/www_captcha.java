@@ -182,10 +182,14 @@ public class www_captcha implements JvmHdl {
             if (hc.params.has("by")) {
                 cc.put("scene", hc.params.get("by"));
             }
-            String cmdTmpl = "email -r ${account} -s 'i18n:${scene}'"
-                             + " -tmpl 'i18n:${scene}'"
-                             + " -lang '${lang?zh-cn}'"
-                             + " -vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
+            // String cmdTmpl = "email -r ${account} -s 'i18n:${scene}'"
+            // + " -tmpl 'i18n:${scene}'"
+            // + " -lang '${lang?zh-cn}'"
+            // + " -vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
+            String cmdTmpl = "sendmail -lang '${lang?zh-cn}'"
+                             + " @to ${account}"
+                             + " @tmpl '${scene}'"
+                             + " @vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
             String cmdText = Tmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);

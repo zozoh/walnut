@@ -72,7 +72,9 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
             }
             re = Ajax.fail()
                      .setErrCode("e.cmd.sendmail.fail")
-                     .setData(Lang.map("context", fc).setv("error", e));
+                     .setData(Lang.map("mail", fc.mail)
+                                  .setv("vars", fc.vars)
+                                  .setv("error", e.toString()));
         }
 
         // 输出
