@@ -256,7 +256,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			AbbCheckListAItem aitem = new AbbCheckListAItem();
 			aitem.nm = abbCheckListItem.no;
 			aitem.title = abbCheckListItem.selfStr;
-			aitem.p_ck_nm = abbCheckListItem.parentStr;
+			aitem.p_ck_nm = abbCheckListItem.no.substring(0, abbCheckListItem.no.indexOf('.'));
 			aitem.workhour = abbCheckListItem.workhour;
 			clist.items.add(aitem);
 		}
