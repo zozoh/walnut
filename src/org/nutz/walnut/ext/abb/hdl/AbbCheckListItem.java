@@ -10,7 +10,8 @@ public class AbbCheckListItem {
 	public String sf; // site || F.A.S.T
 	public String outfiles;
 	public String owner;
-	public int min; // 耗时
+	public Integer min; // 耗时
+	public Long workhour;
 
 	public AbbCheckListItem() {
 		// TODO Auto-generated constructor stub

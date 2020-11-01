@@ -8,27 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
-public class abb_ckimp implements JvmHdl {
-
-	private static final Log log = Logs.get();
+public class abb_ckimp extends abb_abstract_ckimp {
 
 	@Override
 	public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -42,13 +33,24 @@ public class abb_ckimp implements JvmHdl {
 		InputStream ins = sys.io.getInputStream(wobj, 0);
 		XSSFWorkbook wb = new XSSFWorkbook(ins);
 		ins.close();
-		_exec(sys, hc, wb);
+		String mode = hc.params.get("mode", "A");
+		switch (mode) {
+		case "A":
+			mode_a(sys, hc, wb);
+			break;
+		case "B":
+			mode_b(sys, hc, wb);
+			break;
+
+		default:
+			break;
+		}
 		wb.close();
 
 		wb.close();
 	}
 
-	protected void _exec(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
+	protected void mode_a(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
 		XSSFSheet preSheet = wb.getSheet("PRE+BCE+CCE");
 		XSSFSheet descSheet = wb.getSheet("Description");
 		if (preSheet == null) {
@@ -159,34 +161,104 @@ public class abb_ckimp implements JvmHdl {
 		sys.out.writeJson(clist, JsonFormat.full());
 	}
 
-	@SuppressWarnings("deprecation")
-	private Object __get_cell_value(Cell cell) {
-		if (cell == null)
-			return null;
-		CellType cellType = cell.getCellTypeEnum();
-		switch (cellType) {
-		case NUMERIC:
-			if (DateUtil.isCellDateFormatted(cell)) {
-				return cell.getDateCellValue();
+
+	protected void mode_b(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
+		XSSFSheet preSheet = wb.getSheetAt(0);
+		
+		// 首先, 查找起始行
+		int rowBegin = -1;
+		int workHourCellIndex = -1;
+		for (int i = 0; i < 16; i++) {
+			XSSFRow row = preSheet.getRow(i);
+			if (row == null)
+				continue;
+			XSSFCell cell = row.getCell(0);
+			if (cell == null)
+				continue;
+			String value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+			if ("group".equals(value)) {
+				rowBegin = i;
+				// 找一下workhour的列
+				for (int j = 1; j < 26; j++) {
+					cell = row.getCell(j);
+					if (cell == null)
+						continue;
+					value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+					if ("workhour".equals(value)) {
+						workHourCellIndex = j;
+					}
+				}
+				break;
 			}
-			double n = cell.getNumericCellValue();
-			long ni = (long) n;
-			if (ni == n)
-				return ni;
-			return n;
-		case STRING:
-			return Strings.trim(cell.getStringCellValue());
-		case FORMULA:
-			return cell.getCellFormula();
-		case BLANK:
-			return null;
-		case BOOLEAN:
-			return cell.getBooleanCellValue();
-		case ERROR:
-			return cell.getErrorCellValue();
-		default:
-			break;
 		}
-		throw Er.create("e.sheet.xls.unknownCellType", cellType);
+		if (rowBegin < 0) {
+			// 找不到, 报错退出
+			sys.err.print("miss row for Group!!!");
+			return;
+		}
+
+		int rowIndex = rowBegin + 1;
+		String preGourp = null;
+		Map<String, AbbCheckListItem> items = new LinkedHashMap<>();
+		List<AbbCheckListItem> list = new ArrayList<>();
+		while (true) {
+			XSSFRow row = preSheet.getRow(rowIndex);
+			rowIndex++;
+			if (row == null)
+				break;
+			XSSFCell groupCell = row.getCell(0);
+			XSSFCell noCell = row.getCell(1);
+			XSSFCell itemCell = row.getCell(2);
+
+			if (groupCell == null)
+				continue;
+			String groupValue = groupCell.getStringCellValue();
+			Object tmp = __get_cell_value(noCell);
+			if (tmp == null)
+				continue;
+			String noValue = null;
+			if (tmp instanceof Number) {
+				noValue = String.format("%.1f", tmp);
+			} else {
+				noValue = tmp.toString().trim();
+			}
+			String itemValue = itemCell.getStringCellValue();
+
+			if (noValue == null)
+				continue;
+			// 如果Group是空, 那就是继承上一个
+			if (Strings.isBlank(groupValue))
+				groupValue = preGourp;
+			// 如果不是, 那就是新的Group了
+			else {
+				preGourp = groupValue;
+			}
+			AbbCheckListItem item = new AbbCheckListItem(noValue, groupValue, itemValue);
+			if (workHourCellIndex > 0) {
+				XSSFCell workhour = row.getCell(workHourCellIndex);
+				if (workhour != null)
+					item.workhour = (Long)__get_cell_value(workhour);
+			}
+			items.put(noValue, item);
+			list.add(item);
+		}
+		
+		AbbCheckList clist = new AbbCheckList();
+		Set<String> parents = new HashSet<>();
+		for (AbbCheckListItem abbCheckListItem : list) {
+			if (!parents.contains(abbCheckListItem.parentStr)) {
+				AbbCheckListAItem aitem = new AbbCheckListAItem();
+				aitem.nm = abbCheckListItem.no.substring(0, abbCheckListItem.no.indexOf('.'));
+				aitem.title = abbCheckListItem.parentStr;
+				clist.items.add(aitem);
+				parents.add(abbCheckListItem.parentStr);
+			}
+			AbbCheckListAItem aitem = new AbbCheckListAItem();
+			aitem.nm = abbCheckListItem.no;
+			aitem.title = abbCheckListItem.selfStr;
+			aitem.p_ck_nm = abbCheckListItem.parentStr;
+			clist.items.add(aitem);
+		}
+		sys.out.writeJson(clist, JsonFormat.full().setIgnoreNull(true));
 	}
 }
