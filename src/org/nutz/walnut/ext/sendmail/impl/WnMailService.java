@@ -2,8 +2,6 @@ package org.nutz.walnut.ext.sendmail.impl;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -38,10 +36,6 @@ public class WnMailService implements WnMailApi {
 
     private WnObj oI18n;
 
-    private Map<String, String> cacheContent;
-
-    private Map<String, String> cacheSubject;
-
     /**
      * @param io
      *            IO 接口
@@ -55,8 +49,6 @@ public class WnMailService implements WnMailApi {
         this.oHome = oHome;
         this.oI18n = io.fetch(oHome, "i18n");
         this.config = this.loadConfig(configName);
-        this.cacheContent = new HashMap<>();
-        this.cacheSubject = new HashMap<>();
     }
 
     private WnMailConfig loadConfig(String configName) {
@@ -81,54 +73,15 @@ public class WnMailService implements WnMailApi {
         return new SimpleEmail();
     }
 
-    private String loadTemplateSubject(String lang, String tmplName) {
+    private WnObj loadTemplateObj(String lang, String tmplName) {
         if (null == this.oI18n || !this.oI18n.isDIR()) {
             return null;
         }
         if (Strings.isBlank(lang) || Strings.isBlank(tmplName)) {
             return null;
         }
-        String key = lang + "_" + tmplName;
 
-        // 缓存加速一把
-        if (cacheContent.containsKey(key)) {
-            return cacheSubject.get(key);
-        }
-
-        WnObj o = io.fetch(oI18n, Wn.appendPath(lang, tmplName));
-        if (null == o) {
-            return null;
-        }
-        String subject = o.getString("subject", null);
-        cacheSubject.put(key, subject);
-        String text = io.readText(o);
-        cacheContent.put(key, text);
-        return subject;
-    }
-
-    private String loadTemplateContent(String lang, String tmplName) {
-        if (null == this.oI18n || !this.oI18n.isDIR()) {
-            return null;
-        }
-        if (Strings.isBlank(lang) || Strings.isBlank(tmplName)) {
-            return null;
-        }
-        String key = lang + "_" + tmplName;
-
-        // 缓存加速一把
-        if (cacheContent.containsKey(key)) {
-            return cacheContent.get(key);
-        }
-
-        WnObj o = io.fetch(oI18n, Wn.appendPath(lang, tmplName));
-        if (null == o) {
-            return null;
-        }
-        String subject = o.getString("subject", null);
-        cacheSubject.put(key, subject);
-        String text = io.readText(o);
-        cacheContent.put(key, text);
-        return text;
+        return io.fetch(oI18n, Wn.appendPath(lang, tmplName));
     }
 
     @Override
@@ -136,6 +89,27 @@ public class WnMailService implements WnMailApi {
         // 收件人
         if (!mail.hasMailTo()) {
             throw new EmailException("No receivers");
+        }
+
+        // 预先处理邮件模板：（会比正文更优先）
+        if (mail.hasTemplateName()) {
+            String lang = mail.getLang(config.getLang());
+            String tmplName = mail.getTemplateName();
+            WnObj oTmpl = this.loadTemplateObj(lang, tmplName);
+            if (null != oTmpl) {
+                String text = io.readText(oTmpl);
+                if (!mail.hasSubject()) {
+                    String sub = oTmpl.getString("subject");
+                    String subject = Tmpl.exec(sub, vars);
+                    mail.setSubject(subject);
+                }
+                if (null != text) {
+                    mail.setContent(text);
+                }
+                if (oTmpl.isMime("text/html") || oTmpl.isType("html")) {
+                    mail.setAsHtml(true);
+                }
+            }
         }
 
         // 搞一个邮件对象
@@ -189,22 +163,6 @@ public class WnMailService implements WnMailApi {
         if (mail.hasMailBcc()) {
             for (WnMailReceiver r : mail.getMailBcc()) {
                 mo.addBcc(r.getAccount(), r.getName());
-            }
-        }
-
-        // 处理邮件正文: 模板
-        if (mail.hasTemplateName()) {
-            String lang = mail.getLang(config.getLang());
-            String tmplName = mail.getTemplateName();
-            String text = this.loadTemplateContent(lang, tmplName);
-            if (!mail.hasSubject()) {
-                String sub = this.loadTemplateSubject(lang, tmplName);
-                String subject = Tmpl.exec(sub, vars);
-                mo.setSubject(subject);
-                mail.setSubject(subject);
-            }
-            if (null != text) {
-                mail.setContent(text);
             }
         }
 

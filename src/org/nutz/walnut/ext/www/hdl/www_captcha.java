@@ -186,7 +186,7 @@ public class www_captcha implements JvmHdl {
             // + " -tmpl 'i18n:${scene}'"
             // + " -lang '${lang?zh-cn}'"
             // + " -vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
-            String cmdTmpl = "sendmail -lang '${lang?zh-cn}'"
+            String cmdTmpl = "sendmail -lang '${lang?}' -ajax"
                              + " @to ${account}"
                              + " @tmpl '${scene}'"
                              + " @vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";

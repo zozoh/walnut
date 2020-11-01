@@ -41,7 +41,7 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
         fc.mail = new WnMail();
         fc.vars = new NutMap();
         if (fc.params.has("lang")) {
-            fc.mail.setLang(fc.params.get("lang"));
+            fc.mail.setLang(fc.params.getString("lang"));
         }
         if (fc.params.has("base")) {
             fc.mail.setBaseUrl(fc.params.get("base"));
@@ -58,12 +58,12 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
 
         // 发送邮件
         boolean ok = false;
-        Object re = fc;
+        Object re = fc.toBeanForClient();
         try {
             api.smtp(fc.mail, fc.vars);
             ok = true;
             if (fc.params.is("ajax")) {
-                re = Ajax.ok().setData(fc);
+                re = Ajax.ok().setData(re);
             }
         }
         catch (EmailException e) {
@@ -72,9 +72,7 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
             }
             re = Ajax.fail()
                      .setErrCode("e.cmd.sendmail.fail")
-                     .setData(Lang.map("mail", fc.mail)
-                                  .setv("vars", fc.vars)
-                                  .setv("error", e.toString()));
+                     .setData(Lang.map("context", re).setv("error", e.toString()));
         }
 
         // 输出

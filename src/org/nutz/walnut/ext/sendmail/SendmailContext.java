@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.sendmail;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.sendmail.bean.WnMail;
 import org.nutz.walnut.impl.box.JvmFilterContext;
@@ -11,5 +12,9 @@ public class SendmailContext extends JvmFilterContext {
     public WnMail mail;
 
     public NutMap vars;
+
+    public NutMap toBeanForClient() {
+        return Lang.map("mail", mail).setv("configName", configName).setv("vars", vars);
+    }
 
 }

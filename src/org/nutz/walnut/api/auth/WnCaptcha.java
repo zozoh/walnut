@@ -51,7 +51,7 @@ public class WnCaptcha {
         map.put("remax", maxRetry);
         map.put("expi", expi);
         map.put("du_in_min", duInMin);
-        map.put("du_in_hr", duInMin / 60);
+        map.put("du_in_hr", (float) duInMin / 60.0f);
 
         if (!Strings.isBlank(accountKey)) {
             map.put(accountKey, account);
