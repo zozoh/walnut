@@ -12,6 +12,7 @@ sendmail
   [-lang zh-cn]                  # 语言，默认 zh-cn
   [-base http://...]             # HTML 邮件的 base URL
   [-quiet]                       # 静默输出
+  [-json]                        # 将结果输出为 JSON
   [-cqn]                         # 非静默输出的 JSON 格式
   [-ajax]                        # 非静默输出时，要 ajax 包裹
   [[@filter filter-args...]...]  # 过滤器
@@ -29,6 +30,7 @@ sendmail
 @fto        # 根据文件或目录添加接收者
 @fcc        # 根据文件或目录添加抄送者
 @fbcc       # 根据文件或目录添加密送者
+@set        # 根据一个指定文件元数据或内容设置邮件字段
 @sub        # 邮件标题
 @msg        # 邮件正文
 @tmpl       # 邮件模板

@@ -134,7 +134,7 @@ public class WnMailService implements WnMailApi {
     @Override
     public void smtp(WnMail mail, NutBean vars) throws EmailException {
         // 收件人
-        if (!mail.hasReceivers()) {
+        if (!mail.hasMailTo()) {
             throw new EmailException("No receivers");
         }
 
@@ -174,20 +174,20 @@ public class WnMailService implements WnMailApi {
         }
 
         // 收件人
-        for (WnMailReceiver r : mail.getReceivers()) {
+        for (WnMailReceiver r : mail.getMailTo()) {
             mo.addTo(r.getAccount(), r.getName());
         }
 
         // 抄送
-        if (mail.hasCC()) {
-            for (WnMailReceiver r : mail.getCarbonCopies()) {
+        if (mail.hasMailCc()) {
+            for (WnMailReceiver r : mail.getMailCc()) {
                 mo.addCc(r.getAccount(), r.getName());
             }
         }
 
         // 密送
-        if (mail.hasBCC()) {
-            for (WnMailReceiver r : mail.getBlindCarbonCopies()) {
+        if (mail.hasMailBcc()) {
+            for (WnMailReceiver r : mail.getMailBcc()) {
                 mo.addBcc(r.getAccount(), r.getName());
             }
         }
@@ -201,6 +201,7 @@ public class WnMailService implements WnMailApi {
                 String sub = this.loadTemplateSubject(lang, tmplName);
                 String subject = Tmpl.exec(sub, vars);
                 mo.setSubject(subject);
+                mail.setSubject(subject);
             }
             if (null != text) {
                 mail.setContent(text);

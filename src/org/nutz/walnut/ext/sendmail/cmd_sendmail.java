@@ -15,6 +15,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFilter> {
 
@@ -26,7 +27,7 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn", "^(quiet|ajax)$");
+        return ZParams.parse(args, "cqn", "^(quiet|ajax|json)$");
     }
 
     @Override
@@ -57,12 +58,12 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
 
         // 发送邮件
         boolean ok = false;
-        Object re = fc.mail;
+        Object re = fc;
         try {
             api.smtp(fc.mail, fc.vars);
             ok = true;
             if (fc.params.is("ajax")) {
-                re = Ajax.ok().setData(fc.mail);
+                re = Ajax.ok().setData(fc);
             }
         }
         catch (EmailException e) {
@@ -71,16 +72,24 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
             }
             re = Ajax.fail()
                      .setErrCode("e.cmd.sendmail.fail")
-                     .setData(Lang.map("mail", fc.mail).setv("error", e));
+                     .setData(Lang.map("context", fc).setv("error", e));
         }
 
         // 输出
         if (!fc.params.is("quiet")) {
-            String json = Json.toJson(re, fc.jfmt);
-            if (ok) {
-                sys.out.println(json);
-            } else {
-                sys.err.println(json);
+            // 作为 JSON 输出
+            if (fc.params.is("json") || (re instanceof AjaxReturn)) {
+                String json = Json.toJson(re, fc.jfmt);
+                if (ok) {
+                    sys.out.println(json);
+                } else {
+                    sys.err.println(json);
+                }
+            }
+            // 作为纯文本输出
+            else {
+                String str = fc.mail.toString(fc.vars);
+                sys.out.println(str);
             }
         }
     }

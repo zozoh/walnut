@@ -9,7 +9,7 @@ public class sendmail_cc extends SendmailFilter {
 
     @Override
     protected void process(WnSystem sys, SendmailContext fc, ZParams params) {
-        fc.mail.addCC(params.vals);
+        fc.mail.addMailCc(params.vals);
     }
 
 }

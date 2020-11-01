@@ -9,7 +9,7 @@ public class sendmail_to extends SendmailFilter {
 
     @Override
     protected void process(WnSystem sys, SendmailContext fc, ZParams params) {
-        fc.mail.addReceivers(params.vals);
+        fc.mail.addMailTo(params.vals);
     }
 
 }
