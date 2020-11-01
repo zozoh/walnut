@@ -9,4 +9,5 @@ public class AbbCheckListAItem {
 	public String title;
 	public String p_ck_nm;
 	public boolean enabled = true;
+	public Long workhour;
 }

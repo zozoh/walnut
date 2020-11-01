@@ -257,6 +257,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			aitem.nm = abbCheckListItem.no;
 			aitem.title = abbCheckListItem.selfStr;
 			aitem.p_ck_nm = abbCheckListItem.parentStr;
+			aitem.workhour = abbCheckListItem.workhour;
 			clist.items.add(aitem);
 		}
 		sys.out.writeJson(clist, JsonFormat.full().setIgnoreNull(true));
