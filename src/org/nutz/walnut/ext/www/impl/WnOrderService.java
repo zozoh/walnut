@@ -81,7 +81,7 @@ public class WnOrderService {
         if (null == shipAddrObj) {
             if (null != this.addresses) {
                 ThQuery tq = new ThQuery();
-                tq.qStr = "{dftaddr:true}";
+                tq.qStr = "{dftaddr:true, tp:'S'}";
                 tq.wp = new WnPager(1, 0);
                 List<WnObj> oAddrs = this.addresses.queryList(tq);
                 if (!oAddrs.isEmpty()) {
