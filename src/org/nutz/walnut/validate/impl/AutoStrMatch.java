@@ -13,24 +13,39 @@ public class AutoStrMatch implements WnMatch {
 
     private WnMatch m;
 
+    private boolean not;
+
     public AutoStrMatch(CharSequence cs) {
+        this(cs, false);
+    }
+
+    public AutoStrMatch(CharSequence cs, boolean not) {
+        this.not = not;
         // nil
         if (null == cs) {
             this.m = new NilMatch();
         }
         // empty
-        else if (Strings.isEmpty(cs)) {
+        else if (Strings.isEmpty(cs) || "[EMPTY]".equals(cs)) {
             this.m = new EmptyMatch();
-        }
-        // blank
-        else if (Strings.isBlank(cs) || "[BLANK]".equals(cs)) {
-            this.m = new BlankMatch();
         }
         // 更多判断
         else {
             String str = cs.toString();
+            if (str.startsWith("!")) {
+                this.not = !not;
+                str = str.substring(1).trim();
+            }
+            // empty
+            if (Strings.isEmpty(cs) || "[EMPTY]".equals(cs)) {
+                this.m = new EmptyMatch();
+            }
+            // BLANK
+            else if (Strings.isBlank(cs) || "[BLANK]".equals(cs)) {
+                this.m = new BlankMatch();
+            }
             // 正则表达式
-            if (str.startsWith("!^") || str.startsWith("^")) {
+            else if (str.startsWith("!^") || str.startsWith("^")) {
                 this.m = new RegexMatch(str);
             }
             // 通配符
@@ -57,16 +72,17 @@ public class AutoStrMatch implements WnMatch {
             else {
                 this.m = new StringMatch(str);
             }
+
         }
     }
-    
+
     public WnMatch getMatch() {
         return this.m;
     }
 
     @Override
     public boolean match(Object val) {
-        return m.match(val);
+        return m.match(val) ^ not;
     }
 
 }

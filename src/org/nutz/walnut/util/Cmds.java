@@ -3,8 +3,6 @@ package org.nutz.walnut.util;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
@@ -18,6 +16,9 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AlwaysMatch;
+import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public abstract class Cmds {
 
@@ -146,8 +147,9 @@ public abstract class Cmds {
 
     private static List<NutMap> outs(ZParams params, List<? extends NutBean> list) {
         List<NutMap> outs = new ArrayList<NutMap>(list.size());
+        WnMatch keyMatch = __gen_obj_key_match(params, "e");
         for (NutBean o : list) {
-            NutMap out = _obj_to_outmap(o, params);
+            NutMap out = _obj_to_outmap(o, keyMatch);
             if (params.has("tree") && o.has("children")) {
                 List<NutBean> children = o.getAsList("children", NutBean.class);
                 out.setv("children", outs(params, children));
@@ -231,7 +233,38 @@ public abstract class Cmds {
         }
     }
 
-    private static NutMap _obj_to_outmap(NutBean o, ZParams params) {
+    private static WnMatch __gen_obj_key_match(ZParams params, String key) {
+        String str = params.getString(key);
+
+        if (Strings.isBlank(str))
+            return new AlwaysMatch(true);
+
+        // 分析 not
+        boolean not = false;
+        if (str.startsWith("!")) {
+            not = true;
+            str = str.substring(1).trim();
+        }
+
+        // 快速字段: 扩展字段
+        if ("%EXT".equalsIgnoreCase(str)) {
+            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                  + "|nm|pid|c|m|g|md|tp|mime"
+                  + "|ln|mnt|expi|passwd|salt"
+                  + "|th_(set|live|set_nm))$";
+        }
+        // 快速字段: 扩展字段加上 nm 字段
+        else if ("%EXT-NM".equalsIgnoreCase(str)) {
+            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                  + "|pid|c|m|g|md|tp|mime"
+                  + "|ln|mnt|expi|passwd|salt"
+                  + "|th_(set|live|set_nm))$";
+        }
+
+        return new AutoStrMatch(str, not);
+    }
+
+    private static NutMap _obj_to_outmap(NutBean o, WnMatch keyMatch) {
         if (null == o) {
             return null;
         }
@@ -240,18 +273,6 @@ public abstract class Cmds {
         // true 表示输出的时候，也显示双下划线开头的隐藏字段
         // boolean isShowAutoHide = params.is("H");
 
-        // 字段过滤正则表达式
-        Pattern p = null;
-        boolean not = false;
-        String regex = params.get("e");
-        if (!Strings.isBlank(regex) && !"true".equals(regex)) {
-            if (regex.startsWith("!")) {
-                not = true;
-                regex = regex.substring(1);
-            }
-            p = Pattern.compile(regex);
-        }
-
         // 依次判断字段
         NutMap map = new NutMap();
         for (String key : o.keySet()) {
@@ -259,19 +280,11 @@ public abstract class Cmds {
             // if (!isShowAutoHide && key.startsWith("__"))
             // continue;
 
-            // 用正则表达式判断
-            if (null != p) {
-                if (p.matcher(key).matches()) {
-                    if (!not)
-                        map.put(key, o.get(key));
-                } else if (not) {
-                    map.put(key, o.get(key));
-                }
-            }
-            // 那么一定要添加的
-            else {
+            // 判断一下键
+            if (keyMatch.match(key)) {
                 map.put(key, o.get(key));
             }
+
         }
         return map;
     }
