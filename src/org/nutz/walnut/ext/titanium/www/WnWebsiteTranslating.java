@@ -169,7 +169,7 @@ public class WnWebsiteTranslating {
         if (null != ssrFinger) {
             $tmpl.attr("data-ssr-finger", ssrFinger);
         }
-        $tmpl.appendText(Strings.escapeHtmlQuick(json));
+        $tmpl.appendText(json);
         doc.body().prependChild($tmpl);
     }
 
