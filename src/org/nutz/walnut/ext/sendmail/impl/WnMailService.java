@@ -106,8 +106,11 @@ public class WnMailService implements WnMailApi {
                 if (null != text) {
                     mail.setContent(text);
                 }
-                if (oTmpl.isMime("text/html") || oTmpl.isType("html")) {
+                if (oTmpl.isMime("text/html") || oTmpl.isType("html") || oTmpl.getBoolean("asHtml")) {
                     mail.setAsHtml(true);
+                }
+                if(!mail.hasCharset() && oTmpl.has("charset")) {
+                    mail.setCharset(oTmpl.getString("charset"));
                 }
             }
         }

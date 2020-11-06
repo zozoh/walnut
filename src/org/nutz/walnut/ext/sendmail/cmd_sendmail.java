@@ -2,7 +2,9 @@ package org.nutz.walnut.ext.sendmail;
 
 import org.apache.commons.mail.EmailException;
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -50,6 +52,14 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
 
     @Override
     protected void output(WnSystem sys, SendmailContext fc) {
+        // 如果设置，尝试转换变量
+        NutMap mailVars = fc.vars;
+        if (!Strings.isBlank(fc.varTrans)) {
+            String varJson = Json.toJson(fc.vars, JsonFormat.compact().setQuoteName(true));
+            varJson = sys.exec2(fc.varTrans, varJson);
+            mailVars = Json.fromJson(NutMap.class, varJson);
+        }
+
         // 读取主目录
         WnObj oHome = Wn.checkObj(sys, "~/.mail");
 
@@ -60,7 +70,7 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
         boolean ok = false;
         Object re = fc.toBeanForClient();
         try {
-            api.smtp(fc.mail, fc.vars);
+            api.smtp(fc.mail, mailVars);
             ok = true;
             if (fc.params.is("ajax")) {
                 re = Ajax.ok().setData(re);
@@ -88,7 +98,7 @@ public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFil
             }
             // 作为纯文本输出
             else {
-                String str = fc.mail.toString(fc.vars);
+                String str = fc.mail.toString(mailVars);
                 sys.out.println(str);
             }
         }

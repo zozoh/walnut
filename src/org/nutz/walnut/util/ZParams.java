@@ -24,6 +24,8 @@ public class ZParams implements Cloneable {
     private static final Pattern PARAM_KEY = Pattern.compile("^-([a-zA-Z_].*)$");
 
     public String[] vals;
+    
+    public String[] args;
 
     NutMap map;
 
@@ -64,6 +66,7 @@ public class ZParams implements Cloneable {
     public static ZParams parse(String[] args, String boolChars, String boolRegex) {
         ZParams params = new ZParams();
         List<String> list = new ArrayList<String>(args.length);
+        params.args = args;
         params.map = new NutMap();
         if (args.length > 0) {
 
@@ -137,6 +140,7 @@ public class ZParams implements Cloneable {
 
     public ZParams clone() {
         ZParams params = new ZParams();
+        params.args = Arrays.copyOf(this.args, this.args.length);
         params.vals = Arrays.copyOf(this.vals, this.vals.length);
         params.map = this.map.duplicate();
         return params;
