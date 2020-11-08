@@ -21,10 +21,21 @@ import org.nutz.walnut.util.ZParams;
 public class sendmail_set extends SendmailFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(content|read)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, SendmailContext fc, ZParams params) {
         // 准备 ...
         NutBean bean = null;
         NutBean meta;
+        String transVars = null;
+
+        String transKey = params.get("trans");
+        if ("true".equals(transKey)) {
+            transKey = "transVar";
+        }
 
         // 读取路径
         if (params.vals.length > 0) {
@@ -79,6 +90,11 @@ public class sendmail_set extends SendmailFilter {
                 }
             }
 
+            // 看看是否是从文件读取脚本
+            if ("@content".equals(transKey)) {
+                transVars = sys.io.readText(o);
+            }
+
         }
         // 读取标准输入
         else {
@@ -89,6 +105,14 @@ public class sendmail_set extends SendmailFilter {
         // 防守
         if (null == bean)
             return;
+
+        // 分析转换脚本
+        if (!Strings.isBlank(transKey) && null == transVars) {
+            transVars = bean.getString(transKey);
+        }
+        if (!Strings.isBlank(transVars)) {
+            fc.varTrans = transVars;
+        }
 
         // 准备映射
         String mapping = params.getString("mapping");

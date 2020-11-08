@@ -11,6 +11,7 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.err.Er;
 
 public abstract class WnOS {
@@ -43,6 +44,7 @@ public abstract class WnOS {
 
             // Jvm 分析的系统信息
             log.info(" - load sys properties ...");
+            rt.nodeVersion = WnVersion.getName();
             rt.javaVersion = System.getProperty("java.version");
             rt.osArch = System.getProperty("os.arch");
             rt.osName = System.getProperty("os.name").replace(" ", "");

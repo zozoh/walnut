@@ -311,6 +311,10 @@ public class WnMail {
         this.mailBcc = blindCarbonCopies;
     }
 
+    public boolean hasCharset() {
+        return Strings.isBlank(charset);
+    }
+
     public String getCharset() {
         return Strings.sBlank(charset, Encoding.UTF8);
     }

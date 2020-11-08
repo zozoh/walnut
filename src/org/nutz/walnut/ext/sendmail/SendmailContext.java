@@ -13,8 +13,13 @@ public class SendmailContext extends JvmFilterContext {
 
     public NutMap vars;
 
+    public String varTrans;
+
     public NutMap toBeanForClient() {
-        return Lang.map("mail", mail).setv("configName", configName).setv("vars", vars);
+        return Lang.map("mail", mail)
+                   .setv("configName", configName)
+                   .setv("vars", vars)
+                   .setv("varTrans", varTrans);
     }
 
 }

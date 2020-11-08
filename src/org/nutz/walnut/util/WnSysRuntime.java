@@ -13,6 +13,11 @@ import org.nutz.lang.util.NutMap;
 public class WnSysRuntime {
 
     /**
+     * 系统版本
+     */
+    String nodeVersion;
+
+    /**
      * 节点唯一名称
      */
     String nodeName;
@@ -71,6 +76,14 @@ public class WnSysRuntime {
         }
 
         this.nodeStartAtInMs = Wn.now();
+    }
+
+    public String getNodeVersion() {
+        return nodeVersion;
+    }
+
+    public void setNodeVersion(String version) {
+        this.nodeVersion = version;
     }
 
     public String getNodeName() {
