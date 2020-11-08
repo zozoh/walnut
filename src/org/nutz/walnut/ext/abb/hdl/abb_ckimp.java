@@ -160,37 +160,54 @@ public class abb_ckimp extends abb_abstract_ckimp {
 		}
 		sys.out.writeJson(clist, JsonFormat.full());
 	}
+	
+
+	// 首先, 查找起始行
+	int rowBegin = -1;
+	int workHourCellIndex = -1;
+	
+	protected XSSFSheet mode_b_search_group(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
+		rowBegin = -1;
+		workHourCellIndex = -1;
+		
+		for (int z = 0; z < wb.getNumberOfSheets(); z++) {
+			XSSFSheet preSheet = wb.getSheetAt(z);
+			for (int i = 0; i < 16; i++) {
+				XSSFRow row = preSheet.getRow(i);
+				if (row == null)
+					continue;
+				XSSFCell cell = row.getCell(0);
+				if (cell == null)
+					continue;
+				String value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+				if ("group".equals(value)) {
+					rowBegin = i;
+					// 找一下workhour的列
+					for (int j = 1; j < 26; j++) {
+						cell = row.getCell(j);
+						if (cell == null)
+							continue;
+						value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+						if ("workhour".equals(value)) {
+							workHourCellIndex = j;
+						}
+						else if ("wh".equals(value)){
+							workHourCellIndex = j;
+						}
+					}
+					break;
+				}
+			}
+			if (rowBegin >= 0) {
+				return preSheet;
+			}
+		}
+		return null;
+	}
 
 
 	protected void mode_b(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
-		XSSFSheet preSheet = wb.getSheetAt(0);
-		
-		// 首先, 查找起始行
-		int rowBegin = -1;
-		int workHourCellIndex = -1;
-		for (int i = 0; i < 16; i++) {
-			XSSFRow row = preSheet.getRow(i);
-			if (row == null)
-				continue;
-			XSSFCell cell = row.getCell(0);
-			if (cell == null)
-				continue;
-			String value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
-			if ("group".equals(value)) {
-				rowBegin = i;
-				// 找一下workhour的列
-				for (int j = 1; j < 26; j++) {
-					cell = row.getCell(j);
-					if (cell == null)
-						continue;
-					value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
-					if ("workhour".equals(value)) {
-						workHourCellIndex = j;
-					}
-				}
-				break;
-			}
-		}
+		XSSFSheet preSheet = mode_b_search_group(sys, hc, wb);
 		if (rowBegin < 0) {
 			// 找不到, 报错退出
 			sys.err.print("miss row for Group!!!");
@@ -237,7 +254,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			if (workHourCellIndex > 0) {
 				XSSFCell workhour = row.getCell(workHourCellIndex);
 				if (workhour != null)
-					item.workhour = (Long)__get_cell_value(workhour);
+					item.workhour = ((Number)__get_cell_value(workhour)).doubleValue();
 			}
 			items.put(noValue, item);
 			list.add(item);
