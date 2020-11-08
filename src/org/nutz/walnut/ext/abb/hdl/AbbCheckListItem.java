@@ -11,7 +11,7 @@ public class AbbCheckListItem {
 	public String outfiles;
 	public String owner;
 	public Integer min; // 耗时
-	public Long workhour;
+	public double workhour;
 
 	public AbbCheckListItem() {
 		// TODO Auto-generated constructor stub
