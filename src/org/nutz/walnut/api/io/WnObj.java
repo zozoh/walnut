@@ -127,7 +127,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj update(Map<? extends String, ? extends Object> map);
 
-    WnObj update2(WnObj o);
+    WnObj updateBy(WnObj o);
 
     boolean isLink();
 

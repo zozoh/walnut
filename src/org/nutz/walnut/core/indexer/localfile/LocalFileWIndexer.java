@@ -12,7 +12,7 @@ import org.nutz.walnut.api.io.WnRace;
 
 public class LocalFileWIndexer extends LocalFileIndexer {
 
-    public LocalFileWIndexer(WnObj oHome, File dHome, MimeMap mimes) {
+    public LocalFileWIndexer(WnObj oHome, MimeMap mimes, File dHome) {
         super(oHome, mimes, dHome);
     }
 

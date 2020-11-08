@@ -394,7 +394,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     @Override
-    public WnObj update2(WnObj o) {
+    public WnObj updateBy(WnObj o) {
         // 木有必要更新
         if (this == o || null == o) {
             return this;
@@ -855,7 +855,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public WnObj clone() {
-        return new WnIoObj().update2(this);
+        return new WnIoObj().updateBy(this);
     }
 
     @Override

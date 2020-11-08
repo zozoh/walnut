@@ -48,6 +48,9 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         // 获取索引管理器
         else {
             WnIndexerFactory ixFa = indexers.get(mi.ix.type);
+            if (null == ixFa) {
+                throw Er.create("e.io.mapping.WnIndexerFactoryNotFound", mi.ix.toString());
+            }
             ix = ixFa.load(oHome, mi.ix.arg);
         }
 
@@ -58,6 +61,9 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         // 获取桶管理器
         else {
             WnBMFactory bmFa = bms.get(mi.bm.type);
+            if (null == bmFa) {
+                throw Er.create("e.io.mapping.WnBMFactoryNotFound", mi.bm.toString());
+            }
             bm = bmFa.load(oHome, mi.bm.arg);
         }
 

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -28,6 +29,19 @@ public abstract class WnIoHandle extends HandleInfo implements Closeable, Flusha
      * 句柄处理的对象
      */
     protected WnObj obj;
+
+    /**
+     * IO 接口，用来跨越索引管理器更新同步时间（某些写句柄需要）
+     */
+    protected WnIo io;
+
+    public WnIo getIo() {
+        return io;
+    }
+
+    public void setIo(WnIo io) {
+        this.io = io;
+    }
 
     public void setManager(WnIoHandleManager manager) {
         this.manager = manager;

@@ -52,7 +52,7 @@ public class cmd_ls extends JvmExecutor {
             }
             // 是个目录
             else {
-                tooMany = __joint_children(sys, useColor, briefSize, showHidden, maxN, tab, o);
+                tooMany = __join_children(sys, useColor, briefSize, showHidden, maxN, tab, o);
             }
             sys.out.print(tab.toString());
             if (tooMany) {
@@ -77,7 +77,7 @@ public class cmd_ls extends JvmExecutor {
                     String rph = Disks.getRelativePath(p.path(), o.path());
                     final WnObjTable tabDir = new WnObjTable(keys);
                     sys.out.println(rph + " :");
-                    boolean tooMany = __joint_children(sys,
+                    boolean tooMany = __join_children(sys,
                                                        useColor,
                                                        briefSize,
                                                        showHidden,
@@ -95,7 +95,7 @@ public class cmd_ls extends JvmExecutor {
 
     }
 
-    private boolean __joint_children(final WnSystem sys,
+    private boolean __join_children(final WnSystem sys,
                                      final boolean useColor,
                                      final boolean briefSize,
                                      final boolean showHidden,
@@ -107,7 +107,7 @@ public class cmd_ls extends JvmExecutor {
                 public void invoke(int index, WnObj child, int length) {
                     // 超过了最多显示的个数
                     if (index >= maxN) {
-                        throw Lang.makeThrow("ReachMax");
+                        throw Lang.makeThrow("cmd.ls.join_child_reach_max");
                     }
                     // 加入结果集
                     if (!child.isHidden() || showHidden)
@@ -118,7 +118,7 @@ public class cmd_ls extends JvmExecutor {
         // 看看异常是怎么定义的
         catch (RuntimeException e) {
             // 明确退出，则表示子节点太多
-            if (e.getMessage().equals("ReachMax"))
+            if ("cmd.ls.join_child_reach_max".equals(e.getMessage()))
                 return true;
             throw e;
         }

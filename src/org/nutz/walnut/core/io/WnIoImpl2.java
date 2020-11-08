@@ -17,6 +17,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -91,73 +92,81 @@ public class WnIoImpl2 implements WnIo {
     // 如果不在同样的映射桶内，则，只能通过流 copy 了
     @Override
     public long copyData(WnObj a, WnObj b) {
-        WnIoMapping ma = mappings.checkMapping(a);
-        WnIoMapping mb = mappings.checkMapping(b);
-        // 调试日志
-        if (log.isDebugEnabled()) {
-            log.debugf("copyData ma:%s, mb:%s",
-                       ma.getClass().getSimpleName(),
-                       mb.getClass().getSimpleName());
-        }
-        // 相同桶管理器可以快速 Copy
-        if (ma.isSameBM(mb)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Quick copy");
-            }
-            return ma.copyData(a, b);
-        }
-
-        // 否则只能硬 COPY 了
-        long re = 0;
-        WnIoHandle h_a = null;
-        WnIoHandle h_b = null;
         try {
-            h_a = ma.open(a, Wn.S.R);
-            h_b = mb.open(b, Wn.S.W);
+            WnIoMapping ma = mappings.checkMapping(a);
+            WnIoMapping mb = mappings.checkMapping(b);
+            // 调试日志
             if (log.isDebugEnabled()) {
-                log.debugf("copyData open h_a:%s, h_b:%s", h_a, h_b);
+                log.debugf("copyData ma:%s, mb:%s",
+                           ma.getClass().getSimpleName(),
+                           mb.getClass().getSimpleName());
             }
-            byte[] buf = new byte[8192];
-            int len;
-            while ((len = h_a.read(buf, 0, buf.length)) > 0) {
-                re += len;
-                h_b.write(buf, 0, len);
+            // 相同桶管理器可以快速 Copy
+            if (ma.isSameBM(mb)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Quick copy");
+                }
+                return ma.copyData(a, b);
             }
+
+            // 否则只能硬 COPY 了
+            long re = 0;
+            WnIoHandle h_a = null;
+            WnIoHandle h_b = null;
+            try {
+                h_a = ma.open(a, Wn.S.R);
+                h_b = mb.open(b, Wn.S.W);
+                if (log.isDebugEnabled()) {
+                    log.debugf("copyData open h_a:%s, h_b:%s", h_a, h_b);
+                }
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = h_a.read(buf, 0, buf.length)) > 0) {
+                    re += len;
+                    h_b.write(buf, 0, len);
+                }
+            }
+            catch (IOException e) {
+                throw Lang.wrapThrow(e);
+            }
+            catch (WnIoHandleMutexException e) {
+                throw Lang.wrapThrow(e);
+            }
+            // 确保关闭
+            finally {
+                // 关闭读
+                try {
+                    h_a.close();
+                }
+                catch (Exception e) {
+                    log.warn("Fail to close A:" + h_a, e);
+                }
+                // 刷新写缓冲
+                try {
+                    h_b.flush();
+                }
+                catch (Exception e) {
+                    log.warn("Fail to flush B:" + h_b, e);
+                }
+                // 关闭写缓冲
+                try {
+                    h_b.close();
+                }
+                catch (Exception e) {
+                    log.warn("Fail to close B:" + h_b, e);
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debugf("copyData done: %d", re);
+            }
+            return re;
         }
-        catch (IOException e) {
-            throw Lang.wrapThrow(e);
-        }
-        catch (WnIoHandleMutexException e) {
-            throw Lang.wrapThrow(e);
-        }
-        // 确保关闭
+        // 触发同步时间修改
         finally {
-            // 关闭读
-            try {
-                h_a.close();
-            }
-            catch (Exception e) {
-                log.warn("Fail to close A:" + h_a, e);
-            }
-            // 刷新写缓冲
-            try {
-                h_b.flush();
-            }
-            catch (Exception e) {
-                log.warn("Fail to flush B:" + h_b, e);
-            }
-            // 关闭写缓冲
-            try {
-                h_b.close();
-            }
-            catch (Exception e) {
-                log.warn("Fail to close B:" + h_b, e);
-            }
+            long now = System.currentTimeMillis();
+            Wn.Io.update_ancestor_synctime(this, b, false, now);
         }
-        if (log.isDebugEnabled()) {
-            log.debugf("copyData done: %d", re);
-        }
-        return re;
     }
 
     @Override
@@ -169,7 +178,9 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
         WnIoMapping im = mappings.checkMapping(o);
-        return im.open(o, mode);
+        WnIoHandle h = im.open(o, mode);
+        h.setIo(this);
+        return h;
     }
 
     @Override
@@ -238,8 +249,7 @@ public class WnIoImpl2 implements WnIo {
         im.delete(o, r, this.whenDelete);
 
         // 更新同步时间
-        WnIoIndexer indexer = im.getIndexer();
-        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+        Wn.Io.update_ancestor_synctime(this, o, false, 0);
     }
 
     @Override
@@ -484,39 +494,54 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
-        // TODO 这里还没考虑到在不同的映射间怎么移动的问题
-        WnObjMapping om = mappings.checkById(src.id());
-        WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.move(src, destPath);
+        return this.move(src, destPath, Wn.MV.TP | Wn.MV.SYNC);
     }
 
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
+        // 得到自身的原始的父
+        WnObj oldP = src.parent();
+
         // TODO 这里还没考虑到在不同的映射间怎么移动的问题
-        WnObjMapping om = mappings.checkById(src.id());
-        WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.move(src, destPath, mode);
+        try {
+            WnObjMapping om = mappings.checkById(src.id());
+            WnIoIndexer indexer = om.getSelfIndexer();
+            return indexer.move(src, destPath, mode);
+        }
+        // 触发同步
+        finally {
+            if (Wn.MV.isSYNC(mode)) {
+                long now = Wn.now();
+                // 触发同步时间修改
+                Wn.Io.update_ancestor_synctime(this, src, false, now);
+
+                // 如果对象换了父节点，之前的父节点也要被触发修改时间
+                if (!oldP.isSameId(src.parentId())) {
+                    Wn.Io.update_ancestor_synctime(this, oldP, true, now);
+                }
+            }
+        }
     }
 
     @Override
     public WnObj rename(WnObj o, String nm) {
-        WnObjMapping om = mappings.checkById(o.id());
-        WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.rename(o, nm);
+        return this.rename(o, nm, false);
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, boolean keepType) {
-        WnObjMapping om = mappings.checkById(o.id());
-        WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.rename(o, nm, keepType);
+        int mode = Wn.MV.SYNC;
+        if (!keepType)
+            mode |= Wn.MV.TP;
+        return this.rename(o, nm, mode);
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        WnObjMapping om = mappings.checkById(o.id());
-        WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.rename(o, nm, mode);
+        Wn.assertValidName(nm, o.path());
+        String ph = o.path();
+        ph = Files.renamePath(ph, nm);
+        return this.move(o, ph, mode);
     }
 
     @Override
@@ -742,7 +767,7 @@ public class WnIoImpl2 implements WnIo {
         WnObj o = indexer.createById(p, id, name, race);
 
         // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+        Wn.Io.update_ancestor_synctime(this, o, false, 0);
 
         return o;
     }
@@ -763,7 +788,7 @@ public class WnIoImpl2 implements WnIo {
         o = indexer.create(p, o);
 
         // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+        Wn.Io.update_ancestor_synctime(this, o, false, 0);
 
         return o;
     }
@@ -774,9 +799,7 @@ public class WnIoImpl2 implements WnIo {
         if (null == p || path.startsWith("/")) {
             p = mappings.getRoot();
         }
-        WnIoMapping mapping = mappings.checkMapping(p);
-        WnIoIndexer indexer = mapping.getIndexer();
-        WnObj o = indexer.fetch(p, path);
+        WnObj o = this.fetch(p, path);
 
         // 存在就返回
         if (null != o) {
@@ -786,10 +809,10 @@ public class WnIoImpl2 implements WnIo {
             return o;
         }
         // 不存在，就创建
-        o = indexer.create(p, path, race);
+        o = this.create(p, path, race);
 
         // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+        Wn.Io.update_ancestor_synctime(this, o, false, 0);
 
         return o;
     }
@@ -811,7 +834,7 @@ public class WnIoImpl2 implements WnIo {
         o = indexer.create(p, path, race);
 
         // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(indexer, o, false, 0);
+        Wn.Io.update_ancestor_synctime(this, o, false, 0);
 
         return o;
     }
@@ -1117,7 +1140,7 @@ public class WnIoImpl2 implements WnIo {
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
         o.clear();
-        o.update2(o2);
+        o.updateBy(o2);
     }
 
     @Override
@@ -1136,7 +1159,7 @@ public class WnIoImpl2 implements WnIo {
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
         o.clear();
-        o.update2(o2);
+        o.updateBy(o2);
     }
 
     @Override
@@ -1182,6 +1205,11 @@ public class WnIoImpl2 implements WnIo {
                 h = im.open(o, Wn.S.WM);
                 h.seek(off);
             }
+
+            // 设置 IO，以便句柄关闭时，更新同步时间
+            h.setIo(this);
+
+            // 搞定
             return new WnIoOutputStream(h, this.whenWrite);
         }
         catch (Exception e) {

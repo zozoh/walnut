@@ -661,12 +661,14 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj update(Map<? extends String, ? extends Object> map) {
-        throw Lang.noImplement();
+        // 啥都不干就对了
+        return this;
     }
 
     @Override
-    public WnObj update2(WnObj o) {
-        throw Lang.noImplement();
+    public WnObj updateBy(WnObj o) {
+        // 啥都不干就对了
+        return this;
     }
 
     @Override

@@ -61,6 +61,10 @@ var ioc = {
         type : "org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory",
         args : [{refer:"mimes"}]
     },
+    localFileWIndexerFactory : {
+        type : "org.nutz.walnut.core.mapping.indexer.LocalFileWIndexerFactory",
+        args : [{refer:"mimes"}]
+    },
     daoIndexerFactory : {
         type : "org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory",
         fields: {
@@ -104,11 +108,10 @@ var ioc = {
             globalBM : {refer:"globalBM"},
             indexers : {
                 "file"  : {refer:"localFileIndexerFactory"},
+                "filew" : {refer:"localFileWIndexerFactory"},
                 "dao"   : {refer:"daoIndexerFactory"},
                 "mem"   : null,
-                "redis" : null,
-                "mq"    : null
-                
+                "redis" : null
             },
             bms : {
                 "lbm": {refer:"localIoBMFactory"},

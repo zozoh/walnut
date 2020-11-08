@@ -626,9 +626,6 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         String old_d0 = src.d0();
         String old_d1 = src.d1();
 
-        // 得到自身的原始的父
-        WnObj oldP = src.parent();
-
         // 确保源是可移除的
         src = wc.whenRemove(src, false);
 
@@ -688,18 +685,6 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
                         _set_quiet(obj, "^d0|d1$");
                     }
                 }, WalkMode.DEPTH_NODE_FIRST);
-            }
-        }
-
-        // 触发同步
-        if (Wn.MV.isSYNC(mode)) {
-            long now = Wn.now();
-            // 触发同步时间修改
-            Wn.Io.update_ancestor_synctime(this, src, false, now);
-
-            // 如果对象换了父节点，之前的父节点也要被触发修改时间
-            if (!oldP.isSameId(src.parentId())) {
-                Wn.Io.update_ancestor_synctime(this, oldP, true, now);
             }
         }
 

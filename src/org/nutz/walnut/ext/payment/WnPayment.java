@@ -308,7 +308,7 @@ public class WnPayment {
 
         // 返回
         WnPayObj po = new IoWnPayObj();
-        po.update2(oPayObj);
+        po.updateBy(oPayObj);
         return po;
     }
 
@@ -333,7 +333,7 @@ public class WnPayment {
 
         // 转换为支付单对象
         WnPayObj po = new IoWnPayObj();
-        po.update2(o);
+        po.updateBy(o);
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
@@ -376,7 +376,7 @@ public class WnPayment {
         run.io().each(q, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
                 WnPayObj po = new IoWnPayObj();
-                po.update2(o);
+                po.updateBy(o);
                 list.add(po);
             }
         });

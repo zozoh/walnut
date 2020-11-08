@@ -23,6 +23,32 @@ public class LocalMappingTest extends BaseIoTest {
     protected void on_after() {}
 
     @Test
+    public void test_write_to_local() {
+        WnObj x = io.create(null, "/x", WnRace.DIR);
+        File dHome = setup.getLocalFileHome();
+        String aph = Files.getAbsPath(dHome);
+
+        // 映射到本地
+        io.setMount(x, "filew://" + aph);
+
+        // 创建一个文件
+        WnObj o = io.create(x, "abc.txt", WnRace.FILE);
+
+        // 写入内容
+        io.writeText(o, "hello");
+
+        // 读取内容
+        String text = io.readText(o);
+        assertEquals("hello", text);
+
+        // 确保本地文件也是这个
+        File f = Files.getFile(dHome, "abc.txt");
+        assertTrue(f.exists());
+        text = Files.read(f);
+        assertEquals("hello", text);
+    }
+
+    @Test
     public void test_mount_local_mime() {
         WnObj x = io.create(null, "/x", WnRace.DIR);
 

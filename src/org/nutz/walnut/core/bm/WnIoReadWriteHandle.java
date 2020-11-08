@@ -122,7 +122,7 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
         FileChannel chan = channel();
         chan.force(false);
     }
-    
+
     protected abstract void on_close() throws IOException;
 
     @Override
@@ -132,14 +132,19 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
             return;
         }
 
+        // 获取原始对象的内容指纹
+        String oldSha1 = obj.sha1();
+
         // 调用子类的清除逻辑
         this.on_close();
 
         // 删除句柄
         manager.remove(this.getId());
 
-        // 更新同步时间
-        Wn.Io.update_ancestor_synctime(indexer, obj, false, 0);
+        // 如果内容发生变化，更新同步时间
+        if (null != io && !obj.isSameSha1(oldSha1)) {
+            Wn.Io.update_ancestor_synctime(io, obj, false, 0);
+        }
 
         // 标志一下，这个句柄实例就不能再使用了
         obj = null;

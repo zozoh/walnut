@@ -61,10 +61,6 @@ public class TruckContext extends JvmFilterContext {
         return q;
     }
 
-    public void appendObj(WnObj obj) {
-        if (null != list) {
-            list.add(obj);
-        }
-    }
+    
 
 }

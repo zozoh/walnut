@@ -22,7 +22,7 @@ public class WnIoOutputStream extends OutputStream {
         this.obj = h.getObj();
         if (null != callback) {
             WnObj o = callback.on_before(obj);
-            this.obj.update2(o);
+            this.obj.updateBy(o);
         }
     }
 
@@ -52,7 +52,7 @@ public class WnIoOutputStream extends OutputStream {
 
         if (null != callback) {
             WnObj o = callback.on_after(obj);
-            this.obj.update2(o);
+            this.obj.updateBy(o);
         }
     }
 

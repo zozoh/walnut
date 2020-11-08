@@ -48,7 +48,6 @@ import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -812,14 +811,14 @@ public abstract class Wn {
         /**
          * 修改一个对象所有祖先的同步时间。当然，未设置同步的祖先会被无视
          * 
-         * @param indexer
-         *            索引管理器
+         * @param io
+         *            IO 接口
          * @param o
          *            对象
          * @param includeSelf
          *            是否也检视自身的同步时间
          */
-        public static void update_ancestor_synctime(final WnIoIndexer indexer,
+        public static void update_ancestor_synctime(final WnIo io,
                                                     final WnObj o,
                                                     final boolean includeSelf,
                                                     final long now) {
@@ -838,12 +837,12 @@ public abstract class Wn {
                     for (WnObj an : list) {
                         if (an.syncTime() > 0) {
                             an.syncTime(synctime);
-                            indexer.set(an, "^synt$");
+                            io.set(an, "^synt$");
                         }
                     }
                     if (includeSelf && o.syncTime() > 0) {
                         o.syncTime(synctime);
-                        indexer.set(o, "^synt$");
+                        io.set(o, "^synt$");
                     }
                 }
             });

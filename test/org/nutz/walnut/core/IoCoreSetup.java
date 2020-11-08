@@ -43,6 +43,7 @@ import org.nutz.walnut.core.mapping.bm.LocalIoBMFactory;
 import org.nutz.walnut.core.mapping.bm.RedisBMFactory;
 import org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
+import org.nutz.walnut.core.mapping.indexer.LocalFileWIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
 import org.nutz.walnut.ext.redis.Wedis;
 import org.nutz.walnut.ext.redis.WedisConfig;
@@ -123,6 +124,7 @@ public class IoCoreSetup {
         // 索引管理器工厂映射
         HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(mimes));
+        indexers.put("filew", new LocalFileWIndexerFactory(mimes));
         indexers.put("dao", getDaoIndexerFactory(io));
         // TODO 还有 "mem|redis|mq" 几种索引管理器
         // ...
@@ -254,7 +256,7 @@ public class IoCoreSetup {
             Files.createDirIfNoExists(dHome);
         }
         WnObj oHome = this.getRootNode();
-        return new LocalFileWIndexer(oHome, dHome, mimes);
+        return new LocalFileWIndexer(oHome, mimes, dHome);
     }
 
     public File getLocalFileHome() {

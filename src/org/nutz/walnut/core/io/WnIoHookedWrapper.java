@@ -138,7 +138,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         WnContext wc = Wn.WC();
         io.writeMeta(o, map);
         WnObj o2 = wc.doHook("meta", o);
-        o.update2(o2);
+        o.updateBy(o2);
         if (map.containsKey("expi")) {
             this.tryAddExpiObj(o);
         }
@@ -150,7 +150,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         WnContext wc = Wn.WC();
         io.appendMeta(o, map);
         WnObj o2 = wc.doHook("meta", o);
-        o.update2(o2);
+        o.updateBy(o2);
         if (map.containsKey("expi")) {
             this.tryAddExpiObj(o);
         }
@@ -161,7 +161,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         WnContext wc = Wn.WC();
         io.set(o, regex);
         WnObj o2 = wc.doHook("meta", o);
-        o.update2(o2);
+        o.updateBy(o2);
         NutBean map = o.pickBy(regex);
         if (map.containsKey("expi")) {
             this.tryAddExpiObj(o);
@@ -225,7 +225,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         o.put("_mnt_from", mnt_from);
         o.put("_mnt_to", mnt_to);
         WnObj o2 = wc.doHook("mount", o);
-        o.update2(o2);
+        o.updateBy(o2);
     }
 
     @Override
@@ -234,7 +234,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         o = wc.doHook("before_delete", o);
         io.delete(o);
         WnObj o2 = wc.doHook("delete", o);
-        o.update2(o2);
+        o.updateBy(o2);
     }
 
     @Override
@@ -243,7 +243,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         o = wc.doHook("before_delete", o);
         io.delete(o, r);
         WnObj o2 = wc.doHook("delete", o);
-        o.update2(o2);
+        o.updateBy(o2);
     }
 
 }

@@ -76,8 +76,8 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
         manager.remove(this.getId());
 
         // 如果内容发生变化，更新同步时间
-        if (!obj.isSameSha1(oldSha1)) {
-            Wn.Io.update_ancestor_synctime(indexer, obj, false, 0);
+        if (null != io && !obj.isSameSha1(oldSha1)) {
+            Wn.Io.update_ancestor_synctime(io, obj, false, 0);
         }
 
         // 标志一下，这个句柄实例就不能再使用了
