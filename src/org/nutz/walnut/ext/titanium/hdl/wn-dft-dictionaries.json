@@ -1,0 +1,27 @@
+{
+    "JavaTypes" : {
+      "data" : [
+        {"value":"String", "text":"i18n:java-type-String"},
+        {"value":"Integer", "text":"i18n:java-type-Integer"},
+        {"value":"Long", "text":"i18n:java-type-Long"},
+        {"value":"Float", "text":"i18n:java-type-Float"},
+        {"value":"Double", "text":"i18n:java-type-Double"},
+        {"value":"Boolean", "text":"i18n:java-type-Boolean"},
+        {"value":"Object", "text":"i18n:java-type-Object"},
+        {"value":"SArray", "text":"i18n:java-type-SArray"},
+        {"value":"List", "text":"i18n:java-type-List"},
+        {"value":"JSON", "text":"i18n:java-type-JSON"}]
+    },
+    "ColumnTypes" : {
+      "data" : [
+        {"value": "AUTO", "text": "i18n:db-col-type-AUTO"},
+        {"value": "CHAR", "text": "i18n:db-col-type-CHAR"},
+        {"value": "VARCHAR", "text": "i18n:db-col-type-VARCHAR"},
+        {"value": "TEXT", "text": "i18n:db-col-type-TEXT"},
+        {"value": "BOOLEAN", "text": "i18n:db-col-type-BOOLEAN"},
+        {"value": "BINARY", "text": "i18n:db-col-type-BINARY"},
+        {"value": "TIMESTAMP", "text": "i18n:db-col-type-TIMESTAMP"},
+        {"value": "INT", "text": "i18n:db-col-type-INT"},
+        {"value": "FLOAT", "text": "i18n:db-col-type-FLOAT"}]
+    }
+}
