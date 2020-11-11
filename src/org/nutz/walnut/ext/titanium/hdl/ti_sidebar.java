@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.titanium.hdl;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnGroupRole;
@@ -82,6 +83,9 @@ public class ti_sidebar implements JvmHdl {
             // 权限写的不对，禁止
             return true;
         }, sys);
+
+        // 设置状态存储键
+        output.setStatusStoreKey(Lang.md5(oSidebar.id()));
 
         // 输出
         sys.out.println(Json.toJson(output, hc.jfmt));

@@ -17,8 +17,11 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
+import org.nutz.walnut.core.WnIoMappingFactory;
 
 public interface WnIo {
+    
+    WnIoMappingFactory getMappingFactory();
 
     boolean exists(WnObj p, String path);
 

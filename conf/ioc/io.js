@@ -57,6 +57,12 @@ var ioc = {
             {refer : 'mimes'}, 
             {java  : '$mongoDB.getCollection("obj")'}]
     },
+    mongoFlatIndexerFactory : {
+        type : "org.nutz.walnut.core.mapping.indexer.MongoFlatIndexerFactory",
+        args : [
+            {refer:"mimes"},
+            {refer:"mongoDB"}]
+    },
     localFileIndexerFactory : {
         type : "org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory",
         args : [{refer:"mimes"}]
@@ -107,6 +113,7 @@ var ioc = {
             globalIndexer : {refer:"globalIndexer"},
             globalBM : {refer:"globalBM"},
             indexers : {
+                "mongo" : {refer:"mongoFlatIndexerFactory"},
                 "file"  : {refer:"localFileIndexerFactory"},
                 "filew" : {refer:"localFileWIndexerFactory"},
                 "dao"   : {refer:"daoIndexerFactory"},

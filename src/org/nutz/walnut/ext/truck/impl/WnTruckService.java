@@ -23,8 +23,8 @@ public class WnTruckService {
     }
 
     public void lanuch(TruckContext tc) {
-        // 必须有目标，否则没意义
-        if (null == tc.toIndexer && null == tc.toBM) {
+        // 防守
+        if (null == tc.io) {
             return;
         }
 

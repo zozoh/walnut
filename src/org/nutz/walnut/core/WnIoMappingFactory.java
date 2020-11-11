@@ -3,6 +3,7 @@ package org.nutz.walnut.core;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.bean.WnObjMapping;
+import org.nutz.walnut.core.mapping.MountInfo;
 
 public interface WnIoMappingFactory {
 
@@ -49,5 +50,47 @@ public interface WnIoMappingFactory {
      * @return 映射信息对象（包括ID,obj以及mapping对象的组合）
      */
     WnObjMapping checkById(String id);
+
+    /**
+     * 加载一个索引管理器实例
+     * 
+     * @param oHome
+     *            映射主目录
+     * @param ixMount
+     *            索引管理器映射字符
+     * @return 索引管理器
+     */
+    WnIoIndexer loadIndexer(WnObj oHome, String ixMount);
+
+    /**
+     * 加载一个索引管理器实例
+     * 
+     * @param oHome
+     * @param miix
+     *            索引管理器映射描述对象
+     * @return 索引管理器
+     */
+    WnIoIndexer loadIndexer(WnObj oHome, MountInfo.Item miix);
+
+    /**
+     * 加载一个桶管理器实例
+     * 
+     * @param oHome
+     *            映射主目录
+     * @param bmMount
+     *            桶管理器映射字符
+     * @return 桶管理器
+     */
+    WnIoBM loadBM(WnObj oHome, String bmMount);
+
+    /**
+     * 加载一个桶管理器实例
+     * 
+     * @param oHome
+     * @param mibm
+     *            桶管理器映射描述对象
+     * @return 桶管理器
+     */
+    WnIoBM loadBM(WnObj oHome, MountInfo.Item mibm);
 
 }

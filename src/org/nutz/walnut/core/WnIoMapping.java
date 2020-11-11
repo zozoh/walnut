@@ -29,8 +29,16 @@ public class WnIoMapping {
         return indexer;
     }
 
+    public void setIndexer(WnIoIndexer indexer) {
+        this.indexer = indexer;
+    }
+
     public WnIoBM getBucketManager() {
         return bm;
+    }
+
+    public void setBucketManager(WnIoBM bm) {
+        this.bm = bm;
     }
 
     public boolean isSameBM(WnIoMapping mapping) {

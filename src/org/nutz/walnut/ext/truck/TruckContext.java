@@ -3,10 +3,12 @@ package org.nutz.walnut.ext.truck;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.WnIoBM;
+import org.nutz.walnut.ext.truck.impl.TruckPrinter;
 import org.nutz.walnut.impl.box.JvmFilterContext;
 
 public class TruckContext extends JvmFilterContext {
@@ -29,11 +31,21 @@ public class TruckContext extends JvmFilterContext {
 
     public WnObj toDir;
 
-    public WnIoIndexer toIndexer;
-
-    public WnIoBM toBM;
+    public WnIo io;
+    
+    /**
+     * 只有不存在的，才插入（会预先检查，所以慢一些）
+     */
+    public boolean noexists;
+    
+    /**
+     * 新创建的数据，需要重新生成 ID
+     */
+    public boolean genId;
 
     public List<WnObj> list;
+
+    public TruckPrinter printer;
 
     /**
      * 桶转移时的缓冲大小，默认 8192 bytes
@@ -60,7 +72,5 @@ public class TruckContext extends JvmFilterContext {
         }
         return q;
     }
-
-    
 
 }

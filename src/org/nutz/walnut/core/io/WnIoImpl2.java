@@ -89,6 +89,11 @@ public class WnIoImpl2 implements WnIo {
         this.whenWrite = whenWrite;
     }
 
+    @Override
+    public WnIoMappingFactory getMappingFactory() {
+        return mappings;
+    }
+
     // 如果不在同样的映射桶内，则，只能通过流 copy 了
     @Override
     public long copyData(WnObj a, WnObj b) {

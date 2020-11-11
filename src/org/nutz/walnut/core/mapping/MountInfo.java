@@ -96,7 +96,7 @@ public class MountInfo {
         }
     }
 
-    Item parseItem(String str) {
+    static public Item parseItem(String str) {
         Matcher m = _P.matcher(str.trim());
         // 靠，什么妖物？！
         if (!m.find()) {
@@ -142,6 +142,14 @@ public class MountInfo {
         return null == ix ? null : ix.arg;
     }
 
+    public void setIndexer(String str) {
+        if (Strings.isBlank(str)) {
+            this.ix = null;
+        } else {
+            this.ix = parseItem(str);
+        }
+    }
+
     public boolean isBMType(String regex) {
         if (null == bm) {
             return false;
@@ -162,6 +170,14 @@ public class MountInfo {
 
     public String getBMArg() {
         return null == bm ? null : bm.arg;
+    }
+
+    public void setBM(String str) {
+        if (Strings.isBlank(str)) {
+            this.bm = null;
+        } else {
+            this.bm = parseItem(str);
+        }
     }
 
     @Override

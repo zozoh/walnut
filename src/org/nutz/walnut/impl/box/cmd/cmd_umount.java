@@ -14,14 +14,15 @@ public class cmd_umount extends JvmExecutor {
         if (args.length <= 0) {
             throw Er.create("e.cmd.unmount.lackargs", args);
         }
-        WnAccount me = sys.getMe();
-        if (!sys.auth.isMemberOfGroup(me, "root")) {
-            sys.err.println("permission denied");
-            return;
-        }
         String ph = Wn.normalizeFullPath(args[0], sys);
         WnObj o = sys.io.check(null, ph);
-
+        WnAccount me = sys.getMe();
+        if (!me.isSameName(o.creator())) {
+            if (!sys.auth.isMemberOfGroup(me, "root") && !sys.auth.isAdminOfGroup(me, o.group())) {
+                sys.err.println("permission denied");
+                return;
+            }
+        }
         sys.io.setMount(o, null);
 
     }

@@ -47,11 +47,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取索引管理器
         else {
-            WnIndexerFactory ixFa = indexers.get(mi.ix.type);
-            if (null == ixFa) {
-                throw Er.create("e.io.mapping.WnIndexerFactoryNotFound", mi.ix.toString());
-            }
-            ix = ixFa.load(oHome, mi.ix.arg);
+            ix = loadIndexer(oHome, mi.ix);
         }
 
         // 采用全局桶管理器
@@ -60,15 +56,41 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取桶管理器
         else {
-            WnBMFactory bmFa = bms.get(mi.bm.type);
-            if (null == bmFa) {
-                throw Er.create("e.io.mapping.WnBMFactoryNotFound", mi.bm.toString());
-            }
-            bm = bmFa.load(oHome, mi.bm.arg);
+            bm = loadBM(oHome, mi.bm);
         }
 
         // 组合返回
         return new WnIoMapping(ix, bm);
+    }
+
+    @Override
+    public WnIoBM loadBM(WnObj oHome, String bmMount) {
+        MountInfo.Item mibm = MountInfo.parseItem(bmMount);
+        return loadBM(oHome, mibm);
+    }
+
+    @Override
+    public WnIoBM loadBM(WnObj oHome, MountInfo.Item mibm) {
+        WnBMFactory bmFa = bms.get(mibm.type);
+        if (null == bmFa) {
+            throw Er.create("e.io.mapping.WnBMFactoryNotFound", mibm.toString());
+        }
+        return bmFa.load(oHome, mibm.arg);
+    }
+
+    @Override
+    public WnIoIndexer loadIndexer(WnObj oHome, String ixMount) {
+        MountInfo.Item miix = MountInfo.parseItem(ixMount);
+        return loadIndexer(oHome, miix);
+    }
+
+    @Override
+    public WnIoIndexer loadIndexer(WnObj oHome, MountInfo.Item miix) {
+        WnIndexerFactory ixFa = indexers.get(miix.type);
+        if (null == ixFa) {
+            throw Er.create("e.io.mapping.WnIndexerFactoryNotFound", miix.toString());
+        }
+        return ixFa.load(oHome, miix.arg);
     }
 
     @Override

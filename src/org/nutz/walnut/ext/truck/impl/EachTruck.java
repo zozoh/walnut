@@ -20,6 +20,11 @@ abstract class EachTruck implements Each<WnObj> {
     }
 
     void appendObj(WnObj obj) {
+        // 打印
+        if (null != tc.printer) {
+            tc.printer.print(obj);
+        }
+        // 计入列表
         if (null != tc.list) {
             tc.list.add(obj);
         }
@@ -34,7 +39,18 @@ abstract class EachTruck implements Each<WnObj> {
      * @return newObj
      */
     WnObj transIndexer(WnObj obj) {
-        return tc.toIndexer.create(tc.toDir, obj);
+        // 检查是否存在
+        if (tc.noexists) {
+            if (tc.io.exists(tc.toDir, obj.name())) {
+                return tc.io.fetch(tc.toDir, obj.name());
+            }
+        }
+        // 要求生成新的 ID
+        if (tc.genId) {
+            obj.id(Wn.genId());
+        }
+        // 直接插入
+        return tc.io.create(tc.toDir, obj);
     }
 
     /**
@@ -59,7 +75,7 @@ abstract class EachTruck implements Each<WnObj> {
             h0 = tc.fromBM.open(srcObj, Wn.Io.R, tc.fromIndexer);
 
             // 打开标柄
-            h1 = tc.toBM.open(taObj, Wn.Io.W, tc.toIndexer);
+            h1 = tc.io.openHandle(taObj, Wn.Io.W);
 
             // 准备缓冲区
             byte[] buf = new byte[tc.bufferSize];

@@ -8,6 +8,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.core.WnIoActionCallback;
+import org.nutz.walnut.core.WnIoMappingFactory;
 
 public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
@@ -49,6 +50,11 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
                 }
             };
         }
+    }
+
+    @Override
+    public WnIoMappingFactory getMappingFactory() {
+        return io.getMappingFactory();
     }
 
     @Override
