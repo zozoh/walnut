@@ -1,0 +1,57 @@
+#-------------------------------------
+#
+# `@HOME`主目录
+#
+#-------------------------------------
+@HOME
+{
+  icon:"fas-globe-asia", 
+  title:"OnChina"
+}
+#-------------------------------------
+#
+# `@ENV`环境变量
+#
+#-------------------------------------
+@ENV
+{
+  "OPEN" : "wn.manager",
+  "THEME" : "light"
+}
+#-------------------------------------
+#
+# `@DIR`目录
+#
+#-------------------------------------
+@DIR .ti/ -> /mnt/project/${domain}/_ti/
+{
+  icon : "fas-cogs"
+}
+#-------------------------------------
+#
+# `@FILE`文件
+#
+#-------------------------------------
+@FILE .domain/payment/after
+{
+  icon : "fas-file"
+}
+%COPY:
+www payafter ${or_id} -site ~/www/onchina -basket 
+%END%
+#-------------------------------------
+#
+# `@THING`文件
+#
+#-------------------------------------
+@THING{title:'i18n:oc-tour-posts', icon:'fab-pagelines'} accounts -> /mnt/project/demo/thing/accounts
+{
+  th_auto_select: false
+}
+#-------------------------------------
+#
+# `@API`接口
+#
+#-------------------------------------
+@API{cross:true,mime:"text/json"} auth/login_by_wxcode
+%COPY> /mnt/prject/${domain}/regapi/auth/login_by_wxcode

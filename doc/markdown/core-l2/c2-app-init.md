@@ -17,6 +17,7 @@ author: zozohtnt@gmail.com
 `@ENV`   | 环境变量
 `@HOME`  | 主目录
 
+--------------------------------------
 ## `@DIR`目录
 
 ```bash
@@ -26,6 +27,7 @@ author: zozohtnt@gmail.com
 }
 ```
 
+--------------------------------------
 ## `@FILE`文件
 
 ```bash
@@ -38,6 +40,20 @@ www payafter ${or_id} -site ~/www/onchina -basket
 %END%
 ```
 
+支持的宏为
+
+Macro    | Force | Description
+---------|-------|-------
+`%COPY:` | Yes   | 从下一行开始，是内容,
+`?COPY:` | No    | 从下一行开始，是内容,
+`%TMPL:` | Yes   | 从下一行开始，是模板,
+`?TMPL:` | No    | 从下一行开始，是模板,
+`%COPY>` | Yes   | 当前行为文件路径，指向内容
+`?COPY>` | No    | 当前行为文件路径，指向内容
+`%TMPL>` | Yes   | 当前行为文件路径，指向模板
+`?TMPL>` | No    | 当前行为文件路径，指向模板
+
+--------------------------------------
 ## `@THING`数据集
 
 ```bash
@@ -50,10 +66,15 @@ www payafter ${or_id} -site ~/www/onchina -basket
 }
 ```
 
-## `@API`目录段
+--------------------------------------
+## `@API`接口
 
-> 与 `@FILE` 相同，只是做一个标记
+```bash
+@API{cross:true,mime:"text/json"} auth/login_by_wxcode
+%COPY> /mnt/prject/${domain}/regapi/auth/login_by_wxcode
+```
 
+--------------------------------------
 ## `@ENV`环境变量
 
 ```bash
@@ -67,6 +88,7 @@ www payafter ${or_id} -site ~/www/onchina -basket
 }
 ```
 
+--------------------------------------
 ## `@HOME`主目录
 
 ```bash
