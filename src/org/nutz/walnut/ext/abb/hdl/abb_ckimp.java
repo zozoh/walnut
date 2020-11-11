@@ -165,6 +165,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 	// 首先, 查找起始行
 	int rowBegin = -1;
 	int workHourCellIndex = -1;
+	int groupCellIndex = 0;
 	
 	protected XSSFSheet mode_b_search_group(WnSystem sys, JvmHdlContext hc, XSSFWorkbook wb) {
 		rowBegin = -1;
@@ -172,30 +173,33 @@ public class abb_ckimp extends abb_abstract_ckimp {
 		
 		for (int z = 0; z < wb.getNumberOfSheets(); z++) {
 			XSSFSheet preSheet = wb.getSheetAt(z);
-			for (int i = 0; i < 16; i++) {
+			OUT: for (int i = 0; i < 16; i++) {
 				XSSFRow row = preSheet.getRow(i);
 				if (row == null)
 					continue;
-				XSSFCell cell = row.getCell(0);
-				if (cell == null)
-					continue;
-				String value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
-				if ("group".equals(value)) {
-					rowBegin = i;
-					// 找一下workhour的列
-					for (int j = 1; j < 26; j++) {
-						cell = row.getCell(j);
-						if (cell == null)
-							continue;
-						value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
-						if ("workhour".equals(value)) {
-							workHourCellIndex = j;
+				for (int k = 0; k < 16; k++) {
+					XSSFCell cell = row.getCell(k);
+					if (cell == null)
+						continue;
+					String value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+					if ("group".equals(value)) {
+						rowBegin = i;
+						groupCellIndex = k;
+						// 找一下workhour的列
+						for (int j = 1; j < 26; j++) {
+							cell = row.getCell(j);
+							if (cell == null)
+								continue;
+							value = String.valueOf(__get_cell_value(cell)).trim().toLowerCase();
+							if ("workhour".equals(value)) {
+								workHourCellIndex = j;
+							}
+							else if ("wh".equals(value)){
+								workHourCellIndex = j;
+							}
 						}
-						else if ("wh".equals(value)){
-							workHourCellIndex = j;
-						}
+						break OUT;
 					}
-					break;
 				}
 			}
 			if (rowBegin >= 0) {
@@ -223,9 +227,9 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			rowIndex++;
 			if (row == null)
 				break;
-			XSSFCell groupCell = row.getCell(0);
-			XSSFCell noCell = row.getCell(1);
-			XSSFCell itemCell = row.getCell(2);
+			XSSFCell groupCell = row.getCell(groupCellIndex+0);
+			XSSFCell noCell = row.getCell(groupCellIndex+1);
+			XSSFCell itemCell = row.getCell(groupCellIndex+2);
 
 			if (groupCell == null)
 				continue;
@@ -253,7 +257,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			AbbCheckListItem item = new AbbCheckListItem(noValue, groupValue, itemValue);
 			if (workHourCellIndex > 0) {
 				XSSFCell workhour = row.getCell(workHourCellIndex);
-				if (workhour != null)
+				if (workhour != null && __get_cell_value(workhour) != null)
 					item.workhour = ((Number)__get_cell_value(workhour)).doubleValue();
 			}
 			items.put(noValue, item);
@@ -274,7 +278,7 @@ public class abb_ckimp extends abb_abstract_ckimp {
 			aitem.nm = abbCheckListItem.no;
 			aitem.title = abbCheckListItem.selfStr;
 			aitem.p_ck_nm = abbCheckListItem.no.substring(0, abbCheckListItem.no.indexOf('.'));
-			aitem.workhour = abbCheckListItem.workhour;
+			aitem.std_time = abbCheckListItem.workhour;
 			clist.items.add(aitem);
 		}
 		sys.out.writeJson(clist, JsonFormat.full().setIgnoreNull(true));
