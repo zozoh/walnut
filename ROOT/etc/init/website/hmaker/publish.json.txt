@@ -1,0 +1,13 @@
+{
+  "base"     : "${base?}",
+  "apiBase"  : "${apiBase?}",
+  "cdnTmpl"  : "${cdnTmpl?}",
+  "rs"       : "${rs}",
+  "lang"     : "${lang?en-us}",
+  "siteRs"   : "${siteRs}",
+  "TiJs"     : "${TiJs}",
+  "preloads" : ${preloads<json:cqn>?-array-},
+  "payReturnUrl" : "${payReturnUrl}",
+  "googleMapKey" : "${googleMapKey}",
+  "deps": ["@lib:code2a/cheap-markdown.mjs"]
+}

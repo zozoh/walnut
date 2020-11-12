@@ -1,0 +1,17 @@
+{
+  "dao": "${webhisDao?webhis}",
+  "tableName" : "${domain}_web_his",
+  "fieldSizes" : {
+    "id": 26,
+    "uid"  : 26,
+    "unm"  : 26,
+    "utp"  : 20,
+    "tid"  : 26,
+    "tnm"  : 26,
+    "ttp"  : 20,
+    "opt"  : 50,
+    "mor"  : 128
+  },
+  "requires" : ["uid", "tid", "ttp", "opt"],
+  "nullAs" : ""
+}

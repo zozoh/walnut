@@ -1,0 +1,172 @@
+{
+  "dao": "default",
+  "tableName": "${domain}_order",
+  "autoCreate": true,
+  "fields": [{
+      "name": "products",
+      "type": "JSON",
+      "columnType" : "TEXT",
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "proid0",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 26,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "proids",
+      "type": "SArray",
+      "columnType" : "VARCHAR",
+      "width": 250,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "pro_c",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "coupons",
+      "type": "JSON",
+      "columnType" : "TEXT",
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "seller",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 50,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "accounts",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 26,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "buyer_id",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 26,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "price",
+      "type": "Float",
+      "columnType" : "FLOAT",
+      "width": 20,
+      "precision": 2,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "fee",
+      "type": "Float",
+      "columnType" : "FLOAT",
+      "width": 20,
+      "precision": 2,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "currency",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 5,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "pay_tp",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 20,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "pay_id",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 26,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "or_st",
+      "type": "String",
+      "columnType" : "CHAR",
+      "width": 2,
+      "notNull": true,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "wt_at",
+      "type": "Long",
+      "columnType" : "INT",
+      "width": 16,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "ok_at",
+      "type": "Long",
+      "columnType" : "INT",
+      "width": 16,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "fa_at",
+      "type": "Long",
+      "columnType" : "INT",
+      "width": 16,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "sp_at",
+      "type": "Long",
+      "columnType" : "INT",
+      "width": 16,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "dn_at",
+      "type": "Long",
+      "columnType" : "INT",
+      "width": 16,
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }, {
+      "name": "..",
+      "columnName": "metas",
+      "type": "String",
+      "columnType" : "TEXT",
+      "notNull": false,
+      "insert": true,
+      "update": true
+    }],
+  "objKeys": ["id","nm", "title", "tp", "ct", "lm", "expi", "th_live"],
+  "indexes": [{
+      "unique" : false,
+      "name"   : "I_PRO_0",
+      "fields" : ["proid0"]
+    }]
+}

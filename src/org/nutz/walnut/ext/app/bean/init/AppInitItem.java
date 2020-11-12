@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.app.bean.init;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -20,6 +21,8 @@ public class AppInitItem {
     private NutMap meta;
 
     private String content;
+
+    private NutMap tmplVars;
 
     private boolean contentAsTmpl;
 
@@ -138,7 +141,7 @@ public class AppInitItem {
 
         // 属性
         if (this.hasProperties()) {
-            sb.append(Json.toJson(properties));
+            sb.append(Json.toJson(properties, JsonFormat.compact().setQuoteName(false)));
         }
 
         // 路径
@@ -240,10 +243,102 @@ public class AppInitItem {
     }
 
     public void setProperties(String json, NutBean vars) {
-        if (null != vars) {
-            json = Tmpl.exec(json, vars);
+        if (Strings.isBlank(json)) {
+            this.properties = null;
+        } else {
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            this.properties = Lang.map(json);
         }
-        this.properties = Lang.map(json);
+    }
+
+    public void addProperties(String json, NutBean vars) {
+        if (!Strings.isBlank(json)) {
+            if (null == this.properties) {
+                this.properties = new NutMap();
+            }
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            NutMap map = Lang.map(json);
+            this.properties.putAll(map);
+        }
+    }
+
+    /**
+     * 用一个约定好的简易字符串快速设定属性
+     * 
+     * <ul>
+     * <li><code>=media</code> 相当于 <code>tp:"media"</code>
+     * <li><code>&lt;fas-xxx&gt;</code> 相当于 <code>icon:"fas-xxx"</code>
+     * <li><code>cross</code> 相当于 <code>cross:true</code>
+     * <li><code>json</code> 相当于 <code>mime:"text/json"</code>
+     * <li><code>auth</code> 相当于
+     * 
+     * <pre>
+     * {
+     *   "http-www-home" : "~/www/${domain}",
+     *   "http-www-ticket" : "http-qs-ticket", 
+     *   "http-www-auth" : true
+     *}
+     * </pre>
+     * 
+     * <li><code>http302</code> 相当于 <code>"http-resp-code":302</code>
+     * <li><code>其他均等于</code> 相当于 <code>title:".."</code>
+     * </ul>
+     * 
+     * @param str
+     *            一个字符串，用 "/" 分隔，支持一些快捷的特殊属性：
+     * 
+     */
+    public void addQuickMeta(String str, NutBean vars) {
+        if (Strings.isBlank(str)) {
+            return;
+        }
+        if (this.meta == null) {
+            this.meta = new NutMap();
+        }
+        if (null != vars) {
+            str = Tmpl.exec(str, vars);
+        }
+        String[] ss = Strings.splitIgnoreBlank(str, "/");
+        for (String s : ss) {
+            // TP
+            if (s.startsWith("=")) {
+                String tp = s.substring(1).trim();
+                this.meta.put("tp", tp);
+            }
+            // ICON
+            else if (Strings.isQuoteBy(s, '<', '>')) {
+                String icon = s.substring(0, s.length() - 1).trim();
+                this.meta.put("icon", icon);
+            }
+            // CROSS
+            else if ("cross".equals(s)) {
+                this.meta.put("http-cross-origin", "*");
+            }
+            // MIME text/json
+            else if ("json".equals(s)) {
+                this.meta.put("http-header-Content-Type", "text/json");
+            }
+            // HTTPxxx
+            else if (s.matches("^http\\d{3}$")) {
+                int reCode = Integer.parseInt(s.substring(4));
+                this.meta.put("http-resp-code", reCode);
+            }
+            // AUTH
+            else if ("auth".equals(s)) {
+                String json = "{\"http-www-home\":\"~/www/${domain}\","
+                              + "\"http-www-ticket\":\"http-qs-ticket\","
+                              + "\"http-www-auth\":true}";
+                this.addMeta(json, vars);
+            }
+            // 其他都当作标题
+            else {
+                this.meta.put("title", s);
+            }
+        }
     }
 
     public void setProperties(NutMap properties) {
@@ -259,10 +354,14 @@ public class AppInitItem {
     }
 
     public void setPath(String path, NutBean vars) {
-        if (null != vars) {
-            this.path = Tmpl.exec(path, vars);
+        if (Strings.isBlank(path)) {
+            this.path = null;
         } else {
-            this.path = path;
+            if (null != vars) {
+                this.path = Tmpl.exec(path, vars);
+            } else {
+                this.path = path;
+            }
         }
     }
 
@@ -279,10 +378,14 @@ public class AppInitItem {
     }
 
     public void setLinkPath(String linkPath, NutBean vars) {
-        if (null != vars) {
-            this.linkPath = Tmpl.exec(linkPath, vars);
+        if (Strings.isBlank(linkPath)) {
+            this.linkPath = null;
         } else {
-            this.linkPath = linkPath;
+            if (null != vars) {
+                this.linkPath = Tmpl.exec(linkPath, vars);
+            } else {
+                this.linkPath = linkPath;
+            }
         }
     }
 
@@ -298,11 +401,28 @@ public class AppInitItem {
         return meta;
     }
 
-    public void setMeta(String json, NutBean vars) {
-        if (null != vars) {
-            json = Tmpl.exec(json, vars);
+    public void addMeta(String json, NutBean vars) {
+        if (!Strings.isBlank(json)) {
+            if (null == this.meta) {
+                this.meta = new NutMap();
+            }
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            NutMap map = Lang.map(json);
+            this.meta.putAll(map);
         }
-        this.meta = Lang.map(json);
+    }
+
+    public void setMeta(String json, NutBean vars) {
+        if (Strings.isBlank(json)) {
+            this.meta = null;
+        } else {
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            this.meta = Lang.map(json);
+        }
     }
 
     public void setMeta(NutMap meta) {
@@ -319,6 +439,29 @@ public class AppInitItem {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean hasTmplVars() {
+        return null != tmplVars && !tmplVars.isEmpty();
+    }
+
+    public NutMap getTmplVars() {
+        return tmplVars;
+    }
+
+    public void setTmplVars(String json, NutBean vars) {
+        if (Strings.isBlank(json)) {
+            this.tmplVars = null;
+        } else {
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            this.tmplVars = Lang.map(json);
+        }
+    }
+
+    public void setTmplVars(NutMap tmplVars) {
+        this.tmplVars = tmplVars;
     }
 
     public boolean isContentAsTmpl() {

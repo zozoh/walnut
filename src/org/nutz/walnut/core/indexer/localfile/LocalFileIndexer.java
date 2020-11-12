@@ -8,9 +8,8 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -22,7 +21,7 @@ import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
-    private static final Log log = Logs.get();
+    // private static final Log log = Logs.get();
 
     protected File dHome;
 
@@ -87,20 +86,34 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
+        // 获取基线目录对象（可能是 P 也可能是 HOME）
         File f = this._check_file_by(p);
         // 不是目录
         if (!f.isDirectory()) {
             f = f.getParentFile();
         }
-        if (path.endsWith("_types.json")) {
-            log.infof("LocalFile.fetch : %s :: %s", f.getAbsolutePath(), path);
-        }
-        // 获取文件
+        // 相对于基线文件，调整 path，去掉内部的 ..
         File f2 = Files.getFile(f, path);
         if (!f2.exists()) {
             return null;
         }
-        return _gen_file_obj(p, f2);
+        String fph = Disks.getCanonicalPath(f2.getAbsolutePath());
+        // 这个路径超出了索引管理器管理的路径，可能会造成危险
+        if (!fph.startsWith(this.phHome)) {
+            throw Er.create("e.io.localFile.OutOfHome", path);
+        }
+        f2 = new File(fph);
+        // 为了保险起见，重新生成一遍父对象
+        WnObj p2;
+        File fP = f2.getParentFile();
+        if (fP.equals(this.dHome)) {
+            p2 = this.root;
+        } else {
+            p2 = new WnLocalFileObj(this.root, dHome, fP, mimes);
+        }
+
+        // 放心大胆的生成新文件对象吧
+        return _gen_file_obj(p2, f2);
     }
 
     @Override

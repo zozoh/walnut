@@ -19,29 +19,29 @@ public class AppInitService {
         return parse(str, null);
     }
 
-    public void process(AppInitContext aic) {
-        if (!aic.group.hasItems())
+    public void process(AppInitContext ac) {
+        if (!ac.group.hasItems())
             return;
 
         Stopwatch sw = Stopwatch.begin();
         String HR = Strings.dup('-', 50);
-        aic.println(HR);
-        aic.println("APP INIT");
-        if (aic.group.hasTitle()) {
-            aic.println(aic.group.getTitle());
+        ac.println(HR);
+        ac.println("APP INIT");
+        if (ac.group.hasTitle()) {
+            ac.println(ac.group.getTitle());
         }
-        aic.println(HR);
+        ac.println(HR);
 
-        for (AppInitItem item : aic.group.getItems()) {
-            AppInitProcessor pc = aic.getProcessor(item);
-            AppInitItemContext ing = aic.createProcessing(item);
+        for (AppInitItem item : ac.group.getItems()) {
+            AppInitProcessor pc = ac.getProcessor(item);
+            AppInitItemContext ing = ac.createProcessing(item);
             ing.printItem(item);
-            ing.println(HR);
             pc.process(ing);
+            ing.println(HR);
         }
 
         sw.stop();
-        aic.printlnf("All done : %s", sw.toString());
+        ac.printlnf("All done : %s", sw.toString());
     }
 
     public AppInitGroup parse(String str, NutBean vars) {
@@ -69,13 +69,14 @@ public class AppInitService {
     }
 
     private static final String REGEX = "^@(\\w+)\\s*"
+                                        + "('([^']*)')?\\s*"
                                         + "(\\{[^}]*\\})?\\s*"
                                         + "([^\\s]+)?\\s*"
                                         + "(->\\s*(.+)\\s*)?$";
 
     private static final Pattern _P0 = Regex.getPattern(REGEX);
 
-    private static final Pattern _P1 = Regex.getPattern("^([%?])(COPY|TMPL)([:>])\\s*(.+)?$");
+    private static final Pattern _P1 = Regex.getPattern("^([%?])(COPY|TMPL)(\\{.+\\})?([:>])\\s*(.+)?$");
 
     private int loadItem(String[] lines, int index, AppInitItem item, NutBean vars) {
         // 解析首行
@@ -86,23 +87,28 @@ public class AppInitService {
             throw Er.create("e.cmd.app_init.invalid_line", "Line " + index + " : " + line);
         }
 
-        // ------------------------------------------------------------
-        // 匹配 '@FILE{title:'haha', icon:'fas-box'} ~/a/b/c.txt ->
-        // /mnt/abc/xx.txt'
-        // ------------------------------------------------------------
-        // 0/66 Regin:0/66
-        // 0:[ 0, 66) @FILE{title:'haha', icon:'fas-box'} ~/a/b/c.txt ->
-        // /mnt/abc/xx.txt
-        // 1:[ 1, 5) FILE
-        // 2:[ 5, 35) {title:'haha', icon:'fas-box'}
-        // 3:[ 36, 47) ~/a/b/c.txt
-        // 4:[ 48, 66) -> /mnt/abc/xx.txt
-        // 5:[ 51, 66) /mnt/abc/xx.txt
-
+        /**
+         * <pre>
+         * ------------------------------------------------------------
+         * 匹配 '@API'i18n:xxx/<fas-xxx>/cross/json'{x:100,y50} \
+         *              ~/a/b/c.txt -> /mnt/abc/xx.txt'
+         * ------------------------------------------------------------
+         * 0/81  Regin:0/81
+         * 0:[  0, 81) @API'i18n:xxx/<fas-xxx>/cros...mnt/abc/xx.txt
+         * 1:[  1,  4) API
+         * 2:[  4, 39) 'i18n:xxx/<fas-xxx>/cross/json'
+         * 3:[  5, 38) i18n:xxx/<fas-xxx>/cross/json
+         * 4:[ 39, 50) {x:100,y50}
+         * 5:[ 51, 62) ~/a/b/c.txt
+         * 6:[ 63, 81) -> /mnt/abc/xx.txt
+         * 7:[ 66, 81) /mnt/abc/xx.txt
+         * </pre>
+         */
         item.setType(m.group(1));
-        item.setProperties(m.group(2), vars);
-        item.setPath(m.group(3), vars);
-        item.setLinkPath(m.group(5), vars);
+        item.setProperties(m.group(4), vars);
+        item.addQuickMeta(m.group(3), vars);
+        item.setPath(m.group(5), vars);
+        item.setLinkPath(m.group(7), vars);
 
         // 准备收集元数据
         List<String> metaLine = new LinkedList<>();
@@ -134,25 +140,27 @@ public class AppInitService {
 
         // 分析元数据
         String json = Strings.trim(Strings.join("\n", metaLine));
-        item.setMeta(json, vars);
+        item.addMeta(json, vars);
 
         // 解析内容行
         if (null != mc) {
             // 看看行首
             // ------------------------------------------------------------
-            // 匹配 '?COPY> path/to/file'
+            // 匹配 '%TMPL{x:100}> path/to/file'
             // ------------------------------------------------------------
-            // 0/19 Regin:0/19
-            // 0:[ 0, 19) ?COPY> path/to/file
-            // 1:[ 0, 1) ?
-            // 2:[ 1, 5) COPY
-            // 3:[ 5, 6) >
-            // 4:[ 7, 19) path/to/file
+            // 0/26 Regin:0/26
+            // 0:[ 0, 26) %TMPL{x:100}> path/to/file
+            // 1:[ 0, 1) %
+            // 2:[ 1, 5) TMPL
+            // 3:[ 5, 12) {x:100}
+            // 4:[ 12, 13) >
+            // 5:[ 14, 26) path/to/file
             item.setOverrideContent("%".equals(mc.group(1)));
             item.setContentAsTmpl("TMPL".equals(mc.group(2)));
+            item.setTmplVars(mc.group(3), vars);
             // 读取磁盘上的文件
-            if (">".equals(mc.group(3))) {
-                String rph = Strings.trim(mc.group(4));
+            if (">".equals(mc.group(4))) {
+                String rph = Strings.trim(mc.group(5));
                 item.setContentFilePath(rph);
             }
             // 继续读取内容，直到 %END%

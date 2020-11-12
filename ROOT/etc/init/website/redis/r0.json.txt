@@ -1,0 +1,7 @@
+{
+  "host"  : "${redis0.host?127.0.0.1}",
+  "port"  : ${redis0.port?6379},
+  "ssl"   : ${redis0.ssl?false},
+  "password"  : "${redis0.password?}",
+  "database": ${database?4}
+}

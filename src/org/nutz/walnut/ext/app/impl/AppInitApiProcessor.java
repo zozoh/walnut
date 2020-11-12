@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.app.impl;
 import java.util.Map;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 
@@ -30,7 +29,7 @@ public class AppInitApiProcessor implements AppInitProcessor {
                 }
                 // 其他的不支持
                 else {
-                    throw Er.create("e.cmd.app_init.invalid_api_prop", key);
+                    meta.put("http-header-Content-Type", val);
                 }
             }
         }

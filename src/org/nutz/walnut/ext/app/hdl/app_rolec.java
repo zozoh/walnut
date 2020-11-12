@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 
-public class app_rolec extends app_init {
+public class app_rolec extends app_initold {
 
     @Override
     protected void __exec_init(WnSystem sys, JvmHdlContext hc) {

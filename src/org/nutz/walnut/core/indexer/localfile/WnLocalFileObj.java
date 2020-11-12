@@ -45,6 +45,9 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         this.mimes = mimes;
         this.phHome = Files.getAbsPath(dHome);
         this.phFile = Files.getAbsPath(file);
+        // 整理路径中的  ..
+        this.phHome = Disks.getCanonicalPath(this.phHome);
+        this.phFile = Disks.getCanonicalPath(this.phFile);
         this.rph = Disks.getRelativePath(phHome, phFile);
         if (file.isDirectory() && !this.rph.endsWith("/")) {
             this.rph += "/";

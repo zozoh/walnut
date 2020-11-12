@@ -1,0 +1,8 @@
+{
+  "url" : "${jdbc1.url}",
+  "username" : "${jdbc1.username}",
+  "password" : "${jdbc1.password}",
+  "maxActive": 50,
+  "maxWait" : 15000,
+  "testWhileIdle" : true
+}

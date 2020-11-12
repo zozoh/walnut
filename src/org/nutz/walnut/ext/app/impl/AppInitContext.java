@@ -65,7 +65,7 @@ public class AppInitContext {
 
     public void printItem(AppInitItem item) {
         if (null != out) {
-            out.println(item.toString());
+            out.println(item.toBrief());
         }
     }
 
