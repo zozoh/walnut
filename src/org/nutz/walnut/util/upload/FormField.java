@@ -111,6 +111,12 @@ public class FormField {
         this.type = HttpFormFieldType.FILE;
     }
 
+    public boolean isName(String name) {
+        if (Strings.isBlank(this.name))
+            return Strings.isBlank(name);
+        return this.name.equals(name);
+    }
+
     public String getName() {
         return name;
     }

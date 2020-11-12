@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.app.bean.init;
 
 import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -127,7 +126,7 @@ public class AppInitItem {
         return item;
     }
 
-    public String toString() {
+    public String toBrief() {
         StringBuilder sb = new StringBuilder("@");
 
         // 类型
@@ -152,10 +151,14 @@ public class AppInitItem {
             sb.append(" -> ").append(linkPath);
         }
 
-        // 元数据
-        if (this.hasMeta()) {
-            sb.append('\n').append(Json.toJson(meta, JsonFormat.nice().setQuoteName(true)));
-        }
+        return sb.toString();
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        // 第一行: 类型{属性} 路径 -> 链接
+        sb.append(this.toBrief());
 
         // 内容
         if (this.hasContent()) {

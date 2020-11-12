@@ -6,6 +6,7 @@ import java.util.Map;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.app.bean.init.AppInitGroup;
@@ -33,6 +34,8 @@ public class AppInitContext {
 
     public NutBean vars;
 
+    public WnOutputable out;
+
     /**
      * 被初始化的目标目录
      */
@@ -42,11 +45,35 @@ public class AppInitContext {
      * 加载初始化文件的原始目录，用来读取其他资源
      */
     public WnObj oHome;
+    
+    /**
+     * oHome 目录下的初始化模板文件对象
+     */
+    public WnObj oInitFile;
+
+    public void println(String str) {
+        if (null != out) {
+            out.println(str);
+        }
+    }
+
+    public void printlnf(String fmt, Object... args) {
+        if (null != out) {
+            out.printlnf(fmt, args);
+        }
+    }
+
+    public void printItem(AppInitItem item) {
+        if (null != out) {
+            out.println(item.toString());
+        }
+    }
 
     public AppInitItemContext createProcessing(AppInitItem item) {
         AppInitItemContext ing = new AppInitItemContext();
         ing.run = run;
         ing.io = io;
+        ing.out = out;
         ing.group = group;
         ing.vars = vars;
         ing.oHome = oHome;

@@ -127,6 +127,7 @@ public class WnThingService {
                                   String fnm,
                                   InputStream ins,
                                   String boundary,
+                                  String fieldName,
                                   String dupp,
                                   boolean overwrite) {
         FileUploadAction a = _AD(new FileUploadAction(), dirName, oT);
@@ -135,6 +136,7 @@ public class WnThingService {
         a.overwrite = overwrite;
         a.ins = ins;
         a.boundary = boundary;
+        a.fieldName = fieldName;
         return a.invoke();
     }
 

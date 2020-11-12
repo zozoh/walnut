@@ -350,8 +350,15 @@ public abstract class Things {
                     WnObj o = Wn.getObj(sys, read);
                     ins = sys.io.getInputStream(o, 0);
                 }
-
-                List<WnObj> oList = ths.fileUpload(dirName, oT, fnm, ins, upload, dupp, overwrite);
+                String fieldName = hc.params.getString("upfield", null);
+                List<WnObj> oList = ths.fileUpload(dirName,
+                                                   oT,
+                                                   fnm,
+                                                   ins,
+                                                   upload,
+                                                   fieldName,
+                                                   dupp,
+                                                   overwrite);
                 if (!oList.isEmpty()) {
                     oMedia = oList.get(0);
                 }
