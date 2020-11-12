@@ -311,7 +311,7 @@ public class AppInitItem {
             }
             // ICON
             else if (Strings.isQuoteBy(s, '<', '>')) {
-                String icon = s.substring(0, s.length() - 1).trim();
+                String icon = s.substring(1, s.length() - 1).trim();
                 this.meta.put("icon", icon);
             }
             // CROSS

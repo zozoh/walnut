@@ -14,6 +14,7 @@ public class AppInitEnvProcessor implements AppInitProcessor {
                 cmdText += String.format("me -set '%s=%s';\n", key, val);
             }
             ing.run.exec(cmdText);
+            ing.printlnf("SETUP ENV BY:\n%s", cmdText);
         }
     }
 

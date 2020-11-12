@@ -47,9 +47,9 @@ public class AppInitItemContext extends AppInitContext {
 
         // 不是强制写
         if (!item.isOverrideContent() && !Wn.Io.isEmptySha1(obj.sha1())) {
-            println("~~~~~~~~~~~~~~~~");
-            println("~ NOT OVERRIDE ~");
-            println("~~~~~~~~~~~~~~~~");
+            // println("~~~~~~~~~~~~~~~~");
+            // println("~ NOT OVERRIDE ~");
+            // println("~~~~~~~~~~~~~~~~");
             return;
         }
 
@@ -64,9 +64,9 @@ public class AppInitItemContext extends AppInitContext {
             content = Tmpl.exec(content, vars);
             // 写入
             io.writeText(obj, content);
-            println("================");
-            println(content);
-            println("================");
+            // println("================");
+            // println(content);
+            // println("================");
         }
         // 直接 COPY 内容，因此内容也可以是二进制文件
         else if (item.hasContentFilePath()) {
@@ -77,16 +77,16 @@ public class AppInitItemContext extends AppInitContext {
         else if (item.hasContent()) {
             String content = item.getContent();
             io.writeText(obj, content);
-            println("================");
-            println(content);
-            println("================");
+            // println("================");
+            // println(content);
+            // println("================");
         }
         // 啥都没必要做
-        else {
-            println("................");
-            println(".  NO CONTENT  .");
-            println("................");
-        }
+        // else {
+        // println("................");
+        // println(". NO CONTENT .");
+        // println("................");
+        // }
 
     }
 
