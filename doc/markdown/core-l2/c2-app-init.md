@@ -18,14 +18,15 @@ author: zozohtnt@gmail.com
 
 配置文件有下面几种段：
 
- Name    | 描述
----------|---------------
-`@DIR`   | 目录
-`@FILE`  | 文件
-`@THING` | 数据集
-`@API`   | 接口文件
-`@ENV`   | 环境变量
-`@HOME`  | 主目录
+ Name      | 描述
+-----------|---------------
+`@DIR`     | 目录
+`@FILE`    | 文件
+`@THING`   | 数据集
+`@API`     | 接口文件
+`@ENV`     | 环境变量
+`@HOME`    | 主目录
+`@INCLUDE` | 引入另外的初始化文件
 
 
 --------------------------------------
@@ -96,6 +97,18 @@ www payafter ${or_id} -site ~/www/onchina -basket
   title:"OnChina"
 }
 ```
+
+--------------------------------------
+## `@INCLUDE`引入
+
+```bash
+@INCLUDE /etc/init/include/api/auth
+{
+  domain: "${domain}"
+}
+```
+
+> 元数据会覆盖老的上下文，值域仅为引入的文件
 
 --------------------------------------
 # 文件内容宏

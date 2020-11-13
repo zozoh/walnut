@@ -21,7 +21,7 @@ import org.nutz.walnut.api.err.Er;
  */
 public class ZParams implements Cloneable {
 
-    private static final Pattern PARAM_KEY = Pattern.compile("^-([a-zA-Z_].*)$");
+    private static final Pattern PARAM_KEY = Pattern.compile("^--?([a-zA-Z_].+[a-zA-Z0-9_-]*)$");
 
     public String[] vals;
     

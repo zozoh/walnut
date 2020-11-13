@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.app.hdl;
 import java.util.List;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.walnut.api.err.Er;
@@ -20,6 +21,9 @@ public class app_init implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 得到当前操作路径
         String pwd = sys.session.getVars().getString("PWD");
+
+        // 准备基石
+        Stopwatch sw = Stopwatch.begin();
 
         // 准备上下文
         AppInitContext ac = new AppInitContext();
@@ -63,6 +67,7 @@ public class app_init implements JvmHdl {
         ac.io = sys.io;
         ac.run = sys;
         ac.out = sys.out;
+        ac.init = init;
         init.process(ac);
 
         // 找到后续脚本
@@ -79,6 +84,10 @@ public class app_init implements JvmHdl {
 
         // 恢复到当前操作路径
         sys.exec("cd '" + pwd + "'");
+
+        // 结束计时
+        sw.stop();
+        sys.out.printlnf("All done : %s", sw.toString());
     }
 
     private void loadHome(WnSystem sys, JvmHdlContext hc, AppInitContext ac) {

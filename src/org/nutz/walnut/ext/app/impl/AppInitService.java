@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.Regex;
@@ -23,11 +22,14 @@ public class AppInitService {
         if (!ac.group.hasItems())
             return;
 
-        Stopwatch sw = Stopwatch.begin();
-        String HR = Strings.dup('-', 50);
-        ac.println(HR);
-        ac.println("APP INIT");
+        int hrSize = 50;
+        if (null != ac.outPrefix) {
+            hrSize -= ac.outPrefix.length();
+        }
+        String HR = Strings.dup('-', hrSize);
         if (ac.group.hasTitle()) {
+            ac.println(HR);
+            ac.println("APP INIT");
             ac.println(ac.group.getTitle());
         }
         ac.println(HR);
@@ -40,8 +42,6 @@ public class AppInitService {
             ing.println(HR);
         }
 
-        sw.stop();
-        ac.printlnf("All done : %s", sw.toString());
     }
 
     public AppInitGroup parse(String str, NutBean vars) {

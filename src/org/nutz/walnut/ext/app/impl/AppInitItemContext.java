@@ -34,7 +34,7 @@ public class AppInitItemContext extends AppInitContext {
         if (item.hasMeta()) {
             meta.putAll(item.getMeta());
         }
-        return meta;
+        return (NutMap) Wn.explainObj(vars, meta);
     }
 
     public void writeFile(WnObj obj) {
