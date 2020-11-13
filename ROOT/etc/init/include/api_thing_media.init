@@ -1,0 +1,36 @@
+#--------------------------------------------------------
+#
+#                    通用 Thing 接口
+#
+#--------------------------------------------------------
+# API(OBJ): 获取多个指定对象元数据
+@API'cross/json' .regapi/api/objs
+%COPY:
+obj ${http-qs-phs} -cqnl 2>&1 | ajaxre -cqn
+%END%
+#--------------------------------------------------------
+# API(thing): 直接读取内容
+@API'cross/json' .regapi/api/read
+%COPY:
+httpout -body 'sha1:${http-qs-f}' \
+  -mime  '${http-qs-mime?}' \
+  -download '${http-qs-dwnm?}' \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%
+#--------------------------------------------------------
+# API(thing): 缩略图
+@API'cross/json' .regapi/api/media
+%COPY:
+httpout -body ${http-qs} \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%
+#--------------------------------------------------------
+# API: 根据对象ID获取其缩略图
+@API'cross/json' .regapi/api/thumb
+%COPY:
+httpout -body `obj "${http-qs}" -e "^(thumb)$" -V` \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%

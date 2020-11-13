@@ -1,0 +1,9 @@
+#--------------------------------------------------------
+#
+#                    通用 LBS 接口
+#
+#--------------------------------------------------------
+@API'cross/json' .regapi/api/lbs/countries
+%COPY:
+lbs countries -lang ${http-qs-lang?en_us} -map ${http-qs-map?no} -cqn
+%END%

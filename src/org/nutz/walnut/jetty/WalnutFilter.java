@@ -153,6 +153,18 @@ public class WalnutFilter implements Filter {
             String grp = oDmn.getString("dmn_grp");
             String siteName = oDmn.getString("dmn_site");
 
+            // 找到了记录，但是记录明确说，本次跳转，并不是 www 的跳转
+            if (oDmn.isType("B")) {
+                req.setAttribute("wn_www_grp", grp);
+                req.setAttribute("wn_www_site", siteName);
+                // 这个通常还是要记录一下日志的
+                if (log.isDebugEnabled()) {
+                    log.debugf(" - router(B) to: %s : %s", grp, siteName);
+                }
+                chain.doFilter(req, resp);
+                return;
+            }
+
             // 看看流量还够不够
             if (quotaService == null) {
                 quotaService = Mvcs.ctx().getDefaultIoc().get(QuotaService.class, "quota");
@@ -196,7 +208,7 @@ public class WalnutFilter implements Filter {
 
                 // 这个通常还是要记录一下日志的
                 if (log.isDebugEnabled()) {
-                    log.debug(" - router to: " + newPath);
+                    log.debug(" - router(A) to: " + newPath);
                 }
 
                 // 服务器端转发到对应的处理路径

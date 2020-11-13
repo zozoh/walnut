@@ -60,6 +60,9 @@ public class AppInitItemContext extends AppInitContext {
             if (item.hasContentFilePath()) {
                 WnObj o = io.check(oHome, item.getContentFilePath());
                 content = io.readText(o);
+                if(item.hasContentFileVars()) {
+                    content = Tmpl.exec(content, item.getContentFileVars());
+                }
             }
             content = Tmpl.exec(content, vars);
             // 写入
@@ -68,10 +71,20 @@ public class AppInitItemContext extends AppInitContext {
             // println(content);
             // println("================");
         }
-        // 直接 COPY 内容，因此内容也可以是二进制文件
+        // 直接 COPY 内容
         else if (item.hasContentFilePath()) {
-            WnObj o = io.check(oHome, item.getContentFilePath());
-            io.copyData(o, obj);
+            // 内容也需要转换
+            if (item.hasContentFileVars()) {
+                WnObj o = io.check(oHome, item.getContentFilePath());
+                String content = io.readText(o);
+                content = Tmpl.exec(content, item.getContentFileVars());
+                io.writeText(obj, content);
+            }
+            // 内容也可以是二进制文件
+            else {
+                WnObj o = io.check(oHome, item.getContentFilePath());
+                io.copyData(o, obj);
+            }
         }
         // 直接写入内容
         else if (item.hasContent()) {

@@ -1,0 +1,14 @@
+#---------------------------------------------------------
+#
+#                    PayPal
+#
+#---------------------------------------------------------
+@FILE .paypal/${paypalName}/ppconf
+%TMPL:
+{
+  "id" : "${paypalId}",
+  "secret" : "${paypalSecret}",
+  "mode" : "${paypalMode}",
+  "returnUrl": "${payReturnUrl}"
+}
+%END% 

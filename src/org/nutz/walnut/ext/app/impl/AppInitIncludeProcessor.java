@@ -19,12 +19,12 @@ public class AppInitIncludeProcessor implements AppInitProcessor {
         AppInitContext ac = ing.clone();
         ac.outPrefix = ">> ";
 
-        // 解析
-        ac.group = ing.init.parse(input);
-
         // 准备上下文，并融合新的上下文变量
         NutMap vars = ing.genMeta(true);
         ac.vars.mergeWith(vars);
+
+        // 解析
+        ac.group = ing.init.parse(input, ac.vars);
 
         // 执行
         ing.println(HR0);

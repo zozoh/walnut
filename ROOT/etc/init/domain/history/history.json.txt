@@ -1,5 +1,5 @@
 {
-  "dao": "${webhisDao?webhis}",
+  "dao": "${historyDao?history}",
   "tableName" : "${domain}_web_his",
   "fieldSizes" : {
     "id": 26,

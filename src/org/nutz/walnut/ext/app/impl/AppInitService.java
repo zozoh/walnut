@@ -157,7 +157,7 @@ public class AppInitService {
             // 5:[ 14, 26) path/to/file
             item.setOverrideContent("%".equals(mc.group(1)));
             item.setContentAsTmpl("TMPL".equals(mc.group(2)));
-            item.setTmplVars(mc.group(3), vars);
+            item.setContentFileVars(mc.group(3), vars);
             // 读取磁盘上的文件
             if (">".equals(mc.group(4))) {
                 String rph = Strings.trim(mc.group(5));

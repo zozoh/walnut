@@ -1,0 +1,18 @@
+#---------------------------------------------------------
+#
+#                    Thing 查询
+#
+#---------------------------------------------------------
+# API(thing): 数据集列表
+@API'cross/json' .regapi/api/thing/query
+{
+   "cache-test" : "=ThingQueryCacheTest"
+}
+%COPY:
+thing '~/${http-qs-ts}' query '${http-qs-m<json>?-obj-}' \
+  -e '${http-qs-e?}' \
+  -sort '${http-qs-s<json>?-obj-}' \
+  -limit ${http-qs-limit?100} \
+  -skip  ${http-qs-skip?0} \
+  -cqn -pager -sha1 '${http-qs-sha1?thumb}'
+%END%

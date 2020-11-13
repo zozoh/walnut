@@ -25,7 +25,8 @@ public class cmd_me extends JvmExecutor {
             Pair<String> v = Pair.create(str);
             String key = v.getName();
             String val = v.getValue();
-            String v2 = Wn.normalizeStr(val, sys);
+
+            String v2 = null != val ? Wn.normalizeStr(val, sys) : null;
 
             // 设置到自身
             me.setMeta(key, v2);

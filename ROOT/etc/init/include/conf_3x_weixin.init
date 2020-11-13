@@ -1,0 +1,16 @@
+#---------------------------------------------------------
+#
+#                      微信·公众号
+#
+#---------------------------------------------------------
+@FILE .weixin/${wxGhName}/wxconf
+%TMPL:
+{
+  "appID": "${wxGhAppId}",
+  "appsecret": "${wxGhAppSecret}",
+  "pay_mch_id" : "${wxPayMchId}",
+  "pay_key" : "${wxPayKey}",
+  "pay_notify_url": "${payNotifyUrlBase}re_wx",
+  "pay_time_expire": 5
+}
+%END% 

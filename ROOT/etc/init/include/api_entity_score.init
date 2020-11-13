@@ -1,0 +1,26 @@
+#---------------------------------------------------------
+#
+#                    通用实体接口
+#                    打分(Score)
+#
+#---------------------------------------------------------
+# API: 打分·为指定对象打分
+@API'cross/json/auth' .regapi/api/entity/score/it
+%COPY:
+score it ${http-qs-ta?nil} ${http-www-me-id?anonymous} ${http-qs-n};
+obj id:${http-qs-ta?nil} -u 'score_c:`score count ${http-qs-ta?nil}`,score_v:`score avg ${http-qs-ta?nil}`'
+%END%
+#--------------------------------------------------------
+# API: 打分·取消指定对象打分
+@API'cross/json/auth' .regapi/api/entity/score/cancel
+%COPY:
+score cancel ${http-qs-ta?nil} ${http-www-me-id?anonymous} -quiet;
+obj id:${http-qs-ta?nil} -u 'score_c:`score count ${http-qs-ta?nil}`,score_v:`score avg ${http-qs-ta?nil}`'
+echo -1;
+%END%
+#--------------------------------------------------------
+# API: 打分·获取指定对象打分
+@API'cross/json/auth' .regapi/api/entity/score/get
+%COPY:
+score get ${http-qs-ta?nil} ${http-www-me-id?anonymous} -1
+%END%

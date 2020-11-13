@@ -1,0 +1,14 @@
+#---------------------------------------------------------
+#
+#                    支付宝
+#
+#---------------------------------------------------------
+@FILE .alipay/${zfbName}/alipayconf
+%TMPL:
+{
+  "seller_email" : "${zfbSellerEmail}",
+  "partner" : "${zfbPartner}",
+  "key" : "${zfbKey}",
+  "pay_notify_url": "${payNotifyUrlBase}re_zfb"
+}
+%END% 

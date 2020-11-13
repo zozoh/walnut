@@ -1,0 +1,15 @@
+##########################################################
+#
+#                    主目录和环境变量
+#
+##########################################################
+@HOME'${domainName}/<${domainIcon?fas-globe-asia}>'
+@ENV
+{
+  "OPEN" : "wn.manager",
+  "THEME" : "light",
+  "APP_PATH" : "/rs/ti/app:/app",
+  "VIEW_PATH" : "/mnt/project/${domain}/admin/view/:/rs/ti/view/",
+  "SIDEBAR_PATH" : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json",
+  "LOGIN" : "${domainLogin?}"
+}

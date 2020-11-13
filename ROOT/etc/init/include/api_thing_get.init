@@ -1,0 +1,18 @@
+#---------------------------------------------------------
+#
+#                    Thing 获取对象详情
+#
+#---------------------------------------------------------
+# API(thing): 数据集对象详情
+@API'cross/json' .regapi/api/thing/get
+%COPY:
+thing '~/${http-qs-ts}' get ${http-qs-id} \
+  -full -cqn -sha1 '${http-qs-sha1?thumb,poster}'
+%END%
+#---------------------------------------------------------
+# API(thing): 查询一个数据集对象详情
+@API'cross/json' .regapi/api/thing/getone
+%COPY:
+thing '~/${http-qs-ts}' getone '${http-qs-m<json>?-obj-}' \
+  -content -cqn -sha1 '${http-qs-sha1?thumb,poster}'
+%END%

@@ -1,0 +1,47 @@
+#---------------------------------------------------------
+#
+#                     支付相关接口
+#
+#---------------------------------------------------------
+# API : 支付:重新获取订单
+@API'cross/json/auth' .regapi/api/pay/order
+%TMPL:
+www order ~/www/${domain} -u '$${http-www-me-id}' '$${http-qs-id}' -cqn -ajax
+%END%
+#---------------------------------------------------------
+# API : 支付:创建订单和支付单
+@API'cross/json' .regapi/api/pay/buy
+%TMPL:
+cat id:$${id} | www buy ~/www/${domain} -mq sys -cqn -ajax -ticket "$${http-qs-ticket}"
+%END%
+#---------------------------------------------------------
+# API : 支付:取回订单，并确保有支付单
+@API'cross/json' .regapi/api/pay/pay
+%TMPL:
+www pay ~/www/${domain} $${http-qs-id?-nil-} $${http-qs-pt?} \
+  -cqn -ajax -ticket "$${http-qs-ticket}" $${http-qs-force<boolean:-force>?false}
+%END%
+#---------------------------------------------------------
+# API : 支付：检查支付结果
+@API'cross/json' .regapi/api/pay/check
+%TMPL:
+www paycheck ~/www/${domain} $${http-qs-id?-nil-} -cqn -ajax -ticket "$${http-qs-ticket}"
+%END%
+#---------------------------------------------------------
+# API : 支付:支付宝回调
+@FILE .regapi/api/pay/re_zfb
+%COPY:
+httpparam -in id:${id} | pay re -idkey out_trade_no -s
+%END%
+#---------------------------------------------------------
+# API : 支付:微信回调
+@FILE .regapi/api/pay/re_wx
+%COPY:
+xml tojson id:${id} | pay re -idkey out_trade_no -s
+%END%
+#---------------------------------------------------------
+# API : 支付:PayPal
+@FILE .regapi/api/pay/re_paypal
+%COPY:
+httpparam -in id:${id} | pay re -idkey out_trade_no -s
+%END%

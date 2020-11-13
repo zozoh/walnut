@@ -22,13 +22,17 @@ public class AppInitItem {
 
     private String content;
 
-    private NutMap tmplVars;
-
     private boolean contentAsTmpl;
 
     private boolean overrideContent;
 
     private String contentFilePath;
+
+    /**
+     * 链接内容文件时，无论是 TMPL 还是 COPY，如果定义了 vars<br>
+     * 都要提前过一道。
+     */
+    private NutMap contentFileVars;
 
     @Override
     public boolean equals(Object obj) {
@@ -441,29 +445,6 @@ public class AppInitItem {
         this.content = content;
     }
 
-    public boolean hasTmplVars() {
-        return null != tmplVars && !tmplVars.isEmpty();
-    }
-
-    public NutMap getTmplVars() {
-        return tmplVars;
-    }
-
-    public void setTmplVars(String json, NutBean vars) {
-        if (Strings.isBlank(json)) {
-            this.tmplVars = null;
-        } else {
-            if (null != vars) {
-                json = Tmpl.exec(json, vars);
-            }
-            this.tmplVars = Lang.map(json);
-        }
-    }
-
-    public void setTmplVars(NutMap tmplVars) {
-        this.tmplVars = tmplVars;
-    }
-
     public boolean isContentAsTmpl() {
         return contentAsTmpl;
     }
@@ -492,4 +473,26 @@ public class AppInitItem {
         this.contentFilePath = contentFilePath;
     }
 
+    public boolean hasContentFileVars() {
+        return null != contentFileVars;
+    }
+
+    public NutMap getContentFileVars() {
+        return contentFileVars;
+    }
+
+    public void setContentFileVars(String json, NutBean vars) {
+        if (Strings.isBlank(json)) {
+            this.contentFileVars = null;
+        } else {
+            if (null != vars) {
+                json = Tmpl.exec(json, vars);
+            }
+            this.contentFileVars = Lang.map(json);
+        }
+    }
+
+    public void setContentFileVars(NutMap tmplVars) {
+        this.contentFileVars = tmplVars;
+    }
 }

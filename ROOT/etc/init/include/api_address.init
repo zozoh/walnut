@@ -1,0 +1,37 @@
+#---------------------------------------------------------
+#
+#                收货地址 增删改查
+#
+#---------------------------------------------------------
+# API(thing): 收货地址·我的的默认地址
+@API'cross/json/auth' .regapi/api/address/mydft
+%COPY:
+thing ~/addresses getone 'uid:"${http-www-me-id}",dftaddr:true' -limit 1 -cqn
+%END%
+#---------------------------------------------------------
+# API(thing): 收货地址·我的
+@API'cross/json/auth' .regapi/api/address/mine
+%COPY:
+thing ~/addresses query 'uid:"${http-www-me-id}"' -sort 'dftaddr:-1' -cqnl
+%END%
+#---------------------------------------------------------
+# API(thing): 收货地址·新建
+@API'cross/json/auth' .regapi/api/address/create
+%COPY:
+httpparam -in id:${id} | thing ~/addresses create -fields \
+  -fixed 'uid:"${http-www-me-id}"' -cqn
+%END%
+#---------------------------------------------------------
+# API(thing): 数据集对象·修改
+@API'cross/json/auth' .regapi/api/address/update
+%COPY:
+httpparam -in id:${id} | thing ~/addresses update ${http-qs-id} \
+  -match 'uid:"${http-www-me-id}"' \
+  -fields -cqn
+%END%
+#---------------------------------------------------------
+# API(thing): 数据集对象·删除
+@API'cross/json/auth' .regapi/api/address/delete
+%COPY:
+thing ~/addresses delete ${http-qs-id} -hard -match 'uid:"${http-www-me-id}"' -cqn
+%END%

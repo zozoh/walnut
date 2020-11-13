@@ -1,0 +1,16 @@
+#---------------------------------------------------------
+#
+#                  Thing File 读取
+#
+#---------------------------------------------------------
+# API(thing): 读取数据文件夹某文件内容
+@API'cross/json' .regapi/api/thing/file/read
+%COPY:
+thing '~/${http-qs-ts}' file ${http-qs-id} \
+    -dir '${http-qs-d?}' \
+    -cat '${http-qs-fnm}' \
+    -etag  '${http-header-IF-NONE-MATCH?none}' \
+    -range '${http-header-RANGE?}' \
+    -download '${http-qs-d<boolean>?false}' \
+    -UserAgent '${http-header-USER-AGENT?}'
+%END%

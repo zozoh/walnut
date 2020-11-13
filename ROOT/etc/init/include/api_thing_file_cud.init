@@ -1,0 +1,27 @@
+#---------------------------------------------------------
+#
+#                     Thing 增删改
+#
+#---------------------------------------------------------
+# API(thing): 数据集对象·新建
+@API'cross/json/auth' .regapi/api/thing/create
+{
+  "http-body": "json",
+  "http-post-json-merge": [{
+    test   : {"http-qs-ts": "^(comments)$"},
+    update : {
+      "uid": "=http-www-me-id",
+      "unm": "=http-www-me-nickname",
+      "avatar": "=http-www-me-thumb"
+    }
+  }]
+}
+%COPY:
+cat id:${id} | thing '~/${http-qs-ts}' create -fields -cqn
+%END%
+#---------------------------------------------------------
+# API(thing): 数据集对象·修改
+@API'cross/json/auth' .regapi/api/thing/update
+%COPY:
+cat id:${id} | thing '~/${http-qs-ts}' update ${http-qs-id} -fields -cqn
+%END%

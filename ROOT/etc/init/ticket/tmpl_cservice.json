@@ -1,8 +1,0 @@
-{
-  usrAlias: "客服",
-  serviceTp: "cservice",
-  notiWalnut: true,
-  notiEmail: false,
-  notiSms: false,
-  notiWeixin: false
-}

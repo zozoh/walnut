@@ -1,0 +1,31 @@
+#---------------------------------------------------------
+#
+#                    通用实体接口
+#                    购物车(buy)
+#
+#---------------------------------------------------------
+# API: 购物车： 购买/取消商品
+@API'cross/json/auth' .regapi/api/entity/buy/it
+%COPY:
+buy it ${http-www-me-id?anonymous} '${http-qs-id?nil}' \
+  ${http-qs-n?1} ${http-qs-r<boolean:-reset>?} -quiet;
+buy all ${http-www-me-id?anonymous} -obj -ajax -cqn;
+%END%
+#--------------------------------------------------------
+# API: 购物车：删除商品
+@API'cross/json/auth' .regapi/api/entity/buy/rm
+%COPY:
+buy rm ${http-www-me-id?anonymous} '${http-qs-ids?nil}' -ajax -cqn
+%END%
+#--------------------------------------------------------
+# API: 购物车：获取全部商品
+@API'cross/json/auth' .regapi/api/entity/buy/all
+%COPY:
+buy all ${http-www-me-id?anonymous} -obj -ajax -cqn
+%END%
+#--------------------------------------------------------
+# API: 购物车：清空
+@API'cross/json/auth' .regapi/api/entity/buy/clean
+%COPY:
+buy clean ${http-www-me-id?anonymous} -ajax -cqn
+%END%
