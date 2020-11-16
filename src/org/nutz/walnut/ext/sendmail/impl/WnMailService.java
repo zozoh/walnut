@@ -106,10 +106,12 @@ public class WnMailService implements WnMailApi {
                 if (null != text) {
                     mail.setContent(text);
                 }
-                if (oTmpl.isMime("text/html") || oTmpl.isType("html") || oTmpl.getBoolean("asHtml")) {
+                if (oTmpl.isMime("text/html")
+                    || oTmpl.isType("html")
+                    || oTmpl.getBoolean("asHtml")) {
                     mail.setAsHtml(true);
                 }
-                if(!mail.hasCharset() && oTmpl.has("charset")) {
+                if (!mail.hasCharset() && oTmpl.has("charset")) {
                     mail.setCharset(oTmpl.getString("charset"));
                 }
             }
@@ -139,10 +141,20 @@ public class WnMailService implements WnMailApi {
 
         // 准备发送资料
         mo.setHostName(config.getSmtpHost());
-        mo.setSmtpPort(config.getSmtpPort());
         mo.setAuthentication(config.getAccount(), config.getPassword());
         mo.setFrom(config.getAccount(), config.getAlias());
         mo.setCharset(mail.getCharset());
+        mo.setSSLOnConnect(config.isSsl());
+        // SSL
+        if (config.isSsl()) {
+            mo.setSslSmtpPort(config.getSmtpPort() + "");
+            mo.setSSLOnConnect(true);
+        }
+        // 非 SSL
+        else {
+            mo.setSmtpPort(config.getSmtpPort());
+            mo.setSSLOnConnect(false);
+        }
 
         // 邮件标题
         if (mail.hasSubject()) {
