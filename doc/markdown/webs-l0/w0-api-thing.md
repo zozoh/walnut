@@ -1,6 +1,7 @@
 ---
 title: 接口·通用数据集
 author: zozohtnt@gmail.com
+key: w0-api-thing
 ---
 
 --------------------------------------

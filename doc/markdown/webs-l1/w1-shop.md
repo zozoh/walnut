@@ -1,6 +1,7 @@
 ---
 title: 商城模型
 author: zozohtnt@gmail.com
+key: w1-shop
 ---
 
 --------------------------------------

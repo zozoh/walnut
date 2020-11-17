@@ -1,9 +1,7 @@
 ---
 title: 通用锁服务
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
+key: c0-lock
 ---
 
 --------------------------------------

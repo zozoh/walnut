@@ -1,6 +1,7 @@
 ---
 title: 接口·账户权鉴
 author: zozohtnt@gmail.com
+key: w0-api-auth
 ---
 
 --------------------------------------

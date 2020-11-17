@@ -1,6 +1,7 @@
 ---
 title: 域站点模型
 author: zozohtnt@gmail.com
+key: w0-site
 ---
 
 --------------------------------------

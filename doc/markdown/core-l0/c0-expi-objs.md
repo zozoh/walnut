@@ -1,9 +1,7 @@
 ---
 title: 对象过期机制
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
+key: c0-expi
 ---
 
 --------------------------------------

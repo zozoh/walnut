@@ -1,6 +1,7 @@
 ---
-title: 全局基础接口
+title: 接口·全局基础
 author: zozohtnt@gmail.com
+key: w0-api-base
 ---
 
 --------------------------------------

@@ -1,6 +1,7 @@
 ---
 title: 微信整合·通知
 author: zozoh
+key: f0-wxnti
 ---
 
 # 配置文件结构

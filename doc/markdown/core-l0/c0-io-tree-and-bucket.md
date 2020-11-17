@@ -1,10 +1,7 @@
 ---
 title: 数据存储模型
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
-- IO
+key: c0-tab
 ---
 
 ------------------------------------------

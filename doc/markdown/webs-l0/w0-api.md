@@ -1,6 +1,7 @@
 ---
 title: 域站点接口概览
 author: zozohtnt@gmail.com
+key: w0-api
 ---
 
 # 全局·基础

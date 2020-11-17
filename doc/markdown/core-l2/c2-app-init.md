@@ -1,6 +1,7 @@
 ---
 title: 域应用初始化
 author: zozohtnt@gmail.com
+key: c2-init
 ---
 
 # 模板目录的结构如下:

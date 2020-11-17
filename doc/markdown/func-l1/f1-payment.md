@@ -1,9 +1,7 @@
 ---
 title: 通用支付模型
 author: zozohtnt@gmail.com
-tags:
-- 功能扩展
-- 支付
+key: f1-pay
 ---
 
 --------------------------------------

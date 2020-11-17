@@ -1,6 +1,7 @@
 ---
 title: HTTP注册接口
 author: zozohtnt@gmail.com
+key: c1-api
 ---
 
 --------------------------------------

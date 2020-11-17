@@ -1,10 +1,7 @@
 ---
 title: 动态校验语法
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
-- 权限
+key: c2-sxm
 ---
 
 --------------------------------------

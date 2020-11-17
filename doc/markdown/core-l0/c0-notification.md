@@ -1,9 +1,7 @@
 ---
 title: 队列通知机制
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
+key: c0-noti
 ---
 
 --------------------------------------
@@ -82,8 +80,14 @@ user : "demo"
 # 在 HTTPAPI　中，采用　mq send 则自然会将消息带上这个密钥
 #
 secret : "XXXXXXXXXXX.."
+#
 # 消息体就是一个字符串
+#
 body : "echo  'hello' > ~/abc.txt"
+#
+# 消息体还可以带一个输入数据，尤其适合做命令的标准输入
+#
+data : "xxxx"
 ```
 
 ## TEXT
@@ -97,6 +101,15 @@ body : "echo  'hello' > ~/abc.txt"
 # 连续两个空格以后，为 body 的内容
 #
 echo 'hello' > ~/abc.txt
+#
+# 继续两个空格后，为 data 段的内容
+# 因此，这个结构要求，消息体内不能出现空行
+# 如果想让 data 段为二进制代码，则需要采用
+# BASE64 编码
+#
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 --------------------------------------

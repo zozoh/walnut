@@ -1,6 +1,7 @@
 ---
 title: 采用域用户登录系统
 author: zozohtnt@gmail.com
+key: c0-abd
 ---
 
 --------------------------------------

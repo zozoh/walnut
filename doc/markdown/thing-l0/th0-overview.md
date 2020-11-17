@@ -1,6 +1,7 @@
 ---
 title: Thing·概述
 author: zozohtnt@gmail.com
+key: th0-ovw
 ---
 
 --------------------------------------

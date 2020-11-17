@@ -1,6 +1,7 @@
 ---
 title: Thing·配置文件详解
 author: zozohtnt@gmail.com
+key: th0-thjs
 ---
 
 --------------------------------------

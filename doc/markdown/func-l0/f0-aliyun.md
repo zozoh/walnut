@@ -1,6 +1,7 @@
 ---
 title: 阿里云整合
 author: zozoh
+key: f0-aliyun
 ---
 
 # 域配置信息

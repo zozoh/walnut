@@ -1,6 +1,7 @@
 ---
-title: 实体·收藏夹接口
+title: 接口·实体·收藏夹
 author: zozohtnt@gmail.com
+key: w0-api-en-fav
 ---
 
 --------------------------------------

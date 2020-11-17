@@ -1,6 +1,7 @@
 ---
 title: Thing·数据结构
 author: zozohtnt@gmail.com
+key: th0-data
 ---
 
 --------------------------------------

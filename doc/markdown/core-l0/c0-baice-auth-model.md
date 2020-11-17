@@ -1,6 +1,7 @@
 ---
 title: 基础账户授权模型
 author: zozohtnt@gmail.com
+key: c0-bam
 ---
 
 --------------------------------------

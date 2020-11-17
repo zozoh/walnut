@@ -1,10 +1,7 @@
 ---
 title: 基础权限模型
 author: zozohtnt@gmail.com
-tags:
-- 概念
-- 基础
-- 权限
+key: c0-pvg
 ---
 
 --------------------------------------
