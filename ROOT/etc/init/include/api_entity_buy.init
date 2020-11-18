@@ -5,7 +5,7 @@
 #
 #---------------------------------------------------------
 # API: 购物车： 购买/取消商品
-@API'cross/json/auth' .regapi/api/entity/buy/it
+@API .regapi/api/entity/buy/it 'cross/json/auth'
 %COPY:
 buy it ${http-www-me-id?anonymous} '${http-qs-id?nil}' \
   ${http-qs-n?1} ${http-qs-r<boolean:-reset>?} -quiet;
@@ -13,19 +13,19 @@ buy all ${http-www-me-id?anonymous} -obj -ajax -cqn;
 %END%
 #--------------------------------------------------------
 # API: 购物车：删除商品
-@API'cross/json/auth' .regapi/api/entity/buy/rm
+@API .regapi/api/entity/buy/rm 'cross/json/auth'
 %COPY:
 buy rm ${http-www-me-id?anonymous} '${http-qs-ids?nil}' -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API: 购物车：获取全部商品
-@API'cross/json/auth' .regapi/api/entity/buy/all
+@API .regapi/api/entity/buy/all 'cross/json/auth'
 %COPY:
 buy all ${http-www-me-id?anonymous} -obj -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API: 购物车：清空
-@API'cross/json/auth' .regapi/api/entity/buy/clean
+@API .regapi/api/entity/buy/clean 'cross/json/auth'
 %COPY:
 buy clean ${http-www-me-id?anonymous} -ajax -cqn
 %END%

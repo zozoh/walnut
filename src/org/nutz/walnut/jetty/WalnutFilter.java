@@ -25,7 +25,6 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.quota.QuotaService;
 import org.nutz.walnut.util.Wn;
@@ -120,13 +119,7 @@ public class WalnutFilter implements Filter {
 
             // 首先试图找到对应的映射记录
             if (null != oDmnHome) {
-                WnQuery q = Wn.Q.pid(oDmnHome);
-                q.setv("dmn_host", host);
-                // q.setv("dmn_expi", "[" + Wn.now() + ",]");
-                if (log.isDebugEnabled()) {
-                    log.debugf(" - query: %s", q.toString());
-                }
-                oDmn = io.getOne(q);
+                oDmn = io.fetch(oDmnHome, host);
             }
 
             // 找不到记录，全当没有
@@ -139,7 +132,9 @@ public class WalnutFilter implements Filter {
             }
 
             // 找到了记录，但是过期了，显示错误页
-            if (oDmn.isExpired() || oDmn.getLong("dmn_expi", 0) < Wn.now()) {
+            // !!! 这里，如果记录没有声明 expi_at，则表示无限期有效
+            long expiAt = oDmn.getLong("expi_at", 0);
+            if (expiAt > 0 && expiAt < Wn.now()) {
                 Mvcs.updateRequestAttributes(req);
                 req.setAttribute("obj", Lang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");
@@ -150,10 +145,13 @@ public class WalnutFilter implements Filter {
                 return;
             }
 
-            String grp = oDmn.getString("dmn_grp");
-            String siteName = oDmn.getString("dmn_site");
+            // TODO 这里稍微兼容一下，过俩月找时间去掉这个 fallback
+            Object domain = oDmn.getFallback("domain", "dmn_grp");
+            Object siteName = oDmn.getFallback("site", "dmn_site");
+            String grp = Strings.sBlank(domain);
 
             // 找到了记录，但是记录明确说，本次跳转，并不是 www 的跳转
+            // 因此仅仅需要将记录里的  grp 和 site 等信息记录一下，就继续其他的处理器好了
             if (oDmn.isType("B")) {
                 req.setAttribute("wn_www_grp", grp);
                 req.setAttribute("wn_www_site", siteName);

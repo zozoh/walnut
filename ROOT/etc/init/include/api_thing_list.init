@@ -4,7 +4,7 @@
 #
 #---------------------------------------------------------
 # API(thing): 数据集整体列表
-@API'cross/json' .regapi/api/thing/list
+@API .regapi/api/thing/list 'cross/json'
 {
    "cache-test" : "=ThingQueryCacheTest",
    "cache-redirect" : "=ThingQueryCacheRedirect"

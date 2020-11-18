@@ -313,7 +313,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     /**
      * 有时候链接文件，需要修改这个文件的父，以便呈现链接后的目录
      */
-    private WnObj _parent;
+    WnObj _parent;
 
     @Override
     public void setParent(WnObj parent) {

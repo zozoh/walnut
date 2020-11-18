@@ -4,7 +4,7 @@
 #
 #---------------------------------------------------------
 # API(thing): 数据集对象·新建
-@API'cross/json/auth' .regapi/api/thing/create
+@API .regapi/api/thing/create 'cross/json/auth'
 {
   "http-body": "json",
   "http-post-json-merge": [{
@@ -21,7 +21,7 @@ cat id:${id} | thing '~/${http-qs-ts}' create -fields -cqn
 %END%
 #---------------------------------------------------------
 # API(thing): 数据集对象·修改
-@API'cross/json/auth' .regapi/api/thing/update
+@API .regapi/api/thing/update 'cross/json/auth'
 %COPY:
 cat id:${id} | thing '~/${http-qs-ts}' update ${http-qs-id} -fields -cqn
 %END%

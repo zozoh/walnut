@@ -5,13 +5,13 @@
 #
 #---------------------------------------------------------
 # API: 收藏：获取收藏信息
-@API'cross/json/auth' .regapi/api/entity/favor/when
+@API .regapi/api/entity/favor/when 'cross/json/auth'
 %COPY:
 favor when '${http-qs-c?vod:}${http-www-me-id?anonymous}' ${http-qs-ids} -dv nil -ms -json -cq
 %END%
 #--------------------------------------------------------
 # API: 收藏：获取全部
-@API'cross/json/auth' .regapi/api/entity/favor/all
+@API .regapi/api/entity/favor/all 'cross/json/auth'
 %COPY:
 favor all '${http-qs-c?vod:}${http-www-me-id?anonymous}' \
   -limit ${http-qs-limit?100} \
@@ -20,13 +20,13 @@ favor all '${http-qs-c?vod:}${http-www-me-id?anonymous}' \
 %END%
 #--------------------------------------------------------
 # API: 收藏：获取数量
-@API'cross/json/auth' .regapi/api/entity/favor/count
+@API .regapi/api/entity/favor/count 'cross/json/auth'
 %COPY:
 favor count '${http-qs-c?vod:}${http-www-me-id?anonymous}' -json -cqn
 %END%
 #--------------------------------------------------------
 # API: 收藏：收藏（或者取消）一个对象
-@API'cross/json/auth' .regapi/api/entity/favor/it
+@API .regapi/api/entity/favor/it 'cross/json/auth'
 {
    "preload" : "=EntityFavorItPreload",
    "histest" : "=EntityFavorItHisTest",

@@ -143,14 +143,14 @@ public class AppInitItem {
             sb.append(type.toString());
         }
 
-        // 属性
-        if (this.hasProperties()) {
-            sb.append(Json.toJson(properties, JsonFormat.compact().setQuoteName(false)));
-        }
-
         // 路径
         if (this.hasPath()) {
             sb.append(' ').append(path);
+        }
+
+        // 属性
+        if (this.hasProperties()) {
+            sb.append(Json.toJson(properties, JsonFormat.compact().setQuoteName(false)));
         }
 
         // 链接路径

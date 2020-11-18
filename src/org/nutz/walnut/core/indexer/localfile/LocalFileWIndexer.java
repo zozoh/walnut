@@ -24,13 +24,16 @@ public class LocalFileWIndexer extends LocalFileIndexer {
             throw Er.create("e.io.exists", path);
         }
         try {
-            Files.createNewFile(f);
+            if (WnRace.DIR == race) {
+                Files.makeDir(f);
+            } else {
+                Files.createNewFile(f);
+            }
             return this._gen_file_obj(p, f);
         }
         catch (IOException e) {
             throw Er.wrap(e);
         }
-
     }
 
     @Override
@@ -43,6 +46,11 @@ public class LocalFileWIndexer extends LocalFileIndexer {
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
         return create(p, name, race);
+    }
+
+    @Override
+    public WnObj create(WnObj p, WnObj o) {
+        return create(p, o.name(), o.race());
     }
 
     @Override
@@ -61,7 +69,30 @@ public class LocalFileWIndexer extends LocalFileIndexer {
                 Files.deleteFile(f);
             }
         }
+    }
 
+    @Override
+    public WnObj rename(WnObj o, String nm) {
+        return rename(o, nm, false);
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, boolean keepType) {
+        File f = this._check_file_by(o);
+        // 如果要保持类型的话，就仅仅改主名
+        if (keepType && o.hasType()) {
+            String nwName = Files.getMajorName(nm);
+            String fType = o.type();
+            nm = nwName + "." + fType;
+        }
+        // 执行改名
+        Files.rename(f, nm);
+        return new WnLocalFileObj(root, dHome, f, mimes);
+    }
+
+    @Override
+    public WnObj rename(WnObj o, String nm, int mode) {
+        return rename(o, nm, false);
     }
 
 }

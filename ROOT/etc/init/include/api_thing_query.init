@@ -4,7 +4,7 @@
 #
 #---------------------------------------------------------
 # API(thing): 数据集列表
-@API'cross/json' .regapi/api/thing/query
+@API .regapi/api/thing/query 'cross/json'
 {
    "cache-test" : "=ThingQueryCacheTest"
 }

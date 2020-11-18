@@ -4,26 +4,26 @@
 #
 #---------------------------------------------------------
 # API(thing): 收货地址·我的的默认地址
-@API'cross/json/auth' .regapi/api/address/mydft
+@API .regapi/api/address/mydft 'cross/json/auth'
 %COPY:
 thing ~/addresses getone 'uid:"${http-www-me-id}",dftaddr:true' -limit 1 -cqn
 %END%
 #---------------------------------------------------------
 # API(thing): 收货地址·我的
-@API'cross/json/auth' .regapi/api/address/mine
+@API .regapi/api/address/mine 'cross/json/auth'
 %COPY:
 thing ~/addresses query 'uid:"${http-www-me-id}"' -sort 'dftaddr:-1' -cqnl
 %END%
 #---------------------------------------------------------
 # API(thing): 收货地址·新建
-@API'cross/json/auth' .regapi/api/address/create
+@API .regapi/api/address/create 'cross/json/auth'
 %COPY:
 httpparam -in id:${id} | thing ~/addresses create -fields \
   -fixed 'uid:"${http-www-me-id}"' -cqn
 %END%
 #---------------------------------------------------------
 # API(thing): 数据集对象·修改
-@API'cross/json/auth' .regapi/api/address/update
+@API .regapi/api/address/update 'cross/json/auth'
 %COPY:
 httpparam -in id:${id} | thing ~/addresses update ${http-qs-id} \
   -match 'uid:"${http-www-me-id}"' \
@@ -31,7 +31,7 @@ httpparam -in id:${id} | thing ~/addresses update ${http-qs-id} \
 %END%
 #---------------------------------------------------------
 # API(thing): 数据集对象·删除
-@API'cross/json/auth' .regapi/api/address/delete
+@API .regapi/api/address/delete 'cross/json/auth'
 %COPY:
 thing ~/addresses delete ${http-qs-id} -hard -match 'uid:"${http-www-me-id}"' -cqn
 %END%

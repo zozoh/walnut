@@ -4,13 +4,13 @@
 #
 #--------------------------------------------------------
 # API(OBJ): 获取多个指定对象元数据
-@API'cross/json' .regapi/api/objs
+@API .regapi/api/objs 'cross/json'
 %COPY:
 obj ${http-qs-phs} -cqnl 2>&1 | ajaxre -cqn
 %END%
 #--------------------------------------------------------
 # API(thing): 直接读取内容
-@API'cross/json' .regapi/api/read
+@API .regapi/api/read 'cross/json'
 %COPY:
 httpout -body 'sha1:${http-qs-f}' \
   -mime  '${http-qs-mime?}' \
@@ -20,7 +20,7 @@ httpout -body 'sha1:${http-qs-f}' \
 %END%
 #--------------------------------------------------------
 # API(thing): 缩略图
-@API'cross/json' .regapi/api/media
+@API .regapi/api/media 'cross/json'
 %COPY:
 httpout -body ${http-qs} \
   -etag  '${http-header-IF-NONE-MATCH?none}' \
@@ -28,7 +28,7 @@ httpout -body ${http-qs} \
 %END%
 #--------------------------------------------------------
 # API: 根据对象ID获取其缩略图
-@API'cross/json' .regapi/api/thumb
+@API .regapi/api/thumb 'cross/json'
 %COPY:
 httpout -body `obj "${http-qs}" -e "^(thumb)$" -V` \
   -etag  '${http-header-IF-NONE-MATCH?none}' \

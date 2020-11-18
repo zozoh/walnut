@@ -44,7 +44,7 @@ www payafter ${or_id} -site ~/www/onchina -basket
 # `@THING`文件
 #
 #-------------------------------------
-@THING{title:'i18n:oc-tour-posts', icon:'fab-pagelines'} accounts -> /mnt/project/demo/thing/accounts
+@THING accounts {title:'i18n:oc-tour-posts', icon:'fab-pagelines'} -> /mnt/project/demo/thing/accounts
 {
   th_auto_select: false
 }
@@ -53,5 +53,5 @@ www payafter ${or_id} -site ~/www/onchina -basket
 # `@API`接口
 #
 #-------------------------------------
-@API{cross:true,mime:"text/json"} auth/login_by_wxcode
+@API auth/login_by_wxcode {cross:true,mime:"text/json"}
 %COPY> /mnt/prject/${domain}/regapi/auth/login_by_wxcode

@@ -49,6 +49,8 @@ public class LocalFileIndexerTest extends IoCoreTest {
 
         WnObj b = indexer.fetch(null, "a/b");
         b.setParent(p);
+        assertEquals("/x/y/b", b.path());
+        
         WnObj d = indexer.fetch(b, "c/d.txt");
 
         assertEquals("/x/y/b/c/d.txt", d.path());

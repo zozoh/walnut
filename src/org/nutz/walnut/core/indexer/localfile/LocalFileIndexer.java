@@ -103,17 +103,28 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             throw Er.create("e.io.localFile.OutOfHome", path);
         }
         f2 = new File(fph);
-        // 为了保险起见，重新生成一遍父对象
-        WnObj p2;
-        File fP = f2.getParentFile();
-        if (fP.equals(this.dHome)) {
-            p2 = this.root;
-        } else {
-            p2 = new WnLocalFileObj(this.root, dHome, fP, mimes);
-        }
-
-        // 放心大胆的生成新文件对象吧
-        return _gen_file_obj(p2, f2);
+        return _gen_file_obj(p, f2);
+        // //
+        // // 为了保险起见，重新生成一遍父对象
+        // // zozoh@20201118: 我也忘记了为啥要这么搞，好像是某个 case
+        // // 以后遇到了要标注一下，NND，真是萝卜快了不洗泥啊！
+        // WnObj p2;
+        // File fP = f2.getParentFile();
+        // if (fP.equals(this.dHome)) {
+        // p2 = this.root;
+        // } else {
+        // p2 = new WnLocalFileObj(this.root, dHome, fP, mimes);
+        // // 如果原来的父有个 parent, 为了保持原来的路径，还是要设置一下
+        // if ((p instanceof WnLocalFileObj)) {
+        // WnLocalFileObj lp = (WnLocalFileObj) p;
+        // if (null != lp._parent) {
+        // p2.setParent(lp._parent);
+        // }
+        // }
+        // }
+        //
+        // // 放心大胆的生成新文件对象吧
+        // return _gen_file_obj(p2, f2);
     }
 
     @Override
@@ -201,6 +212,26 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     @Override
     public void set(WnObj o, String regex) {}
 
+    @Override
+    public WnObj setBy(String id, NutBean map, boolean returnNew) {
+        return this.get(id);
+    }
+
+    @Override
+    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
+        throw Lang.noImplement();
+    }
+
+    @Override
+    public int inc(String id, String key, int val, boolean returnNew) {
+        return val;
+    }
+
+    @Override
+    public int inc(WnQuery q, String key, int val, boolean returnNew) {
+        return val;
+    }
+
     //
     // 下面的都暂时不实现
     //
@@ -231,43 +262,23 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public WnObj setBy(String id, NutBean map, boolean returnNew) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public int inc(String id, String key, int val, boolean returnNew) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public int inc(WnQuery q, String key, int val, boolean returnNew) {
-        throw Lang.noImplement();
-    }
-
-    @Override
     public int getInt(String id, String key, int dft) {
-        throw Lang.noImplement();
+        return dft;
     }
 
     @Override
     public long getLong(String id, String key, long dft) {
-        throw Lang.noImplement();
+        return dft;
     }
 
     @Override
     public String getString(String id, String key, String dft) {
-        throw Lang.noImplement();
+        return dft;
     }
 
     @Override
     public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
-        throw Lang.noImplement();
+        return dft;
     }
 
     @Override

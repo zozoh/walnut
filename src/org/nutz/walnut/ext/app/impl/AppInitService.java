@@ -69,9 +69,9 @@ public class AppInitService {
     }
 
     private static final String REGEX = "^@(\\w+)\\s*"
+                                        + "([^\\s]+)?\\s*"
                                         + "('([^']*)')?\\s*"
                                         + "(\\{[^}]*\\})?\\s*"
-                                        + "([^\\s]+)?\\s*"
                                         + "(->\\s*(.+)\\s*)?$";
 
     private static final Pattern _P0 = Regex.getPattern(REGEX);
@@ -89,25 +89,24 @@ public class AppInitService {
 
         /**
          * <pre>
-         * ------------------------------------------------------------
-         * 匹配 '@API'i18n:xxx/<fas-xxx>/cross/json'{x:100,y50} \
-         *              ~/a/b/c.txt -> /mnt/abc/xx.txt'
-         * ------------------------------------------------------------
-         * 0/81  Regin:0/81
-         * 0:[  0, 81) @API'i18n:xxx/<fas-xxx>/cros...mnt/abc/xx.txt
-         * 1:[  1,  4) API
-         * 2:[  4, 39) 'i18n:xxx/<fas-xxx>/cross/json'
-         * 3:[  5, 38) i18n:xxx/<fas-xxx>/cross/json
-         * 4:[ 39, 50) {x:100,y50}
-         * 5:[ 51, 62) ~/a/b/c.txt
-         * 6:[ 63, 81) -> /mnt/abc/xx.txt
-         * 7:[ 66, 81) /mnt/abc/xx.txt
+          * ------------------------------------------------------------
+        * 匹配 '@API ~/a/b/c.txt 'i18n:xxx/<fas-xxx>/cross/respJson'{x:100,y50} -> /mnt/abc/xx.txt'
+        * ------------------------------------------------------------
+        * 0/82  Regin:0/82
+        *  0:[  0, 82) @API ~/a/b/c.txt 'i18n:xxx/<fas-xxx>/cross/respJson'{x:100,y50} -> /mnt/abc/xx.txt
+        *  1:[  1,  4) API
+        *  2:[  5, 16) ~/a/b/c.txt
+        *  3:[ 17, 52) 'i18n:xxx/<fas-xxx>/cross/respJson'
+        *  4:[ 18, 51) i18n:xxx/<fas-xxx>/cross/respJson
+        *  5:[ 52, 63) {x:100,y50}
+        *  6:[ 64, 82) -> /mnt/abc/xx.txt
+        *  7:[ 67, 82) /mnt/abc/xx.txt
          * </pre>
          */
         item.setType(m.group(1));
-        item.setProperties(m.group(4), vars);
-        item.addQuickMeta(m.group(3), vars);
-        item.setPath(m.group(5), vars);
+        item.setPath(m.group(2), vars);
+        item.addQuickMeta(m.group(4), vars);
+        item.setProperties(m.group(5), vars);
         item.setLinkPath(m.group(7), vars);
 
         // 准备收集元数据

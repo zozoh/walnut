@@ -18,12 +18,14 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Attr;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
@@ -94,6 +96,8 @@ public class WWWModule extends AbstractWnModule {
                           @ReqHeader("User-Agent") String ua,
                           @ReqHeader("If-None-Match") String etag,
                           @ReqHeader("Range") String range,
+                          @Attr("wn_www_host") String host,
+                          @Attr("wn_www_site") String sitePath,
                           HttpServletRequest req,
                           HttpServletResponse resp) {
         // 如果有的话，去掉开头的绝对路径符
@@ -124,26 +128,36 @@ public class WWWModule extends AbstractWnModule {
         // ..............................................
         // 准备起始查询条件: 要找 www 的目录，复制给 oROOT
         WnObj oWWW = null;
-        WnQuery q = new WnQuery();
-        q.setv("d0", oHome.d0());
-        if (!"root".equals(usr))
-            q.setv("d1", oHome.d1());
 
-        if (log.isDebugEnabled())
-            log.debugf(" - www:query: %s", q.toString());
-
-        // 请求里带了 host 了吗
-        Object host = req.getAttribute("wn_www_host");
-        if (null != host && !"localhost".equals(host) && !"127.0.0.1".equals(host)) {
-            q.setv("www", host.toString());
-            oWWW = io().getOne(q);
+        // 如果指定了 site， 直接使用
+        if (!Strings.isBlank(sitePath)) {
+            NutBean vars = Lang.map("HOME", homePath).setv("PWD", homePath);
+            String aphSite = Wn.normalizeFullPath(sitePath, vars);
+            oWWW = io().check(null, aphSite);
         }
-        if (log.isDebugEnabled())
-            log.debugf(" - www:regHost: %s -> %s", host, oWWW);
 
-        // 实在找不到用 www 目录
+        // 试图查找（这可能是一个稍微耗时的操作）
         if (null == oWWW) {
-            oWWW = io().getOne(q.setv("www", "ROOT"));
+            WnQuery q = new WnQuery();
+            q.setv("d0", oHome.d0());
+            if (!"root".equals(usr))
+                q.setv("d1", oHome.d1());
+
+            if (log.isDebugEnabled())
+                log.debugf(" - www:query: %s", q.toString());
+
+            // 请求里带了 host 了吗
+            if (null != host && !"localhost".equals(host) && !"127.0.0.1".equals(host)) {
+                q.setv("www", host.toString());
+                oWWW = io().getOne(q);
+            }
+            if (log.isDebugEnabled())
+                log.debugf(" - www:regHost: %s -> %s", host, oWWW);
+
+            // 实在找不到用 www 目录
+            if (null == oWWW) {
+                oWWW = io().getOne(q.setv("www", "ROOT"));
+            }
         }
 
         if (log.isDebugEnabled())
