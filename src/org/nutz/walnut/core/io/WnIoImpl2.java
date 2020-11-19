@@ -696,10 +696,14 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+        final WnContext wc = Wn.WC();
         // 默认从自己的根开始
         if (null == p) {
             p = this.getRoot();
         }
+
+        // 判断可进入
+        p = wc.whenEnter(p, false);
 
         // ................................................
         // 尝试从后查找，如果有 id:xxx 那么就截断，因为前面的就木有意义了
@@ -717,7 +721,6 @@ public class WnIoImpl2 implements WnIo {
         // 准备创建
         final int rightIndex = toIndex - 1;
         final WnObj p0 = p;
-        final WnContext wc = Wn.WC();
         final WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
 
         // 已经是映射了
@@ -763,10 +766,18 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
+        final WnContext wc = Wn.WC();
         // null 表示从根路径开始
         if (null == p) {
             p = mappings.getRoot();
         }
+
+        // 判断可进入
+        p = wc.whenEnter(p, false);
+
+        // 判断可写
+        p = wc.whenWrite(p, false);
+
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
         WnObj o = indexer.createById(p, id, name, race);
@@ -779,10 +790,17 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj create(WnObj p, WnObj o) {
+        final WnContext wc = Wn.WC();
         // 首先父不能为空
         if (null == p) {
             p = this.getRoot();
         }
+
+        // 判断可进入
+        p = wc.whenEnter(p, false);
+
+        // 判断可写
+        p = wc.whenWrite(p, false);
 
         // 确保自己是父的子
         o.setParent(p);

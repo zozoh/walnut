@@ -19,6 +19,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.IoCoreTest;
@@ -26,9 +27,11 @@ import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnReferApi;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.bean.WnObjIdTest;
 import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
+import org.nutz.walnut.core.indexer.localfile.WnLocalFileObj;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
@@ -42,6 +45,100 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     protected WnIo io;
     protected WnReferApi refers;
     protected WnIoHandleManager handles;
+
+    /**
+     * 删除一个 filew 映射的文件
+     * 
+     * <pre>
+     * /mnt/dir  ::=>  local_home::/a
+     * |-- b/
+     *     |-- c/
+     *         |-- xyz.txt
+     * 然后
+     * /home/demo/dir ->  /mnt/dir/b/c
+     * 
+     * 那么自然通过 "/home/demo/dir/xyz.txt" 可以得到文件，并可读写
+     * 可以 each 下面的内容
+     * 删除的话，也能删除
+     * 也可以创建一个新的（即使重新获取父的话）
+     * </pre>
+     */
+    @Test
+    public void test_create_and_remove_filew_mount_file() {
+        // 准备一个本地目录
+        File dHome = setup.getLocalFileHome();
+        File f = Files.getFile(dHome, "a/b/c/xyz.txt");
+        Files.createFileIfNoExists(f);
+        File dMntHome = Files.getFile(dHome, "a");
+        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+
+        // 建立映射目录
+        WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
+        io.setMount(oMntDir, "filew://" + phMntHome);
+
+        // 建立链接目录
+        WnObj oLnkDir = io.create(null, "/home/demo/dir", WnRace.DIR);
+        io.appendMeta(oLnkDir, Lang.map("ln", "/mnt/dir/b/c/"));
+
+        // 那么自然通过 "/home/demo/dir/xyz.txt" 可以得到文件，并可读写
+        WnObj o = io.fetch(null, "/home/demo/dir/xyz.txt");
+        assertEquals("xyz.txt", o.name());
+
+        // 写
+        io.writeText(o, "hello");
+        String text = Files.read(f);
+        assertEquals("hello", text);
+
+        Files.write(f, "world");
+        text = io.readText(o);
+        assertEquals("world", text);
+
+        // 可以 each
+        WnEvalLink wnEvalLink = new WnEvalLink(io);
+        WnObj oP = io.fetch(null, "/home/demo/dir");
+        oP = wnEvalLink.enter(oP, false);
+
+        WnQuery q = Wn.Q.pid(oP);
+        List<WnObj> list = io.query(q);
+        assertEquals(1, list.size());
+        assertEquals("xyz.txt", list.get(0).name());
+        assertEquals(o.id(), list.get(0).id());
+
+        // 也可以删除
+        assertTrue(f.exists());
+        io.delete(o);
+        assertFalse(f.exists());
+
+        // 也可以创建一个新的（即使重新获取父的话）
+        oP = io.fetch(null, "/home/demo/dir");
+        WnObj o2 = io.create(oP, "test", WnRace.DIR);
+        assertTrue((o2 instanceof WnLocalFileObj));
+        assertTrue(o2.hasMountRootId());
+        assertFalse(o2.isLink());
+
+        File dir = Files.getFile(dHome, "a/b/c/test");
+        assertTrue(dir.exists());
+        assertTrue(dir.isDirectory());
+
+        // 也可以删除
+        o2 = io.fetch(null, "/home/demo/dir/test");
+        assertTrue(o2.isDIR());
+        io.delete(o2);
+        assertFalse(dir.exists());
+
+        // 那么采用对象的方式创建
+        o2 = new WnIoObj().name("test").race(WnRace.DIR);
+        io.create(oP, o2);
+
+        assertTrue(dir.exists());
+        assertTrue(dir.isDirectory());
+
+        // 也可以删除
+        o2 = io.fetch(null, "/home/demo/dir/test");
+        assertTrue(o2.isDIR());
+        io.delete(o2);
+        assertFalse(dir.exists());
+    }
 
     @Test
     public void test_create_by_id_parent_dir() {

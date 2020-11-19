@@ -10,6 +10,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -17,6 +18,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoMatch;
 import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
@@ -206,6 +208,96 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         return countChildren(p) > 0;
     }
 
+    @Override
+    public WnObj getOne(WnQuery q) {
+        q.limit(1);
+        List<WnObj> list = query(q);
+        if (list.isEmpty())
+            return null;
+        return list.get(0);
+    }
+
+    @Override
+    public int each(WnQuery q, Each<WnObj> callback) {
+
+        // 准备过滤条件
+        // 只支持 nm 和 tp 和 lm 和 len
+        NutMap flt = q.first().pick("nm", "tp", "lm", "len");
+        WnMatch ma = flt.isEmpty() ? null : new AutoMatch(flt);
+
+        // 准备父目录
+        String pid = q.first().getString("pid");
+        File dir = null;
+        // 默认用主目录
+        if (Strings.isBlank(pid)) {
+            dir = this.dHome;
+        }
+        // 否则选择目录
+        // 进入到这个方法， IO 层已经把两段式 pid 使用了，仅会传第二段 ID 过来
+        else {
+
+            dir = Files.getFile(dHome, pid);
+            if (!dir.exists()) {
+                throw Er.create("e.io.localfile.NoExists", pid);
+            }
+            if (!dir.isDirectory()) {
+                throw Er.create("e.io.localfile.MustBeDirectory", pid);
+            }
+        }
+
+        // 依次查询
+        File[] files = dir.listFiles();
+        int limit = q.limit();
+        int skip = q.skip();
+        int max = files.length - skip;
+        int count = 0;
+        for (int i = 0; i < max; i++) {
+            File f = files[i + skip];
+
+            // 匹配
+            if (null != ma) {
+                NutMap meta = new NutMap();
+                meta.put("nm", f.getName());
+                meta.put("tp", Files.getSuffixName(f));
+                meta.put("lm", f.lastModified());
+                meta.put("len", f.length());
+                if (!ma.match(meta))
+                    continue;
+            }
+
+            // 准备对象
+            if (null != callback) {
+                WnLocalFileObj o = new WnLocalFileObj(root, dHome, f, mimes);
+                callback.invoke(i, o, max);
+            }
+
+            // 计数
+            count++;
+            if (limit > 0 && count >= limit)
+                break;
+        }
+
+        return count;
+    }
+
+    @Override
+    public List<WnObj> query(WnQuery q) {
+        List<WnObj> list = new LinkedList<>();
+        this.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj o, int length) {
+                list.add(o);
+            }
+        });
+        return list;
+    }
+
+    @Override
+    public long count(WnQuery q) {
+        return this.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj ele, int length) {}
+        });
+    }
+
     //
     // 下面的就是弄个幌子，啥也不做
     //
@@ -303,26 +395,6 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public void delete(WnObj o) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public WnObj getOne(WnQuery q) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public int each(WnQuery q, Each<WnObj> callback) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public List<WnObj> query(WnQuery q) {
-        throw Lang.noImplement();
-    }
-
-    @Override
-    public long count(WnQuery q) {
         throw Lang.noImplement();
     }
 
