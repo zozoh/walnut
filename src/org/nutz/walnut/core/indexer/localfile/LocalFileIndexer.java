@@ -1,6 +1,8 @@
 package org.nutz.walnut.core.indexer.localfile;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
+import org.nutz.walnut.util.WnSort;
 import org.nutz.walnut.validate.WnMatch;
 import org.nutz.walnut.validate.impl.AutoMatch;
 import org.nutz.walnut.validate.impl.AutoStrMatch;
@@ -105,11 +108,22 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             throw Er.create("e.io.localFile.OutOfHome", path);
         }
         f2 = new File(fph);
+        // return _gen_file_obj(p, f2);
+
+        // 如果输入的 path 带上了 ../ 这种回退的路径，那么输入的 p 就不是返回对象真正的父了
+        // 就留着一个空吧
+        if (path.indexOf("../") >= 0) {
+            return _gen_file_obj(null, f2);
+        }
         return _gen_file_obj(p, f2);
-        // //
-        // // 为了保险起见，重新生成一遍父对象
-        // // zozoh@20201118: 我也忘记了为啥要这么搞，好像是某个 case
-        // // 以后遇到了要标注一下，NND，真是萝卜快了不洗泥啊！
+
+        //
+        // 为了保险起见，重新生成一遍父对象
+        // zozoh@20201118: 我也忘记了为啥要这么搞，好像是某个 case
+        // 以后遇到了要标注一下，NND，真是萝卜快了不洗泥啊！
+        // zozoh@20201119: 想起来了，是因为 ../ 这种路径导致需要重新获取 P
+        // 下面的逻辑有点复杂，其实只要把 p 设置为 null 应该就可以了
+        // 观察一段时间，如果 OK，下面的逻辑就可以删掉了
         // WnObj p2;
         // File fP = f2.getParentFile();
         // if (fP.equals(this.dHome)) {
@@ -251,30 +265,54 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         int skip = q.skip();
         int max = files.length - skip;
         int count = 0;
+        int reLen = limit > 0 ? Math.min(limit, max) : max;
+        ArrayList<NutMap> sortedList = new ArrayList<>(reLen);
+
+        // 进入匹配循环
         for (int i = 0; i < max; i++) {
             File f = files[i + skip];
 
-            // 匹配
-            if (null != ma) {
-                NutMap meta = new NutMap();
-                meta.put("nm", f.getName());
-                meta.put("tp", Files.getSuffixName(f));
-                meta.put("lm", f.lastModified());
-                meta.put("len", f.length());
-                if (!ma.match(meta))
-                    continue;
-            }
-
             // 准备对象
-            if (null != callback) {
-                WnLocalFileObj o = new WnLocalFileObj(root, dHome, f, mimes);
-                callback.invoke(i, o, max);
-            }
+            NutMap meta = new NutMap();
+            meta.put("nm", f.getName());
+            meta.put("tp", Files.getSuffixName(f));
+            meta.put("lm", f.lastModified());
+            meta.put("len", f.length());
+            meta.put("_file", f);
+
+            // 匹配
+            if (null != ma && !ma.match(meta))
+                continue;
+
+            // 计入预排序列表
+            sortedList.add(meta);
 
             // 计数
             count++;
             if (limit > 0 && count >= limit)
                 break;
+        }
+
+        // 没有回调，直接就返回了
+        if (null == callback)
+            return count;
+
+        // 需要排序
+        WnSort[] sorts = WnSort.makeList(q.sort());
+        if (null != sorts && sorts.length > 0) {
+            sortedList.sort(new Comparator<NutMap>() {
+                public int compare(NutMap o1, NutMap o2) {
+                    return WnSort.compare(sorts, o1, o2);
+                }
+            });
+        }
+
+        // 调用回调
+        for (int i = 0; i < sortedList.size(); i++) {
+            NutMap meta = sortedList.get(i);
+            File f = meta.getAs("_file", File.class);
+            WnLocalFileObj o = new WnLocalFileObj(root, dHome, f, mimes);
+            callback.invoke(i, o, max);
         }
 
         return count;

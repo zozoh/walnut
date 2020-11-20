@@ -8,6 +8,7 @@ import org.nutz.walnut.util.upload.AllUploadTest;
 @Suite.SuiteClasses({CmdsTest.class,
                      AllUploadTest.class,
                      WnTest.class,
+                     WnSortTest.class,
                      WnRgTest.class,
                      ZParamsTest.class,
                      JvmTunnelTest.class})

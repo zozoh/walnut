@@ -51,6 +51,126 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
      * 
      * <pre>
      * /mnt/dir  ::=>  local_home::/a
+     * |-- b/      
+     *     |-- c/   
+     *     |   |-- d/   <-- LINK oBase: /home/demo/dir
+     *     |       |-- x.txt
+     *     |       |-- y.txt
+     *     |       |-- z.txt
+     * 然后准备基线
+     *  oBase : fetch /mnt/dir/a/b/c
+     *  
+     * 根据基线的查询，应该能获取三个文件
+     * 
+     * 
+     * </pre>
+     */
+    @Test
+    public void test_query_by_pid_in_file_mount_file() {
+        // 准备一个本地目录
+        File dHome = setup.getLocalFileHome();
+        File f0 = Files.getFile(dHome, "a/b/c/d/x.txt");
+        Files.createFileIfNoExists(f0);
+        File f1 = Files.getFile(dHome, "a/b/c/d/y.txt");
+        Files.createFileIfNoExists(f1);
+        File f2 = Files.getFile(dHome, "a/b/c/d/z.txt");
+        Files.createFileIfNoExists(f2);
+
+        File dMntHome = Files.getFile(dHome, "a");
+        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+
+        // 建立映射目录
+        WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
+        io.setMount(oMntDir, "filew://" + phMntHome);
+
+        // 准备一个基线文件
+        WnObj oBase = io.create(null, "/home/demo/dir", WnRace.DIR);
+        io.appendMeta(oBase, Lang.map("ln", "/mnt/dir/b/c/d/"));
+
+        // 根据基线的查询，应该能获取三个文件
+        WnQuery q = Wn.Q.pid(oBase).sort(Lang.map("nm:1"));
+        List<WnObj> list = io.query(q);
+        assertEquals(3, list.size());
+        assertEquals("x.txt", list.get(0).name());
+        assertEquals("y.txt", list.get(1).name());
+        assertEquals("z.txt", list.get(2).name());
+
+        // 重新查一遍，确保没问题
+        q = Wn.Q.pid(oBase).sort(Lang.map("nm:1"));
+        oBase = io.fetch(null, "/home/demo/dir");
+        list = io.query(q);
+        assertEquals(3, list.size());
+        assertEquals("x.txt", list.get(0).name());
+        assertEquals("y.txt", list.get(1).name());
+        assertEquals("z.txt", list.get(2).name());
+
+        // 那么查询的时候，排序一下呢
+        q = Wn.Q.pid(oBase).sort(Lang.map("nm:-1"));
+        oBase = io.fetch(null, "/home/demo/dir");
+        list = io.query(q);
+        assertEquals(3, list.size());
+        assertEquals("z.txt", list.get(0).name());
+        assertEquals("y.txt", list.get(1).name());
+        assertEquals("x.txt", list.get(2).name());
+    }
+
+    /**
+     * 删除一个 filew 映射的文件
+     * 
+     * <pre>
+     * /mnt/dir  ::=>  local_home::/a
+     * |-- b/      
+     *     |-- c/   
+     *     |   |-- d/   <-- oBase
+     *     |       |-- xyz.txt
+     *     |-- x/
+     *         |-- y/  <-- oDir by ../../x/y/
+     *             |-- abc.txt       
+     * 然后准备基线
+     *  oBase : fetch /mnt/dir/a/b/c
+     *  
+     * 根据相对路径获取
+     *  oDir : fetch (oBase, "../../x/y/")
+     * 
+     * 应该得到的是 /a/b/ 这个目录
+     * 
+     * 获取 children，应该有个 c
+     * 
+     * </pre>
+     */
+    @Test
+    public void test_get_parent_path_in_file_mount_file() {
+        // 准备一个本地目录
+        File dHome = setup.getLocalFileHome();
+        File f0 = Files.getFile(dHome, "a/b/c/d/xyz.txt");
+        Files.createFileIfNoExists(f0);
+        File f1 = Files.getFile(dHome, "a/b/x/y/abc.txt");
+        Files.createFileIfNoExists(f1);
+
+        File dMntHome = Files.getFile(dHome, "a");
+        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+
+        // 建立映射目录
+        WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
+        io.setMount(oMntDir, "filew://" + phMntHome);
+
+        // 获取基线
+        WnObj oBase = io.fetch(null, "/mnt/dir/b/c/d");
+        assertEquals("d", oBase.name());
+        assertTrue(oBase.isDIR());
+
+        // 根据相对路径获取
+        WnObj oDir = io.fetch(oBase, "../../x/y/");
+        assertEquals("y", oDir.name());
+        assertTrue(oDir.isDIR());
+        assertEquals("/mnt/dir/b/x/y", oDir.path());
+    }
+
+    /**
+     * 删除一个 filew 映射的文件
+     * 
+     * <pre>
+     * /mnt/dir  ::=>  local_home::/a
      * |-- b/
      *     |-- c/
      *         |-- xyz.txt

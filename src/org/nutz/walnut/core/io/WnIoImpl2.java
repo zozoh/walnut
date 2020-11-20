@@ -932,6 +932,15 @@ public class WnIoImpl2 implements WnIo {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return 0;
+
+            // 确保父是可进入的
+            WnContext wc = Wn.WC();
+            oP = wc.whenEnter(oP, true);
+            if (null == oP) {
+                return 0;
+            }
+
+            // 检查映射，尝试交给对应的映射管理器处理
             WnIoMapping im = mappings.checkMapping(oP);
             WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID

@@ -9,7 +9,7 @@
   "OPEN" : "wn.manager",
   "THEME" : "light",
   "APP_PATH" : "/rs/ti/app:/app",
-  "VIEW_PATH" : "/mnt/project/${domain}/admin/view/:/rs/ti/view/",
+  "VIEW_PATH" : "/mnt/project/${domain}/view/:/rs/ti/view/",
   "SIDEBAR_PATH" : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json",
   "LOGIN" : "${domainLogin?}"
 }
