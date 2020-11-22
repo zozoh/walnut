@@ -632,15 +632,25 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 看看目标是否存在
         String newName = null;
         String taPath = destPath;
-        WnObj ta = fetch(null, taPath);
+        String taPaPath = Files.getParent(taPath);
+        WnObj ta = null;
+        // 看看是不是移动到根呢？
+        if (null != taPaPath && !"/".equals(taPaPath) && taPaPath.equals(root.path())) {
+            ta = root;
+            newName = Files.getName(taPath);
+        }
+
+        // 不是移动到根，那么是哪里呢？ 尝试查询一下
+        if (null == ta) {
+            ta = fetch(null, taPath);
+        }
 
         // 准备最后更新的正则表达式
         String regex = "d0|d1|pid";
 
         // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
-            taPath = Files.getParent(taPath);
-            ta = fetch(null, taPath);
+            ta = fetch(null, taPaPath);
             newName = Files.getName(destPath);
         }
         // 如果存在的是一个文件
@@ -733,17 +743,28 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj setBy(String id, NutBean map, boolean returnNew) {
+        WnObj o = this.checkById(id);
         // 如果改名，先改一下
         if (map.has("nm")) {
             String nm = map.getString("nm");
             map.remove("nm");
-            WnObj o = this.checkById(id);
             if (!o.isSameName(nm)) {
-                this.rename(o, nm);
+                o = this.rename(o, nm);
+            }
+            if (map.isEmpty()) {
+                return o;
             }
         }
         // 然后改其他的
-        return setBy(Wn.Q.id(id), map, returnNew);
+        if (!map.isEmpty()) {
+            this._set(id, map);
+            if (returnNew) {
+                o = this.get(id);
+            }
+        }
+
+        // 搞定
+        return o;
     }
 
     @Override

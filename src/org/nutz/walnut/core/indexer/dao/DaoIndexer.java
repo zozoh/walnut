@@ -155,6 +155,8 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                 if (null != o) {
                     o.setIndexer(indexer);
                 }
+
+                // 通知回调
                 callback.invoke(index, o, length);
             }
         });
@@ -345,30 +347,36 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         WnIoObj o = dao.fetch(entity, cnd);
         o.setIndexer(this);
         WnIoObj old = (WnIoObj) o.clone();
-        if (null != o) {
+        if (null != o && null != map && !map.isEmpty()) {
             o.putAll(map);
 
             // 准备键锁
             List<String> fnms = new ArrayList<>(map.size());
+            int updateFieldCount = 0;
+            boolean hasMoreFields = entity.getField("..") != null;
             for (String k : map.keySet()) {
                 // 直接更新的键
                 if (entity.getField(k) != null) {
                     fnms.add(k);
+                    updateFieldCount++;
                 }
                 // 否则就是收缩的键，当然，你必须是先在定义里声明了这个字段才有效
-                else {
+                else if (hasMoreFields) {
                     fnms.add("[.][.]");
+                    updateFieldCount++;
                 }
             }
             String actived = "^(" + Strings.join("|", fnms) + ")$";
 
-            // 执行
-            dao.update(entity, o, actived);
+            // 如果有字段要更新，就执行
+            if (updateFieldCount > 0) {
+                dao.update(entity, o, actived);
 
-            if (returnNew) {
-                WnIoObj o3 = dao.fetch(entity, cnd);
-                o3.setIndexer(this);
-                return o3;
+                if (returnNew) {
+                    WnIoObj o3 = dao.fetch(entity, cnd);
+                    o3.setIndexer(this);
+                    return o3;
+                }
             }
         }
         return old;

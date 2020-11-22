@@ -26,11 +26,6 @@ import org.nutz.walnut.ext.thing.impl.FileUploadAction;
 import org.nutz.walnut.ext.thing.impl.GetThingAction;
 import org.nutz.walnut.ext.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.thing.impl.UpdateThingAction;
-import org.nutz.walnut.ext.thing.impl.sql.SqlCreateThingAction;
-import org.nutz.walnut.ext.thing.impl.sql.SqlDeleteThingAction;
-import org.nutz.walnut.ext.thing.impl.sql.SqlGetThingAction;
-import org.nutz.walnut.ext.thing.impl.sql.SqlQueryThingAction;
-import org.nutz.walnut.ext.thing.impl.sql.SqlUpdateThingAction;
 import org.nutz.walnut.ext.thing.util.ThQr;
 import org.nutz.walnut.ext.thing.util.ThQuery;
 import org.nutz.walnut.ext.thing.util.ThingConf;
@@ -263,7 +258,7 @@ public class WnThingService {
     }
 
     public WnObj getThing(String id, boolean isFull, String sortKey, boolean isAsc) {
-        GetThingAction a = _A(_action_get()).setFull(isFull).setId(id);
+        GetThingAction a = _A(new GetThingAction()).setFull(isFull).setId(id);
         a.setSortKey(sortKey).setAsc(isAsc);
         return a.invoke();
     }
@@ -313,7 +308,7 @@ public class WnThingService {
     }
 
     public WnObj createThing(NutMap meta, String uniqueKey, WnExecutable executor) {
-        CreateThingAction a = _A(_action_create());
+        CreateThingAction a = _A(new CreateThingAction());
         a.addMeta(meta).setUniqueKey(uniqueKey);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
@@ -325,7 +320,7 @@ public class WnThingService {
                              NutMap fixedMeta,
                              WnExecutable executor,
                              String cmdTmpl) {
-        CreateThingAction a = _A(_action_create());
+        CreateThingAction a = _A(new CreateThingAction());
         a.addMeta(meta).setUniqueKey(uniqueKey);
         a.setConf(this.checkConf());
         a.setFixedMeta(fixedMeta);
@@ -344,7 +339,7 @@ public class WnThingService {
                                     String process,
                                     WnExecutable executor,
                                     String cmdTmpl) {
-        CreateThingAction a = _A(_action_create());
+        CreateThingAction a = _A(new CreateThingAction());
         a.addAllMeta(metaList).setUniqueKey(uniqueKey);
         a.setConf(this.checkConf());
         a.setProcess(out, process);
@@ -354,7 +349,7 @@ public class WnThingService {
     }
 
     public ThQr queryThing(ThQuery tq) {
-        QueryThingAction a = _A(_action_query()).setQuery(tq);
+        QueryThingAction a = _A(new QueryThingAction()).setQuery(tq);
         return a.invoke();
     }
 
@@ -371,7 +366,7 @@ public class WnThingService {
                                    NutMap match,
                                    boolean hard,
                                    Collection<String> ids) {
-        DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(ids);
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(ids);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);
@@ -382,7 +377,7 @@ public class WnThingService {
                                    NutMap match,
                                    boolean hard,
                                    String... ids) {
-        DeleteThingAction a = _A(_action_delete()).setHard(hard).setIds(Lang.list(ids));
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Lang.list(ids));
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);
@@ -390,7 +385,7 @@ public class WnThingService {
     }
 
     public WnObj updateThing(String id, NutMap meta, WnExecutable executor, NutMap match) {
-        UpdateThingAction a = _A(_action_update()).setId(id).setMeta(meta);
+        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);
@@ -408,67 +403,5 @@ public class WnThingService {
         CleanTmpFileAction a = _A(new CleanTmpFileAction());
         a.limit = limit;
         return a.invoke();
-    }
-
-    private String __get_action_by() {
-        if (null != oTs) {
-            return this.oTs.getString("thing-by", "wntree");
-        }
-        return "wntree";
-    }
-
-    protected CreateThingAction _action_create() {
-        String by = __get_action_by();
-        switch (by) {
-        case "sql":
-            return new SqlCreateThingAction();
-        default:
-        case "wntree":
-            return new CreateThingAction();
-        }
-    }
-
-    protected QueryThingAction _action_query() {
-        String by = __get_action_by();
-        switch (by) {
-        case "sql":
-            return new SqlQueryThingAction();
-        default:
-        case "wntree":
-            return new QueryThingAction();
-        }
-    }
-
-    protected DeleteThingAction _action_delete() {
-        String by = __get_action_by();
-        switch (by) {
-        case "sql":
-            return new SqlDeleteThingAction();
-        default:
-        case "wntree":
-            return new DeleteThingAction();
-        }
-    }
-
-    protected UpdateThingAction _action_update() {
-        String by = __get_action_by();
-        switch (by) {
-        case "sql":
-            return new SqlUpdateThingAction();
-        default:
-        case "wntree":
-            return new UpdateThingAction();
-        }
-    }
-
-    protected GetThingAction _action_get() {
-        String by = __get_action_by();
-        switch (by) {
-        case "sql":
-            return new SqlGetThingAction();
-        default:
-        case "wntree":
-            return new GetThingAction();
-        }
     }
 }

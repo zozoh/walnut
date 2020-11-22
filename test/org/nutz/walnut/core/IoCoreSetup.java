@@ -41,7 +41,6 @@ import org.nutz.walnut.core.mapping.bm.LocalFileBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory;
 import org.nutz.walnut.core.mapping.bm.LocalIoBMFactory;
 import org.nutz.walnut.core.mapping.bm.RedisBMFactory;
-import org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import org.nutz.walnut.core.mapping.indexer.LocalFileWIndexerFactory;
 import org.nutz.walnut.core.refer.redis.RedisReferService;
@@ -83,7 +82,7 @@ public class IoCoreSetup {
 
     private static WnIo io;
 
-    private static DaoIndexerFactory daoIndexerFactory;
+    private static MockDaoIndexerFactory daoIndexerFactory;
 
     private static RedisBMFactory redisBMFactory;
 
@@ -125,7 +124,7 @@ public class IoCoreSetup {
         HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(mimes));
         indexers.put("filew", new LocalFileWIndexerFactory(mimes));
-        indexers.put("dao", getDaoIndexerFactory(io));
+        indexers.put("dao", getDaoIndexerFactory());
         // TODO 还有 "mem|redis|mq" 几种索引管理器
         // ...
         mappings.setIndexers(indexers);
@@ -140,12 +139,20 @@ public class IoCoreSetup {
         mappings.setBms(bmfs);
     }
 
-    public DaoIndexerFactory getDaoIndexerFactory(WnIo io) {
+    public MockDaoIndexerFactory getDaoIndexerFactory() {
         if (null == daoIndexerFactory) {
-            DaoIndexerFactory dif = new DaoIndexerFactory();
-            dif.setIo(io);
+            // DaoIndexerFactory dif = new DaoIndexerFactory();
+            // dif.setIo(io);
+            // dif.setMimes(this.getMimes());
+            //
+            // Map<String, DaoIndexer> indexers = new HashMap<>();
+            // dif.setIndexers(indexers);
+            //
+            // daoIndexerFactory = dif;
+
+            MockDaoIndexerFactory dif = new MockDaoIndexerFactory();
             dif.setMimes(this.getMimes());
-            dif.setIndexers(new HashMap<>());
+            dif.setUnitSetup(pp);
 
             daoIndexerFactory = dif;
         }

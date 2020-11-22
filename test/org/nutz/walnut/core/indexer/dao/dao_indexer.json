@@ -7,6 +7,14 @@
   "tableName": "t_obj",
   "autoCreate" : true,
   "fields": [{
+      "name": "live",
+      "type": "Integer",
+      "columnType" : "BOOLEAN",
+      "width": 1,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
       "name": "age",
       "type": "Integer",
       "columnType" : "INT",

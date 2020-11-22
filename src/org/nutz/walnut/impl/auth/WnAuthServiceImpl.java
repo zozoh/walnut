@@ -59,6 +59,14 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         this.listen = new AbstractListenable<WnAuthEvent>() {};
     }
 
+    public WnAccountLoader getAccountLoader() {
+        return accountLoader;
+    }
+
+    public void setAccountLoader(WnAccountLoader accountLoader) {
+        this.accountLoader = accountLoader;
+    }
+
     public void setEventGenerator(WnAuthEventGenerator eventGenerator) {
         this.eventGenerator = eventGenerator;
     }

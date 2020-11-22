@@ -27,6 +27,38 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     protected WnIoIndexer indexer;
 
     /**
+     * 测试改名
+     */
+    @Test
+    public void test_rename() {
+        WnObj o = indexer.create(null, "/abc", WnRace.FILE);
+        indexer.rename(o, "xyz");
+
+        WnObj o2 = indexer.checkById(o.id());
+        assertTrue(o2.isSameId(o));
+        assertEquals("xyz", o2.name());
+    }
+
+    /**
+     * 测试布尔字段
+     */
+    @Test
+    public void test_bool_field() {
+        WnObj o = indexer.create(null, "/abc", WnRace.FILE);
+        o.setv("live", true);
+        indexer.set(o, "^(live)$");
+
+        String id = o.id();
+        WnObj o2 = indexer.get(id);
+        assertTrue(o2.getBoolean("live"));
+
+        o.setv("live", false);
+        indexer.set(o, "^(live)$");
+        o2 = indexer.get(id);
+        assertFalse(o2.getBoolean("live"));
+    }
+
+    /**
      * 查询排序和分页
      */
     @Test

@@ -99,7 +99,7 @@
   "name": "ln",
   "type": "String",
   "columnType" : "VARCHAR",
-  "width": 200,
+  "width": 500,
   "notNull": false,
   "insert": true,
   "update": true
@@ -182,9 +182,8 @@
   "name": "th_live",
   "type": "Integer",
   "columnType" : "INT",
-  "width": 1,
   "default": "0",
-  "width": 16,
+  "width": 1,
   "notNull": false,
   "insert": true,
   "update": true

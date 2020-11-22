@@ -30,7 +30,7 @@ public abstract class BaseIoTest extends IoCoreTest {
         auth = _create_auth_service();
         
         // 为一些索引管理器或者桶管理器，设置其需要的 auth接口
-        setup.getDaoIndexerFactory(io).setAuth(auth);
+        setup.getDaoIndexerFactory();
 
         // 准备根用户
         root = auth.checkAccount("root");

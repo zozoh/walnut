@@ -1190,7 +1190,9 @@ public class WnIoImpl2 implements WnIo {
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
-        o.clear();
+        // zozoh: 为啥要 clear? 在 thing updatte 的情境下， 这个会导致 th_set/live 等运行时
+        // 字段丢失的。 在 dao 映射的场景下，运行时设置的 th_set/live 等属性很重要
+        // o.clear();
         o.updateBy(o2);
     }
 

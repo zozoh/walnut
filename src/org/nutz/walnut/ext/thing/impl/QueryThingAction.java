@@ -1,10 +1,7 @@
 package org.nutz.walnut.ext.thing.impl;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -50,52 +47,18 @@ public class QueryThingAction extends ThingAction<ThQr> {
         }
 
         // ..............................................
-        // 确保限定了集合
-        Map<String, WnObj> oTsCache = new HashMap<String, WnObj>();
-        if (null != tq.tss && tq.tss.length > 0) {
-
-            // 寻找对应的 ThingSet.index 对象，并计入 pid
-            String[] pids = new String[tq.tss.length];
-            for (int i = 0; i < tq.tss.length; i++) {
-                String tsId = tq.tss[i];
-                WnObj oRefer = io.checkById(tsId);
-                WnObj oTs = Things.checkThingSet(oRefer);
-                WnObj oIndex = Things.dirTsIndex(io, oTs);
-                oTsCache.put(oTs.id(), oTs);
-                pids[i] = oIndex.id();
-            }
-
-            // 没有数据
-            if (0 == pids.length) {
-                output.pager = tq.wp;
-                output.data = new LinkedList<WnObj>();
-                return output;
-            }
-
-            // 只有一个数据
-            if (1 == pids.length) {
-                q.setAllToList(Lang.map("pid", pids[0]));
-            }
-            // 多个数据
-            else {
-                q.setAllToList(Lang.map("pid", pids));
-            }
-        }
         // 找到数据目录
-        else {
-            WnObj oIndex = Things.dirTsIndex(io, oTs);
-            oTsCache.put(oTs.id(), oTs);
+        WnObj oIndex = Things.dirTsIndex(io, oTs);
 
-            // 没有数据
-            if (null == oIndex) {
-                output.pager = tq.wp;
-                output.data = new LinkedList<WnObj>();
-                return output;
-            }
-
-            // 限定数据集
-            q.setAllToList(Lang.map("pid", oIndex.id()));
+        // 没有数据
+        if (null == oIndex) {
+            output.pager = tq.wp;
+            output.data = new LinkedList<WnObj>();
+            return output;
         }
+
+        // 限定数据集
+        q.setAllToList(Lang.map("pid", oIndex.id()));
 
         // 检查 th_live
         List<NutMap> qList = q.getList();
@@ -123,11 +86,9 @@ public class QueryThingAction extends ThingAction<ThQr> {
         // ..............................................
         // 循环补充上 ThingSet 的集合名称
         for (WnObj oT : list) {
-            WnObj oTs = oTsCache.get(oT.getString("th_set"));
-            if (null != oTs) {
-                oT.put("th_set", oTs.id());
-                oT.put("th_set_nm", oTs.name());
-            }
+            oT.putDefault("th_live", 1);
+            oT.put("th_set", oTs.id());
+            oT.put("th_set_nm", oTs.name());
         }
 
         // 循环读取内容

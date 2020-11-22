@@ -417,10 +417,6 @@ public class WnAccount {
         if (str.startsWith("id:")) {
             id = Strings.trim(str.substring(3));
         }
-        // 用户 ID
-        else if (Wn.isFullObjId(str)) {
-            id = str;
-        }
         // 手机
         else if (Strings.isMobile(str)) {
             phone = str;

@@ -12,6 +12,7 @@ import org.nutz.walnut.BaseSessionTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.sql.WnDaoAuth;
 import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
@@ -19,9 +20,79 @@ import org.nutz.walnut.util.Wn;
 public class DaoMappingTest extends BaseSessionTest {
 
     @Test
+    public void test_rename() {
+        // 准备
+        WnObj p = _setup_hierarchy("pet", "~/pets/index");
+
+        // 创建
+        WnObj o = io.create(p, "A", WnRace.FILE);
+
+        // 改名
+        WnObj o2 = io.rename(o, "B");
+        assertTrue(o.isSameId(o2));
+        assertEquals("B", o2.name());
+
+        // 再改名
+        o2 = io.rename(o2, "C");
+        o2 = io.get(o.id());
+        assertTrue(o.isSameId(o2));
+        assertEquals("C", o2.name());
+    }
+
+    @Test
+    public void test_update_lm_not_in_mapping() {
+        // 准备
+        WnObj p = _setup_hierarchy("pet", "~/pets/index");
+        long lm_p = p.lastModified();
+
+        // 创建
+        WnObj o = io.create(p, "A", WnRace.FILE);
+
+        // 执行
+        long now = System.currentTimeMillis();
+        io.appendMeta(o, Lang.map("lm", now));
+        assertEquals(lm_p, o.lastModified());
+
+        // 再获取
+        o = io.get(o.id());
+        assertEquals(lm_p, o.lastModified());
+    }
+
+    @Test
+    public void test_bool_field() {
+        // 准备
+        WnObj p = _setup_hierarchy("pet", "~/pets/index");
+
+        // 创建
+        WnObj o = io.create(p, "A", WnRace.FILE);
+        assertFalse(o.getBoolean("live"));
+
+        // 设置
+        io.appendMeta(o, Lang.map("live", true));
+        assertTrue(o.getBoolean("live"));
+
+        // 再获取
+        WnObj o2 = io.get(o.id());
+        assertTrue(o2.getBoolean("live"));
+
+        // 设置
+        o2.put("live", false);
+        io.set(o2, "^(live)$");
+        o2 = io.get(o.id());
+        assertFalse(o2.getBoolean("live"));
+
+        // 设置
+        o2 = io.setBy(o.id(), Lang.map("live", true), true);
+        assertTrue(o2.getBoolean("live"));
+
+        o2 = io.get(o.id());
+        assertTrue(o2.getBoolean("live"));
+    }
+
+    @Test
     public void test_simple_query() {
         // 准备
-        WnObj p = _setup_hierarchy("dao_pet", "~/pets");
+        WnObj p = _setup_hierarchy("pet", "~/pets");
 
         // 创建五个
         io.create(p, "A", WnRace.FILE);
@@ -62,7 +133,7 @@ public class DaoMappingTest extends BaseSessionTest {
     @Test
     public void test_simple_children() {
         // 准备
-        WnObj p = _setup_hierarchy("dao_pet", "~/pets");
+        WnObj p = _setup_hierarchy("pet", "~/pets");
 
         // 创建五个
         io.create(p, "A", WnRace.FILE);
@@ -92,7 +163,7 @@ public class DaoMappingTest extends BaseSessionTest {
     @Test
     public void test_simple_crud() {
         // 准备
-        WnObj p = _setup_hierarchy("dao_pet", "~/pets");
+        WnObj p = _setup_hierarchy("pet", "~/pets");
 
         // 来吧，创建一个文件
         WnObj o = io.create(p, "xiaobai", WnRace.FILE);
@@ -145,13 +216,13 @@ public class DaoMappingTest extends BaseSessionTest {
     }
 
     private WnObj _setup_hierarchy(String cfnm, String dirph) {
-        // 数据源的定义
-        _write_by("~/.dao/demo.dao.json", _CFPH("dao/demo.dao.json"));
-
-        // 映射定义
-        String oph = "~/.io/ix/" + cfnm + ".json";
-        String fph = _CFPH("ix/" + cfnm + ".json");
-        _write_by(oph, fph);
+        // // 数据源的定义
+        // _write_by("~/.dao/demo.dao.json", _CFPH("dao/demo.dao.json"));
+        //
+        // // 映射定义
+        // String oph = "~/.io/ix/" + cfnm + ".json";
+        // String fph = _CFPH("ix/" + cfnm + ".json");
+        // _write_by(oph, fph);
 
         // 准备一下映射目录
         WnObj oDir = _created(dirph);
@@ -160,8 +231,9 @@ public class DaoMappingTest extends BaseSessionTest {
         io.setMount(oDir, "dao(" + cfnm + ")");
 
         // 读取 Dao 配置
-        WnDaoMappingConfig conf = WnDaos.loadConfig(WnDaoMappingConfig.class, io, oph, this.session);
-        Dao dao = WnDaos.get(conf.getAuth());
+        WnDaoMappingConfig conf = this.setup.getDaoIndexerFactory().loadConfig(cfnm);
+        WnDaoAuth auth = conf.getAuth();
+        Dao dao = WnDaos.get(auth);
 
         // 清理数据
         dao.drop(conf.getTableName());
@@ -170,8 +242,8 @@ public class DaoMappingTest extends BaseSessionTest {
         return oDir;
     }
 
-    private static String _CFPH(String nm) {
-        return "org/nutz/walnut/impl/io/" + nm;
-    }
+    // private static String _CFPH(String nm) {
+    // return "org/nutz/walnut/impl/io/" + nm;
+    // }
 
 }

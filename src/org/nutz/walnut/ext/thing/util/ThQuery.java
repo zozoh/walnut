@@ -11,7 +11,7 @@ public class ThQuery {
 
     public WnPager wp;
 
-    public String[] tss;
+    //public String[] tss;
 
     public String[] sha1Fields;
 

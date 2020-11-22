@@ -44,10 +44,21 @@ public abstract class Things {
      */
     public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
         WnObj oIndex = dirTsIndex(io, oRefer);
-        WnQuery q = Wn.Q.pid(oIndex);
-        q.setv("id", id);
+        // 获取 ID
         WnObj oT = io.get(id);
+
+        // 默认为其设置上父集合 ID
         if (null != oT) {
+            // 确保不超出数据集
+            if (!oT.isMyParent(oIndex)) {
+                return null;
+            }
+
+            // 为了确保在数据集场景下出来的数据默认 th_live=1
+            // 在数据表里不记录这个的前提下，默认放一个进去
+            oT.putDefault("th_live", 1);
+
+            // 确保有数据集的名称
             oT.put("th_set", oIndex.parentId());
         }
         return oT;

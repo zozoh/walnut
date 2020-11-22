@@ -115,7 +115,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
         // 重新获取
         if (reget) {
-            return io.get(oT.id());
+            return this.checkThIndex(oT.id());
         }
 
         // 就这样返回即可

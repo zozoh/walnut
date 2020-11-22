@@ -52,7 +52,8 @@ public class GetThingAction extends ThingAction<WnObj> {
             return null;
         }
 
-        // 补充上 ThingSet 的集合名称
+        // 补充上 ThingSet 的集合ID和名称
+        oT.put("th_set", oTs.id());
         oT.put("th_set_nm", oTs.name());
 
         // 看看是否要读取 detail/media/attachment 的映射等东东

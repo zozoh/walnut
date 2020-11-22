@@ -3,7 +3,11 @@
 #                    主目录和环境变量
 #
 ##########################################################
-@HOME'${domainName}/<${domainIcon?fas-globe-asia}>'
+@HOME
+{
+  title : "${domainName}",
+  icon  : "${domainIcon?fas-globe-asia}"
+}
 @ENV
 {
   "OPEN" : "wn.manager",
