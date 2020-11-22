@@ -185,6 +185,10 @@ public class WnObjEntityGenerating {
         en.setViewName(conf.getTableName());
 
         // ----------------------------------------
+        // 设置默认字段
+        __auto_set_default_fields(en);
+
+        // ----------------------------------------
         // 循环处理字段
         if (null != conf.getFields() || conf.getFields().isEmpty()) {
             for (NutMap map : conf.getFields()) {
@@ -201,9 +205,6 @@ public class WnObjEntityGenerating {
                 en.addMappingField(mf);
             }
         }
-        // ----------------------------------------
-        // 设置默认字段
-        __auto_set_default_fields(en);
 
         // ----------------------------------------
         // 最后，编制一下实体所有字段的索引，以便得到表外字段
