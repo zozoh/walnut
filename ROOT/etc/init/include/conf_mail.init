@@ -14,10 +14,10 @@
 {
   "smtpHost" : "${smtpHost}",
   "smtpPort" : ${smtpPort?25},
-  "account"  : '${smtpAccount}',     
-  "alias"    : '${smtpAlias}',
-  "password" : '${smtpPasswd}',
-  "lang"     : "en-us",
+  "account"  : "${smtpAccount}",     
+  "alias"    : "${smtpAlias}",
+  "password" : "${smtpPasswd}",
+  "lang"     : "${smtpLang?zh-cn}",
   "ssl"      : ${smtpSSL?true}
 }
 %END%

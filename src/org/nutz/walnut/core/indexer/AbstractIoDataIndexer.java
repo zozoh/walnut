@@ -319,11 +319,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (null == p)
             p = root.clone();
 
-        WnIoObj o = new WnIoObj();
-        o.id(id);
-        o.name(name);
-        o.race(race);
-        o.setParent(p);
+        // 文件下面不能再有子对象
+        if (p.isFILE()) {
+            throw Er.create("e.io.create.ParentShouldBeDir", p);
+        }
 
         // 得到节点检查的回调接口
         WnContext wc = Wn.WC();
@@ -337,14 +336,6 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 确保有 ID
         if (Strings.isBlank(id)) {
             id = Wn.genId();
-            // 如果对象是映射，则采用两段式ID
-            if (p.isMount()) {
-                String rootId = p.mountRootId();
-                if (Strings.isBlank(rootId)) {
-                    rootId = p.id();
-                }
-                id = rootId + ":" + id;
-            }
         }
 
         // 展开名称
@@ -352,11 +343,6 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 检查名称
         Wn.assertValidName(name, p.path());
-
-        // 文件下面不能再有子对象
-        if (p.isFILE()) {
-            throw Er.create("e.io.create.ParentShouldBeDir", p);
-        }
 
         // 应对一下回调
         if (null != secu) {
@@ -368,7 +354,17 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (null != this.fetchByName(p, name))
             throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
 
+        // 如果对象是映射，则采用两段式ID
+        if (p.isMount()) {
+            String rootId = p.mountRootId();
+            if (Strings.isBlank(rootId)) {
+                rootId = p.id();
+            }
+            id = rootId + ":" + id;
+        }
+
         // 创建自身
+        WnIoObj o = new WnIoObj();
         long now = Wn.now();
         o.setIndexer(this);
         o.id(id);
