@@ -326,6 +326,14 @@ public class AppInitItem {
             else if ("json".equals(s)) {
                 this.meta.put("http-header-Content-Type", "text/json");
             }
+            // Dynamic header
+            else if ("dynamic".equals(s)) {
+                meta.put("http-dynamic-header", true);
+            }
+            // Dynamic header
+            else if ("hook".equals(s)) {
+                meta.put("run-with-hook", true);
+            }
             // HTTPxxx
             else if (s.matches("^http\\d{3}$")) {
                 int reCode = Integer.parseInt(s.substring(4));

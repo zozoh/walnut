@@ -10,7 +10,7 @@ obj ${http-qs-phs} -cqnl 2>&1 | ajaxre -cqn
 %END%
 #--------------------------------------------------------
 # API(thing): 直接读取内容
-@API .regapi/api/read 'cross/json'
+@API .regapi/api/read 'cross/dynamic'
 %COPY:
 httpout -body 'sha1:${http-qs-f}' \
   -mime  '${http-qs-mime?}' \
@@ -20,7 +20,7 @@ httpout -body 'sha1:${http-qs-f}' \
 %END%
 #--------------------------------------------------------
 # API(thing): 缩略图
-@API .regapi/api/media 'cross/json'
+@API .regapi/api/media 'cross/dynamic'
 %COPY:
 httpout -body ${http-qs} \
   -etag  '${http-header-IF-NONE-MATCH?none}' \
@@ -28,7 +28,7 @@ httpout -body ${http-qs} \
 %END%
 #--------------------------------------------------------
 # API: 根据对象ID获取其缩略图
-@API .regapi/api/thumb 'cross/json'
+@API .regapi/api/thumb 'cross/dynamic'
 %COPY:
 httpout -body `obj "${http-qs}" -e "^(thumb)$" -V` \
   -etag  '${http-header-IF-NONE-MATCH?none}' \

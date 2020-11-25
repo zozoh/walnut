@@ -60,7 +60,7 @@ public class AppInitItemContext extends AppInitContext {
             if (item.hasContentFilePath()) {
                 WnObj o = io.check(oHome, item.getContentFilePath());
                 content = io.readText(o);
-                if(item.hasContentFileVars()) {
+                if (item.hasContentFileVars()) {
                     content = Tmpl.exec(content, item.getContentFileVars());
                 }
             }

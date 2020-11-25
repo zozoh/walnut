@@ -27,6 +27,18 @@ public class AppInitApiProcessor implements AppInitProcessor {
                 else if ("mime".equals(key)) {
                     meta.put("http-header-Content-Type", val);
                 }
+                // 特殊键：hook
+                else if ("hook".equals(key)) {
+                    if (Boolean.TRUE == val) {
+                        meta.put("run-with-hook", true);
+                    }
+                }
+                // 特殊键：dynamic
+                else if ("dynamic".equals(key)) {
+                    if (Boolean.TRUE == val) {
+                        meta.put("http-dynamic-header", true);
+                    }
+                }
                 // 其他的不支持
                 else {
                     meta.put("http-header-Content-Type", val);
