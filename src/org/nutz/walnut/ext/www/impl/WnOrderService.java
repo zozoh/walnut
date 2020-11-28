@@ -144,14 +144,15 @@ public class WnOrderService {
         NutMap pcounts = new NutMap(); // 准备汇总各个价格体系下商品数量
         List<WnProduct> avapros = new ArrayList<>(or.getProductsCount());
         for (WnProduct pro : or.getProducts()) {
-            WnObj oPro = io.checkById(pro.getId());
-            pro.updateBy(oPro);
-            pro.setObj(oPro);
             // 数量
             int amo = pro.getAmount();
             if (amo < 0) {
                 continue;
             }
+            // 重新读取价格运费等信息
+            WnObj oPro = io.checkById(pro.getId());
+            pro.updateBy(oPro);
+            pro.setObj(oPro);
             // 记入
             avapros.add(pro);
             // 汇总
@@ -183,6 +184,11 @@ public class WnOrderService {
             int pcount = pcounts.getInt(key, 0);
             pro.setPcount(pcount);
 
+            // 计算价格
+            // 如果产品设置了复杂的价格规则，譬如根据购买数量决定其价格，需要进行一下
+            // 稍微费点劲的计算
+            float ppi = __cal_pro_price(pro, priceRuleKey);
+
             // 数量
             int amo = pro.getAmount();
 
@@ -194,10 +200,6 @@ public class WnOrderService {
             if (pro.hasWeight()) {
                 proWeight += pro.getWeight() * amo;
             }
-            // 计算价格
-            // 如果产品设置了复杂的价格规则，譬如根据购买数量决定其价格，需要进行一下
-            // 稍微费点劲的计算
-            float ppi = __cal_pro_price(pro, priceRuleKey);
 
             // 汇总&记入
             float subtotal = ppi * amo;
@@ -252,14 +254,14 @@ public class WnOrderService {
         discount = total - fee;
         price = total + freight;
 
-        // 对齐精度到（分）
+        // 运费对齐到（元）
+        freight = Math.round(freight);
+
+        // 其他价格对齐精度到（分）
         total = Nums.precision(total, 2);
         discount = Nums.precision(discount, 2);
         price = total + freight;
         fee = total + freight - discount;
-
-        // 运费不要小数
-        freight = Math.round(freight);
 
         // 更新订单
         or.setTotal(total);
@@ -413,7 +415,7 @@ public class WnOrderService {
             or.setTitle(or.getSeller());
         }
 
-        // 设置订单过期时间，默认 15 分钟
+        // 设置订单过期时间
         int duInMin = site.getOrderDuMin();
         if (duInMin > 0) {
             long duInMs = duInMin * 60000L;

@@ -34,7 +34,7 @@ public class LbsFreightRule {
     private float first;
 
     /**
-     * 续重价格（元）
+     * 续重价格（元/续重单位）
      */
     private float additional;
 

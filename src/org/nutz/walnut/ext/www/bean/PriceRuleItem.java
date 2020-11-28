@@ -16,7 +16,7 @@ public class PriceRuleItem {
             return false;
         int n = pro.getPcount();
         if (n <= 0) {
-            pro.getAmount();
+            n = pro.getAmount();
         }
         return skuRegion.match(n);
     }

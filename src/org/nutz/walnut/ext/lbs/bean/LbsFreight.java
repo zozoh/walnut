@@ -21,7 +21,7 @@ public class LbsFreight {
     private Weight weight;
 
     /**
-     * 相关规则
+     * 相关运费计算规则
      */
     private LbsFreightRule rule;
 

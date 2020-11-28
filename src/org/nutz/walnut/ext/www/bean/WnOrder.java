@@ -155,7 +155,7 @@ public class WnOrder {
     private String buyerId;
 
     /**
-     * 商品总金额
+     * 商品总价
      */
     private float total;
 
