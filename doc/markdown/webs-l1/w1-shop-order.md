@@ -179,8 +179,8 @@ key: w1-shop-order
   freight  : 12.0,     // 总运费
   total    : 500.0,    // 商品总价
   nominal  : 500.0,    // 标称总价
-  profit   : 0,        // 收益金额
   prefee   : 500.0,    // 基础金额
+  profit   : 0,        // 收益金额
   discount : 20.0,     // 优惠金额 (基于 prefee 应用优惠券节省的金额)
   price    : 512.0,    // 惠前金额 (prefee + freight) 
   fee      : 492.0,    // 支付金额 (price - discount)
@@ -260,9 +260,9 @@ key: w1-shop-order
 -
 - 商品总价 : `total` 即采用价格规则优惠后的价格
 - 标称总价 : `nominal` 即商品 price 字段的原始汇总的价格
-- 收益金额 : `profit = nominal - total`
 -
 - 基础金额 : `prefee = $total or $nominal` 
+- 收益金额 : `profit = prefee - total`
 -
 - 总折扣   : `discount` : (基于 `prefee` 应用优惠券节省的金额)
 - 惠前金额 : `price = prefee + freight`
