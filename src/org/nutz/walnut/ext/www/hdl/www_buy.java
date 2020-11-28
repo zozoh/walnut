@@ -65,35 +65,36 @@ public class www_buy implements JvmHdl {
         // 执行订单的创建
         String priceRuleKey = hc.params.getString("prices", "prices");
         String skuKey = hc.params.getString("sku_by", "sku");
-        if("nil".equals(skuKey)) {
+        if ("nil".equals(skuKey)) {
             skuKey = null;
         }
         or = orderApi.createOrder(or, priceRuleKey, bu, skuKey);
 
         // -------------------------------
         // 准备支付单
-        NutMap upick = hc.params.getAs("upick", NutMap.class);
-
-        // 走消息队列
-        if (null != mqApi) {
-            String cmd = "www pay 'id:%s' %s -ticket '%s' -cqn -ajax";
-            String body = String.format(cmd, oWWW.id(), or.getId(), ticket);
-            if (null != upick && !upick.isEmpty()) {
-                body += " -upick '" + Json.toJson(upick) + "'";
+        if (or.hasPayType()) {
+            NutMap upick = hc.params.getAs("upick", NutMap.class);
+            // 走消息队列
+            if (null != mqApi) {
+                String cmd = "www pay 'id:%s' %s -ticket '%s' -cqn -ajax";
+                String body = String.format(cmd, oWWW.id(), or.getId(), ticket);
+                if (null != upick && !upick.isEmpty()) {
+                    body += " -upick '" + Json.toJson(upick) + "'";
+                }
+                // 推入消息队列
+                StringBuilder sbOut = new StringBuilder();
+                StringBuilder sbErr = new StringBuilder();
+                sys.exec("mq send -t " + mqTopic, sbOut, sbErr, body);
+                if (sbErr.length() > 0) {
+                    String sfmt = "www_buy fail to mq send: %s\n  - body: %s";
+                    String errMsg = String.format(sfmt, sbErr, body);
+                    throw Er.create("e.cmd.www_buy.FailMqSend", errMsg);
+                }
             }
-            // 推入消息队列
-            StringBuilder sbOut = new StringBuilder();
-            StringBuilder sbErr = new StringBuilder();
-            sys.exec("mq send -t " + mqTopic, sbOut, sbErr, body);
-            if (sbErr.length() > 0) {
-                String sfmt = "www_buy fail to mq send: %s\n  - body: %s";
-                String errMsg = String.format(sfmt, sbErr, body);
-                throw Er.create("e.cmd.www_buy.FailMqSend", errMsg);
+            // 直接创建
+            else {
+                cmd_www.prepareToPayOrder(sys, webs, or, bu, upick);
             }
-        }
-        // 直接创建
-        else {
-            cmd_www.prepareToPayOrder(sys, webs, or, bu, upick);
         }
         // -------------------------------
         // 输出结果

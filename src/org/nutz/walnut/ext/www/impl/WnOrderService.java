@@ -170,14 +170,13 @@ public class WnOrderService {
             return null;
         }
 
+        //
         // 计算产品价格
+        //
         float proWeight = 0; // 商品记录运费的总重
         float fixFreight = 0; // 商品总固定运费
         float total = 0; // 商品总金额
-        float freight = 0; // 总运费
-        float discount = 0; // 优惠总金额
-        float price = 0; // 订单总金额（包括运费）
-        float fee = 0; // 优惠后金额，用来实际支付
+        float nominal = 0; // 商品标称总价格
         for (WnProduct pro : or.getProducts()) {
             // 得到价格汇总数量
             String key = pro.getPcountKey();
@@ -187,7 +186,8 @@ public class WnOrderService {
             // 计算价格
             // 如果产品设置了复杂的价格规则，譬如根据购买数量决定其价格，需要进行一下
             // 稍微费点劲的计算
-            float ppi = __cal_pro_price(pro, priceRuleKey);
+            float price = __cal_pro_price(pro, priceRuleKey);
+            float retail = pro.getRetail();
 
             // 数量
             int amo = pro.getAmount();
@@ -201,15 +201,26 @@ public class WnOrderService {
                 proWeight += pro.getWeight() * amo;
             }
 
-            // 汇总&记入
-            float subtotal = ppi * amo;
-            pro.setPrice(ppi);
-            pro.setSubtotal(subtotal);
-            total += subtotal;
+            // 记入
+            pro.setPrice(price);
+            pro.setSubtotal(price * amo);
+            pro.setSubretail(retail * amo);
+
+            // 汇总
+            total += pro.getSubtotal();
+            nominal += pro.getSubretail();
         }
         orpri.setProducts(or.getProducts());
 
+        //
+        // 决定基础价格
+        //
+        float prefee = site.isFeeModeNominal() ? nominal : total;
+
+        //
         // 本单需要计算运费，并且站点可以计算运费
+        //
+        float freight = fixFreight;
         if (__cal_load_addr(or)) {
             LbsFreightSheet fs = this.getFreightSheet();
             String country = or.getAddrShipCountry();
@@ -220,14 +231,16 @@ public class WnOrderService {
             if (null != rule) {
                 LbsFreight fr = fs.calculatePrice(rule, proWeight);
                 if (null != fr) {
-                    freight = fr.getTotal();
+                    freight += fr.getTotal();
                     orpri.setFreightDetail(fr);
                 }
             }
         }
 
+        //
         // 应用优惠券
-        fee = total;
+        //
+        float fee = prefee;
         if (or.hasCoupons() && site.hasCouponHome()) {
             List<WnCoupon> cpns = new ArrayList<>(or.getCouponsCount());
             for (WnCoupon cpn : or.getCoupons()) {
@@ -248,33 +261,48 @@ public class WnOrderService {
             }
             or.setCoupons(cpns.toArray(new WnCoupon[cpns.size()]));
         }
+        float discount = prefee - fee;
 
+        //
         // 得到总折扣信息以及支付信息
-        freight += fixFreight;
-        discount = total - fee;
-        price = total + freight;
+        //
 
         // 运费对齐到（元）
         freight = Math.round(freight);
 
         // 其他价格对齐精度到（分）
         total = Nums.precision(total, 2);
+        nominal = Nums.precision(nominal, 2);
+        prefee = Nums.precision(prefee, 2);
         discount = Nums.precision(discount, 2);
-        price = total + freight;
-        fee = total + freight - discount;
 
+        // 计算订单其他价格相关字段
+        float profit = nominal - total;
+        float orderPrice = prefee + freight;
+        fee = orderPrice - discount;
+
+        //
         // 更新订单
-        or.setTotal(total);
+        //
         or.setFreight(freight);
+        or.setTotal(total);
+        or.setNominal(nominal);
+        or.setProfit(profit);
+        or.setPrefee(prefee);
         or.setDiscount(discount);
-        or.setPrice(price);
+        or.setPrice(orderPrice);
         or.setFee(fee);
 
+        //
         // 更新价格
-        orpri.setTotal(total);
+        //
         orpri.setFreight(freight);
+        orpri.setTotal(total);
+        orpri.setNominal(nominal);
+        orpri.setProfit(profit);
+        orpri.setPrefee(prefee);
         orpri.setDiscount(discount);
-        orpri.setPrice(price);
+        orpri.setPrice(orderPrice);
         orpri.setFee(fee);
 
         // 搞定
@@ -343,9 +371,6 @@ public class WnOrderService {
         if (Strings.isBlank(or.getBuyerId())) {
             throw Er.create("e.www.order.nil.buyer_id");
         }
-        if (Strings.isBlank(or.getPayType())) {
-            throw Er.create("e.www.order.nil.pay_tp");
-        }
 
         // 设置默认货币单位
         or.setDefaultCurrency(this.site.getCurrency());
@@ -386,6 +411,11 @@ public class WnOrderService {
             }
         }
 
+        // 根据付款类型找到销售方
+        if (or.hasPayType()) {
+            checkPayTypeAndSyncSeller(or);
+        }
+
         // 设置产品的冗余字段
         String[] proids = new String[pros.length];
 
@@ -398,14 +428,6 @@ public class WnOrderService {
         }
         or.setProductIds(proids);
         or.setProductCount(count);
-
-        // 根据付款类型找到销售方
-        String ptPrefix = or.getPayTypePrefix();
-        String seller = this.sellers.getString(ptPrefix);
-        if (Strings.isBlank(seller)) {
-            throw Er.create("e.www.order.invalid.pay_tp", or.getPayType());
-        }
-        or.setSeller(seller);
 
         // 准备设置其他字段
         or.setStatus(WnOrderStatus.NW);
@@ -450,6 +472,18 @@ public class WnOrderService {
 
         // 返回创建后的订单
         return or;
+    }
+
+    public void checkPayTypeAndSyncSeller(WnOrder or) {
+        String ptPrefix = or.getPayTypePrefix();
+        if (Strings.isBlank(ptPrefix)) {
+            throw Er.create("e.www.order.nil.pay_tp_prefix");
+        }
+        String seller = this.sellers.getString(ptPrefix);
+        if (Strings.isBlank(seller)) {
+            throw Er.create("e.www.order.invalid.pay_tp", or.getPayType());
+        }
+        or.setSeller(seller);
     }
 
     public WnOrder checkOrder(String id) {

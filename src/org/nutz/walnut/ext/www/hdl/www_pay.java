@@ -8,6 +8,7 @@ import org.nutz.walnut.ext.payment.WnPayObj;
 import org.nutz.walnut.ext.payment.WnPayment;
 import org.nutz.walnut.ext.www.cmd_www;
 import org.nutz.walnut.ext.www.bean.WnOrder;
+import org.nutz.walnut.ext.www.impl.WnOrderService;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -33,11 +34,17 @@ public class www_pay implements JvmHdl {
 
         // -------------------------------
         // 得到订单
-        WnOrder or = webs.getOrderApi().checkOrder(orId);
+        WnOrderService orderApi = webs.getOrderApi();
+        WnOrder or = orderApi.checkOrder(orId);
 
         // 支付类型变更
         if (null != payType && !payType.equals(or.getPayType())) {
             or.setPayType(payType);
+            orderApi.checkPayTypeAndSyncSeller(or);
+            // 持久化订单数据更新
+            NutMap meta = or.toMeta("^(pay_tp|seller)$", null);
+            orderApi.updateOrder(or.getId(), meta, sys);
+            // 确保一定会重新创建支付单
             force = true;
         }
 

@@ -46,7 +46,7 @@ public class WnCoupon {
 
     public float apply(float fee) {
         if (this.isCash()) {
-            return fee - this.value;
+            return Math.max(0, fee - this.value);
         }
         if (this.isDiscount()) {
             return fee * this.value;

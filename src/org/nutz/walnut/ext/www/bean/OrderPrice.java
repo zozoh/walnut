@@ -21,32 +21,47 @@ public class OrderPrice {
     LbsFreight freightDetail;
 
     /**
-     * 商品总金额
+     * 总运费
      */
-    float total;
+    private float freight;
 
     /**
-     * 运费
+     * 商品总价
      */
-    float freight;
+    private float total;
 
     /**
-     * 优惠金额
+     * 标称总价
      */
-    float discount;
+    private float nominal;
 
     /**
-     * 订单总金额（包括运费）
+     * 收益金额
      */
-    float price;
+    private float profit;
 
     /**
-     * 优惠后金额，用来实际支付
+     * 基础金额
      */
-    float fee;
+    private float prefee;
 
     /**
-     * 货币单位，默认 RMB
+     * 优惠金额 (基于 prefee 应用优惠券节省的金额)
+     */
+    private float discount;
+
+    /**
+     * 惠前金额 (prefee + freight)
+     */
+    private float price;
+
+    /**
+     * 支付金额(price - discount)
+     */
+    private float fee;
+
+    /**
+     * 货币结算单位，默认 <code>RMB</code>
      */
     String currency;
 
@@ -66,6 +81,14 @@ public class OrderPrice {
         this.freightDetail = freightDetail;
     }
 
+    public float getFreight() {
+        return freight;
+    }
+
+    public void setFreight(float freight) {
+        this.freight = freight;
+    }
+
     public float getTotal() {
         return total;
     }
@@ -74,12 +97,28 @@ public class OrderPrice {
         this.total = total;
     }
 
-    public float getFreight() {
-        return freight;
+    public float getNominal() {
+        return nominal;
     }
 
-    public void setFreight(float freight) {
-        this.freight = freight;
+    public void setNominal(float nominal) {
+        this.nominal = nominal;
+    }
+
+    public float getProfit() {
+        return profit;
+    }
+
+    public void setProfit(float profit) {
+        this.profit = profit;
+    }
+
+    public float getPrefee() {
+        return prefee;
+    }
+
+    public void setPrefee(float prefee) {
+        this.prefee = prefee;
     }
 
     public float getDiscount() {

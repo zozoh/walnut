@@ -24,9 +24,15 @@ public class WnProduct {
     private String cate;
 
     /**
-     * 产品单价
+     * 产品标称单格（原始零售价）
+     */
+    private float retail;
+
+    /**
+     * 产品动态单价，优先应用规则的零售价
      * <p>
-     * 如果声明了 proId+priceBy，则优先应用规则，并更新本字段
+     * 如果声明了 proId+priceBy，先应用规则，获取的单价<br>
+     * 否则与零售价相同
      */
     private float price;
 
@@ -63,6 +69,11 @@ public class WnProduct {
     private float subtotal;
 
     /**
+     * 小计： <code>retail * amount</code>
+     */
+    private float subretail;
+
+    /**
      * 价格规则对象的 ID
      */
     @JsonField("pro_id")
@@ -80,7 +91,8 @@ public class WnProduct {
     public void updateBy(NutBean bean) {
         title = bean.getString("title");
         cate = bean.getString("cate");
-        price = bean.getFloat("price", 0);
+        retail = bean.getFloat("price", 0);
+        price = retail;
         weight = bean.getFloat("weight", 0);
         freight = bean.getFloat("freight", 0);
         proId = bean.getString("pro_id");
@@ -93,6 +105,7 @@ public class WnProduct {
         bean.put("id", this.id);
         bean.put("title", this.title);
         bean.put("cate", this.cate);
+        bean.put("retail", this.retail);
         bean.put("price", this.price);
         bean.put("weight", this.weight);
         bean.put("freight", this.freight);
@@ -108,6 +121,7 @@ public class WnProduct {
         pro.id = this.id;
         pro.title = this.title;
         pro.cate = this.cate;
+        pro.retail = this.retail;
         pro.price = this.price;
         pro.weight = this.weight;
         pro.freight = this.freight;
@@ -145,6 +159,22 @@ public class WnProduct {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCate() {
+        return cate;
+    }
+
+    public void setCate(String cate) {
+        this.cate = cate;
+    }
+
+    public float getRetail() {
+        return retail;
+    }
+
+    public void setRetail(float retail) {
+        this.retail = retail;
     }
 
     public float getPrice() {
@@ -205,6 +235,14 @@ public class WnProduct {
 
     public void setSubtotal(float subtotal) {
         this.subtotal = subtotal;
+    }
+
+    public float getSubretail() {
+        return subretail;
+    }
+
+    public void setSubretail(float subretail) {
+        this.subretail = subretail;
     }
 
     public boolean hasProId() {

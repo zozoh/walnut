@@ -176,6 +176,12 @@ sellers : {
   paypal : "theName"
 }
 
+# 站点订单价格实际支付按照那种价格来计算
+#  - TOTAL   : 按照价格体系
+#  - NOMINAL ：按照产品的标称价格
+# 默认 TOTAL
+fee_mode : "TOTAL"
+
 # 站点支付默认采用的货币单位
 # 默认的话，用 RMB
 currency: "RMB"

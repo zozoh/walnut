@@ -46,7 +46,6 @@ key: w1-shop-order
 #
 1. 必须有产品
 2. 必须设定了 accounts, buyer_id
-3. 必须设定了支付类型
 
 #
 # 确保默认货币单位
@@ -74,6 +73,12 @@ key: w1-shop-order
 1. 通过 "skuKey" 参数来决定本订单是否需要检查库存
 2. 所有有 "skuKey" 的商品，都要检查对于商品购买数据是否超卖
    + 如果超卖，就抛错 "e.www.order.OutOfStore"
+
+#
+# 根据付款类型找到销售方
+#
+? 如果订单设置了付款类型
+  根据 payType 前缀找到 seller 并更新订单元数据
 
 #
 # 补齐商品的冗余字段
@@ -139,10 +144,15 @@ key: w1-shop-order
                       // 这里则是记录一个归纳值，以便根据规则，
                       // 从价格规则表中甄选价格
     //..............................
+    // 价格
+    //..............................
+    retail : 132.0,     // 产品标称单格（原始零售价）
+    price  : 132.0,     // 产品动态单价，优先应用规则的零售价
+    //..............................
     // 小计
     //..............................
-    price : 132.0, // 产品单价，优先应用规则，并更新本字段
-    subtotal : 132.0  // 小计： price * amount
+    subretail : 132.0   // 小计： retail * amount
+    subtotal  : 132.0   // 小计： price  * amount
   }],
   //--------------------------------
   // 运费详情 : org.nutz.walnut.ext.lbs.bean.LbsFreight
@@ -166,11 +176,14 @@ key: w1-shop-order
     total : 18.0             // 总运费（元）
   },
   //--------------------------------
-  total : 500.0,       // 商品总金额
   freight  : 12.0,     // 总运费
-  discount : 20.0,     // 优惠金额
-  price    : 512.0,    // 订单总金额 (total + freight) 
-  fee      : 492.0,    // 优惠后金额 (price - discount)
+  total    : 500.0,    // 商品总价
+  nominal  : 500.0,    // 标称总价
+  profit   : 0,        // 收益金额
+  prefee   : 500.0,    // 基础金额
+  discount : 20.0,     // 优惠金额 (基于 prefee 应用优惠券节省的金额)
+  price    : 512.0,    // 惠前金额 (prefee + freight) 
+  fee      : 492.0,    // 支付金额 (price - discount)
   currency : "RMB"     // 货币单位
 }
 ```
@@ -214,8 +227,8 @@ key: w1-shop-order
 #
 # 决定基础价格
 #
-? 根据参数 `priceBase` 得到基础订单价格:
-  > `basePrice` = `priceBase == TOTAL`
+基础订单金额 `prefee` 来自站点设置 "feeMode"
+  > `prefee` = `feeMode == TOTAL`
       ? `total`
       : `nominal`
 
@@ -249,12 +262,11 @@ key: w1-shop-order
 - 标称总价 : `nominal` 即商品 price 字段的原始汇总的价格
 - 收益金额 : `profit = nominal - total`
 -
-- 基础价格 : `basePrice = $total or $nominal` 
--           ? 根据参数 `priceBase=TOTAL|NOMINAL` 来决定
+- 基础金额 : `prefee = $total or $nominal` 
 -
-- 总折扣   : `discount = basePrice - fee`
-- 惠前金额 : `price = basePrice + freight`
-- 支付金额 : `fee = basePrice + freight - discount`
+- 总折扣   : `discount` : (基于 `prefee` 应用优惠券节省的金额)
+- 惠前金额 : `price = prefee + freight`
+- 支付金额 : `fee = price - discount`
 -
 !
 ! 所有的价格对齐到`分`，四舍五入

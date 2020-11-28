@@ -80,6 +80,11 @@ public class WnWebSite {
     private NutMap sellers;
 
     /**
+     * 基础价格类型
+     */
+    private OrderFeeMode feeMode;
+
+    /**
      * 支付采用的默认货币结算单位 默认 RMB
      */
     private String currency;
@@ -191,6 +196,12 @@ public class WnWebSite {
             sellers = bean.getAs("sellers", NutMap.class);
         }
 
+        // 确认基础价格类型
+        this.feeMode = bean.getEnum("fee_mode", OrderFeeMode.class);
+        if (null == this.feeMode) {
+            this.feeMode = OrderFeeMode.TOTAL;
+        }
+
         // 获取默认货币单位
         this.currency = bean.getString("currency", "RMB");
 
@@ -247,7 +258,7 @@ public class WnWebSite {
 
         return list;
     }
-    
+
     public void addHistoryRecord(NutBean context, String key) {
         List<NutBean> hisTmpls = this.getHistoryTmpls(key);
         this.addHistoryRecord(context, hisTmpls);
@@ -413,6 +424,22 @@ public class WnWebSite {
         int pos = nameOrPayType.indexOf('.');
         String sellerName = pos > 0 ? nameOrPayType.substring(0, pos) : nameOrPayType;
         return sellers.getString(sellerName);
+    }
+
+    public boolean isFeeModeTotal() {
+        return OrderFeeMode.TOTAL == this.feeMode;
+    }
+
+    public boolean isFeeModeNominal() {
+        return OrderFeeMode.NOMINAL == this.feeMode;
+    }
+
+    public OrderFeeMode getFeeMode() {
+        return feeMode;
+    }
+
+    public void setFeeMode(OrderFeeMode feeMode) {
+        this.feeMode = feeMode;
     }
 
     public String getCurrency() {
