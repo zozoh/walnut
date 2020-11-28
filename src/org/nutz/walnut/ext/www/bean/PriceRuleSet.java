@@ -6,10 +6,26 @@ import java.util.Map;
 
 public class PriceRuleSet {
 
+    /**
+     * 一个标称的零售价
+     */
+    private float retailPrice;
+
+    /**
+     * 动态价格规则映射表
+     */
     private Map<String, PriceRule> map;
 
     public PriceRuleSet() {
         map = new HashMap<>();
+    }
+
+    public float getRetailPrice() {
+        return retailPrice;
+    }
+
+    public void setRetailPrice(float retailPrice) {
+        this.retailPrice = retailPrice;
     }
 
     public PriceRule getRule(String ruleName) {

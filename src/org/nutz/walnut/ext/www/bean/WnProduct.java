@@ -91,8 +91,20 @@ public class WnProduct {
     public void updateBy(NutBean bean) {
         title = bean.getString("title");
         cate = bean.getString("cate");
-        retail = bean.getFloat("price", 0);
-        price = retail;
+        price = bean.getFloat("price", -1);
+        retail = bean.getFloat("retail", -1);
+
+        // price || retail 这俩货有一个声明就成
+        if (price < 0) {
+            price = retail;
+        }
+        if (retail < 0) {
+            retail = price;
+        }
+        // 咋地也不能是负数
+        price = Math.max(0, price);
+        retail = Math.max(0, retail);
+
         weight = bean.getFloat("weight", 0);
         freight = bean.getFloat("freight", 0);
         proId = bean.getString("pro_id");

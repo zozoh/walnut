@@ -92,7 +92,7 @@ public class WnOrderService {
         return shipAddrObj;
     }
 
-    private PriceRuleSet getRuleSet(String ruleSetId, String ruleKey) {
+    private PriceRuleSet getRuleSet(String ruleSetId, String ruleKey, String retailKey) {
         PriceRuleSet rs = priceRules.get(ruleSetId);
         if (null == rs) {
             // 还未加载过，加载一个
@@ -104,15 +104,13 @@ public class WnOrderService {
                 // 搞出来看看
                 else {
                     List<PriceRule> list = oRuleSet.getAsList(ruleKey, PriceRule.class);
-                    if (null == list || list.isEmpty()) {
-                        priceRules.put(ruleSetId, null);
+                    rs = new PriceRuleSet();
+                    rs.addRules(list);
+                    if (!Strings.isBlank(retailKey) && oRuleSet.containsKey(retailKey)) {
+                        float retail = oRuleSet.getFloat(retailKey);
+                        rs.setRetailPrice(retail);
                     }
-                    // 嗯，建立把
-                    else {
-                        rs = new PriceRuleSet();
-                        rs.addRules(list);
-                        priceRules.put(ruleSetId, rs);
-                    }
+                    priceRules.put(ruleSetId, rs);
                 }
             }
         }
@@ -186,7 +184,8 @@ public class WnOrderService {
             // 计算价格
             // 如果产品设置了复杂的价格规则，譬如根据购买数量决定其价格，需要进行一下
             // 稍微费点劲的计算
-            float price = __cal_pro_price(pro, priceRuleKey);
+            __eval_pro_price(pro, priceRuleKey);
+            float price = pro.getPrice();
             float retail = pro.getRetail();
 
             // 数量
@@ -203,8 +202,8 @@ public class WnOrderService {
 
             // 记入
             pro.setPrice(price);
-            pro.setSubtotal(price * amo);
-            pro.setSubretail(retail * amo);
+            pro.setSubtotal(Nums.precision(price * amo, 2));
+            pro.setSubretail(Nums.precision(retail * amo, 2));
 
             // 汇总
             total += pro.getSubtotal();
@@ -309,25 +308,33 @@ public class WnOrderService {
         return orpri;
     }
 
-    private float __cal_pro_price(WnProduct pro, String priceRuleKey) {
-        if (pro.hasProId() && pro.hasPriceBy()) {
-            PriceRuleSet rs = this.getRuleSet(pro.getProId(), priceRuleKey);
+    private void __eval_pro_price(WnProduct pro, String priceRuleKey) {
+        if (pro.hasProId()) {
+            String retailKey = site.getPriceRetailKey();
+            PriceRuleSet rs = this.getRuleSet(pro.getProId(), priceRuleKey, retailKey);
             if (null == rs) {
                 throw Er.create("e.www.order.price.LostProId", pro.getProId());
             }
-            PriceRule rule = rs.getRule(pro.getPriceBy());
-            if (null == rule) {
-                throw Er.create("e.www.order.price.LostRule",
-                                pro.getProId() + ":" + pro.getPriceBy());
+            // 建议零售价
+            if (site.hasPriceRetailKey()) {
+                pro.setRetail(rs.getRetailPrice());
             }
-            PriceRuleItem ruleItem = rule.matchItem(pro);
-            if (null == ruleItem) {
-                throw Er.create("e.www.order.price.NoMatchedItem",
-                                pro.getId() + "(x" + pro.getAmount() + ")");
+            // 动态规划价格
+            if (pro.hasPriceBy()) {
+                PriceRule rule = rs.getRule(pro.getPriceBy());
+                if (null == rule) {
+                    throw Er.create("e.www.order.price.LostRule",
+                                    pro.getProId() + ":" + pro.getPriceBy());
+                }
+                PriceRuleItem ruleItem = rule.matchItem(pro);
+                if (null == ruleItem) {
+                    throw Er.create("e.www.order.price.NoMatchedItem",
+                                    pro.getId() + "(x" + pro.getAmount() + ")");
+                }
+                float price = ruleItem.getPrice();
+                pro.setPrice(price);
             }
-            return ruleItem.getPrice();
         }
-        return pro.getPrice();
     }
 
     private boolean __cal_load_addr(WnOrder or) {

@@ -80,6 +80,13 @@ public class WnWebSite {
     private NutMap sellers;
 
     /**
+     * 【选】站点如果采用了动态价格规则，商品对应的商品规则对象中（即【商品包】） 哪个键用来声明商品的的建议零售价。
+     * 因为，通常这种场景，商品包里会包含多个商品，建议零售价是完全一致的。 如果站点不声明这个选项，商品的建议零售价会采用自身的元数据 `price`
+     * 来决定
+     */
+    private String priceRetailKey;
+
+    /**
      * 基础价格类型
      */
     private OrderFeeMode feeMode;
@@ -195,6 +202,9 @@ public class WnWebSite {
         if (bean.has("sellers")) {
             sellers = bean.getAs("sellers", NutMap.class);
         }
+
+        // 确定动态价格规划场景下的商品建立零售价，在商品包中的键
+        this.priceRetailKey = bean.getString("price_retail_key");
 
         // 确认基础价格类型
         this.feeMode = bean.getEnum("fee_mode", OrderFeeMode.class);
@@ -424,6 +434,18 @@ public class WnWebSite {
         int pos = nameOrPayType.indexOf('.');
         String sellerName = pos > 0 ? nameOrPayType.substring(0, pos) : nameOrPayType;
         return sellers.getString(sellerName);
+    }
+
+    public boolean hasPriceRetailKey() {
+        return !Strings.isBlank(priceRetailKey);
+    }
+
+    public String getPriceRetailKey() {
+        return priceRetailKey;
+    }
+
+    public void setPriceRetailKey(String priceRetailKey) {
+        this.priceRetailKey = priceRetailKey;
     }
 
     public boolean isFeeModeTotal() {
