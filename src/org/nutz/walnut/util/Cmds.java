@@ -260,6 +260,17 @@ public abstract class Cmds {
                   + "|ln|mnt|expi|passwd|salt"
                   + "|th_(set|live|set_nm))$";
         }
+        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
+        else if ("%EXT-TC".equalsIgnoreCase(str)) {
+            str = "!^(ph|race|data|d[0-9]"
+                  + "|pid|c|m|g|md"
+                  + "|ln|mnt|expi|passwd|salt"
+                  + "|th_(set|live|set_nm))$";
+        }
+        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
+        else if ("%EXT-THC".equalsIgnoreCase(str)) {
+            str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
+        }
 
         return new AutoStrMatch(str, not);
     }
