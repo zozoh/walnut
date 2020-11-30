@@ -17,8 +17,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AlwaysMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public abstract class Cmds {
 
@@ -236,43 +234,7 @@ public abstract class Cmds {
     private static WnMatch __gen_obj_key_match(ZParams params, String key) {
         String str = params.getString(key);
 
-        if (Strings.isBlank(str))
-            return new AlwaysMatch(true);
-
-        // 分析 not
-        boolean not = false;
-        if (str.startsWith("!")) {
-            not = true;
-            str = str.substring(1).trim();
-        }
-
-        // 快速字段: 扩展字段
-        if ("%EXT".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|nm|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段
-        else if ("%EXT-NM".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
-        else if ("%EXT-TC".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|data|d[0-9]"
-                  + "|pid|c|m|g|md"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
-        else if ("%EXT-THC".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
-        }
-
-        return new AutoStrMatch(str, not);
+        return Wn.explainObjKeyMatcher(str);
     }
 
     private static NutMap _obj_to_outmap(NutBean o, WnMatch keyMatch) {

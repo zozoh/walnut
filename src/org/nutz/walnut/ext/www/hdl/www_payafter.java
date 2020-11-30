@@ -123,7 +123,7 @@ public class www_payafter implements JvmHdl {
         WnWebSite site = webs.getSite();
 
         // 得到用户
-        WnAccount u = webs.getAuthApi().checkAccount(or.getBuyerId());
+        WnAccount u = webs.getAuthApi().checkAccountById(or.getBuyerId());
 
         // 准备订单元数据
         NutMap orBean = or.toMeta();

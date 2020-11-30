@@ -66,64 +66,64 @@ history : {
   #  - @home   : 主目录路径
   #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
   #  - @session: 当前会话 {ticket ...}
-	"session:created" : {
+  "session:created" : {
     uid : "=@me.id",
     unm : "=@me.nickname|me.email|me.phone|me.nm",
     utp : "=@me.role?user",
     tid : "=@domain",
     ttp : "user",
     opt : "login"
-	},
+  },
   # 创建用户时的历史记录
   # 上下文为对象
   #  - @name   : "account:created"
   #  - @domain : 当前域名
   #  - @home   : 主目录路径
   #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
-	"account:created" : {
+  "account:created" : {
     uid : "=@me.id",
     unm : "=@me.nickname",
     utp : "=@me.role?user",
     tid : "=@domain",
     ttp : "user",
     opt : "signup"
-	},
-	# 订单支付后（A and Q)
+  },
+  # 订单支付后（A and Q)
   #  - @name   : "order:pay"
   #  - @domain : 当前域名
   #  - @home   : 主目录路径
   #  - @me     : 当前账号 {id,nm, nickname,phone,email ...}
   #  - @order  : 当前订单 {id,tp,pro_c ...}
-	"order:pay" : {
-	  uid : "=@me.id",
+  "order:pay" : {
+    uid : "=@me.id",
     unm : "=@me.nickname",
     utp : "=@me.role?user",
     tid : "=@order.id",
     tnm : "->${@order.tp}:${@order.title}",
     ttp : "order",
     opt : "pay"
-	},
-	# 订单支付后（A and Q)，每个商品的记录
+  },
+  # 订单支付后（A and Q)，每个商品的记录
   #  - @name    : "order:pay"
   #  - @domain  : 当前域名
   #  - @home    : 主目录路径
   #  - @me      : 当前账号 {id,nm, nickname,phone,email ...}
   #  - @order   : 当前订单 {id,tp,pro_c ...}
   #  - @product : 当前商品 {id,title,amount,cate,price ...}
-	"order:products" : {
-		uid : "=@me.id",
+  "order:products" : {
+    uid : "=@me.id",
     unm : "=@me.nickname",
     utp : "=@me.role?user",
     tid : "=@product.id",
     tnm : "=@product.title",
     ttp : "product",
     opt : "pay"
-	},
+  },
   # A订单支付后
-	"order:A:pay" : {..},
+  "order:A:pay" : {..},
   "order:A:products" : {..},
   # Q订单支付后
-	"order:Q:pay" : {..},
+  "order:Q:pay" : {..},
   "order:Q:products" : {..},
 }
 # 指定历史记录数据源的名称，默认为 _history
@@ -143,12 +143,12 @@ pvg_setup: "~/.domain/pvg.json"
 # 它会替换在 init-usr-envs: 声明的环境变量值
 env : {
   OPEN      : "wn.console",
-	PATH      : "/bin:/sbin:~/bin",
-	THEME     : "light",
-	APP_PATH  : "/rs/ti/app:/app",
-	VIEW_PATH : "/rs/ti/view/",
-	QUIT      : "/www/abc",
-	SIDEBAR_PATH : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json"
+  PATH      : "/bin:/sbin:~/bin",
+  THEME     : "light",
+  APP_PATH  : "/rs/ti/app:/app",
+  VIEW_PATH : "/rs/ti/view/",
+  QUIT      : "/www/abc",
+  SIDEBAR_PATH : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json"
 }
 
 # 微信配置目录名，用来做公众号或小程序登录等操作

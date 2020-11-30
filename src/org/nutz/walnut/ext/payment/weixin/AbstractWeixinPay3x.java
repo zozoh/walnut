@@ -281,7 +281,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     }
 
     private WnObj __get_weixin_conf_obj(WnPayObj po) {
-        WnAccount seller = run.auth().checkAccount(po.getSellerId());
+        WnAccount seller = run.auth().checkAccountById(po.getSellerId());
         String ta = po.getPayTarget();
         if (Strings.isBlank(ta)) {
             throw Er.create("e.pay.weixin.noTarget");

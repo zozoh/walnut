@@ -91,10 +91,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
+    public WnAccount getAccount(String nameOrPhoneOrEmail) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
             protected WnAccount exec() {
-                return impl.getAccount(nameOrIdOrPhoneOrEmail);
+                return impl.getAccount(nameOrPhoneOrEmail);
             }
         });
     }
@@ -113,10 +113,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAccount checkAccount(String nameOrIdOrPhoneOrEmail) {
+    public WnAccount checkAccount(String nameOrPhoneOrEmail) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAccount>() {
             protected WnAccount exec() {
-                return impl.checkAccount(nameOrIdOrPhoneOrEmail);
+                return impl.checkAccount(nameOrPhoneOrEmail);
             }
         });
     }

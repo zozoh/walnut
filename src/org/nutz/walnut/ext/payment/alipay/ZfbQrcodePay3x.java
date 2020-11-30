@@ -125,7 +125,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     }
 
     public AlipayConfig getConfig(WnPayObj po) {
-        WnAccount seller = run.auth().checkAccount(po.getSellerId());
+        WnAccount seller = run.auth().checkAccountById(po.getSellerId());
         String aph = seller.getHomePath() + "/.alipay/" + po.getPayTarget() + "/alipayconf";
         WnObj conf = io.check(null, aph);
         return io.readJson(conf, AlipayConfig.class);

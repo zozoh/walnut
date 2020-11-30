@@ -873,6 +873,19 @@ public class WnIoImpl2 implements WnIo {
         return Wn.WC().whenAccess(o, true);
     }
 
+    public WnObj getIn(WnObj p, String id) {
+        if (null == p) {
+            return this.get(id);
+        }
+        WnIoMapping im = mappings.checkMapping(p);
+        WnIoIndexer indexer = im.getIndexer();
+        WnObj o = indexer.get(id);
+        if (null != o) {
+            o.mountRootId(p.mountRootId());
+        }
+        return Wn.WC().whenAccess(o, true);
+    }
+
     @Override
     public WnObj getOne(WnQuery q) {
         final WnObj[] re = new WnObj[1];

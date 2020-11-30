@@ -337,6 +337,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.get(id);
     }
 
+    public WnObj getIn(WnObj p, String id) {
+        return io.getIn(p, id);
+    }
+
     public WnObj getOne(WnQuery q) {
         return io.getOne(q);
     }

@@ -36,6 +36,11 @@ public class WnOrder {
     @JsonField("invoice_id")
     private String invoiceId;
 
+    /**
+     * 发票的详情，这个需要处理函数根据 invoiceId 加载
+     */
+    private NutMap invoice;
+
     // -------------------------------
     // 物流信息
     // -------------------------------
@@ -451,12 +456,24 @@ public class WnOrder {
         this.productIds = productIds;
     }
 
+    public boolean hasInvoiceId() {
+        return !Strings.isBlank(invoiceId);
+    }
+
     public String getInvoiceId() {
         return invoiceId;
     }
 
     public void setInvoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
+    }
+
+    public NutMap getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(NutMap invoice) {
+        this.invoice = invoice;
     }
 
     public boolean hasWaybilCompany() {

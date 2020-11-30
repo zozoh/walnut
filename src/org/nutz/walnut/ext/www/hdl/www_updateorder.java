@@ -23,7 +23,7 @@ public class www_updateorder implements JvmHdl {
         // 订单 ID
         String orId = hc.params.val_check(0);
         String m_freight_key = hc.params.getString("m_freight_key", "freight_m");
-        String m_total_key = hc.params.getString("m_total_key", "total_m");
+        String m_prefee_key = hc.params.getString("m_prefee_key", "prefee_m");
 
         // -------------------------------
         // 得到订单
@@ -43,31 +43,36 @@ public class www_updateorder implements JvmHdl {
         float m_freight = oOrder.getFloat(m_freight_key, -1);
 
         // 得到修改过的商品总价
-        float m_total = oOrder.getFloat(m_total_key, -1);
+        float m_prefee = oOrder.getFloat(m_prefee_key, -1);
 
-        // 有一个需要修改，也得修改
-        if (m_freight >= 0 || m_total >= 0) {
-            // 修改总价
-            float total = or.getTotal();
-            if (m_total >= 0) {
-                total = m_total;
-            }
+        //
+        // 计算一下修改的价格
+        //
+        // 修改总价
+        float prefee = or.getPrefee();
+        if (m_prefee >= 0) {
+            prefee = m_prefee;
+        }
 
-            // 修改运费
-            float freight = or.getFreight();
-            if (m_freight >= 0) {
-                freight = m_freight;
-            }
+        // 修改运费
+        float freight = or.getFreight();
+        if (m_freight >= 0) {
+            freight = m_freight;
+        }
 
-            // 计算支付费用
-            float fee = Nums.precision(total + freight - or.getDiscount(), 2);
-            if (or.getFee() != fee) {
-                or.setFee(fee);
+        // 获取订单的优惠金额
+        float discount = or.getDiscount();
 
-                // 更新入订单
-                NutMap meta = or.toMeta("^(fee)$", null);
-                sys.io.appendMeta(oOrder, meta);
-            }
+        // 计算支付费用
+        float fee = Nums.precision(prefee + freight - discount, 2);
+
+        // 看看是否需要更新订单
+        if (or.getFee() != fee) {
+            or.setFee(fee);
+
+            // 更新入订单
+            NutMap meta = or.toMeta("^(fee)$", null);
+            sys.io.appendMeta(oOrder, meta);
         }
 
         // 如果已经填写运单号，则修修改发货状态

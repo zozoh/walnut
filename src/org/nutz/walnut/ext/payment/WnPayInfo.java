@@ -114,7 +114,7 @@ public class WnPayInfo {
         }
         // 如果两个都有，则比较一下是否匹配
         else {
-            WnAccount u = auth.checkAccount(seller_id);
+            WnAccount u = auth.checkAccountById(seller_id);
             if (!u.isSameName(seller_nm)) {
                 throw Er.create("e.pay.noMatchSeller", seller_id + " not " + seller_nm);
             }

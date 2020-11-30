@@ -47,14 +47,14 @@ public class pay_create implements JvmHdl {
 
         // 填充支付单的 buyer 的名称和ID，必须配对
         if (wpi.isWalnutBuyer()) {
-            WnAccount buyer = sys.auth.checkAccount(wpi.buyer_id);
+            WnAccount buyer = sys.auth.checkAccountById(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();
         }
         // 用域用户的方式检测
         else if (wpi.isDomainBuyer()) {
             WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp);
             WnAccountLoader alod = new WnAccountLoaderImpl(sys.io, oAccountDir, true);
-            WnAccount buyer = alod.checkAccount(wpi.buyer_id);
+            WnAccount buyer = alod.checkAccountById(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();
         }
         // 不可能

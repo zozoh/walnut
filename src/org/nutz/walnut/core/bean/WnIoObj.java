@@ -2,14 +2,11 @@ package org.nutz.walnut.core.bean;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.nutz.castor.Castors;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -19,6 +16,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.validate.WnMatch;
 
 public class WnIoObj extends NutMap implements WnObj {
 
@@ -42,11 +40,8 @@ public class WnIoObj extends NutMap implements WnObj {
     public NutMap toMap4Update(String regex) {
         NutMap map = new NutMap();
 
-        // 正则表达式支持 "!" 开头
-        boolean not = null != regex && regex.startsWith("!");
-        if (not)
-            regex = regex.substring(1);
-        Pattern pattern = regex == null ? null : Regex.getPattern(regex);
+        // 准备匹配逻辑
+        WnMatch m = Wn.explainObjKeyMatcher(regex);
 
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
@@ -54,13 +49,12 @@ public class WnIoObj extends NutMap implements WnObj {
             if (Wn.matchs(key, "^(ph|parent|id|race)$")) {
                 continue;
             }
-            // 如果 regex 为空，不是 "_" 开头（表隐藏），则全要
-            else if (null == pattern) {
-                if (!key.startsWith("_"))
-                    map.put(key, en.getValue());
+            // "_" 开头（表隐藏），无视
+            else if (key.startsWith("_")) {
+                continue;
             }
             // 否则只给出正则表达式匹配的部分
-            else if (pattern.matcher(key).matches() ^ not) {
+            else if (m.match(key)) {
                 map.put(key, en.getValue());
             }
         }
@@ -76,17 +70,21 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public NutMap toMap(String regex) {
+        // 准备匹配逻辑
+        WnMatch m = Wn.explainObjKeyMatcher(regex);
+
+        // 准备返回结果
         NutMap map = new NutMap();
+
+        // 依次判断
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
-            if (null == regex) {
-                map.put(key, en.getValue());
-            }
-            // 否则只给出正则表达式匹配的部分，以及几个固定需要更新的字段
-            else if (key.matches(regex)) {
+            if (m.match(key)) {
                 map.put(key, en.getValue());
             }
         }
+
+        // 搞定
         return map;
     }
 

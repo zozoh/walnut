@@ -767,13 +767,13 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     }
 
     @Override
-    public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
-        return accountLoader.getAccount(nameOrIdOrPhoneOrEmail);
+    public WnAccount getAccount(String nameOrPhoneOrEmail) {
+        return accountLoader.getAccount(nameOrPhoneOrEmail);
     }
 
     @Override
-    public WnAccount checkAccount(String nameOrIdOrPhoneOrEmail) {
-        return accountLoader.checkAccount(nameOrIdOrPhoneOrEmail);
+    public WnAccount checkAccount(String nameOrPhoneOrEmail) {
+        return accountLoader.checkAccount(nameOrPhoneOrEmail);
     }
 
     @Override

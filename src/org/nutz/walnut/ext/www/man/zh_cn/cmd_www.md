@@ -26,4 +26,5 @@ www price        # 计算订单价格（包括运费，优惠等）
 www pay          # 根据订单创建支付单
 www payafter     # 支付成功后，对于订单的后续处理
 www avatar       # 为某账户设置头像
+www updateprice  # 根据调整后的订单基础金额和运费设置订单费用
 ```

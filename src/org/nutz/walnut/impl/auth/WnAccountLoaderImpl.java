@@ -11,6 +11,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 
 public class WnAccountLoaderImpl implements WnAccountLoader {
@@ -55,16 +56,16 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
     }
 
     @Override
-    public WnAccount getAccount(String nameOrIdOrPhoneOrEmail) {
-        WnAccount info = new WnAccount(nameOrIdOrPhoneOrEmail);
+    public WnAccount getAccount(String nameOrPhoneOrEmail) {
+        WnAccount info = new WnAccount(nameOrPhoneOrEmail);
         return this.getAccount(info);
     }
 
     @Override
-    public WnAccount checkAccount(String nameOrIdOrPhoneOrEmail) {
-        WnAccount u = this.getAccount(nameOrIdOrPhoneOrEmail);
+    public WnAccount checkAccount(String nameOrPhoneOrEmail) {
+        WnAccount u = this.getAccount(nameOrPhoneOrEmail);
         if (null == u) {
-            throw Er.create("e.auth.account.noexists", nameOrIdOrPhoneOrEmail);
+            throw Er.create("e.auth.account.noexists", nameOrPhoneOrEmail);
         }
         return u;
     }
@@ -114,7 +115,11 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
 
     @Override
     public WnAccount getAccountById(String uid) {
-        WnObj oU = io.get(uid);
+        // 考虑两段式 ID，确保起始段一定为 oAccountDir
+        WnObjId oid = new WnObjId(uid);
+
+        // 读取用户
+        WnObj oU = io.getIn(oAccountDir, oid.getMyId());
         if (null != oU && oU.getInt("th_live", 1) != -1) {
             if (this.forceInHome && !oAccountDir.isSameId(oU.parentId())) {
                 throw Er.create("e.auth.acc_outof_home", uid);

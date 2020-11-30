@@ -156,7 +156,7 @@ public class PaypalPay3x extends WnPay3x {
     }
 
     protected PaypalConfig createConfig(WnPayObj po) {
-        WnAccount seller = run.auth().checkAccount(po.getSellerId());
+        WnAccount seller = run.auth().checkAccountById(po.getSellerId());
         String aph = seller.getHomePath() + "/.paypal/" + po.getPayTarget() + "/ppconf";
         WnObj conf = io.check(null, aph);
         return io.readJson(conf, PaypalConfig.class);

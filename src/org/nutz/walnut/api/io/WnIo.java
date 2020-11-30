@@ -20,7 +20,7 @@ import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoMappingFactory;
 
 public interface WnIo {
-    
+
     WnIoMappingFactory getMappingFactory();
 
     boolean exists(WnObj p, String path);
@@ -113,6 +113,8 @@ public interface WnIo {
 
     WnObj get(String id);
 
+    WnObj getIn(WnObj p, String id);
+
     WnObj getOne(WnQuery q);
 
     WnObj getRoot();
@@ -190,7 +192,7 @@ public interface WnIo {
     Reader getReader(WnObj o, long off);
 
     Writer getWriter(WnObj o, long off);
-    
+
     WnIoIndexer getIndexer(WnObj o);
 
     WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException;

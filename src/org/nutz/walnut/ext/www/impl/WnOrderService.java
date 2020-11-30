@@ -444,6 +444,18 @@ public class WnOrderService {
             or.setTitle(or.getSeller());
         }
 
+        // 读取订单发票
+        if (or.hasInvoiceId()) {
+            WnObj oInv = io.get(or.getInvoiceId());
+            if (null != oInv) {
+                NutMap inv = oInv.toMap("%EXT");
+                // 再移除一些没用的键
+                inv.pickAndRemove("id", "inv_dft", "uid");
+                // 设置进去
+                or.setInvoice(inv);
+            }
+        }
+
         // 设置订单过期时间
         int duInMin = site.getOrderDuMin();
         if (duInMin > 0) {

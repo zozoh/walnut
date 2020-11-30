@@ -18,22 +18,22 @@ public interface WnAccountLoader {
     /**
      * 获取账户对象
      * 
-     * @param nameOrIdOrPhoneOrEmail
+     * @param nameOrPhoneOrEmail
      *            账户登录名或ID或手机号或邮箱
      * @return 账户对象。 null 表示不存在
      */
-    WnAccount getAccount(String nameOrIdOrPhoneOrEmail);
+    WnAccount getAccount(String nameOrPhoneOrEmail);
 
     /**
      * 获取账户对象，如果不存在，抛错
      * 
-     * @param nameOrIdOrPhoneOrEmail
+     * @param nameOrPhoneOrEmail
      *            账户登录名或ID或手机号或邮箱
      * @return 账户对象
      * @throws "e.auth.account.noexist"
      *             - 账户不存在
      */
-    WnAccount checkAccount(String nameOrIdOrPhoneOrEmail);
+    WnAccount checkAccount(String nameOrPhoneOrEmail);
 
     /**
      * 根据信息获取账户对象
@@ -56,7 +56,7 @@ public interface WnAccountLoader {
     WnAccount checkAccount(WnAccount info);
 
     WnAccount getAccountById(String uid);
-    
+
     WnAccount checkAccountById(String uid);
 
 }
