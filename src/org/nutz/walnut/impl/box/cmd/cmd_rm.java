@@ -117,7 +117,7 @@ public class cmd_rm extends JvmExecutor {
         }
 
         // 递归
-        if (!o.isFILE() && isR) {
+        if (!o.isFILE() && !o.isLink() && isR) {
             sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     _do_delete(sys, isV, isR, isI, index, base, child);
