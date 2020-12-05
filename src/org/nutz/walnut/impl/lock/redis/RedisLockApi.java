@@ -195,6 +195,19 @@ public class RedisLockApi implements WnLockApi {
         });
     }
 
+    private long __canAskLock(String lockName, String owner) {
+        String askKey = _ASK_KEY(lockName);
+        long ask = Wedis.runGet(conf, jed -> {
+            Long askRe = jed.setnx(askKey, owner);
+            // 申请成功，那么设个过期时间，超过这个时间无论怎样，都让这个锁失效
+            if (1 == askRe) {
+                jed.expire(askKey, askDuration);
+            }
+            return askRe;
+        });
+        return ask;
+    }
+
     /**
      * 加锁前，都要通过这个函数先占一下坑。因为 Redis "setnx" 是原子性的，所以本操作是跨节点安全的
      * 
@@ -205,15 +218,7 @@ public class RedisLockApi implements WnLockApi {
      * @return 是否可以尝试加锁
      */
     private long canAskLock(String lockName, String owner) {
-        String askKey = _ASK_KEY(lockName);
-        long ask = Wedis.runGet(conf, jed -> {
-            Long askRe = jed.setnx(askKey, owner);
-            // 申请成功，那么设个过期时间，超过这个时间无论怎样，都让这个锁失效
-            if (1 == askRe) {
-                jed.expire(askKey, askDuration);
-            }
-            return askRe;
-        });
+        long ask = __canAskLock(lockName, owner);
 
         // 未成功获取权限，阻塞，并重试
         if (ask != 1 && this.askRetryInterval > 0 && this.askRetryTimes > 0) {
@@ -232,7 +237,10 @@ public class RedisLockApi implements WnLockApi {
                 catch (InterruptedException e) {
                     return 0;
                 }
-            } while ((ask = canAskLock(lockName, owner)) != 1);
+                if ((ask = __canAskLock(lockName, owner)) == 1) {
+                    break;
+                }
+            } while (true);
         }
         // 最后的结果
         return ask;
