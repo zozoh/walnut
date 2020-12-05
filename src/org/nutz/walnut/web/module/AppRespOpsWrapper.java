@@ -80,8 +80,10 @@ public class AppRespOpsWrapper extends OutputStream {
     }
 
     public void close() throws IOException {
-        ops.flush();
-        resp.flushBuffer();
+        if (this.forceFlush) {
+            ops.flush();
+        	resp.flushBuffer();
+        }
         ops.close();
 
         // 同步关闭观察者流
