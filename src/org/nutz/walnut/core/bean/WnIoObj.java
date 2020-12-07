@@ -116,7 +116,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     private WnObjId _oid;
 
-    private WnObjId OID() {
+    public WnObjId OID() {
         if (null == _oid) {
             String id = this.id();
             if (!Strings.isBlank(id)) {

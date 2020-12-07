@@ -17,6 +17,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 
 @ToJson
@@ -45,7 +46,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         this.mimes = mimes;
         this.phHome = Files.getAbsPath(dHome);
         this.phFile = Files.getAbsPath(file);
-        // 整理路径中的  ..
+        // 整理路径中的 ..
         this.phHome = Disks.getCanonicalPath(this.phHome);
         this.phFile = Disks.getCanonicalPath(this.phFile);
         this.rph = Disks.getRelativePath(phHome, phFile);
@@ -70,6 +71,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public String id() {
         return _id;
+    }
+
+    @Override
+    public WnObjId OID() {
+        return new WnObjId(oHome.id(), this.rph);
     }
 
     @Override

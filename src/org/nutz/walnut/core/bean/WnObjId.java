@@ -8,6 +8,13 @@ public class WnObjId {
 
     private String myId;
 
+    public WnObjId() {}
+
+    public WnObjId(String homeId, String myId) {
+        this.homeId = homeId;
+        this.myId = myId;
+    }
+
     public WnObjId(String str) {
         if (null != str) {
             int pos = str.indexOf(':');

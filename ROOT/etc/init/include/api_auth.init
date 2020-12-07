@@ -17,29 +17,37 @@ weixin ${domain} oauth2 \
 obj ~/www/${domain} -cqn
 %END%
 #--------------------------------------------------------
+# API(auth): 获取某个用户的头像
+@API .regapi/api/auth/avatar 'cross/dynamic'
+%COPY:
+www avatar 'id:${http-qs-site?unkonw}' ${http-qs-uid} -key "thumb" \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%
+#--------------------------------------------------------
 # API(auth): 取得当前会话信息
 @API .regapi/api/auth/checkme 'cross/json'
 %COPY:
-www checkme ${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
+www checkme 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 修改当前会话账户元数据
 @API .regapi/api/auth/setme 'cross/json'
 %COPY:
 cat id:${id} \
-  | www checkme ${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -u -ajax -cqn
+  | www checkme 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -u -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 获取指定账户信息
 @API .regapi/api/auth/getaccount 'cross/json'
 %COPY:
-www account ${http-qs-site?unkonw} ${http-qs-uid?-nil-} -ajax -cqn
+www account 'id:${http-qs-site?unkonw}' ${http-qs-uid?-nil-} -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 获取账户列表（带翻页）
 @API .regapi/api/auth/accounts 'cross/json'
 %COPY:
-www account ${http-qs-site?unkonw} \
+www account 'id:${http-qs-site?unkonw}' \
   '${http-qs-q?}' \
   -list \
   -limit ${http-qs-limit?50} \
@@ -122,5 +130,5 @@ httpparam -in id:${id} | www passwd ${http-qs-site} -ticket ${http-qs-ticket} -a
 # API(auth): 注销会话
 @API .regapi/api/auth/logout 'cross/json'
 %COPY:
-www logout ${http-qs-site?unkonw} ${http-qs-ticket?-nil-} -ajax -cqn
+www logout 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -ajax -cqn
 %END%

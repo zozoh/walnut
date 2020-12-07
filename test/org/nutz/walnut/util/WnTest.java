@@ -33,7 +33,7 @@ public class WnTest {
         map = Lang.map("brief:'->${pet.age}:${pet.race}@${name}'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals("8:dog@xiaobai", m2.getString("brief"));
-        
+
         map = Lang.map("petName:'=page.name?AA'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals("AA", m2.getString("petName"));

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.core.bean.WnObjId;
 
 public interface WnObj extends NutBean, Comparable<WnObj> {
 
@@ -18,6 +19,8 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     String id();
 
     WnObj id(String id);
+
+    WnObjId OID();
 
     String myId();
 

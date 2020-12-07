@@ -9,6 +9,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 
 public class WnAccount {
@@ -334,7 +335,18 @@ public class WnAccount {
     }
 
     public boolean isSameId(String uid) {
-        return null != id && null != uid && id.equals(uid);
+        // 防空
+        if (null == id || null == uid)
+            return false;
+
+        // 如果直接相等就不判断了
+        if (id.equals(uid))
+            return true;
+
+        // 这里需要考虑两段式 ID
+        WnObjId oid = new WnObjId(uid);
+        String myid = oid.getMyId();
+        return id.equals(myid);
     }
 
     public boolean isSameName(String uname) {

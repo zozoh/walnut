@@ -40,6 +40,7 @@ import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoMapping;
 import org.nutz.walnut.core.WnIoMappingFactory;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.core.bean.WnObjMapping;
 import org.nutz.walnut.core.stream.WnIoInputStream;
 import org.nutz.walnut.core.stream.WnIoOutputStream;
@@ -883,7 +884,17 @@ public class WnIoImpl2 implements WnIo {
         if (null != o) {
             o.mountRootId(p.mountRootId());
         }
-        return Wn.WC().whenAccess(o, true);
+        o = Wn.WC().whenAccess(o, true);
+
+        // 如果 p 是映射的，且 o 不是两段式 ID
+        // 那么就说明，在保存的时候，已经删除了父映射的ID，以便精简数据
+        // 那么这时读取回来需要加回去，让两段式ID对于客户端是透明的
+        if (p.isMount() && !o.hasMountRootId()) {
+            WnObjId oid = new WnObjId(p.id(), o.id());
+            o.id(oid.toString());
+        }
+
+        return o;
     }
 
     @Override

@@ -5,6 +5,18 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class WnRgTest {
+    
+    @Test
+    public void test_extend_rg_macro() {
+        String str = "[2020-11-22 22:51:27, 2020-11-22 22:51:27+1d]";
+        String act = WnRg.extend_rg_macro(str);
+        assertEquals("[1606056687000,1606143087000]", act);
+        
+        str = "(2020-12-01-3d, 2020-12-01]";
+        act = WnRg.extend_rg_macro(str);
+        System.out.println(act);
+        assertEquals("(1606492800000,1606752000000]", act);
+    }
 
     @Test
     public void test_int_region() {

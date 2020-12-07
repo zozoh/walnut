@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,16 +83,8 @@ public abstract class Wn {
         return System.currentTimeMillis();
     }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
-    private static final Pattern P_TM_MACRO = Pattern.compile("^now[ \t]*(([+-])[ \t]*([0-9]+[smhd]?)[ \t]*)?$");
-    protected static final ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
-
-    public static boolean matchs(String str, String pattern) {
-        Pattern p = patterns.get(pattern);
-        if (p == null) {
-            p = Regex.getPattern(pattern);
-            patterns.put(pattern, p);
-        }
+    public static boolean matchs(String str, String regex) {
+        Pattern p = Regex.getPattern(regex);
         return p.matcher(str).matches();
     }
 
@@ -1373,13 +1364,13 @@ public abstract class Wn {
         // 日期对象
         if (s.startsWith("%date:")) {
             String str = Strings.trim(s.substring("%date:".length()));
-            long ms = __eval_datetime_str(str);
+            long ms = evalDatetimeStrToAMS(str);
             v2 = Times.D(ms);
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {
             String str = Strings.trim(s.substring("%ms:".length()));
-            v2 = __eval_datetime_str(str);
+            v2 = evalDatetimeStrToAMS(str);
         }
         // 默认采用原值
         else {
@@ -1388,37 +1379,63 @@ public abstract class Wn {
         return v2;
     }
 
-    private static long __eval_datetime_str(String str) {
+    private static final Pattern P_TM_MACRO = Pattern.compile("^(now|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*)\\s*"
+                                                              + "("
+                                                              + "([+-])"
+                                                              + "([0-9]+[smhd]?)"
+                                                              + ")?$");
+
+    public static long evalDatetimeStrToAMS(String str) {
         long ms = -1;
 
         // 判断到操作符
         Matcher m = P_TM_MACRO.matcher(str);
 
+        /**
+         * <pre>
+         0/22  Regin:0/22
+        0:[  0, 22) 2020-12-02 12:23:32-4d
+        1:[  0, 19) 2020-12-02 12:23:32
+        2:[ 19, 22) -4d
+        3:[ 19, 20) -
+        4:[ 20, 22) 4d
+         * </pre>
+         */
+
         // 当前时间
         if (m.find()) {
-            ms = Wn.now();
+            // 分析表达式
+            String current = m.group(1);
+            String offset = m.group(2); // -4d
+            String sign = m.group(3); // - or +
+            String dus = m.group(4); // 4d or 4s ...
+            // 类似 now+4d
+            if ("now".equals(current)) {
+                ms = Wn.now();
+            }
+            // 类似 2020-12-05T00:12:32
+            else {
+                ms = Times.D(current).getTime();
+            }
 
             // 嗯要加点偏移量
-            if (!Strings.isBlank(m.group(1))) {
-                String mss = m.group(3);
-                long off = msValueOf(mss);
+            if (!Strings.isBlank(offset)) {
+                long off = msValueOf(dus);
                 // 看是加还是减
-                if ("-".equals(m.group(2))) {
+                if ("-".equals(sign)) {
                     off = off * -1L;
                 }
                 // 偏移
                 ms += off;
             }
         }
-        // 指定时间
-        if (ms < 0) {
-            ms = Times.D(str).getTime();
-        }
+
+        // 搞定返回
         return ms;
     }
 
     public static Date evalDateBy(String str) {
-        long ms = __eval_datetime_str(str);
+        long ms = evalDatetimeStrToAMS(str);
         if (ms > 0) {
             return new Date(ms);
         }
@@ -1426,12 +1443,14 @@ public abstract class Wn {
     }
 
     public static long evalDateMs(String str) {
-        long ms = __eval_datetime_str(str);
+        long ms = evalDatetimeStrToAMS(str);
         if (ms > 0) {
             return ms;
         }
         return Times.D(str).getTime();
     }
+
+    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
 
     /**
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒

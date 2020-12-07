@@ -45,7 +45,7 @@ public abstract class Things {
     public static WnObj getThIndex(WnIo io, WnObj oRefer, String id) {
         WnObj oIndex = dirTsIndex(io, oRefer);
         // 获取 ID
-        WnObj oT = io.get(id);
+        WnObj oT = io.getIn(oIndex, id);
 
         // 默认为其设置上父集合 ID
         if (null != oT) {

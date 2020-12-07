@@ -4,10 +4,11 @@
 #
 #--------------------------------------------------------
 # API(OBJ): 获取多个指定对象元数据
-@API .regapi/api/objs 'cross/json'
-%COPY:
-obj ${http-qs-phs} -cqnl 2>&1 | ajaxre -cqn
-%END%
+# ! 危险接口禁用
+# @API .regapi/api/objs 'cross/json'
+# %COPY:
+# obj ${http-qs-phs} -cqnl 2>&1 | ajaxre -cqn
+# %END%
 #--------------------------------------------------------
 # API(thing): 直接读取内容
 @API .regapi/api/read 'cross/dynamic'

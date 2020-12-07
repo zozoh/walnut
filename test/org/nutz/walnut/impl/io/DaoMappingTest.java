@@ -12,12 +12,42 @@ import org.nutz.walnut.BaseSessionTest;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.ext.sql.WnDaoAuth;
 import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 
 public class DaoMappingTest extends BaseSessionTest {
+
+    @Test
+    public void test_getback_two_stage_id_by_getIn() {
+        // 准备
+        WnObj p = _setup_hierarchy("pet", "~/pets/index");
+
+        // 创建
+        WnObj o = io.create(p, "A", WnRace.FILE);
+
+        // 那么这个 o 应该是两段式 ID
+        WnObjId oid = o.OID();
+        assertEquals(p.id(), o.mountRootId());
+        assertEquals(p.id(), oid.getHomeId());
+        assertEquals(oid.getMyId(), o.myId());
+
+        // 重新获取一下
+        WnObj o2 = io.getIn(p, o.myId());
+        assertEquals(o.id(), o2.id());
+        assertEquals(oid.getHomeId(), o2.mountRootId());
+        assertEquals(oid.getMyId(), o2.myId());
+
+        // 查询一下，依旧如此
+        WnQuery q = Wn.Q.pid(p);
+        List<WnObj> list = io.query(q);
+        WnObj o3 = list.get(0);
+        assertEquals(o.id(), o3.id());
+        assertEquals(oid.getHomeId(), o3.mountRootId());
+        assertEquals(oid.getMyId(), o3.myId());
+    }
 
     @Test
     public void test_rename() {
