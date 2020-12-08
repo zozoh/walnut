@@ -16,7 +16,7 @@ public class o_query extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(pager|add)$");
+        return ZParams.parse(args, "^(pager|append)$");
     }
 
     @Override
@@ -62,7 +62,7 @@ public class o_query extends OFilter {
         // 执行查询结果
         List<WnObj> list = sys.io.query(q);
 
-        if (!params.is("add")) {
+        if (!params.is("append")) {
             fc.list.clear();
         }
         fc.list.addAll(list);

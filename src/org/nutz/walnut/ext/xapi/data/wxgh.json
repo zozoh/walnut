@@ -1,0 +1,17 @@
+{
+  "name" : "wxgh",
+  "base" : "https://api.weixin.qq.com/cgi-bin/",
+  "requests" : {
+      "user/info" : {
+        "path"   : "",
+        "method" : "GET",
+        "header" : {},
+        "params" : {
+          "access_token" : "=@AK",
+          "openid" : "=openid",
+          "lang" : "=lang?zh_CN"
+        },
+        "bodyType" : null
+      }
+    }
+}
