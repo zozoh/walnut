@@ -21,24 +21,32 @@ author: zozoh
 
 我们有如下假定：
 
-- 第三方服务采用 HTTP 的方式提供
-- 访问服务通常需一个访问密钥
-- 提交的请求主要是:
-  - `GET`
-  - `POST`
-- 对于带 `body` 的请求，请求体的编码可能：
-  - 普通表单: `application/x-www-form-urlencoded`
-  - 文件流表单: `multipart/form-data`
-  - JSON: `application/json`
-  - XML: `text/xml`
-  - 纯文本: `text/plain`
-  - 二进制: `application/octet-stream`
-- 对于响应，我们认为其内容可能是
-  - JSON: `application/json`
-  - XML: `text/xml`
-  - 纯文本: `text/plain`
-  - 图片: `image/jpeg` 或 `image/png`
-  - 二进制: `application/octet-stream`
+1. 第三方服务采用 HTTP 的方式提供
+2. 访问服务通常需一个访问密钥
+3. 提交的请求主要是:
+   - `GET`
+   - `POST`
+4. 对于带 `body` 的请求，请求体的编码可能是:
+
+ Name   | Title     | Mime
+--------|-----------|--------
+`form`  | 普通表单[【默认】 | `application/x-www-form-urlencoded`
+`files` | 文件流表单 | `multipart/form-data`
+`json`  | JSON      | `application/json`
+`xml`   | XML       | `text/xml`
+`text`  | 纯文本    | `text/plain`
+`bin`   | 二进制    | `application/octet-stream`
+
+5. 对于响应，我们认为其内容可能是:
+
+ Name   | Title     | Mime
+--------|-----------|--------
+`text`  | 纯文本【默认】| `text/plain`
+`json`  | JSON      | `application/json`
+`xml`   | XML       | `text/xml`
+`png`   | PNG图片   | `image/png`
+`jpeg`  | JPEG图片  | `image/jpeg`
+`bin`   | 二进制    | `application/octet-stream`
 
 根据上述假定，比较适合的场景包括但不限于：
 

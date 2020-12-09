@@ -1,0 +1,55 @@
+{
+  "base" : "https://api.weixin.qq.com/",
+  "timeout" : 3000,
+  "connectTimeout" : 1000,
+  "home" : "~/.weixin",
+  "configFilePath" : "wxconf",
+  "accessKeyFilePath" : "access_token",
+  "accessKeyRequest" : {
+    "path"   : "cgi-bin/token",
+    "method" : "GET",
+    "params" : {
+      "appid" : "=appID",
+      "secret" : "=appsecret",
+      "grant_type" : "=grant_type?client_credential"
+    },
+    "dataType" : "json"
+  },
+  "accessKeyObj" : {
+    "ticket"   : "=access_token",
+    "expiTime" : "=expires_in?7200",
+    "expiTimeUnit" : "s"
+  },
+  "requests" : {
+      "gh_user_info" : {
+        "path" : "cgi-bin/user/info",
+        "method" : "GET",
+        "headers" : {},
+        "params" : {
+          "access_token" : "=@AK",
+          "openid" : "=openid",
+          "lang" : "=lang?zh_CN"
+        },
+        "bodyType" : "form",
+        "dataType" : "json"
+      },
+      "wxacode_get_unlimited" : {
+        "path" : "wxa/getwxacodeunlimit",
+        "method" : "POST",
+        "headers" : {},
+        "params" : {
+          "access_token" : "=@AK"
+        },
+        "bodyType" : "json",
+        "body" : {
+          "scene" : "=scene",
+          "page" : "=page",
+          "width" : "=width?430",
+          "auto_color" : "=auto_color",
+          "line_color" : "=line_color",
+          "is_hyaline" : "=is_hyaline"  
+        },
+        "dataType" : "png"
+      }
+    }
+}
