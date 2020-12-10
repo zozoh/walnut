@@ -148,7 +148,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         String myId = o.myId();
         doc.put("id", myId);
         // 保存
-        co.save(doc);
+        co.insert(doc);
         return o;
     }
 
@@ -188,11 +188,12 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             int i = 0;
             int n = 0;
-            int count = cu.count();
             Mongos.setup_paging(cu, q);
             Mongos.setup_sorting(cu, q);
 
             int limit = null == q ? 0 : q.limit();
+
+            int count = cu.count();
 
             while (cu.hasNext()) {
                 // 如果设置了分页 ...
