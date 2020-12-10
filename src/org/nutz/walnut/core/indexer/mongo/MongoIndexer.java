@@ -60,7 +60,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             ZMoDoc doc = __map_to_doc_for_update(map);
 
             // 执行更新
-            co.update(q, doc, true, false);
+            co.update(q, doc, false, false);
         }
     }
 
@@ -141,7 +141,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
 
     @Override
     protected WnObj _create(WnIoObj o) {
-        ZMoDoc doc = ZMo.me().toDoc(o).genID();
+        ZMoDoc doc = ZMo.me().toDoc(o);
         // 一定不要记录 ph
         doc.removeField("ph");
         // 处理一下两段式 ID
