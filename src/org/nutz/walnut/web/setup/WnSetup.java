@@ -218,6 +218,11 @@ public class WnSetup implements Setup {
         // 初始化Cron服务
         if (conf.getBoolean("crontab.enable", true))
             ioc.get(WnCronService.class);
+        
+        WnAccount guest = auth.getAccount("guest");
+        if (guest == null) {
+        	auth.createAccount(new WnAccount("guest"));
+        }
 
         log.info("===============================================================");
         log.info("");
