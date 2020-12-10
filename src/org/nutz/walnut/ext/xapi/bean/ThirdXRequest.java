@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.xapi.bean;
 
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
@@ -226,8 +227,11 @@ public class ThirdXRequest {
                 }
                 sb.append(key);
                 if (null != val) {
-                    String v = URLEncoder.encode(val.toString(), Encoding.CHARSET_UTF8);
-                    sb.append('=').append(v);
+                    try {
+						String v = URLEncoder.encode(val.toString(), Encoding.UTF8);
+						sb.append('=').append(v);
+					} catch (UnsupportedEncodingException e) {
+					}
                 }
             }
         }
