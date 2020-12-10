@@ -46,6 +46,7 @@ return ZUI.def("app.wn.cmd_log", {
         // 执行
         //console.log(cmdText)
         Wn.exec(cmdText, {
+            foreFlushBuffer : true,
             msgShow : function(str){
                 var s = opt.formatMessage(str);
                 $('<div class="msg-info">')
