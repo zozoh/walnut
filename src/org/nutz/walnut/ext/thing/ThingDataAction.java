@@ -57,7 +57,7 @@ public abstract class ThingDataAction<T> extends ThingAction<T> {
         if (null == oDir) {
             WnObj oData = Things.dirTsData(io, oTs);
             if (!Strings.isBlank(dirName)) {
-                String rph = Wn.appendPath(oT.id(), dirName);
+                String rph = Wn.appendPath(oT.myId(), dirName);
                 oDir = io.createIfNoExists(oData, rph, WnRace.DIR);
             } else {
                 oDir = io.createIfNoExists(oData, oT.id(), WnRace.DIR);

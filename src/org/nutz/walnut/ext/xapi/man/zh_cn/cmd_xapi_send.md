@@ -15,7 +15,7 @@ xapi send
 
 ```bash
 # 获取微信公众号用户的信息
-demo@~$ xapi send wxgh demo user/info -vars 'openid:"xxx"'
+demo@~$ xapi send wxgh demo gh_user_info -vars 'openid:"xxx"'
 {
     "subscribe": 1, 
     "openid": "o6_bmjrPTlm6_2sgVt7hMZOPfL2M", 

@@ -44,7 +44,7 @@
         "body" : {
           "scene" : "=scene",
           "page" : "=page",
-          "width" : "=width?430",
+          "width" : "=width",
           "auto_color" : "=auto_color",
           "line_color" : "=line_color",
           "is_hyaline" : "=is_hyaline"  
