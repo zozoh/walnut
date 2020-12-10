@@ -18,8 +18,7 @@ public class DefaultThirdXExpertManager implements ThirdXExpertManager {
         if (ONE == null) {
             synchronized (DefaultThirdXExpertManager.class) {
                 if (ONE == null) {
-                    File dir = Files.findFile("org/nutz/walnut/ext/xapi/data/");
-                    ONE = new DefaultThirdXExpertManager(dir);
+                    ONE = new DefaultThirdXExpertManager(Files.findFile("org/nutz/walnut/ext/xapi/data/weixin.json"));
                 }
             }
         }
@@ -32,25 +31,17 @@ public class DefaultThirdXExpertManager implements ThirdXExpertManager {
         experts = new HashMap<>();
     }
 
-    public DefaultThirdXExpertManager(File dir) {
+    public DefaultThirdXExpertManager(File... files) {
         this();
 
-        // 文件
-        if (dir.isFile()) {
-            this.addExpert(dir);
-        }
-        // 目录
-        else if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            for (File f : files) {
-                if (f.isHidden()) {
-                    continue;
-                }
-                if (!f.getName().endsWith(".json")) {
-                    continue;
-                }
-                this.addExpert(f);
+        for (File f : files) {
+            if (f.isHidden()) {
+                continue;
             }
+            if (!f.getName().endsWith(".json")) {
+                continue;
+            }
+            this.addExpert(f);
         }
     }
 
