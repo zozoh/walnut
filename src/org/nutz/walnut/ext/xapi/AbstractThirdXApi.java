@@ -241,6 +241,16 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         throw new ThirdXException(xreq, "resp.convert", dataType);
     }
 
+    @Override
+    public ThirdXExpertManager getExperts() {
+        return experts;
+    }
+
+    public void setExperts(ThirdXExpertManager experts) {
+        this.experts = experts;
+    }
+
+    @Override
     public ThirdXConfigManager getConfigs() {
         return configs;
     }
