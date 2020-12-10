@@ -139,6 +139,13 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
             throw new ThirdXException(xreq, "http" + resp.getStatus(), resp.getDetail());
         }
 
+        // 检查一下 响应头
+        if (!xreq.isMatch(resp.getHeader().getMap())) {
+            String reason = resp.getHeader().toString();
+            reason += "\n" + resp.getContent();
+            throw new ThirdXException(xreq, "e.xapi.resp.invalid_header", reason);
+        }
+
         // 无论如何，先考虑流
         // 输出成字节数组
         if (classOfT.isArray() && byte.class == classOfT.getComponentType()) {

@@ -49,7 +49,10 @@
           "line_color" : "=line_color",
           "is_hyaline" : "=is_hyaline"  
         },
-        "dataType" : "png"
+        "dataType" : "jpeg",
+        "acceptHeader" : {
+            "Content-Type" : "image/jpeg"
+        }
       }
     }
 }

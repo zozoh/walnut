@@ -106,8 +106,8 @@ public class WnThirdXConfigManager implements ThirdXConfigManager {
                     NutMap ao = (NutMap) Wn.explainObj(re, expert.getAccessKeyObj());
                     ak = Lang.map2Object(ao, ThirdXAccessKey.class);
 
-                    // 初始化一下绝对过期时间，其中稍微少设 30 秒，保险一点
-                    ak.setNowInMs(System.currentTimeMillis() - 30000L);
+                    // 初始化一下绝对过期时间，其中稍微少设 300秒，保险一点
+                    ak.setNowInMs(System.currentTimeMillis() - 300000L);
 
                     // 计入缓存
                     cacheAccessKey.put(aph, ak);

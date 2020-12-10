@@ -22,6 +22,9 @@ import org.nutz.lang.Xmls;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AlwaysMatch;
+import org.nutz.walnut.validate.impl.AutoMatch;
 import org.w3c.dom.Document;
 
 /**
@@ -52,6 +55,10 @@ public class ThirdXRequest {
     private Object body;
 
     private String dataType;
+
+    private NutMap acceptHeader;
+
+    private WnMatch matchHeader;
 
     public ThirdXRequest() {
         timeout = 3000;
@@ -97,6 +104,8 @@ public class ThirdXRequest {
         req.body = body;
         req.bodyType = bodyType;
         req.dataType = dataType;
+        req.acceptHeader = acceptHeader;
+        req.matchHeader = matchHeader;
         return req;
     }
 
@@ -228,10 +237,10 @@ public class ThirdXRequest {
                 sb.append(key);
                 if (null != val) {
                     try {
-						String v = URLEncoder.encode(val.toString(), Encoding.UTF8);
-						sb.append('=').append(v);
-					} catch (UnsupportedEncodingException e) {
-					}
+                        String v = URLEncoder.encode(val.toString(), Encoding.UTF8);
+                        sb.append('=').append(v);
+                    }
+                    catch (UnsupportedEncodingException e) {}
                 }
             }
         }
@@ -346,6 +355,22 @@ public class ThirdXRequest {
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
+    }
+
+    public NutMap getAcceptHeader() {
+        return acceptHeader;
+    }
+
+    public void setAcceptHeader(NutMap acceptHeader) {
+        this.acceptHeader = acceptHeader;
+        boolean hasHeader = null == acceptHeader || acceptHeader.isEmpty();
+        this.matchHeader = hasHeader ? new AlwaysMatch(true) : new AutoMatch(acceptHeader);
+    }
+
+    public boolean isMatch(NutBean header) {
+        if (null == this.matchHeader)
+            return true;
+        return this.matchHeader.match(header);
     }
 
 }
