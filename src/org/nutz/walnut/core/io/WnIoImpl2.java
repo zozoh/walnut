@@ -885,6 +885,8 @@ public class WnIoImpl2 implements WnIo {
             o.mountRootId(p.mountRootId());
         }
         o = Wn.WC().whenAccess(o, true);
+        if (o == null)
+        	return o;
 
         // 如果 p 是映射的，且 o 不是两段式 ID
         // 那么就说明，在保存的时候，已经删除了父映射的ID，以便精简数据
