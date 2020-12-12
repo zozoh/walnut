@@ -3,7 +3,7 @@
 image="registry-vpc.cn-beijing.aliyuncs.com/wendal/walnut"  
   
 #get timestamp for the tag  
-timestamp=$(date +%Y%m%d%H%M%S)  
+timestamp=$(date +%Y%m)  
   
 tag=$image:$timestamp  
 latest=$image:latest  
