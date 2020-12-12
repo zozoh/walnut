@@ -15,6 +15,8 @@ mkdir build/docker/walnut/
 mkdir build/docker/titanium/
 cp .docker/* build/docker/
 cp -rf build/wzip/* build/docker/walnut/
+rm -fr build/docker/walnut/libs/
+rm -fr build/docker/walnut/classes/
 cp -rf /root/repo/titanium/src build/docker/titanium/
 
 cd build/docker/
