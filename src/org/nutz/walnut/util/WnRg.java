@@ -69,8 +69,10 @@ public abstract class WnRg {
             }
             // 对每个范围项目，深入展开内容
             for (int i = 0; i < ss.length; i++) {
-                Object vr = Wn.evalDatetimeStrToAMS(ss[i]);
-                ss[i] = Castors.me().castToString(vr);
+                long ams = Wn.evalDatetimeStrToAMS(ss[i]);
+                if (ams >= 0) {
+                    ss[i] = Castors.me().castToString(ams);
+                }
             }
             s = m.group(1) + Lang.concat(",", ss) + m.group(14);
         }
