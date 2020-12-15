@@ -67,7 +67,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         this._fill_client_ip(map);
 
         // 过期时间（增加 1 分钟作为通讯补偿）
-        long pay_expired = Math.max(conf.pay_time_expire, 10) * 60 * 1000 + 60000;
+        long pay_expired = Math.max(conf.pay_time_expire, 100) * 60 * 1000 + 60000;
         long expiInMs = Wn.now() + pay_expired;
         Date d = Times.D(expiInMs);
         String ds = Times.format("yyyyMMddHHmmss", d);
@@ -90,7 +90,8 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
         po.setv(KEY_wxpay_send, reqXML);
         re.addChangeKeys(KEY_wxpay_send);
 
-        po.expireTime(expiInMs);
+        // 为了稳妥期间，支付对象过期时间设置为 3 天后，以备不测
+        po.expireTime(expiInMs + 3 * 86400000L);
         re.addChangeKeys("expi");
 
         // 发送到统一下单接口

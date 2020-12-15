@@ -89,9 +89,9 @@ public class WnPayment {
             po.expireTime(-1);
             re.addChangeKeys("expi");
         }
-        // 如果订单失败，延长1天的过期时间，以便追踪问题
+        // 如果订单失败，延长7天的过期时间，以便追踪问题
         else if (po.isStatusFail()) {
-            po.expireTime(Wn.now() + 86400000L);
+            po.expireTime(Wn.now() + 86400000L * 7);
             re.addChangeKeys("expi");
         }
 
