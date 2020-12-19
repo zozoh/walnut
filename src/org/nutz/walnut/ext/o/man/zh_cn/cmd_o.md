@@ -17,13 +17,13 @@ o [options] [[@filter filter-args...]...]
 # 过滤器列表
 
 ```bash
+@ancestors  # 查询上下文中的对象的所有祖先对象
 @create     # 创建一个或者多个对象
 @query      # 查询出一组对象
 @update     # 更新对象的字段
 @get        # 根据 ID 获取一个或几个对象
 @fetch      # 根据路径获取一个或几个对象
 @remove     # 删除对象
-@parents    # 查询对象其祖先
 @filter     # 过滤上下文列表对象
 @children   # 读取其子对象
 @group      # 聚集对象
@@ -34,4 +34,5 @@ o [options] [[@filter filter-args...]...]
 @tmpl       # 将上下文输出为行模板
 @tab        # 将上下文输出为表格
 @quiet      # 禁止上下文输出
+@value      # 将上下文中的对象依次取值，并输出
 ```

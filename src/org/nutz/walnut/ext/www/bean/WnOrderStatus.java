@@ -30,5 +30,10 @@ public enum WnOrderStatus {
     /**
      * 订单完成
      */
-    DN
+    DN,
+    
+    /**
+     * 订单被用户取消
+     */
+    CA
 }
