@@ -55,3 +55,6 @@ mysrc
 .VSCodeCounter
 
 debug.log
+
+bin/main/         
+bin/test/
