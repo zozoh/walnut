@@ -42,7 +42,7 @@ public class TiSidebarService {
                                NutBean tmplContext,
                                WnCheckRoleOfByName check,
                                WnExecutable runtime) {
-
+        NutMap vars = sess.getVars();
         // 克隆一份自身
         TiSidebarInputItem inIt = inputItem.clone();
 
@@ -77,7 +77,7 @@ public class TiSidebarService {
                 Collection<?> reList = (Collection<?>) reObj;
                 for (Object ele : reList) {
                     NutMap o = Lang.obj2nutmap(ele);
-                    TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+                    TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
                     // 计算子项目
                     TiSidebarInputItem inIt2 = inIt.clone();
                     __check_dynamic_item_children(depth,
@@ -95,7 +95,7 @@ public class TiSidebarService {
             // 单个对象
             else {
                 NutMap o = Lang.obj2nutmap(reObj);
-                TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+                TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
                 // 计算子项目
                 __check_dynamic_item_children(depth,
                                               inIt,
@@ -111,7 +111,7 @@ public class TiSidebarService {
         }
         // 组
         else if (inIt.isGroup() && inIt.hasItems()) {
-            TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null);
+            TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null, vars);
             List<TiSidebarOutputItem> items = new LinkedList<>();
             for (TiSidebarInputItem subIt : inIt.getItems()) {
                 __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
@@ -130,7 +130,7 @@ public class TiSidebarService {
                 String aph = Wn.normalizeFullPath(path, sess);
                 o = io.check(null, aph);
             }
-            TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o);
+            TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
             list.add(it);
         }
     }

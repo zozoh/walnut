@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.Wn;
 
 public class TiSidebarOutputItem {
 
@@ -43,7 +44,7 @@ public class TiSidebarOutputItem {
         }
     }
 
-    public TiSidebarOutputItem(int depth, TiSidebarInputItem it, NutBean o) {
+    public TiSidebarOutputItem(int depth, TiSidebarInputItem it, NutBean o, NutBean vars) {
         String dft_title = it.isGroup() ? "Group" : (null == o ? "NoTitle" : o.getString("nm"));
         Object dft_icon = null == o ? null : o.pick("tp", "mime", "race");
 
@@ -70,9 +71,21 @@ public class TiSidebarOutputItem {
             this.key = this.id;
         }
         // ----------------------------------
+        // 获取标题
+        String title = it.getTitle();
+        // 这里需要支持一下 Session 的变量，以便扩展多语言的支持
+        if (null != title) {
+            title = Wn.normalizeStr(title, vars);
+        }
+        // 展开表达式
+        if (!Strings.isBlank(title)) {
+            title = (String) Wn.explainObj(o, title);
+        }
+        // 最后确保一下，一定有个标题，木有标题有默认标题来代替
+        this.title = _Vs(title, o, "title", it.getDefaultTitle(), dft_title);
+        // ----------------------------------
         // Other fields
         this.icon = _V(it.getIcon(), o, "icon", it.getDefaultIcon(), dft_icon);
-        this.title = _Vs(it.getTitle(), o, "title", it.getDefaultTitle(), dft_title);
         this.view = _Vs(it.getView(), o, "view", it.getDefaultView(), null);
     }
 

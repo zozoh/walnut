@@ -37,7 +37,7 @@ public class WnLoginPage {
         // ...................................................
         // 映射自用户的域，用户有啥特殊配置没？
         if (null != domainUser) {
-            String loginPath = domainUser.getMetaString("LOGIN");
+            String loginPath = domainUser.getMetaString("LOGIN_PAGE");
             if (!Strings.isBlank(loginPath)) {
                 // 直接就是重定向
                 if (loginPath.matches("^(https?:)?//.+$")) {

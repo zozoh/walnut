@@ -11,9 +11,9 @@
 @ENV
 {
   "OPEN" : "wn.manager",
-  "THEME" : "light",
+  "theme" : "${theme?light}",
   "APP_PATH" : "/rs/ti/app:/app",
   "VIEW_PATH" : "/mnt/project/${domain}/view/:/rs/ti/view/",
   "SIDEBAR_PATH" : "~/.ti/sidebar.json:/rs/ti/view/sidebar.json",
-  "LOGIN" : "${domainLogin?}"
+  "LOGIN_PAGE" : "${domainLogin?}"
 }

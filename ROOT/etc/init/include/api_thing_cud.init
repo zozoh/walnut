@@ -12,11 +12,11 @@ cat id:${id} | thing ~/${http-qs-ts} create -fields -cqn
 # API(thing): 数据集对象·修改
 @FILE .regapi/api/thing/update 'cross/json/auth'
 %COPY:
-cat id:${id} | thing ~/${http-qs-ts} update ${http-qs-id} -fields -cqn
+cat id:${id} | thing ~/${http-qs-ts} update ${http-qs-id?} -fields -cqn
 %END%
 #---------------------------------------------------------
 # API(thing): 数据集对象·删除
 @FILE .regapi/api/thing/delete 'cross/json/auth'
 %COPY:
-thing ~/${http-qs-ts} delete ${http-qs-id} ${http-qs-hard<boolean:/-hard>?false} -cqn
+thing ~/${http-qs-ts} delete ${http-qs-id?} ${http-qs-hard<boolean:/-hard>?false} -cqn
 %END%
