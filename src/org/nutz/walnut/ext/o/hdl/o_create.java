@@ -1,9 +1,17 @@
 package org.nutz.walnut.ext.o.hdl;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.o.OContext;
 import org.nutz.walnut.ext.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -12,6 +20,7 @@ import org.nutz.walnut.util.ZParams;
 
 public class o_create extends OFilter {
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         WnObj oP;
@@ -23,24 +32,75 @@ public class o_create extends OFilter {
         else {
             oP = sys.getCurrentObj();
         }
-        
+
         // 确保是目录
-        if(oP.isFILE()) {
+        if (oP.isFILE()) {
             oP = oP.parent();
         }
-        
+
+        // 默认种族
+        WnRace race = params.getEnum("race", WnRace.class);
+        if (null == race) {
+            race = WnRace.FILE;
+        }
+
         // 准备创建里列表
         List<Object> list = new LinkedList<>();
-        
+
         // 看看自己的参数
-        
-        // 参数神码都没有，就读取标准输入
-        if(list.isEmpty()) {
-            
+        for (String str : params.vals) {
+            if (Strings.isQuoteBy(str, '{', '}')) {
+                list.add(Json.fromJson(str));
+            } else {
+                list.add(str);
+            }
         }
-        
+
+        // 参数神码都没有，就读取标准输入
+        if (list.isEmpty()) {
+            String json = Strings.trim(sys.in.readAll());
+            Object input = Json.fromJson(json);
+            if (null != input) {
+                // 集合
+                if (input instanceof Collection<?>) {
+                    list.addAll((Collection<Object>) input);
+                }
+                // 数组
+                else if (input.getClass().isArray()) {
+                    int len = Array.getLength(input);
+                    for (int i = 0; i < len; i++) {
+                        Object ele = Array.get(input, i);
+                        if (null != ele) {
+                            list.add(ele);
+                        }
+                    }
+                }
+                // 其他
+                else {
+                    list.add(input);
+                }
+            }
+        }
+
         // 然后依次创建对象，并加入到上下文
-        
+        for (Object li : list) {
+            // 字符串的话，作为文件名
+            if (li instanceof CharSequence) {
+                String fname = li.toString();
+                WnObj o = sys.io.create(oP, fname, race);
+                fc.add(o);
+            }
+            // 否则作为 Map
+            else if (li instanceof Map<?, ?>) {
+                NutMap meta = NutMap.WRAP((Map<String, Object>) li);
+                WnObj obj = new WnIoObj();
+                obj.putAll(meta);
+                obj.putDefault("race", race);
+                WnObj o = sys.io.create(oP, obj);
+                fc.add(o);
+            }
+            // 其他就无视
+        }
     }
 
 }

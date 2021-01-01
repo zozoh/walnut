@@ -7,6 +7,8 @@
 ```bash
 o @create 
   [-p /path/to/parent]    # 指定一个父目录，如果是文件，采用其所在目录
+  [-race FILE]            # 指定创建的是文件还是目录，默认为 FILE
+                          # 如果输入的是 Meta，本参数将作为默认值
   [nameOrMeta ...]        # 多个文件名或者元数据
 ```
 

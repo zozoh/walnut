@@ -38,7 +38,9 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
             Object reo = fc.list;
             // 木有翻页信息，看看是否需要自动拆包
             if (null == fc.pager) {
-                if (fc.list.size() == 1) {
+                if (fc.list.size() == 0) {
+                    reo = null;
+                } else if (fc.list.size() == 1) {
                     reo = fc.list.get(0);
                 }
             }

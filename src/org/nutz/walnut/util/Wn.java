@@ -597,6 +597,7 @@ public abstract class Wn {
     }
 
     public static String evalName(String name, String id) {
+        name = Strings.sBlank(name, "${id}");
         return Tmpl.exec(name, Lang.map("id", id));
     }
 

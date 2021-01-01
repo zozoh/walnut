@@ -109,19 +109,7 @@ public class TiSidebarService {
                 list.add(it);
             }
         }
-        // 组
-        else if (inIt.isGroup() && inIt.hasItems()) {
-            TiSidebarOutputItem grp = new TiSidebarOutputItem(depth, inIt, null, vars);
-            List<TiSidebarOutputItem> items = new LinkedList<>();
-            for (TiSidebarInputItem subIt : inIt.getItems()) {
-                __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
-            }
-            if (items.size() > 0) {
-                grp.setItems(items);
-                list.add(grp);
-            }
-        }
-        // 静态项目
+        // 静态项目 or组
         else {
             WnObj o = null;
             if (inIt.hasPath()) {
@@ -131,7 +119,23 @@ public class TiSidebarService {
                 o = io.check(null, aph);
             }
             TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
-            list.add(it);
+
+            // 如果是组，递归子项目
+            if (inIt.isGroup() && inIt.hasItems()) {
+                List<TiSidebarOutputItem> items = new LinkedList<>();
+                for (TiSidebarInputItem subIt : inIt.getItems()) {
+                    __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
+                }
+                if (items.size() > 0) {
+                    it.setItems(items);
+                }
+            }
+
+            // 看看是否有必要加入列表
+            // 如果是空对象（即不是组，也没有链接，这个对象就基本没什么用，就不用加了）
+            if (it.hasItems() || it.hasPath()) {
+                list.add(it);
+            }
         }
     }
 
