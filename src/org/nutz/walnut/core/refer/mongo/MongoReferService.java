@@ -6,7 +6,6 @@ import java.util.Set;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.core.WnReferApi;
-import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -61,7 +60,7 @@ public class MongoReferService implements WnReferApi {
         DBCursor cu = co.find(q);
 
         try {
-            cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+            // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
 
             while (cu.hasNext()) {
                 // 获取对象引用 ID

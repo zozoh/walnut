@@ -12,7 +12,6 @@ import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.ZMongo;
 
-import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
@@ -85,7 +84,7 @@ public class RebuildRefsMongo {
         int count = 0;
         int sha1_count = 0;
         try {
-            cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+            //cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             if (limit > 0)
                 cu.limit(limit);
             if (skip > 0)

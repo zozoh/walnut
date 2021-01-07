@@ -19,7 +19,6 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.util.Wn;
 
-import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -185,7 +184,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         DBCursor cu = co.find(qDoc);
 
         try {
-            cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+            // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             int i = 0;
             int n = 0;
             Mongos.setup_paging(cu, q);

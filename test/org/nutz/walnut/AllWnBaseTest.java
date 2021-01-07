@@ -2,6 +2,7 @@ package org.nutz.walnut;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.nutz.walnut.cheap.AllCheapTest;
 import org.nutz.walnut.core.AllCoreTest;
 import org.nutz.walnut.core.eot.AllExpiObjTableTest;
 import org.nutz.walnut.ext.AllExtTest;
@@ -10,7 +11,8 @@ import org.nutz.walnut.util.AllUtilTest;
 import org.nutz.walnut.validate.WnMatchTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({AllCoreTest.class,
+@Suite.SuiteClasses({AllCheapTest.class,
+                     AllCoreTest.class,
                      AllExpiObjTableTest.class,
                      AllUtilTest.class,
                      WnMatchTest.class,

@@ -11,6 +11,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public class mgadmin_raw_explain extends mgadmin_raw {
 
+    @SuppressWarnings("deprecation")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         sys.out.writeJson(rawQuery(hc.params, hc).explain());

@@ -25,7 +25,6 @@ import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.ZMongo;
-import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
@@ -208,7 +207,7 @@ public class TransdataRefMongo {
         int index = 0;
         int count = 0;
         try {
-            cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+            // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             if (limit > 0)
                 cu.limit(limit);
             if (skip > 0)

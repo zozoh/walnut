@@ -12,7 +12,6 @@ import org.nutz.walnut.api.io.WnExpiObj;
 import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.util.Wn;
 
-import com.mongodb.Bytes;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
@@ -69,7 +68,7 @@ public class MongoExpiObjTable implements WnExpiObjTable {
         // 设置游标
         DBCursor cu = co.find(q);
         cu.sort(ZMoDoc.NEW("expi", 1));
-        cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+        // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
         int count = cu.count();
         cu.limit(limit);
 

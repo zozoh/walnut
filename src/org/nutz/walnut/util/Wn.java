@@ -604,11 +604,11 @@ public abstract class Wn {
     public static void assertValidName(String name, String referPath) {
         // 名称不能为空
         if (Strings.isBlank(name)) {
-            throw Er.create("e.io.create.BlankName", referPath);
+            throw Er.create("e.io.obj.BlankName");
         }
         // 名称不能包括特殊符号
         if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
-            throw Er.create("e.io.create.InvalidName", name + "@" + referPath);
+            throw Er.create("e.io.obj.InvalidName", name);
         }
     }
 
