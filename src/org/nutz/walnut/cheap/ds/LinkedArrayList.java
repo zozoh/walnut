@@ -407,7 +407,7 @@ public class LinkedArrayList<T> implements List<T> {
     public T get(int index) {
         // Guard
         if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException(index);
+            throw new IndexOutOfBoundsException(String.format("Index(%d) Size(%d)", index, size()));
         }
         // Find the position
         int y = index / width;
@@ -424,7 +424,7 @@ public class LinkedArrayList<T> implements List<T> {
     public T set(int index, T element) {
         // Guard
         if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException(index);
+            throw new IndexOutOfBoundsException(String.format("Index(%d) Size(%d)", index, size()));
         }
         // Prepare the return object
         T re;
@@ -457,7 +457,7 @@ public class LinkedArrayList<T> implements List<T> {
     public T remove(int index) {
         // Guard
         if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException(index);
+            throw new IndexOutOfBoundsException(String.format("Index(%d) Size(%d)", index, size()));
         }
 
         // 首先将自己的数据全都 copy 出来
