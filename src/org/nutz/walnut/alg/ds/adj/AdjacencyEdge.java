@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.adj;
 
 public class AdjacencyEdge {
 
@@ -6,16 +6,31 @@ public class AdjacencyEdge {
 
     private int nodeIndex;
 
+    /**
+     * 边权重
+     */
     private int weight;
 
+    /**
+     * 边的可用次数 0 代表无限次
+     */
+    private int avaliable;
+
+    /**
+     * 边的实际使用次数
+     */
+    private int used;
+
     public AdjacencyEdge(AdjacencyList list, int nodeIndex) {
-        this(list, nodeIndex, 1);
+        this(list, nodeIndex, 1, 0);
     }
 
-    public AdjacencyEdge(AdjacencyList list, int nodeIndex, int weight) {
+    public AdjacencyEdge(AdjacencyList list, int nodeIndex, int weight, int ava) {
         this.list = list;
         this.nodeIndex = nodeIndex;
         this.weight = weight;
+        this.avaliable = ava;
+        this.used = 0;
     }
 
     @Override
@@ -33,7 +48,9 @@ public class AdjacencyEdge {
 
     @Override
     protected AdjacencyEdge clone() {
-        return new AdjacencyEdge(list, nodeIndex, weight);
+        AdjacencyEdge edge = new AdjacencyEdge(list, nodeIndex, weight, avaliable);
+        edge.used = this.used;
+        return edge;
     }
 
     @Override
@@ -67,6 +84,22 @@ public class AdjacencyEdge {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public int getAvaliable() {
+        return avaliable;
+    }
+
+    public void setAvaliable(int avaliable) {
+        this.avaliable = avaliable;
+    }
+
+    public int getUsed() {
+        return used;
+    }
+
+    public void setUsed(int used) {
+        this.used = used;
     }
 
 }

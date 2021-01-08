@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.buf;
 
 import static org.junit.Assert.*;
 
@@ -7,11 +7,88 @@ import java.util.ListIterator;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 
-public class LinkedArrayListTest {
+public class WnLinkedArrayListTest {
 
-    private List<String> _L(int width) {
-        return new LinkedArrayList<>(String.class, width);
+    private WnLinkedArrayList<String> _L(int width) {
+        return new WnLinkedArrayList<>(String.class, width);
+    }
+
+    @Test
+    public void test_first_last_popFirst() {
+        WnLinkedArrayList<String> list = _L(3);
+        list.addAll(Lang.list("A", "B", "C", "D"));
+
+        assertEquals("A", list.first());
+        assertEquals("D", list.last());
+        assertEquals(4, list.size());
+        assertEquals("ABCD", Strings.join("", list));
+
+        list.popFirst();
+        assertEquals("B", list.first());
+        assertEquals("D", list.last());
+        assertEquals(3, list.size());
+        assertEquals("BCD", Strings.join("", list));
+
+        list.popFirst();
+        assertEquals("C", list.first());
+        assertEquals("D", list.last());
+        assertEquals(2, list.size());
+        assertEquals("CD", Strings.join("", list));
+
+        list.popFirst();
+        assertEquals("D", list.first());
+        assertEquals("D", list.last());
+        assertEquals(1, list.size());
+        assertEquals("D", Strings.join("", list));
+
+        list.popFirst();
+        assertNull(list.first());
+        assertNull(list.last());
+        assertEquals(0, list.size());
+        assertEquals("", Strings.join("", list));
+
+        assertNull(list.popFirst());
+        assertNull(list.popFirst());
+    }
+
+    @Test
+    public void test_first_last_popLast() {
+        WnLinkedArrayList<String> list = _L(3);
+        list.addAll(Lang.list("A", "B", "C", "D"));
+
+        assertEquals("A", list.first());
+        assertEquals("D", list.last());
+        assertEquals(4, list.size());
+        assertEquals("ABCD", Strings.join("", list));
+
+        list.popLast();
+        assertEquals("A", list.first());
+        assertEquals("C", list.last());
+        assertEquals(3, list.size());
+        assertEquals("ABC", Strings.join("", list));
+
+        list.popLast();
+        assertEquals("A", list.first());
+        assertEquals("B", list.last());
+        assertEquals(2, list.size());
+        assertEquals("AB", Strings.join("", list));
+
+        list.popLast();
+        assertEquals("A", list.first());
+        assertEquals("A", list.last());
+        assertEquals(1, list.size());
+        assertEquals("A", Strings.join("", list));
+
+        list.popLast();
+        assertNull(list.first());
+        assertNull(list.last());
+        assertEquals(0, list.size());
+        assertEquals("", Strings.join("", list));
+
+        assertNull(list.popLast());
+        assertNull(list.popLast());
     }
 
     @Test
@@ -28,49 +105,49 @@ public class LinkedArrayListTest {
         assertEquals(-1, it.previousIndex());
         assertFalse(it.hasPrevious());
         assertFalse(it.hasPrevious());
-        
+
         assertEquals("A", it.next());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(0, it.previousIndex());
         assertEquals(1, it.nextIndex());
-        
+
         assertEquals("B", it.next());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(1, it.previousIndex());
         assertEquals(2, it.nextIndex());
-        
+
         assertEquals("C", it.next());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(2, it.previousIndex());
         assertEquals(3, it.nextIndex());
-        
+
         assertEquals("D", it.next());
         assertTrue(it.hasPrevious());
         assertFalse(it.hasNext());
         assertEquals(3, it.previousIndex());
         assertEquals(4, it.nextIndex());
-        
+
         assertEquals("D", it.previous());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(2, it.previousIndex());
         assertEquals(3, it.nextIndex());
-        
+
         assertEquals("C", it.previous());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(1, it.previousIndex());
         assertEquals(2, it.nextIndex());
-        
+
         assertEquals("B", it.previous());
         assertTrue(it.hasPrevious());
         assertTrue(it.hasNext());
         assertEquals(0, it.previousIndex());
         assertEquals(1, it.nextIndex());
-        
+
         assertEquals("A", it.previous());
         assertFalse(it.hasPrevious());
         assertTrue(it.hasNext());

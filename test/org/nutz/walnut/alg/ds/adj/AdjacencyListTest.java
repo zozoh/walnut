@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.adj;
 
 import static org.junit.Assert.*;
 

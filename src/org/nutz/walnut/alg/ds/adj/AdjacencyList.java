@@ -1,8 +1,10 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.adj;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.List;
+
+import org.nutz.walnut.alg.ds.buf.WnLinkedArrayList;
 
 /**
  * 邻接表实现
@@ -21,7 +23,7 @@ public class AdjacencyList {
     }
 
     public AdjacencyList(int width) {
-        this.nodes = new LinkedArrayList<>(AdjacencyNode.class, width);
+        this.nodes = new WnLinkedArrayList<>(AdjacencyNode.class, width);
     }
 
     public String toString() {
@@ -58,7 +60,16 @@ public class AdjacencyList {
         AdjacencyNode newNode = null;
         if (null != node) {
             newNode = addNode(data);
-            node.addEdge(newNode.getIndex(), weight);
+            node.addEdge(newNode.getIndex(), weight, 0);
+        }
+        return newNode;
+    }
+
+    public AdjacencyNode addNode(AdjacencyNode node, Object data, int weight, int ava) {
+        AdjacencyNode newNode = null;
+        if (null != node) {
+            newNode = addNode(data);
+            node.addEdge(newNode.getIndex(), weight, ava);
         }
         return newNode;
     }

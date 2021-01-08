@@ -1,17 +1,17 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.buf;
 
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-class LinkedArrayListIterator<T> implements ListIterator<T> {
+class WnLinkedArrayListIterator<T> implements ListIterator<T> {
 
     int cursor;
 
-    LinkedArrayList<T> list;
+    WnLinkedArrayList<T> list;
 
     int len;
 
-    LinkedArrayListIterator(LinkedArrayList<T> list) {
+    WnLinkedArrayListIterator(WnLinkedArrayList<T> list) {
         this.list = list;
         this.cursor = 0;
         this.len = list.size();

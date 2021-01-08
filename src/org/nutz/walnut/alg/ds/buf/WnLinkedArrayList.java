@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.buf;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.ListIterator;
  * @author zozoh(zozohtnt@gmail.com)
  * @param <T>
  */
-public class LinkedArrayList<T> implements List<T> {
+public class WnLinkedArrayList<T> implements List<T> {
 
     private int index;
 
@@ -46,11 +46,11 @@ public class LinkedArrayList<T> implements List<T> {
 
     private Class<T> eleType;
 
-    public LinkedArrayList(Class<T> eleType) {
+    public WnLinkedArrayList(Class<T> eleType) {
         this(eleType, 50);
     }
 
-    public LinkedArrayList(Class<T> eleType, int width) {
+    public WnLinkedArrayList(Class<T> eleType, int width) {
         this.eleType = eleType;
         this.width = width;
         this.clear();
@@ -58,8 +58,8 @@ public class LinkedArrayList<T> implements List<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public LinkedArrayList<T> clone() {
-        LinkedArrayList<T> re = new LinkedArrayList<>(eleType, width);
+    public WnLinkedArrayList<T> clone() {
+        WnLinkedArrayList<T> re = new WnLinkedArrayList<>(eleType, width);
         re.height = this.height;
         re.index = this.index;
         // 中间数据
@@ -114,7 +114,7 @@ public class LinkedArrayList<T> implements List<T> {
 
     @Override
     public boolean isEmpty() {
-        return size() <= 0;
+        return null == this.first();
     }
 
     @Override
@@ -139,7 +139,7 @@ public class LinkedArrayList<T> implements List<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new LinkedArrayListIterator<>(this);
+        return new WnLinkedArrayListIterator<>(this);
     }
 
     private void __copy_to_array(Object a) {
@@ -186,6 +186,10 @@ public class LinkedArrayList<T> implements List<T> {
 
     @Override
     public boolean remove(Object o) {
+        int index = this.indexOf(o);
+        if (index >= 0) {
+            return null != this.remove(index);
+        }
         return false;
     }
 
@@ -420,6 +424,38 @@ public class LinkedArrayList<T> implements List<T> {
         return this.last[x];
     }
 
+    public T first() {
+        if (this.height > 0) {
+            return this.data.get(0)[0];
+        }
+        if (this.index > 0) {
+            return this.last[0];
+        }
+        return null;
+    }
+
+    public T last() {
+        if (this.index > 0) {
+            return this.last[index - 1];
+        }
+        if (this.height > 0) {
+            return this.data.get(height - 1)[width - 1];
+        }
+        return null;
+    }
+
+    public T popFirst() {
+        if (this.isEmpty())
+            return null;
+        return this.remove(0);
+    }
+
+    public T popLast() {
+        if (this.isEmpty())
+            return null;
+        return this.remove(this.size() - 1);
+    }
+
     @Override
     public T set(int index, T element) {
         // Guard
@@ -460,6 +496,27 @@ public class LinkedArrayList<T> implements List<T> {
             throw new IndexOutOfBoundsException(String.format("Index(%d) Size(%d)", index, size()));
         }
 
+        // 准备返回值
+        T re = null;
+
+        // 优化：移除的是最后一行
+        int mal = width * height;
+        if (index >= mal) {
+            int ix = index - mal;
+            re = last[ix];
+            // 向前填补
+            int lastI = this.index - 1;
+            for (int i = ix; i < this.index; i++) {
+                if (i == lastI) {
+                    last[i] = null;
+                } else {
+                    last[i] = last[i + 1];
+                }
+            }
+            this.index--;
+            return re;
+        }
+
         // 首先将自己的数据全都 copy 出来
         T[] olds = (T[]) Array.newInstance(eleType, size());
         this.toArray(olds);
@@ -468,7 +525,6 @@ public class LinkedArrayList<T> implements List<T> {
         this.clear();
 
         // 逐个加入
-        T re = null;
         for (int i = 0; i < olds.length; i++) {
             if (i != index) {
                 T obj = olds[i];
@@ -539,7 +595,7 @@ public class LinkedArrayList<T> implements List<T> {
 
     @Override
     public ListIterator<T> listIterator(int index) {
-        LinkedArrayListIterator<T> it = new LinkedArrayListIterator<>(this);
+        WnLinkedArrayListIterator<T> it = new WnLinkedArrayListIterator<>(this);
         it.cursor = index;
         return it;
     }

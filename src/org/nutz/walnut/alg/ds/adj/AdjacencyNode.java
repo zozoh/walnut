@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.ds;
+package org.nutz.walnut.alg.ds.adj;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.alg.ds.buf.WnLinkedArrayList;
 
 public class AdjacencyNode {
 
@@ -20,7 +21,7 @@ public class AdjacencyNode {
 
     AdjacencyNode(AdjacencyList list) {
         this.list = list;
-        this.edges = new LinkedArrayList<>(AdjacencyEdge.class);
+        this.edges = new WnLinkedArrayList<>(AdjacencyEdge.class);
     }
 
     public String toString() {
@@ -47,7 +48,7 @@ public class AdjacencyNode {
         AdjacencyNode node = new AdjacencyNode(this.list);
         node.index = this.index;
         node.data = this.data;
-        node.edges = new LinkedArrayList<>(AdjacencyEdge.class);
+        node.edges = new WnLinkedArrayList<>(AdjacencyEdge.class);
         Iterator<AdjacencyEdge> it = edges.iterator();
         while (it.hasNext()) {
             AdjacencyEdge ae = it.next();
@@ -100,9 +101,11 @@ public class AdjacencyNode {
      *            节点 ID
      * @param weight
      *            权重
+     * @param ava
+     *            边可用次数
      */
-    public void addEdge(int nodeIndex, int weight) {
-        AdjacencyEdge edge = new AdjacencyEdge(list, nodeIndex, weight);
+    public void addEdge(int nodeIndex, int weight, int ava) {
+        AdjacencyEdge edge = new AdjacencyEdge(list, nodeIndex, weight, ava);
         int index = edges.indexOf(edge);
         // 修改
         if (index >= 0) {
