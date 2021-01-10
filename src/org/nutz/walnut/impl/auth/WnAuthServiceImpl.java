@@ -748,6 +748,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
             se.getVars().put("QUIT", this.defaultQuitUrl);
         }
 
+        // 设置一些必要的环境变量
+        se.getVars().put(WnAuthSession.V_ROLE, me.getRoleName());
+
         // 保存会话的环境变量
         this.saveSessionVars(se);
 

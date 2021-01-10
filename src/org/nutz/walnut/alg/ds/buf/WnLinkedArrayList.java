@@ -456,6 +456,22 @@ public class WnLinkedArrayList<T> implements List<T> {
         return this.remove(this.size() - 1);
     }
 
+    public T setFirst(T element) {
+        if (this.isEmpty()) {
+            this.add(element);
+            return null;
+        }
+        return this.set(0, element);
+    }
+
+    public T setLast(T element) {
+        if (this.isEmpty()) {
+            this.add(element);
+            return null;
+        }
+        return this.set(this.size() - 1, element);
+    }
+
     @Override
     public T set(int index, T element) {
         // Guard

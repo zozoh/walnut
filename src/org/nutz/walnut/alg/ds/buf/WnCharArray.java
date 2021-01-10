@@ -18,7 +18,7 @@ public class WnCharArray {
      * 字符数据
      */
     private char[] data;
-    
+
     /**
      * 开始位置下标（包含）
      */
@@ -74,18 +74,70 @@ public class WnCharArray {
         return -1;
     }
 
-    public String getString(int fromIndex, int toIndex) {
-        int len = toIndex - fromIndex;
-        return new String(data, fromIndex, len);
+    public int findNextIndex(char c) {
+        int ix = this.findIndex(c);
+        if (ix < 0) {
+            ix = this.limit;
+        } else {
+            ix++;
+        }
+        return ix;
     }
-    
+
+    public int findNextIndex(char[] cs) {
+        int ix = this.findIndex(cs);
+        if (ix < 0) {
+            ix = this.limit;
+        } else {
+            ix++;
+        }
+        return ix;
+    }
+
     public char[] getCharArray(int fromIndex, int toIndex) {
         int len = toIndex - fromIndex;
         char[] cs = new char[len];
         System.arraycopy(data, fromIndex, cs, 0, len);
         return cs;
     }
-    
+
+    public char[] nextCharArrayTo(int toIndex) {
+        char[] s = getCharArray(cursor, toIndex);
+        this.cursor = toIndex;
+        return s;
+    }
+
+    public char[] nextCharArray(char c) {
+        int ix = findNextIndex(c);
+        return nextCharArrayTo(ix);
+    }
+
+    public char[] nextCharArray(char[] cs) {
+        int ix = findNextIndex(cs);
+        return nextCharArrayTo(ix);
+    }
+
+    public String getString(int fromIndex, int toIndex) {
+        int len = toIndex - fromIndex;
+        return new String(data, fromIndex, len);
+    }
+
+    public String nextStringTo(int toIndex) {
+        String s = getString(cursor, toIndex);
+        this.cursor = toIndex;
+        return s;
+    }
+
+    public String nextString(char c) {
+        int ix = findNextIndex(c);
+        return nextStringTo(ix);
+    }
+
+    public String nextString(char[] cs) {
+        int ix = findNextIndex(cs);
+        return nextStringTo(ix);
+    }
+
     /**
      * 返回当前位置下一行的内容。并将光标移动到下一行开头
      * 
@@ -172,6 +224,26 @@ public class WnCharArray {
 
     public boolean hasPrevChar() {
         return cursor > offset;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getCursor() {
+        return cursor;
+    }
+
+    public void setCursor(int cursor) {
+        this.cursor = cursor;
+    }
+
+    public int getPosition() {
+        return cursor - offset;
     }
 
 }

@@ -5,7 +5,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 
@@ -30,12 +29,7 @@ public class WnDomainService {
     public WnObj getDomainMapping(String host) {
         // 首先从 domain 表里查询 hostName 对应的域
         if (!Strings.isBlank(host)) {
-            WnObj oDomainHome = io.fetch(null, "/domain");
-            if (null != oDomainHome) {
-                WnQuery q = Wn.Q.pid(oDomainHome);
-                q.setv("dmn_host", host);
-                return io.getOne(q);
-            }
+            return io.fetch(null, "/domain/" + host);
         }
         return null;
     }
@@ -47,8 +41,8 @@ public class WnDomainService {
      */
     public WnObj getDomainHome(String host) {
         WnObj oMapping = this.getDomainMapping(host);
-        if (null != oMapping && oMapping.has("dmn_grp")) {
-            return io.fetch(null, "/home/" + oMapping.getString("dmn_grp"));
+        if (null != oMapping && oMapping.has("domain")) {
+            return io.fetch(null, "/home/" + oMapping.getString("domain"));
         }
         return null;
     }
@@ -83,8 +77,32 @@ public class WnDomainService {
         }
         // 首先从 domain 表里查询 hostName 对应的域
         else {
-            si.oHome = this.getDomainHome(hostName);
-            si.oWWW = this.getDomainDefaultWebsite(si.oHome);
+            WnObj oMapping = this.getDomainMapping(hostName);
+
+            // 必须要有映射
+            if (null == oMapping)
+                return si;
+
+            // 映射了 domain Home
+            if (oMapping.has("domain")) {
+                si.oHome = io.fetch(null, "/home/" + oMapping.getString("domain"));
+            }
+            if (null == si.oHome)
+                return si;
+
+            // 映射里直接指定了站点名称
+            if (oMapping.has("site")) {
+                NutMap vars = Lang.map("HOME", si.oHome.path());
+                String sitePath = oMapping.getString("site");
+                sitePath = Wn.normalizeFullPath(sitePath, vars);
+                si.oWWW = io.fetch(null, sitePath);
+            }
+            // 否则，尝试查看域目录的设置
+            else {
+                si.oWWW = this.getDomainDefaultWebsite(si.oHome);
+            }
+
+            // 加载更多配置
             if (null != si.oWWW) {
                 si.webs = new WnWebService(io, si.oWWW);
                 si.siteId = si.oWWW.id();

@@ -7,5 +7,8 @@ import org.nutz.walnut.alg.ds.buf.WnCharArrayTest;
 import org.nutz.walnut.alg.ds.buf.WnLinkedArrayListTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({WnLinkedArrayListTest.class, WnCharArrayTest.class, AdjacencyListTest.class})
+@Suite.SuiteClasses({WnLinkedArrayListTest.class,
+                     WnCharArrayTest.class,
+                     AdjacencyListTest.class,
+                     WnCharOpTableTest.class})
 public class AllAlgDsTest {}

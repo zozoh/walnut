@@ -467,14 +467,14 @@ public class AppModule extends AbstractWnModule {
                     __check_home_accessable(si.oHome, user);
 
                     // 特殊会话类型
-                    String byType = "auth_by_domain";
+                    String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
                     String byValue = si.siteId + ":passwd";
 
                     // 注册新会话
                     WnAuthSession se = auth().createSession(user, true);
 
                     // 更新会话元数据
-                    __update_auth_session(se, si.webs, byType, byValue);
+                    __update_auth_session(se, si.webs, si, byType, byValue);
 
                     // 获取重定向路径
                     String appName = se.getVars().getString("OPEN", "wn.manager");
@@ -555,7 +555,7 @@ public class AppModule extends AbstractWnModule {
         try {
             // -------------------------------
             // 特殊会话类型
-            String byType = "auth_by_domain";
+            String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
             String byValue = si.siteId + ":" + ticket;
 
             // -------------------------------
@@ -579,7 +579,7 @@ public class AppModule extends AbstractWnModule {
                 seSys = auth().createSession(u, true);
 
                 // 更新会话元数据
-                __update_auth_session(seSys, si.webs, byType, byValue);
+                __update_auth_session(seSys, si.webs, si, byType, byValue);
             }
 
             // 准备返回数据
@@ -623,6 +623,7 @@ public class AppModule extends AbstractWnModule {
 
     private void __update_auth_session(WnAuthSession se,
                                        WnWebService webs,
+                                       WwwSiteInfo si,
                                        String byType,
                                        String byValue) {
         // 标注新会话的类型，以便指明用户来源
@@ -653,6 +654,10 @@ public class AppModule extends AbstractWnModule {
         for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
             vars.putDefault(en.getKey(), en.getValue());
         }
+
+        // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
+        vars.put(WnAuthSession.V_WWW_SITE_ID, si.oWWW.id());
+        vars.put(WnAuthSession.V_ROLE, "domain:" + se.getMe().getRoleName());
 
         // 保存会话
         auth().saveSession(se);

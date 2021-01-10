@@ -781,18 +781,20 @@ public class WnIoObj extends NutMap implements WnObj {
             return null;
         }
 
-        // 递归加载父节点的祖先
-        p.loadParents(list, force);
-
         // 确保可访问
         p = Wn.WC().whenEnter(p, false);
 
         // 设置成自己的父
         _parent = p;
 
-        // 记录到输出列表
-        if (null != list)
-            list.add(_parent);
+        if (!_parent.path().equals("/")) {
+            // 递归加载父节点的祖先
+            p.loadParents(list, force);
+
+            // 记录到输出列表
+            if (null != list)
+                list.add(_parent);
+        }
 
         // 更新路径
         path(_parent.path()).appendPath(name());

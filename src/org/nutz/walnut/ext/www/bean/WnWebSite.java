@@ -48,6 +48,10 @@ public class WnWebSite {
      */
     private WnObj accountDir;
     /**
+     * 账户库所在目录(Thing)
+     */
+    private WnObj roleHome;
+    /**
      * 角色库的索引目录
      */
     private WnObj roleDir;
@@ -178,6 +182,7 @@ public class WnWebSite {
         accountDir = checkThingIndex(bean.getString("accounts"));
         accountHome = accountDir.parent();
         roleDir = getThingIndex(bean.getString("roles"));
+        roleHome = roleDir.parent();
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
         orderHome = fetchThingSet(bean.getString("orders"));
@@ -341,16 +346,55 @@ public class WnWebSite {
         return captchaDir;
     }
 
+    public boolean hasAccountHome() {
+        return null != accountHome;
+    }
+
     public WnObj getAccountHome() {
         return accountHome;
+    }
+
+    public boolean hasAccountDir() {
+        return null != accountDir;
     }
 
     public WnObj getAccountDir() {
         return accountDir;
     }
 
+    public boolean hasRoleHome() {
+        return null != roleHome;
+    }
+
+    public WnObj getRoleHome() {
+        return roleHome;
+    }
+
     public boolean hasRoleDir() {
         return null != roleDir;
+    }
+
+    public WnObj fetchRole(String roleName) {
+        return io.fetch(roleDir, roleName);
+    }
+
+    public WnObj checkRole(String roleName) {
+        return io.check(roleDir, roleName);
+    }
+
+    public String readRole(String roleName) {
+        WnObj o = io.check(roleDir, roleName);
+        return io.readText(o);
+    }
+
+    public <T> T readRoleAs(String roleName, Class<T> classOfT) {
+        WnObj o = io.check(roleDir, roleName);
+        return io.readJson(o, classOfT);
+    }
+
+    public NutBean readRoleAsJson(String roleName) {
+        WnObj o = io.check(roleDir, roleName);
+        return io.readJson(o, NutMap.class);
     }
 
     public WnObj getRoleDir() {

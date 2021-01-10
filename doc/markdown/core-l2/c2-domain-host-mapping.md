@@ -37,4 +37,6 @@ obj * -tmpl 'obj id:@{id} -u \'tp:"A",title:"@{nm}",nm:"@{dmn_host}",domain:"@{d
 
 ```bash
 obj /domain -match -t 'id,nm,tp,domain,site,expi_at,title' -bish -pager -limit 100 -skip 0
+# or alias command:
+domain list -limit 100 -skip 0
 ```

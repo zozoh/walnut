@@ -3,7 +3,10 @@ package org.nutz.walnut.ext.titanium.sidebar;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 
 public class TiSidebarInputItem {
 
@@ -29,6 +32,34 @@ public class TiSidebarInputItem {
 
     private Map<String, String> roles;
 
+    private NutMap pvg;
+
+    public String toString() {
+        String s = "";
+        if (null != key) {
+            s += ":" + key;
+        }
+        if (null != title) {
+            s += ":" + title;
+        }
+        if (null != path) {
+            s += ":" + path;
+        }
+        JsonFormat jfmt = JsonFormat.compact();
+        if (this.hasRoles()) {
+            s += ":" + Json.toJson(roles, jfmt);
+        }
+        if (this.hasPvg()) {
+            s += ":PVG" + Json.toJson(pvg, jfmt);
+        }
+        if (null != items && items.length > 0) {
+            for (TiSidebarInputItem it : items) {
+                s += "\n - " + it.toString();
+            }
+        }
+        return s;
+    }
+
     public TiSidebarInputItem clone() {
         TiSidebarInputItem it2 = new TiSidebarInputItem();
         if (null != this.items) {
@@ -49,6 +80,10 @@ public class TiSidebarInputItem {
         if (null != roles) {
             it2.roles = new HashMap<>();
             it2.roles.putAll(this.roles);
+        }
+        if (this.hasPvg()) {
+            it2.pvg = new NutMap();
+            it2.pvg.putAll(this.pvg);
         }
         return it2;
     }
@@ -154,7 +189,7 @@ public class TiSidebarInputItem {
     }
 
     public boolean hasRoles() {
-        return null != roles && roles.size() > 0;
+        return null != roles && !roles.isEmpty();
     }
 
     public Map<String, String> getRoles() {
@@ -163,6 +198,18 @@ public class TiSidebarInputItem {
 
     public void setRoles(Map<String, String> roles) {
         this.roles = roles;
+    }
+
+    public boolean hasPvg() {
+        return null != pvg && !pvg.isEmpty();
+    }
+
+    public NutMap getPvg() {
+        return pvg;
+    }
+
+    public void setPvg(NutMap pvg) {
+        this.pvg = pvg;
     }
 
 }

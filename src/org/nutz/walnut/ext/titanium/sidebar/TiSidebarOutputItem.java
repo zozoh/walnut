@@ -26,6 +26,28 @@ public class TiSidebarOutputItem {
 
     private String view;
 
+    public String toString() {
+        String s = "";
+        if (null != key) {
+            s += ":" + key;
+        }
+        if (null != title) {
+            s += ":" + title;
+        }
+        if (null != path) {
+            s += ":" + path;
+        }
+        if (null != view) {
+            s += ":->" + view;
+        }
+        if (null != items && items.size() > 0) {
+            for (TiSidebarOutputItem it : items) {
+                s += "\n - " + it.toString();
+            }
+        }
+        return s;
+    }
+
     public TiSidebarOutputItem(TiSidebarOutputItem it) {
         this.depth = it.depth;
         this.key = it.key;

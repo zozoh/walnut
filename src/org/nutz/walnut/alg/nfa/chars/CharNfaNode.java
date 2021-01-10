@@ -11,4 +11,7 @@ public abstract class CharNfaNode {
         this.maxMatch = 1;
     }
 
+    public CharNfaNode joinWith(CharNfaNode other) {
+        return null;
+    }
 }

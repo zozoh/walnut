@@ -40,7 +40,8 @@ public class TiSidebarService {
                                List<TiSidebarOutputItem> list,
                                WnAuthSession sess,
                                NutBean tmplContext,
-                               WnCheckRoleOfByName check,
+                               TiSidebarCheckItemByRoleName checkRole,
+                               TiSidebarCheckPvg checkPvg,
                                WnExecutable runtime) {
         NutMap vars = sess.getVars();
         // 克隆一份自身
@@ -51,9 +52,16 @@ public class TiSidebarService {
             for (Map.Entry<String, String> en : inIt.getRoles().entrySet()) {
                 String roleName = en.getKey();
                 String taPath = en.getValue();
-                if (!check.exec(roleName, taPath)) {
+                if (!checkRole.exec(roleName, taPath)) {
                     return;
                 }
+            }
+        }
+
+        // 检查权限: 自定义
+        if (inIt.hasPvg() && null != checkPvg) {
+            if (!checkPvg.exec(inIt.getPvg())) {
+                return;
             }
         }
 
@@ -84,7 +92,8 @@ public class TiSidebarService {
                                                   inIt2,
                                                   sess,
                                                   tmplContext,
-                                                  check,
+                                                  checkRole,
+                                                  checkPvg,
                                                   runtime,
                                                   o,
                                                   it);
@@ -101,7 +110,8 @@ public class TiSidebarService {
                                               inIt,
                                               sess,
                                               tmplContext,
-                                              check,
+                                              checkRole,
+                                              checkPvg,
                                               runtime,
                                               o,
                                               it);
@@ -124,7 +134,14 @@ public class TiSidebarService {
             if (inIt.isGroup() && inIt.hasItems()) {
                 List<TiSidebarOutputItem> items = new LinkedList<>();
                 for (TiSidebarInputItem subIt : inIt.getItems()) {
-                    __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
+                    __join_output(depth + 1,
+                                  subIt,
+                                  items,
+                                  sess,
+                                  tmplContext,
+                                  checkRole,
+                                  checkPvg,
+                                  runtime);
                 }
                 if (items.size() > 0) {
                     it.setItems(items);
@@ -143,7 +160,8 @@ public class TiSidebarService {
                                                TiSidebarInputItem inIt,
                                                WnAuthSession sess,
                                                NutBean tmplContext,
-                                               WnCheckRoleOfByName check,
+                                               TiSidebarCheckItemByRoleName checkRole,
+                                               TiSidebarCheckPvg checkPvg,
                                                WnExecutable runtime,
                                                NutMap o,
                                                TiSidebarOutputItem it) {
@@ -156,7 +174,14 @@ public class TiSidebarService {
                     subIt.setPath(ph);
                 }
                 // 计入
-                __join_output(depth + 1, subIt, items, sess, tmplContext, check, runtime);
+                __join_output(depth + 1,
+                              subIt,
+                              items,
+                              sess,
+                              tmplContext,
+                              checkRole,
+                              checkPvg,
+                              runtime);
             }
             it.setItems(items);
         }
@@ -164,7 +189,8 @@ public class TiSidebarService {
 
     public TiSidebarOutput getOutput(TiSidebarInput input,
                                      WnAuthSession sess,
-                                     WnCheckRoleOfByName check,
+                                     TiSidebarCheckItemByRoleName checkRole,
+                                     TiSidebarCheckPvg checkPvg,
                                      WnExecutable runtime) {
         TiSidebarOutput output = new TiSidebarOutput();
         List<TiSidebarOutputItem> sidebar = new LinkedList<>();
@@ -174,7 +200,14 @@ public class TiSidebarService {
         // 循环分析
         if (input.hasSidebar()) {
             for (TiSidebarInputItem inIt : input.getSidebar()) {
-                this.__join_output(0, inIt, sidebar, sess, tmplContext, check, runtime);
+                this.__join_output(0,
+                                   inIt,
+                                   sidebar,
+                                   sess,
+                                   tmplContext,
+                                   checkRole,
+                                   checkPvg,
+                                   runtime);
             }
         }
 

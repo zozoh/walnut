@@ -15,6 +15,16 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class WnAuthSession {
 
+    public static final String V_BT_AUTH_BY_DOMAIN = "auth_by_domain";
+    public static final String V_BT_WEB_VCODE = "web_vcode";
+    public static final String V_BT_WEB_PASSWD = "web_passwd";
+    public static final String V_BT_MICROAPP = "microapp";
+    public static final String V_BT_SESSION = "session";
+    public static final String V_BT_TRANSIENT = "transient";
+
+    public static final String V_WWW_SITE_ID = "WWW_SITE_ID";
+    public static final String V_ROLE = "ROLE";
+
     private String id;
 
     private WnAccount me;
