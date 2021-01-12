@@ -1,8 +1,6 @@
 package org.nutz.walnut.cheap.markdown;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 解析文档时用到的临时块
@@ -11,52 +9,39 @@ import java.util.List;
  */
 class CheapBlock {
 
-    /**
-     * 本块缩进，4 个空格或者 1个 tab 算一个缩进
-     */
-    int indent;
+    LineType type;
 
-    BlockType type;
+    ListType listType;
 
-    CheapBlock parent;
-
-    LinkedList<CheapBlock> children;
+    CodeType codeType;
 
     LinkedList<CheapLine> lines;
 
-    public CheapBlock() {
+    CheapBlock() {
         lines = new LinkedList<>();
     }
 
-    boolean hasChildren() {
-        return null != children && !children.isEmpty();
+    CheapBlock(CheapLine line) {
+        lines = new LinkedList<>();
+        lines.add(line);
+        type = line.type;
+        listType = line.listType;
+        codeType = line.codeType;
     }
 
-    void append(CheapBlock... blocks) {
-        this.add(-1, blocks);
+    CheapLine line(int index) {
+        return lines.get(index);
     }
 
-    void prepend(CheapBlock... blocks) {
-        this.add(0, blocks);
-    }
-
-    void add(int index, CheapBlock... blocks) {
-        if (null == children) {
-            children = new LinkedList<>();
-        }
-        List<CheapBlock> list = new ArrayList<>(blocks.length);
-        // 最后一个
-        if (index == -1) {
-            this.children.addAll(list);
-        }
-        // 在特殊位置插入
-        else {
-            // 倒数
-            if (index < 0) {
-                index = Math.max(0, children.size() + index);
-            }
-            this.children.addAll(index, list);
+    void appendLine(CheapLine line) {
+        lines.add(line);
+        // 空行不能确定这个块的类型
+        if (LineType.BLANK == this.type) {
+            this.type = line.type;
         }
     }
 
+    CheapLine lastLine() {
+        return lines.getLast();
+    }
 }

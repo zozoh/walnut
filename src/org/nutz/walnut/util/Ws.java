@@ -13,6 +13,26 @@ import org.nutz.lang.Strings;
 public class Ws {
 
     /**
+     * 统计某字符在给定字符串中出现的次数
+     * 
+     * @param cs
+     *            字符串
+     * @param c
+     *            字符
+     * @return 字符出现次数
+     */
+    public static int countChar(CharSequence cs, char c) {
+        int re = 0;
+        int len = cs.length();
+        for (int i = 0; i < len; i++) {
+            if (cs.charAt(i) == c) {
+                re++;
+            }
+        }
+        return re;
+    }
+
+    /**
      * 将字符串按半角逗号，拆分成数组，空元素将被忽略
      *
      * @param s
@@ -44,7 +64,7 @@ public class Ws {
         }
         return list.toArray(new String[list.size()]);
     }
-    
+
     /**
      * 去掉字符串前后空白字符。空白字符的定义由Character.isWhitespace来判断
      *
