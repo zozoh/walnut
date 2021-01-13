@@ -4,7 +4,7 @@ import org.nutz.walnut.alg.ds.buf.WnCharArray;
 
 public class CharNfaTree {
 
-    private CharNfaNode root;
+    CharNfaNode root;
 
     public CharNfaTree() {}
 

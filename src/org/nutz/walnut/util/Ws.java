@@ -3,8 +3,6 @@ package org.nutz.walnut.util;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
-
 /**
  * 字符串帮助类
  * 
@@ -40,7 +38,18 @@ public class Ws {
      * @return 字符串数组
      */
     public static String[] splitIgnoreBlank(String s) {
-        return Strings.splitIgnoreBlank(s, ",");
+        return splitIgnoreBlank(s, ",");
+    }
+
+    /**
+     * 将字符串按半角逗号，拆分成数组，空元素将被忽略
+     *
+     * @param s
+     *            字符串
+     * @return 字符串列表
+     */
+    public static List<String> splitIgnoreBlanks(String s) {
+        return splitIgnoreBlanks(s, ",");
     }
 
     /**
@@ -63,6 +72,28 @@ public class Ws {
             list.add(trim(st));
         }
         return list.toArray(new String[list.size()]);
+    }
+
+    /**
+     * 根据一个正则式，将字符串拆分成数组，空元素将被忽略
+     *
+     * @param s
+     *            字符串
+     * @param regex
+     *            正则式
+     * @return 字符串列表
+     */
+    public static List<String> splitIgnoreBlanks(String s, String regex) {
+        if (null == s)
+            return null;
+        String[] ss = s.split(regex);
+        List<String> list = new LinkedList<String>();
+        for (String st : ss) {
+            if (isBlank(st))
+                continue;
+            list.add(trim(st));
+        }
+        return list;
     }
 
     /**

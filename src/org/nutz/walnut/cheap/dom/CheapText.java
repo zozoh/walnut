@@ -2,13 +2,13 @@ package org.nutz.walnut.cheap.dom;
 
 public class CheapText extends CheapNode {
 
-    private String text;
+    protected String text;
 
-    public CheapText() {
+    protected CheapText() {
         this(null);
     }
 
-    public CheapText(String text) {
+    protected CheapText(String text) {
         this.type = CheapNodeType.TEXT;
         this.text = text;
     }
@@ -21,4 +21,21 @@ public class CheapText extends CheapNode {
         this.text = text;
     }
 
+    public CheapText appendText(String text) {
+        if (null == text) {
+            this.text = text;
+        } else {
+            this.text += text;
+        }
+        return this;
+    }
+
+    public CheapText appendLine(String text) {
+        if (null == text) {
+            this.text = text;
+        } else {
+            this.text += text;
+        }
+        return appendText("\n" + text);
+    }
 }

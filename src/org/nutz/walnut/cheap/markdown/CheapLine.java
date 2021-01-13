@@ -12,7 +12,7 @@ class CheapLine {
     /**
      * 行号（0 base）
      */
-    int number;
+    int lineNumber;
 
     /**
      * 行类型
@@ -70,27 +70,34 @@ class CheapLine {
     String content;
 
     CheapLine(int number, String input) {
-        this.number = number;
+        this.lineNumber = number;
         this.rawData = input;
     }
 
     @Override
     public String toString() {
-        String s0 = Ws.repeat(' ', space);
-        String s1;
+        String s0 = null == this.type ? "???" : this.type.toString();
+        if (null != this.codeType) {
+            s0 += ":" + this.codeType;
+        }
+        if (null != this.listType) {
+            s0 += ":" + this.listType;
+        }
+        String s1 = Ws.repeat(' ', space);
+        String s2;
         // 无前缀
         if (null == prefix) {
-            s1 = "";
+            s2 = "";
         }
-        // 列表
-        else if (LineType.LIST == type) {
-            s1 = prefix + " ";
+        // 列表和标题，都需要补一个空格
+        else if (LineType.LIST == type || LineType.HEADING == type) {
+            s2 = prefix + " ";
         }
         // 其他前缀
         else {
-            s1 = prefix;
+            s2 = prefix;
         }
-        return String.format("Line(%d) %s%s%s", number, s0, s1, content);
+        return String.format("Line(%d)<%s> %s%s%s", lineNumber, s0, s1, s2, content);
     }
 
     private static String REGEX = "^(\\s*)(" // Start: 1,2
@@ -118,21 +125,17 @@ class CheapLine {
         }
 
         // 得到头部空格数量
+        String tailSpace = m.group(23);
         String sh = m.group(1).replace("\t", tab);
         this.space = sh.length();
-        this.trimed = m.group(2) + m.group(23);
+        this.trimed = m.group(2) + tailSpace;
 
-        // 分隔线
-        if (null != m.group(3)) {
-            this.type = LineType.HR;
-            return;
-        }
         // 无序列表
         if (null != m.group(4)) {
             this.type = LineType.LIST;
             this.listType = ListType.UL;
             this.prefix = m.group(5);
-            this.content = m.group(6);
+            this.content = m.group(6) + tailSpace;
             return;
         }
         // 有序列表
@@ -141,7 +144,22 @@ class CheapLine {
             this.listType = ListType.OL;
             this.prefix = m.group(8);
             this.startNumber = Integer.parseInt(m.group(9));
-            this.content = m.group(10);
+            this.content = m.group(10) + tailSpace;
+            return;
+        }
+        // 缩进代码块
+        if (this.space >= codeIndent) {
+            this.type = LineType.CODE_BLOCK;
+            this.codeType = CodeType.INDENT;
+            this.space -= codeIndent;
+            String sp = Ws.repeat(' ', this.space);
+            this.content = sp + this.trimed;
+            return;
+        }
+        // 分隔线
+        if (null != m.group(3)) {
+            this.type = LineType.HR;
+            this.content = m.group(2);
             return;
         }
         // 引用块
@@ -149,13 +167,13 @@ class CheapLine {
             this.type = LineType.BLOCKQUOTE;
             this.prefix = m.group(12);
             this.level = Ws.countChar(prefix, '>');
-            this.content = m.group(14);
+            this.content = m.group(14) + tailSpace;
             return;
         }
         // 代码块
         if (null != m.group(15)) {
             this.type = LineType.CODE_BLOCK;
-            this.codeType = CodeType.GFM;
+            this.codeType = CodeType.FENCED;
             this.prefix = m.group(16);
             this.content = Ws.trim(m.group(17));
             return;
@@ -165,25 +183,18 @@ class CheapLine {
             this.type = LineType.HEADING;
             this.prefix = m.group(19);
             this.level = Ws.countChar(this.prefix, '#');
-            this.content = Ws.trim(m.group(20));
+            this.content = m.group(20) + tailSpace;
             return;
         }
         // 表格分隔线
         if (null != m.group(21)) {
             this.type = LineType.TABKE_HEAD_LINE;
-            return;
-        }
-        // 缩进代码块
-        if (this.space >= codeIndent) {
-            this.type = LineType.CODE_BLOCK;
-            this.codeType = CodeType.INDENT;
-            this.shiftSpace(codeIndent);
-            this.content = this.trimed;
+            this.content = m.group(21);
             return;
         }
 
         // 默认就算是段落
-        this.content = m.group(22);
+        this.content = m.group(22) + tailSpace;
         if (Strings.isBlank(this.content)) {
             this.type = LineType.BLANK;
         } else {
@@ -191,10 +202,16 @@ class CheapLine {
         }
     }
 
-    void shiftSpace(int backSpace) {
-        if (backSpace <= this.space) {
-            this.space -= backSpace;
-            this.trimed = Ws.repeat(' ', backSpace) + trimed;
+    void shiftSpace() {
+        this.shiftSpace(this.space);
+    }
+
+    void shiftSpace(int space) {
+        int n = Math.min(space, this.space);
+        if (n > 0) {
+            this.space -= n;
+            String s = Ws.repeat(' ', n);
+            this.content = s + this.content;
         }
     }
 

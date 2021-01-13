@@ -1,24 +1,22 @@
 package org.nutz.walnut.cheap.dom;
 
-public class CheapComment extends CheapNode {
+public class CheapComment extends CheapText {
 
-    private String content;
-
-    public CheapComment() {
+    protected CheapComment() {
         this(null);
     }
 
-    public CheapComment(String content) {
+    protected CheapComment(String text) {
         this.type = CheapNodeType.COMMENT;
-        this.content = content;
+        this.text = text;
     }
 
-    public String getContent() {
-        return content;
+    public CheapComment appendText(String text) {
+        return (CheapComment) super.appendText(text);
     }
 
-    public void setContent(String text) {
-        this.content = text;
+    public CheapComment appendLine(String text) {
+        return (CheapComment) super.appendLine(text);
     }
 
 }

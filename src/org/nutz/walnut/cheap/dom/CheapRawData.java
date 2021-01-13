@@ -4,11 +4,11 @@ public class CheapRawData extends CheapNode {
 
     private String data;
 
-    public CheapRawData() {
+    protected CheapRawData() {
         this(null);
     }
 
-    public CheapRawData(String data) {
+    protected CheapRawData(String data) {
         this.type = CheapNodeType.RAW_DATA;
         this.data = data;
     }

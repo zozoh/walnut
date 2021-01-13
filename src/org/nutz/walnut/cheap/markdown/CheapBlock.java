@@ -29,6 +29,14 @@ class CheapBlock {
         codeType = line.codeType;
     }
 
+    public String toString() {
+        String s = null == type ? "BLOCK{???}" : "BLOCK{" + type + "}";
+        for (CheapLine line : lines) {
+            s += "\n" + line.toString();
+        }
+        return s;
+    }
+
     CheapLine line(int index) {
         return lines.get(index);
     }

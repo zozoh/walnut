@@ -10,13 +10,15 @@ public class CheapNode {
 
     private int nodeIndex;
 
-    private CheapDocument ownerDocument;
+    private int elementIndex;
+
+    CheapDocument ownerDocument;
 
     private CheapNode parent;
 
     private LinkedList<CheapNode> children;
 
-    public CheapNode() {
+    protected CheapNode() {
         this.nodeIndex = 0;
     }
 
@@ -26,6 +28,10 @@ public class CheapNode {
 
     public boolean isText() {
         return CheapNodeType.TEXT == type;
+    }
+
+    public boolean isComment() {
+        return CheapNodeType.COMMENT == type;
     }
 
     public boolean isRawData() {
@@ -40,22 +46,32 @@ public class CheapNode {
         this.type = type;
     }
 
-    public void appendTo(CheapNode pnode) {
+    public boolean isBodyElement() {
+        return this.ownerDocument.body() == this;
+    }
+
+    public boolean isRootElement() {
+        return this.ownerDocument.root() == this;
+    }
+
+    public CheapNode appendTo(CheapNode pnode) {
         pnode.append(this);
-        this.setParent(pnode);
+        return this;
     }
 
-    public void prependTo(CheapNode pnode) {
+    public CheapNode prependTo(CheapNode pnode) {
         pnode.prepend(this);
-        this.setParent(pnode);
+        return this;
     }
 
-    public void append(CheapNode... nodes) {
+    public CheapNode append(CheapNode... nodes) {
         this.add(-1, nodes);
+        return this;
     }
 
-    public void prepend(CheapNode... nodes) {
+    public CheapNode prepend(CheapNode... nodes) {
         this.add(0, nodes);
+        return this;
     }
 
     public void add(int index, CheapNode... nodes) {
@@ -63,6 +79,12 @@ public class CheapNode {
             children = new LinkedList<>();
         }
         List<CheapNode> list = new ArrayList<>(nodes.length);
+        for (CheapNode node : nodes) {
+            node.setParent(this);
+            if (node.ownerDocument != this.ownerDocument) {
+                node.ownerDocument = this.ownerDocument;
+            }
+        }
         // 最后一个
         if (index == -1) {
             this.children.addAll(list);
@@ -77,6 +99,18 @@ public class CheapNode {
         }
     }
 
+    public CheapNode removeChild(int index) {
+        return this.children.remove(index);
+    }
+
+    public CheapNode removeFirstChild() {
+        return this.children.removeFirst();
+    }
+
+    public CheapNode removeLastChild() {
+        return this.children.removeLast();
+    }
+
     public int getNodeIndex() {
         return nodeIndex;
     }
@@ -85,12 +119,16 @@ public class CheapNode {
         this.nodeIndex = nodeIndex;
     }
 
-    public CheapDocument getOwnerDocument() {
-        return ownerDocument;
+    public int getElementIndex() {
+        return elementIndex;
     }
 
-    public void setOwnerDocument(CheapDocument doc) {
-        this.ownerDocument = doc;
+    void setElementIndex(int elementIndex) {
+        this.elementIndex = elementIndex;
+    }
+
+    public CheapDocument getOwnerDocument() {
+        return ownerDocument;
     }
 
     public boolean hasParent() {
@@ -113,11 +151,38 @@ public class CheapNode {
         return children;
     }
 
+    public CheapNode getFirstChild() {
+        if (this.hasChildren()) {
+            return children.getFirst();
+        }
+        return null;
+    }
+
+    public CheapNode getLastChild() {
+        if (this.hasChildren()) {
+            return children.getLast();
+        }
+        return null;
+    }
+
+    public CheapNode empty() {
+        if (this.hasChildren()) {
+            this.children.clear();
+        }
+        return this;
+    }
+
     public void rebuildChildren() {
-        int i = this.children.size();
-        for (CheapNode child : this.children) {
-            child.setNodeIndex(i++);
-            child.setOwnerDocument(this.ownerDocument);
+        if (this.hasChildren()) {
+            int nIx = 0;
+            int eIx = 0;
+            for (CheapNode child : this.children) {
+                child.setNodeIndex(nIx++);
+                if (child.isElement()) {
+                    child.setElementIndex(eIx++);
+                }
+                child.rebuildChildren();
+            }
         }
     }
 

@@ -2,6 +2,6 @@ package org.nutz.walnut.cheap.markdown;
 
 enum CodeType {
 
-    INDENT, GFM
+    INDENT, FENCED
     
 }

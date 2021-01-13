@@ -1,7 +1,5 @@
 package org.nutz.walnut.alg.nfa.chars;
 
-import java.util.List;
-
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.alg.ds.buf.WnCharArray;
@@ -63,13 +61,13 @@ class CharNfaTreeParsing {
                 }
             }
             // 并联操操作符: 需要确保当前栈顶为一个并联节点
-            else if('|' == c) {
-                if(null == topNode) {
+            else if ('|' == c) {
+                if (null == topNode) {
                     throw Lang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
                 }
                 // 已经为并联节点了，
-                if(topNode instanceof CnnParallel) {
-                    
+                if (topNode instanceof CnnParallel) {
+
                 }
             }
             // 逐个字符判断
