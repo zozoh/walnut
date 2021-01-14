@@ -52,20 +52,26 @@ class CheapBlockParsing {
     }
 
     CheapBlockParsing(int tabWidth, String bodyTagName) {
-        this.header = new NutMap();
-        this.blocks = new LinkedList<>();
         this.listIndent = 3;
         this.codeIndent = 4;
         this.tab = Ws.repeat(' ', tabWidth);
         this.tabWidth = tabWidth;
     }
 
-    LinkedList<CheapBlock> parseBlocks(String[] lines) {
+    LinkedList<CheapBlock> invoke(String[] lines) {
+        return invoke(lines, true);
+    }
+
+    LinkedList<CheapBlock> invoke(String[] lines, boolean withHeader) {
+        this.header = new NutMap();
+        this.blocks = new LinkedList<>();
         this.lines = lines;
         this.offset = 0;
 
         // 扫描文档头
-        this.offset = this.scanHeader();
+        if (withHeader) {
+            this.offset = this.scanHeader();
+        }
 
         // 扫描文档体，将行集合成块
         this.offset = this.scanBlocks();

@@ -42,7 +42,6 @@ class CheapLine {
      * 级别
      * 
      * <ul>
-     * <li>引用块: 嵌入级别
      * <li>标题行: 大纲级别
      * <li>列表行: 缩进级别
      * </ul>
@@ -104,7 +103,7 @@ class CheapLine {
                                   + "(-{3,})" // HR:3
                                   + "|(([+*-]) (.+))" // UL: 4,5,6
                                   + "|(((\\d+)\\.) (.+))" // OL: 7,8,9,10
-                                  + "|(((>\\s*)+)(.+))" // QUOTE: 11,12,13,14
+                                  + "|(((>\\s?))(.*))" // QUOTE: 11,12,13,14
                                   + "|((`{3,})(.*))" // CODE:GFM: 15,16,17
                                   + "|((#+) (.*))" // HEADING: 18,19,20
                                   + "|([|:-]{3,})" // TABLE_HEAD: 21,
@@ -166,7 +165,6 @@ class CheapLine {
         if (null != m.group(11)) {
             this.type = LineType.BLOCKQUOTE;
             this.prefix = m.group(12);
-            this.level = Ws.countChar(prefix, '>');
             this.content = m.group(14) + tailSpace;
             return;
         }

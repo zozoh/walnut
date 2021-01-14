@@ -22,7 +22,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(1, blocks.size());
 
         CheapBlock b0 = blocks.get(0);
@@ -46,7 +46,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(1, blocks.size());
 
         CheapBlock b0 = blocks.get(0);
@@ -70,7 +70,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(3, blocks.size());
 
         assertEquals("Line(0)<HEADING> # A", blocks.get(0).line(0).toString());
@@ -94,7 +94,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(3, blocks.size());
 
         assertEquals("Line(0)<PARAGRAPH> aaa", blocks.get(0).line(0).toString());
@@ -117,7 +117,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.CODE_BLOCK, blocks.get(0).type);
@@ -145,7 +145,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.CODE_BLOCK, blocks.get(0).type);
@@ -172,7 +172,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.CODE_BLOCK, blocks.get(0).type);
@@ -199,7 +199,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.PARAGRAPH, blocks.get(0).type);
@@ -228,7 +228,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.LIST, blocks.get(0).type);
@@ -257,7 +257,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(4, blocks.size());
 
         assertEquals(LineType.LIST, blocks.get(0).type);
@@ -288,7 +288,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
 
         assertEquals(LineType.LIST, blocks.get(0).type);
@@ -320,7 +320,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
         assertEquals(LineType.BLOCKQUOTE, blocks.get(0).type);
         assertEquals("Line(0)<BLOCKQUOTE> > aaa", blocks.get(0).line(0).toString());
@@ -343,7 +343,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
         assertEquals(LineType.LIST, blocks.get(0).type);
 
@@ -371,7 +371,7 @@ public class CheapBlockParsingTest {
         CheapBlockParsing ing = new CheapBlockParsing();
 
         // 测试
-        List<CheapBlock> blocks = ing.parseBlocks(lines);
+        List<CheapBlock> blocks = ing.invoke(lines);
         assertEquals(2, blocks.size());
         assertEquals(LineType.LIST, blocks.get(0).type);
 

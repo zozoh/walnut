@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.cheap.dom.CheapComment;
 import org.nutz.walnut.cheap.dom.CheapDocument;
@@ -49,36 +50,40 @@ public class CheapMarkdownParsing {
      */
     private LinkedList<CheapBlock> blocks;
 
-    private CheapBlockParsing ing;
+    CheapBlockParsing parseBlock;
 
     public CheapMarkdownParsing() {
-        this(true, 4, "markdown", "body");
+        this(true, 4, "html", "body", null);
     }
 
     public CheapMarkdownParsing(boolean autoBr) {
-        this(autoBr, 4, "markdown", "body");
+        this(autoBr, 4, "html", "body", null);
+    }
+
+    public CheapMarkdownParsing(String wrapTagName) {
+        this(true, 4, "markdown", "body", wrapTagName);
+    }
+
+    public CheapMarkdownParsing(boolean autoBr, String wrapTagName) {
+        this(autoBr, 4, "html", "body", wrapTagName);
     }
 
     public CheapMarkdownParsing(boolean autoBr,
                                 int tabWidth,
                                 String rootTagName,
-                                String bodyTagName) {
+                                String bodyTagName,
+                                String wrapTagName) {
         this.blocks = new LinkedList<>();
         this.doc = new CheapDocument(rootTagName, bodyTagName);
-        this.$current = this.doc.body();
+        if (null != wrapTagName) {
+            CheapElement $wrap = this.doc.createElement(wrapTagName, "as-md");
+            this.$current = $wrap.appendTo(doc.body());
+        } else {
+            this.$current = this.doc.body();
+        }
         this.autoBr = autoBr;
-        this.ing = new CheapBlockParsing(tabWidth, bodyTagName);
+        this.parseBlock = new CheapBlockParsing(tabWidth, bodyTagName);
     }
-
-    private static String R_ele_attr = "(" // Size: 1
-                                       // Name:2
-                                       + "([a-z0-9-]+)"
-                                       + "("
-                                       + "=\""
-                                       // Value: 4
-                                       + "([^\"]*?)"
-                                       + "\")?)";
-    private static Pattern PeleAttr = Regex.getPattern(R_ele_attr);
 
     private static String R_img_alt = "^(" // Size: 1
                                       // Width: 2, 3(Val), 4(Unit)
@@ -157,7 +162,16 @@ public class CheapMarkdownParsing {
     }
 
     CheapElement createElement(String tagName, CheapLine line) {
-        CheapElement $el = doc.createElement(tagName, "as-md");
+        return createElement(tagName, null, line);
+    }
+
+    CheapElement createElement(String tagName, String className, CheapLine line) {
+        if (null == className) {
+            className = "as-md";
+        } else if (!className.contains("as-md")) {
+            className = "as-md " + className;
+        }
+        CheapElement $el = doc.createElement(tagName, className);
         if (null != line) {
             $el.attr("md-line", line.lineNumber);
         }
@@ -209,8 +223,11 @@ public class CheapMarkdownParsing {
     }
 
     void parseLine(CheapLine line) {
+        parseLine(line.content);
+    }
+
+    void parseLine(String input) {
         int pos = 0;
-        String input = line.content;
 
         //
         // 如果前行是注释，先尝试结束注释
@@ -234,7 +251,7 @@ public class CheapMarkdownParsing {
         // 开始解析行
         //
         Matcher m = P.matcher(input);
-        while (m.find()) {
+        while (m.find(pos)) {
             // 位置
             int s = m.start();
 
@@ -292,38 +309,39 @@ public class CheapMarkdownParsing {
             else if (null != m.group(24)) {
                 String tagName = m.group(25);
                 CheapElement $el = doc.createElement(tagName);
-
+                $el.appendTo($current);
                 // 解析属性
-                String attrs = Ws.trim(m.group(27));
-                Matcher m2 = PeleAttr.matcher(attrs);
-                while (m2.find()) {
-                    String name = m.group(2);
-                    String value = m.group(4);
-                    $el.attr(name, value);
+                String attrs = m.group(27);
+                if (null != attrs) {
+                    NutMap bean = Ws.splitAttrMap(attrs);
+                    $el.attrs(bean);
                 }
 
-                // 压栈
-                $current = $el;
+                // 不能直接结束的标签，需要压栈
+                if (!$el.isClosedTag()) {
+                    $current = $el;
+                }
             }
             // // HTML Tag end 28,29(name)
             // "|(</([a-z1-6]+)>)"
             else if (null != m.group(28)) {
-                String tagName = m.group(29);
+                String tagName = m.group(29).toUpperCase();
                 CheapElement $el = (CheapElement) $current;
-                while (!$el.isTag(tagName) && $el.hasParent()) {
-                    $el = $el.parentElement();
-                    if ($el.isBodyElement()) {
-                        $el = null;
-                        break;
-                    }
+                // 当前就是
+                if ($el.isTagName(tagName)) {
+                    $current = $el.getParent();
                 }
-                // 木有找到可以闭合的标签
-                if (null == $el) {
-                    // TODO: 抛错还是无视？ 这是一个需要思考的问题 ...
-                }
-                // 闭合标签
+                // 向上查找
                 else {
-                    this.$current = $el.parentElement();
+                    $el = $current.getClosest(tagName);
+                    // 木有找到可以闭合的标签
+                    if (null == $el) {
+                        // TODO: 抛错还是无视？ 这是一个需要思考的问题 ...
+                    }
+                    // 闭合标签
+                    else {
+                        this.$current = $el.parentElement();
+                    }
                 }
             }
             // HTML Comment begin: 30
@@ -352,6 +370,12 @@ public class CheapMarkdownParsing {
             // 偏移，准备下一波
             //
             pos = e;
+        }
+
+        // 余下的内容
+        if (pos < input.length()) {
+            String text = input.substring(pos);
+            doc.createTextNode(text).appendTo($current);
         }
     }
 
@@ -428,22 +452,32 @@ public class CheapMarkdownParsing {
         }
     }
 
-    public CheapDocument parseDoc(String[] lines) {
+    public CheapDocument invoke(String input) {
+        String[] lines = input.split("\r?\n");
+        return invoke(lines);
+    }
+
+    public CheapDocument invoke(String[] lines) {
         // 扫描文档体，将行集合成块
-        blocks = ing.parseBlocks(lines);
+        blocks = parseBlock.invoke(lines);
 
         // 根据扫描出来的文档块，深入解析文档结构
         for (CheapBlock block : blocks) {
-            ParseBlock pb = parser.get(block.type);
-            if (null == pb) {
-                throw Lang.makeThrow("Invalid block type [%s] : %s", block.type, block.toString());
-            }
-            pb.invoke(this, block);
+            ParseBlock parser = checkParser(block.type);
+            parser.invoke(this, block);
         }
 
         // 准备好文档
         doc.ready();
         return doc;
+    }
+
+    ParseBlock checkParser(LineType type) {
+        ParseBlock pb = parser.get(type);
+        if (null == pb) {
+            throw Lang.makeThrow("Invalid block type [%s] : %s", type);
+        }
+        return pb;
     }
 
 }

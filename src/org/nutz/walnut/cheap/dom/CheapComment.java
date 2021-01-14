@@ -9,6 +9,14 @@ public class CheapComment extends CheapText {
     protected CheapComment(String text) {
         this.type = CheapNodeType.COMMENT;
         this.text = text;
+        this.treeDisplayName = "<!--";
+    }
+
+    @Override
+    public void joinString(StringBuilder sb) {
+        sb.append("<!--");
+        sb.append(text);
+        sb.append("-->");
     }
 
     public CheapComment appendText(String text) {

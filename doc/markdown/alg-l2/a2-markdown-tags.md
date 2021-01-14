@@ -19,18 +19,19 @@ Markdown 文档实际上某种程度可以作为 HTML 的一个超集。虽然�
 
 ## 块级元素
 
-| Name         | Markdown | HTML                        |
-| ------------ | -------- | --------------------------- |
-| `OL`         | `1.a.A.` | `UL.as-md|li.as-md`         |
-| `UL`         | `-+*`    | `UL.as-md|li.as-md`         |
-| `UL`         | `- [x]`  | `UL.as-md as-task|li.as-md` |
-| `P`          | `.+`     | `P.as-md`                   |
-| `TABLE`      | `--|--`  | `TABLE.as-md`               |
-| `CODEBLOCK`  | `'''`    | `PRE.as-md as-code-gfm`     |
-| `CODEBLOCK`  | `....`   | `PRE.as-md as-code-indent`  |
-| `BLOCKQUOTE` | `>`      | `BLOCKQUOTE.as-md`          |
-| `HR`         | `---`    | `HR.as-md`                  |
-| `#`          | `#`      | `H1~6.as-md @md-leval=1~6`  |
+| Name         | Markdown | HTML                               |
+| ------------ | -------- | ---------------------------------- |
+| `OL`         | `1.a.A.` | `UL.as-md|li.as-md`                |
+| `UL`         | `-+*`    | `UL.as-md|li.as-md @md-level=0~n`  |
+| `UL`         | `- [x]`  | `UL.as-md is-task|li.as-md`        |
+| `P`          | `.+`     | `P.as-md`                          |
+| `P in list`  | `.+`     | `DIV.as-md in-list`                |
+| `TABLE`      | `--|--`  | `TABLE/THEAD/TBODY/TR/TH/TD.as-md` |
+| `CODEBLOCK`  | `'''`    | `PRE.as-md as-code-gfm`            |
+| `CODEBLOCK`  | `....`   | `PRE.as-md as-code-indent`         |
+| `BLOCKQUOTE` | `>`      | `BLOCKQUOTE.as-md @md-level=0~n`   |
+| `HR`         | `---`    | `HR.as-md`                         |
+| `#`          | `#`      | `H1~6.as-md @md-level=1~6`         |
 
 ## 行内元素 
 

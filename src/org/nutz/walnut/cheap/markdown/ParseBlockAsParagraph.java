@@ -18,17 +18,17 @@ public class ParseBlockAsParagraph implements ParseBlock {
             ing.parseLine(line);
             // 插入换行符
             if (ing.autoBr) {
-                ing.createElement("br", line).append(ing.$current);
+                ing.createElement("br", line).appendTo(ing.$current);
             }
+        }
+
+        // 最后一个 BR 删掉
+        if (ing.autoBr) {
+            $el.removeLastChild();
         }
 
         // 恢复到当前标签
         ing.$current = $el.parentElement();
-
-        // 最后一个 BR 删掉
-        if (ing.autoBr) {
-            ing.$current.removeLastChild();
-        }
     }
 
 }
