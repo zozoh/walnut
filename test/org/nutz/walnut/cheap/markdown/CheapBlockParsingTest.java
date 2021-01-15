@@ -27,10 +27,10 @@ public class CheapBlockParsingTest {
         assertEquals(1, blocks.size());
 
         CheapBlock b0 = blocks.get(0);
-        assertEquals(LineType.LIST, b0.type);
-        assertEquals("Line(0)<PARAGRAPH> - A", b0.line(0).toString());
+        assertEquals(LineType.PARAGRAPH, b0.type);
+        assertEquals("Line(0)<PARAGRAPH> A", b0.line(0).toString());
         assertEquals("Line(1)<CODE_BLOCK:INDENT> B", b0.line(1).toString());
-        assertEquals("Line(2)<PARAGRAPH> - C", b0.line(2).toString());
+        assertEquals("Line(2)<PARAGRAPH> C", b0.line(2).toString());
 
     }
 

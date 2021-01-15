@@ -181,21 +181,32 @@ class CheapBlockParsing {
             }
             // 遇到不同的块类型
             else if (block.type != line.type) {
-                // 列表可以吃入缩进代码，因为，这个缩进可以是
-                // - 围栏代码
-                // - 引用
-                // - 段落
-                if (CodeType.INDENT == line.codeType && LineType.LIST == block.type) {
-                    block.appendLine(line);
+                //
+                // 对于缩进行的特殊处理
+                //
+                if (CodeType.INDENT == line.codeType) {
+                    // 列表可以吃入缩进代码，因为，这个缩进可以是
+                    // - 围栏代码
+                    // - 引用
+                    // - 段落
+                    if (LineType.LIST == block.type) {
+                        block.appendLine(line);
+                        continue;
+                    }
+                    // 段落块，在最后一行不是空行的前提下，也能持续的吃入缩进代码行
+                    if (LineType.PARAGRAPH == block.type) {
+                        if (LineType.BLANK != block.lastLine().type) {
+                            block.appendLine(line);
+                            continue;
+                        }
+                    }
                 }
                 // 其他的情况，就应该重新建立块吧 ^_^!
-                else {
-                    this.pushBlock();
-                    // 新行将当前块截断，那么不要直接创建新块，而是需要看下一行是什么
-                    // 否则会产生很多 空块
-                    if (LineType.BLANK != line.type) {
-                        block = new CheapBlock(line);
-                    }
+                this.pushBlock();
+                // 新行将当前块截断，那么不要直接创建新块，而是需要看下一行是什么
+                // 否则会产生很多 空块
+                if (LineType.BLANK != line.type) {
+                    block = new CheapBlock(line);
                 }
             }
             // 对于列表的话，顶级列表项还是要区分列表类型的
