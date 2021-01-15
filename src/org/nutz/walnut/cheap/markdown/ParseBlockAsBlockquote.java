@@ -21,8 +21,11 @@ public class ParseBlockAsBlockquote implements ParseBlock {
             list[i++] = line.content;
         }
 
+        // 准备块扫描器
+        CheapBlockParsing _PB = ing.BP.clone();
+
         // 重新解析块
-        LinkedList<CheapBlock> subs = ing.parseBlock.invoke(list, false);
+        LinkedList<CheapBlock> subs = _PB.invoke(list, false);
 
         // 逐块解析
         for (CheapBlock sub : subs) {

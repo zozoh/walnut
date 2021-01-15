@@ -1,5 +1,6 @@
 package org.nutz.walnut.cheap.markdown;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.nutz.walnut.cheap.dom.CheapComment;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
+import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
 
 public class CheapMarkdownParsing {
@@ -28,6 +30,7 @@ public class CheapMarkdownParsing {
         parser.put(LineType.HR, new ParseBlockAsHr());
         parser.put(LineType.TABLE, new ParseBlockAsTable());
         parser.put(LineType.BLANK, new ParseBlockAsBlank());
+        parser.put(LineType.LINK_REFER, new ParseBlockAsLinkRefer());
     }
 
     /**
@@ -46,11 +49,27 @@ public class CheapMarkdownParsing {
     boolean autoBr;
 
     /**
+     * 对于普通段落，不要输出 P标签
+     */
+    boolean unwrapParagraph;
+
+    /**
      * 扫描完毕的块
      */
     private LinkedList<CheapBlock> blocks;
 
-    CheapBlockParsing parseBlock;
+    CheapBlockParsing BP;
+
+    public CheapMarkdownParsing clone() {
+        CheapMarkdownParsing ing = new CheapMarkdownParsing(doc, $current);
+        ing.BP = this.BP.clone();
+        return ing;
+    }
+
+    private CheapMarkdownParsing(CheapDocument doc, CheapNode $current) {
+        this.doc = doc;
+        this.$current = $current;
+    }
 
     public CheapMarkdownParsing() {
         this(true, 4, "html", "body", null);
@@ -73,8 +92,8 @@ public class CheapMarkdownParsing {
                                 String rootTagName,
                                 String bodyTagName,
                                 String wrapTagName) {
-        this.blocks = new LinkedList<>();
         this.doc = new CheapDocument(rootTagName, bodyTagName);
+        this.doc.setAutoClosedTagsAsHtml();
         if (null != wrapTagName) {
             CheapElement $wrap = this.doc.createElement(wrapTagName, "as-md");
             this.$current = $wrap.appendTo(doc.body());
@@ -82,51 +101,8 @@ public class CheapMarkdownParsing {
             this.$current = this.doc.body();
         }
         this.autoBr = autoBr;
-        this.parseBlock = new CheapBlockParsing(tabWidth, bodyTagName);
+        this.BP = new CheapBlockParsing(tabWidth, bodyTagName);
     }
-
-    private static String R_img_alt = "^(" // Size: 1
-                                      // Width: 2, 3(Val), 4(Unit)
-                                      + "(([0-9.]+)(rem|px|%)?)?"
-                                      + "("
-                                      + ":"
-                                      // Heigh: 6, 7(Val), 8(Unit)
-                                      + "(([0-9.]+)(rem|px|%)?)"
-                                      + ")?"
-                                      + ")" // ~ Size 1
-                                      + "([:\\s]"
-                                      // Alt: 10
-                                      + "(.*))?$";
-    private static Pattern PimgAlt = Regex.getPattern(R_img_alt);
-
-    private static String REGEX_Font = "(" // Start: 1
-                                       + "([*]{2}([^*]+)[*]{2})" // STRONG:2,3
-                                       + "|([*]([^*]+)[*])" // EM:4,5
-                                       + "|(__([^_]+)__)" // B:6,7
-                                       + "|(_([^_]+)_)" // I:8,9
-                                       + "|(~~([^~]+)~~)" // Del:10,11
-                                       + ")";
-    private static Pattern Pfont = Regex.getPattern(REGEX_Font);
-
-    private static String REGEX = "(" // Start: 1
-                                  + "([*]{2}([^*]+)[*]{2})" // STRONG:2,3
-                                  + "|([*]([^*]+)[*])" // EM:4,5
-                                  + "|(__([^_]+)__)" // B:6,7
-                                  + "|(_([^_]+)_)" // I:8,9
-                                  + "|(~~([^~]+)~~)" // Del:10,11
-                                  + "|(`([^`]+)`)" // Code:12,13
-                                  // Link:14,15(T),16(Href),17,18(Alt)
-                                  + "|(\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
-                                  // Image:19,20(T),21(Src),22,23(Alt)
-                                  + "|(!\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
-                                  // HTML Tag begin: 24,25(Name),26,27(Attrs)
-                                  + "|(<([a-z1-6]+)(\\s([^>]+))?>)"
-                                  // HTML Tag end: 28,29(name)
-                                  + "|(</([a-z1-6]+)>)"
-                                  // HTML Comment begin: 30
-                                  + "|(<!--)"
-                                  + ")";
-    private static Pattern P = Regex.getPattern(REGEX);
 
     void processFont(String input) {
         int pos = 0;
@@ -157,27 +133,6 @@ public class CheapMarkdownParsing {
         }
     }
 
-    CheapElement createElement(String tagName, CheapBlock block) {
-        return createElement(tagName, block.line(0));
-    }
-
-    CheapElement createElement(String tagName, CheapLine line) {
-        return createElement(tagName, null, line);
-    }
-
-    CheapElement createElement(String tagName, String className, CheapLine line) {
-        if (null == className) {
-            className = "as-md";
-        } else if (!className.contains("as-md")) {
-            className = "as-md " + className;
-        }
-        CheapElement $el = doc.createElement(tagName, className);
-        if (null != line) {
-            $el.attr("md-line", line.lineNumber);
-        }
-        return $el;
-    }
-
     private CheapElement processFontElement(Matcher m, String tagName, int groupIndex) {
         CheapElement $el = doc.createElement(tagName, "as-md");
         $el.appendTo($current);
@@ -188,26 +143,35 @@ public class CheapMarkdownParsing {
         return $el;
     }
 
+    private static String REGEX_Font = "(" // Start: 1
+                                       + "([*]{2}([^*]+)[*]{2})" // STRONG:2,3
+                                       + "|([*]([^*]+)[*])" // EM:4,5
+                                       + "|(__([^_]+)__)" // B:6,7
+                                       + "|(_([^_]+)_)" // I:8,9
+                                       + "|(~~([^~]+)~~)" // Del:10,11
+                                       + ")";
+    private static Pattern Pfont = Regex.getPattern(REGEX_Font);
+
     private int __process_font_matcher(Matcher m) {
-        // STRONG:2,3
+        // BOLD:2,3
         // "([*]{2}([^*]+)[*]{2})"
         if (null != m.group(2)) {
-            processFontElement(m, "strong", 3);
+            processFontElement(m, "b", 3);
         }
-        // EM:4,5
+        // I:4,5
         // "|([*]([^*]+)[*])"
         else if (null != m.group(4)) {
-            processFontElement(m, "em", 5);
+            processFontElement(m, "i", 5);
         }
-        // B:6,7
+        // STRONG:6,7
         // "|(__([^_]+)__)"
         else if (null != m.group(6)) {
-            processFontElement(m, "b", 7);
+            processFontElement(m, "strong", 7);
         }
-        // I:8,9
+        // EM:8,9
         // "|(_([^_]+)_)"
         else if (null != m.group(8)) {
-            processFontElement(m, "i", 9);
+            processFontElement(m, "em", 9);
         }
         // Del:10,11
         // "|(~~([^~]+)~~)"
@@ -226,7 +190,34 @@ public class CheapMarkdownParsing {
         parseLine(line.content);
     }
 
+    private static String REGEX = "(" // Start: 1
+                                  + "([*]{2}([^*]+)[*]{2})" // STRONG:2,3
+                                  + "|([*]([^*]+)[*])" // EM:4,5
+                                  + "|(__([^_]+)__)" // B:6,7
+                                  + "|(_([^_]+)_)" // I:8,9
+                                  + "|(~~([^~]+)~~)" // Del:10,11
+                                  + "|(`([^`]+)`)" // Code:12,13
+                                  // Link:14,15(T),16(Href),17,18(Alt)
+                                  + "|(\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
+                                  // Refer Link:19,20(T),21(Refer)
+                                  + "|(\\[(.*)\\]\\[([^\\]]+)\\])"
+                                  // Image:22,23(T),24(Src),25,26(Alt)
+                                  + "|(!\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
+                                  // HTML Tag begin: 27,28(Name),29,30(Attrs)
+                                  + "|(<([a-z1-6]+)(\\s([^>]+))?>)"
+                                  // HTML Tag end: 31,32(name)
+                                  + "|(</([a-z1-6]+)>)"
+                                  // HTML Comment begin: 33
+                                  + "|(<!--)"
+                                  + ")";
+    private static Pattern P = Regex.getPattern(REGEX);
+
     void parseLine(String input) {
+        // 防守
+        if (null == input)
+            return;
+
+        // 起始位置
         int pos = 0;
 
         //
@@ -261,16 +252,7 @@ public class CheapMarkdownParsing {
                 doc.createTextNode(text).appendTo($current);
             }
 
-            // STRONG:2,3
-            // "([*]{2}([^*]+)[*]{2})"
-            // EM:4,5
-            // "|([*]([^*]+)[*])"
-            // B:6,7
-            // "|(__([^_]+)__)"
-            // I:8,9
-            // "|(_([^_]+)_)"
-            // Del:10,11
-            // "|(~~([^~]+)~~)"
+            // B/I/STRONG/EM/DEL
             int e = __process_font_matcher(m);
 
             // 处理的字体的匹配，后面的就不用继续看了
@@ -294,38 +276,43 @@ public class CheapMarkdownParsing {
                 CheapElement $el = doc.createElement("code", "as-md");
                 $el.appendTo($current).appendText(str);
             }
-            // // Link:14,15(T),16(Href),17,18(Alt)
+            // Link:14,15(T),16(Href),17,18(Alt)
             // "|(\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
             else if (null != m.group(14)) {
                 processLinkElement(m);
             }
-            // // Image:19,20(T),21(Src),22,23(Alt)
-            // "|(!\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
+            // Refer Link:19,20(T),21(Refer)
+            // "|(\\[(.*)\\]\\[([^\\]]+)\\])"
             else if (null != m.group(19)) {
+                processLinkReferElement(m);
+            }
+            // Image:22,23(T),24(Src),25,26(Alt)
+            // "|(!\\[(.*)\\]\\(([^\\s]+)(\\s+\"(.+?)\")?\\))"
+            else if (null != m.group(22)) {
                 processImgElement(m);
             }
-            // // HTML Tag begin: 24,25(Name),26,27(Attrs)
+            // HTML Tag begin: 27,28(Name),29,30(Attrs)
             // "|(<([a-z1-6]+)(\\s([^>]+))?>)"
-            else if (null != m.group(24)) {
-                String tagName = m.group(25);
+            else if (null != m.group(27)) {
+                String tagName = m.group(28);
                 CheapElement $el = doc.createElement(tagName);
                 $el.appendTo($current);
                 // 解析属性
-                String attrs = m.group(27);
+                String attrs = m.group(30);
                 if (null != attrs) {
                     NutMap bean = Ws.splitAttrMap(attrs);
                     $el.attrs(bean);
                 }
 
                 // 不能直接结束的标签，需要压栈
-                if (!$el.isClosedTag()) {
+                if (!doc.isAutoClosedTag($el)) {
                     $current = $el;
                 }
             }
-            // // HTML Tag end 28,29(name)
+            // HTML Tag end: 31,32(name)
             // "|(</([a-z1-6]+)>)"
-            else if (null != m.group(28)) {
-                String tagName = m.group(29).toUpperCase();
+            else if (null != m.group(31)) {
+                String tagName = m.group(32).toUpperCase();
                 CheapElement $el = (CheapElement) $current;
                 // 当前就是
                 if ($el.isTagName(tagName)) {
@@ -333,7 +320,7 @@ public class CheapMarkdownParsing {
                 }
                 // 向上查找
                 else {
-                    $el = $current.getClosest(tagName);
+                    $el = $current.getClosestByTagName(tagName);
                     // 木有找到可以闭合的标签
                     if (null == $el) {
                         // TODO: 抛错还是无视？ 这是一个需要思考的问题 ...
@@ -344,9 +331,9 @@ public class CheapMarkdownParsing {
                     }
                 }
             }
-            // HTML Comment begin: 30
+            // HTML Comment begin: 33
             // "|(<!--)"
-            else if (null != m.group(30)) {
+            else if (null != m.group(33)) {
                 CheapComment $cmt = doc.createComment();
                 $cmt.appendTo($current);
                 // 那么就狂野的开始寻找结束标签咯
@@ -379,24 +366,39 @@ public class CheapMarkdownParsing {
         }
     }
 
+    private static String R_img_alt = "^(" // Size: 1
+                                      // Width: 2, 3(Val), 4(Unit)
+                                      + "(([0-9.]+)(rem|px|%)?)?"
+                                      + "("
+                                      + ":"
+                                      // Heigh: 6, 7(Val), 8(Unit)
+                                      + "(([0-9.]+)(rem|px|%)?)"
+                                      + ")?"
+                                      + ")" // ~ Size 1
+                                      + "([:\\s]"
+                                      // Alt: 10
+                                      + "(.*))?$";
+    private static Pattern PimgAlt = Regex.getPattern(R_img_alt);
+
     private void processImgElement(Matcher m) {
         CheapElement $el = doc.createElement("img", "as-md");
+        // Image:22,23(T),24(Src),25,26(Alt)
         //
         // Title
         //
-        String txt = m.group(20);
+        String txt = m.group(23);
         if (!Ws.isEmpty(txt)) {
             $el.attr("title", txt);
         }
         //
         // Src
         //
-        String src = m.group(21);
+        String src = m.group(24);
         $el.attr("src", src);
         //
         // Alt
         //
-        String alt = m.group(18);
+        String alt = m.group(26);
         if (null != alt) {
             // : Customized size
             Matcher m2 = PimgAlt.matcher(alt);
@@ -422,7 +424,24 @@ public class CheapMarkdownParsing {
                 $el.attr("alt", alt);
             }
         }
-        $el.append($current);
+        $el.appendTo($current);
+    }
+
+    private void processLinkReferElement(Matcher m) {
+        // Linke Refer:19,20(T),21(Refer)
+        //
+        // Text
+        //
+        CheapElement $el = processFontElement(m, "a", 20);
+        $el.addClass("is-ref");
+        //
+        // Href
+        //
+        String href = Ws.trim(m.group(21));
+        if (!href.startsWith("#")) {
+            href = "#" + href;
+        }
+        $el.attr("href", href);
     }
 
     private void processLinkElement(Matcher m) {
@@ -459,7 +478,10 @@ public class CheapMarkdownParsing {
 
     public CheapDocument invoke(String[] lines) {
         // 扫描文档体，将行集合成块
-        blocks = parseBlock.invoke(lines);
+        blocks = BP.invoke(lines);
+
+        // 处理文档头部标签
+        initDocHead(BP.header);
 
         // 根据扫描出来的文档块，深入解析文档结构
         for (CheapBlock block : blocks) {
@@ -468,8 +490,50 @@ public class CheapMarkdownParsing {
         }
 
         // 准备好文档
-        doc.ready();
-        return doc;
+        return doc.ready();
+    }
+
+    private void initDocHead(NutMap metas) {
+        if (!metas.isEmpty()) {
+            // 准备文档头
+            CheapElement $head = doc.head();
+            if (null == $head) {
+                $head = doc.createElement("head");
+            }
+            doc.root().prepend($head);
+            // 依次增加头部内容
+            for (Map.Entry<String, Object> en : metas.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                if (null == val) {
+                    continue;
+                }
+                String str;
+                CheapElement el;
+                // 列表模式
+                if (val instanceof Collection<?>) {
+                    str = Wcol.join((Collection<?>) val, ",");
+                }
+                // 纯值
+                else {
+                    str = val.toString();
+                }
+                // 针对标题
+                if ("title".equals(key)) {
+                    el = doc.createElement("title");
+                    el.setText(str);
+
+                }
+                // 其他的算作 meta
+                else {
+                    el = doc.createElement("meta");
+                    el.attr("name", key);
+                    el.attr("content", str);
+                }
+                el.appendTo($head);
+            }
+            doc.metas().putAll(metas);
+        }
     }
 
     ParseBlock checkParser(LineType type) {
@@ -480,4 +544,24 @@ public class CheapMarkdownParsing {
         return pb;
     }
 
+    CheapElement createElement(String tagName, CheapBlock block) {
+        return createElement(tagName, block.line(0));
+    }
+
+    CheapElement createElement(String tagName, CheapLine line) {
+        return createElement(tagName, null, line);
+    }
+
+    CheapElement createElement(String tagName, String className, CheapLine line) {
+        if (null == className) {
+            className = "as-md";
+        } else if (!className.contains("as-md")) {
+            className = "as-md " + className;
+        }
+        CheapElement $el = doc.createElement(tagName, className);
+        if (null != line) {
+            $el.attr("md-line", line.lineNumber);
+        }
+        return $el;
+    }
 }

@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -50,17 +49,27 @@ public abstract class CheapNode {
 
     public abstract void joinString(StringBuilder sb);
 
+    public abstract String getText();
+
+    public abstract void setText(String text);
+
     /**
-     * @param tab
-     *            缩进字符
+     * @param cdf
+     *            格式化设置
      * @param depth
      *            深度（根-1开始）
-     * @param newLineTag
-     *            是否为换行标签
      */
-    public abstract void format(String tab, int depth, Pattern newLineTag);
+    public abstract void format(CheapFormatter cdf, int depth);
 
+    /**
+     * @return 当前节点是否没有任何内容
+     */
     public abstract boolean isEmpty();
+
+    /**
+     * @return 当前节点是否没有任何可以显示的内容
+     */
+    public abstract boolean isBlank();
 
     public void filterEmptyChildren() {
         if (this.hasChildren()) {
@@ -209,8 +218,7 @@ public abstract class CheapNode {
         // 重新更新父的子节点
         if (null != this.parent) {
             CheapNode frs = this.getFirstSibling();
-            this.parent.children = frs.getNextSiblings();
-            this.parent.children.addFirst(frs);
+            this.parent.children = frs.getNextSiblingsAndSelf();
         }
     }
 
@@ -247,6 +255,30 @@ public abstract class CheapNode {
         if (null != c1) {
             c1.prev = nd9;
             nd9.next = c1;
+        }
+    }
+
+    public void remove() {
+        // 找到自己兄弟链的首节点
+        CheapNode first = this.getFirstSibling();
+        // 确保这个首节点在移除之后，是一定存在兄弟链中的
+        if (first == this) {
+            first = this.next;
+        }
+
+        // 将自己的前后兄弟握手
+        if (null != prev) {
+            prev.next = next;
+        }
+        if (null != next) {
+            next.prev = prev;
+            // 重新编制索引
+            next.resetIndex(this.getNodeIndex());
+        }
+
+        // 更新自己的父节点
+        if (null != first && null != parent) {
+            parent.children = first.getNextSiblingsAndSelf();
         }
     }
 
@@ -300,22 +332,45 @@ public abstract class CheapNode {
     }
 
     public List<CheapElement> getAncestors() {
-        return getAncestors(null);
+        return getAncestorsByTagName(null);
     }
 
     /**
+     * 根据标签名称寻找一个最近的祖先节点
+     * 
      * @param tagName
      *            标签名（大小写不敏感）
      * @return 距离当前标签最近的祖先节点
      */
-    public CheapElement getClosest(String tagName) {
+    public CheapElement getClosestByTagName(String tagName) {
         if (null == tagName) {
             return (CheapElement) this.parent;
         }
         tagName = tagName.toUpperCase();
         CheapElement $p = (CheapElement) this.parent;
         while (null != $p) {
-            if (null == tagName || $p.isTagName(tagName)) {
+            if ($p.isTagName(tagName)) {
+                return $p;
+            }
+            $p = (CheapElement) $p.parent;
+        }
+        return null;
+    }
+
+    /**
+     * 寻找一个最近的祖先节点
+     * 
+     * @param flt
+     *            过滤器
+     * @return 返回距离当前节点最近的，第一个被过滤器匹配的祖先节点
+     */
+    public CheapElement getClosest(CheapFilter flt) {
+        if (null == flt) {
+            return (CheapElement) this.parent;
+        }
+        CheapElement $p = (CheapElement) this.parent;
+        while (null != $p) {
+            if (flt.match($p)) {
                 return $p;
             }
             $p = (CheapElement) $p.parent;
@@ -331,7 +386,7 @@ public abstract class CheapNode {
      * @return 祖先列表, 0 为自己最近的祖先。 <br>
      *         文档根元素，返回的是空列表，而不是<code>null</code>
      */
-    public List<CheapElement> getAncestors(String tagName) {
+    public List<CheapElement> getAncestorsByTagName(String tagName) {
         List<CheapElement> ans = new LinkedList<>();
         if (null != tagName) {
             tagName = tagName.toUpperCase();
@@ -347,6 +402,26 @@ public abstract class CheapNode {
         return ans;
     }
 
+    /**
+     * 获取符合匹配规则的祖先元素列表
+     * 
+     * @param ma
+     *            匹配规则
+     * @return 返回距离当前节点最近的，匹配规则的祖先节点。 0 为自己最近的祖先。 <br>
+     *         文档根元素，返回的是空列表，而不是<code>null</code>
+     */
+    public List<CheapElement> getAncestors(CheapFilter ma) {
+        List<CheapElement> ans = new LinkedList<>();
+        CheapElement $p = (CheapElement) this.parent;
+        while (null != $p) {
+            if (null == ma || ma.match($p)) {
+                ans.add($p);
+            }
+            $p = (CheapElement) $p.parent;
+        }
+        return ans;
+    }
+
     public boolean hasParent() {
         return null != parent;
     }
@@ -357,7 +432,21 @@ public abstract class CheapNode {
 
     void setParent(CheapNode pnode) {
         this.parent = pnode;
-        this.doc = pnode.doc;
+        this.setOwnerDocument(pnode.doc);
+    }
+
+    void setOwnerDocument(CheapDocument doc) {
+        // 之前没有设置过所属文档
+        if (this.doc != doc) {
+            this.doc = doc;
+
+            // 递归搞一下
+            if (this.hasChildren()) {
+                for (CheapNode child : this.children) {
+                    child.setOwnerDocument(doc);
+                }
+            }
+        }
     }
 
     public boolean hasPrevSibling() {
@@ -396,6 +485,17 @@ public abstract class CheapNode {
         return list;
     }
 
+    public LinkedList<CheapNode> getNextSiblingsAndSelf() {
+        LinkedList<CheapNode> list = new LinkedList<>();
+        list.add(this);
+        CheapNode $node = this.next;
+        while (null != $node) {
+            list.add($node);
+            $node = $node.next;
+        }
+        return list;
+    }
+
     public CheapNode getFirstSibling() {
         CheapNode $node = this;
         while (null != $node && null != $node.prev) {
@@ -416,22 +516,106 @@ public abstract class CheapNode {
         return null != children && !children.isEmpty();
     }
 
+    public boolean hasElements() {
+        return hasElements(null);
+    }
+
+    public boolean hasElements(CheapFilter flt) {
+        if (null != children) {
+            for (CheapNode child : children) {
+                if (!child.isElement()) {
+                    continue;
+                }
+                if (null == flt || flt.match((CheapElement) child)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int countChildren() {
+        if (null == children)
+            return 0;
+        return children.size();
+    }
+
+    public int countChildElements(CheapFilter flt) {
+        int re = 0;
+        if (null != children) {
+            for (CheapNode child : children) {
+                if (!child.isElement()) {
+                    continue;
+                }
+                if (null == flt || flt.match((CheapElement) child)) {
+                    re++;
+                }
+            }
+        }
+        return re;
+    }
+
     public List<CheapNode> getChildren() {
         return children;
     }
 
-    public CheapNode getFirstChild() {
+    public List<CheapElement> getChildElements(CheapFilter flt) {
+        List<CheapElement> list = new LinkedList<>();
         if (this.hasChildren()) {
-            return children.getFirst();
+            for (CheapNode child : children) {
+                if (!child.isElement()) {
+                    continue;
+                }
+                if (null == flt || flt.match((CheapElement) child)) {
+                    list.add((CheapElement) child);
+                }
+            }
+        }
+        return list;
+    }
+
+    public CheapNode getFirstChild() {
+        return getFirstChild(null);
+    }
+
+    public CheapNode getFirstNoBlankChild() {
+        return getFirstChild(node -> !node.isBlank());
+    }
+
+    public CheapNode getFirstChild(CheapNodeFilter flt) {
+        CheapNode node = null;
+        if (this.hasChildren()) {
+            node = children.getFirst();
+            if (null == flt) {
+                return node;
+            }
+            while (null != node && !flt.match(node)) {
+                node = node.next;
+            }
         }
         return null;
     }
 
     public CheapNode getLastChild() {
+        return getLastChild(null);
+    }
+
+    public CheapNode getLastNoBlankChild() {
+        return getLastChild(node -> !node.isBlank());
+    }
+
+    public CheapNode getLastChild(CheapNodeFilter flt) {
+        CheapNode node = null;
         if (this.hasChildren()) {
-            return children.getLast();
+            node = children.getLast();
+            if (null == flt) {
+                return node;
+            }
+            while (null != node && !flt.match(node)) {
+                node = node.prev;
+            }
         }
-        return null;
+        return node;
     }
 
     public CheapNode empty() {
@@ -476,8 +660,26 @@ public abstract class CheapNode {
         return props.entrySet();
     }
 
-    public boolean hasAttr(String name) {
+    public boolean hasProp(String name) {
         return props.has(name);
+    }
+
+    public CheapNode setPlacehold(boolean val) {
+        this.prop("CheapPlacehold", val);
+        return this;
+    }
+
+    public boolean isPlacehold() {
+        return this.isProp("CheapPlacehold", true);
+    }
+
+    public CheapNode setFormatted(boolean val) {
+        this.prop("CheapFormated", val);
+        return this;
+    }
+
+    public boolean isFormated() {
+        return this.isProp("CheapFormated", true);
     }
 
     public boolean isProp(String name, Object val) {

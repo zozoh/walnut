@@ -6,7 +6,13 @@ import org.nutz.walnut.util.Ws;
 
 public class CheapRawData extends CheapNode {
 
-    private String data;
+    protected String text;
+
+    protected String treeDisplayName;
+
+    protected char treeDisplayLeftQuoteChar;
+
+    protected char treeDisplayRightQuoteChar;
 
     protected CheapRawData() {
         this(null);
@@ -14,56 +20,113 @@ public class CheapRawData extends CheapNode {
 
     protected CheapRawData(String data) {
         this.type = CheapNodeType.RAW_DATA;
-        this.data = data;
+        this.text = data;
+        this.treeDisplayName = "<![CDATA";
+        this.treeDisplayLeftQuoteChar = '[';
+        this.treeDisplayRightQuoteChar = ']';
     }
 
     @Override
     public void joinTree(StringBuilder sb, int depth, String tab) {
         sb.append(Ws.repeat(tab, depth));
-        sb.append(String.format("|-- [%d]<![CDATA: ", this.getNodeIndex()));
+        sb.append(String.format("|-- [%d]%s: ", this.getNodeIndex(), treeDisplayName));
         // 空
-        if (null == data) {
+        if (null == text) {
             sb.append("NULL");
         }
         // 字符串
         else {
             int maxLen = 40 - (depth * tab.length());
-            String s = data.replaceAll("\r?\n", "⬅️");
+            String s = text.replaceAll("\r?\n", "⬅️");
             if (s.length() > maxLen) {
-                sb.append('[');
+                sb.append(treeDisplayLeftQuoteChar);
                 sb.append(s.substring(0, maxLen));
                 sb.append("...");
-                sb.append(']');
+                sb.append(treeDisplayRightQuoteChar);
             }
             // 直接显示
             else {
-                sb.append('[').append(s).append(']');
+                sb.append(treeDisplayLeftQuoteChar);
+                sb.append(s);
+                sb.append(treeDisplayRightQuoteChar);
             }
         }
         sb.append("\n");
     }
 
     @Override
-    public void format(String tab, int depth, Pattern newLineTag) {}
+    public void format(CheapFormatter cdf, int depth) {}
 
     @Override
     public boolean isEmpty() {
-        return Ws.isEmpty(data);
+        return Ws.isEmpty(text);
+    }
+
+    @Override
+    public boolean isBlank() {
+        return Ws.isBlank(text);
     }
 
     @Override
     public void joinString(StringBuilder sb) {
         sb.append("<![CDATA[");
-        sb.append(data);
+        sb.append(text);
         sb.append("]]>");
     }
 
-    public String getData() {
-        return data;
+    @Override
+    public String getText() {
+        return text;
     }
 
-    public void setData(String content) {
-        this.data = content;
+    @Override
+    public void setText(String content) {
+        this.text = content;
+    }
+
+    public boolean isTextStartsWith(String str) {
+        return null != text && text.startsWith(str);
+    }
+
+    public boolean isTextEndsWith(String str) {
+        return null != text && text.endsWith(str);
+    }
+
+    public boolean isTextMatch(String regex) {
+        return null != text && text.matches(regex);
+    }
+
+    public boolean isTextMatch(Pattern p) {
+        return null != text && p.matcher(text).find();
+    }
+
+    public boolean isTextContains(String s) {
+        return null != text && text.contains(s);
+    }
+
+    public void prependText(String text) {
+        if (null == text) {
+            this.text = text;
+        } else {
+            this.text = text + this.text;
+        }
+    }
+
+    public void appendText(String text) {
+        if (null == text) {
+            this.text = text;
+        } else {
+            this.text += text;
+        }
+    }
+
+    public void appendLine(String text) {
+        if (null == text) {
+            this.text = text;
+        } else {
+            this.text += text;
+        }
+        appendText("\n" + text);
     }
 
 }

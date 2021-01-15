@@ -19,12 +19,4 @@ public class CheapComment extends CheapText {
         sb.append("-->");
     }
 
-    public CheapComment appendText(String text) {
-        return (CheapComment) super.appendText(text);
-    }
-
-    public CheapComment appendLine(String text) {
-        return (CheapComment) super.appendLine(text);
-    }
-
 }

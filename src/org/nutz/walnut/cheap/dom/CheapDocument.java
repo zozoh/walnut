@@ -10,7 +10,7 @@ import org.nutz.lang.util.Regex;
 
 public class CheapDocument {
 
-    private NutBean header;
+    private NutBean metas;
 
     /**
      * 在根元素之前的元素列表
@@ -24,14 +24,25 @@ public class CheapDocument {
 
     private CheapElement $root;
 
+    private CheapElement $head;
+
     private CheapElement $body;
+
+    /**
+     * 不需要结束标记的元素
+     */
+    // private String brTags;
+    private Pattern P_AUTO_CLOSED_TAGS;
 
     public CheapDocument() {
         this("html", "body");
     }
 
+    public CheapDocument(String rootTagName) {
+        this(rootTagName, null);
+    }
+
     public CheapDocument(String rootTagName, String bodyTagName) {
-        header = new NutMap();
         headNodes = new LinkedList<>();
         tailNodes = new LinkedList<>();
         if (null != rootTagName) {
@@ -76,37 +87,45 @@ public class CheapDocument {
         return sb.toString();
     }
 
-    public String toHtml(String tab) {
+    public String toHtml() {
         // 根据 HTML 语法格式化
-        this.formatAsHtml(tab);
+        this.formatAsHtml();
 
         // 输出
         return this.toMarkup();
     }
 
-    public void format(String tab, String newLineTag) {
+    public void format(CheapFormatter fmt) {
         if (null != $root) {
-            Pattern p = null;
-            if (null != newLineTag) {
-                p = Regex.getPattern(newLineTag);
-            }
-            $root.format(tab, -1, p);
+            $root.format(fmt, -1);
         }
     }
 
-    final static String NL_TAGS = "^(DIV"
-                                  + "|UL|OL|LI|DT|DD|DL"
-                                  + "|H[1-6]|P|BLOCKQUOTE|PRE"
-                                  + "|SCRIPT|TEMPLATE"
-                                  + "|TABLE|THEAD|TBODY|TFOOT|TR"
-                                  + "|ARTICLE|ASIDE|ADDRESS|NAV"
-                                  + "|HEADER|SECTION|FOOTER|MAIN"
-                                  + "|AUDIO|VIDEO"
-                                  + "|HR"
-                                  + "|HEAD|BODY|META|LINKE|TITLE)$";
+    final static CheapFormatter CDF_HTML = new CheapFormatter(true);
 
-    public void formatAsHtml(String tab) {
-        format(tab, NL_TAGS);
+    public void formatAsHtml() {
+        format(CDF_HTML);
+    }
+
+    public boolean isAutoClosedTag(CheapElement $el) {
+        return null != P_AUTO_CLOSED_TAGS && P_AUTO_CLOSED_TAGS.matcher($el.tagName).find();
+    }
+
+    public boolean isHtmlBlockTag(CheapElement $el) {
+        return CDF_HTML.isBlock($el);
+    }
+
+    public void setAutoClosedTags(String autoClosedTags) {
+        // this.brTags = brTags;
+        if (null == autoClosedTags) {
+            P_AUTO_CLOSED_TAGS = null;
+        } else {
+            P_AUTO_CLOSED_TAGS = Regex.getPattern(autoClosedTags);
+        }
+    }
+
+    public void setAutoClosedTagsAsHtml() {
+        this.setAutoClosedTags("^(IMG|BR|HR|META|LINK)$");
     }
 
     public void removeEmpty() {
@@ -149,6 +168,42 @@ public class CheapDocument {
         return $node;
     }
 
+    /**
+     * 创建一个占位文本节点。
+     * <p>
+     * 所谓<b>占位文本节点</b>就是带有属性(prop)为<code>CheapPlacehold=true</code> 属性的文本节点。在
+     * DOM 树被格式化时，比较用将这种文本节点进行缩进对齐。
+     * 
+     * @param text
+     *            文本内容
+     * @return 修饰文本节点
+     */
+    public CheapText createPlaceholdText(String text) {
+        CheapText $node = new CheapText(text);
+        $node.doc = this;
+        $node.prop("CheapPlacehold", true);
+        return $node;
+    }
+
+    /**
+     * 创建一个格式化用文本节点。
+     * <p>
+     * 所谓<b>格式化用文本节点</b>就是带有属性(prop)为<code>CheapFormated=true</code> 属性的文本节点。在
+     * DOM 树被格式化时，会插入这种文本节点。或者将占位文本节点标记为<code>CheapFormated=true</code>
+     * <p>
+     * 这样反复执行格式化函数，比较容易做到<b>幂等</b>
+     * 
+     * @param text
+     *            文本内容
+     * @return 修饰文本节点
+     */
+    public CheapText createFormatText(String text) {
+        CheapText $node = new CheapText(text);
+        $node.doc = this;
+        $node.prop("CheapFormated", true);
+        return $node;
+    }
+
     public CheapComment createComment() {
         return createComment(null);
     }
@@ -169,12 +224,15 @@ public class CheapDocument {
         return $node;
     }
 
-    public NutBean getHeader() {
-        return header;
+    public NutBean metas() {
+        if (null == metas) {
+            this.metas = new NutMap();
+        }
+        return metas;
     }
 
-    public void setHeader(NutBean headers) {
-        this.header = headers;
+    public void setMetas(NutBean metas) {
+        this.metas = metas;
     }
 
     public void setRootElement(CheapElement $root) {
@@ -192,6 +250,14 @@ public class CheapDocument {
 
     public CheapElement root() {
         return this.$root;
+    }
+
+    public boolean hasHeadElement() {
+        return null != this.$head;
+    }
+
+    public CheapElement head() {
+        return this.$head;
     }
 
     public boolean hasBodyElement() {
@@ -234,12 +300,19 @@ public class CheapDocument {
         tailNodes.clear();
     }
 
-    public void ready() {
-        this.$root.rebuildChildrenIndex();
-        // 看看有木有 body
-        if (null == this.$body) {
-            this.$body = this.$root.getFirstChildElement("body");
+    public CheapDocument ready() {
+        if (null != this.$root) {
+            this.$root.rebuildChildrenIndex();
+            // 看看有木有 head
+            if (null == this.$head) {
+                this.$head = this.$root.getFirstChildElement("head");
+            }
+            // 看看有木有 body
+            if (null == this.$body) {
+                this.$body = this.$root.getFirstChildElement("body");
+            }
         }
+        return this;
     }
 
 }

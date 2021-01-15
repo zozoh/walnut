@@ -9,6 +9,8 @@ enum LineType {
     CODE_BLOCK,
 
     HR,
+    
+    LINK_REFER,
 
     /**
      * 表格分割线

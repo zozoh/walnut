@@ -52,10 +52,19 @@ class CheapBlockParsing {
     }
 
     CheapBlockParsing(int tabWidth, String bodyTagName) {
-        this.listIndent = 3;
+        this.listIndent = 2;
         this.codeIndent = 4;
         this.tab = Ws.repeat(' ', tabWidth);
         this.tabWidth = tabWidth;
+    }
+
+    public CheapBlockParsing clone() {
+        CheapBlockParsing ing = new CheapBlockParsing();
+        ing.listIndent = this.listIndent;
+        ing.codeIndent = this.codeIndent;
+        ing.tab = this.tab;
+        ing.tabWidth = this.tabWidth;
+        return ing;
     }
 
     LinkedList<CheapBlock> invoke(String[] lines) {
@@ -63,13 +72,13 @@ class CheapBlockParsing {
     }
 
     LinkedList<CheapBlock> invoke(String[] lines, boolean withHeader) {
-        this.header = new NutMap();
         this.blocks = new LinkedList<>();
         this.lines = lines;
         this.offset = 0;
 
         // 扫描文档头
         if (withHeader) {
+            this.header = new NutMap();
             this.offset = this.scanHeader();
         }
 
@@ -101,7 +110,7 @@ class CheapBlockParsing {
     private void pushBlock() {
         if (null != block) {
             // 最后一个空行木有必要了
-            if (LineType.BLANK == block.lastLine().type) {
+            if (block.lines.size() > 1 && LineType.BLANK == block.lastLine().type) {
                 block.lines.removeLast();
             }
             blocks.add(block);
@@ -133,10 +142,10 @@ class CheapBlockParsing {
             }
 
             // 判断行类型
-            line.evalType(tab, codeIndent);
+            line.evalType(tab, codeIndent, listIndent);
 
             // 判断逻辑缩进
-            int listLV = line.space / listIndent;
+            // int listLV = line.space / listIndent;
 
             // 创建块
             if (null == block) {
@@ -146,7 +155,7 @@ class CheapBlockParsing {
             else if (LineType.PARAGRAPH == line.type) {
                 // 如果最后一行是空行，且当前行没有缩进
                 // 那么也一定是加不进去的
-                if (LineType.BLANK == block.lastLine().type && listLV == 0) {
+                if (LineType.BLANK == block.lastLine().type && line.level == 0) {
                     this.pushBlock();
                     block = new CheapBlock(line);
                 }
@@ -172,14 +181,28 @@ class CheapBlockParsing {
             }
             // 遇到不同的块类型
             else if (block.type != line.type) {
-                this.pushBlock();
-                if (LineType.BLANK != line.type) {
-                    block = new CheapBlock(line);
+                // 列表可以吃入缩进代码，因为，这个缩进可以是
+                // - 围栏代码
+                // - 引用
+                // - 段落
+                if (CodeType.INDENT == line.codeType && LineType.LIST == block.type) {
+                    block.appendLine(line);
+                }
+                // 其他的情况，就应该重新建立块吧 ^_^!
+                else {
+                    this.pushBlock();
+                    // 新行将当前块截断，那么不要直接创建新块，而是需要看下一行是什么
+                    // 否则会产生很多 空块
+                    if (LineType.BLANK != line.type) {
+                        block = new CheapBlock(line);
+                    }
                 }
             }
             // 对于列表的话，顶级列表项还是要区分列表类型的
             // 因为顶层的 UL 和 OL 不能在同一个块
-            else if (LineType.LIST == line.type && block.listType != line.listType && listLV == 0) {
+            else if (LineType.LIST == line.type
+                     && block.listType != line.listType
+                     && line.level == 0) {
                 this.pushBlock();
                 block = new CheapBlock(line);
             }
@@ -276,7 +299,7 @@ class CheapBlockParsing {
         // 判断起始标记: ---
         String str = lines[offset];
         CheapLine line = new CheapLine(offset, str);
-        line.evalType(tab, codeIndent);
+        line.evalType(tab, codeIndent, listIndent);
 
         // 未发现
         if (LineType.HR != line.type) {
@@ -285,10 +308,10 @@ class CheapBlockParsing {
 
         // 逐行扫描，知道遇到 --- 标记
         String lastName = null;
-        for (; offset < lines.length; offset++) {
+        for (offset++; offset < lines.length; offset++) {
             str = lines[offset];
             line = new CheapLine(offset, str);
-            line.evalType(tab, codeIndent);
+            line.evalType(tab, codeIndent, listIndent);
 
             // 退出
             if (LineType.HR == line.type) {

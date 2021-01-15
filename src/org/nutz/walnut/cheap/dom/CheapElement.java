@@ -9,14 +9,15 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
 
 public class CheapElement extends CheapNode {
 
-    private String tagName;
+    String tagName;
 
-    private List<String> className;
+    List<String> className;
 
     private NutBean attrs;
 
@@ -51,7 +52,11 @@ public class CheapElement extends CheapNode {
         }
         // 输出属性
         for (String key : attrs.keySet()) {
+            Object val = attrs.get(key);
             sb.append(" @").append(key);
+            if (null != val) {
+                sb.append('=').append(val);
+            }
         }
         // 换行
         sb.append("\n");
@@ -64,99 +69,40 @@ public class CheapElement extends CheapNode {
         }
     }
 
-    @Override
-    public void format(String tab, int depth, Pattern newLineTag) {
-        // 不是块元素就无视
-        if (!this.isRoot() && (null == newLineTag || newLineTag.matcher(tagName).find())) {
-            // 在前面插入一个文本节点作为缩进
-            if (depth >= 0) {
-                String prefix = "\n" + Ws.repeat(tab, depth);
-                // ------------------------------------------------
-                // 前面的文本节点是否满足这个格式呢？
-                if (null != prev && prev.isText()) {
-                    if (!prev.isProp("cheap-format", true)) {
-                        CheapText $text = (CheapText) prev;
-                        // 没有的话搞一个过去
-                        if (!$text.isTextEndsWith(prefix)) {
-                            $text.appendText(prefix);
-                        }
-                        $text.prop("cheap-format", true);
-                    }
-                }
-                // 前面没有文本节点，那么就搞一个
-                else {
-                    CheapText $text = this.doc.createTextNode(prefix);
-                    this.insertPrev($text.prop("cheap-format", true));
-                }
-                // ------------------------------------------------
-                // 后面的文本有换行吗？
-                if (null != next && next.isText()) {
-                    if (!next.isProp("cheap-format", true)) {
-                        CheapText $text = (CheapText) next;
-                        // 没有的话搞一个过去
-                        if ($text.isTextStartsWith(prefix)) {
-                            $text.prependText(prefix);
-                        }
-                        $text.prop("cheap-format", true);
-                    }
-                }
-                // 后面节点，但不是文本，搞一个同等缩进的过去
-                else if (null != next) {
-                    if (!next.isProp("cheap-foramt", true)) {
-                        CheapText $text = this.doc.createTextNode(prefix);
-                        this.insertNext($text.prop("cheap-format", true));
-                    }
-                }
-                // 后面根本没有节点，那么就搞一个回退一级的文本节点过去
-                else {
-                    String prefix9 = prefix;
-                    if (depth > 0) {
-                        prefix9 = prefix.substring(0, prefix.length() - tab.length());
-                    }
-                    CheapText $text = this.doc.createTextNode(prefix9);
-                    this.insertNext($text.prop("cheap-format", true));
-                }
-                // ------------------------------------------------
-                // 内部超过一个节点，那么需要内部换行
-                if (this.hasChildren() && this.children.size() > 1) {
-                    // 前面插一个
-                    CheapNode $first = this.children.getFirst();
-                    if (!$first.isProp("cheap-format", true)) {
-                        String prefix2 = prefix + tab;
-                        // 合并文本节点
-                        if ($first.isText()) {
-                            CheapText $ft = (CheapText) $first;
-                            if (!$ft.isTextStartsWith(prefix2)) {
-                                $ft.prependText(prefix2);
-                            }
-                            $ft.prop("cheap-format", true);
-                        }
-                        // 新搞一个
-                        else {
-                            CheapText $text = this.doc.createTextNode(prefix2);
-                            $first.insertPrev($text.prop("cheap-format", true));
-                        }
-                    }
+    private static final Pattern P_BEG_NL = Regex.getPattern("^\\s*\r?\n");
+    private static final Pattern P_END_NL = Regex.getPattern("\r?\n\\s*$");
 
-                    // 后面插一个
-                    CheapNode $last = this.children.getLast();
-                    if (!$last.isProp("cheap-format", true)) {
-                        // 合并文本节点
-                        if ($last.isText()) {
-                            CheapText $lt = (CheapText) $last;
-                            if (!$lt.isTextEndsWith(prefix)) {
-                                $lt.appendText(prefix);
-                            }
-                            $lt.prop("cheap-format", true);
-                        }
-                        // 新搞一个
-                        else {
-                            CheapText $text = this.doc.createTextNode(prefix);
-                            $last.insertNext($text.prop("cheap-format", true));
-                        }
-                    }
+    @Override
+    public void format(CheapFormatter cdf, int depth) {
+        // 不是块元素就无视
+        if (depth >= 0 && !this.isRoot() && null != cdf) {
+            String prefix = cdf.getPrefix(depth);
+            //
+            // 块元素
+            //
+            if (cdf.isBlock(this)) {
+                // #外-前
+                __fmt_block_outside_prev(prefix);
+
+                // #外-后
+                __fmt_block_outside_next(cdf, prefix);
+
+                // 内部换行
+                if (this.hasChildren() && // 有元素节点或者超过一个子节点
+                    (this.hasElements() || this.countChildren() > 1)) {
+                    // #内-前： 前面插一个
+                    __fmt_block_inside_head(cdf, prefix);
+
+                    // #内-后： 前面插一个
+                    __fmt_block_inside_tail(prefix);
                 }
-                // ------------------------------------------------
+            }
+            //
+            // 断行元素
+            //
+            else if (cdf.isBreakLine(this)) {
+                // #外-后
+                __fmt_block_outside_next(cdf, prefix);
             }
         }
 
@@ -165,14 +111,81 @@ public class CheapElement extends CheapNode {
             CheapNode[] ary = new CheapNode[children.size()];
             children.toArray(ary);
             for (CheapNode child : ary) {
-                child.format(tab, depth + 1, newLineTag);
+                child.format(cdf, depth + 1);
             }
+        }
+    }
+
+    private void __fmt_block_inside_tail(String prefix) {
+        CheapNode $last = this.children.getLast();
+        if (!$last.isText() // 不是文本，或者不属于下面的两种情况
+            || !($last.isFormated() // 文本未格式化
+                 || // 或者以新行开头
+                 (((CheapText) $last).isTextMatch(P_BEG_NL)))) {
+            CheapText $text = this.doc.createFormatText(prefix);
+            $last.insertNext($text);
+        }
+    }
+
+    private void __fmt_block_inside_head(CheapFormatter cdf, String prefix) {
+        CheapNode $first = this.children.getFirst();
+        if (!$first.isText() // 不是文本，或者不属于下面的两种情况
+            || !($first.isFormated() // 文本未格式化
+                 || // 或者以新行结尾
+                 ((CheapText) $first).isTextMatch(P_END_NL))) {
+            String prefix2 = cdf.shiftTab(prefix);
+            CheapText $text = this.doc.createFormatText(prefix2);
+            $first.insertPrev($text);
+        }
+    }
+
+    private void __fmt_block_outside_next(CheapFormatter cdf, String prefix) {
+        // 后面根本没有节点: 搞一个回退一级的文本节点过去
+        if (null == next) {
+            String prefix9 = cdf.unshiftTab(prefix);
+            CheapText $text = this.doc.createFormatText(prefix9);
+            this.insertNext($text);
+        }
+        // 看看后面节点: ，但不是文本，或者文本节点未以前缀开头
+        // 搞一个同等缩进的过去
+        else if (!next.isText() // 不是文本
+                 || (!next.isFormated() // 未被格式化过
+                     && // 并且文本不是以新行开头
+                     !((CheapText) next).isTextMatch(P_BEG_NL))) {
+            CheapText $text = this.doc.createFormatText(prefix);
+            this.insertNext($text);
+        }
+    }
+
+    private void __fmt_block_outside_prev(String prefix) {
+        if (null == prev // 前面没有文本节点
+            || (!prev.isFormated() // 前面未被格式化过
+                && // 并且
+                (!prev.isText() // 前面不是文本
+                 || // 或者文本不是以新行结束
+                 !((CheapText) prev).isTextMatch(P_END_NL)))) {
+            CheapText $text = this.doc.createFormatText(prefix);
+            this.insertPrev($text);
         }
     }
 
     @Override
     public boolean isEmpty() {
-        return children.isEmpty();
+        return !this.hasChildren();
+    }
+
+    @Override
+    public boolean isBlank() {
+        if (this.isEmpty())
+            return true;
+
+        for (CheapNode child : children) {
+            if (!child.isBlank()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -215,7 +228,7 @@ public class CheapElement extends CheapNode {
             sb.append("</").append(displayTagName).append('>');
         }
         // 输出结束标签
-        else if (!this.isClosedTag()) {
+        else if (null == doc || !doc.isAutoClosedTag(this)) {
             sb.append("</").append(displayTagName).append('>');
         }
     }
@@ -243,25 +256,28 @@ public class CheapElement extends CheapNode {
         if (null != tagName) {
             tagName = tagName.toUpperCase();
         }
-        for (CheapNode node : children) {
-            if (node.isElement()) {
-                CheapElement $el = (CheapElement) node;
-                if (null == tagName) {
-                    return $el;
-                }
-                if ($el.isTagName(tagName)) {
-                    return $el;
-                }
-            }
-        }
-        return null;
+        String upperName = tagName;
+        return (CheapElement) this.getFirstChild(node -> {
+            if (!node.isElement())
+                return false;
+            if (null == upperName)
+                return true;
+            return ((CheapElement) node).isTagName(upperName);
+        });
     }
-
-    /**
-     * @return 当前标签是否是自结束标签
-     */
-    public boolean isClosedTag() {
-        return isTagAs("^(IMG|BR|HR)$");
+    
+    public CheapElement getLastChildElement(String tagName) {
+        if (null != tagName) {
+            tagName = tagName.toUpperCase();
+        }
+        String upperName = tagName;
+        return (CheapElement) this.getLastChild(node -> {
+            if (!node.isElement())
+                return false;
+            if (null == upperName)
+                return true;
+            return ((CheapElement) node).isTagName(upperName);
+        });
     }
 
     /**
@@ -443,6 +459,23 @@ public class CheapElement extends CheapNode {
         // 增加一个文本节点
         this.append(new CheapText(text));
         return this;
+    }
+
+    @Override
+    public String getText() {
+        StringBuilder sb = new StringBuilder();
+        if (this.hasChildren()) {
+            for (CheapNode child : children) {
+                sb.append(child.getText());
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public void setText(String text) {
+        this.empty();
+        this.append(new CheapText(text));
     }
 
     @Override

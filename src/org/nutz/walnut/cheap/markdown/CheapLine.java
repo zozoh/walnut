@@ -67,6 +67,11 @@ class CheapLine {
      * 行的实际有效内容
      */
     String content;
+    
+    CheapLine(CheapLine line) {
+        this.lineNumber = line.lineNumber;
+        this.rawData = line.content;
+    }
 
     CheapLine(int number, String input) {
         this.lineNumber = number;
@@ -99,6 +104,9 @@ class CheapLine {
         return String.format("Line(%d)<%s> %s%s%s", lineNumber, s0, s1, s2, content);
     }
 
+    private static String REG_LNK_REF = "^\\s{0,3}\\[([^\\]]+)\\]:\\s*(.+)$";
+    private static Pattern P_LNK_REF = Regex.getPattern(REG_LNK_REF);
+
     private static String REGEX = "^(\\s*)(" // Start: 1,2
                                   + "(-{3,})" // HR:3
                                   + "|(([+*-]) (.+))" // UL: 4,5,6
@@ -115,8 +123,20 @@ class CheapLine {
     /**
      * 根据内容自动判断类型
      */
-    void evalType(String tab, int codeIndent) {
-        Matcher m = P.matcher(rawData);
+    void evalType(String tab, int codeIndent, int listIndent) {
+        //
+        // 处理链接引用行
+        // ^\s{0,3}\[([^\]]+)\]:\s*(.+)$
+        //
+        Matcher m = P_LNK_REF.matcher(rawData);
+        if (m.find()) {
+            this.type = LineType.LINK_REFER;
+            this.prefix = Ws.trim(m.group(1));
+            this.content = Ws.trim(m.group(2));
+            return;
+        }
+
+        m = P.matcher(rawData);
         // 空行
         if (!m.find()) {
             this.type = LineType.BLANK;
@@ -128,6 +148,7 @@ class CheapLine {
         String sh = m.group(1).replace("\t", tab);
         this.space = sh.length();
         this.trimed = m.group(2) + tailSpace;
+        this.level = this.space / listIndent;
 
         // 无序列表
         if (null != m.group(4)) {
@@ -200,11 +221,11 @@ class CheapLine {
         }
     }
 
-    void shiftSpace() {
-        this.shiftSpace(this.space);
+    void unshiftSpace() {
+        this.unshiftSpace(this.space);
     }
 
-    void shiftSpace(int space) {
+    void unshiftSpace(int space) {
         int n = Math.min(space, this.space);
         if (n > 0) {
             this.space -= n;

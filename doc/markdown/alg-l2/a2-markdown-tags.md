@@ -35,14 +35,16 @@ Markdown 文档实际上某种程度可以作为 HTML 的一个超集。虽然�
 
 ## 行内元素 
 
-| Name     | Markdown | HTML           |
-| -------- | -------- | -------------- |
-| `STRONG` | `**`     | `STRONG.as-md` |
-| `EM`     | `*`      | `EM.as-md`     |
-| `B`      | `__`     | `B.as-md`      |
-| `I`      | `_`      | `I.as-md`      |
-| `Code`   | `'xxxx'` | `CODE.as-md`   |
-| `Del`    | `~~`     | `DEL.as-md`    |
-| `Link`   | `[]()`   | `A.as-md`      |
-| `Image`  | `![]()`  | `IMG.as-md`    |
-| `!TEXT`  | `xxxx`   | `SPAN.as-md`   |
+| Name          | Markdown | HTML                             |
+| ------------- | -------- | -------------------------------- |
+| `STRONG`      | `**`     | `STRONG.as-md`                   |
+| `EM`          | `*`      | `EM.as-md`                       |
+| `B`           | `__`     | `B.as-md`                        |
+| `I`           | `_`      | `I.as-md`                        |
+| `Code`        | `'xxxx'` | `CODE.as-md`                     |
+| `Del`         | `~~`     | `DEL.as-md`                      |
+| `Link`        | `[]()`   | `A.as-md @href/alt/title`        |
+| `Refer Linke` | `[][]`   | `A.as-md is-ref @href/alt/title` |
+| `Refer`       | `[]: `   | `FOOTER.as-md @md-ref`           |
+| `Image`       | `![]()`  | `IMG.as-md`                      |
+| `!TEXT`       | `xxxx`   | `SPAN.as-md`                     |

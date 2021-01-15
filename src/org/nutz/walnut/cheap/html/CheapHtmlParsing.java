@@ -27,6 +27,7 @@ public class CheapHtmlParsing {
 
     public CheapHtmlParsing() {
         this.doc = new CheapDocument(null, null);
+        this.doc.setAutoClosedTagsAsHtml();
     }
 
     private static String REGEX = "(" // Start: 1
@@ -82,7 +83,7 @@ public class CheapHtmlParsing {
                 }
 
                 // 不能直接结束的标签，需要压栈
-                if (!$el.isClosedTag()) {
+                if (!doc.isAutoClosedTag($el)) {
                     $current = $el;
                 }
             }
@@ -97,7 +98,7 @@ public class CheapHtmlParsing {
                     }
                     // 向上查找
                     else {
-                        CheapElement $el = $current.getClosest(tagName);
+                        CheapElement $el = $current.getClosestByTagName(tagName);
                         // 木有找到可以闭合的标签
                         if (null == $el) {
                             // TODO: 抛错还是无视？ 这是一个需要思考的问题 ...
@@ -142,14 +143,14 @@ public class CheapHtmlParsing {
                 // 找到了，就结束
                 if (pos > 0) {
                     String text = input.substring(e, pos);
-                    $cmt.setData(text);
+                    $cmt.setText(text);
                     pos += 3;
                     continue;
                 }
                 // 没有找到，全部作为注释
                 else {
                     String text = input.substring(e);
-                    $cmt.setData(text);
+                    $cmt.setText(text);
                     this.$current = null;
                     pos = input.length();
                     continue;
