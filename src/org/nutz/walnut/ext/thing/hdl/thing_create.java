@@ -40,6 +40,11 @@ public class thing_create implements JvmHdl {
         // 数组：那么就表示创建多条数据咯
         if (Strings.isQuoteBy(json, '[', ']')) {
             List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
+            // 格式化一下传入的字符串宏
+            if (!list.isEmpty())
+                for (NutMap meta : list) {
+                    Things.formatMeta(meta);
+                }
             hc.output = wts.createThings(list, ukey, fixedMeta, sys.out, process, exec, afterCmd);
         }
         // 普通对象: 表示创建一条数据
