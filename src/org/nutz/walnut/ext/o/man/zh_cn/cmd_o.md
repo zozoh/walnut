@@ -12,6 +12,8 @@ o [options] [[@filter filter-args...]...]
 
 ```bash
 [PATH1 PATH2 ...]  # 多个对象
+[-cqn]             # JSON 的格式化方式
+[-l]               # 输出时强制列表，否则只有一个列表项时输出对象
 ```
 
 # 过滤器列表
@@ -29,6 +31,7 @@ o [options] [[@filter filter-args...]...]
 @group      # 聚集对象
 @push       # 压入对象数组字段
 @pop        # 弹出对象数组字段
+@clear      # 清除上下文
 @json       # 将上下文输出为 JSON
 @ajax       # 将上下输出为 AJAX
 @tmpl       # 将上下文输出为行模板

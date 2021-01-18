@@ -35,6 +35,28 @@ public class Ws {
     }
 
     /**
+     * 将容器内对象合并为一个字符串
+     * 
+     * @param arr
+     *            字符串数组
+     * @param sep
+     *            分隔符
+     * @return 合并后的字符串
+     */
+    public static String join(String[] arr, String sep) {
+        StringBuilder sb = new StringBuilder();
+        if (arr.length > 0) {
+            sb.append(arr[0]);
+
+            for (int i = 1; i < arr.length; i++) {
+                sb.append(sep);
+                sb.append(arr[i]);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * 将字符串按半角逗号，拆分成数组，空元素将被忽略
      *
      * @param s
@@ -115,7 +137,11 @@ public class Ws {
                                                    '\\',
                                                    '\\');
 
-    private static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
+    // 解码过程表: 转义字符串 -> 真正字符
+    private static final Wchar.EscapeTable STR_UNESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
+
+    // 编码过程表: 真正字符 -> 转义字符串
+    private static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeReverTable(STR_ESC_TS);
 
     /**
      * 将字符串根据转移字符转义
@@ -140,6 +166,46 @@ public class Ws {
      * @return 转义后的字符串
      */
     public static String escape(String str, char escape, Wchar.EscapeTable table) {
+        StringBuilder sb = new StringBuilder();
+        char[] cs = str.toCharArray();
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+            char e_c = table.get(c);
+            // 如果是转义字符
+            if (e_c != 0) {
+                sb.append(escape).append(e_c);
+            }
+            // 否则添加
+            else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 将字符串根据转移字符转义
+     *
+     * @param str
+     *            输入字符串
+     * @return 转义后的字符串
+     */
+    public static String unescape(String str) {
+        return unescape(str, '\\', STR_UNESC_TAB);
+    }
+
+    /**
+     * 将字符串根据转移字符转义
+     *
+     * @param str
+     *            输入字符串
+     * @param escape
+     *            触发转义的字符
+     * @param table
+     *            字符转义表
+     * @return 转义后的字符串
+     */
+    public static String unescape(String str, char escape, Wchar.EscapeTable table) {
         StringBuilder sb = new StringBuilder();
         char[] cs = str.toCharArray();
         for (int i = 0; i < cs.length; i++) {

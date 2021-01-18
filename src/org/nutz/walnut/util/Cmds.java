@@ -277,30 +277,58 @@ public abstract class Cmds {
     public static void output_objs_as_table(WnSystem sys,
                                             ZParams params,
                                             WnPager wp,
-                                            List<NutMap> outs) {
+                                            List<? extends NutBean> outs) {
         String sCols = params.get("t");
-        String[] aCols = Strings.splitIgnoreBlank(sCols);
-        if (params.is("i")) {
-            aCols = Lang.arrayFirst("#", aCols);
+        String[] cols = Strings.splitIgnoreBlank(sCols);
+
+        boolean showBorder = params.is("b");
+        boolean showHeader = params.is("h");
+        boolean showSummary = params.is("s");
+        boolean showIndex = params.is("i");
+        int indexBase = params.getInt("ibase", 0);
+
+        output_objs_as_table(sys,
+                             wp,
+                             outs,
+                             cols,
+                             showBorder,
+                             showHeader,
+                             showSummary,
+                             showIndex,
+                             indexBase);
+
+    }
+
+    public static void output_objs_as_table(WnSystem sys,
+                                            WnPager wp,
+                                            List<? extends NutBean> outs,
+                                            String[] cols,
+                                            boolean showBorder,
+                                            boolean showHeader,
+                                            boolean showSummary,
+                                            boolean showIndex,
+                                            int indexBase) {
+        if (showIndex) {
+            cols = Lang.arrayFirst("#", cols);
         }
 
         // 准备输出表
-        TextTable tt = new TextTable(aCols.length);
-        if (params.is("b")) {
+        TextTable tt = new TextTable(cols.length);
+        if (showBorder) {
             tt.setShowBorder(true);
         } else {
             tt.setCellSpacing(2);
         }
         // 加标题
-        if (params.is("h")) {
-            tt.addRow(aCols);
+        if (showHeader) {
+            tt.addRow(cols);
             tt.addHr();
         }
         // 主体
-        int i = params.getInt("ibase", 0);
-        for (NutMap map : outs) {
-            List<String> cells = new ArrayList<String>(aCols.length);
-            for (String key : aCols) {
+        int i = indexBase;
+        for (NutBean map : outs) {
+            List<String> cells = new ArrayList<String>(cols.length);
+            for (String key : cols) {
                 if ("#".equals(key)) {
                     cells.add("" + (i++));
                     continue;
@@ -311,12 +339,12 @@ public abstract class Cmds {
             tt.addRow(cells);
         }
         // 尾部
-        if (params.is("s")) {
+        if (showSummary) {
             tt.addHr();
         }
         // 输出
         sys.out.print(tt.toString());
-        if (params.is("s")) {
+        if (showSummary) {
             // 是计算分页的
             if (null != wp && wp.countPage) {
                 sys.out.printlnf("total %d/%d items, skip %d page %d/%d, %d per page",

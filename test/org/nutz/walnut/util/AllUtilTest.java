@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 import org.nutz.walnut.util.upload.AllUploadTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({CmdsTest.class,
+@Suite.SuiteClasses({WsTest.class,
+                     CmdsTest.class,
                      AllUploadTest.class,
                      WnTest.class,
                      WnSortTest.class,

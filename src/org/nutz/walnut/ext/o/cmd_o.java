@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.o;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -16,7 +15,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn");
+        return ZParams.parse(args, "cqnl");
     }
 
     @Override
@@ -26,6 +25,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
 
     @Override
     protected void prepare(WnSystem sys, OContext fc) {
+        fc.keepAsList = fc.params.is("l");
         for (String ph : fc.params.vals) {
             WnObj o = Wn.checkObj(sys, ph);
             fc.add(o);
@@ -35,19 +35,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
     @Override
     protected void output(WnSystem sys, OContext fc) {
         if (!fc.alreadyOutputed) {
-            Object reo = fc.list;
-            // 木有翻页信息，看看是否需要自动拆包
-            if (null == fc.pager) {
-                if (fc.list.size() == 0) {
-                    reo = null;
-                } else if (fc.list.size() == 1) {
-                    reo = fc.list.get(0);
-                }
-            }
-            // 输出 Pager
-            else {
-                reo = Lang.map("list", fc.list).setv("pager", fc.pager);
-            }
+            Object reo = fc.toOutput();
 
             // 输出
             String json = Json.toJson(reo, fc.jfmt);

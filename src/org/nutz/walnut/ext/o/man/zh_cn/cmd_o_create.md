@@ -7,6 +7,8 @@
 ```bash
 o @create 
   [-p /path/to/parent]    # 指定一个父目录，如果是文件，采用其所在目录
+  [-keep]                 # 创建并不清空上下文
+  [-auto]                 # 指定的父目录路径，会被自动创建
   [-race FILE]            # 指定创建的是文件还是目录，默认为 FILE
                           # 如果输入的是 Meta，本参数将作为默认值
   [nameOrMeta ...]        # 多个文件名或者元数据
@@ -20,6 +22,9 @@ o @create
 ```bash
 # 在当前目录下创建一个 abc.txt
 o @create abc.txt
+
+# 在当前目录下创建一个 dir/abc 的目录
+o @create dir/abc.txt -race DIR
 
 # 在当前目录下创建一个指定元数据的文件对象
 o @create '{nm:"xiaobai", age:12}'

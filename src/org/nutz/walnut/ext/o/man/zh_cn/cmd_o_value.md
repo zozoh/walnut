@@ -5,12 +5,12 @@
 # 用法
 
 ```bash
-o @ancestors 
-  [-key id]    # 指定取哪个值
-  [-as json]   # 默认是输出一个 JSON 数组
-               # json/str/lines
-  [-sep ,]     # 输出为 str 时，定制的分隔符，默认`,`
-  [-cqn]       # 输出为 json 时，指定的格式化方式
+o @value
+  [KEY1, KEY2...] # 指定取哪个值
+  [-as str]      # 默认是输出一个字符串连接表
+                  # json/str
+  [-sep ,]        # 输出为 str 时，定制的分隔符，默认为空串
+  [-cqn]          # 输出为 json 时，指定的格式化方式
 ```
 
 # 示例

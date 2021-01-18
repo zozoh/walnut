@@ -19,8 +19,7 @@ public abstract class JvmFilterContext {
     /**
      * JSON 格式化
      */
-    public JsonFormat jfmt;
-
+    public JsonFormat jfmt; 
     /**
      * 当前路径对象
      */

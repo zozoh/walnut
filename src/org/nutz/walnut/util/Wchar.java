@@ -64,11 +64,49 @@ public class Wchar {
         int len = max - min + 1;
         char[] chars = new char[len];
         Arrays.fill(chars, (char) 0);
-        for (int i = 0; i < cs.length; i+=2) {
+        for (int i = 0; i < cs.length; i += 2) {
             char c0 = cs[i];
             char c1 = cs[i + 1];
             int index = c0 - min;
             chars[index] = c1;
+        }
+
+        // 搞定返回
+        EscapeTable table = new EscapeTable();
+        table.chars = chars;
+        table.offset = min;
+        return table;
+    }
+
+    /**
+     * 根据输入的字符串，成对编制逃逸表（反表），并且自动设置逃逸表的 offset
+     * 
+     * @param cs
+     *            编制字符串逃逸表
+     * 
+     * @return 字符串逃逸表
+     */
+    public static EscapeTable buildEscapeReverTable(char[] cs) {
+        // 先搜索一遍，最大的字符码
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+
+        // 奇数为，为字符字面量，偶数位为逃逸后的字符值
+        for (int i = 0; i < cs.length; i += 2) {
+            int charCode = cs[i+1];
+            max = Math.max(charCode, max);
+            min = Math.min(charCode, min);
+        }
+
+        // 得到编码表的长度， min 自然就是偏移量
+        int len = max - min + 1;
+        char[] chars = new char[len];
+        Arrays.fill(chars, (char) 0);
+        for (int i = 0; i < cs.length; i += 2) {
+            char c0 = cs[i];
+            char c1 = cs[i + 1];
+            int index = c1 - min;
+            chars[index] = c0;
         }
 
         // 搞定返回
