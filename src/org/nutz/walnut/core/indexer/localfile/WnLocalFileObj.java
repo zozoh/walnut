@@ -157,7 +157,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 if (!Lang.equals(lfp.mount(), this.mount())) {
                     throw Lang.impossible();
                 }
-                // 我的相对路径比父的还长？ 不能够啊
+                // 我的相对路径竟然不是以父的相对路径开始的？ 不能够啊
                 if (!this.rph.startsWith(lfp.rph)) {
                     throw Lang.impossible();
                 }
@@ -308,11 +308,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
             oP.setParent(this._parent);
             return oP;
         }
-        String ph = Wn.appendPath(phHome, rph);
-        if (ph.equals(this.phFile)) {
+        // 已经到达根了
+        File p = file.getParentFile();
+        if (p.equals(this.dHome)) {
             return oHome;
         }
-        File p = file.getParentFile();
         return new WnLocalFileObj(oHome, dHome, p, mimes);
     }
 

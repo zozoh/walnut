@@ -96,6 +96,14 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         // 不是目录
         if (!f.isDirectory()) {
             f = f.getParentFile();
+            // 退到根了
+            if (f.equals(this.dHome)) {
+                p = this.root;
+            }
+            // 否则重新搞一个对象
+            else {
+                p = new WnLocalFileObj(root, dHome, f, mimes);
+            }
         }
         // 相对于基线文件，调整 path，去掉内部的 ..
         File f2 = Files.getFile(f, path);

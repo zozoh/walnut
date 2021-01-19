@@ -1,5 +1,6 @@
 package org.nutz.walnut.util;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -484,9 +485,8 @@ public class Ws {
     public static String repeat(char c, int n) {
         if (c == 0 || n < 1)
             return "";
-        StringBuilder sb = new StringBuilder(n);
-        for (int i = 0; i < n; i++)
-            sb.append(c);
-        return sb.toString();
+        char[] cs = new char[n];
+        Arrays.fill(cs, c);
+        return new String(cs);
     }
 }

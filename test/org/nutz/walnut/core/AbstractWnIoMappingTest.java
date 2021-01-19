@@ -19,6 +19,31 @@ public abstract class AbstractWnIoMappingTest extends IoCoreTest {
     protected WnIoMapping im;
 
     @Test
+    public void test_fetch_by_file() {
+        WnIoIndexer indexer = im.getIndexer();
+        WnObj ox = indexer.create(null, "/a/b/x.js", WnRace.FILE);
+        WnObj oy = indexer.create(null, "/a/b/y.js", WnRace.FILE);
+
+        assertEquals("/a/b/x.js", ox.path());
+        assertEquals("/a/b/y.js", oy.path());
+
+        WnObj y = indexer.fetch(ox, "y.js");
+        assertEquals("y.js", y.name());
+        assertEquals(oy.id(), y.id());
+        assertEquals("/a/b/y.js", y.path());
+
+        y = indexer.fetch(ox, "./y.js");
+        assertEquals("y.js", y.name());
+        assertEquals(oy.id(), y.id());
+        assertEquals("/a/b/y.js", y.path());
+
+        WnObj b = y.parent();
+        assertEquals("b", b.name());
+        assertEquals(ox.parentId(), b.id());
+        assertEquals("/a/b/", b.getRegularPath());
+    }
+
+    @Test
     public void test_simple_copy() throws IOException, WnIoHandleMutexException {
         WnIoIndexer indexer = im.getIndexer();
         WnObj oa = indexer.create(null, "/a", WnRace.FILE);

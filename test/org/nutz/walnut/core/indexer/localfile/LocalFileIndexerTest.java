@@ -40,6 +40,14 @@ public class LocalFileIndexerTest extends IoCoreTest {
     }
 
     @Test
+    public void test_parent_id() {
+        WnObj o = indexer.create(null, "/a/b/x.js", WnRace.FILE);
+        assertEquals("x.js", o.name());
+        assertEquals("@WnRoot:a/b/x.js", o.id());
+        assertEquals("@WnRoot:a/b/", o.parentId());
+    }
+
+    @Test
     public void test_get_mount_parent() {
         WnObj p = new WnIoObj();
         p.id("@VirtualID");
@@ -50,7 +58,7 @@ public class LocalFileIndexerTest extends IoCoreTest {
         WnObj b = indexer.fetch(null, "a/b");
         b.setParent(p);
         assertEquals("/x/y/b", b.path());
-        
+
         WnObj d = indexer.fetch(b, "c/d.txt");
 
         assertEquals("/x/y/b/c/d.txt", d.path());
