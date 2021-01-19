@@ -9,6 +9,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.mq.WnMqApi;
 import org.nutz.walnut.ext.www.cmd_www;
+import org.nutz.walnut.ext.www.bean.WnCoupon;
 import org.nutz.walnut.ext.www.bean.WnOrder;
 import org.nutz.walnut.ext.www.impl.WnOrderService;
 import org.nutz.walnut.ext.www.impl.WnWebService;
@@ -69,6 +70,18 @@ public class www_buy implements JvmHdl {
             skuKey = null;
         }
         or = orderApi.createOrder(or, priceRuleKey, bu, skuKey);
+
+        // -------------------------------
+        // 标识优惠券被使用
+        if (or.hasCoupons()) {
+            NutMap cpnMeta = new NutMap();
+            cpnMeta.put("cpn_used", System.currentTimeMillis());
+            cpnMeta.put("cpn_orid", or.getId());
+            cpnMeta.put("cpn_stat", 1);
+            for (WnCoupon cpn : or.getCoupons()) {
+                sys.io.setBy(cpn.getId(), cpnMeta, false);
+            }
+        }
 
         // -------------------------------
         // 准备支付单
