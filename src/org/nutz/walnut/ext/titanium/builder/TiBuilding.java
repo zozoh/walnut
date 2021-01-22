@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Strings;
@@ -22,6 +24,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.titanium.builder.action.TiJoinHTML;
 import org.nutz.walnut.ext.titanium.builder.action.TiJoinMJS;
 import org.nutz.walnut.ext.titanium.builder.bean.TiBuildEntry;
+import org.nutz.walnut.ext.titanium.builder.bean.TiExportItem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
@@ -37,24 +40,42 @@ public class TiBuilding implements Atom {
 
     private List<String> outputs;
 
+    private Set<String> depss;
+
     private Map<String, TiJoinAction> actions;
+
+    public TiBuilding() {}
 
     public TiBuilding(WnOutputable out,
                       WnIo io,
                       WnObj oHome,
                       TiBuildEntry entry,
-                      List<String> outputs) {
+                      List<String> outputs,
+                      Map<String, TiExportItem> exportMap,
+                      Set<String> depss) {
         this.entry = entry;
         this.out = out;
         this.io = io;
         this.oEntry = io.check(oHome, entry.getPath());
 
         this.outputs = outputs;
+        this.depss = depss;
 
         this.actions = new HashMap<String, TiJoinAction>();
-        actions.put(".mjs", new TiJoinMJS(entry, outputs));
-        actions.put(".html", new TiJoinHTML(entry, outputs));
-        actions.put(".json", new TiJoinTiJSON(entry, outputs));
+        actions.put(".mjs", new TiJoinMJS(io, entry, outputs, exportMap, depss));
+        actions.put(".html", new TiJoinHTML(io, entry, outputs, exportMap, depss));
+        actions.put(".json", new TiJoinTiJSON(io, entry, outputs, exportMap, depss));
+    }
+
+    public TiBuilding clone() {
+        TiBuilding ing = new TiBuilding();
+        ing.entry = this.entry;
+        ing.out = this.out;
+        ing.io = this.io;
+        ing.oEntry = this.oEntry;
+        ing.outputs = new LinkedList<>();
+        ing.actions = this.actions;
+        return ing;
     }
 
     private void walk(TiBuilderWalker walker, String regex) {
@@ -102,14 +123,15 @@ public class TiBuilding implements Atom {
         }
     }
 
+    static final String HR2 = Ws.repeat('=', 40);
+    static final String HR3 = Ws.repeat('#', 50);
+
     private void extendImports() {
         // 读一下文件
         String content = io.readText(oEntry);
         String[] lines = content.split("\r?\n");
 
-        String HR = Ws.repeat('#', 50);
-        String buildi = Times.format("yyyyMMdd.HHmmss",
-                                     Times.D(System.currentTimeMillis()));
+        String buildi = Times.format("yyyyMMdd.HHmmss", Times.D(System.currentTimeMillis()));
 
         // 逐行扫码，遇到 import 的进行分析
         Matcher m;
@@ -137,7 +159,7 @@ public class TiBuilding implements Atom {
                 String rPath = Ws.trim(m.group(2));
 
                 // 增加一个备注
-                outputs.add("//" + HR);
+                outputs.add("//" + HR3);
                 outputs.add("// # " + line);
                 outputs.add("const " + varName + " = (function(){");
 
@@ -263,31 +285,33 @@ public class TiBuilding implements Atom {
         }
     }
 
+    public TiJoinAction getAction(String suffix) {
+        return actions.get(suffix);
+    }
+
     private void packToOnFile() {
-        String HR = Ws.repeat('=', 60);
         this.walk((index, f, rph, lines) -> {
             out.printf("%3d) %s (%d lines)\n", index, rph, lines.length);
-            for (Map.Entry<String, TiJoinAction> en : this.actions.entrySet()) {
-                String suffix = en.getKey();
-                if (rph.endsWith(suffix)) {
-                    outputs.add("//" + HR);
-                    outputs.add("// JOIN: " + rph);
-                    outputs.add("//" + HR);
-
-                    TiJoinAction ja = en.getValue();
-
-                    String loadUrl = rph;
-                    if (!Strings.isBlank(entry.getPrefix())) {
-                        loadUrl = entry.getPrefix() + rph;
-                    }
-
-                    ja.exec(loadUrl, lines);
-                    out.printf("   + => %s\n", ja.getClass().getSimpleName());
-                    return;
-                }
+            String loadUrl = rph;
+            if (!Strings.isBlank(entry.getPrefix())) {
+                loadUrl = entry.getPrefix() + rph;
             }
-            out.println("   !!! NilAction !!!");
+            execAction(loadUrl, lines, f);
         }, "^.+\\.(mjs|html|json)$");
+    }
+
+    public void execAction(String loadUrl, String[] lines, WnObj f) throws Exception {
+        String suffix = Files.getSuffix(loadUrl);
+        TiJoinAction ja = this.getAction(suffix);
+        outputs.add("//" + HR2);
+        outputs.add(String.format("// JOIN <%s> %s", f.name(), loadUrl));
+        outputs.add("//" + HR2);
+        if (null != ja) {
+            ja.exec(loadUrl, lines, f);
+            out.printf("   + => %s\n", ja.getClass().getSimpleName());
+        } else {
+            out.println("   !!! NilAction !!!");
+        }
     }
 
     public void logExportDefault() {
@@ -302,6 +326,22 @@ public class TiBuilding implements Atom {
                 }
             }
         }, "^.+\\.(mjs|json|html)$");
+    }
+
+    public List<String> getOutputs() {
+        return outputs;
+    }
+
+    public boolean hasOutputs() {
+        return null != outputs && !outputs.isEmpty();
+    }
+
+    public Set<String> getDepss() {
+        return depss;
+    }
+
+    public boolean hasDepss() {
+        return null != depss && !depss.isEmpty();
     }
 
 }

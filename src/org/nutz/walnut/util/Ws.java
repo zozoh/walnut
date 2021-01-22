@@ -16,6 +16,74 @@ import org.nutz.lang.util.NutMap;
 public class Ws {
 
     /**
+     * 测试此字符串是否被指定的左字符和右字符所包裹；如果该字符串左右两边有空白的时候，会首先忽略这些空白
+     *
+     * @param cs
+     *            字符串
+     * @param lc
+     *            左字符
+     * @param rc
+     *            右字符
+     * @return 字符串是被左字符和右字符包裹
+     */
+    public static boolean isQuoteByIgnoreBlank(CharSequence cs, char lc, char rc) {
+        if (null == cs)
+            return false;
+        int len = cs.length();
+        if (len < 2)
+            return false;
+        int l = 0;
+        int last = len - 1;
+        int r = last;
+        for (; l < len; l++) {
+            if (!Character.isWhitespace(cs.charAt(l)))
+                break;
+        }
+        if (cs.charAt(l) != lc)
+            return false;
+        for (; r > l; r--) {
+            if (!Character.isWhitespace(cs.charAt(r)))
+                break;
+        }
+        return l < r && cs.charAt(r) == rc;
+    }
+
+    /**
+     * 测试此字符串是否被指定的左字符和右字符所包裹
+     *
+     * @param cs
+     *            字符串
+     * @param lc
+     *            左字符
+     * @param rc
+     *            右字符
+     * @return 字符串是被左字符和右字符包裹
+     */
+    public static boolean isQuoteBy(CharSequence cs, char lc, char rc) {
+        if (null == cs)
+            return false;
+        int length = cs.length();
+        return length > 1 && cs.charAt(0) == lc && cs.charAt(length - 1) == rc;
+    }
+
+    /**
+     * 测试此字符串是否被指定的左字符串和右字符串所包裹
+     *
+     * @param str
+     *            字符串
+     * @param l
+     *            左字符串
+     * @param r
+     *            右字符串
+     * @return 字符串是被左字符串和右字符串包裹
+     */
+    public static boolean isQuoteBy(String str, String l, String r) {
+        if (null == str || null == l || null == r)
+            return false;
+        return str.startsWith(l) && str.endsWith(r);
+    }
+
+    /**
      * 统计某字符在给定字符串中出现的次数
      * 
      * @param cs
