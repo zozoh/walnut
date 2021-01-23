@@ -1,0 +1,33 @@
+#---------------------------------------------------------
+#
+#                    Obj 查询
+#
+#---------------------------------------------------------
+# 目录对象：列表
+@API .regapi/api/obj/query 'cross/json'
+{
+   "cache-test" : "=ObjQueryCacheTest"
+}
+%COPY:
+o '${http-qs-p}' \
+  @query '${http-qs-m<json>?-obj-}' \
+  -sort '${http-qs-s<json>?-obj-}' \
+  -limit ${http-qs-limit?100} \
+  -skip  ${http-qs-skip?0} \
+  -pager 
+  @json ${http-qs-k?!EXT-TP} -cqn
+%END%
+#---------------------------------------------------------
+# 目录对象：列表
+@API .regapi/api/obj/list 'cross/json'
+{
+   "cache-test" : "=ObjQueryCacheTest"
+}
+%COPY:
+o '${http-qs-p}' \
+  @query '${http-qs-m<json>?-obj-}' \
+  -sort '${http-qs-s<json>?-obj-}' \
+  -limit ${http-qs-limit?100} \
+  -skip  ${http-qs-skip?0} \
+  @json ${http-qs-k?!EXT-TP} -cqn
+%END%

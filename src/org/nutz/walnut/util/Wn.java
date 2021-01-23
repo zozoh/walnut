@@ -51,9 +51,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AlwaysMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
 import org.nutz.web.Webs.Err;
 
 /**
@@ -1496,54 +1493,6 @@ public abstract class Wn {
         }
         // 默认就是毫秒
         return ms;
-    }
-
-    public static WnMatch explainObjKeyMatcher(String str) {
-        if (Strings.isBlank(str))
-            return new AlwaysMatch(true);
-
-        // 分析 not
-        boolean not = false;
-        if (str.startsWith("!")) {
-            not = true;
-            str = str.substring(1).trim();
-        }
-
-        // 解析
-        String str2 = explainQuickObjKeyMatchStr(str);
-
-        // 得到实现类
-        return new AutoStrMatch(str2, not);
-    }
-
-    public static String explainQuickObjKeyMatchStr(String str) {
-        // 快速字段: 扩展字段
-        if ("%EXT".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|nm|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段
-        else if ("%EXT-NM".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
-        else if ("%EXT-TC".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|data|d[0-9]"
-                  + "|pid|c|m|g|md"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
-        else if ("%EXT-THC".equalsIgnoreCase(str)) {
-            str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
-        }
-        // 原样返回
-        return str;
     }
 
     /**

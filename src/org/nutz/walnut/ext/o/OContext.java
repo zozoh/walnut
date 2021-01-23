@@ -3,10 +3,13 @@ package org.nutz.walnut.ext.o;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmFilterContext;
 import org.nutz.walnut.util.WnPager;
+import org.nutz.walnut.util.Wobj;
+import org.nutz.walnut.validate.WnMatch;
 
 public class OContext extends JvmFilterContext {
 
@@ -26,19 +29,27 @@ public class OContext extends JvmFilterContext {
     }
 
     public Object toOutput() {
+        return toOutput(null);
+    }
+
+    public Object toOutput(WnMatch km) {
+        // 执行字段过滤
+        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km);
+
+        // 自动拆包列表
         if (null == pager || !keepAsList) {
-            if (list.size() == 0) {
+            if (outputs.size() == 0) {
                 return null;
             }
-            if (list.size() == 1) {
+            if (outputs.size() == 1) {
                 return list.get(0);
             }
-            return list;
+            return outputs;
         }
 
         // 翻页了，那么一定要输出列表啊
         NutMap reo = new NutMap();
-        reo.put("list", list);
+        reo.put("list", outputs);
         reo.put("pager", pager);
         return reo;
     }

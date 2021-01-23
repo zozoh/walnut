@@ -143,11 +143,11 @@ public abstract class Cmds {
         Cmds.output_beans(sys, params, wp, list);
     }
 
-    private static List<NutMap> outs(ZParams params, List<? extends NutBean> list) {
-        List<NutMap> outs = new ArrayList<NutMap>(list.size());
+    private static List<NutBean> outs(ZParams params, List<? extends NutBean> list) {
+        List<NutBean> outs = new ArrayList<>(list.size());
         WnMatch keyMatch = __gen_obj_key_match(params, "e");
         for (NutBean o : list) {
-            NutMap out = _obj_to_outmap(o, keyMatch);
+            NutBean out = Wobj.filterObjKeys(o, keyMatch);
             if (params.has("tree") && o.has("children")) {
                 List<NutBean> children = o.getAsList("children", NutBean.class);
                 out.setv("children", outs(params, children));
@@ -162,7 +162,7 @@ public abstract class Cmds {
                                     WnPager wp,
                                     List<? extends NutBean> list) {
         // 生成输出列表
-        List<NutMap> outs = outs(params, list);
+        List<NutBean> outs = outs(params, list);
 
         // // 指定按照 JSON 的方式输出
         // if (params.has("json")) {
@@ -197,7 +197,7 @@ public abstract class Cmds {
     public static void output_objs_by_tmpl(WnSystem sys,
                                            ZParams params,
                                            WnPager wp,
-                                           List<NutMap> outs,
+                                           List<NutBean> outs,
                                            String tmplKey) {
         Tmpl tmpl = Cmds.parse_tmpl(params.get(tmplKey));
 
@@ -205,7 +205,7 @@ public abstract class Cmds {
 
         // 主体
         int i = params.getInt("ibase", 0);
-        for (NutMap map : outs) {
+        for (NutBean map : outs) {
             if (show_index)
                 sys.out.print("" + (i++) + "# ");
             String str = tmpl.render(map);
@@ -234,37 +234,12 @@ public abstract class Cmds {
     private static WnMatch __gen_obj_key_match(ZParams params, String key) {
         String str = params.getString(key);
 
-        return Wn.explainObjKeyMatcher(str);
+        return Wobj.explainObjKeyMatcher(str);
     }
 
-    private static NutMap _obj_to_outmap(NutBean o, WnMatch keyMatch) {
-        if (null == o) {
-            return null;
-        }
-
-        // zozoh 这个不判断不做了，用 gen_json_format 函数包含了这个逻辑
-        // true 表示输出的时候，也显示双下划线开头的隐藏字段
-        // boolean isShowAutoHide = params.is("H");
-
-        // 依次判断字段
-        NutMap map = new NutMap();
-        for (String key : o.keySet()) {
-            // 忽略自动隐藏字段
-            // if (!isShowAutoHide && key.startsWith("__"))
-            // continue;
-
-            // 判断一下键
-            if (keyMatch.match(key)) {
-                map.put(key, o.get(key));
-            }
-
-        }
-        return map;
-    }
-
-    public static void output_objs_as_value(WnSystem sys, ZParams params, List<NutMap> outs) {
+    public static void output_objs_as_value(WnSystem sys, ZParams params, List<NutBean> outs) {
         String sep = params.get("sep", "");
-        for (NutMap map : outs) {
+        for (NutBean map : outs) {
             sys.out.print(Lang.concat(sep, map.values()));
             if (params.is("N")) {
                 sys.out.println();
@@ -365,7 +340,7 @@ public abstract class Cmds {
     public static void output_objs_as_json(WnSystem sys,
                                            ZParams params,
                                            WnPager wp,
-                                           List<NutMap> outs) {
+                                           List<NutBean> outs) {
         JsonFormat fmt = Cmds.gen_json_format(params);
 
         // 要输出的 JSON 字符串

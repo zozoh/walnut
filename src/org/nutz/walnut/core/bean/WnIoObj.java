@@ -16,6 +16,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.validate.WnMatch;
 
 public class WnIoObj extends NutMap implements WnObj {
@@ -41,7 +42,7 @@ public class WnIoObj extends NutMap implements WnObj {
         NutMap map = new NutMap();
 
         // 准备匹配逻辑
-        WnMatch m = Wn.explainObjKeyMatcher(regex);
+        WnMatch m = Wobj.explainObjKeyMatcher(regex);
 
         for (Map.Entry<String, Object> en : this.entrySet()) {
             String key = en.getKey();
@@ -71,7 +72,7 @@ public class WnIoObj extends NutMap implements WnObj {
     @Override
     public NutMap toMap(String regex) {
         // 准备匹配逻辑
-        WnMatch m = Wn.explainObjKeyMatcher(regex);
+        WnMatch m = Wobj.explainObjKeyMatcher(regex);
 
         // 准备返回结果
         NutMap map = new NutMap();
