@@ -74,9 +74,9 @@ public class CheapRawData extends CheapNode {
         sb.append("]]>");
     }
 
-    @Override
-    public String getText() {
-        return text;
+    public void joinText(StringBuilder sb) {
+        if (null != text)
+            sb.append(text);
     }
 
     @Override

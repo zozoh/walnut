@@ -19,4 +19,6 @@ public class CheapComment extends CheapText {
         sb.append("-->");
     }
 
+    public void joinText(StringBuilder sb) {}
+
 }

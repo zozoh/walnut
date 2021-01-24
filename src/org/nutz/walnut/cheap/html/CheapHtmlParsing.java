@@ -26,8 +26,24 @@ public class CheapHtmlParsing {
     CheapElement $current;
 
     public CheapHtmlParsing() {
-        this.doc = new CheapDocument(null, null);
+        this(false);
+    }
+
+    public CheapHtmlParsing(boolean body) {
+        if (body) {
+            this.doc = new CheapDocument();
+            this.doc.setAutoClosedTagsAsHtml();
+            this.$current = this.doc.body();
+        } else {
+            this.doc = new CheapDocument(null, null);
+            this.doc.setAutoClosedTagsAsHtml();
+        }
+    }
+
+    public CheapHtmlParsing(CheapDocument doc, CheapElement current) {
+        this.doc = doc;
         this.doc.setAutoClosedTagsAsHtml();
+        this.$current = current;
     }
 
     private static String REGEX = "(" // Start: 1

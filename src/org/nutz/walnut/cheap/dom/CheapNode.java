@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -49,7 +50,13 @@ public abstract class CheapNode {
 
     public abstract void joinString(StringBuilder sb);
 
-    public abstract String getText();
+    public abstract void joinText(StringBuilder sb);
+
+    public String getText() {
+        StringBuilder sb = new StringBuilder();
+        joinText(sb);
+        return sb.toString();
+    }
 
     public abstract void setText(String text);
 
@@ -420,6 +427,135 @@ public abstract class CheapNode {
             $p = (CheapElement) $p.parent;
         }
         return ans;
+    }
+
+    /**
+     * @param filter
+     *            过滤器
+     * @return 第一个符合过滤器的元素节点。 null 表示啥也没找到
+     */
+    public CheapElement findElement(CheapFilter filter) {
+        if (null == filter || !this.isElement()) {
+            return null;
+        }
+        if (filter.match((CheapElement) this)) {
+            return (CheapElement) this;
+        }
+        // 深度优先的便利
+        if (null != this.children) {
+            for (CheapNode node : this.children) {
+                CheapElement el = node.findElement(filter);
+                if (null != el)
+                    return el;
+            }
+        }
+        // 那就是啥都木有找到咯
+        return null;
+    }
+
+    /**
+     * @param filter
+     *            过滤器
+     * @return 符合条件的元素列表
+     */
+    public List<CheapElement> findElements(CheapFilter filter) {
+        List<CheapElement> list = new LinkedList<>();
+        joinElements(list, filter);
+        return list;
+    }
+
+    /**
+     * @param list
+     *            输出列表
+     * @param filter
+     *            过滤器
+     */
+    public void joinElements(List<CheapElement> list, CheapFilter filter) {
+        if (null == filter || !this.isElement()) {
+            return;
+        }
+        if (filter.match((CheapElement) this)) {
+            list.add((CheapElement) this);
+        }
+        // 深度优先的便利
+        if (null != this.children) {
+            for (CheapNode node : this.children) {
+                node.joinElements(list, filter);
+            }
+        }
+    }
+
+    /**
+     * @param filter
+     *            过滤器
+     * @return 第一个符合过滤器的节点。 null 表示啥也没找到
+     */
+    public CheapNode findNode(CheapNodeFilter filter) {
+        if (null == filter) {
+            return null;
+        }
+        if (filter.match(this)) {
+            return this;
+        }
+        // 深度优先的便利
+        if (null != this.children) {
+            for (CheapNode node : this.children) {
+                CheapNode re = node.findNode(filter);
+                if (null != re)
+                    return re;
+            }
+        }
+        // 那就是啥都木有找到咯
+        return null;
+    }
+
+    /**
+     * @param filter
+     *            过滤器
+     * @return 符合条件的节点列表
+     */
+    public List<CheapNode> findNodes(CheapNodeFilter filter) {
+        List<CheapNode> list = new LinkedList<>();
+        joinNodes(list, filter);
+        return list;
+    }
+
+    /**
+     * @param list
+     *            输出列表
+     * @param filter
+     *            过滤器
+     */
+    public void joinNodes(List<CheapNode> list, CheapNodeFilter filter) {
+        if (null == filter) {
+            return;
+        }
+        if (filter.match(this)) {
+            list.add(this);
+        }
+        // 深度优先的便利
+        if (null != this.children) {
+            for (CheapNode node : this.children) {
+                node.joinNodes(list, filter);
+            }
+        }
+    }
+
+    /**
+     * @param callback
+     *            回调
+     */
+    public void eachNode(Callback<CheapNode> callback) {
+        if (null == callback) {
+            return;
+        }
+        callback.invoke(this);
+        // 深度优先的便利
+        if (null != this.children) {
+            for (CheapNode node : this.children) {
+                node.eachNode(callback);
+            }
+        }
     }
 
     public boolean hasParent() {

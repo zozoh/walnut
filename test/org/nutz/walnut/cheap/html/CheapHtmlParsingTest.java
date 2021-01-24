@@ -9,6 +9,27 @@ import org.nutz.walnut.cheap.dom.CheapDocument;
 public class CheapHtmlParsingTest extends AbstractCheapParsingTest {
 
     @Test
+    public void test_t0() {
+        String input = _Fhtml("t0_in");
+        String expec = _Fhtml("t0_ex");
+        CheapHtmlParsing ing = new CheapHtmlParsing(true);
+        CheapDocument doc = ing.invoke(input);
+
+        String html = doc.toHtml();
+        assertEquals(expec, html);
+    }
+    
+    @Test
+    public void test_node_nest_text() {
+        String input = "<p><strong>ABC</strong></p>";
+        CheapHtmlParsing ing = new CheapHtmlParsing(true);
+        CheapDocument doc = ing.invoke(input);
+
+        String text = doc.body().getText();
+        assertEquals("ABC", text);
+    }
+
+    @Test
     public void test_100() {
         String input = _Fhtml("100");
         CheapHtmlParsing ing = new CheapHtmlParsing();

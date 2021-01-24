@@ -148,6 +148,34 @@ public class CheapDocument {
         return list;
     }
 
+    public CheapElement findElement(CheapFilter filter) {
+        if (null != $root) {
+            return $root.findElement(filter);
+        }
+        return null;
+    }
+
+    public List<CheapElement> findElements(CheapFilter filter) {
+        if (null != $root) {
+            return $root.findElements(filter);
+        }
+        return new LinkedList<>();
+    }
+
+    public CheapNode findNode(CheapNodeFilter filter) {
+        if (null != $root) {
+            return $root.findNode(filter);
+        }
+        return null;
+    }
+
+    public List<CheapNode> findNodes(CheapNodeFilter filter) {
+        if (null != $root) {
+            return $root.findNodes(filter);
+        }
+        return new LinkedList<>();
+    }
+
     public CheapElement createElement(String tagName) {
         return createElement(tagName, null);
     }

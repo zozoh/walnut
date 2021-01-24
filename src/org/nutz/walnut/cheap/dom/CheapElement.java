@@ -265,7 +265,7 @@ public class CheapElement extends CheapNode {
             return ((CheapElement) node).isTagName(upperName);
         });
     }
-    
+
     public CheapElement getLastChildElement(String tagName) {
         if (null != tagName) {
             tagName = tagName.toUpperCase();
@@ -286,8 +286,7 @@ public class CheapElement extends CheapNode {
      * @return 是否符合标签
      */
     public boolean isTagAs(String regex) {
-        String name = tagName.toUpperCase();
-        return name.matches(regex);
+        return tagName.matches(regex);
     }
 
     /**
@@ -461,15 +460,12 @@ public class CheapElement extends CheapNode {
         return this;
     }
 
-    @Override
-    public String getText() {
-        StringBuilder sb = new StringBuilder();
+    public void joinText(StringBuilder sb) {
         if (this.hasChildren()) {
             for (CheapNode child : children) {
-                sb.append(child.getText());
+                child.joinText(sb);
             }
         }
-        return sb.toString();
     }
 
     @Override

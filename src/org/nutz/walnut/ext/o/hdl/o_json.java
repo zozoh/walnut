@@ -14,12 +14,14 @@ public class o_json extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn");
+        return ZParams.parse(args, "cqnl");
     }
 
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         JsonFormat jfmt = Cmds.gen_json_format(params);
+        
+        fc.keepAsList = fc.params.is("l", fc.keepAsList);
 
         String keys = params.val(0);
         WnMatch ma = Wobj.explainObjKeyMatcher(keys);
