@@ -46,6 +46,18 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     protected WnReferApi refers;
     protected WnIoHandleManager handles;
 
+    @Test
+    public void test_append_meta_remove_key() {
+        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
+        NutMap meta = Lang.map("hello", "world");
+        io.appendMeta(o, meta);
+        assertEquals("world", o.getString("hello"));
+
+        meta = Lang.map("!hello", true);
+        io.appendMeta(o, meta);
+        assertFalse(o.has("hello"));
+    }
+
     /**
      * 删除一个 filew 映射的文件
      * 

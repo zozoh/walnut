@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 /**
@@ -392,7 +391,7 @@ public class Ws {
         }
 
         // 添加最后一个
-        if (!ignoreBlank || !Strings.isBlank(sb)) {
+        if (!ignoreBlank || !isBlank(sb)) {
             String s2 = sb.toString();
             list.add(s2);
         }
@@ -521,6 +520,33 @@ public class Ws {
                 return false;
         }
         return true;
+    }
+
+    /**
+     * 对指定对象进行 toString 操作；如果该对象为 null ，则返回空串（""）
+     *
+     * @param obj
+     *            指定的对象
+     * @return 对指定对象进行 toString 操作；如果该对象为 null ，则返回空串（""）
+     */
+    public static String sBlank(Object obj) {
+        return sBlank(obj, "");
+    }
+
+    /**
+     * 对指定对象进行 toString 操作；如果该对象为 null 或者 toString 方法为空串（""），则返回默认值
+     *
+     * @param obj
+     *            指定的对象
+     * @param def
+     *            默认值
+     * @return 对指定对象进行 toString 操作；如果该对象为 null 或者 toString 方法为空串（""），则返回默认值
+     */
+    public static String sBlank(Object obj, String def) {
+        if (null == obj)
+            return def;
+        String s = obj.toString();
+        return isBlank(s) ? def : s;
     }
 
     /**

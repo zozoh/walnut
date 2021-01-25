@@ -1,6 +1,7 @@
 package org.nutz.walnut.core.indexer.localfile;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.nutz.json.Json;
@@ -324,6 +325,13 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public void setParent(WnObj parent) {
         this._parent = parent;
+    }
+
+    @Override
+    public List<WnObj> parents() {
+        List<WnObj> list = new LinkedList<>();
+        this.loadParents(list, false);
+        return list;
     }
 
     @Override

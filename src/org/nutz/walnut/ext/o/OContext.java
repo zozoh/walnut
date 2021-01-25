@@ -19,10 +19,12 @@ public class OContext extends JvmFilterContext {
 
     public boolean keepAsList;
 
+    public String subKey;
+
     /**
      * 输出行为的过滤器，还是要设置一下这个值，这样主类就不输出了
      */
-    public boolean alreadyOutputed;
+    public boolean quiet;
 
     public OContext() {
         this.list = new LinkedList<>();
@@ -34,20 +36,24 @@ public class OContext extends JvmFilterContext {
 
     public Object toOutput(WnMatch km) {
         // 执行字段过滤
-        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km);
+        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km, subKey);
 
-        // 自动拆包列表
-        if (null == pager || !keepAsList) {
-            if (outputs.size() == 0) {
-                return null;
+        // 不要分页
+        if (null == pager) {
+            int len = outputs.size();
+            // 保持列表
+            if (keepAsList || len > 1) {
+                return outputs;
             }
-            if (outputs.size() == 1) {
-                return list.get(0);
+            // 自动拆包
+            else if (len == 1) {
+                return outputs.get(0);
             }
-            return outputs;
+            // 返回 null
+            return null;
         }
 
-        // 翻页了，那么一定要输出列表啊
+        // 输出翻页信息
         NutMap reo = new NutMap();
         reo.put("list", outputs);
         reo.put("pager", pager);

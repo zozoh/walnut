@@ -37,7 +37,7 @@ public class o_tmpl extends OFilter {
         String out = Wcol.join(list, sep);
         sys.out.println(out);
 
-        fc.alreadyOutputed = true;
+        fc.quiet = true;
     }
 
 }

@@ -14,7 +14,13 @@
 # 用法
 
 ```
-dom [[@filter filter-args...]...]
+dom [options] [[@filter filter-args...]...]
+```
+
+它支持的 options 有:
+
+```bash
+[-body]      # 文档内容只有 body 内的内容
 ```
 
 它支持的过滤器有：

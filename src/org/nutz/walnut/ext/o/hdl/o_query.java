@@ -16,7 +16,7 @@ public class o_query extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(pager|append)$");
+        return ZParams.parse(args, "^(pager|append|mine)$");
     }
 
     @Override
@@ -41,6 +41,11 @@ public class o_query extends OFilter {
             WnObj o = fc.list.get(0);
             NutMap map = Lang.map("pid", o.id());
             q.setAllToList(map);
+        }
+
+        // 确保是 mine
+        if (params.is("mine")) {
+            q.setv("d0", "home").setv("d1", sys.getMyGroup());
         }
 
         WnPager wp = new WnPager(params);

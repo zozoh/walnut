@@ -1,5 +1,6 @@
 package org.nutz.walnut.core.bean;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.nutz.castor.Castors;
@@ -701,6 +702,13 @@ public class WnIoObj extends NutMap implements WnObj {
             this.setParent(oP);
         }
         return _parent;
+    }
+
+    @Override
+    public List<WnObj> parents() {
+        List<WnObj> list = new LinkedList<>();
+        this.loadParents(list, false);
+        return list;
     }
 
     @SuppressWarnings("rawtypes")

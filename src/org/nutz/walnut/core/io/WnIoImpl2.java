@@ -886,7 +886,7 @@ public class WnIoImpl2 implements WnIo {
         }
         o = Wn.WC().whenAccess(o, true);
         if (o == null)
-        	return o;
+            return o;
 
         // 如果 p 是映射的，且 o 不是两段式 ID
         // 那么就说明，在保存的时候，已经删除了父映射的ID，以便精简数据
@@ -1216,10 +1216,18 @@ public class WnIoImpl2 implements WnIo {
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
-        // zozoh: 为啥要 clear? 在 thing updatte 的情境下， 这个会导致 th_set/live 等运行时
+        // zozoh: 为啥要 clear? 在 thing update 的情境下， 这个会导致 th_set/live 等运行时
         // 字段丢失的。 在 dao 映射的场景下，运行时设置的 th_set/live 等属性很重要
         // o.clear();
         o.updateBy(o2);
+
+        // 从对象中移除指定的字段
+        for (String key : map.keySet()) {
+            if (key.startsWith("!")) {
+                String k2 = key.substring(1).trim();
+                o.remove(k2);
+            }
+        }
     }
 
     @Override

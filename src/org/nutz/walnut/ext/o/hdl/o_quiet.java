@@ -9,7 +9,7 @@ public class o_quiet extends OFilter {
 
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
-        fc.alreadyOutputed = true;
+        fc.quiet = true;
     }
 
 }

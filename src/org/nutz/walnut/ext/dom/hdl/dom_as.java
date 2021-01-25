@@ -42,6 +42,9 @@ public class dom_as extends DomFilter {
             }
         }
 
+        // 标识主程序静默
+        fc.quiet = true;
+
         // 输出
         sys.out.println(output);
     }

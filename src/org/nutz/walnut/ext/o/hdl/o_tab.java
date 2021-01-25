@@ -50,7 +50,7 @@ public class o_tab extends OFilter {
                                       indexBase);
         }
 
-        fc.alreadyOutputed = true;
+        fc.quiet = true;
     }
 
 }

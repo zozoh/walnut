@@ -14,11 +14,20 @@ o [options] [[@filter filter-args...]...]
 [PATH1 PATH2 ...]  # 多个对象
 [-cqn]             # JSON 的格式化方式
 [-l]               # 输出时强制列表，否则只有一个列表项时输出对象
+# 对象的哪个键用来存储 children，默认为 children
+# 对于 @json/ajax/tree 这样的子命令，会用到这个设置
+[-subkey children]
+# 如何处理不存在的路径
+#  null   : 标记 null
+#  ignore : 忽略
+# 默认的，会抛错
+[-noexists null|ignore]
 ```
 
 # 过滤器列表
 
 ```bash
+@tree       # 将上下文对象归纳成一棵树
 @ancestors  # 查询上下文中的对象的所有祖先对象
 @create     # 创建一个或者多个对象
 @query      # 查询出一组对象

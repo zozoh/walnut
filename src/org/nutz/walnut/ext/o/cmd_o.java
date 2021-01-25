@@ -1,9 +1,10 @@
 package org.nutz.walnut.ext.o;
 
 import org.nutz.json.Json;
-import org.nutz.walnut.api.io.WnObj;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -15,7 +16,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl");
+        return ZParams.parse(args, "cqnl", "^(noexists)$");
     }
 
     @Override
@@ -26,15 +27,24 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
     @Override
     protected void prepare(WnSystem sys, OContext fc) {
         fc.keepAsList = fc.params.is("l");
-        for (String ph : fc.params.vals) {
-            WnObj o = Wn.checkObj(sys, ph);
-            fc.add(o);
+        fc.subKey = fc.params.getString("subkey", "children");
+
+        int mode = 0;
+        String noexists = fc.params.get("noexists");
+        if (!Strings.isBlank(noexists)) {
+            if ("null".equals(noexists)) {
+                mode |= Wn.Cmd.NOEXISTS_NULL;
+            } else {
+                mode |= Wn.Cmd.NOEXISTS_IGNORE;
+            }
         }
+
+        Cmds.evalCandidateObjs(sys, fc.params.vals, fc.list, mode);
     }
 
     @Override
     protected void output(WnSystem sys, OContext fc) {
-        if (!fc.alreadyOutputed) {
+        if (!fc.quiet) {
             Object reo = fc.toOutput();
 
             // 输出

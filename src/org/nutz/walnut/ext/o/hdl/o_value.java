@@ -48,7 +48,7 @@ public class o_value extends OFilter {
             sys.out.print(out);
         }
 
-        fc.alreadyOutputed = true;
+        fc.quiet = true;
     }
 
 }

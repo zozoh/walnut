@@ -20,8 +20,8 @@ public class o_json extends OFilter {
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         JsonFormat jfmt = Cmds.gen_json_format(params);
-        
-        fc.keepAsList = fc.params.is("l", fc.keepAsList);
+
+        fc.keepAsList = params.is("l", fc.keepAsList);
 
         String keys = params.val(0);
         WnMatch ma = Wobj.explainObjKeyMatcher(keys);
@@ -30,7 +30,7 @@ public class o_json extends OFilter {
 
         String json = Json.toJson(reo, jfmt);
         sys.out.println(json);
-        fc.alreadyOutputed = true;
+        fc.quiet = true;
     }
 
 }

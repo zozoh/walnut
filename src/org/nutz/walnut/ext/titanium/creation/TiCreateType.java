@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.titanium.creation;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnRace;
 
 public class TiCreateType {
@@ -20,6 +21,8 @@ public class TiCreateType {
     private String brief;
 
     private String help;
+
+    private NutMap meta;
 
     public boolean isFILE() {
         return WnRace.FILE == race;
@@ -99,6 +102,14 @@ public class TiCreateType {
 
     public void setHelp(String help) {
         this.help = help;
+    }
+
+    public NutMap getMeta() {
+        return meta;
+    }
+
+    public void setMeta(NutMap meta) {
+        this.meta = meta;
     }
 
 }
