@@ -11,6 +11,8 @@ public class TiExportItem {
 
     private WnObj obj;
 
+    private int importCount;
+
     public TiExportItem(String name, WnObj obj) {
         this.name = name;
         this.obj = obj;
@@ -55,6 +57,14 @@ public class TiExportItem {
 
     public void setObj(WnObj obj) {
         this.obj = obj;
+    }
+
+    public int getImportCount() {
+        return importCount;
+    }
+
+    public void setImportCount(int importCount) {
+        this.importCount = importCount;
     }
 
 }

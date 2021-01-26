@@ -22,13 +22,18 @@ public class TiJoinMJS extends TiJoinAction {
                      TiBuildEntry entry,
                      List<String> outputs,
                      Map<String, TiExportItem> exportMap,
-                     Set<String> depss) {
-        super(io, entry, outputs, exportMap, depss);
+                     Set<String> depss,
+                     Map<String, Integer> importCount) {
+        super(io, entry, outputs, exportMap, depss, importCount);
     }
 
-    private static final Pattern EX_D = Pattern.compile("^\\s*export\\s*default\\s*\\{\\s*$");
-    private static final Pattern EX_M = Pattern.compile("^\\s*export\\s*default\\s*([0-9a-zA-Z_]+)\\s*;?$");
-    private static final Pattern EX_BY_NAME = Pattern.compile("^\\s*export\\s+(class|function|const|var|let)\\s+([0-9a-zA-Z_]+)\\s*(.*)$");
+    // private static final Pattern EX_D =
+    // Pattern.compile("^\\s*export\\s*default\\s*\\{\\s*$");
+    // private static final Pattern EX_M =
+    // Pattern.compile("^\\s*export\\s*default\\s*([0-9a-zA-Z_]+)\\s*;?$");
+    // private static final Pattern EX_BY_NAME =
+    // Pattern.compile("^\\s*export\\s+(class|function|const|var|let)\\s+([0-9a-zA-Z_]+)\\s*(.*)$");
+    private static final Pattern EX_BY_ANY = Pattern.compile("^\\s*export\\s+(default)?\\s*(.+?)\\s*$");
 
     private static final Pattern IM_STATIC = Pattern.compile("^\\s*import\\s+(.+?);*$");
 
@@ -40,23 +45,30 @@ public class TiJoinMJS extends TiJoinAction {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             // 找到 "export default {"
-            Matcher m = EX_D.matcher(line);
+            Matcher m = EX_BY_ANY.matcher(line);
             if (m.find()) {
-                as_export_default(i, url, lines);
+                as_export(i, url, lines, m);
+                // 找到了，就直接输出，不用继续找了
                 break;
             }
-            // 找到 "export default _M;"
-            m = EX_M.matcher(line);
-            if (m.find()) {
-                as_export_module(i, url, lines, m);
-                break;
-            }
-            // 找到 "export const BlotBr = {"
-            m = EX_BY_NAME.matcher(line);
-            if (m.find()) {
-                as_export_by_name(i, url, lines, m);
-                break;
-            }
+            // // 找到 "export default _M;"
+            // m = EX_M.matcher(line);
+            // if (m.find()) {
+            // as_export_module(i, url, lines, m);
+            // break;
+            // }
+            // // 找到 "export const BlotBr = {"
+            // m = EX_BY_NAME.matcher(line);
+            // if (m.find()) {
+            // as_export_by_name(i, url, lines, m);
+            // break;
+            // }
+            // // 找到 "export {xxx}"
+            // m = EX_BY_ANY.matcher(line);
+            // if (m.find()) {
+            // as_export_by_any(i, url, lines, m);
+            // break;
+            // }
             // 找到 import
             m = IM_STATIC.matcher(line);
             if (m.find()) {
@@ -64,6 +76,38 @@ public class TiJoinMJS extends TiJoinAction {
                 continue;
             }
         }
+    }
+
+    private void as_export(int rowIndex, String rph, String[] lines, Matcher m) {
+        boolean isDefault = !Ws.isBlank(m.group(1));
+        String exportName = m.group(2);
+        String varName = null;
+        String code;
+
+        // 如果是变量名导出的话，那么最后追加一个 return
+        if (exportName.matches("^([\\w_][\\d\\w_]*)$")) {
+            lines[rowIndex] = "";
+            code = Ws.join(lines, "\n");
+            code += "return " + exportName + ";\n";
+            // 不是默认导出的话，就是一个 var 咯
+            if (!isDefault) {
+                varName = exportName;
+            }
+        }
+        // 最后一行的话，直接就 return了
+        else if (rowIndex == (lines.length - 1)) {
+            lines[rowIndex] = "return " + exportName;
+            code = Ws.join(lines, "\n");
+        }
+        // 否则，搞一个内部变量
+        else {
+            lines[rowIndex] = "const __TI_MOD_EXPORT_VAR_NM = " + exportName;
+            code = Ws.join(lines, "\n");
+            code += "\nreturn __TI_MOD_EXPORT_VAR_NM;";
+        }
+
+        // 加入输出
+        __join_export_and_output(rph, varName, code);
     }
 
     private void as_import_static(int rowIndex, String rph, String[] lines, Matcher m, WnObj f) {
@@ -107,62 +151,25 @@ public class TiJoinMJS extends TiJoinAction {
         // 生成代码
         String code = String.format("const %s = window.TI_PACK_EXPORTS['%s'];", varName, thePath);
         lines[rowIndex] = code;
+        Integer c = importCount.get(thePath);
+        if (null == c) {
+            importCount.put(thePath, 1);
+        } else {
+            importCount.put(thePath, c + 1);
+        }
     }
 
-    private void as_export_by_name(int rowIndex, String rph, String[] lines, Matcher m) {
-        String line = lines[rowIndex];
-        String varName = m.group(2);
-
-        // 修改当前行
-        lines[rowIndex] = line.substring("export".length());
-
-        // 生成代码
-        String code = Ws.join(lines, "\n");
-
+    private void __join_export_and_output(String rph, String varName, String code) {
+        // 这个是准备导出的
         TiExportItem eit = exportMap.get(rph);
         if (null == eit) {
-            exportMap.put(rph, new TiExportItem(varName, code));
+            exportMap.put(rph, new TiExportItem(null, code));
         } else {
             eit.setName(varName);
             eit.setCode(code);
         }
-    }
 
-    private void as_export_default(int rowIndex, String rph, String[] lines) {
-        // 前包裹
-        outputs.add("(function(){");
-        // Copy 之前
-        for (int i = 0; i < rowIndex; i++) {
-            outputs.add(lines[i]);
-        }
-        // 替换一下
-        outputs.add("const _M = {");
-        // Copy 之后
-        for (int i = rowIndex + 1; i < lines.length; i++) {
-            outputs.add(lines[i]);
-        }
-        // 写入输出
-        outputs.add("Ti.Preload(\"" + rph + "\", _M);");
-        // 结束包裹
-        outputs.add("})();");
+        // 加入 Output，准备应对 Proload
+        outputs.add("Ti.Preload(\"" + rph + "\", TI_PACK_EXPORTS['" + rph + "']);");
     }
-
-    private void as_export_module(int rowIndex, String rph, String[] lines, Matcher m) {
-        // 前包裹
-        outputs.add("(function(){");
-        // Copy 之前
-        for (int i = 0; i < rowIndex; i++) {
-            outputs.add(lines[i]);
-        }
-        // 替换一下
-        String varName = m.group(1);
-        outputs.add("Ti.Preload(\"" + rph + "\", " + varName + ");");
-        // Copy 之后
-        for (int i = rowIndex + 1; i < lines.length; i++) {
-            outputs.add(lines[i]);
-        }
-        // 结束包裹
-        outputs.add("})();");
-    }
-
 }

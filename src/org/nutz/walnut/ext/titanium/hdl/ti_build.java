@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.titanium.hdl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -27,9 +30,9 @@ import org.nutz.walnut.util.Ws;
 
 public class ti_build implements JvmHdl {
 
-    private static final String HR = Ws.repeat('-', 40);
-    private static final String HR2 = Ws.repeat('=', 40);
-    private static final String sepLine = Ws.repeat("//", 30);
+    private static final String HR = Ws.repeat('-', 60);
+    private static final String HR2 = Ws.repeat('=', 60);
+    private static final String sepLine = Ws.repeat("//", 50);
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -61,11 +64,13 @@ public class ti_build implements JvmHdl {
         Map<String, List<String>> targetOutputs = new HashMap<>();
         Map<String, Map<String, TiExportItem>> targetExports = new HashMap<>();
         Map<String, Set<String>> depsOutput = new HashMap<>();
+        Map<String, Map<String, Integer>> importCounts = new HashMap<>();
 
         for (String targetName : conf.getTargets().keySet()) {
             targetOutputs.put(targetName, new LinkedList<>());
             targetExports.put(targetName, new HashMap<>());
             depsOutput.put(targetName, new HashSet<>());
+            importCounts.put(targetName, new HashMap<>());
         }
 
         //
@@ -78,7 +83,16 @@ public class ti_build implements JvmHdl {
             List<String> outputs = targetOutputs.get(taName);
             Set<String> depss = depsOutput.get(taName);
             Map<String, TiExportItem> exports = targetExports.get(taName);
-            TiBuilding ing = new TiBuilding(sys.out, sys.io, oHome, et, outputs, exports, depss);
+            Map<String, Integer> importCount = importCounts.get(taName);
+
+            TiBuilding ing = new TiBuilding(sys.out,
+                                            sys.io,
+                                            oHome,
+                                            et,
+                                            outputs,
+                                            exports,
+                                            depss,
+                                            importCount);
             ing.run();
 
             // 检查所有的导出列表，如果有 null的，表示需要导入 mjs
@@ -121,26 +135,41 @@ public class ti_build implements JvmHdl {
 
             // 准备一个导出的文件集合
             Map<String, TiExportItem> exports = targetExports.get(targetName);
+            Map<String, Integer> importCount = importCounts.get(targetName);
             if (!exports.isEmpty()) {
+                heads.add("// " + HR2);
+                heads.add("// OUTPUT TARGET IMPORTS");
+                heads.add("// " + HR2);
                 heads.add("(function(){");
                 heads.add("window.TI_PACK_EXPORTS = {};");
+
+                // 所有优先导入的项
+                heads.add("// " + HR2);
+                heads.add("// LV1 : imports");
+                heads.add("// " + HR2);
+                List<String> lv1Keys = new ArrayList<>(exports.size());
                 for (Map.Entry<String, TiExportItem> en : exports.entrySet()) {
                     String key = en.getKey();
-                    String fnm = Files.getName(key);
-                    TiExportItem val = en.getValue();
-                    heads.add("// " + HR2);
-                    heads.add(String.format("// EXPORT '%s' -> %s", fnm, val.getName()));
-                    heads.add("// " + HR2);
-                    String str = String.format("window.TI_PACK_EXPORTS['%s'] = {\n"
-                                               + "%s : (function(){\n"
-                                               + "%s;\n"
-                                               + "return %2$s;"
-                                               + "})()}",
-                                               key,
-                                               val.getName(),
-                                               val.getCode());
-                    heads.add(str);
+                    Integer c = importCount.get(key);
+                    if (null != c && c > 0) {
+                        lv1Keys.add(key);
+                        joinHeadImport(heads, en);
+                    }
                 }
+
+                // 移除优先导入项
+                for (String key : lv1Keys) {
+                    exports.remove(key);
+                }
+
+                heads.add("// " + HR2);
+                heads.add("// LV2 : imports - (" + lv1Keys.size() + ")");
+                heads.add("// " + HR2);
+                // 剩下的 import
+                for (Map.Entry<String, TiExportItem> en : exports.entrySet()) {
+                    joinHeadImport(heads, en);
+                }
+
                 heads.add("})();   // ~ windows.TI_EXPORTS");
             }
 
@@ -161,9 +190,8 @@ public class ti_build implements JvmHdl {
             // 如果需要加载额外的库
             Set<String> depss = depsOutput.get(targetName);
             if (!depss.isEmpty()) {
-                for(String deps : depss) {
-                    outputs.add(0, String.format("await Ti.Load('%s');", deps));
-                }
+                String loads = Json.toJson(depss, JsonFormat.nice());
+                outputs.add(0, String.format("await Ti.Load(%s);", loads));
                 outputs.add(0, "////////////async loading////////////////");
                 outputs.add(0, "(async function(){");
                 outputs.add("////////////async loading////////////////");
@@ -180,6 +208,36 @@ public class ti_build implements JvmHdl {
             sys.io.writeText(oTa, content);
             sys.out.printf("  + %s\n", targetPath);
         }
+    }
+
+    private void joinHeadImport(List<String> heads, Map.Entry<String, TiExportItem> en) {
+        String key = en.getKey();
+        String fnm = Files.getName(key);
+        TiExportItem val = en.getValue();
+        heads.add("// " + HR2);
+        String valName = val.getName();
+        heads.add(String.format("// EXPORT '%s' -> %s", fnm, valName));
+        heads.add("// " + HR2);
+        String str;
+        // 集合导出
+        if (null == valName || Ws.isQuoteBy(valName, '{', '}')) {
+            str = String.format("window.TI_PACK_EXPORTS['%s'] = (function(){\n" + "%s;\n" + "})()",
+                                key,
+                                val.getCode());
+        }
+        // 单变量导出
+        else {
+            str = String.format("window.TI_PACK_EXPORTS['%s'] = {\n"
+                                + "%s : (function(){\n"
+                                + "%s;\n"
+                                + "return %2$s;"
+                                + "})()}",
+                                key,
+                                valName,
+                                val.getCode());
+        }
+        // 记入 ...
+        heads.add(str);
     }
 
 }

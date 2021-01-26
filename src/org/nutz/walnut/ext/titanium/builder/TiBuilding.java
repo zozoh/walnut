@@ -52,7 +52,8 @@ public class TiBuilding implements Atom {
                       TiBuildEntry entry,
                       List<String> outputs,
                       Map<String, TiExportItem> exportMap,
-                      Set<String> depss) {
+                      Set<String> depss,
+                      Map<String, Integer> importCount) {
         this.entry = entry;
         this.out = out;
         this.io = io;
@@ -62,9 +63,9 @@ public class TiBuilding implements Atom {
         this.depss = depss;
 
         this.actions = new HashMap<String, TiJoinAction>();
-        actions.put(".mjs", new TiJoinMJS(io, entry, outputs, exportMap, depss));
-        actions.put(".html", new TiJoinHTML(io, entry, outputs, exportMap, depss));
-        actions.put(".json", new TiJoinTiJSON(io, entry, outputs, exportMap, depss));
+        actions.put(".mjs", new TiJoinMJS(io, entry, outputs, exportMap, depss, importCount));
+        actions.put(".html", new TiJoinHTML(io, entry, outputs, exportMap, depss, importCount));
+        actions.put(".json", new TiJoinTiJSON(io, entry, outputs, exportMap, depss, importCount));
     }
 
     public TiBuilding clone() {

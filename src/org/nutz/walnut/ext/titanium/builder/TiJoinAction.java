@@ -21,16 +21,20 @@ public abstract class TiJoinAction {
 
     protected Set<String> depss;
 
+    protected Map<String, Integer> importCount;
+
     public TiJoinAction(WnIo io,
                         TiBuildEntry entry,
                         List<String> outputs,
                         Map<String, TiExportItem> exportMap,
-                        Set<String> depss) {
+                        Set<String> depss,
+                        Map<String, Integer> importCount) {
         this.io = io;
         this.entry = entry;
         this.outputs = outputs;
         this.exportMap = exportMap;
         this.depss = depss;
+        this.importCount = importCount;
     }
 
     public abstract void exec(String url, String[] lines, WnObj f) throws Exception;

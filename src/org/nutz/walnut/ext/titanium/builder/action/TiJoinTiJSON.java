@@ -19,8 +19,9 @@ public class TiJoinTiJSON extends TiJoinAction {
                         TiBuildEntry entry,
                         List<String> outputs,
                         Map<String, TiExportItem> exportMap,
-                        Set<String> depss) {
-        super(io, entry, outputs, exportMap, depss);
+                        Set<String> depss,
+                        Map<String, Integer> importCount) {
+        super(io, entry, outputs, exportMap, depss, importCount);
     }
 
     @Override
