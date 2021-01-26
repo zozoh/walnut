@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.validate.WnMatch;
 import org.nutz.walnut.validate.impl.AlwaysMatch;
@@ -148,42 +151,63 @@ public class Wobj {
         return map;
     }
 
+    private static final Pattern P_QUICK_KEYS = Regex.getPattern("^[%#]([A-Z]+)?$");
+
     public static String explainQuickObjKeyMatchStr(String str) {
         if (null == str)
             return null;
 
         String s = str.toUpperCase();
-        // 快速字段: 扩展字段
-        if (s.matches("^[%#!]EXT$")) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|nm|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段
-        else if (s.matches("^[%#!]EXT-NM$")) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|pid|c|m|g|md|tp|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm/tp 字段
-        else if (s.matches("^[%#!]EXT-TP$")) {
-            str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
-                  + "|pid|c|m|g|md|mime"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
-        else if (s.matches("^[%#!]EXT-TC$")) {
-            str = "!^(ph|race|data|d[0-9]"
-                  + "|pid|c|m|g|md"
-                  + "|ln|mnt|expi|passwd|salt"
-                  + "|th_(set|live|set_nm))$";
-        }
-        // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
-        else if (s.matches("^[%#!]EXT-THC$")) {
-            str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
+        Matcher m = P_QUICK_KEYS.matcher(s);
+        if (m.find()) {
+            String md = m.group(1);
+
+            // 快速字段: 扩展字段加上 nm 字段
+            if ("NM".equals(md)) {
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                      + "|pid|c|m|g|md|tp|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm/tp 字段
+            else if ("TP".equals(md)) {
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                      + "|pid|c|m|g|md|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm/tp/pid 字段
+            else if ("PID".equals(md)) {
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                      + "|c|m|g|md|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm/tp/pid 字段
+            else if ("Q".equals(md)) {
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                      + "|c|m|g|md|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
+            else if ("TC".equals(md)) {
+                str = "!^(ph|race|data|d[0-9]"
+                      + "|pid|c|m|g|md"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
+            else if ("THC".equals(md)) {
+                str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
+            }
+            // 默认快速字段: 扩展字段
+            else {
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                      + "|nm|pid|c|m|g|md|tp|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
         }
         // 原样返回
         return str;

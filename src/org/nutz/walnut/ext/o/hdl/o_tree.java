@@ -1,7 +1,8 @@
 package org.nutz.walnut.ext.o.hdl;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.lang.Lang;
 import org.nutz.walnut.api.io.WnIo;
@@ -69,30 +70,31 @@ public class o_tree extends OFilter {
             oTop = matrix[0][pN];
         }
         // ...........................................
+        // 建立一个映射表，这样遍历的时候，可以很方便的将自己加入对应的父
+        Map<String, WnObj> omap = new HashMap<>();
+        omap.put(oTop.id(), oTop);
+        // ...........................................
         // 所有的节点都汇集到父
         String subkey = fc.subKey;
-        List<WnObj> children = new ArrayList<>(len);
         for (i = 0; i < len; i++) {
             // 从 pN 开始，收缩起来
             WnObj[] axis = matrix[i];
-            WnObj child = null;
-            WnObj sub = null;
             for (n = pN + 1; n < axis.length; n++) {
                 WnObj o = matrix[i][n];
-                if (null != sub) {
-                    sub.put(subkey, Lang.list(o));
+                // 自己已经存在
+                if (omap.containsKey(o.id())) {
+                    continue;
                 }
-                sub = o;
-                if (null == child) {
-                    child = sub;
+                // 找到自己的父，并加入
+                WnObj oP = omap.get(o.parentId());
+                if (null == oP) {
+                    throw Lang.impossible();
                 }
-            }
-            // 记入结果
-            if (null != child) {
-                children.add(child);
+                oP.addv2(subkey, o);
+                // 记录一下自己
+                omap.put(o.id(), o);
             }
         }
-        oTop.put(subkey, children);
         // ...........................................
         // 读取子节点
         int depth = params.getInt("depth", 0);
