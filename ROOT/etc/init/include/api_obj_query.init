@@ -15,7 +15,7 @@ o '${http-qs-p}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
   -pager 
-  @json ${http-qs-k?!EXT-TP} -cqn
+  @json ${http-qs-k?#TP} -cqn
 %END%
 #---------------------------------------------------------
 # 目录对象：列表
@@ -29,5 +29,5 @@ o '${http-qs-p}' \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
-  @json ${http-qs-k?!EXT-TP} -cqn
+  @json ${http-qs-k?#TP} -cqn
 %END%

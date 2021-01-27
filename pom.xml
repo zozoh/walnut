@@ -181,10 +181,10 @@
 			<version>1.1.0</version>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-client</artifactId>
-            <version>4.7.1</version>
-        </dependency>
+			<groupId>org.apache.rocketmq</groupId>
+			<artifactId>rocketmq-client</artifactId>
+			<version>4.7.1</version>
+		</dependency>
 		<dependency>
 			<groupId>cn.apiclub.tool</groupId>
 			<artifactId>simplecaptcha</artifactId>
@@ -357,9 +357,9 @@
 			<version>2.12.0</version>
 		</dependency>
 		<dependency>
-    		<groupId>com.aliyun.oss</groupId>
-    		<artifactId>aliyun-sdk-oss</artifactId>
-    		<version>3.8.0</version>
+			<groupId>com.aliyun.oss</groupId>
+			<artifactId>aliyun-sdk-oss</artifactId>
+			<version>3.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aliyun</groupId>
@@ -382,9 +382,9 @@
 			<version>3.2.0</version>
 		</dependency>
 		<dependency>
-    		<groupId>ru.yandex.clickhouse</groupId>
-    		<artifactId>clickhouse-jdbc</artifactId>
-    		<version>0.2.4</version>
+			<groupId>ru.yandex.clickhouse</groupId>
+			<artifactId>clickhouse-jdbc</artifactId>
+			<version>0.2.4</version>
 		</dependency>
 	</dependencies>
 

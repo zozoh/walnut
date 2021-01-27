@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.www;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,6 +42,8 @@ import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.ext.www.impl.VirtualPage;
+import org.nutz.walnut.ext.www.impl.VirtualPageFactory;
 import org.nutz.walnut.impl.box.Jvms;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -67,10 +68,13 @@ public class WWWModule extends AbstractWnModule {
     private Tmpl tmpl_404;
     private Tmpl tmpl_500;
 
+    private VirtualPageFactory virtualPages;
+
     public WWWModule() {
         tmpl_400 = Tmpl.parse(Files.read("html/400.wnml"));
         tmpl_404 = Tmpl.parse(Files.read("html/404.wnml"));
         tmpl_500 = Tmpl.parse(Files.read("html/500.wnml"));
+        virtualPages = new VirtualPageFactory();
     }
 
     @Inject("java:$conf.get('usr-name')")
@@ -415,121 +419,6 @@ public class WWWModule extends AbstractWnModule {
         }
     }
 
-    static class PageMatcher {
-
-        int step; // 匹配时从哪个下标开始，1 表示从开始， -1 表示从路径结尾, 0 精确匹配
-        String[] _phs;
-
-        PageMatcher(String s) {
-            String[] ss = Strings.splitIgnoreBlank(s, "/");
-            // 后缀模式 "*/xx/xx"
-            if (ss.length > 0 && "*".equals(ss[0])) {
-                step = -1;
-                _phs = Arrays.copyOfRange(ss, 1, ss.length);
-            }
-            // 前缀模式 "/xx/xx/*"
-            else if (s.endsWith("*")) {
-                step = 1;
-                _phs = Arrays.copyOfRange(ss, 0, ss.length - 1);
-            }
-            // 精确匹配模式
-            else {
-                _phs = Strings.splitIgnoreBlank(s, "/");
-            }
-        }
-
-        /**
-         * 匹配给定路径数组
-         * 
-         * @param path
-         *            路径（已经被拆分好的数组）
-         * @return null 表示不匹配, [] 表示完全匹配, ["xx","xx"] 表示还剩下的路径部分
-         */
-        String[] match(String[] paths) {
-            // 后缀模式 "*/xx/xx"
-            if (-1 == step) {
-                int len = paths.length - _phs.length;
-                if (len < 0) {
-                    return null;
-                }
-                int i = _phs.length - 1;
-                for (; i >= 0; i--) {
-                    if (!paths[i].equals(_phs[i]))
-                        return null;
-                }
-                return Arrays.copyOfRange(paths, 0, len);
-            }
-            // 前缀模式 "/xx/xx/*"
-            else if (1 == step) {
-                int len = paths.length - _phs.length;
-                if (len < 0) {
-                    return null;
-                }
-                int i = 0;
-                for (; i < _phs.length; i++) {
-                    if (!paths[i].equals(_phs[i]))
-                        return null;
-                }
-                return Arrays.copyOfRange(paths, _phs.length, paths.length);
-            }
-            // 精确匹配模式
-            if (paths.length != _phs.length) {
-                return null;
-            }
-            for (int i = 0; i < _phs.length; i++) {
-                if (!paths[i].equals(_phs[i]))
-                    return null;
-            }
-            return new String[0];
-        }
-
-    }
-
-    // 格式化虚拟页面
-    static class VirtualPage {
-        // 用来渲染的页面，譬如 index.wnml
-        // 也可以带路径，譬如 abc/index.wnml
-        String entryPath;
-
-        // 如果 entryPath 是 abc/index.wnml
-        // 这个 abc 就作为 contextName
-        String contextName;
-
-        // 匹配列表
-        PageMatcher[] matchers;
-
-        VirtualPage(String s) {
-            int pos = s.indexOf(':');
-            if (pos >= 0) {
-                entryPath = Strings.sBlank(s.substring(0, pos), null);
-                s = s.substring(pos + 1);
-                pos = entryPath.indexOf('/');
-                if (pos > 0) {
-                    contextName = entryPath.substring(0, pos);
-                }
-            }
-            String[] vps = Strings.splitIgnoreBlank(s, ",");
-            matchers = new PageMatcher[vps.length];
-            for (int i = 0; i < vps.length; i++) {
-                String vp = vps[i];
-                matchers[i] = new PageMatcher(vp);
-            }
-        }
-
-        // 匹配，如果 matchers 是空地，那么作废
-        String[] match(String[] paths) {
-            if (null != matchers && matchers.length > 0) {
-                for (PageMatcher m : matchers) {
-                    String[] re = m.match(paths);
-                    if (null != re)
-                        return re;
-                }
-            }
-            return null;
-        }
-
-    }
-
     private WnObj __find_opage_in_www(String a_path, WnObj oWWW, NutMap args) {
         WnObj o = null;
 
@@ -585,20 +474,20 @@ public class WWWModule extends AbstractWnModule {
 
     protected WnObj __do_with_virtual_page(String a_path, WnObj oWWW) {
         Object wwwPages = oWWW.get("www_pages");
+
+        // 找到相关的 pages
         List<VirtualPage> vpages = new ArrayList<>(5);
         Lang.each(wwwPages, false, new Each<String>() {
             public void invoke(int index, String str, int length) {
-                vpages.add(new VirtualPage(str));
+                VirtualPage page = virtualPages.get(str);
+                vpages.add(page);
             }
         });
 
-        String[] remains = null;
         WnObj obj = null;
         if (vpages.size() > 0) {
-            String[] paths = Strings.splitIgnoreBlank(a_path, "/");
             for (VirtualPage vpage : vpages) {
-                remains = vpage.match(paths);
-                if (null != remains) {
+                if (vpage.match(a_path)) {
                     // 存在 VirtualPage 的话，读取这个页
                     String entryPath = vpage.entryPath;
                     // 直接使用 oWWW
