@@ -15,6 +15,7 @@ o '${http-qs-p}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
   -pager 
+  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @json ${http-qs-k?#TP} -cqn
 %END%
 #---------------------------------------------------------
@@ -29,5 +30,6 @@ o '${http-qs-p}' \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
+  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @json ${http-qs-k?#TP} -cqn
 %END%

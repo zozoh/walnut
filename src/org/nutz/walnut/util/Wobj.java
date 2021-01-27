@@ -151,7 +151,7 @@ public class Wobj {
         return map;
     }
 
-    private static final Pattern P_QUICK_KEYS = Regex.getPattern("^[%#]([A-Z]+)?$");
+    private static final Pattern P_QUICK_KEYS = Regex.getPattern("^[%#]([A-Z0-9]+)?$");
 
     public static String explainQuickObjKeyMatchStr(String str) {
         if (null == str)
@@ -187,6 +187,13 @@ public class Wobj {
             else if ("Q".equals(md)) {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
                       + "|c|m|g|md|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm))$";
+            }
+            // 快速字段: 扩展字段加上 nm/tp/sha1/mime 等字段
+            else if ("SHA1".equals(md)) {
+                str = "!^(ph|race|ct|data|d[0-9]"
+                      + "|pid|c|m|g|md"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm))$";
             }

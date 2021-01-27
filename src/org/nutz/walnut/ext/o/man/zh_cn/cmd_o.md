@@ -32,6 +32,7 @@ o [options] [[@filter filter-args...]...]
 @create     # 创建一个或者多个对象
 @query      # 查询出一组对象
 @update     # 更新对象的字段
+@refer      # 读取上下文对象关联的对象详情
 @get        # 根据 ID 获取一个或几个对象
 @fetch      # 根据路径获取一个或几个对象
 @remove     # 删除对象
