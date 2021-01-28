@@ -27,21 +27,36 @@ o [options] [[@filter filter-args...]...]
 # 过滤器列表
 
 ```bash
-@tree       # 将上下文对象归纳成一棵树
+#
+# 查询
+#
 @ancestors  # 查询上下文中的对象的所有祖先对象
 @create     # 创建一个或者多个对象
 @query      # 查询出一组对象
-@update     # 更新对象的字段
-@refer      # 读取上下文对象关联的对象详情
 @get        # 根据 ID 获取一个或几个对象
 @fetch      # 根据路径获取一个或几个对象
-@remove     # 删除对象
-@filter     # 过滤上下文列表对象
-@children   # 读取其子对象
+#
+# 进一步读取
+#
+@tree       # 将上下文对象归纳成一棵树
 @group      # 聚集对象
+@refer      # 读取上下文对象关联的对象详情
+@read       # 读取上下文对象的内容
+#
+# 修改删除
+#
+@update     # 更新对象的字段
+@remove     # 删除对象
+#
+# 操作上下文
+#
+@filter     # 过滤上下文列表对象
 @push       # 压入对象数组字段
 @pop        # 弹出对象数组字段
 @clear      # 清除上下文
+#
+# 输出
+#
 @json       # 将上下文输出为 JSON
 @ajax       # 将上下输出为 AJAX
 @tmpl       # 将上下文输出为行模板
