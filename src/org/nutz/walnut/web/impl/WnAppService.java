@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -18,6 +21,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.web.WebException;
 
@@ -180,9 +184,21 @@ public class WnAppService extends WnRun {
         }
         // 否则设置成 Release 版本
         else {
+            // 有木有自定义的 preload呢？
+            List<String> preloads = new LinkedList<>();
+            preloads.add("@dist:es6/ti-more-all.js");
+            String cusPreload = se.getVars().getString("TI_PRELOAD");
+            if (!Ws.isBlank(cusPreload)) {
+                String[] pres = Ws.splitIgnoreBlank(cusPreload, "[;, ]");
+                for (String pl : pres) {
+                    preloads.add(pl);
+                }
+            }
+
+            // 记入上下文变量
             c.put("TiJs", "ti/dist/es6/ti-core.js");
             c.put("WnJs", "ti/dist/es6/ti-walnut.js");
-            c.put("preloads", Lang.array("@dist:es6/ti-more-all.js"));
+            c.put("preloads", preloads);
         }
 
         // 得到 Theme 的路径

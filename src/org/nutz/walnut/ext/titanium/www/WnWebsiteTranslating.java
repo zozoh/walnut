@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.titanium.www;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -241,6 +243,9 @@ public class WnWebsiteTranslating {
         siteStateMap.putAll(this.vars);
         siteStateMap.remove("deps");
 
+        // 因为 wnml会把 ${xxx] 直接转义，对于 site-state.json 里面所有的东东不要转义，所以添加一下逃逸字符
+        escapeSiteStateForMap(siteStateMap);
+
         // 解析
         this.siteState = Lang.map2Object(siteStateMap, WebsiteState.class);
 
@@ -250,6 +255,48 @@ public class WnWebsiteTranslating {
             String brief = Json.toJson(vars, jfmt);
             sys.out.printlnf(" + site-state.json : {%s}", brief);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object escapeSiteStateForAny(Object val) {
+        if (null == val) {
+            return val;
+        }
+        if (val instanceof Map) {
+            escapeSiteStateForMap((Map<String, Object>) val);
+            return val;
+        }
+        if (val instanceof Collection<?>) {
+            return escapeSiteStateForList((Collection<?>) val);
+        }
+        if (val instanceof String) {
+            return escapeSiteStateForString(val.toString());
+        }
+        return val;
+    }
+
+    private void escapeSiteStateForMap(Map<String, Object> map) {
+        for (Map.Entry<String, Object> en : map.entrySet()) {
+            Object val = en.getValue();
+            Object v2 = escapeSiteStateForAny(val);
+            en.setValue(v2);
+        }
+    }
+
+    private List<Object> escapeSiteStateForList(Collection<?> list) {
+        List<Object> list2 = new ArrayList<>(list.size());
+        for (Object li : list) {
+            Object v = escapeSiteStateForAny(li);
+            list2.add(v);
+        }
+        return list2;
+    }
+
+    private String escapeSiteStateForString(String str) {
+        if (null != str && str.indexOf("${") >= 0) {
+            return str.replace("${", "$${");
+        }
+        return str;
     }
 
     public void doAppJson(WnObj oAppJson) {

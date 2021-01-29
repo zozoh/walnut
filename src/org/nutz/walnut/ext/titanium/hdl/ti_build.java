@@ -32,7 +32,7 @@ public class ti_build implements JvmHdl {
 
     private static final String HR = Ws.repeat('-', 60);
     private static final String HR2 = Ws.repeat('=', 60);
-    private static final String sepLine = Ws.repeat("//", 50);
+    private static final String sepLine = Ws.repeat("/", 50);
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -199,7 +199,7 @@ public class ti_build implements JvmHdl {
             }
 
             // 再加一个打包日期
-            heads.add(0, "// Pack At: " + packTime);
+            outputs.add(0, "// Pack At: " + packTime);
 
             // 准备内容并写入
             String content = Strings.join(System.lineSeparator(), outputs);
