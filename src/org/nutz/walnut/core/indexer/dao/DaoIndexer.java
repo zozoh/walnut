@@ -51,6 +51,11 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     @Override
     protected WnObj _fetch_by_name(WnObj p, String name) {
+        // 如果映射中没有 nm 字段，则一律返回 null
+        if (!entity.hasNameField()) {
+            return null;
+        }
+
         WnQuery q = Wn.Q.pid(p);
         q.setv("nm", name);
         q.limit(1);

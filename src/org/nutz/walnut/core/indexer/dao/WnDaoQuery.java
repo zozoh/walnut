@@ -49,8 +49,10 @@ public class WnDaoQuery {
     }
 
     public Condition getCondition() {
+        NutMap sort = q.sort();
+
         // 空
-        if (null == q || q.isEmptyMatch()) {
+        if (null == q || (q.isEmptyMatch() && sort.isEmpty())) {
             return null;
         }
 
@@ -72,7 +74,6 @@ public class WnDaoQuery {
         }
 
         // 获取排序
-        NutMap sort = q.sort();
         if (null != sort && sort.size() > 0) {
             for (Map.Entry<String, Object> en : sort.entrySet()) {
                 String key = en.getKey();

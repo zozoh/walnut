@@ -9,4 +9,11 @@ public class WnObjEntity extends NutEntity<WnIoObj> {
         super(WnIoObj.class);
     }
 
+    public boolean hasField(String name) {
+        return null != this.getField(name);
+    }
+
+    public boolean hasNameField() {
+        return hasField("nm");
+    }
 }

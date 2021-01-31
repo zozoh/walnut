@@ -74,6 +74,10 @@ public class IoCoreSetup {
 
     private static DaoIndexer daoIndexer;
 
+    private static WnDaoMappingConfig daoNoNameConfig;
+
+    private static DaoIndexer daoNoNameIndexer;
+
     private static WnIoMappingFactoryImpl mappings;
 
     private static WnIoHandleManager handles;
@@ -303,6 +307,26 @@ public class IoCoreSetup {
         return daoConfig;
     }
 
+    public DaoIndexer getDaoNoNameIndexer() {
+        if (null == daoNoNameIndexer) {
+            WnDaoMappingConfig conf = getWnDaoNoNameConfig();
+            WnObj root = this.getRootNode();
+            MimeMap mimes = this.getMimes();
+            daoNoNameIndexer = new DaoIndexer(root, mimes, conf);
+        }
+        return daoNoNameIndexer;
+    }
+
+    public WnDaoMappingConfig getWnDaoNoNameConfig() {
+        if (null == daoNoNameConfig) {
+            String aph = "org/nutz/walnut/core/indexer/dao/dao_noname_indexer.json";
+            String json = Files.read(aph);
+            json = explainConfig(json);
+            daoNoNameConfig = Json.fromJson(WnDaoMappingConfig.class, json);
+        }
+        return daoNoNameConfig;
+    }
+
     public PropertiesProxy getProperties() {
         return pp;
     }
@@ -399,7 +423,15 @@ public class IoCoreSetup {
         WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
         WnObjEntity entity = ing.generate();
 
-        // 自动创建创建表
+        // 自动创建创建表（标准）
+        dao.create(entity, true);
+        
+        daoConf = this.getWnDaoNoNameConfig();
+        dao = WnDaos.get(daoConf.getAuth());
+        ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
+        entity = ing.generate();
+
+        // 自动创建创建表（无名）
         dao.create(entity, true);
     }
 
