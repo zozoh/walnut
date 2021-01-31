@@ -12,6 +12,8 @@ public class TiView {
 
     private String modType;
 
+    private NutMap events;
+
     private String[] components;
 
     private Object actions;
@@ -46,6 +48,14 @@ public class TiView {
 
     public void setModType(String modType) {
         this.modType = modType;
+    }
+
+    public NutMap getEvents() {
+        return events;
+    }
+
+    public void setEvents(NutMap events) {
+        this.events = events;
     }
 
     public String[] getComponents() {
