@@ -38,17 +38,18 @@ public class WnPager extends Pager {
         this();
         this.skip = params.getInt("skip", 0);
         this.limit = params.getInt("limit", DEAULT_LIMIT);
-        boolean breakLimit = params.is("blimit", false);
+        // boolean breakLimit = params.is("blimit", false);
 
         // 是否计算分页
         this.countPage = params.is("pager") && this.limit > 0;
 
         // 最大不能超过一千条
-        if (this.limit <= 0 || this.limit > 1000) {
-            // 没有突破限制，那就按照上面的设定吧
-            if (!breakLimit) {
-                this.limit = 1000;
-            }
+        if (this.limit < 0) {
+            this.limit = DEAULT_LIMIT;
+        }
+        // 查询的上限是 10W 条
+        if (this.limit > 100000) {
+            this.limit = 100000;
         }
         this.pgsz = limit > 0 ? limit : DEAULT_LIMIT;
         this.pn = skip > 0 ? skip / pgsz + 1 : 1;
