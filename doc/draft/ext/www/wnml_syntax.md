@@ -135,6 +135,17 @@ ${xyz(json:n)?-obj-}
 </choose>
 ```
 
+## HTML片段 `<raw-html>`
+
+```html
+<raw-html var="xxx">
+    <!--
+    这里是默认内容，如果上下文变量不存在，
+    就显示这个内容
+    -->
+</raw-html>
+```
+
 ## 重定向 `<redirect>`
 
 ```

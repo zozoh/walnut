@@ -18,4 +18,5 @@ ti scss_import    # 将目录下所有的 scss 文件引入主文件的桩子
 ti i18n_tidy      # 整理 i18n 的文件，固定排序等
 ti i18n_compare   # 比较不同语言版本的 i18n，看看有什么疏漏
 ti i18n_zh_ct     # 将简体中文自动转换为繁体中文
+ti webdeps        # 解析 web 的 deps 依赖文件，生成一个引用列表
 ```

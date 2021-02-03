@@ -1,10 +1,15 @@
 package org.nutz.walnut.ext.titanium.builder.bean;
 
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
+
 public class TiBuildTarget {
 
     private String path;
 
     private boolean wrap;
+
+    private String deps;
 
     public String getPath() {
         return path;
@@ -20,6 +25,20 @@ public class TiBuildTarget {
 
     public void setWrap(boolean wrap) {
         this.wrap = wrap;
+    }
+
+    public String getDepsPath() {
+        if (Ws.isBlank(deps))
+            return Wn.appendPath(path, ".deps.json");
+        return deps;
+    }
+
+    public String getDeps() {
+        return deps;
+    }
+
+    public void setDeps(String deps) {
+        this.deps = deps;
     }
 
 }

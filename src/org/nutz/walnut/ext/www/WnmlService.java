@@ -34,6 +34,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.JsExecContext;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.web.WebException;
 
 /**
@@ -264,6 +265,10 @@ public class WnmlService {
             // <choose>
             else if ("choose".equals(tagName)) {
                 __do_choose(wrt, ele, c);
+            }
+            // <raw-html>
+            else if ("raw-html".equals(tagName)) {
+                __do_raw_html(wrt, ele, c);
             }
             // <markdown>
             else if ("markdown".equals(tagName)) {
@@ -549,6 +554,22 @@ public class WnmlService {
 
         // 最后去掉 choose
         ele.unwrap();
+    }
+
+    private void __do_raw_html(WnmlRuntime wrt, Element ele, NutMap c) {
+        String varName = Ws.trim(ele.attr("var"));
+        String html = c.getString(varName);
+        // 采用默认内容
+        if (Ws.isBlank(html)) {
+            ele.unwrap();
+        }
+        // 采用动态内容
+        else {
+            ele.before(html);
+            // 移除自身
+            ele.remove();
+        }
+
     }
 
     private void __do_node_attr(Node nd, NutMap c) {

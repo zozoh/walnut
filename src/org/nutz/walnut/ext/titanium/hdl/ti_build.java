@@ -12,8 +12,10 @@ import java.util.Set;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.titanium.builder.TiBuilding;
@@ -187,15 +189,26 @@ public class ti_build implements JvmHdl {
             outputs.addAll(0, heads);
             outputs.addAll(tails);
 
-            // 如果需要加载额外的库
+            // 如果需要加载额外的库，输出为一个列表文档
             Set<String> depss = depsOutput.get(targetName);
             if (!depss.isEmpty()) {
-                String loads = Json.toJson(depss, JsonFormat.nice());
-                outputs.add(0, String.format("await Ti.Load(%s);", loads));
-                outputs.add(0, "////////////async loading////////////////");
-                outputs.add(0, "(async function(){");
-                outputs.add("////////////async loading////////////////");
-                outputs.add("})()");
+                String depsPath = tar.getDepsPath();
+                WnObj oDeps = sys.io.createIfNoExists(oHome, depsPath, WnRace.FILE);
+                List<NutMap> depsList = new ArrayList<>(depss.size());
+                for (String deps : depss) {
+                    String type = Files.getSuffixName(deps);
+                    NutMap bean = Lang.map("type", type);
+                    bean.put("path", deps);
+                    depsList.add(bean);
+                }
+                String json = Json.toJson(depsList, JsonFormat.nice());
+                sys.io.writeText(oDeps, json);
+                // String loads = Json.toJson(depss, JsonFormat.nice());
+                // outputs.add(0, String.format("await Ti.Load(%s);", loads));
+                // outputs.add(0, "////////////async loading////////////////");
+                // outputs.add(0, "(async function(){");
+                // outputs.add("////////////async loading////////////////");
+                // outputs.add("})()");
             }
 
             // 再加一个打包日期

@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
@@ -18,6 +17,7 @@ import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.titanium.hdl.ti_webdeps;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.Ws;
@@ -135,25 +135,30 @@ public class WnAppService extends WnRun {
         String appJson = app.toJson(jfmt);
 
         // 如果存在 `init_tmpl` 文件，则执行，将其结果作为模板
+        // WnObj oInitTmpl = io().fetch(oAppHome, "init_tmpl");
+        // if (null != oInitTmpl) {
+        // String cmdText = io().readText(oInitTmpl);
+        // tmpl = this.exec("app-init-tmpl:", se, appJson, cmdText);
+        // }
+        // // 否则查找静态模板文件
+        // else {
+        // tmpl = __find_tmpl(app.getName(), oAppHome);
+        // }
 
-        WnObj oInitTmpl = io().fetch(oAppHome, "init_tmpl");
-        if (null != oInitTmpl) {
-            String cmdText = io().readText(oInitTmpl);
-            tmpl = this.exec("app-init-tmpl:", se, appJson, cmdText);
-        }
-        // 否则查找静态模板文件
-        else {
-            tmpl = __find_tmpl(app.getName(), oAppHome);
-        }
+        tmpl = __find_tmpl(app.getName(), oAppHome);
 
         // 如果存在 `init_context` 文件，则执行，将其结果合并到渲染上下文中
-        NutMap map = null;
-        WnObj oInitContext = io().fetch(oAppHome, "init_context");
-        if (null != oInitContext) {
-            String cmdText = io().readText(oInitContext);
-            String contextJson = this.exec("app-init-context:", se, appJson, cmdText);
-            map = Json.fromJson(NutMap.class, contextJson);
-        }
+        // NutMap map = null;
+        // WnObj oInitContext = io().fetch(oAppHome, "init_context");
+        // if (null != oInitContext) {
+        // String cmdText = io().readText(oInitContext);
+        // String contextJson = this.exec("app-init-context:", se, appJson,
+        // cmdText);
+        // map = Json.fromJson(NutMap.class, contextJson);
+        // }
+        // 添加自定义的上下文
+        // if (null != map)
+        // c.putAll(map);
 
         // 标题
         String title = appName;
@@ -162,10 +167,6 @@ public class WnAppService extends WnRun {
 
         // 填充模板占位符
         c.put("title", title);
-
-        // 添加自定义的上下文
-        if (null != map)
-            c.putAll(map);
 
         // 这些优先级最高
         String rs = conf.get("app-rs", "/gu/rs/");
@@ -177,6 +178,7 @@ public class WnAppService extends WnRun {
 
         // 看看是否需要提供 debug 版
         WnObj oDomain = io().fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
+        NutMap vars = se.getVars();
         if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
             c.put("TiJs", "ti/core/ti.mjs");
             c.put("WnJs", "ti/lib/walnut/walnut.mjs");
@@ -186,7 +188,7 @@ public class WnAppService extends WnRun {
             // 有木有自定义的 preload呢？
             List<String> preloads = new LinkedList<>();
             preloads.add("@dist:es6/ti-more-all.js");
-            String cusPreload = se.getVars().getString("TI_PRELOAD");
+            String cusPreload = vars.getString("TI_PRELOAD");
             if (!Ws.isBlank(cusPreload)) {
                 String[] pres = Ws.splitIgnoreBlank(cusPreload, "[;, ]");
                 for (String pl : pres) {
@@ -194,14 +196,24 @@ public class WnAppService extends WnRun {
                 }
             }
 
+            // 有木有自定义的 DEPS ?
+            String depsPaths = vars.getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
+            String depsUrl = vars.getString("TI_DEPS_URL", "/gu/rs/ti/deps/");
+            String depsPrefix = vars.getString("TI_DEPS_PREFIX", "@deps:");
+            List<NutMap> depsList = ti_webdeps.getWebDepsList(io(), depsUrl, depsPrefix, depsPaths);
+
+            // 生成 HTML
+            String depsHtml = ti_webdeps.renderHtml(depsList);
+
             // 记入上下文变量
             c.put("TiJs", "ti/dist/es6/ti-core.js");
             c.put("WnJs", "ti/dist/es6/ti-walnut.js");
             c.put("preloads", preloads);
+            c.put("TiWebDeps", depsHtml);
         }
 
         // 得到 Theme 的路径
-        String theme = se.getVars().getString("THEME", "light");
+        String theme = vars.getString("THEME", "light");
         c.put("theme", theme);
 
         // 得到快捷的 theme css 路径
