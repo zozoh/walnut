@@ -28,7 +28,7 @@ dom [options] [[@filter filter-args...]...]
 ```bash
 @html        # 加载一个 HTML 文档
 @format      # 格式化 DOM 节点
-@heading     # 寻找到 HTML 第一个符合要求的标题
+@find        # 寻找符合类选择器的元素
 @outline     # 输出 HTML 的大纲级别
 @reset       # 重置当前操作节点
 @as          # 作为什么格式输出

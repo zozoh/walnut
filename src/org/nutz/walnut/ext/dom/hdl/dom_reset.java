@@ -9,7 +9,7 @@ public class dom_reset extends DomFilter {
 
     @Override
     protected void process(WnSystem sys, DomContext fc, ZParams params) {
-        fc.current = null;
+        fc.selected.clear();
     }
 
 }

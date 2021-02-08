@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.dom;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -12,7 +15,7 @@ public class DomContext extends JvmFilterContext {
 
     public CheapDocument doc;
 
-    public CheapElement current;
+    public List<CheapElement> selected;
 
     /**
      * 某些过滤器，譬如<code>@as</cod>，可以标识这个属性，阻止主程序的自动输出
@@ -44,7 +47,11 @@ public class DomContext extends JvmFilterContext {
 
         // 开始解析
         this.doc = ing.invoke(html);
-        this.current = null;
+        this.selected = new LinkedList<>();
+    }
+
+    public boolean hasSelected() {
+        return null != selected && !selected.isEmpty();
     }
 
 }

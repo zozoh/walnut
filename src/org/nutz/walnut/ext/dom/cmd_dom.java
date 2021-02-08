@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.dom;
 
+import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
@@ -31,12 +32,15 @@ public class cmd_dom extends JvmFilterExecutor<DomContext, DomFilter> {
             String output;
 
             // 准备输出的节点
-            if (null == fc.current) {
+            if (!fc.hasSelected()) {
                 output = fc.doc.toHtml();
             }
             // 输出当前节点
             else {
-                output = fc.current.toMarkup();
+                output = "";
+                for (CheapElement ele : fc.selected) {
+                    output += ele.toMarkup() + "\n";
+                }
             }
 
             // 输出

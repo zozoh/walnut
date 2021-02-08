@@ -878,7 +878,7 @@ public class cmd_obj extends JvmExecutor {
         }
 
         // 如果定义了类型,自动获取 mime
-        if (meta.has("tp") && !meta.has("mime"))
+        if (o.isFILE() && meta.has("tp") && !meta.has("mime"))
             meta.setOrRemove("mime", sys.io.mimes().getMime(meta.getString("tp")));
 
         // 准备更新的元数据

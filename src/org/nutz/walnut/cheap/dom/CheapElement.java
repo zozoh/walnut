@@ -32,6 +32,19 @@ public class CheapElement extends CheapNode {
         this.attrs = new NutMap();
     }
 
+    public NutBean toBean() {
+        NutMap bean = new NutMap();
+        bean.put("tagName", tagName);
+        if (this.hasClassName()) {
+            bean.put("className", this.className);
+        }
+        if (!this.attrs.isEmpty()) {
+            bean.put("attrs", attrs);
+        }
+        bean.put("content", this.getText());
+        return bean;
+    }
+
     @Override
     public void joinTree(StringBuilder sb, int depth, String tab) {
         sb.append(Ws.repeat(tab, depth));
@@ -317,6 +330,20 @@ public class CheapElement extends CheapNode {
 
     public boolean hasClassName() {
         return null != className && !className.isEmpty();
+    }
+
+    public boolean hasClass(String klass) {
+        if (null != this.className) {
+            for (String cn : this.className) {
+                if (cn.equals(klass))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public List<String> getClassList() {
+        return this.className;
     }
 
     public String getClassName() {

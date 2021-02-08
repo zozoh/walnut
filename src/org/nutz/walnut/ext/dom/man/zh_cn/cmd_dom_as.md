@@ -6,8 +6,10 @@
 
 ```bash
 dom @as 
-  [html|text]   # 输出格式
-  [-doc]        # 强制输出整个文档
+  [html|text|json]   # 输出格式
+  [-cqn]             # JSON 模式下的输出格式
+  [-doc]             # 强制输出整个文档
+  [-selected]        # 强制输出选择节点
 ```
 
 # 示例
