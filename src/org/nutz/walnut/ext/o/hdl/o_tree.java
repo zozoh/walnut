@@ -112,6 +112,9 @@ public class o_tree extends OFilter {
     private int __find_common_pIndex(WnObj[][] matrix, int len, int nMin, WnObj oTop) {
         for (int n = 0; n < nMin; n++) {
             WnObj o0 = matrix[0][n];
+            if (null != oTop && o0.isSameId(oTop)) {
+                return n;
+            }
             for (int i = 1; i < len; i++) {
                 WnObj o = matrix[i][n];
                 // 指定的公共树顶级节点
