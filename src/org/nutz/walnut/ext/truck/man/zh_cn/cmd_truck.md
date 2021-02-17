@@ -42,6 +42,7 @@ truck -t 'id,nm,color,age' -bish @from ~/.tmp/xyz -index mongo @to
 1 | rv6govmbsojhkonuvsuosiool7:reambksvhsivnqo9ikcte5s2b4 | mmm   | blue  | 34
 --+-------------------------------------------------------+-------+-------+----
 total 2/-1 items, skip 0 page 1/-1, 1000 per page
+
 #
 # 如果多次插入，为了可以加入 -noexist 参数，预先检查数据是否存在
 truck -t 'id,nm,color,age' -bish @from ~/.tmp/xyz -index mongo @to -noexists

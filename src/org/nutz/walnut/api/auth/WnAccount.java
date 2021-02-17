@@ -256,6 +256,9 @@ public class WnAccount {
                 bean.put("passwd", passwd);
                 bean.put("salt", salt);
             }
+            
+         // 是否设置了密码
+            bean.put("saltedPasswd", this.hasSaltedPasswd());
         }
 
         // OAUTH2 : 第三方登录信息

@@ -182,7 +182,9 @@ public class WnWebSite {
         accountDir = checkThingIndex(bean.getString("accounts"));
         accountHome = accountDir.parent();
         roleDir = getThingIndex(bean.getString("roles"));
-        roleHome = roleDir.parent();
+        if (null != roleDir) {
+            roleHome = roleDir.parent();
+        }
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
         orderHome = fetchThingSet(bean.getString("orders"));
