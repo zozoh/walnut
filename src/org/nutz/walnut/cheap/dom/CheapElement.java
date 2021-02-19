@@ -384,6 +384,14 @@ public class CheapElement extends CheapNode {
         return this.uniqClass();
     }
 
+    public String getId() {
+        return attr("id");
+    }
+
+    public boolean isId(String id) {
+        return isAttr("id", id);
+    }
+
     public CheapElement attrClear() {
         attrs.clear();
         return this;

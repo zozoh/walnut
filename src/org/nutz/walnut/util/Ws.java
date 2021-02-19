@@ -1,11 +1,16 @@
 package org.nutz.walnut.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 
 /**
  * 字符串帮助类
@@ -13,6 +18,247 @@ import org.nutz.lang.util.NutMap;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class Ws {
+
+    private static final char[] CN_NC0 = "零一二三四五六七八九".toCharArray();
+    private static final char[] CN_NU0 = "个十百千万亿".toCharArray();
+
+    private static final Map<String, Integer> CN_NUMS = new HashMap<>();
+    private static final Map<String, Integer> CN_UNIT = new HashMap<>();
+
+    private static final String CN_REGEX = "(([零一二三四五六七八九])|([个十百千万亿]))";
+    private static final Pattern CN_N_P = Regex.getPattern(CN_REGEX);
+
+    static {
+        CN_NUMS.put("零", 0);
+        CN_NUMS.put("一", 1);
+        CN_NUMS.put("二", 2);
+        CN_NUMS.put("三", 3);
+        CN_NUMS.put("四", 4);
+        CN_NUMS.put("五", 5);
+        CN_NUMS.put("六", 6);
+        CN_NUMS.put("七", 7);
+        CN_NUMS.put("八", 8);
+        CN_NUMS.put("九", 9);
+        CN_UNIT.put("个", 1);
+        CN_UNIT.put("十", 10);
+        CN_UNIT.put("百", 100);
+        CN_UNIT.put("千", 1000);
+        CN_UNIT.put("万", 10000);
+        CN_UNIT.put("亿", 100000000);
+    }
+
+    /**
+     * 将一个整数转成中文数字
+     * 
+     * @param input
+     *            整数
+     * @return 中文数字
+     */
+    public static String intToChineseNumber(int input) {
+        StringBuilder re = new StringBuilder();
+
+        // 考虑负数
+        if (input < 0) {
+            re.append('负');
+            input *= -1;
+        }
+
+        // 优化零
+        if (input == 0) {
+            re.append(CN_NC0[0]);
+            return re.toString();
+        }
+
+        // 直接就是个位数
+        if (input < 10) {
+            char c = CN_NC0[input];
+            re.append(c);
+            return re.toString();
+        }
+
+        // 准备拆分各个位，数组 0 表示个位
+        int[] ns = new int[10];
+        int len = 0;
+
+        // 挨个来
+        int n = input;
+        while (n > 0) {
+            int nd = n / 10;
+            ns[len++] = n - nd * 10;
+            n = nd;
+        }
+        int lastNSIndex = len - 1;
+
+        // 现在我们有一个数字数组
+        // [2][3][0][9] ...
+        // 个 十 百 千 ...
+        int lastN;
+        int maxI;
+        int lastI;
+        //
+        // 分作三段输出
+        //
+        // ................................
+        // 亿位段
+        if (len > 8) {
+            maxI = Math.min(lastNSIndex, 11);
+            lastN = -1;
+            for (int i = maxI; i >= 8; i--) {
+                n = ns[i];
+                // 不能输出零零
+                if (n == 0 && lastN <= 0) {
+                    continue;
+                }
+                char s_n = CN_NC0[n];
+                re.append(s_n);
+                // 单位
+                if (i > 8 && (n > 0 || lastN > 0)) {
+                    char s_u = CN_NU0[i - 8];
+                    re.append(s_u);
+                }
+                // 记录最后一次输出的数字
+                lastN = n;
+            }
+            // 检查，最后一个字符是 '零' 改成 '亿'
+            // 否则加个 '亿'
+            lastI = re.length() - 1;
+            if (re.charAt(lastI) == CN_NC0[0]) {
+                re.setCharAt(lastI, CN_NU0[5]);
+            } else {
+                re.append(CN_NU0[5]);
+            }
+        }
+        // ................................
+        // 万位段
+        if (len > 4) {
+            maxI = Math.min(lastNSIndex, 7);
+            lastN = -1;
+            for (int i = maxI; i >= 4; i--) {
+                n = ns[i];
+                // 不能输出零零
+                if (n == 0 && lastN <= 0) {
+                    continue;
+                }
+                char s_n = CN_NC0[n];
+                re.append(s_n);
+                // 单位
+                if (i > 4 && (n > 0 || lastN > 0)) {
+                    char s_u = CN_NU0[i - 4];
+                    re.append(s_u);
+                }
+                // 记录最后一次输出的数字
+                lastN = n;
+            }
+            // 检查，最后一个字符是 '零' 改成 '万'
+            // 否则加个 '万'
+            if (lastN >= 0) {
+                lastI = re.length() - 1;
+                if (re.charAt(lastI) == CN_NC0[0]) {
+                    re.setCharAt(lastI, CN_NU0[4]);
+                } else {
+                    re.append(CN_NU0[4]);
+                }
+            }
+        }
+
+        // ................................
+        // 个位段
+        maxI = Math.min(lastNSIndex, 3);
+        lastN = -1;
+        for (int i = maxI; i >= 0; i--) {
+            n = ns[i];
+            // 不能输出零零
+            if (n == 0 && lastN == 0) {
+                continue;
+            }
+            char s_n = CN_NC0[n];
+            re.append(s_n);
+            // 单位
+            if (i > 0 && n > 0) {
+                char s_u = CN_NU0[i];
+                re.append(s_u);
+            }
+            // 记录最后一次输出的数字
+            lastN = n;
+        }
+
+        // 输出前，检查，最后一个字符是 '零' 删掉它
+        lastI = re.length() - 1;
+        if (re.charAt(lastI) == CN_NC0[0]) {
+            re.deleteCharAt(lastI);
+        }
+
+        return re.toString();
+    }
+
+    /**
+     * 将中文数字转换为整数
+     * 
+     * @param str
+     *            中文数字
+     * @return 数字
+     */
+    public static int chineseNumberToInt(String str) {
+        // 解决负数问题
+        int ne = str.startsWith("负") ? -1 : 1;
+        if (ne == -1) {
+            str = str.substring(1).trim();
+        }
+
+        // 汇总结果
+        int[] res = new int[str.length()];
+        int len = 0;
+
+        int n = -1; // 数字: -1 表示没有
+        int u = -1; // 单位: -1 表示没有
+
+        // 逐个查找
+        Matcher m = CN_N_P.matcher(str);
+        while (m.find()) {
+            // 找到了数字位
+            String s_n = m.group(2);
+            if (null != s_n) {
+                n = CN_NUMS.get(s_n);
+                continue;
+            }
+            // 找到了单位
+            String s_u = m.group(3);
+            if (null != s_u) {
+                u = CN_UNIT.get(s_u);
+                // 没有数字 ...
+                if (n < 0) {
+                    // 中文数字特殊规则，如果以 万/亿结尾，则前面都乘一下
+                    if (len > 0) {
+                        for (int i = 0; i < len; i++) {
+                            res[i] *= u;
+                        }
+                    }
+                    // 就是一个干巴单位，认为是 1
+                    else {
+                        res[len++] = u;
+                    }
+                    u = -1;
+                }
+                // 否则搞一下
+                else {
+                    res[len++] = u * n;
+                    u = -1;
+                    n = -1;
+                }
+            }
+        }
+
+        // 最后加上个位
+        if (n > 0)
+            res[len++] = n;
+
+        // 求和
+        int re = 0;
+        for (int i = 0; i < len; i++)
+            re += res[i];
+
+        return re * ne;
+    }
 
     /**
      * 测试此字符串是否被指定的左字符和右字符所包裹；如果该字符串左右两边有空白的时候，会首先忽略这些空白

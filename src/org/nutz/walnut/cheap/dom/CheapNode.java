@@ -550,7 +550,7 @@ public abstract class CheapNode {
             return;
         }
         callback.invoke(this);
-        // 深度优先的便利
+        // 深度优先的遍历
         if (null != this.children) {
             for (CheapNode node : this.children) {
                 node.eachNode(callback);
