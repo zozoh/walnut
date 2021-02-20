@@ -12,6 +12,9 @@ public class WsTest {
         assertEquals("一", Ws.intToChineseNumber(1));
         assertEquals("二", Ws.intToChineseNumber(2));
         assertEquals("九", Ws.intToChineseNumber(9));
+        assertEquals("十", Ws.intToChineseNumber(10));
+        assertEquals("十一", Ws.intToChineseNumber(11));
+        assertEquals("十九", Ws.intToChineseNumber(19));
         assertEquals("三十", Ws.intToChineseNumber(30));
         assertEquals("五十九", Ws.intToChineseNumber(59));
         assertEquals("一百", Ws.intToChineseNumber(100));
@@ -33,6 +36,9 @@ public class WsTest {
         assertEquals(1, Ws.chineseNumberToInt("一"));
         assertEquals(2, Ws.chineseNumberToInt("二"));
         assertEquals(9, Ws.chineseNumberToInt("九"));
+        assertEquals(10, Ws.chineseNumberToInt("十"));
+        assertEquals(11, Ws.chineseNumberToInt("十一"));
+        assertEquals(19, Ws.chineseNumberToInt("十九"));
         assertEquals(30, Ws.chineseNumberToInt("三十"));
         assertEquals(59, Ws.chineseNumberToInt("五十九"));
         assertEquals(100, Ws.chineseNumberToInt("一百"));

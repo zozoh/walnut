@@ -172,7 +172,10 @@ public class Ws {
                 continue;
             }
             char s_n = CN_NC0[n];
-            re.append(s_n);
+            // 十一 至 十九
+            if (i != 1 || n != 1 || maxI > 1) {
+                re.append(s_n);
+            }
             // 单位
             if (i > 0 && n > 0) {
                 char s_u = CN_NU0[i];
@@ -828,5 +831,51 @@ public class Ws {
         char[] cs = new char[n];
         Arrays.fill(cs, c);
         return new String(cs);
+    }
+
+    /**
+     * 在字符串左侧填充一定数量的特殊字符
+     *
+     * @param s
+     *            字符串
+     * @param width
+     *            字符数量
+     * @param c
+     *            字符
+     * @return 新字符串
+     */
+    public static String padEnd(String s, int width, char c) {
+        if (null == s)
+            return null;
+        int len = s.length();
+        if (len >= width)
+            return s.toString();
+        StringBuilder re = new StringBuilder();
+        re.append(s);
+        re.append(repeat(c, width - len));
+        return re.toString();
+    }
+
+    /**
+     * 在字符串右侧填充一定数量的特殊字符
+     *
+     * @param s
+     *            字符串
+     * @param width
+     *            字符数量
+     * @param c
+     *            字符
+     * @return 新字符串
+     */
+    public static String padStart(String s, int width, char c) {
+        if (null == s)
+            return null;
+        int length = s.length();
+        if (length >= width)
+            return s;
+        StringBuilder re = new StringBuilder();
+        re.append(repeat(c, width - length));
+        re.append(s);
+        return re.toString();
     }
 }
