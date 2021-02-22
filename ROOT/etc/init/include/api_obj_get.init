@@ -1,0 +1,17 @@
+#---------------------------------------------------------
+#
+#                    Obj 获取详情
+#
+#---------------------------------------------------------
+# 获取任何一个对象的详情
+@API .regapi/api/obj/get 'cross/json'
+%COPY:
+o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
+  -limit 1 \
+  @ancestors ${http-qs-ans?~ignore~} -until ${http-qs-anu?~} \
+             ${http-qs-ant<boolean:/-notop>?true} \
+             ${http-qs-anself<boolean:/-self>?false} \
+  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
+  @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
+  @json ${http-qs-k?#TP} -cqn
+%END%

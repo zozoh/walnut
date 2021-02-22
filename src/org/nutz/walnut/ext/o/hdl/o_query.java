@@ -9,14 +9,16 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.o.OContext;
 import org.nutz.walnut.ext.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class o_query extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(pager|append|mine)$");
+        return ZParams.parse(args, "^(pager|hidden|append|mine)$");
     }
 
     @Override
@@ -29,17 +31,19 @@ public class o_query extends OFilter {
                 q.add(map);
             }
         }
-        // 无论如何也得添加一个
-        else {
-            WnObj oCu = sys.getCurrentObj();
-            NutMap map = Lang.map("pid", oCu.id());
-            q.add(map);
-        }
 
         // 设置父 ID
-        if (!fc.list.isEmpty()) {
-            WnObj o = fc.list.get(0);
-            NutMap map = Lang.map("pid", o.id());
+        WnObj oP = null;
+        String pph = params.getString("p");
+        if (!Ws.isBlank(pph)) {
+            oP = Wn.checkObj(sys, pph);
+        }
+        // 尝试上下文第一个对象
+        else if (!fc.list.isEmpty()) {
+            oP = fc.list.get(0);
+        }
+        if (null != oP) {
+            NutMap map = Lang.map("pid", oP.id());
             q.setAllToList(map);
         }
 
@@ -67,10 +71,24 @@ public class o_query extends OFilter {
         // 执行查询结果
         List<WnObj> list = sys.io.query(q);
 
+        // 清除上下文
         if (!params.is("append")) {
             fc.list.clear();
         }
-        fc.list.addAll(list);
+
+        // 全部加入上下文
+        if (params.is("hidden")) {
+            fc.list.addAll(list);
+        }
+        // 删除隐藏对象
+        else {
+            for (WnObj o : list) {
+                if (!o.isHidden()) {
+                    fc.list.add(o);
+                }
+            }
+        }
+
     }
 
 }

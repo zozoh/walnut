@@ -5,7 +5,11 @@
 # 用法
 
 ```bash
-o @ancestors 
+o @ancestors
+  [parents]            # 将祖先节点设置到对象的哪个键中存储
+                       # 这个与 keep 选项互斥且具有更高的优先级。
+                       # 也就是说，如果声明本选项，那么 -keep 就没用了 
+                       # 同时，如果值为 ~ignore~，相当于 null，即未设定
   [-until /path/to]    # 指定一个截止的祖先节点，默认 ~
   [-self]              # 输出也包括自己
   [-notop]             # 输出不包括第一个祖先节点

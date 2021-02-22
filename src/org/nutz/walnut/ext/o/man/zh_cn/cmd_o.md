@@ -30,7 +30,6 @@ o [options] [[@filter filter-args...]...]
 #
 # 查询
 #
-@ancestors  # 查询上下文中的对象的所有祖先对象
 @create     # 创建一个或者多个对象
 @query      # 查询出一组对象
 @get        # 根据 ID 获取一个或几个对象
@@ -42,6 +41,8 @@ o [options] [[@filter filter-args...]...]
 @group      # 聚集对象
 @refer      # 读取上下文对象关联的对象详情
 @read       # 读取上下文对象的内容
+@ancestors  # 查询上下文中的对象的所有祖先对象
+@children   # 读取上下文对象的所有子节点（可递归）
 #
 # 修改删除
 #
@@ -54,6 +55,7 @@ o [options] [[@filter filter-args...]...]
 @push       # 压入对象数组字段
 @pop        # 弹出对象数组字段
 @clear      # 清除上下文
+@enter      # 进入上下文列表（树）对象   ，并将其作为根对象
 #
 # 输出
 #

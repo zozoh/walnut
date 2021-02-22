@@ -10,7 +10,7 @@
 }
 %COPY:
 o '${http-qs-p}' \
-  @query '${http-qs-m<json>?-obj-}' \
+  @query '${http-qs-m<json>?-obj-}' -mine ${http-qs-hide<boolean:/-hidden>?false} \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
@@ -27,7 +27,7 @@ o '${http-qs-p}' \
 }
 %COPY:
 o '${http-qs-p}' \
-  @query '${http-qs-m<json>?-obj-}' \
+  @query '${http-qs-m<json>?-obj-}' -mine \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
