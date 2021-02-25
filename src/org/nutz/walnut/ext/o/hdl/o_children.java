@@ -21,7 +21,7 @@ public class o_children extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(hidden)$");
+        return ZParams.parse(args, "^(hidden|axis)$");
     }
 
     private void loadChildren(Loading ing, WnObj o, int depth) {
@@ -60,9 +60,15 @@ public class o_children extends OFilter {
             if (null != o2) {
                 it.set(o2);
             }
+            // 强制递归读取任意子节点
+            else if (!ing.axis) {
+                loadChildren(ing, obj, depth);
+            }
         }
 
-        o.put(ing.childBy, children);
+        if (null != children && !children.isEmpty()) {
+            o.put(ing.childBy, children);
+        }
 
     }
 
@@ -70,7 +76,9 @@ public class o_children extends OFilter {
         WnSystem sys;
         WnMatch test;
         String childBy;
+        int depth;
         int force;
+        boolean axis;
         boolean showHidden;
 
         boolean canLoad(WnObj o, int depth) {
@@ -80,8 +88,14 @@ public class o_children extends OFilter {
             if (o.isHidden() && !this.showHidden)
                 return false;
 
-            if (depth < force)
+            if (this.depth > 0 && depth > this.depth) {
+                return false;
+            }
+
+            if (depth < this.force) {
                 return true;
+            }
+
             return test.match(o);
         }
     }
@@ -93,7 +107,9 @@ public class o_children extends OFilter {
         ing.sys = sys;
         ing.childBy = params.getString("by", "children");
         ing.force = params.getInt("force", 0);
+        ing.depth = params.getInt("depth", 0);
         ing.showHidden = params.is("hidden", false);
+        ing.axis = params.is("axis", false);
 
         // 准备过滤器
         WnMatch[] ms = new WnMatch[params.vals.length];

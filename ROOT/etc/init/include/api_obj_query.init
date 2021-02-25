@@ -35,3 +35,20 @@ o '${http-qs-p}' \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
   @json ${http-qs-k?#TP} -cqn
 %END%
+#---------------------------------------------------------
+# 目录对象：树
+@API .regapi/api/obj/tree 'cross/json'
+{
+   "cache-test" : "=ObjQueryCacheTest"
+}
+%COPY:
+o '${http-qs-p}' \
+  @query '${http-qs-m<json>?-obj-}' -mine \
+  -sort '${http-qs-s<json>?-obj-}' \
+  -limit ${http-qs-limit?100} \
+  -skip  ${http-qs-skip?0} \
+  @children ${http-qs-child?} -depth ${http-qs-depth?0} -force ${http-qs-force?0} \
+  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
+  @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
+  @json ${http-qs-k?#TP} -cqn
+%END%

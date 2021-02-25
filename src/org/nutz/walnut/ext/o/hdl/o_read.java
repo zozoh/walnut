@@ -12,34 +12,35 @@ public class o_read extends OFilter {
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         // 分析参数
-        String path = params.val(0, "~self~");
         String toKey = params.getString("to", "content");
         String as = params.getString("as", "text");
 
-        // 判断特殊的 path 值
-        if (null != path) {
-            // 明确指明无视
-            if ("~ignore~".equals(path))
-                return;
-
-            // 读取自己
-            if ("~self~".equals(path))
-                path = null;
-        }
-
         // 循环处理
         for (WnObj o : fc.list) {
-            // 目录必须有 path，否则不能读取内容
-            if (o.isDIR() && null == path) {
-                continue;
+            // 依次尝试读取目标文件
+            WnObj oF = o;
+            for (String path : params.vals) {
+                // 明确指明无视
+                if ("~ignore~".equals(path)) {
+                    oF = null;
+                    break;
+                }
+                // 读取自己
+                if ("~self~".equals(path)) {
+                    oF = o;
+                    break;
+                }
+                // 尝试读取
+                if (null != path) {
+                    oF = sys.io.fetch(o, path);
+                }
+                if (null != oF) {
+                    break;
+                }
             }
 
-            // 读取目标文件
-            WnObj oF = o;
-            if (null != path) {
-                oF = sys.io.fetch(o, path);
-            }
-            if (null == oF) {
+            // 可以读取内容
+            if (null == oF || !oF.isFILE()) {
                 continue;
             }
 
