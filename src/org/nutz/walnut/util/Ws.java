@@ -817,6 +817,144 @@ public class Ws {
     }
 
     /**
+     * 将字符串改为 SnakeCase
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 SnakeCase 字符串
+     */
+    public static String snakeCase(String input) {
+        char[] cs = input.toCharArray();
+        char[] outs = new char[cs.length * 2];
+        int count = 0;
+        char lastC = 0;
+        boolean lastUpper = false;
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+            // 空白
+            if ('_' == c || '-' == c || Character.isWhitespace(c)) {
+                lastC = ' ';
+            }
+            // 有字符串
+            else {
+                // 当前字符串是否是大写呢？
+                boolean cu = Character.isUpperCase(c);
+
+                // 如果大小写变化了，或者遇到分隔符了，就搞一个
+                if ((lastUpper != cu || ' ' == lastC) && count > 0) {
+                    outs[count++] = '_';
+                }
+                // 大写字母
+                if (cu) {
+                    outs[count++] = Character.toLowerCase(c);
+                }
+                // 其他统统计入
+                else {
+                    outs[count++] = c;
+                }
+
+                // 记录最后的 大小写
+                lastUpper = cu;
+                lastC = c;
+            }
+        }
+        return new String(outs, 0, count);
+    }
+
+    /**
+     * 将字符串改为 KebabCase
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 KebabCase 字符串
+     */
+    public static String kebabCase(String input) {
+        char[] cs = input.toCharArray();
+        char[] outs = new char[cs.length * 2];
+        int count = 0;
+        char lastC = 0;
+        boolean lastUpper = false;
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+            // 空白
+            if ('_' == c || '-' == c || Character.isWhitespace(c)) {
+                lastC = ' ';
+            }
+            // 有字符串
+            else {
+                // 当前字符串是否是大写呢？
+                boolean cu = Character.isUpperCase(c);
+
+                // 如果大小写变化了，或者遇到分隔符了，就搞一个
+                if ((lastUpper != cu || ' ' == lastC) && count > 0) {
+                    outs[count++] = '-';
+                }
+                // 大写字母
+                if (cu) {
+                    outs[count++] = Character.toLowerCase(c);
+                }
+                // 其他统统计入
+                else {
+                    outs[count++] = c;
+                }
+
+                // 记录最后的 大小写
+                lastUpper = cu;
+                lastC = c;
+            }
+        }
+        return new String(outs, 0, count);
+    }
+
+    /**
+     * 将字符串改为 CamelCase
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 CamelCase 字符串
+     */
+    public static String camelCase(String input) {
+        char[] cs = input.toCharArray();
+        char[] outs = new char[cs.length * 2];
+        int count = 0;
+        char lastC = 0;
+        boolean lastUpper = false;
+        for (int i = 0; i < cs.length; i++) {
+            char c = cs[i];
+            // 空白
+            if ('_' == c || '-' == c || Character.isWhitespace(c)) {
+                lastC = ' ';
+            }
+            // 有字符串
+            else {
+                // 当前字符串是否是大写呢？
+                boolean cu = Character.isUpperCase(c);
+
+                // 如果大小写变化了，或者遇到分隔符了，就搞一个
+                if ((lastUpper != cu || ' ' == lastC) && count > 0) {
+                    if (!cu) {
+                        c = Character.toUpperCase(c);
+                    }
+                    outs[count++] = c;
+                }
+                // 大写字母
+                else if (cu) {
+                    outs[count++] = Character.toLowerCase(c);
+                }
+                // 其他统统计入
+                else {
+                    outs[count++] = c;
+                }
+
+                // 记录最后的 大小写
+                lastUpper = cu;
+                lastC = c;
+            }
+        }
+        return new String(outs, 0, count);
+    }
+
+    /**
      * 复制字符
      *
      * @param c

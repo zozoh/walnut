@@ -7,6 +7,39 @@ import org.junit.Test;
 public class WsTest {
 
     @Test
+    public void test_camelCase() {
+        assertEquals("abc", Ws.camelCase("ABC"));
+        assertEquals("aBc", Ws.camelCase("aBC"));
+        assertEquals("aBC", Ws.camelCase("  A  b c  "));
+        assertEquals("aBC", Ws.camelCase("a-b-c"));
+        assertEquals("aBC", Ws.camelCase("A-b-C"));
+        assertEquals("aBC", Ws.camelCase("A-_b-C"));
+        assertEquals("aBC", Ws.camelCase("A_b_C"));
+    }
+
+    @Test
+    public void test_kebabCase() {
+        assertEquals("abc", Ws.kebabCase("ABC"));
+        assertEquals("a-bc", Ws.kebabCase("aBC"));
+        assertEquals("a-b-c", Ws.kebabCase("  A  b c  "));
+        assertEquals("a-b-c", Ws.kebabCase("a-b-c"));
+        assertEquals("a-b-c", Ws.kebabCase("a-_b-c"));
+        assertEquals("a-b-c", Ws.kebabCase("A-b-C"));
+        assertEquals("a-b-c", Ws.kebabCase("A_b_C"));
+    }
+
+    @Test
+    public void test_snakeCase() {
+        assertEquals("abc", Ws.snakeCase("ABC"));
+        assertEquals("a_bc", Ws.snakeCase("aBC"));
+        assertEquals("a_b_c", Ws.snakeCase("  A  b c  "));
+        assertEquals("a_b_c", Ws.snakeCase("a-b-c"));
+        assertEquals("a_b_c", Ws.snakeCase("A-b-C"));
+        assertEquals("a_b_c", Ws.snakeCase("A-_b-C"));
+        assertEquals("a_b_c", Ws.snakeCase("A_b_C"));
+    }
+
+    @Test
     public void test_intToChineseNumber() {
         assertEquals("零", Ws.intToChineseNumber(0));
         assertEquals("一", Ws.intToChineseNumber(1));
