@@ -45,7 +45,7 @@ public class ThirdXAccessKey {
     }
 
     public boolean isExpired() {
-        return expiAtMs < System.currentTimeMillis();
+        return expiAtMs > 0 && expiAtMs < System.currentTimeMillis();
     }
 
     public int getExpiTime() {
@@ -65,8 +65,14 @@ public class ThirdXAccessKey {
     }
 
     public void setNowInMs(long nowInMs) {
-        long ms = Wn.msValueOf(expiTime + expiTimeUnit);
-        this.expiAtMs = ms + nowInMs;
+        if (this.expiTime > 0) {
+            long ms = Wn.msValueOf(expiTime + expiTimeUnit);
+            this.expiAtMs = ms + nowInMs;
+        }
+        // 那么就设置成 0 表示永不过期咯
+        else {
+            this.expiAtMs = 0;
+        }
     }
 
     public long getExpiAtMs() {

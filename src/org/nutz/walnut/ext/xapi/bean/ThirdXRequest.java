@@ -36,10 +36,19 @@ public class ThirdXRequest {
 
     private String apiName;
 
+    /**
+     * 接口的公共起始路径
+     */
     private String base;
 
+    /**
+     * 调用超时(毫秒)
+     */
     private int timeout;
 
+    /**
+     * 连接超时(毫秒)
+     */
     private int connectTimeout;
 
     private String path;
@@ -61,8 +70,8 @@ public class ThirdXRequest {
     private WnMatch matchHeader;
 
     public ThirdXRequest() {
-        timeout = 3000;
-        connectTimeout = 1000;
+        timeout = 0;
+        connectTimeout = 0;
         method = ThirdXMethod.GET;
         headers = new NutMap();
         params = new NutMap();
@@ -141,12 +150,22 @@ public class ThirdXRequest {
         this.timeout = timeout;
     }
 
+    public void setDefaultTimeout(int timeout) {
+        if (this.timeout <= 0 && timeout > 0)
+            this.timeout = timeout;
+    }
+
     public int getConnectTimeout() {
         return connectTimeout;
     }
 
     public void setConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
+    }
+
+    public void setDefaultConnectTimeout(int connectTimeout) {
+        if (this.connectTimeout <= 0 && connectTimeout > 0)
+            this.connectTimeout = connectTimeout;
     }
 
     public boolean hasPath() {

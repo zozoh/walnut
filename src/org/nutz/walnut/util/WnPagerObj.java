@@ -11,6 +11,7 @@ public class WnPagerObj {
     private int pageSize;
     private int pageCount;
     private long totalCount;
+    private int count;
 
     public WnPagerObj() {
         this(100, 5000);
@@ -56,6 +57,7 @@ public class WnPagerObj {
         wpo.pageSize = this.pageSize;
         wpo.pageCount = this.pageCount;
         wpo.totalCount = this.totalCount;
+        wpo.count = this.count;
 
         return wpo;
     }
@@ -116,6 +118,14 @@ public class WnPagerObj {
 
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     /*----------getter/setter---------------*/

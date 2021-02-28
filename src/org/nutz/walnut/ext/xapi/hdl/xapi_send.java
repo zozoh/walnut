@@ -27,16 +27,10 @@ public class xapi_send implements JvmHdl {
         String path = hc.params.val_check(2);
 
         // 准备 API
-        ThirdXApi api = new WnThirdXApi(sys.io, sys);
+        ThirdXApi api = new WnThirdXApi(sys);
 
         // 获取请求对象
         ThirdXRequest req = api.prepare(apiName, account, path, vars);
-
-        // 解析请求参数
-        req.explainHeaders(vars);
-        req.explainParams(vars);
-
-        // TODO 这里将来搞搞更多灵活的 body，譬如 XML/JSON/FileUpload 等
 
         // 发送请求，并且将流输出
         InputStream ins = api.send(req, InputStream.class);

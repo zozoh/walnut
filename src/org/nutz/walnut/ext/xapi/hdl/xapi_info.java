@@ -17,7 +17,7 @@ public class xapi_info implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 准备 API
-        ThirdXApi api = new WnThirdXApi(sys.io, sys);
+        ThirdXApi api = new WnThirdXApi(sys);
 
         String HR = Strings.dup('=', 60);
         ThirdXExpertManager experts = api.getExperts();

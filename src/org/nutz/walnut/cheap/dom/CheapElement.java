@@ -415,12 +415,19 @@ public class CheapElement extends CheapNode {
 
     public CheapElement attr(String name, Object val) {
         attrs.put(name, val);
+        if ("class".equals(name)) {
+            this.setClassName(null == val ? null : val.toString());
+        }
         return this;
     }
 
     public CheapElement attrs(Map<String, Object> bean) {
         if (null != bean) {
             attrs.putAll(bean);
+            if (bean.containsKey("class")) {
+                Object val = bean.get("class");
+                this.setClassName(null == val ? null : val.toString());
+            }
         }
         return this;
     }

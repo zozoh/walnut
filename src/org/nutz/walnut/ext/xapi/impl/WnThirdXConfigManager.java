@@ -93,18 +93,28 @@ public class WnThirdXConfigManager implements ThirdXConfigManager {
                     }
                 }
 
-                // 还是木有，那么请求服务器
+                // 虽然读取到了（当然，也可能是没有读取到），我们还应该看看这个密钥是否有效以及是否过期
+                // 如果木有，那么需要重新获取（生成）一下密钥
                 if (null == ak || ak.isExpired() || !ak.hasTicket()) {
-                    // 尝试请求一下服务器
+                    // 首先要获取一下配置信息
                     NutMap config = this.loadConfig(apiName, account, NutMap.class);
-                    ThirdXRequest req = expert.getAccessKeyRequest();
-                    req.explainHeaders(config);
-                    req.explainParams(config);
-                    NutMap re = api.send(req, NutMap.class);
 
-                    // 转换成标准的请求对象
-                    NutMap ao = (NutMap) Wn.explainObj(re, expert.getAccessKeyObj());
-                    ak = Lang.map2Object(ao, ThirdXAccessKey.class);
+                    // 动态密钥，需要请求服务器
+                    if (expert.isDynamicAccessKey()) {
+                        ThirdXRequest req = expert.getAccessKeyRequest();
+                        req.explainHeaders(config);
+                        req.explainParams(config);
+                        NutMap re = api.send(req, NutMap.class);
+
+                        // 转换成标准的请求对象
+                        NutMap ao = (NutMap) Wn.explainObj(re, expert.getAccessKeyObj());
+                        ak = Lang.map2Object(ao, ThirdXAccessKey.class);
+                    }
+                    // 否则就是模板密钥
+                    else {
+                        NutMap ao = (NutMap) Wn.explainObj(config, expert.getAccessKeyObj());
+                        ak = Lang.map2Object(ao, ThirdXAccessKey.class);
+                    }
 
                     // 初始化一下绝对过期时间，其中稍微少设 300秒，保险一点
                     ak.setNowInMs(System.currentTimeMillis() - 300000L);

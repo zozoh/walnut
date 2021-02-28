@@ -67,17 +67,132 @@ author: zozoh
 - Walnut 的 `cmd_xapi` 命令
 
 --------------------------------------
-# 类继承图谱
+## 类继承图谱
 
 ```bash
-ThirdXApi          # 抽象接口
+# 
+# 核心业务逻辑是由一个抽象类完成的
+# 各个子类，不过是为这个抽象类提供
+#  experts/configs
+# 的具体实现
+#
+AbstractThirdXApi implements ThirdXApi
 #-------------------------------------
-# 聚合的接口
-|-- ThirdXConifgLoader   # 配置信息加载器
-|-- ThirdXAkManager      # 密钥存储管理器
+# 封装了各个第三方接口的行为差异
+|-- experts : ThirdXExpertManager
 #-------------------------------------
-|-- WnThirdXApi    # Walnut 的内置标准实现
+# 封装了配置信息加载方式的差异
+|-- configs : ThirdXConfigManager
+```
 
+--------------------------------------
+## 调用顺序
+
+```java
+// 1. 准备 API 实例
+ThirdXApi api = new WnThirdXApi(sys);
+
+// 2. 获取请求对象
+ThirdXRequest req = api.prepare(apiName, account, path, vars);
+
+// 3. 解析请求参数
+req.explainHeaders(vars);
+req.explainParams(vars);
+
+// 4. 发送请求
+InputStream ins = api.send(req, InputStream.class);
+
+// 5. 处理响应流
+sys.out.writeAndClose(ins);
+```
+
+--------------------------------------
+## 配置方式
+
+实际上整个 `XAPI` 支持多少种平台，是根据配置获得的。
+即，针对不同平台访问的方式由一个 JSON 配置文件来管理。
+下面我们拿 `weixin` 公众号接口来举例：
+
+
+```js
+//
+// 下面这个 JSON 会被加载为一个 ThirdXExpert
+//
+{
+  // 接口的公共起始路径
+  "base" : "https://api.weixin.qq.com/",
+  // 调用超时(毫秒)
+  "timeout" : 3000,
+  // 连接超时(毫秒)
+  "connectTimeout" : 1000,
+  // 配置信息的主目录
+  "home" : "~/.weixin",
+  // 配置文件路径
+  "configFilePath" : "wxconf",
+  // 存储访问密钥的文件名
+  "accessKeyFilePath" : "access_token",
+  //【选】动态密钥的获取路径
+  // 如果声明了这个，则表示访问密码是动态获取的
+  "accessKeyRequest" : {
+    "path"   : "cgi-bin/token",
+    "method" : "GET",
+    "params" : {
+      "appid" : "=appID",
+      "secret" : "=appsecret",
+      "grant_type" : "=grant_type?client_credential"
+    },
+    "dataType" : "json"
+  },
+  // 每次生成密钥文件对象设置的元数据
+  // 如果是动态请求，那么这个映射表就是如何从响应里取值
+  // 否则，就是如何从配置文件中取值
+  // 无论怎样，都需要下面三个字段
+  "accessKeyObj" : {
+    "ticket"   : "=access_token",  // 访问密钥的值
+    "expiTime" : "=expires_in?7200", // 过期时间
+    "expiTimeUnit" : "s"  // 过期时间的单位 (s|m|h|d|w)
+  },
+  //
+  // 当前的接口支持下面这些请求
+  //  - 键为请求的路径（会自动拼合base）
+  //  - 值为一个请求对象
+  //
+  "requests" : {
+      "gh_user_info" : {
+        "path" : "cgi-bin/user/info",
+        "method" : "GET",
+        "headers" : {},
+        "params" : {
+          "access_token" : "=@AK",
+          "openid" : "=openid",
+          "lang" : "=lang?zh_CN"
+        },
+        "bodyType" : "form",
+        "dataType" : "json"
+      },
+      "wxacode_get_unlimited" : {
+        "path" : "wxa/getwxacodeunlimit",
+        "method" : "POST",
+        "headers" : {},
+        "params" : {
+          "access_token" : "=@AK"
+        },
+        "bodyType" : "json",
+        "body" : {
+          "scene" : "=scene",
+          "page" : "=page",
+          "width" : "=width",
+          "auto_color" : "=auto_color",
+          "line_color" : "=line_color",
+          "is_hyaline" : "=is_hyaline"  
+        },
+        "dataType" : "jpeg",
+        "acceptHeader" : {
+            "Content-Type" : "image/jpeg"
+        }
+      }
+    }
+}
 ```
 
 --------------------------------------

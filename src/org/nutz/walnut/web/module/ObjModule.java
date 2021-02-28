@@ -297,6 +297,7 @@ public class ObjModule extends AbstractWnModule {
         // 更新分页信息
         long tc = io().count(q);
         pager.setTotal(tc);
+        pager.setCount(list.size());
 
         // 返回
         return new NutMap("list", list).setv("pager", pager);

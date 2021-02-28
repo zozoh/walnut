@@ -8,8 +8,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public class WnThirdXApi extends AbstractThirdXApi {
 
-    public WnThirdXApi(WnIo io, WnSystem sys) {
-        this(io, sys.session.getVars());
+    public WnThirdXApi(WnSystem sys) {
+        this(sys.io, sys.session.getVars());
     }
 
     public WnThirdXApi(WnIo io, WnAuthSession session) {

@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.xapi.impl;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
@@ -18,7 +20,11 @@ public class DefaultThirdXExpertManager implements ThirdXExpertManager {
         if (ONE == null) {
             synchronized (DefaultThirdXExpertManager.class) {
                 if (ONE == null) {
-                    ONE = new DefaultThirdXExpertManager(Files.findFile("org/nutz/walnut/ext/xapi/data/weixin.json"));
+                    String base = "org/nutz/walnut/ext/xapi/data/";
+                    List<File> files = new LinkedList<>();
+                    files.add(Files.findFile(base + "tianyancha.json"));
+                    files.add(Files.findFile(base + "weixin.json"));
+                    ONE = new DefaultThirdXExpertManager(files);
                 }
             }
         }
@@ -29,6 +35,20 @@ public class DefaultThirdXExpertManager implements ThirdXExpertManager {
 
     public DefaultThirdXExpertManager() {
         experts = new HashMap<>();
+    }
+
+    public DefaultThirdXExpertManager(List<File> files) {
+        this();
+
+        for (File f : files) {
+            if (f.isHidden()) {
+                continue;
+            }
+            if (!f.getName().endsWith(".json")) {
+                continue;
+            }
+            this.addExpert(f);
+        }
     }
 
     public DefaultThirdXExpertManager(File... files) {
