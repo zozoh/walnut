@@ -81,6 +81,19 @@ public class ThirdXExpert {
         requests = new HashMap<>();
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("[%s] -> %s : %s\n", name, base, home));
+        if (null != requests && !requests.isEmpty()) {
+            for (String key : requests.keySet()) {
+                sb.append(" - ").append(key).append("\n");
+            }
+        } else {
+            sb.append("  ~ empty ~\n");
+        }
+        return sb.toString();
+    }
+
     public ThirdXRequest get(String key) {
         ThirdXRequest req = this.requests.get(key);
         if (null != req) {

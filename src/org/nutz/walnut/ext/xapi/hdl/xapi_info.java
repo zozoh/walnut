@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.xapi.hdl;
 
 import java.util.Map;
 
-import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.ext.xapi.ThirdXApi;
 import org.nutz.walnut.ext.xapi.ThirdXExpertManager;
@@ -22,12 +21,9 @@ public class xapi_info implements JvmHdl {
         String HR = Strings.dup('=', 60);
         ThirdXExpertManager experts = api.getExperts();
         for (Map.Entry<String, ThirdXExpert> en : experts.getExperts().entrySet()) {
-            String apiName = en.getKey();
             ThirdXExpert expert = en.getValue();
             sys.out.println(HR);
-            sys.out.printlnf("@export: %s", apiName);
-            String json = Json.toJson(expert);
-            sys.out.println(json);
+            sys.out.printlnf(expert.toString());
         }
 
     }

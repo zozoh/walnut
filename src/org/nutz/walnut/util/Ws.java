@@ -1,7 +1,9 @@
 package org.nutz.walnut.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -368,6 +370,29 @@ public class Ws {
             for (int i = 1; i < arr.length; i++) {
                 sb.append(sep);
                 sb.append(arr[i]);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 将容器内对象合并为一个字符串
+     * 
+     * @param col
+     *            字符串集合
+     * @param sep
+     *            分隔符
+     * @return 合并后的字符串
+     */
+    public static String join(Collection<?> col, String sep) {
+        StringBuilder sb = new StringBuilder();
+        if (null != col && !col.isEmpty()) {
+            Iterator<?> it = col.iterator();
+            sb.append(it.next().toString());
+
+            while (it.hasNext()) {
+                sb.append(sep);
+                sb.append(it.next().toString());
             }
         }
         return sb.toString();

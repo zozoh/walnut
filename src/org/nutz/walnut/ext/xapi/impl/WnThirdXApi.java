@@ -17,7 +17,7 @@ public class WnThirdXApi extends AbstractThirdXApi {
     }
 
     public WnThirdXApi(WnIo io, NutBean vars) {
-        super();
+        super(new WnThridXExpertManager(io, vars));
         this.configs = new WnThirdXConfigManager(this, this.experts, io, vars);
     }
 

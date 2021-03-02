@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.23";
+        return "10.24";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "ChineseNewYear";
+        return "XAPI";
     }
 
     /**
