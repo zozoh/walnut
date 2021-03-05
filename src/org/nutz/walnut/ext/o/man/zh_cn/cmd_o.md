@@ -43,6 +43,7 @@ o [options] [[@filter filter-args...]...]
 @read       # 读取上下文对象的内容
 @ancestors  # 查询上下文中的对象的所有祖先对象
 @children   # 读取上下文对象的所有子节点（可递归）
+@list       # 为上下文对象读取多个子节点
 #
 # 修改删除
 #

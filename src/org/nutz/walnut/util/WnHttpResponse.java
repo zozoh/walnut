@@ -26,6 +26,9 @@ import org.nutz.mvc.view.RawView2;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.range.WnGetInputStream;
+import org.nutz.walnut.util.range.WnGetLocalFileInputStream;
+import org.nutz.walnut.util.range.WnGetObjInputStream;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.mvc.view.RawView.RangeRange;
 
@@ -128,6 +131,28 @@ public class WnHttpResponse {
             }
         }
 
+        // 准备对象
+        WnGetInputStream getInput = new WnGetObjInputStream(io, wobj);
+
+        // 准备
+        this.prepare(range, getInput);
+    }
+
+    public void __prepare(WnIo io, WnObj wobj, String range) {
+        // 默认采用 obj 的 mime
+        if (Strings.isBlank(this.contentType))
+            this.contentType = wobj.mime();
+
+        // 默认用 obj 的名称作为下载名
+        if (Strings.isBlank(this.downloadName)) {
+            this.downloadName = wobj.name();
+            // 确保有正确的扩展名作为结尾
+            String suffixName = Files.getSuffixName(this.downloadName);
+            if (wobj.hasType() && !wobj.isType(suffixName)) {
+                this.downloadName += "." + wobj.type();
+            }
+        }
+
         // 准备记录 ETag
         String objETag = Wn.getEtag(wobj);
 
@@ -164,100 +189,73 @@ public class WnHttpResponse {
     }
 
     /**
-     * 写入前的准备
+     * 写入前的准备（通用）
      * 
-     * @param f
-     *            内容文件
-     * @param mime
-     *            输入流内容类型。如果为空，需要另行 setContentType
-     * @param insETag
-     *            指纹，如果为空，则用文件直接计算
      * @param range
-     *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
+     *            断点续传
+     * @param getInput
+     *            一个封装获取对象流/ETag/内容长度的接口
+     * 
      */
-    public void prepare(File f, String mime, String insETag, String range) {
-        InputStream is = Streams.fileIn(f);
-        long len = f.length();
+    public void prepare(String range, WnGetInputStream getInput) {
+        String objETag = getInput.getETag();
+        long objLen = getInput.getContentLenth();
 
-        prepare(is, mime, null, insETag, len, range);
+        // etag存在且相等, 304搞定
+        if (null != objETag && objETag.equalsIgnoreCase(etag)) {
+            this.status = 304;
+            // this.headers.put("Walnut-Object-Id", wobj.id());
+            return;
+        }
+        headers.put("ETag", objETag);
+
+        try {
+            if (Strings.isBlank(range)) {
+                ins = getInput.getStream(0);
+                headers.put("Content-Length", objLen);
+            } else {
+                // 解析 Range
+                List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
+                if (!RawView2.parseRange(range, rs, objLen) || rs.size() != 1) {
+                    this.status = 400;
+                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
+                }
+                // 解析成功
+                else {
+                    RangeRange rr = rs.get(0);
+                    headers.put("Content-Length", rr.end - rr.start);
+                    headers.put("Accept-Ranges", "bytes");
+                    headers.put("Content-Range",
+                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, objLen));
+                    status = 206;
+                    ins = getInput.getStream(rr.start);
+                    ins = new LimitInputStream(ins, rr.end - rr.start);
+                }
+            }
+        }
+        catch (IOException e) {
+            throw Er.create(e, "e.http.range");
+        }
     }
 
     /**
      * 写入前的准备
      * 
-     * @param is
-     *            输入流（如果想支持范围下载，必须实现 skip）
+     * @param f
+     *            内容文件
      * @param mime
-     *            输入流内容类型。如果为空，需要另行 setContentType
-     * @param name
-     *            如果是需要下载，这里可以指定文件名
-     * @param insETag
-     *            这个输入流输出结果的指纹，如果有的话，可能会生成 304 提高效率
-     * 
-     * @param len
-     *            输入流全部内容的长度，以便支持 范围下载
-     * 
+     *            输入流内容类型。 如果为空，需要另行 setContentType
+     * @param sha1
+     *            文件 SHA1 指纹
      * @param range
      *            符合 HTTP 标准 Range 的格式规范。（全本，支持多个）
      */
-    public void prepare(InputStream is,
-                        String mime,
-                        String name,
-                        String insETag,
-                        long len,
-                        String range) {
-        // 默认采用 obj 的 mime
-        if (Strings.isBlank(this.contentType))
-            this.contentType = mime;
+    public void prepare(File f, String sha1, String range) {
+        // 准备对象
+        WnGetInputStream getInput = new WnGetLocalFileInputStream(f, sha1);
 
-        // 默认用 obj 的名称作为下载名
-        if (Strings.isBlank(this.downloadName)) {
-            this.downloadName = name;
-        }
-
-        // 没有声明长度，用流的
-        if (len <= 0) {
-            try {
-                len = is.available();
-            }
-            catch (IOException e) {
-                throw Er.wrap(e);
-            }
-        }
-
-        // 准备记录 ETag
-        // etag存在且相等, 304搞定
-        if (null != insETag && insETag.equalsIgnoreCase(etag)) {
-            this.status = 304;
-            // this.headers.put("Walnut-Object-Id", wobj.id());
-            return;
-        }
-        headers.put("ETag", insETag);
-
-        // 记录流
-        this.ins = is;
-
-        if (Strings.isBlank(range) || len <= 0) {
-            if (len > 0)
-                headers.put("Content-Length", len);
-        } else {
-            // 解析 Range
-            List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
-            if (!RawView2.parseRange(range, rs, (int) len) || rs.size() != 1) {
-                this.status = 400;
-                this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
-            }
-            // 解析成功
-            else {
-                RangeRange rr = rs.get(0);
-                headers.put("Content-Length", rr.end - rr.start);
-                headers.put("Accept-Ranges", "bytes");
-                headers.put("Content-Range",
-                            String.format("bytes %d-%d/%d", rr.start, rr.end - 1, len));
-                status = 206;
-                ins = new LimitInputStream(ins, rr.end - rr.start);
-            }
-        }
+        // 准备
+        this.prepare(range, getInput);
     }
 
     public void prepare(byte[] buf) {

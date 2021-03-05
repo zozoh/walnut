@@ -1,9 +1,94 @@
 package org.nutz.walnut.util;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import org.nutz.lang.Lang;
+import org.nutz.lang.LoopException;
+import org.nutz.walnut.util.each.WnBreakException;
+import org.nutz.walnut.util.each.WnContinueException;
+import org.nutz.walnut.util.each.WnEachIteratee;
 
 public class Wlang {
+
+    /**
+     * 遍历一个对象，可以支持:
+     * <ul>
+     * <li>数组
+     * <li>集合
+     * <li>其他对象
+     * </ul>
+     *
+     * @param obj
+     *            对象
+     * @param iteratee
+     *            迭代器
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void each(Object obj, WnEachIteratee<T> iteratee) {
+        if (null == obj || null == iteratee)
+            return;
+        try {
+            // 数组
+            if (obj.getClass().isArray()) {
+                int len = Array.getLength(obj);
+                for (int i = 0; i < len; i++) {
+                    T v = (T) Array.get(obj, i);
+                    try {
+                        iteratee.invoke(i, v, obj);
+                    }
+                    catch (WnContinueException e) {}
+                    catch (WnBreakException e) {
+                        break;
+                    }
+                }
+            }
+            // 集合
+            else if (obj instanceof Collection) {
+                Collection<T> col = (Collection<T>) obj;
+                Iterator<T> it = col.iterator();
+                int i = 0;
+                while (it.hasNext()) {
+                    try {
+                        T v = it.next();
+                        iteratee.invoke(i++, v, obj);
+                    }
+                    catch (WnContinueException e) {}
+                    catch (WnBreakException e) {
+                        break;
+                    }
+                }
+            }
+            // 迭代器
+            else if (obj instanceof Iterator<?>) {
+                Iterator<T> it = (Iterator<T>) obj;
+                int i = 0;
+                while (it.hasNext()) {
+                    try {
+                        T v = it.next();
+                        iteratee.invoke(i++, v, obj);
+                    }
+                    catch (WnContinueException e) {}
+                    catch (WnBreakException e) {
+                        break;
+                    }
+                }
+            }
+            // 就是一个对象咯
+            else {
+                try {
+                    T v = (T) obj;
+                    iteratee.invoke(0, v, obj);
+                }
+                catch (WnContinueException e) {}
+                catch (WnBreakException e) {}
+            }
+        }
+        catch (LoopException e) {
+            throw Lang.wrapThrow(e.getCause());
+        }
+    }
 
     /**
      * 寻找到给定输入第一个不为 null 的值
@@ -21,7 +106,7 @@ public class Wlang {
         }
         return null;
     }
-    
+
     /**
      * 较方便的创建一个数组，比如：
      *

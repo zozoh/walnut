@@ -59,13 +59,13 @@ public class cmd_httpout extends JvmExecutor {
             if (body.startsWith("sha1:")) {
                 String sha1 = body.substring(5).trim();
                 // 兼容一下，有些时候，真实生产，客户端会将其变成 xxxx/xxx... 的路径形式
-                sha1 = sha1.replace("/", "");
+                sha1 = sha1.replaceAll("[/-]", "");
                 LocalIoBM bm = this.ioc.get(LocalIoBM.class, "globalBM");
                 File f = bm.getBucketFile(sha1);
                 if (!f.exists()) {
                     throw Er.create("e.io.bm.global.noexist", sha1);
                 }
-                resp.prepare(f, null, sha1, range);
+                resp.prepare(f, sha1, range);
             }
             // 那么就是一个对象的路径咯
             else {

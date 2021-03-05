@@ -1612,16 +1612,25 @@ public abstract class Wn {
     }
 
     public static String getEtag(WnObj wobj) {
-        String etag = "";
-        if (Strings.isBlank(wobj.sha1())) {
-            etag = String.format("%s-%s-%s", "F", wobj.len(), wobj.lastModified());
-        } else {
-            etag = String.format("%s-%s-%s",
-                                 wobj.sha1().substring(0, 6),
-                                 wobj.len(),
-                                 wobj.lastModified());
+        String sha1 = wobj.sha1();
+        long len = wobj.len();
+        long lm = wobj.lastModified();
+        return getEtag(sha1, len, lm);
+    }
+
+    public static String getEtag(String sha1, File f) {
+        long len = f.length();
+        long lm = f.lastModified();
+        return getEtag(sha1, len, lm);
+    }
+
+    public static String getEtag(String sha1, long len, long lastModified) {
+        if (Strings.isBlank(sha1)) {
+            sha1 = "F";
+        } else if (sha1.length() > 6) {
+            sha1 = sha1.substring(0, 6);
         }
-        return etag;
+        return String.format("%s-%s-%s", sha1, len, lastModified);
     }
 
     /**

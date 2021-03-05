@@ -11,7 +11,9 @@ o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
   @ancestors ${http-qs-ans?~ignore~} -until ${http-qs-anu?~} \
              ${http-qs-ant<boolean:/-notop>?true} \
              ${http-qs-anself<boolean:/-self>?false} \
-  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
+  @list ${http-qs-list?} -as ${http-qs-lsnm?} -match '${http-qs-lsma?}' \
+        -sort '${http-qs-lssort?}' ${http-qs-lshide<boolean:/-hidden>?false} \
+  @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} -get ${http-qs-rfget?} \
   @json ${http-qs-k?#TP} -cqn
 %END%
