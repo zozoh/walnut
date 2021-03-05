@@ -13,8 +13,6 @@ public class WnReferLoader {
 
     private WnIo io;
 
-    private boolean asId;
-
     private String[] referKeys;
 
     private String storeKey;
@@ -31,16 +29,22 @@ public class WnReferLoader {
         }
         Tmpl storeKeyTmpl = Tmpl.parse(storeKey);
         for (String key : referKeys) {
+            // 看看是否是 xxx=id 这种形式的键
+            boolean asId = false;
+            if (key.endsWith("=id")) {
+                asId = true;
+                key = key.substring(0, key.length() - 3);
+            }
             String store = storeKeyTmpl.render(Lang.map("key", key));
-            __load_refer_by(o, key, store);
+            __load_refer_by(o, key, asId, store);
         }
     }
 
-    void __load_refer_by(WnObj o, String key, String store) {
+    void __load_refer_by(WnObj o, String key, boolean asId, String store) {
         String val = o.getString(key);
         WnObj oRefer = null;
         if (!Ws.isBlank(val)) {
-            if (this.asId) {
+            if (asId) {
                 oRefer = io.get(val);
             } else {
                 oRefer = io.fetch(o, val);
@@ -51,10 +55,6 @@ public class WnReferLoader {
             NutBean bean = Wobj.filterObjKeys(oRefer, keyMatch);
             o.put(store, bean);
         }
-    }
-
-    public void setAsId(boolean asId) {
-        this.asId = asId;
     }
 
     public void setReferKey(String str) {

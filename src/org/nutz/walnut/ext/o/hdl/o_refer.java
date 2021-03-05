@@ -33,8 +33,7 @@ public class o_refer extends OFilter {
         // 准备加载器
         WnReferLoader loader = new WnReferLoader(sys.io);
         loader.setReferKey(refKey);
-        loader.setStoreKey(params.val(1, refKey + "_obj"));
-        loader.setAsId(params.is("id"));
+        loader.setStoreKey(params.val(1, "${key}_obj"));
         if (params.has("keys")) {
             String keys = params.getString("keys");
             WnMatch ma = Wobj.explainObjKeyMatcher(keys);
