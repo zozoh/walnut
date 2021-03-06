@@ -65,6 +65,9 @@ public class CheapElement extends CheapNode {
         }
         // 输出属性
         for (String key : attrs.keySet()) {
+            if("class".equals(key)) {
+                continue;
+            }
             Object val = attrs.get(key);
             sb.append(" @").append(key);
             if (null != val) {
@@ -219,6 +222,9 @@ public class CheapElement extends CheapNode {
         // 输出属性
         for (Map.Entry<String, Object> en : attrs.entrySet()) {
             String key = en.getKey();
+            if("class".equals(key)) {
+                continue;
+            }
             Object val = en.getValue();
             // 裸名
             if (null == val) {
