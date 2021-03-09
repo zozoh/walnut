@@ -56,7 +56,9 @@ public class OContext extends JvmFilterContext {
         // 输出翻页信息
         NutMap reo = new NutMap();
         reo.put("list", outputs);
-        reo.put("pager", pager);
+        if (null != pager) {
+            reo.put("pager", pager.toPagerObj(outputs.size()));
+        }
         return reo;
     }
 

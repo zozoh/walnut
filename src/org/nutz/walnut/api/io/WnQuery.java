@@ -122,6 +122,9 @@ public class WnQuery {
     }
 
     public WnQuery setAllToList(Map<String, Object> map) {
+        if (list.isEmpty()) {
+            list.add(new NutMap());
+        }
         for (NutMap ele : list) {
             ele.setAll(map);
         }

@@ -74,7 +74,8 @@ public class WnPager extends Pager {
             // this.sum_count = (int) io.count(q);
             // this.sum_page = (int) Math.ceil(((double) this.sum_count) /
             // ((double) this.limit));
-            this.setSumCount((int) io.count(q));
+            long sum = io.count(q);
+            this.setSumCount(sum);
         }
 
         if (this.skip > 0)
@@ -88,13 +89,15 @@ public class WnPager extends Pager {
         this.sum_count = sc;
         if (this.countPage && this.limit > 0) {
             this.sum_page = (int) Math.ceil(((double) this.sum_count) / ((double) this.limit));
+            this.setRecordCount((int) sc);
         }
     }
 
-    public WnPagerObj toPagerObj() {
+    public WnPagerObj toPagerObj(int count) {
         WnPagerObj wpo = new WnPagerObj(DEAULT_LIMIT, 5000);
         wpo.set(limit, skip);
         wpo.setTotal(sum_count);
+        wpo.setCount(count);
         return wpo;
     }
 
@@ -108,6 +111,7 @@ public class WnPager extends Pager {
         wp.pn = this.pn;
         wp.sum_count = this.sum_count;
         wp.sum_page = this.sum_page;
+        wp.setRecordCount((int) this.sum_count);
         return wp;
     }
 
