@@ -10,9 +10,9 @@ import org.nutz.walnut.ext.xapi.bean.ThirdXRequest;
  */
 public interface ThirdXApi {
 
-    ThirdXConfigManager getConfigs();
+    ThirdXConfigManager getConfigManager();
 
-    ThirdXExpertManager getExperts();
+    ThirdXExpertManager getExpertManager();
 
     /**
      * 准备一个第三方平台的接口请求对象，其中参数和请求头已经根据传入的变量上下文展开。<br>

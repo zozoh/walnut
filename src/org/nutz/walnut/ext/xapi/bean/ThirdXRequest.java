@@ -3,7 +3,10 @@ package org.nutz.walnut.ext.xapi.bean;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -13,6 +16,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
@@ -21,7 +25,9 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.validate.WnMatch;
 import org.nutz.walnut.validate.impl.AlwaysMatch;
 import org.nutz.walnut.validate.impl.AutoMatch;
@@ -178,6 +184,42 @@ public class ThirdXRequest {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String toUrl(boolean ignoreNil) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Wn.appendPath(this.base, this.path));
+        if (null != this.params) {
+            List<String> palist = new ArrayList<>(this.params.size());
+            for (Entry<String, Object> en : params.entrySet()) {
+                final String key = en.getKey();
+                Object val = en.getValue();
+                if (val == null) {
+                    if (ignoreNil)
+                        continue;
+                    val = "";
+                }
+                Wlang.each(val, (index, ele, src) -> {
+                    if (ignoreNil) {
+                        if (ele == null) {
+                            return;
+                        }
+                        if (ele instanceof CharSequence) {
+                            if (Ws.isBlank((CharSequence) ele)) {
+                                return;
+                            }
+                        }
+                    }
+                    palist.add(String.format("%s=%s",
+                                             Http.encode(key, Encoding.UTF8),
+                                             Http.encode(ele, Encoding.UTF8)));
+                });
+            }
+            if (!palist.isEmpty()) {
+                sb.append('?').append(Ws.join(palist, "&"));
+            }
+        }
+        return sb.toString();
     }
 
     public boolean isGET() {

@@ -79,7 +79,7 @@ public class WnThridXExpertManager extends AbstractThirdXExpertManager {
             }
         }
 
-        return super.getExperts();
+        return re;
     }
 
 }

@@ -20,6 +20,7 @@ public class DefaultThirdXExpertManager extends AbstractThirdXExpertManager {
                     List<File> files = new LinkedList<>();
                     files.add(Files.findFile(base + "tianyancha.json"));
                     files.add(Files.findFile(base + "weixin.json"));
+                    files.add(Files.findFile(base + "youtube.json"));
                     ONE = new DefaultThirdXExpertManager(files);
                 }
             }

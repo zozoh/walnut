@@ -19,8 +19,9 @@ public class xapi_info implements JvmHdl {
         ThirdXApi api = new WnThirdXApi(sys);
 
         String HR = Strings.dup('=', 60);
-        ThirdXExpertManager experts = api.getExperts();
-        for (Map.Entry<String, ThirdXExpert> en : experts.getExperts().entrySet()) {
+        ThirdXExpertManager expertManager = api.getExpertManager();
+        Map<String, ThirdXExpert> experts = expertManager.getExperts();
+        for (Map.Entry<String, ThirdXExpert> en : experts.entrySet()) {
             ThirdXExpert expert = en.getValue();
             sys.out.println(HR);
             sys.out.printlnf(expert.toString());

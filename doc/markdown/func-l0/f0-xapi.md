@@ -127,12 +127,14 @@ sys.out.writeAndClose(ins);
   "connectTimeout" : 1000,
   // 配置信息的主目录
   "home" : "~/.weixin",
-  // 配置文件路径
+  // 配置文件路径，这个文件被认为是一个 JSON 对象，配置了一组名值对
   "configFilePath" : "wxconf",
-  // 存储访问密钥的文件名
+  // 存储访问密钥的文件名。这个文件存储在 `${home}/${account}/` 路径下
+  // 譬如 `~/.weixin/demo/`
   "accessKeyFilePath" : "access_token",
   //【选】动态密钥的获取路径
   // 如果声明了这个，则表示访问密码是动态获取的
+  // 参数模板的上下文就是配置文件
   "accessKeyRequest" : {
     "path"   : "cgi-bin/token",
     "method" : "GET",
@@ -157,6 +159,7 @@ sys.out.writeAndClose(ins);
   //  - 键为请求的路径（会自动拼合base）
   //  - 值为一个请求对象
   //
+  // 上下文中，有一个固定的值 @AK 表示获取的 API 的票据值
   "requests" : {
       "gh_user_info" : {
         "path" : "cgi-bin/user/info",

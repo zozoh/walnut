@@ -1,0 +1,48 @@
+package org.nutz.walnut.ext.xapi.hdl;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.xapi.ThirdXApi;
+import org.nutz.walnut.ext.xapi.bean.ThirdXRequest;
+import org.nutz.walnut.ext.xapi.impl.WnThirdXApi;
+import org.nutz.walnut.impl.box.JvmHdl;
+import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
+
+@JvmHdlParamArgs(value = "cnq", regex = "^(url)$")
+public class xapi_req implements JvmHdl {
+
+    @Override
+    public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+        // 首先读取变量
+        String str = Cmds.getParamOrPipe(sys, hc.params, "vars", true);
+        NutMap vars = Strings.isBlank(str) ? new NutMap() : Lang.map(str);
+
+        // 准备请求路径
+        String apiName = hc.params.val_check(0);
+        String account = hc.params.val_check(1);
+        String path = hc.params.val_check(2);
+
+        // 准备 API
+        ThirdXApi api = new WnThirdXApi(sys);
+
+        // 获取请求对象
+        ThirdXRequest req = api.prepare(apiName, account, path, vars);
+
+        // 打印请求 URL 完整路径
+        if (hc.params.is("url")) {
+            sys.out.println(req.toUrl(true));
+        }
+        // 打印请求对象
+        else {
+            String json = Json.toJson(req, hc.jfmt);
+            sys.out.println(json);
+        }
+
+    }
+
+}

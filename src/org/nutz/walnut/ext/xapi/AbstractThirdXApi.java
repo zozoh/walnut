@@ -249,7 +249,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
     }
 
     @Override
-    public ThirdXExpertManager getExperts() {
+    public ThirdXExpertManager getExpertManager() {
         return experts;
     }
 
@@ -258,7 +258,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
     }
 
     @Override
-    public ThirdXConfigManager getConfigs() {
+    public ThirdXConfigManager getConfigManager() {
         return configs;
     }
 
