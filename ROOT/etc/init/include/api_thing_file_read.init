@@ -4,7 +4,7 @@
 #
 #---------------------------------------------------------
 # API(thing): 读取数据文件夹某文件内容
-@API .regapi/api/thing/file/read 'dynamic/cross/json'
+@API .regapi/api/thing/file/read 'dynamic/cross'
 %COPY:
 thing '~/${http-qs-ts}' file ${http-qs-id} \
     -dir '${http-qs-d?}' \
@@ -13,4 +13,17 @@ thing '~/${http-qs-ts}' file ${http-qs-id} \
     -range '${http-header-RANGE?}' \
     -download '${http-qs-d<boolean>?false}' \
     -UserAgent '${http-header-USER-AGENT?}'
+%END%
+#---------------------------------------------------------
+# API(thing): 读取数据文件夹某文件内容
+@FILE .regapi/api/thing/file/get 'cross/json'
+{
+  "http-header-Content-Type" : "text/json",
+  "http-cross-origin" : "*"
+}
+%COPY:
+thing ${http-qs-ts} file ${http-qs-id} \
+    -dir '${http-qs-d?}' \
+    -get '${http-qs-fnm}' \
+    -cqn
 %END%

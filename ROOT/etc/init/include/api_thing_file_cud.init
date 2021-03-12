@@ -4,24 +4,29 @@
 #
 #---------------------------------------------------------
 # API(thing): 数据集对象·新建
-@API .regapi/api/thing/create 'cross/json/auth'
-{
-  "http-body": "json",
-  "http-post-json-merge": [{
-    test   : {"http-qs-ts": "^(comments)$"},
-    update : {
-      "uid": "=http-www-me-id",
-      "unm": "=http-www-me-nickname",
-      "avatar": "=http-www-me-thumb"
-    }
-  }]
-}
+@FILE .regapi/api/thing/file/add 'cross/json/hook'
 %COPY:
-cat id:${id} | thing '~/${http-qs-ts}' create -fields -cqn
+thing ${http-qs-ts} file ${http-qs-id} \
+    -dir '${http-qs-d?}' \
+    -add '${http-qs-fnm?}' \
+    -upload '${http-header-CONTENT-TYPE?}' \
+    -upfield '${http-qs-name?file}' \
+    -ukey '${http-qs-ukey?}' \
+    -read 'id:${id}' \
+    -dupp '${http-qs-dupp?}' \
+    '${http-qs-ow<boolean:-overwrite>?true}' \
+    -cqn
 %END%
 #---------------------------------------------------------
-# API(thing): 数据集对象·修改
-@API .regapi/api/thing/update 'cross/json/auth'
+# API(thing): 上传文件至某个Thing的数据文件
+@FILE .regapi/api/thing/file/remove 'cross/json'
+{
+  "http-header-Content-Type" : "text/json",
+  "http-cross-origin" : "*"
+}
 %COPY:
-cat id:${id} | thing '~/${http-qs-ts}' update ${http-qs-id} -fields -cqn
+thing ${http-qs-ts} file ${http-qs-id} \
+    -dir '${http-qs-d?}' \
+    -del '${http-qs-fnm}' \
+    -cqn
 %END%

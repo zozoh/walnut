@@ -21,7 +21,7 @@ public class o_query extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(pager|hidden|append|mine)$");
+        return ZParams.parse(args, "^(pager|hidden|append|mine|quiet)$");
     }
 
     @SuppressWarnings("unchecked")
@@ -60,7 +60,17 @@ public class o_query extends OFilter {
         WnObj oP = null;
         String pph = params.getString("p");
         if (!Ws.isBlank(pph)) {
-            oP = Wn.checkObj(sys, pph);
+            // 没有父就无视
+            if (params.is("quiet")) {
+                oP = Wn.getObj(sys, pph);
+                if (null == oP) {
+                    return;
+                }
+            }
+            // 强制检查
+            else {
+                oP = Wn.checkObj(sys, pph);
+            }
         }
         // 尝试上下文第一个对象
         else if (!fc.list.isEmpty()) {
