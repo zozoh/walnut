@@ -8,7 +8,7 @@ public class TiView {
 
     private String comType;
 
-    private NutMap comConf;
+    private Object comConf;
 
     private String modType;
 
@@ -34,11 +34,11 @@ public class TiView {
         this.comType = comType;
     }
 
-    public NutMap getComConf() {
+    public Object getComConf() {
         return comConf;
     }
 
-    public void setComConf(NutMap comConf) {
+    public void setComConf(Object comConf) {
         this.comConf = comConf;
     }
 

@@ -20,7 +20,7 @@ author: zozoh
 |   |   |-- playlists.json    # 频道内播放列表
 ```
 
-# 如何获得当前频道的全部视频
+# 获取当前频道的信息
 
 > `Youtube`将当前频道全部视频存放到里一个内置的`上传列表中`，
 > 所谓 `上传列表` 就是一个 `playlist`，可以通过下面的方式获取
@@ -39,6 +39,9 @@ demo:> xapi req youtube demo channels -vars 'id:"${channelId}",part:"${channelPa
         "resultsPerPage": 5
     },
     "items": [{
+      "snippet" : {
+        "title": "FREE IS THE MEANING OF LIFE",
+      },
       "contentDetails" : {
         "relatedPlaylists": {
             "likes": "",
@@ -71,6 +74,8 @@ demo:> xapi youtube demo playlists -vars 'channelId:"${channelId}",part:"${playl
 {
     "kind": "youtube#channelListResponse",
     "etag": "03crC..1iuo",
+    "nextPageToken": "CAoQAA",
+    "prevPageToken": "CAUQAQ",
     "pageInfo": {
         "totalResults": 1,
         "resultsPerPage": 5
@@ -83,7 +88,9 @@ demo:> xapi youtube demo playlists -vars 'channelId:"${channelId}",part:"${playl
       "status": {
         "privacyStatus": "public"
       },
-      "contentDetails" : {..},
+      "contentDetails" : {
+         "itemCount": 2
+      },
       "player" : {..}
       }
     }]
@@ -230,6 +237,8 @@ demo:> xapi youtube demo videos -vars 'id:"ID1,ID2",part:"${videoPart}"'
 
 ```js
 {
+  // 配置名称，相当于 ~/.domain/youtube/${domain}/ 的目录名
+  domain : "demo",
   // 播放列表或者视频缩略图的尺寸规格
   // 默认为 high
   // 可选值为： default|medium|high|standard|maxres
@@ -314,8 +323,8 @@ let list = await Wn.Youtube.getAllPlaylists(config, {
 })
 
 // 分页读取播放列表
-let {list, next, prev} = await Wn.Youtube.playlists(config, {
-  pageToken, maxResults
+let {list, next, prev} = await Wn.Youtube.getPlaylists(config, {
+  pageToken
 })
 // prev 为上一页的 pageToken，第一页的话，则为空
 // next 为下一页的 pageToken，最后一页的话，则为空
@@ -333,8 +342,8 @@ let {list, next, prev} = await Wn.Youtube.playlists(config, {
 
 ```js
 // 不指定的 playlist ID 将会采用 uploadsPlaylistId
-let {list, next, prev} = await Wn.Youtube.videos(config, playlistId, {
-  pageToken, maxResults
+let {list, next, prev} = await Wn.Youtube.getVideos(config, playlistId, {
+  pageToken
 })
 // prev 为上一页的 pageToken，第一页的话，则为空
 // next 为下一页的 pageToken，最后一页的话，则为空
@@ -346,9 +355,11 @@ let {list, next, prev} = await Wn.Youtube.videos(config, playlistId, {
   publishedAt : "2021-03-11T08:03:31Z",
   tags : ["xx", "xx", "xx"],
   thumbUrl : "https://i.y..ult.jpg",  // <- thumbType
-  defaultLanguage ： "zh-CN",
+  defaultLanguage : "zh-CN",
   defaultAudioLanguage : "zh-CN",
   duration : "PT17M51S",
+  du_in_sec : 943,
+  du_in_str : "17:51",
   definition : "hd",
   categoryId : "25"
 }]

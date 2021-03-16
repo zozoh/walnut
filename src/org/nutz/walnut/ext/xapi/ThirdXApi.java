@@ -15,6 +15,16 @@ public interface ThirdXApi {
     ThirdXExpertManager getExpertManager();
 
     /**
+     * @param apiName
+     *            接口平台名称
+     * @param account
+     *            平台的账号
+     * @return 当前接口账户是否具备一个有效的动态密钥。<br>
+     *         如果接口不许呀动态密钥，永远返回 <code>true</code>
+     */
+    boolean hasValidAccessKey(String apiName, String account);
+
+    /**
      * 准备一个第三方平台的接口请求对象，其中参数和请求头已经根据传入的变量上下文展开。<br>
      * 调用者可以根据需要继续设置 body 等属性，或者特殊的调整参数表和请求头。<br>
      * 之后，再通过 send 函数发送请求，获得平台接口的返回结果

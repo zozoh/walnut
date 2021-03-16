@@ -33,6 +33,16 @@ public class dom_as extends DomFilter {
             if ("html".equals(type)) {
                 output = fc.doc.toHtml();
             }
+            // 输出JSON
+            else if ("json".equals(type)) {
+                NutBean bean = fc.doc.root().toBean();
+                JsonFormat jfmt = Cmds.gen_json_format(params);
+                output = Json.toJson(bean, jfmt);
+            }
+            // 输出树形结构
+            else if ("tree".equals(type)) {
+                output = fc.doc.toString();
+            }
             // 输出文本节点
             else {
                 output = Ws.trim(fc.doc.root().getText());
@@ -55,6 +65,27 @@ public class dom_as extends DomFilter {
                 }
                 JsonFormat jfmt = Cmds.gen_json_format(params);
                 output = Json.toJson(beans, jfmt);
+            }
+            // 输出树形结构
+            else if ("tree".equals(type)) {
+                List<String> marks = new ArrayList<>(fc.selected.size());
+                for (CheapElement ele : fc.selected) {
+                    marks.add(ele.toString());
+                }
+                // 只有一个，拆包
+                if (marks.size() == 1) {
+                    output = marks.get(0);
+                }
+                // 输出分隔符
+                else {
+                    output = "";
+                    String HR = Ws.repeat('-', 60);
+                    for (int i = 0; i < marks.size(); i++) {
+                        output += String.format("%s\nItem[%s]:\n", HR, i);
+                        output += marks.get(i);
+                        output += "\n";
+                    }
+                }
             }
             // 输出文本节点
             else {

@@ -21,6 +21,7 @@ public class DefaultThirdXExpertManager extends AbstractThirdXExpertManager {
                     files.add(Files.findFile(base + "tianyancha.json"));
                     files.add(Files.findFile(base + "weixin.json"));
                     files.add(Files.findFile(base + "youtube.json"));
+                    files.add(Files.findFile(base + "fb-graph.json"));
                     ONE = new DefaultThirdXExpertManager(files);
                 }
             }

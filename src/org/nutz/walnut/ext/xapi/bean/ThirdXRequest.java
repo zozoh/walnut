@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -23,6 +25,7 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wlang;
@@ -174,6 +177,10 @@ public class ThirdXRequest {
             this.connectTimeout = connectTimeout;
     }
 
+    public void expalinPath(NutBean vars) {
+        this.path = Tmpl.exec(this.path, vars);
+    }
+
     public boolean hasPath() {
         return !Strings.isBlank(path);
     }
@@ -186,9 +193,29 @@ public class ThirdXRequest {
         this.path = path;
     }
 
+    private static final Pattern _P = Pattern.compile("^(https?://)(.+)$");
+
     public String toUrl(boolean ignoreNil) {
+        // 先搞一下 URL，为了防止 base 和 path 之间重复的 `//`
+        // 就有了下面这个有点不好看的代码
+        // 不这么写，直接 Wn.appendPath 会导致 `http://` 变成 `http:/`
         StringBuilder sb = new StringBuilder();
-        sb.append(Wn.appendPath(this.base, this.path));
+        Matcher m = _P.matcher(this.base);
+        String protocal = null;
+        String base = null;
+        if (m.find()) {
+            protocal = m.group(1);
+            base = m.group(2);
+        } else {
+            base = this.base;
+        }
+        if (null != protocal) {
+            sb.append(protocal);
+        }
+        sb.append(Wn.appendPath(base, this.path));
+        //
+        // 处理参数
+        //
         if (null != this.params) {
             List<String> palist = new ArrayList<>(this.params.size());
             for (Entry<String, Object> en : params.entrySet()) {

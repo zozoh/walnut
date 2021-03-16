@@ -2,24 +2,21 @@ package org.nutz.walnut.ext.xapi.hdl;
 
 import java.io.InputStream;
 
-import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.xapi.ThirdXApi;
+import org.nutz.walnut.ext.xapi.cmd_xapi;
 import org.nutz.walnut.ext.xapi.bean.ThirdXRequest;
 import org.nutz.walnut.ext.xapi.impl.WnThirdXApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
 
 public class xapi_send implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        // 首先读取变量
-        String str = Cmds.getParamOrPipe(sys, hc.params, "vars", true);
-        NutMap vars = Strings.isBlank(str) ? new NutMap() : Lang.map(str);
+        // 首先读取变量，变量与会话的变量合并，给上下文更多的信息
+        NutMap vars = cmd_xapi.loadVars(sys, hc);
 
         // 准备请求路径
         String apiName = hc.params.val_check(0);

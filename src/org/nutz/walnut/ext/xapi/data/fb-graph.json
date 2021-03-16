@@ -1,0 +1,79 @@
+{
+  "base" : "https://graph.facebook.com/",
+  "timeout" : 3000,
+  "connectTimeout" : 1000,
+  "home" : "~/.xapi/facebook/",
+  "configFilePath" : "config.json",
+  "accessKeyFilePath" : "long_live_access_token",
+  "accessKeyRequest" : {
+    "path"   : "${version?v10.0}/oauth/access_token",
+    "method" : "GET",
+    "params" : {
+      "grant_type" : "=grant_type?fb_exchange_token",
+      "client_id" : "=appId",
+      "client_secret" : "=appSecret",
+      "fb_exchange_token" : "=access_token"
+    },
+    "dataType" : "json"
+  },
+  "accessKeyObj" : {
+    "ticket"   : "=apiKey",
+    "expiTime" : 7,
+    "expiTimeUnit" : "d"
+  },
+  "requests" : {
+      "me" : {
+        "path" : "me",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK"
+        },
+        "dataType" : "json"
+      },
+      "userAlbums" : {
+        "path" : "${version?v10.0}/${id}/albums",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK"
+        },
+        "dataType" : "json"
+      },
+      "userPhotos" : {
+        "path" : "${version?v10.0}/${id}/photos",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK",
+          "type" : "uploaded",
+          "fields": "id,name,width,height,images"
+        },
+        "dataType" : "json"
+      },
+      "album" : {
+        "path" : "${version?v10.0}/${id}",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK",
+          "fields": "id,name,description,type,updated_time"
+        },
+        "dataType" : "json"
+      },
+      "albumPhotos" : {
+        "path" : "${version?v10.0}/${id}/photos",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK",
+          "fields": "id,name,width,height,images"
+        },
+        "dataType" : "json"
+      },
+      "photo" : {
+        "path" : "${version?v10.0}/${id}",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK",
+          "fields": "id,album,from,icon,link,name,name_tags,webp_images,updated_time,width,height"
+        },
+        "dataType" : "json"
+      }
+  }
+}

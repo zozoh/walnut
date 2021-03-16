@@ -72,21 +72,57 @@ public class WnThirdXConfigManager implements ThirdXConfigManager {
         return Lang.map2Object(config, configType);
     }
 
+    public boolean hasValidAccessKey(String apiName, String account) {
+        ThirdXExpert expert = experts.checkExpert(apiName);
+
+        // 无需动态密钥，那么永远是 true 咯
+        if (!expert.isDynamicAccessKey()) {
+            return true;
+        }
+
+        String ph = Wn.appendPath(expert.getHome(), account, expert.getAccessKeyFilePath());
+        String aph = Wn.normalizeFullPath(ph, vars);
+
+        ThirdXAccessKey ak = cacheAccessKey.get(aph);
+        if (null == ak || ak.isExpired() || !ak.hasTicket()) {
+            synchronized (this) {
+                ak = cacheAccessKey.get(aph);
+                // 还是木有，那么从持久化存储
+                if (null == ak || ak.isExpired() || !ak.hasTicket()) {
+                    WnObj oAk = io.fetch(null, aph);
+                    if (null != oAk) {
+                        ak = Lang.map2Object(oAk, ThirdXAccessKey.class);
+                        return null != ak && !ak.isExpired() && ak.hasTicket();
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     @Override
-    public String loadAccessKey(String apiName, String account) {
+    public String loadAccessKey(String apiName, String account, NutBean vars, boolean force) {
         ThirdXExpert expert = experts.checkExpert(apiName);
         String ph = Wn.appendPath(expert.getHome(), account, expert.getAccessKeyFilePath());
         String aph = Wn.normalizeFullPath(ph, vars);
+
+        // 如果强制，那么先移除缓存
+        if (force) {
+            cacheAccessKey.remove(aph);
+        }
 
         // 先尝试命中缓存
         ThirdXAccessKey ak = cacheAccessKey.get(aph);
         if (null == ak || ak.isExpired() || !ak.hasTicket()) {
             synchronized (this) {
                 // 再次看看缓存
-                ak = cacheAccessKey.get(aph);
+                if (!force) {
+                    ak = cacheAccessKey.get(aph);
+                }
 
                 // 还是木有，那么从持久化存储
-                if (null == ak || ak.isExpired() || !ak.hasTicket()) {
+                if (!force && (null == ak || ak.isExpired() || !ak.hasTicket())) {
                     WnObj oAk = io.fetch(null, aph);
                     if (null != oAk) {
                         ak = Lang.map2Object(oAk, ThirdXAccessKey.class);
@@ -99,11 +135,17 @@ public class WnThirdXConfigManager implements ThirdXConfigManager {
                     // 首先要获取一下配置信息
                     NutMap config = this.loadConfig(apiName, account, NutMap.class);
 
+                    // 准备一个上下文，这个 config 可能从缓存来，所以要复制一下
+                    NutMap context = config.duplicate();
+                    if (null != vars)
+                        context.putAll(vars);
+
                     // 动态密钥，需要请求服务器
                     if (expert.isDynamicAccessKey()) {
                         ThirdXRequest req = expert.getAccessKeyRequest();
-                        req.explainHeaders(config);
-                        req.explainParams(config);
+                        req.expalinPath(context);
+                        req.explainHeaders(context);
+                        req.explainParams(context);
                         NutMap re = api.send(req, NutMap.class);
 
                         // 转换成标准的请求对象
@@ -112,7 +154,7 @@ public class WnThirdXConfigManager implements ThirdXConfigManager {
                     }
                     // 否则就是模板密钥
                     else {
-                        NutMap ao = (NutMap) Wn.explainObj(config, expert.getAccessKeyObj());
+                        NutMap ao = (NutMap) Wn.explainObj(context, expert.getAccessKeyObj());
                         ak = Lang.map2Object(ao, ThirdXAccessKey.class);
                     }
 

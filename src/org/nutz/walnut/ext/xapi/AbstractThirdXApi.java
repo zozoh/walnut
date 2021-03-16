@@ -42,8 +42,12 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         this.experts = experts;
     }
 
+    public boolean hasValidAccessKey(String apiName, String account) {
+        return configs.hasValidAccessKey(apiName, account);
+    }
+
     public ThirdXRequest prepare(String apiName, String account, String path, NutBean vars) {
-        ThirdXRequest req = experts.checkExpert(apiName).check(path);
+        ThirdXRequest req = experts.checkExpert(apiName).check(path).clone();
 
         // 准备上下文变量
         if (null == vars) {
@@ -51,10 +55,11 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         }
 
         // 读取密钥
-        String ak = configs.loadAccessKey(apiName, account);
+        String ak = configs.loadAccessKey(apiName, account, vars, false);
         vars.put("@AK", ak);
 
         // 展开头和参数表
+        req.expalinPath(vars);
         req.explainHeaders(vars);
         req.explainParams(vars);
 
