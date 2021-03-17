@@ -45,6 +45,8 @@ public abstract class CheapNode {
         this.joinString(sb);
         return sb.toString();
     }
+    
+    public abstract String toBrief();
 
     public abstract void joinTree(StringBuilder sb, int depth, String tab);
 
@@ -693,6 +695,10 @@ public abstract class CheapNode {
 
     public List<CheapNode> getChildren() {
         return children;
+    }
+
+    public List<CheapElement> getChildElements() {
+        return this.getChildElements(null);
     }
 
     public List<CheapElement> getChildElements(CheapFilter flt) {

@@ -1295,6 +1295,33 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
+    public byte[] readBytes(WnObj o) {
+        InputStream ins = null;
+        try {
+            ins = this.getInputStream(o, 0);
+            int off = 0;
+            int len = (int) o.len();
+            byte[] bs = new byte[len];
+            int readed;
+            while (len > 0 && (readed = ins.read(bs, off, len)) >= 0) {
+                if (readed > 0) {
+                    off += readed;
+                    len -= readed;
+                }
+            }
+            return bs;
+        }
+        catch (IOException e) {
+            throw Er.wrap(e);
+        }
+        // 安全关闭
+        finally {
+            Streams.safeClose(ins);
+        }
+
+    }
+
+    @Override
     public BufferedImage readImage(WnObj o) {
         InputStream ins = null;
         try {

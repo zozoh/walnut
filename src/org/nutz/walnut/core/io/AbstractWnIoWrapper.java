@@ -188,6 +188,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.readText(o);
     }
 
+    public byte[] readBytes(WnObj o) {
+        return io.readBytes(o);
+    }
+
     public BufferedImage readImage(WnObj o) {
         return io.readImage(o);
     }

@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -198,6 +200,9 @@ public class ti_build implements JvmHdl {
                 for (String deps : depss) {
                     String type = Files.getSuffixName(deps);
                     NutMap bean = Lang.map("type", type);
+                    if (deps.matches("^@https?://.+$")) {
+                        deps = deps.substring(1);
+                    }
                     bean.put("path", deps);
                     depsList.add(bean);
                 }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -757,6 +759,23 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.writeText(o, "");
         assertEquals(0, o.len());
         assertEquals(0, io.check(null, "/abc").len());
+    }
+
+    @Test
+    public void test_read_bytes() throws UnsupportedEncodingException {
+        WnObj o = io.create(null, "/a.xml", WnRace.FILE);
+        String path = "org/nutz/walnut/core/test.xml";
+        String xml = Files.read(path);
+        io.writeText(o, xml);
+
+        byte[] b1 = Files.readBytes(path);
+        byte[] b2 = io.readBytes(o);
+
+        assertEquals(b1.length, b2.length);
+        String s1 = new String(b1, Encoding.UTF8);
+        String s2 = new String(b2, Encoding.UTF8);
+
+        assertEquals(s1, s2);
     }
 
     @Test

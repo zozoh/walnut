@@ -386,6 +386,11 @@
 			<artifactId>clickhouse-jdbc</artifactId>
 			<version>0.2.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.docx4j</groupId>
+			<artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
+			<version>8.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

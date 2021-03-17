@@ -27,9 +27,15 @@ public class CheapRawData extends CheapNode {
     }
 
     @Override
+    public String toBrief() {
+        return String.format("[%d]%s: ", this.getNodeIndex(), treeDisplayName);
+    }
+
+    @Override
     public void joinTree(StringBuilder sb, int depth, String tab) {
         sb.append(Ws.repeat(tab, depth));
-        sb.append(String.format("|-- [%d]%s: ", this.getNodeIndex(), treeDisplayName));
+        sb.append("|-- ");
+        sb.append(this.toBrief());
         // 空
         if (null == text) {
             sb.append("NULL");

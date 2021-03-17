@@ -172,6 +172,8 @@ public interface WnIo {
     void appendMeta(WnObj o, Object meta);
 
     String readText(WnObj o);
+    
+    byte[] readBytes(WnObj o);
 
     BufferedImage readImage(WnObj o);
 

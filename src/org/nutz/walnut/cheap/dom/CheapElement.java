@@ -46,15 +46,10 @@ public class CheapElement extends CheapNode {
     }
 
     @Override
-    public void joinTree(StringBuilder sb, int depth, String tab) {
-        sb.append(Ws.repeat(tab, depth));
-        String prefix = "";
-        if (depth > 0) {
-            prefix = "|-- ";
-        }
+    public String toBrief() {
+        StringBuilder sb = new StringBuilder();
         // 下标
-        sb.append(String.format("%s[%d]%s(%d): ",
-                                prefix,
+        sb.append(String.format("[%d]%s(%d): ",
                                 this.getNodeIndex(),
                                 tagName,
                                 this.getElementIndex()));
@@ -65,7 +60,7 @@ public class CheapElement extends CheapNode {
         }
         // 输出属性
         for (String key : attrs.keySet()) {
-            if("class".equals(key)) {
+            if ("class".equals(key)) {
                 continue;
             }
             Object val = attrs.get(key);
@@ -74,6 +69,18 @@ public class CheapElement extends CheapNode {
                 sb.append('=').append(val);
             }
         }
+
+        return sb.toString();
+    }
+
+    @Override
+    public void joinTree(StringBuilder sb, int depth, String tab) {
+        sb.append(Ws.repeat(tab, depth));
+        if (depth > 0) {
+            sb.append("|-- ");
+        }
+        // 摘要
+        sb.append(this.toBrief());
         // 换行
         sb.append("\n");
 
@@ -222,7 +229,7 @@ public class CheapElement extends CheapNode {
         // 输出属性
         for (Map.Entry<String, Object> en : attrs.entrySet()) {
             String key = en.getKey();
-            if("class".equals(key)) {
+            if ("class".equals(key)) {
                 continue;
             }
             Object val = en.getValue();
