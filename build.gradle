@@ -135,6 +135,9 @@ dependencies {
 	
 	// Clickhouse
 	runtime ('ru.yandex.clickhouse:clickhouse-jdbc:0.2.4')
+
+    //docx4j
+    compile ('org.docx4j:docx4j-JAXB-ReferenceImpl:8.2.0')
 }
 
 buildscript {
