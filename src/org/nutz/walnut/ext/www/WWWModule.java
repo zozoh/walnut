@@ -369,7 +369,7 @@ public class WWWModule extends AbstractWnModule {
             ua = WnWeb.autoUserAgent(o, ua, download);
 
             // 返回下载视图
-            return new WnObjDownloadView(io(), o, ua, etag, range);
+            return new WnObjDownloadView(io(), o, null, ua, etag, range);
 
         }
         catch (Exception e) {

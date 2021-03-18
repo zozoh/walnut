@@ -18,7 +18,7 @@ public class dom_as extends DomFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn", "^(doc|selected)$");
+        return ZParams.parse(args, "cqn", "^(doc|selected|quiet)$");
     }
 
     @Override
@@ -26,6 +26,12 @@ public class dom_as extends DomFilter {
         // 输出类型
         String type = params.val(0, "html");
         String output;
+        
+        // 强制静默
+        if(params.is("quiet")) {
+            fc.quiet = true;
+            return;
+        }
 
         // 准备输出的节点
         if (!params.is("selected") && (!fc.hasSelected() || params.is("doc"))) {

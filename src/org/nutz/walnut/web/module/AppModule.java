@@ -261,7 +261,7 @@ public class AppModule extends AbstractWnModule {
             }
 
             // 其他就默认咯
-            return new WnObjDownloadView(io(), o, ua, etag, range);
+            return new WnObjDownloadView(io(), o, null, ua, etag, range);
         }
         // 最后打印总时长
         finally {

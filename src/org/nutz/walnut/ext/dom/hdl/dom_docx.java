@@ -36,6 +36,8 @@ public class dom_docx extends DomFilter {
             CheapDocxRendering ing = new CheapDocxRendering(fc.doc, wp, null, loader);
             ing.render();
             wp.save(out);
+            
+            fc.quiet = true;
         }
         catch (Exception e) {
             e.printStackTrace();

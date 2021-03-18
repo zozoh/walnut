@@ -502,6 +502,7 @@ public class ObjModule extends AbstractWnModule {
     @AdaptBy(type = JsonAdaptor.class)
     public View content(@Param("str") String str,
                         @Param("d") String download,
+                        @Param("dnm") String downloadName,
                         @ReqHeader("User-Agent") String ua,
                         @ReqHeader("If-None-Match") String etag,
                         @ReqHeader("Range") String range,
@@ -529,7 +530,7 @@ public class ObjModule extends AbstractWnModule {
         ua = WnWeb.autoUserAgent(o, ua, download);
 
         // 返回下载视图
-        return new WnObjDownloadView(io(), o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, downloadName, ua, etag, range);
 
     }
 
@@ -776,7 +777,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 返回下载视图
-        return new WnObjDownloadView(io(), o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, null, ua, etag, range);
     }
 
     @Deprecated

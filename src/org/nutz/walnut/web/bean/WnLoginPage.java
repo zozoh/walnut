@@ -92,7 +92,7 @@ public class WnLoginPage {
         }
 
         // 显示内容
-        return new WnObjDownloadView(io, o, null, etag, range);
+        return new WnObjDownloadView(io, o, null, null, etag, range);
     }
 
     private static final String LOGIN_HTML;

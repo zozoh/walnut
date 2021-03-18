@@ -20,8 +20,14 @@ public class WnObjDownloadView implements View {
         re.writeTo(resp);
     }
 
-    public WnObjDownloadView(WnIo io, WnObj o, String ua, String etag, String range) {
+    public WnObjDownloadView(WnIo io,
+                             WnObj o,
+                             String downloadName,
+                             String ua,
+                             String etag,
+                             String range) {
         this.re = new WnHttpResponse();
+        this.re.setDownloadName(downloadName);
         this.re.setEtag(etag);
         this.re.setUserAgent(ua);
         this.re.prepare(io, o, range);

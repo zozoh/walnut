@@ -56,6 +56,7 @@ public class GuestModule extends AbstractWnModule {
     @Fail("http:404")
     public View read(String str,
                      @Param("d") String download,
+                     @Param("dnm") String downloadName,
                      @ReqHeader("User-Agent") String ua,
                      @ReqHeader("If-None-Match") String etag,
                      @ReqHeader("Range") String range,
@@ -82,7 +83,7 @@ public class GuestModule extends AbstractWnModule {
         ua = WnWeb.autoUserAgent(o, ua, download);
 
         // 返回下载视图
-        return new WnObjDownloadView(io(), o, ua, etag, range);
+        return new WnObjDownloadView(io(), o, downloadName, ua, etag, range);
     }
 
     @At("/qrcode")
