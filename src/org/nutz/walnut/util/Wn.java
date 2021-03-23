@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -591,6 +593,53 @@ public abstract class Wn {
         }
         // 其他就直接返回了
         return obj;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object translate(Object input, NutBean mapping) {
+     // 防守
+        if (null == input)
+            return null;
+
+        Mirror<?> mi = Mirror.me(input);
+        // ....................................
+        // Array
+        if (mi.isArray()) {
+            int len = Array.getLength(input);
+            Object[] arr = new Object[len];
+            for(int i=0; i<len;i++) {
+                Object val = Array.get(input, i);
+                Object v2 = translate(val, mapping);
+                arr[i] = v2;
+            }
+            return arr;
+        }
+        // ....................................
+        // 集合
+        if (mi.isCollection()) {
+            Collection<?> col = (Collection<?>)input;
+            List<Object> list = new ArrayList<>(col.size());
+            for(Object v : col) {
+                Object v2 = translate(v, mapping);
+                list.add(v2);
+            }
+            return list;
+        }
+        // ....................................
+        // Map
+        else if (mi.isMap()) {
+            NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+            NutMap reMap = new NutMap();
+            for(Map.Entry<String,Object> en : mapping.entrySet()) {
+                String key = en.getKey();
+                String kin = en.getValue().toString();
+                Object val = inputMap.get(kin);
+                reMap.put(key, val);
+            }
+            return reMap;
+        }
+        // 其他就直接返回了
+        return input;
     }
 
     public static String evalName(String name, String id) {

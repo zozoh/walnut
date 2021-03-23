@@ -25,8 +25,14 @@ public class o_ancestors extends OFilter {
         boolean includeSelf = params.is("self");
         boolean excludeTop = params.is("notop");
         String asKey = params.val(0, null);
-        if (null != asKey && asKey.matches("^(null|~ignore~)$")) {
-            asKey = null;
+        if (null != asKey) {
+            // 跳过本操作
+            if ("~ignore~".equals(asKey)) {
+                return;
+            }
+            if ("null".equals(asKey)) {
+                asKey = null;
+            }
         }
 
         // 存储所有的读取列表
