@@ -17,7 +17,7 @@ o '${http-qs-p}' \
   -pager 
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
-  @json ${http-qs-k?#TP} -cqn
+  @json ${http-qs-k?#TP} -cqnl
 %END%
 #---------------------------------------------------------
 # 目录对象：列表
@@ -33,7 +33,7 @@ o '${http-qs-p}' \
   -skip  ${http-qs-skip?0} \
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
-  @json ${http-qs-k?#TP} -cqn
+  @json ${http-qs-k?#TP} -cqnl
 %END%
 #---------------------------------------------------------
 # 目录对象：树
