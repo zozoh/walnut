@@ -20,10 +20,19 @@ httpout -body 'sha1:${http-qs-f}' \
   -range '${http-header-RANGE?}'
 %END%
 #--------------------------------------------------------
-# API(thing): 缩略图
+# API(obj):读取对象内容
 @API .regapi/api/media 'cross/dynamic'
 %COPY:
 httpout -body ${http-qs} \
+  -etag  '${http-header-IF-NONE-MATCH?none}' \
+  -range '${http-header-RANGE?}'
+%END%
+#--------------------------------------------------------
+# API(obj): 下载对象内容
+@API .regapi/api/down 'cross/dynamic'
+%COPY:
+httpout -body ${http-qs} \
+  -download true \
   -etag  '${http-header-IF-NONE-MATCH?none}' \
   -range '${http-header-RANGE?}'
 %END%
