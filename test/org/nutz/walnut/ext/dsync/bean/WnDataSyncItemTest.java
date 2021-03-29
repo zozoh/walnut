@@ -23,6 +23,24 @@ public class WnDataSyncItemTest {
         String str = dsi.toString();
         assertEquals(input, str);
     }
+    
+    @Test
+    public void test_nil_sha1() {
+        String s1 = "059c491efa79ef6938740854a8843390acfdffdc";
+        String s2 = "2ce79dd97a6af1d42a40ff7f6fcebe657dcc3986";
+        String input = "F:~/path/to/a;=BEAN(" + s1 + ");=META(" + s2 + ");=SHA1(null);=LEN(0)";
+
+        WnDataSyncItem dsi = new WnDataSyncItem(input);
+        assertEquals(WnRace.FILE, dsi.getRace());
+        assertEquals("~/path/to/a", dsi.getPath());
+        assertEquals(s1, dsi.getBeanSha1());
+        assertEquals(s2, dsi.getMetaSha1());
+        assertNull(dsi.getSha1());
+
+        String str = dsi.toString();
+        assertEquals(input, str);
+    }
+
 
     @Test
     public void test_00() {

@@ -11,6 +11,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wobj;
+import org.nutz.walnut.util.Ws;
 
 public class WnDataSyncItem {
 
@@ -70,7 +71,7 @@ public class WnDataSyncItem {
         String metaJson = Json.toJson(this.meta, jfmt);
         this.metaSha1 = Lang.sha1(metaJson);
 
-        this.sha1 = o.sha1();
+        this.sha1 = Ws.sBlank(o.sha1(), null);
         this.len = o.len();
     }
 
@@ -93,7 +94,7 @@ public class WnDataSyncItem {
                                 + ";=BEAN\\(([0-9a-z]{40})\\)"
                                 + ";=META\\(([0-9a-z]{40})\\)"
                                 + "("
-                                + ";=SHA1\\(([a-z0-9]{20,})\\)"
+                                + ";=SHA1\\(([a-z0-9]{4,})\\)"
                                 + ";=LEN\\(([0-9]+)\\)"
                                 + ")?$";
 
@@ -111,6 +112,9 @@ public class WnDataSyncItem {
         this.metaSha1 = m.group(4);
         if (this.isFile()) {
             this.sha1 = m.group(6);
+            if ("null".equals(this.sha1)) {
+                this.sha1 = null;
+            }
             this.len = Long.parseLong(m.group(7));
         }
     }
@@ -181,6 +185,10 @@ public class WnDataSyncItem {
 
     public void setMetaSha1(String metaSha1) {
         this.metaSha1 = metaSha1;
+    }
+
+    public boolean hasSha1() {
+        return !Ws.isBlank(sha1);
     }
 
     public String getSha1() {

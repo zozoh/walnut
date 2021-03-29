@@ -143,9 +143,14 @@ public class WnDataSyncService {
                 // 文件内容
                 if (tree.hasItems()) {
                     for (WnDataSyncItem item : tree.getItems()) {
-                        if (item.isFile()) {
+                        if (item.isFile() && item.hasSha1()) {
                             WnObj o = item.getObj();
                             String sha1 = o.sha1();
+                            // 防空
+                            if (Ws.isBlank(sha1)) {
+                                continue;
+                            }
+
                             // 防守：不要重复输出 SHA1
                             if (sha1s.containsKey(sha1)) {
                                 continue;
