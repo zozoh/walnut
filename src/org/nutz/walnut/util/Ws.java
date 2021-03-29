@@ -2,6 +2,7 @@ package org.nutz.walnut.util;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 
@@ -363,12 +365,44 @@ public class Ws {
      * @return 合并后的字符串
      */
     public static String join(String[] arr, String sep) {
-        StringBuilder sb = new StringBuilder();
-        if (arr.length > 0) {
-            sb.append(arr[0]);
+        return join(arr, sep, 0, arr.length);
+    }
 
-            for (int i = 1; i < arr.length; i++) {
-                sb.append(sep);
+    /**
+     * 将容器内对象合并为一个字符串
+     * 
+     * @param arr
+     *            字符串数组
+     * @param sep
+     *            分隔符
+     * @param off
+     *            开始元素下标
+     * @return 合并后的字符串
+     */
+    public static String join(String[] arr, String sep, int off) {
+        return join(arr, sep, 0, arr.length - off);
+    }
+
+    /**
+     * 将容器内对象合并为一个字符串
+     * 
+     * @param arr
+     *            字符串数组
+     * @param sep
+     *            分隔符
+     * @param off
+     *            开始元素下标
+     * @param len
+     *            迭代元素数量
+     * @return 合并后的字符串
+     */
+    public static String join(String[] arr, String sep, int off, int len) {
+        StringBuilder sb = new StringBuilder();
+        if (len > 0) {
+            int lastI = Math.min(arr.length - 1, off + len);
+            for (int i = off; i <= lastI; i++) {
+                if (i > off)
+                    sb.append(sep);
                 sb.append(arr[i]);
             }
         }
@@ -1040,5 +1074,58 @@ public class Ws {
         re.append(repeat(c, width - length));
         re.append(s);
         return re.toString();
+    }
+
+    public static String formatAms(long ams, String format) {
+        Date d = new Date(ams);
+        return Times.format("yyyy-MM-dd HH:mm:ss", d);
+    }
+
+    public static String formatAms(long ams) {
+        return formatAms(ams, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     * @param len
+     *            字节长度
+     * @return 比较容易阅读的字节长度表示方式
+     */
+    public static String sizeText(long len) {
+        return sizeText(len, true);
+    }
+
+    /**
+     * @param len
+     *            字节长度
+     * @param bytes
+     *            是否输出实际字节
+     * @return 比较容易阅读的字节长度表示方式
+     */
+    public static String sizeText(long len, boolean bytes) {
+        int fixed = 2;
+        double M = 1024;
+        String[] units = Wlang.array("Bytes", "KB", "MB", "GB", "PB", "TB");
+        double nb = len;
+        int i = 0;
+        for (; i < units.length; i++) {
+            double nb2 = nb / M;
+            if (nb2 < 1) {
+                break;
+            }
+            nb = nb2;
+        }
+        String unit = units[i];
+        String re = "";
+        if (nb == Math.ceil(nb)) {
+            re = ((long) nb + unit);
+        } else {
+            nb = Wnum.precise(nb, fixed);
+            re = nb + unit;
+        }
+
+        if (bytes && i > 0) {
+            return re + "(" + len + "bytes)";
+        }
+        return re;
     }
 }

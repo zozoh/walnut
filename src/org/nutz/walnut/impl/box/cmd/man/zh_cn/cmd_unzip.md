@@ -7,9 +7,10 @@
 	unzip [-f] <zipfile> <dir1>
 	
 	-f 文件已存在强制写入
-	-h 如果包内有隐藏文件，也写入
 	-l 查看压缩包文件内容
-	-m 过滤器，正则表达式
+	-hidden 如果包内有隐藏文件，也写入
+	-macosx 如果包内有 __MACOSX 文件，也写入
+	-m 过滤器，WnMatch
 	
 # 示例
 

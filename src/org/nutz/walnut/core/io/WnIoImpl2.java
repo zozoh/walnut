@@ -32,6 +32,7 @@ import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnObjFilter;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
@@ -484,6 +485,11 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
+        walk(p, callback, mode, null);
+    }
+
+    @Override
+    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
         WnObj p2;
         // 确保非空
         if (null == p) {
@@ -495,7 +501,7 @@ public class WnIoImpl2 implements WnIo {
         }
         WnIoMapping mapping = mappings.checkMapping(p2);
         WnIoIndexer indexer = mapping.getIndexer();
-        indexer.walk(p2, callback, mode);
+        indexer.walk(p2, callback, mode, filter);
     }
 
     @Override

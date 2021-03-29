@@ -1,211 +1,137 @@
 package org.nutz.walnut.impl.box.cmd;
 
-import java.io.BufferedInputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
-import org.nutz.walnut.api.io.WalkMode;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnPager;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
-import org.nutz.web.Webs.Err;
+import org.nutz.walnut.util.archive.WnArchiveWriting;
+import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
+import org.nutz.walnut.util.bean.WnObjAnMatrix;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoMatch;
 
 public class cmd_zip extends JvmExecutor {
 
-    private Log log = Logs.get();
-
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, "frd", "^(list|hide)$");
-        if (params.vals.length < 2) {
-            throw Err.create("e.cmd.zip.miss_args");
+        // 分析参数
+        ZParams params = ZParams.parse(args, "^(quiet)");
+        String phTa = params.val_check(0);
+        boolean quiet = params.is("quiet");
+
+        if (params.vals.length <= 1) {
+            throw Er.create("e.cmd.zip.NilInput");
         }
 
-        String dest = params.vals[0];
-        String[] srcArr = new String[params.vals.length - 1];
+        // 准备计时
+        Stopwatch sw = Stopwatch.begin();
+
+        // 过滤器
+        AutoMatch am = null;
+        String fltJson = params.get("m");
+        if (!Ws.isBlank(fltJson)) {
+            Object flt = Json.fromJson(fltJson);
+            am = new AutoMatch(flt);
+        }
+
+        // 准备输入源
+        List<WnObj> oSrcList = new ArrayList<>(params.vals.length - 1);
         for (int i = 1; i < params.vals.length; i++) {
-            srcArr[i - 1] = params.vals[i];
+            String rph = params.val(i);
+            WnObj o = Wn.checkObj(sys, rph);
+            oSrcList.add(o);
         }
 
-        String destPath = Wn.normalizeFullPath(dest, sys);
-        WnObj destObj = sys.io.fetch(null, destPath);
-        if (destObj != null && !params.is("f")) {
-            throw Err.create("e.cmd.zip.dest.exist");
-        }
-
-        if (destObj != null && destObj.isDIR()) {
-            throw Err.create("e.cmd.zip.dest.isdir");
-        }
-
-        // 目标文件
-        destObj = sys.io.createIfNoExists(null, destPath, WnRace.FILE);
-
-        // 计算要列出的要处理的对象
-        List<WnZipEntry> ens = new ArrayList<>();
-        List<WnObj> srclist = new ArrayList<WnObj>();
-        if (params.has("match")) {
-            WnPager wp = new WnPager(params);
-            for (String srcPath : srcArr) {
-                String dirPath = Wn.normalizeFullPath(srcPath, sys);
-                WnObj dirObj = sys.io.fetch(null, dirPath);
-                srclist.addAll(queryByMatch(sys, params, dirObj, wp));
-            }
+        // 得到一个公共的父对象
+        WnObj oTop;
+        if (oSrcList.size() == 1) {
+            oTop = oSrcList.get(0);
         } else {
-            if (params.is("r")) {
-                for (String path : srcArr) {
-                    String sourcePath = Wn.normalizeFullPath(path, sys);
-                    WnObj wobj = sys.io.check(null, sourcePath);
-                    if (wobj.isFILE()) {
-                        ens.add(new WnZipEntry(wobj, wobj));
-                    } else {
-                        sys.io.walk(wobj, new Callback<WnObj>() {
-                            public void invoke(WnObj obj) {
-                                // 无视隐藏文件
-                                if (params.is("hide"))
-                                    if (obj.isHidden())
-                                        Lang.Continue();
-                                ens.add(new WnZipEntry(obj, wobj));
-                            }
-                        }, WalkMode.BREADTH_FIRST);
-                    }
-                }
-            } else {
-                srclist.addAll(Cmds.evalCandidateObjsNoEmpty(sys, srcArr, 0));
+            oTop = this.findCommonParent(oSrcList);
+        }
+
+        OutputStream ops = null;
+        WnArchiveWriting ag = null;
+        WnObj oZip = null;
+
+        try {
+            // 准备输出文件
+            String aphTa = Wn.normalizeFullPath(phTa, sys);
+            oZip = sys.io.createIfNoExists(null, aphTa, WnRace.FILE);
+
+            // 准备输出流
+            ops = sys.io.getOutputStream(oZip, 0);
+            ag = new WnZipArchiveWriting(ops);
+
+            // 开始逐个加入压缩包
+            for (WnObj o : oSrcList) {
+                addEntry(sys, oTop, ag, o, quiet, am);
             }
         }
-        if (params.is("list")) {
-            for (int i = 0; i < srclist.size(); i++) {
-                WnObj srcObj = srclist.get(i);
-                sys.out.printlnf("%s", srcObj.name());
-            }
-        } else {
-            try (OutputStream out = sys.io.getOutputStream(destObj, 0);) {
-                ZipOutputStream zipOut = new ZipOutputStream(out);
-                String entryName = null;
-                NoFlushOutputStream proxyOut = new NoFlushOutputStream(zipOut);
-                for (WnObj srcObj : srclist) {
-                    try {
-                        if (srcObj.isDIR()) {
-                            continue;
-                        }
-                        if (destObj.id().equals(srcObj.id())) {
-                            continue;
-                        }
-                        entryName = srcObj.name();
-                        // 创建Zip条目
-                        ZipEntry entry = new ZipEntry(entryName);
-                        zipOut.putNextEntry(entry);
+        // 确保写入
+        finally {
+            Streams.safeFlush(ag);
+            Streams.safeClose(ag);
+            Streams.safeClose(ops);
+            sw.stop();
+        }
 
-                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(srcObj,
-                                                                                                     0))) {
-                            Streams.write(proxyOut, bis);
-                        }
-                        ;
-                        zipOut.closeEntry();
-                    }
-                    catch (Throwable e) {
-                        sys.out.print("error at " + srcObj.name());
-                    }
-                }
-                for (WnZipEntry wzen : ens) {
-                    if (params.is("d"))
-                        sys.out.printlnf("add: %s from %s", wzen.getName(), wzen.wobj.path());
-                    ZipEntry entry = new ZipEntry(wzen.getName());
-                    zipOut.putNextEntry(entry);
-                    if (!wzen.wobj.isDIR()) {
-                        try (BufferedInputStream bis = new BufferedInputStream(sys.io.getInputStream(wzen.wobj,
-                                                                                                     0))) {
-                            Streams.write(proxyOut, bis);
-                        }
-                        ;
-                    }
-                    zipOut.closeEntry();
-                }
-                zipOut.flush();
-                zipOut.finish();
-            }
-            catch (Throwable e) {
-                log.error(e.getMessage(), e);
-                throw Err.create(e, "e.cmd.zip.error");
-            }
+        if (!quiet) {
+            sys.out.printlnf("Gen %s in  %s", oZip, sw.toString());
         }
     }
 
-    private List<WnObj> queryByMatch(WnSystem sys, ZParams params, WnObj oP, WnPager wp) {
-        String json = params.get("match", "{}");
-        WnQuery q = new WnQuery();
-        // 条件是"或"
-        if (Strings.isQuoteBy(json, '[', ']')) {
-            List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
-            q.addAll(ors);
+    private void addEntry(WnSystem sys,
+                          WnObj oTop,
+                          WnArchiveWriting ag,
+                          WnObj o,
+                          boolean quiet,
+                          WnMatch am)
+            throws IOException {
+        // 无视
+        if (null != am && !am.match(o)) {
+            return;
         }
-        // 条件是"与"
+        // 目录，递归
+        if (o.isDIR()) {
+            List<WnObj> children = sys.io.getChildren(o, null);
+            for (WnObj child : children) {
+                addEntry(sys, oTop, ag, child, quiet, am);
+            }
+        }
+        // 文件，写入
         else {
-            q.add(Lang.map(json));
-        }
-
-        // 如果指定了父对象 ...
-        if (null != oP)
-            q.setv("pid", oP.id());
-
-        q.setv("d0", "home").setv("d1", sys.getMyGroup());
-
-        // 最大不能超过10w
-        if (wp.limit <= 0) {
-            wp.limit = Math.max(wp.limit, 100000);
-        }
-
-        // 设置分页信息
-        wp.setupQuery(sys, q);
-
-        return sys.io.query(q);
-    }
-
-    public static class WnZipEntry {
-        public WnObj wobj;
-        public WnObj root;
-
-        public WnZipEntry() {}
-
-        public WnZipEntry(WnObj wobj, WnObj root) {
-            this.wobj = wobj;
-            this.root = root;
-        }
-
-        public String getName() {
-            if (wobj == root)
-                return wobj.name();
-            return wobj.path().substring(root.path().length() + 1) + (wobj.isDIR() ? "/" : "");
+            String rph = Wn.Io.getRelativePath(oTop, o);
+            InputStream ins = sys.io.getInputStream(o, 0);
+            long len = o.len();
+            if (!quiet) {
+                sys.out.printlnf(" + %s : %s", rph, o.toString());
+            }
+            ag.addFileEntry(rph, ins, len);
         }
     }
 
-    public static class NoFlushOutputStream extends FilterOutputStream {
-
-        public NoFlushOutputStream(OutputStream out) {
-            super(out);
+    private WnObj findCommonParent(List<WnObj> objs) {
+        if (null == objs)
+            return null;
+        if (objs.size() == 1) {
+            return objs.get(0);
         }
-
-        public void flush() throws IOException {
-            // nop
-        }
+        WnObjAnMatrix oam = new WnObjAnMatrix(objs);
+        return oam.findCommonParent(null);
     }
+
 }

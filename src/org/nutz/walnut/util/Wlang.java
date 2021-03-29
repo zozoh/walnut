@@ -1,16 +1,65 @@
 package org.nutz.walnut.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import org.nutz.lang.Lang;
-import org.nutz.lang.LoopException;
+import java.util.List;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.each.WnBreakException;
 import org.nutz.walnut.util.each.WnContinueException;
 import org.nutz.walnut.util.each.WnEachIteratee;
 
 public class Wlang {
+    
+    /**
+     * 根据一段字符串，生成一个 Map 对象。
+     *
+     * @param str
+     *            参照 JSON 标准的字符串，但是可以没有前后的大括号
+     * @return Map 对象
+     */
+    public static NutMap map(String str) {
+        if (null == str)
+            return null;
+        str = Strings.trim(str);
+        if (!Strings.isEmpty(str)
+            && (Strings.isQuoteBy(str, '{', '}') || Strings.isQuoteBy(str, '(', ')'))) {
+            return Json.fromJson(NutMap.class, str);
+        }
+        return Json.fromJson(NutMap.class, "{" + str + "}");
+    }
+    
+    /**
+     * 创建一个一个键的 Map 对象
+     *
+     * @param key
+     *            键
+     * @param v
+     *            值
+     * @return Map 对象
+     */
+    public static NutMap map(String key, Object v) {
+        return new NutMap().addv(key, v);
+    }
+
+    /**
+     * 根据一个格式化字符串，生成 Map 对象
+     *
+     * @param fmt
+     *            格式化字符串
+     * @param args
+     *            字符串参数
+     * @return Map 对象
+     */
+    public static NutMap mapf(String fmt, Object... args) {
+        return map(String.format(fmt, args));
+    }
 
     /**
      * 遍历一个对象，可以支持:
@@ -85,9 +134,38 @@ public class Wlang {
                 catch (WnBreakException e) {}
             }
         }
-        catch (LoopException e) {
-            throw Lang.wrapThrow(e.getCause());
+        catch (WnLoopException e) {
+            throw wrapThrow(e.getCause());
         }
+    }
+    
+    /**
+     * 清除数组中的特定值
+     *
+     * @param objs
+     *            数组
+     * @param val
+     *            值，可以是 null，如果是对象，则会用 equals 来比较
+     * @return 新的数组实例
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] without(T[] objs, T val) {
+        if (null == objs || objs.length == 0) {
+            return objs;
+        }
+        List<T> list = new ArrayList<T>(objs.length);
+        Class<?> eleType = null;
+        for (T obj : objs) {
+            if (obj == val || (null != obj && null != val && obj.equals(val)))
+                continue;
+            if (null == eleType && obj != null)
+                eleType = obj.getClass();
+            list.add(obj);
+        }
+        if (list.isEmpty()) {
+            return (T[]) new Object[0];
+        }
+        return list.toArray((T[]) Array.newInstance(eleType, list.size()));
     }
 
     /**
@@ -156,5 +234,36 @@ public class Wlang {
         return arr;
 
     }
+    
+    /**
+     * 将抛出对象包裹成运行时异常，并增加自己的描述
+     *
+     * @param e
+     *            抛出对象
+     * @param fmt
+     *            格式
+     * @param args
+     *            参数
+     * @return 运行时异常
+     */
+    public static RuntimeException wrapThrow(Throwable e, String fmt, Object... args) {
+        return new RuntimeException(String.format(fmt, args), e);
+    }
 
+    /**
+     * 用运行时异常包裹抛出对象，如果抛出对象本身就是运行时异常，则直接返回。
+     * <p>
+     * 如果是 InvocationTargetException，那么将其剥离，只包裹其 TargetException
+     *
+     * @param e
+     *            抛出对象
+     * @return 运行时异常
+     */
+    public static RuntimeException wrapThrow(Throwable e) {
+        if (e instanceof RuntimeException)
+            return (RuntimeException) e;
+        if (e instanceof InvocationTargetException)
+            return wrapThrow(((InvocationTargetException) e).getTargetException());
+        return new RuntimeException(e);
+    }
 }

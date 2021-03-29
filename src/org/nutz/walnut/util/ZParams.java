@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
@@ -182,6 +183,20 @@ public class ZParams implements Cloneable {
 
     public int val_check_int(int index) {
         return Integer.parseInt(val_check(index));
+    }
+
+    public boolean is(boolean dft, String... keys) {
+        for (String key : keys) {
+            Object v = map.get(key);
+            if (null != v) {
+                return Castors.me().castTo(v, boolean.class);
+            }
+        }
+        return dft;
+    }
+
+    public boolean is(String... keys) {
+        return is(false, keys);
     }
 
     public boolean is(String key) {

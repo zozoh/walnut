@@ -19,6 +19,7 @@ import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnObjFilter;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.lock.WnLockApi;
@@ -100,6 +101,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
 
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
         io.walk(p, callback, mode);
+    }
+
+    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
+        io.walk(p, callback, mode, filter);
     }
 
     public WnObj flush(String hid) {

@@ -18,6 +18,25 @@ import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class Wobj {
 
+    public static String[] CORE_FIELDS = Wlang.array("id",
+                                                     "pid",
+                                                     "race",
+                                                     "ct",
+                                                     "lm",
+                                                     "d0",
+                                                     "d1",
+                                                     "pvg",
+                                                     "md",
+                                                     "c",
+                                                     "g",
+                                                     "m",
+                                                     "ph",
+                                                     "thumb",
+                                                     "synt",
+                                                     "expi",
+                                                     "nano",
+                                                     "mnt");
+
     /**
      * 根据字段过滤器，生成一个过滤字段后的列表
      * 

@@ -690,7 +690,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
                         obj.d0(d0).d1(d1);
                         _set_quiet(obj, "^d0|d1$");
                     }
-                }, WalkMode.DEPTH_NODE_FIRST);
+                }, WalkMode.DEPTH_NODE_FIRST, null);
             }
         }
 

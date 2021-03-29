@@ -87,7 +87,7 @@ public interface WnIoIndexer {
     String getString(String id, String key, String dft);
 
     <T> T getAs(String id, String key, Class<T> classOfT, T dft);
-    
+
     WnObj create(WnObj p, WnObj o);
 
     WnObj create(WnObj p, String path, WnRace race);
@@ -110,7 +110,7 @@ public interface WnIoIndexer {
 
     boolean isRoot(WnObj o);
 
-    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
+    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter);
 
     int each(WnQuery q, Each<WnObj> callback);
 

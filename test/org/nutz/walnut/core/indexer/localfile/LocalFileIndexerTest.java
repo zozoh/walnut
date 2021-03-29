@@ -89,7 +89,7 @@ public class LocalFileIndexerTest extends IoCoreTest {
             public void invoke(WnObj obj) {
                 list.add(obj);
             }
-        }, WalkMode.DEPTH_NODE_FIRST);
+        }, WalkMode.DEPTH_NODE_FIRST, null);
 
         assertEquals(5, list.size());
         assertEquals("a", list.get(0).name());

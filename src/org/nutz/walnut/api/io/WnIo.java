@@ -37,6 +37,8 @@ public interface WnIo {
 
     void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
+    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter);
+
     WnObj move(WnObj src, String destPath);
 
     WnObj move(WnObj src, String destPath, int mode);
@@ -172,7 +174,7 @@ public interface WnIo {
     void appendMeta(WnObj o, Object meta);
 
     String readText(WnObj o);
-    
+
     byte[] readBytes(WnObj o);
 
     BufferedImage readImage(WnObj o);

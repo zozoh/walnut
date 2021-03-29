@@ -36,7 +36,7 @@ public class o_tree extends OFilter {
         int nMax = Integer.MIN_VALUE;
         int nMin = Integer.MAX_VALUE;
         int i = 0;
-        int n = 0;
+        
         for (WnObj o : fc.list) {
             List<WnObj> list = o.parents();
             list.add(o);
@@ -76,6 +76,7 @@ public class o_tree extends OFilter {
         // ...........................................
         // 所有的节点都汇集到父
         String subkey = fc.subKey;
+        int n = 0;
         for (i = 0; i < len; i++) {
             // 从 pN 开始，收缩起来
             WnObj[] axis = matrix[i];

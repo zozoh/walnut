@@ -7,7 +7,7 @@ import org.nutz.lang.Strings;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class Wint {
+public abstract class Wint {
 
     /**
      * @param a

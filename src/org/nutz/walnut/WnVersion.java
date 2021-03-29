@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.28";
+        return "10.29";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "Water Margin";
+        return "DSYNC";
     }
 
     /**
