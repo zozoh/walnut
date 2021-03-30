@@ -25,11 +25,14 @@ import org.nutz.walnut.ext.dsync.bean.WnDataSyncConfig;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncDir;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncItem;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncTree;
+import org.nutz.walnut.ext.dsync.bean.WnRestoreSettings;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.archive.WnArchiveSummary;
 import org.nutz.walnut.util.archive.WnArchiveWriting;
+import org.nutz.walnut.validate.impl.AutoMatch;
 
 public class WnDataSyncService {
 
@@ -74,6 +77,66 @@ public class WnDataSyncService {
         }
         String suffixName = Ws.sBlank(config.getArchiveType(), "zip");
         return majorName + "." + suffixName;
+    }
+
+    public WnArchiveSummary restore(WnDataSyncConfig config,
+                                    List<WnDataSyncTree> trees,
+                                    WnRestoreSettings settings,
+                                    WnOutputable log) {
+        WnArchiveSummary sum = new WnArchiveSummary();
+        for (WnDataSyncTree tree : trees) {
+            if (null != log) {
+                log.printlnf("RESTORE TREE[%s]:", tree.getName());
+            }
+            if (!tree.hasItems()) {
+                log.println(" ~ no items ~");
+                continue;
+            }
+
+            // 逐项还原
+            for (WnDataSyncItem item : tree.getItems()) {
+                // 看看有木有对象
+                String aph = Wn.normalizeFullPath(item.getPath(), vars);
+                WnObj o = io.fetch(null, aph);
+                String op = "=";
+                if (null == o) {
+                    op = "+";
+                    o = io.create(null, aph, item.getRace());
+                }
+
+                // 恢复元数据
+                NutBean meta = item.getMeta();
+                Object amo = meta;
+                if (null == meta || meta.isEmpty()) {
+                    amo = false;
+                }
+                AutoMatch am = new AutoMatch(amo);
+                if (settings.force || !am.match(o)) {
+                    op += "M";
+                    op += meta.match(o);
+                    io.appendMeta(o, meta);
+                } else {
+                    op += "-";
+                }
+
+                // 恢复内容
+                if (item.isFile()) {
+                    String itemSha1 = item.getSha1();
+                    if (settings.force || !o.isSameSha1(itemSha1)) {
+                        op += "W";
+                    } else {
+                        op += "f";
+                    }
+                } else {
+                    op += "d";
+                }
+
+                if (null != log) {
+                    log.printlnf(" %s> %s", op, item.toString());
+                }
+            }
+        }
+        return sum;
     }
 
     public WnObj genArchive(WnDataSyncConfig config,

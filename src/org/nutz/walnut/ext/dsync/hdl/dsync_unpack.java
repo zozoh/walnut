@@ -23,7 +23,7 @@ public class dsync_unpack extends DSyncFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "fql", "^(force|quiet|list)$");
+        return ZParams.parse(args, "fql", "^(force|quiet|list|load)$");
     }
 
     @Override
@@ -33,6 +33,7 @@ public class dsync_unpack extends DSyncFilter {
         int buf_size = params.getInt("buf", 8192);
         boolean quiet = params.is("quiet", "q");
         boolean force = params.is("force", "f");
+        boolean load = params.is("load");
         boolean justList = params.is("list", "l");
 
         // 得到包名
@@ -122,6 +123,11 @@ public class dsync_unpack extends DSyncFilter {
         // 执行读取
         try {
             sum.items = ing.readAll();
+
+            // 重新加载上下文
+            if (load) {
+                fc.trees = fc.api.loadTrees(fc.config, sha1);
+            }
 
             // 结束计时
             sw.stop();

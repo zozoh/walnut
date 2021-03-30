@@ -31,8 +31,12 @@ public class dsync_as extends DSyncFilter {
         // 打印包配置信息
         String pkgName = fc.api.getPackageName(fc.config, fc.trees);
         sys.out.println(HR);
-        sys.out.println("DSYNC PACKAGE:");
-        sys.out.println(pkgName);
+        sys.out.printlnf("DSYNC PACKAGE: [%s]", pkgName);
+
+        if (!fc.hasTrees()) {
+            sys.out.println("~ no trees ~");
+            return;
+        }
 
         // 打印详情
         JsonFormat jfmt = Cmds.gen_json_format(params);
