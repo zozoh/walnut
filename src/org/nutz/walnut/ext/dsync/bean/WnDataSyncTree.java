@@ -2,9 +2,11 @@ package org.nutz.walnut.ext.dsync.bean;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -95,6 +97,10 @@ public class WnDataSyncTree {
         if (null == jfmt) {
             jfmt = JsonFormat.compact().setQuoteName(true);
         }
+        // 记录索引树对应的文件夹同步时间
+        map.put("dsync_t", this.dataSyncTime);
+
+        // 记录每个元数据的具体细节
         for (WnDataSyncItem item : items) {
             map.put(item.getBeanSha1(), item.getBean());
             map.put(item.getMetaSha1(), item.getMeta());
@@ -115,6 +121,29 @@ public class WnDataSyncTree {
             for (String line : lines) {
                 if (null != line && !line.startsWith("#")) {
                     this.addItem(line);
+                }
+            }
+        }
+    }
+
+    /**
+     * 建立一个 ID-Path 映射表。
+     * <p>
+     * 
+     * @param map
+     *            要加入的 ID-Path 映射表。
+     *            <p>
+     *            其中，Id 为 Bean里面的 ID, Path 为 "~" 开头的路径，<br>
+     *            即，在 item 声明的路径。这样以便转移到不同的域时便于获取对于路径。
+     */
+    public void joinIdPathMap(Map<String, String> map) {
+        if (this.hasItems()) {
+            for (WnDataSyncItem it : this.items) {
+                NutBean bean = it.getBean();
+                if (null != bean) {
+                    String id = bean.getString("id");
+                    String path = it.getPath();
+                    map.put(id, path);
                 }
             }
         }

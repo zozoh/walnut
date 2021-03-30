@@ -17,6 +17,7 @@ public class dsync_restore extends DSyncFilter {
         WnRestoreSettings settings = new WnRestoreSettings();
         settings.quiet = params.is("quiet", "q");
         settings.force = params.is("force", "f");
+        settings.run = sys;
 
         // 木有可换原的项目
         if (!fc.hasTrees()) {

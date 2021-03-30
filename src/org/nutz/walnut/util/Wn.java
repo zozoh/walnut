@@ -597,7 +597,7 @@ public abstract class Wn {
 
     @SuppressWarnings("unchecked")
     public static Object translate(Object input, NutBean mapping) {
-     // 防守
+        // 防守
         if (null == input)
             return null;
 
@@ -607,7 +607,7 @@ public abstract class Wn {
         if (mi.isArray()) {
             int len = Array.getLength(input);
             Object[] arr = new Object[len];
-            for(int i=0; i<len;i++) {
+            for (int i = 0; i < len; i++) {
                 Object val = Array.get(input, i);
                 Object v2 = translate(val, mapping);
                 arr[i] = v2;
@@ -617,9 +617,9 @@ public abstract class Wn {
         // ....................................
         // 集合
         if (mi.isCollection()) {
-            Collection<?> col = (Collection<?>)input;
+            Collection<?> col = (Collection<?>) input;
             List<Object> list = new ArrayList<>(col.size());
-            for(Object v : col) {
+            for (Object v : col) {
                 Object v2 = translate(v, mapping);
                 list.add(v2);
             }
@@ -630,7 +630,7 @@ public abstract class Wn {
         else if (mi.isMap()) {
             NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
             NutMap reMap = new NutMap();
-            for(Map.Entry<String,Object> en : mapping.entrySet()) {
+            for (Map.Entry<String, Object> en : mapping.entrySet()) {
                 String key = en.getKey();
                 String kin = en.getValue().toString();
                 Object val = inputMap.get(kin);
@@ -869,22 +869,30 @@ public abstract class Wn {
             if (wc.isSynctimeOff())
                 return;
 
+            // 读取所有的祖先节点列表
             final List<WnObj> list = new LinkedList<WnObj>();
             o.loadParents(list, false);
-            final long synctime = now > 0 ? now : Wn.now();
+            final long ams = now > 0 ? now : Wn.now();
+
+            // 关闭同步，然后检查同步时间戳设定
             wc.synctimeOff(new Atom() {
                 @Override
                 public void run() {
+                    // 搞一下自己
+                    long syncT = o.syncTime();
+                    if (includeSelf && syncT > 0 && syncT != ams) {
+                        o.syncTime(ams);
+                        io.set(o, "^synt$");
+                    }
+                    // 检查自己的祖先
                     for (WnObj an : list) {
-                        if (an.syncTime() > 0) {
-                            an.syncTime(synctime);
+                        syncT = an.syncTime();
+                        if (syncT > 0 && syncT != ams) {
+                            an.syncTime(ams);
                             io.set(an, "^synt$");
                         }
                     }
-                    if (includeSelf && o.syncTime() > 0) {
-                        o.syncTime(synctime);
-                        io.set(o, "^synt$");
-                    }
+
                 }
             });
         }

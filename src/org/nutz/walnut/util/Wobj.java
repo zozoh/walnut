@@ -35,7 +35,9 @@ public class Wobj {
                                                      "synt",
                                                      "expi",
                                                      "nano",
-                                                     "mnt");
+                                                     "mnt",
+                                                     "len",
+                                                     "sha1");
 
     /**
      * 根据字段过滤器，生成一个过滤字段后的列表

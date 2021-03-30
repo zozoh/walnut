@@ -25,9 +25,12 @@ import org.nutz.walnut.ext.dsync.bean.WnDataSyncConfig;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncDir;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncItem;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncTree;
+import org.nutz.walnut.ext.dsync.bean.WnRestoreAction;
+import org.nutz.walnut.ext.dsync.bean.WnRestoring;
 import org.nutz.walnut.ext.dsync.bean.WnRestoreSettings;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.archive.WnArchiveSummary;
@@ -79,61 +82,125 @@ public class WnDataSyncService {
         return majorName + "." + suffixName;
     }
 
+    /**
+     * 根据索引树建立 ID 与路径的映射表。键是 ID，值是 Path
+     * 
+     * @param trees
+     *            索引树
+     * @return 映射表
+     */
+    public Map<String, String> buildIdPathMapping(List<WnDataSyncTree> trees) {
+        Map<String, String> map = new HashMap<>();
+        for (WnDataSyncTree tree : trees) {
+            tree.joinIdPathMap(map);
+        }
+        return map;
+    }
+
     public WnArchiveSummary restore(WnDataSyncConfig config,
                                     List<WnDataSyncTree> trees,
                                     WnRestoreSettings settings,
                                     WnOutputable log) {
+        WnContext wc = Wn.WC();
+        boolean so = wc.isSynctimeOff();
+
+        // 建立一个 ID 与路径的映射表
+        Map<String, String> idPaths = buildIdPathMapping(trees);
+
+        // 准备一个缓存吧
+        Map<String, WnObj> cachePathObj = new HashMap<>();
+
+        // 准备返回值
         WnArchiveSummary sum = new WnArchiveSummary();
-        for (WnDataSyncTree tree : trees) {
-            if (null != log) {
-                log.printlnf("RESTORE TREE[%s]:", tree.getName());
-            }
-            if (!tree.hasItems()) {
-                log.println(" ~ no items ~");
-                continue;
-            }
+        try {
+            // 关闭同步时间戳
+            wc.setSynctimeOff(true);
 
-            // 逐项还原
-            for (WnDataSyncItem item : tree.getItems()) {
-                // 看看有木有对象
-                String aph = Wn.normalizeFullPath(item.getPath(), vars);
-                WnObj o = io.fetch(null, aph);
-                String op = "=";
-                if (null == o) {
-                    op = "+";
-                    o = io.create(null, aph, item.getRace());
-                }
+            // 准备数据缓存主目录
+            String aph = Wn.normalizeFullPath("~/.dsync/data/", vars);
+            WnObj oDataHome = io.fetch(null, aph);
 
-                // 恢复元数据
-                NutBean meta = item.getMeta();
-                Object amo = meta;
-                if (null == meta || meta.isEmpty()) {
-                    amo = false;
-                }
-                AutoMatch am = new AutoMatch(amo);
-                if (settings.force || (null != am && !am.match(o))) {
-                    op += "M";
-                    io.appendMeta(o, meta);
-                } else {
-                    op += "-";
-                }
-
-                // 恢复内容
-                if (item.isFile()) {
-                    String itemSha1 = item.getSha1();
-                    if (settings.force || !o.isSameSha1(itemSha1)) {
-                        op += "W";
-                    } else {
-                        op += "f";
-                    }
-                } else {
-                    op += "d";
-                }
-
+            // 循环上下文的树
+            for (WnDataSyncTree tree : trees) {
                 if (null != log) {
-                    log.printlnf(" %s> %s", op, item.toString());
+                    log.printlnf("RESTORE TREE[%s]:", tree.getName());
+                }
+                if (!tree.hasItems()) {
+                    log.println(" ~ no items ~");
+                    continue;
+                }
+
+                // 逐项还原
+                for (WnDataSyncItem item : tree.getItems()) {
+                    // 看看有木有对象
+                    aph = Wn.normalizeFullPath(item.getPath(), vars);
+                    WnObj o = io.fetch(null, aph);
+                    String op = "=";
+                    if (null == o) {
+                        op = "+";
+                        o = io.create(null, aph, item.getRace());
+                    }
+
+                    // 准备后续的命令
+                    List<WnRestoreAction> actions = new LinkedList<>();
+
+                    // 恢复元数据
+                    NutBean meta = item.getMeta();
+                    Object amo = meta;
+                    if (null == meta || meta.isEmpty()) {
+                        amo = false;
+                    }
+                    AutoMatch am = new AutoMatch(amo);
+                    if (settings.force || (null != am && !am.match(o))) {
+                        op += "M";
+                        io.appendMeta(o, meta);
+                    } else {
+                        op += "-";
+                    }
+
+                    // 恢复内容
+                    if (item.isFile()) {
+                        String itSha1 = item.getSha1();
+                        if (settings.force || !o.isSameSha1(itSha1)) {
+                            op += "W";
+                            // 得到缓存数据
+                            WnObj oData = null;
+                            if (null != oDataHome) {
+                                oData = io.fetch(oDataHome, itSha1);
+                            }
+                            if (null != oData) {
+                                io.copyData(oData, o);
+                                config.joinRestoreActions(actions, o);
+                            }
+                        } else {
+                            op += "f";
+                        }
+                    } else {
+                        op += "d";
+                    }
+
+                    // 打印日志
+                    if (null != log) {
+                        log.printlnf(" %s> %s", op, item.toString());
+                    }
+
+                    // 执行后续命令
+                    WnRestoring ing = new WnRestoring();
+                    ing.io = io;
+                    ing.vars = vars;
+                    ing.obj = o;
+                    ing.idPaths = idPaths;
+                    ing.log = log;
+                    ing.run = settings.run;
+                    ing.actions = actions;
+                    ing.cachePathObj = cachePathObj;
+                    ing.invoke();
                 }
             }
+            // 恢复时间同步
+        }
+        finally {
+            wc.setSynctimeOff(so);
         }
         return sum;
     }
@@ -318,7 +385,7 @@ public class WnDataSyncService {
             return new LinkedList<>();
         }
 
-        // 初始化返回只
+        // 初始化返回值
         int dCount = config.countDirs();
         List<WnDataSyncTree> trees = new ArrayList<>(dCount);
         String aph;

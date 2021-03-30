@@ -68,7 +68,37 @@ author: zozoh
   }, {
     key  : "p1",
     path : "~/data"
-  }]
+  }],
+  // Restore 相关的配置
+  // 匹配上下面的条件，如果执行了修改，
+  // 就会执行对应的命令
+  // 譬如重新生成缩略图或者视频文件的预览图
+  restoreActions : [
+      // 命令：重新生成缩略图
+      {
+        test : {
+          race : "FILE",
+          mime : "^(image/.+)$"
+        },
+        run : "iimg id:${id} -thumb 256x256 -Q -force"
+      },
+      // 重新生成视频文件摘要和预览图
+      {
+        test : {
+          race : "FILE",
+          mime : "^(video/.+)$"
+        },
+        run : "videoc id:${id} -mode 'preview_image'"
+      },
+      // 对于 DOM 重新修正其内的 ID 映射
+      {
+        test : {
+          race : "FILE",
+          mime : "text/html"
+        },
+        replaceDom : true,
+        parseDomAsBody : true
+      }]
 }
 ```
 

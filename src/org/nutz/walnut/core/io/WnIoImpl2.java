@@ -171,8 +171,7 @@ public class WnIoImpl2 implements WnIo {
         }
         // 触发同步时间修改
         finally {
-            long now = System.currentTimeMillis();
-            Wn.Io.update_ancestor_synctime(this, b, false, now);
+            Wn.Io.update_ancestor_synctime(this, b, false, 0);
         }
     }
 
@@ -569,7 +568,13 @@ public class WnIoImpl2 implements WnIo {
         __save_map_for_update_meta(map);
         WnObjMapping om = mappings.checkById(id);
         WnIoIndexer indexer = om.getSelfIndexer();
-        return indexer.setBy(om.getMyId(), map, returnNew);
+        WnObj o = indexer.setBy(om.getMyId(), map, returnNew);
+
+        // 修改同步时间戳
+        Wn.Io.update_ancestor_synctime(this, o, false, o.lastModified());
+
+        // 搞定
+        return o;
     }
 
     @Override
@@ -595,7 +600,14 @@ public class WnIoImpl2 implements WnIo {
         }
         // 采用根索引管理器
         WnIoIndexer indexer = mappings.getGlobalIndexer();
-        return indexer.setBy(q, map, returnNew);
+        WnObj o = indexer.setBy(q, map, returnNew);
+
+        // 修改同步时间戳
+        if (null != o) {
+            Wn.Io.update_ancestor_synctime(this, o, false, o.lastModified());
+        }
+        // 搞定
+        return o;
     }
 
     @Override
@@ -1218,7 +1230,8 @@ public class WnIoImpl2 implements WnIo {
         }
 
         // 确保有最后修改时间
-        map.put("lm", Wn.now());
+        long now = Wn.now();
+        map.put("lm", now);
 
         // 执行写入
         WnObj o2 = this.setBy(o.id(), map, true);
@@ -1234,6 +1247,9 @@ public class WnIoImpl2 implements WnIo {
                 o.remove(k2);
             }
         }
+
+        // 修改同步时间戳
+        Wn.Io.update_ancestor_synctime(this, o, false, now);
     }
 
     @Override

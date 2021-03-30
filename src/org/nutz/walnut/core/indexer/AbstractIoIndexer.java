@@ -76,9 +76,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     protected void _do_walk_children(WnObj p, final Callback<WnObj> callback, WnObjFilter filter) {
-        if (null == p)
-            return;
-        if (null != filter && !filter.match(p)) {
+        if (null != filter && null != p && !filter.match(p)) {
             return;
         }
         Each<WnObj> looper = Wn.eachLooping(new Each<WnObj>() {

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.cheap.dom.match.CheapAttrNameFilter;
 import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
 
@@ -426,10 +427,37 @@ public class CheapElement extends CheapNode {
         return attrs.is(name, val);
     }
 
+    public NutBean getAttrObj(CheapAttrNameFilter af) {
+        NutMap re = new NutMap();
+        for (Map.Entry<String, Object> en : attrs.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            String k2 = af.getName(key);
+            if (null != k2) {
+                re.put(k2, val);
+            }
+        }
+        return re;
+    }
+
+    public CheapElement removeAttr(String... names) {
+        for (String name : names) {
+            attrs.remove(name);
+        }
+        return this;
+    }
+
     public CheapElement attr(String name, Object val) {
-        attrs.put(name, val);
-        if ("class".equals(name)) {
-            this.setClassName(null == val ? null : val.toString());
+        // 移除
+        if (null == val) {
+            attrs.remove(name);
+        }
+        // 设置
+        else {
+            attrs.put(name, val);
+            if ("class".equals(name)) {
+                this.setClassName(null == val ? null : val.toString());
+            }
         }
         return this;
     }
@@ -440,6 +468,21 @@ public class CheapElement extends CheapNode {
             if (bean.containsKey("class")) {
                 Object val = bean.get("class");
                 this.setClassName(null == val ? null : val.toString());
+            }
+        }
+        return this;
+    }
+
+    public CheapElement setAttrs(Map<String, Object> bean, String prefix) {
+        if (null != bean) {
+            for (Map.Entry<String, Object> en : bean.entrySet()) {
+                String name = en.getKey();
+                String key = name;
+                if (null != prefix) {
+                    key = Ws.kebabCase(prefix + name);
+                }
+                Object val = en.getValue();
+                this.attr(key, val);
             }
         }
         return this;

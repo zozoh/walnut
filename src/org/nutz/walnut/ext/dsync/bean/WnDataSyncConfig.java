@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.archive.WnArchiveWriting;
 import org.nutz.walnut.util.archive.impl.WnTarArchiveWriting;
 import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
@@ -16,6 +17,8 @@ public class WnDataSyncConfig {
     private String archiveType;
 
     private List<WnDataSyncDir> dirs;
+
+    private List<WnRestoreAction> restoreActions;
 
     public WnArchiveWriting createArchiveGenerating(OutputStream ops) throws IOException {
         // Tar
@@ -76,4 +79,18 @@ public class WnDataSyncConfig {
         this.dirs = dirs;
     }
 
+    public boolean hasRestoreActions() {
+        return null != restoreActions && !restoreActions.isEmpty();
+    }
+
+    public void joinRestoreActions(List<WnRestoreAction> list, WnObj o) {
+        if (!this.hasRestoreActions()) {
+            return;
+        }
+        for (WnRestoreAction ra : restoreActions) {
+            if (ra.match(o)) {
+                list.add(ra);
+            }
+        }
+    }
 }

@@ -190,6 +190,10 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
+    public void setSynctimeOff(boolean so) {
+        this.synctime_off = so;
+    }
+
     public boolean isSynctimeOff() {
         return synctime_off;
     }

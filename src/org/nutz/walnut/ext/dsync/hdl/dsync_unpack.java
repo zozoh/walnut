@@ -72,7 +72,11 @@ public class dsync_unpack extends DSyncFilter {
 
             // 输出调试信息
             if (!quiet || justList) {
-                sys.out.printf(" %s: %s : ", en.dir ? "D" : "F", en.name);
+                sys.out.printf("%s: %s : ", en.dir ? "D" : "F", en.name);
+                if (justList) {
+                    sys.out.printlnf("%dbytes", en.len);
+                    return;
+                }
             }
 
             // 索引树，或者元数据，写到缓冲目录里
