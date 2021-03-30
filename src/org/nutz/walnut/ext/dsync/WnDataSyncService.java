@@ -103,6 +103,7 @@ public class WnDataSyncService {
                                     WnOutputable log) {
         WnContext wc = Wn.WC();
         boolean so = wc.isSynctimeOff();
+        String HR = Ws.repeat('-', 60);
 
         // 建立一个 ID 与路径的映射表
         Map<String, String> idPaths = buildIdPathMapping(trees);
@@ -119,6 +120,9 @@ public class WnDataSyncService {
             // 准备数据缓存主目录
             String aph = Wn.normalizeFullPath("~/.dsync/data/", vars);
             WnObj oDataHome = io.fetch(null, aph);
+
+            // 准备后续执行的命令
+            List<WnRestoring> ings = new LinkedList<>();
 
             // 循环上下文的树
             for (WnDataSyncTree tree : trees) {
@@ -184,21 +188,38 @@ public class WnDataSyncService {
                         log.printlnf(" %s> %s", op, item.toString());
                     }
 
-                    // 执行后续命令
-                    WnRestoring ing = new WnRestoring();
-                    ing.io = io;
-                    ing.vars = vars;
-                    ing.obj = o;
-                    ing.idPaths = idPaths;
-                    ing.log = log;
-                    ing.run = settings.run;
-                    ing.actions = actions;
-                    ing.cachePathObj = cachePathObj;
-                    ing.invoke();
-                }
+                    // 保存一下，之后处理完恢复以后在执行每个对象的后续命令
+                    // 因为像替换 ID这样指令，需要文件首先恢复，才能拿到新 ID 啊
+                    if (!actions.isEmpty()) {
+                        WnRestoring ing = new WnRestoring();
+                        ing.item = item;
+                        ing.obj = o;
+                        ing.idPaths = idPaths;
+                        ing.log = log;
+                        ing.run = settings.run;
+                        ing.io = io;
+                        ing.vars = vars;
+                        ing.actions = actions;
+                        ing.cachePathObj = cachePathObj;
+                        ings.add(ing);
+                    }
+                } // for (WnDataSyncItem item : tree.getItems())
+            } // for (WnDataSyncTree tree : trees)
+
+            // 后续执行的命令
+            if (null != log) {
+                log.println(HR);
+                log.printlnf("Run %d restoring", ings.size());
+                log.println(HR);
             }
-            // 恢复时间同步
+            for (WnRestoring ing : ings) {
+                if (null != log) {
+                    log.printlnf("%s: %s", ing.getActionsTypeName(), ing.item.getPath());
+                }
+                ing.invoke();
+            }
         }
+        // 恢复时间同步
         finally {
             wc.setSynctimeOff(so);
         }

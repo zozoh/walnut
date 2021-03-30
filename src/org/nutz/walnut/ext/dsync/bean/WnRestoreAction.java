@@ -19,6 +19,20 @@ public class WnRestoreAction {
 
     private WnMatch _match;
 
+    public String getTypeName() {
+        StringBuilder sb = new StringBuilder();
+        if (this.hasRun()) {
+            sb.append("run");
+        }
+        if (this.replaceDom) {
+            if (sb.length() > 0) {
+                sb.append(':');
+            }
+            sb.append("dom");
+        }
+        return sb.toString();
+    }
+
     public boolean match(WnObj o) {
         if (null == test) {
             return false;
@@ -45,7 +59,7 @@ public class WnRestoreAction {
             return _run_tmpl.render(context);
         }
         // 木有命令模板
-        if (this.hasRun()) {
+        if (!this.hasRun()) {
             return null;
         }
         // 编译一下命令模板

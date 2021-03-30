@@ -27,13 +27,14 @@ public class CheapDomReplaceWnObjId {
     private static String REG = "^(wn-obj-)([0-9a-z]+)$";
     private static Pattern _P = Pattern.compile(REG);
 
-    public void doReaplace(Map<String, String> idPaths) {
+    public boolean doReaplace(Map<String, String> idPaths) {
         // 寻找到对应元素
         List<CheapElement> els = doc.findElements(el -> {
             return el.hasAttr("wn-obj-id");
         });
 
         // 依次处理
+        boolean re = false;
         for (CheapElement el : els) {
             // 整理所有 wn-obj- 开头的属性
             NutBean obj = el.getAttrObj(name -> {
@@ -80,7 +81,16 @@ public class CheapDomReplaceWnObjId {
 
             // 设置元素
             el.setAttrs(attrs, "wn-obj-");
+            re |= true;
+
+            // 对于图片，那么需要重新设置一下 ID
+            if (el.isTagName("IMG") && el.hasAttr("src")) {
+                String src = "/o/content?str=id:" + oTa.id();
+                el.attr("src", src);
+            }
         }
+
+        return re;
     }
 
     public String getDocMarkup() {
