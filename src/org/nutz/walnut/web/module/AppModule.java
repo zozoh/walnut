@@ -320,6 +320,7 @@ public class AppModule extends AbstractWnModule {
         // 强制触发响应刷新缓冲
         if (forceFlushBuffer) {
             // 告知 Nginx 代理，不要缓存
+            // TODO 看起来木有用
             resp.setHeader("X-ACCEL-BUFFERING", "yes");
             out.setForceFlush(true);
             err.setForceFlush(true);

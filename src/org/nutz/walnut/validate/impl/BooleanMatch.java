@@ -14,6 +14,9 @@ public class BooleanMatch implements WnMatch {
     @Override
     public boolean match(Object val) {
         Boolean b = Castors.me().castTo(val, Boolean.class);
+        if (null == b) {
+            return false == expect;
+        }
         return this.expect == b;
     }
 

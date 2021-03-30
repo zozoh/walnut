@@ -111,9 +111,8 @@ public class WnDataSyncService {
                     amo = false;
                 }
                 AutoMatch am = new AutoMatch(amo);
-                if (settings.force || !am.match(o)) {
+                if (settings.force || (null != am && !am.match(o))) {
                     op += "M";
-                    op += meta.match(o);
                     io.appendMeta(o, meta);
                 } else {
                     op += "-";
