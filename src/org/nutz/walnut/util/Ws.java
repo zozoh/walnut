@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -873,6 +874,85 @@ public class Ws {
         for (int i = 0; i < n; i++)
             sb.append(cs);
         return sb.toString();
+    }
+
+    private static Pattern JV_NB = Pattern.compile("^(-?([0-9]+)([.][0-9]+)?)([Lf])?$");
+
+    /**
+     * 根据字符串，将其自动转成一个有意义的值
+     * 
+     * <ul>
+     * <li><code>"null|undefined"</code> : <code>null</code>
+     * <li><code>"(true|false|yes|no|on|off)"</code> : 布尔
+     * <li><code>"(0-9)"</code> : 整数
+     * <li><code>"{..}"</code> : Map
+     * <li><code>"[..]"</code> : 列表
+     * <li><code>"2020-09.."</code> : 日期时间
+     * </ul>
+     * 
+     * @param v
+     *            输入字符串
+     * @return 值
+     */
+    public static Object toJavaValue(String v) {
+        // autoNil
+        if (null == v || "null".equals(v) || "undefined".equals(v))
+            return null;
+        /**
+         * Number
+         * 
+         * <pre>
+             0:[  0,  6) `23.46f`
+             1:[  0,  5) `23.46`
+             2:[  0,  2) `23`
+             3:[  2,  5) `.46`
+             4:[  5,  6) `f`
+             
+             0:[  0,  5) `-200L`
+             1:[  0,  4) `-200`
+             2:[  1,  4) `200`
+             3:[ -1, -1) `null`
+             4:[  4,  5) `L`
+         * </pre>
+         */
+        Matcher m = JV_NB.matcher(v);
+        if (m.find()) {
+            String n = m.group(1);
+            String suffix = m.group(4);
+            if ("f".equals(suffix)) {
+                return Float.parseFloat(n);
+            }
+            if ("L".equals(suffix)) {
+                return Long.parseLong(n);
+            }
+            if (m.group(3) != null) {
+                return Double.parseDouble(n);
+            }
+            Integer.parseInt(n);
+        }
+
+        // Boolean
+        if (v.matches("^(true|false|yes|no|on|off)$")) {
+            return v.matches("^(true|yes|on)$");
+        }
+
+        // JS String
+        if (Ws.isQuoteBy(v, '\'', '\'') || Ws.isQuoteBy(v, '"', '"')) {
+            return v.substring(1, v.length() - 2);
+        }
+
+        try {
+            // JSON
+            if (Ws.isQuoteBy(v, '[', ']') || Ws.isQuoteBy(v, '{', '}')) {
+                return Json.fromJson(v);
+            }
+            // Date
+            return Times.D(v);
+        }
+        catch (Exception e) {}
+
+        // 最后返回自己
+        return v;
     }
 
     /**

@@ -446,8 +446,8 @@ public abstract class Wn {
     }
 
     private static final Pattern EO1 = Regex.getPattern("^:(:*(=|==|!=|->)(.+))$");
-    private static final Pattern EO2 = Regex.getPattern("^(==|!=|->)(.+)$");
-    private static final Pattern EO3 = Regex.getPattern("^(=)([^?]+)(\\?(.*))?$");
+    private static final Pattern EO2 = Regex.getPattern("^(->)(.+)$");
+    private static final Pattern EO3 = Regex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
     private static final Pattern EO4 = Regex.getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
 
     /**
@@ -476,7 +476,8 @@ public abstract class Wn {
                 return m.group(1);
             }
 
-            String m_type = null, m_val = null, m_dft = null;
+            String m_type = null, m_val = null;
+            Object m_dft = null;
             m = EO2.matcher(str);
             if (m.find()) {
                 m_type = m.group(1);
@@ -488,7 +489,18 @@ public abstract class Wn {
                 if (m.find()) {
                     m_type = m.group(1);
                     m_val = Strings.trim(m.group(2));
-                    m_dft = Strings.trim(m.group(4));
+
+                    // 搞默认值，聪明点，根据值的样子改变对象类型，不要傻傻的做成字符串
+                    String dft = Strings.trim(m.group(4));
+                    m_dft = dft;
+                    // starts with "=" auto covert to JS value
+                    if (dft != null) {
+                        if (dft.startsWith("=") || "==".equals(m_type)) {
+                            m_dft = Ws.toJavaValue(dft);
+                        } else {
+                            m_dft = Ws.trim(dft);
+                        }
+                    }
                 }
             }
             // Matched
