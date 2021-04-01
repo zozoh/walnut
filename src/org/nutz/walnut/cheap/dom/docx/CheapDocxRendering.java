@@ -160,7 +160,7 @@ public class CheapDocxRendering {
     }
 
     private void joinHeading(List<Object> partItems, CheapElement el) {
-        String styleId = styleMapping.get(el.getTagName());
+        String styleId = styleMapping.get(el.getStdTagName());
         P p = factory.createP();
         if (null != styleId) {
             setPStyle(p, styleId);

@@ -55,11 +55,11 @@ public class CheapFormatter {
     private String tab;
 
     public boolean isBlock(CheapElement $el) {
-        return null != P_BLOCK_TAGS && P_BLOCK_TAGS.matcher($el.tagName).find();
+        return null != P_BLOCK_TAGS && P_BLOCK_TAGS.matcher($el.uppercaseTagName).find();
     }
 
     public boolean isBreakLine(CheapElement $el) {
-        return null != P_BR_TAGS && P_BR_TAGS.matcher($el.tagName).find();
+        return null != P_BR_TAGS && P_BR_TAGS.matcher($el.uppercaseTagName).find();
     }
 
     public String getPrefix(int indent) {

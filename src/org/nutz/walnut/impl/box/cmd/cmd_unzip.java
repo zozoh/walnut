@@ -3,7 +3,6 @@ package org.nutz.walnut.impl.box.cmd;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Stopwatch;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,29 +15,30 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.archive.WnArchiveReading;
 import org.nutz.walnut.util.archive.WnArchiveSummary;
 import org.nutz.walnut.util.archive.impl.WnZipArchiveReading;
-import org.nutz.walnut.validate.impl.AutoMatch;
+import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 public class cmd_unzip extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
-        ZParams params = ZParams.parse(args, "flh", "^(quiet|hidden|macosx)");
+        ZParams params = ZParams.parse(args, "flh", "^(quiet|hidden|macosx|read)");
         boolean quiet = params.is("quiet");
         boolean force = params.is("f");
         boolean hidden = params.is("hidden", "h");
         boolean macosx = params.is("macosx");
         boolean justList = params.is("l");
+        boolean read = params.is("read");
         String phSrc = params.val_check(0);
         WnObj oSrc = Wn.checkObj(sys, phSrc);
         int buf_size = params.getInt("buf", 8192);
 
         // 过滤器
-        AutoMatch am = null;
-        String fltJson = params.get("m");
-        if (!Ws.isBlank(fltJson)) {
-            Object flt = Json.fromJson(fltJson);
-            am = new AutoMatch(flt);
+        WnMatch am = null;
+        String m_str = params.get("m");
+        if (!Ws.isBlank(m_str)) {
+            am = new AutoStrMatch(m_str);
         }
 
         // 准备计时
@@ -57,11 +57,11 @@ public class cmd_unzip extends JvmExecutor {
         WnArchiveSummary sum = new WnArchiveSummary();
         WnArchiveReading ing = new WnZipArchiveReading(ins);
 
-        // 准备字节缓冲数组
-        byte[] buf = new byte[buf_size];
+        // 准备字节缓冲数组（read 模式直接写出到输出流，因此不需要缓冲）
+        byte[] buf = read ? null : new byte[buf_size];
 
         // 准备回调处理器
-        AutoMatch AM = am;
+        WnMatch AM = am;
         ing.onNext((en, zin) -> {
             // 判断一下隐藏文件
             if (!hidden && en.name.startsWith(".") || en.name.contains("/.")) {
@@ -85,6 +85,17 @@ public class cmd_unzip extends JvmExecutor {
 
             // 仅仅是输出调试信息
             if (justList) {
+                return;
+            }
+
+            // 如果是读取模式，那么就不创建文件了
+            if (read) {
+                if (en.dir) {
+                    sum.dir++;
+                } else {
+                    sum.file++;
+                    sys.out.write(zin);
+                }
                 return;
             }
 
@@ -120,7 +131,7 @@ public class cmd_unzip extends JvmExecutor {
         sw.stop();
 
         // 最后输出
-        if (!quiet) {
+        if (!quiet && !read) {
             sys.out.printlnf("Done for unzip %s in %s", oSrc, sw.toString());
             sys.out.println(sum.toString());
         }

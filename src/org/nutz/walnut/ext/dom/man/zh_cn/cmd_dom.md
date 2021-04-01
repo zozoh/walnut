@@ -32,4 +32,5 @@ dom [options] [[@filter filter-args...]...]
 @outline     # 输出 HTML 的大纲级别
 @reset       # 重置当前操作节点
 @as          # 作为什么格式输出
+@json        # 将上下文内容按照 JSON 输出
 ```

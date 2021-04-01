@@ -47,13 +47,13 @@ public class CheapHtmlParsing {
     }
 
     private static String REGEX = "(" // Start: 1
-                                  // TagBegin: 2,3(Name),4,5(Attrs)
-                                  + "(<([A-Za-z0-9_:-]+)(\\s([^>]+))?>)"
-                                  // TagEnd: 6,7(name)
+                                  // TagBegin: 2,3(Name),4,5(Attrs),6(Closed)
+                                  + "(<([A-Za-z0-9_:-]+)(\\s([^>]+?))?(/)?>)"
+                                  // TagEnd: 7,8(name)
                                   + "|(</([A-Za-z0-9_:-]+)>)"
-                                  // Comment begin: 8
+                                  // Comment begin: 9
                                   + "|(<!--)"
-                                  // CData begin: 9
+                                  // CData begin: 10
                                   + "|(<!\\[CDATA\\[)"
                                   + ")";
     private static Pattern P = Regex.getPattern(REGEX);
@@ -91,25 +91,37 @@ public class CheapHtmlParsing {
                 else {
                     $el.appendTo($current);
                 }
+
+                // 是否为自动关闭标签
+                $el.setAutoClosed(doc.isAutoClosedTag($el));
+                $el.setClosed("/".equals(m.group(6)));
+
                 // 解析属性
                 String attrs = m.group(5);
+
+                // 解析数据列表
                 if (null != attrs) {
                     NutMap bean = Ws.splitAttrMap(attrs);
+                    // 是否为关闭标签
+                    if (bean.containsKey("/")) {
+                        $el.setClosed(true);
+                        bean.remove("/");
+                    }
                     $el.attrs(bean);
                 }
 
                 // 不能直接结束的标签，需要压栈
-                if (!doc.isAutoClosedTag($el)) {
+                if (!$el.isClosedTag()) {
                     $current = $el;
                 }
             }
-            // TagEnd: 6,7(name)
+            // TagEnd: 7,8(name)
             // "|(</([a-z1-6]+)>)"
-            else if (null != m.group(6)) {
+            else if (null != m.group(7)) {
                 if (null != $current) {
-                    String tagName = m.group(7).toUpperCase();
+                    String tagName = m.group(8);
                     // 当前就是
-                    if ($current.isTagName(tagName)) {
+                    if ($current.isTag(tagName)) {
                         $current = (CheapElement) $current.getParent();
                     }
                     // 向上查找
@@ -126,9 +138,9 @@ public class CheapHtmlParsing {
                     }
                 }
             }
-            // Comment begin: 8
+            // Comment begin: 9
             // "|(<!--)"
-            else if (null != m.group(8)) {
+            else if (null != m.group(9)) {
                 CheapComment $cmt = doc.createComment();
                 this.pushNode($cmt);
                 // 那么就狂野的开始寻找结束标签咯
@@ -149,9 +161,9 @@ public class CheapHtmlParsing {
                     continue;
                 }
             }
-            // CData begin: 9
+            // CData begin: 10
             // "|(<![CDATA[)"
-            else if (null != m.group(9)) {
+            else if (null != m.group(10)) {
                 CheapRawData $cmt = doc.createRawData();
                 this.pushNode($cmt);
                 // 那么就狂野的开始寻找结束标签咯

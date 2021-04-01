@@ -10,17 +10,23 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
-import org.nutz.walnut.cheap.dom.match.CheapAttrNameFilter;
+import org.nutz.walnut.cheap.dom.flt.CheapAttrNameFilter;
 import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
 
 public class CheapElement extends CheapNode {
+
+    String uppercaseTagName;
 
     String tagName;
 
     List<String> className;
 
     private NutBean attrs;
+
+    private boolean closed;
+
+    private boolean autoClosed;
 
     protected CheapElement(String tagName) {
         this(tagName, null);
@@ -215,7 +221,7 @@ public class CheapElement extends CheapNode {
     @Override
     public void joinString(StringBuilder sb) {
         // 输出的标签名强制小写
-        String displayTagName = tagName.toLowerCase();
+        String displayTagName = tagName;
 
         // 标签开始
         sb.append('<').append(displayTagName);
@@ -244,6 +250,9 @@ public class CheapElement extends CheapNode {
                 sb.append("=\"").append(val).append('"');
             }
         }
+        if (this.closed) {
+            sb.append('/');
+        }
         sb.append('>');
 
         // 输出子节点
@@ -255,7 +264,7 @@ public class CheapElement extends CheapNode {
             sb.append("</").append(displayTagName).append('>');
         }
         // 输出结束标签
-        else if (null == doc || !doc.isAutoClosedTag(this)) {
+        else if (!this.isClosedTag()) {
             sb.append("</").append(displayTagName).append('>');
         }
     }
@@ -322,7 +331,18 @@ public class CheapElement extends CheapNode {
      * @return 是否符合标签（大小写不敏感）
      */
     public boolean isTag(String tagName) {
-        return null != tagName && tagName.toUpperCase().equals(this.tagName);
+        if (null == tagName)
+            return false;
+        String utn = tagName.toUpperCase();
+        return this.uppercaseTagName.equals(utn);
+    }
+
+    public String getStdTagName() {
+        return this.uppercaseTagName;
+    }
+
+    public boolean isStdTagName(String stdTagName) {
+        return null != stdTagName && stdTagName.equals(this.uppercaseTagName);
     }
 
     /**
@@ -339,7 +359,8 @@ public class CheapElement extends CheapNode {
     }
 
     public void setTagName(String tagName) {
-        this.tagName = tagName.trim().toUpperCase();
+        this.tagName = tagName.trim();
+        this.uppercaseTagName = this.tagName.toUpperCase();
     }
 
     public boolean hasClassName() {
@@ -427,12 +448,16 @@ public class CheapElement extends CheapNode {
         return attrs.is(name, val);
     }
 
+    public NutBean getAttrObj() {
+        return getAttrObj(null);
+    }
+
     public NutBean getAttrObj(CheapAttrNameFilter af) {
         NutMap re = new NutMap();
         for (Map.Entry<String, Object> en : attrs.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
-            String k2 = af.getName(key);
+            String k2 = null == af ? key : af.getName(key);
             if (null != k2) {
                 re.put(k2, val);
             }
@@ -595,6 +620,26 @@ public class CheapElement extends CheapNode {
     @Override
     public CheapElement prepend(CheapNode... nodes) {
         return (CheapElement) super.prepend(nodes);
+    }
+
+    public boolean isClosedTag() {
+        return this.closed || this.autoClosed;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    public boolean isAutoClosed() {
+        return autoClosed;
+    }
+
+    public void setAutoClosed(boolean autoClosed) {
+        this.autoClosed = autoClosed;
     }
 
 }

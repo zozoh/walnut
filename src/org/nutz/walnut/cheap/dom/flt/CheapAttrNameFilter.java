@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.dom.match;
+package org.nutz.walnut.cheap.dom.flt;
 
 public interface CheapAttrNameFilter {
 

@@ -108,7 +108,8 @@ public class CheapDocument {
     }
 
     public boolean isAutoClosedTag(CheapElement $el) {
-        return null != P_AUTO_CLOSED_TAGS && P_AUTO_CLOSED_TAGS.matcher($el.tagName).find();
+        return null != P_AUTO_CLOSED_TAGS
+               && P_AUTO_CLOSED_TAGS.matcher($el.uppercaseTagName).find();
     }
 
     public boolean isHtmlBlockTag(CheapElement $el) {

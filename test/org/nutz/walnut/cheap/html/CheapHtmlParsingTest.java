@@ -5,8 +5,33 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.walnut.cheap.AbstractCheapParsingTest;
 import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class CheapHtmlParsingTest extends AbstractCheapParsingTest {
+
+    @Test
+    public void test_xml_1() {
+        String input = _Fxml("t_xml_1");
+        CheapHtmlParsing ing = new CheapHtmlParsing(false);
+        CheapDocument doc = ing.invoke(input);
+
+        String html = doc.toMarkup();
+        assertEquals(input, html);
+
+        CheapElement el = doc.findElement(e -> "w:qFormat".equals(e.getTagName()));
+        assertNotNull(el);
+        assertEquals("w:qFormat", el.getTagName());
+    }
+
+    @Test
+    public void test_xml_0() {
+        String input = _Fxml("t_xml_0");
+        CheapHtmlParsing ing = new CheapHtmlParsing(false);
+        CheapDocument doc = ing.invoke(input);
+
+        String html = doc.toMarkup();
+        assertEquals(input, html);
+    }
 
     @Test
     public void test_t0() {
@@ -18,7 +43,7 @@ public class CheapHtmlParsingTest extends AbstractCheapParsingTest {
         String html = doc.toHtml();
         assertEquals(expec, html);
     }
-    
+
     @Test
     public void test_node_nest_text() {
         String input = "<p><strong>ABC</strong></p>";

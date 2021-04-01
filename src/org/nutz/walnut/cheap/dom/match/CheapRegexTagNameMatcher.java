@@ -16,7 +16,7 @@ public class CheapRegexTagNameMatcher implements CheapMatcher {
 
     @Override
     public boolean match(CheapElement el) {
-        return this.tagName.matcher(el.getTagName()).find();
+        return this.tagName.matcher(el.getStdTagName()).find();
     }
 
 }

@@ -13,7 +13,10 @@ public class CheapTagNameMatcher implements CheapMatcher {
 
     @Override
     public boolean match(CheapElement el) {
-        return el.isTagName(tagName);
+        if ("*".equals(tagName)) {
+            return true;
+        }
+        return el.isStdTagName(tagName);
     }
 
 }

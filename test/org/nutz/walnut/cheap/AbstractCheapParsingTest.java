@@ -6,6 +6,10 @@ import org.nutz.lang.Files;
 
 public class AbstractCheapParsingTest {
 
+    protected String _Fxml(String name) {
+        return _F(name, "xml");
+    }
+
     protected String _Fhtml(String name) {
         return _F(name, "html");
     }

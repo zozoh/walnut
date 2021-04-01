@@ -36,7 +36,7 @@ public class DomContext extends JvmFilterContext {
         // 从标准输入读取
         else if (fromPip) {
             html = Ws.trim(sys.in.readAll());
-            if (!Ws.isBlank(html)) {
+            if (Ws.isBlank(html)) {
                 return;
             }
         }

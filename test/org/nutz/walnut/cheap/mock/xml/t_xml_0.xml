@@ -1,0 +1,8 @@
+<xml>
+    <Attr name="a" value="1"/>
+    <Attr name="b" value="2"/>
+    <style>
+        <styleAttr name="x" value="1"/>
+        <styleAttr name="y" value="2"/>
+    </style>
+</xml>
