@@ -318,8 +318,8 @@ public class CheapElement extends CheapNode {
 
     /**
      * @param regex
-     *            标签名的正则表达式。标签名全部用大写形式匹配
-     * @return 是否符合标签
+     *            标签名的正则表达式。
+     * @return 是否符合标签（大小写敏感）
      */
     public boolean isTagAs(String regex) {
         return tagName.matches(regex);
@@ -337,12 +337,28 @@ public class CheapElement extends CheapNode {
         return this.uppercaseTagName.equals(utn);
     }
 
+    /**
+     * @return 标签名（全大写）
+     */
     public String getStdTagName() {
         return this.uppercaseTagName;
     }
 
+    /**
+     * @param stdTagName 标准标签名
+     * @return 是否符合标签（全大写）
+     */
     public boolean isStdTagName(String stdTagName) {
         return null != stdTagName && stdTagName.equals(this.uppercaseTagName);
+    }
+    
+    /**
+     * @param regex
+     *            标签名的正则表达式。标签名全部用大写形式匹配
+     * @return 是否符合标签
+     */
+    public boolean isStdTagAs(String regex) {
+        return uppercaseTagName.matches(regex);
     }
 
     /**

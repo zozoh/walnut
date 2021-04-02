@@ -45,10 +45,12 @@ public class cmd_unzip extends JvmExecutor {
         Stopwatch sw = Stopwatch.begin();
 
         // 得到输出目录，默认为当前目录
-        WnObj oTa;
+        WnObj[] oTas = new WnObj[1];
         String phTa = params.val(1, Files.getMajorName(oSrc.name()));
         String aphTa = Wn.normalizeFullPath(phTa, sys);
-        oTa = sys.io.createIfNoExists(null, aphTa, WnRace.DIR);
+        if (!read) {
+            oTas[0] = sys.io.createIfNoExists(null, aphTa, WnRace.DIR);
+        }
 
         // 准备输入流
         InputStream ins = sys.io.getInputStream(oSrc, 0);
@@ -98,6 +100,9 @@ public class cmd_unzip extends JvmExecutor {
                 }
                 return;
             }
+
+            // 恢复目标目录
+            WnObj oTa = oTas[0];
 
             // 是否强制写入
             WnObj o = sys.io.fetch(oTa, en.name);

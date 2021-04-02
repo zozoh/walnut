@@ -2,15 +2,21 @@ package org.nutz.walnut.cheap.dom.docx;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
+import org.docx4j.model.structure.HeaderFooterPolicy;
+import org.docx4j.model.structure.SectionWrapper;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
+import org.docx4j.openpackaging.parts.WordprocessingML.HeaderPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.BooleanDefaultTrue;
+import org.docx4j.wml.CTBorder;
+import org.docx4j.wml.CTTblLayoutType;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
@@ -21,10 +27,19 @@ import org.docx4j.wml.PPrBase.NumPr.NumId;
 import org.docx4j.wml.PPrBase.PStyle;
 import org.docx4j.wml.R;
 import org.docx4j.wml.RPr;
+import org.docx4j.wml.STBorder;
+import org.docx4j.wml.STTblLayoutType;
 import org.docx4j.wml.Tbl;
+import org.docx4j.wml.TblBorders;
+import org.docx4j.wml.TblGrid;
+import org.docx4j.wml.TblGridCol;
+import org.docx4j.wml.TblPr;
+import org.docx4j.wml.TblWidth;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -68,7 +83,7 @@ public class CheapDocxRendering {
      * }
      * </pre>
      */
-    private Map<String, String> styleMapping;
+    private NutBean styleMapping;
 
     private ObjectFactory factory;
 
@@ -81,11 +96,11 @@ public class CheapDocxRendering {
 
     public CheapDocxRendering(CheapDocument doc,
                               WordprocessingMLPackage wp,
-                              Map<String, String> styleMapping,
+                              NutBean styleMapping,
                               CheapResourceLoader loader) {
         this.doc = doc;
         this.wp = wp;
-        this.styleMapping = null == styleMapping ? new HashMap<>() : styleMapping;
+        this.styleMapping = null == styleMapping ? new NutMap() : styleMapping;
         this.loader = loader;
         this.factory = new ObjectFactory();
 
@@ -141,7 +156,7 @@ public class CheapDocxRendering {
     }
 
     private void joinBlockquote(List<Object> partItems, CheapElement el) {
-        String styleId = styleMapping.get("BLOCKQUOTE");
+        String styleId = styleMapping.getString("BLOCKQUOTE");
         P p = factory.createP();
         if (null != styleId) {
             setPStyle(p, styleId);
@@ -160,7 +175,7 @@ public class CheapDocxRendering {
     }
 
     private void joinHeading(List<Object> partItems, CheapElement el) {
-        String styleId = styleMapping.get(el.getStdTagName());
+        String styleId = styleMapping.getString(el.getStdTagName());
         P p = factory.createP();
         if (null != styleId) {
             setPStyle(p, styleId);
@@ -242,8 +257,46 @@ public class CheapDocxRendering {
         // 依次搞单元格内容
         List<Object> tdContent = td.getContent();
 
+        // 收集行内元素
+        List<CheapNode> inlines = new LinkedList<>();
+
+        // 逐次处理表格单元格内部的子元素
         for (CheapNode node : el.getChildren()) {
+            // 文本节点：先保存
+            if (node.isText()) {
+                inlines.add(node);
+                continue;
+            }
+            // Inline 元素
+            if (node.isElement()) {
+                CheapElement ce = (CheapElement) node;
+                if (ce.isStdTagAs("^(BR|IMG|B|I|U|STRONG|EM|A|SPAN)$")) {
+                    inlines.add(ce);
+                    continue;
+                }
+            }
+            // 处理块元素之前，看看有没有必要先处理一下已有的元素
+            if (!inlines.isEmpty()) {
+                P p = factory.createP();
+                List<Object> pContent = p.getContent();
+                if (joinInlineElements(pContent, inlines)) {
+                    tdContent.add(p);
+                }
+                inlines.clear();
+            }
+
+            // 处理块元素
             this.dispatchBlock(tdContent, node);
+        }
+
+        // 处理最后一个
+        if (!inlines.isEmpty()) {
+            P p = factory.createP();
+            List<Object> pContent = p.getContent();
+            if (joinInlineElements(pContent, inlines)) {
+                tdContent.add(p);
+            }
+            inlines.clear();
         }
 
         // 如果为空，则搞一个空行出来
@@ -259,31 +312,85 @@ public class CheapDocxRendering {
     private void joinTableRow(Tbl table, CheapElement el) {
         Tr tr = factory.createTr();
         for (CheapElement child : el.getChildElements()) {
-            if (child.isTagName("TD") || child.isTagName("TH")) {
+            if (child.isStdTagName("TD") || child.isStdTagName("TH")) {
                 joinTableCell(tr, child);
             }
         }
         table.getContent().add(tr);
     }
 
+    private int getTableColumnsCount(CheapElement eTab) {
+        CheapElement eTr = eTab.findElement(el -> el.isStdTagName("TR"));
+        return eTr.countChildElements(el -> el.isStdTagName("TD"));
+    }
+
     private void joinTable(List<Object> partItems, CheapElement el) {
         Tbl table = factory.createTbl();
+        TblPr tPr = factory.createTblPr();
+        table.setTblPr(tPr);
+        // 设置表格边框
+        int border = el.attrInt("border");
+        if (border > 0) {
+            TblBorders tBs = factory.createTblBorders();
+            tBs.setTop(createBorder(border));
+            tBs.setBottom(createBorder(border));
+            tBs.setLeft(createBorder(border));
+            tBs.setRight(createBorder(border));
+            tBs.setInsideH(createBorder(border));
+            tBs.setInsideV(createBorder(border));
+            tPr.setTblBorders(tBs);
+        }
+        // 设置表格宽度
+        int colN = this.getTableColumnsCount(el);
+        int tableWidth = 8613;
+        TblWidth tW = factory.createTblWidth();
+        tW.setW(BigInteger.valueOf(tableWidth));
+        tW.setType("dxa");
+        tPr.setTblW(tW);
+        CTTblLayoutType clt = new CTTblLayoutType();
+        clt.setType(STTblLayoutType.FIXED);
+        tPr.setTblLayout(clt);
+        // 设置单元格宽度
+        int cellWidth = tableWidth / colN;
+        int remainWidth = tableWidth - (cellWidth * colN);
+        TblGrid tGrid = factory.createTblGrid();
+        for (int i = 0; i < colN; i++) {
+            int w = cellWidth;
+            if (i == (colN - 1)) {
+                w += remainWidth;
+            }
+            TblGridCol col = factory.createTblGridCol();
+            col.setW(BigInteger.valueOf(w));
+            tGrid.getGridCol().add(col);
+        }
+        table.setTblGrid(tGrid);
+
+        // 设置单元格
         for (CheapElement child : el.getChildElements()) {
             // THEAD
             // TBODY
-            if (child.isTagName("THEAD") || child.isTagName("TBODY")) {
+            if (child.isStdTagName("THEAD") || child.isStdTagName("TBODY")) {
                 for (CheapElement c2 : child.getChildElements()) {
-                    if (c2.isTagName("TR")) {
+                    if (c2.isStdTagName("TR")) {
                         joinTableRow(table, c2);
                     }
                 }
             }
             // TR
-            else if (child.isTagName("TR")) {
+            else if (child.isStdTagName("TR")) {
                 joinTableRow(table, child);
             }
         }
         partItems.add(table);
+    }
+
+    private CTBorder createBorder(int border) {
+        CTBorder b = factory.createCTBorder();
+        b.setVal(STBorder.SINGLE);
+        b.setSz(BigInteger.valueOf(4 * border));
+        b.setSpace(BigInteger.valueOf(0));
+        b.setColor("auto");
+        return b;
     }
 
     private void joinDiv(List<Object> partItems, CheapElement el) {
@@ -291,11 +398,11 @@ public class CheapDocxRendering {
         String styleId = null;
         if (el.hasClassName()) {
             // 整体映射
-            styleId = this.styleMapping.get(el.getClassName());
+            styleId = this.styleMapping.getString(el.getClassName());
             // 某个类选择器
             if (null == styleId) {
                 for (String cn : el.getClassList()) {
-                    styleId = styleMapping.get(cn);
+                    styleId = styleMapping.getString(cn);
                     if (null != styleId)
                         break;
                 }
@@ -321,9 +428,14 @@ public class CheapDocxRendering {
     }
 
     private boolean appendBlockChildren(P p, CheapElement el) {
+        List<CheapNode> children = el.getChildren();
         List<Object> pContent = p.getContent();
+        return joinInlineElements(pContent, children);
+    }
+
+    private boolean joinInlineElements(List<Object> pContent, List<CheapNode> children) {
         boolean re = false;
-        for (CheapNode node : el.getChildren()) {
+        for (CheapNode node : children) {
             // 文本节点
             if (node.isText()) {
                 re |= appendText(pContent, (CheapText) node, null);
@@ -366,7 +478,7 @@ public class CheapDocxRendering {
             }
         }
         Text t = factory.createText();
-        t.setValue(txt.getText());
+        t.setValue(txt.decodeText());
         r.getContent().add(t);
         pContent.add(r);
 
@@ -477,19 +589,19 @@ public class CheapDocxRendering {
         boolean re = false;
 
         // 处理图像
-        if (el.isTagName("IMG")) {
+        if (el.isStdTagName("IMG")) {
             re |= appendImage(pContent, el);
         }
         // 处理加粗
-        else if (el.isTagName("STRONG") || el.isTagName("B")) {
+        else if (el.isStdTagName("STRONG") || el.isStdTagName("B")) {
             re |= appendBold(pContent, el, es);
         }
         // 处理斜体
-        else if (el.isTagName("EM") || el.isTagName("I")) {
+        else if (el.isStdTagName("EM") || el.isStdTagName("I")) {
             re |= appendItalic(pContent, el, es);
         }
         // 处理下划线
-        else if (el.isTagName("U")) {
+        else if (el.isStdTagName("U")) {
             re |= appendUnderline(pContent, el, es);
         }
         // 其他的递归处理文字
@@ -515,38 +627,72 @@ public class CheapDocxRendering {
             return;
 
         // 处理 DIV
-        if (el.isTagName("DIV")) {
+        if (el.isStdTagName("DIV")) {
             joinDiv(partItems, el);
         }
         // 处理标题
-        else if (el.isTagAs("^(H[1-6])$")) {
+        else if (el.isStdTagAs("^(H[1-6])$")) {
             joinHeading(partItems, el);
         }
         // 处理段落
-        else if (el.isTagName("P")) {
+        else if (el.isStdTagName("P")) {
             joinP(partItems, el);
         }
         // 处理表格
-        else if (el.isTagName("TABLE")) {
+        else if (el.isStdTagName("TABLE")) {
             joinTable(partItems, el);
         }
         // 处理无序列表
-        else if (el.isTagName("UL")) {
+        else if (el.isStdTagName("UL")) {
             joinUl(partItems, el);
         }
         // 处理有序列表
-        else if (el.isTagName("OL")) {
+        else if (el.isStdTagName("OL")) {
             joinOl(partItems, el);
         }
         // 处理引用
-        else if (el.isTagName("BLOCKQUOTE")) {
+        else if (el.isStdTagName("BLOCKQUOTE")) {
             joinBlockquote(partItems, el);
+        }
+    }
+
+    private void setPText(P p, String txt) {
+        R r = factory.createR();
+        Text t = factory.createText();
+        t.setValue(txt);
+        r.getContent().add(t);
+        p.getContent().add(r);
+    }
+
+    private void handleHeader(HeaderPart headerPart, String content) throws Exception {
+        List<Object> headList = headerPart.getContent();
+        for (Object headP : headList) {
+            if (headP instanceof P) {
+                P p = (P) headP;
+                p.getContent().clear();
+                this.setPText(p, "hahahaha");
+            }
         }
     }
 
     public WordprocessingMLPackage render() throws Exception {
         // 渲染文档头（页眉和页脚）
         // TODO ...
+        List<SectionWrapper> sections = wp.getDocumentModel().getSections();
+        if (null != sections && !sections.isEmpty()) {
+            for (int i = 0; i < sections.size(); i++) {
+                HeaderFooterPolicy hfp = sections.get(i).getHeaderFooterPolicy();
+                // 首页不同的页眉的header
+                HeaderPart firstHeader = hfp.getFirstHeader();
+                if (firstHeader != null) {
+                    handleHeader(firstHeader, "ABC");
+                }
+                // 普通情况的页眉header
+                HeaderPart headerPart = hfp.getDefaultHeader();
+                if (null != headerPart)
+                    handleHeader(headerPart, "ABC");
+            }
+        }
 
         // 渲染文档体
         MainDocumentPart part = wp.getMainDocumentPart();

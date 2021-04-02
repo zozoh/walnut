@@ -8,7 +8,7 @@ import org.nutz.walnut.cheap.dom.CheapMatcher;
 
 public class CheapAttrMatcher implements CheapMatcher {
 
-    static String R0 = "^\\[([\\w\\d_-]+)(=(.+))?\\]$";
+    static String R0 = "^\\[([\\w\\d:_-]+)(=(.+))?\\]$";
     private static final Pattern P0 = Pattern.compile(R0);
 
     private String attrName;
@@ -21,6 +21,11 @@ public class CheapAttrMatcher implements CheapMatcher {
             this.attrName = m.group(1);
             this.attrValue = m.group(3);
         }
+    }
+
+    public CheapAttrMatcher(String attrName, String attrValue) {
+        this.attrName = attrName;
+        this.attrValue = attrValue;
     }
 
     @Override

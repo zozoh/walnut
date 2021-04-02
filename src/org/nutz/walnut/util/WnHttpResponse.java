@@ -123,7 +123,7 @@ public class WnHttpResponse {
 
         // 默认用 obj 的名称作为下载名
         if (Strings.isBlank(this.downloadName)) {
-            this.downloadName = wobj.name();
+            this.downloadName = wobj.getString("title", wobj.name());
             // 确保有正确的扩展名作为结尾
             String suffixName = Files.getSuffixName(this.downloadName);
             if (wobj.hasType() && !wobj.isType(suffixName)) {
