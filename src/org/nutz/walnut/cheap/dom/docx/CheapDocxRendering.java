@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
@@ -39,7 +41,6 @@ import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -60,31 +61,6 @@ public class CheapDocxRendering {
      */
     private CheapResourceLoader loader;
 
-    /**
-     * 元素（特别是<code>H1~6</cod>），应该应对到哪个 w:style 呢？<br>
-     * 元素（特别是<code>DIV</cod>）采用了特别的 className，应该应对到哪个 w:style 呢？
-     * 文档头部元数据（特别是<code>META</code> 制作的页头/脚应该应对哪个 w:style 呢？
-     * <p>
-     * 这里是一个映射表:
-     * 
-     * <pre>
-     * {
-     *    "${tagName}" : "${styleId}",
-     *    ".${className}" : "${styleId}",
-     *    "@${metaName}" : "${styleId}",
-     * }
-     * 譬如
-     * {
-     *    "H1" : "10",
-     *    "H2" : "20",
-     *    ".my-title" : "ab",
-     *    "@doc-code" : "a0",
-     *    "@doc-name" : "a1",
-     * }
-     * </pre>
-     */
-    private NutBean styleMapping;
-
     private ObjectFactory factory;
 
     private Map<String, CheapResource> resources;
@@ -100,13 +76,90 @@ public class CheapDocxRendering {
                               CheapResourceLoader loader) {
         this.doc = doc;
         this.wp = wp;
-        this.styleMapping = null == styleMapping ? new NutMap() : styleMapping;
         this.loader = loader;
         this.factory = new ObjectFactory();
 
         this.resources = new HashMap<>();
         this._seq_id1 = 1;
         this._seq_id2 = 2;
+
+        this.buildStyleMapping(styleMapping);
+    }
+
+    private Map<String, String> tagNameStyleMapping;
+    private Map<String, String> classNameStyleMapping;
+    private List<AttrStyleMapping> attrStyleMapping;
+    private static Pattern P_S = Pattern.compile("@([^=]+)=(.+)$");
+
+    /**
+     * 元素（特别是<code>H1~6</cod>），应该应对到哪个 w:style 呢？<br>
+     * 元素（特别是<code>DIV</cod>）采用了特别的 className，应该应对到哪个 w:style 呢？ 元素标记了特殊属性应该应对哪个
+     * w:style 呢？
+     * <p>
+     * 这里是一个映射表:
+     * 
+     * <pre>
+     * {
+     *    "${tagName}" : "${styleId}",
+     *    "${className}" : "${styleId}",
+     *    "@${attrName}=${attrValue}" : "${styleId}",
+     * }
+     * 譬如
+     * {
+     *    "H1" : "10",
+     *    "H2" : "20",
+     *    "my-title" : "ab",
+     *    "@doc-p=title" : "a0",
+     * }
+     * </pre>
+     */
+    private void buildStyleMapping(NutBean styleMapping) {
+        tagNameStyleMapping = new HashMap<>();
+        classNameStyleMapping = new HashMap<>();
+        attrStyleMapping = new LinkedList<>();
+
+        // 循环处理映射表
+        if (null != styleMapping) {
+            for (Map.Entry<String, Object> en : styleMapping.entrySet()) {
+                String key = en.getKey();
+                String val = en.getValue().toString();
+                // 全大写，表示元素名称
+                if (key.matches("^([A-Z0-9])$")) {
+                    tagNameStyleMapping.put(key, val);
+                    continue;
+                }
+                // 指定属性
+                Matcher m = P_S.matcher(key);
+                if (m.find()) {
+                    String attrName = m.group(1);
+                    String attrVal = m.group(2);
+                    attrStyleMapping.add(new AttrStyleMapping(attrName, attrVal, val));
+                    continue;
+                }
+                // 那么就是 className 咯
+                classNameStyleMapping.put(key, val);
+            }
+        }
+    }
+
+    private String getStyleId(CheapElement el) {
+        String styleId = null;
+        // 尝试属性
+        for (AttrStyleMapping asm : this.attrStyleMapping) {
+            styleId = asm.tryGetStyle(el);
+            if (null != styleId)
+                return styleId;
+        }
+        // 尝试 className
+        if (el.hasClassName()) {
+            for (String className : el.getClassList()) {
+                styleId = classNameStyleMapping.get(className);
+                if (null != styleId)
+                    return styleId;
+            }
+        }
+        // 尝试标签名
+        return tagNameStyleMapping.get(el.getStdTagName());
     }
 
     public Inline createImage(String id, int w, int h) {
@@ -156,7 +209,7 @@ public class CheapDocxRendering {
     }
 
     private void joinBlockquote(List<Object> partItems, CheapElement el) {
-        String styleId = styleMapping.getString("BLOCKQUOTE");
+        String styleId = this.getStyleId(el);
         P p = factory.createP();
         if (null != styleId) {
             setPStyle(p, styleId);
@@ -175,7 +228,7 @@ public class CheapDocxRendering {
     }
 
     private void joinHeading(List<Object> partItems, CheapElement el) {
-        String styleId = styleMapping.getString(el.getStdTagName());
+        String styleId = this.getStyleId(el);
         P p = factory.createP();
         if (null != styleId) {
             setPStyle(p, styleId);
@@ -186,7 +239,11 @@ public class CheapDocxRendering {
     }
 
     private void joinP(List<Object> partItems, CheapElement el) {
+        String styleId = this.getStyleId(el);
         P p = factory.createP();
+        if (null != styleId) {
+            setPStyle(p, styleId);
+        }
         if (appendBlockChildren(p, el)) {
             partItems.add(p);
         }
@@ -225,7 +282,7 @@ public class CheapDocxRendering {
 
         // 搞子节点：增加级别
         this.listLvl++;
-        for (CheapNode child : el.getChildren()) {
+        for (CheapElement child : el.getChildElements()) {
             this.dispatchBlock(partItems, child);
         }
         // 回退级别
@@ -395,19 +452,7 @@ public class CheapDocxRendering {
 
     private void joinDiv(List<Object> partItems, CheapElement el) {
         // 如果找到了样式映射，就不是简单的一层包裹咯
-        String styleId = null;
-        if (el.hasClassName()) {
-            // 整体映射
-            styleId = this.styleMapping.getString(el.getClassName());
-            // 某个类选择器
-            if (null == styleId) {
-                for (String cn : el.getClassList()) {
-                    styleId = styleMapping.getString(cn);
-                    if (null != styleId)
-                        break;
-                }
-            }
-        }
+        String styleId = this.getStyleId(el);
 
         // 简单的包裹，递进一层
         if (null == styleId) {
@@ -566,6 +611,13 @@ public class CheapDocxRendering {
         }
     }
 
+    private boolean appendSpan(List<Object> pContent, CheapElement el, DocxElStyle es) {
+        if (null == es) {
+            es = new DocxElStyle();
+        }
+        return dispatchInlineChildren(pContent, el, es);
+    }
+
     private boolean dispatchInlineChildren(List<Object> pContent, CheapElement el, DocxElStyle es) {
         // System.out.printf("dispatchInlineChildren: %s\n", el.toBrief());
         boolean re = false;
@@ -604,9 +656,17 @@ public class CheapDocxRendering {
         else if (el.isStdTagName("U")) {
             re |= appendUnderline(pContent, el, es);
         }
-        // 其他的递归处理文字
+        // 处理超链接
+        else if (el.isStdTagName("A")) {
+            re |= appendUnderline(pContent, el, es);
+        }
+        // 处理普通文字
+        else if (el.isStdTagName("SPAN")) {
+            re |= appendSpan(pContent, el, es);
+        }
+          // 其他的统统无视
         else {
-            re |= dispatchInlineChildren(pContent, el, es);
+            // re |= dispatchInlineChildren(pContent, el, es);
         }
 
         return re;

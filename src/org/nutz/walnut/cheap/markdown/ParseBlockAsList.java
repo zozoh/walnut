@@ -97,7 +97,7 @@ public class ParseBlockAsList implements ParseBlock {
                     // 寻找第一个基本与自己级别相当的祖先
                     String tagName = line.listType.toString();
                     CheapElement $an = ing.$current.getClosest($p -> {
-                        if (!$p.isTagName(tagName))
+                        if (!$p.isStdTagName(tagName))
                             return false;
                         int level = $p.attrInt("md-level");
                         return level <= line.level;

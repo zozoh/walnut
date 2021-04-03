@@ -8,6 +8,16 @@ import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class CheapHtmlParsingTest extends AbstractCheapParsingTest {
+    
+    @Test
+    public void test_table_0() {
+        String input = _Fhtml("t0_table");
+        CheapHtmlParsing ing = new CheapHtmlParsing(false);
+        CheapDocument doc = ing.invoke(input);
+
+        String html = doc.toMarkup();
+        assertEquals(input, html);
+    }
 
     @Test
     public void test_xml_1() {

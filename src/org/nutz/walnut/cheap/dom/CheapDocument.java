@@ -126,7 +126,7 @@ public class CheapDocument {
     }
 
     public void setAutoClosedTagsAsHtml() {
-        this.setAutoClosedTags("^(IMG|BR|HR|META|LINK)$");
+        this.setAutoClosedTags("^(IMG|BR|HR|META|LINK|COL)$");
     }
 
     public void removeEmpty() {
@@ -184,6 +184,7 @@ public class CheapDocument {
     public CheapElement createElement(String tagName, String className) {
         CheapElement $node = new CheapElement(tagName, className);
         $node.doc = this;
+        $node.setAutoClosed(this.isAutoClosedTag($node));
         return $node;
     }
 

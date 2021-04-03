@@ -315,7 +315,7 @@ public class CheapMarkdownParsing {
                 String tagName = m.group(32).toUpperCase();
                 CheapElement $el = (CheapElement) $current;
                 // 当前就是
-                if ($el.isTagName(tagName)) {
+                if ($el.isStdTagName(tagName)) {
                     $current = $el.getParent();
                 }
                 // 向上查找
@@ -558,7 +558,7 @@ public class CheapMarkdownParsing {
         } else if (!className.contains("as-md")) {
             className = "as-md " + className;
         }
-        CheapElement $el = doc.createElement(tagName, className);
+        CheapElement $el = doc.createElement(tagName.toLowerCase(), className);
         if (null != line) {
             $el.attr("md-line", line.lineNumber);
         }

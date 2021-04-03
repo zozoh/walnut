@@ -93,7 +93,6 @@ public class CheapHtmlParsing {
                 }
 
                 // 是否为自动关闭标签
-                $el.setAutoClosed(doc.isAutoClosedTag($el));
                 $el.setClosed("/".equals(m.group(6)));
 
                 // 解析属性
