@@ -17,6 +17,7 @@ import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
 import org.docx4j.openpackaging.parts.WordprocessingML.HeaderPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.BooleanDefaultTrue;
+import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBorder;
 import org.docx4j.wml.CTTblLayoutType;
 import org.docx4j.wml.Drawing;
@@ -124,7 +125,7 @@ public class CheapDocxRendering {
                 String key = en.getKey();
                 String val = en.getValue().toString();
                 // 全大写，表示元素名称
-                if (key.matches("^([A-Z0-9])$")) {
+                if (key.matches("^([A-Z]+[A-Z0-9]*)$")) {
                     tagNameStyleMapping.put(key, val);
                     continue;
                 }
@@ -214,8 +215,20 @@ public class CheapDocxRendering {
         if (null != styleId) {
             setPStyle(p, styleId);
         }
+        // 记入自己内容
         if (appendBlockChildren(p, el)) {
             partItems.add(p);
+        }
+        // 得到自己的子段落节点
+        List<CheapElement> subPs = el.getChildElements(child -> child.isStdTagName("P"));
+        for (CheapElement subP : subPs) {
+            P p2 = factory.createP();
+            if (null != styleId) {
+                setPStyle(p2, styleId);
+            }
+            if (appendBlockChildren(p2, subP)) {
+                partItems.add(p2);
+            }
         }
     }
 
@@ -530,6 +543,16 @@ public class CheapDocxRendering {
         return true;
     }
 
+    private boolean appendBr(List<Object> pContent, CheapElement el) {
+        // 计入文档
+        R r = factory.createR();
+        Br br = factory.createBr();
+        r.getContent().add(br);
+        pContent.add(r);
+
+        return true;
+    }
+
     private boolean appendImage(List<Object> pContent, CheapElement el) {
         // 得到图片的 ID
         String imgId = el.attr("wn-obj-id");
@@ -640,8 +663,12 @@ public class CheapDocxRendering {
         // System.out.printf("appendInline: %s\n", el.toBrief());
         boolean re = false;
 
+        // 处理 BR
+        if (el.isStdTagName("BR")) {
+            re |= appendBr(pContent, el);
+        }
         // 处理图像
-        if (el.isStdTagName("IMG")) {
+        else if (el.isStdTagName("IMG")) {
             re |= appendImage(pContent, el);
         }
         // 处理加粗
