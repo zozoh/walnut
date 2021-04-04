@@ -16,8 +16,6 @@ import org.nutz.walnut.ext.thing.util.Things;
 import org.nutz.walnut.util.upload.HttpFormCallback;
 import org.nutz.walnut.util.upload.HttpFormField;
 import org.nutz.walnut.util.upload.HttpFormUpload;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
 
 /**
  * 处理 HTTP 上传流，返回所有符合过滤器的文件对象
@@ -37,7 +35,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
      */
     public String fieldName;
 
-    private WnMatch wm;
+    // private WnMatch wm;
 
     /**
      * 重名模板
@@ -65,7 +63,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
         List<WnObj> list = new LinkedList<>();
 
         // 首先准备判断条件
-        wm = Strings.isBlank(fnm) ? null : new AutoStrMatch(fnm);
+        // wm = Strings.isBlank(fnm) ? null : new AutoStrMatch(fnm);
 
         // 准备上传流解析
         HttpFormUpload upload = new HttpFormUpload(ins, boundary);
@@ -79,7 +77,8 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
                         // 文件名过滤器
                         if ("fnm".equals(fldName)) {
                             fnm = field.readAllString().trim();
-                            wm = Strings.isBlank(fnm) ? null : new AutoStrMatch(fnm);
+                            // wm = Strings.isBlank(fnm) ? null : new
+                            // AutoStrMatch(fnm);
                         }
                         // 是否覆盖
                         else if ("overwrite".equals(fldName) || "ow".equals(fldName)) {
@@ -103,7 +102,10 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
                         String fileName = Strings.sBlank(fnm, localFileName);
 
                         // 匹配文件
-                        if (field.isName(fieldName) || null == wm || wm.match(localFileName)) {
+                        if (field.isName(fieldName) /*
+                                                     * || null == wm ||
+                                                     * wm.match(localFileName)
+                                                     */) {
                             // 首先判断文件是否存在
                             WnObj oM = io.fetch(oDir, fileName);
 

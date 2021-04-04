@@ -191,6 +191,10 @@ public interface WnIo {
 
     long writeJson(WnObj o, Object obj, JsonFormat fmt);
 
+    long writeBytes(WnObj o, byte[] buf);
+
+    long writeBytes(WnObj o, byte[] buf, int off, int len);
+
     long writeAndClose(WnObj o, InputStream ins);
 
     Reader getReader(WnObj o, long off);

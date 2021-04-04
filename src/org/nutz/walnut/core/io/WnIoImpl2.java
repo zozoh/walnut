@@ -1451,6 +1451,27 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
+    public long writeBytes(WnObj o, byte[] buf) {
+        return writeBytes(o, buf, 0, buf.length);
+    }
+
+    @Override
+    public long writeBytes(WnObj o, byte[] buf, int off, int len) {
+        OutputStream ops = null;
+        try {
+            ops = this.getOutputStream(o, 0);
+            ops.write(buf, off, len);
+        }
+        catch (IOException e) {
+            throw Er.wrap(e);
+        }
+        finally {
+            Streams.safeClose(ops);
+        }
+        return o.len();
+    }
+
+    @Override
     public long writeAndClose(WnObj o, InputStream ins) {
         OutputStream ops = this.getOutputStream(o, 0);
         return Streams.writeAndClose(ops, ins);

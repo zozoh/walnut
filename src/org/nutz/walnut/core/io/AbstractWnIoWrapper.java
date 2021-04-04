@@ -237,6 +237,14 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.writeJson(o, obj, fmt);
     }
 
+    public long writeBytes(WnObj o, byte[] buf) {
+        return io.writeBytes(o, buf);
+    }
+
+    public long writeBytes(WnObj o, byte[] buf, int off, int len) {
+        return io.writeBytes(o, buf, off, len);
+    }
+
     public long writeAndClose(WnObj o, InputStream ins) {
         return io.writeAndClose(o, ins);
     }

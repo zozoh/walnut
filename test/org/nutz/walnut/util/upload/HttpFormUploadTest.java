@@ -10,7 +10,9 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutMap;
 
 public class HttpFormUploadTest {
@@ -39,6 +41,78 @@ public class HttpFormUploadTest {
         HttpFormUpload upload = new HttpFormUpload(ins, bound, 300);
 
         return upload.parseDataAndClose();
+    }
+
+    @Test
+    public void test_3_1024_buf_size() throws IOException {
+        String phHead = getMyDataFile("c3_head.json");
+        String phBody = getMyDataFile("c3_body.txt");
+
+        File fHead = Files.findFile(phHead);
+        File fBody = Files.findFile(phBody);
+        System.out.println(Lang.sha1(fBody));
+
+        NutMap head = Json.fromJsonFile(NutMap.class, fHead);
+        InputStream ins = Streams.fileIn(fBody);
+
+        String bound = head.getString("http-header-CONTENT-TYPE");
+        HttpFormUpload upload = new HttpFormUpload(ins, bound);
+
+        LinkedByteBuffer opbuf = new LinkedByteBuffer();
+        HttpFormFile fld0 = new HttpFormFile();
+
+        upload.parse(new HttpFormCallback() {
+            public void handle(HttpFormField field) throws IOException {
+                if (!field.isFile() || !field.isName("file")) {
+                    throw Lang.makeThrow("Invalid field %s", field.getName());
+                }
+                // 记录
+                fld0.setName(field.getFileName());
+                fld0.setContentType(field.getContentType());
+
+                // 读内容
+                byte[] bs = field.readAllBytes();
+                opbuf.write(bs);
+            }
+        });
+
+        byte[] bs = opbuf.toArray();
+
+        assertEquals("Fb0oSlQIkDLwa99933f6e5b2af5b105ee6c696627fc4.jpg", fld0.getName());
+        assertEquals("image/jpeg", fld0.getContentType());
+
+        File f0 = Files.findFile(getMyDataFile("c3.jpg"));
+        byte[] be = Files.readBytes(f0);
+        assertTrue(bs.length > 0);
+        assertEquals(be.length, bs.length);
+        for (int i = 0; i < bs.length; i++) {
+            assertEquals(be[i], bs[i]);
+        }
+    }
+
+    @Test
+    public void test_3() throws IOException {
+        NutMap map = doUpload("c3");
+
+        assertEquals(1, map.size());
+
+        byte[] be, bs;
+
+        List<HttpFormFile> files = map.getList("file", HttpFormFile.class);
+
+        assertEquals(1, files.size());
+
+        HttpFormFile fld0 = files.get(0);
+        assertEquals("Fb0oSlQIkDLwa99933f6e5b2af5b105ee6c696627fc4.jpg", fld0.getName());
+        assertEquals("image/jpeg", fld0.getContentType());
+        bs = fld0.getBytes();
+        File f0 = Files.findFile(getMyDataFile("c3.jpg"));
+        be = Files.readBytes(f0);
+        assertTrue(bs.length > 0);
+        assertEquals(be.length, bs.length);
+        for (int i = 0; i < bs.length; i++) {
+            assertEquals(be[i], bs[i]);
+        }
     }
 
     @Test

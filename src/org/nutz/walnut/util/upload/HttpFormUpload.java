@@ -349,8 +349,6 @@ public class HttpFormUpload {
         if (index >= rIndex) {
             this.boundIndex = index;
             int real = __fill_to_bound_and_update_rIndex(bs, off, len, true);
-            // 因为找到了边界，所以要偏移一下读下标，越过一个边界长度
-            this.rIndex += this.boundBytes.length + NWLNBytes.length;
             return real;
         }
         // 2. 如果没有找到
