@@ -8,6 +8,7 @@ import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 /**
@@ -46,9 +47,19 @@ public class cmd_passwd extends JvmExecutor {
         // .....................................................
         // 确定用户
         WnAccount me = sys.getMe();
-        String unm = params.get("u");
         WnAccount u;
-        if (!Strings.isBlank(unm)) {
+        String unm = params.get("u");
+        // 对于非系统用（采用域账户登录的，需要做特殊处理）
+        if (!me.isSysAccount()) {
+            // 只能自己修改自己
+            if (Ws.isBlank(unm) || me.isSameName(unm)) {
+                u = me;
+            }
+            // 否则刚烈自爆
+            else {
+                throw Er.create("e.cmd.passwd.dmn_user_no_pvg", me.getName());
+            }
+        } else if (!Strings.isBlank(unm)) {
             u = sys.auth.checkAccount(unm);
         }
         // 否则就用当前会话
@@ -67,7 +78,7 @@ public class cmd_passwd extends JvmExecutor {
 
         // .....................................................
         // 对于非 root/op 组的操作用户，深入检查权限
-        if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+        if (u != me && !sys.auth.isMemberOfGroup(me, "root", "op")) {
             // 如果要修改的是系统用户，那么，必须是自己修改自己才成
             if (u.isSysAccount()) {
                 if (!u.isSame(me)) {
@@ -83,8 +94,11 @@ public class cmd_passwd extends JvmExecutor {
         }
 
         // .....................................................
-        // 设置并保存新密码
+        // 设置
         u.setRawPasswd(passwd);
+
+        // .....................................................
+        // 保存新密码
         sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
 
         // .....................................................

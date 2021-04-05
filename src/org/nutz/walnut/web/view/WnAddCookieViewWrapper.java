@@ -53,7 +53,7 @@ public class WnAddCookieViewWrapper implements View {
     public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
             throws Throwable {
 
-        if (null != obj) {
+        if (null != obj && !(obj instanceof Throwable)) {
             NutMap context = Lang.obj2map(obj, NutMap.class);
             String cookieStr = cookie.render(context, false);
             resp.addHeader("SET-COOKIE", cookieStr + "; Path=/;");

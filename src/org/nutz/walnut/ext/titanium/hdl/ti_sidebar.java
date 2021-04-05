@@ -67,6 +67,11 @@ public class ti_sidebar implements JvmHdl {
         final WnObj oSidebarHome = oSidebar.parent();
         WnAccount me = sys.getMe();
 
+        // 判断一下当前用户权限
+        String myGroupName = sys.session.getMyGroup();
+        boolean IamAdmin = sys.auth.isAdminOfGroup(me, myGroupName);
+        boolean IamMember = IamAdmin ? true : sys.auth.isMemberOfGroup(me, myGroupName);
+
         // 准备解析
         TiSidebarInput input = sidebars.getInput(oSidebar);
 
@@ -83,10 +88,14 @@ public class ti_sidebar implements JvmHdl {
             WnGroupRole shouldBeRole = WnGroupRole.valueOf(roleName);
             // 管理员
             if (WnGroupRole.ADMIN == shouldBeRole) {
+                if (ta_grp.equals(myGroupName))
+                    return IamAdmin;
                 return sys.auth.isAdminOfGroup(me, ta_grp);
             }
             // 成员
             if (WnGroupRole.MEMBER == shouldBeRole) {
+                if (ta_grp.equals(myGroupName))
+                    return IamMember;
                 sys.auth.isMemberOfGroup(me, ta_grp);
             }
             // 权限写的不对，禁止
@@ -111,6 +120,9 @@ public class ti_sidebar implements JvmHdl {
 
         // 检查自定义权限
         TiSidebarCheckPvg checkPvg = (pvg) -> {
+            // 域管理员，一定通过检查
+            if (IamAdmin)
+                return true;
             return new AutoMatch(pvg).match(myAvaPvg);
         };
 

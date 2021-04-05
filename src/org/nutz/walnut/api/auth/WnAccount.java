@@ -11,6 +11,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 public class WnAccount {
 
@@ -256,8 +257,8 @@ public class WnAccount {
                 bean.put("passwd", passwd);
                 bean.put("salt", salt);
             }
-            
-         // 是否设置了密码
+
+            // 是否设置了密码
             bean.put("saltedPasswd", this.hasSaltedPasswd());
         }
 
@@ -621,6 +622,15 @@ public class WnAccount {
 
     public boolean hasRoleName() {
         return !Strings.isBlank(roleName);
+    }
+
+    private String[] _role_list = null;
+
+    public String[] getRoleList() {
+        if (null == _role_list) {
+            _role_list = Ws.splitIgnoreBlank(this.roleName);
+        }
+        return _role_list;
     }
 
     public String getRoleName() {

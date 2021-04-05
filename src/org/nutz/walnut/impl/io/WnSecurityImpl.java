@@ -66,7 +66,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     public WnObj meta(WnObj nd, boolean asNull) {
         return Wn.WC().security(_eval_link, new Proton<WnObj>() {
             protected WnObj exec() {
-                return __do_check(nd, Wn.Io.W, false);
+                return __do_check(nd, Wn.Io.WX, false);
             }
         });
     }

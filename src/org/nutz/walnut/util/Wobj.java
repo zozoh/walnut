@@ -195,35 +195,35 @@ public class Wobj {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
                       + "|pid|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/pid 字段
             else if ("PID".equals(md)) {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
                       + "|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/pid 字段
             else if ("Q".equals(md)) {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
                       + "|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/sha1/mime 等字段
             else if ("SHA1".equals(md)) {
                 str = "!^(ph|race|ct|data|d[0-9]"
                       + "|pid|c|m|g|md"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
             else if ("TC".equals(md)) {
                 str = "!^(ph|race|data|d[0-9]"
                       + "|pid|c|m|g|md"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
             else if ("THC".equals(md)) {
@@ -234,7 +234,7 @@ public class Wobj {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
                       + "|nm|pid|c|m|g|md|tp|mime"
                       + "|ln|mnt|expi|passwd|salt"
-                      + "|th_(set|live|set_nm))$";
+                      + "|th_(set|live|set_nm|auto_select))$";
             }
         }
         // 原样返回

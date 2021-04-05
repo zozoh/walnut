@@ -3,7 +3,6 @@ package org.nutz.walnut.core.bean;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.nutz.castor.Castors;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -717,9 +716,34 @@ public class WnIoObj extends NutMap implements WnObj {
             // 自己有木有
             Map map = this.getAs("pvg", Map.class);
             if (null != map) {
+                // ID 最优先
                 Object pvg = map.get(u.getId());
-                if (null != pvg)
-                    return Castors.me().castTo(pvg, Integer.class);
+
+                // 然后看看角色
+                if (null == pvg && u.hasRoleName()) {
+                    String prefix = u.isSysAccount() ? "$" : "@";
+                    for (String role : u.getRoleList()) {
+                        pvg = map.get(prefix + role);
+                        if (null != pvg)
+                            break;
+                    }
+                }
+
+                // 最后处理一下权限值
+                if (null != pvg) {
+                    if (pvg instanceof String) {
+                        String s = (String) pvg;
+                        if (s.startsWith("0")) {
+                            return Wn.Io.modeFromOctalMode(s.substring(1));
+                        }
+                        if (s.matches("^\\d+$")) {
+                            return Integer.parseInt(s);
+                        }
+                        return Wn.Io.modeFromStr(s);
+                    } else if (pvg instanceof Number) {
+                        return ((Number) pvg).intValue();
+                    }
+                }
             }
 
             // 看看自己的父
