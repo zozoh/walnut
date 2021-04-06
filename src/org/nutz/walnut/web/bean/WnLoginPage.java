@@ -25,6 +25,7 @@ public class WnLoginPage {
 
     private WnIo io;
     private WnAccount domainUser;
+    private String pageName;
     private String host;
     private String etag;
     private String range;
@@ -36,7 +37,7 @@ public class WnLoginPage {
 
         // ...................................................
         // 映射自用户的域，用户有啥特殊配置没？
-        if (null != domainUser) {
+        if (null == pageName && null != domainUser) {
             String loginPath = domainUser.getMetaString("LOGIN_PAGE");
             if (!Strings.isBlank(loginPath)) {
                 // 直接就是重定向
@@ -62,7 +63,7 @@ public class WnLoginPage {
 
         // ...................................................
         // 看看 /etc/hosts.d/ 有木有指定登录界面
-        if (null == oPageHome) {
+        if (!"sys".equals(pageName) && null == oPageHome) {
             WnObj oHosts = io.fetch(null, "/etc/hosts.d");
             if (null != oHosts) {
                 if (!Strings.isBlank(host)) {
@@ -118,6 +119,14 @@ public class WnLoginPage {
 
     public void setIo(WnIo io) {
         this.io = io;
+    }
+
+    public String getPageName() {
+        return pageName;
+    }
+
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
     }
 
     public WnAccount getDomainUser() {

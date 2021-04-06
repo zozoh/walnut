@@ -70,6 +70,7 @@ public class AppModule extends AbstractWnModule {
 
     @At("/login")
     public View login(HttpServletRequest req,
+                      @Param("pg") String page,
                       @Attr("wn_www_grp") String domainName,
                       @Attr("wn_www_host") String host,
                       @ReqHeader("If-None-Match") String etag,
@@ -77,13 +78,16 @@ public class AppModule extends AbstractWnModule {
                       HttpServletResponse resp) {
         String uri = req.getRequestURI();
         if (uri.endsWith("/")) {
-            return login_page(null, domainName, host, etag, range, resp);
+            return login_page(null, page, domainName, host, etag, range, resp);
         }
         return new ServerRedirectView("/a/login/");
     }
 
     /**
      * 打开系统登录界面
+     * 
+     * @param page
+     *            指定登录页面
      * 
      * @param domainName
      *            （来自 "wn_www_grp"）本次请求映射的 domain
@@ -100,6 +104,7 @@ public class AppModule extends AbstractWnModule {
      */
     @At("/login/**")
     public View login_page(String rph,
+                           @Param("pg") String page,
                            @Attr("wn_www_grp") String domainName,
                            @Attr("wn_www_host") String host,
                            @ReqHeader("If-None-Match") String etag,
@@ -122,6 +127,7 @@ public class AppModule extends AbstractWnModule {
         // 渲染登陆页面
         WnLoginPage login = new WnLoginPage();
         login.setIo(io());
+        login.setPageName(page);
         login.setDomainUser(domainUser);
         login.setHost(host);
         login.setEtag(etag);
