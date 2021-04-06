@@ -4,9 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
-import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -15,7 +13,6 @@ import org.nutz.walnut.ext.titanium.sidebar.TiSidebarCheckPvg;
 import org.nutz.walnut.ext.titanium.sidebar.TiSidebarInput;
 import org.nutz.walnut.ext.titanium.sidebar.TiSidebarOutput;
 import org.nutz.walnut.ext.titanium.sidebar.TiSidebarService;
-import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -103,22 +100,7 @@ public class ti_sidebar implements JvmHdl {
         };
 
         // 域账户登陆进来的用户，可能需要检测一下自定义权限，所以，先加载一下
-        NutMap myAvaPvg = new NutMap();
-        if (WnAuthSession.V_BT_AUTH_BY_DOMAIN.equals(sys.session.getByType())) {
-            String siteId = sys.session.getVars().getString(WnAuthSession.V_WWW_SITE_ID);
-            WnObj oWWW = sys.io.get(siteId);
-            if (null != oWWW) {
-                WnWebService webs = new WnWebService(sys, oWWW);
-                if (me.hasRoleName()) {
-                    for (String rnm : me.getRoleList()) {
-                        NutBean pvg = webs.getSite().readRoleAsJson(rnm);
-                        if (null != pvg) {
-                            myAvaPvg.putAll(pvg);
-                        }
-                    }
-                }
-            }
-        }
+        NutBean myAvaPvg = sys.getAllMyPvg();
 
         // 检查自定义权限
         TiSidebarCheckPvg checkPvg = (pvg) -> {

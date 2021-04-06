@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -19,6 +20,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
@@ -332,5 +334,42 @@ public class WnSystem implements WnExecutable {
      */
     public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
+    }
+
+    /**
+     * 读取当前账户对应角色的所有自定义权限表
+     * 
+     * @return 自定义业务权限表
+     */
+    public NutBean getAllMyPvg() {
+        // 得到当前用户
+        WnAccount me = this.getMe();
+
+        // 权限表
+        NutMap myAvaPvg = new NutMap();
+
+        // 看看是否需要读取
+        if (WnAuthSession.V_BT_AUTH_BY_DOMAIN.equals(this.session.getByType())) {
+            String siteId = this.session.getVars().getString(WnAuthSession.V_WWW_SITE_ID);
+            WnObj oWWW = this.io.get(siteId);
+            if (null != oWWW) {
+                WnWebService webs = new WnWebService(this, oWWW);
+                if (me.hasRoleName()) {
+                    for (String rnm : me.getRoleList()) {
+                        NutBean pvg = webs.getSite().readRoleAsJson(rnm);
+                        if (null != pvg) {
+                            for (String key : pvg.keySet()) {
+                                boolean val = pvg.getBoolean(key);
+                                if (val) {
+                                    myAvaPvg.put(key, true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return myAvaPvg;
     }
 }
