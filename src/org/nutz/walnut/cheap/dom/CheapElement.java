@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.cheap.css.CheapCss;
+import org.nutz.walnut.cheap.css.CheapStyle;
 import org.nutz.walnut.cheap.dom.flt.CheapAttrNameFilter;
 import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
@@ -345,13 +347,14 @@ public class CheapElement extends CheapNode {
     }
 
     /**
-     * @param stdTagName 标准标签名
+     * @param stdTagName
+     *            标准标签名
      * @return 是否符合标签（全大写）
      */
     public boolean isStdTagName(String stdTagName) {
         return null != stdTagName && stdTagName.equals(this.uppercaseTagName);
     }
-    
+
     /**
      * @param regex
      *            标签名的正则表达式。标签名全部用大写形式匹配
@@ -419,6 +422,43 @@ public class CheapElement extends CheapNode {
         }
         this.className.addAll(Ws.splitIgnoreBlanks(className, "\\s+"));
         return this;
+    }
+
+    public String getStyle() {
+        return this.attr("style");
+    }
+
+    public CheapStyle getStyleObj() {
+        return getStyleObj(true);
+    }
+
+    public CheapStyle getStyleObj(boolean kebab) {
+        String style = this.getStyle();
+        if (kebab) {
+            return CheapCss.parseStyleInKebabCase(style);
+        }
+        return CheapCss.parseStyleInCamelCase(style);
+    }
+
+    public String getStyle(String name) {
+        String kebabName = Ws.kebabCase(name);
+        CheapStyle style = this.getStyleObj(true);
+        return style.getString(kebabName);
+    }
+
+    public CheapElement setStyle(String style) {
+        return this.attr("style", style);
+    }
+
+    public CheapElement setStyleObj(CheapStyle style) {
+        String s = style.toString();
+        return this.attr("style", s);
+    }
+
+    public CheapElement setStyle(String name, String value) {
+        CheapStyle style = this.getStyleObj();
+        style.put(name, value);
+        return this.setStyleObj(style);
     }
 
     public CheapElement uniqClass() {

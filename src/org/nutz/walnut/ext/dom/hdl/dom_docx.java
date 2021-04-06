@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -28,6 +30,18 @@ public class dom_docx extends DomFilter {
         WnObj oStyle = null;
         if (params.vals.length > 0) {
             oStyle = Wn.checkObj(sys, params.val(0));
+        }
+
+        // 得到变量
+        String vars = params.getString("vars");
+        NutBean varsData = null;
+        if (!Ws.isBlank(vars)) {
+            if (Ws.isQuoteBy(vars, '{', '}')) {
+                varsData = Lang.map(vars);
+            } else {
+                WnObj oVars = Wn.checkObj(sys, vars);
+                varsData = sys.io.readJson(oVars, NutMap.class);
+            }
         }
 
         // 样式
@@ -67,7 +81,7 @@ public class dom_docx extends DomFilter {
                 Streams.safeClose(ins);
             }
             WnDocxResourceLoader loader = new WnDocxResourceLoader(sys);
-            CheapDocxRendering ing = new CheapDocxRendering(fc.doc, wp, style, loader);
+            CheapDocxRendering ing = new CheapDocxRendering(fc.doc, wp, style, varsData, loader);
             ing.render();
             wp.save(out);
 

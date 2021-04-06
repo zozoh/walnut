@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.JAXBElement;
+
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.model.structure.HeaderFooterPolicy;
@@ -21,6 +23,8 @@ import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBorder;
 import org.docx4j.wml.CTTblLayoutType;
 import org.docx4j.wml.Drawing;
+import org.docx4j.wml.Jc;
+import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
@@ -41,7 +45,9 @@ import org.docx4j.wml.TblWidth;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -64,6 +70,8 @@ public class CheapDocxRendering {
 
     private ObjectFactory factory;
 
+    private NutBean varsData;
+
     private Map<String, CheapResource> resources;
 
     /* 采用奇数 */
@@ -74,6 +82,7 @@ public class CheapDocxRendering {
     public CheapDocxRendering(CheapDocument doc,
                               WordprocessingMLPackage wp,
                               NutBean styleMapping,
+                              NutBean varsData,
                               CheapResourceLoader loader) {
         this.doc = doc;
         this.wp = wp;
@@ -85,8 +94,11 @@ public class CheapDocxRendering {
         this._seq_id2 = 2;
 
         this.buildStyleMapping(styleMapping);
+
+        this.varsData = null == varsData ? new NutMap() : varsData;
     }
 
+    private Map<String, String> pageStyleMapping;
     private Map<String, String> tagNameStyleMapping;
     private Map<String, String> classNameStyleMapping;
     private List<AttrStyleMapping> attrStyleMapping;
@@ -104,6 +116,8 @@ public class CheapDocxRendering {
      *    "${tagName}" : "${styleId}",
      *    "${className}" : "${styleId}",
      *    "@${attrName}=${attrValue}" : "${styleId}",
+     *    "#header" : "${styleId}",
+     *    "#footer" : "${styleId}"
      * }
      * 譬如
      * {
@@ -115,6 +129,7 @@ public class CheapDocxRendering {
      * </pre>
      */
     private void buildStyleMapping(NutBean styleMapping) {
+        pageStyleMapping = new HashMap<>();
         tagNameStyleMapping = new HashMap<>();
         classNameStyleMapping = new HashMap<>();
         attrStyleMapping = new LinkedList<>();
@@ -124,6 +139,11 @@ public class CheapDocxRendering {
             for (Map.Entry<String, Object> en : styleMapping.entrySet()) {
                 String key = en.getKey();
                 String val = en.getValue().toString();
+                // 页眉页脚
+                if (key.startsWith("#")) {
+                    pageStyleMapping.put(key, val);
+                    continue;
+                }
                 // 全大写，表示元素名称
                 if (key.matches("^([A-Z]+[A-Z0-9]*)$")) {
                     tagNameStyleMapping.put(key, val);
@@ -232,19 +252,45 @@ public class CheapDocxRendering {
         }
     }
 
-    private void setPStyle(P p, String styleId) {
+    private void setPStyle(P p, String styleId, String justifyContent) {
+        boolean hasStyleId = !Ws.isBlank(styleId);
+        boolean hasJustifyContent = !Ws.isBlank(justifyContent);
+        boolean setPPr = false;
+        if (!hasStyleId && !hasJustifyContent) {
+            return;
+        }
         PPr pPr = factory.createPPr();
-        PStyle pStyle = factory.createPPrBasePStyle();
-        pStyle.setVal(styleId);
-        pPr.setPStyle(pStyle);
-        p.setPPr(pPr);
+        if (hasStyleId) {
+            PStyle pStyle = factory.createPPrBasePStyle();
+            pStyle.setVal(styleId);
+            pPr.setPStyle(pStyle);
+            setPPr = true;
+        }
+        if (hasJustifyContent) {
+            Jc jc = factory.createJc();
+            String jcs = justifyContent.toUpperCase();
+            try {
+                jc.setVal(JcEnumeration.valueOf(jcs));
+                pPr.setJc(jc);
+                setPPr = true;
+            }
+            catch (Exception e) {}
+        }
+        if (setPPr) {
+            p.setPPr(pPr);
+        }
+    }
+
+    private void setPStyle(P p, String styleId) {
+        setPStyle(p, styleId, null);
     }
 
     private void joinHeading(List<Object> partItems, CheapElement el) {
         String styleId = this.getStyleId(el);
+        String align = el.getStyle("text-align");
         P p = factory.createP();
         if (null != styleId) {
-            setPStyle(p, styleId);
+            setPStyle(p, styleId, align);
         }
         if (appendBlockChildren(p, el)) {
             partItems.add(p);
@@ -253,13 +299,14 @@ public class CheapDocxRendering {
 
     private void joinP(List<Object> partItems, CheapElement el) {
         String styleId = this.getStyleId(el);
+        String align = el.getStyle("text-align");
         P p = factory.createP();
         if (null != styleId) {
-            setPStyle(p, styleId);
+            setPStyle(p, styleId, align);
         }
-        if (appendBlockChildren(p, el)) {
-            partItems.add(p);
-        }
+        // 段落是一定要加入的，因为为了显示空行
+        appendBlockChildren(p, el);
+        partItems.add(p);
     }
 
     private int listLvl = 0;
@@ -271,12 +318,19 @@ public class CheapDocxRendering {
         P p = factory.createP();
 
         // 增加自己的属性
-        PPr ppr = factory.createPPr();
-        p.setPPr(ppr);
+        PPr pPr = factory.createPPr();
+        p.setPPr(pPr);
+
+        String styleId = this.getStyleId(el);
+        if (null != styleId) {
+            PStyle pStyle = factory.createPPrBasePStyle();
+            pStyle.setVal(styleId);
+            pPr.setPStyle(pStyle);
+        }
 
         // Create and add <w:numPr>
         NumPr numPr = factory.createPPrBaseNumPr();
-        ppr.setNumPr(numPr);
+        pPr.setNumPr(numPr);
 
         // The <w:ilvl> element
         Ilvl ilvlElement = factory.createPPrBaseNumPrIlvl();
@@ -324,6 +378,10 @@ public class CheapDocxRendering {
         Tc td = factory.createTc();
         // TODO 设置 Table cell 的属性
 
+        // 获取单元格段落样式
+        String styleId = this.getStyleId(el);
+        String align = el.getStyle("text-align");
+
         // 依次搞单元格内容
         List<Object> tdContent = td.getContent();
 
@@ -337,17 +395,22 @@ public class CheapDocxRendering {
                 inlines.add(node);
                 continue;
             }
-            // Inline 元素
+            // Inline 元素：先保存
             if (node.isElement()) {
                 CheapElement ce = (CheapElement) node;
                 if (ce.isStdTagAs("^(BR|IMG|B|I|U|STRONG|EM|A|SPAN)$")) {
                     inlines.add(ce);
                     continue;
                 }
+                // 让下面的块也都具备统一的排列方式
+                if (!Ws.isBlank(align)) {
+                    ce.setStyle("text-align", align);
+                }
             }
             // 处理块元素之前，看看有没有必要先处理一下已有的元素
             if (!inlines.isEmpty()) {
                 P p = factory.createP();
+                this.setPStyle(p, styleId, align);
                 List<Object> pContent = p.getContent();
                 if (joinInlineElements(pContent, inlines)) {
                     tdContent.add(p);
@@ -362,6 +425,7 @@ public class CheapDocxRendering {
         // 处理最后一个
         if (!inlines.isEmpty()) {
             P p = factory.createP();
+            this.setPStyle(p, styleId, align);
             List<Object> pContent = p.getContent();
             if (joinInlineElements(pContent, inlines)) {
                 tdContent.add(p);
@@ -394,22 +458,32 @@ public class CheapDocxRendering {
         return eTr.countChildElements(el -> el.isStdTagName("TD"));
     }
 
+    private static Pattern BORDER_P = Pattern.compile("^(\\d+)(px|pt|rem|em)?$");
+
     private void joinTable(List<Object> partItems, CheapElement el) {
         Tbl table = factory.createTbl();
         TblPr tPr = factory.createTblPr();
         table.setTblPr(tPr);
         // 设置表格边框
-        int border = el.attrInt("border");
-        if (border > 0) {
-            TblBorders tBs = factory.createTblBorders();
-            tBs.setTop(createBorder(border));
-            tBs.setBottom(createBorder(border));
-            tBs.setLeft(createBorder(border));
-            tBs.setRight(createBorder(border));
-            tBs.setInsideH(createBorder(border));
-            tBs.setInsideV(createBorder(border));
-            tPr.setTblBorders(tBs);
+        String bds = el.attr("border");
+        int border = 0;
+        if (!Ws.isBlank(bds)) {
+            Matcher m = BORDER_P.matcher(bds);
+            if (m.find()) {
+                border = Integer.parseInt(m.group(1));
+            }
         }
+
+        // 设置表格边框
+        TblBorders tBs = factory.createTblBorders();
+        tBs.setTop(createBorder(border));
+        tBs.setBottom(createBorder(border));
+        tBs.setLeft(createBorder(border));
+        tBs.setRight(createBorder(border));
+        tBs.setInsideH(createBorder(border > 0 ? 1 : 0));
+        tBs.setInsideV(createBorder(border > 0 ? 1 : 0));
+        tPr.setTblBorders(tBs);
+
         // 设置表格宽度
         int colN = this.getTableColumnsCount(el);
         int tableWidth = 8613;
@@ -456,8 +530,8 @@ public class CheapDocxRendering {
 
     private CTBorder createBorder(int border) {
         CTBorder b = factory.createCTBorder();
-        b.setVal(STBorder.SINGLE);
-        b.setSz(BigInteger.valueOf(4 * border));
+        b.setVal(0 == border ? STBorder.NONE : STBorder.SINGLE);
+        b.setSz(BigInteger.valueOf(6 * border));
         b.setSpace(BigInteger.valueOf(0));
         b.setColor("auto");
         return b;
@@ -493,14 +567,16 @@ public class CheapDocxRendering {
 
     private boolean joinInlineElements(List<Object> pContent, List<CheapNode> children) {
         boolean re = false;
-        for (CheapNode node : children) {
-            // 文本节点
-            if (node.isText()) {
-                re |= appendText(pContent, (CheapText) node, null);
-            }
-            // 行内元素
-            else if (node.isElement()) {
-                re |= appendInline(pContent, (CheapElement) node, null);
+        if (null != children) {
+            for (CheapNode node : children) {
+                // 文本节点
+                if (node.isText()) {
+                    re |= appendText(pContent, (CheapText) node, null);
+                }
+                // 行内元素
+                else if (node.isElement()) {
+                    re |= appendInline(pContent, (CheapElement) node, null);
+                }
             }
         }
         return re;
@@ -710,8 +786,8 @@ public class CheapDocxRendering {
             return;
 
         CheapElement el = (CheapElement) node;
-        if (!el.hasChildren())
-            return;
+        // if (!el.hasChildren())
+        // return;
 
         // 处理 DIV
         if (el.isStdTagName("DIV")) {
@@ -751,13 +827,42 @@ public class CheapDocxRendering {
         p.getContent().add(r);
     }
 
-    private void handleHeader(HeaderPart headerPart, String content) throws Exception {
+    private void joinRunText(StringBuilder sb, R r) {
+        List<Object> content = r.getContent();
+        for (Object o : content) {
+            if (o instanceof JAXBElement<?>) {
+                JAXBElement<?> jax = (JAXBElement<?>) o;
+                Object ot = jax.getValue();
+                if (null != ot && (ot instanceof Text)) {
+                    Text t = (Text) ot;
+                    sb.append(t.getValue());
+                }
+            }
+        }
+    }
+
+    private String getPText(P p) {
+        StringBuilder sb = new StringBuilder();
+        List<Object> content = p.getContent();
+        for (Object o : content) {
+            if (o instanceof R) {
+                joinRunText(sb, (R) o);
+            }
+        }
+        return sb.toString();
+    }
+
+    private void handleHeader(HeaderPart headerPart) throws Exception {
         List<Object> headList = headerPart.getContent();
+        String styleId = this.pageStyleMapping.get("#header");
         for (Object headP : headList) {
             if (headP instanceof P) {
                 P p = (P) headP;
+                String str = this.getPText(p);
+                String s2 = Tmpl.exec(str, this.varsData);
                 p.getContent().clear();
-                this.setPText(p, "hahahaha");
+                this.setPStyle(p, styleId);
+                this.setPText(p, s2);
             }
         }
     }
@@ -772,12 +877,12 @@ public class CheapDocxRendering {
                 // 首页不同的页眉的header
                 HeaderPart firstHeader = hfp.getFirstHeader();
                 if (firstHeader != null) {
-                    handleHeader(firstHeader, "ABC");
+                    handleHeader(firstHeader);
                 }
                 // 普通情况的页眉header
                 HeaderPart headerPart = hfp.getDefaultHeader();
                 if (null != headerPart)
-                    handleHeader(headerPart, "ABC");
+                    handleHeader(headerPart);
             }
         }
 
