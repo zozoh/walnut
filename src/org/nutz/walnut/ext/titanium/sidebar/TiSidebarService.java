@@ -52,6 +52,9 @@ public class TiSidebarService {
             for (Map.Entry<String, String> en : inIt.getRoles().entrySet()) {
                 String roleName = en.getKey();
                 String taPath = en.getValue();
+                if (null == taPath || "yes".equals(taPath)) {
+                    taPath = inIt.getPath();
+                }
                 if (!checkRole.exec(roleName, taPath)) {
                     return;
                 }

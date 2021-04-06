@@ -99,7 +99,7 @@ public class ti_sidebar implements JvmHdl {
                 sys.auth.isMemberOfGroup(me, ta_grp);
             }
             // 权限写的不对，禁止
-            return true;
+            return false;
         };
 
         // 域账户登陆进来的用户，可能需要检测一下自定义权限，所以，先加载一下
@@ -110,9 +110,11 @@ public class ti_sidebar implements JvmHdl {
             if (null != oWWW) {
                 WnWebService webs = new WnWebService(sys, oWWW);
                 if (me.hasRoleName()) {
-                    NutBean pvg = webs.getSite().readRoleAsJson(me.getRoleName());
-                    if (null != pvg) {
-                        myAvaPvg.putAll(pvg);
+                    for (String rnm : me.getRoleList()) {
+                        NutBean pvg = webs.getSite().readRoleAsJson(rnm);
+                        if (null != pvg) {
+                            myAvaPvg.putAll(pvg);
+                        }
                     }
                 }
             }
