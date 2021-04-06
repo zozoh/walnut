@@ -444,6 +444,14 @@ public class AppModule extends AbstractWnModule {
         WnDomainService domains = new WnDomainService(io());
         WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
         String redirectPath = "/";
+        // 防守一波
+        if (null == si) {
+            WebException err = Er.create("e.auth.login.NilSiteInfo");
+            if (ajax) {
+                return new ViewWrapper(new AjaxView(), err);
+            }
+            return new ServerRedirectView(redirectPath);
+        }
         // -------------------------------------------------
         if (null == si.oWWW) {
             if (ajax) {

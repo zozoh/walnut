@@ -115,7 +115,11 @@ public class WnDomainService {
 
     public WwwSiteInfo getWwwSiteInfoBySiteId(String siteId) {
         WwwSiteInfo si = new WwwSiteInfo();
-        si.oWWW = io.get(siteId);
+        if (siteId.startsWith("id:") || siteId.startsWith("/")) {
+            si.oWWW = io.fetch(null, siteId);
+        } else {
+            si.oWWW = io.get(siteId);
+        }
         if (null != si.oWWW) {
             si.webs = new WnWebService(io, si.oWWW);
             String domainHomePath = si.webs.getSite().getDomainHomePath();
