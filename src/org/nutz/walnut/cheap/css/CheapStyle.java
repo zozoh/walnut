@@ -21,6 +21,10 @@ public class CheapStyle extends NutMap {
         return sb.toString();
     }
 
+    public CheapSize getSize(String name) {
+        return getSize(name, null);
+    }
+
     public CheapSize getSize(String name, String dft) {
         String str = this.getString(name, dft);
         if (Ws.isBlank(str))

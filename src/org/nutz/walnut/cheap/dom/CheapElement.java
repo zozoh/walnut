@@ -442,9 +442,13 @@ public class CheapElement extends CheapNode {
     }
 
     public String getStyle(String name) {
+        return this.getStyle(name, null);
+    }
+
+    public String getStyle(String name, String dft) {
         String kebabName = Ws.kebabCase(name);
         CheapStyle style = this.getStyleObj(true);
-        return style.getString(kebabName);
+        return style.getString(kebabName, dft);
     }
 
     public CheapElement setStyle(String style) {

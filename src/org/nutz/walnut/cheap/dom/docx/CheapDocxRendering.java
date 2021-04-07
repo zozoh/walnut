@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
@@ -21,8 +22,11 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBorder;
+import org.docx4j.wml.CTHeight;
 import org.docx4j.wml.CTTblCellMar;
 import org.docx4j.wml.CTTblLayoutType;
+import org.docx4j.wml.CTTrPrBase;
+import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.Jc;
 import org.docx4j.wml.JcEnumeration;
@@ -38,6 +42,7 @@ import org.docx4j.wml.R;
 import org.docx4j.wml.RPr;
 import org.docx4j.wml.STBorder;
 import org.docx4j.wml.STTblLayoutType;
+import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.TblBorders;
 import org.docx4j.wml.TblGrid;
@@ -45,13 +50,16 @@ import org.docx4j.wml.TblGridCol;
 import org.docx4j.wml.TblPr;
 import org.docx4j.wml.TblWidth;
 import org.docx4j.wml.Tc;
+import org.docx4j.wml.TcPr;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
+import org.docx4j.wml.TrPr;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.css.CheapSize;
+import org.nutz.walnut.cheap.css.CheapStyle;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
@@ -285,7 +293,9 @@ public class CheapDocxRendering {
                 pPr.setJc(jc);
                 setPPr = true;
             }
-            catch (Exception e) {}
+            catch (Exception e) {
+                throw Er.wrap(e);
+            }
         }
 
         if (setPPr) {
@@ -399,11 +409,30 @@ public class CheapDocxRendering {
 
     private void joinTableCell(Tr tr, CheapElement el) {
         Tc td = factory.createTc();
-        // TODO 设置 Table cell 的属性
+        TcPr tcPr = factory.createTcPr();
+        td.setTcPr(tcPr);
 
-        // 获取单元格段落样式
+        // TODO 设置 Table cell 的属性
+        CheapStyle style = el.getStyleObj();
+        String valign = style.getString("vertical-align", "center");
+
+        // 获取单元格段落样式:垂直居中
         String styleId = this.getStyleId(el);
-        String align = el.getStyle("text-align");
+
+        if (!"top".equals(valign)) {
+            if ("middle".equals(valign)) {
+                valign = "center";
+            }
+            CTVerticalJc vjc = factory.createCTVerticalJc();
+            try {
+                vjc.setVal(STVerticalJc.fromValue(valign));
+                tcPr.setVAlign(vjc);
+            }
+            catch (Exception e) {}
+        }
+
+        // 获取单元格段落样式:水平居中
+        String align = style.getString("text-align");
 
         // 依次搞单元格内容
         List<Object> tdContent = td.getContent();
@@ -470,6 +499,24 @@ public class CheapDocxRendering {
 
     private void joinTableRow(Tbl table, CheapElement el) {
         Tr tr = factory.createTr();
+
+        CheapStyle style = el.getStyleObj();
+        CheapSize ho = style.getSize("height", "0");
+        int height = ho.getIntValue();
+        if (height > 0) {
+            TrPr trPr = factory.createTrPr();
+            tr.setTrPr(trPr);
+            CTHeight h = new CTHeight();
+            h.setVal(BigInteger.valueOf(height * 10));
+            List<JAXBElement<?>> div = trPr.getCnfStyleOrDivIdOrGridBefore();
+            QName name = new QName("w:trHeight");
+            JAXBElement<CTHeight> jax = new JAXBElement<CTHeight>(name,
+                                                                  CTHeight.class,
+                                                                  CTTrPrBase.class,
+                                                                  h);
+            div.add(jax);
+        }
+
         for (CheapElement child : el.getChildElements()) {
             if (child.isStdTagName("TD") || child.isStdTagName("TH")) {
                 joinTableCell(tr, child);
