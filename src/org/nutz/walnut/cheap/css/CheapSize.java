@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class CheapSize {
 
-    private static Pattern SZ_P = Pattern.compile("^([.\\d]+)(px|pt|rem|em|%)?$");
+    private static Pattern SZ_P = Pattern.compile("^(-?[.\\d]+)(px|pt|rem|em|%)?$");
 
     private double value;
 
