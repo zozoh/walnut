@@ -565,8 +565,18 @@ public class CheapDocxRendering {
     }
 
     private int getTableColumnsCount(CheapElement eTab) {
-        CheapElement eTr = eTab.findElement(el -> el.isStdTagName("TR"));
-        return eTr.countChildElements(el -> el.isStdTagName("TD"));
+        List<CheapElement> trs = eTab.findElements(el2 -> el2.isStdTagName("TR"));
+        // 首先得到最大格子数量
+        int maxCol = 0;
+        for (CheapElement tr : trs) {
+            List<CheapElement> tds = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
+            int span = 0;
+            for (CheapElement td : tds) {
+                span += td.attrInt("colspan", 1);
+            }
+            maxCol = Math.max(span, maxCol);
+        }
+        return maxCol;
     }
 
     private void joinTable(List<Object> partItems, CheapElement el) {
@@ -599,32 +609,34 @@ public class CheapDocxRendering {
         mar.setRight(createWidth(tbPadding));
         tPr.setTblCellMar(mar);
 
-        // 设置表格宽度
+        // 得到表格最大列
         int colN = this.getTableColumnsCount(el);
+
+        // 防守一个危险的
+        if (colN <= 0) {
+            return;
+        }
+
+        // 评估每列的宽度
+        int[] colsW = this.evalTableColWidths(el, colN);
+
+        // 针对单元格设置 rowSpan(vMerge (restart))
+        this.evalRowSpanAsVMerge(el, colN, colsW);
+
+        // 设置表格宽度
         tPr.setTblW(createWidth(pageTableWidth));
         CTTblLayoutType clt = new CTTblLayoutType();
         clt.setType(STTblLayoutType.FIXED);
         tPr.setTblLayout(clt);
         // 设置单元格宽度
-        int cellWidth = pageTableWidth / colN;
-        int remainWidth = pageTableWidth - (cellWidth * colN);
         TblGrid tGrid = factory.createTblGrid();
-        for (int i = 0; i < colN; i++) {
-            int w = cellWidth;
-            if (i == (colN - 1)) {
-                w += remainWidth;
-            }
+        for (int i = 0; i < colsW.length; i++) {
+            int w = colsW[i];
             TblGridCol col = factory.createTblGridCol();
             col.setW(BigInteger.valueOf(w));
             tGrid.getGridCol().add(col);
         }
         table.setTblGrid(tGrid);
-
-        // 评估每列的宽度
-        int[] colsW = this.evalTableColWidths(el);
-
-        // 针对单元格设置 rowSpan(vMerge (restart))
-        this.evalRowSpanAsVMerge(el, colsW);
 
         // 设置单元格
         for (CheapElement child : el.getChildElements()) {
@@ -645,42 +657,52 @@ public class CheapDocxRendering {
         partItems.add(table);
     }
 
-    private int[] evalTableColWidths(CheapElement el) {
+    private int[] evalTableColWidths(CheapElement el, int maxCol) {
         List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
-        if (cols.isEmpty())
-            return null;
 
+        // 没有的话，尝试找第一行
+        CheapElement firstTr = el.findElement(el2 -> el2.isStdTagName("TR"));
+        if (null != firstTr) {
+            cols = firstTr.getChildElements(el2 -> el2.isStdTagName("TD"));
+        }
+
+        // 没指定？
+        if (cols.isEmpty()) {
+            int[] ws = new int[maxCol];
+            int cellWidth = pageTableWidth / maxCol;
+            int remainWidth = pageTableWidth - (cellWidth * maxCol);
+            for (int i = 0; i < maxCol; i++) {
+                int w = cellWidth;
+                if (i == (maxCol - 1)) {
+                    w += remainWidth;
+                }
+                ws[i] = w;
+            }
+            return ws;
+        }
+
+        // 指定了表格列宽度
         int[] ws = new int[cols.size()];
         int i = 0;
         for (CheapElement col : cols) {
             CheapSize wz = col.getStyleObj().getSize("width", "-1");
             String unit = wz.getUnit();
-            int w = -1;
+            double w = -1;
             if ("%".equals(unit)) {
-                w = this.pageTableWidth * 100 / wz.getIntValue();
+                w = this.pageTableWidth * wz.getValue() / 100.0;
             } else if ("rem".equals(unit)) {
-                w = 100 * wz.getIntValue();
+                w = 100 * wz.getValue() * 6;
             } else {
-                w = wz.getIntValue();
+                w = wz.getValue() * 6;
             }
-            ws[i++] = w * 8;
+            ws[i++] = (int) (w);
         }
         return ws;
     }
 
-    private void evalRowSpanAsVMerge(CheapElement el, int[] colsW) {
+    private int evalRowSpanAsVMerge(CheapElement el, int maxCol, int[] colsW) {
         // 找到所有的行
         List<CheapElement> trs = el.findElements(el2 -> el2.isStdTagName("TR"));
-        // 首先得到最大格子数量
-        int maxCol = 0;
-        for (CheapElement tr : trs) {
-            List<CheapElement> tds = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
-            int span = 0;
-            for (CheapElement td : tds) {
-                span += td.attrInt("colspan", 1);
-            }
-            maxCol = Math.max(span, maxCol);
-        }
 
         // 首先搞一个空白的二维数组 [TD][TR]
         List<CheapElement[]> grid = new ArrayList<>(trs.size());
@@ -740,6 +762,7 @@ public class CheapDocxRendering {
             y++;
         }
 
+        return maxCol;
     }
 
     private TblWidth createWidth(int tableWidth) {
