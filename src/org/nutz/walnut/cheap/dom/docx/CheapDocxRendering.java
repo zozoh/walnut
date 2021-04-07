@@ -1,6 +1,8 @@
 package org.nutz.walnut.cheap.dom.docx;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +53,8 @@ import org.docx4j.wml.TblPr;
 import org.docx4j.wml.TblWidth;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.TcPr;
+import org.docx4j.wml.TcPrInner.GridSpan;
+import org.docx4j.wml.TcPrInner.VMerge;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.docx4j.wml.TrPr;
@@ -85,6 +89,8 @@ public class CheapDocxRendering {
 
     private Map<String, CheapResource> resources;
 
+    private int pageTableWidth;
+
     /* 采用奇数 */
     private int _seq_id1;
     /* 采用偶数 */
@@ -99,6 +105,7 @@ public class CheapDocxRendering {
         this.wp = wp;
         this.loader = loader;
         this.factory = new ObjectFactory();
+        this.pageTableWidth = 8613;
 
         this.resources = new HashMap<>();
         this._seq_id1 = 1;
@@ -431,6 +438,38 @@ public class CheapDocxRendering {
             catch (Exception e) {}
         }
 
+        // 宽度
+        int width = el.attrInt("cell-width", 0);
+        if (width > 0) {
+            tcPr.setTcW(this.createWidth(width));
+        }
+
+        // 水平单元格跨越
+        int colspan = el.attrInt("colspan", 1);
+        if (colspan > 1) {
+            GridSpan gridSpan = new GridSpan();
+            gridSpan.setVal(BigInteger.valueOf(colspan));
+            tcPr.setGridSpan(gridSpan);
+        }
+
+        // 垂直的单元格（虚格）
+        int rowspan = el.attrInt("rowspan", 1);
+        if (rowspan > 1) {
+            VMerge vm = new VMerge();
+            vm.setVal("restart");
+            tcPr.setVMerge(vm);
+        }
+        // 就不需要内容了
+        boolean vMerge = el.attrBoolean("v-merge");
+        if (vMerge) {
+            VMerge vm = new VMerge();
+            tcPr.setVMerge(vm);
+            P p = factory.createP();
+            td.getContent().add(p);
+            tr.getContent().add(td);
+            return;
+        }
+
         // 获取单元格段落样式:水平居中
         String align = style.getString("text-align");
 
@@ -562,13 +601,13 @@ public class CheapDocxRendering {
 
         // 设置表格宽度
         int colN = this.getTableColumnsCount(el);
-        tPr.setTblW(createWidth(8613));
+        tPr.setTblW(createWidth(pageTableWidth));
         CTTblLayoutType clt = new CTTblLayoutType();
         clt.setType(STTblLayoutType.FIXED);
         tPr.setTblLayout(clt);
         // 设置单元格宽度
-        int cellWidth = 8613 / colN;
-        int remainWidth = 8613 - (cellWidth * colN);
+        int cellWidth = pageTableWidth / colN;
+        int remainWidth = pageTableWidth - (cellWidth * colN);
         TblGrid tGrid = factory.createTblGrid();
         for (int i = 0; i < colN; i++) {
             int w = cellWidth;
@@ -580,6 +619,12 @@ public class CheapDocxRendering {
             tGrid.getGridCol().add(col);
         }
         table.setTblGrid(tGrid);
+
+        // 评估每列的宽度
+        int[] colsW = this.evalTableColWidths(el);
+
+        // 针对单元格设置 rowSpan(vMerge (restart))
+        this.evalRowSpanAsVMerge(el, colsW);
 
         // 设置单元格
         for (CheapElement child : el.getChildElements()) {
@@ -598,6 +643,103 @@ public class CheapDocxRendering {
             }
         }
         partItems.add(table);
+    }
+
+    private int[] evalTableColWidths(CheapElement el) {
+        List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
+        if (cols.isEmpty())
+            return null;
+
+        int[] ws = new int[cols.size()];
+        int i = 0;
+        for (CheapElement col : cols) {
+            CheapSize wz = col.getStyleObj().getSize("width", "-1");
+            String unit = wz.getUnit();
+            int w = -1;
+            if ("%".equals(unit)) {
+                w = this.pageTableWidth * 100 / wz.getIntValue();
+            } else if ("rem".equals(unit)) {
+                w = 100 * wz.getIntValue();
+            } else {
+                w = wz.getIntValue();
+            }
+            ws[i++] = w * 8;
+        }
+        return ws;
+    }
+
+    private void evalRowSpanAsVMerge(CheapElement el, int[] colsW) {
+        // 找到所有的行
+        List<CheapElement> trs = el.findElements(el2 -> el2.isStdTagName("TR"));
+        // 首先得到最大格子数量
+        int maxCol = 0;
+        for (CheapElement tr : trs) {
+            List<CheapElement> tds = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
+            int span = 0;
+            for (CheapElement td : tds) {
+                span += td.attrInt("colspan", 1);
+            }
+            maxCol = Math.max(span, maxCol);
+        }
+
+        // 首先搞一个空白的二维数组 [TD][TR]
+        List<CheapElement[]> grid = new ArrayList<>(trs.size());
+        int y = 0;
+        for (y = 0; y < trs.size(); y++) {
+            CheapElement[] cells = new CheapElement[maxCol];
+            Arrays.fill(cells, null);
+            grid.add(cells);
+        }
+
+        // 开始想数组填充单元格
+        y = 0;
+        for (CheapElement tr : trs) {
+            List<CheapElement> tds = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
+            CheapElement[] cells = grid.get(y);
+            int x = 0;
+            for (CheapElement td : tds) {
+                int colspan = td.attrInt("colspan", 1);
+                // 得到单元格应该的宽度
+                int cellW = 0;
+                if (null != colsW) {
+                    for (int m = 0; m < colspan; m++) {
+                        cellW += colsW[m + x];
+                    }
+                }
+                if (cellW > 0) {
+                    td.attr("cell-width", cellW);
+                }
+
+                // 搞 rowSpan
+                int rowspan = td.attrInt("rowspan", 1);
+                // 如果当前格子已经有东东了，向后移动
+                while (null != cells[x] && x < maxCol) {
+                    td.insertPrev(cells[x]);
+                    x++;
+                }
+                cells[x] = td;
+                // 搞 rowspan： 下面一排的单元格，全部填上虚格子
+                if (rowspan > 1) {
+                    for (int i = 1; i < rowspan; i++) {
+                        int rowI = y + i;
+                        if (rowI < grid.size()) {
+                            CheapElement[] cells2 = grid.get(y + i);
+                            CheapElement td2 = doc.createElement("TD");
+                            if (cellW > 0) {
+                                td2.attr("cell-width", cellW);
+                            }
+                            td2.attr("v-merge", true);
+                            cells2[x] = td2;
+                        }
+                    }
+                }
+                // 跳过 colspan
+                x += colspan;
+            }
+            // 指向下一行
+            y++;
+        }
+
     }
 
     private TblWidth createWidth(int tableWidth) {
