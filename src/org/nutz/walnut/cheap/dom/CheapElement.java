@@ -11,6 +11,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.cheap.css.CheapCss;
+import org.nutz.walnut.cheap.css.CheapSize;
 import org.nutz.walnut.cheap.css.CheapStyle;
 import org.nutz.walnut.cheap.dom.flt.CheapAttrNameFilter;
 import org.nutz.walnut.util.Wcol;
@@ -571,6 +572,17 @@ public class CheapElement extends CheapNode {
 
     public String attr(String name) {
         return attrs.getString(name);
+    }
+
+    public CheapSize attrSize(String name) {
+        return this.attrSize(name, null);
+    }
+
+    public CheapSize attrSize(String name, String dft) {
+        String str = attrs.getString(name, dft);
+        if (Ws.isBlank(str))
+            return null;
+        return new CheapSize(str);
     }
 
     public String attrString(String name, String dft) {

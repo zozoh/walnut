@@ -21,6 +21,7 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBorder;
+import org.docx4j.wml.CTTblCellMar;
 import org.docx4j.wml.CTTblLayoutType;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.Jc;
@@ -28,6 +29,7 @@ import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
+import org.docx4j.wml.PPrBase.Ind;
 import org.docx4j.wml.PPrBase.NumPr;
 import org.docx4j.wml.PPrBase.NumPr.Ilvl;
 import org.docx4j.wml.PPrBase.NumPr.NumId;
@@ -49,6 +51,7 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.cheap.css.CheapSize;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
@@ -252,11 +255,11 @@ public class CheapDocxRendering {
         }
     }
 
-    private void setPStyle(P p, String styleId, String justifyContent) {
+    private void setPStyle(P p, String styleId, String justifyContent, int indent) {
         boolean hasStyleId = !Ws.isBlank(styleId);
         boolean hasJustifyContent = !Ws.isBlank(justifyContent);
         boolean setPPr = false;
-        if (!hasStyleId && !hasJustifyContent) {
+        if (!hasStyleId && !hasJustifyContent && indent < 0) {
             return;
         }
         PPr pPr = factory.createPPr();
@@ -264,6 +267,14 @@ public class CheapDocxRendering {
             PStyle pStyle = factory.createPPrBasePStyle();
             pStyle.setVal(styleId);
             pPr.setPStyle(pStyle);
+            setPPr = true;
+        }
+        if (indent >= 0) {
+            Ind ind = new Ind();
+            BigInteger v = BigInteger.valueOf(indent);
+            ind.setFirstLine(v);
+            ind.setFirstLineChars(v);
+            pPr.setInd(ind);
             setPPr = true;
         }
         if (hasJustifyContent) {
@@ -276,13 +287,18 @@ public class CheapDocxRendering {
             }
             catch (Exception e) {}
         }
+
         if (setPPr) {
             p.setPPr(pPr);
         }
     }
 
+    private void setPStyle(P p, String styleId, String justifyContent) {
+        setPStyle(p, styleId, justifyContent, -1);
+    }
+
     private void setPStyle(P p, String styleId) {
-        setPStyle(p, styleId, null);
+        setPStyle(p, styleId, null, -1);
     }
 
     private void joinHeading(List<Object> partItems, CheapElement el) {
@@ -300,10 +316,17 @@ public class CheapDocxRendering {
     private void joinP(List<Object> partItems, CheapElement el) {
         String styleId = this.getStyleId(el);
         String align = el.getStyle("text-align");
-        P p = factory.createP();
-        if (null != styleId) {
-            setPStyle(p, styleId, align);
+        boolean inCell = el.attrBoolean("in-table-cell");
+
+        // 首行缩进
+        int indent = -1;
+        if (inCell || "center".equals(align)) {
+            indent = 0;
         }
+
+        P p = factory.createP();
+        setPStyle(p, styleId, align, indent);
+
         // 段落是一定要加入的，因为为了显示空行
         appendBlockChildren(p, el);
         partItems.add(p);
@@ -406,6 +429,8 @@ public class CheapDocxRendering {
                 if (!Ws.isBlank(align)) {
                     ce.setStyle("text-align", align);
                 }
+                // 标识一下这个元素在表格内，譬如 P，以便强制去掉首行缩进
+                ce.attr("in-table-cell", true);
             }
             // 处理块元素之前，看看有没有必要先处理一下已有的元素
             if (!inlines.isEmpty()) {
@@ -458,21 +483,13 @@ public class CheapDocxRendering {
         return eTr.countChildElements(el -> el.isStdTagName("TD"));
     }
 
-    private static Pattern BORDER_P = Pattern.compile("^(\\d+)(px|pt|rem|em)?$");
-
     private void joinTable(List<Object> partItems, CheapElement el) {
         Tbl table = factory.createTbl();
         TblPr tPr = factory.createTblPr();
         table.setTblPr(tPr);
-        // 设置表格边框
-        String bds = el.attr("border");
-        int border = 0;
-        if (!Ws.isBlank(bds)) {
-            Matcher m = BORDER_P.matcher(bds);
-            if (m.find()) {
-                border = Integer.parseInt(m.group(1));
-            }
-        }
+        // 计算表格边框
+        CheapSize bo = el.attrSize("border", "0px");
+        int border = bo.getIntValue();
 
         // 设置表格边框
         TblBorders tBs = factory.createTblBorders();
@@ -484,19 +501,27 @@ public class CheapDocxRendering {
         tBs.setInsideV(createBorder(border > 0 ? 1 : 0));
         tPr.setTblBorders(tBs);
 
+        // 设置表格边距
+        CheapSize pad = el.attrSize("cellpadding", "0px");
+        int padding = pad.getIntValue();
+
+        int tbPadding = padding * 6;
+        CTTblCellMar mar = factory.createCTTblCellMar();
+        mar.setTop(createWidth(tbPadding));
+        mar.setBottom(createWidth(tbPadding));
+        mar.setLeft(createWidth(tbPadding));
+        mar.setRight(createWidth(tbPadding));
+        tPr.setTblCellMar(mar);
+
         // 设置表格宽度
         int colN = this.getTableColumnsCount(el);
-        int tableWidth = 8613;
-        TblWidth tW = factory.createTblWidth();
-        tW.setW(BigInteger.valueOf(tableWidth));
-        tW.setType("dxa");
-        tPr.setTblW(tW);
+        tPr.setTblW(createWidth(8613));
         CTTblLayoutType clt = new CTTblLayoutType();
         clt.setType(STTblLayoutType.FIXED);
         tPr.setTblLayout(clt);
         // 设置单元格宽度
-        int cellWidth = tableWidth / colN;
-        int remainWidth = tableWidth - (cellWidth * colN);
+        int cellWidth = 8613 / colN;
+        int remainWidth = 8613 - (cellWidth * colN);
         TblGrid tGrid = factory.createTblGrid();
         for (int i = 0; i < colN; i++) {
             int w = cellWidth;
@@ -526,6 +551,13 @@ public class CheapDocxRendering {
             }
         }
         partItems.add(table);
+    }
+
+    private TblWidth createWidth(int tableWidth) {
+        TblWidth tW = factory.createTblWidth();
+        tW.setW(BigInteger.valueOf(tableWidth));
+        tW.setType("dxa");
+        return tW;
     }
 
     private CTBorder createBorder(int border) {

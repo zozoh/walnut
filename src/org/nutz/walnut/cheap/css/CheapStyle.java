@@ -21,6 +21,13 @@ public class CheapStyle extends NutMap {
         return sb.toString();
     }
 
+    public CheapSize getSize(String name, String dft) {
+        String str = this.getString(name, dft);
+        if (Ws.isBlank(str))
+            return null;
+        return new CheapSize(str);
+    }
+
     @Override
     public Object put(String name, Object val) {
         String k = Ws.kebabCase(name);
