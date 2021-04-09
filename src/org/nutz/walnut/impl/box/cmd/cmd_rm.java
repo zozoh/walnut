@@ -16,10 +16,11 @@ public class cmd_rm extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        ZParams params = ZParams.parse(args, "rfvI");
+        ZParams params = ZParams.parse(args, "rfvIH");
         boolean isV = params.is("v");
         boolean isR = params.is("r");
         boolean isI = params.is("I");
+        boolean isH = params.is("H");
 
         // limit
         int limit = params.getInt("limit", 0);
@@ -70,7 +71,7 @@ public class cmd_rm extends JvmExecutor {
             // 如果直接就是 ID 的，那么删除它
             if (str.startsWith("id:")) {
                 WnObj o = sys.io.checkById(str.substring(3));
-                _do_delete(sys, isV, isR, isI, count[0], base, o);
+                _do_delete(sys, isV, isR, isI, true, count[0], base, o);
                 count[0]++;
             }
             // 否则设置查询条件
@@ -83,7 +84,7 @@ public class cmd_rm extends JvmExecutor {
                 // 挨个查一下，然后删除
                 sys.io.each(q, new Each<WnObj>() {
                     public void invoke(int index, WnObj o, int length) {
-                        _do_delete(sys, isV, isR, isI, count[0], base, o);
+                        _do_delete(sys, isV, isR, isI, isH, count[0], base, o);
                         count[0]++;
                     }
                 });
@@ -104,6 +105,7 @@ public class cmd_rm extends JvmExecutor {
                               final boolean isV,
                               final boolean isR,
                               final boolean isI,
+                              final boolean isH,
                               int index,
                               final String base,
                               WnObj o) {
@@ -116,11 +118,16 @@ public class cmd_rm extends JvmExecutor {
             }
         }
 
+        // 确保删除隐藏文件
+        if (o.isHidden() && !isH) {
+            return;
+        }
+
         // 递归
         if (!o.isFILE() && !o.isLink() && isR) {
             sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
-                    _do_delete(sys, isV, isR, isI, index, base, child);
+                    _do_delete(sys, isV, isR, isI, true, index, base, child);
                 }
             });
         }

@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -266,6 +267,11 @@ public class Ws {
             re += res[i];
 
         return re * ne;
+    }
+
+    public static String decodeUnicode(String input) {
+        byte[] utf8Bytes = input.getBytes(Encoding.CHARSET_UTF8);
+        return new String(utf8Bytes, Encoding.CHARSET_UTF8);
     }
 
     /**

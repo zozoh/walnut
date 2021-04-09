@@ -7,6 +7,18 @@ import org.junit.Test;
 public class WsTest {
 
     @Test
+    public void test_decodeUnicode() {
+        assertEquals("A‘X’C", Ws.decodeUnicode("A\u2018X\u2019C"));
+        assertEquals("测‘试’行", Ws.decodeUnicode("测\u2018试\u2019行"));
+
+        assertEquals("A–X–C", Ws.decodeUnicode("A\u2013X\u2013C"));
+        assertEquals("测–试–行", Ws.decodeUnicode("测\u2013试\u2013行"));
+
+        assertEquals("A“X”C", Ws.decodeUnicode("A\u201cX\u201dC"));
+        assertEquals("测“试”行", Ws.decodeUnicode("测\u201c试\u201d行"));
+    }
+
+    @Test
     public void test_camelCase() {
         assertEquals("abc", Ws.camelCase("ABC"));
         assertEquals("aBc", Ws.camelCase("aBC"));
