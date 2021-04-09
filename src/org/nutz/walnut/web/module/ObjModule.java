@@ -48,6 +48,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPagerObj;
+import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.web.filter.WnCheckSession;
 import org.nutz.walnut.web.filter.WnSetSecurity;
 import org.nutz.walnut.web.util.WnWeb;
@@ -611,6 +612,9 @@ public class ObjModule extends AbstractWnModule {
 
         // 取得对应对象
         WnObj o = Wn.getObj(io(), se, str);
+
+        // 格式化一下，去掉文件名里奇怪的字符
+        nm = Wobj.normalizeName(nm);
 
         // 处理链接文件
         if (null != o)

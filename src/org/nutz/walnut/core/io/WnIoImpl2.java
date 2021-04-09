@@ -47,6 +47,7 @@ import org.nutz.walnut.core.stream.WnIoInputStream;
 import org.nutz.walnut.core.stream.WnIoOutputStream;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Wobj;
 
 public class WnIoImpl2 implements WnIo {
 
@@ -549,7 +550,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        Wn.assertValidName(nm, o.path());
+        Wobj.assertValidName(nm);
         String ph = o.path();
         ph = Files.renamePath(ph, nm);
         return this.move(o, ph, mode);

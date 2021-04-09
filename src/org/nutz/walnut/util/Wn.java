@@ -654,22 +654,6 @@ public abstract class Wn {
         return input;
     }
 
-    public static String evalName(String name, String id) {
-        name = Strings.sBlank(name, "${id}");
-        return Tmpl.exec(name, Lang.map("id", id));
-    }
-
-    public static void assertValidName(String name, String referPath) {
-        // 名称不能为空
-        if (Strings.isBlank(name)) {
-            throw Er.create("e.io.obj.BlankName");
-        }
-        // 名称不能包括特殊符号
-        if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
-            throw Er.create("e.io.obj.InvalidName", name);
-        }
-    }
-
     public static Each<WnObj> eachLooping(Each<WnObj> callback) {
         final WnContext wc = Wn.WC();
         return new Each<WnObj>() {

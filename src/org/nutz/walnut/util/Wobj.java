@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.validate.WnMatch;
 import org.nutz.walnut.validate.impl.AlwaysMatch;
@@ -261,6 +264,42 @@ public class Wobj {
 
     public static WnMatch explainObjKeyMatcher(String str) {
         return explainObjKeyMatcher(str, new AlwaysMatch(true));
+    }
+
+    public static String evalName(String name, String id) {
+        name = Strings.sBlank(name, "${id}");
+        return Tmpl.exec(name, Lang.map("id", id));
+    }
+
+    public static boolean isValidName(String name) {
+        // 名称不能包括特殊符号
+        if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void assertValidName(String name) {
+        // 名称不能为空
+        if (Strings.isBlank(name)) {
+            throw Er.create("e.io.obj.BlankName");
+        }
+        // 名称不能包括特殊符号
+        if (!isValidName(name)) {
+            throw Er.create("e.io.obj.InvalidName", name);
+        }
+    }
+
+    public static String normalizeName(String name) {
+        // 名称不能为空
+        if (Strings.isBlank(name)) {
+            return "BLANK_OBJ_NAME";
+        }
+        // 名称不能包括特殊符号
+        if (!isValidName(name)) {
+            return name.replaceAll("([/\\\\*?#&^%;`'\"]+)", "_");
+        }
+        return name;
     }
 
 }

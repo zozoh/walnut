@@ -23,6 +23,7 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Wobj;
 
 public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
@@ -339,10 +340,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 展开名称
-        name = Wn.evalName(name, id);
+        name = Wobj.evalName(name, id);
 
         // 检查名称
-        Wn.assertValidName(name, p.path());
+        Wobj.assertValidName(name);
 
         // 应对一下回调
         if (null != secu) {
@@ -457,10 +458,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 展开名称
-        String name = Wn.evalName(o.name(), o.myId());
+        String name = Wobj.evalName(o.name(), o.myId());
 
         // 检查名称
-        Wn.assertValidName(name, p.path());
+        Wobj.assertValidName(name);
         o.name(name);
 
         // 应对一下回调
@@ -587,7 +588,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        Wn.assertValidName(nm, o.path());
+        Wobj.assertValidName(nm);
         String ph = o.path();
         ph = Files.renamePath(ph, nm);
         return move(o, ph, mode);
