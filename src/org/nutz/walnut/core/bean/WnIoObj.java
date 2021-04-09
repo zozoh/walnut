@@ -727,6 +727,10 @@ public class WnIoObj extends NutMap implements WnObj {
                         if (null != pvg)
                             break;
                     }
+                    // 最后看看其他角色
+                    if (null == pvg) {
+                        pvg = map.get(prefix + "others");
+                    }
                 }
 
                 // 最后处理一下权限值
