@@ -754,6 +754,10 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
         // 然后改其他的
         if (!map.isEmpty()) {
+            // 确保对象有写权限
+            o = Wn.WC().whenMeta(o, false);
+
+            // 修改元数据
             this._set(id, map);
             if (returnNew) {
                 o = this.get(id);
@@ -783,6 +787,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 执行修改
         if (map.size() > 0) {
+            // 确保对象有写权限
             o = Wn.WC().whenMeta(o, false);
 
             // 这里再次确保只匹配一个
