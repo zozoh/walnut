@@ -23,5 +23,20 @@
         {"value": "TIMESTAMP", "text": "i18n:db-col-type-TIMESTAMP"},
         {"value": "INT", "text": "i18n:db-col-type-INT"},
         {"value": "FLOAT", "text": "i18n:db-col-type-FLOAT"}]
+    },
+    "Month" : {
+      "data" : [
+        {"value": 0, "text": "i18n:Jan"},
+        {"value": 1, "text": "i18n:Feb"},
+        {"value": 2, "text": "i18n:Mar"},
+        {"value": 3, "text": "i18n:Apr"},
+        {"value": 4, "text": "i18n:May"},
+        {"value": 5, "text": "i18n:Jun"},
+        {"value": 6, "text": "i18n:Jul"},
+        {"value": 7, "text": "i18n:Aug"},
+        {"value": 8, "text": "i18n:Sep"},
+        {"value": 9, "text": "i18n:Oct"},
+        {"value": 10, "text": "i18n:Nov"},
+        {"value": 11, "text": "i18n:Dec"}]
     }
 }
