@@ -17,3 +17,12 @@ o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} -get ${http-qs-rfget?} \
   @json ${http-qs-k?#TP} -cqn
 %END%
+#---------------------------------------------------------
+# 获取任何一个对象的详情
+@API .regapi/api/obj/read 'cross/text'
+%COPY:
+o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
+  -limit 1 \
+  @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
+  @value ${http-qs-rd2?content}
+%END%
