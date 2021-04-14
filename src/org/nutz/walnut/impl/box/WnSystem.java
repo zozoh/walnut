@@ -354,22 +354,31 @@ public class WnSystem implements WnExecutable {
             WnObj oWWW = this.io.get(siteId);
             if (null != oWWW) {
                 WnWebService webs = new WnWebService(this, oWWW);
+                // 自己所有的自定义权限
                 if (me.hasRoleName()) {
                     for (String rnm : me.getRoleList()) {
-                        NutBean pvg = webs.getSite().readRoleAsJson(rnm);
-                        if (null != pvg) {
-                            for (String key : pvg.keySet()) {
-                                boolean val = pvg.getBoolean(key);
-                                if (val) {
-                                    myAvaPvg.put(key, true);
-                                }
-                            }
-                        }
+                        if (!"others".equals(rnm))
+                            readRolePvg(myAvaPvg, webs, rnm);
                     }
                 }
+                // 最后加上 Others
+                readRolePvg(myAvaPvg, webs, "others");
             }
         }
 
         return myAvaPvg;
+    }
+
+    private void readRolePvg(NutMap myAvaPvg, WnWebService webs, String rnm) {
+        NutBean pvg;
+        pvg = webs.getSite().readRoleAsJson(rnm);
+        if (null != pvg) {
+            for (String key : pvg.keySet()) {
+                boolean val = pvg.getBoolean(key);
+                if (val) {
+                    myAvaPvg.put(key, true);
+                }
+            }
+        }
     }
 }
