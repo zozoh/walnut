@@ -720,17 +720,23 @@ public class WnIoObj extends NutMap implements WnObj {
                 Object pvg = map.get(u.getId());
 
                 // 然后看看角色
-                if (null == pvg && u.hasRoleName()) {
-                    String prefix = u.isSysAccount() ? "$" : "@";
+                String prefix = u.isSysAccount() ? "$" : "@";
+                boolean hasRoleName = u.hasRoleName();
+                boolean checkedOthers = false;
+                if (null == pvg && hasRoleName) {
                     for (String role : u.getRoleList()) {
                         pvg = map.get(prefix + role);
+                        if (!checkedOthers) {
+                            checkedOthers = role.equals("others");
+                        }
                         if (null != pvg)
                             break;
                     }
-                    // 最后看看其他角色
-                    if (null == pvg) {
-                        pvg = map.get(prefix + "others");
-                    }
+                }
+
+                // 如果没有声明，则再校验一下 others权限
+                if (null == pvg && !checkedOthers) {
+                    pvg = map.get(prefix + "others");
                 }
 
                 // 最后处理一下权限值
