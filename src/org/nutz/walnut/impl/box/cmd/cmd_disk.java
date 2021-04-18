@@ -26,7 +26,7 @@ public class cmd_disk extends JvmExecutor {
         Cmds.evalCandidateObjs(sys, params.vals, list, Wn.Cmd.JOIN_CURRENT);
 
         // 检查是否候选对象列表为空
-        Cmds.checkCandidateObjsNoEmpty(args, list);
+        Cmds.assertCandidateObjsNoEmpty(args, list);
 
         final boolean showHidden = params.is("A");
         final String tp = params.get("tp");

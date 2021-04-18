@@ -27,7 +27,7 @@ public class cmd_ls extends JvmExecutor {
         WnObj p = Cmds.evalCandidateObjs(sys, params.vals, list, Wn.Cmd.JOIN_CURRENT);
 
         // 检查是否候选对象列表为空
-        Cmds.checkCandidateObjsNoEmpty(args, list);
+        Cmds.assertCandidateObjsNoEmpty(args, list);
 
         // 准备要显示的表格
         String keys = "";

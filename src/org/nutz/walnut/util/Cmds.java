@@ -505,7 +505,7 @@ public abstract class Cmds {
     public static List<WnObj> evalCandidateObjsNoEmpty(WnSystem sys, String[] paths, int mode) {
         LinkedList<WnObj> list = new LinkedList<WnObj>();
         evalCandidateObjs(sys, paths, list, mode);
-        checkCandidateObjsNoEmpty(paths, list);
+        assertCandidateObjsNoEmpty(paths, list);
         return list;
     }
 
@@ -520,7 +520,7 @@ public abstract class Cmds {
                                                  final List<WnObj> list,
                                                  int mode) {
         WnObj re = evalCandidateObjs(sys, paths, list, mode);
-        checkCandidateObjsNoEmpty(paths, list);
+        assertCandidateObjsNoEmpty(paths, list);
         return re;
     }
 
@@ -547,7 +547,7 @@ public abstract class Cmds {
         // return p;
     }
 
-    public static void checkCandidateObjsNoEmpty(String[] args, List<WnObj> list) {
+    public static void assertCandidateObjsNoEmpty(String[] args, List<WnObj> list) {
         if (list.isEmpty()) {
             throw Er.create("e.io.obj.noexists", Lang.concat(", ", args));
         }

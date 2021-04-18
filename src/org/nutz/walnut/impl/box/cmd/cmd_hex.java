@@ -37,7 +37,7 @@ public class cmd_hex extends JvmExecutor {
             Cmds.evalCandidateObjs(sys, params.vals, list, 0);
 
             // 检查是否候选对象列表为空
-            Cmds.checkCandidateObjsNoEmpty(args, list);
+            Cmds.assertCandidateObjsNoEmpty(args, list);
 
             // 输出内容
             for (WnObj o : list) {

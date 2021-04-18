@@ -912,7 +912,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 不是强制列表模式的时候，检查是否候选对象列表为空
         if (!params.is("l")) {
-            Cmds.checkCandidateObjsNoEmpty(params.vals, list);
+            Cmds.assertCandidateObjsNoEmpty(params.vals, list);
         }
 
         // 排序

@@ -33,7 +33,7 @@ public class cmd_mv extends JvmExecutor {
         WnObj p = Cmds.evalCandidateObjs(sys, srcPaths, list, 0);
 
         // 检查是否候选对象列表为空
-        Cmds.checkCandidateObjsNoEmpty(args, list);
+        Cmds.assertCandidateObjsNoEmpty(args, list);
 
         // 检查目标
         String dest = params.vals[params.vals.length - 1];

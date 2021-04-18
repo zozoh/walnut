@@ -56,11 +56,12 @@ public class o_children extends OFilter {
                 it.remove();
                 continue;
             }
+            // 加载 -axis 模式子节点们，已经读取过了，这里就是简单设置一下即可
             WnObj o2 = map.get(obj.id());
             if (null != o2) {
                 it.set(o2);
             }
-            // 强制递归读取任意子节点
+            // 非 -axis 模式，之前应该没有读过，现在再读一下
             else if (!ing.axis) {
                 loadChildren(ing, obj, depth);
             }
@@ -76,10 +77,23 @@ public class o_children extends OFilter {
         WnSystem sys;
         WnMatch test;
         String childBy;
+        Map<String, WnObj> leafObjs;
         int depth;
         int force;
         boolean axis;
+        boolean leaf;
         boolean showHidden;
+
+        void joinLeafs(WnObj o) {
+            List<WnObj> myChildren = o.getAsList(this.childBy, WnObj.class);
+            if (null == myChildren) {
+                leafObjs.put(o.id(), o);
+            } else {
+                for (WnObj child : myChildren) {
+                    this.joinLeafs(child);
+                }
+            }
+        }
 
         boolean canLoad(WnObj o, int depth) {
             if (null == o || !o.isDIR())
@@ -89,6 +103,10 @@ public class o_children extends OFilter {
                 return false;
 
             if (this.depth > 0 && depth > this.depth) {
+                return false;
+            }
+
+            if (!leaf && leafObjs.containsKey(o.id())) {
                 return false;
             }
 
@@ -110,6 +128,13 @@ public class o_children extends OFilter {
         ing.depth = params.getInt("depth", 0);
         ing.showHidden = params.is("hidden", false);
         ing.axis = params.is("axis", false);
+        ing.leaf = params.is("leaf", false);
+
+        // 上下文节点，编制一个表，以备
+        ing.leafObjs = new HashMap<>();
+        for (WnObj o : fc.list) {
+            ing.joinLeafs(o);
+        }
 
         // 准备过滤器
         WnMatch[] ms = new WnMatch[params.vals.length];

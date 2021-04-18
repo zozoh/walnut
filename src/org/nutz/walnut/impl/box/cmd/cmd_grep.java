@@ -39,7 +39,7 @@ public class cmd_grep extends JvmExecutor {
             Cmds.evalCandidateObjs(sys, Lang.array(filePath), list, 0);
 
             // 检查是否候选对象列表为空
-            Cmds.checkCandidateObjsNoEmpty(args, list);
+            Cmds.assertCandidateObjsNoEmpty(args, list);
 
             // 输出内容
             for (WnObj o : list) {
