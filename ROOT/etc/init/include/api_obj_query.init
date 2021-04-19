@@ -31,8 +31,21 @@ o '${http-qs-p}' \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
+  @children '${http-qs-children_match<json>?-obj-}' \
+        ${http-qs-children<boolean:-ignore/>?false} \
+        ${http-qs-children_leaf<boolean:/-leaf>?false} \
+        ${http-qs-children_axis<boolean:/-axis>?true} \
+        ${http-qs-children_hidden<boolean:/-hidden>?true} \
+        -by ${http-qs-children_by?} \
+        -depth ${http-qs-children_depth?0} \
+        -force ${http-qs-children_force?0} \
+  @flat ${http-qs-flat<boolean:-ignore/>?false} \
+        ${http-qs-flat_leaf<boolean:/-leaf>?false} \
+        -tagby ${http-qs-flat_tagby?} \
+        -tagkey ${http-qs-flat_tagkey?} \
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
-  @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
+  @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} \
+        -as ${http-qs-ras?text} \
   @json ${http-qs-k?#TP} -cqnl
 %END%
 #---------------------------------------------------------

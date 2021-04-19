@@ -58,6 +58,7 @@ o [options] [[@filter filter-args...]...]
 @clear      # 清除上下文
 @enter      # 进入上下文列表（树）对象   ，并将其作为根对象
 @name       # 分析对象的文件名，并设置分析结果
+@flat       # 将上下文树形结构展平
 #
 # 输出
 #

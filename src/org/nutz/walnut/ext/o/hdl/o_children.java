@@ -19,11 +19,6 @@ import org.nutz.walnut.validate.impl.ParallelMatch;
 
 public class o_children extends OFilter {
 
-    @Override
-    protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(hidden|axis)$");
-    }
-
     private void loadChildren(Loading ing, WnObj o, int depth) {
         // 是否需要读取
         if (!ing.canLoad(o, depth))
@@ -119,7 +114,16 @@ public class o_children extends OFilter {
     }
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(ignore|hidden|axis|leaf)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
+        // 有时候（譬如拼装 API指令时，支持一个 -ignore 比较方便
+        if (params.is("ignore"))
+            return;
+
         // 分析参数
         Loading ing = new Loading();
         ing.sys = sys;
