@@ -41,7 +41,7 @@ public class o_flat extends OFilter {
                         this.pushObj(o);
                     }
                     // 看看能否找到标签键
-                    Object tag = o.getOr(tagBy, null);
+                    Object tag = o.getOrBy(tagBy, null);
                     if (null != tag) {
                         tagStack.push(tag.toString());
                         // 递归进去
