@@ -37,6 +37,16 @@ mgadin index [-co 集合名称] [create|drop|cbasic]
 ```
 #> mgadmin index create '{d0:1,d1:1,wsid:1}' 'sparse:true'
 #> mgadmin index create '{d0:1,d1:1,wsid:1}'
+#
+# 常用的建立索引语句
+mgadmin index create '{"id":1}' '{"name":"OBJ_ID"}'
+mgadmin index create '{"d0":1,"d1":1}' '{"name":"D0_D1"}'
+mgadmin index create '{"d0":1,"d1":1,"tp":1}' '{"name":"D0_D1_TP"}'
+mgadmin index create '{"pid":1}' '{"name":"PID"}'
+mgadmin index create '{"pid":1,"nm":1}' '{"name":"PID_NM"}'
+mgadmin index create '{"pid":1,"tp":1}' '{"name":"PID_TP"}'
+mgadmin index create '{"pid":1,"ct":1}' '{"name":"PID_CT"}'
+mgadmin index create '{"pid":1,"sort":1}' '{"sparse":true,"name":"PID_SORT"}'
 ```
 
 删除索引. 通过索引的名称删除,列出索引的时候可以看到name
