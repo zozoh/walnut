@@ -200,6 +200,13 @@ public class Wobj {
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
+            // 快速字段: 扩展字段加上 nm/tp/ct 字段
+            else if ("TPCT".equals(md)) {
+                str = "!^(ph|race|lm|sha1|data|d[0-9]"
+                      + "|pid|c|m|g|md|mime"
+                      + "|ln|mnt|expi|passwd|salt"
+                      + "|th_(set|live|set_nm|auto_select))$";
+            }
             // 快速字段: 扩展字段加上 nm/tp/pid 字段
             else if ("PID".equals(md)) {
                 str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"

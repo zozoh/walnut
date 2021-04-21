@@ -14,6 +14,16 @@ o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
   @list ${http-qs-list?} -as ${http-qs-lsnm?} -match '${http-qs-lsma?}' \
         -sort '${http-qs-lssort?}' ${http-qs-lshide<boolean:/-hidden>?false} \
+  @children '${http-qs-children_match<json>?-obj-}' \
+        ${http-qs-children<boolean:-ignore/>?false} \
+        ${http-qs-children_leaf<boolean:/-leaf>?false} \
+        ${http-qs-children_axis<boolean:/-axis>?true} \
+        ${http-qs-children_hidden<boolean:/-hidden>?true} \
+        ${http-qs-children_limit?1000} \
+        -by ${http-qs-children_by?} \
+        -depth ${http-qs-children_depth?0} \
+        -force ${http-qs-children_force?0} \
+        -sort '${http-qs-children_sort<json>?-obj-}' \
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} -get ${http-qs-rfget?} \
   @json ${http-qs-k?#TP} -cqn
 %END%

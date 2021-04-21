@@ -7,10 +7,13 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.o.OContext;
 import org.nutz.walnut.ext.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.validate.WnMatch;
 import org.nutz.walnut.validate.impl.AutoMatch;
@@ -40,7 +43,12 @@ public class o_children extends OFilter {
         }
 
         // 读取子孙
-        List<WnObj> children = ing.sys.io.getChildren(o, null);
+        WnQuery q = Wn.Q.pid(o);
+        q.limit(ing.limit);
+        if (null != ing.sort) {
+            q.sort(ing.sort);
+        }
+        List<WnObj> children = ing.sys.io.query(q);
 
         // 融合
         // ArrayList<WnObj> list = new ArrayList<>(children.size());
@@ -72,6 +80,8 @@ public class o_children extends OFilter {
         WnSystem sys;
         WnMatch test;
         String childBy;
+        NutMap sort;
+        int limit;
         Map<String, WnObj> leafObjs;
         int depth;
         int force;
@@ -130,6 +140,8 @@ public class o_children extends OFilter {
         ing.childBy = params.getString("by", "children");
         ing.force = params.getInt("force", 0);
         ing.depth = params.getInt("depth", 0);
+        ing.sort = params.getMap("sort");
+        ing.limit = params.getInt("limit", 1000);
         ing.showHidden = params.is("hidden", false);
         ing.axis = params.is("axis", false);
         ing.leaf = params.is("leaf", false);
