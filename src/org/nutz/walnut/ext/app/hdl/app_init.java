@@ -92,6 +92,9 @@ public class app_init implements JvmHdl {
 
     private void loadHome(WnSystem sys, JvmHdlContext hc, AppInitContext ac) {
         String fName = hc.params.getString("by", "_files");
+        if (!"_files".equals(fName) && !fName.endsWith(".init")) {
+            fName += ".init";
+        }
 
         // 找到模板的源，会依次尝试
         // 0. vals[0]
@@ -104,7 +107,7 @@ public class app_init implements JvmHdl {
         }
 
         // 1. ~/.domain/init/_files
-        ac.oInitFile = Wn.getObj(sys, "~/.domain/init/_files");
+        ac.oInitFile = Wn.getObj(sys, "~/.domain/init/" + fName);
         if (null != ac.oInitFile) {
             ac.oHome = ac.oInitFile.parent();
             return;
@@ -115,7 +118,7 @@ public class app_init implements JvmHdl {
         WnObj oMntHome = sys.io.check(null, "/mnt/project/" + grp);
 
         // 2. /mnt/project/${domain}/init/domain/_files
-        ac.oInitFile = sys.io.fetch(oMntHome, "init/domain/_files");
+        ac.oInitFile = sys.io.fetch(oMntHome, "init/domain/" + fName);
         if (null != ac.oInitFile) {
             ac.oHome = ac.oInitFile.parent();
             return;
@@ -127,7 +130,7 @@ public class app_init implements JvmHdl {
             if (!oChild.isDIR()) {
                 continue;
             }
-            ac.oInitFile = sys.io.fetch(oChild, "init/domain/_files");
+            ac.oInitFile = sys.io.fetch(oChild, "init/domain/" + fName);
             if (null != ac.oInitFile) {
                 ac.oHome = ac.oInitFile.parent();
                 return;
