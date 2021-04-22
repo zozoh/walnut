@@ -7,7 +7,7 @@ import org.nutz.lang.Files
 import groovy.io.FileType
 
 group = 'org.nutz'
-version = '1.r.68-SNAPSHOT'
+version = '1.r.69-SNAPSHOT'
 
 description = "一台神奇的计算机"
 
@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def version_tag = getDate()
-def nutz_version = "1.r.68-SNAPSHOT"
+def nutz_version = "1.r.69-SNAPSHOT"
 
 configurations.all {
     // Check for updates every build
