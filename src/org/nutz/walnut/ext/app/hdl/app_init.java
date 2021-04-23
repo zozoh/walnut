@@ -115,7 +115,8 @@ public class app_init implements JvmHdl {
 
         // 看看是否在全局映射里
         String grp = sys.getMyGroup();
-        WnObj oMntHome = sys.io.check(null, "/mnt/project/" + grp);
+        String initName = sys.getMe().getMetaString("init_name", grp);
+        WnObj oMntHome = sys.io.check(null, "/mnt/project/" + initName);
 
         // 2. /mnt/project/${domain}/init/domain/_files
         ac.oInitFile = sys.io.fetch(oMntHome, "init/domain/" + fName);
