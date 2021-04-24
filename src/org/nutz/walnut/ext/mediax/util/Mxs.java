@@ -32,7 +32,7 @@ public abstract class Mxs {
     }
 
     /**
-     * @param path
+     * @param objPath
      *            路径，可以是一个完整 URL 或者是一个路径
      * @return 完整的 URL
      */

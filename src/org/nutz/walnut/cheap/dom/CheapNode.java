@@ -8,6 +8,7 @@ import java.util.Set;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Ws;
 
 public abstract class CheapNode {
 
@@ -45,7 +46,7 @@ public abstract class CheapNode {
         this.joinString(sb);
         return sb.toString();
     }
-    
+
     public abstract String toBrief();
 
     public abstract void joinTree(StringBuilder sb, int depth, String tab);
@@ -53,6 +54,11 @@ public abstract class CheapNode {
     public abstract void joinString(StringBuilder sb);
 
     public abstract void joinText(StringBuilder sb);
+
+    public int getAsInt() {
+        String str = Ws.trim(this.getText());
+        return Integer.parseInt(str);
+    }
 
     public String getText() {
         StringBuilder sb = new StringBuilder();
@@ -483,6 +489,25 @@ public abstract class CheapNode {
         if (null != this.children) {
             for (CheapNode node : this.children) {
                 node.joinElements(list, filter);
+            }
+        }
+    }
+
+    /**
+     * 深度遍历子节点，如果过滤器返回 false，则不会递归下去
+     * 
+     * @param filter
+     *            过滤器
+     */
+    public void walkElements(CheapFilter filter) {
+        if (null == filter || !this.isElement()) {
+            return;
+        }
+        if (filter.match((CheapElement) this)) {
+            if (null != this.children) {
+                for (CheapNode node : this.children) {
+                    node.walkElements(filter);
+                }
             }
         }
     }

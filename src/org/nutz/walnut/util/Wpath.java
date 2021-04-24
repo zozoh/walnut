@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import org.nutz.lang.Strings;
 
 public abstract class Wpath {
-    
+
     /**
      * @param path
      *            全路径
@@ -106,6 +106,38 @@ public abstract class Wpath {
             return str;
         }
         return null;
+    }
+
+    /**
+     * 修改路径
+     * 
+     * @param path
+     *            路径
+     * @param newName
+     *            新名称
+     * @return 新路径
+     */
+    public static String renamePath(String path, String newName) {
+        if (!Strings.isBlank(path)) {
+            int pos = path.replace('\\', '/').lastIndexOf('/');
+            if (pos > 0)
+                return path.substring(0, pos) + "/" + newName;
+        }
+        return newName;
+    }
+
+    /**
+     * @param path
+     *            路径
+     * @return 父路径
+     */
+    public static String getParent(String path) {
+        if (Strings.isBlank(path))
+            return path;
+        int pos = path.replace('\\', '/').lastIndexOf('/');
+        if (pos > 0)
+            return path.substring(0, pos);
+        return "/";
     }
 
     /**

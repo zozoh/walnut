@@ -163,6 +163,12 @@ public class CheapDocument {
         return new LinkedList<>();
     }
 
+    public void walkElements(CheapFilter filter) {
+        if (null != $root) {
+            $root.walkElements(filter);
+        }
+    }
+
     public CheapNode findNode(CheapNodeFilter filter) {
         if (null != $root) {
             return $root.findNode(filter);

@@ -17,6 +17,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.api.err.Er;
 
 /**
  * 字符串帮助类
@@ -24,6 +25,50 @@ import org.nutz.lang.util.Regex;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class Ws {
+
+    /**
+     * 将一个用 A-Z表示的字符串转换为一个 1Base的整数
+     * 
+     * @param s
+     *            字符串
+     * @return 整数 (1Base)
+     */
+    public static int fromR26Str(String s) {
+        int re = 0;
+        char[] cs = s.toCharArray();
+        for (int i = 0; i < cs.length; i++) {
+            int x = cs.length - i - 1;
+            char c = cs[x];
+            int d = (int) c;
+            if (d < 65 || d > 90) {
+                throw Er.create("e.s.invalid.r26", s);
+            }
+            int n = d - 64;
+
+            re += n * Math.pow(26, i);
+        }
+        return re;
+    }
+
+    /**
+     * 将一个整数，表示为用 A-Z表示的字符串
+     * 
+     * @param n
+     *            整数 (1Base)
+     * @return 大写字母表示的字符串
+     */
+    public static String toR26Str(int n) {
+        StringBuilder sb = new StringBuilder();
+        int m = n - 1;
+        do {
+            int i = m / 26;
+            int x = m - i * 26;
+            char c = (char) (65 + x);
+            sb.insert(0, c);
+            m = i - 1;
+        } while (m >= 0);
+        return sb.toString();
+    }
 
     private static final char[] CN_NC0 = "零一二三四五六七八九".toCharArray();
     private static final char[] CN_NU0 = "个十百千万亿".toCharArray();
