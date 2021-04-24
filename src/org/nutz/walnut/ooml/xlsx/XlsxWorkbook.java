@@ -58,16 +58,53 @@ public class XlsxWorkbook extends XlsxObj {
     }
 
     /**
-     * 获取工作表对象
+     * 根据下标获取工作表对象
+     * 
+     * @param index
+     *            工作表的下标（0 base）
+     * @return 工作表对象
+     */
+    public XlsxSheet getSheet(int index) {
+        List<CheapElement> els = body.findElements(e -> e.isTagName("sheet"));
+        if (!els.isEmpty() && index >= 0 && index < els.size()) {
+            CheapElement el = els.get(index);
+            String rId = el.attr("r:id");
+            return new XlsxSheet(this, rId);
+        }
+        return null;
+    }
+
+    /**
+     * 根据ID获取工作表对象
      * 
      * @param sheetId
      *            工作表的 ID
      * @return 工作表对象
      */
-    public XlsxSheet getSheet(String sheetId) {
+    public XlsxSheet getSheetById(String sheetId) {
         CheapElement el = body.findElement(new CheapFilter() {
             public boolean match(CheapElement e) {
                 return e.isTagName("sheet") && e.isAttr("sheetId", sheetId);
+            }
+        });
+        if (null != el) {
+            String rId = el.attr("r:id");
+            return new XlsxSheet(this, rId);
+        }
+        return null;
+    }
+
+    /**
+     * 根据名称获取工作表对象
+     * 
+     * @param sheetName
+     *            工作表的名称
+     * @return 工作表对象
+     */
+    public XlsxSheet getSheetByName(String sheetName) {
+        CheapElement el = body.findElement(new CheapFilter() {
+            public boolean match(CheapElement e) {
+                return e.isTagName("sheet") && e.isAttr("name", sheetName);
             }
         });
         if (null != el) {
