@@ -28,4 +28,5 @@ o [Path] [[@filter filter-args...]...]
 @rows       # 输出当前工作表的行数据
 @medias     # 输出当前工作表关联的所有媒体
 @beans      # 输出当前工作表数据对象列表
+@export     # 将当前工作表数据对象输出到一个目录里
 ```
