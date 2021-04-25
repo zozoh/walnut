@@ -23,6 +23,9 @@ public abstract class AbstractWnSecurity implements WnSecurity {
             String oldName = o.name();
             // 展开链接文件
             o = Wn.real(o, io, new HashMap<String, WnObj>());
+            if (null == o) {
+                return null;
+            }
             // 恢复节点的 path，setParent 会自动设置(pid|d0|d1|ph)的
             o.name(oldName);
             o.setParent(oldParent);
