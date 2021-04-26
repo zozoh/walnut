@@ -24,7 +24,7 @@ public class o_refer extends OFilter {
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         String refKey = params.val(0);
 
-        String getPath = params.getString("get");
+        String getPath = params.getString("get", null);
 
         // 防守一下
         if (Ws.isBlank(refKey))
