@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.thing.hdl;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.thing.WnThingService;
 import org.nutz.walnut.ext.thing.util.ThQr;
@@ -33,6 +34,12 @@ public class thing_getone implements JvmHdl {
         // 设置排序
         if (hc.params.hasString("sort")) {
             tq.sort = Lang.map(hc.params.check("sort"));
+        }
+
+        // 如果还需要查询关联对象的内容指纹
+        String sha1 = hc.params.getString("sha1");
+        if (!Strings.isBlank(sha1)) {
+            tq.sha1Fields = Strings.splitIgnoreBlank(sha1);
         }
 
         tq.needContent = hc.params.is("content");
