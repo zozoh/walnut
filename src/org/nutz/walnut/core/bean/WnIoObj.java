@@ -17,7 +17,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.mapping.MountInfo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wobj;
-import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.util.validate.WnMatch;
 
 public class WnIoObj extends NutMap implements WnObj {
 

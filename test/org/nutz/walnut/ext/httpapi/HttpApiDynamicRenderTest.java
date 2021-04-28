@@ -20,6 +20,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.nutz.img.Images;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.sys.httpapi.HttpApiDynamicRender;
 
 public class HttpApiDynamicRenderTest {
 

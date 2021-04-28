@@ -10,8 +10,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.bm.redis.RedisBM;
 import org.nutz.walnut.core.mapping.WnBMFactory;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 

@@ -29,9 +29,9 @@ import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceInjecting;
 import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayInjecting;
+import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasInjecting;
-import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
 
 public class WnObjEntityGenerating {
 

@@ -29,8 +29,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
-import org.nutz.walnut.ext.www.bean.WnWebSite;
+import org.nutz.walnut.ext.data.www.bean.WnWebSite;
+import org.nutz.walnut.ext.net.weixin.WnIoWeixinApi;
 import org.nutz.walnut.impl.AbstractListenable;
 import org.nutz.walnut.util.Wn;
 

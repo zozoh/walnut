@@ -15,9 +15,9 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AlwaysMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AlwaysMatch;
+import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 public class Wobj {
 

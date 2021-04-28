@@ -15,8 +15,8 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.archive.WnArchiveReading;
 import org.nutz.walnut.util.archive.WnArchiveSummary;
 import org.nutz.walnut.util.archive.impl.WnZipArchiveReading;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 public class cmd_unzip extends JvmExecutor {
 

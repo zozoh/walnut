@@ -5,8 +5,8 @@ import org.nutz.json.JsonFormat;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoCache;
 import org.nutz.walnut.core.bean.WnIoObj;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 
 /**
  * 这个是个 Redis 维护的引用集合。

@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.walnut.ext.app.bean.init.AppInitGroup;
+import org.nutz.walnut.ext.adv.app.bean.init.AppInitGroup;
+import org.nutz.walnut.ext.adv.app.impl.AppInitService;
 
 public class AppInitServiceTest {
 

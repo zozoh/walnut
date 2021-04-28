@@ -97,6 +97,9 @@ var ioc = {
             },
             locks : {
                 refer : 'lockApi'
+            },
+            tryLockDuration : {
+                java : '$conf.getLong("sys-expi-obj-table-lockdu", 5000)'
             }
         }
     }

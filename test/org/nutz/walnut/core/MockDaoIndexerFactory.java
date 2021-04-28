@@ -10,8 +10,8 @@ import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.indexer.dao.DaoIndexer;
 import org.nutz.walnut.core.mapping.WnIndexerFactory;
-import org.nutz.walnut.ext.sql.WnDaoAuth;
-import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
+import org.nutz.walnut.ext.sys.sql.WnDaoAuth;
+import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
 
 public class MockDaoIndexerFactory implements WnIndexerFactory {
 

@@ -5,7 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.validate.impl.AutoMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class WnMatchTest {
 

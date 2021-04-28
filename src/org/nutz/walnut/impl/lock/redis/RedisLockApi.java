@@ -8,8 +8,8 @@ import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.api.lock.WnLockBusyException;
 import org.nutz.walnut.api.lock.WnLockFailException;
 import org.nutz.walnut.api.lock.WnLockNotSameException;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 import org.nutz.walnut.impl.lock.WnLockObj;
 import org.nutz.walnut.util.Wn;
 
