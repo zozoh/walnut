@@ -140,7 +140,7 @@ cat ~/abc.txt > ~/myoutput
 文件的内容就是一个分钟计划的列表：
 
 ```bash
-20210913-0003-ea23..89a1:zozoh
+20210913-0003-ea23..89a1:zozoh:0 0 0 * * ?
 ...
 ```
 
@@ -209,8 +209,7 @@ schedule clean       # 主动清除过期的分钟计划
 ## cmd_task
 
 ```bash
-task list            # 列出堆栈里的所有任务
-task run             # 主动堆栈里的一个或者多个任务
-task clear           # 清空任务堆栈
+task list            # 列出任务堆栈里的所有任务
+task run             # 主动执行任务堆栈里的一个或者多个任务
 task remove          # 删除任务堆栈中的一条或者多条任务
 ```
