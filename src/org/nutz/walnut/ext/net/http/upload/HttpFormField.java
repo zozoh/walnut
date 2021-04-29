@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.util.Ws;
 
 public class HttpFormField {
 
@@ -121,6 +122,10 @@ public class HttpFormField {
         return name;
     }
 
+    public String getName(String dft) {
+        return Ws.sBlank(name, dft);
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -133,6 +138,10 @@ public class HttpFormField {
         return fileName;
     }
 
+    public String getFileName(String dft) {
+        return Ws.sBlank(fileName, dft);
+    }
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -143,6 +152,10 @@ public class HttpFormField {
 
     public String getContentType() {
         return contentType;
+    }
+
+    public String getContentType(String dft) {
+        return Ws.sBlank(contentType, dft);
     }
 
     public void setContentType(String contentType) {

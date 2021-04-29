@@ -95,6 +95,7 @@ public abstract class AbstractHttpConnector implements HttpConnector {
             for (Map.Entry<String, Object> en : hc.getHeaders().entrySet()) {
                 String key = en.getKey();
                 String name = Ws.headerCase(key);
+                // String name = Ws.kebabCase(key);
                 Object val = en.getValue();
                 if (null == val) {
                     continue;

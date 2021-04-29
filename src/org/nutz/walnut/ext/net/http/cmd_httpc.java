@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.net.http;
 
+import java.io.PrintStream;
 import java.util.Map;
 
 import org.nutz.lang.Streams;
@@ -7,6 +8,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
+import org.nutz.walnut.ext.net.http.bean.WnInputStreamInfo;
 import org.nutz.walnut.ext.net.util.WnNet;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -33,8 +35,34 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
     @Override
     protected void prepare(WnSystem sys, HttpClientContext fc) {
         String url = fc.params.val_check(0);
+        // 第一参数如果是个 HTTP 的方法，那么第二个参数就必然是 URL
+        try {
+            HttpMethod method = HttpMethod.valueOf(url.toUpperCase());
+            if (null != method) {
+                fc.context.setMethod(method);
+                url = fc.params.val(1);
+            }
+        }
+        catch (Throwable e) {}
+
+        // 设置上下文
         fc.context.setUrl(url);
         fc.context.setFollowRedirects(fc.params.is("r"));
+        fc.context.setInputStreamFactory(new HttpPathInputStreamFactory() {
+            public WnInputStreamInfo getStreamInfo(String path) {
+                WnInputStreamInfo info = new WnInputStreamInfo();
+                if (">>INPUT".equals(path)) {
+                    info.stream = sys.in.getInputStream();
+                    return info;
+                }
+                WnObj o = Wn.checkObj(sys, path);
+                info.stream = sys.io.getInputStream(o, 0);
+                info.name = o.name();
+                info.mime = o.mime();
+                info.length = o.len();
+                return info;
+            }
+        });
     }
 
     @Override
@@ -42,6 +70,7 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
         HttpConnector c = fc.context.open();
         WnHttpResponse resp = null;
         try {
+            c.prepare();
             c.connect();
             c.sendHeaders();
             c.sendBody();
@@ -69,7 +98,9 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
             }
         }
         catch (Exception e) {
-            throw Er.wrap(e);
+            PrintStream ps = new PrintStream(sys.err.getOutputStream(), true);
+            e.printStackTrace(ps);
+            throw Er.create(e, "e.cmd.http.send", e.toString());
         }
         finally {
             Streams.safeClose(resp);
@@ -80,9 +111,9 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
         boolean decode = params.is("decode");
         // 依次读取
         NutMap q = new NutMap();
-        if (null != params.vals) {
+        if (null != params.vals && params.vals.length > 0) {
             for (String val : params.vals) {
-                WnNet.joinQuery(q, val, decode);
+                WnNet.parseQueryTo(q, val, decode);
             }
         }
         // 从文件读取里
@@ -90,12 +121,12 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
             String ph = params.getString("f");
             WnObj o = Wn.checkObj(sys, ph);
             String input = sys.io.readText(o);
-            WnNet.joinQuery(q, input, decode);
+            WnNet.parseQueryTo(q, input, decode);
         }
         // 从标准输入读取
         else if (readFromStdInput) {
             String input = sys.in.readAll();
-            WnNet.joinQuery(q, input, decode);
+            WnNet.parseQueryTo(q, input, decode);
         }
         return q;
     }

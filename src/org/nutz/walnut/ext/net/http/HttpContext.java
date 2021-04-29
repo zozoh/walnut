@@ -2,7 +2,9 @@ package org.nutz.walnut.ext.net.http;
 
 import java.io.InputStream;
 import java.net.Proxy;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
@@ -12,7 +14,10 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.net.http.bean.HttpFormPart;
 import org.nutz.walnut.ext.net.http.bean.HttpUrl;
+import org.nutz.walnut.ext.net.http.bean.WnInputStreamInfo;
 import org.nutz.walnut.ext.net.http.impl.HttpGetConnector;
+import org.nutz.walnut.ext.net.http.impl.HttpMultipartPostConnector;
+import org.nutz.walnut.ext.net.http.impl.HttpPostConnector;
 import org.nutz.walnut.util.Ws;
 
 public class HttpContext {
@@ -41,9 +46,12 @@ public class HttpContext {
 
     private Proxy proxy;
 
+    /**
+     * 文件上传的时候要用到，根据这个接口，可以从一个路径获取输入流
+     */
+    private HttpPathInputStreamFactory inputStreamFactory;
+
     public HttpContext() {
-        headers = new NutMap();
-        params = new NutMap();
         connectTimeout = 3000;
         readTimeout = 15000;
         followRedirects = true;
@@ -60,6 +68,12 @@ public class HttpContext {
         }
         if (HttpMethod.GET == m) {
             return new HttpGetConnector(this);
+        }
+        if (HttpMethod.POST == m) {
+            if (this.hasFormParts()) {
+                return new HttpMultipartPostConnector(this);
+            }
+            return new HttpPostConnector(this);
         }
 
         throw Lang.impossible();
@@ -174,15 +188,27 @@ public class HttpContext {
     }
 
     public void setHeaders(NutBean headers) {
-        this.headers = headers;
+        this.headers = null;
+        this.addHeaders(headers);
     }
 
     public void addHeaders(NutBean headers) {
-        if (null == this.headers) {
-            this.headers = headers;
-        } else {
-            this.headers.putAll(params);
+        for (Map.Entry<String, Object> en : headers.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            if (null == val) {
+                continue;
+            }
+            this.addHeader(key, val);
         }
+    }
+
+    public void addHeader(String name, Object value) {
+        String key = Ws.headerCase(name);
+        if (null == this.headers) {
+            headers = new NutMap();
+        }
+        headers.addv3(key, value);
     }
 
     public boolean hasParams() {
@@ -227,6 +253,22 @@ public class HttpContext {
 
     public void setFormParts(List<HttpFormPart> formParts) {
         this.formParts = formParts;
+    }
+
+    public void addFormParts(List<HttpFormPart> formParts) {
+        if (null == this.formParts) {
+            this.formParts = new LinkedList<>();
+        }
+        this.formParts.addAll(formParts);
+    }
+
+    public void addFormPart(HttpFormPart... formParts) {
+        if (null == this.formParts) {
+            this.formParts = new LinkedList<>();
+        }
+        for (HttpFormPart part : formParts) {
+            this.formParts.add(part);
+        }
     }
 
     public boolean hasSslSocketFactory() {
@@ -295,6 +337,18 @@ public class HttpContext {
 
     public void setFollowRedirects(boolean followRedirects) {
         this.followRedirects = followRedirects;
+    }
+
+    public WnInputStreamInfo getStreamInfo(String path) {
+        return inputStreamFactory.getStreamInfo(path);
+    }
+
+    public HttpPathInputStreamFactory getInputStreamFactory() {
+        return inputStreamFactory;
+    }
+
+    public void setInputStreamFactory(HttpPathInputStreamFactory inputStreamFactory) {
+        this.inputStreamFactory = inputStreamFactory;
     }
 
 }

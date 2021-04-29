@@ -10,7 +10,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-public class httpc_header extends HttpClientFilter {
+public class httpc_headers extends HttpClientFilter {
 
     @Override
     protected void process(WnSystem sys, HttpClientContext fc, ZParams params) {
@@ -25,7 +25,7 @@ public class httpc_header extends HttpClientFilter {
                 }
                 // 自定义头
                 else {
-                    WnNet.joinQuery(h, val, false);
+                    WnNet.parseQueryTo(h, val, false);
                 }
             }
         }
@@ -34,12 +34,12 @@ public class httpc_header extends HttpClientFilter {
             String ph = params.getString("f");
             WnObj o = Wn.checkObj(sys, ph);
             String input = sys.io.readText(o);
-            WnNet.joinQuery(h, input, false);
+            WnNet.parseQueryTo(h, input, false);
         }
         // 从标准输入读取
         else {
             String input = sys.in.readAll();
-            WnNet.joinQuery(h, input, false);
+            WnNet.parseQueryTo(h, input, false);
         }
         fc.context.addHeaders(h);
     }

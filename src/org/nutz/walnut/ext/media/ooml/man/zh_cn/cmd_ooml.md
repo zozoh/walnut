@@ -22,11 +22,11 @@ o [Path] [[@filter filter-args...]...]
 #
 # 输出
 #
-@entry      # 输出包中的实体列表
-@workbook   # 输出上下文中workbook的全局信息
-@sheet      # 输出上下文的某一个工作表
-@rows       # 输出当前工作表的行数据
-@medias     # 输出当前工作表关联的所有媒体
-@beans      # 输出当前工作表数据对象列表
-@export     # 将当前工作表数据对象输出到一个目录里
+@entry        # 输出包中的实体列表
+@workbook     # 输出上下文中workbook的全局信息
+@sheet        #  输出上下文的某一个工作表
+@rows         # 输出当前工作表的行数据
+@medias       # 输出当前工作表关联的所有媒体
+@beans        # 输出当前工作表数据对象列表
+@exportsheet  # 将当前工作表数据对象输出到一个目录里
 ```

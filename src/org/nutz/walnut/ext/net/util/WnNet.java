@@ -1,8 +1,11 @@
 package org.nutz.walnut.ext.net.util;
 
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
@@ -53,7 +56,35 @@ public class WnNet {
         return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
     }
 
-    public static void joinQuery(NutBean q, String input, boolean decodeValue) {
+    public static String toQuery(Map<String, Object> query, boolean encode) {
+        StringBuilder sb = new StringBuilder();
+        joinQuery(sb, query, encode);
+        return sb.toString();
+    }
+
+    public static void joinQuery(StringBuilder sb, Map<String, Object> query, boolean encode) {
+        Set<Entry<String, Object>> ens = query.entrySet();
+        int i = 0;
+        for (Map.Entry<String, Object> en : ens) {
+            if (i > 0) {
+                sb.append('&');
+            }
+            i++;
+            String key = en.getKey();
+            Object val = en.getValue();
+            if (null == val) {
+                sb.append(key);
+            } else {
+                String s = val.toString();
+                if (encode) {
+                    s = URLEncoder.encode(s, Encoding.CHARSET_UTF8);
+                }
+                sb.append(key).append('=').append(s);
+            }
+        }
+    }
+
+    public static void parseQueryTo(NutBean q, String input, boolean decode) {
         // 防守
         if (Ws.isBlank(input)) {
             return;
@@ -65,17 +96,23 @@ public class WnNet {
         }
         // 普通字符串模式
         else {
-            putQueryString(q, input, decodeValue);
+            parseQueryStringTo(q, input, decode);
         }
     }
 
-    public static NutMap parseQuery(String input, boolean decodeValue) {
+    public static NutMap parseQuery(String input, boolean decode) {
         NutMap re = new NutMap();
-        joinQuery(re, input, decodeValue);
+        parseQueryTo(re, input, decode);
         return re;
     }
 
-    public static void putQueryString(NutBean map, String input, boolean decodeValue) {
+    public static NutMap parseQueryString(String input, boolean decode) {
+        NutMap re = new NutMap();
+        parseQueryStringTo(re, input, decode);
+        return re;
+    }
+
+    public static void parseQueryStringTo(NutBean map, String input, boolean decode) {
         if (!Ws.isBlank(input)) {
             String[] ss = Ws.splitIgnoreBlank(input, "&");
             for (String s : ss) {
@@ -83,7 +120,7 @@ public class WnNet {
                 if (pos > 0) {
                     String k = s.substring(0, pos);
                     String v = s.substring(pos + 1);
-                    if (decodeValue) {
+                    if (decode) {
                         v = URLDecoder.decode(v, Encoding.CHARSET_UTF8);
                     }
                     map.put(k, v);

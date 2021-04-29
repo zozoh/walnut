@@ -9,6 +9,13 @@ public class HttpGetConnector extends AbstractHttpConnector {
     }
 
     @Override
+    public void prepare() {
+        if (hc.hasParams()) {
+            hc.addQuery(hc.getParams());
+        }
+    }
+
+    @Override
     public void sendBody() {}
 
 }

@@ -10,11 +10,17 @@ public class WnStringValueAdaptor implements WnValueAdaptor {
         if (null == input) {
             return fld.getDefaultAs();
         }
+        if (fld.hasFormat()) {
+            return String.format(fld.getFormat(), input);
+        }
         return Castors.me().castToString(input);
     }
 
     @Override
     public String toStr(WnValue fld, Object val) {
+        if (fld.hasFormat()) {
+            return String.format(fld.getFormat(), val);
+        }
         return Castors.me().castToString(val);
     }
 

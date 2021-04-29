@@ -2,12 +2,9 @@ package org.nutz.walnut.ext.net.http.bean;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Encoding;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -65,7 +62,7 @@ public class HttpUrl {
         // 解析 Query String
         this.query = new NutMap();
         String qs = m.group(10);
-        WnNet.putQueryString(this.query, qs, true);
+        WnNet.parseQueryStringTo(this.query, qs, true);
     }
 
     public HttpUrl clone() {
@@ -89,7 +86,7 @@ public class HttpUrl {
     public String toString(boolean encode, boolean withHash) {
         StringBuilder sb = new StringBuilder();
         joinUrlPath(sb);
-        joinQuery(encode, sb);
+        joinQuery(sb, encode);
         if (withHash) {
             joinHash(sb);
         }
@@ -102,24 +99,10 @@ public class HttpUrl {
         }
     }
 
-    public void joinQuery(boolean encode, StringBuilder sb) {
+    public void joinQuery(StringBuilder sb, boolean encode) {
         if (this.hasQuery()) {
-            int pos = sb.length();
-            for (Map.Entry<String, Object> en : query.entrySet()) {
-                sb.append('&');
-                String key = en.getKey();
-                Object val = en.getValue();
-                if (null == val) {
-                    sb.append(key);
-                } else {
-                    String s = val.toString();
-                    if (encode) {
-                        s = URLEncoder.encode(s, Encoding.CHARSET_UTF8);
-                    }
-                    sb.append(key).append('=').append(s);
-                }
-            }
-            sb.setCharAt(pos, '?');
+            sb.append('?');
+            WnNet.joinQuery(sb, query, encode);
         }
     }
 
