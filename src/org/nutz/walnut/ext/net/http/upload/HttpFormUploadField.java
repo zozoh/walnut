@@ -1,11 +1,11 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.nutz.lang.util.LinkedByteBuffer;
 
-public class HttpFormField extends FormField {
+public class HttpFormUploadField extends HttpFormField {
 
     private HttpFormUpload upload;
 
@@ -14,11 +14,11 @@ public class HttpFormField extends FormField {
      */
     private boolean done;
 
-    public HttpFormField(HttpFormUpload upload) {
+    public HttpFormUploadField(HttpFormUpload upload) {
         this.upload = upload;
     }
 
-    public HttpFormField(HttpFormUpload upload, String str) {
+    public HttpFormUploadField(HttpFormUpload upload, String str) {
         super(str);
         this.upload = upload;
     }

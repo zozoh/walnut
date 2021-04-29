@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import org.nutz.lang.Encoding;
 
@@ -12,7 +12,7 @@ public class HttpFormFile {
 
     public HttpFormFile() {}
 
-    public HttpFormFile(FormField fld, byte[] bytes) {
+    public HttpFormFile(HttpFormField fld, byte[] bytes) {
         this(fld.getFileName(), fld.getContentType(), bytes);
     }
 

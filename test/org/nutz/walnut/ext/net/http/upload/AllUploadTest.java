@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

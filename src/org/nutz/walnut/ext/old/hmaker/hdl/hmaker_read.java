@@ -16,7 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 import org.nutz.web.WebException;
 
 public class hmaker_read implements JvmHdl {
@@ -50,7 +50,7 @@ public class hmaker_read implements JvmHdl {
         // 准备响应对象头部
         String range = hc.params.getString("range");
         String etag = hc.params.getString("etag");
-        WnHttpResponse resp = new WnHttpResponse();
+        WnHttpResponseWriter resp = new WnHttpResponseWriter();
         resp.setStatus(200);
         resp.setEtag(etag);
 
@@ -126,7 +126,7 @@ public class hmaker_read implements JvmHdl {
     private void __do_skin_css(WnSystem sys,
                                String range,
                                String etag,
-                               WnHttpResponse resp,
+                               WnHttpResponseWriter resp,
                                WnObj oSiteHome) {
         // 先确保当前站点已经指定了皮肤
         String skinName = oSiteHome.getString("hm_site_skin");
@@ -147,7 +147,7 @@ public class hmaker_read implements JvmHdl {
 
     private void __do_skin_var_less(WnSystem sys,
                                     String range,
-                                    WnHttpResponse resp,
+                                    WnHttpResponseWriter resp,
                                     WnObj oSiteHome) {
         String skinName = oSiteHome.getString("hm_site_skin");
         WnObj oSkinVar = sys.io.fetch(oSiteHome, ".skin/_skin_var.less");

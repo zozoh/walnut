@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import static org.junit.Assert.*;
 
@@ -62,7 +62,7 @@ public class HttpFormUploadTest {
         HttpFormFile fld0 = new HttpFormFile();
 
         upload.parse(new HttpFormCallback() {
-            public void handle(HttpFormField field) throws IOException {
+            public void handle(HttpFormUploadField field) throws IOException {
                 if (!field.isFile() || !field.isName("file")) {
                     throw Lang.makeThrow("Invalid field %s", field.getName());
                 }

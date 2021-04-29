@@ -8,11 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.mvc.View;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 
 public class WnObjDownloadView implements View {
 
-    private WnHttpResponse re;
+    private WnHttpResponseWriter re;
 
     @Override
     public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
@@ -26,7 +26,7 @@ public class WnObjDownloadView implements View {
                              String ua,
                              String etag,
                              String range) {
-        this.re = new WnHttpResponse();
+        this.re = new WnHttpResponseWriter();
         this.re.setDownloadName(downloadName);
         this.re.setEtag(etag);
         this.re.setUserAgent(ua);
@@ -41,7 +41,7 @@ public class WnObjDownloadView implements View {
                              String etag,
                              String range)
             throws IOException {
-        this.re = new WnHttpResponse();
+        this.re = new WnHttpResponseWriter();
         this.re.setEtag(etag);
         this.re.setContentType(mimeType);
         this.re.setDownloadName(downloadName);
@@ -56,7 +56,7 @@ public class WnObjDownloadView implements View {
                              String etag,
                              String range)
             throws IOException {
-        this.re = new WnHttpResponse();
+        this.re = new WnHttpResponseWriter();
         this.re.setEtag(etag);
         this.re.setContentType(mimeType);
         this.re.setDownloadName(downloadName);

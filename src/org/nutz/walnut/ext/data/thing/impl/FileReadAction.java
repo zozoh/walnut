@@ -3,9 +3,9 @@ package org.nutz.walnut.ext.data.thing.impl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.ThingDataAction;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 
-public class FileReadAction extends ThingDataAction<WnHttpResponse> {
+public class FileReadAction extends ThingDataAction<WnHttpResponseWriter> {
 
     public String fnm;
 
@@ -18,14 +18,14 @@ public class FileReadAction extends ThingDataAction<WnHttpResponse> {
     public String userAgent;
 
     @Override
-    public WnHttpResponse invoke() {
+    public WnHttpResponseWriter invoke() {
         WnObj oDir = myDir();
         WnObj oM = io.fetch(oDir, fnm);
         if (null == oM && !quiet) {
             throw Er.create("e.thing.read." + dirName + ".noexists", oDir.path() + "/" + fnm);
         }
 
-        WnHttpResponse resp = new WnHttpResponse();
+        WnHttpResponseWriter resp = new WnHttpResponseWriter();
         resp.setEtag(etag);
         resp.prepare(io, oM, range);
         resp.setUserAgent(userAgent);

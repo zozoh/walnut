@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +7,9 @@ import org.nutz.lang.Lang;
 
 public class HttpFormFieldInputStream extends InputStream {
 
-    private HttpFormField field;
+    private HttpFormUploadField field;
 
-    HttpFormFieldInputStream(HttpFormField field) {
+    HttpFormFieldInputStream(HttpFormUploadField field) {
         this.field = field;
     }
 

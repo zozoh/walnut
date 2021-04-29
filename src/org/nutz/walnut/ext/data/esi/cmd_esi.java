@@ -18,7 +18,7 @@ import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 
 public class cmd_esi extends JvmHdlExecutor {
 
@@ -114,8 +114,8 @@ public class cmd_esi extends JvmHdlExecutor {
                     sys.out.print(hc.output.toString());
                 }
                 // 如果是 WnHttpResponse，那么就渲染
-                else if (hc.output instanceof WnHttpResponse) {
-                    WnHttpResponse resp = (WnHttpResponse) hc.output;
+                else if (hc.output instanceof WnHttpResponseWriter) {
+                    WnHttpResponseWriter resp = (WnHttpResponseWriter) hc.output;
                     OutputStream ops = sys.out.getOutputStream();
                     resp.writeTo(ops);
                 }

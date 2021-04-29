@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -284,7 +284,7 @@ public class HttpFormUpload {
             byte[] bfHead = new byte[hlen];
             System.arraycopy(buffer, rIndex, bfHead, 0, bfHead.length);
             String sfHead = new String(bfHead, Encoding.CHARSET_UTF8);
-            HttpFormField field = new HttpFormField(this, sfHead);
+            HttpFormUploadField field = new HttpFormUploadField(this, sfHead);
 
             // 移动下标
             rIndex = re + NWLN2Bytes.length;
@@ -406,7 +406,7 @@ public class HttpFormUpload {
         parseAndClose(new HttpFormCallback() {
 
             @Override
-            public void handle(HttpFormField field) throws IOException {
+            public void handle(HttpFormUploadField field) throws IOException {
                 String key = field.getName();
                 if (field.isText()) {
                     String text = field.readAllString();
@@ -430,7 +430,7 @@ public class HttpFormUpload {
         parseAndClose(new HttpFormCallback() {
 
             @Override
-            public void handle(HttpFormField field) throws IOException {
+            public void handle(HttpFormUploadField field) throws IOException {
                 String key = field.getName();
                 String text = field.readAllString();
                 re.addv(key, text);

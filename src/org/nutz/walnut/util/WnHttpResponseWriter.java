@@ -38,7 +38,7 @@ import org.nutz.mvc.view.RawView.RangeRange;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnHttpResponse {
+public class WnHttpResponseWriter {
 
     /**
      * 响应的头
@@ -409,18 +409,18 @@ public class WnHttpResponse {
         }
     }
 
-    public WnHttpResponse() {
+    public WnHttpResponseWriter() {
         this.ins = null;
         this.headers = new NutMap();
         this.status = 200;
     }
 
     @SuppressWarnings("unchecked")
-    public WnHttpResponse(Map<String, ? extends Object> map) {
+    public WnHttpResponseWriter(Map<String, ? extends Object> map) {
         this.headers = NutMap.WRAP((Map<String, Object>) map);
     }
 
-    public WnHttpResponse(String headers_str) {
+    public WnHttpResponseWriter(String headers_str) {
         this.headers = Strings.isBlank(headers_str) ? new NutMap() : Lang.map(headers_str);
     }
 }

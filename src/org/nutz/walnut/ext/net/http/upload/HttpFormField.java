@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.upload;
+package org.nutz.walnut.ext.net.http.upload;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Regex;
 
-public class FormField {
+public class HttpFormField {
 
     private HttpFormFieldType type;
 
@@ -16,9 +16,9 @@ public class FormField {
 
     private String contentType;
 
-    public FormField() {}
+    public HttpFormField() {}
 
-    public FormField(String str) {
+    public HttpFormField(String str) {
         this.parse(str);
     }
 
@@ -47,7 +47,7 @@ public class FormField {
      *            字段头
      * @return 自身
      */
-    public FormField parse(String str) {
+    public HttpFormField parse(String str) {
         // 逐行解析
         String[] lines = Strings.splitIgnoreBlank(str, "\r?\n");
         for (String line : lines) {

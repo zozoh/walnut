@@ -33,7 +33,7 @@ import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.ext.data.thing.util.WnPathNormalizing;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 import org.nutz.walnut.util.WnPager;
 
 public class WnThingService {
@@ -168,7 +168,7 @@ public class WnThingService {
         return a.invoke();
     }
 
-    public WnHttpResponse fileRead(String dirName,
+    public WnHttpResponseWriter fileRead(String dirName,
                                    WnObj oT,
                                    String fnm,
                                    String etag,
@@ -207,7 +207,7 @@ public class WnThingService {
         return this.fileQuery("media", oT, sort);
     }
 
-    public WnHttpResponse mediaRead(WnObj oT,
+    public WnHttpResponseWriter mediaRead(WnObj oT,
                                     String fnm,
                                     String etag,
                                     String range,
@@ -238,7 +238,7 @@ public class WnThingService {
         return this.fileQuery("attachment", oT, sort);
     }
 
-    public WnHttpResponse attachmentRead(WnObj oT,
+    public WnHttpResponseWriter attachmentRead(WnObj oT,
                                          String fnm,
                                          String etag,
                                          String range,

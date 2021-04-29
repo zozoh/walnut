@@ -13,9 +13,9 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.data.thing.ThingDataAction;
 import org.nutz.walnut.ext.data.thing.util.Things;
-import org.nutz.walnut.util.upload.HttpFormCallback;
-import org.nutz.walnut.util.upload.HttpFormField;
-import org.nutz.walnut.util.upload.HttpFormUpload;
+import org.nutz.walnut.ext.net.http.upload.HttpFormCallback;
+import org.nutz.walnut.ext.net.http.upload.HttpFormUpload;
+import org.nutz.walnut.ext.net.http.upload.HttpFormUploadField;
 
 /**
  * 处理 HTTP 上传流，返回所有符合过滤器的文件对象
@@ -70,7 +70,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
 
         try {
             upload.parse(new HttpFormCallback() {
-                public void handle(HttpFormField field) throws IOException {
+                public void handle(HttpFormUploadField field) throws IOException {
                     // 如果得到是字段
                     if (field.isText()) {
                         String fldName = field.getName();

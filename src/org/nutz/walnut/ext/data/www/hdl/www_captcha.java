@@ -18,7 +18,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -131,7 +131,7 @@ public class www_captcha implements JvmHdl {
             byte[] buf = Captchas.genPng(code, width, height, mode);
             // HTTP 模式的包裹
             if (hc.params.is("http")) {
-                WnHttpResponse resp = new WnHttpResponse();
+                WnHttpResponseWriter resp = new WnHttpResponseWriter();
                 resp.setStatus(200);
                 resp.setContentType("image/png");
                 resp.prepare(buf);
