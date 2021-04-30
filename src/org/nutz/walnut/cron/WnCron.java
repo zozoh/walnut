@@ -524,7 +524,7 @@ public class WnCron {
      */
     @SuppressWarnings("unchecked")
     public <T extends CronOverlapor> T[] overlap(T[] array,
-                                                 final Object obj,
+                                                 Object obj,
                                                  Calendar c,
                                                  int off,
                                                  int len,
@@ -549,7 +549,7 @@ public class WnCron {
     /**
      * @see #overlap(CronOverlapor[], Object, Calendar, int, int, int)
      */
-    public <T extends CronOverlapor> T[] overlap(T[] array, final Object obj, Calendar c) {
+    public <T extends CronOverlapor> T[] overlap(T[] array, Object obj, Calendar c) {
         if (null == array || array.length == 0)
             return array;
         return this.overlap(array, obj, c, 0, array.length, 86400 / array.length);
@@ -560,7 +560,7 @@ public class WnCron {
      * 
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
-    public <T extends CronOverlapor> T[] overlapByToday(T[] array, T obj) {
+    public <T extends CronOverlapor> T[] overlapByToday(T[] array, Object obj) {
         return overlap(array, obj, Calendar.getInstance());
     }
 
@@ -577,7 +577,7 @@ public class WnCron {
      * @return 数组本身以便链式赋值
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
-    public <T extends CronOverlapor> T[] overlapBy(T[] array, T obj, long ms) {
+    public <T extends CronOverlapor> T[] overlapBy(T[] array, Object obj, long ms) {
         return overlap(array, obj, Times.C(ms));
     }
 
@@ -611,7 +611,7 @@ public class WnCron {
      * @return 数组本身以便链式赋值
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
-    public <T extends CronOverlapor> T[] overlapBy(T[] array, T obj, Date d) {
+    public <T extends CronOverlapor> T[] overlapBy(T[] array, Object obj, Date d) {
         return overlap(array, obj, Times.C(d.getTime()));
     }
 

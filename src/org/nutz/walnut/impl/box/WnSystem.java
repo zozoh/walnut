@@ -43,10 +43,6 @@ public class WnSystem implements WnExecutable {
 
     public String cmdOriginal;
 
-    // public WnUsr me;
-    //
-    // public WnSession se;
-
     public JvmBoxInput in;
 
     public JvmBoxOutput out;
@@ -54,10 +50,6 @@ public class WnSystem implements WnExecutable {
     public JvmBoxOutput err;
 
     public WnIo io;
-
-    // public WnSessionService sessionService;
-    //
-    // public WnUsrService usrService;
 
     public WnAuthService auth;
 

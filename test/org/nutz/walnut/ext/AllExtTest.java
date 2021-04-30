@@ -7,6 +7,7 @@ import org.nutz.walnut.ext.dsync.bean.WnDataSyncItemTest;
 import org.nutz.walnut.ext.httpapi.HttpApiDynamicRenderTest;
 import org.nutz.walnut.ext.mq.WnMqMessageTest;
 import org.nutz.walnut.ext.net.AllNetTest;
+import org.nutz.walnut.ext.sys.AllSysTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -14,6 +15,7 @@ import org.nutz.walnut.ext.net.AllNetTest;
                      AppInitServiceTest.class,
                      HttpApiDynamicRenderTest.class,
                      AllNetTest.class,
+                     AllSysTest.class,
                      WnDataSyncItemTest.class,
                      WnMqMessageTest.class})
 public class AllExtTest {}

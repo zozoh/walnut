@@ -30,12 +30,36 @@ var ioc = {
             }
         }
     },
-    usrService : {
-        type : 'org.nutz.walnut.impl.usr.IoWnUsrService',
+    sysTaskService : {
+        type : 'org.nutz.walnut.ext.sys.task.WnSysTaskService',
         parent : "ioService",
         fields : {
-            initEnvs : {
-                java : '$conf.initUsrEnvs'
+            auth : {
+                refer : "sysAuthService"
+            }
+        }
+    },
+    sysCronService : {
+        type : 'org.nutz.walnut.ext.sys.cron.WnSysCronService',
+        parent : "ioService",
+        fields : {
+            auth : {
+                refer : "sysAuthService"
+            }
+        }
+    },
+    sysScheduleService : {
+        type : 'org.nutz.walnut.ext.sys.schedule.WnSysScheduleService',
+        parent : "ioService",
+        fields : {
+            auth : {
+                refer : "sysAuthService"
+            },
+            cronApi : {
+                refer : "sysCronService"
+            },
+            taskApi : {
+                refer : "sysTaskService"
             }
         }
     },

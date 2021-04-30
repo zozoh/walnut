@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,6 +53,8 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.sys.cron.WnSysCronService;
+import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -687,6 +690,22 @@ public abstract class Wn {
 
         public static WnAuthService auth(Ioc ioc) {
             return ioc.get(WnAuthService.class, "sysAuthService");
+        }
+
+        public static WnSysTaskService tasks() {
+            return tasks(Mvcs.getIoc());
+        }
+
+        public static WnSysTaskService tasks(Ioc ioc) {
+            return ioc.get(WnSysTaskService.class, "sysTaskService");
+        }
+
+        public static WnSysCronService crons() {
+            return crons(Mvcs.getIoc());
+        }
+
+        public static WnSysCronService crons(Ioc ioc) {
+            return ioc.get(WnSysCronService.class, "sysCronService");
         }
 
         public static WnIo io() {
@@ -1430,11 +1449,15 @@ public abstract class Wn {
         return v2;
     }
 
-    private static final Pattern P_TM_MACRO = Pattern.compile("^(now|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*)\\s*"
-                                                              + "("
-                                                              + "([+-])"
-                                                              + "([0-9]+[smhd]?)"
-                                                              + ")?$");
+    private static final String TM_REG = "^(now"
+                                         + "|today"
+                                         + "|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*"
+                                         + ")\\s*"
+                                         + "("
+                                         + "([+-])"
+                                         + "([0-9]+[smhd]?)"
+                                         + ")?$";
+    private static final Pattern P_TM_MACRO = Pattern.compile(TM_REG);
 
     public static long evalDatetimeStrToAMS(String str) {
         long ms = -1;
@@ -1463,6 +1486,15 @@ public abstract class Wn {
             // 类似 now+4d
             if ("now".equals(current)) {
                 ms = Wn.now();
+            }
+            // 类似 today+1d
+            else if ("today".equals(current)) {
+                Calendar c = Calendar.getInstance();
+                c.set(Calendar.HOUR, 0);
+                c.set(Calendar.MINUTE, 0);
+                c.set(Calendar.SECOND, 0);
+                c.set(Calendar.MILLISECOND, 0);
+                ms = c.getTimeInMillis();
             }
             // 类似 2020-12-05T00:12:32
             else {

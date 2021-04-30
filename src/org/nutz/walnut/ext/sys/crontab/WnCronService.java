@@ -23,6 +23,7 @@ import org.nutz.walnut.cron.CronEach;
 import org.nutz.walnut.cron.WnCron;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
+import org.nutz.walnut.util.Wtime;
 
 @IocBean(create = "init", depose = "depose")
 public class WnCronService extends NutRunner {
@@ -56,10 +57,7 @@ public class WnCronService extends NutRunner {
 		// 今天的零点是多少呢?
 		Calendar today = Calendar.getInstance();
 		today.setTimeInMillis(Wn.now());
-		today.set(Calendar.HOUR_OF_DAY, 0);
-		today.set(Calendar.MINUTE, 0);
-		today.set(Calendar.SECOND, 0);
-		today.set(Calendar.MILLISECOND, 0);
+		Wtime.setDayStart(today);
 		long dayOfBegin = today.getTimeInMillis();
 		log.infof("初始化时间 %s", Times.sDT(new Date(dayOfBegin)));
 

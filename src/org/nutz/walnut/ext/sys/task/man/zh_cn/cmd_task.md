@@ -16,5 +16,6 @@ task [list|run|remove] [options...]
 ```bash
 task list            # 列出任务堆栈里的所有任务
 task run             # 主动执行任务堆栈里的一个或者多个任务
+task add             # 向堆栈中添加一个任务
 task remove          # 删除任务堆栈中的一条或者多条任务
 ```

@@ -23,6 +23,9 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.ext.sys.cron.WnSysCronService;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
+import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
@@ -35,6 +38,15 @@ public class WnRun {
 
     @Inject("refer:io")
     private WnIo io;
+
+    @Inject("refer:sysTaskService")
+    private WnSysTaskService taskApi;
+
+    @Inject("refer:sysCronService")
+    private WnSysCronService cronApi;
+
+    @Inject("refer:sysScheduleService")
+    private WnSysScheduleService scheduleApi;
 
     @Inject("refer:sysAuthService")
     private WnAuthService auth;
@@ -153,6 +165,7 @@ public class WnRun {
                      OutputStream err,
                      InputStream in,
                      Callback<WnBoxContext> on_before_free) {
+
         // 得到一个沙箱
         WnBox box = boxes.alloc(allocTimeout);
 

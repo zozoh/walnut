@@ -217,6 +217,12 @@ public class ZParams implements Cloneable {
     public void setv(String key, Object val) {
         map.setv(key, val);
     }
+    
+    public void setDftString(String key, String dft) {
+        if(!this.hasString(key)) {
+            map.put(key, dft);
+        }
+    }
 
     public boolean has(String key) {
         return map.has(key);
