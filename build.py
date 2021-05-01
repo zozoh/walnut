@@ -9,7 +9,10 @@ def opt_clean():
     shutil.rmtree("target")
 
 def opt_build():
-    subprocess.check_call(["mvn", "package", "-Dmaven.test.skip=true", "dependency:copy-dependencies"], shell=True)
+    if sys.platform == "win32":
+        subprocess.check_call(["mvn", "package", "-Dmaven.test.skip=true", "dependency:copy-dependencies"], shell=True)
+    else:
+        subprocess.check_call(["/opt/maven/bin/mvn package -Dmaven.test.skip=true dependency:copy-dependencies"], shell=True)
 
 def t_opt_lessc(rootdir):
     for root, dirs, files in os.walk(rootdir) :
@@ -148,7 +151,7 @@ def opt_fatJar():
     # unzip all deps jar
     all_files = []
     import zipfile
-    with zipfile.ZipFile("build/wzip/walnut.jar", "w",compression=zipfile.ZIP_DEFLATED, compresslevel=1,allowZip64=True) as dst :
+    with zipfile.ZipFile("build/wzip/walnut.jar", "w",compression=zipfile.ZIP_DEFLATED, allowZip64=True) as dst :
 
         
         dst.writestr("META-INF/MANIFEST.MF", '''Manifest-Version: 1.0
@@ -170,6 +173,8 @@ Main-Class: org.nutz.walnut.web.WnLauncher''')
                     if name.lower().startswith("license"):
                         continue
                     if name == "web_local.properties":
+                        continue
+                    if name == "META-INF/MANIFEST.MF":
                         continue
                     if name in all_files :
                         continue
@@ -197,19 +202,15 @@ def opt_wtar():
         tar.add("build/update", "update")
 
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], '-h-p:-v', ['help','projname=','version'])
-    print(opts)
-    for opt_name,opt_value in opts:
-        if opt_name in ["p", "projname"] in opts :
-            global proj_name
-            proj_name = opt_value
+    opts, args = getopt.getopt(sys.argv[1:], 'hp:v')
     for arg in args :
         if arg == "clean":
             opt_clean()
         elif  arg == "build":
             opt_build()
         elif arg == "lessc":
-            opt_lessc()
+            print("no more lessc")
+            pass#opt_lessc()
         elif arg == "sassc":
             opt_sassc()
         elif arg == "wbuild":
