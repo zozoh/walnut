@@ -114,9 +114,9 @@ public class WnHttpResponse extends InputStream {
         return body.read(b, off, len);
     }
 
-    public int readNBytes(byte[] b, int off, int len) throws IOException {
-        return body.readNBytes(b, off, len);
-    }
+    // public int readNBytes(byte[] b, int off, int len) throws IOException {
+    //     return body.readNBytes(b, off, len);
+    // }
 
     public long skip(long n) throws IOException {
         return body.skip(n);
@@ -142,8 +142,8 @@ public class WnHttpResponse extends InputStream {
         return body.markSupported();
     }
 
-    public long transferTo(OutputStream out) throws IOException {
-        return body.transferTo(out);
-    }
+    // public long transferTo(OutputStream out) throws IOException {
+    //     return body.transferTo(out);
+    // }
 
 }
