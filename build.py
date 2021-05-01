@@ -134,6 +134,19 @@ export WL_PID_PATH=/var/run/''' + proj_name + '''.pid
    	    ''')
     os.chmod('build/update', 0o755)
 
+    # 改写web.properties
+    with open("build/wzip/classes/web.properties", "rb") as f :
+        webp = f.read()
+    with open("build/wzip/classes/web.properties", "wb") as f :
+        f.write(webp.replace(b"~/workspace/git/github/walnut", b"."))
+    if not os.path.exists("build/wzip/classes/META-INF/services/") :
+        os.makedirs("build/wzip/classes/META-INF/services/")
+    with open("build/wzip/classes/META-INF/services/javax.servlet.ServletContainerInitializer", "w") as f :
+        f.write('''org.eclipse.jetty.websocket.server.NativeWebSocketServletContainerInitializer
+org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer
+org.eclipse.jetty.apache.jsp.JettyJasperInitializer
+''')
+
     opt_fatJar()
 
 def add_dir_to_zip(dst, rootdir, all_files) :
@@ -178,6 +191,8 @@ Main-Class: org.nutz.walnut.web.WnLauncher
                     if name == "web_local.properties":
                         continue
                     if name == "META-INF/MANIFEST.MF":
+                        continue
+                    if name == "META-INF/services/javax.servlet.ServletContainerInitializer" :
                         continue
                     if name in all_files :
                         continue
