@@ -5,8 +5,10 @@ import os, subprocess, shutil, getopt, sys
 proj_name = (os.environ.get("PROJ_NAME") or "walnut")
 
 def opt_clean():
-    shutil.rmtree("build")
-    shutil.rmtree("target")
+    if os.path.exists("build"):
+        shutil.rmtree("build")
+    if os.path.exists("target"):
+        shutil.rmtree("target")
 
 def opt_build():
     if sys.platform == "win32":
@@ -157,7 +159,8 @@ def opt_fatJar():
         dst.writestr("META-INF/MANIFEST.MF", '''Manifest-Version: 1.0
 Implementation-Title: Walnut
 Implementation-Version: 1.r.69
-Main-Class: org.nutz.walnut.web.WnLauncher''')
+Main-Class: org.nutz.walnut.web.WnLauncher
+''')
 
         # 添加class目录全部内容
         add_dir_to_zip(dst, "build/wzip/classes/", all_files)
