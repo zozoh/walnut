@@ -184,6 +184,20 @@ public class WsTest {
     }
 
     @Test
+    public void test_headerCase() {
+        assertEquals("Abc", Ws.headerCase("ABC"));
+        assertEquals("A-Bc", Ws.headerCase("aBC"));
+        assertEquals("A-B-C", Ws.headerCase("  A  b c  "));
+        assertEquals("A-B-C", Ws.headerCase("a-b-c"));
+        assertEquals("A-B-C", Ws.headerCase("a-_b-c"));
+        assertEquals("A-B-C", Ws.headerCase("A-b-C"));
+        assertEquals("A-B-C", Ws.headerCase("A_b_C"));
+        assertEquals("Content-Type", Ws.headerCase("content_type"));
+        assertEquals("Content-Type", Ws.headerCase("content-type"));
+        assertEquals("Content-Type", Ws.headerCase("contentType"));
+    }
+
+    @Test
     public void test_camelCase() {
         assertEquals("abc", Ws.camelCase("ABC"));
         assertEquals("aBc", Ws.camelCase("aBC"));
@@ -203,6 +217,10 @@ public class WsTest {
         assertEquals("a-b-c", Ws.kebabCase("a-_b-c"));
         assertEquals("a-b-c", Ws.kebabCase("A-b-C"));
         assertEquals("a-b-c", Ws.kebabCase("A_b_C"));
+        assertEquals("content-type", Ws.kebabCase("content_type"));
+        assertEquals("content-type", Ws.kebabCase("content-type"));
+        assertEquals("content-type", Ws.kebabCase("Content-Type"));
+        assertEquals("content-type", Ws.kebabCase("contentType"));
     }
 
     @Test

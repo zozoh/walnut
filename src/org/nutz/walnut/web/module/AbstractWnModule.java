@@ -15,7 +15,7 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.WWW;
+import org.nutz.walnut.ext.data.www.WWW;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 

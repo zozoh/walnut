@@ -2,6 +2,8 @@ package org.nutz.walnut.util;
 
 import static org.junit.Assert.*;
 
+import java.util.Calendar;
+
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.random.R;
@@ -11,6 +13,42 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class WnTest {
+
+    @Test
+    public void test_evalDatetimeStrToAMS() {
+        Calendar c = Calendar.getInstance();
+
+        // 时间清零
+        c.set(Calendar.HOUR, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+
+        // 准备今日开始结束时间
+        long dayms = 86400000L;
+        long now_ms0 = c.getTimeInMillis();
+        long now_ms1 = now_ms0 + dayms;
+
+        // 开始测试
+        long ams = Wn.evalDatetimeStrToAMS("now");
+        assertTrue(ams >= now_ms0);
+        assertTrue(ams < now_ms1);
+
+        ams = Wn.evalDatetimeStrToAMS("today");
+        assertEquals(now_ms0, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("today+1d");
+        assertEquals(now_ms0 + dayms, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("today-1d");
+        assertEquals(now_ms0 - dayms, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("today+2d");
+        assertEquals(now_ms0 + dayms * 2, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("today-2d");
+        assertEquals(now_ms0 - dayms * 2, ams);
+    }
 
     @Test
     public void test_explain_obj() {

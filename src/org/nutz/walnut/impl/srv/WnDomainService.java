@@ -5,7 +5,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 

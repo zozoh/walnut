@@ -28,7 +28,7 @@ public class WnValue {
 
     private Map<String, Object> __options_map;
 
-    public Object formatValue(Object input) {
+    public Object tryValueOptions(Object input) {
         if (input instanceof String) {
             return this.getOptionValue((String) input, input);
         }
@@ -82,6 +82,10 @@ public class WnValue {
 
     public void setEmptyAs(Object emptyAs) {
         this.emptyAs = emptyAs;
+    }
+
+    public boolean hasFormat() {
+        return null != format;
     }
 
     public String getFormat() {

@@ -173,6 +173,13 @@ public class ZParams implements Cloneable {
         return Strings.sBlank(val(index), dft);
     }
 
+    public int val_int(int index, int dft) {
+        int i = index >= 0 ? index : vals.length + index;
+        if (i < 0 || i >= vals.length)
+            return dft;
+        return Integer.parseInt(this.vals[i]);
+    }
+
     public String val_check(int index) {
         String v = val(index);
         if (null == v) {
@@ -209,6 +216,12 @@ public class ZParams implements Cloneable {
 
     public void setv(String key, Object val) {
         map.setv(key, val);
+    }
+    
+    public void setDftString(String key, String dft) {
+        if(!this.hasString(key)) {
+            map.put(key, dft);
+        }
     }
 
     public boolean has(String key) {

@@ -16,7 +16,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.validate.WnMatch;
+import org.nutz.walnut.util.validate.WnMatch;
 
 public abstract class Cmds {
 

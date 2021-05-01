@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.lbs.bean.LbsChinaAddr;
+import org.nutz.walnut.ext.geo.lbs.bean.LbsChinaAddr;
 
 public class GenChinaLbsData {
 

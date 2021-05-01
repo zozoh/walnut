@@ -1,8 +1,8 @@
 package org.nutz.walnut.cheap.dom.docx;
 
 import org.nutz.walnut.cheap.dom.CheapElement;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 class AttrStyleMapping {
 

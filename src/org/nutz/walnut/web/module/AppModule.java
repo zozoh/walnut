@@ -36,7 +36,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;

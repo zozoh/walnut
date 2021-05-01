@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.bulk.api.BulkRestore;
+import org.nutz.walnut.ext.old.bulk.api.BulkRestore;
 
 public class TestBulkS0 extends BulkTest {
 

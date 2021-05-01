@@ -13,9 +13,9 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnObjId;
-import org.nutz.walnut.ext.sql.WnDaoAuth;
-import org.nutz.walnut.ext.sql.WnDaoMappingConfig;
-import org.nutz.walnut.ext.sql.WnDaos;
+import org.nutz.walnut.ext.sys.sql.WnDaoAuth;
+import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
+import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 
 public class DaoMappingTest extends BaseSessionTest {

@@ -7,6 +7,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
 public class WnBeanMapping extends HashMap<String, WnBeanField> {
@@ -78,16 +79,34 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
             Object val = en.getValue();
             try {
                 WnBeanField fld = this.get(key);
+                // 如果没有声明字段，看看是否直接加入，还是忽略它
+                // 这个靠传入的参数 onlyMapping 来指定行为。
+                // 譬如 ooml 命令里的 @mapping 就可以用 -only 来开启这个选项
                 if (null == fld) {
                     if (onlyMapping) {
                         continue;
                     }
                     re.put(key, val);
-                } else {
+                }
+                // 执行映射
+                else {
                     String k2 = fld.getName(key);
-                    Object v2 = fld.formatValue(val);
+                    Object v2 = fld.tryValueOptions(val);
                     Object v3 = WnValues.toValue(fld, v2);
                     re.put(k2, v3);
+
+                    // 看看还有没有别名字段
+                    if (fld.hasAliasFields()) {
+                        for (WnBeanField af : fld.getAliasFields()) {
+                            // 木有名字，那么无视
+                            String ka = af.getName(null);
+                            if (Ws.isBlank(ka)) {
+                                continue;
+                            }
+                            Object av3 = WnValues.toValue(af, v3);
+                            re.put(ka, av3);
+                        }
+                    }
                 }
             }
             // 搞个容易理解的错误

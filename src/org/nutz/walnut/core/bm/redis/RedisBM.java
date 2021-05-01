@@ -7,8 +7,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.core.WnIoBM;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.bm.AbstractIoBM;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 import org.nutz.walnut.util.Wn;
 
 public class RedisBM extends AbstractIoBM {

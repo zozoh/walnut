@@ -42,7 +42,7 @@ public class CheapRawData extends CheapNode {
         }
         // 字符串
         else {
-            int maxLen = 40 - (depth * tab.length());
+            int maxLen = Math.max(10, 40 - (depth * tab.length()));
             String s = text.replaceAll("\r?\n", "⬅️");
             if (s.length() > maxLen) {
                 sb.append(treeDisplayLeftQuoteChar);

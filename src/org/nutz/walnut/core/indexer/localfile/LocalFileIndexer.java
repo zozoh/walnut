@@ -20,9 +20,9 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
 import org.nutz.walnut.util.WnSort;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AutoMatch;
-import org.nutz.walnut.validate.impl.AutoStrMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
+import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 

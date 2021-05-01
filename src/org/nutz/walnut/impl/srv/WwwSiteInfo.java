@@ -1,7 +1,7 @@
 package org.nutz.walnut.impl.srv;
 
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.ext.data.www.impl.WnWebService;
 
 public class WwwSiteInfo {
 

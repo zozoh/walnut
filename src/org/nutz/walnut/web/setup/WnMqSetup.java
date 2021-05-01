@@ -9,10 +9,10 @@ import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
-import org.nutz.walnut.ext.mq.WnMqApi;
-import org.nutz.walnut.ext.mq.WnMqException;
-import org.nutz.walnut.ext.mq.WnMqHandler;
-import org.nutz.walnut.ext.mq.impl.WnMqDefaultHandler;
+import org.nutz.walnut.ext.sys.mq.WnMqApi;
+import org.nutz.walnut.ext.sys.mq.WnMqException;
+import org.nutz.walnut.ext.sys.mq.WnMqHandler;
+import org.nutz.walnut.ext.sys.mq.impl.WnMqDefaultHandler;
 import org.nutz.walnut.web.WnConfig;
 
 public class WnMqSetup implements Setup {

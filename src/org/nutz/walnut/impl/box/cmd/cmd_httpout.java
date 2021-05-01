@@ -11,7 +11,7 @@ import org.nutz.walnut.core.bm.localbm.LocalIoBM;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnHttpResponse;
+import org.nutz.walnut.util.WnHttpResponseWriter;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_httpout extends JvmExecutor {
@@ -27,7 +27,7 @@ public class cmd_httpout extends JvmExecutor {
         ZParams params = ZParams.parse(args, "^(debug)$");
 
         // 准备响应对象头部
-        WnHttpResponse resp = new WnHttpResponse(params.getString("headers"));
+        WnHttpResponseWriter resp = new WnHttpResponseWriter(params.getString("headers"));
         resp.setStatus(params.getInt("status", 200));
         resp.setEtag(params.getString("etag"));
 

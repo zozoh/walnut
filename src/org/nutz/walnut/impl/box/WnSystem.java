@@ -20,7 +20,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.www.impl.WnWebService;
+import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
@@ -43,10 +43,6 @@ public class WnSystem implements WnExecutable {
 
     public String cmdOriginal;
 
-    // public WnUsr me;
-    //
-    // public WnSession se;
-
     public JvmBoxInput in;
 
     public JvmBoxOutput out;
@@ -54,10 +50,6 @@ public class WnSystem implements WnExecutable {
     public JvmBoxOutput err;
 
     public WnIo io;
-
-    // public WnSessionService sessionService;
-    //
-    // public WnUsrService usrService;
 
     public WnAuthService auth;
 

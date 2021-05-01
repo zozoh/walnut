@@ -1061,36 +1061,73 @@ public class Ws {
     public static String kebabCase(String input) {
         char[] cs = input.toCharArray();
         char[] outs = new char[cs.length * 2];
+        int count = __join_kebabCase_char_array(cs, outs);
+        return new String(outs, 0, count);
+    }
+
+    private static int __join_kebabCase_char_array(char[] cs, char[] outs) {
         int count = 0;
-        char lastC = 0;
         boolean lastUpper = false;
+        boolean startWord = true;
+        boolean lastWhitespace = false;
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
             // 空白
             if ('_' == c || '-' == c || Character.isWhitespace(c)) {
-                lastC = ' ';
+                startWord = true;
+                lastWhitespace = true;
+                continue;
             }
             // 有字符串
-            else {
-                // 当前字符串是否是大写呢？
-                boolean cu = Character.isUpperCase(c);
+            // 当前字符串是否是大写呢？
+            boolean cu = Character.isUpperCase(c);
 
-                // 如果大小写变化了，或者遇到分隔符了，就搞一个
-                if ((lastUpper != cu || ' ' == lastC) && count > 0) {
-                    outs[count++] = '-';
-                }
-                // 大写字母
-                if (cu) {
-                    outs[count++] = Character.toLowerCase(c);
-                }
-                // 其他统统计入
-                else {
-                    outs[count++] = c;
-                }
+            // 如果从小写变成大写了，也表示开始了一个新词
+            if (lastUpper != cu && cu) {
+                startWord = true;
+            } else {
+                startWord = false;
+            }
 
-                // 记录最后的 大小写
-                lastUpper = cu;
-                lastC = c;
+            // 如果开始了一个新词，那么看看有木有必要插入一个分隔符呢？
+            if (count > 0 && (startWord || lastWhitespace)) {
+                outs[count++] = '-';
+            }
+
+            // 大写字母转换一下
+            if (cu) {
+                c = Character.toLowerCase(c);
+            }
+
+            // 记录最后的 大小写
+            outs[count++] = c;
+            lastUpper = cu;
+            startWord = false;
+            lastWhitespace = false;
+        }
+        return count;
+    }
+
+    /**
+     * 将字符串改为 HeaderCase。 即，kebab与Camel的混合体
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 HeaderCase 字符串
+     */
+    public static String headerCase(String input) {
+        char[] cs = input.toCharArray();
+        char[] outs = new char[cs.length * 2];
+        int count = __join_kebabCase_char_array(cs, outs);
+        if (count > 0) {
+            outs[0] = Character.toUpperCase(outs[0]);
+        }
+        int lastI = count - 1;
+        for (int i = 1; i < count; i++) {
+            char c = outs[i];
+            if ('-' == c && i < lastI) {
+                i++;
+                outs[i] = Character.toUpperCase(outs[i]);
             }
         }
         return new String(outs, 0, count);

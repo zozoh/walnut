@@ -3,8 +3,8 @@ package org.nutz.walnut.core.refer.redis;
 import java.util.Set;
 
 import org.nutz.walnut.core.WnReferApi;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 
 /**
  * 这个是个 Redis 维护的引用集合。

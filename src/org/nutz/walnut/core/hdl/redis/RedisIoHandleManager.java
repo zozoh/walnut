@@ -9,8 +9,8 @@ import org.nutz.walnut.core.HandleInfo;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoMappingFactory;
 import org.nutz.walnut.core.hdl.AbstractIoHandleManager;
-import org.nutz.walnut.ext.redis.Wedis;
-import org.nutz.walnut.ext.redis.WedisConfig;
+import org.nutz.walnut.ext.sys.redis.Wedis;
+import org.nutz.walnut.ext.sys.redis.WedisConfig;
 
 /**
  * 这个是个 Redis 维护的句柄集合。

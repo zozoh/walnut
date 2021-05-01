@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.sys.dsync.bean.WnDataSyncItem;
 
 public class WnDataSyncItemTest {
 

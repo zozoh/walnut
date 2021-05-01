@@ -20,8 +20,8 @@ import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.archive.WnArchiveWriting;
 import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
 import org.nutz.walnut.util.bean.WnObjAnMatrix;
-import org.nutz.walnut.validate.WnMatch;
-import org.nutz.walnut.validate.impl.AutoMatch;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class cmd_zip extends JvmExecutor {
 

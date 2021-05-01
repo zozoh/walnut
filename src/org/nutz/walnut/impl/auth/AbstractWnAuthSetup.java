@@ -4,7 +4,7 @@ import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnCaptchaService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.weixin.WnIoWeixinApi;
+import org.nutz.walnut.ext.net.weixin.WnIoWeixinApi;
 
 public abstract class AbstractWnAuthSetup implements WnAuthSetup {
 

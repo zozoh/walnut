@@ -2,10 +2,10 @@ package org.nutz.walnut.ext.bulk;
 
 import org.nutz.walnut.BaseSessionTest;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.bulk.api.BulkIo;
-import org.nutz.walnut.ext.bulk.api.BulkService;
-import org.nutz.walnut.ext.bulk.impl.WnBulkIoImpl;
-import org.nutz.walnut.ext.bulk.impl.WnBulkServiceImpl;
+import org.nutz.walnut.ext.old.bulk.api.BulkIo;
+import org.nutz.walnut.ext.old.bulk.api.BulkService;
+import org.nutz.walnut.ext.old.bulk.impl.WnBulkIoImpl;
+import org.nutz.walnut.ext.old.bulk.impl.WnBulkServiceImpl;
 
 public class BulkTest extends BaseSessionTest {
 
