@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.io.UnsupportedEncodingException;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
@@ -77,7 +78,9 @@ public class WnNet {
             } else {
                 String s = val.toString();
                 if (encode) {
-                    s = URLEncoder.encode(s, Encoding.CHARSET_UTF8);
+                    try {
+                        s = URLEncoder.encode(s, "UTF-8");
+                    }catch(UnsupportedEncodingException e){}
                 }
                 sb.append(key).append('=').append(s);
             }
@@ -121,7 +124,9 @@ public class WnNet {
                     String k = s.substring(0, pos);
                     String v = s.substring(pos + 1);
                     if (decode) {
-                        v = URLDecoder.decode(v, Encoding.CHARSET_UTF8);
+                        try {
+                            v = URLDecoder.decode(v, "UTF-8");
+                        }catch(UnsupportedEncodingException e){}
                     }
                     map.put(k, v);
                 } else {
