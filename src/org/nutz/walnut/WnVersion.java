@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.57";
+        return "10.58";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "HTTPC";
+        return "SYS-CRON";
     }
 
     /**

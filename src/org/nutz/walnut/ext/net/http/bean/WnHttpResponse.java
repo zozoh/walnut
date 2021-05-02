@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.net.http.bean;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
@@ -115,7 +114,7 @@ public class WnHttpResponse extends InputStream {
     }
 
     // public int readNBytes(byte[] b, int off, int len) throws IOException {
-    //     return body.readNBytes(b, off, len);
+    // return body.readNBytes(b, off, len);
     // }
 
     public long skip(long n) throws IOException {
@@ -143,7 +142,7 @@ public class WnHttpResponse extends InputStream {
     }
 
     // public long transferTo(OutputStream out) throws IOException {
-    //     return body.transferTo(out);
+    // return body.transferTo(out);
     // }
 
 }

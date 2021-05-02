@@ -16,16 +16,19 @@ var ioc = {
                 refer : "sysAuthService"
             },
             taskApi : {
-                refer : "sysTaskService"
+                refer : "safeSysTaskService"
+            },
+            scheduleApi : {
+                refer : "safeSysScheduleService"
             },
             cronApi : {
                 refer : "sysCronService"
             },
-            scheduleApi : {
-                refer : "sysScheduleService"
-            },
             boxApi : {
                 refer : "boxService"
+            },
+            hookApi : {
+                refer : "hookService"
             }
         }
     },
@@ -50,8 +53,22 @@ var ioc = {
             }
         }
     },
+    safeSysTaskService : {
+        type : 'org.nutz.walnut.ext.sys.task.impl.WnSafeSysTaskService',
+        fields : {
+            tasks : {
+                refer : 'sysTaskService'
+            },
+            locks : {
+                refer : 'lockApi'
+            },
+            tryLockDuration : {
+                java : '$conf.getLong("sys-task-lockdu", 3000)'
+            }
+        }
+    },
     sysTaskService : {
-        type : 'org.nutz.walnut.ext.sys.task.WnSysTaskService',
+        type : 'org.nutz.walnut.ext.sys.task.impl.WnSysTaskService',
         parent : "ioService",
         fields : {
             auth : {
@@ -59,17 +76,28 @@ var ioc = {
             }
         }
     },
-    sysCronService : {
-        type : 'org.nutz.walnut.ext.sys.cron.WnSysCronService',
-        parent : "ioService",
+    safeSysScheduleService : {
+        type : 'org.nutz.walnut.ext.sys.schedule.impl.WnSafeSysScheduleService',
         fields : {
-            auth : {
-                refer : "sysAuthService"
+            schedules : {
+                refer : 'sysScheduleService'
+            },
+            locks : {
+                refer : 'lockApi'
+            },
+            tryLockDuration : {
+                java : '$conf.getLong("sys-schedule-lockdu", 60000)'
+            },
+            tryAddTaskLockDuration : {
+                java : '$conf.getLong("sys-schedule-task-lockdu", 10000)'
+            },
+            taskNotifyLock : {
+                refer : 'safeSysTaskService'
             }
         }
     },
     sysScheduleService : {
-        type : 'org.nutz.walnut.ext.sys.schedule.WnSysScheduleService',
+        type : 'org.nutz.walnut.ext.sys.schedule.impl.WnSysScheduleService',
         parent : "ioService",
         fields : {
             auth : {
@@ -80,6 +108,15 @@ var ioc = {
             },
             taskApi : {
                 refer : "sysTaskService"
+            }
+        }
+    },
+    sysCronService : {
+        type : 'org.nutz.walnut.ext.sys.cron.impl.WnSysCronService',
+        parent : "ioService",
+        fields : {
+            auth : {
+                refer : "sysAuthService"
             }
         }
     },

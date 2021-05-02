@@ -25,6 +25,7 @@ import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -32,18 +33,18 @@ import org.nutz.walnut.ext.net.email.WnMailServer;
 import org.nutz.walnut.ext.net.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.net.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.old.job.WnJobService;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
-import org.nutz.walnut.ext.sys.crontab.WnCronService;
 import org.nutz.walnut.ext.sys.quota.JettyMonitorHandler;
 import org.nutz.walnut.ext.sys.quota.QuotaService;
-import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
-import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.ext.sys.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.ZType;
 import org.nutz.walnut.web.WnConfig;
 import org.nutz.walnut.web.WnInitMount;
+import org.nutz.walnut.web.bgt.WnBgRunCronConsumer;
+import org.nutz.walnut.web.bgt.WnBgRunScheduleConsumer;
+import org.nutz.walnut.web.bgt.WnBgRunTaskConsumer;
 import org.nutz.web.handler.JettyHandlerHook;
 
 public class WnSetup implements Setup {
@@ -57,6 +58,12 @@ public class WnSetup implements Setup {
     private Ioc ioc;
 
     private WnConfig conf;
+
+    private Thread bgtTask;
+
+    private Thread bgtSchedule;
+
+    private Thread bgtCron;
 
     @Override
     public void init(NutConfig nc) {
@@ -113,22 +120,23 @@ public class WnSetup implements Setup {
 
         // 尝试看看组装的结果
         WnIo io = Wn.Service.io(ioc);
-        log.info("WnIo created");
+        log.info("OK: WnIo");
 
         WnAuthService auth = Wn.Service.auth(ioc);
-        log.info("WnAuthService created");
-
-        WnSysTaskService tasks = Wn.Service.tasks(ioc);
-        log.info("WnSysTaskService created");
-
-        WnSysCronService crons = Wn.Service.crons(ioc);
-        log.info("WnSysCronService created");
-
-        WnSysScheduleService schedules = Wn.Service.schedules(ioc);
-        log.info("WnSysScheduleService created");
+        log.info("OK: WnAuthService");
 
         // 获取根用户
         WnAccount root = auth.checkAccount("root");
+        log.info("OK: root user");
+
+        Wn.Service.tasks(ioc);
+        log.info("OK: WnSysTaskApi");
+
+        Wn.Service.schedules(ioc);
+        log.info("OK: WnSysScheduleApi");
+
+        Wn.Service.crons(ioc);
+        log.info("OK: WnSysCronApi");
 
         // 下面所有的操作都是 root 权限的
         Wn.WC().setMe(root);
@@ -189,6 +197,7 @@ public class WnSetup implements Setup {
 
         // 获取沙箱服务
         boxes = Wn.Service.boxes(ioc);
+        log.info("OK: WnBoxService");
 
         // 最后加载所有的扩展 Setup
         __load_init_setups(conf);
@@ -227,14 +236,45 @@ public class WnSetup implements Setup {
         // 初始化jvm box
         ioc.get(JvmExecutorFactory.class).get("time");
 
+        // TODO: 这个没有必要了，稍后删除，因为换成新的 WnSysCron实现了
         // 初始化Cron服务
-        if (conf.getBoolean("crontab.enable", true))
-            ioc.get(WnCronService.class);
+        // if (conf.getBoolean("crontab.enable", true))
+        // ioc.get(WnCronService.class);
 
         WnAccount guest = auth.getAccount("guest");
         if (guest == null) {
             auth.createAccount(new WnAccount("guest"));
         }
+
+        // -----------------------------------------
+        // 启动一系列线程后台处理线程
+        // -----------------------------------------
+        WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
+        WnRun run = ioc.get(WnRun.class);
+        //
+        // 后台任务线程
+        //
+        Runnable bgTask = new WnBgRunTaskConsumer(sf, run);
+        this.bgtTask = new Thread(bgTask, "BGT_TASK");
+        this.bgtTask.start();
+        log.infof("--> THREAD: %s started", this.bgtTask.getName());
+
+        //
+        // 分钟计划任务线程
+        //
+        Runnable bgSchedule = new WnBgRunScheduleConsumer(sf);
+        this.bgtSchedule = new Thread(bgSchedule, "BGT_SCHEDULE");
+        this.bgtSchedule.start();
+        log.infof("--> THREAD: %s started", this.bgtSchedule.getName());
+
+        //
+        // 定期任务加载线程
+        //
+        int amount = conf.getInt("sys-cron-preload-amount", 5);
+        Runnable bgCron = new WnBgRunCronConsumer(sf, amount);
+        this.bgtCron = new Thread(bgCron, "BGT_CRON");
+        this.bgtCron.start();
+        log.infof("--> THREAD: %s started", this.bgtCron.getName());
 
         log.info("===============================================================");
         log.info("");

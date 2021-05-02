@@ -19,6 +19,8 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
 
     private static final String LOCK_NAME = "WN_EXPI_OBJS";
 
+    private static final String LOCK_HINT = "takeover_expi_objs";
+
     private WnExpiObjTable table;
 
     private WnLockApi locks;
@@ -49,7 +51,7 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
         WnLock lo = null;
         // 尝试加锁
         try {
-            lo = locks.tryLock(LOCK_NAME, owner, "takeover_expi_objs", tryLockDuration);
+            lo = locks.tryLock(LOCK_NAME, owner, LOCK_HINT, tryLockDuration);
             List<WnExpiObj> list = table.takeover(owner, duInMs, limit);
             return list;
         }

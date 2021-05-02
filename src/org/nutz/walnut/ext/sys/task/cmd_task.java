@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.sys.task;
 
 import java.util.List;
 
+import org.nutz.lang.Encoding;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -50,8 +51,8 @@ public class cmd_task extends JvmHdlExecutor {
      *            任务对象列表
      */
     public static void outputTasks(WnSystem sys, JvmHdlContext hc, List<WnObj> list) {
-        if (hc.params.has("t")) {
-            hc.params.setDftString("t", "nm,tp,c,g,len,command");
+        if (!hc.params.is("json")) {
+            hc.params.setDftString("t", "nm,tp,user,len,command");
             hc.params.setv("b", true);
             hc.params.setv("i", true);
             hc.params.setv("s", true);
@@ -68,13 +69,20 @@ public class cmd_task extends JvmHdlExecutor {
 
     public static void formatObjCommandField(List<WnObj> list, String key) {
         for (WnObj o : list) {
-            String cmd = o.getString(key);
+            Object cmd = o.get(key);
             if (null != cmd) {
-                cmd = Ws.trim(cmd);
-                if (cmd.length() > 20) {
-                    cmd = cmd.substring(0, 20) + "..";
+                String cmdText;
+                if (cmd.getClass().isArray()) {
+                    byte[] bs = (byte[]) cmd;
+                    cmdText = new String(bs, Encoding.CHARSET_UTF8);
+                } else {
+                    cmdText = cmd.toString();
                 }
-                o.put(key, cmd);
+                cmdText = Ws.trim(cmdText);
+                if (cmdText.length() > 20) {
+                    cmdText = cmdText.substring(0, 20) + "..";
+                }
+                o.put(key, cmdText);
             }
         }
     }

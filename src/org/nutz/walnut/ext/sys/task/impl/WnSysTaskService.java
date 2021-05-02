@@ -1,10 +1,13 @@
-package org.nutz.walnut.ext.sys.task;
+package org.nutz.walnut.ext.sys.task.impl;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.walnut.api.WnAuthExecutable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.err.Er;
@@ -12,15 +15,20 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.ext.sys.task.WnSysTask;
+import org.nutz.walnut.ext.sys.task.WnSysTaskApi;
+import org.nutz.walnut.ext.sys.task.WnSysTaskException;
+import org.nutz.walnut.ext.sys.task.WnSysTaskQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Ws;
 
 /**
  * 系统命令服务类
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnSysTaskService {
+public class WnSysTaskService implements WnSysTaskApi {
 
     private WnIo io;
 
@@ -34,7 +42,32 @@ public class WnSysTaskService {
 
     public WnSysTaskService() {}
 
-    public WnObj addTask(WnObj oTask, byte[] input) {
+    @Override
+    public void runTask(WnAuthExecutable runer, WnObj oTask, WnAccount user, InputStream input)
+            throws WnSysTaskException {
+        // 准备命令
+        String cmdText = oTask.getString("command");
+
+        if (Ws.isBlank(cmdText)) {
+            throw new WnSysTaskException("blank task");
+        }
+
+        // 采用自己的账号执行
+        if (null == user) {
+            runer.exec(cmdText, null, null, input);
+        }
+        // 切换到目标账号执行
+        else {
+            runer.switchUser(user, new Callback<WnAuthExecutable>() {
+                public void invoke(WnAuthExecutable sys2) {
+                    sys2.exec(cmdText, null, null, input);
+                }
+            });
+        }
+    }
+
+    @Override
+    public WnSysTask addTask(WnObj oTask, byte[] input) {
         WnObj home = this.taskHome;
         oTask.setParent(home);
         oTask.race(WnRace.FILE);
@@ -51,7 +84,7 @@ public class WnSysTaskService {
                 return o;
             }
         });
-        return o;
+        return new WnSysTask(o, input);
     }
 
     public WnObj getTask(String id) {
@@ -63,6 +96,7 @@ public class WnSysTaskService {
         });
     }
 
+    @Override
     public WnObj checkTask(String id) {
         WnObj oTask = this.getTask(id);
         if (null == oTask) {
@@ -71,6 +105,7 @@ public class WnSysTaskService {
         return oTask;
     }
 
+    @Override
     public void removeTask(WnObj oTask) {
         if (null == oTask)
             return;
@@ -89,6 +124,7 @@ public class WnSysTaskService {
      *            查询条件
      * @return 任务对象（包括元数据，和内容）。 <code>null</code>表示没有更多任务对象了
      */
+    @Override
     public WnSysTask popTask(WnSysTaskQuery query) {
         // 准备操作任务的列表
         WnObj home = this.taskHome;
@@ -143,6 +179,7 @@ public class WnSysTaskService {
      *            查询条件
      * @return 任务对象列表
      */
+    @Override
     public List<WnObj> listTasks(WnSysTaskQuery query) {
         // 准备操作任务的列表
         WnObj home = this.taskHome;

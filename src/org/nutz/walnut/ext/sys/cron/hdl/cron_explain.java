@@ -32,7 +32,7 @@ public class cron_explain implements JvmHdl {
         }
 
         // 准备语言
-        String lang = sys.session.getVars().getString("LANG", "zh_cn");
+        String lang = sys.session.getVars().getString("LANG", "zh-cn");
         lang = hc.params.getString("lang", lang);
 
         // 得到多国语言字符串

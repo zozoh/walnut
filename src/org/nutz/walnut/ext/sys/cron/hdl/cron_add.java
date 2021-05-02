@@ -4,7 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.sys.cron.WnSysCron;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
+import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -48,7 +48,7 @@ public class cron_add implements JvmHdl {
         cron.setUser(me.getName());
 
         // 准备服务类
-        WnSysCronService cronApi = sys.services.getCronApi();
+        WnSysCronApi cronApi = sys.services.getCronApi();
 
         // 切换账号 & 创建任务
         cronApi.addCron(cron);

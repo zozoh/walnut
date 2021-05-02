@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.sys.cron.WnSysCron;
 
 public class WnCronSlot {
@@ -68,6 +69,19 @@ public class WnCronSlot {
         this.user = o.getString("user");
         this.expi = o.expireTime();
         this.command = o.getString("content");
+    }
+
+    public WnObj toTaskObj() {
+        WnObj oTask = new WnIoObj();
+        oTask.name(name);
+        oTask.type("cron");
+        oTask.put("cron", cron);
+        String ds = Times.format("yyyyMMdd", this.date);
+        oTask.put("date", ds);
+        oTask.put("slot", slot);
+        oTask.put("user", this.user);
+        oTask.put("command", command);
+        return oTask;
     }
 
     public String toString() {

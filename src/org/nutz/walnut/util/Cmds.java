@@ -22,28 +22,28 @@ import org.nutz.walnut.util.validate.WnMatch;
 
 public abstract class Cmds {
 
-    static char[] EC_ARGS = Wchar.array('n',
-                                        '\n',
-                                        'r',
-                                        '\r',
-                                        't',
-                                        '\t',
-                                        'b',
-                                        '\b',
-                                        '\'',
-                                        '\'',
-                                        '"',
-                                        '"',
-                                        '`',
-                                        '`',
-                                        '\\',
-                                        '\\',
-                                        ' ',
-                                        ' ');
-    static Wchar.EscapeTable ET_ARGS = Wchar.buildEscapeTable(EC_ARGS);
+    static char[] EC_CMD_ARGS = Wchar.array('n',
+                                            '\n',
+                                            'r',
+                                            '\r',
+                                            't',
+                                            '\t',
+                                            'b',
+                                            '\b',
+                                            '\'',
+                                            '\'',
+                                            '"',
+                                            '"',
+                                            '`',
+                                            '`',
+                                            '\\',
+                                            '\\',
+                                            ' ',
+                                            ' ');
+    static Wchar.EscapeTable ET_CMD_ARGS = Wchar.buildEscapeTable(EC_CMD_ARGS);
 
     public static char escapeChar(char c) {
-        return ET_ARGS.get(c);
+        return ET_CMD_ARGS.get(c);
     }
 
     /**
@@ -60,7 +60,7 @@ public abstract class Cmds {
 
         Ws.splitQuoteToken(cmdLine, "'\"", " \t", new WnStrTokenCallback() {
             public char escape(char c) {
-                return ET_ARGS.get(c);
+                return ET_CMD_ARGS.get(c);
             }
 
             public void invoke(WnStrToken token) {
@@ -107,8 +107,65 @@ public abstract class Cmds {
         return re;
     }
 
-    static char[] EC_CMDS = Wchar.array(';', ';', '\r', ' ', '\n', ' ');
-    static Wchar.EscapeTable ET_CMDS = Wchar.buildEscapeTable(EC_CMDS);
+    static char[] EC_CMD_ATOMS = Wchar.array('|', '|');
+    static Wchar.EscapeTable ET_CMD_ATOMS = Wchar.buildEscapeTable(EC_CMD_ATOMS);
+    
+    /**
+     * 考虑到文本行尾连接到命令行拆分。其中引号/转义字符会被保留
+     * 
+     * @param cmdText
+     *            命令文本
+     * @return 拆分到一个个逻辑命令行
+     */
+    public static String[] splitCmdAtoms(String cmdText) {
+        List<String> lines = new LinkedList<>();
+        // 存储字符串的临时栈。逃逸字符都加入到里面
+        StringBuilder stack = new StringBuilder();
+
+        Ws.splitQuoteToken(cmdText, "`'\"", "|", new WnStrTokenCallback() {
+            public char escape(char c) {
+                return ET_CMD_ATOMS.get(c);
+            }
+
+            public void invoke(WnStrToken token) {
+                switch (token.type) {
+                // 引号
+                case QUOTE:
+                    stack.append(token.quoteC);
+                    stack.append(token.text);
+                    stack.append(token.quoteC);
+                    break;
+                // 普通文字
+                // 结尾文字
+                case TEXT:
+                    stack.append(token.text);
+                    break;
+                // 分隔符
+                // 会导致开启一个新项
+                case SEPERATOR:
+                    if (stack.length() > 0) {
+                        lines.add(stack.toString());
+                        stack.delete(0, stack.length());
+                    }
+                    break;
+                // 不可能
+                default:
+                    throw Lang.impossible();
+                }
+            }
+        });
+
+        if (stack.length() > 0) {
+            lines.add(stack.toString());
+        }
+
+        String[] re = new String[lines.size()];
+        lines.toArray(re);
+        return re;
+    }
+
+    static char[] EC_CMD_LINES = Wchar.array(';', ';', '\r', ' ', '\n', ' ');
+    static Wchar.EscapeTable ET_CMD_LINES = Wchar.buildEscapeTable(EC_CMD_LINES);
 
     /**
      * 考虑到文本行尾连接到命令行拆分。其中引号/转义字符会被保留
@@ -117,14 +174,14 @@ public abstract class Cmds {
      *            命令文本
      * @return 拆分到一个个逻辑命令行
      */
-    public static String[] splitCmdLine(String cmdText) {
+    public static String[] splitCmdLines(String cmdText) {
         List<String> lines = new LinkedList<>();
         // 存储字符串的临时栈。逃逸字符都加入到里面
         StringBuilder stack = new StringBuilder();
 
         Ws.splitQuoteToken(cmdText, "`'\"", "\n;", new WnStrTokenCallback() {
             public char escape(char c) {
-                return ET_CMDS.get(c);
+                return ET_CMD_LINES.get(c);
             }
 
             public void invoke(WnStrToken token) {

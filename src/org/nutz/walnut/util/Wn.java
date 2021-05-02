@@ -52,9 +52,9 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
-import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
-import org.nutz.walnut.ext.sys.task.WnSysTaskService;
+import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleApi;
+import org.nutz.walnut.ext.sys.task.WnSysTaskApi;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
 
@@ -688,54 +688,26 @@ public abstract class Wn {
             return ioc.get(WnServiceFactory.class, "serviceFactory");
         }
 
-        // public static WnAuthService auth() {
-        // return auth(Mvcs.getIoc());
-        // }
-        //
         public static WnAuthService auth(Ioc ioc) {
             return ioc.get(WnAuthService.class, "sysAuthService");
         }
 
-        //
-        // public static WnSysTaskService tasks() {
-        // return tasks(Mvcs.getIoc());
-        // }
-        //
-        public static WnSysTaskService tasks(Ioc ioc) {
-            return ioc.get(WnSysTaskService.class, "sysTaskService");
+        public static WnSysTaskApi tasks(Ioc ioc) {
+            return ioc.get(WnSysTaskApi.class, "safeSysTaskService");
         }
 
-        //
-        // public static WnSysCronService crons() {
-        // return crons(Mvcs.getIoc());
-        // }
-        //
-        public static WnSysCronService crons(Ioc ioc) {
-            return ioc.get(WnSysCronService.class, "sysCronService");
+        public static WnSysScheduleApi schedules(Ioc ioc) {
+            return ioc.get(WnSysScheduleApi.class, "safeSysScheduleService");
         }
 
-        //
-        // public static WnSysScheduleService schedules() {
-        // return schedules(Mvcs.getIoc());
-        // }
-        //
-        public static WnSysScheduleService schedules(Ioc ioc) {
-            return ioc.get(WnSysScheduleService.class, "sysScheduleService");
+        public static WnSysCronApi crons(Ioc ioc) {
+            return ioc.get(WnSysCronApi.class, "sysCronService");
         }
 
-        //
-        // public static WnBoxService boxes() {
-        // return boxes(Mvcs.getIoc());
-        // }
-        //
         public static WnBoxService boxes(Ioc ioc) {
             return ioc.get(WnBoxService.class, "boxService");
         }
 
-        // public static WnIo io() {
-        // return io(Mvcs.getIoc());
-        // }
-        //
         public static WnIo io(Ioc ioc) {
             return ioc.get(WnIo.class, "io");
         }

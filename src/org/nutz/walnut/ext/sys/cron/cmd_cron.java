@@ -44,7 +44,7 @@ public class cmd_cron extends JvmHdlExecutor {
      *            任务对象列表
      */
     public static void outputCrons(WnSystem sys, JvmHdlContext hc, List<WnObj> list) {
-        if (hc.params.has("t")) {
+        if (!hc.params.is("json")) {
             hc.params.setDftString("t", "id,user,cron,content");
             hc.params.setv("b", true);
             hc.params.setv("i", true);

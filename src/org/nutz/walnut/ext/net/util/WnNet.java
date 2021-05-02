@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import java.io.UnsupportedEncodingException;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -80,7 +79,8 @@ public class WnNet {
                 if (encode) {
                     try {
                         s = URLEncoder.encode(s, "UTF-8");
-                    }catch(UnsupportedEncodingException e){}
+                    }
+                    catch (UnsupportedEncodingException e) {}
                 }
                 sb.append(key).append('=').append(s);
             }
@@ -126,7 +126,8 @@ public class WnNet {
                     if (decode) {
                         try {
                             v = URLDecoder.decode(v, "UTF-8");
-                        }catch(UnsupportedEncodingException e){}
+                        }
+                        catch (UnsupportedEncodingException e) {}
                     }
                     map.put(k, v);
                 } else {

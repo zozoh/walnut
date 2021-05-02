@@ -67,7 +67,7 @@ public class JvmBox implements WnBox {
 
     @Override
     public void run(String cmdText) {
-        String[] cmdLines = Cmds.splitCmdLine(cmdText);
+        String[] cmdLines = Cmds.splitCmdLines(cmdText);
 
         for (String cmdLine : cmdLines) {
             if (Strings.isBlank(cmdLine))

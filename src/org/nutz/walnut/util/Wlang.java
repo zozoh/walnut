@@ -11,6 +11,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.each.WnBreakException;
 import org.nutz.walnut.util.each.WnContinueException;
 import org.nutz.walnut.util.each.WnEachIteratee;
@@ -311,5 +312,67 @@ public class Wlang {
         if (e instanceof InvocationTargetException)
             return wrapThrow(((InvocationTargetException) e).getTargetException());
         return new RuntimeException(e);
+    }
+
+    /**
+     * 一个便利的方法，将当前线程睡眠一段时间
+     *
+     * @param ms
+     *            要睡眠的时间 ms
+     */
+    public static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        }
+        catch (InterruptedException e) {
+            throw Er.wrap(e);
+        }
+    }
+
+    /**
+     * 一个便利的等待方法同步一个对象
+     *
+     * @param lock
+     *            锁对象
+     * @param ms
+     *            要等待的时间 ms
+     */
+    public static void wait(Object lock, long ms) {
+        if (null != lock)
+            synchronized (lock) {
+                try {
+                    lock.wait(ms);
+                }
+                catch (InterruptedException e) {
+                    throw Er.wrap(e);
+                }
+            }
+    }
+
+    /**
+     * 通知对象的同步锁
+     *
+     * @param lock
+     *            锁对象
+     */
+    public static void notifyAll(Object lock) {
+        if (null != lock)
+            synchronized (lock) {
+                lock.notifyAll();
+            }
+    }
+
+    /**
+     * 对Thread.sleep(long)的简单封装,不抛出任何异常
+     *
+     * @param millisecond
+     *            休眠时间
+     */
+    public static void quiteSleep(long millisecond) {
+        try {
+            if (millisecond > 0)
+                Thread.sleep(millisecond);
+        }
+        catch (Throwable e) {}
     }
 }

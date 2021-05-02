@@ -3,15 +3,15 @@ package org.nutz.walnut.ext.sys.task.hdl;
 import java.util.List;
 
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.sys.task.WnSysTaskApi;
 import org.nutz.walnut.ext.sys.task.WnSysTaskQuery;
-import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.ext.sys.task.cmd_task;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value = "cqn", regex = "^(json)$")
 public class task_list implements JvmHdl {
 
     @Override
@@ -20,7 +20,7 @@ public class task_list implements JvmHdl {
         WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc);
 
         // 准备服务类
-        WnSysTaskService taskApi = sys.services.getTaskApi();
+        WnSysTaskApi taskApi = sys.services.getTaskApi();
 
         // 执行查询
         List<WnObj> list = taskApi.listTasks(q);

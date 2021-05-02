@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.sys.cron;
+package org.nutz.walnut.ext.sys.cron.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +17,9 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.cron.CronOverlapor;
 import org.nutz.walnut.cron.WnCron;
+import org.nutz.walnut.ext.sys.cron.WnSysCron;
+import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
+import org.nutz.walnut.ext.sys.cron.WnSysCronQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
@@ -25,7 +28,7 @@ import org.nutz.walnut.util.WnContext;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnSysCronService {
+public class WnSysCronService implements WnSysCronApi {
 
     private WnIo io;
 
@@ -39,6 +42,7 @@ public class WnSysCronService {
 
     public WnSysCronService() {}
 
+    @Override
     public WnObj addCron(WnSysCron cron) {
         // 如果数据不对，就没必要了
         if (!cron.isValid()) {
@@ -73,6 +77,7 @@ public class WnSysCronService {
         return o;
     }
 
+    @Override
     public WnSysCron getCronById(String id) {
         WnContext wc = Wn.WC();
         WnObj oCron = wc.nosecurity(io, new Proton<WnObj>() {
@@ -83,6 +88,7 @@ public class WnSysCronService {
         return new WnSysCron(oCron);
     }
 
+    @Override
     public WnSysCron checkCronById(String id) {
         WnSysCron cron = this.getCronById(id);
         if (null == cron) {
@@ -91,6 +97,7 @@ public class WnSysCronService {
         return cron;
     }
 
+    @Override
     public WnSysCron getCron(String name) {
         WnContext wc = Wn.WC();
         WnObj oCron = wc.nosecurity(io, new Proton<WnObj>() {
@@ -101,6 +108,7 @@ public class WnSysCronService {
         return new WnSysCron(oCron);
     }
 
+    @Override
     public WnSysCron checkCron(String name) {
         WnSysCron cron = this.getCron(name);
         if (null == cron) {
@@ -109,10 +117,12 @@ public class WnSysCronService {
         return cron;
     }
 
+    @Override
     public void removeCron(WnSysCron cron) {
         this.removeCronObj(cron.getMeta());
     }
 
+    @Override
     public void removeCronObj(WnObj oCron) {
         if (null == oCron) {
             return;
@@ -125,6 +135,7 @@ public class WnSysCronService {
         });
     }
 
+    @Override
     public List<WnObj> listCronObj(WnSysCronQuery query, boolean loadContent) {
         // 准备操作任务的列表
         WnObj home = this.cronHome;
@@ -175,6 +186,7 @@ public class WnSysCronService {
         return list;
     }
 
+    @Override
     public List<WnSysCron> listCron(WnSysCronQuery query, boolean loadContent) {
         List<WnObj> objs = this.listCronObj(query, loadContent);
         List<WnSysCron> list = new ArrayList<>(objs.size());
@@ -219,6 +231,7 @@ public class WnSysCronService {
      *            <code>24</code>，如果精确到分钟，是<code>1440</code>
      * @return 一个叠加好的定期任务对象矩阵
      */
+    @Override
     public WnSysCron[][] previewCron(List<WnSysCron> list, Date today, int slotN) {
         // 准备输出数组 1440
         int N = slotN;

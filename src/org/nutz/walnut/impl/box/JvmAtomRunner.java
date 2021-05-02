@@ -21,6 +21,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.SyncWnTunnel;
 import org.nutz.walnut.util.Wn;
@@ -147,7 +148,7 @@ public class JvmAtomRunner {
         status = WnBoxStatus.RUNNING;
 
         // 分析命令，看看有多少管道连接
-        String[] cmds = Strings.split(cmdLine, true, '|');
+        String[] cmds = Cmds.splitCmdAtoms(cmdLine);
 
         // 准备运行的线程原子
         final WnContext wc = Wn.WC();

@@ -16,7 +16,7 @@ public class WnHookContext {
 
     public WnHookContext(WnBoxService boxes, WnBoxContext bc) {
         this._boxes = boxes;
-        this._bc = bc.clone();
+        this._bc = bc;
     }
 
     protected WnBoxContext _bc;
@@ -35,8 +35,11 @@ public class WnHookContext {
     public void exec(String cmdText, InputStream stdin, OutputStream stdout, OutputStream stderr) {
         WnBox box = _boxes.alloc(0);
 
+        // 准备上下文
+        WnBoxContext bc = this._bc.clone();
+
         // 设置沙箱
-        box.setup(_bc);
+        box.setup(bc);
 
         // 设置标准输入输出
         box.setStderr(stderr == null ? VOID_OUT : stderr);

@@ -15,5 +15,6 @@ schedule [list|load|clean] [options...]
 ```bash
 schedule list        # 列出所有的分钟计划任务（非root组成员仅能看自己的任务）
 schedule load        # 将定期任务表的任务加载分钟计划表（需指定一个日期）
+schedule push        # 将当前的分钟槽的任务推入系统后台任务堆栈（需要指定一个分钟槽）
 schedule clean       # 主动清除过期的分钟计划
 ```

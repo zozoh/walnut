@@ -13,7 +13,7 @@ import org.nutz.log.Logs;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
-import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.WnAuthExecutable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -30,7 +30,7 @@ import org.nutz.walnut.util.WnSysConf;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
-public class WnSystem implements WnExecutable {
+public class WnSystem implements WnAuthExecutable {
 
     private static final Log log = Logs.get();
 
@@ -151,7 +151,7 @@ public class WnSystem implements WnExecutable {
     }
 
     public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
-        String[] cmdLines = Cmds.splitCmdLine(cmdText);
+        String[] cmdLines = Cmds.splitCmdLines(cmdText);
         _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
         _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
         _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
@@ -266,7 +266,7 @@ public class WnSystem implements WnExecutable {
      * @param callback
      *            回调，参数为当前 WnSystem
      */
-    public void switchUser(WnAccount newUsr, Callback<WnSystem> callback) {
+    public void switchUser(WnAccount newUsr, Callback<WnAuthExecutable> callback) {
         final WnSystem sys = this;
         // 检查权限
         if (!this.auth.isMemberOfGroup(this.getMe(), "root")) {

@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.nutz.lang.Times;
 import org.nutz.walnut.ext.sys.cron.WnSysCron;
+import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
 import org.nutz.walnut.ext.sys.cron.WnSysCronQuery;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
 import org.nutz.walnut.ext.sys.cron.cmd_cron;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -28,7 +28,7 @@ public class cron_preview implements JvmHdl {
         WnSysCronQuery q = cmd_cron.prepareCronQuery(sys, hc);
 
         // 准备服务类
-        WnSysCronService cronApi = sys.services.getCronApi();
+        WnSysCronApi cronApi = sys.services.getCronApi();
 
         // 执行查询
         List<WnSysCron> list = cronApi.listCron(q, true);

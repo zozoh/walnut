@@ -8,6 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.walnut.util.Ws;
 
 public class WnCroni18n {
 
@@ -18,6 +19,7 @@ public class WnCroni18n {
     }
 
     public static WnCroni18n getInstance(String lang) {
+        lang = Ws.kebabCase(lang);
         WnCroni18n re = I18NS.get(lang);
         // 重新读取
         if (null == re) {

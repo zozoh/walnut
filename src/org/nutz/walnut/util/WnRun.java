@@ -24,12 +24,13 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
-import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
-import org.nutz.walnut.ext.sys.task.WnSysTaskService;
+import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleApi;
+import org.nutz.walnut.ext.sys.task.WnSysTaskApi;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
+import org.nutz.walnut.impl.srv.WnBoxRunning;
 import org.nutz.walnut.web.WnConfig;
 
 @IocBean
@@ -44,13 +45,13 @@ public class WnRun {
     private WnIo io;
 
     @Inject("refer:sysTaskService")
-    private WnSysTaskService taskApi;
+    private WnSysTaskApi taskApi;
 
     @Inject("refer:sysCronService")
-    private WnSysCronService cronApi;
+    private WnSysCronApi cronApi;
 
     @Inject("refer:sysScheduleService")
-    private WnSysScheduleService scheduleApi;
+    private WnSysScheduleApi scheduleApi;
 
     @Inject("refer:sysAuthService")
     private WnAuthService auth;
@@ -166,6 +167,18 @@ public class WnRun {
         return sbOut.toString();
     }
 
+    public WnBoxRunning createRunning(String logPrefix, boolean withHook) {
+        return createRunning(logPrefix, withHook, null, null, null);
+    }
+
+    public WnBoxRunning createRunning(String logPrefix,
+                                      boolean withHook,
+                                      OutputStream out,
+                                      OutputStream err,
+                                      InputStream ins) {
+        return new WnBoxRunning(logPrefix, io, services, allocTimeout, withHook, out, err, ins);
+    }
+
     public void exec(String logPrefix,
                      WnAuthSession se,
                      String cmdText,
@@ -208,7 +221,7 @@ public class WnRun {
 
         // 运行
         if (log.isInfoEnabled())
-            log.infof("%sbox:run: %s", logPrefix, cmdText);
+            log.infof("%sbox:run: %s", logPrefix, Ws.trim(cmdText));
 
         box.run(cmdText);
 

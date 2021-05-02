@@ -7,6 +7,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.time.WnDayTime;
 
 public class WnSysScheduleQuery {
 
@@ -26,6 +27,16 @@ public class WnSysScheduleQuery {
      */
     private int limit;
 
+    private int slotN;
+
+    public WnSysScheduleQuery() {
+        this(1440);
+    }
+
+    private WnSysScheduleQuery(int slotN) {
+        this.slotN = slotN;
+    }
+
     public void joinQuery(WnQuery q) {
         // 将时间设置到 00:00:00
         Calendar c = Calendar.getInstance();
@@ -41,7 +52,28 @@ public class WnSysScheduleQuery {
         }
         // 指定时间槽下标
         if (null != slotRange) {
-            q.setv("slot", slotRange);
+            // 仅仅是一个时间槽
+            if (slotRange.matches("^(\\d+)$")) {
+                int slotIndex = Integer.parseInt(slotRange);
+                q.setv("slot", slotIndex);
+            }
+            // 看起来是一个绝对时间
+            else if (slotRange.indexOf(':') > 0) {
+                WnDayTime time = new WnDayTime(slotRange);
+                int slotIndex = cmd_schedule.timeSlotIndexBySec(time, slotN);
+                q.setv("slot", slotIndex);
+            }
+            // 看起来是一个相对时间
+            else if (slotRange.startsWith("now")) {
+                long ams = Wn.evalDatetimeStrToAMS(slotRange);
+                WnDayTime time = new WnDayTime(ams);
+                int slotIndex = cmd_schedule.timeSlotIndexBySec(time, slotN);
+                q.setv("slot", slotIndex);
+            }
+            // 那就一定是一个范围咯，直接设置
+            else {
+                q.setv("slot", slotRange);
+            }
         }
         if (skip > 0) {
             q.skip(skip);
@@ -104,6 +136,18 @@ public class WnSysScheduleQuery {
 
     public void setUserName(String user) {
         this.userName = user;
+    }
+
+    public int getSkip() {
+        return skip;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getSlotN() {
+        return slotN;
     }
 
 }
