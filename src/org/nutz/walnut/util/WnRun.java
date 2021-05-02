@@ -19,6 +19,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
@@ -35,6 +36,9 @@ import org.nutz.walnut.web.WnConfig;
 public class WnRun {
 
     private static final Log log = Logs.get();
+
+    @Inject("refer:serviceFactory")
+    private WnServiceFactory services;
 
     @Inject("refer:io")
     private WnIo io;
@@ -65,6 +69,10 @@ public class WnRun {
 
     @Inject("refer:conf")
     protected WnConfig conf;
+
+    public WnServiceFactory getServiceFactory() {
+        return services;
+    }
 
     public WnIo io() {
         return io;
@@ -216,7 +224,7 @@ public class WnRun {
     }
 
     protected WnBoxContext createBoxContext(WnAuthSession se) {
-        WnBoxContext bc = new WnBoxContext(new NutMap());
+        WnBoxContext bc = new WnBoxContext(services, new NutMap());
         bc.io = io;
         bc.session = se;
         bc.auth = auth;
@@ -242,7 +250,7 @@ public class WnRun {
     }
 
     public void runWithHook(WnAuthSession se, Callback<WnAuthSession> callback) {
-        WnBoxContext bc = new WnBoxContext(new NutMap());
+        WnBoxContext bc = new WnBoxContext(services, new NutMap());
         bc.io = io;
         bc.session = se;
         bc.auth = auth;

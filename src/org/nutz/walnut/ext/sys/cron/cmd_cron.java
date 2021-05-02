@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.sys.task.cmd_task;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -21,15 +22,15 @@ public class cmd_cron extends JvmHdlExecutor {
      * @return 任务对象查询对象
      */
     public static WnSysCronQuery prepareCronQuery(WnSystem sys, JvmHdlContext hc) {
-        WnSysCronQuery tq = new WnSysCronQuery();
-        tq.loadFromParams(hc.params);
+        WnSysCronQuery q = new WnSysCronQuery();
+        q.loadFromParams(hc.params);
 
         // 如果不是 root 组管理员，仅能操作自己
         WnAccount me = sys.getMe();
         if (!sys.auth.isMemberOfGroup(me, "root")) {
-            tq.setUserName(me.getName());
+            q.setUserName(me.getName());
         }
-        return tq;
+        return q;
     }
 
     /**
@@ -44,11 +45,17 @@ public class cmd_cron extends JvmHdlExecutor {
      */
     public static void outputCrons(WnSystem sys, JvmHdlContext hc, List<WnObj> list) {
         if (hc.params.has("t")) {
-            hc.params.setDftString("t", "id,tp,user,cron,content");
+            hc.params.setDftString("t", "id,user,cron,content");
+            hc.params.setv("b", true);
+            hc.params.setv("i", true);
+            hc.params.setv("s", true);
+            hc.params.setv("h", true);
+            cmd_task.formatObjCommandField(list, "content");
             Cmds.output_objs_as_table(sys, hc.params, null, list);
         }
         // 输出 Bean
         else {
+            hc.params.setv("l", true);
             Cmds.output_objs(sys, hc.params, null, list, true);
         }
     }

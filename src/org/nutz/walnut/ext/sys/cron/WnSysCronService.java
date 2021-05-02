@@ -148,7 +148,6 @@ public class WnSysCronService {
                             }
                         }
                         list.add(oTask);
-                        break;
                     }
                 }
                 // 范查
@@ -215,11 +214,14 @@ public class WnSysCronService {
      *            输入的定期任务
      * @param today
      *            今天几号？不是今天的任务统统会被无视。
+     * @param slotN
+     *            一天划分为多少个时间槽，如果精确到小时，是
+     *            <code>24</code>，如果精确到分钟，是<code>1440</code>
      * @return 一个叠加好的定期任务对象矩阵
      */
-    public WnSysCron[][] previewCron(List<WnSysCron> list, Date today) {
+    public WnSysCron[][] previewCron(List<WnSysCron> list, Date today, int slotN) {
         // 准备输出数组 1440
-        int N = 1440;
+        int N = slotN;
         CronOverlapor[] matrix = new CronOverlapor[N];
 
         // 循环处理任务

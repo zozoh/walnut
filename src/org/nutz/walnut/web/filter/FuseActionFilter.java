@@ -13,6 +13,7 @@ import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
@@ -32,7 +33,7 @@ public class FuseActionFilter implements ActionFilter {
         Ioc ioc = ac.getIoc();
 
         // 如果有会话 ID，则检查一下有效性
-        WnAuthService auth = Wn.Service.auth();
+        WnAuthService auth = Wn.Service.auth(ioc);
         WnAuthSession se = null;
         if (ticket != null) {
             se = auth.checkSession(ticket);
@@ -40,7 +41,7 @@ public class FuseActionFilter implements ActionFilter {
             // 不允许新建
             return HttpStatusView.HTTP_502;
         }
-        
+
         if (se != null) {
             // 记录到上下文
             wc.setSession(se);
@@ -49,7 +50,8 @@ public class FuseActionFilter implements ActionFilter {
             WnIo io = ioc.get(WnIo.class, "io");
             WnBoxService boxes = ioc.get(WnBoxService.class, "boxService");
 
-            WnBoxContext bc = new WnBoxContext(new NutMap());
+            WnServiceFactory services = Wn.Service.services(ioc);
+            WnBoxContext bc = new WnBoxContext(services, new NutMap());
             bc.io = io;
             bc.session = se;
             bc.auth = auth;
@@ -68,7 +70,8 @@ public class FuseActionFilter implements ActionFilter {
                         return HttpStatusView.HTTP_404;
                     req.setAttribute("fuse_obj", obj);
                 }
-                if (req.getParameter("source") != null && !req.getRequestURI().endsWith("symlink")) {
+                if (req.getParameter("source") != null
+                    && !req.getRequestURI().endsWith("symlink")) {
                     WnObj obj = io.fetch(null, req.getParameter("source"));
                     if (obj == null)
                         return HttpStatusView.HTTP_404;

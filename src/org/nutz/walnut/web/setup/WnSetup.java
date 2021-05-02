@@ -32,9 +32,12 @@ import org.nutz.walnut.ext.net.email.WnMailServer;
 import org.nutz.walnut.ext.net.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.net.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.old.job.WnJobService;
+import org.nutz.walnut.ext.sys.cron.WnSysCronService;
 import org.nutz.walnut.ext.sys.crontab.WnCronService;
 import org.nutz.walnut.ext.sys.quota.JettyMonitorHandler;
 import org.nutz.walnut.ext.sys.quota.QuotaService;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
+import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.ext.sys.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
@@ -114,6 +117,15 @@ public class WnSetup implements Setup {
 
         WnAuthService auth = Wn.Service.auth(ioc);
         log.info("WnAuthService created");
+
+        WnSysTaskService tasks = Wn.Service.tasks(ioc);
+        log.info("WnSysTaskService created");
+
+        WnSysCronService crons = Wn.Service.crons(ioc);
+        log.info("WnSysCronService created");
+
+        WnSysScheduleService schedules = Wn.Service.schedules(ioc);
+        log.info("WnSysScheduleService created");
 
         // 获取根用户
         WnAccount root = auth.checkAccount("root");
@@ -218,10 +230,10 @@ public class WnSetup implements Setup {
         // 初始化Cron服务
         if (conf.getBoolean("crontab.enable", true))
             ioc.get(WnCronService.class);
-        
+
         WnAccount guest = auth.getAccount("guest");
         if (guest == null) {
-        	auth.createAccount(new WnAccount("guest"));
+            auth.createAccount(new WnAccount("guest"));
         }
 
         log.info("===============================================================");

@@ -36,9 +36,10 @@ public class JvmCmdTest {
 
         jc = new JvmCmd("    ls \t -l   'ab'c");
         assertEquals("ls", jc.cmdName);
-        assertEquals(2, jc.args.length);
+        assertEquals(3, jc.args.length);
         assertEquals("-l", jc.args[0]);
-        assertEquals("abc", jc.args[1]);
+        assertEquals("ab", jc.args[1]);
+        assertEquals("c", jc.args[2]);
         assertEquals(false, jc.redirectAppend);
         assertNull(jc.redirectPath);
 

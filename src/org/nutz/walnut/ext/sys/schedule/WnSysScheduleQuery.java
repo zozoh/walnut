@@ -6,6 +6,7 @@ import java.util.Date;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wtime;
+import org.nutz.walnut.util.ZParams;
 
 public class WnSysScheduleQuery {
 
@@ -48,6 +49,28 @@ public class WnSysScheduleQuery {
         if (limit > 0) {
             q.limit(limit);
         }
+    }
+
+    public void loadFromParams(ZParams params) {
+        // 第一个参数指定了日期
+        if (params.vals.length > 0) {
+            this.setToday(params.val(0));
+        }
+        // 默认采用今天
+        else {
+            this.setToday("today");
+        }
+        // 第二个参数指定了时间槽
+        if (params.vals.length > 1) {
+            this.setSlotRange(params.val(1));
+        }
+        // 处理用户信息
+        if (params.has("u")) {
+            this.userName = params.getString("u", null);
+        }
+        // 处理游标限制
+        this.skip = params.getInt("skip", 0);
+        this.limit = params.getInt("limit", 0);
     }
 
     public Date getToday() {

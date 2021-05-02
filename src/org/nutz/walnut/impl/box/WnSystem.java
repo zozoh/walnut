@@ -17,6 +17,7 @@ import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -32,6 +33,8 @@ import org.nutz.walnut.web.util.WalnutLog;
 public class WnSystem implements WnExecutable {
 
     private static final Log log = Logs.get();
+
+    public WnServiceFactory services;
 
     public String boxId;
 
@@ -58,6 +61,10 @@ public class WnSystem implements WnExecutable {
     public JvmExecutorFactory jef;
 
     JvmAtomRunner _runner;
+
+    public WnSystem(WnServiceFactory services) {
+        this.services = services;
+    }
 
     public WnAccount getMe() {
         if (null != this.session) {
@@ -267,7 +274,7 @@ public class WnSystem implements WnExecutable {
         }
 
         // 创建新会话
-        WnAuthSession newSession = this.auth.createSession(this.getMe(), true);
+        WnAuthSession newSession = this.auth.createSession(newUsr, true);
 
         // 记录旧的 Session
         WnAuthSession old_se = this.session;

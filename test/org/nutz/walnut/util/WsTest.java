@@ -2,9 +2,59 @@ package org.nutz.walnut.util;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+import org.nutz.lang.Lang;
+import org.nutz.walnut.util.callback.WnStrToken;
+import org.nutz.walnut.util.callback.WnStrTokenCallback;
 
 public class WsTest {
+
+    @Test
+    public void test_splitQuoteToken() {
+        String str;
+        List<String> list = new ArrayList<>(10);
+        WnStrTokenCallback callback = new WnStrTokenCallback() {
+            public char escape(char c) {
+                return Cmds.escapeChar(c);
+            }
+
+            public void invoke(WnStrToken token) {
+                switch (token.type) {
+                // 普通文字
+                case TEXT:
+                    list.add(token.text.toString());
+                    break;
+                // 引号
+                case QUOTE:
+                    String s = String.format("%s%s%s", token.quoteC, token.text, token.quoteC);
+                    list.add(s);
+                    break;
+                // 其他的就是错误
+                default:
+                    throw Lang.impossible();
+                }
+            }
+        };
+        // ------------------------------------------------
+        list.clear();
+        Ws.splitQuoteToken("A'x'B`'f'`C", "`'", null, callback);
+        str = Ws.join(list, ";");
+        assertEquals("A;'x';B;`'f'`;C", str);
+        // ------------------------------------------------
+        list.clear();
+        Ws.splitQuoteToken("A''x''B``C", "`'", null, callback);
+        str = Ws.join(list, ";");
+        assertEquals("A;'';x;'';B;``;C", str);
+        // ------------------------------------------------
+        list.clear();
+        Ws.splitQuoteToken("A\\'x\\'B\\`C", "`'", null, callback);
+        str = Ws.join(list, ";");
+        assertEquals("A'x'B`C", str);
+        // ------------------------------------------------
+    }
 
     @Test
     public void test_fromR26Str() {

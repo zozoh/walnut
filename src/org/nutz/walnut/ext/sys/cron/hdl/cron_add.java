@@ -48,7 +48,7 @@ public class cron_add implements JvmHdl {
         cron.setUser(me.getName());
 
         // 准备服务类
-        WnSysCronService cronApi = Wn.Service.crons();
+        WnSysCronService cronApi = sys.services.getCronApi();
 
         // 切换账号 & 创建任务
         cronApi.addCron(cron);

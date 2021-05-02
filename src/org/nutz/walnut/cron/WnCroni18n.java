@@ -1,9 +1,40 @@
 package org.nutz.walnut.cron;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 
 public class WnCroni18n {
+
+    private static Map<String, WnCroni18n> I18NS = new HashMap<>();
+
+    public static WnCroni18n getInstance() {
+        return getInstance("zh-cn");
+    }
+
+    public static WnCroni18n getInstance(String lang) {
+        WnCroni18n re = I18NS.get(lang);
+        // 重新读取
+        if (null == re) {
+            synchronized (WnCroni18n.class) {
+                re = I18NS.get(lang);
+                if (null == re) {
+                    String pkg = WnCroni18n.class.getPackageName();
+                    String ph = pkg.replace('.', '/');
+                    ph += "/i18n/" + lang + ".json";
+                    File f = Files.findFile(ph);
+                    re = Json.fromJsonFile(WnCroni18n.class, f);
+                    I18NS.put(lang, re);
+                }
+            }
+        }
+        return re;
+    }
 
     public String start;
     public String to;

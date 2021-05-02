@@ -11,7 +11,7 @@ public class Wchar {
 
     public static class EscapeTable {
         /**
-         * 字符转义表: 奇数为，为字符字面量，偶数位为逃逸后的字符值
+         * 字符转义表
          * 
          * <pre>
          * [...,'\n',...,'\t'...]
@@ -45,7 +45,7 @@ public class Wchar {
      * 根据输入的字符串，成对编制逃逸表，并且自动设置逃逸表的 offset
      * 
      * @param cs
-     *            编制字符串逃逸表
+     *            编制字符串逃逸表。 奇数为，为字符字面量，偶数位为逃逸后的字符值
      * @return 字符串逃逸表
      */
     public static EscapeTable buildEscapeTable(char[] cs) {

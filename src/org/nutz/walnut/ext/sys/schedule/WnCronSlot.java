@@ -34,6 +34,7 @@ public class WnCronSlot {
     public WnCronSlot() {}
 
     public WnCronSlot(WnSysCron wsc) {
+        this.task = wsc.getId();
         this.cron = wsc.getCron();
         this.user = wsc.getUser();
         this.command = wsc.getCommand();
@@ -42,7 +43,7 @@ public class WnCronSlot {
     public WnCronSlot(String input) {
         this.fromString(input);
     }
-    
+
     public WnCronSlot(WnObj o) {
         this.loadFromObj(o);
     }

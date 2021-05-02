@@ -17,4 +17,26 @@ cron add
 # 示例
 
 ```bash
+demo> echo 'date >> ~/tmp/logs.txt' | cron add '0 0 0/3 * * ?'
+{
+   pid: "oil7s4uo76jkgob6dtj99i6sif",
+   ph: "/sys/cron/5hguajbo0igjeofj8cchqfepn5",
+   d0: "sys",
+   d1: "cron",
+   race: "FILE",
+   tp: "cron_task",
+   cron: "0 0 0/3 * * ?",
+   user: "bchc",
+   id: "5hguajbo0igjeofj8cchqfepn5",
+   nm: "5hguajbo0igjeofj8cchqfepn5",
+   ct: 1619878119771,
+   lm: 1619878119776,
+   mime: "application/octet-stream",
+   c: "bchc",
+   m: "bchc",
+   g: "bchc",
+   md: 493,
+   sha1: "a5e753aab1e014e733e57f1e4d24fc1a4603ddea",
+   len: 23
+}
 ```

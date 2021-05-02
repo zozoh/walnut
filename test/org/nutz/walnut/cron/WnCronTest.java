@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.json.Json;
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 
@@ -416,12 +414,7 @@ public class WnCronTest {
     }
 
     /*----------------------------------------------------------读取i18n-------*/
-    private static WnCroni18n i18n;
-
-    static {
-        i18n = Json.fromJsonFile(WnCroni18n.class,
-                                 Files.findFile("org/nutz/walnut/cron/i18n/zh_cn.json"));
-    }
+    private static WnCroni18n i18n = WnCroni18n.getInstance();
 
     /*----------------------------------------------------------帮助函数们-------*/
     private static void ae_set_part(String cron, String expect, String... parts) {

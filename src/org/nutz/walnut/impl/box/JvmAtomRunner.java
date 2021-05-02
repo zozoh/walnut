@@ -1,10 +1,7 @@
 package org.nutz.walnut.impl.box;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -28,6 +25,7 @@ import org.nutz.walnut.util.JvmTunnel;
 import org.nutz.walnut.util.SyncWnTunnel;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Ws;
 import org.nutz.web.WebException;
 
 public class JvmAtomRunner {
@@ -77,84 +75,21 @@ public class JvmAtomRunner {
         return re;
     }
 
-    private static final Pattern SSTT = Pattern.compile("`([^`]*)`");
-
     private String __extend_substitution(String cmdLine, JvmBoxOutput boxErr) {
-        StringBuilder sb = new StringBuilder();
-
-        // 首先先记录一下原始的输出流
-        OutputStream oldOut = this.out;
-        OutputStream oldErr = this.err;
-
-        // 然后用一个新的来代替
-        StringBuilder sbOut = new StringBuilder();
-        StringBuilder sbErr = new StringBuilder();
-        this.out = Lang.ops(sbOut);
-        this.err = Lang.ops(sbErr);
+        JvmAtomSubstitutionCallback tc = new JvmAtomSubstitutionCallback(this, boxErr);
 
         // 开始逐次寻找预处理段
         try {
-            int pos = 0;
-            Matcher m = SSTT.matcher(cmdLine);
-            while (m.find()) {
-                int iS = m.start();
-                int iE = m.end();
-                String sustitution = m.group(1);
-
-                // 记录之前的字符串
-                if (iS > pos) {
-                    sb.append(cmdLine.substring(pos, iS));
-
-                    // 移动位置指针到匹配的末尾以便下次使用
-                    pos = iE;
-                }
-
-                // 空串就不执行了
-                if (Strings.isBlank(sustitution)) {
-                    continue;
-                }
-                // 执行这个子命令
-                else {
-                    this.__run(sustitution, boxErr);
-                    this.wait_for_idle();
-
-                    // 如果出现错误，那么啥也别说了，写到错误输出里
-                    // 然后返回 null，表示不要往下执行了
-                    if (null != oldErr && sbErr.length() > 0) {
-                        Streams.write(oldOut, Lang.ins(sbErr));
-                    }
-                    // 成功的话，将输出的内容替换到命令行里
-                    // 去掉双引号，换行等一切邪恶的东东 >_<
-                    else {
-                        String subst = sbOut.toString().replaceAll("([\r\n\"' ])", "");
-                        // String subst = sbOut.toString()
-                        // .replaceAll("([\r\n])", "")
-                        // .replaceAll("(\"' )", "\\$1");
-                        sb.append(subst);
-                    }
-
-                    // 清理输出，准备迎接下一个子命令
-                    sbOut.setLength(0);
-                    sbErr.setLength(0);
-                }
-            }
-            // 输出剩余的部分
-            if (pos < cmdLine.length())
-                sb.append(cmdLine.substring(pos));
-        }
-        // 出点错误，就打个 Log 咯
-        catch (IOException e) {
-            if (log.isWarnEnabled())
-                log.warn("fail to sustitution", e);
+            Ws.splitQuoteToken(cmdLine, "`", null, tc);
         }
         // 一定要记得还原啊还原到老的输出流
         finally {
-            this.out = oldOut;
-            this.err = oldErr;
+            this.out = tc.oldOut;
+            this.err = tc.oldErr;
         }
 
         // 返回处理后的字符串
-        return sb.toString();
+        return tc.sb.toString();
     }
 
     public void run(String cmdLine) {
@@ -204,7 +139,7 @@ public class JvmAtomRunner {
         }
     }
 
-    private void __run(String cmdLine, JvmBoxOutput boxErr) {
+    void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
         WnAuthSession se = bc.session;
 
@@ -252,7 +187,7 @@ public class JvmAtomRunner {
 
             // 填充对应字段
             a.id = i;
-            a.sys = new WnSystem();
+            a.sys = new WnSystem(bc.services);
             a.sys.boxId = this.boxId;
             a.sys.pipeId = i;
             a.sys.nextId = i + 1;

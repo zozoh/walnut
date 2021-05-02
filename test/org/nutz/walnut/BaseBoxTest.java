@@ -85,7 +85,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         err = new StringBuilder();
 
         // 准备上下文
-        bc = new WnBoxContext(new NutMap());
+        bc = new WnBoxContext(null, new NutMap());
         bc.io = io;
         bc.session = se;
         bc.auth = auth;

@@ -16,7 +16,7 @@ import org.nutz.walnut.util.each.WnContinueException;
 import org.nutz.walnut.util.each.WnEachIteratee;
 
 public class Wlang {
-    
+
     /**
      * 根据一段字符串，生成一个 Map 对象。
      *
@@ -34,7 +34,7 @@ public class Wlang {
         }
         return Json.fromJson(NutMap.class, "{" + str + "}");
     }
-    
+
     /**
      * 创建一个一个键的 Map 对象
      *
@@ -138,7 +138,7 @@ public class Wlang {
             throw wrapThrow(e.getCause());
         }
     }
-    
+
     /**
      * 清除数组中的特定值
      *
@@ -202,6 +202,52 @@ public class Wlang {
     }
 
     /**
+     * 较方便的创建一个列表
+     *
+     * <pre>
+     * List<String> list = Lang.list("A", "B", "A"); => ["A","B","A"]
+     * </pre>
+     *
+     * @param eles
+     *            可变参数
+     * @return 列表对象
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> list(T... eles) {
+        List<T> list = new ArrayList<>(eles.length);
+        for (T ele : eles) {
+            list.add(ele);
+        }
+        return list;
+    }
+
+    /**
+     * 较方便的创建一个列表
+     *
+     * <pre>
+     * List<String> list = Lang.list("A", "B", "A"); => ["A","B","A"]
+     * </pre>
+     *
+     * @param eles
+     *            可变参数
+     * @param offset
+     *            数据偏移下标
+     * @param len
+     *            最多取多少元素
+     * @return 列表对象
+     */
+    public static <T> List<T> list(T[] eles, int offset, int len) {
+        offset = Math.max(0, offset);
+        len = Math.min(len, eles.length - offset);
+        List<T> list = new ArrayList<>(len);
+        for (int i = 0; i < len; i++) {
+            T ele = eles[i];
+            list.add(ele);
+        }
+        return list;
+    }
+
+    /**
      * 较方便的创建一个没有重复的数组，比如：
      *
      * <pre>
@@ -234,7 +280,7 @@ public class Wlang {
         return arr;
 
     }
-    
+
     /**
      * 将抛出对象包裹成运行时异常，并增加自己的描述
      *

@@ -1,8 +1,5 @@
 package org.nutz.walnut.ext.sys.task.hdl;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.trans.Atom;
@@ -26,33 +23,25 @@ public class task_add implements JvmHdl {
         WnObj oTask = new WnIoObj();
 
         // 设置任务命令
-        List<String> commands = new LinkedList<>();
+        String cmdText = null;
 
         // 从标准输入读取
         if (hc.params.vals.length == 0) {
             String str = sys.in.readAll();
-            commands.add(Ws.trim(str));
+            cmdText = Ws.trim(str);
         }
         // 读取内容
         else {
-            for (String v : hc.params.vals) {
-                commands.add(v);
-            }
+            cmdText = Ws.join(hc.args, " ");
         }
 
         // 防守
-        if (commands.isEmpty()) {
+        if (Ws.isBlank(cmdText)) {
             return;
         }
 
-        // 仅有一个命令
-        if (commands.size() == 1) {
-            oTask.put("command", commands.get(0));
-        }
-        // 多个命令
-        else {
-            oTask.put("command", commands);
-        }
+        // 记入命令
+        oTask.put("command", cmdText);
 
         // 读取命令输入
         byte[] input = null;
@@ -82,7 +71,7 @@ public class task_add implements JvmHdl {
         }
 
         // 准备服务类
-        WnSysTaskService taskApi = Wn.Service.tasks();
+        WnSysTaskService taskApi = sys.services.getTaskApi();
 
         // 切换账号 & 创建任务
         byte[] bs = input;

@@ -18,6 +18,9 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.callback.WnStrToken;
+import org.nutz.walnut.util.callback.WnStrTokenCallback;
+import org.nutz.walnut.util.callback.WnStrTokenType;
 
 /**
  * 字符串帮助类
@@ -582,6 +585,14 @@ public class Ws {
         return escape(str, '\\', STR_ESC_TAB);
     }
 
+    public static char escapeChar(char c) {
+        return STR_ESC_TAB.get(c);
+    }
+
+    public static char unescapeChar(char c) {
+        return STR_UNESC_TAB.get(c);
+    }
+
     /**
      * 将字符串根据转移字符转义
      *
@@ -783,6 +794,125 @@ public class Ws {
             }
         }
         return map;
+    }
+
+    public static void splitQuoteToken(String input,
+                                       String quotes,
+                                       String seperators,
+                                       WnStrTokenCallback callback) {
+        char[] qs = null == quotes ? null : quotes.toCharArray();
+        char[] ss = null == seperators ? null : seperators.toCharArray();
+        splitQuoteToken(input, qs, ss, callback);
+    }
+
+    /**
+     * 根据引号逐个回调输入字符串。调用回调的类型详情清参看:
+     * <p>
+     * 回调函数的参数，请查看 <code>WnStrTokenType</code> 的描述
+     * 
+     * @param input
+     *            输入字符串
+     * @param quotes
+     *            哪些字符是引号，譬如 <code>'"`</code>
+     * @param seperators
+     *            哪些字符是分隔符，譬如 <code>\t\s\r\n</code>
+     * @param callback
+     *            回调
+     * 
+     * @see org.nutz.walnut.util.callback.WnStrTokenType
+     */
+    public static void splitQuoteToken(String input,
+                                       char[] quotes,
+                                       char[] seperators,
+                                       WnStrTokenCallback callback) {
+        if (null == input || null == quotes || quotes.length == 0 || null == callback) {
+            return;
+        }
+
+        char[] cs = input.toCharArray();
+
+        // 依次循环
+        WnStrToken tk = new WnStrToken();
+        tk.src = cs;
+        tk.index = 0;
+        tk.quoteC = 0;
+        tk.text = new StringBuilder();
+        // tk.offset = 0;
+        int lastI = cs.length - 1;
+
+        // 循环字符串
+        for (; tk.index < cs.length; tk.index++) {
+            char c = cs[tk.index];
+
+            // 尝试逃逸
+            if (c == '\\') {
+                // 找到逃逸字符
+                if (tk.index < lastI) {
+                    tk.index++;
+                    char c2 = cs[tk.index];
+                    char c3 = callback.escape(c2);
+                    // 逃逸成功
+                    if (c3 != 0) {
+                        tk.text.append(c3);
+                        continue;
+                    }
+                    // 逃逸失败，回退
+                    else {
+                        tk.index--;
+                    }
+                }
+            }
+
+            // 已经在引号里了
+            if (tk.quoteC > 0) {
+                // 遇到引号结束
+                if (tk.quoteC == c) {
+                    tk.type = WnStrTokenType.QUOTE;
+                    callback.invoke(tk);
+                    tk.reset((char) 0);
+                }
+                // 那么当作普通字符串哦
+                else {
+                    tk.text.append(c);
+                }
+            }
+            // 是否遇到了引号符
+            else if (tk.index < lastI && Wchar.indexOf(quotes, c) >= 0) {
+                // 看看之前有没有内容
+                if (tk.hasText()) {
+                    tk.type = WnStrTokenType.TEXT;
+                    callback.invoke(tk);
+                    tk.reset((char) 0);
+                }
+                // 标记一下进入引号
+                tk.reset(c);
+            }
+            // 是否遇到了分隔符
+            else if (Wchar.indexOf(seperators, c) >= 0) {
+                // 看看之前有没有内容
+                if (tk.hasText()) {
+                    tk.type = WnStrTokenType.TEXT;
+                    callback.invoke(tk);
+                    tk.reset((char) 0);
+                }
+                // 调用分隔符
+                tk.type = WnStrTokenType.SEPERATOR;
+                tk.quoteC = c;
+                callback.invoke(tk);
+                tk.reset((char) 0);
+            }
+            // 否则就记入
+            else {
+                tk.text.append(c);
+            }
+        }
+
+        // 最后一部分
+        if (tk.text.length() > 0) {
+            tk.index = cs.length;
+            tk.type = WnStrTokenType.TEXT;
+            callback.invoke(tk);
+        }
     }
 
     /**

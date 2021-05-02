@@ -56,6 +56,40 @@ public class WnCron {
         return list;
     }
 
+    public static Object[][] toMatrix(CronOverlapor[] input) {
+        int N = input.length;
+        Object[][] re = new Object[N][];
+        for (int i = 0; i < N; i++) {
+            CronOverlapor ol = input[i];
+            if (null != ol) {
+                re[i] = ol.toArray(Object.class);
+            }
+        }
+        return re;
+    }
+
+    public static int getMaxColCount(CronOverlapor[] input) {
+        int col = 0;
+        for (int i = 0; i < input.length; i++) {
+            CronOverlapor ol = input[i];
+            if (null != ol) {
+                col = Math.max(col, ol.size());
+            }
+        }
+        return col;
+    }
+
+    public static int getMaxColCount(Object[][] matrix) {
+        int col = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            Object[] rows = matrix[i];
+            if (null != rows) {
+                col = Math.max(col, rows.length);
+            }
+        }
+        return col;
+    }
+
     private String str; // 原始信息
 
     /**

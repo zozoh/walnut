@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.sys.schedule;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -16,9 +17,11 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.sys.cron.WnSysCron;
 import org.nutz.walnut.ext.sys.cron.WnSysCronService;
 import org.nutz.walnut.ext.sys.task.WnSysTaskService;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
 
 /**
  * 系统分钟计划任务服务类
@@ -73,6 +76,41 @@ public class WnSysScheduleService {
         return list;
     }
 
+    public List<WnObj> cleanSlotObj(WnSysScheduleQuery query) {
+        // 准备操作任务的列表
+        WnObj home = scheduleHome;
+        WnContext wc = Wn.WC();
+
+        // 进入内核态，查询相应任务
+        List<WnObj> list = wc.nosecurity(io, new Proton<List<WnObj>>() {
+            protected List<WnObj> exec() {
+                // 删除索引文件
+                String fph = getScheduleIndexFilePath(query.getToday());
+                WnObj oIndex = io.fetch(scheduleHome, fph);
+                if (null != oIndex) {
+                    io.delete(oIndex);
+                }
+
+                // 删除定期分钟计划任务对象
+                WnQuery q = Wn.Q.pid(home);
+                query.joinQuery(q);
+                q.sortBy("slot", 1);
+                List<WnObj> list = io.query(q);
+
+                // 逐个删除
+                for (WnObj o : list) {
+                    io.delete(o);
+                }
+
+                // 搞定，返回
+                return list;
+            }
+        });
+
+        // 搞定
+        return list;
+    }
+
     public List<WnCronSlot> listSlot(WnSysScheduleQuery query, boolean loadContent) {
         List<WnObj> objs = this.listSlotObj(query, loadContent);
         List<WnCronSlot> list = new ArrayList<>(objs.size());
@@ -84,15 +122,28 @@ public class WnSysScheduleService {
     }
 
     public List<WnCronSlot> loadSchedule(List<WnSysCron> list, Date today, boolean force) {
+        // 默认为今天
+        if (null == today) {
+            today = Wtime.todayDate();
+        }
+        // 强制对齐今日 00:00:00
+        else {
+            Calendar c = Calendar.getInstance();
+            c.setTime(today);
+            Wtime.setDayStart(c);
+            today = c.getTime();
+        }
+
+        Date d = today;
         WnContext wc = Wn.WC();
         List<WnCronSlot> slots = wc.core(null, true, null, new Proton<List<WnCronSlot>>() {
             protected List<WnCronSlot> exec() {
 
-                // 得到索引文件
+                // 准备返回变量
                 List<WnCronSlot> slots;
-                String fnm = Times.format("yyyyMMdd", today);
-                fnm += ".schedule.index.txt";
-                String fph = "index/" + fnm;
+
+                // 得到索引文件
+                String fph = getScheduleIndexFilePath(d);
                 WnObj oIndex = io.fetch(scheduleHome, fph);
 
                 // 读取索引缓存
@@ -107,19 +158,22 @@ public class WnSysScheduleService {
                 }
 
                 // 设置 3 天过期时间
-                long todayMs = today.getTime();
+                long todayMs = d.getTime();
                 long expi = todayMs + 86400000L * 3;
 
                 // 准备一个返回列表
-                WnSysCron[][] matrix = cronApi.previewCron(list, today);
+                WnSysCron[][] matrix = cronApi.previewCron(list, d, 1440);
                 slots = new ArrayList<>(matrix.length);
                 for (int y = 0; y < matrix.length; y++) {
-                    WnSysCron[] cells = matrix[y];
-                    for (int x = 0; x < cells.length; x++) {
-                        WnSysCron cron = cells[x];
+                    WnSysCron[] row = matrix[y];
+                    if (null == row) {
+                        continue;
+                    }
+                    for (int x = 0; x < row.length; x++) {
+                        WnSysCron cron = row[x];
                         WnCronSlot slot = new WnCronSlot(cron);
                         slot.setSlot(y);
-                        slot.setDate(today);
+                        slot.setDate(d);
                         slot.autoName();
                         slot.setExpi(expi);
 
@@ -130,6 +184,9 @@ public class WnSysScheduleService {
                         slot.setMeta(o);
                         io.appendMeta(o, meta);
 
+                        // 写入命令内容
+                        io.copyData(cron.getMeta(), slot.getMeta());
+
                         // 加入返回结果
                         slots.add(slot);
                     }
@@ -139,6 +196,10 @@ public class WnSysScheduleService {
                 if (null == oIndex) {
                     oIndex = io.createIfNoExists(scheduleHome, fph, WnRace.FILE);
                 }
+                // 设置索引文件的过期时间
+                io.appendMeta(oIndex, Wlang.map("expi", expi));
+
+                // 写入索引文件内容
                 StringBuilder sb = new StringBuilder();
                 for (WnCronSlot slot : slots) {
                     sb.append(slot.toString()).append('\n');
@@ -152,6 +213,18 @@ public class WnSysScheduleService {
 
         // 返回结果
         return slots;
+    }
+
+    /**
+     * @param today
+     *            日期
+     * @return 分钟计划表索引文件的路径（相对于HOME）
+     */
+    private String getScheduleIndexFilePath(Date today) {
+        String fnm = Times.format("yyyyMMdd", today);
+        fnm += ".schedule.index.txt";
+        String fph = "index/" + fnm;
+        return fph;
     }
 
     /**

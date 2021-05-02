@@ -4,25 +4,31 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.nutz.lang.Times;
 import org.nutz.walnut.ext.sys.cron.WnSysCron;
 import org.nutz.walnut.ext.sys.cron.WnSysCronQuery;
 import org.nutz.walnut.ext.sys.cron.WnSysCronService;
 import org.nutz.walnut.ext.sys.cron.cmd_cron;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
+@JvmHdlParamArgs("^(empty)$")
 public class cron_preview implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        // 分析查询参数
+        // 分析参数
+        int slotN = hc.params.getInt("slot", 24);
+        boolean showEmptySlot = hc.params.is("empty");
         WnSysCronQuery q = cmd_cron.prepareCronQuery(sys, hc);
 
         // 准备服务类
-        WnSysCronService cronApi = Wn.Service.crons();
+        WnSysCronService cronApi = sys.services.getCronApi();
 
         // 执行查询
         List<WnSysCron> list = cronApi.listCron(q, true);
@@ -33,7 +39,11 @@ public class cron_preview implements JvmHdl {
         Date d = new Date(ams);
 
         // 生成预览
-        WnSysCron[][] matrix = cronApi.previewCron(list, d);
+        WnSysCron[][] matrix = cronApi.previewCron(list, d, slotN);
+
+        // 得到时间槽数量，以及每个时间槽跨越的秒数
+        int N = matrix.length;
+        int slotSec = 86400 / N;
 
         // 找到最大的列
         int col = 0;
@@ -45,7 +55,7 @@ public class cron_preview implements JvmHdl {
         }
 
         // 输出结果
-        TextTable tt = new TextTable(col);
+        TextTable tt = new TextTable(col + 1);
         tt.setShowBorder(true);
         tt.setCellSpacing(2);
 
@@ -53,20 +63,34 @@ public class cron_preview implements JvmHdl {
         List<String> cells = new ArrayList<>(col + 1);
         cells.add("#");
         for (int i = 0; i < col; i++) {
-            cells.add("C" + i);
+            cells.add("[" + i + "]");
         }
+        tt.addRow(cells);
         tt.addHr();
 
         // 输出体
-        for (int i = 0; i < matrix.length; i++) {
-            WnSysCron[] crons = matrix[i];
+        for (int i = 0; i < N; i++) {
+            WnSysCron[] row = matrix[i];
             cells = new ArrayList<>(col);
-            cells.add(i + "");
-            for (int x = 0; x < crons.length; x++) {
-                WnSysCron cron = crons[x];
-                cells.add(cron.toBrief());
+            int sec = slotSec * i;
+            Times.TmInfo ti = Times.Ti(sec);
+            String I = Ws.padStart(i + "", 4, ' ');
+            cells.add(I + ") " + ti.toString());
+            for (int x = 0; x < col; x++) {
+                String it;
+                if (null == row || x >= row.length) {
+                    it = "";
+                } else {
+                    WnSysCron cron = row[x];
+                    it = cron.toBrief();
+                }
+                // 记入单元格
+                cells.add(it);
             }
-            tt.addRow(cells);
+            // 记入显示的时间槽
+            if (showEmptySlot || (null != row && row.length > 0)) {
+                tt.addRow(cells);
+            }
         }
 
         // 输出尾部

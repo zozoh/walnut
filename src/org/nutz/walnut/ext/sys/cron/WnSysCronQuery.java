@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.ZParams;
 
 public class WnSysCronQuery {
@@ -41,6 +42,10 @@ public class WnSysCronQuery {
     }
 
     public void loadFromParams(ZParams params) {
+        // 指定了 ID
+        if (params.vals.length > 0) {
+            this.ids = Wlang.list(params.vals);
+        }
         // 处理用户信息
         if (params.has("u")) {
             this.userName = params.getString("u", null);

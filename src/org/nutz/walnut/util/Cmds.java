@@ -16,43 +16,152 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.callback.WnStrToken;
+import org.nutz.walnut.util.callback.WnStrTokenCallback;
 import org.nutz.walnut.util.validate.WnMatch;
 
 public abstract class Cmds {
 
+    static char[] EC_ARGS = Wchar.array('n',
+                                        '\n',
+                                        'r',
+                                        '\r',
+                                        't',
+                                        '\t',
+                                        'b',
+                                        '\b',
+                                        '\'',
+                                        '\'',
+                                        '"',
+                                        '"',
+                                        '`',
+                                        '`',
+                                        '\\',
+                                        '\\',
+                                        ' ',
+                                        ' ');
+    static Wchar.EscapeTable ET_ARGS = Wchar.buildEscapeTable(EC_ARGS);
+
+    public static char escapeChar(char c) {
+        return ET_ARGS.get(c);
+    }
+
     /**
-     * 考虑到文本行尾连接到命令行拆分
+     * 将一个单行命令，拆成一个个参数。其中，引号/转义字符会被用掉。
+     * 
+     * @param cmdLine
+     *            单行命令
+     * @return
+     */
+    public static String[] splitCmdArgs(String cmdLine) {
+        List<String> items = new LinkedList<>();
+        // 存储字符串的临时栈。逃逸字符都加入到里面
+        StringBuilder stack = new StringBuilder();
+
+        Ws.splitQuoteToken(cmdLine, "'\"", " \t", new WnStrTokenCallback() {
+            public char escape(char c) {
+                return ET_ARGS.get(c);
+            }
+
+            public void invoke(WnStrToken token) {
+                switch (token.type) {
+                // 引号
+                case QUOTE:
+                    // 前面的内容独立为一项
+                    if (stack.length() > 0) {
+                        items.add(stack.toString());
+                    }
+                    // 还有新内容，也成为一项
+                    if (token.hasText()) {
+                        items.add(token.text.toString());
+                    }
+                    // 重置
+                    stack.delete(0, stack.length());
+                    break;
+                // 普通文字
+                case TEXT:
+                    stack.append(token.text);
+                    break;
+                // 连续的引号
+                // 分隔符
+                // 会导致开启一个新项
+                case SEPERATOR:
+                    if (stack.length() > 0) {
+                        items.add(stack.toString());
+                        stack.delete(0, stack.length());
+                    }
+                    break;
+                // 不可能
+                default:
+                    throw Lang.impossible();
+                }
+            }
+        });
+
+        if (stack.length() > 0) {
+            items.add(stack.toString());
+        }
+
+        String[] re = new String[items.size()];
+        items.toArray(re);
+        return re;
+    }
+
+    static char[] EC_CMDS = Wchar.array(';', ';', '\r', ' ', '\n', ' ');
+    static Wchar.EscapeTable ET_CMDS = Wchar.buildEscapeTable(EC_CMDS);
+
+    /**
+     * 考虑到文本行尾连接到命令行拆分。其中引号/转义字符会被保留
      * 
      * @param cmdText
      *            命令文本
      * @return 拆分到一个个逻辑命令行
      */
     public static String[] splitCmdLine(String cmdText) {
-        // 首先处理行尾到连接符号
-        String[] lines = Strings.trim(cmdText).split("\r?\n");
+        List<String> lines = new LinkedList<>();
+        // 存储字符串的临时栈。逃逸字符都加入到里面
+        StringBuilder stack = new StringBuilder();
 
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            int len = sb.length();
-            // 有内容到话
-            if (len > 0) {
-                // 结尾是 '\\'
-                if (sb.charAt(len - 1) == '\\') {
-                    // 不计入回车，删除这个连接符
-                    sb.setLength(len - 1);
-                }
-                // 计入一个回车
-                else {
-                    sb.append('\n');
+        Ws.splitQuoteToken(cmdText, "`'\"", "\n;", new WnStrTokenCallback() {
+            public char escape(char c) {
+                return ET_CMDS.get(c);
+            }
+
+            public void invoke(WnStrToken token) {
+                switch (token.type) {
+                // 引号
+                case QUOTE:
+                    stack.append(token.quoteC);
+                    stack.append(token.text);
+                    stack.append(token.quoteC);
+                    break;
+                // 普通文字
+                // 结尾文字
+                case TEXT:
+                    stack.append(token.text);
+                    break;
+                // 分隔符
+                // 会导致开启一个新项
+                case SEPERATOR:
+                    if (stack.length() > 0) {
+                        lines.add(stack.toString());
+                        stack.delete(0, stack.length());
+                    }
+                    break;
+                // 不可能
+                default:
+                    throw Lang.impossible();
                 }
             }
-            // 计入行到内容
-            sb.append(line);
+        });
+
+        if (stack.length() > 0) {
+            lines.add(stack.toString());
         }
 
-        // 作为一行，拆分
-        String str = sb.toString();
-        return Strings.split(str, true, '\n', ';');
+        String[] re = new String[lines.size()];
+        lines.toArray(re);
+        return re;
     }
 
     public static String getParamOrPipe(WnSystem sys,

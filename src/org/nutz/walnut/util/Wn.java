@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,13 +39,13 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.mapl.Mapl;
-import org.nutz.mvc.Mvcs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -54,6 +53,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.sys.cron.WnSysCronService;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
 import org.nutz.walnut.ext.sys.task.WnSysTaskService;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.Webs.Err;
@@ -684,46 +684,61 @@ public abstract class Wn {
 
     public static class Service {
 
-        public static WnAuthService auth() {
-            return auth(Mvcs.getIoc());
+        public static WnServiceFactory services(Ioc ioc) {
+            return ioc.get(WnServiceFactory.class, "serviceFactory");
         }
 
+        // public static WnAuthService auth() {
+        // return auth(Mvcs.getIoc());
+        // }
+        //
         public static WnAuthService auth(Ioc ioc) {
             return ioc.get(WnAuthService.class, "sysAuthService");
         }
 
-        public static WnSysTaskService tasks() {
-            return tasks(Mvcs.getIoc());
-        }
-
+        //
+        // public static WnSysTaskService tasks() {
+        // return tasks(Mvcs.getIoc());
+        // }
+        //
         public static WnSysTaskService tasks(Ioc ioc) {
             return ioc.get(WnSysTaskService.class, "sysTaskService");
         }
 
-        public static WnSysCronService crons() {
-            return crons(Mvcs.getIoc());
-        }
-
+        //
+        // public static WnSysCronService crons() {
+        // return crons(Mvcs.getIoc());
+        // }
+        //
         public static WnSysCronService crons(Ioc ioc) {
             return ioc.get(WnSysCronService.class, "sysCronService");
         }
 
-        public static WnIo io() {
-            return io(Mvcs.getIoc());
+        //
+        // public static WnSysScheduleService schedules() {
+        // return schedules(Mvcs.getIoc());
+        // }
+        //
+        public static WnSysScheduleService schedules(Ioc ioc) {
+            return ioc.get(WnSysScheduleService.class, "sysScheduleService");
         }
 
-        public static WnIo io(Ioc ioc) {
-            return ioc.get(WnIo.class, "io");
-        }
-
-        public static WnBoxService boxes() {
-            return boxes(Mvcs.getIoc());
-        }
-
+        //
+        // public static WnBoxService boxes() {
+        // return boxes(Mvcs.getIoc());
+        // }
+        //
         public static WnBoxService boxes(Ioc ioc) {
             return ioc.get(WnBoxService.class, "boxService");
         }
 
+        // public static WnIo io() {
+        // return io(Mvcs.getIoc());
+        // }
+        //
+        public static WnIo io(Ioc ioc) {
+            return ioc.get(WnIo.class, "io");
+        }
     }
 
     public static class Mime {
@@ -1489,12 +1504,7 @@ public abstract class Wn {
             }
             // 类似 today+1d
             else if ("today".equals(current)) {
-                Calendar c = Calendar.getInstance();
-                c.set(Calendar.HOUR, 0);
-                c.set(Calendar.MINUTE, 0);
-                c.set(Calendar.SECOND, 0);
-                c.set(Calendar.MILLISECOND, 0);
-                ms = c.getTimeInMillis();
+                ms = Wtime.todayInMs();
             }
             // 类似 2020-12-05T00:12:32
             else {

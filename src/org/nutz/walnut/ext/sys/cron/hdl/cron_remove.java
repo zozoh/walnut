@@ -10,7 +10,6 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs("cqn")
 public class cron_remove implements JvmHdl {
@@ -21,7 +20,7 @@ public class cron_remove implements JvmHdl {
         WnSysCronQuery q = cmd_cron.prepareCronQuery(sys, hc);
 
         // 准备服务类
-        WnSysCronService cronApi = Wn.Service.crons();
+        WnSysCronService cronApi = sys.services.getCronApi();
 
         // 执行查询
         List<WnObj> list = cronApi.listCronObj(q, false);

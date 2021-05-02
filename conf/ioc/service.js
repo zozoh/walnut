@@ -9,6 +9,26 @@ var ioc = {
             }
         }
     },
+    serviceFactory : {
+        type : 'org.nutz.walnut.api.box.WnServiceFactory',
+        fields : {
+            authApi : {
+                refer : "sysAuthService"
+            },
+            taskApi : {
+                refer : "sysTaskService"
+            },
+            cronApi : {
+                refer : "sysCronService"
+            },
+            scheduleApi : {
+                refer : "sysScheduleService"
+            },
+            boxApi : {
+                refer : "boxService"
+            }
+        }
+    },
     sysAuthService : {
         type : 'org.nutz.walnut.impl.auth.WnSysAuthServiceWrapper',
         parent : "ioService",

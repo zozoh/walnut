@@ -1,33 +1,33 @@
-package org.nutz.walnut.ext.sys.cron.hdl;
+package org.nutz.walnut.ext.sys.schedule.hdl;
 
 import java.util.List;
 
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.sys.cron.WnSysCronQuery;
-import org.nutz.walnut.ext.sys.cron.WnSysCronService;
-import org.nutz.walnut.ext.sys.cron.cmd_cron;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleQuery;
+import org.nutz.walnut.ext.sys.schedule.WnSysScheduleService;
+import org.nutz.walnut.ext.sys.schedule.cmd_schedule;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(content)$")
-public class cron_list implements JvmHdl {
+public class schedule_list implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 分析查询参数
         boolean loadContent = hc.params.is("content");
-        WnSysCronQuery q = cmd_cron.prepareCronQuery(sys, hc);
+        WnSysScheduleQuery q = cmd_schedule.prepareSheduleQuery(sys, hc);
 
         // 准备服务类
-        WnSysCronService cronApi = sys.services.getCronApi();
+        WnSysScheduleService scheduleApi = sys.services.getScheduleApi();
 
         // 执行查询
-        List<WnObj> list = cronApi.listCronObj(q, loadContent);
+        List<WnObj> list = scheduleApi.listSlotObj(q, loadContent);
 
         // 输出结果
-        cmd_cron.outputCrons(sys, hc, list);
+        cmd_schedule.outputScheduleObjs(sys, hc, list);
     }
 
 }

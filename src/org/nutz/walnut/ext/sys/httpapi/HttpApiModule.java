@@ -1079,10 +1079,7 @@ public class HttpApiModule extends AbstractWnModule {
             log.debugf("box:alloc: %s", box.id());
 
         // 设置沙箱
-        WnBoxContext bc = new WnBoxContext(new NutMap());
-        bc.io = io();
-        bc.session = apc.se;
-        bc.auth = auth();
+        WnBoxContext bc = this.createBoxContext(apc.se);
 
         if (log.isDebugEnabled())
             log.debugf("box:setup: %s", bc);

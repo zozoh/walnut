@@ -25,7 +25,7 @@ public class WnSysCron {
     }
 
     public WnSysCron(WnObj o) {
-        this.updateBeanFields(o);
+        this.loadFromObj(o);
     }
 
     public String toString() {
@@ -36,7 +36,9 @@ public class WnSysCron {
         StringBuilder sb = new StringBuilder();
         // ID
         if (null != id) {
+            sb.append("[");
             sb.append(id.substring(0, 4));
+            sb.append("..]");
         }
         // 用户
         if (null != user) {
@@ -44,7 +46,7 @@ public class WnSysCron {
         }
         // 命令
         if (null != command) {
-            __join_str(sb, command, 8);
+            __join_str(sb, command, 15);
         }
         // 搞定
         return sb.toString();

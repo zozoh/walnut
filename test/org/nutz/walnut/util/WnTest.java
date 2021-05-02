@@ -154,7 +154,7 @@ public class WnTest {
     public void test_normalize() {
         WnAccount me = new WnAccount();
         me.setMeta("home", "/home/zozoh");
-        WnSystem sys = new WnSystem();
+        WnSystem sys = new WnSystem(null);
         sys.session = new WnAuthSession(R.UU32(), me);
         sys.session.getVars().put("HOME", "/home/zozoh");
         sys.session.getVars().put("PWD", "$HOME/workspace/test");

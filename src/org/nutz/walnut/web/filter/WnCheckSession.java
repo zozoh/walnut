@@ -12,6 +12,7 @@ import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
+import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
@@ -92,7 +93,8 @@ public class WnCheckSession implements ActionFilter {
             se.getVars().put("PWD", me.getHomePath());
 
             // 生成沙盒上下文
-            WnBoxContext bc = new WnBoxContext(new NutMap());
+            WnServiceFactory services = Wn.Service.services(ac.getIoc());
+            WnBoxContext bc = new WnBoxContext(services, new NutMap());
             bc.io = io;
             bc.session = se;
             bc.auth = auth;

@@ -10,7 +10,6 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 
 @JvmHdlParamArgs("cqn")
 public class task_list implements JvmHdl {
@@ -21,7 +20,7 @@ public class task_list implements JvmHdl {
         WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc);
 
         // 准备服务类
-        WnSysTaskService taskApi = Wn.Service.tasks();
+        WnSysTaskService taskApi = sys.services.getTaskApi();
 
         // 执行查询
         List<WnObj> list = taskApi.listTasks(q);

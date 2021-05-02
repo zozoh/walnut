@@ -6,6 +6,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({WsTest.class,
                      CmdsTest.class,
+                     WcharTest.class,
                      WnTest.class,
                      WnSortTest.class,
                      WnRgTest.class,
