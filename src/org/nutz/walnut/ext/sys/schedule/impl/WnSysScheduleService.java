@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.sys.schedule.impl;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Times;
@@ -162,14 +163,14 @@ public class WnSysScheduleService implements WnSysScheduleApi {
     }
 
     @Override
-    public WnMinuteSlotIndex loadSchedule(List<WnSysCron> list,
-                                          Date today,
-                                          String slot,
-                                          int amount,
-                                          boolean force) {
+    public List<WnMinuteSlotIndex> loadSchedule(List<WnSysCron> list,
+                                                Date today,
+                                                String slot,
+                                                int amount,
+                                                boolean force) {
         // 防守
         if (null == list || list.isEmpty()) {
-            return null;
+            return new LinkedList<>();
         }
 
         // 默认为今天
@@ -199,7 +200,7 @@ public class WnSysScheduleService implements WnSysScheduleApi {
                 WnObj oIndex = io.createIfNoExists(scheduleHome, fph, WnRace.FILE);
 
                 // 读取索引缓存
-                WnMinuteSlotIndex slotIndex = new WnMinuteSlotIndex();
+                WnMinuteSlotIndex slotIndex = new WnMinuteSlotIndex(d);
                 if (!force && null != oIndex) {
                     String input = io.readText(oIndex);
                     slotIndex.fromString(input);
@@ -286,8 +287,20 @@ public class WnSysScheduleService implements WnSysScheduleApi {
             }
         });
 
+        // 准备返回列表
+        List<WnMinuteSlotIndex> reList = new ArrayList<>(amount);
+        reList.add(slotIndex);
+
+        // 剩余的时间槽数量，交给明天加载
+        int remain = amount - (toSlotIndex - fromSlotIndex);
+        if (remain > 0) {
+            Date tomorrow = Wtime.fromTodayDate(1);
+            List<WnMinuteSlotIndex> reList2 = loadSchedule(list, tomorrow, "0", remain, force);
+            reList.addAll(reList2);
+        }
+
         // 返回结果
-        return slotIndex;
+        return reList;
     }
 
     /**

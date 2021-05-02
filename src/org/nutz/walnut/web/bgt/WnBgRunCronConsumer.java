@@ -16,6 +16,7 @@ import org.nutz.walnut.ext.sys.schedule.WnSysScheduleException;
 import org.nutz.walnut.ext.sys.schedule.cmd_schedule;
 import org.nutz.walnut.ext.sys.schedule.bean.WnMinuteSlotIndex;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.time.WnDayTime;
 
@@ -59,19 +60,20 @@ public class WnBgRunCronConsumer implements Runnable {
                 log.infof("slot[%s] %d cron tasks", sI, crons.size());
 
                 // 加载对应的分钟槽
-                WnMinuteSlotIndex slotIndex = scheduleApi.loadSchedule(crons,
-                                                                       null,
-                                                                       sIs,
-                                                                       amount,
-                                                                       false);
+                List<WnMinuteSlotIndex> list = scheduleApi.loadSchedule(crons,
+                                                                        null,
+                                                                        sIs,
+                                                                        amount,
+                                                                        false);
 
                 // 为了节省日志输出，将当前分钟槽前的索引都设置为空
                 String siContent = "No Cron Tasks";
-                if (null != slotIndex) {
+                if (!list.isEmpty()) {
+                    WnMinuteSlotIndex firstSlotIndex = list.get(0);
                     for (int i = 0; i < sI; i++) {
-                        slotIndex.removeSlot(i);
+                        firstSlotIndex.removeSlot(i);
                     }
-                    siContent = slotIndex.toString();
+                    siContent = Ws.join(list, "---------\n");
                 }
 
                 // 任务执行完毕后看看距离下一个波时间槽，要睡多久，提前一个时间槽醒来

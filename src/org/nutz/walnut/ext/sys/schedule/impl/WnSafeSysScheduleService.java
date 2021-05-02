@@ -146,15 +146,15 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
     }
 
     @Override
-    public WnMinuteSlotIndex loadSchedule(List<WnSysCron> list,
-                                          Date today,
-                                          String slot,
-                                          int amount,
-                                          boolean force)
+    public List<WnMinuteSlotIndex> loadSchedule(List<WnSysCron> list,
+                                                Date today,
+                                                String slot,
+                                                int amount,
+                                                boolean force)
             throws WnSysScheduleException {
         // 防守
         if (null == list || list.isEmpty()) {
-            return null;
+            return new LinkedList<>();
         }
         // 准备节点信息
         String nodeName = Wn.getRuntime().getNodeName();

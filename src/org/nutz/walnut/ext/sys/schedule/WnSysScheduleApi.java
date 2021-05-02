@@ -13,7 +13,7 @@ public interface WnSysScheduleApi {
 
     List<WnObj> cleanSlotObj(WnSysScheduleQuery query) throws WnSysScheduleException;
 
-    WnMinuteSlotIndex loadSchedule(List<WnSysCron> list,
+    List<WnMinuteSlotIndex> loadSchedule(List<WnSysCron> list,
                                    Date today,
                                    String slot,
                                    int amount,

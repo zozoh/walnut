@@ -16,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(force|json)$")
 public class schedule_load implements JvmHdl {
@@ -49,12 +50,13 @@ public class schedule_load implements JvmHdl {
         List<WnSysCron> crons = cronApi.listCron(q, true);
 
         // 加载到分钟计划表
-        WnMinuteSlotIndex slotIndex = scheduleApi.loadSchedule(crons, d, slot, amount, force);
+        List<WnMinuteSlotIndex> list = scheduleApi.loadSchedule(crons, d, slot, amount, force);
 
         // 输出
         String str = "No Cron Tasks";
-        if (null != slotIndex)
-            str = slotIndex.toString();
+        if (!list.isEmpty()) {
+            str = Ws.join(list, "---------\n");
+        }
         sys.out.println(str);
     }
 
