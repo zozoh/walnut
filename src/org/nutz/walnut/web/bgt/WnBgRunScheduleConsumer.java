@@ -38,10 +38,14 @@ public class WnBgRunScheduleConsumer implements Runnable {
                 q.setSlotRange("now");
 
                 List<WnCronSlot> slots = scheduleApi.listSlot(q, true);
+                
+                if(log.isDebugEnabled()) {
+                    log.debug("wakeup");
+                }
 
                 // 推入后台任务堆栈
                 if (null != slots && !slots.isEmpty()) {
-                    log.infof("will push %d tasks", slots.size());
+                    log.infof("push %d tasks", slots.size());
                     scheduleApi.pushSchedule(slots, false);
                 }
 
@@ -57,7 +61,7 @@ public class WnBgRunScheduleConsumer implements Runnable {
 
                 // 那么应该睡多久呢
                 long sleepMs = Math.max(1, ams - System.currentTimeMillis());
-                log.infof("will sleep %dms @%s", sleepMs, time);
+                log.infof("sleep %dms", sleepMs);
                 Wlang.wait(scheduleApi, sleepMs);
             }
             // 看看是不是锁服务的错误

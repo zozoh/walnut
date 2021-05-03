@@ -28,6 +28,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.sys.quota.QuotaService;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.web.WnConfig;
 
 public class WalnutFilter implements Filter {
@@ -113,7 +114,11 @@ public class WalnutFilter implements Filter {
             if (log.isInfoEnabled()) {
                 // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
                 if (!"/".equals(path)) {
-                    log.infof("HTTP(%s)%s>%s:%d", path, usrip, host, port);
+                    String qs = req.getQueryString();
+                    if (!Ws.isBlank(qs)) {
+                        qs = "?" + qs;
+                    }
+                    log.infof("🌍<%s>:%s:%s:%s%s", usrip, host, port, path, qs);
                 }
             }
 
@@ -151,7 +156,7 @@ public class WalnutFilter implements Filter {
             String grp = Strings.sBlank(domain);
 
             // 找到了记录，但是记录明确说，本次跳转，并不是 www 的跳转
-            // 因此仅仅需要将记录里的  grp 和 site 等信息记录一下，就继续其他的处理器好了
+            // 因此仅仅需要将记录里的 grp 和 site 等信息记录一下，就继续其他的处理器好了
             if (oDmn.isType("B")) {
                 req.setAttribute("wn_www_grp", grp);
                 req.setAttribute("wn_www_site", siteName);

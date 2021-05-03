@@ -18,7 +18,6 @@ import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wtime;
-import org.nutz.walnut.util.time.WnDayTime;
 
 public class WnBgRunCronConsumer implements Runnable {
 
@@ -51,13 +50,17 @@ public class WnBgRunCronConsumer implements Runnable {
         // 进入主循环
         while (!Thread.interrupted()) {
             try {
+                if (log.isDebugEnabled()) {
+                    log.debug("wakeup");
+                }
+
                 // 查询系统中的全部定期任务
                 List<WnSysCron> crons = cronApi.listCron(q, true);
 
                 // 得到当前时间槽下标
                 int sI = cmd_schedule.timeSlotIndex("now", 1440);
                 String sIs = "" + sI;
-                log.infof("slot[%s] %d cron tasks", sI, crons.size());
+                log.infof("slot[%s] %d tasks", sI, crons.size());
 
                 // 加载对应的分钟槽
                 List<WnMinuteSlotIndex> list = scheduleApi.loadSchedule(crons,
@@ -78,7 +81,6 @@ public class WnBgRunCronConsumer implements Runnable {
 
                 // 任务执行完毕后看看距离下一个波时间槽，要睡多久，提前一个时间槽醒来
                 long todayMs = Wtime.todayInMs();
-                WnDayTime time = new WnDayTime();
                 int slotN = 1440;
                 double unit = (double) 86400 / (double) slotN;
                 int sec = (int) (unit * (sI + amount - 1));
@@ -87,7 +89,7 @@ public class WnBgRunCronConsumer implements Runnable {
 
                 // 那么应该睡多久呢，至少要睡一个时间槽周期吧
                 long sleepMs = Math.max(ams - System.currentTimeMillis(), (long) unit);
-                log.infof("will sleep %dms @%s:\n%s", sleepMs, time, siContent);
+                log.infof("sleep %dms:\n%s", sleepMs, siContent);
                 Wlang.quiteSleep(sleepMs);
             }
             // 看看是不是锁服务的错误

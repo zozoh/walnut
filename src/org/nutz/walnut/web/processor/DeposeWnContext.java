@@ -5,6 +5,7 @@ import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 public class DeposeWnContext extends AbstractProcessor {
 
@@ -18,9 +19,14 @@ public class DeposeWnContext extends AbstractProcessor {
             long ts = Wn.WC()._timestamp;
             long du = ts > 0 ? Wn.now() - ts : ts;
             String ph = ac.getRequest().getServletPath();
+            int status = ac.getResponse().getStatus();
             // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
             if (!"/".equals(ph)) {
-                log.infof("HTTPok:%3dms: %s", du, ph);
+                String qs = ac.getRequest().getQueryString();
+                if (!Ws.isBlank(qs)) {
+                    qs = "?" + qs;
+                }
+                log.infof("✔️OK%d:%dms:%s%s", status, du, ph, qs);
             }
         }
 

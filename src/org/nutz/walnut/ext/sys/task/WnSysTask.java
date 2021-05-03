@@ -1,12 +1,23 @@
 package org.nutz.walnut.ext.sys.task;
 
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Ws;
 
 public class WnSysTask {
 
     public WnObj meta;
 
     public byte[] input;
+
+    public String toString() {
+        String userName = meta.getString("user");
+        String command = Ws.trim(meta.getString("command"));
+        if (meta.isType("cron")) {
+            String cron = meta.getString("cron");
+            return String.format("cron<%s>:%s:%s", userName, cron, command);
+        }
+        return String.format("task[%s]<%s>:%s", userName, command);
+    }
 
     public WnSysTask(WnObj meta, byte[] input) {
         this.meta = meta;

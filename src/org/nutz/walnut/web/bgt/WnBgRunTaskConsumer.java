@@ -49,7 +49,7 @@ public class WnBgRunTaskConsumer implements Runnable {
                     Wlang.wait(taskApi, 60000);
                     continue;
                 }
-                log.info("pop one");
+                log.infof("pop:%s", task.toString());
 
                 // 得到任务的用户
                 String userName = task.meta.getString("user");

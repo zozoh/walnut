@@ -8,6 +8,7 @@ import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.impl.processor.ViewProcessor;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.web.WebException;
 
 public class WnFailProcessor extends ViewProcessor {
@@ -39,7 +40,13 @@ public class WnFailProcessor extends ViewProcessor {
         if (log.isInfoEnabled()) {
             long ts = Wn.WC()._timestamp;
             long du = ts > 0 ? Wn.now() - ts : ts;
-            log.infof("HTTPfail:%dms: %s", du, ac.getRequest().getServletPath());
+            int status = ac.getResponse().getStatus();
+            String ph = ac.getRequest().getServletPath();
+            String qs = ac.getRequest().getQueryString();
+            if (!Ws.isBlank(qs)) {
+                qs = "?" + qs;
+            }
+            log.infof("🚫KO%d:%dms:%s%s", status, du, ph, qs);
         }
 
         // 执行清除
