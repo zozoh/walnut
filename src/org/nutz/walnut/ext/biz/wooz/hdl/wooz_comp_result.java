@@ -17,7 +17,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -28,6 +27,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wlog;
 
 /**
  *  根据打卡记录,得出成绩总表
@@ -36,7 +36,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 @JvmHdlParamArgs(value="cqn", regex="^(clean|write|json)$")
 public class wooz_comp_result implements JvmHdl {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

@@ -9,7 +9,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -32,7 +32,7 @@ import org.nutz.walnut.web.util.WalnutLog;
 
 public class WnSystem implements WnAuthExecutable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     public WnServiceFactory services;
 

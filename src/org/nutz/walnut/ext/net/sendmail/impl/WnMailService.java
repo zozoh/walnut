@@ -14,7 +14,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -26,7 +26,7 @@ import org.nutz.walnut.util.Wn;
 
 public class WnMailService implements WnMailApi {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     private WnMailConfig config;
 

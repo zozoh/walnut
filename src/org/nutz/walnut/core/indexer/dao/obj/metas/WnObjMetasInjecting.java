@@ -7,7 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.inject.Injecting;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 
 /**
@@ -17,7 +17,7 @@ import org.nutz.walnut.api.err.Er;
  */
 public class WnObjMetasInjecting implements Injecting {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     private HashSet<String> fieldNames;
 

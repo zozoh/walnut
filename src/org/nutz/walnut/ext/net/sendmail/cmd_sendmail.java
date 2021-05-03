@@ -7,7 +7,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.sendmail.api.WnMailApi;
 import org.nutz.walnut.ext.net.sendmail.bean.WnMail;
@@ -21,7 +21,7 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFilter> {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public cmd_sendmail() {
         super(SendmailContext.class, SendmailFilter.class);

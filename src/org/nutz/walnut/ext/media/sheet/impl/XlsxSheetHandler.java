@@ -21,7 +21,7 @@ import org.nutz.lang.util.NutMap;
 
 public class XlsxSheetHandler extends AbstractPoiSheetHandler {
 
-    // private static final Log log = Logs.get();
+    // private static final Log log = Wlog.getEXT();
 
     protected Workbook createWorkbook(InputStream ins) throws IOException {
         return new XSSFWorkbook(ins);

@@ -17,14 +17,14 @@ import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.WnRun;
 
 @IocBean
 public class WnFtpUserManager extends AbstractUserManager {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Inject
     protected WnRun wnRun;

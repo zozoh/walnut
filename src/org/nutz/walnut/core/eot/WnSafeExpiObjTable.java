@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnExpiObj;
 import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.api.lock.WnLock;
@@ -15,7 +15,7 @@ import org.nutz.walnut.api.lock.WnLockNotSameException;
 
 public class WnSafeExpiObjTable implements WnExpiObjTable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     private static final String LOCK_NAME = "WN_EXPI_OBJS";
 

@@ -10,7 +10,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.biz.wooz.WoozMap;
@@ -29,7 +29,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple|lineOnly|debug|tomap|all|precise)$")
 public class mt90_eta extends mt90_parse {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

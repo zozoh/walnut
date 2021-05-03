@@ -8,7 +8,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIoIndexer;
@@ -21,7 +21,7 @@ import org.nutz.walnut.util.validate.WnMatch;
 
 public class WnIoObj extends NutMap implements WnObj {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     /**
      * 这个索引管理器是当前对象对应的索引管理器

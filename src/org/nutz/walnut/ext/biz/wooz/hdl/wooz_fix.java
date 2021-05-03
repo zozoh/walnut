@@ -9,7 +9,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.biz.wooz.WoozMap;
@@ -25,7 +25,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(value = "cqn", regex = "^(cplist|nocsp)$")
 public class wooz_fix implements JvmHdl {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

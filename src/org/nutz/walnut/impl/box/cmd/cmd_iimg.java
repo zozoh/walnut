@@ -20,7 +20,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.err.Er;
@@ -30,6 +29,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -37,7 +37,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 public class cmd_iimg extends JvmExecutor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

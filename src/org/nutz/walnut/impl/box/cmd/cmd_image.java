@@ -10,7 +10,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
-import org.nutz.walnut.util.ZType;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -116,7 +115,7 @@ public class cmd_image extends JvmExecutor {
         if (imgObj == null) {
             return;
         }
-        if (!ZType.isImage(imgObj.type())) {
+        if (imgObj.hasMime() && imgObj.mime().startsWith("image/")) {
             sys.err.printf("obj %s(%s) is not a image", imgObj.name(), imgObj.id());
         } else {
             sys.out.println(Json.toJson(getImgInfo(sys, imgObj, params.is("more", false))));

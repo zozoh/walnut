@@ -8,7 +8,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -29,7 +29,7 @@ import org.nutz.web.ajax.Ajax;
  */
 public class cmd_www extends JvmHdlExecutor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public static WnObj checkSite(WnSystem sys, JvmHdlContext hc) {
         String site = hc.params.val_check(0);

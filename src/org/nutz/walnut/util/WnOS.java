@@ -10,13 +10,12 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.err.Er;
 
 public abstract class WnOS {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     public static void fillRuntimeInfo(WnSysRuntime rt) {
         try {

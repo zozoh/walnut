@@ -12,13 +12,13 @@ import javax.script.ScriptException;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wlog;
 
 public class JsCommandHook extends AbstractWnHook {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getHOOK();
 
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 

@@ -14,7 +14,7 @@ import org.nutz.lang.LoopException;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -32,7 +32,7 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_sitesucker extends JvmExecutor {
 
-    private static Log log = Logs.get();
+    private static Log log = Wlog.getEXT();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

@@ -10,7 +10,7 @@ import java.util.Map;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 
 /**
  * 封装了对于中国的省市区县的全部加载和读取的操作
@@ -19,7 +19,7 @@ import org.nutz.log.Logs;
  */
 public class LbsChina {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     private static LbsChina _me = null;
 

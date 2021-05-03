@@ -17,7 +17,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Attr;
@@ -40,6 +39,7 @@ import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.web.bean.WnApp;
@@ -61,7 +61,7 @@ import redis.clients.jedis.exceptions.JedisException;
 @At("/a")
 public class AppModule extends AbstractWnModule {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAPP();
 
     public static View V_304 = new HttpStatusView(304);
 

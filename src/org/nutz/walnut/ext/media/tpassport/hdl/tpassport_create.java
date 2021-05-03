@@ -9,7 +9,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.media.tpassport.TPassport;
@@ -21,7 +21,7 @@ import org.nutz.walnut.util.Wn;
 
 public class tpassport_create implements JvmHdl {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

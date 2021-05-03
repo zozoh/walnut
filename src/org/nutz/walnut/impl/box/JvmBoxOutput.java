@@ -13,12 +13,12 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.WnOutputable;
 
 public class JvmBoxOutput implements WnOutputable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     private OutputStream ops;
 

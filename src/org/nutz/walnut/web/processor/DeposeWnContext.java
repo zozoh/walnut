@@ -1,14 +1,14 @@
 package org.nutz.walnut.web.processor;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 
 public class DeposeWnContext extends AbstractProcessor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
 
     @Override
     public void process(ActionContext ac) throws Throwable {

@@ -13,7 +13,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.io.WnIo;
@@ -35,7 +35,7 @@ import com.mongodb.DBObject;
 @IocBean(create="init", depose="depose", name="quota")
 public class QuotaService {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Inject("java:$mongoDB.getCollection('obj')")
     protected ZMoCo co;

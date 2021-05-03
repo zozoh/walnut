@@ -5,7 +5,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.repo.Base64;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -15,7 +15,7 @@ import org.nutz.weixin.repo.com.qq.weixin.mp.aes.AesException;
 
 public class aes_decode implements JvmHdl {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

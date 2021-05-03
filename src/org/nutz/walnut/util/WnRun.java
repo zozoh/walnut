@@ -10,7 +10,6 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -36,7 +35,7 @@ import org.nutz.walnut.web.WnConfig;
 @IocBean
 public class WnRun {
 
-    private static final Log log = Logs.get();
+    private static final Log boxLog = Wlog.getBOX();
 
     @Inject("refer:serviceFactory")
     private WnServiceFactory services;
@@ -167,6 +166,10 @@ public class WnRun {
         return sbOut.toString();
     }
 
+    public WnBoxRunning createRunning(boolean withHook) {
+        return createRunning(null, withHook, null, null, null);
+    }
+
     public WnBoxRunning createRunning(String logPrefix, boolean withHook) {
         return createRunning(logPrefix, withHook, null, null, null);
     }
@@ -192,11 +195,11 @@ public class WnRun {
 
         // 开始计时
         Stopwatch sw = null;
-        if (log.isDebugEnabled()) {
+        if (boxLog.isDebugEnabled()) {
             sw = Stopwatch.begin();
 
-            if (log.isTraceEnabled()) {
-                log.tracef("%sbox:alloc: %s", logPrefix, box.id());
+            if (boxLog.isTraceEnabled()) {
+                boxLog.tracef("%sbox:alloc: %s", logPrefix, box.id());
             }
         }
 
@@ -206,13 +209,13 @@ public class WnRun {
         // 设置沙箱
         WnBoxContext bc = createBoxContext(se);
 
-        if (log.isTraceEnabled())
-            log.tracef("%sbox:setup: %s", logPrefix, bc);
+        if (boxLog.isTraceEnabled())
+            boxLog.tracef("%sbox:setup: %s", logPrefix, bc);
         box.setup(bc);
 
         // 准备回调
-        if (log.isTraceEnabled())
-            log.tracef("%sbox:set stdin/out/err", logPrefix);
+        if (boxLog.isTraceEnabled())
+            boxLog.tracef("%sbox:set stdin/out/err", logPrefix);
 
         box.setStdin(in);
         box.setStdout(out);
@@ -220,19 +223,19 @@ public class WnRun {
         box.onBeforeFree(on_before_free);
 
         // 运行
-        if (log.isInfoEnabled())
-            log.infof("%sbox:run: %s", logPrefix, Ws.trim(cmdText));
+        if (boxLog.isInfoEnabled())
+            boxLog.infof("%sbox:run: %s", logPrefix, Ws.trim(cmdText));
 
         box.run(cmdText);
 
         // 释放沙箱
-        if (log.isTraceEnabled())
-            log.tracef("%sbox:free: %s", logPrefix, box.id());
+        if (boxLog.isTraceEnabled())
+            boxLog.tracef("%sbox:free: %s", logPrefix, box.id());
         boxes.free(box);
 
-        if (log.isDebugEnabled()) {
+        if (boxLog.isDebugEnabled()) {
             sw.stop();
-            log.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
+            boxLog.debugf("%sbox:done : %dms", logPrefix, sw.getDuration());
         }
     }
 

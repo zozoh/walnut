@@ -21,18 +21,18 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.sys.quota.QuotaService;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.WnConfig;
 
 public class WalnutFilter implements Filter {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
 
     /**
      * 被这个正则表达式匹配的 host 不进行转义

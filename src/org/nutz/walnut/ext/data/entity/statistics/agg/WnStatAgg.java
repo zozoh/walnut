@@ -19,7 +19,6 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -30,11 +29,12 @@ import org.nutz.walnut.ext.data.entity.statistics.bean.TimeUnit;
 import org.nutz.walnut.ext.sys.sql.WnDaoAuth;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 
 public class WnStatAgg extends WnStatistics {
 
-    private static Log log = Logs.get();
+    private static Log log = Wlog.getEXT();
 
     private WnStatAggConfig config;
 

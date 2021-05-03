@@ -8,7 +8,6 @@ import java.util.List;
 import javax.websocket.server.ServerContainer;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
@@ -17,7 +16,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
@@ -39,7 +38,6 @@ import org.nutz.walnut.ext.sys.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
-import org.nutz.walnut.util.ZType;
 import org.nutz.walnut.web.WnConfig;
 import org.nutz.walnut.web.WnInitMount;
 import org.nutz.walnut.web.bgt.WnBgRunCronConsumer;
@@ -49,7 +47,7 @@ import org.nutz.web.handler.JettyHandlerHook;
 
 public class WnSetup implements Setup {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     private WnBoxService boxes;
 
@@ -92,9 +90,6 @@ public class WnSetup implements Setup {
         }
         // 获取 Ioc 容器
         ioc = nc.getIoc();
-
-        // 读取默认的category
-        ZType.loadCategory(new PropertiesProxy("cate.properties"));
 
         // 获取 app 资源，并记录一下以便页面使用
         conf = ioc.get(WnConfig.class, "conf");

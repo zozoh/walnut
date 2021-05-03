@@ -11,7 +11,6 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -35,7 +34,7 @@ import org.nutz.walnut.impl.io.WnSecurityImpl;
  */
 public class WnContext extends NutMap {
 
-    private static final Log log = Logs.get();
+    
 
     private String ticket;
 
@@ -90,6 +89,8 @@ public class WnContext extends NutMap {
         return Collections.emptyList();
     }
 
+    private static final Log hookLog = Wlog.getHOOK();
+    
     public WnObj doHook(String action, WnObj o) {
         if (null == o)
             return null;
@@ -97,13 +98,13 @@ public class WnContext extends NutMap {
             Stopwatch sw = Stopwatch.begin();
 
             WnHookService srv = hookContext.service;
-            if (log.isInfoEnabled()) {
-                log.infof("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
+            if (hookLog.isInfoEnabled()) {
+                hookLog.infof("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
             }
             List<WnHook> hooks = srv.get(action, o);
             if (null != hooks && hooks.size() > 0) {
-                if (log.isInfoEnabled())
-                    log.infof(" - HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
+                if (hookLog.isInfoEnabled())
+                    hookLog.infof(" - HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
 
                 // 为了防止无穷递归，钩子里不再触发钩子
                 WnHookContext hc = hookContext;
@@ -111,8 +112,8 @@ public class WnContext extends NutMap {
                 try {
                     int i = 0;
                     for (WnHook hook : hooks) {
-                        if (log.isInfoEnabled())
-                            log.infof(" @[%d]: %s", i++, hook);
+                        if (hookLog.isInfoEnabled())
+                            hookLog.infof(" @[%d]: %s", i++, hook);
 
                         try {
                             String runby = hook.getRunby();
@@ -133,13 +134,13 @@ public class WnContext extends NutMap {
                             }
                         }
                         catch (WnHookBreak e) {
-                            if (log.isDebugEnabled())
-                                log.debug(" ! break !");
+                            if (hookLog.isDebugEnabled())
+                                hookLog.debug(" ! break !");
                             break;
                         }
                         catch (Exception e) {
-                            if (log.isWarnEnabled())
-                                log.warn(" !! hook wrong", e);
+                            if (hookLog.isWarnEnabled())
+                                hookLog.warn(" !! hook wrong", e);
                         }
                     }
                 }
@@ -149,8 +150,8 @@ public class WnContext extends NutMap {
                 }
 
                 sw.stop();
-                if (log.isInfoEnabled())
-                    log.infof(" - HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
+                if (hookLog.isInfoEnabled())
+                    hookLog.infof(" - HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io().checkById(o.id());
@@ -160,7 +161,7 @@ public class WnContext extends NutMap {
         // 木有钩子，是不符合预期的
         // （为单元测试开的一个支线逻辑）
         else if (o.getBoolean("__debug_hook")) {
-            log.warnf("%s : %s ! without find hooks !", action, o.toString());
+            hookLog.warnf("%s : %s ! without find hooks !", action, o.toString());
         }
         // 没有调用钩子，返回自身
         return o;

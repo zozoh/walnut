@@ -14,11 +14,11 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.box.WnBoxStatus;
+import org.nutz.walnut.util.Wlog;
 
 /**
  * Docker版本的WnBox, 未完成状态
@@ -40,7 +40,7 @@ public class DockerBox implements WnBox {
     
     protected String dockerImageName = "nutzam/wanlut-docker";
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getCMD();
     
     public DockerBox(WnBoxService boxes) {
         id = R.UU32();

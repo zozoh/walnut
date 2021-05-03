@@ -8,7 +8,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -18,7 +18,7 @@ import org.nutz.walnut.util.Wn;
 
 public class FtpUtil {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public static FtpConfig conf(WnObj wobj, WnIo io) {
         return io.readJson(wobj, FtpConfig.class);

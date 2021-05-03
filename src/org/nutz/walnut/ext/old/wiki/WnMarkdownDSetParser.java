@@ -9,7 +9,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.plugins.zdoc.NutD;
 import org.nutz.plugins.zdoc.NutDSet;
 import org.nutz.plugins.zdoc.NutDoc;
@@ -51,7 +51,7 @@ import org.nutz.walnut.api.io.WnObj;
 @IocBean
 public class WnMarkdownDSetParser extends AbstractMarkdownDSetParser {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     
     @Inject
     protected WnIo io;

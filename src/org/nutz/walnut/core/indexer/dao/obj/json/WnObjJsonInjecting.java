@@ -2,12 +2,12 @@ package org.nutz.walnut.core.indexer.dao.obj.json;
 
 import org.nutz.json.Json;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.core.indexer.dao.obj.WnObjInjecting;
 
 public class WnObjJsonInjecting extends WnObjInjecting {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     public WnObjJsonInjecting(String stdName) {
         super(stdName);

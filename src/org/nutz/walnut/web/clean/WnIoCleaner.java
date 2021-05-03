@@ -7,16 +7,16 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.Region;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 
 public class WnIoCleaner implements Atom {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBG_CLEARNER();
 
     WnRun _run;
 

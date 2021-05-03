@@ -2,7 +2,7 @@ package org.nutz.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.util.WnRun;
@@ -10,7 +10,7 @@ import org.nutz.walnut.web.clean.WnIoCleaner;
 
 public class WnCleanExpiredSetup implements Setup {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     private Thread _t;
 

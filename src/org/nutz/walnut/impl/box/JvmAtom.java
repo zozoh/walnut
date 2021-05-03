@@ -3,18 +3,18 @@ package org.nutz.walnut.impl.box;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.web.WebException;
 
 class JvmAtom extends JvmCmd implements Atom {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     int id;
 

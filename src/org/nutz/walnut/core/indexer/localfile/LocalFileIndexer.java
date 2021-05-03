@@ -26,7 +26,7 @@ import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoIndexer {
 
-    // private static final Log log = Logs.get();
+    // private static final Log log = Wlog.getIO();
 
     protected File dHome;
 

@@ -20,7 +20,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(regex="^hex$")
 public class modbus_encode implements JvmHdl {
     
-    //private static final Log log = Logs.get();
+    //private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

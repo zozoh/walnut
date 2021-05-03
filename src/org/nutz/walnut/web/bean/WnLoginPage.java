@@ -7,7 +7,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
@@ -16,12 +15,13 @@ import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
 public class WnLoginPage {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
 
     private WnIo io;
     private WnAccount domainUser;

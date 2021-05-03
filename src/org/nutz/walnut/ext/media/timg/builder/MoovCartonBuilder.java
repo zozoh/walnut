@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 import org.nutz.img.Images;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.ext.media.timg.AbstractCartonBuilder;
 import org.nutz.walnut.ext.media.timg.CartonCtx;
 
@@ -17,7 +17,7 @@ import org.nutz.walnut.ext.media.timg.CartonCtx;
  */
 public class MoovCartonBuilder extends AbstractCartonBuilder {
     
-    protected static final Log log = Logs.get();
+    protected static final Log log = Wlog.getEXT();
 
     public MoovParam curParam;
     public MoovParam nextParam;

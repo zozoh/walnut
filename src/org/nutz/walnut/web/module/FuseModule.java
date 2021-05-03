@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -21,6 +20,7 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.FuseActionFilter;
 
@@ -31,7 +31,7 @@ import org.nutz.walnut.web.filter.FuseActionFilter;
 @Filters({@By(type = FuseActionFilter.class, args = "ioc:fuseActionFilter")})
 public class FuseModule extends AbstractWnModule {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @At
     @Ok("raw")

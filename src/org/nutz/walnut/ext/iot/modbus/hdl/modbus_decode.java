@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.ext.iot.modbus.Modbus;
 import org.nutz.walnut.ext.iot.modbus.msg.ModbusMsg;
 import org.nutz.walnut.ext.iot.modbus.msg.ReadHoldingRegister;
@@ -20,7 +20,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(value="cqn")
 public class modbus_decode implements JvmHdl {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

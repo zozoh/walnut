@@ -7,7 +7,7 @@ import java.util.Map;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.payment.WnPay3x;
@@ -35,7 +35,7 @@ import com.paypal.orders.PurchaseUnitRequest;
  */
 public class PaypalPay3x extends WnPay3x {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public static String PP_STAT = "paypal_stat"; // Paypal支付单状态
     public static String PP_RE = "paypal_re"; // 最后查询的状态

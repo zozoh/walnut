@@ -28,14 +28,14 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.repo.cache.simple.LRUCache;
 import org.nutz.walnut.api.io.WnObj;
 
 @IocBean(create = "init", depose = "close", name = "esi")
 public class ElasticsearchService implements BulkProcessor.Listener {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Inject
     protected PropertiesProxy conf;

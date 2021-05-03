@@ -2,7 +2,6 @@ package org.nutz.walnut.util;
 
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
@@ -13,7 +12,7 @@ import com.mongodb.ServerAddress;
 
 public class MongoDB {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     public String host;
     public int port;

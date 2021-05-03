@@ -25,7 +25,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
@@ -51,7 +51,7 @@ import org.nutz.walnut.util.Wobj;
 
 public class WnIoImpl2 implements WnIo {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     /**
      * 映射工厂类

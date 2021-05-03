@@ -18,7 +18,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.WnRun;
@@ -27,7 +27,7 @@ import org.nutz.web.Webs.Err;
 @IocBean(depose = "depose")
 public class MqttClientService {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Inject
     protected WnIo io;

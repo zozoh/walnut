@@ -5,18 +5,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Lang;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
 import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.impl.io.WnEvalLink;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 
 public class CreateWnContext extends AbstractProcessor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
 
     @Override
     public void process(ActionContext ac) throws Throwable {

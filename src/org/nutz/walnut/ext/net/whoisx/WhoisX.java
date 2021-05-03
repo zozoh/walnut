@@ -22,12 +22,12 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.ext.media.mediax.util.Mxs;
 
 public abstract class WhoisX {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public static WhoInfo query(String host) {
         for (int i = 0; i < 3; i++) {

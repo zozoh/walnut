@@ -4,7 +4,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
@@ -16,7 +16,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean
 public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @Override
     public void inovke(WnMqMessage msg) {

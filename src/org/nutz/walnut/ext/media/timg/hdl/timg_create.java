@@ -19,7 +19,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.media.timg.CartonBuilder;
@@ -38,7 +38,7 @@ import org.nutz.web.Webs.Err;
 @JvmHdlParamArgs(value="cqn", regex="^(keep|debug|fmd5|force|silencemp3)$")
 public class timg_create implements JvmHdl {
     
-    protected static final Log log = Logs.get();
+    protected static final Log log = Wlog.getEXT();
     
     public static Map<String, CartonBuilder> builders = new LinkedHashMap<>();
 

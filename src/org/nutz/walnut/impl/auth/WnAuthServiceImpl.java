@@ -12,7 +12,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAuthEvent;
 import org.nutz.walnut.api.WnEventListener;
 import org.nutz.walnut.api.WnListenable;
@@ -32,12 +31,13 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.data.www.bean.WnWebSite;
 import org.nutz.walnut.ext.net.weixin.WnIoWeixinApi;
 import org.nutz.walnut.impl.AbstractListenable;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         implements WnAuthService, WnListenable<WnAuthEvent> {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAUTH();
 
     WnIo io;
 

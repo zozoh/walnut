@@ -11,7 +11,7 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
@@ -27,7 +27,7 @@ import org.nutz.walnut.util.Wobj;
 
 public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     protected AbstractIoDataIndexer(WnObj root, MimeMap mimes) {
         super(root, mimes);

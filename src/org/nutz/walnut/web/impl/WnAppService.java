@@ -13,11 +13,11 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.titanium.hdl.ti_webdeps;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
 import org.nutz.walnut.util.Ws;
@@ -32,7 +32,7 @@ import org.nutz.web.WebException;
 @IocBean
 public class WnAppService extends WnRun {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAPP();
 
     /**
      * 运行一个命令

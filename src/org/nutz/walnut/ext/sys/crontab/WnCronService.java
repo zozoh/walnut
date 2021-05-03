@@ -14,7 +14,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.runner.NutRunner;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -28,7 +28,7 @@ import org.nutz.walnut.util.Wtime;
 @IocBean(create = "init", depose = "depose")
 public class WnCronService extends NutRunner {
 
-	private static final Log log = Logs.get();
+	private static final Log log = Wlog.getEXT();
 
 	public static WnCronService me;
 

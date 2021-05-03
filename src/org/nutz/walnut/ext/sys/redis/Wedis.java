@@ -9,7 +9,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
@@ -22,7 +22,7 @@ import redis.clients.jedis.JedisPool;
 
 public abstract class Wedis {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     private static Map<String, JedisPool> jedis = new HashMap<>();
 

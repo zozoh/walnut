@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -17,7 +17,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public class wup_pkg_build implements JvmHdl {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String app = hc.params.val_check(0);

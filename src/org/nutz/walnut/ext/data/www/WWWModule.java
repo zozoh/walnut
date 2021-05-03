@@ -21,7 +21,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.Attr;
@@ -58,7 +58,7 @@ import org.nutz.web.WebException;
 @Fail("void")
 public class WWWModule extends AbstractWnModule {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     // private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
 

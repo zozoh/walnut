@@ -8,7 +8,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.trans.Atom;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBoxContext;
@@ -31,7 +31,7 @@ import org.nutz.web.WebException;
 
 public class JvmAtomRunner {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     WnBoxService boxes;
 

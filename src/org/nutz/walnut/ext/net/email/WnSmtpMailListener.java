@@ -12,7 +12,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.util.WnRun;
@@ -21,7 +21,7 @@ import org.subethamail.smtp.helper.SimpleMessageListener;
 @IocBean
 public class WnSmtpMailListener implements SimpleMessageListener {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     
     @Inject
     protected WnRun wnRun;

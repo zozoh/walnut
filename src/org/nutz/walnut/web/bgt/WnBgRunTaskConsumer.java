@@ -5,7 +5,6 @@ import java.io.InputStream;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.box.WnServiceFactory;
@@ -17,11 +16,12 @@ import org.nutz.walnut.ext.sys.task.WnSysTaskException;
 import org.nutz.walnut.ext.sys.task.WnSysTaskQuery;
 import org.nutz.walnut.impl.srv.WnBoxRunning;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.WnRun;
 
 public class WnBgRunTaskConsumer implements Runnable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBG_TASK();
 
     WnSysTaskApi taskApi;
     WnAuthService auth;
@@ -30,7 +30,7 @@ public class WnBgRunTaskConsumer implements Runnable {
     public WnBgRunTaskConsumer(WnServiceFactory sf, WnRun _run) {
         this.taskApi = sf.getTaskApi();
         this.auth = sf.getAuthApi();
-        this.running = _run.createRunning("BGT_TASK", true);
+        this.running = _run.createRunning(true);
     }
 
     @Override

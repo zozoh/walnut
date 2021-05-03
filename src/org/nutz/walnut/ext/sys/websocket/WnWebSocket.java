@@ -29,7 +29,7 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -40,7 +40,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean(create = "init")
 public class WnWebSocket extends Endpoint {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
 

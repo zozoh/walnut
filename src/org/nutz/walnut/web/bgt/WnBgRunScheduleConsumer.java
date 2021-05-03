@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.lock.WnLockBusyException;
 import org.nutz.walnut.api.lock.WnLockFailException;
@@ -14,12 +13,13 @@ import org.nutz.walnut.ext.sys.schedule.WnSysScheduleException;
 import org.nutz.walnut.ext.sys.schedule.WnSysScheduleQuery;
 import org.nutz.walnut.ext.sys.schedule.cmd_schedule;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.time.WnDayTime;
 
 public class WnBgRunScheduleConsumer implements Runnable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBG_SCHEDULE();
 
     WnSysScheduleApi scheduleApi;
 

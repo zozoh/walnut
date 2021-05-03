@@ -9,7 +9,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -35,7 +35,7 @@ import com.aliyuncs.profile.IClientProfile;
 @JvmHdlParamArgs(value="cqn", regex="^dry$")
 public class aliyuniot_shadow implements JvmHdl {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     
     public static ExecutorService es = Executors.newFixedThreadPool(16, new ThreadFactory() {
         public Thread newThread(Runnable r) {

@@ -86,8 +86,6 @@ public class cmd_output extends JvmExecutor {
         catch (InterruptedException e) {}
     }
 
-    // private static final Log log = Logs.get();
-
     protected void __print(JvmBoxOutput jbo, int i, String msg, boolean t, boolean showIndex) {
         // log.infof("%d) %s", i, msg);
         String prefix = showIndex ? "" + i + ") " : "";

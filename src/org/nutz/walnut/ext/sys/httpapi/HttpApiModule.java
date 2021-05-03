@@ -32,7 +32,7 @@ import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
@@ -68,7 +68,7 @@ import org.nutz.web.WebException;
 @Filters(@By(type = WnAsUsr.class, args = {"root"}))
 public class HttpApiModule extends AbstractWnModule {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     @At("/?/**")
     @Ok("void")

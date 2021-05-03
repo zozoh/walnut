@@ -8,14 +8,14 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.web.WnConfig;
 
 public class WnLaunchNotiSetup implements Setup {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     @Override
     public void init(NutConfig nc) {

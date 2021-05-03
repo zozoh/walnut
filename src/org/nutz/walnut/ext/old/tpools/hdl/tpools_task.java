@@ -4,7 +4,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.old.tpools.MyPools;
@@ -16,7 +16,7 @@ import org.nutz.walnut.util.WnRun;
 
 public class tpools_task implements JvmHdl {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     protected MyPools pools;
 

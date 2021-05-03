@@ -26,15 +26,15 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.Mvcs;
 import org.nutz.walnut.jetty.log.AccessLog;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
 public class AccessLogFilter implements Filter, Runnable {
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
     /**
      * 是否启用本filter
      */

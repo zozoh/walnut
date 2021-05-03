@@ -8,7 +8,6 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.WnAuthExecutable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
@@ -22,13 +21,14 @@ import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Ws;
 
 public class WnBoxRunning implements WnAuthExecutable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     private String logPrefix;
 
@@ -62,7 +62,7 @@ public class WnBoxRunning implements WnAuthExecutable {
                         OutputStream out,
                         OutputStream err,
                         InputStream ins) {
-        this.logPrefix = logPrefix;
+        this.logPrefix = Ws.sBlank(logPrefix, "");
         this.services = services;
         this.boxAllocTimeout = boxAllocTimeout;
         this.bc = new WnBoxContext(services, new NutMap());

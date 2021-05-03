@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.WnAuthExecutable;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
@@ -22,7 +22,7 @@ import org.nutz.walnut.util.Wn;
 
 public class WnSafeSysTaskService implements WnSysTaskApi {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     public static final String LOCK_NAME = "WN_SYS_TASKS";
 

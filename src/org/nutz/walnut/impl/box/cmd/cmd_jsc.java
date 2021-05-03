@@ -10,13 +10,13 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.JvmJsExecContext;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -28,7 +28,7 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_jsc extends JvmExecutor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

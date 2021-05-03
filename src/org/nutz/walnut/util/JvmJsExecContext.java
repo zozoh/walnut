@@ -12,7 +12,6 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
@@ -40,7 +39,7 @@ public class JvmJsExecContext implements JsExecContext {
 
     public JvmBoxInput in;
 
-    private static final Log _log = Logs.get();
+    private static final Log _log = Wlog.getCMD();
 
     public JvmJsExecContext(WnSystem sys, WnOutputable out) {
         this.sys = sys;

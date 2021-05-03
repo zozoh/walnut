@@ -16,7 +16,7 @@ import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.quartz.Quartz;
 import org.nutz.quartz.QzEach;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -31,7 +31,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean(create = "init", depose = "depose", name = "wnJob")
 public class WnJobService extends WnRun implements Callable<Object> {
 
-	private static final Log log = Logs.get();
+	private static final Log log = Wlog.getEXT();
 	protected static ThreadPoolExecutor es = (ThreadPoolExecutor) Executors.newFixedThreadPool(64);
 	public static String root = "/sys/job";
 	protected String tmpRoot = "/sys/job/tmp";

@@ -6,7 +6,7 @@ import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.walnut.ext.sys.mq.WnMqApi;
@@ -17,7 +17,7 @@ import org.nutz.walnut.web.WnConfig;
 
 public class WnMqSetup implements Setup {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getMAIN();
 
     private WnMqApi api;
 

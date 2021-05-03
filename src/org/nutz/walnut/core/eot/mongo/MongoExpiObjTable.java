@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
@@ -18,7 +18,7 @@ import com.mongodb.WriteResult;
 
 public class MongoExpiObjTable implements WnExpiObjTable {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     private ZMoCo co;
 

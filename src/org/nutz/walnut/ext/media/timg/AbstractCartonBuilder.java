@@ -16,12 +16,12 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 
 public abstract class AbstractCartonBuilder implements CartonBuilder {
     
-    protected static final Log log = Logs.get();
+    protected static final Log log = Wlog.getEXT();
 
     public void add(CartonCtx ctx, byte[] buf) {
         File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.png", ctx.tmpDir, ctx.lastFrameIndex)));

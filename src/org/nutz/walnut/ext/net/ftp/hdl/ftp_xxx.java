@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.net.ftp.hdl;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.ftp.FtpConfig;
 import org.nutz.walnut.ext.net.ftp.FtpUtil;
@@ -12,7 +12,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class ftp_xxx implements JvmHdl {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         FTPClient client = null;

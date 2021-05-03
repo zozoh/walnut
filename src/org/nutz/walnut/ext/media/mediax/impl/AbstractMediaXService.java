@@ -10,7 +10,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.born.Borning;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.media.mediax.MediaXAPI;
@@ -26,7 +26,7 @@ import org.nutz.walnut.ext.media.mediax.bean.MxAccount;
  */
 public abstract class AbstractMediaXService implements MediaXService {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     private Map<String, Borning<MediaXAPI>> map;
 

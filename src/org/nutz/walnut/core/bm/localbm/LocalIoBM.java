@@ -11,7 +11,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
@@ -50,7 +50,7 @@ import org.nutz.walnut.util.Wn;
  */
 public class LocalIoBM extends AbstractIoBM {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getIO();
 
     private File dBucket;
 

@@ -11,12 +11,12 @@ import org.nutz.ioc.Ioc;
 import org.nutz.lang.Each;
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.resource.Scans;
 
 public class JvmExecutorFactory {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getBOX();
 
     /**
      * 要搜索的包路径
@@ -57,7 +57,7 @@ public class JvmExecutorFactory {
 								    je.ioc = ioc;
 								    String nm = je.getMyName();
 								    map.put(nm, je);
-								    if (log.isInfoEnabled())
+								    if (log.isDebugEnabled())
 								        log.infof("jvmexec: '%s' -> %s", nm, klass.getName());
 								}
 							} catch (Throwable e) {

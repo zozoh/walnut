@@ -1,18 +1,18 @@
 package org.nutz.walnut.web.processor;
 
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionInfo;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.impl.processor.ViewProcessor;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
 
 public class WnFailProcessor extends ViewProcessor {
 
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getAC();
 
     @Override
     public void init(NutConfig config, ActionInfo ai) throws Throwable {

@@ -148,6 +148,8 @@ public class WedisConfig {
         return this.setup;
     }
 
+    // TODO 这玩意， Redis 用，但是Redis源码里是不要带类型的。有点尴尬，无视吧 ^_^!
+    @SuppressWarnings("rawtypes")
     public GenericObjectPoolConfig getPoolConfig() {
         GenericObjectPoolConfig pc = new GenericObjectPoolConfig();
         if (this.maxTotal > 0) {

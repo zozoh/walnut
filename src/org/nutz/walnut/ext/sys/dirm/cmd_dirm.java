@@ -6,7 +6,7 @@ import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Lang;
 import org.nutz.lang.LoopException;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -24,7 +24,7 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_dirm extends JvmExecutor {
 
-    private Log log = Logs.get();
+    private Log log = Wlog.getEXT();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

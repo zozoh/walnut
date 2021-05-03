@@ -8,7 +8,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Disks;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.plugins.zdoc.NutDSet;
 import org.nutz.plugins.zdoc.html.AbstractHtmlDSetRender;
 import org.nutz.walnut.api.io.WnIo;
@@ -17,7 +17,7 @@ import org.nutz.walnut.api.io.WnRace;
 
 public class WnHtmlDSetRender extends AbstractHtmlDSetRender {
     
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
     protected WnIo io;
     protected WnObj sourceHome;
     protected WnObj dstHome;

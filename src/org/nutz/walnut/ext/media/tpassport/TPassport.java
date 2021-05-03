@@ -20,7 +20,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.qrcode.QRCode;
 import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.repo.cache.simple.LRUCache;
@@ -31,7 +31,7 @@ public class TPassport {
 
     private static LRUCache<String, Font> fontCache = new LRUCache<>(128);
     private static LRUCache<String, BufferedImage> bgCache = new LRUCache<>(128);
-    private static final Log log = Logs.get();
+    private static final Log log = Wlog.getEXT();
 
     private WnSystem sys;
     private BufferedImage im;
