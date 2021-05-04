@@ -6,7 +6,7 @@ import org.nutz.json.JsonField;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapFilter;
-import org.nutz.walnut.cheap.html.CheapHtmlParsing;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.ooml.OomlEntry;
 import org.nutz.walnut.ooml.OomlPackage;
 import org.nutz.walnut.ooml.OomlRelType;
@@ -37,18 +37,18 @@ public class XlsxWorkbook extends XlsxObj {
         this.loadSharedStrings(aph);
 
         // 解析工作簿
-        CheapDocument doc = new CheapDocument("workbook", null);
-        CheapHtmlParsing parser = new CheapHtmlParsing(doc, null);
-        this.doc = parser.invoke(input);
+        CheapDocument doc = new CheapDocument("workbook");
+        CheapXmlParsing parser = new CheapXmlParsing(doc);
+        this.doc = parser.parseDoc(input);
         this.body = doc.findElement(e -> e.isTagName("sheets"));
     }
 
     private void loadSharedStrings(String aph) {
         OomlEntry en = ooml.getEntry(aph);
         String input = en.getContentStr();
-        CheapDocument doc = new CheapDocument("sst", null);
-        CheapHtmlParsing parser = new CheapHtmlParsing(doc, null);
-        doc = parser.invoke(input);
+        CheapDocument doc = new CheapDocument("sst");
+        CheapXmlParsing parser = new CheapXmlParsing(doc);
+        doc = parser.parseDoc(input);
         List<CheapElement> list = doc.findElements(e -> e.isTagName("t"));
         sharedStrings = new String[list.size()];
         int i = 0;

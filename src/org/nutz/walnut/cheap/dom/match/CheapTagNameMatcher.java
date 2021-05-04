@@ -5,18 +5,28 @@ import org.nutz.walnut.cheap.dom.CheapMatcher;
 
 public class CheapTagNameMatcher implements CheapMatcher {
 
+    private boolean isAny;
+
+    private String upperTagName;
+
     private String tagName;
 
     public CheapTagNameMatcher(String str) {
-        this.tagName = str.toUpperCase();
+        this.isAny = "*".equals(str);
+        this.tagName = str.toLowerCase();
+        this.upperTagName = str.toUpperCase();
+    }
+
+    public String toString() {
+        return tagName;
     }
 
     @Override
     public boolean match(CheapElement el) {
-        if ("*".equals(tagName)) {
+        if (isAny) {
             return true;
         }
-        return el.isStdTagName(tagName);
+        return el.isStdTagName(upperTagName);
     }
 
 }

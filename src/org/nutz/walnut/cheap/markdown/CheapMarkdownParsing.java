@@ -92,7 +92,7 @@ public class CheapMarkdownParsing {
                                 String rootTagName,
                                 String bodyTagName,
                                 String wrapTagName) {
-        this.doc = new CheapDocument(rootTagName, bodyTagName);
+        this.doc = new CheapDocument(rootTagName, null, bodyTagName);
         this.doc.setAutoClosedTagsAsHtml();
         if (null != wrapTagName) {
             CheapElement $wrap = this.doc.createElement(wrapTagName, "as-md");
@@ -301,7 +301,7 @@ public class CheapMarkdownParsing {
                 String attrs = m.group(30);
                 if (null != attrs) {
                     NutMap bean = Ws.splitAttrMap(attrs);
-                    $el.attrs(bean);
+                    $el.setAttrs(bean);
                 }
 
                 // 不能直接结束的标签，需要压栈

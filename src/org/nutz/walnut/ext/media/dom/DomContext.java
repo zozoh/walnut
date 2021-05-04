@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
-import org.nutz.walnut.cheap.html.CheapHtmlParsing;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.impl.box.JvmFilterContext;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
@@ -23,7 +23,7 @@ public class DomContext extends JvmFilterContext {
     public boolean quiet;
 
     public void loadHtml(String[] paths, boolean fromPip, boolean body) {
-        CheapHtmlParsing ing = new CheapHtmlParsing(body);
+        CheapXmlParsing ing = new CheapXmlParsing();
 
         // 读取 HTML 输入
         String html;
@@ -46,7 +46,7 @@ public class DomContext extends JvmFilterContext {
         }
 
         // 开始解析
-        this.doc = ing.invoke(html);
+        this.doc = ing.parseDoc(html);
         this.selected = new LinkedList<>();
     }
 

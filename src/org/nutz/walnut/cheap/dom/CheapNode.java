@@ -55,6 +55,8 @@ public abstract class CheapNode {
 
     public abstract void joinText(StringBuilder sb);
 
+    public abstract void compact();
+
     public int getAsInt() {
         String str = Ws.trim(this.getText());
         return Integer.parseInt(str);
@@ -119,6 +121,14 @@ public abstract class CheapNode {
         return type;
     }
 
+    public boolean isType(CheapNodeType type) {
+        return this.type == type;
+    }
+
+    public boolean isSameType(CheapNode node) {
+        return this.type == node.type;
+    }
+
     void setType(CheapNodeType type) {
         this.type = type;
     }
@@ -146,9 +156,33 @@ public abstract class CheapNode {
         return this;
     }
 
+    public <T extends CheapNode> CheapNode appendChildren(List<T> nodes) {
+        if (null != nodes) {
+            CheapNode[] children = new CheapNode[nodes.size()];
+            nodes.toArray(children);
+            this.append(children);
+        }
+        return this;
+    }
+
     public CheapNode prepend(CheapNode... nodes) {
         this.add(0, nodes);
         return this;
+
+    }
+
+    public <T extends CheapNode> CheapNode prependChildren(List<T> nodes) {
+        if (null != nodes) {
+            CheapNode[] children = new CheapNode[nodes.size()];
+            nodes.toArray(children);
+            this.prepend(children);
+        }
+        return this;
+    }
+
+    public <T extends CheapNode> void setChildren(List<T> nodes) {
+        this.children = new LinkedList<>();
+        this.appendChildren(nodes);
     }
 
     public void add(int index, CheapNode... nodes) {
@@ -192,6 +226,15 @@ public abstract class CheapNode {
         }
     }
 
+    public <T extends CheapNode> CheapNode insertPrevNodes(List<T> nodes) {
+        if (null != nodes) {
+            CheapNode[] ary = new CheapNode[nodes.size()];
+            nodes.toArray(ary);
+            this.insertPrev(ary);
+        }
+        return this;
+    }
+
     public void insertPrev(CheapNode... nodes) {
         if (null == nodes || nodes.length == 0)
             return;
@@ -213,6 +256,15 @@ public abstract class CheapNode {
             this.parent.children = frs.getNextSiblings();
             this.parent.children.addFirst(frs);
         }
+    }
+
+    public <T extends CheapNode> CheapNode insertNextNodes(List<T> nodes) {
+        if (null != nodes) {
+            CheapNode[] ary = new CheapNode[nodes.size()];
+            nodes.toArray(ary);
+            this.insertNext(ary);
+        }
+        return this;
     }
 
     public void insertNext(CheapNode... nodes) {

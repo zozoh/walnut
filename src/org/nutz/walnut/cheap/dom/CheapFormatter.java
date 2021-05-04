@@ -29,9 +29,19 @@ public class CheapFormatter {
 
     public CheapFormatter() {}
 
+    public CheapFormatter(String newlineTags, String breakLineTags) {
+        this(newlineTags, breakLineTags, "  ");
+    }
+
+    public CheapFormatter(String newlineTags, String breakLineTags, String tab) {
+        this.setNewlineTags(newlineTags);
+        this.setBreakLineTags(breakLineTags);
+        this.tab = tab;
+    }
+
     public CheapFormatter(boolean asHTML) {
         if (asHTML) {
-            this.setBlockTags(NL_TAGS);
+            this.setNewlineTags(NL_TAGS);
             this.setBreakLineTags("^(BR|DFN|LINK|META)$");
             this.tab = "  ";
         }
@@ -79,12 +89,12 @@ public class CheapFormatter {
         return prefix;
     }
 
-    public void setBlockTags(String blockTags) {
+    public void setNewlineTags(String newlineTags) {
         // this.blockTags = blockTags;
-        if (null == blockTags) {
+        if (null == newlineTags) {
             P_BLOCK_TAGS = null;
         } else {
-            P_BLOCK_TAGS = Regex.getPattern(blockTags);
+            P_BLOCK_TAGS = Regex.getPattern(newlineTags);
         }
     }
 

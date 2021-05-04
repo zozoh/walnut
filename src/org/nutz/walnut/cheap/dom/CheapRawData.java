@@ -64,6 +64,18 @@ public class CheapRawData extends CheapNode {
     public void format(CheapFormatter cdf, int depth) {}
 
     @Override
+    public void compact() {
+        if (null != text) {
+            if (text.length() > 0) {
+                text = Ws.trim(text);
+                if (text.length() == 0) {
+                    text = " ";
+                }
+            }
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         return Ws.isEmpty(text);
     }

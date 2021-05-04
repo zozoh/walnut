@@ -8,10 +8,22 @@ import org.nutz.walnut.cheap.dom.CheapMatcher;
 
 public class CheapAndMatcher implements CheapMatcher {
 
-    private List<CheapMatcher> list;
+    List<CheapMatcher> list;
 
     public CheapAndMatcher() {
         list = new LinkedList<>();
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        joinString(sb);
+        return sb.toString();
+    }
+
+    void joinString(StringBuilder sb) {
+        for (CheapMatcher cm : list) {
+            sb.append(cm.toString());
+        }
     }
 
     public void addMatcher(CheapMatcher cm) {

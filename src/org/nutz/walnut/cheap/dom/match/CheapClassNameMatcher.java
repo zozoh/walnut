@@ -15,6 +15,10 @@ public class CheapClassNameMatcher implements CheapMatcher {
         }
     }
 
+    public String toString() {
+        return "." + className;
+    }
+
     @Override
     public boolean match(CheapElement el) {
         return el.hasClass(this.className);

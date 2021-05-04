@@ -13,7 +13,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapFilter;
-import org.nutz.walnut.cheap.html.CheapHtmlParsing;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.util.Ws;
 
 public class XlsxSheet extends XlsxObj {
@@ -36,9 +36,9 @@ public class XlsxSheet extends XlsxObj {
         this.loadRelationships();
 
         // 解析工作表
-        CheapDocument doc = new CheapDocument("worksheet", null);
-        CheapHtmlParsing parser = new CheapHtmlParsing(doc, null);
-        this.doc = parser.invoke(input);
+        CheapDocument doc = new CheapDocument("worksheet");
+        CheapXmlParsing parser = new CheapXmlParsing(doc);
+        this.doc = parser.parseDoc(input);
 
         // 读取表格行 & 顺便得到一下 drawingId
         String[] drawingId = new String[1];

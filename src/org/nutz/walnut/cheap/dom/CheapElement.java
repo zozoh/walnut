@@ -14,6 +14,8 @@ import org.nutz.walnut.cheap.css.CheapCss;
 import org.nutz.walnut.cheap.css.CheapSize;
 import org.nutz.walnut.cheap.css.CheapStyle;
 import org.nutz.walnut.cheap.dom.flt.CheapAttrNameFilter;
+import org.nutz.walnut.cheap.dom.selector.CheapDomSelector;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.Ws;
 
@@ -203,6 +205,30 @@ public class CheapElement extends CheapNode {
     }
 
     @Override
+    public void compact() {
+        List<CheapNode> list = new LinkedList<>();
+        CheapNode lastNode = null;
+        for (CheapNode child : children) {
+            // 可能需要合并
+            if (null != lastNode && child.isText() && child.isSameType(lastNode)) {
+                ((CheapText) lastNode).appendText(child.getText());
+            }
+            // 加入列表
+            else {
+                list.add(child);
+            }
+            // 记录最后一个
+            lastNode = child;
+        }
+        // 设置新的子节点
+        this.setChildren(list);
+        // 向下递归
+        for (CheapNode child : children) {
+            child.compact();
+        }
+    }
+
+    @Override
     public boolean isEmpty() {
         return !this.hasChildren();
     }
@@ -292,9 +318,9 @@ public class CheapElement extends CheapNode {
     }
 
     public CheapElement getFirstChildElement(String tagName) {
-        if (null != tagName) {
-            tagName = tagName.toUpperCase();
-        }
+        if (null == tagName)
+            return null;
+        tagName = tagName.toUpperCase();
         String upperName = tagName;
         return (CheapElement) this.getFirstChild(node -> {
             if (!node.isElement())
@@ -306,9 +332,9 @@ public class CheapElement extends CheapNode {
     }
 
     public CheapElement getLastChildElement(String tagName) {
-        if (null != tagName) {
-            tagName = tagName.toUpperCase();
-        }
+        if (null == tagName)
+            return null;
+        tagName = tagName.toUpperCase();
         String upperName = tagName;
         return (CheapElement) this.getLastChild(node -> {
             if (!node.isElement())
@@ -317,6 +343,42 @@ public class CheapElement extends CheapNode {
                 return true;
             return ((CheapElement) node).isTagName(upperName);
         });
+    }
+
+    public List<CheapElement> selectAll(String selector) {
+        CheapDomSelector sel = new CheapDomSelector(selector);
+        List<CheapElement> list = new LinkedList<>();
+        sel.join(list, this, Integer.MAX_VALUE);
+        return list;
+    }
+
+    public List<CheapElement> selectAll(CheapDomSelector selector) {
+        List<CheapElement> list = new LinkedList<>();
+        selector.join(list, this, Integer.MAX_VALUE);
+        return list;
+    }
+
+    public CheapElement select(String selector) {
+        CheapDomSelector sel = new CheapDomSelector(selector);
+        return select(sel);
+    }
+
+    public CheapElement select(CheapDomSelector selector) {
+        List<CheapElement> list = new LinkedList<>();
+        selector.join(list, this, 1);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    public boolean is(String selector) {
+        CheapDomSelector sel = new CheapDomSelector(selector);
+        return sel.match(this);
+    }
+
+    public boolean is(CheapDomSelector selector) {
+        return selector.match(this);
     }
 
     /**
@@ -395,6 +457,12 @@ public class CheapElement extends CheapNode {
             }
         }
         return false;
+    }
+
+    public void setInnerXML(String xml) {
+        CheapXmlParsing ing = new CheapXmlParsing(this.doc);
+        List<CheapNode> list = ing.parseFragment(xml);
+        this.setChildren(list);
     }
 
     public List<String> getClassList() {
@@ -534,6 +602,7 @@ public class CheapElement extends CheapNode {
     }
 
     public CheapElement attr(String name, Object val) {
+        name = Ws.kebabCase(name);
         // 移除
         if (null == val) {
             attrs.remove(name);
@@ -541,25 +610,55 @@ public class CheapElement extends CheapNode {
         // 设置
         else {
             attrs.put(name, val);
-            if ("class".equals(name)) {
-                this.setClassName(null == val ? null : val.toString());
-            }
+        }
+        // 设置类名
+        if ("class".equals(name)) {
+            this.setClassName(null == val ? null : val.toString());
         }
         return this;
     }
 
     public CheapElement attrs(Map<String, Object> bean) {
+        return attrs(bean, null);
+    }
+
+    public CheapElement attrs(Map<String, Object> bean, String prefix) {
         if (null != bean) {
-            attrs.putAll(bean);
-            if (bean.containsKey("class")) {
-                Object val = bean.get("class");
-                this.setClassName(null == val ? null : val.toString());
+            for (Map.Entry<String, Object> en : bean.entrySet()) {
+                String name = en.getKey();
+                String key = name;
+                if (null != prefix) {
+                    key = prefix + name;
+                }
+                Object val = en.getValue();
+                this.attr(key, val);
             }
         }
         return this;
     }
 
+    public CheapElement setAttr(String name, Object val) {
+        // 移除
+        if (null == val) {
+            attrs.remove(name);
+        }
+        // 设置
+        else {
+            attrs.put(name, val);
+        }
+        // 设置类名
+        if ("class".equals(name)) {
+            this.setClassName(null == val ? null : val.toString());
+        }
+        return this;
+    }
+
+    public CheapElement setAttrs(Map<String, Object> bean) {
+        return this.setAttrs(bean, null);
+    }
+
     public CheapElement setAttrs(Map<String, Object> bean, String prefix) {
+        this.attrs = new NutMap();
         if (null != bean) {
             for (Map.Entry<String, Object> en : bean.entrySet()) {
                 String name = en.getKey();
@@ -568,7 +667,10 @@ public class CheapElement extends CheapNode {
                     key = Ws.kebabCase(prefix + name);
                 }
                 Object val = en.getValue();
-                this.attr(key, val);
+                this.attrs.put(key, val);
+                if ("class".equals(key) && null != val) {
+                    this.setClassName(val.toString());
+                }
             }
         }
         return this;

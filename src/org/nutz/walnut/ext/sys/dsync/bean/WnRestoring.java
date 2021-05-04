@@ -9,7 +9,7 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.cheap.dom.CheapDocument;
-import org.nutz.walnut.cheap.html.CheapHtmlParsing;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.ext.media.dom.util.CheapDomReplaceWnObjId;
 
 public class WnRestoring {
@@ -66,8 +66,9 @@ public class WnRestoring {
                 if (a.isReplaceDom()) {
                     // 读取 DOM
                     String html = io.readText(obj);
-                    CheapHtmlParsing ing = new CheapHtmlParsing(a.isParseDomAsBody());
-                    CheapDocument doc = ing.invoke(html);
+                    CheapDocument doc = new CheapDocument();
+                    CheapXmlParsing ing = new CheapXmlParsing(doc);
+                    doc = ing.parseDoc(html);
 
                     // 准备替换逻辑
                     CheapDomReplaceWnObjId rw = new CheapDomReplaceWnObjId();

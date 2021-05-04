@@ -79,7 +79,9 @@ public class CheapDocxRendering {
     private WordprocessingMLPackage wp;
 
     /**
-     * 如何加载资源
+     * 如何加载资源。
+     * <p>
+     * 譬如，一个 DOM 里面的<code>IMG</cod>引用了系统中的图，打成 zip 包时，需要读取这个图片的内容。
      */
     private CheapResourceLoader loader;
 

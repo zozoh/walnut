@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
-import org.nutz.walnut.cheap.html.CheapHtmlParsing;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wpath;
 
@@ -30,9 +30,9 @@ public class OomlRels {
     public OomlRels(String path, String input) {
         this.path = path;
         rels = new HashMap<>();
-        CheapDocument doc = new CheapDocument("Relationships", null);
-        CheapHtmlParsing parser = new CheapHtmlParsing(doc, null);
-        doc = parser.invoke(input);
+        CheapDocument doc = new CheapDocument("Relationships");
+        CheapXmlParsing parser = new CheapXmlParsing(doc);
+        doc = parser.parseDoc(input);
 
         List<CheapElement> list = doc.findElements(el -> el.isTagName("Relationship"));
         for (CheapElement el : list) {

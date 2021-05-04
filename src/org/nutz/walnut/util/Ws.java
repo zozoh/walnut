@@ -1311,6 +1311,20 @@ public class Ws {
         return new String(outs, 0, count);
     }
 
+    public static String toUpper(String input) {
+        if (null == input) {
+            return null;
+        }
+        return input.toUpperCase();
+    }
+
+    public static String toLower(String input) {
+        if (null == input) {
+            return null;
+        }
+        return input.toLowerCase();
+    }
+
     /**
      * 复制字符
      *

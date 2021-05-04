@@ -7,6 +7,9 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.cheap.dom.mutation.CheapDomOperation;
+import org.nutz.walnut.cheap.dom.selector.CheapDomSelector;
+import org.nutz.walnut.util.Ws;
 
 public class CheapDocument {
 
@@ -15,12 +18,16 @@ public class CheapDocument {
     /**
      * 在根元素之前的元素列表
      */
-    private List<CheapNode> headNodes;
+    private List<CheapNode> prevNodes;
 
     /**
      * 在根元素之后的元素列表
      */
     private List<CheapNode> tailNodes;
+
+    private String rootTagName;
+    private String headTagName;
+    private String bodyTagName;
 
     private CheapElement $root;
 
@@ -35,19 +42,27 @@ public class CheapDocument {
     private Pattern P_AUTO_CLOSED_TAGS;
 
     public CheapDocument() {
-        this("html", "body");
+        this("html", "head", "body");
+        this.setAutoClosedTagsAsHtml();
     }
 
     public CheapDocument(String rootTagName) {
-        this(rootTagName, null);
+        this(rootTagName, null, null);
     }
 
-    public CheapDocument(String rootTagName, String bodyTagName) {
-        headNodes = new LinkedList<>();
+    public CheapDocument(String rootTagName, String headTagName, String bodyTagName) {
+        this.rootTagName = rootTagName;
+        this.headTagName = headTagName;
+        this.bodyTagName = bodyTagName;
+        prevNodes = new LinkedList<>();
         tailNodes = new LinkedList<>();
         if (null != rootTagName) {
             $root = new CheapElement(rootTagName);
             $root.doc = this;
+            if (null != headTagName) {
+                $head = new CheapElement(headTagName);
+                $head.appendTo($root);
+            }
             if (null != bodyTagName) {
                 $body = new CheapElement(bodyTagName);
                 $body.appendTo($root);
@@ -72,7 +87,7 @@ public class CheapDocument {
     public String toMarkup() {
         StringBuilder sb = new StringBuilder();
         // 加入开头
-        for (CheapNode node : headNodes) {
+        for (CheapNode node : prevNodes) {
             node.joinString(sb);
         }
         // 根元素
@@ -101,7 +116,16 @@ public class CheapDocument {
         }
     }
 
+    public void compact() {
+        $root.compact();
+    }
+
+    final static CheapFormatter CDF_XML = new CheapFormatter("^.+$", "^.+$");
     final static CheapFormatter CDF_HTML = new CheapFormatter(true);
+
+    public void formatAsXml() {
+        format(CDF_XML);
+    }
 
     public void formatAsHtml() {
         format(CDF_HTML);
@@ -130,10 +154,17 @@ public class CheapDocument {
     }
 
     public void removeEmpty() {
-        this.headNodes = filterEmptyNodes(headNodes);
+        this.prevNodes = filterEmptyNodes(prevNodes);
         this.tailNodes = filterEmptyNodes(tailNodes);
         if (null != this.$root) {
             this.$root.filterEmptyChildren();
+        }
+    }
+
+    public void removeBlankNodes() {
+        List<CheapNode> list = this.findNodes(e -> e.isText() && ((CheapText) e).isBlank());
+        for (CheapNode nd : list) {
+            nd.remove();
         }
     }
 
@@ -147,6 +178,30 @@ public class CheapDocument {
             }
         }
         return list;
+    }
+
+    public CheapElement select(String selector) {
+        CheapDomSelector sel = new CheapDomSelector(selector);
+        return this.select(sel);
+    }
+
+    public CheapElement select(CheapDomSelector selector) {
+        if (null == $root) {
+            return null;
+        }
+        return $root.select(selector);
+    }
+
+    public List<CheapElement> selectAll(String selector) {
+        CheapDomSelector sel = new CheapDomSelector(selector);
+        return this.selectAll(sel);
+    }
+
+    public List<CheapElement> selectAll(CheapDomSelector selector) {
+        if (null == $root) {
+            return new LinkedList<>();
+        }
+        return $root.selectAll(selector);
     }
 
     public CheapElement findElement(CheapFilter filter) {
@@ -271,9 +326,21 @@ public class CheapDocument {
         this.metas = metas;
     }
 
+    public void change(CheapDomOperation... opts) {
+        if (null != opts) {
+            for (CheapDomOperation opt : opts) {
+                opt.operate(this.$root);
+            }
+        }
+    }
+
     public void setRootElement(CheapElement $root) {
         $root.doc = this;
         this.$root = $root;
+    }
+
+    public void setHeadElement(CheapElement $head) {
+        this.$head = $head.appendTo($root);
     }
 
     public void setBodyElement(CheapElement $body) {
@@ -305,19 +372,19 @@ public class CheapDocument {
     }
 
     public boolean hasHeadNodes() {
-        return null != headNodes && !headNodes.isEmpty();
+        return null != prevNodes && !prevNodes.isEmpty();
     }
 
-    public List<CheapNode> getHeadNodes() {
-        return headNodes;
+    public List<CheapNode> getPrevNodes() {
+        return prevNodes;
     }
 
-    public void addHeadNode(CheapNode node) {
-        headNodes.add(node);
+    public void addPrevNode(CheapNode node) {
+        prevNodes.add(node);
     }
 
     public void clearHeadNode() {
-        headNodes.clear();
+        prevNodes.clear();
     }
 
     public boolean hasTailNodes() {
@@ -336,16 +403,40 @@ public class CheapDocument {
         tailNodes.clear();
     }
 
+    public String getStdRootTagName() {
+        return Ws.toUpper(rootTagName);
+    }
+
+    public String getStdHeadTagName() {
+        return Ws.toUpper(headTagName);
+    }
+
+    public String getStdBodyTagName() {
+        return Ws.toUpper(bodyTagName);
+    }
+
+    public String getRootTagName() {
+        return rootTagName;
+    }
+
+    public String getHeadTagName() {
+        return headTagName;
+    }
+
+    public String getBodyTagName() {
+        return bodyTagName;
+    }
+
     public CheapDocument ready() {
         if (null != this.$root) {
             this.$root.rebuildChildrenIndex();
             // 看看有木有 head
             if (null == this.$head) {
-                this.$head = this.$root.getFirstChildElement("head");
+                this.$head = this.$root.getFirstChildElement(this.headTagName);
             }
             // 看看有木有 body
             if (null == this.$body) {
-                this.$body = this.$root.getFirstChildElement("body");
+                this.$body = this.$root.getFirstChildElement(this.bodyTagName);
             }
         }
         return this;

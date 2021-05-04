@@ -26,11 +26,12 @@ dom [options] [[@filter filter-args...]...]
 它支持的过滤器有：
 
 ```bash
-@html        # 加载一个 HTML 文档
-@format      # 格式化 DOM 节点
-@find        # 寻找符合类选择器的元素
-@outline     # 输出 HTML 的大纲级别
-@reset       # 重置当前操作节点
 @as          # 作为什么格式输出
+@docx        # 将上下文的DOM输出为docx
+@find        # 寻找符合类选择器的元素
+@format      # 格式化 DOM 节点
+@html        # 加载一个 HTML 文档
+@mutate      # 操作 DOM 节点，根据配置修改节点
+@reset       # 重置当前操作节点
 @json        # 将上下文内容按照 JSON 输出
 ```

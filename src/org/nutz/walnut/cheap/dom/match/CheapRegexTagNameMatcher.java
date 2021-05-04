@@ -14,6 +14,10 @@ public class CheapRegexTagNameMatcher implements CheapMatcher {
         this.tagName = Regex.getPattern(str.toUpperCase());
     }
 
+    public String toString() {
+        return tagName.toString();
+    }
+
     @Override
     public boolean match(CheapElement el) {
         return this.tagName.matcher(el.getStdTagName()).find();

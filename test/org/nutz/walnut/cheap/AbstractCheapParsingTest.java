@@ -18,6 +18,10 @@ public class AbstractCheapParsingTest {
         return _F(name, "md");
     }
 
+    protected String _Fjson(String name) {
+        return _F(name, "json");
+    }
+
     protected String _F(String name, String type) {
         String pph = "org/nutz/walnut/cheap/mock";
         String aph = String.format("%s/%s/%s.%2$s", pph, type, name);
