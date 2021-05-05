@@ -1,0 +1,13 @@
+#---------------------------------------------------------
+#
+#                    Obj 获取详情
+#
+#---------------------------------------------------------
+# 获取任何一个对象的详情
+@API .regapi/api/qrcode 'cross'
+{
+  "http-header-Content-Type" : "image/png"
+}
+%COPY:
+echo '${http-qs-s}' | qrcode -size ${http-qs-size?256} -margin ${http-qs-m?10}
+%END%
