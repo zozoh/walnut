@@ -12,6 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
+import org.nutz.lang.stream.VoidOutputStream;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.WnOutputable;
@@ -25,6 +26,7 @@ public class JvmBoxOutput implements WnOutputable {
     private Writer _w;
 
     public JvmBoxOutput(OutputStream ops) {
+        ops = null == ops ? new VoidOutputStream() : ops;
         this.ops = ops;
     }
 

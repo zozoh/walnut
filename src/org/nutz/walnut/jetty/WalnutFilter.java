@@ -117,6 +117,8 @@ public class WalnutFilter implements Filter {
                     String qs = req.getQueryString();
                     if (!Ws.isBlank(qs)) {
                         qs = "?" + qs;
+                    } else {
+                        qs = "";
                     }
                     log.infof("🌍<%s>:%s:%s:%s%s", usrip, host, port, path, qs);
                 }

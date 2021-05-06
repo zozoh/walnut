@@ -34,8 +34,6 @@ import org.nutz.walnut.impl.io.WnSecurityImpl;
  */
 public class WnContext extends NutMap {
 
-    
-
     private String ticket;
 
     private WnAuthSession session;
@@ -90,7 +88,7 @@ public class WnContext extends NutMap {
     }
 
     private static final Log hookLog = Wlog.getHOOK();
-    
+
     public WnObj doHook(String action, WnObj o) {
         if (null == o)
             return null;
@@ -98,8 +96,8 @@ public class WnContext extends NutMap {
             Stopwatch sw = Stopwatch.begin();
 
             WnHookService srv = hookContext.service;
-            if (hookLog.isInfoEnabled()) {
-                hookLog.infof("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
+            if (hookLog.isDebugEnabled()) {
+                hookLog.debugf("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
             }
             List<WnHook> hooks = srv.get(action, o);
             if (null != hooks && hooks.size() > 0) {
@@ -151,7 +149,10 @@ public class WnContext extends NutMap {
 
                 sw.stop();
                 if (hookLog.isInfoEnabled())
-                    hookLog.infof(" - HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
+                    hookLog.infof(" - HOOK(%d)%s: DONE:%dms",
+                                  hooks.size(),
+                                  action,
+                                  sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io().checkById(o.id());

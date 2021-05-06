@@ -18,6 +18,7 @@ import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wtime;
+import org.nutz.walnut.util.time.WnDayTime;
 
 public class WnBgRunCronConsumer implements Runnable {
 
@@ -59,10 +60,16 @@ public class WnBgRunCronConsumer implements Runnable {
 
                 // 得到当前时间槽下标
                 int sI = cmd_schedule.timeSlotIndex("now", 1440);
-                String sIs = "" + sI;
-                log.infof("slot[%s] %d tasks", sI, crons.size());
+                if (crons.size() > 0) {
+                    WnDayTime t = new WnDayTime(sI * 60);
+                    log.infof("slot[%s][%s] %d tasks", sI, t, crons.size());
+                } else if (log.isDebugEnabled()) {
+                    WnDayTime t = new WnDayTime(sI * 60);
+                    log.debugf("slot[%s][%s] 0 tasks", sI, t);
+                }
 
                 // 加载对应的分钟槽
+                String sIs = "" + sI;
                 List<WnMinuteSlotIndex> list = scheduleApi.loadSchedule(crons,
                                                                         null,
                                                                         sIs,
@@ -70,13 +77,15 @@ public class WnBgRunCronConsumer implements Runnable {
                                                                         false);
 
                 // 为了节省日志输出，将当前分钟槽前的索引都设置为空
-                String siContent = "No Cron Tasks";
                 if (!list.isEmpty()) {
                     WnMinuteSlotIndex firstSlotIndex = list.get(0);
                     for (int i = 0; i < sI; i++) {
                         firstSlotIndex.removeSlot(i);
                     }
-                    siContent = Ws.join(list, "---------\n");
+                    String siContent = Ws.join(list, "---------\n");
+                    if (log.isDebugEnabled()) {
+                        log.debug(siContent);
+                    }
                 }
 
                 // 任务执行完毕后看看距离下一个波时间槽，要睡多久，提前一个时间槽醒来
@@ -89,7 +98,9 @@ public class WnBgRunCronConsumer implements Runnable {
 
                 // 那么应该睡多久呢，至少要睡一个时间槽周期吧
                 long sleepMs = Math.max(ams - System.currentTimeMillis(), (long) unit);
-                log.infof("sleep %dms:\n%s", sleepMs, siContent);
+                if (log.isDebugEnabled()) {
+                    log.debugf("sleep %dms", sleepMs);
+                }
                 Wlang.quiteSleep(sleepMs);
             }
             // 看看是不是锁服务的错误

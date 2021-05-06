@@ -38,8 +38,8 @@ public class WnBgRunScheduleConsumer implements Runnable {
                 q.setSlotRange("now");
 
                 List<WnCronSlot> slots = scheduleApi.listSlot(q, true);
-                
-                if(log.isDebugEnabled()) {
+
+                if (log.isDebugEnabled()) {
                     log.debug("wakeup");
                 }
 
@@ -47,6 +47,8 @@ public class WnBgRunScheduleConsumer implements Runnable {
                 if (null != slots && !slots.isEmpty()) {
                     log.infof("push %d tasks", slots.size());
                     scheduleApi.pushSchedule(slots, false);
+                } else if (log.isDebugEnabled()) {
+                    log.debug("NoTaskFound");
                 }
 
                 // 任务执行完毕后看看距离下一个时间槽，要睡多久
@@ -61,7 +63,9 @@ public class WnBgRunScheduleConsumer implements Runnable {
 
                 // 那么应该睡多久呢
                 long sleepMs = Math.max(1, ams - System.currentTimeMillis());
-                log.infof("sleep %dms", sleepMs);
+                if (log.isDebugEnabled()) {
+                    log.debugf("sleep %dms", sleepMs);
+                }
                 Wlang.wait(scheduleApi, sleepMs);
             }
             // 看看是不是锁服务的错误

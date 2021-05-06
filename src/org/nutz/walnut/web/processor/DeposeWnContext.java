@@ -25,6 +25,8 @@ public class DeposeWnContext extends AbstractProcessor {
                 String qs = ac.getRequest().getQueryString();
                 if (!Ws.isBlank(qs)) {
                     qs = "?" + qs;
+                } else {
+                    qs = "";
                 }
                 log.infof("✔️OK%d:%dms:%s%s", status, du, ph, qs);
             }
