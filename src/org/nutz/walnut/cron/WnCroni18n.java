@@ -26,7 +26,7 @@ public class WnCroni18n {
             synchronized (WnCroni18n.class) {
                 re = I18NS.get(lang);
                 if (null == re) {
-                    String pkg = WnCroni18n.class.getPackageName();
+                    String pkg = WnCroni18n.class.getPackage().getName();
                     String ph = pkg.replace('.', '/');
                     ph += "/i18n/" + lang + ".json";
                     File f = Files.findFile(ph);
