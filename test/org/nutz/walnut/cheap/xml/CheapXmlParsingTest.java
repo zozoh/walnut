@@ -75,6 +75,16 @@ public class CheapXmlParsingTest extends AbstractCheapParsingTest {
     }
 
     @Test
+    public void test_xml_3() {
+        String input = _Fxml("t_xml_3");
+        CheapXmlParsing ing = new CheapXmlParsing("xml");
+        CheapDocument doc = ing.parseDoc(input);
+
+        String xml = doc.toMarkup();
+        assertEquals(input, xml);
+    }
+
+    @Test
     public void test_xml_2() {
         String input = _Fxml("t_xml_2");
         CheapXmlParsing ing = new CheapXmlParsing("xml");

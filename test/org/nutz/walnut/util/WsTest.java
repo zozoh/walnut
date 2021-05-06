@@ -7,10 +7,29 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.callback.WnStrToken;
 import org.nutz.walnut.util.callback.WnStrTokenCallback;
 
 public class WsTest {
+
+    @Test
+    public void test_splitAttrMap2() {
+        NutBean map = Ws.splitAttrMap("style=color:red; align=center contenteditable");
+        assertEquals("color:red;", map.get("style"));
+        assertEquals("center", map.get("align"));
+        assertTrue(map.containsKey("contenteditable"));
+        assertNull(map.get("contenteditable"));
+    }
+
+    @Test
+    public void test_splitAttrMap() {
+        NutBean map = Ws.splitAttrMap("style=\"color:red;\" align=\"center\" contenteditable");
+        assertEquals("color:red;", map.get("style"));
+        assertEquals("center", map.get("align"));
+        assertTrue(map.containsKey("contenteditable"));
+        assertNull(map.get("contenteditable"));
+    }
 
     @Test
     public void test_splitQuoteToken() {

@@ -780,19 +780,83 @@ public class Ws {
      */
     public static NutMap splitAttrMap(String input) {
         NutMap map = new NutMap();
-        if (null != input && input.length() > 0) {
-            List<String> list = splitQuote(input, "'\"", '\\', true, false, " \t\n");
-            for (String li : list) {
-                int pos = li.indexOf('=');
-                String key = li;
-                String val = null;
-                if (pos > 0) {
-                    key = li.substring(0, pos);
-                    val = Ws.trim(li.substring(pos + 1));
+        List<String> stack = new LinkedList<>();
+        StringBuilder sb = new StringBuilder();
+        Ws.splitQuoteToken(input, "\"'", " \t=", new WnStrTokenCallback() {
+            public void invoke(WnStrToken token) {
+                switch (token.type) {
+                // 引号
+                case QUOTE:
+                    if (sb.length() > 0) {
+                        stack.add(sb.toString());
+                        sb.delete(0, sb.length());
+                    }
+                    // 重置
+                    stack.add(token.text.toString());
+                    break;
+                // 普通文字
+                case TEXT:
+                    sb.append(token.text);
+                    break;
+                // 连续的引号
+                // 分隔符
+                // 会导致开启一个新项
+                case SEPERATOR:
+                    char c = token.src[token.index];
+                    if ('=' == c) {
+                        if (sb.length() > 0) {
+                            stack.add(sb.toString());
+                            sb.delete(0, sb.length());
+                        }
+                    }
+                    // 一个属性结束
+                    else {
+                        // 处理最后一个
+                        if (sb.length() > 0) {
+                            stack.add(sb.toString());
+                            sb.delete(0, sb.length());
+                        }
+                        // 只有名称
+                        if (stack.size() == 1) {
+                            String name = stack.remove(0);
+                            map.put(name, null);
+                        }
+                        // 有名称和值
+                        else if (stack.size() > 1) {
+                            String name = stack.remove(0);
+                            String val = stack.remove(0);
+                            map.put(name, val);
+                        }
+                        stack.clear();
+                    }
+                    break;
+                // 不可能
+                default:
+                    throw Lang.impossible();
                 }
-                map.put(key, val);
             }
+
+            @Override
+            public char escape(char c) {
+                return 0;
+            }
+        });
+        // 处理最后一个
+        if (sb.length() > 0) {
+            stack.add(sb.toString());
         }
+        // 只有名称
+        if (stack.size() == 1) {
+            String name = stack.remove(0);
+            map.put(name, null);
+        }
+        // 有名称和值
+        else if (stack.size() > 1) {
+            String name = stack.remove(0);
+            String val = stack.remove(0);
+            map.put(name, val);
+        }
+
         return map;
     }
 

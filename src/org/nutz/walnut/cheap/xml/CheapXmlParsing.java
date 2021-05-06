@@ -42,6 +42,14 @@ public class CheapXmlParsing {
         this.doc = doc;
     }
 
+    public void setAutoClosedTags(String autoClosedTags) {
+        doc.setAutoClosedTags(autoClosedTags);
+    }
+
+    public void setAutoClosedTagsAsHtml() {
+        doc.setAutoClosedTagsAsHtml();
+    }
+
     private static String REGEX = "(" // Start: 1
                                   // TagBegin: 2,3(Name),4,5(Attrs),6(Closed)
                                   + "(<([A-Za-z0-9_:-]+)(\\s([^>]+?))?(/)?>)"
