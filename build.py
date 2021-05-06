@@ -116,6 +116,7 @@ export JAVA_HOME=$WUPROOT/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 touch web_local.properties
 export WL_PID_PATH=/var/run/''' + proj_name + '''.pid
+mkdir /var/log/walnut/
 ./start.sh''')
     os.chmod('build/wzip/run.sh', 0o755)
 
@@ -139,6 +140,13 @@ export WL_PID_PATH=/var/run/''' + proj_name + '''.pid
         webp = f.read()
     with open("build/wzip/classes/web.properties", "wb") as f :
         f.write(webp.replace(b"~/workspace/git/github/walnut", b"."))
+
+    # 改写log4j.properties
+    with open("build/wzip/classes/log4j_new.properties", "rb") as f :
+        log4j = f.read()
+    with open("build/wzip/classes/log4j.properties", "wb") as f :
+        f.write(log4j.replace(b'D:/workspace/tmp/log/', b'/var/log/walnut/'))
+
     if not os.path.exists("build/wzip/classes/META-INF/services/") :
         os.makedirs("build/wzip/classes/META-INF/services/")
     with open("build/wzip/classes/META-INF/services/javax.servlet.ServletContainerInitializer", "w") as f :
@@ -204,7 +212,7 @@ def opt_wtar():
     tag = time.strftime("%Y%m%d%H%M%S", time.localtime()) 
 
     with open('build/wzip/libs/start.sh', "w") as f: 
-        f.write("java \$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 \$JAVA_OPTS -jar %s.jar" % (proj_name, ))
+        f.write("java $JAVA_OPTS -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar %s.jar" % (proj_name, ))
     os.chmod('build/wzip/libs/start.sh', 0o755)
 
     import tarfile
