@@ -16,7 +16,7 @@ public class DefaultThirdXExpertManager extends AbstractThirdXExpertManager {
         if (ONE == null) {
             synchronized (DefaultThirdXExpertManager.class) {
                 if (ONE == null) {
-                    String base = "org/nutz/walnut/ext/xapi/data/";
+                    String base = "org/nutz/walnut/ext/net/xapi/data/";
                     List<File> files = new LinkedList<>();
                     files.add(Files.findFile(base + "tianyancha.json"));
                     files.add(Files.findFile(base + "weixin.json"));
