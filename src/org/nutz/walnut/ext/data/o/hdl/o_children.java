@@ -13,7 +13,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -43,7 +42,11 @@ public class o_children extends OFilter {
         }
 
         // 读取子孙
-        WnQuery q = Wn.Q.pid(o);
+        WnQuery q = new WnQuery();
+        if (null != ing.query && ing.query.size() > 0) {
+            q.setAllToList(ing.query);
+        }
+        q.setvToList("pid", o.id());
         q.limit(ing.limit);
         if (null != ing.sort) {
             q.sort(ing.sort);
@@ -80,6 +83,7 @@ public class o_children extends OFilter {
         WnSystem sys;
         WnMatch test;
         String childBy;
+        NutMap query;
         NutMap sort;
         int limit;
         Map<String, WnObj> leafObjs;
@@ -137,6 +141,7 @@ public class o_children extends OFilter {
         // 分析参数
         Loading ing = new Loading();
         ing.sys = sys;
+        ing.query = params.getMap("query");
         ing.childBy = params.getString("by", "children");
         ing.force = params.getInt("force", 0);
         ing.depth = params.getInt("depth", 0);

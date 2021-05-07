@@ -9,6 +9,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Wlang;
 
 public class WnQuery {
 
@@ -99,8 +100,15 @@ public class WnQuery {
     }
 
     public WnQuery setvToList(String key, Object value) {
-        for (NutMap ele : list) {
-            ele.setv(key, value);
+        if (null == list) {
+            list = new ArrayList<>(5);
+        }
+        if (list.isEmpty()) {
+            list.add(Wlang.map(key, value));
+        } else {
+            for (NutMap ele : list) {
+                ele.setv(key, value);
+            }
         }
         return this;
     }

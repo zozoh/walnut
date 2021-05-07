@@ -36,7 +36,8 @@ o '${http-qs-p}' \
         ${http-qs-children_leaf<boolean:/-leaf>?false} \
         ${http-qs-children_axis<boolean:/-axis>?true} \
         ${http-qs-children_hidden<boolean:/-hidden>?true} \
-        ${http-qs-children_limit?1000} \
+        -query '${http-qs-children_query<json>?-obj-}' \
+        -limit ${http-qs-children_limit?1000} \
         -by ${http-qs-children_by?} \
         -depth ${http-qs-children_depth?0} \
         -force ${http-qs-children_force?0} \
