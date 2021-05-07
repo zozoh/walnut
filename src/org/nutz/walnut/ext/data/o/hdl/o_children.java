@@ -86,20 +86,23 @@ public class o_children extends OFilter {
         NutMap query;
         NutMap sort;
         int limit;
-        Map<String, WnObj> leafObjs;
+        Map<String, WnObj> topObjs;
         int depth;
         int force;
         boolean axis;
-        boolean leaf;
+        /**
+         * 前序上下文中加载的节点不再加载子节点
+         */
+        boolean noLoadTop;
         boolean showHidden;
 
-        void joinLeafs(WnObj o) {
+        void joinTopObjs(WnObj o) {
             List<WnObj> myChildren = o.getAsList(this.childBy, WnObj.class);
             if (null == myChildren) {
-                leafObjs.put(o.id(), o);
+                topObjs.put(o.id(), o);
             } else {
                 for (WnObj child : myChildren) {
-                    this.joinLeafs(child);
+                    this.joinTopObjs(child);
                 }
             }
         }
@@ -115,7 +118,7 @@ public class o_children extends OFilter {
                 return false;
             }
 
-            if (!leaf && leafObjs.containsKey(o.id())) {
+            if (noLoadTop && topObjs.containsKey(o.id())) {
                 return false;
             }
 
@@ -149,12 +152,12 @@ public class o_children extends OFilter {
         ing.limit = params.getInt("limit", 1000);
         ing.showHidden = params.is("hidden", false);
         ing.axis = params.is("axis", false);
-        ing.leaf = params.is("leaf", false);
+        ing.noLoadTop = params.is("notop", false);
 
         // 上下文节点，编制一个表，以备
-        ing.leafObjs = new HashMap<>();
+        ing.topObjs = new HashMap<>();
         for (WnObj o : fc.list) {
-            ing.joinLeafs(o);
+            ing.joinTopObjs(o);
         }
 
         // 准备过滤器

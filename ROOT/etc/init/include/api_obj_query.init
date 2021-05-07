@@ -33,7 +33,7 @@ o '${http-qs-p}' \
   -skip  ${http-qs-skip?0} \
   @children '${http-qs-children_match<json>?-obj-}' \
         ${http-qs-children<boolean:-ignore/>?false} \
-        ${http-qs-children_leaf<boolean:/-leaf>?false} \
+        ${http-qs-children_notop<boolean:/-notop>?true} \
         ${http-qs-children_axis<boolean:/-axis>?true} \
         ${http-qs-children_hidden<boolean:/-hidden>?true} \
         -query '${http-qs-children_query<json>?-obj-}' \
