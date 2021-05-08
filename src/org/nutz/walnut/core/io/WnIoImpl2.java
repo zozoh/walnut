@@ -1353,7 +1353,7 @@ public class WnIoImpl2 implements WnIo {
             return ImageIO.read(bins);
         }
         catch (IOException e) {
-            throw Er.create("e.io.read.img", o);
+            throw Er.create(e, "e.io.read.img", o);
         }
         finally {
             Streams.safeClose(ins);

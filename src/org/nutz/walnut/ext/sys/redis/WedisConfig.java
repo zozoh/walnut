@@ -4,6 +4,8 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
+import redis.clients.jedis.Jedis;
+
 public class WedisConfig {
 
     private String host;
@@ -149,9 +151,8 @@ public class WedisConfig {
     }
 
     // TODO 这玩意， Redis 用，但是Redis源码里是不要带类型的。有点尴尬，无视吧 ^_^!
-    @SuppressWarnings("rawtypes")
-    public GenericObjectPoolConfig getPoolConfig() {
-        GenericObjectPoolConfig pc = new GenericObjectPoolConfig();
+    public GenericObjectPoolConfig<Jedis> getPoolConfig() {
+        GenericObjectPoolConfig<Jedis> pc = new GenericObjectPoolConfig<>();
         if (this.maxTotal > 0) {
             pc.setMaxTotal(maxTotal);
         }

@@ -35,7 +35,7 @@ public abstract class Wedis {
             synchronized (Wedis.class) {
                 pool = jedis.get(key);
                 if (null == pool) {
-                    GenericObjectPoolConfig poolConfig = conf.getPoolConfig();
+                    GenericObjectPoolConfig<Jedis> poolConfig = conf.getPoolConfig();
                     pool = new JedisPool(poolConfig,
                                          conf.getHost(),
                                          conf.getPort(),

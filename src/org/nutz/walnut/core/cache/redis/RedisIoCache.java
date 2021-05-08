@@ -110,8 +110,8 @@ public class RedisIoCache implements WnIoCache {
         // 采用默认过期时间
         else if (timeout > 0) {
             Wedis.run(conf, jed -> {
-                jed.expire(k1, timeout);
-                jed.expire(k2, timeout);
+                jed.expire(k1, (long) timeout);
+                jed.expire(k2, (long) timeout);
             });
         }
     }

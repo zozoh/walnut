@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.net.xapi.bean;
 
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -9,14 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.nutz.http.Http;
 import org.nutz.json.Json;
@@ -28,13 +19,13 @@ import org.nutz.lang.Xmls;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AlwaysMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
-import org.w3c.dom.Document;
 
 /**
  * 封装了第三方 API 的请求逻辑
@@ -364,31 +355,9 @@ public class ThirdXRequest {
         if (null == body) {
             return "";
         }
-        // w3c document -> XML
-        if (body instanceof Document) {
-            try {
-                Document doc = (Document) body;
-                TransformerFactory transFactory = TransformerFactory.newInstance();
-                Transformer transformer;
-
-                transformer = transFactory.newTransformer();
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-                StringBuilder sb = new StringBuilder();
-                OutputStream ops = Lang.ops(sb);
-                StreamResult sr = new StreamResult(ops);
-
-                DOMSource ds = new DOMSource(doc);
-                transformer.transform(ds, sr);
-
-                return sb.toString();
-            }
-            catch (TransformerConfigurationException e) {
-                throw Lang.wrapThrow(e);
-            }
-            catch (TransformerException e) {
-                throw Lang.wrapThrow(e);
-            }
+        // XML
+        if (body instanceof CheapDocument) {
+            ((CheapDocument) body).toMarkup();
         }
         // Pure XML code
         if (body instanceof CharSequence) {

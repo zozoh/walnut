@@ -201,7 +201,7 @@ public class RedisLockApi implements WnLockApi {
             Long askRe = jed.setnx(askKey, owner);
             // 申请成功，那么设个过期时间，超过这个时间无论怎样，都让这个锁失效
             if (1 == askRe) {
-                jed.expire(askKey, askDuration);
+                jed.expire(askKey, (long) askDuration);
             }
             return askRe;
         });

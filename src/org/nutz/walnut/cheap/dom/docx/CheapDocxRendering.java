@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
@@ -27,7 +26,6 @@ import org.docx4j.wml.CTBorder;
 import org.docx4j.wml.CTHeight;
 import org.docx4j.wml.CTTblCellMar;
 import org.docx4j.wml.CTTblLayoutType;
-import org.docx4j.wml.CTTrPrBase;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Drawing;
 import org.docx4j.wml.Jc;
@@ -549,12 +547,9 @@ public class CheapDocxRendering {
             tr.setTrPr(trPr);
             CTHeight h = new CTHeight();
             h.setVal(BigInteger.valueOf(height * 10));
+
             List<JAXBElement<?>> div = trPr.getCnfStyleOrDivIdOrGridBefore();
-            QName name = new QName("w:trHeight");
-            JAXBElement<CTHeight> jax = new JAXBElement<CTHeight>(name,
-                                                                  CTHeight.class,
-                                                                  CTTrPrBase.class,
-                                                                  h);
+            JAXBElement<CTHeight> jax = factory.createCTTrPrBaseTrHeight(h);
             div.add(jax);
         }
 
@@ -1077,6 +1072,7 @@ public class CheapDocxRendering {
         List<Object> content = r.getContent();
         for (Object o : content) {
             if (o instanceof JAXBElement<?>) {
+
                 JAXBElement<?> jax = (JAXBElement<?>) o;
                 Object ot = jax.getValue();
                 if (null != ot && (ot instanceof Text)) {

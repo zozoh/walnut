@@ -19,11 +19,12 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Xmls;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.core.IoCoreTest;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleManager;
@@ -37,7 +38,6 @@ import org.nutz.walnut.core.indexer.localfile.WnLocalFileObj;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wn;
 import org.nutz.web.WebException;
-import org.w3c.dom.Document;
 
 public abstract class AbsractWnIoTest extends IoCoreTest {
 
@@ -800,9 +800,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         String xml = Files.read(path);
         io.writeText(o, xml);
 
-        InputStream ins = io.getInputStream(o, 0);
-        Document doc = Xmls.xml(ins);
-        assertEquals("a", doc.getDocumentElement().getTagName());
+        String input = io.readText(o);
+        CheapXmlParsing ing = new CheapXmlParsing("a");
+        CheapDocument doc = ing.parseDoc(input);
+        assertEquals("a", doc.root().getTagName());
     }
 
     @Test

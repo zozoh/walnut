@@ -52,7 +52,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
             jed.hmset(key, map);
             if (h.hasTimeout()) {
                 int du = h.getTimeoutInSecond();
-                jed.expire(key, du);
+                jed.expire(key, (long) du);
             }
         });
     }
@@ -65,7 +65,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
                 Map<String, String> map = h.toStringTouchMap();
                 jed.hmset(key, map);
                 int du = h.getTimeoutInSecond();
-                jed.expire(key, du);
+                jed.expire(key, (long) du);
             });
         }
     }

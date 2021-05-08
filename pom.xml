@@ -248,7 +248,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.13.0</version>
+			<version>3.9.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -379,7 +379,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>3.2.0</version>
+			<version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.yandex.clickhouse</groupId>
@@ -388,8 +388,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.docx4j</groupId>
-			<artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
-			<version>8.2.0</version>
+			<artifactId>docx4j-documents4j-local</artifactId>
+            <version>11.2.9</version>
 		</dependency>
 		<dependency>
   			<groupId>org.openjdk.nashorn</groupId>
@@ -435,8 +435,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 					<compilerArgs>
 						<arg>-parameters</arg>
 					</compilerArgs>

@@ -19,14 +19,14 @@ import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Xmls;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
 import org.nutz.walnut.ext.net.xapi.impl.DefaultThirdXExpertManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public abstract class AbstractThirdXApi implements ThirdXApi {
 
@@ -217,19 +217,18 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
             String xml = resp.getContent();
 
             // 要解析成 Document
-            if (classOfT.isAssignableFrom(Document.class)) {
-                return (T) Xmls.xml(Lang.ins(xml));
+            if (classOfT.isAssignableFrom(CheapDocument.class)) {
+                CheapDocument doc = new CheapDocument(null);
+                CheapXmlParsing ing = new CheapXmlParsing(doc);
+                doc = ing.parseDoc(xml);
+                return (T) doc;
             }
             // 要解析成 Element
-            if (classOfT.isAssignableFrom(Element.class)) {
-                Document doc = Xmls.xml(Lang.ins(xml));
-                return (T) doc.getDocumentElement();
-            }
-            // 要解析成 Map
-            if (classOfT.isAssignableFrom(Map.class)) {
-                Document doc = Xmls.xml(Lang.ins(xml));
-                NutMap map = Xmls.asMap(doc.getDocumentElement());
-                return Castors.me().castTo(map, classOfT);
+            if (classOfT.isAssignableFrom(CheapElement.class)) {
+                CheapDocument doc = new CheapDocument(null);
+                CheapXmlParsing ing = new CheapXmlParsing(doc);
+                doc = ing.parseDoc(xml);
+                return (T) doc;
             }
             // 尝试转换
             return Castors.me().castTo(xml, classOfT);
