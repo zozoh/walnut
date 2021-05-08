@@ -164,6 +164,12 @@ def add_dir_to_zip(dst, rootdir, all_files) :
             _path = fullpath[len(rootdir):]
             dst.write(fullpath, _path)
             all_files.append(_path)
+        for name in dirs :
+            fullpath = os.path.join(root, name) + "/"
+            _path = fullpath[len(rootdir):]
+            if len(_path) > 0 :
+                dst.writestr(_path, "")
+                all_files.append(_path)
 
 def opt_fatJar():
 
