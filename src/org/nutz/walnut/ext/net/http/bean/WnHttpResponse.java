@@ -8,6 +8,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import org.nutz.lang.Encoding;
+import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutMap;
 
@@ -30,6 +32,14 @@ public class WnHttpResponse extends InputStream {
 
     public InputStream getBody() {
         return body;
+    }
+
+    public String getBodyText() {
+        if (null == body) {
+            return null;
+        }
+        byte[] bs = Streams.readBytesAndClose(body);
+        return new String(bs, Encoding.CHARSET_UTF8);
     }
 
     public void setBody(InputStream ins, String encoding) throws IOException {

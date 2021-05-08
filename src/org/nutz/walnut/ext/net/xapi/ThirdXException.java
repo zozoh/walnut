@@ -5,6 +5,10 @@ import org.nutz.web.WebException;
 
 public class ThirdXException extends WebException {
 
+    public ThirdXException(Throwable e) {
+        super(e);
+    }
+
     public ThirdXException(ThirdXRequest req, String code, String reason) {
         this.key("e.ThirdXApi." + req.getApiName() + "." + code);
         if (null == reason) {

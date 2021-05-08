@@ -1,7 +1,6 @@
 package org.nutz.walnut.ext.net.xapi.bean;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +15,13 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
+import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.ext.net.http.HttpMethod;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
@@ -53,7 +55,7 @@ public class ThirdXRequest {
 
     private String path;
 
-    private ThirdXMethod method;
+    private HttpMethod method;
 
     private NutMap headers;
 
@@ -72,7 +74,7 @@ public class ThirdXRequest {
     public ThirdXRequest() {
         timeout = 0;
         connectTimeout = 0;
-        method = ThirdXMethod.GET;
+        method = HttpMethod.GET;
         headers = new NutMap();
         params = new NutMap();
     }
@@ -241,30 +243,30 @@ public class ThirdXRequest {
     }
 
     public boolean isGET() {
-        return ThirdXMethod.GET == method;
+        return HttpMethod.GET == method;
     }
 
     public boolean isPOST() {
-        return ThirdXMethod.POST == method;
+        return HttpMethod.POST == method;
     }
 
     public boolean isPUT() {
-        return ThirdXMethod.PUT == method;
+        return HttpMethod.PUT == method;
     }
 
     public boolean isDELETE() {
-        return ThirdXMethod.DELETE == method;
+        return HttpMethod.DELETE == method;
     }
 
     public boolean isPATCH() {
-        return ThirdXMethod.PATCH == method;
+        return HttpMethod.PATCH == method;
     }
 
-    public ThirdXMethod getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 
-    public void setMethod(ThirdXMethod method) {
+    public void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -293,6 +295,20 @@ public class ThirdXRequest {
         return params;
     }
 
+    public NutBean getParamsWithoutNil() {
+        NutMap map = new NutMap();
+        if (null != params) {
+            for (Map.Entry<String, Object> en : params.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                if (null != val) {
+                    map.put(key, val);
+                }
+            }
+        }
+        return map;
+    }
+
     public void setParams(NutMap params) {
         this.params = params;
     }
@@ -300,30 +316,6 @@ public class ThirdXRequest {
     public void explainParams(NutBean vars) {
         NutMap pms = (NutMap) Wn.explainObj(vars, this.params);
         this.params = pms;
-    }
-
-    public String getParamsAsQueryString(boolean quesMark) {
-        StringBuilder sb = new StringBuilder();
-        if (this.hasParams()) {
-            for (Map.Entry<String, Object> en : params.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                if (sb.length() > 0) {
-                    sb.append('&');
-                } else if (quesMark) {
-                    sb.append('?');
-                }
-                sb.append(key);
-                if (null != val) {
-                    try {
-                        String v = URLEncoder.encode(val.toString(), Encoding.UTF8);
-                        sb.append('=').append(v);
-                    }
-                    catch (UnsupportedEncodingException e) {}
-                }
-            }
-        }
-        return sb.toString();
     }
 
     public boolean hasBodyType() {
@@ -348,6 +340,22 @@ public class ThirdXRequest {
 
     public Object getBody() {
         return body;
+    }
+
+    public InputStream getBodyInputStream() {
+        if (null == body) {
+            return new VoidInputStream();
+        }
+        if (body instanceof InputStream) {
+            return (InputStream) body;
+        }
+        if (body instanceof byte[]) {
+            byte[] bs = (byte[]) body;
+            return new ByteInputStream(bs);
+        }
+        String str = body.toString();
+        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        return new ByteInputStream(bs);
     }
 
     @SuppressWarnings("unchecked")

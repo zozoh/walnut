@@ -7,15 +7,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
 import javax.imageio.ImageIO;
 
 import org.nutz.castor.Castors;
-import org.nutz.http.Request;
-import org.nutz.http.Response;
-import org.nutz.http.Sender;
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
@@ -25,6 +21,9 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
+import org.nutz.walnut.ext.net.http.HttpConnector;
+import org.nutz.walnut.ext.net.http.HttpContext;
+import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
 import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
 import org.nutz.walnut.ext.net.xapi.impl.DefaultThirdXExpertManager;
 
@@ -81,73 +80,54 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         url += path;
 
         // 准备 HTTP 响应
-        // TODO Nutz 的 Http 客户端写的现在看起来有点乱，应该重写一个
-        Request req = Request.get(url);
-        Response resp = null;
+        HttpContext hc = new HttpContext();
+        hc.setUrl(url);
+        hc.setMethod(xreq.getMethod());
 
         // 确定请求：头
         if (xreq.hasHeader()) {
-            for (Map.Entry<String, Object> en : xreq.getHeaders().entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                if (null != val) {
-                    req.header(key, val.toString());
-                }
-            }
+            hc.setHeaders(xreq.getHeaders());
         }
         // 确定请求：参数表
-        req.setParams(xreq.getParams());
+        hc.setParams(xreq.getParamsWithoutNil());
 
-        // POST 请求
-        if (xreq.isPOST()) {
-            // 标记请求方法
-            req.setMethod(Request.METHOD.POST);
-
-            // 处理一下 QueryString
-            if (xreq.hasBody() && xreq.hasParams()) {
-                req.setUrl(url + xreq.getParamsAsQueryString(true));
-            }
-
-            // 特殊处理一下 post body 的类型
-            String bodyType = xreq.getBodyType();
-
-            // XML请求
-            if ("xml".equals(bodyType)) {
-                String xml = xreq.getBodyDataXml();
-                req.header("Content-Type", "text/xml");
-                req.setData(xml);
-            }
-            // JSON 请求
-            else if ("json".equals(bodyType)) {
-                String json = xreq.getBodyDataJson();
-                req.header("Content-Type", "application/json");
-                req.setData(json);
-            }
-              // 普通的 POST 请求，就什么也不用做了
-            else {}
-        }
-          // 其他的情况暂时不支持
-        else {
-            // TODO 考虑更多情况
+        // 确定请求：体
+        if (xreq.hasBody()) {
+            hc.setBody(xreq.getBodyInputStream());
         }
 
         // 设置过期时间
-        Sender sender = Sender.create(req);
-        sender.setTimeout(xreq.getTimeout());
-        sender.setConnTimeout(xreq.getConnectTimeout());
+        hc.setReadTimeout(xreq.getTimeout());
+        hc.setConnectTimeout(xreq.getConnectTimeout());
 
         // 发送请求
-        resp = sender.send();
+        WnHttpResponse resp;
+        try {
+            HttpConnector c = hc.open();
+            c.prepare();
+            c.connect();
+            c.sendHeaders();
+            c.sendBody();
+
+            // 得到响应
+            resp = c.getResponse();
+        }
+        catch (IOException e1) {
+            throw new ThirdXException(e1);
+        }
 
         // 如果出错了
-        if (!resp.isOK()) {
-            throw new ThirdXException(xreq, "http" + resp.getStatus(), resp.getDetail());
+        if (!resp.isStatus(200)) {
+            String str = resp.getBodyText();
+            throw new ThirdXException(xreq, "http" + resp.getStatusCode(), str);
         }
 
         // 检查一下 响应头
-        if (!xreq.isMatch(resp.getHeader().getMap())) {
-            String reason = resp.getHeader().toString();
-            reason += "\n" + resp.getContent();
+        NutMap respHeaders = resp.getHeaders();
+        if (!xreq.isMatch(respHeaders)) {
+            String str = resp.getBodyText();
+            String reason = Json.toJson(respHeaders, JsonFormat.nice());
+            reason += "\n" + str;
             throw new ThirdXException(xreq, "e.xapi.resp.invalid_header", reason);
         }
 
@@ -158,8 +138,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
             byte[] buf = new byte[8192];
             int len;
             try {
-                InputStream ins = resp.getStream();
-                while ((len = ins.read(buf)) >= 0) {
+                while ((len = resp.read(buf)) >= 0) {
                     bytes.write(buf, 0, len);
                 }
                 return (T) bytes.toArray();
@@ -172,8 +151,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         // 输出成 Rader
         if (classOfT == Reader.class || classOfT == BufferedReader.class) {
             try {
-                InputStream ins = resp.getStream();
-                Reader r = new InputStreamReader(ins, Encoding.UTF8);
+                Reader r = new InputStreamReader(resp, Encoding.UTF8);
                 if (classOfT == BufferedReader.class) {
                     return (T) Streams.buffr(r);
                 }
@@ -186,7 +164,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
 
         // 输出成 InputStream
         if (classOfT == InputStream.class) {
-            return (T) resp.getStream();
+            return (T) resp;
         }
 
         // 准备相应结果
@@ -194,7 +172,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
 
         // JSON
         if ("json".equals(dataType)) {
-            String json = resp.getContent();
+            String json = resp.getBodyText();
             if (classOfT.isAssignableFrom(String.class)) {
                 return (T) json;
             }
@@ -208,13 +186,13 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
 
         // Pure Text
         if ("text".equals(dataType)) {
-            String str = resp.getContent();
+            String str = resp.getBodyText();
             return Castors.me().castTo(str, classOfT);
         }
 
         // XML
         if ("xml".equals(dataType)) {
-            String xml = resp.getContent();
+            String xml = resp.getBodyText();
 
             // 要解析成 Document
             if (classOfT.isAssignableFrom(CheapDocument.class)) {
@@ -236,11 +214,10 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
 
         // 图片
         if ("png".equals(dataType) || "jpeg".equals(dataType)) {
-            InputStream ins = resp.getStream();
             // 转成图片对象
             if (classOfT.isAssignableFrom(BufferedImage.class)) {
                 try {
-                    return (T) ImageIO.read(ins);
+                    return (T) ImageIO.read(resp);
                 }
                 catch (IOException e) {
                     throw Lang.wrapThrow(e);
