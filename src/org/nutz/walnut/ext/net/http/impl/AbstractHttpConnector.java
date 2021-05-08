@@ -97,6 +97,7 @@ public abstract class AbstractHttpConnector implements HttpConnector {
                 String name = Ws.headerCase(key);
                 // String name = Ws.kebabCase(key);
                 Object val = en.getValue();
+                //System.out.printf("%s : [%s]\n", name, val);
                 if (null == val) {
                     continue;
                 }
