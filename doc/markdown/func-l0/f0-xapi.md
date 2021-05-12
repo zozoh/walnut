@@ -28,14 +28,14 @@ author: zozoh
    - `POST`
 4. 对于带 `body` 的请求，请求体的编码可能是:
 
- Name   | Title     | Mime
---------|-----------|--------
-`form`  | 普通表单[【默认】 | `application/x-www-form-urlencoded`
-`files` | 文件流表单 | `multipart/form-data`
-`json`  | JSON      | `application/json`
-`xml`   | XML       | `text/xml`
-`text`  | 纯文本    | `text/plain`
-`bin`   | 二进制    | `application/octet-stream`
+ Name       | Title     | Mime
+------------|-----------|--------
+`form`      | 普通表单[【默认】 | `application/x-www-form-urlencoded`
+`multipart` | 文件流表单 | `multipart/form-data`
+`json`      | JSON      | `application/json`
+`xml`       | XML       | `text/xml`
+`text`      | 纯文本    | `text/plain`
+`bin`       | 二进制    | `application/octet-stream`
 
 5. 对于响应，我们认为其内容可能是:
 

@@ -26,6 +26,7 @@ import org.nutz.walnut.ext.net.http.HttpContext;
 import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
 import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
 import org.nutz.walnut.ext.net.xapi.impl.DefaultThirdXExpertManager;
+import org.nutz.walnut.util.stream.WnInputStreamFactory;
 
 public abstract class AbstractThirdXApi implements ThirdXApi {
 
@@ -40,6 +41,8 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
     public AbstractThirdXApi(ThirdXExpertManager experts) {
         this.experts = experts;
     }
+
+    public abstract WnInputStreamFactory getInputStreamFactory();
 
     public boolean hasValidAccessKey(String apiName, String account) {
         return configs.hasValidAccessKey(apiName, account);
@@ -82,6 +85,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         // 准备 HTTP 响应
         HttpContext hc = new HttpContext();
         hc.setUrl(url);
+        hc.setFollowRedirects(true);
         hc.setMethod(xreq.getMethod());
 
         // 确定请求：头
@@ -92,13 +96,12 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         hc.setParams(xreq.getParamsWithoutNil());
 
         // 确定请求：体
-        if (xreq.hasBody()) {
-            hc.setBody(xreq.getBodyInputStream());
-        }
+        xreq.setupHttpContextBody(hc);
 
         // 设置过期时间
         hc.setReadTimeout(xreq.getTimeout());
         hc.setConnectTimeout(xreq.getConnectTimeout());
+        hc.setInputStreamFactory(this.getInputStreamFactory());
 
         // 发送请求
         WnHttpResponse resp;
@@ -117,7 +120,7 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         }
 
         // 如果出错了
-        if (!resp.isStatus(200)) {
+        if (!resp.isStatusOk()) {
             String str = resp.getBodyText();
             throw new ThirdXException(xreq, "http" + resp.getStatusCode(), str);
         }

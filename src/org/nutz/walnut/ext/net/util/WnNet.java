@@ -12,7 +12,8 @@ import java.io.UnsupportedEncodingException;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-
+import org.nutz.walnut.util.Wint;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 
 public class WnNet {
@@ -63,26 +64,50 @@ public class WnNet {
     }
 
     public static void joinQuery(StringBuilder sb, Map<String, Object> query, boolean encode) {
+        joinQuery(sb, query, encode, false);
+    }
+
+    public static void joinQuery(StringBuilder sb,
+                                 Map<String, Object> query,
+                                 boolean encode,
+                                 boolean ignoreNil) {
         Set<Entry<String, Object>> ens = query.entrySet();
-        int i = 0;
+        int[] I = Wint.array(0);
         for (Map.Entry<String, Object> en : ens) {
-            if (i > 0) {
-                sb.append('&');
-            }
-            i++;
-            String key = en.getKey();
             Object val = en.getValue();
+            if (ignoreNil && null == val) {
+                continue;
+            }
+           
+            String key = en.getKey();
+            // 仅仅是一个键
             if (null == val) {
-                sb.append(key);
-            } else {
-                String s = val.toString();
-                if (encode) {
-                    try {
-                        s = URLEncoder.encode(s, "UTF-8");
-                    }
-                    catch (UnsupportedEncodingException e) {}
+                if (I[0] > 0) {
+                    sb.append('&');
                 }
-                sb.append(key).append('=').append(s);
+                sb.append(key);
+                I[0]++;
+            }
+            // 键值对，要考虑列表
+            else {
+                Wlang.each(val, (index,ele,src)->{
+                    if (ignoreNil && null == ele) {
+                        return;
+                    }
+                    if (I[0] > 0) {
+                        sb.append('&');
+                    }
+                    sb.append(key);
+                    String s = val.toString();
+                    if (encode) {
+                        try {
+                            s = URLEncoder.encode(s, "UTF-8");
+                        }
+                        catch (UnsupportedEncodingException e) {}
+                    }
+                    sb.append('=').append(s);
+                    I[0]++;
+                });
             }
         }
     }

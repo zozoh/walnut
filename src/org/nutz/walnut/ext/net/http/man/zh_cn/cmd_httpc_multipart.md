@@ -17,23 +17,25 @@ httpc {URL} @multipart
 [
   // Part: 上传文件的例子  
   {
+    type: "FILE",
     // Part 的名称
     name: "f0",
     // 内容来自哪个文件
     // 当然，如果想从标准输入读取，可以写成
     // - ">>INPUT"
     value: "~/xxx.jpg",
-    // 这里可以指明特殊文件名。否则就是用 file 指定的文件名
+    // 【选】这里可以指明特殊文件名。否则就是用 file 指定的文件名
     // 如果文件内容是从标准输入读取，由于没有文件名。就需要这个字段了。
     // 当然如果还是没有指定，则会自动生成一个随机文件名字符串
     fileName : "xxx.jpg",
-    // 内容类型，通常根据 file 文件自动获取
+    // 【选】内容类型，通常根据 file 文件自动获取
     // 当然，从标准输入读取的，则需要这个字段来指定
     // 这个对应： "Content-Type" 属性
     contentType : "image/jpeg"
   },
   // Part: 普通表单字段的例子
   {
+    type: "TEXT",
     // Part 的名称
     name  : "xxx",
     // Part 的值
@@ -49,7 +51,7 @@ httpc {URL} @multipart
 httpc http://demo.com/path/to @multipart '{..}'
 
 # 从一个文件对象获取 multipart form 内容
-httpc http://demo.com/path/to @params -f ~/xxx.json
+httpc http://demo.com/path/to @multipart -f ~/xxx.json
 
 # 从标准输入读取 multipart form 内容
 cat ~/xxx.json | httpc http://demo.com/path/to @multipart

@@ -1,14 +1,13 @@
 package org.nutz.walnut.ext.net.xapi.bean;
 
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.http.Http;
+import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
@@ -20,11 +19,14 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.ext.net.http.HttpContext;
 import org.nutz.walnut.ext.net.http.HttpMethod;
+import org.nutz.walnut.ext.net.http.bean.HttpFormPart;
+import org.nutz.walnut.ext.net.util.WnNet;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AlwaysMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -61,7 +63,7 @@ public class ThirdXRequest {
 
     private NutMap params;
 
-    private String bodyType;
+    private ThirdXBodyType bodyType;
 
     private Object body;
 
@@ -209,35 +211,9 @@ public class ThirdXRequest {
         //
         // 处理参数
         //
-        if (null != this.params) {
-            List<String> palist = new ArrayList<>(this.params.size());
-            for (Entry<String, Object> en : params.entrySet()) {
-                final String key = en.getKey();
-                Object val = en.getValue();
-                if (val == null) {
-                    if (ignoreNil)
-                        continue;
-                    val = "";
-                }
-                Wlang.each(val, (index, ele, src) -> {
-                    if (ignoreNil) {
-                        if (ele == null) {
-                            return;
-                        }
-                        if (ele instanceof CharSequence) {
-                            if (Ws.isBlank((CharSequence) ele)) {
-                                return;
-                            }
-                        }
-                    }
-                    palist.add(String.format("%s=%s",
-                                             Http.encode(key, Encoding.UTF8),
-                                             Http.encode(ele, Encoding.UTF8)));
-                });
-            }
-            if (!palist.isEmpty()) {
-                sb.append('?').append(Ws.join(palist, "&"));
-            }
+        if (this.isGET() && null != this.params && !this.params.isEmpty()) {
+            sb.append('?');
+            WnNet.joinQuery(sb, this.params, true, true);
         }
         return sb.toString();
     }
@@ -318,15 +294,39 @@ public class ThirdXRequest {
         this.params = pms;
     }
 
-    public boolean hasBodyType() {
-        return !Strings.isBlank(bodyType);
+    public boolean isBodyAsJson() {
+        return ThirdXBodyType.json == bodyType;
     }
 
-    public String getBodyType() {
+    public boolean isBodyAsForm() {
+        return ThirdXBodyType.form == bodyType;
+    }
+
+    public boolean isBodyAsMultipart() {
+        return ThirdXBodyType.multipart == bodyType;
+    }
+
+    public boolean isBodyAsXml() {
+        return ThirdXBodyType.xml == bodyType;
+    }
+
+    public boolean isBodyAsText() {
+        return ThirdXBodyType.text == bodyType;
+    }
+
+    public boolean isBodyAsBinary() {
+        return ThirdXBodyType.bin == bodyType;
+    }
+
+    public boolean hasBodyType() {
+        return null != bodyType;
+    }
+
+    public ThirdXBodyType getBodyType() {
         return bodyType;
     }
 
-    public void setBodyType(String bodyType) {
+    public void setBodyType(ThirdXBodyType bodyType) {
         this.bodyType = bodyType;
     }
 
@@ -340,6 +340,43 @@ public class ThirdXRequest {
 
     public Object getBody() {
         return body;
+    }
+
+    public void setupHttpContextBody(HttpContext hc) {
+        if (!this.isPOST() || null == body) {
+            return;
+        }
+        // 二进制流或者是纯文本
+        if (this.isBodyAsBinary() || this.isBodyAsText() || !this.hasBodyType()) {
+            hc.setBody(this.getBodyInputStream());
+        }
+          // 普通表单
+        else if (this.isBodyAsForm()) {
+            // 无视 body
+        }
+        // 文件上传流
+        else if (this.isBodyAsMultipart()) {
+            List<HttpFormPart> parts = new LinkedList<>();
+            Wlang.each(this.body, (index, ele, src) -> {
+                HttpFormPart part = Castors.me().castTo(ele, HttpFormPart.class);
+                parts.add(part);
+            });
+            hc.setFormParts(parts);
+        }
+        // XML
+        else if (this.isBodyAsXml()) {
+            String xml = this.getBodyDataXml();
+            hc.setBody(xml);
+        }
+        // JSON
+        else if (this.isBodyAsText()) {
+            String json = this.getBodyDataJson();
+            hc.setBody(json);
+        }
+        // 其他的不支持
+        else {
+            throw Er.create("e.thridx.req.UnSupportedBodyType", this.bodyType);
+        }
     }
 
     public InputStream getBodyInputStream() {
@@ -436,6 +473,14 @@ public class ThirdXRequest {
         if (null == this.matchHeader)
             return true;
         return this.matchHeader.match(header);
+    }
+
+    public WnMatch getMatchHeader() {
+        return matchHeader;
+    }
+
+    public void setMatchHeader(WnMatch matchHeader) {
+        this.matchHeader = matchHeader;
     }
 
 }

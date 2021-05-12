@@ -10,15 +10,17 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.net.http.bean.HttpFormPart;
 import org.nutz.walnut.ext.net.http.bean.HttpUrl;
-import org.nutz.walnut.ext.net.http.bean.WnInputStreamInfo;
 import org.nutz.walnut.ext.net.http.impl.HttpGetConnector;
 import org.nutz.walnut.ext.net.http.impl.HttpMultipartPostConnector;
 import org.nutz.walnut.ext.net.http.impl.HttpPostConnector;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.stream.WnInputStreamFactory;
+import org.nutz.walnut.util.stream.WnInputStreamInfo;
 
 public class HttpContext {
 
@@ -49,7 +51,7 @@ public class HttpContext {
     /**
      * 文件上传的时候要用到，根据这个接口，可以从一个路径获取输入流
      */
-    private HttpPathInputStreamFactory inputStreamFactory;
+    private WnInputStreamFactory inputStreamFactory;
 
     public HttpContext() {
         connectTimeout = 3000;
@@ -243,6 +245,10 @@ public class HttpContext {
         this.body = body;
     }
 
+    public void setBody(String input) {
+        this.body = new StringInputStream(input);
+    }
+
     public boolean hasFormParts() {
         return null != this.formParts && !formParts.isEmpty();
     }
@@ -343,11 +349,11 @@ public class HttpContext {
         return inputStreamFactory.getStreamInfo(path);
     }
 
-    public HttpPathInputStreamFactory getInputStreamFactory() {
+    public WnInputStreamFactory getInputStreamFactory() {
         return inputStreamFactory;
     }
 
-    public void setInputStreamFactory(HttpPathInputStreamFactory inputStreamFactory) {
+    public void setInputStreamFactory(WnInputStreamFactory inputStreamFactory) {
         this.inputStreamFactory = inputStreamFactory;
     }
 
