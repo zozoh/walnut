@@ -124,6 +124,12 @@ public class WnDaoQuery {
 
     @SuppressWarnings("unchecked")
     SqlExpression anyToExp(String key, Object val) {
+        boolean not = false;
+        if (key.startsWith("!")) {
+            not = true;
+            key = key.substring(1).trim();
+        }
+
         // 首先翻译一下数据库字段
         String colName = evalColName(key);
 
@@ -133,38 +139,39 @@ public class WnDaoQuery {
 
         // 按条件判断值，决定采用哪种表达式
         if (null == val) {
-            return Exps.isNull(colName);
+            return Exps.isNull(colName).setNot(not);
         }
         // 如果是空串
         if ("".equals(val)) {
-            return Exps.isNull(colName).setNot(true);
+            not = !not;
+            return Exps.isNull(colName).setNot(not);
         }
         // 数字类型
         if (val instanceof Number) {
-            return Exps.eq(colName, val);
+            return Exps.eq(colName, val).setNot(not);
         }
         // 范围
         if (val instanceof Region) {
-            return regionToExp(colName, (Region<?>) val);
+            return regionToExp(colName, (Region<?>) val, not);
         }
         // Regex
         if (val instanceof Pattern) {
-            return regexToExp(colName, val.toString());
+            return regexToExp(colName, val.toString(), not);
         }
         // Collection
         if (val instanceof Collection) {
             Collection<Object> col = (Collection<Object>) val;
             Object[] vv = col.toArray(new Object[col.size()]);
-            return arrayToExp(colName, vv);
+            return arrayToExp(colName, vv, not);
         }
         // Array
         if (val.getClass().isArray()) {
-            return arrayToExp(colName, (Object[]) val);
+            return arrayToExp(colName, (Object[]) val, not);
         }
         // Map
         // 支持一些特殊的语法 "[%$](eq|ne|gt|gte|lt|lte|in|nin)" 等
         if (val instanceof Map) {
-            return mapToExp(colName, val);
+            return mapToExp(colName, val, not);
         }
         //
         // Simple value
@@ -183,7 +190,7 @@ public class WnDaoQuery {
 
             // 正则表达式
             if (s.startsWith("^") || s.startsWith("!^")) {
-                return this.regexToExp(colName, s);
+                return this.regexToExp(colName, s, not);
             }
             // 表示不等于
             if (s.startsWith("!")) {
@@ -197,27 +204,27 @@ public class WnDaoQuery {
             // 通配符
             if (s.contains("*") || s.contains("?")) {
                 String s2 = s.replace('*', '%').replace('?', '_');
-                return Exps.create(colName, "LIKE", s2);
+                return Exps.create(colName, "LIKE", s2).setNot(not);
             }
             // 整数范围
             if (s.matches(WnRg.intRegion())) {
                 IntRegion rg = Region.Int(s);
-                return this.regionToExp(colName, rg);
+                return this.regionToExp(colName, rg, not);
             }
             // 长整数范围
             if (s.matches(WnRg.longRegion())) {
                 LongRegion rg = Region.Long(s);
-                return this.regionToExp(colName, rg);
+                return this.regionToExp(colName, rg, not);
             }
             // 浮点范围
             if (s.matches(WnRg.floatRegion())) {
                 FloatRegion rg = Region.Float(s);
-                return this.regionToExp(colName, rg);
+                return this.regionToExp(colName, rg, not);
             }
             // 日期范围
             if (s.matches(WnRg.dateRegion("^"))) {
                 DateRegion rg = Region.Date(s);
-                return this.regionToExp(colName, rg);
+                return this.regionToExp(colName, rg, not);
             }
             // 日期范围当做毫秒数
             else if (s.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
@@ -235,17 +242,17 @@ public class WnDaoQuery {
                 if (null != r)
                     rg2.right(r.getTime());
 
-                return this.regionToExp(colName, rg2);
+                return this.regionToExp(colName, rg2, not);
             }
             // 普通字符串
-            return Exps.eq(colName, s);
+            return Exps.eq(colName, s).setNot(not);
         }
         // 其他直接搞吧
-        return Exps.eq(colName, val);
+        return Exps.eq(colName, val).setNot(not);
     }
 
     @SuppressWarnings("unchecked")
-    private SqlExpression mapToExp(String colName, Object val) {
+    private SqlExpression mapToExp(String colName, Object val, boolean not) {
         SqlExpressionGroup grp = new SqlExpressionGroup();
         NutMap map = NutMap.WRAP((Map<String, Object>) val);
         for (Map.Entry<String, Object> en : map.entrySet()) {
@@ -285,20 +292,20 @@ public class WnDaoQuery {
                 // $in
                 else if ("in".equals(md)) {
                     Object[] vv = Castors.me().castTo(v, Object[].class);
-                    SqlExpression e2 = enumArrayToExp(colName, vv, "in");
+                    SqlExpression e2 = enumArrayToExp(colName, vv, "in", false);
                     grp.and(e2);
                 }
                 // $nin
                 else if ("nin".equals(md)) {
                     Object[] vv = Castors.me().castTo(v, Object[].class);
-                    SqlExpression e2 = enumArrayToExp(colName, vv, "nin");
+                    SqlExpression e2 = enumArrayToExp(colName, vv, "nin", false);
                     grp.and(e2);
                 }
             }
         }
         if (grp.isEmpty())
             return null;
-        return grp;
+        return grp.setNot(not);
     }
 
     private String evalColName(String stdName) {
@@ -324,7 +331,7 @@ public class WnDaoQuery {
     private static final Pattern _P = Pattern.compile("^[$%](n?in|all|and|or)$");
 
     @SuppressWarnings("unchecked")
-    private SqlExpression arrayToExp(String colName, Object[] vv) {
+    private SqlExpression arrayToExp(String colName, Object[] vv, boolean not) {
         if (vv.length <= 0) {
             return null;
         }
@@ -357,7 +364,7 @@ public class WnDaoQuery {
                 }
                 if (grp.isEmpty())
                     return null;
-                return grp;
+                return grp.setNot(not);
             }
             // 靠，错误的 Key
             else {
@@ -365,10 +372,10 @@ public class WnDaoQuery {
             }
         }
         // 那就作为普通元素的枚举
-        return enumToExp(colName, vv);
+        return enumToExp(colName, vv, not);
     }
 
-    private SqlExpression enumToExp(String colName, Object[] vv) {
+    private SqlExpression enumToExp(String colName, Object[] vv, boolean not) {
         // 空数组，无视
         if (null == vv || vv.length == 0) {
             return null;
@@ -378,29 +385,29 @@ public class WnDaoQuery {
         Matcher m = _P.matcher(colName);
         if (m.find()) {
             String matchMode = m.group(1);
-            return enumArrayToExp(colName, vv, matchMode);
+            return enumArrayToExp(colName, vv, matchMode, not);
         }
 
         // 单个值
         if (vv.length == 1) {
-            return Exps.eq(colName, vv[0]);
+            return Exps.eq(colName, vv[0]).setNot(not);
         }
         // 多个值，看看是 “与” 还是 “或”
         Object v0 = vv[0];
         // 指明 in
         if (v0.equals("%in")) {
             Object[] vv2 = Arrays.copyOfRange(vv, 1, vv.length);
-            return enumArrayToExp(colName, vv2, "in");
+            return enumArrayToExp(colName, vv2, "in", not);
         }
         // 指明 all
         if (v0.equals("%all")) {
             Object[] vv2 = Arrays.copyOfRange(vv, 1, vv.length);
-            return enumArrayToExp(colName, vv2, "all");
+            return enumArrayToExp(colName, vv2, "all", not);
         }
         // 指明 nin
         if (v0.equals("%nin")) {
             Object[] vv2 = Arrays.copyOfRange(vv, 1, vv.length);
-            return enumArrayToExp(colName, vv2, "nin");
+            return enumArrayToExp(colName, vv2, "nin", not);
         }
         // 指明了 or 那么全部变成条件
         if (v0.equals("%or")) {
@@ -413,13 +420,16 @@ public class WnDaoQuery {
             }
             if (grp.isEmpty())
                 return null;
-            return grp;
+            return grp.setNot(not);
         }
         // 默认用 in
-        return enumArrayToExp(colName, vv, "in");
+        return enumArrayToExp(colName, vv, "in", not);
     }
 
-    private SqlExpression enumArrayToExp(String colName, Object[] vv, String matchMode) {
+    private SqlExpression enumArrayToExp(String colName,
+                                         Object[] vv,
+                                         String matchMode,
+                                         boolean not) {
         boolean notIn = false;
         if ("nin".equals(matchMode)) {
             notIn = true;
@@ -446,8 +456,7 @@ public class WnDaoQuery {
         }
     }
 
-    private SqlExpression regexToExp(String colName, String regex) {
-        boolean not = false;
+    private SqlExpression regexToExp(String colName, String regex, boolean not) {
         if (regex.startsWith("!")) {
             regex = regex.substring(1).trim();
             not = true;
@@ -459,16 +468,16 @@ public class WnDaoQuery {
         return se;
     }
 
-    private SqlExpression regionToExp(String colName, Region<?> rg) {
+    private SqlExpression regionToExp(String colName, Region<?> rg, boolean not) {
         // 如果是一个范围
         if (rg.isRegion()) {
             SqlExpressionGroup grp = new SqlExpressionGroup();
             if (rg.left() != null) {
-                String op = rg.leftOpt(">", ">=");
+                String op = not ? rg.leftOpt("<", "<=") : rg.leftOpt(">", ">=");
                 grp.and(new SimpleExpression(colName, op, rg.left()));
             }
             if (rg.right() != null) {
-                String op = rg.rightOpt("<", "<=");
+                String op = not ? rg.rightOpt(">", ">=") : rg.rightOpt("<", "<=");
                 grp.and(new SimpleExpression(colName, op, rg.right()));
             }
             return grp;
@@ -477,10 +486,11 @@ public class WnDaoQuery {
         else if (!rg.isNull()) {
             // 如果两边都是开区间表示不等于
             if (rg.isLeftOpen() && rg.isRightOpen()) {
-                return Exps.eq(colName, rg.left()).setNot(true);
+                not = !not;
+                return Exps.eq(colName, rg.left()).setNot(not);
             }
             // 否则表示等于
-            return Exps.eq(colName, rg.left());
+            return Exps.eq(colName, rg.left()).setNot(not);
         }
         // 不可能啊
         throw Lang.impossible();

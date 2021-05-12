@@ -21,6 +21,7 @@ import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.WnRg;
 
 import com.mongodb.BasicDBList;
@@ -77,36 +78,58 @@ class Mongos {
         return qDoc;
     }
 
+    static void _put_to_query(ZMoDoc q, boolean not, String key, Object v) {
+        if (not) {
+            if (null == v) {
+                q.put(key, Wlang.map("$ne", v));
+            } else {
+                Mirror<?> mi = Mirror.me(v);
+                if (mi.isSimple()) {
+                    q.put(key, Wlang.map("$ne", v));
+                } else {
+                    q.put(key, Wlang.map("$not", v));
+                }
+            }
+        } else {
+            q.put(key, v);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     static void _set_to_doc(ZMoDoc q, String key, Object v) {
+        boolean not = false;
+        if (key.startsWith("!")) {
+            not = true;
+            key = key.substring(1).trim();
+        }
         if (null == v) {
-            q.put(key, null);
+            _put_to_query(q, not, key, null);
         }
         // 数字类型
         else if (v instanceof Number) {
-            q.put(key, v);
+            _put_to_query(q, not, key, v);
         }
         // 范围
         else if (v instanceof Region) {
-            __set_region_to_doc(q, key, (Region<?>) v);
+            __set_region_to_doc(q, not, key, (Region<?>) v);
         }
         // Regex
         else if (v instanceof Pattern) {
-            q.put(key, v);
+            _put_to_query(q, not, key, v);
         }
         // Collection
         else if (v instanceof Collection) {
             Collection<Object> col = (Collection<Object>) v;
             Object[] vv = col.toArray(new Object[col.size()]);
-            _set_array_to_doc(q, key, vv);
+            _set_array_to_doc(q, not, key, vv);
         }
         // Array
         else if (v.getClass().isArray()) {
-            _set_array_to_doc(q, key, (Object[]) v);
+            _set_array_to_doc(q, not, key, (Object[]) v);
         }
         // Map
         else if (v instanceof Map) {
-            _set_map_to_doc(q, key, (Map<String, Object>) v);
+            _set_map_to_doc(q, not, key, (Map<String, Object>) v);
         }
         // Simple value
         else {
@@ -116,7 +139,11 @@ class Mongos {
                 String s = v.toString();
                 // 非空
                 if (s.length() == 0) {
-                    q.ne(key, null);
+                    if (not) {
+                        q.eq(key, null);
+                    } else {
+                        q.ne(key, null);
+                    }
                     return;
                 }
 
@@ -125,21 +152,26 @@ class Mongos {
 
                 // 正则表达式
                 if (s.startsWith("^")) {
-                    q.put(key, Pattern.compile(s));
+                    Object v2 = Pattern.compile(s);
+                    _put_to_query(q, not, key, v2);
                 }
                 // 正则表达式取反
                 else if (s.startsWith("!^")) {
-                    q.put(key, Lang.map("$not", Pattern.compile(s.substring(1))));
+                    Object v2 = Pattern.compile(s.substring(1));
+                    not = !not;
+                    _put_to_query(q, not, key, v2);
                 }
                 // 表示不等于
                 else if (s.startsWith("!")) {
+                    not = !not;
                     // 直接是 "!" 表示不等于 null
                     if ("!".equals(s)) {
-                        q.put(key, Lang.map("$ne", null));
+                        _put_to_query(q, not, key, null);
                     }
                     // 否则取值
                     else {
-                        q.put(key, Lang.map("$ne", s.substring(1)));
+                        String s2 = s.substring(1);
+                        _put_to_query(q, not, key, s2);
                     }
                 }
                 // 通配符
@@ -150,22 +182,22 @@ class Mongos {
                 // 整数范围
                 else if (s.matches(WnRg.intRegion())) {
                     IntRegion rg = Region.Int(s);
-                    __set_region_to_doc(q, key, rg);
+                    __set_region_to_doc(q, not, key, rg);
                 }
                 // 长整数范围
                 else if (s.matches(WnRg.longRegion())) {
                     LongRegion rg = Region.Long(s);
-                    __set_region_to_doc(q, key, rg);
+                    __set_region_to_doc(q, not, key, rg);
                 }
                 // 浮点范围
                 else if (s.matches(WnRg.floatRegion())) {
                     FloatRegion rg = Region.Float(s);
-                    __set_region_to_doc(q, key, rg);
+                    __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围
                 else if (s.matches(WnRg.dateRegion("^"))) {
                     DateRegion rg = Region.Date(s);
-                    __set_region_to_doc(q, key, rg);
+                    __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围当做毫秒数
                 else if (s.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
@@ -183,16 +215,16 @@ class Mongos {
                     if (null != r)
                         rg2.right(r.getTime());
 
-                    __set_region_to_doc(q, key, rg2);
+                    __set_region_to_doc(q, not, key, rg2);
                 }
                 // 普通字符串
                 else {
-                    q.put(key, s);
+                    _put_to_query(q, not, key, s);
                 }
             }
             // 其他直接搞吧
             else {
-                q.put(key, v);
+                _put_to_query(q, not, key, v);
             }
         }
     }
@@ -200,7 +232,7 @@ class Mongos {
     private static final Pattern _P = Pattern.compile("^[$%](and|or)");
 
     @SuppressWarnings("unchecked")
-    private static void _set_array_to_doc(ZMoDoc q, String key, Object[] vv) {
+    private static void _set_array_to_doc(ZMoDoc q, boolean not, String key, Object[] vv) {
         if (vv.length > 0) {
             Mirror<?> mi = Mirror.me(vv[0]);
 
@@ -223,7 +255,7 @@ class Mongos {
                         list.add(doc);
                     }
                     // 重新应用一下条件
-                    q.put(key, list);
+                    _put_to_query(q, not, key, list);
                 }
                 // 靠，错误的 Key
                 else {
@@ -232,12 +264,12 @@ class Mongos {
             }
             // 那就作为普通元素的枚举
             else {
-                _set_enum_to_doc(q, key, vv);
+                _set_enum_to_doc(q, not, key, vv);
             }
         }
     }
 
-    private static void __set_region_to_doc(ZMoDoc q, String key, Region<?> rg) {
+    private static void __set_region_to_doc(ZMoDoc q, boolean not, String key, Region<?> rg) {
         // 如果是一个范围
         if (rg.isRegion()) {
             ZMoDoc doc = ZMoDoc.NEW();
@@ -247,22 +279,39 @@ class Mongos {
             if (rg.right() != null) {
                 doc.put(rg.rightOpt("$lt", "$lte"), rg.right());
             }
-            q.put(key, doc);
+            _put_to_query(q, not, key, doc);
         }
         // 如果是一个精确的值
         else if (!rg.isNull()) {
             // 如果两边都是开区间表示不等于
             if (rg.isLeftOpen() && rg.isRightOpen()) {
-                q.put(key, ZMoDoc.NEW("$ne", rg.left()));
+                // 不等于再 not，那就是等于咯
+                if (not) {
+                    q.put(key, rg.left());
+                }
+                // 那就是不等于
+                else {
+                    q.put(key, ZMoDoc.NEW("$ne", rg.left()));
+                }
             }
             // 否则表示等于
             else {
-                q.put(key, rg.left());
+                // 等于再 not，那就是不等于咯
+                if (not) {
+                    q.put(key, ZMoDoc.NEW("$ne", rg.left()));
+                }
+                // 那就是等于
+                else {
+                    q.put(key, rg.left());
+                }
             }
         }
     }
 
-    private static void _set_map_to_doc(ZMoDoc q, String key, Map<String, Object> map) {
+    private static void _set_map_to_doc(ZMoDoc q,
+                                        boolean not,
+                                        String key,
+                                        Map<String, Object> map) {
         ZMoDoc doc = ZMoDoc.NEW();
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String key2 = en.getKey();
@@ -274,20 +323,25 @@ class Mongos {
             Object val2 = en.getValue();
             _set_to_doc(doc, key2, val2);
         }
-        q.put(key, doc);
+        _put_to_query(q, not, key, doc);
     }
 
-    private static void _set_enum_to_doc(ZMoDoc q, String key, Object[] ss) {
+    private static void _set_enum_to_doc(ZMoDoc q, boolean not, String key, Object[] ss) {
         // 指明了 in/all/nin
         if (key.matches("^[%$](n?in|all)$")) {
-            q.put(key, ss);
+            _put_to_query(q, not, key, ss);
         }
         // 单个值
         else if (ss.length == 1) {
-            q.put(key, ss[0]);
+            _put_to_query(q, not, key, ss[0]);
         }
         // 多个值，看看是 “与” 还是 “或”
         else if (ss.length > 0) {
+            ZMoDoc q2 = q;
+            // 搞一个嵌套
+            if (not) {
+                q = new ZMoDoc();
+            }
             // 指明 in
             if (ss[0].equals("%in")) {
                 q.in(key, Arrays.copyOfRange(ss, 1, ss.length));
@@ -313,6 +367,10 @@ class Mongos {
             // 默认用 in
             else {
                 q.in(key, ss);
+            }
+            // 嵌套进去
+            if (not) {
+                _put_to_query(q2, not, key, q);
             }
         }
     }

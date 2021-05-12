@@ -9,12 +9,12 @@
    "cache-test" : "=ObjQueryCacheTest"
 }
 %COPY:
-o '${http-qs-p}' \
+o '${http-qs-p?}' \
   @query '${http-qs-m<json>?-obj-}' -mine ${http-qs-hide<boolean:/-hidden>?false} \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
   -skip  ${http-qs-skip?0} \
-  -pager 
+  -pager \
   @refer ${http-qs-ref?} -keys ${http-qs-rks?#SHA1} \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
   @json ${http-qs-k?#TP} -cqnl
@@ -26,7 +26,7 @@ o '${http-qs-p}' \
    "cache-test" : "=ObjQueryCacheTest"
 }
 %COPY:
-o '${http-qs-p}' \
+o '${http-qs-p?}' \
   @query '${http-qs-m<json>?-obj-}' -mine \
   -sort '${http-qs-s<json>?-obj-}' \
   -limit ${http-qs-limit?100} \
