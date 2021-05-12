@@ -1,9 +1,14 @@
 package org.nutz.walnut.util.bean;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.Lang;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -12,55 +17,49 @@ import org.nutz.walnut.util.bean.val.WnValueType;
 
 public class WnBeanMapping extends HashMap<String, WnBeanField> {
 
-    /**
-     * 确保自己每个值都是 WnBeanField 对象，有时候从 Json 恢复出来的是 NutMap
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void checkFields() {
-        for (Map.Entry en : super.entrySet()) {
-            Object val = en.getValue();
-            // Map 的话，转换
-            if (val instanceof Map) {
-                NutMap vo = NutMap.WRAP((Map) val);
-                // 处理 eleType
-                checkEleType(vo);
-                // 转换为字段
-                WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
-                en.setValue(fld);
-            }
-            // String 的话，就是简单映射咯
-            else if (val instanceof String) {
-                String name = (String) val;
-                WnBeanField fld = new WnBeanField();
-                fld.setName(name);
-                fld.setType(WnValueType.String);
-                en.setValue(fld);
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private void checkEleType(NutMap vo) {
-        Object eleType = vo.get("eleType");
-        if (null != eleType) {
-            // 字符串，就表示类型
-            if (eleType instanceof String) {
-                WnValue wv = new WnValue();
-                wv.setType(WnValueType.valueOf((String) eleType));
-                vo.put("eleType", wv);
+    public Object translateAny(Object input, boolean onlyMapping) {
+        Mirror<?> mi = Mirror.me(input);
+        // ....................................
+        // Array
+        if (mi.isArray()) {
+            int len = Array.getLength(input);
+            List<Object> list = new ArrayList<>(len);
+            for (int i = 0; i < len; i++) {
+                Object val = Array.get(input, i);
+                Object v2 = translateAny(val, onlyMapping);
+                if (null != v2) {
+                    list.add(v2);
+                }
             }
-            // 一个完整的声明
-            else if (eleType instanceof Map) {
-                NutMap map = NutMap.WRAP((Map<String, Object>) eleType);
-                checkEleType(map);
-                WnValue wv = Lang.map2Object(map, WnValue.class);
-                vo.put("eleType", wv);
-            }
-            // 其他的移除掉
-            else {
-                vo.remove("eleType");
-            }
+            Object[] arr = new Object[list.size()];
+            list.toArray(arr);
+            return arr;
         }
+        // ....................................
+        // 集合
+        if (mi.isCollection()) {
+            Collection<?> col = (Collection<?>) input;
+            List<Object> list = new ArrayList<>(col.size());
+            for (Object v : col) {
+                Object v2 = translateAny(v, onlyMapping);
+                if (null != v2) {
+                    list.add(v2);
+                }
+            }
+            return list;
+        }
+        // ....................................
+        // Map
+        else if (mi.isMap()) {
+            NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+            return translate(inputMap, onlyMapping);
+        }
+        // 其他的原样返回
+        if (onlyMapping) {
+            return null;
+        }
+        return input;
     }
 
     public NutBean translate(NutBean bean, boolean onlyMapping) {
@@ -118,4 +117,80 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
         return re;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void setFields(Map<String, Object> fields) {
+        this.clear();
+        for (Map.Entry en : fields.entrySet()) {
+            String key = en.getKey().toString();
+            Object val = en.getValue();
+            // Map 的话，转换
+            if (val instanceof Map) {
+                NutMap vo = NutMap.WRAP((Map) val);
+                // 处理 eleType
+                checkEleType(vo);
+                // 转换为字段
+                WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
+                this.put(key, fld);
+            }
+            // String 的话，就是简单映射咯
+            else if (val instanceof String) {
+                String name = (String) val;
+                WnBeanField fld = new WnBeanField();
+                fld.setName(name);
+                fld.setType(WnValueType.String);
+                this.put(key, fld);
+            }
+        }
+    }
+
+    /**
+     * 确保自己每个值都是 WnBeanField 对象，有时候从 Json 恢复出来的是 NutMap
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void checkFields() {
+        for (Map.Entry en : super.entrySet()) {
+            Object val = en.getValue();
+            // Map 的话，转换
+            if (val instanceof Map) {
+                NutMap vo = NutMap.WRAP((Map) val);
+                // 处理 eleType
+                checkEleType(vo);
+                // 转换为字段
+                WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
+                en.setValue(fld);
+            }
+            // String 的话，就是简单映射咯
+            else if (val instanceof String) {
+                String name = (String) val;
+                WnBeanField fld = new WnBeanField();
+                fld.setName(name);
+                fld.setType(WnValueType.String);
+                en.setValue(fld);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void checkEleType(NutMap vo) {
+        Object eleType = vo.get("eleType");
+        if (null != eleType) {
+            // 字符串，就表示类型
+            if (eleType instanceof String) {
+                WnValue wv = new WnValue();
+                wv.setType(WnValueType.valueOf((String) eleType));
+                vo.put("eleType", wv);
+            }
+            // 一个完整的声明
+            else if (eleType instanceof Map) {
+                NutMap map = NutMap.WRAP((Map<String, Object>) eleType);
+                checkEleType(map);
+                WnValue wv = Lang.map2Object(map, WnValue.class);
+                vo.put("eleType", wv);
+            }
+            // 其他的移除掉
+            else {
+                vo.remove("eleType");
+            }
+        }
+    }
 }

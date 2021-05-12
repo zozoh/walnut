@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.net.http.bean;
+package org.nutz.walnut.util.stream;
 
 import java.io.InputStream;
 

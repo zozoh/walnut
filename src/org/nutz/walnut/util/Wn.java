@@ -1437,7 +1437,8 @@ public abstract class Wn {
     }
 
     private static final String TM_REG = "^(now"
-                                         + "|today"
+                                         + "|today|Mon|Tue|Wed|Thu|Fri|Sat|Sun"
+                                         + "|monthBegin|monthEnd"
                                          + "|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*"
                                          + ")\\s*"
                                          + "("
@@ -1478,12 +1479,49 @@ public abstract class Wn {
             else if ("today".equals(current)) {
                 ms = Wtime.todayInMs();
             }
+            // 类似 monthBegin+1d
+            else if ("monthBegin".equals(current)) {
+                ms = Wtime.monthDayInMs(0);
+            }
+            // 类似 monthEnd+1d
+            else if ("monthEnd".equals(current)) {
+                ms = Wtime.monthDayInMs(-1);
+            }
+            // 类似 Sun+1d
+            else if ("Sun".equals(current)) {
+                ms = Wtime.weekDayInMs(0);
+            }
+            // 类似 Mon+1d
+            else if ("Mon".equals(current)) {
+                ms = Wtime.weekDayInMs(1);
+            }
+            // 类似 Tue+1d
+            else if ("Tue".equals(current)) {
+                ms = Wtime.weekDayInMs(2);
+            }
+            // 类似 Wed+1d
+            else if ("Wed".equals(current)) {
+                ms = Wtime.weekDayInMs(3);
+            }
+            // 类似 Thu+1d
+            else if ("Thu".equals(current)) {
+                ms = Wtime.weekDayInMs(4);
+            }
+            // 类似 Fri+1d
+            else if ("Fri".equals(current)) {
+                ms = Wtime.weekDayInMs(5);
+            }
+            // 类似 Sat+1d
+            else if ("Sat".equals(current)) {
+                ms = Wtime.weekDayInMs(6);
+            }
             // 类似 2020-12-05T00:12:32
             else {
                 ms = Times.D(current).getTime();
             }
-
+            //
             // 嗯要加点偏移量
+            //
             if (!Strings.isBlank(offset)) {
                 long off = msValueOf(dus);
                 // 看是加还是减

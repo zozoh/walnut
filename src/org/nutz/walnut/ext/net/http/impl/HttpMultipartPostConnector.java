@@ -9,7 +9,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.walnut.ext.net.http.HttpContext;
 import org.nutz.walnut.ext.net.http.bean.HttpFormPart;
-import org.nutz.walnut.ext.net.http.bean.WnInputStreamInfo;
+import org.nutz.walnut.util.stream.WnInputStreamInfo;
 
 public class HttpMultipartPostConnector extends AbstractHttpConnector {
 

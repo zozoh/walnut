@@ -5,6 +5,9 @@ import java.util.Map;
 
 import org.nutz.walnut.util.bean.val.WnAMSValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnArrayValueAdaptor;
+import org.nutz.walnut.util.bean.val.WnDateTextValueAdaptor;
+import org.nutz.walnut.util.bean.val.WnDateTimeValueAdaptor;
+import org.nutz.walnut.util.bean.val.WnDateValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnIntegerValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnObjectValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnStringValueAdaptor;
@@ -22,6 +25,9 @@ public class WnValues {
         map.put(WnValueType.Array, new WnArrayValueAdaptor());
         map.put(WnValueType.Object, new WnObjectValueAdaptor());
         map.put(WnValueType.AMS, new WnAMSValueAdaptor());
+        map.put(WnValueType.Date, new WnDateValueAdaptor());
+        map.put(WnValueType.DateTime, new WnDateTimeValueAdaptor());
+        map.put(WnValueType.DateText, new WnDateTextValueAdaptor());
     }
 
     public static Object toValue(WnValue fld, Object input) {

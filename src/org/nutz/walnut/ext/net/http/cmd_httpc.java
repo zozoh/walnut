@@ -8,13 +8,13 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
-import org.nutz.walnut.ext.net.http.bean.WnInputStreamInfo;
 import org.nutz.walnut.ext.net.util.WnNet;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.obj.WnObjGetter;
 
 public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFilter> {
 
@@ -48,21 +48,7 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
         // 设置上下文
         fc.context.setUrl(url);
         fc.context.setFollowRedirects(fc.params.is("r"));
-        fc.context.setInputStreamFactory(new HttpPathInputStreamFactory() {
-            public WnInputStreamInfo getStreamInfo(String path) {
-                WnInputStreamInfo info = new WnInputStreamInfo();
-                if (">>INPUT".equals(path)) {
-                    info.stream = sys.in.getInputStream();
-                    return info;
-                }
-                WnObj o = Wn.checkObj(sys, path);
-                info.stream = sys.io.getInputStream(o, 0);
-                info.name = o.name();
-                info.mime = o.mime();
-                info.length = o.len();
-                return info;
-            }
-        });
+        fc.context.setInputStreamFactory(new WnObjGetter(sys));
     }
 
     @Override

@@ -15,6 +15,47 @@ import org.nutz.walnut.impl.box.WnSystem;
 public class WnTest {
 
     @Test
+    public void test_evalDatetimeStrToAMS_2() {
+        long ams, exp;
+        // 开始测试
+        ams = Wn.evalDatetimeStrToAMS("Sun");
+        exp = Wtime.weekDayInMs(0);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Mon");
+        exp = Wtime.weekDayInMs(1);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Tue");
+        exp = Wtime.weekDayInMs(2);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Wed");
+        exp = Wtime.weekDayInMs(3);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Thu");
+        exp = Wtime.weekDayInMs(4);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Fri");
+        exp = Wtime.weekDayInMs(5);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("Sat");
+        exp = Wtime.weekDayInMs(6);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("monthBegin");
+        exp = Wtime.monthDayInMs(0);
+        assertEquals(exp, ams);
+
+        ams = Wn.evalDatetimeStrToAMS("monthEnd");
+        exp = Wtime.monthDayInMs(-1);
+        assertEquals(exp, ams);
+    }
+
+    @Test
     public void test_evalDatetimeStrToAMS() {
         Calendar c = Calendar.getInstance();
 

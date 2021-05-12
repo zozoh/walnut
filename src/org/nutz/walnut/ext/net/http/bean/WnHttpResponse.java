@@ -87,6 +87,10 @@ public class WnHttpResponse extends InputStream {
         return this.statusCode == code;
     }
 
+    public boolean isStatusOk() {
+        return this.statusCode >= 200 & this.statusCode < 300;
+    }
+
     public int getStatusCode() {
         return statusCode;
     }

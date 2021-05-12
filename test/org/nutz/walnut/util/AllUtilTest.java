@@ -8,6 +8,7 @@ import org.nutz.walnut.util.time.WnDayTimeTest;
 @Suite.SuiteClasses({WsTest.class,
                      CmdsTest.class,
                      WnDayTimeTest.class,
+                     WtimeTest.class,
                      WcharTest.class,
                      WnTest.class,
                      WnSortTest.class,

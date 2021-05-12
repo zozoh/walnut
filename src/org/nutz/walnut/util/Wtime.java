@@ -9,8 +9,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
+import org.nutz.walnut.api.err.Er;
 
 /**
  * 日期时间相关的帮助函数
@@ -19,21 +18,32 @@ import org.nutz.lang.Strings;
  */
 public abstract class Wtime {
 
-    private static Pattern _P_TIME = Pattern.compile("^((\\d{2,4})([/\\\\-])?(\\d{1,2})([/\\\\-])?(\\d{1,2}))?"
-                                                     + "(([ T])?"
-                                                     + "(\\d{1,2})(:)(\\d{1,2})((:)(\\d{1,2}))?"
-                                                     + "(([.])"
-                                                     + "(\\d{1,}))?)?"
-                                                     + "(([+-])(\\d{1,2})(:\\d{1,2})?)?"
-                                                     + "$");
+    static String REG = "^(\\d{2,4})([^\\d]*)" // 年 1,2
+                        + "(\\d{1,2})([^\\d]*)" // 月 3,4
+                        + "(\\d{1,2})([^\\d]*)" // 日 5,6
+                        + "(\\d{1,2})?([^\\d]*)?" // 时 7,8
+                        + "(\\d{1,2})?([^\\d]*)?" // 分 9,10
+                        + "(\\d{1,2})?([^\\d+-]*)?" // 秒 11,12
+                        + "(\\d{1,3})?([^\\d+-]*)?" // 毫秒 13,14
+                        + "(([+-]?)(\\d{1,2}).*)?" // 时区 15,16,17
+                        + "$";
+    private static Pattern _P_TIME = Pattern.compile(REG);
 
     private static Pattern _P_TIME_LONG = Pattern.compile("^[0-9]+(L)?$");
 
-    public String formatDate(Date d) {
-        return formatDate(d, "yyyy-MM-dd'T'HH:mm:ss");
+    public static String formatDateTime(Date d) {
+        return format(d, "yyyy-MM-dd'T'HH:mm:ss");
     }
 
-    public String formatDate(Date d, String fmt) {
+    public static String formatDate(Date d) {
+        return format(d, "yyyy-MM-dd");
+    }
+
+    public static String formatTime(Date d) {
+        return format(d, "HH:mm:ss");
+    }
+
+    public static String format(Date d, String fmt) {
         return new SimpleDateFormat(fmt, Locale.ENGLISH).format(d);
     }
 
@@ -93,17 +103,52 @@ public abstract class Wtime {
      * @see #_P_TIME
      */
     public static Date parseDate(String ds, TimeZone tz) {
-        Matcher m = _P_TIME.matcher(ds);
+        // 防守
+        if (null == ds) {
+            return null;
+        }
+        // 绝对毫秒数
+        Matcher m = _P_TIME_LONG.matcher(ds);
         if (m.find()) {
-            int yy = _int(m, 2, 1970);
-            int MM = _int(m, 4, 1);
-            int dd = _int(m, 6, 1);
+            long ams = Long.parseLong(ds);
+            return new Date(ams);
+        }
 
-            int HH = _int(m, 9, 0);
-            int mm = _int(m, 11, 0);
-            int ss = _int(m, 14, 0);
+        // 按字符串格式解析
+        m = _P_TIME.matcher(ds);
+        /**
+         * <pre>
+         0/18  Regin:0/18
+         0:[  0, 18) `2020年4月12日12点3分20秒`
+         1:[  0,  4) `2020`
+         2:[  4,  5) `年`
+         3:[  5,  6) `4`
+         4:[  6,  7) `月`
+         5:[  7,  9) `12`
+         6:[  9, 10) `日`
+         7:[ 10, 12) `12`
+         8:[ 12, 13) `点`
+         9:[ 13, 14) `3`
+         10:[ 14, 15) `分`
+         11:[ 15, 17) `20`
+         12:[ 17, 18) `秒`
+         13:[ 18, 21) `189`
+         14:[ 21, 23) `毫秒`
+         15:[ 24, 26) `+8`
+         16:[ 24, 25) `+`
+         17:[ 25, 26) `8`
+         * </pre>
+         */
+        if (m.find()) {
+            int yy = _int(m, 1, 1970);
+            int MM = _int(m, 3, 1);
+            int dd = _int(m, 5, 1);
 
-            int ms = _int(m, 17, 0);
+            int HH = _int(m, 7, 0);
+            int mm = _int(m, 9, 0);
+            int ss = _int(m, 11, 0);
+
+            int ms = _int(m, 13, 0);
 
             /*
              * zozoh: 先干掉，还是用 SimpleDateFormat 吧，"1980-05-01 15:17:23" 之前的日子
@@ -131,8 +176,8 @@ public abstract class Wtime {
                                        ms);
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             // 那么用字符串中带有的时区信息 ...
-            if (null == tz && !Strings.isBlank(m.group(18))) {
-                tz = TimeZone.getTimeZone(String.format("GMT%s%s:00", m.group(19), m.group(20)));
+            if (null == tz && !Ws.isBlank(m.group(15))) {
+                tz = TimeZone.getTimeZone(String.format("GMT%s%s:00", m.group(16), m.group(17)));
             }
             // 指定时区 ...
             if (null != tz) {
@@ -143,7 +188,7 @@ public abstract class Wtime {
                 return df.parse(str);
             }
             catch (ParseException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         } else if (_P_TIME_LONG.matcher(ds).find()) {
             if (ds.endsWith("L")) {
@@ -152,7 +197,139 @@ public abstract class Wtime {
             long ams = Long.parseLong(ds);
             return new Date(ams);
         }
-        throw Lang.makeThrow("Unexpect date format '%s'", ds);
+        throw Er.createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
+    }
+
+    public static long parseAnyAMS(Object input) {
+        if (null == input) {
+            return 0;
+        }
+        // 日期
+        if (input instanceof Calendar) {
+            return ((Calendar) input).getTimeInMillis();
+        }
+        if (input instanceof Date) {
+            return ((Date) input).getTime();
+        }
+        // 数字
+        if (input instanceof Number) {
+            return ((Number) input).longValue();
+        }
+        // 解析
+        String s = input.toString();
+        return parseAMS(s);
+    }
+
+    public static Calendar parseAnyCalendar(Object input) {
+        if (null == input) {
+            return null;
+        }
+        // 日期
+        if (input instanceof Calendar) {
+            return ((Calendar) input);
+        }
+        if (input instanceof Date) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(((Date) input));
+            return c;
+        }
+        // 数字
+        if (input instanceof Number) {
+            Calendar c = Calendar.getInstance();
+            long ams = ((Number) input).longValue();
+            c.setTimeInMillis(ams);
+            return c;
+        }
+        // 解析
+        String s = input.toString();
+        return parseCalendar(s);
+    }
+
+    public static Date parseAnyDate(Object input) {
+        if (null == input) {
+            return null;
+        }
+        // 日期
+        if (input instanceof Calendar) {
+            return ((Calendar) input).getTime();
+        }
+        if (input instanceof Date) {
+            return ((Date) input);
+        }
+        // 数字
+        if (input instanceof Number) {
+            long ams = ((Number) input).longValue();
+            return new Date(ams);
+        }
+        // 解析
+        String s = input.toString();
+        return parseDate(s);
+    }
+
+    /**
+     * @param offset
+     *            <code>0</code> 表示当月第一日。
+     *            <p>
+     *            如果小于零，则表示从后面数 <code>-1</code> 表示当月最后一日
+     * @return 日期对象
+     */
+    public static Calendar monthDay(int offset) {
+        Calendar c = today();
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        if (offset < 0) {
+            int m = c.get(Calendar.MONTH);
+            c.set(Calendar.MONTH, m + 1);
+            int d = c.get(Calendar.DAY_OF_MONTH);
+            d += offset;
+            c.set(Calendar.DAY_OF_MONTH, d);
+        }
+        return c;
+    }
+
+    public static Date monthDayDate(int offset) {
+        return monthDay(offset).getTime();
+    }
+
+    public static long monthDayInMs(int offset) {
+        return monthDay(offset).getTimeInMillis();
+    }
+
+    /**
+     * 获取本周的日期（00:00:00）
+     * 
+     * @param offset，
+     *            <ul>
+     *            <li><code>0</code> 周日
+     *            <li><code>1</code> 周一
+     *            <li><code>2</code> 周二
+     *            <li><code>3</code> 周三
+     *            <li><code>4</code> 周四
+     *            <li><code>5</code> 周五
+     *            <li><code>6</code> 周六
+     *            </ul>
+     *            如果超过了 <code>0-6</code>，则滚动
+     * @return 日期对象
+     */
+    public static Calendar weekDay(int offset) {
+        // 找到本周日
+        Calendar c = today();
+        c.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+
+        // 偏移
+        int d = c.get(Calendar.DAY_OF_MONTH);
+        d += offset;
+
+        c.set(Calendar.DAY_OF_MONTH, d);
+        // 搞定
+        return c;
+    }
+
+    public static Date weekDayDate(int offset) {
+        return weekDay(offset).getTime();
+    }
+
+    public static long weekDayInMs(int offset) {
+        return weekDay(offset).getTimeInMillis();
     }
 
     public static Calendar today() {
@@ -203,9 +380,22 @@ public abstract class Wtime {
         c.set(Calendar.MILLISECOND, 0);
     }
 
+    /**
+     * 将给定的日期对象时间设置为<code>23:59:59.999</code>
+     * 
+     * @param c
+     *            日期
+     */
+    public static void setDayEnd(Calendar c) {
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        c.set(Calendar.MILLISECOND, 999);
+    }
+
     private static int _int(Matcher m, int index, int dft) {
         String s = m.group(index);
-        if (Strings.isBlank(s)) {
+        if (Ws.isBlank(s)) {
             return dft;
         }
         return Integer.parseInt(s);

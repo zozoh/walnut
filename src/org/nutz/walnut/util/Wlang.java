@@ -1,15 +1,25 @@
 package org.nutz.walnut.util;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
+import org.nutz.castor.Castors;
+import org.nutz.castor.FailToCastObjectException;
 import org.nutz.json.Json;
+import org.nutz.lang.Lang;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
+import org.nutz.lang.reflect.ReflectTool;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.each.WnBreakException;
@@ -17,6 +27,144 @@ import org.nutz.walnut.util.each.WnContinueException;
 import org.nutz.walnut.util.each.WnEachIteratee;
 
 public class Wlang {
+
+    /**
+     * 根据一个 Map，和给定的对象类型，创建一个新的 JAVA 对象
+     *
+     * @param src
+     *            Map 对象
+     * @param toType
+     *            JAVA 对象类型
+     * @return JAVA 对象
+     * @throws FailToCastObjectException
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> T map2Object(Map<?, ?> src, Class<T> toType)
+            throws FailToCastObjectException {
+        if (null == toType)
+            throw new FailToCastObjectException("target type is Null");
+        // 类型相同
+        if (toType == Map.class) {
+            return (T) src;
+        }
+        // 也是一种 Map
+        Mirror<T> mirror = Mirror.me(toType);
+        if (Map.class.isAssignableFrom(toType)) {
+            Map map;
+            try {
+                map = (Map) mirror.born();
+                map.putAll(src);
+                return (T) map;
+            }
+            catch (Exception e) {
+                throw new FailToCastObjectException("target type fail to born!", unwrapThrow(e));
+            }
+
+        }
+        // 数组
+        if (toType.isArray())
+            return (T) Lang.collection2array(src.values(), toType.getComponentType());
+        // List
+        if (List.class == toType) {
+            return (T) Lang.collection2list(src.values());
+        }
+
+        // POJO
+        T obj = mirror.born();
+        for (Field field : mirror.getFields()) {
+            Object v = null;
+
+            if (null == v && src.containsKey(field.getName())) {
+                v = src.get(field.getName());
+            }
+
+            if (null != v) {
+                // Class<?> ft = field.getType();
+                // 获取泛型基类中的字段真实类型, https://github.com/nutzam/nutz/issues/1288
+                Class<?> ft = ReflectTool.getGenericFieldType(toType, field);
+                Mirror<?> miFld = Mirror.me(ft);
+                Object vv = null;
+                // 集合
+                if (v instanceof Collection
+                    && (ft.isArray() || Collection.class.isAssignableFrom(ft))) {
+                    Collection c = (Collection) v;
+                    // 集合到数组
+                    if (ft.isArray()) {
+                        vv = Lang.collection2array(c, ft.getComponentType());
+                    }
+                    // 集合到集合
+                    else {
+                        // 创建
+                        Collection newCol;
+                        // Class eleType = Mirror.getGenericTypes(field, 0);
+                        Class<?> eleType = ReflectTool.getParameterRealGenericClass(toType,
+                                                                                    field.getGenericType(),
+                                                                                    0);
+                        if (ft == List.class) {
+                            newCol = new ArrayList(c.size());
+                        } else if (ft == Set.class) {
+                            newCol = new LinkedHashSet();
+                        } else {
+                            try {
+                                newCol = (Collection) miFld.born();
+                            }
+                            catch (Exception e) {
+                                throw Lang.wrapThrow(e);
+                            }
+                        }
+                        // 赋值
+                        for (Object ele : c) {
+                            newCol.add(Castors.me().castTo(ele, eleType));
+                        }
+                        vv = newCol;
+                    }
+                }
+                // Map
+                else if (v instanceof Map && Map.class.isAssignableFrom(ft)) {
+                    // 创建
+                    final Map map;
+                    // Map 接口
+                    if (ft == Map.class) {
+                        map = new NutMap();
+                    }
+                    // 自己特殊的 Map
+                    else {
+                        try {
+                            map = (Map) miFld.born();
+                        }
+                        catch (Exception e) {
+                            throw new FailToCastObjectException("target type fail to born!", e);
+                        }
+                    }
+                    // 赋值
+                    // final Class<?> valType = Mirror.getGenericTypes(field,
+                    // 1);
+                    // map的key和value字段类型
+                    final Class<?> keyType = ReflectTool.getParameterRealGenericClass(toType,
+                                                                                      field.getGenericType(),
+                                                                                      0);
+                    final Class<?> valType = ReflectTool.getParameterRealGenericClass(toType,
+                                                                                      field.getGenericType(),
+                                                                                      1);
+
+                    Map vMap = (Map) v;
+                    for (Object eno : vMap.entrySet()) {
+                        Entry en = (Map.Entry) eno;
+                        Object ek = Castors.me().castTo(en.getKey(), keyType);
+                        Object ev = Castors.me().castTo(en.getValue(), valType);
+                        map.put(ek, ev);
+                    }
+                    vv = map;
+                }
+                // 强制转换
+                else {
+                    vv = Castors.me().castTo(v, ft);
+                }
+                mirror.setValue(obj, field, vv);
+            }
+        }
+        return obj;
+    }
 
     /**
      * 根据一段字符串，生成一个 Map 对象。
@@ -374,5 +522,27 @@ public class Wlang {
                 Thread.sleep(millisecond);
         }
         catch (Throwable e) {}
+    }
+
+    public static Throwable unwrapThrow(Throwable e) {
+        if (e == null)
+            return null;
+        if (e instanceof InvocationTargetException) {
+            InvocationTargetException itE = (InvocationTargetException) e;
+            if (itE.getTargetException() != null)
+                return unwrapThrow(itE.getTargetException());
+        }
+        if (e instanceof RuntimeException && e.getCause() != null)
+            return unwrapThrow(e.getCause());
+        return e;
+    }
+
+    public static boolean isCauseBy(Throwable e, Class<? extends Throwable> causeType) {
+        if (e.getClass() == causeType)
+            return true;
+        Throwable cause = e.getCause();
+        if (null == cause)
+            return false;
+        return isCauseBy(cause, causeType);
     }
 }
