@@ -1,11 +1,9 @@
-命令简介
-======= 
+# 命令简介
 
 `jsonx` 用来是一个处理 JSON 的过滤器型命令
     
 
-用法
-=======
+# 用法
 
 ```
 jsonx [options] [[@filter filter-args...]...]

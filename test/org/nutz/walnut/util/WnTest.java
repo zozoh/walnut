@@ -18,39 +18,39 @@ public class WnTest {
     public void test_evalDatetimeStrToAMS_2() {
         long ams, exp;
         // 开始测试
-        ams = Wn.evalDatetimeStrToAMS("Sun");
+        ams = Wtime.valueOf("Sun");
         exp = Wtime.weekDayInMs(0);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Mon");
+        ams = Wtime.valueOf("Mon");
         exp = Wtime.weekDayInMs(1);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Tue");
+        ams = Wtime.valueOf("Tue");
         exp = Wtime.weekDayInMs(2);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Wed");
+        ams = Wtime.valueOf("Wed");
         exp = Wtime.weekDayInMs(3);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Thu");
+        ams = Wtime.valueOf("Thu");
         exp = Wtime.weekDayInMs(4);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Fri");
+        ams = Wtime.valueOf("Fri");
         exp = Wtime.weekDayInMs(5);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("Sat");
+        ams = Wtime.valueOf("Sat");
         exp = Wtime.weekDayInMs(6);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("monthBegin");
+        ams = Wtime.valueOf("monthBegin");
         exp = Wtime.monthDayInMs(0);
         assertEquals(exp, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("monthEnd");
+        ams = Wtime.valueOf("monthEnd");
         exp = Wtime.monthDayInMs(-1);
         assertEquals(exp, ams);
     }
@@ -71,23 +71,23 @@ public class WnTest {
         long now_ms1 = now_ms0 + dayms;
 
         // 开始测试
-        long ams = Wn.evalDatetimeStrToAMS("now");
+        long ams = Wtime.valueOf("now");
         assertTrue(ams >= now_ms0);
         assertTrue(ams < now_ms1);
 
-        ams = Wn.evalDatetimeStrToAMS("today");
+        ams = Wtime.valueOf("today");
         assertEquals(now_ms0, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("today+1d");
+        ams = Wtime.valueOf("today+1d");
         assertEquals(now_ms0 + dayms, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("today-1d");
+        ams = Wtime.valueOf("today-1d");
         assertEquals(now_ms0 - dayms, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("today+2d");
+        ams = Wtime.valueOf("today+2d");
         assertEquals(now_ms0 + dayms * 2, ams);
 
-        ams = Wn.evalDatetimeStrToAMS("today-2d");
+        ams = Wtime.valueOf("today-2d");
         assertEquals(now_ms0 - dayms * 2, ams);
     }
 

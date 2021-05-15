@@ -15,7 +15,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 import org.nutz.web.WebException;
 
 @JvmHdlParamArgs("cqnl")
@@ -32,7 +32,7 @@ public class sms_query implements JvmHdl {
 
         // 试图当做时间范围
         try {
-            long ms = Wn.msValueOf(str);
+            long ms = Wtime.millisecond(str);
             q.to = Times.now();
             q.from = Times.D(q.to.getTime() - ms);
         }

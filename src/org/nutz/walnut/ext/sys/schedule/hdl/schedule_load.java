@@ -15,8 +15,8 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(force|json)$")
 public class schedule_load implements JvmHdl {
@@ -35,7 +35,7 @@ public class schedule_load implements JvmHdl {
 
         // 得到指定日期
         String today = hc.params.getString("today", "today");
-        long ams = Wn.evalDatetimeStrToAMS(today);
+        long ams = Wtime.valueOf(today);
         Date d = new Date(ams);
 
         // 从哪个分钟槽开始

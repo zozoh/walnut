@@ -31,6 +31,7 @@ import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
 public class WnStatAgg extends WnStatistics {
 
@@ -149,7 +150,7 @@ public class WnStatAgg extends WnStatistics {
                 // 看看标记文件标记的时间窗口
                 long now = System.currentTimeMillis();
                 String markRemain = config.getMarkRemain("1100d");
-                long duInMs = Wn.msValueOf(markRemain);
+                long duInMs = Wtime.millisecond(markRemain);
                 AmsRange markRange = tu.padRange(now - duInMs, now);
 
                 // 收集一个新的 Marks

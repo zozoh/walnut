@@ -26,8 +26,10 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
 
     @Override
     protected void output(WnSystem sys, JsonXContext ctx) {
-        String output = Json.toJson(ctx.obj, ctx.jfmt);
-        sys.out.println(output);
+        if (!ctx.quite) {
+            String output = Json.toJson(ctx.obj, ctx.jfmt);
+            sys.out.println(output);
+        }
     }
 
 }

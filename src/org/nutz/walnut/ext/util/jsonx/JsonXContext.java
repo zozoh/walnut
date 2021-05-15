@@ -6,4 +6,6 @@ public class JsonXContext extends JvmFilterContext {
 
     public Object obj;
 
+    public boolean quite;
+
 }

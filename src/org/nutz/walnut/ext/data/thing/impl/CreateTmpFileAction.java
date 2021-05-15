@@ -6,6 +6,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
 public class CreateTmpFileAction extends ThingAction<WnObj> {
 
@@ -16,7 +17,7 @@ public class CreateTmpFileAction extends ThingAction<WnObj> {
     @Override
     public WnObj invoke() {
         // 默认放一天
-        long duInMs = Wn.msValueOf(Strings.sBlank(duration, "1d"));
+        long duInMs = Wtime.millisecond(Strings.sBlank(duration, "1d"));
 
         // 创建临时文件
         String fnm = Strings.sBlank(fileName, "tmp_${id}");

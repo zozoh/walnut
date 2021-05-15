@@ -4,7 +4,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
 public class ThirdXAccessKey {
 
@@ -66,7 +66,7 @@ public class ThirdXAccessKey {
 
     public void setNowInMs(long nowInMs) {
         if (this.expiTime > 0) {
-            long ms = Wn.msValueOf(expiTime + expiTimeUnit);
+            long ms = Wtime.millisecond(expiTime + expiTimeUnit);
             this.expiAtMs = ms + nowInMs;
         }
         // 那么就设置成 0 表示永不过期咯

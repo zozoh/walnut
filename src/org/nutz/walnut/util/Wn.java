@@ -1421,13 +1421,13 @@ public abstract class Wn {
         // 日期对象
         if (s.startsWith("%date:")) {
             String str = Strings.trim(s.substring("%date:".length()));
-            long ms = evalDatetimeStrToAMS(str);
+            long ms = Wtime.valueOf(str);
             v2 = Times.D(ms);
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {
             String str = Strings.trim(s.substring("%ms:".length()));
-            v2 = evalDatetimeStrToAMS(str);
+            v2 = Wtime.valueOf(str);
         }
         // 默认采用原值
         else {
@@ -1436,109 +1436,8 @@ public abstract class Wn {
         return v2;
     }
 
-    private static final String TM_REG = "^(now"
-                                         + "|today|Mon|Tue|Wed|Thu|Fri|Sat|Sun"
-                                         + "|monthBegin|monthEnd"
-                                         + "|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*"
-                                         + ")\\s*"
-                                         + "("
-                                         + "([+-])"
-                                         + "([0-9]+[smhd]?)"
-                                         + ")?$";
-    private static final Pattern P_TM_MACRO = Pattern.compile(TM_REG);
-
-    public static long evalDatetimeStrToAMS(String str) {
-        long ms = -1;
-
-        // 判断到操作符
-        Matcher m = P_TM_MACRO.matcher(str);
-
-        /**
-         * <pre>
-         0/22  Regin:0/22
-        0:[  0, 22) 2020-12-02 12:23:32-4d
-        1:[  0, 19) 2020-12-02 12:23:32
-        2:[ 19, 22) -4d
-        3:[ 19, 20) -
-        4:[ 20, 22) 4d
-         * </pre>
-         */
-
-        // 当前时间
-        if (m.find()) {
-            // 分析表达式
-            String current = m.group(1);
-            String offset = m.group(2); // -4d
-            String sign = m.group(3); // - or +
-            String dus = m.group(4); // 4d or 4s ...
-            // 类似 now+4d
-            if ("now".equals(current)) {
-                ms = Wn.now();
-            }
-            // 类似 today+1d
-            else if ("today".equals(current)) {
-                ms = Wtime.todayInMs();
-            }
-            // 类似 monthBegin+1d
-            else if ("monthBegin".equals(current)) {
-                ms = Wtime.monthDayInMs(0);
-            }
-            // 类似 monthEnd+1d
-            else if ("monthEnd".equals(current)) {
-                ms = Wtime.monthDayInMs(-1);
-            }
-            // 类似 Sun+1d
-            else if ("Sun".equals(current)) {
-                ms = Wtime.weekDayInMs(0);
-            }
-            // 类似 Mon+1d
-            else if ("Mon".equals(current)) {
-                ms = Wtime.weekDayInMs(1);
-            }
-            // 类似 Tue+1d
-            else if ("Tue".equals(current)) {
-                ms = Wtime.weekDayInMs(2);
-            }
-            // 类似 Wed+1d
-            else if ("Wed".equals(current)) {
-                ms = Wtime.weekDayInMs(3);
-            }
-            // 类似 Thu+1d
-            else if ("Thu".equals(current)) {
-                ms = Wtime.weekDayInMs(4);
-            }
-            // 类似 Fri+1d
-            else if ("Fri".equals(current)) {
-                ms = Wtime.weekDayInMs(5);
-            }
-            // 类似 Sat+1d
-            else if ("Sat".equals(current)) {
-                ms = Wtime.weekDayInMs(6);
-            }
-            // 类似 2020-12-05T00:12:32
-            else {
-                ms = Times.D(current).getTime();
-            }
-            //
-            // 嗯要加点偏移量
-            //
-            if (!Strings.isBlank(offset)) {
-                long off = msValueOf(dus);
-                // 看是加还是减
-                if ("-".equals(sign)) {
-                    off = off * -1L;
-                }
-                // 偏移
-                ms += off;
-            }
-        }
-
-        // 搞定返回
-        return ms;
-    }
-
     public static Date evalDateBy(String str) {
-        long ms = evalDatetimeStrToAMS(str);
+        long ms = Wtime.valueOf(str);
         if (ms > 0) {
             return new Date(ms);
         }
@@ -1546,58 +1445,11 @@ public abstract class Wn {
     }
 
     public static long evalDateMs(String str) {
-        long ms = evalDatetimeStrToAMS(str);
+        long ms = Wtime.valueOf(str);
         if (ms > 0) {
             return ms;
         }
         return Times.D(str).getTime();
-    }
-
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
-
-    /**
-     * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒
-     * 
-     * <ul>
-     * <li><code>10s</code> 表示10秒
-     * <li><code>20m</code> 表示20分钟
-     * <li><code>1h</code> 表示1小时
-     * <li><code>1d</code> 表示一天
-     * <li><code>1w</code> 表示一周
-     * <li><code>100</code> 表示 100毫秒</li>
-     * 
-     * @param str
-     *            描述时间的字符串
-     * @return 字符串表示的毫秒数
-     */
-    public static long msValueOf(String str) {
-        Matcher m = P_MS_STR.matcher(str);
-        if (!m.find())
-            throw Er.create("e.ms.invalid", str);
-        long ms = Long.parseLong(m.group(1));
-        String unit = m.group(2);
-        // s 秒
-        if ("s".equals(unit)) {
-            return ms * 1000L;
-        }
-        // m 分
-        else if ("m".equals(unit)) {
-            return ms * 60000L;
-        }
-        // h 小时
-        else if ("h".equals(unit)) {
-            return ms * 3600000L;
-        }
-        // d 天
-        else if ("d".equals(unit)) {
-            return ms * 86400000L;
-        }
-        // w 周
-        else if ("w".equals(unit)) {
-            return ms * 86400000L * 7;
-        }
-        // 默认就是毫秒
-        return ms;
     }
 
     /**

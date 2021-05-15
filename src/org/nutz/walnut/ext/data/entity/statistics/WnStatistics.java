@@ -12,6 +12,7 @@ import org.nutz.walnut.ext.data.entity.statistics.bean.AmsRange;
 import org.nutz.walnut.ext.sys.sql.WnDaoAuth;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class WnStatistics {
@@ -62,7 +63,7 @@ public abstract class WnStatistics {
 
         // 获取时间跨度
         String span = params.getString("span", "7d");
-        long duInMs = Wn.msValueOf(span);
+        long duInMs = Wtime.millisecond(span);
         long beginInMs = endInMs - duInMs;
 
         // 返回

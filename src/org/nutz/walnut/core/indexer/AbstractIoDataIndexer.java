@@ -474,10 +474,14 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (null != this.fetchByName(p, name))
             throw Er.createf("e.io.obj.exists", "%s/%s", p.path(), name);
 
-        // 创建自身
-        long now = Wn.now();
-        o.createTime(now);
-        o.lastModified(now);
+        // 设置默认的创建时间
+        if (o.createTime() <= 0) {
+            long now = Wn.now();
+            o.createTime(now);
+        }
+        if (o.lastModified() <= 0) {
+            o.lastModified(o.createTime());
+        }
 
         // 自动设置类型
         Wn.set_type(mimes, o, o.type());

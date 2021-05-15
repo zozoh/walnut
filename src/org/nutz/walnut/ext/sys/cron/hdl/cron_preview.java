@@ -14,8 +14,8 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
 
 @JvmHdlParamArgs("^(empty)$")
 public class cron_preview implements JvmHdl {
@@ -35,7 +35,7 @@ public class cron_preview implements JvmHdl {
 
         // 得到今日
         String today = hc.params.getString("today", "now");
-        long ams = Wn.evalDatetimeStrToAMS(today);
+        long ams = Wtime.valueOf(today);
         Date d = new Date(ams);
 
         // 生成预览

@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
 
 /**
@@ -294,6 +295,22 @@ public abstract class Wtime {
         return monthDay(offset).getTimeInMillis();
     }
 
+    public static Calendar monthDayEnd(int offset) {
+        Calendar c = monthDay(offset);
+        Wtime.setDayEnd(c);
+        return c;
+    }
+
+    public static Date monthDayEndDate(int offset) {
+        Calendar c = monthDayEnd(offset);
+        return c.getTime();
+    }
+
+    public static long monthDayEndInMs(int offset) {
+        Calendar c = monthDayEnd(offset);
+        return c.getTimeInMillis();
+    }
+
     /**
      * 获取本周的日期（00:00:00）
      * 
@@ -330,6 +347,22 @@ public abstract class Wtime {
 
     public static long weekDayInMs(int offset) {
         return weekDay(offset).getTimeInMillis();
+    }
+
+    public static Calendar weekDayEnd(int offset) {
+        Calendar c = weekDay(offset);
+        Wtime.setDayEnd(c);
+        return c;
+    }
+
+    public static Date weekDayEndDate(int offset) {
+        Calendar c = weekDayEnd(offset);
+        return c.getTime();
+    }
+
+    public static long weekDayEndInMs(int offset) {
+        Calendar c = weekDayEnd(offset);
+        return c.getTimeInMillis();
     }
 
     public static Calendar today() {
@@ -399,5 +432,196 @@ public abstract class Wtime {
             return dft;
         }
         return Integer.parseInt(s);
+    }
+
+    private static final String TM_REG = "^(now"
+                                         + "|today|Mon|Tue|Wed|Thu|Fri|Sat|Sun"
+                                         + "|monthBegin|monthEnd"
+                                         + "|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*"
+                                         + ")\\s*"
+                                         + "("
+                                         + "([+-])"
+                                         + "([0-9]+[smhd]?)"
+                                         + ")?$";
+    private static final Pattern P_TM_MACRO = Pattern.compile(TM_REG);
+
+    /**
+     * 解析一个表示日期时间绝对毫秒数的字符串，格式为：
+     * 
+     * <pre>
+     * [开始时间][+-][偏移量]
+     * </pre>
+     * 
+     * 其中，开始时间可能的值是：
+     * 
+     * <ul>
+     * <li><code>now</code>: 系统当前毫秒数
+     * <li><code>today</code>: 今天开始的 00:00:00 的绝对毫秒数
+     * <li><code>Mon</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Tue</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Tue</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Wed</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Thu</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Fri</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Sat</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>Sun</code>: 本周一的 00:00:00 的绝对毫秒数
+     * <li><code>monthBegin</code>: 本月第一日的 00:00:00 的绝对毫秒数
+     * <li><code>monthEnd</code>: 本月最后一日的 23:59:59 的绝对毫秒数
+     * <li><code>2021-09-23</code>: 一个绝对日期字符串
+     * <li><code>2021-09-23T12:10:18</code>: 一个绝对时间字符串
+     * </ul>
+     * 
+     * 偏移量可能的值是：
+     * 
+     * <ul>
+     * <li><code>10s</code> 表示10秒
+     * <li><code>20m</code> 表示20分钟
+     * <li><code>1h</code> 表示1小时
+     * <li><code>1d</code> 表示一天
+     * <li><code>1w</code> 表示一周
+     * <li><code>100</code> 表示 100毫秒</li>
+     * </ul>
+     * 
+     * @param str
+     *            输入字符串，可能的值：
+     * 
+     * @return 绝对毫秒数
+     */
+    public static long valueOf(String str) {
+        long ms = -1;
+
+        // 判断到操作符
+        Matcher m = P_TM_MACRO.matcher(str);
+
+        /**
+         * <pre>
+         0/22  Regin:0/22
+        0:[  0, 22) 2020-12-02 12:23:32-4d
+        1:[  0, 19) 2020-12-02 12:23:32
+        2:[ 19, 22) -4d
+        3:[ 19, 20) -
+        4:[ 20, 22) 4d
+         * </pre>
+         */
+
+        // 当前时间
+        if (m.find()) {
+            // 分析表达式
+            String current = m.group(1);
+            String offset = m.group(2); // -4d
+            String sign = m.group(3); // - or +
+            String dus = m.group(4); // 4d or 4s ...
+            // 类似 now+4d
+            if ("now".equals(current)) {
+                ms = Wn.now();
+            }
+            // 类似 today+1d
+            else if ("today".equals(current)) {
+                ms = todayInMs();
+            }
+            // 类似 monthBegin+1d
+            else if ("monthBegin".equals(current)) {
+                ms = monthDayInMs(0);
+            }
+            // 类似 monthEnd+1d
+            else if ("monthEnd".equals(current)) {
+                ms = monthDayEndInMs(-1);
+            }
+            // 类似 Sun+1d
+            else if ("Sun".equals(current)) {
+                ms = weekDayInMs(0);
+            }
+            // 类似 Mon+1d
+            else if ("Mon".equals(current)) {
+                ms = weekDayInMs(1);
+            }
+            // 类似 Tue+1d
+            else if ("Tue".equals(current)) {
+                ms = weekDayInMs(2);
+            }
+            // 类似 Wed+1d
+            else if ("Wed".equals(current)) {
+                ms = weekDayInMs(3);
+            }
+            // 类似 Thu+1d
+            else if ("Thu".equals(current)) {
+                ms = weekDayInMs(4);
+            }
+            // 类似 Fri+1d
+            else if ("Fri".equals(current)) {
+                ms = weekDayInMs(5);
+            }
+            // 类似 Sat+1d
+            else if ("Sat".equals(current)) {
+                ms = weekDayInMs(6);
+            }
+            // 类似 2020-12-05T00:12:32
+            else {
+                ms = parseAMS(current);
+            }
+            //
+            // 嗯要加点偏移量
+            //
+            if (!Strings.isBlank(offset)) {
+                long off = Wtime.millisecond(dus);
+                // 看是加还是减
+                if ("-".equals(sign)) {
+                    off = off * -1L;
+                }
+                // 偏移
+                ms += off;
+            }
+        }
+
+        // 搞定返回
+        return ms;
+    }
+
+    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
+
+    /**
+     * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒
+     * 
+     * <ul>
+     * <li><code>10s</code> 表示10秒
+     * <li><code>20m</code> 表示20分钟
+     * <li><code>1h</code> 表示1小时
+     * <li><code>1d</code> 表示一天
+     * <li><code>1w</code> 表示一周
+     * <li><code>100</code> 表示 100毫秒</li>
+     * </ul>
+     * 
+     * @param str
+     *            描述时间的字符串
+     * @return 字符串表示的毫秒数
+     */
+    public static long millisecond(String str) {
+        Matcher m = P_MS_STR.matcher(str);
+        if (!m.find())
+            throw Er.create("e.ms.invalid", str);
+        long ms = Long.parseLong(m.group(1));
+        String unit = m.group(2);
+        // s 秒
+        if ("s".equals(unit)) {
+            return ms * 1000L;
+        }
+        // m 分
+        else if ("m".equals(unit)) {
+            return ms * 60000L;
+        }
+        // h 小时
+        else if ("h".equals(unit)) {
+            return ms * 3600000L;
+        }
+        // d 天
+        else if ("d".equals(unit)) {
+            return ms * 86400000L;
+        }
+        // w 周
+        else if ("w".equals(unit)) {
+            return ms * 86400000L * 7;
+        }
+        // 默认就是毫秒
+        return ms;
     }
 }

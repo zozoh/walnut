@@ -11,8 +11,8 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.time.WnDayTime;
 
 public class cmd_schedule extends JvmHdlExecutor {
@@ -49,7 +49,7 @@ public class cmd_schedule extends JvmHdlExecutor {
         }
         // 看起来是一个相对时间
         else if (input.startsWith("now")) {
-            long ams = Wn.evalDatetimeStrToAMS(input);
+            long ams = Wtime.valueOf(input);
             WnDayTime time = new WnDayTime(ams);
             return cmd_schedule.timeSlotIndexBySec(time, slotN);
         }

@@ -11,8 +11,8 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
 
 public class cron_explain implements JvmHdl {
 
@@ -21,7 +21,7 @@ public class cron_explain implements JvmHdl {
         // 预览要多少个时间槽？
         int slotN = hc.params.getInt("slot", 24);
         String today = hc.params.getString("today", "now");
-        long ams = Wn.evalDatetimeStrToAMS(today);
+        long ams = Wtime.valueOf(today);
 
         // 解析表达式
         WnCron[] crons = new WnCron[hc.params.vals.length];

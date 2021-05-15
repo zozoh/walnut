@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.time.WnDayTime;
@@ -65,7 +64,7 @@ public class WnSysScheduleQuery {
             }
             // 看起来是一个相对时间
             else if (slotRange.startsWith("now")) {
-                long ams = Wn.evalDatetimeStrToAMS(slotRange);
+                long ams = Wtime.valueOf(slotRange);
                 WnDayTime time = new WnDayTime(ams);
                 int slotIndex = cmd_schedule.timeSlotIndexBySec(time, slotN);
                 q.setv("slot", slotIndex);
@@ -118,7 +117,7 @@ public class WnSysScheduleQuery {
     }
 
     public void setToday(String today) {
-        long ams = Wn.evalDatetimeStrToAMS(today);
+        long ams = Wtime.valueOf(today);
         this.today = new Date(ams);
     }
 

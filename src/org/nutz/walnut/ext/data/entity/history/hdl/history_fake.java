@@ -15,6 +15,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
 @JvmHdlParamArgs(value = "cqnbish", regex = "^(json|quiet|test)$")
 public class history_fake implements JvmHdl {
@@ -33,7 +34,7 @@ public class history_fake implements JvmHdl {
 
         // 参数:时间范围:开始日期
         String span = hc.params.getString("span", "7d");
-        long spanInMs = Wn.msValueOf(span);
+        long spanInMs = Wtime.millisecond(span);
         long beginInMs = endInMs - spanInMs;
 
         // 确保时间区间是正向的

@@ -1389,6 +1389,24 @@ public class Ws {
         return input.toLowerCase();
     }
 
+    public static String upperFirst(String input) {
+        if (null == input || 0 == input.length()) {
+            return input;
+        }
+        char[] cs = input.toCharArray();
+        cs[0] = Character.toUpperCase(cs[0]);
+        return new String(cs);
+    }
+
+    public static String lowerFirst(String input) {
+        if (null == input || 0 == input.length()) {
+            return input;
+        }
+        char[] cs = input.toCharArray();
+        cs[0] = Character.toLowerCase(cs[0]);
+        return new String(cs);
+    }
+
     /**
      * 复制字符
      *
