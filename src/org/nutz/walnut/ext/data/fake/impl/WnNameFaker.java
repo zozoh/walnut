@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.data.fake.impl;
 
-import org.nutz.walnut.ext.data.fake.WnFakeData;
-import org.nutz.walnut.ext.data.fake.WnFakeWord;
+import org.nutz.walnut.ext.data.fake.WnFakes;
 import org.nutz.walnut.ext.data.fake.WnFaker;
+import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 
 public class WnNameFaker extends WnWordFaker implements WnFaker<String> {
 
@@ -12,9 +12,9 @@ public class WnNameFaker extends WnWordFaker implements WnFaker<String> {
 
     public WnNameFaker(String lang) {
         super(lang);
-        WnFakeData me = WnFakeData.me();
-        this.name0 = me.getWord(lang, WnFakeData.TP_NAME0);
-        this.name1 = me.getWord(lang, WnFakeData.TP_NAME1);
+        WnFakes me = WnFakes.me();
+        this.name0 = me.getWord(lang, WnFakes.TP_NAME0);
+        this.name1 = me.getWord(lang, WnFakes.TP_NAME1);
     }
 
     @Override

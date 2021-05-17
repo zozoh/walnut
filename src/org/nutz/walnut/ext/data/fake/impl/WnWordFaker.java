@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.data.fake.impl;
 
-import org.nutz.walnut.ext.data.fake.WnFakeData;
+import org.nutz.walnut.ext.data.fake.WnFakes;
 import org.nutz.walnut.ext.data.fake.WnFakerLang;
 
 public abstract class WnWordFaker {
@@ -11,7 +11,7 @@ public abstract class WnWordFaker {
 
     public WnWordFaker(String lang) {
         this.lang = lang;
-        this.fakerLang = WnFakeData.me().getLang(lang);
+        this.fakerLang = WnFakes.me().getLang(lang);
     }
 
 }

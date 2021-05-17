@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.data.fake.impl;
 
-import org.nutz.walnut.ext.data.fake.WnFakeData;
-import org.nutz.walnut.ext.data.fake.WnFakeWord;
+import org.nutz.walnut.ext.data.fake.WnFakes;
 import org.nutz.walnut.ext.data.fake.WnFaker;
+import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 import org.nutz.walnut.util.Wuu;
 
 public class WnTextFaker extends WnWordFaker implements WnFaker<String> {
@@ -14,19 +14,19 @@ public class WnTextFaker extends WnWordFaker implements WnFaker<String> {
     public WnTextFaker(String lang) {
         super(lang);
         this.ir = new FakeIntRange(20, 30);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     public WnTextFaker(String lang, String input) {
         super(lang);
         this.ir = new FakeIntRange(input);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     public WnTextFaker(String lang, int min, int max) {
         super(lang);
         this.ir = new FakeIntRange(min, max);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     @Override

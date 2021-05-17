@@ -15,6 +15,8 @@ import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoMappingFactory;
@@ -136,6 +138,17 @@ public interface WnIo {
     List<WnObj> getChildren(WnObj o, String name);
 
     long count(WnQuery q);
+    
+    /**
+     * 根据一个指定条件，对一个键进行聚集汇总计算
+     * 
+     * @param q
+     *            过滤条件，限制，以及排序方式
+     * @param agg
+     *            聚集的方式
+     * @return 聚集结果
+     */
+    WnAggResult aggregate(WnQuery q, WnAggOptions agg);
 
     boolean hasChild(WnObj p);
 

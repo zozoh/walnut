@@ -62,6 +62,7 @@ o [options] [[@filter filter-args...]...]
 #
 # 输出
 #
+@agg        # 将上下文中的所有的目录对象进行聚集操作，并输出结果
 @json       # 将上下文输出为 JSON
 @ajax       # 将上下输出为 AJAX
 @tmpl       # 将上下文输出为行模板

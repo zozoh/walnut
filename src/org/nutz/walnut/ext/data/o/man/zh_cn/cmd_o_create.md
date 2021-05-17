@@ -14,9 +14,6 @@ o @create
   [nameOrMeta ...]        # 多个文件名或者元数据
 ```
 
-
-
-
 # 示例
 
 ```bash

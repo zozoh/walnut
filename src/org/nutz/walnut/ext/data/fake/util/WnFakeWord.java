@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.data.fake;
+package org.nutz.walnut.ext.data.fake.util;
 
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wuu;

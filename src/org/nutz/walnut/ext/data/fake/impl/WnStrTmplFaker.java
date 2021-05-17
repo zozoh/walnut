@@ -6,14 +6,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.walnut.ext.data.fake.WnFaker;
+import org.nutz.walnut.ext.data.fake.WnFakes;
 
-public class WnIntTmplFaker implements WnFaker<String> {
+public class WnStrTmplFaker implements WnFaker<String> {
 
-    private static Pattern _P = Pattern.compile("\\{(\\d+)-(\\d+)\\}");
+    private static Pattern _P = Pattern.compile("\\{([^}]+)\\}");
 
-    private List<ItfItem> items;
+    private List<StfItem> items;
 
-    public WnIntTmplFaker(String input) {
+    public WnStrTmplFaker(String input, String lang) {
         items = new LinkedList<>();
         Matcher m = _P.matcher(input);
         int last = 0;
@@ -24,41 +25,41 @@ public class WnIntTmplFaker implements WnFaker<String> {
             // 记录之前
             if (p0 > last) {
                 String s = input.substring(last, p0);
-                items.add(new StaticItfItem(s));
+                items.add(new StaticStfItem(s));
             }
 
             // 标记当前项目
-            int min = Integer.parseInt(m.group(1));
-            int max = Integer.parseInt(m.group(2));
-            items.add(new FakerItfItem(min, max));
+            String str = m.group(1).trim();
+            WnFaker<?> faker = WnFakes.createFaker(str, lang);
+            items.add(new FakerStfItem(faker));
 
             // 重新标记开始
             last = p1;
         }
         // 最后一段
         if (last < input.length()) {
-            items.add(new StaticItfItem(input.substring(last)));
+            items.add(new StaticStfItem(input.substring(last)));
         }
     }
 
     @Override
     public String next() {
         StringBuilder sb = new StringBuilder();
-        for (ItfItem it : items) {
+        for (StfItem it : items) {
             sb.append(it.getString());
         }
         return sb.toString();
     }
 
-    private static abstract class ItfItem {
+    private static abstract class StfItem {
         abstract String getString();
     }
 
-    private static class StaticItfItem extends ItfItem {
+    private static class StaticStfItem extends StfItem {
 
         private String str;
 
-        public StaticItfItem(String str) {
+        public StaticStfItem(String str) {
             this.str = str;
         }
 
@@ -69,17 +70,20 @@ public class WnIntTmplFaker implements WnFaker<String> {
 
     }
 
-    private static class FakerItfItem extends ItfItem {
+    private static class FakerStfItem extends StfItem {
 
-        private WnFaker<Integer> faker;
+        private WnFaker<?> faker;
 
-        public FakerItfItem(int min, int max) {
-            faker = new WnIntegerFaker(min, max);
+        public FakerStfItem(WnFaker<?> faker) {
+            this.faker = faker;
         }
 
         @Override
         String getString() {
-            return faker.next() + "";
+            Object v = faker.next();
+            if (v == null)
+                return "";
+            return v.toString();
         }
 
     }

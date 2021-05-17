@@ -545,4 +545,23 @@ public class Wlang {
             return false;
         return isCauseBy(cause, causeType);
     }
+
+    /**
+     * 生成一个未实现的运行时异常
+     *
+     * @return 一个未实现的运行时异常
+     */
+    public static RuntimeException noImplement() {
+        return new RuntimeException("Not implement yet!");
+    }
+
+    /**
+     * 生成一个不可能的运行时异常
+     *
+     * @return 一个不可能的运行时异常
+     */
+    public static RuntimeException impossible() {
+        return new RuntimeException("r u kidding me?! It is impossible!");
+    }
+
 }

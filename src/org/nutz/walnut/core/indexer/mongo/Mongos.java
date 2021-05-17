@@ -33,7 +33,7 @@ import com.mongodb.DBObject;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-class Mongos {
+public class Mongos {
     /**
      * @param q
      *            对象查询条件

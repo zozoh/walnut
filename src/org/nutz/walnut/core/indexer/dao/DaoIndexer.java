@@ -1,30 +1,52 @@
 package org.nutz.walnut.core.indexer.dao;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.nutz.castor.Castors;
 import org.nutz.dao.Chain;
 import org.nutz.dao.Condition;
 import org.nutz.dao.Dao;
 import org.nutz.dao.FieldFilter;
+import org.nutz.dao.Sqls;
 import org.nutz.dao.entity.Record;
+import org.nutz.dao.impl.NutDao;
 import org.nutz.dao.jdbc.JdbcExpert;
 import org.nutz.dao.pager.Pager;
+import org.nutz.dao.pager.ResultSetLooping;
+import org.nutz.dao.sql.Sql;
+import org.nutz.dao.sql.SqlCallback;
+import org.nutz.dao.sql.SqlContext;
 import org.nutz.lang.Each;
+import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Trans;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.agg.WnAggItem;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
+import org.nutz.walnut.jdbc.WnJdbc;
+import org.nutz.walnut.jdbc.WnJdbcExpert;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 public class DaoIndexer extends AbstractIoDataIndexer {
 
@@ -32,11 +54,18 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
     private WnObjEntity entity;
 
+    private String dbProductName;
+
+    private WnJdbcExpert expert;
+
     public DaoIndexer(WnObj root, MimeMap mimes, WnDaoMappingConfig config) {
         super(root, mimes);
-        this.dao = WnDaos.get(config.getAuth());
+        Dao dao = WnDaos.get(config.getAuth());
 
-        // TODO 通过 config 生成 Entity
+        // 获取数据库类型
+        initDbProductName(dao);
+
+        // 通过 config 生成 Entity
         JdbcExpert expert = dao.getJdbcExpert();
         WnObjEntityGenerating ing = new WnObjEntityGenerating(root, config, expert);
         this.entity = ing.generate();
@@ -47,6 +76,130 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                 dao.create(entity, false);
             }
         }
+    }
+
+    @Override
+    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
+        agg.assertValid();
+        String tableName = this.entity.getTableName();
+        WnDaoQuery dq = genDaoQuery(q);
+        Condition cond = dq.getCondition();
+        String where = Ws.trim(cond.toSql(entity));
+
+        // 准备上下文
+        NutMap ctx = new NutMap();
+        ctx.put("table", tableName);
+        ctx.put("AGG_BY", agg.getAggregateBy());
+
+        //
+        // 准备聚集函数
+        //
+        if (agg.isCOUNT()) {
+            ctx.put("FUNC", expert.funcAggCount("v0"));
+        }
+        // 最大值
+        else if (agg.isMAX()) {
+            ctx.put("FUNC", expert.funcAggMax("v0"));
+        }
+        // 最小值
+        else if (agg.isMIN()) {
+            ctx.put("FUNC", expert.funcAggMin("v0"));
+        }
+        // 平均数
+        else if (agg.isAVG()) {
+            ctx.put("FUNC", expert.funcAggAvg("v0"));
+        }
+        // 求和
+        else if (agg.isSUM()) {
+            ctx.put("FUNC", expert.funcAggSum("v0"));
+        }
+        // 不支持
+        else {
+            throw Er.create("e.io.agg.invalidAggFunc", agg.getFuncName());
+        }
+
+        //
+        // 键的聚合前计算方法
+        //
+        String grpBy = agg.getGroupBy();
+        // 时间戳转日期
+        if (agg.is_mode_TIMESTAMP_TO_DATE()) {
+            ctx.put("GRP_BY", expert.funcTimestampToDate(grpBy));
+        }
+        // 默认采用原始数据
+        else {
+            ctx.put("GRP_BY", grpBy);
+        }
+
+        // 查询限制数量
+        if (agg.hasLimit()) {
+            ctx.put("LIMIT", String.format("LIMIT %d", agg.getLimit()));
+        }
+        // 查询限制条件
+        if (null != where && !"WHERE".equals(where)) {
+            ctx.put("WHERE", where);
+        }
+
+        // 求和结果的排序
+        if (agg.hasOrderBy()) {
+            String ok = agg.getOrderKey("k", "v");
+            String ob = agg.getOrderVal("ASC", "DESC");
+            ctx.put("ORDER_BY", String.format("ORDER BY %s %s", ok, ob));
+        }
+
+        // 拼 SQL
+        String str = Tmpl.exec("SELECT "
+                               + "  k0 AS k,"
+                               + "  ${FUNC} AS v "
+                               + "FROM"
+                               + "("
+                               + "    SELECT "
+                               + "      ${AGG_BY} AS v0,"
+                               + "      ${GRP_BY} AS k0 "
+                               + "    FROM ${table} "
+                               + "    ${WHERE?} ${LIMIT?}"
+                               + ") AS result "
+                               + "GROUP BY k0 "
+                               + "${ORDER_BY};",
+                               ctx);
+
+        // 准备返回结果
+        WnAggResult re = new WnAggResult();
+
+        // 准备 SQL
+        Sql sql = Sqls.create(str);
+        sql.setCallback(new SqlCallback() {
+            public Object invoke(Connection conn, ResultSet rs, Sql sql) throws SQLException {
+                ResultSetLooping ing = new ResultSetLooping() {
+                    protected boolean createObject(int index,
+                                                   ResultSet rs,
+                                                   SqlContext context,
+                                                   int rowCount) {
+                        try {
+                            String name = rs.getString("k");
+                            long n = rs.getLong("v");
+                            WnAggItem it = new WnAggItem();
+                            it.setName(name);
+                            it.setValue(n);
+                            re.add(it);
+                        }
+                        catch (SQLException e) {
+                            throw Lang.wrapThrow(e);
+                        }
+                        return true;
+                    }
+                };
+
+                ing.doLoop(rs, sql.getContext());
+                return null;
+            }
+        });
+
+        // 执行 SQL
+        dao.execute(sql);
+
+        // 搞定
+        return re;
     }
 
     @Override
@@ -387,4 +540,21 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         return old;
     }
 
+    private void initDbProductName(Dao dao) {
+        this.dao = dao;
+        DataSource ds = ((NutDao) dao).getDataSource();
+        Connection conn = null;
+        try {
+            conn = Trans.getConnectionAuto(ds);
+            DatabaseMetaData meta = conn.getMetaData();
+            this.dbProductName = meta.getDatabaseProductName();
+            this.expert = WnJdbc.getExpert(this.dbProductName);
+        }
+        catch (Throwable e) {
+            throw Lang.wrapThrow(e);
+        }
+        finally {
+            Trans.closeConnectionAuto(conn);
+        }
+    }
 }

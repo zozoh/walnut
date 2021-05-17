@@ -22,6 +22,8 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnObjFilter;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
@@ -401,6 +403,11 @@ public abstract class AbstractWnIoWrapper implements WnIo {
 
     public long count(WnQuery q) {
         return io.count(q);
+    }
+
+    @Override
+    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
+        return io.aggregate(q, agg);
     }
 
     public boolean hasChild(WnObj p) {

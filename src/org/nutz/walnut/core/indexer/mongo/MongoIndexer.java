@@ -1,5 +1,7 @@
 package org.nutz.walnut.core.indexer.mongo;
 
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -7,7 +9,9 @@ import java.util.regex.Pattern;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
+import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
@@ -15,10 +19,17 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
+import org.nutz.walnut.api.io.agg.WnAggItem;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
+import com.mongodb.AggregationOptions;
+import com.mongodb.Cursor;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -29,6 +40,122 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     public MongoIndexer(WnObj root, MimeMap mimes, ZMoCo co) {
         super(root, mimes);
         this.co = co;
+    }
+
+    @Override
+    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
+        agg.assertValid();
+        //
+        // 准备聚集管线
+        //
+        List<DBObject> aggPipline = new LinkedList<>();
+
+        //
+        // 数据过滤
+        //
+        ZMoDoc match = Mongos.toQueryDoc(q);
+        if (!match.isEmpty()) {
+            aggPipline.add(ZMoDoc.NEW("$match", match));
+        }
+
+        // 查询限制数量
+        if (agg.hasLimit()) {
+            aggPipline.add(ZMoDoc.NEW("$limit", agg.getLimit()));
+        }
+        //
+        // 准备聚集函数
+        //
+        String aggFunc;
+        if (agg.isCOUNT()) {
+            aggFunc = "{$sum:1}";
+        }
+        // 最大值
+        else if (agg.isMAX()) {
+            aggFunc = String.format("{$max:'$%s'}", agg.getAggregateBy());
+        }
+        // 最小值
+        else if (agg.isMIN()) {
+            aggFunc = String.format("{$min:'$%s'}", agg.getAggregateBy());
+        }
+        // 平均数
+        else if (agg.isAVG()) {
+            aggFunc = String.format("{$avg:'$%s'}", agg.getAggregateBy());
+        }
+        // 求和
+        else if (agg.isSUM()) {
+            aggFunc = String.format("{$sum:'$%s'}", agg.getAggregateBy());
+        }
+        // 不支持
+        else {
+            throw Er.create("e.io.agg.invalidAggFunc", agg.getFuncName());
+        }
+        //
+        // 准备查询字段
+        //
+        String aggBy = agg.getAggregateBy();
+        String grpBy = agg.getGroupBy();
+        if (agg.is_mode_TIMESTAMP_TO_DATE()) {
+            //
+            // 时间戳转换
+            //
+            Date d1970 = Wtime.parseDate("1970-01-01T00:00:00");
+            NutMap dscDate = Wlang.map("$add", Wlang.list(d1970, "$" + grpBy));
+            ZMoDoc project = ZMoDoc.NEWf("{_id:0,%s:1}", aggBy);
+            NutMap dsCovert = new NutMap();
+            dsCovert.put("format", "%Y-%m-%d");
+            dsCovert.put("date", dscDate);
+            project.put("_k0", Lang.map("$dateToString", dsCovert));
+            // 计入管线
+            aggPipline.add(ZMoDoc.NEW("$project", project));
+            //
+            // 分组
+            ZMoDoc group = ZMoDoc.NEWf("{_id:'$_k0',val:%s}", aggFunc);
+            aggPipline.add(ZMoDoc.NEW("$group", group));
+        }
+        // 默认采用字段的裸数据聚集
+        else {
+            // 计入管线
+            ZMoDoc project = ZMoDoc.NEWf("{_id:0,%s:1,%s:1}", aggBy, grpBy);
+            aggPipline.add(ZMoDoc.NEW("$project", project));
+            //
+            // 分组
+            ZMoDoc group = ZMoDoc.NEWf("{_id:'$%s',val:%s}", grpBy, aggFunc);
+            aggPipline.add(ZMoDoc.NEW("$group", group));
+        }
+
+        // 求和结果的排序
+        if (agg.hasOrderBy()) {
+            String sr_key = agg.getOrderKey("_id", "val");
+            int sr_val = agg.getOrderVal(1, -1);
+            aggPipline.add(ZMoDoc.NEW("$sort", Wlang.map(sr_key, sr_val)));
+        }
+
+        // 选项
+        AggregationOptions aggopt = AggregationOptions.builder().build();
+
+        // 准备返回值
+        WnAggResult re = new WnAggResult();
+
+        // 建立游标开始查询
+        Cursor cu = co.aggregate(aggPipline, aggopt);
+        try {
+            while (cu.hasNext()) {
+                DBObject dbobj = cu.next();
+                Object _id = dbobj.get("_id");
+                Object val = dbobj.get("val");
+
+                WnAggItem it = new WnAggItem();
+                it.setName(_id.toString());
+                it.setValue(((Number) val).longValue());
+                re.add(it);
+            }
+        }
+        finally {
+            cu.close();
+        }
+
+        // 搞定
+        return re;
     }
 
     @Override

@@ -18,7 +18,10 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.core.indexer.AbstractIoIndexer;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.WnSort;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -40,6 +43,11 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     public File getFileHome() {
         return dHome;
+    }
+
+    @Override
+    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
+        throw Wlang.noImplement();
     }
 
     protected File _check_file_by(WnObj p) {

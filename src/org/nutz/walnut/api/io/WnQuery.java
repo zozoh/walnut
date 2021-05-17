@@ -172,6 +172,10 @@ public class WnQuery {
         return this;
     }
 
+    public boolean hasSort() {
+        return null != sort && !sort.isEmpty();
+    }
+
     public NutMap sort() {
         if (null == sort) {
             synchronized (this) {

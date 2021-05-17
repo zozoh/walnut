@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.walnut.ext.data.fake.WnFaker;
+import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 import org.nutz.walnut.util.Wuu;
-import org.nutz.walnut.ext.data.fake.WnFakeData;
-import org.nutz.walnut.ext.data.fake.WnFakeWord;
+import org.nutz.walnut.ext.data.fake.WnFakes;
 
 public class WnSentenceFaker extends WnWordFaker implements WnFaker<String> {
 
@@ -17,19 +17,19 @@ public class WnSentenceFaker extends WnWordFaker implements WnFaker<String> {
     public WnSentenceFaker(String lang) {
         super(lang);
         this.ir = new FakeIntRange(5, 10);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     public WnSentenceFaker(String lang, String input) {
         super(lang);
         this.ir = new FakeIntRange(input);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     public WnSentenceFaker(String lang, int min, int max) {
         super(lang);
         this.ir = new FakeIntRange(min, max);
-        this.word = WnFakeData.me().getWord(lang, WnFakeData.TP_WORDS);
+        this.word = WnFakes.me().getWord(lang, WnFakes.TP_WORDS);
     }
 
     @Override

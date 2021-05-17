@@ -36,6 +36,8 @@ import org.nutz.walnut.api.io.WnObjFilter;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggResult;
 import org.nutz.walnut.core.WnIoActionCallback;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
@@ -1071,6 +1073,25 @@ public class WnIoImpl2 implements WnIo {
         // 采用根索引管理器
         WnIoIndexer indexer = mappings.getGlobalIndexer();
         return indexer.count(q);
+    }
+
+    @Override
+    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
+        // 如果声明了 pid ，则看看有木有映射
+        String pid = q.first().getString("pid");
+        if (!Strings.isBlank(pid)) {
+            WnObj oP = this.get(pid);
+            if (null == oP)
+                return new WnAggResult();
+            WnIoMapping im = mappings.checkMapping(oP);
+            WnIoIndexer indexer = im.getIndexer();
+            // 确保 pid 是子ID
+            q.setv("pid", oP.myId());
+            return indexer.aggregate(q, agg);
+        }
+        // 采用根索引管理器
+        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        return indexer.aggregate(q, agg);
     }
 
     @Override
