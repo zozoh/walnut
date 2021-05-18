@@ -12,7 +12,7 @@ import org.nutz.walnut.util.time.WnDayTimeTest;
                      WcharTest.class,
                      WnTest.class,
                      WnSortTest.class,
-                     WnRgTest.class,
+                     WregionTest.class,
                      ZParamsTest.class,
                      JvmTunnelTest.class})
 public class AllUtilTest {}

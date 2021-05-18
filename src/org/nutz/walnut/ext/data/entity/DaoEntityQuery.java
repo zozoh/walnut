@@ -9,7 +9,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
-import org.nutz.walnut.util.WnRg;
+import org.nutz.walnut.util.Wregion;
 
 public class DaoEntityQuery {
 
@@ -62,7 +62,7 @@ public class DaoEntityQuery {
 
     protected void joinRegion(SqlExpressionGroup we, String name, String str) {
         if (!Strings.isBlank(str)) {
-            String s = WnRg.extend_rg_macro(str);
+            String s = Wregion.extend_rg_macro(str);
             LongRegion rg = Region.Long(s);
             // Region
             if (rg.isRegion()) {

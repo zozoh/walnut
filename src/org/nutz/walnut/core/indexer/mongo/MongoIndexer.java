@@ -59,8 +59,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         }
 
         // 查询限制数量
-        if (agg.hasLimit()) {
-            aggPipline.add(ZMoDoc.NEW("$limit", agg.getLimit()));
+        if (agg.hasDataLimit()) {
+            aggPipline.add(ZMoDoc.NEW("$limit", agg.getDataLimit()));
         }
         //
         // 准备聚集函数
@@ -128,6 +128,11 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             String sr_key = agg.getOrderKey("_id", "val");
             int sr_val = agg.getOrderVal(1, -1);
             aggPipline.add(ZMoDoc.NEW("$sort", Wlang.map(sr_key, sr_val)));
+        }
+
+        // 输出限制数量
+        if (agg.hasOutputLimit()) {
+            aggPipline.add(ZMoDoc.NEW("$limit", agg.getOutputLimit()));
         }
 
         // 选项

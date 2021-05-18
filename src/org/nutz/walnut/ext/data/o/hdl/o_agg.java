@@ -34,7 +34,7 @@ public class o_agg extends OFilter {
                                         + "|(RAW|TIMESTAMP_TO_DATE)"
                                         + "|((NAME|VALUE)(:(ASC|DESC))?)"
                                         + "|(([^:]+):(.+))"
-                                        + "|(\\d+)"
+                                        + "|((DATA|TOP)(\\d+))"
                                         + ")$";
     private static Pattern P_REG = Pattern.compile(S_REG);
 
@@ -256,7 +256,13 @@ public class o_agg extends OFilter {
             // 查找记录的最多限制。小于等于零表示全部数据
             String limit = m.group(11);
             if (!Ws.isBlank(limit)) {
-                agg.setLimit(Integer.parseInt(limit));
+                String limitType = m.group(12);
+                String limitValue = m.group(13);
+                if ("DATA".equals(limitType)) {
+                    agg.setDataLimit(Integer.parseInt(limitValue));
+                } else if ("TOP".equals(limitType)) {
+                    agg.setOutputLimit(Integer.parseInt(limitValue));
+                }
                 continue;
             }
         }

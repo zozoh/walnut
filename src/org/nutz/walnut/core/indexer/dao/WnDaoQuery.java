@@ -30,7 +30,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.util.WnRg;
+import org.nutz.walnut.util.Wregion;
 
 public class WnDaoQuery {
 
@@ -186,7 +186,7 @@ public class WnDaoQuery {
             }
 
             // 如果是范围，那么默认的，那么展开里面的内容
-            s = WnRg.extend_rg_macro(s);
+            s = Wregion.extend_rg_macro(s);
 
             // 正则表达式
             if (s.startsWith("^") || s.startsWith("!^")) {
@@ -207,27 +207,27 @@ public class WnDaoQuery {
                 return Exps.create(colName, "LIKE", s2).setNot(not);
             }
             // 整数范围
-            if (s.matches(WnRg.intRegion())) {
+            if (s.matches(Wregion.intRegion())) {
                 IntRegion rg = Region.Int(s);
                 return this.regionToExp(colName, rg, not);
             }
             // 长整数范围
-            if (s.matches(WnRg.longRegion())) {
+            if (s.matches(Wregion.longRegion())) {
                 LongRegion rg = Region.Long(s);
                 return this.regionToExp(colName, rg, not);
             }
             // 浮点范围
-            if (s.matches(WnRg.floatRegion())) {
+            if (s.matches(Wregion.floatRegion())) {
                 FloatRegion rg = Region.Float(s);
                 return this.regionToExp(colName, rg, not);
             }
             // 日期范围
-            if (s.matches(WnRg.dateRegion("^"))) {
+            if (s.matches(Wregion.dateRegion("^"))) {
                 DateRegion rg = Region.Date(s);
                 return this.regionToExp(colName, rg, not);
             }
             // 日期范围当做毫秒数
-            else if (s.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
+            else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
                 String str = s.substring(2);
                 DateRegion rg = Region.Date(str);
 

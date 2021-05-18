@@ -1,7 +1,7 @@
 package org.nutz.walnut.util.validate.impl;
 
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.WnRg;
+import org.nutz.walnut.util.Wregion;
 import org.nutz.walnut.util.validate.WnMatch;
 
 /**
@@ -53,19 +53,19 @@ public class AutoStrMatch implements WnMatch {
                 this.m = new WildcardMatch(str);
             }
             // 整数范围
-            else if (str.matches(WnRg.intRegion())) {
+            else if (str.matches(Wregion.intRegion())) {
                 this.m = new IntRegionMatch(str);
             }
             // 长整数范围
-            else if (str.matches(WnRg.longRegion())) {
+            else if (str.matches(Wregion.longRegion())) {
                 this.m = new LongRegionMatch(str);
             }
             // 浮点数范围
-            else if (str.matches(WnRg.floatRegion())) {
+            else if (str.matches(Wregion.floatRegion())) {
                 this.m = new FloatRegionMatch(str);
             }
             // 日期范围
-            else if (str.matches(WnRg.dateRegion("^"))) {
+            else if (str.matches(Wregion.dateRegion("^"))) {
                 this.m = new DateTimeMatch(str);
             }
             // 默认就是字符串匹配

@@ -22,7 +22,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wlang;
-import org.nutz.walnut.util.WnRg;
+import org.nutz.walnut.util.Wregion;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
@@ -148,7 +148,7 @@ public class Mongos {
                 }
 
                 // 如果是范围，那么默认的，那么展开里面的内容
-                s = WnRg.extend_rg_macro(s);
+                s = Wregion.extend_rg_macro(s);
 
                 // 正则表达式
                 if (s.startsWith("^")) {
@@ -180,27 +180,27 @@ public class Mongos {
                     q.put(key, Pattern.compile(regex));
                 }
                 // 整数范围
-                else if (s.matches(WnRg.intRegion())) {
+                else if (s.matches(Wregion.intRegion())) {
                     IntRegion rg = Region.Int(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 长整数范围
-                else if (s.matches(WnRg.longRegion())) {
+                else if (s.matches(Wregion.longRegion())) {
                     LongRegion rg = Region.Long(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 浮点范围
-                else if (s.matches(WnRg.floatRegion())) {
+                else if (s.matches(Wregion.floatRegion())) {
                     FloatRegion rg = Region.Float(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围
-                else if (s.matches(WnRg.dateRegion("^"))) {
+                else if (s.matches(Wregion.dateRegion("^"))) {
                     DateRegion rg = Region.Date(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围当做毫秒数
-                else if (s.matches(WnRg.dateRegion("^[Mm][Ss]"))) {
+                else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
                     String str = s.substring(2);
                     DateRegion rg = Region.Date(str);
 

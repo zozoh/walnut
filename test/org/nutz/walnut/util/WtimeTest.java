@@ -2,11 +2,50 @@ package org.nutz.walnut.util;
 
 import static org.junit.Assert.*;
 
+import java.util.Calendar;
 import java.util.Date;
 import org.junit.Test;
 import org.nutz.walnut.util.time.WnDayTime;
 
 public class WtimeTest {
+
+    @Test
+    public void test_parse_offset2() {
+        long ams = Wtime.valueOf("(2021-05-13)-30d");
+
+        Calendar c = Wtime.parseCalendar("2021-05-13");
+        assertEquals(0, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.MINUTE));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+        int d = c.get(Calendar.DAY_OF_MONTH);
+        c.set(Calendar.DAY_OF_MONTH, d - 30);
+        long ms2 = c.getTimeInMillis();
+
+        assertEquals(ms2, ams);
+
+        String ds = Wtime.format(new Date(ams), "yyyy-MM-dd");
+        assertEquals("2021-04-13", ds);
+    }
+
+    @Test
+    public void test_parse_offset() {
+        long ams = Wtime.valueOf("(2021-05-19)-3d");
+
+        Calendar c = Wtime.parseCalendar("2021-05-19");
+        assertEquals(0, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.MINUTE));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+        int d = c.get(Calendar.DAY_OF_MONTH);
+        c.set(Calendar.DAY_OF_MONTH, d - 3);
+        long ms2 = c.getTimeInMillis();
+
+        assertEquals(ms2, ams);
+
+        String ds = Wtime.format(new Date(ams), "yyyy-MM-dd");
+        assertEquals("2021-05-16", ds);
+    }
 
     @Test
     public void test_parse_ti_by_sec() {
@@ -64,7 +103,7 @@ public class WtimeTest {
         long ms0 = Wtime.parseAMS("2013-09-14T12:33:14+8");
         long ms1 = Wtime.parseAMS("2013-09-14T12:33:14-8");
         assertEquals(16 * 3600 * 1000, ms1 - ms0);
-        
+
         ms0 = Wtime.parseAMS("2013-09-14T12:33:14Z+8:00");
         ms1 = Wtime.parseAMS("2013-09-14T12:33:14Z-8:00");
         assertEquals(16 * 3600 * 1000, ms1 - ms0);

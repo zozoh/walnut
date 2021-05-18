@@ -132,12 +132,15 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         }
 
         // 查询限制数量
-        if (agg.hasLimit()) {
-            ctx.put("LIMIT", String.format("LIMIT %d", agg.getLimit()));
+        if (agg.hasDataLimit()) {
+            ctx.put("LIMIT_DATA", String.format("LIMIT %d", agg.getDataLimit()));
         }
         // 查询限制条件
         if (null != where && !"WHERE".equals(where)) {
             ctx.put("WHERE", where);
+        }
+        if (agg.hasOutputLimit()) {
+            ctx.put("LIMIT_OUTPUT", String.format("LIMIT %d", agg.getOutputLimit()));
         }
 
         // 求和结果的排序
@@ -157,10 +160,11 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                                + "      ${AGG_BY} AS v0,"
                                + "      ${GRP_BY} AS k0 "
                                + "    FROM ${table} "
-                               + "    ${WHERE?} ${LIMIT?}"
+                               + "    ${WHERE?} ${LIMIT_DATA?}"
                                + ") AS result "
                                + "GROUP BY k0 "
-                               + "${ORDER_BY};",
+                               + "${ORDER_BY} "
+                               + "${LIMIT_OUTPUT?} ;",
                                ctx);
 
         // 准备返回结果

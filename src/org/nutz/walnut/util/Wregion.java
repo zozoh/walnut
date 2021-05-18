@@ -7,7 +7,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Regex;
 
-public abstract class WnRg {
+public abstract class Wregion {
 
     private static String L = "([\\[(])";
     private static String R = "([\\])])";

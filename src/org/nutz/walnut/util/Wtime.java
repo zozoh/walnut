@@ -30,7 +30,7 @@ public abstract class Wtime {
                         + "$";
     private static Pattern _P_TIME = Pattern.compile(REG);
 
-    private static Pattern _P_TIME_LONG = Pattern.compile("^[0-9]+(L)?$");
+    private static Pattern _P_TIME_LONG = Pattern.compile("^(-?[0-9]+)(L)?$");
 
     public static String formatDateTime(Date d) {
         return format(d, "yyyy-MM-dd'T'HH:mm:ss");
@@ -108,78 +108,92 @@ public abstract class Wtime {
         if (null == ds) {
             return null;
         }
-        // 绝对毫秒数
-        Matcher m = _P_TIME_LONG.matcher(ds);
-        if (m.find()) {
-            long ams = Long.parseLong(ds);
-            return new Date(ams);
+
+        Matcher m;
+        String str = null;
+        // 一个8位的数字，譬如 20201202
+        if (ds.length() == 8 && ds.matches("^\\d{8}$")) {
+            str = String.format("%s-%s-%s 00:00:00.000",
+                                ds.substring(0, 4),
+                                ds.substring(4, 6),
+                                ds.substring(6, 8));
         }
-
-        // 按字符串格式解析
-        m = _P_TIME.matcher(ds);
-        /**
-         * <pre>
-         0/18  Regin:0/18
-         0:[  0, 18) `2020年4月12日12点3分20秒`
-         1:[  0,  4) `2020`
-         2:[  4,  5) `年`
-         3:[  5,  6) `4`
-         4:[  6,  7) `月`
-         5:[  7,  9) `12`
-         6:[  9, 10) `日`
-         7:[ 10, 12) `12`
-         8:[ 12, 13) `点`
-         9:[ 13, 14) `3`
-         10:[ 14, 15) `分`
-         11:[ 15, 17) `20`
-         12:[ 17, 18) `秒`
-         13:[ 18, 21) `189`
-         14:[ 21, 23) `毫秒`
-         15:[ 24, 26) `+8`
-         16:[ 24, 25) `+`
-         17:[ 25, 26) `8`
-         * </pre>
-         */
-        if (m.find()) {
-            int yy = _int(m, 1, 1970);
-            int MM = _int(m, 3, 1);
-            int dd = _int(m, 5, 1);
-
-            int HH = _int(m, 7, 0);
-            int mm = _int(m, 9, 0);
-            int ss = _int(m, 11, 0);
-
-            int ms = _int(m, 13, 0);
-
-            /*
-             * zozoh: 先干掉，还是用 SimpleDateFormat 吧，"1980-05-01 15:17:23" 之前的日子
-             * 得出的时间竟然总是多 30 分钟 long day = (long) D1970(yy, MM, dd); long MS =
-             * day * 86400000L; MS += (((long) HH) * 3600L + ((long) mm) * 60L +
-             * ss) * 1000L; MS += (long) ms;
-             * 
-             * // 如果没有指定时区 ... if (null == tz) { // 那么用字符串中带有的时区信息， if
-             * (!Strings.isBlank(m.group(17))) { tz =
-             * TimeZone.getTimeZone(String.format("GMT%s%s:00", m.group(18),
-             * m.group(19))); // tzOffset = Long.parseLong(m.group(19)) // *
-             * 3600000L // * (m.group(18).charAt(0) == '-' ? -1 : 1);
-             * 
-             * } // 如果依然木有，则用系统默认时区 else { tz = TimeZone.getDefault(); } }
-             * 
-             * // 计算 return MS - tz.getRawOffset() - tz.getDSTSavings();
-             */
-            String str = String.format("%04d-%02d-%02d %02d:%02d:%02d.%03d",
-                                       yy,
-                                       MM,
-                                       dd,
-                                       HH,
-                                       mm,
-                                       ss,
-                                       ms);
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            // 那么用字符串中带有的时区信息 ...
-            if (null == tz && !Ws.isBlank(m.group(15))) {
-                tz = TimeZone.getTimeZone(String.format("GMT%s%s:00", m.group(16), m.group(17)));
+        // 绝对毫秒数
+        else {
+            m = _P_TIME_LONG.matcher(ds);
+            if (m.find()) {
+                long ams = Long.parseLong(m.group(1));
+                return new Date(ams);
             }
+        }
+        // 看来给的字符串需要认真解析一下 ...
+        if (null == str) {
+            // 按字符串格式解析
+            m = _P_TIME.matcher(ds);
+            /**
+             * <pre>
+             0/18  Regin:0/18
+             0:[  0, 18) `2020年4月12日12点3分20秒`
+             1:[  0,  4) `2020`
+             2:[  4,  5) `年`
+             3:[  5,  6) `4`
+             4:[  6,  7) `月`
+             5:[  7,  9) `12`
+             6:[  9, 10) `日`
+             7:[ 10, 12) `12`
+             8:[ 12, 13) `点`
+             9:[ 13, 14) `3`
+             10:[ 14, 15) `分`
+             11:[ 15, 17) `20`
+             12:[ 17, 18) `秒`
+             13:[ 18, 21) `189`
+             14:[ 21, 23) `毫秒`
+             15:[ 24, 26) `+8`
+             16:[ 24, 25) `+`
+             17:[ 25, 26) `8`
+             * </pre>
+             */
+            if (m.find()) {
+                int yy = _int(m, 1, 1970);
+                int MM = _int(m, 3, 1);
+                int dd = _int(m, 5, 1);
+
+                int HH = _int(m, 7, 0);
+                int mm = _int(m, 9, 0);
+                int ss = _int(m, 11, 0);
+
+                int ms = _int(m, 13, 0);
+
+                /*
+                 * zozoh: 先干掉，还是用 SimpleDateFormat 吧，"1980-05-01 15:17:23" 之前的日子
+                 * 得出的时间竟然总是多 30 分钟 long day = (long) D1970(yy, MM, dd); long MS
+                 * = day * 86400000L; MS += (((long) HH) * 3600L + ((long) mm) *
+                 * 60L + ss) * 1000L; MS += (long) ms;
+                 * 
+                 * // 如果没有指定时区 ... if (null == tz) { // 那么用字符串中带有的时区信息， if
+                 * (!Strings.isBlank(m.group(17))) { tz =
+                 * TimeZone.getTimeZone(String.format("GMT%s%s:00", m.group(18),
+                 * m.group(19))); // tzOffset = Long.parseLong(m.group(19)) // *
+                 * 3600000L // * (m.group(18).charAt(0) == '-' ? -1 : 1);
+                 * 
+                 * } // 如果依然木有，则用系统默认时区 else { tz = TimeZone.getDefault(); } }
+                 * 
+                 * // 计算 return MS - tz.getRawOffset() - tz.getDSTSavings();
+                 */
+                String fmt = "%04d-%02d-%02d %02d:%02d:%02d.%03d";
+                str = String.format(fmt, yy, MM, dd, HH, mm, ss, ms);
+                if (null == tz && !Ws.isBlank(m.group(15))) {
+                    tz = TimeZone.getTimeZone(String.format("GMT%s%s:00",
+                                                            m.group(16),
+                                                            m.group(17)));
+                }
+            }
+        }
+        //
+        // 采用标准格式化器来解析
+        //
+        if (null != str) {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             // 指定时区 ...
             if (null != tz) {
                 df.setTimeZone(tz);
@@ -191,13 +205,8 @@ public abstract class Wtime {
             catch (ParseException e) {
                 throw Wlang.wrapThrow(e);
             }
-        } else if (_P_TIME_LONG.matcher(ds).find()) {
-            if (ds.endsWith("L")) {
-                ds.substring(0, ds.length() - 1);
-            }
-            long ams = Long.parseLong(ds);
-            return new Date(ams);
         }
+
         throw Er.createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
     }
 
@@ -434,11 +443,11 @@ public abstract class Wtime {
         return Integer.parseInt(s);
     }
 
-    private static final String TM_REG = "^(now"
+    private static final String TM_REG = "^[(]?(now"
                                          + "|today|Mon|Tue|Wed|Thu|Fri|Sat|Sun"
                                          + "|monthBegin|monthEnd"
-                                         + "|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}[T0-9: .]*"
-                                         + ")\\s*"
+                                         + "|\\d{4}[^+)]{4,}"
+                                         + ")\\s*[)]?\\s*"
                                          + "("
                                          + "([+-])"
                                          + "([0-9]+[smhd]?)"
@@ -481,6 +490,14 @@ public abstract class Wtime {
      * <li><code>1w</code> 表示一周
      * <li><code>100</code> 表示 100毫秒</li>
      * </ul>
+     * 
+     * <b>注意</b>,如果你指定一个日期，譬如<code>2021-09-21</code>，并且你还想写偏移量，
+     * 你的语法就变成<code>2021-09-21-3d</code>，这显然不是一个清晰的日期。<br>
+     * 你可以用半角括弧帮助我理解这个表达式，譬如你可以写成这样:
+     * 
+     * <pre>
+     * (2021 - 09 - 21) - 3d
+     * </pre>
      * 
      * @param str
      *            输入字符串，可能的值：

@@ -44,13 +44,19 @@ public class WnAggOptions {
     /**
      * 查找记录的最多限制。小于等于零表示全部数据
      */
-    private int limit;
+    private int dataLimit;
+
+    /**
+     * 输出的统计数据最多限制。这个适合统计 Top10 之类的数据。小于等于零表示全部数据
+     */
+    private int outputLimit;
 
     public WnAggOptions() {
         this.funcName = WnAggFuncName.COUNT;
         this.orderBy = WnAggOrderBy.NAME;
         this.ASC = true;
-        this.limit = 0;
+        this.dataLimit = 0;
+        this.outputLimit = 0;
     }
 
     public void assertValid() {
@@ -186,16 +192,28 @@ public class WnAggOptions {
         return descVal;
     }
 
-    public boolean hasLimit() {
-        return limit > 0;
+    public boolean hasDataLimit() {
+        return dataLimit > 0;
     }
 
-    public int getLimit() {
-        return limit;
+    public int getDataLimit() {
+        return dataLimit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public void setDataLimit(int limit) {
+        this.dataLimit = limit;
+    }
+
+    public boolean hasOutputLimit() {
+        return this.outputLimit > 0;
+    }
+
+    public int getOutputLimit() {
+        return outputLimit;
+    }
+
+    public void setOutputLimit(int outputLimit) {
+        this.outputLimit = outputLimit;
     }
 
 }
