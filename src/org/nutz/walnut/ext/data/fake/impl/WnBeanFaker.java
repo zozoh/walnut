@@ -8,7 +8,6 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.fake.WnFaker;
 import org.nutz.walnut.ext.data.fake.WnFakes;
-import org.nutz.walnut.util.Ws;
 
 public class WnBeanFaker extends WnWordFaker implements WnFaker<NutBean> {
 
