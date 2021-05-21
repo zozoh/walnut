@@ -39,7 +39,7 @@ public abstract class Wregion {
     }
 
     public static String dateRegion(String prefix) {
-        return __regex("([0-9T/: -]{10,})", prefix);
+        return __regex("([^\\]]{10,})", prefix);
     }
 
     /**

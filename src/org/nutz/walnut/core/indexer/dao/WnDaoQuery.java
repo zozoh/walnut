@@ -31,6 +31,7 @@ import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wregion;
+import org.nutz.walnut.util.Wtime;
 
 public class WnDaoQuery {
 
@@ -222,9 +223,11 @@ public class WnDaoQuery {
                 return this.regionToExp(colName, rg, not);
             }
             // 日期范围
-            if (s.matches(Wregion.dateRegion("^"))) {
-                DateRegion rg = Region.Date(s);
-                return this.regionToExp(colName, rg, not);
+            if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
+                String s2 = s.substring(4).trim();
+                s2 = Wregion.extend_rg_macro(s2);
+                DateRegion rg = Region.Date(s2);
+                return this.dateRegionToExp(colName, rg, not);
             }
             // 日期范围当做毫秒数
             else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
@@ -466,6 +469,37 @@ public class WnDaoQuery {
         SimpleExpression se = new SimpleExpression(colName, "REGEXP", regex);
         se.setNot(not);
         return se;
+    }
+
+    private SqlExpression dateRegionToExp(String colName, DateRegion rg, boolean not) {
+        // 如果是一个范围
+        if (rg.isRegion()) {
+            SqlExpressionGroup grp = new SqlExpressionGroup();
+            if (rg.left() != null) {
+                String left = Wtime.format(rg.left(), "yyyy-MM-dd");
+                String op = not ? rg.leftOpt("<", "<=") : rg.leftOpt(">", ">=");
+                grp.and(new SimpleExpression(colName, op, left));
+            }
+            if (rg.right() != null) {
+                String right = Wtime.format(rg.right(), "yyyy-MM-dd");
+                String op = not ? rg.rightOpt(">", ">=") : rg.rightOpt("<", "<=");
+                grp.and(new SimpleExpression(colName, op, right));
+            }
+            return grp;
+        }
+        // 如果是一个精确的值
+        else if (!rg.isNull()) {
+            String left = Wtime.format(rg.left(), "yyyy-MM-dd");
+            // 如果两边都是开区间表示不等于
+            if (rg.isLeftOpen() && rg.isRightOpen()) {
+                not = !not;
+                return Exps.eq(colName, left).setNot(not);
+            }
+            // 否则表示等于
+            return Exps.eq(colName, left).setNot(not);
+        }
+        // 不可能啊
+        throw Lang.impossible();
     }
 
     private SqlExpression regionToExp(String colName, Region<?> rg, boolean not) {

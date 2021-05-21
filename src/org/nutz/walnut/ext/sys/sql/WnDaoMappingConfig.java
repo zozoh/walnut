@@ -41,7 +41,7 @@ public class WnDaoMappingConfig extends WnDaoConfig {
     }
 
     public boolean hasObjKeys() {
-        return null != objKeys && objKeys.length > 0;
+        return null != objKeys;
     }
 
     public String[] getObjKeys() {
