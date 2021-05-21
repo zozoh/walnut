@@ -195,8 +195,10 @@ public class Mongos {
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围
-                else if (s.matches(Wregion.dateRegion("^"))) {
-                    DateRegion rg = Region.Date(s);
+                else if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
+                    String s2 = s.substring(4).trim();
+                    s2 = Wregion.extend_rg_macro(s2);
+                    DateRegion rg = Region.Date(s2);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围当做毫秒数
