@@ -276,7 +276,7 @@ public class WnOrderService {
         discount = Nums.precision(discount, 2);
 
         // 计算订单其他价格相关字段
-        float profit = prefee - total;
+        float profit = prefee - discount - total;
         float orderPrice = prefee + freight;
         fee = orderPrice - discount;
 
