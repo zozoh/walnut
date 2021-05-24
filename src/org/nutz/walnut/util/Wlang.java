@@ -351,6 +351,97 @@ public class Wlang {
     }
 
     /**
+     * 较方便的创建一个没有重复的数组，比如：
+     *
+     * <pre>
+     * String[] strs = Lang.arrayUniq("A","B","A");  => ["A","B"]
+     * String[] strs = Lang.arrayUniq();  => null
+     * </pre>
+     *
+     * 返回的顺序会遵循输入的顺序
+     *
+     * @param eles
+     *            可变参数
+     * @return 数组对象
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] arrayUniq(T... eles) {
+        if (null == eles || eles.length == 0)
+            return null;
+        // 记录重复
+        HashSet<T> set = new HashSet<T>(eles.length);
+        for (T ele : eles) {
+            set.add(ele);
+        }
+        // 循环
+        T[] arr = (T[]) Array.newInstance(eles[0].getClass(), set.size());
+        int index = 0;
+        for (T ele : eles) {
+            if (set.remove(ele))
+                Array.set(arr, index++, ele);
+        }
+        return arr;
+    }
+
+    /**
+     * 将一个对象添加成为一个数组的第一个元素，从而生成一个新的数组
+     *
+     * @param e
+     *            对象
+     * @param eles
+     *            数组
+     * @return 新数组
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] arrayFirst(T e, T[] eles) {
+        try {
+            if (null == eles || eles.length == 0) {
+                T[] arr = (T[]) Array.newInstance(e.getClass(), 1);
+                arr[0] = e;
+                return arr;
+            }
+            T[] arr = (T[]) Array.newInstance(eles.getClass().getComponentType(), eles.length + 1);
+            arr[0] = e;
+            for (int i = 0; i < eles.length; i++) {
+                arr[i + 1] = eles[i];
+            }
+            return arr;
+        }
+        catch (NegativeArraySizeException e1) {
+            throw Lang.wrapThrow(e1);
+        }
+    }
+
+    /**
+     * 将一个对象添加成为一个数组的最后一个元素，从而生成一个新的数组
+     *
+     * @param e
+     *            对象
+     * @param eles
+     *            数组
+     * @return 新数组
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] arrayLast(T[] eles, T e) {
+        try {
+            if (null == eles || eles.length == 0) {
+                T[] arr = (T[]) Array.newInstance(e.getClass(), 1);
+                arr[0] = e;
+                return arr;
+            }
+            T[] arr = (T[]) Array.newInstance(eles.getClass().getComponentType(), eles.length + 1);
+            for (int i = 0; i < eles.length; i++) {
+                arr[i] = eles[i];
+            }
+            arr[eles.length] = e;
+            return arr;
+        }
+        catch (NegativeArraySizeException e1) {
+            throw Lang.wrapThrow(e1);
+        }
+    }
+
+    /**
      * 较方便的创建一个列表
      *
      * <pre>
@@ -394,40 +485,6 @@ public class Wlang {
             list.add(ele);
         }
         return list;
-    }
-
-    /**
-     * 较方便的创建一个没有重复的数组，比如：
-     *
-     * <pre>
-     * String[] strs = Lang.arrayUniq("A","B","A");  => ["A","B"]
-     * String[] strs = Lang.arrayUniq();  => null
-     * </pre>
-     *
-     * 返回的顺序会遵循输入的顺序
-     *
-     * @param eles
-     *            可变参数
-     * @return 数组对象
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T[] arrayUniq(T... eles) {
-        if (null == eles || eles.length == 0)
-            return null;
-        // 记录重复
-        HashSet<T> set = new HashSet<T>(eles.length);
-        for (T ele : eles) {
-            set.add(ele);
-        }
-        // 循环
-        T[] arr = (T[]) Array.newInstance(eles[0].getClass(), set.size());
-        int index = 0;
-        for (T ele : eles) {
-            if (set.remove(ele))
-                Array.set(arr, index++, ele);
-        }
-        return arr;
-
     }
 
     /**

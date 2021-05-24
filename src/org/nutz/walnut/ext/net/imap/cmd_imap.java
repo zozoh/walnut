@@ -1,16 +1,24 @@
 package org.nutz.walnut.ext.net.imap;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Session;
+import javax.mail.search.FlagTerm;
 
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.imap.IMAPFolder;
@@ -87,6 +95,49 @@ public class cmd_imap extends JvmFilterExecutor<ImapContext, ImapFilter> {
         catch (Exception e) {
             throw Er.create("e.cmd.imap.FailToClose", e);
         }
+    }
+
+    private static Map<String, Flags.Flag> flagMap = new HashMap<>();
+
+    static {
+        flagMap.put("ANSWERED", Flags.Flag.ANSWERED);
+        flagMap.put("DELETED", Flags.Flag.DELETED);
+        flagMap.put("DRAFT", Flags.Flag.DRAFT);
+        flagMap.put("FLAGGED", Flags.Flag.FLAGGED);
+        flagMap.put("RECENT", Flags.Flag.RECENT);
+        flagMap.put("SEEN", Flags.Flag.SEEN);
+        flagMap.put("USER", Flags.Flag.USER);
+    }
+
+    private static Pattern _P = Pattern.compile("^(([01]):)?(.+)$");
+
+    public static List<FlagTerm> parseFlagTermList(String[] flagList) {
+        List<FlagTerm> termList = new ArrayList<>(flagList.length);
+        for (String flagItem : flagList) {
+            Matcher m = _P.matcher(flagItem);
+            if (m.find()) {
+                // 标记，默认为 true
+                boolean yes = !"0".equals(m.group(2));
+                String[] ss = Ws.splitIgnoreBlank(m.group(3));
+                if (ss.length > 0) {
+                    List<Flags.Flag> list = new ArrayList<>(ss.length);
+                    for (String s : ss) {
+                        Flags.Flag f = flagMap.get(s.toUpperCase());
+                        if (null != f) {
+                            list.add(f);
+                        }
+                    }
+                    if (list.size() > 0) {
+                        Flags flags = new Flags();
+                        for (Flags.Flag f : list) {
+                            flags.add(f);
+                        }
+                        termList.add(new FlagTerm(flags, yes));
+                    }
+                }
+            }
+        }
+        return termList;
     }
 
 }

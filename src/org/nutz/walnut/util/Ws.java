@@ -419,7 +419,7 @@ public class Ws {
      *            分隔符
      * @return 合并后的字符串
      */
-    public static String join(String[] arr, String sep) {
+    public static <T extends Object> String join(T[] arr, String sep) {
         return join(arr, sep, 0, arr.length);
     }
 
@@ -434,7 +434,7 @@ public class Ws {
      *            开始元素下标
      * @return 合并后的字符串
      */
-    public static String join(String[] arr, String sep, int off) {
+    public static <T extends Object> String join(T[] arr, String sep, int off) {
         return join(arr, sep, 0, arr.length - off);
     }
 
@@ -451,7 +451,7 @@ public class Ws {
      *            迭代元素数量
      * @return 合并后的字符串
      */
-    public static String join(String[] arr, String sep, int off, int len) {
+    public static <T extends Object> String join(T[] arr, String sep, int off, int len) {
         StringBuilder sb = new StringBuilder();
         if (len > 0) {
             int lastI = Math.min(arr.length - 1, off + len);
