@@ -277,6 +277,9 @@ public class WnOrderService {
 
         // 计算订单其他价格相关字段
         float profit = prefee - discount - total;
+        if (profit <= 0) {
+            profit = 0f;
+        }
         float orderPrice = prefee + freight;
         fee = orderPrice - discount;
 
