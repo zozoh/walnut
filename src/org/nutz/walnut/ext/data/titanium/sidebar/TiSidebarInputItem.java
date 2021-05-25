@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Ws;
 
 public class TiSidebarInputItem {
 
@@ -22,6 +23,8 @@ public class TiSidebarInputItem {
 
     private String title;
 
+    private String tip;
+
     private String view;
 
     private String defaultIcon;
@@ -35,29 +38,41 @@ public class TiSidebarInputItem {
     private NutMap pvg;
 
     public String toString() {
-        String s = "";
+        StringBuilder sb = new StringBuilder();
+        joinString(sb, 0);
+        return sb.toString();
+    }
+
+    public void joinString(StringBuilder sb, int depth) {
+        if (depth > 0) {
+            String prefix = Ws.repeat(" > ", depth);
+            sb.append(prefix);
+        }
         if (null != key) {
-            s += ":" + key;
+            sb.append(':').append(key);
         }
         if (null != title) {
-            s += ":" + title;
+            sb.append(':').append(title);
+        }
+        if (null != tip) {
+            sb.append('(').append(tip).append(')');
         }
         if (null != path) {
-            s += ":" + path;
+            sb.append(':').append(path);
         }
         JsonFormat jfmt = JsonFormat.compact();
         if (this.hasRoles()) {
-            s += ":" + Json.toJson(roles, jfmt);
+            sb.append(':').append(Json.toJson(roles, jfmt));
         }
         if (this.hasPvg()) {
-            s += ":PVG" + Json.toJson(pvg, jfmt);
+            sb.append(':').append(":PVG" + Json.toJson(pvg, jfmt));
         }
         if (null != items && items.length > 0) {
             for (TiSidebarInputItem it : items) {
-                s += "\n - " + it.toString();
+                sb.append('\n');
+                it.joinString(sb, depth + 1);
             }
         }
-        return s;
     }
 
     public TiSidebarInputItem clone() {
@@ -73,6 +88,7 @@ public class TiSidebarInputItem {
         it2.path = this.path;
         it2.icon = this.icon;
         it2.title = this.title;
+        it2.tip = this.tip;
         it2.view = this.view;
         it2.defaultIcon = this.defaultIcon;
         it2.defaultTitle = this.defaultTitle;
@@ -154,6 +170,14 @@ public class TiSidebarInputItem {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTip() {
+        return tip;
+    }
+
+    public void setTip(String tip) {
+        this.tip = tip;
     }
 
     public String getView() {

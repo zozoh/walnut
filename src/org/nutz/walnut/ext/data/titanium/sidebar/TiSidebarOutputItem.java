@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.data.titanium.sidebar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.castor.Castors;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
@@ -24,6 +25,8 @@ public class TiSidebarOutputItem {
 
     private String title;
 
+    private String tip;
+
     private String view;
 
     public String toString() {
@@ -33,6 +36,9 @@ public class TiSidebarOutputItem {
         }
         if (null != title) {
             s += ":" + title;
+        }
+        if (null != tip) {
+            s += "(" + tip + ")";
         }
         if (null != path) {
             s += ":" + path;
@@ -55,6 +61,7 @@ public class TiSidebarOutputItem {
         this.path = it.path;
         this.icon = it.icon;
         this.title = it.title;
+        this.tip = it.tip;
         this.view = it.view;
 
         if (null != it.items) {
@@ -94,6 +101,7 @@ public class TiSidebarOutputItem {
         }
         // ----------------------------------
         // 获取标题
+        Castors cam = Castors.me();
         String title = it.getTitle();
         // 这里需要支持一下 Session 的变量，以便扩展多语言的支持
         if (null != title) {
@@ -101,10 +109,25 @@ public class TiSidebarOutputItem {
         }
         // 展开表达式
         if (!Strings.isBlank(title)) {
-            title = (String) Wn.explainObj(o, title);
+            title = cam.castToString(Wn.explainObj(o, title));
         }
         // 最后确保一下，一定有个标题，木有标题有默认标题来代替
         this.title = _Vs(title, o, "title", it.getDefaultTitle(), dft_title);
+
+        // ----------------------------------
+        // 获取提示
+        String tip = it.getTip();
+        // 这里需要支持一下 Session 的变量，以便扩展多语言的支持
+        if (null != tip) {
+            tip = Wn.normalizeStr(tip, vars);
+        }
+        // 展开表达式
+        if (!Strings.isBlank(tip)) {
+            tip = cam.castToString(Wn.explainObj(o, tip));
+        }
+        // 设置数据
+        this.tip = tip;
+
         // ----------------------------------
         // Other fields
         this.icon = _V(it.getIcon(), o, "icon", it.getDefaultIcon(), dft_icon);
@@ -198,6 +221,14 @@ public class TiSidebarOutputItem {
 
     public void setTitle(String text) {
         this.title = text;
+    }
+
+    public String getTip() {
+        return tip;
+    }
+
+    public void setTip(String tip) {
+        this.tip = tip;
     }
 
     public String getView() {

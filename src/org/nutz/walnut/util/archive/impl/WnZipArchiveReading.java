@@ -2,10 +2,13 @@ package org.nutz.walnut.util.archive.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.archive.WnArchiveEntry;
 
 public class WnZipArchiveReading extends AsbatractWnAchiveRading {
@@ -14,7 +17,12 @@ public class WnZipArchiveReading extends AsbatractWnAchiveRading {
     private ZipInputStream zip;
 
     public WnZipArchiveReading(InputStream ins) {
-        this.zip = new ZipInputStream(ins);
+        this(ins, null);
+    }
+
+    public WnZipArchiveReading(InputStream ins, Charset charset) {
+        charset = Wlang.fallback(charset, Encoding.CHARSET_UTF8);
+        this.zip = new ZipInputStream(ins, charset);
     }
 
     @Override

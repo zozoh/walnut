@@ -18,4 +18,17 @@ public class TiSidebarInput {
         this.sidebar = sidebar;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (this.hasSidebar()) {
+            for (TiSidebarInputItem it : sidebar) {
+                it.joinString(sb, 0);
+                sb.append('\n');
+            }
+        } else {
+            sb.append("~ EMPTY ~");
+        }
+        return sb.toString();
+    }
+
 }

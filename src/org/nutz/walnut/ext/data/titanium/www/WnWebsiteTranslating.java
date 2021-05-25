@@ -80,7 +80,7 @@ public class WnWebsiteTranslating {
             // 傻傻的 Copy 吧
             else if (flt.match(oTop)) {
                 String ph = wwwDirObj.getRegularPath();
-                Wn.Io.copy(sys, Wn.Io.RECUR, oTop, ph, flt);
+                Wn.Io.copy(sys, Wn.Io.RECUR, oTop, ph, flt, null);
             }
         }
         return tops;

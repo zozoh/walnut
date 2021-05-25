@@ -908,11 +908,19 @@ public abstract class Wn {
         // copy 时标志位： 显示日志
         public static final int VERBOSE = 1 << 2;
 
-        /**
-         * @see #copy(WnSystem, int, WnObj, String, WnObjWalkjFilter)
-         */
         public static void copy(WnSystem sys, int mode, WnObj oSrc, String ph_dst) {
-            copy(sys, mode, oSrc, ph_dst, null);
+            copy(sys, mode, oSrc, ph_dst, null, null);
+        }
+
+        /**
+         * @see #copy(WnSystem, int, WnObj, String, WnObjWalkjFilter, Callback)
+         */
+        public static void copy(WnSystem sys,
+                                int mode,
+                                WnObj oSrc,
+                                String ph_dst,
+                                Callback<WnObj> callback) {
+            copy(sys, mode, oSrc, ph_dst, null, callback);
         }
 
         /**
@@ -934,7 +942,8 @@ public abstract class Wn {
                                 int mode,
                                 WnObj oSrc,
                                 String ph_dst,
-                                WnObjWalkjFilter filter) {
+                                WnObjWalkjFilter filter,
+                                Callback<WnObj> callback) {
             // 得到配置信息
             boolean isR = Maths.isMask(mode, Wn.Io.RECUR);
 
@@ -963,7 +972,7 @@ public abstract class Wn {
                     oDst = sys.io.createIfNoExists(null, ph_dst, oSrc.race());
                 }
                 // 执行 Copy 就好了
-                __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter);
+                __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter, callback);
             }
             // 否则，不能是自己 copy 给自己就好
             else {
@@ -976,7 +985,7 @@ public abstract class Wn {
                     // 在里面创建与源同名的目标
                     WnObj oDst2 = sys.io.createIfNoExists(oDst, oSrc.name(), oSrc.race());
                     // 执行 Copy
-                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst2, filter);
+                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst2, filter, callback);
                 }
                 // 目标是一个文件
                 else if (oDst.isFILE()) {
@@ -985,7 +994,7 @@ public abstract class Wn {
                         throw Er.create("e.io.copy.file2dir", oSrc.path() + " ->> " + oDst.path());
                     }
                     // 执行 Copy
-                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter);
+                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter, callback);
                 }
                 // 靠！什么鬼！
                 else {
@@ -999,7 +1008,8 @@ public abstract class Wn {
                                              String ph_base,
                                              WnObj oSrc,
                                              WnObj oDst,
-                                             WnObjWalkjFilter filter) {
+                                             WnObjWalkjFilter filter,
+                                             Callback<WnObj> callback) {
             // 得到配置信息
             boolean isP = Maths.isMask(mode, Wn.Io.PROP);
             boolean isV = Maths.isMask(mode, Wn.Io.VERBOSE);
@@ -1015,7 +1025,7 @@ public abstract class Wn {
                         }
                         // 执行 copy
                         WnObj oTa = sys.io.createIfNoExists(oDst, o.name(), o.race());
-                        __recur_copy_obj(sys, mode, ph_base, o, oTa, filter);
+                        __recur_copy_obj(sys, mode, ph_base, o, oTa, filter, callback);
                     }
                 });
             }
@@ -1038,6 +1048,11 @@ public abstract class Wn {
                     // meta.put("tp", oSrc.type());
                     // meta.put("mime", oSrc.mime());
                     sys.io.appendMeta(oDst, meta);
+                }
+
+                // 自定义处理
+                if (null != callback) {
+                    callback.invoke(oDst);
                 }
             }
             // 靠，不可能

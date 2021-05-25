@@ -20,6 +20,8 @@ public class OContext extends JvmFilterContext {
     public boolean keepAsList;
 
     public String subKey;
+    
+    public NutMap summary;
 
     /**
      * 输出行为的过滤器，还是要设置一下这个值，这样主类就不输出了
@@ -28,6 +30,7 @@ public class OContext extends JvmFilterContext {
 
     public OContext() {
         this.list = new LinkedList<>();
+        this.summary = new NutMap();
     }
 
     public Object toOutput() {
