@@ -1,8 +1,10 @@
 package org.nutz.walnut.core.eot.mongo;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.bson.Document;
+import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.mongo.ZMo;
@@ -12,9 +14,10 @@ import org.nutz.walnut.api.io.WnExpiObj;
 import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.util.Wn;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
 
 public class MongoExpiObjTable implements WnExpiObjTable {
 
@@ -30,7 +33,9 @@ public class MongoExpiObjTable implements WnExpiObjTable {
     public void insertOrUpdate(WnExpiObj o) {
         ZMoDoc q = ZMoDoc.NEW("id", o.getId());
         ZMoDoc doc = ZMo.me().toDoc(o);
-        co.update(q, doc, true, false);
+        ZMoDoc update = ZMoDoc.SET(doc);
+        UpdateOptions uo = new UpdateOptions().upsert(true);
+        co.updateOne(q, update, uo);
     }
 
     @Override
@@ -44,8 +49,8 @@ public class MongoExpiObjTable implements WnExpiObjTable {
     @Override
     public boolean remove(String id) {
         ZMoDoc q = ZMoDoc.NEW("id", id);
-        WriteResult wr = co.remove(q);
-        return wr.getN() > 0;
+        DeleteResult dr = co.deleteMany(q);
+        return dr.getDeletedCount() > 0;
     }
 
     @Override
@@ -66,31 +71,34 @@ public class MongoExpiObjTable implements WnExpiObjTable {
         }
 
         // 设置游标
-        DBCursor cu = co.find(q);
-        cu.sort(ZMoDoc.NEW("expi", 1));
+        FindIterable<Document> it = co.find(q);
+        it.sort(ZMoDoc.NEW("expi", 1));
+        it.limit(limit);
+
+        MongoCursor<Document> cu = null;
         // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
-        int count = cu.count();
-        cu.limit(limit);
 
         // 遍历数据
-        List<WnExpiObj> list = new ArrayList<>(count);
+        List<WnExpiObj> list = new LinkedList<>();
         try {
+            cu = it.cursor();
             while (cu.hasNext()) {
-                DBObject dbobj = cu.next();
-                MoExpiObj o = ZMo.me().fromDocToObj(dbobj, MoExpiObj.class);
+                Document dbobj = cu.next();
+                ZMoDoc doc = ZMoDoc.WRAP(dbobj);
+                MoExpiObj o = ZMo.me().fromDocToObj(doc, MoExpiObj.class);
                 o.setHoldTime(myHold);
                 list.add(o);
 
                 // 占用住
                 ZMoDoc o_q = ZMoDoc.ID(dbobj.get("_id"));
-                co.update(o_q, o_u, true, false);
+                co.updateOne(o_q, o_u);
             }
         }
         catch (Exception e) {
             log.warn("Something wrong when takeover", e);
         }
         finally {
-            cu.close();
+            Streams.safeClose(cu);
         }
 
         // 搞定
@@ -101,8 +109,8 @@ public class MongoExpiObjTable implements WnExpiObjTable {
     public int clean(String owner, long hold) {
         ZMoDoc q = ZMoDoc.NEW("hold", hold);
         q.put("ow", owner);
-        WriteResult wr = co.remove(q);
-        return wr.getN();
+        DeleteResult dr = co.deleteMany(q);
+        return (int) dr.getDeletedCount();
     }
 
 }

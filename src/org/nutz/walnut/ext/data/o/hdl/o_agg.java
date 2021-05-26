@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,9 +12,10 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.agg.WnAggFuncName;
-import org.nutz.walnut.api.io.agg.WnAggItem;
-import org.nutz.walnut.api.io.agg.WnAggMode;
+import org.nutz.walnut.api.io.agg.WnAggGroupKey;
+import org.nutz.walnut.api.io.agg.WnAggKey;
+import org.nutz.walnut.api.io.agg.WnAggTransMode;
+import org.nutz.walnut.api.io.agg.WnAggregateKey;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
 import org.nutz.walnut.api.io.agg.WnAggOrderBy;
 import org.nutz.walnut.api.io.agg.WnAggResult;
@@ -24,19 +26,9 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class o_agg extends OFilter {
-
-    private static final String S_REG = "^"
-                                        + "((COUNT|MAX|MIN|SUM|AVG)"
-                                        + "|(RAW|TIMESTAMP_TO_DATE)"
-                                        + "|((NAME|VALUE)(:(ASC|DESC))?)"
-                                        + "|(([^:]+):(.+))"
-                                        + "|((DATA|TOP)(\\d+))"
-                                        + ")$";
-    private static Pattern P_REG = Pattern.compile(S_REG);
 
     @Override
     protected ZParams parseParams(String[] args) {
@@ -57,15 +49,6 @@ public class o_agg extends OFilter {
 
         // 检查聚集设置
         agg.assertValid();
-
-        // 自动选择聚集分组模式
-        if (!agg.hasAggregateMode()) {
-            if (agg.getGroupBy().matches("^(ct|lm|expi)$")) {
-                agg.setAggregateMode(WnAggMode.TIMESTAMP_TO_DATE);
-            } else {
-                agg.setAggregateMode(WnAggMode.RAW);
-            }
-        }
 
         // 准备聚集结果
         WnAggResult reList = null;
@@ -95,31 +78,9 @@ public class o_agg extends OFilter {
         // 禁止主函数输出
         fc.quiet = true;
 
-        //
-        // 得到自定义键名
-        //
-        String as = params.getString("as");
-        int pos = as.indexOf(':');
-        String kName, kValue;
-        // 'name' 只有名
-        if (pos < 0) {
-            kName = Ws.sBlank(as, "name");
-            kValue = "value";
-        }
-        // ':value' 只有值
-        else if (pos == 0) {
-            kName = "name";
-            kValue = as.substring(1).trim();
-        }
-        // 'name:value' 同时指定了名值
-        else {
-            kName = as.substring(0, pos).trim();
-            kValue = as.substring(pos + 1).trim();
-        }
-
         // 输出表格
         if (params.is("tab")) {
-            TextTable tt = output_as_table(reList, params, kName, kValue);
+            TextTable tt = output_as_table(reList, agg, params);
             sys.out.print(tt.toString());
             sys.out.printlnf("total %d items", reList.size());
             return;
@@ -129,35 +90,12 @@ public class o_agg extends OFilter {
         //
         JsonFormat jfmt = Cmds.gen_json_format(params);
 
-        // 转换一下 JSON 的输出键
-        if (!Ws.isBlank(as)) {
-            List<NutBean> list = gen_bean_list(reList, kName, kValue);
-            String output = Json.toJson(list, jfmt);
-            sys.out.println(output);
-        }
         // 直接输出 JSON
-        else {
-            String output = Json.toJson(reList, jfmt);
-            sys.out.println(output);
-        }
+        String output = Json.toJson(reList, jfmt);
+        sys.out.println(output);
     }
 
-    private static List<NutBean> gen_bean_list(WnAggResult reList, String kName, String kValue) {
-        // 循环处理
-        List<NutBean> list = new ArrayList<>(reList.size());
-        for (WnAggItem it : reList) {
-            NutBean bean = new NutMap();
-            bean.put(kName, it.getName());
-            bean.put(kValue, it.getValue());
-            list.add(bean);
-        }
-        return list;
-    }
-
-    private static TextTable output_as_table(WnAggResult reList,
-                                             ZParams params,
-                                             String kName,
-                                             String kValue) {
+    private static TextTable output_as_table(WnAggResult reList, WnAggOptions agg, ZParams params) {
         boolean showBorder = params.is("b");
         boolean showHeader = params.is("h");
         boolean showSummary = params.is("s");
@@ -165,8 +103,16 @@ public class o_agg extends OFilter {
         int indexBase = params.getInt("ibase", 0);
 
         // 准备表头
-        String[] cols = showIndex ? Wlang.array("#", Ws.upperFirst(kName), Ws.upperFirst(kValue))
-                                  : Wlang.array(Ws.upperFirst(kName), Ws.upperFirst(kValue));
+        List<String> chList = new LinkedList<>();
+        if (showIndex) {
+            chList.add("#");
+        }
+        for (WnAggGroupKey gk : agg.getGroupBy()) {
+            chList.add(gk.getToName());
+        }
+        chList.add(agg.getAggregateBy().getToName());
+        String[] cols = new String[chList.size()];
+        chList.toArray(cols);
 
         // 准备输出表
         TextTable tt = new TextTable(cols.length);
@@ -182,16 +128,21 @@ public class o_agg extends OFilter {
         }
         // 主体
         int i = indexBase;
-        for (WnAggItem it : reList) {
+        for (NutBean it : reList) {
             List<String> cells = new ArrayList<String>(cols.length);
             // 处理序号
             if (showIndex) {
                 cells.add("" + (i++));
             }
-            // 名称
-            cells.add(it.getName());
-            // 值
-            cells.add(it.getValue() + "");
+            // 分组
+            String v;
+            for (WnAggGroupKey gk : agg.getGroupBy()) {
+                v = it.getString(gk.getToName());
+                cells.add(v);
+            }
+            // 计算值
+            v = it.getString(agg.getAggregateBy().getToName());
+            cells.add(v);
             // 计入表格行
             tt.addRow(cells);
         }
@@ -203,67 +154,55 @@ public class o_agg extends OFilter {
         return tt;
     }
 
+    private static final String S_REG = "^(DATA|TOP)(\\d+)$";
+    private static Pattern P_REG = Pattern.compile(S_REG);
+
     private void updateAggOptions(WnAggOptions agg, ZParams params) {
-        // 循环处理参数
-        // 0/5 Regin:0/5
-        // 0:[ 0, 5) `...`
-        // 1:[ 0, 5) `...`
-        // 2:[ 0, 5) `COUNT|MAX|MIN|...`
-        // 3:[ 0, 17) `TIMESTAMP_TO_DATE|RAW`
-        // 4:[ 0, 8) `[NAME|VALUE]:[ASC|DESC]`
-        // 5:[ 0, 4) `NAME|VALUE`
-        // 6:[ 4, 8) `:[ASC|DESC]`
-        // 7:[ 5, 8) `ASC|DESC`
-        // 8:[ 0, 5) `id:d0`
-        // 9:[ 0, 2) `id`
-        // 10:[ 3, 5) `d0`
-        // 11:[ 0, 3) `100`
         for (String val : params.vals) {
-            Matcher m = P_REG.matcher(val);
-            if (!m.find()) {
+            String upper = val.toUpperCase();
+
+            // 排序: xxx:ASC
+            if (upper.endsWith(":ASC")) {
+                String key = val.substring(0, val.length() - 4).trim();
+                WnAggOrderBy ob = new WnAggOrderBy(key, true);
+                agg.addOrderBy(ob);
                 continue;
             }
-            // 聚集方式
-            String funcName = m.group(2);
-            if (!Ws.isBlank(funcName)) {
-                agg.setFuncName(WnAggFuncName.valueOf(funcName));
+            // 排序: xxx:DESC
+            if (upper.endsWith(":DESC")) {
+                String key = val.substring(0, val.length() - 5).trim();
+                WnAggOrderBy ob = new WnAggOrderBy(key, false);
+                agg.addOrderBy(ob);
+                continue;
+            }
+            // 限制数量: (TOP|DATA)10
+            Matcher m = P_REG.matcher(upper);
+            if (m.find()) {
+                String lt = m.group(1);
+                int lv = Integer.parseInt(m.group(2));
+                if ("TOP".equals(lt)) {
+                    agg.setOutputLimit(lv);
+                } else {
+                    agg.setDataLimit(lv);
+                }
                 continue;
             }
             // 聚集键的类型
-            String aggMode = m.group(3);
-            if (!Ws.isBlank(aggMode)) {
-                agg.setAggregateMode(WnAggMode.valueOf(aggMode));
-                continue;
-            }
-            // 聚集结果如何排序
-            String order = m.group(4);
-            if (!Ws.isBlank(order)) {
-                agg.setOrderBy(WnAggOrderBy.valueOf(m.group(5)));
-                String asc = m.group(7);
-                if (!Ws.isBlank(asc)) {
-                    agg.setASC("ASC".equals(asc));
+            WnAggKey ak = WnAggKey.parse(val);
+            if (null != ak) {
+                if (ak instanceof WnAggGroupKey) {
+                    WnAggGroupKey gk = (WnAggGroupKey) ak;
+                    if (!gk.hasFunc()) {
+                        if (gk.getFromName().matches("^(ct|lm|expi)$")) {
+                            gk.setFunc(WnAggTransMode.TIMESTAMP_TO_DATE);
+                        } else {
+                            gk.setFunc(WnAggTransMode.RAW);
+                        }
+                    }
+                    agg.addGroupBy(gk);
+                } else {
+                    agg.setAggregateBy((WnAggregateKey) ak);
                 }
-                continue;
-            }
-            // 聚集分组键名
-            // 聚集计算键名
-            String keys = m.group(8);
-            if (!Ws.isBlank(keys)) {
-                agg.setGroupBy(m.group(9));
-                agg.setAggregateBy(m.group(10));
-                continue;
-            }
-            // 查找记录的最多限制。小于等于零表示全部数据
-            String limit = m.group(11);
-            if (!Ws.isBlank(limit)) {
-                String limitType = m.group(12);
-                String limitValue = m.group(13);
-                if ("DATA".equals(limitType)) {
-                    agg.setDataLimit(Integer.parseInt(limitValue));
-                } else if ("TOP".equals(limitType)) {
-                    agg.setOutputLimit(Integer.parseInt(limitValue));
-                }
-                continue;
             }
         }
     }

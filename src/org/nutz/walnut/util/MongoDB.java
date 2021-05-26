@@ -6,9 +6,9 @@ import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
 
-import com.mongodb.DB;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoDatabase;
 
 public class MongoDB {
 
@@ -50,8 +50,12 @@ public class MongoDB {
         return _zdb.cc(coName, false);
     }
 
-    public DB getRaw() {
-        return _zdb.getNativeDB();
+    public boolean existsCollection(String coName) {
+        return _zdb.cExists(coName);
+    }
+
+    public MongoDatabase getRawApi() {
+        return _zdb.getRawApi();
     }
 
 }

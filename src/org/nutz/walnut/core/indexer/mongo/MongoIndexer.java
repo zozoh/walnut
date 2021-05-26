@@ -1,15 +1,18 @@
 package org.nutz.walnut.core.indexer.mongo;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.bson.Document;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Lang;
+import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMo;
@@ -19,19 +22,23 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.agg.WnAggItem;
+import org.nutz.walnut.api.io.agg.WnAggGroupKey;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggOrderBy;
 import org.nutz.walnut.api.io.agg.WnAggResult;
+import org.nutz.walnut.api.io.agg.WnAggTransMode;
+import org.nutz.walnut.api.io.agg.WnAggregateKey;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wtime;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.Cursor;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 
 public class MongoIndexer extends AbstractIoDataIndexer {
 
@@ -42,13 +49,45 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         this.co = co;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
         agg.assertValid();
         //
         // 准备聚集管线
         //
-        List<DBObject> aggPipline = new LinkedList<>();
+        List<ZMoDoc> aggPipline = new LinkedList<>();
+
+        //
+        // 准备聚集函数
+        //
+        String aggFunc;
+        WnAggregateKey ak = agg.getAggregateBy();
+        String akFrom = ak.getFromName();
+        String akTo = ak.getToName();
+        if (agg.isCOUNT()) {
+            aggFunc = "{$sum:1}";
+        }
+        // 最大值
+        else if (agg.isMAX()) {
+            aggFunc = String.format("{$max:'$%s'}", akFrom);
+        }
+        // 最小值
+        else if (agg.isMIN()) {
+            aggFunc = String.format("{$min:'$%s'}", akFrom);
+        }
+        // 平均数
+        else if (agg.isAVG()) {
+            aggFunc = String.format("{$avg:'$%s'}", akFrom);
+        }
+        // 求和
+        else if (agg.isSUM()) {
+            aggFunc = String.format("{$sum:'$%s'}", akFrom);
+        }
+        // 不支持
+        else {
+            throw Er.create("e.io.agg.invalidAggFunc", agg.getFuncName());
+        }
 
         //
         // 数据过滤
@@ -58,105 +97,99 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             aggPipline.add(ZMoDoc.NEW("$match", match));
         }
 
-        // 查询限制数量
+        //
+        // 准备查询字段: $project
+        //
+        ZMoDoc project = ZMoDoc.NEWf("{_id:0,%s:1}", akFrom);
+        for (WnAggGroupKey gk : agg.getGroupBy()) {
+            String gkFrom = gk.getFromName();
+            // 时间戳转日期
+            if (WnAggTransMode.TIMESTAMP_TO_DATE == gk.getFunc()) {
+                Date d1970 = Wtime.parseDate("1970-01-01T00:00:00");
+                NutMap dscDate = Wlang.map("$add", Wlang.list(d1970, "$" + gkFrom));
+                NutMap dsCovert = new NutMap();
+                dsCovert.put("format", "%Y-%m-%d");
+                dsCovert.put("date", dscDate);
+                NutMap gkVal = Lang.map("$dateToString", dsCovert);
+                project.put(gkFrom, gkVal);
+            }
+            // 普通字段
+            else {
+                project.put(gkFrom, 1);
+            }
+        }
+        aggPipline.add(ZMoDoc.NEW("$project", project));
+
+        //
+        // 统计数据数量限制
+        //
         if (agg.hasDataLimit()) {
             aggPipline.add(ZMoDoc.NEW("$limit", agg.getDataLimit()));
         }
-        //
-        // 准备聚集函数
-        //
-        String aggFunc;
-        if (agg.isCOUNT()) {
-            aggFunc = "{$sum:1}";
-        }
-        // 最大值
-        else if (agg.isMAX()) {
-            aggFunc = String.format("{$max:'$%s'}", agg.getAggregateBy());
-        }
-        // 最小值
-        else if (agg.isMIN()) {
-            aggFunc = String.format("{$min:'$%s'}", agg.getAggregateBy());
-        }
-        // 平均数
-        else if (agg.isAVG()) {
-            aggFunc = String.format("{$avg:'$%s'}", agg.getAggregateBy());
-        }
-        // 求和
-        else if (agg.isSUM()) {
-            aggFunc = String.format("{$sum:'$%s'}", agg.getAggregateBy());
-        }
-        // 不支持
-        else {
-            throw Er.create("e.io.agg.invalidAggFunc", agg.getFuncName());
-        }
-        //
-        // 准备查询字段
-        //
-        String aggBy = agg.getAggregateBy();
-        String grpBy = agg.getGroupBy();
-        if (agg.is_mode_TIMESTAMP_TO_DATE()) {
-            //
-            // 时间戳转换
-            //
-            Date d1970 = Wtime.parseDate("1970-01-01T00:00:00");
-            NutMap dscDate = Wlang.map("$add", Wlang.list(d1970, "$" + grpBy));
-            ZMoDoc project = ZMoDoc.NEWf("{_id:0,%s:1}", aggBy);
-            NutMap dsCovert = new NutMap();
-            dsCovert.put("format", "%Y-%m-%d");
-            dsCovert.put("date", dscDate);
-            project.put("_k0", Lang.map("$dateToString", dsCovert));
-            // 计入管线
-            aggPipline.add(ZMoDoc.NEW("$project", project));
-            //
-            // 分组
-            ZMoDoc group = ZMoDoc.NEWf("{_id:'$_k0',val:%s}", aggFunc);
-            aggPipline.add(ZMoDoc.NEW("$group", group));
-        }
-        // 默认采用字段的裸数据聚集
-        else {
-            // 计入管线
-            ZMoDoc project = ZMoDoc.NEWf("{_id:0,%s:1,%s:1}", aggBy, grpBy);
-            aggPipline.add(ZMoDoc.NEW("$project", project));
-            //
-            // 分组
-            ZMoDoc group = ZMoDoc.NEWf("{_id:'$%s',val:%s}", grpBy, aggFunc);
-            aggPipline.add(ZMoDoc.NEW("$group", group));
-        }
 
+        //
+        // 聚集计算
+        //
+        NutMap group = Wlang.mapf("{%s:%s}", akTo, aggFunc);
+        NutMap _grp_id = new NutMap();
+        Map<String, WnAggGroupKey> gkToNameMap = new HashMap<>();
+        for (WnAggGroupKey gk : agg.getGroupBy()) {
+            String toName = gk.getToName();
+            String fromName = gk.getFromName();
+            _grp_id.put(toName, "$" + fromName);
+            // 记录一下，排序的时候，好知道哪个键是 groupKey，以便在前面加 "_id."
+            gkToNameMap.put(toName, gk);
+        }
+        group.put("_id", _grp_id);
+        aggPipline.add(ZMoDoc.NEW("$group", group));
+
+        //
         // 求和结果的排序
+        //
         if (agg.hasOrderBy()) {
-            String sr_key = agg.getOrderKey("_id", "val");
-            int sr_val = agg.getOrderVal(1, -1);
-            aggPipline.add(ZMoDoc.NEW("$sort", Wlang.map(sr_key, sr_val)));
+            NutMap sort = new NutMap();
+            for (WnAggOrderBy ob : agg.getOrderBy()) {
+                String obName = ob.getName();
+                if (gkToNameMap.containsKey(obName)) {
+                    obName = "_id." + obName;
+                }
+                sort.put(obName, ob.isAsc() ? 1 : -1);
+            }
+            aggPipline.add(ZMoDoc.NEW("$sort", sort));
         }
 
+        //
         // 输出限制数量
+        //
         if (agg.hasOutputLimit()) {
             aggPipline.add(ZMoDoc.NEW("$limit", agg.getOutputLimit()));
         }
-
-        // 选项
-        AggregationOptions aggopt = AggregationOptions.builder().build();
 
         // 准备返回值
         WnAggResult re = new WnAggResult();
 
         // 建立游标开始查询
-        Cursor cu = co.aggregate(aggPipline, aggopt);
+        AggregateIterable<Document> it = co.aggregate(aggPipline);
+        MongoCursor<Document> cu = null;
         try {
+            cu = it.cursor();
             while (cu.hasNext()) {
-                DBObject dbobj = cu.next();
+                Document dbobj = cu.next();
                 Object _id = dbobj.get("_id");
-                Object val = dbobj.get("val");
+                Object val = dbobj.get(akTo);
 
-                WnAggItem it = new WnAggItem();
-                it.setName(_id.toString());
-                it.setValue(((Number) val).longValue());
-                re.add(it);
+                NutBean bean = new NutMap();
+                bean.put(akTo, val);
+
+                if (_id instanceof Map) {
+                    bean.putAll((Map<String, Object>) _id);
+                }
+
+                re.add(bean);
             }
         }
         finally {
-            cu.close();
+            Streams.safeClose(cu);
         }
 
         // 搞定
@@ -166,7 +199,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     @Override
     protected WnObj _fetch_by_name(WnObj p, String name) {
         ZMoDoc q = ZMoDoc.NEW("pid", p.id()).putv("nm", name);
-        ZMoDoc doc = co.findOne(q);
+        Document dbobj = co.find(q).first();
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         WnIoObj obj = Mongos.toWnObj(doc);
         if (null != obj) {
             obj.setIndexer(this);
@@ -176,7 +210,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
 
     private WnIoObj __get_by_full_id(String id) {
         ZMoDoc q = Mongos.qID(id);
-        ZMoDoc doc = co.findOne(q);
+        Document dbobj = co.find(q).first();
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         WnIoObj obj = Mongos.toWnObj(doc);
         if (null != obj) {
             obj.setIndexer(this);
@@ -191,7 +226,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             ZMoDoc doc = __map_to_doc_for_update(map);
 
             // 执行更新
-            co.update(q, doc, false, false);
+            co.updateOne(q, doc);
         }
     }
 
@@ -234,10 +269,17 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         if (map.size() > 0) {
             ZMoDoc qDoc = Mongos.toQueryDoc(q);
             ZMoDoc update = __map_to_doc_for_update(map);
-            ZMoDoc sort = ZMoDoc.NEW(q.sort());
+
+            FindOneAndUpdateOptions opt = new FindOneAndUpdateOptions();
+            if (returnNew) {
+                opt.returnDocument(ReturnDocument.AFTER);
+            } else {
+                opt.returnDocument(ReturnDocument.BEFORE);
+            }
 
             // 执行更新
-            ZMoDoc doc = co.findAndModify(qDoc, null, sort, false, update, returnNew, false);
+            Document dbobj = co.findOneAndUpdate(qDoc, update, opt);
+            ZMoDoc doc = ZMoDoc.WRAP(dbobj);
 
             // 执行结果
             if (null != doc) {
@@ -253,11 +295,17 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     @Override
     public int inc(WnQuery q, String key, int val, boolean returnNew) {
         ZMoDoc qDoc = Mongos.toQueryDoc(q);
-        ZMoDoc fields = ZMoDoc.NEW(key, 1);
         ZMoDoc update = ZMoDoc.NEW().m("$inc", key, val);
-        ZMoDoc sort = ZMoDoc.NEW(q.sort());
 
-        ZMoDoc doc = co.findAndModify(qDoc, fields, sort, false, update, returnNew, false);
+        FindOneAndUpdateOptions opt = new FindOneAndUpdateOptions();
+        if (returnNew) {
+            opt.returnDocument(ReturnDocument.AFTER);
+        } else {
+            opt.returnDocument(ReturnDocument.BEFORE);
+        }
+
+        Document dbobj = co.findOneAndUpdate(qDoc, update, opt);
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
 
         return doc.getInt(key);
     }
@@ -265,8 +313,10 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     @Override
     public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
         ZMoDoc q = ZMoDoc.NEW("id", id);
-        ZMoDoc flds = ZMoDoc.NEW(key, 1);
-        ZMoDoc doc = co.findOne(q, flds);
+
+        Document dbobj = co.find(q).first();
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
+
         return doc.getAs(key, classOfT, dft);
     }
 
@@ -274,18 +324,19 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     protected WnObj _create(WnIoObj o) {
         ZMoDoc doc = ZMo.me().toDoc(o);
         // 一定不要记录 ph
-        doc.removeField("ph");
+        doc.remove("ph");
         // 处理一下两段式 ID
         String myId = o.myId();
         doc.put("id", myId);
         // 保存
-        co.insert(doc);
+        co.insertOne(doc);
         return o;
     }
 
     @Override
     public void delete(WnObj o) {
-        co.remove(Mongos.qID(o.id()));
+        ZMoDoc q = Mongos.qID(o.id());
+        co.deleteOne(q);
     }
 
     @Override
@@ -313,32 +364,31 @@ public class MongoIndexer extends AbstractIoDataIndexer {
 
         // 准备查询
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : Mongos.toQueryDoc(q);
-        DBCursor cu = co.find(qDoc);
-
+        FindIterable<Document> it = co.find(qDoc);
+        MongoCursor<Document> cu = null;
         try {
             // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             int i = 0;
             int n = 0;
-            Mongos.setup_paging(cu, q);
-            Mongos.setup_sorting(cu, q);
+            Mongos.setup_paging(it, q);
+            Mongos.setup_sorting(it, q);
 
             int limit = null == q ? 0 : q.limit();
 
-            int count = cu.count();
-
+            cu = it.cursor();
             while (cu.hasNext()) {
                 // 如果设置了分页 ...
                 if (limit > 0 && n >= limit) {
                     break;
                 }
                 // 获取对象
-                DBObject dbobj = cu.next();
+                Document dbobj = cu.next();
                 WnIoObj o = Mongos.toWnObj(dbobj);
                 o.setIndexer(this);
 
                 // 回调
                 try {
-                    callback.invoke(i++, o, count);
+                    callback.invoke(i++, o, -1);
                     n++;
                 }
                 catch (ExitLoop e) {
@@ -350,7 +400,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             return n;
         }
         finally {
-            cu.close();
+            Streams.safeClose(cu);
         }
     }
 
@@ -373,23 +423,28 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             throw new RuntimeException("count with emtry WnQuery is not allow");
 
         // 对id的正则表达式进行更多的检查
-        if (qDoc.containsField("id")) {
+        if (qDoc.containsKey("id")) {
             Object tmp = qDoc.get("id");
             if (tmp != null && tmp instanceof Pattern && tmp.toString().equals("^")) {
                 throw new RuntimeException("count with id:/^/ is not allow");
             }
         }
 
-        return co.count(qDoc);
+        return co.countDocuments(qDoc);
     }
 
     @Override
     public WnObj push(String id, String key, Object val, boolean returnNew) {
         ZMoDoc qDoc = ZMoDoc.NEW("id", id);
-        ZMoDoc fields = ZMoDoc.NEW(key, 1);
         ZMoDoc update = ZMoDoc.NEW().m("$addToSet", key, val);
-
-        ZMoDoc doc = co.findAndModify(qDoc, fields, null, false, update, returnNew, false);
+        FindOneAndUpdateOptions opt = new FindOneAndUpdateOptions();
+        if (returnNew) {
+            opt.returnDocument(ReturnDocument.AFTER);
+        } else {
+            opt.returnDocument(ReturnDocument.BEFORE);
+        }
+        Document dbobj = co.findOneAndUpdate(qDoc, update, opt);
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         return Mongos.toWnObj(doc);
     }
 
@@ -397,16 +452,23 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     public void push(WnQuery query, String key, Object val) {
         ZMoDoc qDoc = Mongos.toQueryDoc(query);
         ZMoDoc update = ZMoDoc.NEW().m("$addToSet", key, val);
-        co.updateMulti(qDoc, update);
+        co.updateMany(qDoc, update);
     }
 
     @Override
     public WnObj pull(String id, String key, Object val, boolean returnNew) {
         ZMoDoc qDoc = ZMoDoc.NEW("id", id);
-        ZMoDoc fields = ZMoDoc.NEW(key, 1);
         ZMoDoc update = ZMoDoc.NEW().m("$pull", key, val);
 
-        ZMoDoc doc = co.findAndModify(qDoc, fields, null, false, update, returnNew, false);
+        FindOneAndUpdateOptions opt = new FindOneAndUpdateOptions();
+        if (returnNew) {
+            opt.returnDocument(ReturnDocument.AFTER);
+        } else {
+            opt.returnDocument(ReturnDocument.BEFORE);
+        }
+
+        Document dbobj = co.findOneAndUpdate(qDoc, update, opt);
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
 
         return Mongos.toWnObj(doc);
     }
@@ -415,7 +477,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     public void pull(WnQuery query, String key, Object val) {
         ZMoDoc qDoc = Mongos.toQueryDoc(query);
         ZMoDoc update = ZMoDoc.NEW().m("$pull", key, val);
-        co.updateMulti(qDoc, update);
+        co.updateMany(qDoc, update);
     }
 
 }

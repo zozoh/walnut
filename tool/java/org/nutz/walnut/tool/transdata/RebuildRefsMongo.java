@@ -1,21 +1,22 @@
 package org.nutz.walnut.tool.transdata;
 
+import org.bson.Document;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.ZMongo;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateOptions;
 
 public class RebuildRefsMongo {
 
@@ -80,20 +81,23 @@ public class RebuildRefsMongo {
         L("\n开始从 MongoDB 查找索引 ...");
         L(HR1);
         ZMoDoc qDoc = Strings.isBlank(filter) ? ZMoDoc.NEW() : ZMoDoc.NEW(filter);
-        DBCursor cu = coObj.find(qDoc);
+        FindIterable<Document> cu = coObj.find(qDoc);
         int count = 0;
         int sha1_count = 0;
+        MongoCursor<Document> it = null;
         try {
-            //cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
+            // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             if (limit > 0)
                 cu.limit(limit);
             if (skip > 0)
                 cu.skip(skip);
 
-            while (cu.hasNext()) {
+            it = cu.iterator();
+            while (it.hasNext()) {
                 // 获取对象
-                DBObject dbobj = cu.next();
-                NutMap obj = ZMo.me().fromDocToMap(dbobj, NutMap.class);
+                Document dbobj = it.next();
+                ZMoDoc doc = ZMoDoc.WRAP(dbobj);
+                NutMap obj = doc.toMap();
                 // -------------------------------------
                 String oid = obj.getString("id");
                 String onm = obj.getString("nm");
@@ -119,11 +123,16 @@ public class RebuildRefsMongo {
                 // -------------------------------------
                 // 记录到索引中
                 ZMoDoc refDoc = ZMoDoc.NEWf("tid:'%s',rid:'%s'", sha1, oid);
-                coRef.update(refDoc, ZMoDoc.NEW("$setOnInsert", refDoc), true, false);
+                ZMoDoc udoc = ZMoDoc.NEW("$setOnInsert", refDoc);
+                UpdateOptions uo = new UpdateOptions();
+                uo.upsert(true);
+                coRef.updateOne(refDoc, udoc, uo);
             }
         }
         finally {
-            cu.close();
+            if (null != it) {
+                it.close();
+            }
         }
 
         // ===================================================

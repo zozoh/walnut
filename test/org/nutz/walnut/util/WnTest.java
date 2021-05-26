@@ -51,7 +51,7 @@ public class WnTest {
         assertEquals(exp, ams);
 
         ams = Wtime.valueOf("monthEnd");
-        exp = Wtime.monthDayInMs(-1);
+        exp = Wtime.monthDayEndInMs(-1);
         assertEquals(exp, ams);
     }
 

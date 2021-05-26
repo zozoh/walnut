@@ -3,11 +3,12 @@ package org.nutz.walnut.core.refer.mongo;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bson.Document;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.core.WnReferApi;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 
 public class MongoReferService implements WnReferApi {
 
@@ -23,15 +24,16 @@ public class MongoReferService implements WnReferApi {
         for (String referId : referIds) {
             // 查一下: 存在就无视
             q = ZMoDoc.NEW("tid", targetId).putv("rid", referId);
-            if (co.count(q) > 0) {
+            long n = co.countDocuments(q);
+            if (n > 0) {
                 continue;
             }
 
             // 不存在就添加
-            co.save(q);
+            co.insertOne(q);
         }
         q = ZMoDoc.NEW("tid", targetId);
-        return co.count(q);
+        return co.countDocuments(q);
     }
 
     @Override
@@ -40,16 +42,16 @@ public class MongoReferService implements WnReferApi {
         // 逐个删除
         for (String referId : referIds) {
             q = ZMoDoc.NEW("tid", targetId).putv("rid", referId);
-            co.remove(q);
+            co.deleteMany(q);
         }
         q = ZMoDoc.NEW("tid", targetId);
-        return co.count(q);
+        return co.countDocuments(q);
     }
 
     @Override
     public long count(String targetId) {
         ZMoDoc q = ZMoDoc.NEW("tid", targetId);
-        return co.count(q);
+        return co.countDocuments(q);
     }
 
     @Override
@@ -57,14 +59,15 @@ public class MongoReferService implements WnReferApi {
         HashSet<String> sets = new HashSet<>();
         ZMoDoc q = ZMoDoc.NEW("tid", targetId);
 
-        DBCursor cu = co.find(q);
+        FindIterable<Document> it = co.find(q);
+        MongoCursor<Document> cu = null;
 
         try {
             // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
-
+            cu = it.cursor();
             while (cu.hasNext()) {
                 // 获取对象引用 ID
-                DBObject dbobj = cu.next();
+                Document dbobj = cu.next();
                 Object rid = dbobj.get("rid");
 
                 if (null != rid) {
@@ -82,7 +85,7 @@ public class MongoReferService implements WnReferApi {
     @Override
     public void clear(String targetId) {
         ZMoDoc q = ZMoDoc.NEW("tid", targetId);
-        co.remove(q);
+        co.deleteMany(q);
     }
 
 }

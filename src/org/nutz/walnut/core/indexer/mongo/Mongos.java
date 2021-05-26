@@ -3,10 +3,13 @@ package org.nutz.walnut.core.indexer.mongo;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bson.Document;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -24,9 +27,7 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wregion;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.FindIterable;
 
 /**
  * MongoDB 相关帮助函数集
@@ -40,7 +41,7 @@ public class Mongos {
      * @return MongoDB 的查询条件
      */
     public static ZMoDoc toQueryDoc(WnQuery q) {
-        BasicDBList list = new BasicDBList();
+        List<ZMoDoc> list = new LinkedList<>();
         // 遍历所有的查询条件
         for (NutMap map : q.getList()) {
             ZMoDoc doc = ZMoDoc.NEW();
@@ -244,9 +245,10 @@ public class Mongos {
                 // 那么 key 必须是 $and 或者 $or
                 if (m.find()) {
                     key = "$" + m.group(1);
-                    BasicDBList list = new BasicDBList();
+                    ZMoDoc[] list = new ZMoDoc[vv.length];
                     // 遍历所有的查询条件
-                    for (Object v2 : vv) {
+                    for (int i = 0; i < vv.length; i++) {
+                        Object v2 = vv[i];
                         Map<String, Object> map = (Map<String, Object>) v2;
                         ZMoDoc doc = ZMoDoc.NEW();
                         for (Map.Entry<String, Object> en : map.entrySet()) {
@@ -254,7 +256,7 @@ public class Mongos {
                             Object val2 = en.getValue();
                             _set_to_doc(doc, key2, val2);
                         }
-                        list.add(doc);
+                        list[i] = doc;
                     }
                     // 重新应用一下条件
                     _put_to_query(q, not, key, list);
@@ -358,11 +360,11 @@ public class Mongos {
             }
             // 指明了 or 那么全部变成条件
             else if (ss[0].equals("%or")) {
-                BasicDBList list = new BasicDBList();
+                ZMoDoc[] list = new ZMoDoc[ss.length - 1];
                 for (int i = 1; i < ss.length; i++) {
                     ZMoDoc doc = ZMoDoc.NEW();
                     _set_to_doc(doc, key, ss[i]);
-                    list.add(doc);
+                    list[i - 1] = doc;
                 }
                 q.put("$or", list);
             }
@@ -380,34 +382,34 @@ public class Mongos {
     /**
      * 设置游标的分页
      * 
-     * @param cu
+     * @param it
      *            游标
      * @param q
      *            查询对象
      */
-    public static void setup_paging(DBCursor cu, WnQuery q) {
+    public static void setup_paging(FindIterable<Document> it, WnQuery q) {
         if (null == q)
             return;
         if (q.limit() > 0) {
-            cu.limit(q.limit());
+            it.limit(q.limit());
         }
         if (q.skip() > 0) {
-            cu.skip(q.skip());
+            it.skip(q.skip());
         }
     }
 
     /**
      * 设置游标的排序
      * 
-     * @param cu
-     *            游标
+     * @param it
+     *            迭代器
      * @param q
      *            查询对象
      */
-    public static void setup_sorting(DBCursor cu, WnQuery q) {
+    public static void setup_sorting(FindIterable<Document> it, WnQuery q) {
         NutMap sort = q.sort();
         if (null != sort && sort.size() > 0) {
-            cu.sort(ZMo.me().toDoc(sort));
+            it.sort(ZMo.me().toDoc(sort));
         }
     }
 
@@ -415,9 +417,10 @@ public class Mongos {
         return ZMoDoc.NEW("id", id);
     }
 
-    public static WnIoObj toWnObj(DBObject doc) {
-        if (null == doc)
+    public static WnIoObj toWnObj(Document dbobj) {
+        if (null == dbobj)
             return null;
+        ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         WnIoObj o = ZMo.me().fromDocToMap(doc, WnIoObj.class);
         // 这里，为了之前的程序错误（有时候吧 ph存到集合里了），强制删除一下
         if (null != o) {

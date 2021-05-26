@@ -2,12 +2,14 @@ package org.nutz.walnut.ext.sys.quota;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.bson.Document;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Lang;
@@ -23,18 +25,18 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.WnConfig;
 import org.nutz.web.Webs.Err;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.Cursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCursor;
 
 /**
  * 统一管理系统的内的配额,例如磁盘配额, 流量配额
+ * 
  * @author wendal
  *
  */
-@IocBean(create="init", depose="depose", name="quota")
+@IocBean(create = "init", depose = "depose", name = "quota")
 public class QuotaService {
-    
+
     private static final Log log = Wlog.getEXT();
 
     @Inject("java:$mongoDB.getCollection('obj')")
@@ -42,19 +44,19 @@ public class QuotaService {
 
     @Inject
     protected WnIo io;
-    
+
     @Inject
     protected WnConfig conf;
-    
+
     protected ExecutorService es;
-    
+
     protected WnObj quotaRoot;
-    
+
     // 查询配额和消耗量是很耗时的,需要缓存起来
     protected boolean running = true;
     protected Map<String, Long> qu = new HashMap<>();
     protected Map<String, AtomicLong> ug = new HashMap<>();
-    
+
     public boolean checkQuota(String type, String username, boolean just_throw) {
         if (username == null || "root".equals(username))
             return true;
@@ -73,7 +75,7 @@ public class QuotaService {
         }
         return true;
     }
-    
+
     public long getQuota(String type, String username, boolean realtime) {
         if (username == null || "root".equals(username))
             return -1L;
@@ -86,7 +88,7 @@ public class QuotaService {
             return qu.getOrDefault(username + ":" + type, -1L);
         }
     }
-    
+
     public long getUsage(String type, String username, boolean realtime) {
         if (username == null || "root".equals(username))
             return -1L;
@@ -97,7 +99,7 @@ public class QuotaService {
             return -1L;
         return usage.get();
     }
-    
+
     public void setQuota(String type, String username, long quota) {
         WnObj wobj = io.createIfNoExists(quotaRoot, username, WnRace.FILE);
         io.setBy(wobj.id(), new NutMap("quota_" + type, quota), false);
@@ -105,7 +107,9 @@ public class QuotaService {
 
     /**
      * 获取用户的空间占用情况,比较重的操作,不宜经常调用
-     * @param userName 用户名
+     * 
+     * @param userName
+     *            用户名
      * @return 已用空间,仅统计/home/$user下的空间
      */
     protected long getUserDiskUsageRealtime(String userName) {
@@ -113,29 +117,33 @@ public class QuotaService {
             return 0;
         ZMoDoc match = ZMoDoc.NEW("{$match:{d0:'home', 'd1':'" + userName + "'}}");
         ZMoDoc group = ZMoDoc.NEW("{$group:{_id:'$d1', 'disk_usage':{'$sum':'$len'}}}");
-        Cursor cursor = co.aggregate(Arrays.asList(match, group), AggregationOptions.builder().build());
+
+        List<ZMoDoc> piplines = Arrays.asList(match, group);
+        AggregateIterable<Document> it = co.aggregate(piplines);
+        MongoCursor<Document> cu = null;
         try {
-            if (cursor.hasNext()) {
-                DBObject dbo = cursor.next();
-                return ((Number) dbo.get("disk_usage")).longValue();
+            cu = it.iterator();
+            if (cu.hasNext()) {
+                Document doc = cu.next();
+                return doc.getLong("disk_usage");
             }
         }
         finally {
-            cursor.close();
+            cu.close();
         }
         return 0;
     }
-    
+
     /**
      * 更新全部用户的空间占用率
      */
     public void updateQuotaAndFlushUsage(boolean doInit) {
-        
+
         for (WnObj wobj : io.getChildren(quotaRoot, null)) {
             for (Entry<String, Object> en : wobj.entrySet()) {
                 String key = en.getKey();
                 if (key.startsWith("quota_")) {
-                    Long qouta = (Long)en.getValue();
+                    Long qouta = (Long) en.getValue();
                     if (qouta == null) {
                         qouta = -1L;
                     }
@@ -143,11 +151,12 @@ public class QuotaService {
 
                     // 仅检查有配额限制的用户
                     if ("quota_disk".equals(key) && qouta > -1) {
-                        ug.put(wobj.name() + ":disk", new AtomicLong(this.getUserDiskUsageRealtime(wobj.name())));
+                        ug.put(wobj.name() + ":disk",
+                               new AtomicLong(this.getUserDiskUsageRealtime(wobj.name())));
                     }
-                }
-                else if (doInit && key.startsWith("usage_") && !"quota_disk".equals(key)) {
-                    ug.put(wobj.name() + ":" + key.substring("usage_".length()), new AtomicLong((Long)en.getValue()));
+                } else if (doInit && key.startsWith("usage_") && !"quota_disk".equals(key)) {
+                    ug.put(wobj.name() + ":" + key.substring("usage_".length()),
+                           new AtomicLong((Long) en.getValue()));
                 }
             }
         }
@@ -159,12 +168,13 @@ public class QuotaService {
                 String type = tmp[1];
                 if (type.endsWith(":disk")) // 磁盘空间不需要持久化
                     continue;
-                io.setBy(Wn.Q.pid(quotaRoot.id()).setv("nm", username), new NutMap("usage_" + type, en.getValue().get()), false);
+                io.setBy(Wn.Q.pid(quotaRoot.id()).setv("nm", username),
+                         new NutMap("usage_" + type, en.getValue().get()),
+                         false);
             }
         }
     }
 
-    
     public void incrUsage(String username, String type, long len) {
         String key = username + ":" + type;
         AtomicLong atom = ug.get(key);
@@ -174,12 +184,12 @@ public class QuotaService {
         }
         atom.addAndGet(len);
     }
-    
+
     public void init() {
         quotaRoot = io.createIfNoExists(null, "/sys/quota", WnRace.DIR);
         updateQuotaAndFlushUsage(true);
         es = Executors.newCachedThreadPool();
-        es.submit(()-> {
+        es.submit(() -> {
             int count = 0;
             int interval = conf.getInt("quota-update-interval", 300);
             while (running) {
@@ -188,7 +198,7 @@ public class QuotaService {
                     if (count % interval == 0) {
                         updateQuotaAndFlushUsage(false);
                     }
-                    count ++;
+                    count++;
                 }
                 catch (Throwable e) {
                     log.info("update user quota/usage FAIL!!", e);
@@ -196,7 +206,7 @@ public class QuotaService {
             }
         });
     }
-    
+
     public void depose() {
         running = false;
         if (es != null)

@@ -3,7 +3,9 @@ package org.nutz.walnut.ext.sys.mgadmin.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.Document;
 import org.nutz.json.Json;
+import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -11,50 +13,55 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.MongoDB;
 
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.CommandResult;
-import com.mongodb.DB;
-import com.mongodb.DBCursor;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(quiet)$")
 public class mgadmin_profile implements JvmHdl {
 
-    @SuppressWarnings("unchecked")
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
-        DB db = mongoDB.getRaw();
-        CommandResult re;
+        MongoDatabase db = mongoDB.getRawApi();
+        Document cmd;
+        Document re;
         if (hc.params.vals.length > 0) {
             switch (hc.params.vals[0]) {
             case "enable": // 启用profile, 可以设置level和slowms. 其中 level=1是仅慢查询,
                            // level=2是全部查询
-                BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
-                builder.add("profile", hc.params.getInt("level", 1));
-                builder.add("slowms", hc.params.getInt("slowms", 100));
-                re = db.command(builder.get());
+                cmd = new Document();
+                cmd.put("profile", hc.params.getInt("level", 1));
+                cmd.put("slowms", hc.params.getInt("slowms", 100));
+                re = db.runCommand(cmd);
                 if (!hc.params.is("quiet"))
                     sys.out.print(re.toJson());
                 break;
             case "disable":// 关闭profile
-                re = db.command(BasicDBObjectBuilder.start().add("profile", 0).get());
+                cmd = new Document();
+                cmd.put("profile", 0);
+                re = db.runCommand(cmd);
                 if (!hc.params.is("quiet"))
                     sys.out.print(re.toJson());
                 break;
             case "list": // 列出最近的profile记录
                 int lm = hc.params.getInt("limit", 10);
-                DBCursor cur = db.getCollection("system.profile").find().limit(lm);
+                MongoCollection<Document> co = db.getCollection("system.profile");
+                FindIterable<Document> it = co.find().limit(lm);
 
                 // 得到结果集
                 List<NutMap> list = new ArrayList<>(lm);
+                MongoCursor<Document> cu = it.iterator();
                 try {
-                    while (cur.hasNext()) {
-                        NutMap map = NutMap.WRAP(cur.next().toMap());
+
+                    while (cu.hasNext()) {
+                        NutMap map = NutMap.WRAP(cu.next());
                         list.add(map);
                     }
                 }
                 finally {
-                    cur.close();
+                    Streams.safeClose(cu);
                 }
                 // 输出
                 sys.out.println(Json.toJson(list, hc.jfmt));
@@ -68,7 +75,9 @@ public class mgadmin_profile implements JvmHdl {
             }
         } else {
             // 显示profile的状态
-            re = db.command(BasicDBObjectBuilder.start().add("profile", -1).get());
+            cmd = new Document();
+            cmd.put("profile", -1);
+            re = db.runCommand(cmd);
             sys.out.print(re.toJson());
         }
     }

@@ -3,7 +3,9 @@ package org.nutz.walnut.core.indexer.dao;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +38,11 @@ import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WnIoIndexer;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.agg.WnAggItem;
+import org.nutz.walnut.api.io.agg.WnAggGroupKey;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
+import org.nutz.walnut.api.io.agg.WnAggOrderBy;
 import org.nutz.walnut.api.io.agg.WnAggResult;
+import org.nutz.walnut.api.io.agg.WnAggTransMode;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
@@ -89,7 +93,8 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         // 准备上下文
         NutMap ctx = new NutMap();
         ctx.put("table", tableName);
-        ctx.put("AGG_BY", agg.getAggregateBy());
+        ctx.put("AGG_KEY_FROM", agg.getAggregateBy().getFromName());
+        ctx.put("AGG_KEY_TO", agg.getAggregateBy().getToName());
 
         //
         // 准备聚集函数
@@ -121,15 +126,27 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         //
         // 键的聚合前计算方法
         //
-        String grpBy = agg.getGroupBy();
-        // 时间戳转日期
-        if (agg.is_mode_TIMESTAMP_TO_DATE()) {
-            ctx.put("GRP_BY", expert.funcTimestampToDate(grpBy));
+        List<String> group_out = new ArrayList<>(agg.getGroupBy().size());
+        List<String> group_ins = new ArrayList<>(agg.getGroupBy().size());
+        List<String> group_bys = new ArrayList<>(agg.getGroupBy().size());
+        int i = 0;
+        for (WnAggGroupKey gk : agg.getGroupBy()) {
+            String tmpKey = "k" + (i++);
+            // 转换时间戳到日期以便按日分组
+            if (WnAggTransMode.TIMESTAMP_TO_DATE == gk.getFunc()) {
+                String trans = expert.funcTimestampToDate(gk.getFromName());
+                group_ins.add(String.format("%s AS %s", trans, tmpKey));
+            } else {
+                group_ins.add(String.format("%s AS %s", gk.getFromName(), tmpKey));
+            }
+            // 输出的分组字段
+            group_out.add(String.format("%s AS %s", tmpKey, gk.getToName()));
+            // 分组键
+            group_bys.add(tmpKey);
         }
-        // 默认采用原始数据
-        else {
-            ctx.put("GRP_BY", grpBy);
-        }
+        ctx.put("GRP_INS", Ws.join(group_ins, ", "));
+        ctx.put("GRP_OUT", Ws.join(group_out, ", "));
+        ctx.put("GRP_BYS", Ws.join(group_bys, ", "));
 
         // 查询限制数量
         if (agg.hasDataLimit()) {
@@ -145,24 +162,30 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
         // 求和结果的排序
         if (agg.hasOrderBy()) {
-            String ok = agg.getOrderKey("k", "v");
-            String ob = agg.getOrderVal("ASC", "DESC");
-            ctx.put("ORDER_BY", String.format("ORDER BY %s %s", ok, ob));
+            List<String> sorting = new ArrayList<>(agg.getOrderBy().size());
+            for (WnAggOrderBy ob : agg.getOrderBy()) {
+                if (ob.isAsc()) {
+                    sorting.add(String.format("%s ASC", ob.getName()));
+                } else {
+                    sorting.add(String.format("%s DESC", ob.getName()));
+                }
+            }
+            ctx.put("ORDER_BY", String.format("ORDER BY %s", Ws.join(sorting, ", ")));
         }
 
         // 拼 SQL
         String str = Tmpl.exec("SELECT "
-                               + "  k0 AS k,"
-                               + "  ${FUNC} AS v "
+                               + "  ${GRP_OUT},"
+                               + "  ${FUNC} AS ${AGG_KEY_TO} "
                                + "FROM"
                                + "("
                                + "    SELECT "
-                               + "      ${AGG_BY} AS v0,"
-                               + "      ${GRP_BY} AS k0 "
+                               + "      ${AGG_KEY_FROM} AS v0,"
+                               + "      ${GRP_INS}"
                                + "    FROM ${table} "
                                + "    ${WHERE?} ${LIMIT_DATA?}"
                                + ") AS result "
-                               + "GROUP BY k0 "
+                               + "GROUP BY ${GRP_BYS} "
                                + "${ORDER_BY} "
                                + "${LIMIT_OUTPUT?} ;",
                                ctx);
@@ -171,6 +194,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         WnAggResult re = new WnAggResult();
 
         // 准备 SQL
+        ResultSetMetaData[] rsms = new ResultSetMetaData[1];
         Sql sql = Sqls.create(str);
         sql.setCallback(new SqlCallback() {
             public Object invoke(Connection conn, ResultSet rs, Sql sql) throws SQLException {
@@ -180,12 +204,50 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                                                    SqlContext context,
                                                    int rowCount) {
                         try {
-                            String name = rs.getString("k");
-                            long n = rs.getLong("v");
-                            WnAggItem it = new WnAggItem();
-                            it.setName(name);
-                            it.setValue(n);
-                            re.add(it);
+                            // 得到元数据
+                            ResultSetMetaData rsm = rsms[0];
+                            if (null == rsm) {
+                                rsm = rs.getMetaData();
+                                rsms[0] = rsm;
+                            }
+
+                            NutBean bean = new NutMap();
+
+                            // 记录每一个字段
+                            int count = rsm.getColumnCount();
+                            for (int i = 1; i <= count; i++) {
+                                String key = rsm.getColumnName(i);
+                                int colType = rsm.getColumnType(i);
+                                Object val;
+                                switch (colType) {
+                                case Types.BIGINT:
+                                    val = rs.getBigDecimal(i);
+                                    break;
+                                case Types.INTEGER:
+                                    val = rs.getLong(i);
+                                    break;
+                                case Types.SMALLINT:
+                                case Types.TINYINT:
+                                    val = rs.getInt(i);
+                                    break;
+                                case Types.DOUBLE:
+                                    val = rs.getDouble(i);
+                                    break;
+                                case Types.FLOAT:
+                                    val = rs.getFloat(i);
+                                    break;
+                                case Types.BOOLEAN:
+                                    val = rs.getBoolean(i);
+                                    break;
+                                default:
+                                    val = rs.getString(i);
+                                }
+                                // 计入返回值
+                                bean.put(key, val);
+                            }
+
+                            // 计入返回结果
+                            re.add(bean);
                         }
                         catch (SQLException e) {
                             throw Lang.wrapThrow(e);

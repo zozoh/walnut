@@ -31,7 +31,6 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.net.email.WnMailServer;
 import org.nutz.walnut.ext.net.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.net.sshd.srv.WnSshdServer;
-import org.nutz.walnut.ext.old.job.WnJobService;
 import org.nutz.walnut.ext.sys.quota.JettyMonitorHandler;
 import org.nutz.walnut.ext.sys.quota.QuotaService;
 import org.nutz.walnut.ext.sys.websocket.WnWebSocket;
@@ -205,9 +204,6 @@ public class WnSetup implements Setup {
             setup.init(nc);
         }
 
-        if (conf.getBoolean("service-wnjob", true)) {
-            ioc.get(WnJobService.class);
-        }
         ioc.get(WnSshdServer.class);
         ioc.get(WnFtpServer.class);
         ioc.get(WnMailServer.class);

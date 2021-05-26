@@ -143,11 +143,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
-			<artifactId>nutz-plugins-mongodb</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nutz</groupId>
 			<artifactId>nutzwx</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
@@ -180,11 +175,6 @@
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-integration-json4excel</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-quartz</artifactId>
-			<version>1.r.63-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qiniu</groupId>
@@ -247,6 +237,11 @@
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>1.7.25</version>
 		</dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-legacy</artifactId>
+            <version>4.2.3</version>
+        </dependency>
 		<dependency>
 			<groupId>org.subethamail</groupId>
 			<artifactId>subethasmtp</artifactId>
@@ -428,16 +423,6 @@
 			<artifactId>clickhouse-jdbc</artifactId>
 			<version>0.2.4</version>
 		</dependency>
-		<dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>1.26</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>1.26</version>
-        </dependency>
 		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j-JAXB-MOXy</artifactId>

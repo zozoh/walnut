@@ -10,7 +10,7 @@ import org.nutz.walnut.api.io.WnExpiObjTable;
 import org.nutz.walnut.core.IoCoreTest;
 import org.nutz.walnut.util.Wn;
 
-public class AbstractExpiObjTableTest extends IoCoreTest {
+public abstract class AbstractExpiObjTableTest extends IoCoreTest {
 
     /**
      * 子类需要设置这个实例

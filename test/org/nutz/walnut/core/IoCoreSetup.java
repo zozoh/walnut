@@ -412,7 +412,7 @@ public class IoCoreSetup {
 
     public void cleanMongo() {
         ZMoCo co = this.getMongoCoObj();
-        if (co.getDB().getNativeDB().collectionExists(co.getName())) {
+        if (mongo.existsCollection(co.getNamespace().getCollectionName())) {
             co.drop();
         }
     }
@@ -425,7 +425,7 @@ public class IoCoreSetup {
 
         // 自动创建创建表（标准）
         dao.create(entity, true);
-        
+
         daoConf = this.getWnDaoNoNameConfig();
         dao = WnDaos.get(daoConf.getAuth());
         ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());

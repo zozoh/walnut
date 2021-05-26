@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bson.Document;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
@@ -20,15 +21,15 @@ import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.ZMongo;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.UpdateOptions;
 
 public class TransdataRefMongo {
 
@@ -203,20 +204,23 @@ public class TransdataRefMongo {
         L("\n开始从 MongoDB 查找索引 ...");
         L(HR1);
         ZMoDoc qDoc = Strings.isBlank(filter) ? ZMoDoc.NEW() : ZMoDoc.NEW(filter);
-        DBCursor cu = coBuk.find(qDoc);
+        FindIterable<Document> it = coBuk.find(qDoc);
+
         int index = 0;
         int count = 0;
+        MongoCursor<Document> cu = null;
         try {
             // cu.addOption(Bytes.QUERYOPTION_NOTIMEOUT);
             if (limit > 0)
-                cu.limit(limit);
+                it.limit(limit);
             if (skip > 0)
-                cu.skip(skip);
+                it.skip(skip);
 
+            cu = it.cursor();
             while (cu.hasNext()) {
                 // 获取对象
-                DBObject dbobj = cu.next();
-                NutMap bu = ZMo.me().fromDocToMap(dbobj, NutMap.class);
+                Document dbobj = cu.next();
+                NutMap bu = NutMap.WRAP(dbobj);
                 // -------------------------------------
                 String oid = null;
                 String data = bu.getString("id"); // 桶 ID
@@ -229,7 +233,8 @@ public class TransdataRefMongo {
                 // -------------------------------------
                 // 查询一下这个桶对应的对象 ID
                 ZMoDoc qObj = ZMoDoc.NEWf("data:'%s',sha1:'%s'", data, sha1);
-                ZMoDoc obj = coObj.findOne(qObj);
+                Document doc = coObj.find(qObj).first();
+                ZMoDoc obj = ZMoDoc.WRAP(doc);
                 if (null == obj) {
                     lostBucks.add(data);
                     continue;
@@ -269,7 +274,9 @@ public class TransdataRefMongo {
                 // -------------------------------------
                 // 记录到索引中
                 ZMoDoc refDoc = ZMoDoc.NEWf("tid:'%s',rid:'%s'", sha1, oid);
-                coRef.update(refDoc, ZMoDoc.NEW("$setOnInsert", refDoc), true, false);
+                UpdateOptions opt = new UpdateOptions();
+                opt.upsert(true);
+                coRef.updateOne(refDoc, ZMoDoc.NEW("$setOnInsert", refDoc), opt);
 
                 // -------------------------------------
                 // 准备桶对象，进行转换

@@ -41,7 +41,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         // 这玩意有问题，看看 mongo 那边还有多少数据
         if (Strings.isBlank(re)) {
             ZMoCo co = setup.getMongoCoObj();
-            long n = co.count();
+            long n = co.countDocuments();
             System.out.printf("靠!!!数据库里还有记录 【%d】条\n", n);
         }
         return re;

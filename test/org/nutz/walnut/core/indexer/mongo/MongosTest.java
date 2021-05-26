@@ -8,8 +8,6 @@ import org.nutz.mongo.ZMoDoc;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
 
-import com.mongodb.DBObject;
-
 public class MongosTest {
 
     @Test
@@ -20,7 +18,7 @@ public class MongosTest {
 
         assertEquals("--pid--", doc.get("pid"));
 
-        DBObject cNB = (DBObject) doc.get("nb");
+        ZMoDoc cNB = (ZMoDoc) doc.get("nb");
         assertEquals(1, cNB.keySet().size());
         assertEquals(1, cNB.get("$gte"));
     }
@@ -33,7 +31,7 @@ public class MongosTest {
 
         assertEquals("--pid--", doc.get("pid"));
 
-        DBObject cNB = (DBObject) doc.get("nb");
+        ZMoDoc cNB = (ZMoDoc) doc.get("nb");
         assertEquals(1, cNB.keySet().size());
         assertEquals(1, cNB.get("$gte"));
     }
