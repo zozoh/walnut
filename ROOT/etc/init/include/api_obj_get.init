@@ -7,7 +7,6 @@
 @API .regapi/api/obj/get 'cross/json'
 %COPY:
 o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
-  -limit 1 \
   @ancestors ${http-qs-ans?~ignore~} -until ${http-qs-anu?~} \
              ${http-qs-ant<boolean:/-notop>?true} \
              ${http-qs-anself<boolean:/-self>?false} \
@@ -16,6 +15,7 @@ o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
         -sort '${http-qs-lssort?}' ${http-qs-lshide<boolean:/-hidden>?false} \
   @children '${http-qs-children_match<json>?-obj-}' \
         ${http-qs-children<boolean:-ignore/>?false} \
+        -query '${http-qs-children_query<json>?-obj-}' \
         ${http-qs-children_notop<boolean:/-notop>?false} \
         ${http-qs-children_axis<boolean:/-axis>?true} \
         ${http-qs-children_hidden<boolean:/-hidden>?true} \
@@ -32,7 +32,6 @@ o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
 @API .regapi/api/obj/read 'cross/text'
 %COPY:
 o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
-  -limit 1 \
   @read ${http-qs-read?~ignore~} -to ${http-qs-rd2?content} -as ${http-qs-ras?text} \
   @value ${http-qs-rd2?content}
 %END%
