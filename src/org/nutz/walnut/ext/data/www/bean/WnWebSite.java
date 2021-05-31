@@ -23,6 +23,7 @@ import org.nutz.walnut.ext.data.entity.history.WnHistoryService;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 public class WnWebSite {
 
@@ -63,6 +64,25 @@ public class WnWebSite {
      * 优惠券库所在目录(Thing)
      */
     private WnObj couponHome;
+
+    /**
+     * 采用什么命令获取公司/组织/机构的列表
+     */
+    private String companyBy;
+
+    /**
+     * 采用什么命令获取(公司/组织/机构)的组织结构图
+     * <p>
+     * 这个命令返回通常是一个 <code>{id,name,children}</code>格式的树形式数据<br>
+     * 并且这个命令也是一个模板，因为需要从<code>companyBy</code>获取机构信息。
+     * 占位符通常为<code>{id}</code>，当然，根据你的机构元数据，你可以随意使用占位符
+     */
+    private String deptBy;
+
+    /**
+     * 采用什么命令获取工作项目（业务上）的列表
+     */
+    private String projectBy;
 
     /**
      * 地址库所在目录(Thing)
@@ -185,6 +205,11 @@ public class WnWebSite {
         if (null != roleDir) {
             roleHome = roleDir.parent();
         }
+
+        // 公司/组织/结构，组织结构图，业务项目等
+        companyBy = bean.getString("companyBy");
+        deptBy = bean.getString("deptBy");
+        projectBy = bean.getString("projectBy");
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
         orderHome = fetchThingSet(bean.getString("orders"));
@@ -401,6 +426,30 @@ public class WnWebSite {
 
     public WnObj getRoleDir() {
         return roleDir;
+    }
+
+    public boolean hasCompanyBy() {
+        return !Ws.isBlank(companyBy);
+    }
+
+    public String getCompanyBy() {
+        return companyBy;
+    }
+
+    public boolean hasDeptBy() {
+        return !Ws.isBlank(deptBy);
+    }
+
+    public String getDeptBy() {
+        return deptBy;
+    }
+
+    public boolean hasProjectBy() {
+        return !Ws.isBlank(projectBy);
+    }
+
+    public String getProjectBy() {
+        return projectBy;
     }
 
     public boolean hasOrderHome() {

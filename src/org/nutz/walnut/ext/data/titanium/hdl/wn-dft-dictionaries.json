@@ -38,5 +38,36 @@
         {"value": 9, "text": "i18n:Oct"},
         {"value": 10, "text": "i18n:Nov"},
         {"value": 11, "text": "i18n:Dec"}]
+    },
+    "CssBackgroundRepeats": {
+      "data": [
+        {"value": "no-repeat", "text": "i18n:hmk-css-background-repeat-no"},
+        {"value": "space", "text": "i18n:hmk-css-background-repeat-space"},
+        {"value": "round", "text": "i18n:hmk-css-background-repeat-round"},
+        {"value": "repeat-x", "text": "i18n:hmk-css-background-repeat-x"},
+        {"value": "repeat-y", "text": "i18n:hmk-css-background-repeat-y"},
+        {"value": "repeat", "text": "i18n:hmk-css-background-repeat-yes"}
+      ]
+    },
+    "CssBackgroundSizes": {
+      "data": [
+        {"value": "auto", "text": "i18n:hmk-css-background-size-auto"},
+        {"value": "100%", "text": "i18n:hmk-css-background-size-full"},
+        {"value": "cover", "text": "i18n:hmk-css-background-size-cover"},
+        {"value": "contain", "text": "i18n:hmk-css-background-size-contain"}
+      ]
+    },
+    "CssBackgroundPositions": {
+      "data": [
+        {"value": "center", "text": "i18n:center"},
+        {"value": "top", "text": "i18n:top"},
+        {"value": "right", "text": "i18n:right"},
+        {"value": "bottom", "text": "i18n:bottom"},
+        {"value": "left", "text": "i18n:left"},
+        {"value": "left top", "text": "i18n:left-top"},
+        {"value": "right top", "text": "i18n:right-top"},
+        {"value": "right bottom", "text": "i18n:right-bottom"},
+        {"value": "left bottom", "text": "i18n:left-bottom"}
+      ]
     }
 }

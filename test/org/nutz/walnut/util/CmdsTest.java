@@ -15,10 +15,17 @@ public class CmdsTest {
         ss = Cmds.splitCmdAtoms("a'b|c'd");
         s = Ws.join(ss, ";");
         assertEquals("a'b|c'd", s);
-        
+
         ss = Cmds.splitCmdAtoms("ab\\|c");
         s = Ws.join(ss, ";");
         assertEquals("ab|c", s);
+    }
+
+    @Test
+    public void test_splitCmdArgs4() {
+        String[] ss = Cmds.splitCmdArgs("a\r\nb");
+        String s = Ws.join(ss, ";");
+        assertEquals("a;b", s);
     }
 
     @Test
@@ -60,6 +67,14 @@ public class CmdsTest {
         ss = Cmds.splitCmdArgs("a '\\'x \"y\" z\\'' c");
         s = Ws.join(ss, ";");
         assertEquals("a;'x \"y\" z';c", s);
+    }
+
+    @Test
+    public void test_splitCmdLines3() {
+        String[] ss = Cmds.splitCmdLines("a\r\nb");
+        assertEquals(2, ss.length);
+        assertEquals("a", ss[0]);
+        assertEquals("b", ss[1]);
     }
 
     @Test

@@ -11,6 +11,7 @@ public class domain_list implements JvmHdl {
         String cmdText = "obj /domain -match"
                          + " -t 'id,nm,tp,domain,site,expi_at,title'"
                          + " -bish -pager"
+                         + " -sort nm:1"
                          + " -limit "
                          + hc.params.getInt("limit", 100)
                          + " -skip "

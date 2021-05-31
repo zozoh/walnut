@@ -58,7 +58,7 @@ public abstract class Cmds {
         // 存储字符串的临时栈。逃逸字符都加入到里面
         StringBuilder stack = new StringBuilder();
 
-        Ws.splitQuoteToken(cmdLine, "'\"", " \t", new WnStrTokenCallback() {
+        Ws.splitQuoteToken(cmdLine, "'\"", " \t\r\n", new WnStrTokenCallback() {
             public char escape(char c) {
                 return ET_CMD_ARGS.get(c);
             }
@@ -103,13 +103,16 @@ public abstract class Cmds {
         }
 
         String[] re = new String[items.size()];
-        items.toArray(re);
+        int i = 0;
+        for (String it : items) {
+            re[i++] = Ws.trim(it);
+        }
         return re;
     }
 
     static char[] EC_CMD_ATOMS = Wchar.array('|', '|');
     static Wchar.EscapeTable ET_CMD_ATOMS = Wchar.buildEscapeTable(EC_CMD_ATOMS);
-    
+
     /**
      * 考虑到文本行尾连接到命令行拆分。其中引号/转义字符会被保留
      * 
@@ -160,7 +163,10 @@ public abstract class Cmds {
         }
 
         String[] re = new String[lines.size()];
-        lines.toArray(re);
+        int i = 0;
+        for (String line : lines) {
+            re[i++] = Ws.trim(line);
+        }
         return re;
     }
 
@@ -217,7 +223,10 @@ public abstract class Cmds {
         }
 
         String[] re = new String[lines.size()];
-        lines.toArray(re);
+        int i = 0;
+        for (String line : lines) {
+            re[i++] = Ws.trim(line);
+        }
         return re;
     }
 

@@ -34,6 +34,18 @@ public class domain_site implements JvmHdl {
         addPart(re, wm, "accountHome", site.getAccountHome());
         addPart(re, wm, "roleHome", site.getRoleHome());
 
+        if (site.hasCompanyBy()) {
+            re.put("companyBy", site.getCompanyBy());
+        }
+
+        if (site.hasDeptBy()) {
+            re.put("deptBy", site.getDeptBy());
+        }
+
+        if (site.hasProjectBy()) {
+            re.put("projectBy", site.getProjectBy());
+        }
+
         String json = Json.toJson(re, hc.jfmt);
         sys.out.println(json);
     }

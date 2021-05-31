@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.66";
+        return "10.67";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "AGG-MULTI";
+        return "PVG-ORG";
     }
 
     /**

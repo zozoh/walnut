@@ -27,6 +27,7 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.WnSysConf;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.web.util.WalnutLog;
 
@@ -160,6 +161,10 @@ public class WnSystem implements WnAuthExecutable {
             log.info(" > sys.exec: " + cmdText);
 
         for (String cmdLine : cmdLines) {
+            // 跳过注释行和空行
+            if (Ws.isBlank(cmdLine) || cmdLine.startsWith("#")) {
+                continue;
+            }
             _runner.run(cmdLine);
             _runner.wait_for_idle();
         }
