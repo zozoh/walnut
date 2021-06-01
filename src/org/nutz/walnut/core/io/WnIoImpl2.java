@@ -1203,7 +1203,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     private void __save_map_for_update_meta(NutBean map) {
-        map.pickAndRemoveBy("^(ph|id|race|ct|d[0-9])$");
+        map.pickAndRemoveBy("^(ph|id|ct|d[0-9])$");
     }
 
     @Override

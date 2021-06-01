@@ -155,7 +155,7 @@ public class WnContext extends NutMap {
                                   sw.getDuration());
 
                 // 调用了钩子，则重新获取
-                return hookContext.io().checkById(o.id());
+                return hookContext.io().get(o.id());
             }
 
         }
