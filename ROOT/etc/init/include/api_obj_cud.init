@@ -1,0 +1,22 @@
+#---------------------------------------------------------
+#
+#                    Object 增删改
+#
+#---------------------------------------------------------
+# API(obj): 对象·新建
+@FILE .regapi/api/obj/create 'cross/json/auth'
+%COPY:
+cat id:${id} | o @get '${http-qs-id?}' @fetch '${http-qs-ph?}' @create @json -cqn
+%END%
+#---------------------------------------------------------
+# API(obj): 对象·修改
+@FILE .regapi/api/obj/update 'cross/json/auth'
+%COPY:
+cat id:${id} | o @get '${http-qs-id?}' @fetch '${http-qs-ph?}' @update @json -cqn
+%END%
+#---------------------------------------------------------
+# API(obj): 对象·删除
+@FILE .regapi/api/obj/delete 'cross/json/auth'
+%COPY:
+o @get '${http-qs-id?}' @fetch '${http-qs-ph?}' @delete ${http-qs-r<boolean:/-r>?false} @json -cqn
+%END%

@@ -42,6 +42,10 @@ public class o_create extends OFilter {
                 oP = sys.io.check(null, apph);
             }
         }
+        // 如果上下文里有对象，采用第一个对象
+        else if (!fc.list.isEmpty()) {
+            oP = fc.list.get(0);
+        }
         // 采用当前目录
         else {
             oP = sys.getCurrentObj();
