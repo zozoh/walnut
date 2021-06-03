@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.net.xapi.hdl;
 
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.net.xapi.ThirdXApi;
@@ -25,6 +27,11 @@ public class xapi_send implements JvmHdl {
 
         // 准备 API
         ThirdXApi api = new WnThirdXApi(sys);
+
+        // 准备代理
+        // InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 10080);
+        // Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
+        // api.setProxy(proxy);
 
         // 获取请求对象
         ThirdXRequest req = api.prepare(apiName, account, path, vars);

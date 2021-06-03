@@ -10,7 +10,7 @@ import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
-import org.nutz.web.WebException;
+import org.nutz.walnut.util.Ws;
 
 class JvmAtom extends JvmCmd implements Atom {
 
@@ -49,7 +49,7 @@ class JvmAtom extends JvmCmd implements Atom {
                 }
                 // 否则抛出
                 else {
-                    throw Lang.wrapThrow(e);
+                    throw Er.wrap(e);
                 }
             }
         }
@@ -58,26 +58,21 @@ class JvmAtom extends JvmCmd implements Atom {
             if (!Lang.isCauseBy(e, InterruptedException.class)) {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
+                String errMsg = Ws.sBlank(ue.getMessage(), ue.getClass().getName());
 
                 // 有必要的话，显示错误堆栈
                 if (log.isWarnEnabled()) {
-                    if (!(ue instanceof WebException)) {
-                        log.warnf("Atom[%d] ERROR: %s", id, ue, ue);
-                    }
-                    // 如果仅仅显示警告，则日志记录警告信息
-                    else {
-                        log.warnf("Atom[%d] ERROR: %s", id, ue.toString());
-                    }
+                    log.warnf("Atom[%d] ERROR: %s : %s", id, errMsg, ue);
                 }
 
                 // 将错误输出到标准输出
                 if (this.redirectErrToStd) {
-                    sys.out.println(ue.toString());
+                    sys.out.println(errMsg);
                     Streams.safeFlush(sys.out);
                 }
                 // 输出到错误输出
                 else {
-                    sys.err.println(ue.toString());
+                    sys.err.println(errMsg);
                     Streams.safeFlush(sys.err);
                 }
             }

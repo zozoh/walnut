@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.net.xapi;
 
+import java.net.Proxy;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
 
@@ -13,6 +15,8 @@ public interface ThirdXApi {
     ThirdXConfigManager getConfigManager();
 
     ThirdXExpertManager getExpertManager();
+
+    void setProxy(Proxy proxy);
 
     /**
      * @param apiName

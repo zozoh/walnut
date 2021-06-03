@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.Proxy;
+
 import javax.imageio.ImageIO;
 
 import org.nutz.castor.Castors;
@@ -33,6 +35,8 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
     protected ThirdXExpertManager experts;
 
     protected ThirdXConfigManager configs;
+
+    private Proxy proxy;
 
     public AbstractThirdXApi() {
         this(DefaultThirdXExpertManager.getInstance());
@@ -87,6 +91,11 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         hc.setUrl(url);
         hc.setFollowRedirects(true);
         hc.setMethod(xreq.getMethod());
+
+        // 设置代理
+        if (this.hasProxy()) {
+            hc.setProxy(proxy);
+        }
 
         // 确定请求：头
         if (xreq.hasHeader()) {
@@ -248,6 +257,19 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
 
     public void setConfigs(ThirdXConfigManager configLoader) {
         this.configs = configLoader;
+    }
+
+    public boolean hasProxy() {
+        return null != proxy;
+    }
+
+    public Proxy getProxy() {
+        return proxy;
+    }
+
+    @Override
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
     }
 
 }

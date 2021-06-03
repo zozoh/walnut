@@ -5,7 +5,7 @@
   "home" : "~/.xapi/facebook/",
   "configFilePath" : "config.json",
   "accessKeyFilePath" : "long_live_access_token",
-  "accessKeyRequest" : {
+  "__accessKeyRequest" : {
     "path"   : "${version?v10.0}/oauth/access_token",
     "method" : "GET",
     "params" : {

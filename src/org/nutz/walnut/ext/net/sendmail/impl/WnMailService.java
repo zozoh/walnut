@@ -140,9 +140,11 @@ public class WnMailService implements WnMailApi {
         }
 
         // 准备发送资料
+        String account = config.getAccount();
+        String passwd = config.getPassword();
         mo.setHostName(config.getSmtpHost());
-        mo.setAuthentication(config.getAccount(), config.getPassword());
-        mo.setFrom(config.getAccount(), config.getAlias());
+        mo.setAuthentication(account, passwd);
+        mo.setFrom(account, config.getAlias());
         mo.setCharset(mail.getCharset());
         mo.setSSLOnConnect(config.isSsl());
         // SSL
