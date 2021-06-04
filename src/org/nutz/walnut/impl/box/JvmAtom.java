@@ -58,7 +58,8 @@ class JvmAtom extends JvmCmd implements Atom {
             if (!Lang.isCauseBy(e, InterruptedException.class)) {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
-                String errMsg = Ws.sBlank(ue.getMessage(), ue.getClass().getName());
+
+                String errMsg = Ws.sBlanks(ue.toString(), ue.getMessage(), ue.getClass().getName());
 
                 // 有必要的话，显示错误堆栈
                 if (log.isWarnEnabled()) {

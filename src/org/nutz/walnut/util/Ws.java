@@ -1103,6 +1103,21 @@ public class Ws {
         return isBlank(s) ? def : s;
     }
 
+    public static String sBlanks(Object... objs) {
+        for (Object obj : objs) {
+            if (null == obj) {
+                continue;
+            }
+            if (obj instanceof CharSequence) {
+                if (Ws.isBlank(obj.toString())) {
+                    continue;
+                }
+            }
+            return obj.toString();
+        }
+        return null;
+    }
+
     /**
      * 复制字符串
      *
