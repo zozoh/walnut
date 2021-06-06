@@ -34,10 +34,13 @@ public class cmd_unzip extends JvmExecutor {
         boolean hidden = params.is("hidden", "h");
         boolean macosx = params.is("macosx");
         boolean justList = params.is("l");
+        boolean justRead = params.is("read");
         String charsetName = params.getString("charset", "UTF-8");
         String phSrc = params.val_check(0);
         WnObj oSrc = Wn.checkObj(sys, phSrc);
         int buf_size = params.getInt("buf", 8192);
+
+        boolean doRealOutput = !justList && !justRead;
 
         // 固定参数
         NutMap meta = null;
@@ -64,7 +67,7 @@ public class cmd_unzip extends JvmExecutor {
         WnObj[] oTas = new WnObj[1];
         String phTa = params.val(1, Files.getMajorName(oSrc.name()));
         String aphTa = Wn.normalizeFullPath(phTa, sys);
-        if (!justList) {
+        if (doRealOutput) {
             oTas[0] = sys.io.createIfNoExists(null, aphTa, WnRace.DIR);
         }
 
@@ -102,9 +105,13 @@ public class cmd_unzip extends JvmExecutor {
             if (!quiet || justList) {
                 sys.out.printlnf(" %s: %s : %dbytes", en.dir ? "D" : "F", en.name, en.len);
             }
+            // 输出内容
+            else if (justRead) {
+                sys.out.write(zin);
+            }
 
             // 仅仅是输出调试信息
-            if (justList) {
+            if (!doRealOutput) {
                 return;
             }
 

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
 
+import org.apache.commons.imaging.ImageInfo;
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.model.structure.HeaderFooterPolicy;
@@ -33,6 +34,7 @@ import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
+import org.docx4j.wml.PPrBase;
 import org.docx4j.wml.PPrBase.Ind;
 import org.docx4j.wml.PPrBase.NumPr;
 import org.docx4j.wml.PPrBase.NumPr.Ilvl;
@@ -41,6 +43,8 @@ import org.docx4j.wml.PPrBase.PStyle;
 import org.docx4j.wml.R;
 import org.docx4j.wml.RPr;
 import org.docx4j.wml.STBorder;
+import org.docx4j.wml.STBrType;
+import org.docx4j.wml.STLineSpacingRule;
 import org.docx4j.wml.STTblLayoutType;
 import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Tbl;
@@ -56,6 +60,8 @@ import org.docx4j.wml.TcPrInner.VMerge;
 import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.docx4j.wml.TrPr;
+import org.docx4j.wml.U;
+import org.docx4j.wml.UnderlineEnumeration;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -216,17 +222,27 @@ public class CheapDocxRendering {
             String alt = cr.getAlt();
             Inline inline = ip.createImageInline(fnm, alt, _seq_id1, _seq_id2, false);
 
+            // 得到图像的 dpi
+            ImageInfo imi = cr.getImageInfo();
+            int dpiW = imi.getPhysicalWidthDpi();
+            if (dpiW < 0) {
+                dpiW = 96;
+            }
+            int dpiH = imi.getPhysicalHeightDpi();
+            if (dpiH < 0) {
+                dpiH = 96;
+            }
+
             // 处理图像宽高...
-            // TODO 蛋疼 啊，得不到图像的分辨率，先当作 96 来处理吧
             CTPositiveSize2D aExt = inline.getExtent();
             if (w > 0) {
                 double dW = (double) w;
-                long wEMU = (long) ((dW / 96.0) * 914400L);
+                long wEMU = (long) ((dW / dpiW) * 914400L);
                 aExt.setCx(wEMU);
             }
             if (h > 0) {
                 double dH = (double) h;
-                long hEMU = (long) ((dH / 96.0) * 914400L);
+                long hEMU = (long) ((dH / dpiH) * 914400L);
                 aExt.setCy(hEMU);
             }
 
@@ -421,7 +437,8 @@ public class CheapDocxRendering {
 
         // TODO 设置 Table cell 的属性
         CheapStyle style = el.getStyleObj();
-        String valign = style.getString("vertical-align", "center");
+        String valign = el.attrString("valign", "center");
+        valign = style.getString("vertical-align", valign);
 
         // 获取单元格段落样式:垂直居中
         String styleId = this.getStyleId(el);
@@ -471,7 +488,8 @@ public class CheapDocxRendering {
         }
 
         // 获取单元格段落样式:水平居中
-        String align = style.getString("text-align");
+        String align = el.attr("align");
+        align = style.getString("text-align", align);
 
         // 依次搞单元格内容
         List<Object> tdContent = td.getContent();
@@ -658,9 +676,11 @@ public class CheapDocxRendering {
         List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
 
         // 没有的话，尝试找第一行
-        CheapElement firstTr = el.findElement(el2 -> el2.isStdTagName("TR"));
-        if (null != firstTr) {
-            cols = firstTr.getChildElements(el2 -> el2.isStdTagName("TD"));
+        if (cols.isEmpty()) {
+            CheapElement firstTr = el.findElement(el2 -> el2.isStdTagName("TR"));
+            if (null != firstTr) {
+                cols = firstTr.getChildElements(el2 -> el2.isStdTagName("TD"));
+            }
         }
 
         // 没指定？
@@ -682,17 +702,27 @@ public class CheapDocxRendering {
         int[] ws = new int[cols.size()];
         int i = 0;
         for (CheapElement col : cols) {
-            CheapSize wz = col.getStyleObj().getSize("width", "-1");
-            String unit = wz.getUnit();
-            double w = -1;
-            if ("%".equals(unit)) {
-                w = this.pageTableWidth * wz.getValue() / 100.0;
-            } else if ("rem".equals(unit)) {
-                w = 100 * wz.getValue() * 6;
-            } else {
-                w = wz.getValue() * 6;
+            CheapSize wz = col.getStyleObj().getSize("width", null);
+            if (null == wz) {
+                wz = col.attrSize("width", null);
             }
-            ws[i++] = (int) (w);
+            // 没有的话，均分
+            if (null == wz) {
+                ws[i++] = this.pageTableWidth / ws.length;
+            }
+            // 有的话，计算一下
+            else {
+                String unit = wz.getUnit();
+                double w = -1;
+                if ("%".equals(unit)) {
+                    w = this.pageTableWidth * wz.getValue() / 100.0;
+                } else if ("rem".equals(unit)) {
+                    w = 100 * wz.getValue() * 6;
+                } else {
+                    w = wz.getValue() * 6;
+                }
+                ws[i++] = (int) (w);
+            }
         }
         return ws;
     }
@@ -779,7 +809,14 @@ public class CheapDocxRendering {
     }
 
     private void joinDiv(List<Object> partItems, CheapElement el) {
+        // 特殊控件：分页符
+        if (el.hasClass("ti-doc-page-breaker")) {
+            joinPageBreaker(partItems);
+            return;
+        }
+
         // 如果找到了样式映射，就不是简单的一层包裹咯
+        // 因为这个可能是定制的一段文字段落
         String styleId = this.getStyleId(el);
 
         // 简单的包裹，递进一层
@@ -798,6 +835,38 @@ public class CheapDocxRendering {
                 partItems.add(p);
             }
         }
+    }
+
+    private void joinPageBreaker(List<Object> partItems) {
+        P p = factory.createP();
+        // 属性
+        PPr pPr = factory.createPPr();
+        pPr.setWidowControl(new BooleanDefaultTrue());
+
+        PPrBase.Spacing spacing = factory.createPPrBaseSpacing();
+        spacing.setLine(BigInteger.valueOf(240L));
+        spacing.setLineRule(STLineSpacingRule.AUTO);
+        pPr.setSpacing(spacing);
+
+        PPrBase.Ind ind = factory.createPPrBaseInd();
+        ind.setFirstLine(BigInteger.ZERO);
+        ind.setFirstLineChars(BigInteger.ZERO);
+        pPr.setInd(ind);
+
+        Jc jc = factory.createJc();
+        jc.setVal(JcEnumeration.LEFT);
+        pPr.setJc(jc);
+
+        // 分页符
+        R r = factory.createR();
+        Br br = factory.createBr();
+        br.setType(STBrType.PAGE);
+        r.getContent().add(br);
+        p.setPPr(pPr);
+        p.getContent().add(r);
+
+        // 计入
+        partItems.add(p);
     }
 
     private boolean appendBlockChildren(P p, CheapElement el) {
@@ -849,7 +918,9 @@ public class CheapDocxRendering {
                 rPr.setI(YES);
             }
             if (es.underline) {
-                rPr.setU(factory.createU());
+                U u = factory.createU();
+                u.setVal(UnderlineEnumeration.SINGLE);
+                rPr.setU(u);
             }
         }
         Text t = factory.createText();
