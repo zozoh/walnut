@@ -7,6 +7,7 @@ import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -57,7 +58,12 @@ public class WnCheckSession implements ActionFilter {
             // 获取并更新 Sessoion 对象的最后访问时间
             se = auth.getSession(ticket);
             if (null != se) {
-                se = auth.touchSession(se);
+                WnAuthSession se2 = se;
+                se = Wn.WC().hooking(null, new Proton<WnAuthSession>() {
+                    protected WnAuthSession exec() {
+                        return auth.touchSession(se2);
+                    }
+                });
             }
 
             // 默认，已经 dead 的会话不被采用，除非特别声明

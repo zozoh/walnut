@@ -1,6 +1,12 @@
 package org.nutz.walnut.core.io;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -143,7 +149,11 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         NutBean map = Wn.anyToMap(o, meta);
         WnContext wc = Wn.WC();
         io.writeMeta(o, map);
+        o.put("__meta_keys", map.keySet());
+        o.put("__meta", map);
         WnObj o2 = wc.doHook("meta", o);
+        o.remove("__meta_keys");
+        o.remove("__meta");
         o.updateBy(o2);
         if (map.containsKey("expi")) {
             this.tryAddExpiObj(o);
@@ -155,7 +165,11 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         NutBean map = Wn.anyToMap(o, meta);
         WnContext wc = Wn.WC();
         io.appendMeta(o, map);
+        o.put("__meta_keys", map.keySet());
+        o.put("__meta", map);
         WnObj o2 = wc.doHook("meta", o);
+        o.remove("__meta_keys");
+        o.remove("__meta");
         o.updateBy(o2);
         if (map.containsKey("expi")) {
             this.tryAddExpiObj(o);
@@ -165,8 +179,25 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     @Override
     public void set(WnObj o, String regex) {
         WnContext wc = Wn.WC();
+
+        Pattern p = Regex.getPattern(regex);
+        NutMap meta = new NutMap();
+        List<String> keys = new ArrayList<>(o.size());
+        for (String key : o.keySet()) {
+            if (p.matcher(key).find()) {
+                keys.add(key);
+                meta.put(key, o.get(key));
+            }
+        }
+
         io.set(o, regex);
+
+        o.put("__meta_keys", keys);
+        o.put("__meta", meta);
         WnObj o2 = wc.doHook("meta", o);
+        o.remove("__meta_keys");
+        o.remove("__meta");
+
         o.updateBy(o2);
         NutBean map = o.pickBy(regex);
         if (map.containsKey("expi")) {

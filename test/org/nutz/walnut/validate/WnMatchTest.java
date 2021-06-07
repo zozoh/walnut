@@ -11,6 +11,22 @@ import org.nutz.walnut.util.validate.impl.AutoMatch;
 public class WnMatchTest {
 
     @Test
+    public void test_match_str3() {
+        String regex = "^image/";
+        AutoMatch m = new AutoMatch(regex);
+        boolean re = m.match("image/jpeg");
+        assertTrue(re);
+    }
+
+    @Test
+    public void test_match_str2() {
+        String regex = "!^/home/.+/(.thumbnail/gen|.publish/gen|www)";
+        AutoMatch m = new AutoMatch(regex);
+        boolean re = m.match("/home/demo/site/path/to/a.jpg");
+        assertTrue(re);
+    }
+
+    @Test
     public void test_match_str() {
         NutMap obj, map;
         WnMatch vli;

@@ -32,6 +32,13 @@ public class AutoStrMatch implements WnMatch {
         // 更多判断
         else {
             String str = cs.toString();
+            this.m = RegexMatch.tryParse(str);
+
+            // 正则表达式
+            if (null != this.m) {
+                return;
+            }
+
             if (str.startsWith("!")) {
                 this.not = !not;
                 str = str.substring(1).trim();
@@ -43,10 +50,6 @@ public class AutoStrMatch implements WnMatch {
             // BLANK
             else if (Strings.isBlank(cs) || "[BLANK]".equals(cs)) {
                 this.m = new BlankMatch();
-            }
-            // 正则表达式
-            else if (str.startsWith("!^") || str.startsWith("^")) {
-                this.m = new RegexMatch(str);
             }
             // 通配符
             else if (str.contains("*")) {

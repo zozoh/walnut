@@ -9,5 +9,5 @@
   "http-header-Content-Type" : "image/png"
 }
 %COPY:
-echo '${http-qs-s}' | qrcode -size ${http-qs-size?256} -margin ${http-qs-m?10}
+echo '${http-qs-s}' | qrcode -size ${http-qs-size?460} -margin ${http-qs-m?1} -icon '${http-qs-icon?}'
 %END%

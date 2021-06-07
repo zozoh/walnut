@@ -1,12 +1,10 @@
 package org.nutz.walnut.web.module;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,10 +24,9 @@ import org.nutz.mvc.annotation.POST;
 import org.nutz.mvc.annotation.PUT;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
-import org.nutz.qrcode.QRCode;
-import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.ext.media.qrcode.WnQrCode;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -115,15 +112,10 @@ public class GuestModule extends AbstractWnModule {
 
         try {
             // 生成二维码
-            QRCodeFormat qrcf = QRCodeFormat.NEW();
-            qrcf.setErrorCorrectionLevel('M');
-            qrcf.setSize(size);
-            qrcf.setImageFormat(fmt);
-            qrcf.setMargin(margin);
+            WnQrCode qr = new WnQrCode(data, margin, size, size);
 
             // 输出
-            BufferedImage im = QRCode.toQRCode(data, qrcf);
-            ImageIO.write(im, fmt, ops);
+            qr.writeTo(ops, fmt);
         }
         catch (Exception e) {
             throw Lang.wrapThrow(e);

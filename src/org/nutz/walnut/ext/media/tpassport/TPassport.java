@@ -21,10 +21,9 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
-import org.nutz.qrcode.QRCode;
-import org.nutz.qrcode.QRCodeFormat;
 import org.nutz.repo.cache.simple.LRUCache;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.media.qrcode.WnQrCode;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class TPassport {
@@ -105,13 +104,14 @@ public class TPassport {
     private void drawItem(TPassportDrawItem tpItem) {
         // 绘制二维码
         if ("qrcode".equals(tpItem.as)) {
-            BufferedImage qrImage = QRCode.toQRCode(tpItem.getContent(),
-                                                    QRCodeFormat.NEW()
-                                                                .setSize(tpItem.width)
-                                                                .setMargin(tpItem.margin));
+            WnQrCode qr = new WnQrCode(tpItem.getContent(),
+                                       tpItem.margin,
+                                       tpItem.width,
+                                       tpItem.width);
+            BufferedImage qrImage = qr.toImage();
             gc.drawImage(qrImage, tpItem.left, tpItem.top, null);
         }
-        // 绘制图片
+          // 绘制图片
         else if ("image".equals(tpItem.as)) {
             // TODO 头像啥的, 需要缩放什么的
         }
@@ -127,21 +127,21 @@ public class TPassport {
             gc.setColor(getTextColor(tpItem));
             gc.setFont(cFont);
             FontMetrics cFontM = gc.getFontMetrics(cFont);
-//            int cW = cFontM.stringWidth(tpItem.getContent());
-//            int cH = cFontM.getHeight();
-//            int cHFix = cH / 3 * 2;
-//            int x, y;
-//            if ("left".equals(tpItem.align)) {
-//                x = tpItem.left;
-//            } else if ("right".equals(tpItem.align)) {
-//                x = tpItem.left + (tpItem.width - cW);
-//            } else {
-//                x = tpItem.left + (tpItem.width / 2 - cW / 2);
-//            }
-//            y = tpItem.top
-//                + cHFix
-//                + (tpItem.height / 2 - cH / 2)
-//                + (cFontM.getAscent() - tpItem.fontSize);
+            // int cW = cFontM.stringWidth(tpItem.getContent());
+            // int cH = cFontM.getHeight();
+            // int cHFix = cH / 3 * 2;
+            // int x, y;
+            // if ("left".equals(tpItem.align)) {
+            // x = tpItem.left;
+            // } else if ("right".equals(tpItem.align)) {
+            // x = tpItem.left + (tpItem.width - cW);
+            // } else {
+            // x = tpItem.left + (tpItem.width / 2 - cW / 2);
+            // }
+            // y = tpItem.top
+            // + cHFix
+            // + (tpItem.height / 2 - cH / 2)
+            // + (cFontM.getAscent() - tpItem.fontSize);
             int x = tpItem.left;
             int y = tpItem.top + cFontM.getHeight();
             gc.drawString(tpItem.getContent(), x, y);
@@ -188,13 +188,12 @@ public class TPassport {
                     ffont = Font.createFont(Font.TRUETYPE_FONT, ins).deriveFont(style, size);
                 }
                 catch (IOException | FontFormatException e) {
-                    log.info("bad font data: " + wobj.path() , e);
+                    log.info("bad font data: " + wobj.path(), e);
                 }
             }
             if (ffont != null) {
                 fontCache.put(fkey, ffont);
-            }
-            else {
+            } else {
                 ffont = new Font(nm, style, size);
             }
         }
