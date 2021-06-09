@@ -30,7 +30,7 @@
         },
         "dataType" : "json"
       },
-      "userAlbums" : {
+      "albums" : {
         "path" : "${version?v10.0}/${id}/albums",
         "method" : "GET",
         "params" : {
@@ -44,7 +44,7 @@
         "params" : {
           "access_token" : "=@AK",
           "type" : "uploaded",
-          "fields": "id,name,width,height,images",
+          "fields": "id,link,name,width,height,images",
           "after": "=after"
         },
         "dataType" : "json"
@@ -58,12 +58,12 @@
         },
         "dataType" : "json"
       },
-      "albumPhotos" : {
+      "photos" : {
         "path" : "${version?v10.0}/${id}/photos",
         "method" : "GET",
         "params" : {
           "access_token" : "=@AK",
-          "fields": "id,name,width,height,images"
+          "fields": "id,link,name,width,height,images"
         },
         "dataType" : "json"
       },
