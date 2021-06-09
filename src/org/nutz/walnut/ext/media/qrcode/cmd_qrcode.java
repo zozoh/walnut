@@ -66,13 +66,11 @@ public class cmd_qrcode extends JvmExecutor {
             WnObj oIcon = Wn.checkObj(sys, iconPath);
             BufferedImage icon = sys.io.readImage(oIcon);
             int iconSize = params.getInt("icsz", -1);
-            int iconPad = params.getInt("icpad", 4);
             qr.setIcon(icon);
             if (iconSize > 0) {
                 qr.setIconWidth(iconSize);
                 qr.setIconHeight(iconSize);
             }
-            qr.setIconPadding(iconPad);
         }
         // 写入
         OutputStream ops = sys.out.getOutputStream();

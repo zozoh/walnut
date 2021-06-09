@@ -1,6 +1,5 @@
 package org.nutz.walnut.ext.media.qrcode;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -44,8 +43,6 @@ public class WnQrCode {
 
     private Image icon;
 
-    private int iconPadding;
-
     private int iconWidth;
 
     private int iconHeight;
@@ -77,7 +74,6 @@ public class WnQrCode {
         this.margin = margin;
         this.charset = "utf-8";
         this.correction = WnQrCodeCorrection.Q;
-        this.iconPadding = 4;
         this.setSize(width, height);
     }
 
@@ -109,8 +105,8 @@ public class WnQrCode {
     public void setSize(int width, int height) {
         this.width = width;
         this.height = width;
-        this.iconWidth = this.width / 7;
-        this.iconHeight = this.height / 7;
+        this.iconWidth = this.width / 6;
+        this.iconHeight = this.height / 6;
     }
 
     BitMatrix toMatrix() {
@@ -166,15 +162,11 @@ public class WnQrCode {
 
             int x = (width - iconWidth) / 2;
             int y = (height - iconHeight) / 2;
-            g2d.setBackground(Color.WHITE);
-            g2d.clearRect(x, y, iconWidth, iconHeight);
 
-            int x0 = x + this.iconPadding;
-            int y0 = y + this.iconPadding;
-            int iw = this.iconWidth - this.iconPadding * 2;
-            int ih = this.iconHeight - this.iconPadding * 2;
+            int iw = this.iconWidth;
+            int ih = this.iconHeight;
 
-            g2d.drawImage(this.icon, x0, y0, iw, ih, null);
+            g2d.drawImage(this.icon, x, y, iw, ih, null);
 
             // 切换到新的图像
             im = im2;
@@ -285,14 +277,6 @@ public class WnQrCode {
 
     public void setIcon(Image icon) {
         this.icon = icon;
-    }
-
-    public int getIconPadding() {
-        return iconPadding;
-    }
-
-    public void setIconPadding(int iconPadding) {
-        this.iconPadding = iconPadding;
     }
 
     public int getIconWidth() {

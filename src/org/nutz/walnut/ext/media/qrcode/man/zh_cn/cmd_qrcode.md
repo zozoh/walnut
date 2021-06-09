@@ -13,8 +13,7 @@ qrcode [-dn] [/path/to/obj] [options]
 -fmt    : png   		# 生成二维码图片的格式
 -margin : 1     		# 边距
 -icon   : id:28e8s.. 	# icon图片的id或者path
--icsz   : 50            # 图标的大小,默认为 size 的 1/7
--icpad  : 4             # 图标的边距,默认为 4
+-icsz   : 50            # 图标的大小,默认为 size 的 1/6
 -c      : Q             # 容错级别,默认为 Q
                         # 支持 L,M,Q,H
 ```
