@@ -256,7 +256,7 @@ public class WnIoImpl2 implements WnIo {
 
         WnIoMapping im = mappings.checkMapping(o);
         im.delete(o, r, this.whenDelete);
-
+        
         // 更新同步时间
         Wn.Io.update_ancestor_synctime(this, o, false, 0);
     }
