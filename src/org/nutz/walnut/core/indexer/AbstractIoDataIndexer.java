@@ -244,7 +244,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             }
             // 补全:时间戳
             o.putDefault("ct", p.createTime());
-            o.putDefault("lm", p.lastModified());
+            o.putDefault("lm", o.createTime());
         }
     }
 
