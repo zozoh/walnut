@@ -200,7 +200,12 @@ public class WnAppService extends WnRun {
             String depsPaths = vars.getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
             String depsUrl = vars.getString("TI_DEPS_URL", "/gu/rs/ti/deps/");
             String depsPrefix = vars.getString("TI_DEPS_PREFIX", "@deps:");
-            List<NutMap> depsList = ti_webdeps.getWebDepsList(io(), depsUrl, depsPrefix, depsPaths);
+            String depsIgnore = vars.getString("TI_DEPS_IGNORE", null);
+            List<NutMap> depsList = ti_webdeps.getWebDepsList(io(),
+                                                              depsUrl,
+                                                              depsPrefix,
+                                                              depsIgnore,
+                                                              depsPaths);
 
             // 生成 HTML
             String depsHtml = ti_webdeps.renderHtml(depsList);

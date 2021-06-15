@@ -13,17 +13,21 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoStrMatch;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(html)$")
 public class ti_webdeps implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        String url = hc.params.get("url", "/gu/rs/ti/deps/");
-        String prefix = hc.params.get("prefix", "@deps:");
+        String url = hc.params.getString("url", "/gu/rs/ti/deps/");
+        String prefix = hc.params.getString("prefix", "@deps:");
         String[] pathList = hc.params.vals;
 
-        List<NutMap> list = getWebDepsList(sys.io, url, prefix, pathList);
+        String ignore = hc.params.getString("ignore", null);
+
+        List<NutMap> list = getWebDepsList(sys.io, url, prefix, ignore, pathList);
 
         String output;
         if (hc.params.is("html")) {
@@ -52,7 +56,12 @@ public class ti_webdeps implements JvmHdl {
     public static List<NutMap> getWebDepsList(WnIo io,
                                               String url,
                                               String prefix,
+                                              String ignore,
                                               String... pathList) {
+        WnMatch ignoreBy = null;
+        if (!Ws.isBlank(ignore)) {
+            ignoreBy = new AutoStrMatch(Ws.trim(ignore));
+        }
         List<NutMap> list = new LinkedList<>();
         for (String str : pathList) {
             String[] phs = Ws.splitIgnoreBlank(str, "[;,:]+");
@@ -63,6 +72,11 @@ public class ti_webdeps implements JvmHdl {
                     if (null != depsAry) {
                         for (NutMap deps : depsAry) {
                             String path = deps.getString("path");
+                            if (null != ignoreBy) {
+                                if (ignoreBy.match(path)) {
+                                    continue;
+                                }
+                            }
                             if (Ws.isBlank(path))
                                 continue;
 

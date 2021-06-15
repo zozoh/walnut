@@ -15,7 +15,6 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
-import org.nutz.walnut.util.Ws;
 
 @JvmHdlParamArgs("cnqihbslVNHQ")
 public class thing_create implements JvmHdl {
