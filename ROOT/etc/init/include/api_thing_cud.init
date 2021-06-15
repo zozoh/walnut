@@ -6,7 +6,7 @@
 # API(thing): 数据集对象·新建
 @FILE .regapi/api/thing/create 'cross/json/auth'
 %COPY:
-cat id:${id} | thing ~/${http-qs-ts} create -fields -cqn
+cat id:${id} | thing ~/${http-qs-ts} create -unique ${http-qs-uniq?} -fields -cqn
 %END%
 #---------------------------------------------------------
 # API(thing): 数据集对象·修改

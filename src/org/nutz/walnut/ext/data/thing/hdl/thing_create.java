@@ -15,6 +15,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Ws;
 
 @JvmHdlParamArgs("cnqihbslVNHQ")
 public class thing_create implements JvmHdl {
@@ -26,12 +27,12 @@ public class thing_create implements JvmHdl {
         WnThingService wts = new WnThingService(sys, oTs);
 
         // 得到字段
-        String ukey = hc.params.get("unique");
+        String ukey = hc.params.getString("unique", null);
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
-        String process = hc.params.get("process");
+        String process = hc.params.getString("process", null);
 
         // 准备后续执行
-        String afterCmd = hc.params.get("after");
+        String afterCmd = hc.params.getString("after", null);
         WnExecutable exec = sys;
 
         // 得到固定数据
