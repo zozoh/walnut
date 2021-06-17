@@ -52,7 +52,7 @@
     "CssBackgroundSizes": {
       "data": [
         {"value": "auto", "text": "i18n:hmk-css-background-size-auto"},
-        {"value": "100%", "text": "i18n:hmk-css-background-size-full"},
+        {"value": "100% 100%", "text": "i18n:hmk-css-background-size-full"},
         {"value": "cover", "text": "i18n:hmk-css-background-size-cover"},
         {"value": "contain", "text": "i18n:hmk-css-background-size-contain"}
       ]
