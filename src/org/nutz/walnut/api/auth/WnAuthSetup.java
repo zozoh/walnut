@@ -16,6 +16,23 @@ public interface WnAuthSetup {
     WnObj getAccountDir();
 
     /**
+     * 账号对应的角色数据存放的目录，角色对象假想的数据结构为：
+     * 
+     * <pre>
+     * {
+     *   nm : "roleName",
+     *   roleInDomain: 10,
+     *   isdft: false
+     * }
+     * </pre>
+     * 
+     * 当然，系统的的账号系统，是没有这个目录的，所以返回的是 NULL，只有域用户体系，才可能会有这个目录
+     * 
+     * @return 账户数据对应的角色目录。
+     */
+    WnObj getRoleDir();
+
+    /**
      * @param user
      *            账户对象
      * 

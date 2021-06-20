@@ -855,6 +855,7 @@ public class WnIoImpl2 implements WnIo {
         }
         // 不存在，就创建
         o = this.create(p, path, race);
+        o.put("__is_created", true);
 
         // 更新父节点同步时间
         Wn.Io.update_ancestor_synctime(this, o, false, 0);
@@ -877,6 +878,7 @@ public class WnIoImpl2 implements WnIo {
         }
         // 先删除再创建
         o = indexer.create(p, path, race);
+        o.put("__is_created", true);
 
         // 更新父节点同步时间
         Wn.Io.update_ancestor_synctime(this, o, false, 0);

@@ -40,9 +40,19 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
 
     @Override
     public WnGroupRole getGroupRole(WnAccount user, String groupName) {
-        WnObj oSysRoleDir = this.getSysRoleDir();
+        // 自己就暗戳戳的指定了组和权限
+        if (user.isSameGroup(groupName)) {
+            WnGroupRole or = user.getMetaAs(Wn.K_ROLE_IN_DOMAIN, WnGroupRole.class);
+            if (null != or) {
+                return or;
+            }
+        }
+
         // 默认组权限： 0 - GUEST
         int role = 0;
+
+        WnObj oSysRoleDir = this.getSysRoleDir();
+
         // 尝试获取
         WnObj oR = getRoleObj(oSysRoleDir, user, groupName);
 

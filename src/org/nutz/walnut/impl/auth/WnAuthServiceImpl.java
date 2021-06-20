@@ -23,6 +23,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.auth.WnAuthSetup;
 import org.nutz.walnut.api.auth.WnAuths;
 import org.nutz.walnut.api.auth.WnCaptchaService;
+import org.nutz.walnut.api.auth.WnGroupRole;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -243,7 +244,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
             String siteHomePath = Wn.getObjHomePath(oWWW);
             WnWebSite site = new WnWebSite(io, siteHomePath, siteId, oWWW);
             WnAccountLoader accLoader = new WnAccountLoaderImpl(io, site.getAccountDir(), false);
-            return accLoader.getAccountById(uid);
+            WnAccount a = accLoader.getAccountById(uid);
+
+            // 会话暗戳戳的指定了当前用户针对域的角色
+            int roleInDomain = oSe.getInt(Wn.K_ROLE_IN_DOMAIN, Integer.MIN_VALUE);
+            if (roleInDomain != Integer.MIN_VALUE) {
+                WnGroupRole role = WnGroupRole.parseInt(roleInDomain);
+                a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
+            }
+
+            return a;
         }
         // 自身的账户体系直接获取
         return this.getAccountById(uid);
@@ -736,6 +746,12 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         if (null != meta) {
             seMeta.putAll(meta);
         }
+        // 如果指定了特殊的域用户角色，也记录一下
+        WnGroupRole role = me.getMetaAs(Wn.K_ROLE_IN_DOMAIN, WnGroupRole.class);
+        if (null != role) {
+            seMeta.put(Wn.K_ROLE_IN_DOMAIN, role.getValue());
+        }
+
         io.appendMeta(oSe, seMeta);
 
         // 更新用户最后登录时间
@@ -766,37 +782,70 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
     @Override
     public List<WnAccount> queryAccount(WnQuery q) {
-        return accountLoader.queryAccount(q);
+        List<WnAccount> list = accountLoader.queryAccount(q);
+        return list;
+    }
+
+    /**
+     * 如果采用了 domain 登录的对象，根据其 roleName 可以得到角色对象。
+     * 根据角色对象的元数据<code>roleInDomain</code>，可以得到在域中用户期望的账号对象。
+     * <p>
+     * 我们需要取得这个值，并转换为 WnGroupRole 枚举值，设置到账号的元数据里
+     * 
+     * @param a
+     *            账号对象
+     * @return 传入的账号对象
+     */
+    private WnAccount loadAccountDomainRole(WnAccount a) {
+        if (null != a && a.hasRoleName()) {
+            WnObj oRoleDir = this.setup.getRoleDir();
+            if (null != oRoleDir) {
+                String roleName = a.getRoleName();
+                WnObj oRole = io.fetch(oRoleDir, roleName);
+                if (null != oRole) {
+                    int roleInDomain = oRole.getInt(Wn.K_ROLE_IN_DOMAIN, 0);
+                    WnGroupRole role = WnGroupRole.parseInt(roleInDomain);
+                    a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                }
+            }
+        }
+        return a;
     }
 
     @Override
     public WnAccount getAccount(String nameOrPhoneOrEmail) {
-        return accountLoader.getAccount(nameOrPhoneOrEmail);
+        WnAccount a = accountLoader.getAccount(nameOrPhoneOrEmail);
+        return loadAccountDomainRole(a);
     }
 
     @Override
     public WnAccount checkAccount(String nameOrPhoneOrEmail) {
-        return accountLoader.checkAccount(nameOrPhoneOrEmail);
+        WnAccount a = accountLoader.checkAccount(nameOrPhoneOrEmail);
+        return loadAccountDomainRole(a);
     }
 
     @Override
     public WnAccount getAccount(WnAccount info) {
-        return accountLoader.getAccount(info);
+        WnAccount a = accountLoader.getAccount(info);
+        return loadAccountDomainRole(a);
     }
 
     @Override
     public WnAccount checkAccount(WnAccount info) {
-        return accountLoader.checkAccount(info);
+        WnAccount a = accountLoader.checkAccount(info);
+        return loadAccountDomainRole(a);
     }
 
     @Override
     public WnAccount checkAccountById(String uid) {
-        return accountLoader.checkAccountById(uid);
+        WnAccount a = accountLoader.checkAccountById(uid);
+        return loadAccountDomainRole(a);
     }
 
     @Override
     public WnAccount getAccountById(String uid) {
-        return accountLoader.getAccountById(uid);
+        WnAccount a = accountLoader.getAccountById(uid);
+        return loadAccountDomainRole(a);
     }
 
     public String getDefaultQuitUrl() {

@@ -856,6 +856,10 @@ public class WnAccount {
         return meta.getLong(key, dft);
     }
 
+    public <T> T getMetaAs(String key, Class<T> classOfT) {
+        return meta.getAs(key, classOfT);
+    }
+
     public boolean hasHomePath() {
         return this.hasMeta("HOME");
     }

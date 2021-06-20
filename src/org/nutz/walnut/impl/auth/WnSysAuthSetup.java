@@ -32,6 +32,11 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
+    public WnObj getRoleDir() {
+        return null;
+    }
+
+    @Override
     public String getDefaultRoleName() {
         return "admin";
     }

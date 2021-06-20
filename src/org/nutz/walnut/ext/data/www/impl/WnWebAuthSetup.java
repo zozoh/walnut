@@ -23,6 +23,11 @@ public class WnWebAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
+    public WnObj getRoleDir() {
+        return this.site.getRoleDir();
+    }
+
+    @Override
     public String getDefaultRoleName() {
         if (site.hasRoleDir()) {
             WnQuery q = Wn.Q.pid(site.getRoleDir());

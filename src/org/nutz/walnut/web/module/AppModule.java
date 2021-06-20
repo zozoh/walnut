@@ -487,6 +487,8 @@ public class AppModule extends AbstractWnModule {
                     String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
                     String byValue = si.siteId + ":passwd";
 
+                    // 获取账号对应的角色
+
                     // 注册新会话
                     WnAuthSession se = auth().createSession(user, true);
 

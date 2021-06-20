@@ -125,15 +125,23 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
         WnObj o = io.createIfNoExists(p, path, race);
-        WnContext wc = Wn.WC();
-        return wc.doHook("create", o);
+        boolean isCreated = o.getBoolean("__is_created");
+        if (isCreated) {
+            WnContext wc = Wn.WC();
+            return wc.doHook("create", o);
+        }
+        return o;
     }
 
     @Override
     public WnObj createIfExists(WnObj p, String path, WnRace race) {
         WnObj o = io.createIfExists(p, path, race);
-        WnContext wc = Wn.WC();
-        return wc.doHook("create", o);
+        boolean isCreated = o.getBoolean("__is_created");
+        if (isCreated) {
+            WnContext wc = Wn.WC();
+            return wc.doHook("create", o);
+        }
+        return o;
     }
 
     @Override

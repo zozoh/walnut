@@ -65,6 +65,8 @@ import org.nutz.web.Webs.Err;
  */
 public abstract class Wn {
 
+    public static final String K_ROLE_IN_DOMAIN = "roleInDomain";
+
     /**
      * 记录系统运行时信息
      */
