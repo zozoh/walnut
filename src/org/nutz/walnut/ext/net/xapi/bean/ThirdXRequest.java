@@ -369,7 +369,7 @@ public class ThirdXRequest {
             hc.setBody(xml);
         }
         // JSON
-        else if (this.isBodyAsText()) {
+        else if (this.isBodyAsJson()) {
             String json = this.getBodyDataJson();
             hc.setBody(json);
         }
