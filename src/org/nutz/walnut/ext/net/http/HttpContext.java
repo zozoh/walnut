@@ -144,6 +144,13 @@ public class HttpContext {
     }
 
     public HttpUrl getUrl() {
+        HttpUrl url = this.url.clone();
+        // 指定了 body，那么参数就必须变成 QueryString
+        if (this.hasParams()) {
+            if (this.hasBody() || this.hasFormParts()) {
+                url.addQuery(this.getParams());
+            }
+        }
         return url;
     }
 
