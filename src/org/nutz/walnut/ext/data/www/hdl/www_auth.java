@@ -18,7 +18,7 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(ajax|subscribe)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(create|ajax|subscribe)$")
 public class www_auth implements JvmHdl {
 
     @Override
@@ -61,6 +61,12 @@ public class www_auth implements JvmHdl {
                 else {
                     se = auth.loginByVcode(account, scene, vcode);
                 }
+            }
+            // -------------------------------
+            // 指定直接创建一个 Session
+            else if (hc.params.is("create")) {
+                WnAccount u = auth.checkAccount(account);
+                se = auth.createSession(u, true);
             }
 
             // 如果指定了密码，且当前账户没有设定密码，作为初始化密码设置进去

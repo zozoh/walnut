@@ -97,7 +97,7 @@ public abstract class AbstractHttpConnector implements HttpConnector {
                 String name = Ws.headerCase(key);
                 // String name = Ws.kebabCase(key);
                 Object val = en.getValue();
-                //System.out.printf("%s : [%s]\n", name, val);
+                // System.out.printf("%s : [%s]\n", name, val);
                 if (null == val) {
                     continue;
                 }
@@ -131,7 +131,12 @@ public abstract class AbstractHttpConnector implements HttpConnector {
         }
         WnHttpResponse resp = new WnHttpResponse(code, headers);
         String enc = conn.getContentEncoding();
-        InputStream ins = conn.getInputStream();
+        InputStream ins;
+        if (code >= 400) {
+            ins = conn.getErrorStream();
+        } else {
+            ins = conn.getInputStream();
+        }
         resp.setBody(ins, enc);
         return resp;
     }
