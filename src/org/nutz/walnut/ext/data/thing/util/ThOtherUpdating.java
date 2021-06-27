@@ -76,10 +76,12 @@ public class ThOtherUpdating {
 
         // 执行命令
         if (this.isRunCommands()) {
+            StringBuilder sbOut = new StringBuilder();
+            StringBuilder sbErr = new StringBuilder();
             for (Proton<String> pro : commands) {
                 String cmdText = pro.invoke();
                 if (!Strings.isBlank(cmdText)) {
-                    executor.exec(cmdText);
+                    executor.exec(cmdText, sbOut, sbErr, null);
                 }
             }
         }

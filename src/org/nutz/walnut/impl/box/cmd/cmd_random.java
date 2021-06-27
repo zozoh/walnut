@@ -25,8 +25,14 @@ public class cmd_random extends JvmExecutor {
         // 整数范围
         else if (params.vals.length > 0) {
             String[] ss = Strings.splitIgnoreBlank(params.val(0));
-            int min = Integer.parseInt(ss[0]);
-            int max = Integer.parseInt(ss[1]);
+            int min, max;
+            if (ss.length == 1) {
+                min = 0;
+                max = Integer.parseInt(ss[0]);
+            } else {
+                min = Integer.parseInt(ss[0]);
+                max = Integer.parseInt(ss[1]);
+            }
             sb.append(R.random(min, max));
         }
         // 默认是一个浮点数
