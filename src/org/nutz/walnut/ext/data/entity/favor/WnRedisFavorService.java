@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nutz.walnut.ext.data.entity.favor.FavorApi;
 import org.nutz.walnut.ext.sys.redis.Wedis;
 import org.nutz.walnut.ext.sys.redis.WedisConfig;
 import org.nutz.walnut.util.Wn;

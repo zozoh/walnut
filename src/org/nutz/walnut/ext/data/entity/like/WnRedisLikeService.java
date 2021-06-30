@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.data.entity.like;
 
 import java.util.Set;
 
-import org.nutz.walnut.ext.data.entity.like.LikeApi;
 import org.nutz.walnut.ext.sys.redis.Wedis;
 import org.nutz.walnut.ext.sys.redis.WedisConfig;
 
