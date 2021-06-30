@@ -20,10 +20,14 @@ public class iotpower_revert implements JvmHdl {
 		int[] mU = BTea.toInt32(HexBin.decode(devsecret));
 
 		int uuid[] = new int[3];
-		uuid[0] = (int) ((mU[0] ^ random) - (0x000000FF & (random)));
-		uuid[1] = (int) ((mU[1] ^ random) - (0x000000FF & (random >> 8)));
-		uuid[2] = (int) ((mU[2] ^ random) - (0x000000FF & (random >> 16)));
+//		uuid[0] = (int) ((mU[0] ^ random) - (0x000000FF & (random)));
+//		uuid[1] = (int) ((mU[1] ^ random) - (0x000000FF & (random >> 8)));
+//		uuid[2] = (int) ((mU[2] ^ random) - (0x000000FF & (random >> 16)));
 		// uuid[3] = (int) (random- (0x000000FF&(random >> 24)));
+
+		uuid[0] = (int) ((mU[0] + (0x000000FF & (random)) ^ random));
+		uuid[1] = (int) ((mU[1] + (0x000000FF & (random >> 8)) ^ random));
+		uuid[2] = (int) ((mU[2] + (0x000000FF & (random >> 16)) ^ random));
 
 		byte[] U12 = new byte[12];
 		for (int i = 0; i < 3; i++) {
