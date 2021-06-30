@@ -20,7 +20,7 @@ public class iotpower_activate implements JvmHdl {
 		NutMap ret = new NutMap();
 		
 		String _uuid = params.getString("devid"); // 设备id,为24字节长的hex字符串
-		int random = params.getInt("random", 0x20210629);    // 随机数,默认值0x20210629
+		int random = params.getInt("rint", 0x20210629);    // 随机数,默认值0x20210629
 		
 		int[] mU = BTea.toInt32(HexBin.decode(_uuid));
 		
@@ -38,15 +38,15 @@ public class iotpower_activate implements JvmHdl {
 			U16[i*4+0] = (byte) ((uuid[i]>>24) & 0xFF);
 		}
 		
-		ret.setv("devid16", HexBin.encode(U16));
+		ret.setv("devsecret", HexBin.encode(U16));
 		
-		if (params.has("devid16")) {
-			String _devid16 = params.getString("devid16");
+		if (params.has("devsecret")) {
+			String _devid16 = params.getString("devsecret");
 			byte[] crc16 = Modbus.getCrc(HexBin.decode(_devid16), 16);
 			int r = random;
 			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF) + 1;
 			String code = String.format("%08X%08X", r & 0xFFFFFFFF, random & 0xFFFFFFFF);
-			ret.setv("code", code);
+			ret.setv("devcode", code);
 		}
 		
 		sys.out.writeJson(ret, JsonFormat.full());
