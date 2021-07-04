@@ -72,7 +72,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         context.put("update", meta);
         context.put("obj", oT);
 
-        // 删除前的回调
+        // 更新前的回调
         Things.runCommands(context, conf.getOnBeforeUpdate(), executor);
 
         // 根据唯一键约束检查重复

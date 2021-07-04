@@ -122,7 +122,7 @@
     "key": "BA",
     "name": {
       "en_us": "Bosnia & Herzegovina",
-      "zh_cn": "波黑"
+      "zh_cn": "波斯尼亚和黑塞哥维那"
     }
   },
   {
@@ -490,6 +490,13 @@
     }
   },
   {
+    "key": "EU",
+    "name": {
+      "en_us": "European Union",
+      "zh_cn": "欧盟"
+    }
+  },
+  {
     "key": "FI",
     "name": {
       "en_us": "Finland",
@@ -528,7 +535,7 @@
     "key": "FR",
     "name": {
       "en_us": "France",
-      "zh_cn": "法国 法国"
+      "zh_cn": "法国"
     }
   },
   {
@@ -703,7 +710,7 @@
     "key": "ID",
     "name": {
       "en_us": "Indonesia",
-      "zh_cn": "印尼"
+      "zh_cn": "印度尼西亚"
     }
   },
   {
@@ -1025,7 +1032,7 @@
     "key": "MN",
     "name": {
       "en_us": "Mongolia",
-      "zh_cn": "蒙古国"
+      "zh_cn": "蒙古"
     }
   },
   {
@@ -1187,6 +1194,13 @@
     "name": {
       "en_us": "New Zealand",
       "zh_cn": "新西兰"
+    }
+  },
+  {
+    "key": "OAPI",
+    "name": {
+      "en_us": "African Intellectual Property Organization",
+      "zh_cn": "非洲知识产权组织"
     }
   },
   {

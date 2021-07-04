@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.net.http.bean;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
@@ -35,11 +36,15 @@ public class WnHttpResponse extends InputStream {
     }
 
     public String getBodyText() {
+        return getBodyText(Encoding.CHARSET_UTF8);
+    }
+
+    public String getBodyText(Charset charset) {
         if (null == body) {
             return null;
         }
         byte[] bs = Streams.readBytesAndClose(body);
-        return new String(bs, Encoding.CHARSET_UTF8);
+        return new String(bs, charset);
     }
 
     public void setBody(InputStream ins, String encoding) throws IOException {

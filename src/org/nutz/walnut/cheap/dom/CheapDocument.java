@@ -150,7 +150,7 @@ public class CheapDocument {
     }
 
     public void setAutoClosedTagsAsHtml() {
-        this.setAutoClosedTags("^(IMG|BR|HR|META|LINK|COL)$");
+        this.setAutoClosedTags("^(IMG|BR|HR|META|LINK|COL|INPUT)$");
     }
 
     public void removeEmpty() {
