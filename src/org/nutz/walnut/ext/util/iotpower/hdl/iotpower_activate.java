@@ -44,15 +44,15 @@ public class iotpower_activate implements JvmHdl {
 			String _devid16 = params.getString("devsecret");
 			byte[] crc16 = Modbus.getCrc(HexBin.decode(_devid16), 16);
 			int r = random;
-			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF) + 1;
+			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF);
 			String code = String.format("%08X%08X", r & 0xFFFFFFFF, random & 0xFFFFFFFF);
 			ret.setv("devcode", code);
 		}
 		
 		sys.out.writeJson(ret, JsonFormat.full());
 	}
-
-	
+//
+//	
 //	public static void main(String[] args) {
 //		String trueUUID = "0072002B0947303032333230";
 //		int random = 0x20210629;
@@ -111,23 +111,25 @@ public class iotpower_activate implements JvmHdl {
 //			
 //			System.out.println("crc16 " + HexBin.encode(crc16));
 //			
-//			int r = 0x20210629;
-//			int w = 0x20212382; int y = 0x20210629;
-//			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF) + 1;
-//			System.out.printf(">>>> %08X%08X\n", r, y);
+//			int r = 0x12345678;
+//			int rnow = r;
+//			//int w = 0x20212382; int y = 0x20210629;
+//			//System.out.println(HexBin.encode(crc16));
+//			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF);
+//			System.out.printf(">>>> %08X%08X\n", r, rnow);
 //			
-//			System.out.printf("%04X\n", w - y);
+//			//System.out.printf("%04X\n", w - y);
 //			
 //			
 //			
-//			int[] v2 = {1,2,3,4};
-//			int[] k2 = {123, 1, 1, 4};
-//			BTea.btea(v2, -4, k2);
-//			System.out.println("错误密码测试---");
-//			System.out.printf("%08X\n", v2[0] & 0xFFFFFFFF);
-//			System.out.printf("%08X\n", v2[1] & 0xFFFFFFFF);
-//			System.out.printf("%08X\n", v2[2] & 0xFFFFFFFF);
-//			System.out.printf("%08X\n", v2[3] & 0xFFFFFFFF);
+////			int[] v2 = {1,2,3,4};
+////			int[] k2 = {123, 1, 1, 4};
+////			BTea.btea(v2, -4, k2);
+////			System.out.println("错误密码测试---");
+////			System.out.printf("%08X\n", v2[0] & 0xFFFFFFFF);
+////			System.out.printf("%08X\n", v2[1] & 0xFFFFFFFF);
+////			System.out.printf("%08X\n", v2[2] & 0xFFFFFFFF);
+////			System.out.printf("%08X\n", v2[3] & 0xFFFFFFFF);
 //		}
 //		
 //	}
