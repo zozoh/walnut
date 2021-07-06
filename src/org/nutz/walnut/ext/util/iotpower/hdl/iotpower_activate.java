@@ -39,7 +39,7 @@ public class iotpower_activate implements JvmHdl {
 		}
 		
 		ret.setv("devsecret", HexBin.encode(U16));
-		
+
 		if (params.has("devsecret")) {
 			String _devid16 = params.getString("devsecret");
 			byte[] crc16 = Modbus.getCrc(HexBin.decode(_devid16), 16);
@@ -48,7 +48,7 @@ public class iotpower_activate implements JvmHdl {
 			String code = String.format("%08X%08X", r & 0xFFFFFFFF, random & 0xFFFFFFFF);
 			ret.setv("devcode", code);
 		}
-		
+
 		sys.out.writeJson(ret, JsonFormat.full());
 	}
 //
