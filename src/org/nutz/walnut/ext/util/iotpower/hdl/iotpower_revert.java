@@ -33,7 +33,7 @@ public class iotpower_revert implements JvmHdl {
 				forcheck = lastR + i;
 				if (forcheck >>> 24 == i) {
 					random = forcheck;
-					//System.out.printf("found %02X\n", i);
+					//System.out.printf("found %02X %08X\n", i, forcheck);
 					break;
 				}
 			}
@@ -59,14 +59,14 @@ public class iotpower_revert implements JvmHdl {
 		return U12;
 	}
 	
-	public static void main(String[] args) {
-		String cCode = "B591D941A3AE8EF40C7D187D4D1EF032";
-		int[] mU = BTea.toInt32(HexBin.decode(cCode));
-		BTea.btea(mU, -4, BTea.toInt32("Luat IotPower-5V".getBytes()));
-		System.out.println(">> " + HexBin.encode(BTea.fromInt32(mU)));
-		System.out.println(HexBin.encode(revert(HexBin.encode(BTea.fromInt32(mU)))));
-//		System.out.println(HexBin.encode(revert("B591D941A3AE8EF40C7D187D4D1EF032")));
-		// 0072002B0947303032333230
-		// 0072002B0947303032333230
-	}
+//	public static void main(String[] args) {
+//		String cCode = "E9017B3FB081902E7666AB2F647982A9";
+//		int[] mU = BTea.toInt32(HexBin.decode(cCode));
+//		BTea.btea(mU, -4, BTea.toInt32("Luat IotPower-5V".getBytes()));
+//		System.out.println(">> " + HexBin.encode(BTea.fromInt32(mU)));
+//		System.out.println(HexBin.encode(revert(HexBin.encode(BTea.fromInt32(mU)))));
+////		System.out.println(HexBin.encode(revert("B591D941A3AE8EF40C7D187D4D1EF032")));
+//		// 0072002B0947303032333230
+//		// 0072002B0947303032333230
+//	}
 }
