@@ -85,16 +85,18 @@ public class WnIoMapping {
         }
 
         // 递归删除所有的子孙
-        if (r) {
-            indexer.eachChild(o, null, new Each<WnObj>() {
-                public void invoke(int index, WnObj child, int length) {
-                    delete(child, r, callback);
-                }
-            });
-        }
-        // 否则必须确保自身不为空
-        else if (indexer.hasChild(o)) {
-            throw Er.create("e.io.rm.NoEmptyDir");
+        if (!o.isLink()) {
+            if (r) {
+                indexer.eachChild(o, null, new Each<WnObj>() {
+                    public void invoke(int index, WnObj child, int length) {
+                        delete(child, r, callback);
+                    }
+                });
+            }
+            // 否则必须确保自身不为空
+            else if (indexer.hasChild(o)) {
+                throw Er.create("e.io.rm.NoEmptyDir");
+            }
         }
 
         // 之前的回调

@@ -64,4 +64,20 @@ public class WnObjDownloadView implements View {
         this.re.prepare(buf);
     }
 
+    public WnObjDownloadView(byte[] buf,
+                             String bufEtag,
+                             String ua,
+                             String mimeType,
+                             String downloadName,
+                             String etag,
+                             String range)
+            throws IOException {
+        this.re = new WnHttpResponseWriter();
+        this.re.setEtag(etag);
+        this.re.setContentType(mimeType);
+        this.re.setDownloadName(downloadName);
+        this.re.setUserAgent(ua);
+        this.re.prepare(buf, bufEtag);
+    }
+
 }

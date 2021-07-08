@@ -1,13 +1,19 @@
 package org.nutz.walnut.web;
 
+import java.io.IOException;
+
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Files;
+import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.Attr;
 import org.nutz.mvc.annotation.ChainBy;
 import org.nutz.mvc.annotation.Encoding;
 import org.nutz.mvc.annotation.IocBy;
 import org.nutz.mvc.annotation.Localization;
 import org.nutz.mvc.annotation.Modules;
 import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
@@ -15,8 +21,11 @@ import org.nutz.walnut.WnVersion;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnSysRuntime;
+import org.nutz.walnut.util.Wsum;
+import org.nutz.walnut.util.bean.WnSummaryData;
 import org.nutz.walnut.web.module.AbstractWnModule;
 import org.nutz.walnut.web.setup.WnSetup;
+import org.nutz.walnut.web.view.WnObjDownloadView;
 import org.nutz.walnut.web.view.WnViewMaker;
 import org.nutz.web.ajax.AjaxViewMaker;
 
@@ -29,6 +38,16 @@ import org.nutz.web.ajax.AjaxViewMaker;
 @IocBean
 @Encoding(input = "UTF-8", output = "UTF-8")
 public class WnMainModule extends AbstractWnModule {
+
+    private static WnSummaryData DFT_FAVICON = new WnSummaryData();
+
+    // private static Map<String, WnSummaryData> FAVICONS = new Hashtable<>();
+
+    static {
+        byte[] faviconData = Files.readBytes("org/nutz/walnut/web/favicon.ico");
+        DFT_FAVICON.setData(faviconData);
+        DFT_FAVICON.setSha1(Wsum.sha1AsString(faviconData));
+    }
 
     @At("/")
     @Ok(">>:${obj}")
@@ -49,6 +68,23 @@ public class WnMainModule extends AbstractWnModule {
 
         // 木有会话的话，看看重定向到哪里，默认的，应该是 /a/login/
         return conf.getSysEntryUrl();
+    }
+
+    @At("/favicon")
+    public View getFavicon(@Attr("wn_www_grp") String domain,
+                           @ReqHeader("If-None-Match") String etag,
+                           @ReqHeader("Range") String range)
+            throws IOException {
+        // 看看站点有木有特殊的 ICON
+
+        // 采用内置的 ICON
+        return new WnObjDownloadView(DFT_FAVICON.getData(),
+                                     DFT_FAVICON.getSha1(),
+                                     null,
+                                     "image/x-icon",
+                                     null,
+                                     etag,
+                                     range);
     }
 
     @At("/u/version")
