@@ -39,20 +39,20 @@ public class iotpower_activate implements JvmHdl {
 		}
 		
 		ret.setv("devsecret", HexBin.encode(U16));
-		
+
 		if (params.has("devsecret")) {
-			String _devid16 = params.getString("devsecret");
-			byte[] crc16 = Modbus.getCrc(HexBin.decode(_devid16), 16);
+			//String _devid16 = params.getString("devsecret");
+			byte[] crc16 = Modbus.getCrc(U16, 16);
 			int r = random;
 			r += ((crc16[1] & 0xFF) << 8) + (crc16[0]&0xFF);
 			String code = String.format("%08X%08X", r & 0xFFFFFFFF, random & 0xFFFFFFFF);
 			ret.setv("devcode", code);
 		}
-		
+
 		sys.out.writeJson(ret, JsonFormat.full());
 	}
-//
-//	
+
+	
 //	public static void main(String[] args) {
 //		String trueUUID = "0072002B0947303032333230";
 //		int random = 0x20210629;
