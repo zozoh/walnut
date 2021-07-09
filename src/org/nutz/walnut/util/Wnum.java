@@ -32,4 +32,12 @@ public abstract class Wnum {
         return precise(n, 2);
     }
 
+    public static int sum(int... inputs) {
+        int re = 0;
+        for (int n : inputs) {
+            re += n;
+        }
+        return re;
+    }
+
 }

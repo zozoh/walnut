@@ -74,6 +74,7 @@ import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.cheap.dom.CheapResourceLoader;
 import org.nutz.walnut.cheap.dom.CheapText;
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
+import org.nutz.walnut.util.Wnum;
 import org.nutz.walnut.util.Ws;
 
 public class CheapDocxRendering {
@@ -441,7 +442,17 @@ public class CheapDocxRendering {
         valign = style.getString("vertical-align", valign);
 
         // 获取单元格段落样式:垂直居中
-        String styleId = this.getStyleId(el);
+        // String styleId = this.getStyleId(el);
+        String styleTagName = "TD";
+        CheapElement elTable = el.getClosestByTagName("TABLE");
+        if (null != elTable) {
+            CheapSize bo = elTable.attrSize("border", "0px");
+            int border = bo.getIntValue();
+            if (border <= 0) {
+                styleTagName = "P";
+            }
+        }
+        String styleId = this.tagNameStyleMapping.get(styleTagName);
 
         if (!"top".equals(valign)) {
             if ("middle".equals(valign)) {
@@ -633,7 +644,7 @@ public class CheapDocxRendering {
         }
 
         // 评估每列的宽度
-        int[] colsW = this.evalTableColWidths(el, colN);
+        int[] colsW = this.evalTableColWidths(el, colN, pageTableWidth);
 
         // 针对单元格设置 rowSpan(vMerge (restart))
         this.evalRowSpanAsVMerge(el, colN, colsW);
@@ -672,7 +683,7 @@ public class CheapDocxRendering {
         partItems.add(table);
     }
 
-    private int[] evalTableColWidths(CheapElement el, int maxCol) {
+    private int[] evalTableColWidths(CheapElement el, int maxCol, int tableWidth) {
         List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
 
         // 没有的话，尝试找第一行
@@ -724,6 +735,26 @@ public class CheapDocxRendering {
                 ws[i++] = (int) (w);
             }
         }
+
+        // 最后根据这些宽度，计算一个比例，然后根据 tableWidth 重新调整列宽
+        // 如果不这么做， word 老版本，或者 wps 会不兼容
+        double cellSumWidth = (double) Wnum.sum(ws);
+        if (cellSumWidth > 0) {
+            double[] cellWs = new double[ws.length];
+            for (int x = 0; x < ws.length; x++) {
+                double cellW = (double) ws[x];
+                cellWs[x] = cellW / cellSumWidth;
+            }
+            int[] reWs = new int[ws.length];
+            double dTableWidth = (double) tableWidth;
+            for (int x = 0; x < ws.length; x++) {
+                double s = cellWs[x];
+                reWs[x] = (int) (dTableWidth * s);
+            }
+            return reWs;
+        }
+
+        // 直接返回吧
         return ws;
     }
 
@@ -1079,7 +1110,7 @@ public class CheapDocxRendering {
         else if (el.isStdTagName("SPAN")) {
             re |= appendSpan(pContent, el, es);
         }
-          // 其他的统统无视
+        // 其他的统统无视
         else {
             // re |= dispatchInlineChildren(pContent, el, es);
         }
