@@ -14,121 +14,127 @@ weixin ${domain} oauth2 \
 # API(auth): 取得当前站点信息
 @API .regapi/api/auth/site 'cross/json'
 %TMPL:
-obj ~/www/${domain} -cqn
+obj '$${http-qs-site?${dft_site?~/www/website}}' -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 获取某个用户的头像
 @API .regapi/api/auth/avatar 'cross/dynamic'
-%COPY:
-www avatar 'id:${http-qs-site?unkonw}' ${http-qs-uid} -key "thumb" \
-  -etag  '${http-header-IF-NONE-MATCH?none}' \
-  -range '${http-header-RANGE?}'
+%TMPL:
+www avatar '$${http-qs-site?${dft_site?~/www/website}}' $${http-qs-uid} -key "thumb" \
+  -etag  '$${http-header-IF-NONE-MATCH?none}' \
+  -range '$${http-header-RANGE?}'
 %END%
 #--------------------------------------------------------
 # API(auth): 取得当前会话信息
 @API .regapi/api/auth/checkme 'cross/json'
-%COPY:
-www checkme 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -ajax -cqn
+%TMPL:
+www checkme '$${http-qs-site?${dft_site?~/www/website}}' $${http-qs-ticket?-nil-} -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 修改当前会话账户元数据
 @API .regapi/api/auth/setme 'cross/json'
-%COPY:
+%TMPL:
 cat id:${id} \
-  | www checkme 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -u -ajax -cqn
+  | www checkme '$${http-qs-site?${dft_site?~/www/website}}' \
+   $${http-qs-ticket?-nil-} -u -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 获取指定账户信息
 @API .regapi/api/auth/getaccount 'cross/json'
-%COPY:
-www account 'id:${http-qs-site?unkonw}' ${http-qs-uid?-nil-} -ajax -cqn
+%TMPL:
+www account '$${http-qs-site?${dft_site?~/www/website}}' $${http-qs-uid?-nil-} -ajax -cqn
 %END%
 #--------------------------------------------------------
 # API(auth): 获取账户列表（带翻页）
 @API .regapi/api/auth/accounts 'cross/json'
-%COPY:
-www account 'id:${http-qs-site?unkonw}' \
-  '${http-qs-q?}' \
+%TMPL:
+www account '$${http-qs-site?${dft_site?~/www/website}}' \
+  '$${http-qs-q?}' \
   -list \
-  -limit ${http-qs-limit?50} \
-  -skip  ${http-qs-skip?0} \
-  -sort  '${http-qs-sort?}' \
+  -limit $${http-qs-limit?50} \
+  -skip  $${http-qs-skip?0} \
+  -sort  '$${http-qs-sort?}' \
   -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 微信自动登录
 @API .regapi/api/auth/login_by_wxcode 'cross/json'
-%COPY:
-httpparam -in id:${id} \
-  | run www auth $${site} $${code?} -wxcode $${ct?mp} -ajax -cqn
+%TMPL:
+httpparam -in id:$${id} \
+  | run www auth $$${site?${dft_site?~/www/website}} $$${code?} -wxcode $$${ct?mp} -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 账号密码登录
 @API .regapi/api/auth/login_by_passwd 'cross/json'
-%COPY:
-httpparam -in id:${id} \
-  | run www auth $${site} $${name?} -p $${passwd?} -ajax -cqn
+%TMPL:
+httpparam -in id:$${id} \
+  | run www auth $$${site?${dft_site?~/www/website}} $$${name?} -p $$${passwd?} -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 短信密码登录
 @API .regapi/api/auth/login_by_phone 'cross/json'
-%COPY:
-httpparam -in id:${id} \
-  | run www auth $${site} $${name?} -scene $${scene?auth} -v $${vcode?} \
-    -ajax -cqn
+%TMPL:
+httpparam -in id:$${id} \
+  | run www auth $$${site?${dft_site?~/www/website}} \
+    $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 邮件密码登录
 @API .regapi/api/auth/login_by_email 'cross/json'
-%COPY:
-httpparam -in id:${id} \
-  | run www auth $${site} $${name?} -scene $${scene?auth} -v $${vcode?} \
-    -ajax -cqn
+%TMPL:
+httpparam -in id:$${id} \
+  | run www auth $$${site?${dft_site?~/www/website}} \
+    $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 绑定手机/邮箱
 @API .regapi/api/auth/bind_account 'cross/json'
-%COPY:
-httpparam -in id:${id} \
-  | run www auth $${site} $${name?} -scene $${scene?auth} -v $${vcode?} \
-    -ticket $${ticket?-nil-} \
-    -ajax -cqn
+%TMPL:
+httpparam -in id:$${id} \
+  | run www auth $$${site?${dft_site?~/www/website}} \
+    $$${name?} -scene $$${scene?auth} -v $$${vcode?} \
+    -ticket $$${ticket?-nil-} -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 获取短信验证码
 @API .regapi/api/auth/get_sms_vcode 'cross/json'
-%COPY:
-www captcha ${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
-  -cap ${http-qs-captcha} \
+%TMPL:
+www captcha $${site?${dft_site?~/www/website}} \
+  $${http-qs-scene?auth} $${http-qs-account?} \
+  -cap $${http-qs-captcha} \
   -as sms -du 5 \
   -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 获取邮箱验证码
 @API .regapi/api/auth/get_email_vcode 'cross/json'
-%COPY:
-www captcha ${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
-  -cap ${http-qs-captcha} \
+%TMPL:
+www captcha $${site?${dft_site?~/www/website}} \
+  $${http-qs-scene?auth} $${http-qs-account?} \
+  -cap $${http-qs-captcha} \
   -as email -du 20 \
   -ajax -cqn
 %END%
 #---------------------------------------------------------
 # API(auth): 获取图形验证码
 @API .regapi/api/auth/captcha 'cross'{mime:"image/png"}
-%COPY:
-www captcha ${http-qs-site} ${http-qs-scene?robot} ${http-qs-account?} \
-  -size ${http-qs-size?100x50} \
+%TMPL:
+www captcha $${site?${dft_site?~/www/website}} \
+  $${http-qs-scene?robot} $${http-qs-account?} \
+  -size $${http-qs-size?100x50} \
   -as png
 %END%
 #---------------------------------------------------------
 # API(auth): 修改密码
 @API .regapi/api/auth/resetpasswd 'cross/json'
-%COPY:
-httpparam -in id:${id} | www passwd ${http-qs-site} -ticket ${http-qs-ticket} -ajax -check
+%TMPL:
+httpparam -in id:$${id} | www passwd $$${site?${dft_site?~/www/website}} \
+   -ticket $${http-qs-ticket} -ajax -check
 %END%
 #---------------------------------------------------------
 # API(auth): 注销会话
 @API .regapi/api/auth/logout 'cross/json'
-%COPY:
-www logout 'id:${http-qs-site?unkonw}' ${http-qs-ticket?-nil-} -ajax -cqn
+%TMPL:
+www logout '$${http-qs-site?${dft_site?~/www/website}}' \
+    $${http-qs-ticket?-nil-} -ajax -cqn
 %END%

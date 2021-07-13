@@ -16,6 +16,10 @@ public class WnObjectValueAdaptor implements WnValueAdaptor {
         if (map.isEmpty() && null != vd.getEmptyAs()) {
             return vd.getEmptyAs();
         }
+        // 执行转换
+        if (vd.hasMapping()) {
+            return vd.getMapping().translate(map, vd.isMappingOnly());
+        }
         return map;
     }
 

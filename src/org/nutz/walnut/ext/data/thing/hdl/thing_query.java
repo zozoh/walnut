@@ -12,9 +12,11 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
+import org.nutz.walnut.util.bean.WnBeanMapping;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager|content|obj)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(maponly|pager|content|obj)$")
 public class thing_query implements JvmHdl {
 
     @Override
@@ -29,6 +31,16 @@ public class thing_query implements JvmHdl {
         // ..............................................
         // 准备查询条件
         tq.qStr = Cmds.getParamOrPipe(sys, hc.params, 0);
+
+        // ..............................................
+        // 准备映射
+        if (hc.params.has("mapping")) {
+            String phMapping = hc.params.getString("mapping");
+            WnObj oMapping = Wn.checkObj(sys, phMapping);
+            tq.mapping = sys.io.readJson(oMapping, WnBeanMapping.class);
+            tq.mapping.checkFields();
+            tq.mappingOnly = hc.params.is("maponly");
+        }
 
         // 如果还需要查询关联对象的内容指纹
         String sha1 = hc.params.getString("sha1");

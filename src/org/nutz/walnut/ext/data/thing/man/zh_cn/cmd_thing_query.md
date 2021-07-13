@@ -10,6 +10,8 @@ thing [TsID] query
             [-content]
             [-t "c0,c1,c2.."]
             [-pager]
+            [-mapping /path/to/mapping.json]
+            [-maponly]
             [-limit 10]
             [-skip 0]
             [-sort "nm:1"]
@@ -27,6 +29,8 @@ thing [TsID] query
 - t 表示按照表格方式输出，是 query 的专有形式，内容就是半角逗号分隔的列名
 - pager  显示分页信息，JSON 输出时，输出类似 {list:[..],pager:{..}} 的格式
             在 limit 小于等于 0 时，本参数依然无效
+- mapping 一个采用`WnBeanMapping`的JSON 文件路径
+- maponly 如果声明了 Mapping，则只输出被映射的字段
 - limit  限制输出的数量，默认 100
 - skip   跳过的对象数量，默认 0
 - sort 排序字段

@@ -26,18 +26,18 @@ public class WnArrayValueAdaptor implements WnValueAdaptor {
         }
         // 深度递归一下
         List<Object> list = new LinkedList<>();
-        Wlang.each(input,
-                   (index, o, src) -> {
-                       // 指定了子元素，深层转换一下
-                       if (null != vd.getEleType()) {
-                           Object v = WnValues.toValue(vd, o);
-                           list.add(v);
-                       }
-                       // 就保持原始值咯
-                       else {
-                           list.add(o);
-                       }
-                   });
+        Wlang.each(input, (index, o, src) -> {
+            // 指定了子元素，深层转换一下
+            WnValue eleType = vd.getEleType();
+            if (null != eleType) {
+                Object v = WnValues.toValue(eleType, o);
+                list.add(v);
+            }
+            // 就保持原始值咯
+            else {
+                list.add(o);
+            }
+        });
         if (list.isEmpty()) {
             return vd.getEmptyAs();
         }

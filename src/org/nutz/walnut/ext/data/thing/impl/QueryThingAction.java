@@ -1,10 +1,12 @@
 package org.nutz.walnut.ext.data.thing.impl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -116,21 +118,35 @@ public class QueryThingAction extends ThingAction<ThQr> {
         }
 
         // ..............................................
+        List<NutBean> list2 = new ArrayList<>(list.size());
+        // 进行映射
+        if (null != tq.mapping) {
+            for (WnObj oT : list) {
+                NutBean bean = tq.mapping.translate(oT, tq.mappingOnly);
+                list2.add(bean);
+            }
+        }
+        // 直接复用结果
+        else {
+            list2.addAll(list);
+        }
+
+        // ..............................................
         // 如果只输出一个对象
         if (tq.autoObj) {
             // 空
-            if (null == list || list.isEmpty()) {
+            if (null == list2 || list2.isEmpty()) {
                 output.data = null;
             }
             // 选择一个元素
             else {
-                output.data = list.get(0);
+                output.data = list2.get(0);
             }
         }
         // 输出列表
         else {
             output.pager = tq.wp;
-            output.data = list;
+            output.data = list2;
         }
         return output;
     }

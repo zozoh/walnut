@@ -156,8 +156,17 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
                 // 处理 eleType
                 checkEleType(vo);
                 // 转换为字段
-                WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
-                en.setValue(fld);
+                try {
+                    WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
+                    if (fld.hasMapping()) {
+                        fld.getMapping().checkFields();
+                    }
+                    en.setValue(fld);
+                }
+                // 捕获异常，打印更完整的信息
+                catch (Exception e) {
+                    throw Er.create(e, "e.bean.mapping.checkFields", en.getKey());
+                }
             }
             // String 的话，就是简单映射咯
             else if (val instanceof String) {
@@ -185,6 +194,9 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
                 NutMap map = NutMap.WRAP((Map<String, Object>) eleType);
                 checkEleType(map);
                 WnValue wv = Lang.map2Object(map, WnValue.class);
+                if (wv.hasMapping()) {
+                    wv.getMapping().checkFields();
+                }
                 vo.put("eleType", wv);
             }
             // 其他的移除掉

@@ -4,6 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.WnPager;
+import org.nutz.walnut.util.bean.WnBeanMapping;
 
 public class ThQuery {
 
@@ -12,6 +13,10 @@ public class ThQuery {
     public WnPager wp;
 
     //public String[] tss;
+    
+    public WnBeanMapping mapping;
+    
+    public boolean mappingOnly;
 
     public String[] sha1Fields;
 

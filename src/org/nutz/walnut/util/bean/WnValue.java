@@ -14,6 +14,10 @@ public class WnValue {
 
     private WnValue eleType;
 
+    private WnBeanMapping mapping;
+
+    private boolean mappingOnly;
+
     private Object defaultAs;
 
     private Object emptyAs;
@@ -27,6 +31,10 @@ public class WnValue {
     private WnEnumOptionItem[] options;
 
     private Map<String, Object> __options_map;
+
+    public WnValue() {
+        this.setType(WnValueType.String);
+    }
 
     public Object tryValueOptions(Object input) {
         if (input instanceof String) {
@@ -66,6 +74,26 @@ public class WnValue {
 
     public void setEleType(WnValue element) {
         this.eleType = element;
+    }
+
+    public boolean hasMapping() {
+        return null != this.mapping && !this.mapping.isEmpty();
+    }
+
+    public WnBeanMapping getMapping() {
+        return mapping;
+    }
+
+    public void setMapping(WnBeanMapping eleMapping) {
+        this.mapping = eleMapping;
+    }
+
+    public boolean isMappingOnly() {
+        return mappingOnly;
+    }
+
+    public void setMappingOnly(boolean eleMappingOnly) {
+        this.mappingOnly = eleMappingOnly;
     }
 
     public Object getDefaultAs() {
