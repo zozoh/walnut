@@ -342,7 +342,9 @@ public class ObjModule extends AbstractWnModule {
                               @Param("sh") int sizeHint,
                               @Param("scale") String scale,
                               @Param("f") boolean force,
-                              @Param("bg") String bg) {
+                              @Param("bg") String bg,
+                              @ReqHeader("If-None-Match") String etag,
+                              @ReqHeader("Range") String range) {
         // 缩略图对象
         BufferedImage im = null;
 
@@ -366,9 +368,10 @@ public class ObjModule extends AbstractWnModule {
             // 如果缩略图，使用
             if (o.hasThumbnail()) {
                 WnObj oThumb = Wn.getObj(io(), o.thumbnail());
-                im = io().readImage(oThumb);
-                mime = oThumb.mime();
-                imtp = oThumb.type();
+                // im = io().readImage(oThumb);
+                // mime = oThumb.mime();
+                // imtp = oThumb.type();
+                return new WnObjDownloadView(io(), oThumb, null, null, etag, range);
             }
             // 否则找默认的，默认的一定是 image/png
             else {
