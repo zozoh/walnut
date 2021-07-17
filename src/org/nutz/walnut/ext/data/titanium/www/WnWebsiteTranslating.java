@@ -244,7 +244,8 @@ public class WnWebsiteTranslating {
         siteStateMap.remove("deps");
 
         // 因为 wnml会把 ${xxx] 直接转义，对于 site-state.json 里面所有的东东不要转义，所以添加一下逃逸字符
-        escapeSiteStateForMap(siteStateMap);
+        // zozoh: 以后 wnml 采用 #{xxx} 来声明占位符，这样就不会产生冲突了
+        //escapeSiteStateForMap(siteStateMap);
 
         // 解析
         this.siteState = Lang.map2Object(siteStateMap, WebsiteState.class);

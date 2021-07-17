@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.85";
+        return "10.86";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "GEN-CACHE";
+        return "NEW-WNML";
     }
 
     /**

@@ -232,7 +232,7 @@ public class WnmlService {
             TextNode tnd = (TextNode) nd;
             String txt = tnd.text();
             // 只有大于 3 个字符，才有可能是占位符
-            if (null != txt && txt.length() > 3 && txt.indexOf("${") >= 0) {
+            if (null != txt && txt.length() > 3 && txt.indexOf("#{") >= 0) {
                 String str = __process_text(c, txt, true);
                 tnd.text(str);
             }
@@ -344,7 +344,7 @@ public class WnmlService {
     }
 
     /**
-     * 渲染文本，支持 `${xxx}` 和 `${=EL}` 形式的动态文本
+     * 渲染文本，支持 `#{xxx}` 和 `#{=EL}` 形式的动态文本
      * 
      * @param c
      *            上下文
@@ -355,28 +355,32 @@ public class WnmlService {
      * @return 渲染后结果
      */
     private String __process_text(NutMap c, String txt, boolean showKey) {
-        Tmpl tmpl = Tmpl.parse(txt);
-        NutMap c2 = c.duplicate();
-        Context context = Lang.context(c2);
+        Tmpl tmpl = Tmpl.parse(txt, "#");
+        if (tmpl.keys().size() > 0) {
+            NutMap c2 = c.duplicate();
+            Context context = Lang.context(c2);
 
-        // 如果有对应的占位符为 = 开头，则标识 EL 表达式，要预先执行一下
-        // TODO 如果 Tmpl 支持了内置的 TmplElEle，这个就木有必要了
-        for (String key : tmpl.keys()) {
-            if (key.startsWith("=")) {
-                String el = key.substring(1);
-                Object re = El.eval(context, el);
-                c2.put(key, re);
+            // 如果有对应的占位符为 = 开头，则标识 EL 表达式，要预先执行一下
+            // TODO 如果 Tmpl 支持了内置的 TmplElEle，这个就木有必要了
+            for (String key : tmpl.keys()) {
+                if (key.startsWith("=")) {
+                    String el = key.substring(1);
+                    Object re = El.eval(context, el);
+                    c2.put(key, re);
+                }
             }
-        }
 
-        // 执行占位符替换
-        return Tmpl.exec(txt, c2, showKey);
+            // 执行占位符替换
+            return tmpl.render(c2, showKey);
+        }
+        // 直接保留原始内容
+        return txt;
     }
 
     private void __do_data_node_text(DataNode dnd, NutMap c) {
         String txt = dnd.getWholeData();
         // 只有大于 3 个字符，才有可能是占位符
-        if (null != txt && txt.length() > 3 && txt.indexOf("${") > 3) {
+        if (null != txt && txt.length() > 3 && txt.indexOf("#{") > 3) {
             String str = __process_text(c, txt, true);
             dnd.setWholeData(str);
         }
@@ -576,7 +580,7 @@ public class WnmlService {
         for (Attribute attr : nd.attributes()) {
             String val = attr.getValue();
             // 只有长度大于 3 才有可能是占位符
-            if (null != val && val.length() > 3 && val.indexOf("${") >= 0) {
+            if (null != val && val.length() > 3 && val.indexOf("#{") >= 0) {
                 String str = __process_text(c, val, true);
                 attr.setValue(str);
             }

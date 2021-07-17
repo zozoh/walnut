@@ -33,7 +33,7 @@ public class StringMatch extends ListValueMatcher implements WnMatch {
             return str.equalsIgnoreCase(val.toString());
         }
 
-        return str.equals(val);
+        return str.equals(val.toString());
     }
 
     public boolean isIgnoreCase() {
