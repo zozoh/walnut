@@ -31,12 +31,15 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.walnut.api.auth.WnAccount;
+import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
+import org.nutz.walnut.impl.srv.WnBoxRunning;
 import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wlog;
@@ -46,6 +49,7 @@ import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.bean.WnLoginPage;
 import org.nutz.walnut.web.filter.WnAsUsr;
 import org.nutz.walnut.web.filter.WnCheckSession;
+import org.nutz.walnut.web.impl.AppCheckAccess;
 import org.nutz.walnut.web.impl.WnAppService;
 import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.walnut.web.view.WnAddCookieViewWrapper;
@@ -165,6 +169,22 @@ public class AppModule extends AbstractWnModule {
             }
             WnObj obj = apps.getObj(app, str);
             app.setObj(obj);
+
+            // 检查应用权限: root 组成员免查，可以打开任何 app
+            WnAuthSession se = app.getSession();
+            WnObj oAppHome = app.getHome();
+            if (!this.auth().isMemberOfGroup(se.getMe(), "root")) {
+                WnIo io = io();
+                WnObj oCheckAccess = io.fetch(oAppHome, "check_access.json");
+                if (null != oCheckAccess) {
+                    AppCheckAccess ca = io.readJson(oCheckAccess, AppCheckAccess.class);
+                    WnAuthService auth = auth();
+                    WnBoxRunning run = this.createRunning(false);
+                    if (!ca.doCheck(io, se, auth, run)) {
+                        return new HttpStatusView(403);
+                    }
+                }
+            }
 
             // 渲染模板
             String html = apps.renderAppHtml(app);

@@ -289,6 +289,7 @@ public class WnAppService extends WnRun {
         // ----------------------------------------
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
+
         // ----------------------------------------
         // 生成 App 对象
         WnApp app = new WnApp();

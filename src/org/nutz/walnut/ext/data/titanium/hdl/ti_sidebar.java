@@ -74,14 +74,22 @@ public class ti_sidebar implements JvmHdl {
 
         // 检查系统权限
         TiSidebarCheckItemByRoleName checkRole = (roleName, path) -> {
-            WnObj oTa = ".".equals(path) ? oSidebarHome : Wn.getObj(sys, path);
-            // 根据权限码
-            if (roleName.matches("^[rwx-]{3}$")) {
-                int mode = Wn.Io.modeFromStr(roleName);
-                return secur.test(oTa, mode);
+            String ta_grp;
+            // @XXX 直接表示组名
+            if (path.startsWith("@")) {
+                ta_grp = path.substring(1).trim();
             }
-            // 根据角色
-            String ta_grp = oTa.group();
+            // 根据路径
+            else {
+                WnObj oTa = ".".equals(path) ? oSidebarHome : Wn.getObj(sys, path);
+                // 根据权限码
+                if (roleName.matches("^[rwx-]{3}$")) {
+                    int mode = Wn.Io.modeFromStr(roleName);
+                    return secur.test(oTa, mode);
+                }
+                // 根据角色
+                ta_grp = oTa.group();
+            }
             WnGroupRole shouldBeRole = WnGroupRole.valueOf(roleName);
             // 管理员
             if (WnGroupRole.ADMIN == shouldBeRole) {
@@ -93,7 +101,7 @@ public class ti_sidebar implements JvmHdl {
             if (WnGroupRole.MEMBER == shouldBeRole) {
                 if (ta_grp.equals(myGroupName))
                     return IamMember;
-                sys.auth.isMemberOfGroup(me, ta_grp);
+                return sys.auth.isMemberOfGroup(me, ta_grp);
             }
             // 权限写的不对，禁止
             return false;
