@@ -12,6 +12,7 @@ thing [TsID] query
             [-pager]
             [-mapping /path/to/mapping.json]
             [-maponly]
+            [-dynamic_mapping]
             [-limit 10]
             [-skip 0]
             [-sort "nm:1"]
@@ -31,6 +32,8 @@ thing [TsID] query
             在 limit 小于等于 0 时，本参数依然无效
 - mapping 一个采用`WnBeanMapping`的JSON 文件路径
 - maponly 如果声明了 Mapping，则只输出被映射的字段
+- dynamic_mapping 如果声明了，上面的 mapping 参数则作为一个路径模板
+                  上下文占位符就是查询出来的每个对象
 - limit  限制输出的数量，默认 100
 - skip   跳过的对象数量，默认 0
 - sort 排序字段

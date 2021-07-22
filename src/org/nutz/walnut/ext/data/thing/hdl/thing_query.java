@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.data.thing.hdl;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
@@ -16,7 +17,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.bean.WnBeanMapping;
 
-@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(maponly|pager|content|obj)$")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(maponly|dynamic_mapping|pager|content|obj)$")
 public class thing_query implements JvmHdl {
 
     @Override
@@ -36,9 +37,16 @@ public class thing_query implements JvmHdl {
         // 准备映射
         if (hc.params.has("mapping")) {
             String phMapping = hc.params.getString("mapping");
-            WnObj oMapping = Wn.checkObj(sys, phMapping);
-            tq.mapping = sys.io.readJson(oMapping, WnBeanMapping.class);
-            tq.mapping.checkFields();
+            // 动态映射路径
+            if (hc.params.is("dynamic_mapping")) {
+                tq.mappingPath = Tmpl.parse(phMapping);
+            }
+            // 直接指定了映射文件
+            else {
+                WnObj oMapping = Wn.checkObj(sys, phMapping);
+                tq.mapping = sys.io.readJson(oMapping, WnBeanMapping.class);
+                tq.mapping.checkFields();
+            }
             tq.mappingOnly = hc.params.is("maponly");
         }
 

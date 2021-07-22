@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.data.thing.util;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
+import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.bean.WnBeanMapping;
@@ -15,6 +16,8 @@ public class ThQuery {
     //public String[] tss;
     
     public WnBeanMapping mapping;
+    
+    public Tmpl mappingPath;
     
     public boolean mappingOnly;
 

@@ -1,8 +1,11 @@
 package org.nutz.walnut.ext.data.thing.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -14,13 +17,21 @@ import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
 import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.data.thing.util.Things;
+import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.bean.WnBeanMapping;
 
 public class QueryThingAction extends ThingAction<ThQr> {
 
     protected ThQuery tq;
 
+    private Map<String, WnBeanMapping> mappings;
+
     public QueryThingAction setQuery(ThQuery tq) {
         this.tq = tq;
+        if (null != tq.mappingPath) {
+            this.mappings = new HashMap<>();
+        }
         return this;
     }
 
@@ -119,10 +130,28 @@ public class QueryThingAction extends ThingAction<ThQr> {
 
         // ..............................................
         List<NutBean> list2 = new ArrayList<>(list.size());
-        // 进行映射
+        // 进行映射: 直接指定了映射方式
         if (null != tq.mapping) {
             for (WnObj oT : list) {
                 NutBean bean = tq.mapping.translate(oT, tq.mappingOnly);
+                list2.add(bean);
+            }
+        }
+        // 进行映射: 动态获取映射对象，需要缓存
+        else if (null != tq.mappingPath) {
+            String homePath = Wn.getObjHomePath(this.oTs);
+            NutMap vars = Wlang.map("HOME", homePath);
+            for (WnObj oT : list) {
+                String mph = tq.mappingPath.render(oT);
+                String amph = Wn.normalizeFullPath(mph, vars);
+                WnBeanMapping bm = mappings.get(amph);
+                if (null == bm) {
+                    WnObj oBm = io.check(null, amph);
+                    bm = io.readJson(oBm, WnBeanMapping.class);
+                    bm.checkFields();
+                    mappings.put(amph, bm);
+                }
+                NutBean bean = bm.translate(oT, tq.mappingOnly);
                 list2.add(bean);
             }
         }

@@ -37,8 +37,9 @@ public class WnValue {
     }
 
     public Object tryValueOptions(Object input) {
-        if (input instanceof String) {
-            return this.getOptionValue((String) input, input);
+        if (null != input && null != options) {
+            String val = input.toString();
+            return this.getOptionValue(val, input);
         }
         return input;
     }
