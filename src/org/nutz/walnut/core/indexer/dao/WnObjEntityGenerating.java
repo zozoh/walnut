@@ -15,7 +15,6 @@ import org.nutz.dao.jdbc.ValueAdaptor;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -30,6 +29,7 @@ import org.nutz.walnut.core.indexer.dao.obj.race.WnObjRaceInjecting;
 import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.sarray.WnObjSArrayInjecting;
 import org.nutz.walnut.ext.sys.sql.WnDaoMappingConfig;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasEjecting;
 import org.nutz.walnut.core.indexer.dao.obj.metas.WnObjMetasInjecting;
 
@@ -356,8 +356,8 @@ public class WnObjEntityGenerating {
 
         // 必须有名称
         String fldName = fld.getString("name");
-        if (Strings.isBlank(fldName)) {
-            throw Er.create("e.io.dao.field.WithoutName", Json.toJson(fld));
+        if (Ws.isBlank(fldName)) {
+            throw Er.createf("e.io.dao.field.WithoutName : [%s] : %s", fldName, Json.toJson(fld));
         }
 
         // 数据库字段与默认同名
