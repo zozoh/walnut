@@ -44,14 +44,14 @@ public class WnArrayValueAdaptor implements WnValueAdaptor {
         return list;
     }
 
-    @Override
-    public String toStr(WnValue vd, Object val) {
-        List<String> ss = new LinkedList<>();
-        Wlang.each(val, (index, o, src) -> {
-            String s = WnValues.toStr(vd, o);
-            ss.add(s);
-        });
-        return Ws.join(ss, vd.getSeparator());
-    }
+    // @Override
+    // public String toStr(WnValue vd, Object val) {
+    // List<String> ss = new LinkedList<>();
+    // Wlang.each(val, (index, o, src) -> {
+    // String s = WnValues.toStr(vd, o);
+    // ss.add(s);
+    // });
+    // return Ws.join(ss, vd.getSeparator());
+    // }
 
 }

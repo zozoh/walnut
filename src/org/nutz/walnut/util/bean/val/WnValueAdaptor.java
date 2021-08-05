@@ -6,6 +6,6 @@ public interface WnValueAdaptor {
 
     Object toValue(WnValue vd, Object input);
 
-    String toStr(WnValue vd, Object val);
+    //String toStr(WnValue vd, Object val);
 
 }

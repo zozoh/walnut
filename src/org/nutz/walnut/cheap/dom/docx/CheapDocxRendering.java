@@ -29,6 +29,7 @@ import org.docx4j.wml.CTTblCellMar;
 import org.docx4j.wml.CTTblLayoutType;
 import org.docx4j.wml.CTVerticalJc;
 import org.docx4j.wml.Drawing;
+import org.docx4j.wml.HpsMeasure;
 import org.docx4j.wml.Jc;
 import org.docx4j.wml.JcEnumeration;
 import org.docx4j.wml.ObjectFactory;
@@ -41,9 +42,11 @@ import org.docx4j.wml.PPrBase.NumPr.Ilvl;
 import org.docx4j.wml.PPrBase.NumPr.NumId;
 import org.docx4j.wml.PPrBase.PStyle;
 import org.docx4j.wml.R;
+import org.docx4j.wml.RFonts;
 import org.docx4j.wml.RPr;
 import org.docx4j.wml.STBorder;
 import org.docx4j.wml.STBrType;
+import org.docx4j.wml.STHint;
 import org.docx4j.wml.STLineSpacingRule;
 import org.docx4j.wml.STTblLayoutType;
 import org.docx4j.wml.STVerticalJc;
@@ -916,7 +919,8 @@ public class CheapDocxRendering {
                 }
                 // 行内元素
                 else if (node.isElement()) {
-                    re |= appendInline(pContent, (CheapElement) node, null);
+                    DocxElStyle es = new DocxElStyle();
+                    re |= appendInline(pContent, (CheapElement) node, es);
                 }
             }
         }
@@ -952,6 +956,23 @@ public class CheapDocxRendering {
                 U u = factory.createU();
                 u.setVal(UnderlineEnumeration.SINGLE);
                 rPr.setU(u);
+            }
+            if (null != es.fontFamily) {
+                RFonts rf = factory.createRFonts();
+                rf.setAscii(es.fontFamily);
+                rf.setEastAsia(es.fontFamily);
+                rf.setHAnsi(es.fontFamily);
+                rf.setHint(STHint.EAST_ASIA);
+                rPr.setRFonts(rf);
+            }
+            int fsVal = es.getFontSizeValue();
+            if (fsVal > 0) {
+                HpsMeasure hm = factory.createHpsMeasure();
+                hm.setVal(BigInteger.valueOf(fsVal));
+                rPr.setSz(hm);
+                HpsMeasure hmCs = factory.createHpsMeasure();
+                hmCs.setVal(BigInteger.valueOf(fsVal));
+                rPr.setSzCs(hmCs);
             }
         }
         Text t = factory.createText();
@@ -1006,57 +1027,29 @@ public class CheapDocxRendering {
     }
 
     private boolean appendBold(List<Object> pContent, CheapElement el, DocxElStyle es) {
-        boolean old = false;
-        if (null == es) {
-            es = new DocxElStyle();
-        } else {
-            old = es.bold;
-        }
-        try {
-            es.bold = true;
-            return dispatchInlineChildren(pContent, el, es);
-        }
-        finally {
-            es.bold = old;
-        }
+        es = null == es ? new DocxElStyle() : es.clone();
+        es.bold = true;
+        es.updateByElement(el);
+        return dispatchInlineChildren(pContent, el, es);
     }
 
     private boolean appendItalic(List<Object> pContent, CheapElement el, DocxElStyle es) {
-        boolean old = false;
-        if (null == es) {
-            es = new DocxElStyle();
-        } else {
-            old = es.italic;
-        }
-        try {
-            es.italic = true;
-            return dispatchInlineChildren(pContent, el, es);
-        }
-        finally {
-            es.italic = old;
-        }
+        es = null == es ? new DocxElStyle() : es.clone();
+        es.italic = true;
+        es.updateByElement(el);
+        return dispatchInlineChildren(pContent, el, es);
     }
 
     private boolean appendUnderline(List<Object> pContent, CheapElement el, DocxElStyle es) {
-        boolean old = false;
-        if (null == es) {
-            es = new DocxElStyle();
-        } else {
-            old = es.underline;
-        }
-        try {
-            es.underline = true;
-            return dispatchInlineChildren(pContent, el, es);
-        }
-        finally {
-            es.underline = old;
-        }
+        es = null == es ? new DocxElStyle() : es.clone();
+        es.underline = true;
+        es.updateByElement(el);
+        return dispatchInlineChildren(pContent, el, es);
     }
 
     private boolean appendSpan(List<Object> pContent, CheapElement el, DocxElStyle es) {
-        if (null == es) {
-            es = new DocxElStyle();
-        }
+        es = null == es ? new DocxElStyle() : es.clone();
+        es.updateByElement(el);
         return dispatchInlineChildren(pContent, el, es);
     }
 

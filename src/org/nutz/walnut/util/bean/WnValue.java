@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
@@ -28,6 +29,8 @@ public class WnValue {
 
     private String separator;
 
+    private NutMap values;
+
     private WnEnumOptionItem[] options;
 
     private Map<String, Object> __options_map;
@@ -37,9 +40,22 @@ public class WnValue {
     }
 
     public Object tryValueOptions(Object input) {
-        if (null != input && null != options) {
+        if (null != input) {
+            Object v2 = null;
             String val = input.toString();
-            return this.getOptionValue(val, input);
+            if (null != values) {
+                v2 = this.values.get(val);
+                if (null != v2) {
+                    val = v2.toString();
+                }
+            }
+            if (null != options) {
+                Object v3 = this.getOptionValue(val, input);
+                if (null != v3) {
+                    v2 = v3;
+                }
+            }
+            return v2;
         }
         return input;
     }
@@ -183,6 +199,14 @@ public class WnValue {
 
     public void setSeparator(String separator) {
         this.separator = separator;
+    }
+
+    public NutMap getValues() {
+        return values;
+    }
+
+    public void setValues(NutMap values) {
+        this.values = values;
     }
 
     public WnEnumOptionItem[] getOptions() {

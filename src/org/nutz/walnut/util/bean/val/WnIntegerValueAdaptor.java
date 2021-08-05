@@ -24,9 +24,9 @@ public class WnIntegerValueAdaptor implements WnValueAdaptor {
         }
     }
 
-    @Override
-    public String toStr(WnValue fld, Object val) {
-        return Castors.me().castToString(val);
-    }
+    // @Override
+    // public String toStr(WnValue fld, Object val) {
+    // return Castors.me().castToString(val);
+    // }
 
 }

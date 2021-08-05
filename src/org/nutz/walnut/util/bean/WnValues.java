@@ -37,8 +37,8 @@ public class WnValues {
         return wv.toValue(fld, input);
     }
 
-    public static String toStr(WnValue fld, Object val) {
-        WnValueAdaptor wv = map.get(fld.getType());
-        return wv.toStr(fld, val);
-    }
+//    public static String toStr(WnValue fld, Object val) {
+//        WnValueAdaptor wv = map.get(fld.getType());
+//        return wv.toStr(fld, val);
+//    }
 }

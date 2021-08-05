@@ -21,6 +21,14 @@ public class CheapStyle extends NutMap {
         return sb.toString();
     }
 
+    public boolean isMatch(String name, String val) {
+        String str = this.getString(name, null);
+        if (null == str || null == val) {
+            return false;
+        }
+        return str.equalsIgnoreCase(val);
+    }
+
     public CheapSize getSize(String name) {
         return getSize(name, null);
     }

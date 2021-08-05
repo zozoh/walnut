@@ -19,17 +19,17 @@ public class WnBooleanValueAdaptor implements WnValueAdaptor {
         return bi == 1;
     }
 
-    @Override
-    public String toStr(WnValue vd, Object val) {
-        int bi = 0;
-        if (Castors.me().castTo(val, Boolean.class)) {
-            bi = 1;
-        }
-        WnEnumOptionItem[] options = vd.getOptions();
-        if (null != options && options.length >= 2) {
-            return options[bi].getText();
-        }
-        return bi == 0 ? "false" : "true";
-    }
+    // @Override
+    // public String toStr(WnValue vd, Object val) {
+    // int bi = 0;
+    // if (Castors.me().castTo(val, Boolean.class)) {
+    // bi = 1;
+    // }
+    // WnEnumOptionItem[] options = vd.getOptions();
+    // if (null != options && options.length >= 2) {
+    // return options[bi].getText();
+    // }
+    // return bi == 0 ? "false" : "true";
+    // }
 
 }

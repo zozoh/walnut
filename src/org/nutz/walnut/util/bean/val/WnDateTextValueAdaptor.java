@@ -18,14 +18,14 @@ public class WnDateTextValueAdaptor implements WnValueAdaptor {
         return Wtime.format(d, fmt);
     }
 
-    @Override
-    public String toStr(WnValue vd, Object val) {
-        if (null == val) {
-            return null;
-        }
-        Date d = Wtime.parseAnyDate(val);
-        String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
-        return Wtime.format(d, fmt);
-    }
+    // @Override
+    // public String toStr(WnValue vd, Object val) {
+    // if (null == val) {
+    // return null;
+    // }
+    // Date d = Wtime.parseAnyDate(val);
+    // String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
+    // return Wtime.format(d, fmt);
+    // }
 
 }

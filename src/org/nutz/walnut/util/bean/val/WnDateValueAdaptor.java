@@ -15,7 +15,9 @@ public class WnDateValueAdaptor implements WnValueAdaptor {
         }
         // 尝试解析
         try {
-            return Wtime.parseAnyDate(input);
+            Date d = Wtime.parseAnyDate(input);
+            String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
+            return Wtime.format(d, fmt);
         }
         // 解析不成功！ 当作不存在
         catch (Throwable e) {
@@ -23,14 +25,14 @@ public class WnDateValueAdaptor implements WnValueAdaptor {
         }
     }
 
-    @Override
-    public String toStr(WnValue vd, Object val) {
-        if (null == val) {
-            return null;
-        }
-        Date d = Wtime.parseAnyDate(val);
-        String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
-        return Wtime.format(d, fmt);
-    }
+    // @Override
+    // public String toStr(WnValue vd, Object val) {
+    // if (null == val) {
+    // return null;
+    // }
+    // Date d = Wtime.parseAnyDate(val);
+    // String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
+    // return Wtime.format(d, fmt);
+    // }
 
 }
