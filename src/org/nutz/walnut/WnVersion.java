@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "10.92";
+        return "10.93";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "NEW-WNML";
+        return "MAPPING_1";
     }
 
     /**

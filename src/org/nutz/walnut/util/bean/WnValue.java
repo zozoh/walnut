@@ -41,7 +41,7 @@ public class WnValue {
 
     public Object tryValueOptions(Object input) {
         if (null != input) {
-            Object v2 = null;
+            Object v2 = input;
             String val = input.toString();
             if (null != values) {
                 v2 = this.values.get(val);
