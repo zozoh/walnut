@@ -28,9 +28,10 @@ public class cmd_zip extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
-        ZParams params = ZParams.parse(args, "^(quiet)");
+        ZParams params = ZParams.parse(args, "^(quiet|hide)");
         String phTa = params.val_check(0);
         boolean quiet = params.is("quiet");
+        boolean hide = params.is("hide");
 
         if (params.vals.length <= 1) {
             throw Er.create("e.cmd.zip.NilInput");
@@ -78,7 +79,7 @@ public class cmd_zip extends JvmExecutor {
 
             // 开始逐个加入压缩包
             for (WnObj o : oSrcList) {
-                addEntry(sys, oTop, ag, o, quiet, am);
+                addEntry(sys, oTop, ag, o, quiet, am, hide);
             }
         }
         // 确保写入
@@ -99,18 +100,23 @@ public class cmd_zip extends JvmExecutor {
                           WnArchiveWriting ag,
                           WnObj o,
                           boolean quiet,
-                          WnMatch am)
+                          WnMatch am,
+                          boolean hide)
             throws IOException {
-        // 无视
-        if (null != am && !am.match(o)) {
+        // 无视隐藏文件
+        if (!hide && o.isHidden()) {
             return;
         }
         // 目录，递归
         if (o.isDIR()) {
             List<WnObj> children = sys.io.getChildren(o, null);
             for (WnObj child : children) {
-                addEntry(sys, oTop, ag, child, quiet, am);
+                addEntry(sys, oTop, ag, child, quiet, am, hide);
             }
+        }
+        // 无视不符合条件的文件
+        else if (null != am && !am.match(o)) {
+            return;
         }
         // 文件，写入
         else {
