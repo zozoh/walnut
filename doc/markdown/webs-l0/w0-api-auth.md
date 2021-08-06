@@ -761,7 +761,7 @@ www captcha ${http-qs-site} ${http-qs-scene?auth} ${http-qs-account?} \
 ### 请求头
 
 ```bash
-HTTP GET /api/auth/get_email_vcode
+HTTP GET /api/auth/captcha
 #---------------------------------
 # Query String
 site    : "34t6..8aq1"     #【必】站点的ID
