@@ -69,5 +69,19 @@
         {"value": "right top", "text": "i18n:right-top"},
         {"value": "right bottom", "text": "i18n:right-bottom"}
       ]
+    },
+    "CssBackgroundXPositions": {
+      "data": [
+        {"value": "left", "text": "i18n:left"},
+        {"value": "center", "text": "i18n:center"},
+        {"value": "right", "text": "i18n:right"}
+      ]
+    },
+    "CssBackgroundYPositions": {
+      "data": [
+        {"value": "top", "text": "i18n:top"},
+        {"value": "center", "text": "i18n:center"},
+        {"value": "bottom", "text": "i18n:bottom"}
+      ]
     }
 }
