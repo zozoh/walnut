@@ -1,5 +1,8 @@
 package org.nutz.walnut.ext.util.jsonx.hdl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
@@ -51,7 +54,9 @@ public class jsonx_translate extends JsonXFilter {
                 map = map.getAs(by, NutMap.class);
             }
             WnBeanMapping bm = new WnBeanMapping();
-            bm.setFields(map);
+            Map<String, NutMap[]> caches = new HashMap<>();
+            NutMap vars = sys.session.getVars();
+            bm.setFields(map, sys.io, vars, caches);
             fc.obj = bm.translateAny(fc.obj, isOnly);
         }
         //

@@ -22,7 +22,6 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.core.IoCoreTest;

@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.media.ooml.util;
 
+import java.util.Map;
+
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.util.bean.WnBeanMapping;
 
 public class OomlRowMapping {
@@ -25,9 +29,9 @@ public class OomlRowMapping {
         return mapping.translate(bean, onlyMapping);
     }
 
-    public void ready() {
+    public void ready(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
         if (null != mapping) {
-            mapping.checkFields();
+            mapping.checkFields(io, vars, caches);
         }
     }
 

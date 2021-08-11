@@ -17,7 +17,6 @@ import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
 import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.data.thing.util.Things;
-import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.bean.WnBeanMapping;
 
@@ -139,8 +138,9 @@ public class QueryThingAction extends ThingAction<ThQr> {
         }
         // 进行映射: 动态获取映射对象，需要缓存
         else if (null != tq.mappingPath) {
-            String homePath = Wn.getObjHomePath(this.oTs);
-            NutMap vars = Wlang.map("HOME", homePath);
+            Map<String, NutMap[]> caches = new HashMap<>();
+            NutBean vars = Wn.getVarsByObj(oIndex);
+            // ..............................................
             for (WnObj oT : list) {
                 String mph = tq.mappingPath.render(oT);
                 String amph = Wn.normalizeFullPath(mph, vars);
@@ -148,7 +148,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
                 if (null == bm) {
                     WnObj oBm = io.check(null, amph);
                     bm = io.readJson(oBm, WnBeanMapping.class);
-                    bm.checkFields();
+                    bm.checkFields(io, vars, caches);
                     mappings.put(amph, bm);
                 }
                 NutBean bean = bm.translate(oT, tq.mappingOnly);

@@ -1,8 +1,12 @@
 package org.nutz.walnut.ext.data.thing.hdl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
@@ -45,7 +49,9 @@ public class thing_query implements JvmHdl {
             else {
                 WnObj oMapping = Wn.checkObj(sys, phMapping);
                 tq.mapping = sys.io.readJson(oMapping, WnBeanMapping.class);
-                tq.mapping.checkFields();
+                NutMap vars = sys.session.getVars();
+                Map<String, NutMap[]> caches = new HashMap<>();
+                tq.mapping.checkFields(sys.io, vars, caches);
             }
             tq.mappingOnly = hc.params.is("maponly");
         }

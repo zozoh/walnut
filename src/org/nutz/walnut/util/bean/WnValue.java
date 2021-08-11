@@ -4,8 +4,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
+import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
@@ -33,6 +37,12 @@ public class WnValue {
 
     private WnEnumOptionItem[] options;
 
+    private String optionsFile;
+
+    private String optionsFromKey;
+
+    private String optionsToKey;
+
     private Map<String, Object> __options_map;
 
     public WnValue() {
@@ -41,33 +51,24 @@ public class WnValue {
 
     public Object tryValueOptions(Object input) {
         if (null != input) {
-            Object v2 = input;
             String val = input.toString();
             if (null != values) {
-                v2 = this.values.get(val);
+                Object v2 = this.values.get(val);
                 if (null != v2) {
-                    val = v2.toString();
+                    return v2;
                 }
             }
-            if (null != options) {
-                Object v3 = this.getOptionValue(val, input);
-                if (null != v3) {
-                    v2 = v3;
-                }
+            Object v3 = this.getOptionValue(val, input);
+            if (null != v3) {
+                return v3;
             }
-            return v2;
+            return input;
         }
         return input;
     }
 
     public Object getOptionValue(String text, Object dft) {
-        if (null != options) {
-            if (null == __options_map) {
-                __options_map = new HashMap<>();
-                for (WnEnumOptionItem it : options) {
-                    __options_map.put(it.getText(), it.getValue());
-                }
-            }
+        if (null != __options_map) {
             Object v = __options_map.get(text);
             if (null == v) {
                 return dft;
@@ -75,6 +76,37 @@ public class WnValue {
             return v;
         }
         return dft;
+    }
+
+    public void loadOptions(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+        if (null == this.__options_map) {
+            __options_map = new HashMap<>();
+            // 一个静态值
+            if (null != options) {
+                for (WnEnumOptionItem it : options) {
+                    __options_map.put(it.getText(), it.getValue());
+                }
+            }
+            // 动态从文件获取
+            else if (null != this.optionsFile) {
+                String aph = Wn.normalizeFullPath(this.optionsFile, vars);
+                NutMap[] list = caches.get(aph);
+                // 直接读取并加入缓存
+                if (null == list) {
+                    WnObj oFile = io.check(null, aph);
+                    list = io.readJson(oFile, NutMap[].class);
+                    caches.put(aph, list);
+                }
+                // 准备映射
+                String fromKey = Ws.sBlank(this.optionsFromKey, "text");
+                String toKey = Ws.sBlank(this.optionsToKey, "value");
+                for (NutMap li : list) {
+                    String from = li.getString(fromKey);
+                    Object to = li.get(toKey);
+                    __options_map.put(from, to);
+                }
+            }
+        }
     }
 
     public WnValueType getType() {
@@ -215,6 +247,30 @@ public class WnValue {
 
     public void setOptions(WnEnumOptionItem[] options) {
         this.options = options;
+    }
+
+    public String getOptionsFile() {
+        return optionsFile;
+    }
+
+    public void setOptionsFile(String optionsFile) {
+        this.optionsFile = optionsFile;
+    }
+
+    public String getOptionsFromKey() {
+        return optionsFromKey;
+    }
+
+    public void setOptionsFromKey(String optionsFromKey) {
+        this.optionsFromKey = optionsFromKey;
+    }
+
+    public String getOptionsToKey() {
+        return optionsToKey;
+    }
+
+    public void setOptionsToKey(String optionsToKey) {
+        this.optionsToKey = optionsToKey;
     }
 
 }

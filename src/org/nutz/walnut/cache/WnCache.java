@@ -133,4 +133,13 @@ public abstract class WnCache<T> {
     protected abstract WnCacheItem<T> createItem(T data);
 
     protected abstract WnCacheItem<T> loadItem(String key);
+
+    public int getMaxItemCount() {
+        return maxItemCount;
+    }
+
+    public int getLen() {
+        return len;
+    }
+
 }

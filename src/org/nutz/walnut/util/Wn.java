@@ -256,6 +256,13 @@ public abstract class Wn {
         return Wn.appendPath("/", d0, d1);
     }
 
+    public static NutBean getVarsByObj(WnObj obj) {
+        NutBean vars = new NutMap();
+        String homePath = Wn.getObjHomePath(obj);
+        vars.put("HOME", homePath);
+        return vars;
+    }
+
     public static String tidyPath(WnIo io, String ph) {
         String[] paths = Strings.splitIgnoreBlank(ph, "/");
 

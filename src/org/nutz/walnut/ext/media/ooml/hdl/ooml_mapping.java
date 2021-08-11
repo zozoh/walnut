@@ -1,6 +1,10 @@
 package org.nutz.walnut.ext.media.ooml.hdl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.media.ooml.OomlContext;
 import org.nutz.walnut.ext.media.ooml.OomlFilter;
@@ -46,7 +50,9 @@ public class ooml_mapping extends OomlFilter {
         // 设置映射方式
         if (!Ws.isBlank(input)) {
             fc.mapping = Json.fromJson(OomlRowMapping.class, input);
-            fc.mapping.ready();
+            NutMap vars = sys.session.getVars();
+            Map<String, NutMap[]> caches = new HashMap<>();
+            fc.mapping.ready(sys.io, vars, caches);
         }
         // 清除映射方式
         else {

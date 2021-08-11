@@ -12,6 +12,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
@@ -123,27 +124,15 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
         return re;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public void setFields(Map<String, Object> fields) {
+    public void setFields(Map<String, Object> fields,
+                          WnIo io,
+                          NutBean vars,
+                          Map<String, NutMap[]> caches) {
         this.clear();
-        for (Map.Entry en : fields.entrySet()) {
-            String key = en.getKey().toString();
-            Object val = en.getValue();
-            // Map 的话，转换
-            if (val instanceof Map) {
-                NutMap vo = NutMap.WRAP((Map) val);
-                // 处理 eleType
-                checkEleType(vo);
-                // 转换为字段
-                WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
-                this.put(key, fld);
-            }
-            // String 的话，就是简单映射咯
-            else if (val instanceof String) {
-                String name = (String) val;
-                WnBeanField fld = new WnBeanField();
-                fld.setName(name);
-                fld.setType(WnValueType.String);
+        for (Map.Entry<String, Object> en : fields.entrySet()) {
+            WnBeanField fld = transEntryToField(en, io, vars, caches);
+            if (null != fld) {
+                String key = en.getKey().toString();
                 this.put(key, fld);
             }
         }
@@ -153,40 +142,52 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
      * 确保自己每个值都是 WnBeanField 对象，有时候从 Json 恢复出来的是 NutMap
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void checkFields() {
+    public void checkFields(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
         for (Map.Entry en : super.entrySet()) {
-            Object val = en.getValue();
-            // Map 的话，转换
-            if (val instanceof Map) {
-                NutMap vo = NutMap.WRAP((Map) val);
-                // 处理 eleType
-                checkEleType(vo);
-                // 转换为字段
-                try {
-                    WnBeanField fld = Lang.map2Object(vo, WnBeanField.class);
-                    if (fld.hasMapping()) {
-                        fld.getMapping().checkFields();
-                    }
-                    en.setValue(fld);
-                }
-                // 捕获异常，打印更完整的信息
-                catch (Exception e) {
-                    throw Er.create(e, "e.bean.mapping.checkFields", en.getKey());
-                }
-            }
-            // String 的话，就是简单映射咯
-            else if (val instanceof String) {
-                String name = (String) val;
-                WnBeanField fld = new WnBeanField();
-                fld.setName(name);
-                fld.setType(WnValueType.String);
+            WnBeanField fld = transEntryToField(en, io, vars, caches);
+            if (null != fld) {
                 en.setValue(fld);
             }
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private WnBeanField transEntryToField(Map.Entry en,
+                                          WnIo io,
+                                          NutBean vars,
+                                          Map<String, NutMap[]> caches) {
+        WnBeanField fld = null;
+        Object val = en.getValue();
+        // Map 的话，转换
+        if (val instanceof Map) {
+            NutMap vo = NutMap.WRAP((Map) val);
+            // 处理 eleType
+            checkEleType(vo, io, vars, caches);
+            // 转换为字段
+            try {
+                fld = Lang.map2Object(vo, WnBeanField.class);
+                fld.loadOptions(io, vars, caches);
+                if (fld.hasMapping()) {
+                    fld.getMapping().checkFields(io, vars, caches);
+                }
+            }
+            // 捕获异常，打印更完整的信息
+            catch (Exception e) {
+                throw Er.create(e, "e.bean.mapping.checkFields", en.getKey());
+            }
+        }
+        // String 的话，就是简单映射咯
+        else if (val instanceof String) {
+            String name = (String) val;
+            fld = new WnBeanField();
+            fld.setName(name);
+            fld.setType(WnValueType.String);
+        }
+        return fld;
+    }
+
     @SuppressWarnings("unchecked")
-    private void checkEleType(NutMap vo) {
+    private void checkEleType(NutMap vo, WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
         Object eleType = vo.get("eleType");
         if (null != eleType) {
             // 字符串，就表示类型
@@ -198,10 +199,11 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
             // 一个完整的声明
             else if (eleType instanceof Map) {
                 NutMap map = NutMap.WRAP((Map<String, Object>) eleType);
-                checkEleType(map);
+                checkEleType(map, io, vars, caches);
                 WnValue wv = Lang.map2Object(map, WnValue.class);
+                wv.loadOptions(io, vars, caches);
                 if (wv.hasMapping()) {
-                    wv.getMapping().checkFields();
+                    wv.getMapping().checkFields(io, vars, caches);
                 }
                 vo.put("eleType", wv);
             }
