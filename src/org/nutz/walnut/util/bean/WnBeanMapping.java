@@ -89,6 +89,12 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
                 }
                 // 执行映射
                 else {
+                    if (onlyMapping) {
+                        if (fld.isIgnore(bean)) {
+                            continue;
+                        }
+                    }
+
                     String k2 = fld.getName(key);
                     Object v2 = fld.tryValueOptions(val);
                     Object v3 = WnValues.toValue(fld, v2);

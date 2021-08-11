@@ -1,6 +1,5 @@
 package org.nutz.walnut.util.validate.impl;
 
-import org.nutz.castor.Castors;
 import org.nutz.walnut.util.validate.WnMatch;
 
 public class BooleanMatch implements WnMatch {
@@ -13,11 +12,10 @@ public class BooleanMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        Boolean b = Castors.me().castTo(val, Boolean.class);
-        if (null == b) {
-            return false == expect;
+        if (null != val && (val instanceof Boolean)) {
+            return expect == ((Boolean) val).booleanValue();
         }
-        return this.expect == b;
+        return false;
     }
 
 }

@@ -1,8 +1,15 @@
 package org.nutz.walnut.util.bean;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class WnBeanField extends WnValue {
+
+    private Object visible;
+
+    private Object hidden;
 
     private String name;
 
@@ -15,6 +22,56 @@ public class WnBeanField extends WnValue {
      * 这样做的好处，是能有一个可预期的统一的输入，譬如 "%02d"这种转换，对方来个字符串，你就挂了。
      */
     private WnBeanField[] aliasFields;
+
+    private WnMatch __visible_match;
+
+    public WnMatch getVisibleMatch() {
+        if (this.__visible_match == null) {
+            if (null != this.visible) {
+                this.__visible_match = new AutoMatch(this.visible);
+            }
+        }
+        return this.__visible_match;
+    }
+
+    public Object getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Object visible) {
+        this.visible = visible;
+    }
+
+    private WnMatch __hidden_match;
+
+    public WnMatch getHiddenMatch() {
+        if (this.__hidden_match == null) {
+            if (null != this.hidden) {
+                this.__hidden_match = new AutoMatch(this.hidden);
+            }
+        }
+        return this.__hidden_match;
+    }
+
+    public Object getHidden() {
+        return hidden;
+    }
+
+    public void setHidden(Object hidden) {
+        this.hidden = hidden;
+    }
+
+    public boolean isIgnore(NutBean bean) {
+        WnMatch m = this.getHiddenMatch();
+        if (null != m && m.match(bean)) {
+            return true;
+        }
+        m = this.getVisibleMatch();
+        if (null != m) {
+            return !m.match(bean);
+        }
+        return false;
+    }
 
     public String getName() {
         return name;
