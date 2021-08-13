@@ -7,13 +7,14 @@ import java.util.List;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
 import org.nutz.walnut.ext.data.thing.util.Things;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
@@ -25,7 +26,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
     protected WnExecutable executor;
 
-    protected NutMap match;
+    protected Object match;
 
     protected Tmpl cmdTmpl;
 
@@ -60,7 +61,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
-    public DeleteThingAction setMatch(NutMap match) {
+    public DeleteThingAction setMatch(Object match) {
         this.match = match;
         return this;
     }
@@ -87,9 +88,13 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
                     // 看看是否匹配给定条件
                     if (null != this.match) {
-                        if (!match.match(oT)) {
+                        WnMatch wm = new AutoMatch(this.match);
+                        if (wm.match(oT)) {
                             throw Er.create("e.cmd.thing.EvilDelete", oT.id());
                         }
+                        // if (!match.match(oT)) {
+                        // throw Er.create("e.cmd.thing.EvilDelete", oT.id());
+                        // }
                     }
 
                     // 删除前的回调，控制删除

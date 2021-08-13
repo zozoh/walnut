@@ -129,7 +129,7 @@ public class cmd_jsc extends JvmExecutor {
         // 执行
         if (debug)
             sys.out.println("js=\n" + jsStr + "\n");
-        Object obj = JE.exec(new JvmJsExecContext(sys, sys.out), engineName, vars, jsStr);
+        Object obj = JE.exec(new JvmJsExecContext(sys), engineName, vars, jsStr);
         if (debug) {
             stopwatch.stop();
             sys.out.printlnf("runTime=%dms(%s)",

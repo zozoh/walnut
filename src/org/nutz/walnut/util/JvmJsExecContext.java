@@ -12,6 +12,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+import org.nutz.walnut.api.WnAuthExecutable;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.io.WnIo;
@@ -29,7 +30,9 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public class JvmJsExecContext implements JsExecContext {
 
-    private WnSystem sys;
+    private WnIo io;
+
+    private WnAuthExecutable sys;
 
     public WnOutputable out;
 
@@ -41,16 +44,60 @@ public class JvmJsExecContext implements JsExecContext {
 
     private static final Log _log = Wlog.getCMD();
 
+    public JvmJsExecContext(WnSystem sys) {
+        this(sys, sys.out, sys.err);
+    }
+
     public JvmJsExecContext(WnSystem sys, WnOutputable out) {
-        this.sys = sys;
-        this.in = sys.in;
-        this.out = out;
-        this.err = sys.err;
-        this.se = sys.session;
+        this(sys, out, out);
+    }
+
+    public JvmJsExecContext(WnSystem sys, WnOutputable out, WnOutputable err) {
+        this(sys.io, sys.session, sys, sys.in, out, err);
     }
 
     public JvmJsExecContext(WnSystem sys, StringBuilder sb) {
         this(sys, new JvmBoxOutput(Lang.ops(sb)));
+    }
+
+    public JvmJsExecContext(WnSystem sys, StringBuilder sbOut, StringBuilder sbErr) {
+        this(sys, new JvmBoxOutput(Lang.ops(sbOut)), new JvmBoxOutput(Lang.ops(sbErr)));
+    }
+
+    public JvmJsExecContext(WnIo io,
+                            WnAuthSession session,
+                            WnAuthExecutable runner,
+                            JvmBoxInput in,
+                            WnOutputable out,
+                            WnOutputable err) {
+        this.io = io;
+        this.se = session;
+        this.sys = runner;
+        this.in = in;
+        this.out = out;
+        this.err = err;
+    }
+
+    public JvmJsExecContext(WnIo io,
+                            WnAuthSession session,
+                            WnAuthExecutable runner,
+                            String input,
+                            StringBuilder sbOut,
+                            StringBuilder sbErr) {
+        this(io,
+             session,
+             runner,
+             new JvmBoxInput(Lang.ins(input)),
+             new JvmBoxOutput(Lang.ops(sbOut)),
+             new JvmBoxOutput(Lang.ops(sbErr)));
+    }
+
+    public JvmJsExecContext(WnIo io,
+                            WnAuthSession session,
+                            WnAuthExecutable runner,
+                            StringBuilder sbOut,
+                            StringBuilder sbErr) {
+        this(io, session, runner, null, sbOut, sbErr);
     }
 
     // 提供一下高级帮助方法
@@ -79,13 +126,13 @@ public class JvmJsExecContext implements JsExecContext {
     @Override
     public WnObj check(String ph) {
         String aph = Wn.normalizeFullPath(ph, se);
-        return sys.io.check(null, aph);
+        return io.check(null, aph);
     }
 
     // 提供低阶 IO 接口
     @Override
     public WnIo io() {
-        return sys.io;
+        return this.io;
     }
 
     // 这些方法直接委托了 WnSystem
@@ -182,13 +229,13 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public void writeText(String path, String data) {
-        WnObj o = Wn.checkObj(sys, path);
-        sys.io.writeText(o, data);
+        WnObj o = Wn.checkObj(io, se, path);
+        io.writeText(o, data);
     }
 
     public String readText(String path) {
-        WnObj o = Wn.checkObj(sys, path);
-        return sys.io.readText(o);
+        WnObj o = Wn.checkObj(io, se, path);
+        return io.readText(o);
     }
 
     public String readTextAt(String path, int off, int len) {
@@ -202,10 +249,10 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public byte[] readBytes(String path, int off, int len) {
-        WnObj o = Wn.checkObj(sys, path);
+        WnObj o = Wn.checkObj(io, se, path);
         WnIoHandle h = null;
         try {
-            h = sys.io.openHandle(o, Wn.Io.RW);
+            h = io.openHandle(o, Wn.Io.RW);
             if (off > 0)
                 h.seek(off);
             byte[] buf = new byte[len];

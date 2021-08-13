@@ -2,7 +2,6 @@ package org.nutz.walnut.ext.data.thing.hdl;
 
 import java.util.List;
 
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.thing.util.Things;
@@ -18,7 +17,7 @@ public class thing_delete implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         // 分析参数
         boolean hard = hc.params.is("hard");
-        NutMap match = hc.params.getMap("match");
+        Object match = hc.params.get("match");
 
         // 准备服务类
         WnObj oTs = Things.checkThingSet(hc.oRefer);

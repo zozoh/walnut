@@ -74,7 +74,8 @@ public class WnPager extends Pager {
             // this.sum_count = (int) io.count(q);
             // this.sum_page = (int) Math.ceil(((double) this.sum_count) /
             // ((double) this.limit));
-            long sum = io.count(q);
+            WnQuery q2 = q.clone(); // 为了防止 Io 篡改 query 的内容...
+            long sum = io.count(q2);
             this.setSumCount(sum);
         }
 

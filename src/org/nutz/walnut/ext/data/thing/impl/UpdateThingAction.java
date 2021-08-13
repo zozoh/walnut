@@ -11,6 +11,8 @@ import org.nutz.walnut.ext.data.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
 import org.nutz.walnut.ext.data.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.data.thing.util.Things;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class UpdateThingAction extends ThingAction<WnObj> {
 
@@ -20,7 +22,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     protected NutMap meta;
 
-    protected NutMap match;
+    protected Object match;
 
     protected ThingConf conf;
 
@@ -44,7 +46,7 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         return this;
     }
 
-    public UpdateThingAction setMatch(NutMap match) {
+    public UpdateThingAction setMatch(Object match) {
         this.match = match;
         return this;
     }
@@ -56,9 +58,13 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
         // 看看是否匹配给定条件
         if (null != this.match) {
-            if (!match.match(oT)) {
+            WnMatch wm = new AutoMatch(this.match);
+            if (wm.match(oT)) {
                 throw Er.create("e.cmd.thing.EvilUpdate", oT.id());
             }
+            // if (!match.match(oT)) {
+            // throw Er.create("e.cmd.thing.EvilUpdate", oT.id());
+            // }
         }
 
         // 确保 Thing 是可用的

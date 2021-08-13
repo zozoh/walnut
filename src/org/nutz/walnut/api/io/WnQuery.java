@@ -25,6 +25,23 @@ public class WnQuery {
         this.list = new ArrayList<NutMap>(5);
     }
 
+    public WnQuery clone() {
+        WnQuery q = new WnQuery();
+        q.skip = skip;
+        q.limit = limit;
+        if (null != this.sort) {
+            q.sort = this.sort.duplicate();
+        }
+        if (null != this.list) {
+            int size = Math.max(5, this.list.size());
+            q.list = new ArrayList<>(size);
+            for (NutMap li : this.list) {
+                q.list.add(li.duplicate());
+            }
+        }
+        return q;
+    }
+
     public WnQuery add(NutMap map) {
         list.add(map);
         return this;

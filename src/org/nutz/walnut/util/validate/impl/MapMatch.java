@@ -3,6 +3,7 @@ package org.nutz.walnut.util.validate.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.util.validate.WnMatch;
 
 public class MapMatch implements WnMatch {
@@ -39,7 +40,7 @@ public class MapMatch implements WnMatch {
         for (Map.Entry<String, WnMatch> en : matchs.entrySet()) {
             String key = en.getKey();
             WnMatch m = en.getValue();
-            Object v = map.get(key);
+            Object v = Mapl.cell(map, key);
             if (!m.match(v)) {
                 return false;
             }

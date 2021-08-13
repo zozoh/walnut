@@ -45,10 +45,13 @@ public class WnThingService {
     protected WnPathNormalizing pathNormalizing;
 
     public WnThingService(WnIo io, WnObj oTs) {
+        this(io, oTs, Wn.getObjHomePath(oTs));
+    }
+
+    public WnThingService(WnIo io, WnObj oTs, String homePath) {
         this.io = io;
         this.oTs = oTs;
         NutMap vars = new NutMap();
-        String homePath = Wn.appendPath(oTs.d0(), oTs.d1());
         vars.put("HOME", homePath);
         vars.put("PWD", homePath);
         this.pathNormalizing = new WnPathNormalizing() {
@@ -169,12 +172,12 @@ public class WnThingService {
     }
 
     public WnHttpResponseWriter fileRead(String dirName,
-                                   WnObj oT,
-                                   String fnm,
-                                   String etag,
-                                   String range,
-                                   String userAgent,
-                                   boolean quiet) {
+                                         WnObj oT,
+                                         String fnm,
+                                         String etag,
+                                         String range,
+                                         String userAgent,
+                                         boolean quiet) {
         FileReadAction a = _AD(new FileReadAction(), dirName, oT);
         a.fnm = fnm;
         a.etag = etag;
@@ -208,11 +211,11 @@ public class WnThingService {
     }
 
     public WnHttpResponseWriter mediaRead(WnObj oT,
-                                    String fnm,
-                                    String etag,
-                                    String range,
-                                    String userAgent,
-                                    boolean quiet) {
+                                          String fnm,
+                                          String etag,
+                                          String range,
+                                          String userAgent,
+                                          boolean quiet) {
         return this.fileRead("media", oT, fnm, etag, range, userAgent, quiet);
     }
 
@@ -239,11 +242,11 @@ public class WnThingService {
     }
 
     public WnHttpResponseWriter attachmentRead(WnObj oT,
-                                         String fnm,
-                                         String etag,
-                                         String range,
-                                         String userAgent,
-                                         boolean quiet) {
+                                               String fnm,
+                                               String etag,
+                                               String range,
+                                               String userAgent,
+                                               boolean quiet) {
         return this.fileRead("attachment", oT, fnm, etag, range, userAgent, quiet);
     }
 
@@ -363,7 +366,7 @@ public class WnThingService {
     }
 
     public List<WnObj> deleteThing(WnExecutable executor,
-                                   NutMap match,
+                                   Object match,
                                    boolean hard,
                                    Collection<String> ids) {
         DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(ids);
@@ -374,7 +377,7 @@ public class WnThingService {
     }
 
     public List<WnObj> deleteThing(WnExecutable executor,
-                                   NutMap match,
+                                   Object match,
                                    boolean hard,
                                    String... ids) {
         DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Lang.list(ids));
@@ -384,7 +387,7 @@ public class WnThingService {
         return a.invoke();
     }
 
-    public WnObj updateThing(String id, NutMap meta, WnExecutable executor, NutMap match) {
+    public WnObj updateThing(String id, NutMap meta, WnExecutable executor, Object match) {
         UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
