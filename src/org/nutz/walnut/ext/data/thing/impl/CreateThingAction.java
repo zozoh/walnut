@@ -211,8 +211,22 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // 根据链接键，自动修改元数据，返回的值是一组后续更新脚本
         List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
 
+        NutMap context = null;
+
         // 更新这个 Thing （因为从 uniqueKeys 里得到了之前的记录，这样可以导入防重）
         if (oT.hasID()) {
+            if (null != this.executor) {
+                // 准备回调上下文（更新）
+                context = new NutMap();
+                context.put("old", oT.clone());
+                context.put("update", meta);
+                context.put("obj", oT);
+
+                // 更新前的回调
+                Things.runCommands(context, conf.getOnBeforeUpdate(), executor);
+            }
+
+            // 更新这个 Thing
             io.appendMeta(oT, meta);
         }
         // 创建一个
@@ -237,6 +251,14 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             String[] on_created = conf.getOnCreated();
             if (null != this.executor && null != on_created && on_created.length > 0) {
                 Things.runCommands(oT, on_created, executor);
+                re_get = true;
+            }
+        }
+        // 否则执行更新回调的附加脚本
+        else if (null != context) {
+            String[] on_updated = conf.getOnUpdated();
+            if (null != on_updated && on_updated.length > 0) {
+                Things.runCommands(context, on_updated, executor);
                 re_get = true;
             }
         }

@@ -1,18 +1,24 @@
 package org.nutz.walnut.ext.util.react.action;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.nutz.json.Json;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
+import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnPager;
 
 public class ReactThingUpdateAction implements ReactActionHandler {
 
     @Override
     public void run(ReactActionContext r, ReactAction a) {
         // 防守
-        if (!a.hasMeta() || !a.hasPath() || !a.hasTargetId()) {
+        if (!a.hasMeta() || !a.hasPath()) {
             return;
         }
 
@@ -33,7 +39,35 @@ public class ReactThingUpdateAction implements ReactActionHandler {
         }
 
         // 执行
-        wts.updateThing(a.targetId, a.meta, exec, match);
+        if (a.hasTargetId()) {
+            wts.updateThing(a.targetId, a.meta, exec, match);
+        }
+        // 一个至多个
+        else if (a.hasQuery()) {
+            ThQuery tq = new ThQuery();
+            tq.qStr = Json.toJson(a.query);
+            if (a.hasParams()) {
+                int limit = a.params.getInt("limit", 0);
+                int skip = a.params.getInt("skip", 0);
+                if (limit > 0) {
+                    tq.wp = new WnPager(limit, skip);
+                }
+            }
+
+            // 首先执行查询
+            List<WnObj> list = wts.queryList(tq);
+
+            // 收集ID列表
+            List<String> ids = new ArrayList<>(list.size());
+            for (WnObj o : list) {
+                ids.add(o.id());
+            }
+
+            // 执行批量更新
+            for (String id : ids) {
+                wts.updateThing(id, a.meta, exec, match);
+            }
+        }
     }
 
 }

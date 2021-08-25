@@ -11,6 +11,8 @@ public class ReactAction {
 
     public String path;
 
+    public NutMap query;
+
     public NutMap params;
 
     public String targetId;
@@ -31,6 +33,7 @@ public class ReactAction {
 
     public void explain(NutBean vars) {
         this.path = (String) Wn.explainObj(vars, this.path);
+        this.query = (NutMap) Wn.explainObj(vars, this.query);
         this.params = (NutMap) Wn.explainObj(vars, this.params);
         this.targetId = (String) Wn.explainObj(vars, this.targetId);
         this.meta = (NutMap) Wn.explainObj(vars, this.meta);
@@ -44,6 +47,18 @@ public class ReactAction {
 
     public boolean hasPath() {
         return !Ws.isBlank(path);
+    }
+
+    public boolean hasQuery() {
+        return null != query && !query.isEmpty();
+    }
+
+    public NutMap getQuery() {
+        return query;
+    }
+
+    public void setQuery(NutMap query) {
+        this.query = query;
     }
 
     public boolean hasParams() {

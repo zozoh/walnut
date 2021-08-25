@@ -32,8 +32,8 @@ public class ReactThingClearAction implements ReactActionHandler {
 
         // 准备查询条件
         ThQuery tq = new ThQuery();
-        if (a.hasParams()) {
-            tq.qStr = Json.toJson(a.params);
+        if (a.hasQuery()) {
+            tq.qStr = Json.toJson(a.query);
         }
         if (a.hasSort()) {
             tq.sort = a.sort;

@@ -20,8 +20,8 @@ public class ReactObjClearAction implements ReactActionHandler {
 
         // 准备查询条件
         WnQuery q = new WnQuery();
-        if (a.hasParams()) {
-            q.setAllToList(a.params);
+        if (a.hasQuery()) {
+            q.setAllToList(a.query);
         }
         q.setv("pid", oP.id());
 
