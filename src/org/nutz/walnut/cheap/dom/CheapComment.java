@@ -13,6 +13,16 @@ public class CheapComment extends CheapText {
     }
 
     @Override
+    public CheapComment clone() {
+        return this.cloneSelf();
+    }
+
+    @Override
+    public CheapComment cloneSelf() {
+        return new CheapComment(this.text);
+    }
+
+    @Override
     public void joinString(StringBuilder sb) {
         sb.append("<!--");
         sb.append(text);

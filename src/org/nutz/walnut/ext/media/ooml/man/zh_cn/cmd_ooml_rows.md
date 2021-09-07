@@ -5,7 +5,7 @@
 # 用法
 
 ```bash
-o @rows
+ooml @rows
   [-cqn]       # 指定的格式化方式  
 ```
 

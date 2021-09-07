@@ -35,6 +35,14 @@ public abstract class CheapNode {
         this.props = new NutMap();
     }
 
+    @Override
+    public CheapNode clone() {
+        return this.cloneSelf();
+    }
+
+    public abstract CheapNode cloneSelf();
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         this.joinTree(sb, 0, "|  ");
@@ -416,7 +424,7 @@ public abstract class CheapNode {
         tagName = tagName.toUpperCase();
         CheapElement $p = (CheapElement) this.parent;
         while (null != $p) {
-            if ($p.isTagName(tagName)) {
+            if ($p.isStdTagName(tagName)) {
                 return $p;
             }
             $p = (CheapElement) $p.parent;
@@ -460,7 +468,7 @@ public abstract class CheapNode {
         }
         CheapElement $p = (CheapElement) this.parent;
         while (null != $p) {
-            if (null == tagName || $p.isTagName(tagName)) {
+            if (null == tagName || $p.isStdTagName(tagName)) {
                 ans.add($p);
             }
             $p = (CheapElement) $p.parent;
@@ -805,14 +813,13 @@ public abstract class CheapNode {
         CheapNode node = null;
         if (this.hasChildren()) {
             node = children.getFirst();
-            if (null == flt) {
-                return node;
-            }
-            while (null != node && !flt.match(node)) {
-                node = node.next;
+            if (null != flt) {
+                while (null != node && !flt.match(node)) {
+                    node = node.next;
+                }
             }
         }
-        return null;
+        return node;
     }
 
     public CheapNode getLastChild() {
@@ -827,11 +834,10 @@ public abstract class CheapNode {
         CheapNode node = null;
         if (this.hasChildren()) {
             node = children.getLast();
-            if (null == flt) {
-                return node;
-            }
-            while (null != node && !flt.match(node)) {
-                node = node.prev;
+            if (null != flt) {
+                while (null != node && !flt.match(node)) {
+                    node = node.prev;
+                }
             }
         }
         return node;

@@ -27,6 +27,16 @@ public class CheapRawData extends CheapNode {
     }
 
     @Override
+    public CheapRawData clone() {
+        return this.cloneSelf();
+    }
+
+    @Override
+    public CheapRawData cloneSelf() {
+        return new CheapRawData(this.text);
+    }
+
+    @Override
     public String toBrief() {
         return String.format("[%d]%s: ", this.getNodeIndex(), treeDisplayName);
     }

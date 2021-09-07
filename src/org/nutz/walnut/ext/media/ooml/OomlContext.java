@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.ext.media.ooml.util.OomlRowMapping;
 import org.nutz.walnut.impl.box.JvmFilterContext;
+import org.nutz.walnut.ooml.OomlEntry;
 import org.nutz.walnut.ooml.OomlPackage;
 import org.nutz.walnut.ooml.xlsx.XlsxSheet;
 import org.nutz.walnut.ooml.xlsx.XlsxWorkbook;
@@ -20,6 +21,8 @@ public class OomlContext extends JvmFilterContext {
     public OomlRowMapping mapping;
 
     public boolean onlyMapping;
+    
+    public OomlEntry currentEntry;
 
     public List<NutBean> tranlateBeans(List<NutBean> beans) {
         if (null == mapping) {

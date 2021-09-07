@@ -84,7 +84,7 @@ public class CheapDomReplaceWnObjId {
             re |= true;
 
             // 对于图片，那么需要重新设置一下 ID
-            if (el.isTagName("IMG") && el.hasAttr("src")) {
+            if (el.isStdTagName("IMG") && el.hasAttr("src")) {
                 String src = "/o/content?str=id:" + oTa.id();
                 el.attr("src", src);
             }

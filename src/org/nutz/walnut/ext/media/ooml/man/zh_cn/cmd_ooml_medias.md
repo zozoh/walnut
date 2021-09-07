@@ -5,7 +5,7 @@
 # 用法
 
 ```bash
-o @medias
+ooml @medias
   [-cqn]       # 指定的格式化方式  
 ```
 

@@ -33,15 +33,50 @@ public class CheapElement extends CheapNode {
 
     private boolean autoClosed;
 
+    private CheapElement() {
+        this.type = CheapNodeType.ELEMENT;
+        this.attrs = new NutMap();
+    }
+
     protected CheapElement(String tagName) {
         this(tagName, null);
     }
 
     protected CheapElement(String tagName, String className) {
-        this.type = CheapNodeType.ELEMENT;
+        this();
         this.setTagName(tagName);
         this.setClassName(className);
-        this.attrs = new NutMap();
+    }
+
+    @Override
+    public CheapElement clone() {
+        return this.cloneSelf();
+    }
+
+    @Override
+    public CheapElement cloneSelf() {
+        CheapElement el = new CheapElement();
+        el.uppercaseTagName = this.uppercaseTagName;
+        el.tagName = this.tagName;
+        if (null != this.className && !this.className.isEmpty()) {
+            el.className = new LinkedList<>();
+            el.className.addAll(this.className);
+        }
+        if (null != this.attrs) {
+            el.attrs.putAll(this.attrs);
+        }
+        el.closed = this.closed;
+        el.autoClosed = this.autoClosed;
+        // Clone Children
+        if (this.hasChildren()) {
+            CheapNode[] subList = new CheapNode[this.children.size()];
+            int i = 0;
+            for (CheapNode child : this.children) {
+                subList[i++] = child.clone();
+            }
+            el.append(subList);
+        }
+        return el;
     }
 
     public NutBean toBean() {
@@ -206,6 +241,9 @@ public class CheapElement extends CheapNode {
 
     @Override
     public void compact() {
+        if (!this.hasChildren()) {
+            return;
+        }
         List<CheapNode> list = new LinkedList<>();
         CheapNode lastNode = null;
         for (CheapNode child : children) {
@@ -327,7 +365,7 @@ public class CheapElement extends CheapNode {
                 return false;
             if (null == upperName)
                 return true;
-            return ((CheapElement) node).isTagName(upperName);
+            return ((CheapElement) node).isStdTagName(upperName);
         });
     }
 
@@ -341,7 +379,7 @@ public class CheapElement extends CheapNode {
                 return false;
             if (null == upperName)
                 return true;
-            return ((CheapElement) node).isTagName(upperName);
+            return ((CheapElement) node).isStdTagName(upperName);
         });
     }
 

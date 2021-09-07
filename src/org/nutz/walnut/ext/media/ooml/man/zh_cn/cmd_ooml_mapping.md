@@ -5,7 +5,7 @@
 # 用法
 
 ```bash
-o @mapping
+ooml @mapping
     [{..}]         # 映射关系（JSON）
     [-f /path/to]  # 指定映射关系存放的 JSON 文件
                    # 如果没有声明映射关系，会自动从标准输入读取

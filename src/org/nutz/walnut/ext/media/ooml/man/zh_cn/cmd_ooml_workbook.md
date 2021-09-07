@@ -5,7 +5,7 @@
 # 用法
 
 ```bash
-o @workbook
+ooml @workbook
     [xml ...]    # 指定要输出的方式，支持
                  #  - xml  : 工作簿的 XML 内容
                  #  - tree : 工作簿的 XML 按 tree 的形式展现

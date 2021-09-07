@@ -7,7 +7,7 @@
 # 用法
 
 ```bash
-o @exportsheet 
+ooml @exportsheet 
   [/path/to]         # 输出路径，默认是当前目录下的 "sheet" 目录
   [-head 0]          # 指定标题行，默认为 0, 表示第一行
                      # 标题行声明了对象的每个字段的键值

@@ -6,7 +6,7 @@
 # 用法
 
 ```bash
-o @xlsx
+ooml @xlsx
 ```
 
 # 示例

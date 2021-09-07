@@ -5,7 +5,7 @@
 # 用法
 
 ```bash
-o @sheet
+ooml @sheet
     [Index]      # 指定工作表的下标（0BASE）
                  # 如果没有声明，且也没有 -name/-id 参数
                  # 默认选择第一个工作表    

@@ -20,6 +20,16 @@ public class CheapText extends CheapRawData {
     }
 
     @Override
+    public CheapText clone() {
+        return this.cloneSelf();
+    }
+
+    @Override
+    public CheapText cloneSelf() {
+        return new CheapText(this.text);
+    }
+
+    @Override
     public void format(CheapFormatter cdf, int depth) {
         if (!this.isFormated() && this.isPlacehold()) {
             // 准备格式化文本
