@@ -9,11 +9,10 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapText;
-import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 
 /**
- * 针对一个占位符，跨越多个 w:r 节点的问题，用这个逻辑封装。适用于:
+ * 针对一个 w:p 处理占位符，跨越多个 w:r 节点的问题，用这个逻辑封装。适用于:
  * <ul>
  * <li><code>NORMAL</code> 普通展位符
  * <li><code>CHECKBOX</code> 选择框
@@ -69,7 +68,7 @@ public class OomlWRunList {
         String input = sb.toString();
         /**
          * <pre>
-         0: "${变量名<checkbox>==true?false:it}"
+         0: "${变量名#checkbox==true?false:it}"
          1: "变量名"
          2: "<checkbox>"
          3: "checkbox"
@@ -81,7 +80,7 @@ public class OomlWRunList {
          9: "it"
          * </pre>
          */
-        Pattern P = Pattern.compile("[$][{]([^}<?=:]+)(<([^>]+)>)?(==([^:?}]+))?([?]([^:}]*))?(:([^}]+))?[}]");
+        Pattern P = Pattern.compile("[$][{]([^}#?=:]+)(#([^=:?]+))?(==([^:?}]+))?([?]([^:}]*))?(:([^}]+))?[}]");
         Matcher m = P.matcher(input);
         offset = 0;
         while (m.find()) {
@@ -122,21 +121,31 @@ public class OomlWRunList {
     }
 
     public void explain(NutBean vars) {
+        this.explain(vars, null);
+    }
+
+    public void explain(NutBean vars, OomlExplainCallback callback) {
         // 循环处理占位符
         for (OomlWPlaceholder ph : this.placeholders) {
+            String val = null;
             // 普通占位符
             if (ph.isNormal()) {
-                this.explainNormal(ph, vars);
+                val = this.explainNormal(ph, vars);
             }
             // 选择框占位符
             else if (ph.isCheckbox()) {
-                this.explainCheckbox(ph, vars);
+                val = this.explainCheckbox(ph, vars);
             }
             // 其他的不支持
+
+            // 调用回调
+            if (null != callback) {
+                callback.invoke(ph, val);
+            }
         }
     }
 
-    public boolean splitWrTfromPos(CheapElement wR, int pos) {
+    private boolean splitWrTfromPos(CheapElement wR, int pos) {
         CheapElement wT = wR.getFirstChildElement("w:t");
         CheapText wTnode = (CheapText) wT.getFirstChild(node -> node.isText());
         String str = wTnode.getText();
@@ -148,7 +157,7 @@ public class OomlWRunList {
         return false;
     }
 
-    public CheapText splitWrTtoPos(CheapElement wR, int pos) {
+    private CheapText splitWrTtoPos(CheapElement wR, int pos) {
         CheapElement wT = wR.getFirstChildElement("w:t");
         CheapText wTnode = (CheapText) wT.getFirstChild(node -> node.isText());
         String str = wTnode.getText();
@@ -157,7 +166,7 @@ public class OomlWRunList {
         return wTnode;
     }
 
-    public void explainNormal(OomlWPlaceholder ph, NutBean vars) {
+    private String explainNormal(OomlWPlaceholder ph, NutBean vars) {
         // 获取变量值
         String val = vars.getString(ph.getName(), ph.getDefaultValue());
         val = Ws.sBlank(val, "-Empty-");
@@ -204,11 +213,126 @@ public class OomlWRunList {
                 wrEnd.remove();
             }
         }
+
+        return val;
     }
 
-    public void explainCheckbox(OomlWPlaceholder ph, NutBean vars) {
+    private CheapElement insertRunNodeAfter(CheapElement wR) {
+        CheapDocument doc = wR.getOwnerDocument();
+        CheapElement rPr = wR.getFirstChildElement("w:rPr");
+        CheapElement newWr = doc.createElement("w:r");
+        rPr.clone().appendTo(newWr);
+        wR.insertNext(newWr);
+        return newWr;
+    }
+
+    /**
+     * 转换 checkbox 采用的字符：
+     * 
+     * <ul>
+     * <li>勾选（True）： <code>w:sym w:font="Wingdings" w:char="F0FE"</code>
+     * <li>不选（False）：<code>w:sym w:font="Wingdings" w:char="F0A8"</code>
+     * </ul>
+     * 
+     * @param ph
+     * @param vars
+     */
+    private String explainCheckbox(OomlWPlaceholder ph, NutBean vars) {
         // 获取变量值
-        throw Wlang.noImplement();
+        String val = vars.getString(ph.getName(), ph.getDefaultValue());
+        val = Ws.sBlank(val, "false");
+
+        // 准备测试值
+        String testVal = ph.getBoolTest("true");
+
+        // 准备显示值
+        String disVal = val.equals(testVal) ? "F0FE" : "F0A8";
+
+        // 得到开始与结束的标记 <w:r>
+        OomlWPhMark rBegin = ph.getRunBegin();
+        OomlWPhMark rEnd = ph.getRunEnd();
+        CheapElement wrBegin = this.getRunNode(rBegin.index);
+        CheapElement wrEnd = this.getRunNode(rEnd.index);
+        CheapDocument doc = wrBegin.getOwnerDocument();
+
+        // 准备符号节点
+        CheapElement wSym = doc.createElement("w:sym");
+        wSym.attr("w:font", "Wingdings");
+        wSym.attr("w:char", disVal);
+        wSym.setClosed(true);
+
+        // 如果根本就是一个节点
+        if (wrBegin == wrEnd) {
+            CheapElement wT = wrBegin.getFirstChildElement("w:t");
+            CheapText wTnode = (CheapText) wT.getFirstChild(node -> node.isText());
+            String str = wTnode.getText();
+            String s2 = str.substring(0, rBegin.offset);
+            wTnode.setText(s2);
+
+            // 如果文本为空，直接替换为标记
+            if (Ws.isEmpty(s2)) {
+                wT.remove();
+                wSym.appendTo(wrBegin);
+            }
+            // 创建新的 Run 以便插入标记
+            else {
+                CheapElement wR2 = this.insertRunNodeAfter(wrBegin);
+                wSym.appendTo(wR2);
+            }
+
+            // 如果之前的文本节点为空，直接删掉
+            if (Ws.isEmpty(s2)) {
+                wrBegin.remove();
+            }
+
+            // 插入尾部节点
+            String s3 = str.substring(rEnd.offset + 1);
+            if (!Ws.isEmpty(s3)) {
+                CheapElement wR3 = this.insertRunNodeAfter(wSym);
+                CheapElement wT3 = doc.createElement("w:t");
+                if (s3.contains(" ")) {
+                    wT3.attr("xml:space", "preserve");
+                }
+                wT3.setText(s3);
+                wT3.append(wR3);
+            }
+        }
+        // 那么就要进行一下稍微复杂点的操作了
+        else {
+            // 将开始标记所在的 <w:r>，切分前一半，并将文本节点 <w:t> 后面追加上变量值
+            CheapText wT = this.splitWrTtoPos(wrBegin, rBegin.offset);
+
+            // 如果文本为空，直接替换为标记
+            if (Ws.isEmpty(wT.getText())) {
+                wT.getParent().remove();
+                wSym.appendTo(wrBegin);
+            }
+            // 创建新的 Run 以便插入标记
+            else {
+                CheapElement wR2 = this.insertRunNodeAfter(wrBegin);
+                wSym.appendTo(wR2);
+            }
+
+            // 删除开始标记所在元素至结束标记中间的节点
+            int n = this.runNodes.size();
+            if (n > 2) {
+                CheapElement[] rNodes = new CheapElement[n];
+                this.runNodes.toArray(rNodes);
+                int lastI = rEnd.index;
+                for (int i = rBegin.index + 1; i < lastI; i++) {
+                    CheapElement node = rNodes[i];
+                    node.remove();
+                }
+            }
+
+            // 将结束占位符，切分后一半
+            // 如果都空了，那么就整个删掉
+            if (this.splitWrTfromPos(wrEnd, rEnd.offset + 1)) {
+                wrEnd.remove();
+            }
+        }
+
+        return val;
     }
 
     public List<CheapElement> getRunNodes() {

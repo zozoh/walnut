@@ -31,60 +31,78 @@
   xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
   xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
   xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh wp14">
-  <w:background w:color="FFFFFF"/>
   <w:body>
-    <w:p w14:paraId="7E6DCF66" w14:textId="3D2821F9" w:rsidR="00323935" w:rsidRDefault="00A2602F">
+    <w:p w14:paraId="0FEFAF2D" w14:textId="1B1FF0F5" w:rsidR="00A10A7B" w:rsidRDefault="00F505A8" w:rsidP="000D7209">
       <w:pPr>
-        <w:snapToGrid w:val="0"/>
-        <w:spacing w:afterLines="50" w:after="156"/>
+        <w:spacing w:line="500" w:lineRule="exact"/>
+        <w:ind w:leftChars="-69" w:left="-25" w:hangingChars="50" w:hanging="120"/>
         <w:rPr>
+          <w:rFonts w:ascii="宋体" w:hAnsi="宋体"/>
           <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
         </w:rPr>
       </w:pPr>
-      <w:r w:rsidRPr="00890C6E">
+      <w:r w:rsidRPr="00C57C18">
         <w:rPr>
-          <w:rFonts w:hint="eastAsia"/>
+          <w:rFonts w:ascii="宋体" w:hAnsi="宋体" w:hint="eastAsia"/>
           <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
         </w:rPr>
-        <w:t>哪吒三太子</w:t>
+        <w:t xml:space="preserve">需重新制发证书文件：  </w:t>
       </w:r>
-      <w:r w:rsidR="00D93ACD">
+      <w:r w:rsidR="00F7798E" w:rsidRPr="00B33E2F">
         <w:rPr>
+          <w:rFonts w:ascii="微软雅黑 Light" w:eastAsia="微软雅黑 Light" w:hAnsi="微软雅黑 Light"/>
+          <w:b/>
+          <w:bCs/>
           <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
         </w:rPr>
-        <w:t>}</w:t>
+        <w:sym w:font="Wingdings" w:char="F0FE"/>
       </w:r>
-      <w:r w:rsidR="00A269FF">
+      <w:r w:rsidR="00D0732C">
         <w:rPr>
+          <w:rFonts w:ascii="微软雅黑 Light" w:eastAsia="微软雅黑 Light" w:hAnsi="微软雅黑 Light"/>
+          <w:b/>
+          <w:bCs/>
           <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
-        </w:rPr>
-        <w:t>_abc</w:t>
-      </w:r>
-      <w:r w:rsidR="007201EE">
-        <w:rPr>
-          <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
         </w:rPr>
         <w:t xml:space="preserve"></w:t>
       </w:r>
-      <w:r>
+      <w:r w:rsidRPr="00B33E2F">
         <w:rPr>
+          <w:rFonts w:ascii="微软雅黑 Light" w:eastAsia="微软雅黑 Light" w:hAnsi="微软雅黑 Light" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
           <w:sz w:val="24"/>
-          <w:szCs w:val="28"/>
         </w:rPr>
-        <w:t>这是一个爽朗的笑声</w:t>
+        <w:t>是</w:t>
+      </w:r>
+      <w:r w:rsidRPr="00C57C18">
+        <w:rPr>
+          <w:rFonts w:ascii="宋体" w:hAnsi="宋体" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+      <w:r w:rsidR="00F7798E">
+        <w:rPr>
+          <w:rFonts w:ascii="宋体" w:hAnsi="宋体"/>
+          <w:sz w:val="24"/>
+        </w:rPr>
+        <w:sym w:font="Wingdings" w:char="F0A8"/>
+      </w:r>
+      <w:r w:rsidRPr="00C57C18">
+        <w:rPr>
+          <w:rFonts w:ascii="宋体" w:hAnsi="宋体" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+        </w:rPr>
+        <w:t>否</w:t>
       </w:r>
     </w:p>
-    <w:sectPr w:rsidR="00A2602F">
-      <w:headerReference w:type="default" r:id="rId6"/>
-      <w:footerReference w:type="default" r:id="rId7"/>
+    <w:sectPr w:rsidR="000838B4" w:rsidRPr="00C57C18" w:rsidSect="00C202C6">
+      <w:footerReference w:type="first" r:id="rId6"/>
       <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1134" w:right="1134" w:bottom="964" w:left="1134" w:header="851" w:footer="567" w:gutter="0"/>
-      <w:cols w:space="720"/>
+      <w:pgMar w:top="1134" w:right="1418" w:bottom="567" w:left="1418" w:header="851" w:footer="992" w:gutter="0"/>
+      <w:cols w:space="425"/>
+      <w:titlePg/>
       <w:docGrid w:type="lines" w:linePitch="312"/>
     </w:sectPr>
   </w:body>

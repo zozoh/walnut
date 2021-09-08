@@ -42,6 +42,8 @@ public abstract class CheapNode {
 
     public abstract CheapNode cloneSelf();
 
+    public abstract void decodeEntities();
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -64,6 +66,17 @@ public abstract class CheapNode {
     public abstract void joinText(StringBuilder sb);
 
     public abstract void compact();
+
+    /**
+     * 如果未声明过滤器，或者过滤器返回真(True)，那么本函数行为与 compact 一致。 否则会导致跳过本节点的 compact 操作。
+     * <p>
+     * 这个函数对于仅仅希望压缩特定节点非常有用。譬如 OOML 里的 xml:space="preserve"， 明确指明了本节点要保留空格。<br>
+     * 通过这个函数就比较容易做到仅仅压缩那些对空格不敏感的文本节点
+     * 
+     * @param flt
+     *            过滤器
+     */
+    public abstract void compactWith(CheapNodeFilter flt);
 
     public int getAsInt() {
         String str = Ws.trim(this.getText());

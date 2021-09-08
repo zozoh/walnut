@@ -2,6 +2,7 @@ package org.nutz.walnut.cheap.dom;
 
 import java.util.regex.Pattern;
 
+import org.nutz.walnut.cheap.Cheaps;
 import org.nutz.walnut.util.Ws;
 
 public class CheapRawData extends CheapNode {
@@ -34,6 +35,11 @@ public class CheapRawData extends CheapNode {
     @Override
     public CheapRawData cloneSelf() {
         return new CheapRawData(this.text);
+    }
+
+    @Override
+    public void decodeEntities() {
+        this.text = Cheaps.decodeEntities(this.text);
     }
 
     @Override
@@ -75,10 +81,15 @@ public class CheapRawData extends CheapNode {
 
     @Override
     public void compact() {
-        if (null != text) {
-            if (text.length() > 0) {
-                text = Ws.trim(text);
-                if (text.length() == 0) {
+        this.compactWith(null);
+    }
+
+    @Override
+    public void compactWith(CheapNodeFilter flt) {
+        if (null != text && text.length() > 0) {
+            if (null == flt || flt.match(this)) {
+                String s = Ws.trim(text);
+                if (s.length() == 0) {
                     text = " ";
                 }
             }

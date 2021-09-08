@@ -28,7 +28,7 @@ public class OomlWPlaceholder {
         }
         if (null != type && !this.isNormal()) {
             String typeName = Ws.kebabCase(this.type.toString());
-            sb.append('<').append(typeName).append('>');
+            sb.append('#').append(typeName);
         }
         if (null != boolTest) {
             sb.append("==").append(boolTest);
@@ -130,6 +130,10 @@ public class OomlWPlaceholder {
 
     public String getBoolTest() {
         return boolTest;
+    }
+
+    public String getBoolTest(String dft) {
+        return Ws.sBlank(boolTest, dft);
     }
 
     public void setBoolTest(String boolTest) {

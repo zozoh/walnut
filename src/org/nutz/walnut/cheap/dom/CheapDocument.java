@@ -120,6 +120,14 @@ public class CheapDocument {
         $root.compact();
     }
 
+    public void compactWith(CheapNodeFilter flt) {
+        $root.compactWith(flt);
+    }
+
+    public void compactWithEl(CheapFilter flt) {
+        $root.compactWithEl(flt);
+    }
+
     final static CheapFormatter CDF_XML = new CheapFormatter("^.+$", "^.+$");
     final static CheapFormatter CDF_HTML = new CheapFormatter(true);
 

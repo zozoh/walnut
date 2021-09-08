@@ -79,6 +79,15 @@ public class CheapElement extends CheapNode {
         return el;
     }
 
+    @Override
+    public void decodeEntities() {
+        if (this.hasChildren()) {
+            for (CheapNode node : this.children) {
+                node.decodeEntities();
+            }
+        }
+    }
+
     public NutBean toBean() {
         NutMap bean = new NutMap();
         bean.put("tagName", tagName);
@@ -241,9 +250,19 @@ public class CheapElement extends CheapNode {
 
     @Override
     public void compact() {
+        this.compactWith(null);
+    }
+
+    public void compactWith(CheapNodeFilter flt) {
+        // 没必要
         if (!this.hasChildren()) {
             return;
         }
+        // 未符合过滤器
+        if (null != flt && !flt.match(this)) {
+            return;
+        }
+        // 压缩自己
         List<CheapNode> list = new LinkedList<>();
         CheapNode lastNode = null;
         for (CheapNode child : children) {
@@ -262,8 +281,20 @@ public class CheapElement extends CheapNode {
         this.setChildren(list);
         // 向下递归
         for (CheapNode child : children) {
-            child.compact();
+            child.compactWith(flt);
         }
+    }
+
+    public void compactWithEl(CheapFilter flt) {
+        this.compactWith(new CheapNodeFilter() {
+            public boolean match(CheapNode node) {
+                if (null != flt && node.isElement()) {
+                    CheapElement el = (CheapElement) node;
+                    return flt.match(el);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -287,7 +318,7 @@ public class CheapElement extends CheapNode {
 
     @Override
     public void joinString(StringBuilder sb) {
-        // 输出的标签名强制小写
+        // 输出的标签名
         String displayTagName = tagName;
 
         // 标签开始
