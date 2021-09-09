@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.media.ooml.tmpl;
+package org.nutz.walnut.ext.media.ooml.impl;
 
 import static org.junit.Assert.*;
 
@@ -12,7 +12,7 @@ import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 
 public class OomlWRunListTest {
 
-    static String basePh = "org/nutz/walnut/ext/media/ooml/tmpl/data/";
+    static String basePh = "org/nutz/walnut/ext/media/ooml/impl/data/";
 
     @Test
     public void test_checkbox() {

@@ -693,6 +693,32 @@ public abstract class CheapNode {
         return prev;
     }
 
+    public CheapElement getPrevElement() {
+        return this.getPrevElement(null);
+    }
+
+    public CheapElement getPrevElementByName(String tagName) {
+        if (null == tagName) {
+            return this.getPrevElement(null);
+        }
+        String upperName = tagName.toUpperCase();
+        return this.getPrevElement(el -> el.isStdTagName(upperName));
+    }
+
+    public CheapElement getPrevElement(CheapFilter flt) {
+        CheapNode n2 = this.prev;
+        while (n2 != null) {
+            if (n2.isElement()) {
+                CheapElement el = (CheapElement) n2;
+                if (null == flt || flt.match(el)) {
+                    return el;
+                }
+            }
+            n2 = n2.prev;
+        }
+        return null;
+    }
+
     public LinkedList<CheapNode> getPrevSiblings() {
         LinkedList<CheapNode> list = new LinkedList<>();
         CheapNode $node = this.prev;
@@ -709,6 +735,32 @@ public abstract class CheapNode {
 
     public CheapNode getNextSibling() {
         return next;
+    }
+
+    public CheapElement getNextElement() {
+        return this.getNextElement(null);
+    }
+
+    public CheapElement getNextElementByName(String tagName) {
+        if (null == tagName) {
+            return this.getNextElement(null);
+        }
+        String upperName = tagName.toUpperCase();
+        return this.getNextElement(el -> el.isStdTagName(upperName));
+    }
+
+    public CheapElement getNextElement(CheapFilter flt) {
+        CheapNode n2 = this.next;
+        while (n2 != null) {
+            if (n2.isElement()) {
+                CheapElement el = (CheapElement) n2;
+                if (null == flt || flt.match(el)) {
+                    return el;
+                }
+            }
+            n2 = n2.next;
+        }
+        return null;
     }
 
     public LinkedList<CheapNode> getNextSiblings() {

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.media.ooml.tmpl;
+package org.nutz.walnut.ext.media.ooml.impl;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class OomlWRunList {
          * <pre>
          0: "${变量名#checkbox==true?false:it}"
          1: "变量名"
-         2: "<checkbox>"
+         2: "#checkbox"
          3: "checkbox"
          4: "==true"
          5: "true"
@@ -121,27 +121,16 @@ public class OomlWRunList {
     }
 
     public void explain(NutBean vars) {
-        this.explain(vars, null);
-    }
-
-    public void explain(NutBean vars, OomlExplainCallback callback) {
-        // 循环处理占位符
         for (OomlWPlaceholder ph : this.placeholders) {
-            String val = null;
             // 普通占位符
             if (ph.isNormal()) {
-                val = this.explainNormal(ph, vars);
+                this.explainNormal(ph, vars);
             }
             // 选择框占位符
             else if (ph.isCheckbox()) {
-                val = this.explainCheckbox(ph, vars);
+                this.explainCheckbox(ph, vars);
             }
             // 其他的不支持
-
-            // 调用回调
-            if (null != callback) {
-                callback.invoke(ph, val);
-            }
         }
     }
 

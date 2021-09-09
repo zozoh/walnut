@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.media.ooml.tmpl;
+package org.nutz.walnut.ext.media.ooml.impl;
 
 public class OomlWPhMark {
 

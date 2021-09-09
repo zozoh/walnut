@@ -386,31 +386,41 @@ public class CheapElement extends CheapNode {
         return list;
     }
 
+    public CheapElement getFirstChildElement() {
+        return this.getFirstChildElement(null);
+    }
+
     public CheapElement getFirstChildElement(String tagName) {
-        if (null == tagName)
-            return null;
-        tagName = tagName.toUpperCase();
         String upperName = tagName;
+        if (null != tagName) {
+            upperName = tagName.toUpperCase();
+        }
+        String UNM = upperName;
         return (CheapElement) this.getFirstChild(node -> {
             if (!node.isElement())
                 return false;
-            if (null == upperName)
+            if (null == UNM)
                 return true;
-            return ((CheapElement) node).isStdTagName(upperName);
+            return ((CheapElement) node).isStdTagName(UNM);
         });
     }
 
+    public CheapElement getLastChildElement() {
+        return this.getLastChildElement(null);
+    }
+
     public CheapElement getLastChildElement(String tagName) {
-        if (null == tagName)
-            return null;
-        tagName = tagName.toUpperCase();
         String upperName = tagName;
+        if (null != tagName) {
+            upperName = tagName.toUpperCase();
+        }
+        String UNM = upperName;
         return (CheapElement) this.getLastChild(node -> {
             if (!node.isElement())
                 return false;
-            if (null == upperName)
+            if (null == UNM)
                 return true;
-            return ((CheapElement) node).isStdTagName(upperName);
+            return ((CheapElement) node).isStdTagName(UNM);
         });
     }
 

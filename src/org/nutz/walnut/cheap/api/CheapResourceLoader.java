@@ -1,4 +1,4 @@
-package org.nutz.walnut.cheap.dom;
+package org.nutz.walnut.cheap.api;
 
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
 

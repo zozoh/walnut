@@ -7,11 +7,11 @@ import java.util.zip.ZipInputStream;
 
 import org.nutz.json.JsonField;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.util.Wpath;
 
 public class OomlEntry {
 
@@ -23,14 +23,14 @@ public class OomlEntry {
 
     private long size;
 
-    @JsonField(ignore=true)
+    @JsonField(ignore = true)
     private byte[] content;
 
     public OomlEntry() {}
 
     public OomlEntry(ZipEntry en, ZipInputStream zip, byte[] bs) throws IOException {
         this.path = en.getName();
-        this.type = Files.getSuffixName(this.path);
+        this.type = Wpath.getSuffixName(this.path);
         this.size = en.getSize();
         this.race = en.isDirectory() ? WnRace.DIR : WnRace.FILE;
 
@@ -83,12 +83,25 @@ public class OomlEntry {
         this.type = type;
     }
 
+    public String getRelsPath() {
+        String name = Wpath.getName(path);
+        return "word/_rels/" + name + ".rels";
+    }
+
     public String getPath() {
         return path;
     }
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getSuffixName() {
+        return Wpath.getSuffixName(this.path);
+    }
+
+    public void renameSuffix(String suffixName) {
+        this.path = Wpath.renameSuffix(path, suffixName);
     }
 
     public long getSize() {
@@ -115,15 +128,19 @@ public class OomlEntry {
         this.race = race;
     }
 
-    public byte[] getContent() {
-        return this.content;
-    }
-
     public String getContentStr(Charset encoding) {
         return new String(this.content, encoding);
     }
 
     public String getContentStr() {
         return new String(this.content, Encoding.CHARSET_UTF8);
+    }
+
+    public byte[] getContent() {
+        return this.content;
+    }
+
+    public void setContent(byte[] content) {
+        this.content = content;
     }
 }

@@ -13,9 +13,9 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.cheap.dom.docx.CheapDocxRendering;
+import org.nutz.walnut.cheap.impl.WnCheapResourceLoader;
 import org.nutz.walnut.ext.media.dom.DomContext;
 import org.nutz.walnut.ext.media.dom.DomFilter;
-import org.nutz.walnut.ext.media.dom.docx.WnDocxResourceLoader;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
@@ -80,7 +80,7 @@ public class dom_docx extends DomFilter {
                 wp.getMainDocumentPart().getContent().clear();
                 Streams.safeClose(ins);
             }
-            WnDocxResourceLoader loader = new WnDocxResourceLoader(sys);
+            WnCheapResourceLoader loader = new WnCheapResourceLoader(sys);
             CheapDocxRendering ing = new CheapDocxRendering(fc.doc, wp, style, varsData, loader);
             ing.render();
             wp.save(out);

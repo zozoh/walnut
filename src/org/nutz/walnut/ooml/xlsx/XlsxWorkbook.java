@@ -32,7 +32,7 @@ public class XlsxWorkbook extends XlsxObj {
         this.loadRelationships();
 
         // 解析统一字符串表
-        String target = this.rels.getTargetBy(OomlRelType.SHARED_STRING);
+        String target = this.rels.getTargetBy(OomlRelType.SHARED_STRINGS);
         String aph = Wpath.appendPath(this.parentPath, target);
         this.loadSharedStrings(aph);
 

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.media.ooml.tmpl;
+package org.nutz.walnut.ext.media.ooml.impl;
 
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.util.Ws;
@@ -69,6 +69,20 @@ public class OomlWPlaceholder {
             ph.runEnd = this.runEnd.clone();
         }
         return ph;
+    }
+
+    public boolean isLoop() {
+        return OomlWPhType.P_BEGIN == this.type || OomlWPhType.TR_BEGIN == this.type;
+    }
+
+    public String getLoopEndMark() {
+        if (OomlWPhType.P_BEGIN == this.type) {
+            return String.format("${%s#p-end}", name);
+        }
+        if (OomlWPhType.TR_BEGIN == this.type) {
+            return String.format("${%s#tr-end}", name);
+        }
+        return null;
     }
 
     public boolean hasName() {

@@ -7,6 +7,7 @@ import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
+import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
 
 public class CheapResource {
@@ -41,6 +42,10 @@ public class CheapResource {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSuffixName() {
+        return Wpath.getSuffixName(name);
     }
 
     public byte[] getContent() {

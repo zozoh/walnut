@@ -127,6 +127,31 @@ public abstract class Wpath {
     }
 
     /**
+     * 修改后缀名
+     * 
+     * @param path
+     *            路径
+     * @param suffixName
+     *            新的后缀名（不包括 .）
+     * @return 新路径
+     */
+    public static String renameSuffix(String path, String suffixName) {
+        if (!Strings.isBlank(path)) {
+            String suffix = "";
+            if (!Ws.isBlank(suffixName)) {
+                suffix = "." + suffixName;
+            }
+            int pa = path.lastIndexOf('.');
+            int pb = path.replace('\\', '/').lastIndexOf('/');
+            if (pa >= 0 && pa > pb)
+                return path.substring(0, pa) + suffix;
+
+            return path + suffix;
+        }
+        return suffixName;
+    }
+
+    /**
      * @param path
      *            路径
      * @return 父路径

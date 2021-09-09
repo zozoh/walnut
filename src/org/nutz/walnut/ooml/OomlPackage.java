@@ -2,6 +2,7 @@ package org.nutz.walnut.ooml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.nutz.lang.Streams;
+import org.nutz.walnut.cheap.dom.CheapDocument;
 
 /**
  * 封装了一个 <code>OOML</code> 包的实体结构，以及读取方式
@@ -21,6 +23,16 @@ public class OomlPackage {
     private List<OomlEntry> list;
 
     private Map<String, OomlEntry> entries;
+
+    private Map<String, OomlRels> relsCache;
+
+    private OomlContentTypes contentTypes;
+
+    public OomlPackage() {
+        this.list = new LinkedList<>();
+        this.entries = new HashMap<>();
+        this.relsCache = new HashMap<>();
+    }
 
     /**
      * 从输入流读取全部实体，以及内容，然后关闭输入流
@@ -73,6 +85,75 @@ public class OomlPackage {
         return entries.get(path);
     }
 
+    public CheapDocument loadEntryAsXml(String path) {
+        OomlEntry en = this.getEntry(path);
+        if (null == en) {
+            return null;
+        }
+        return Oomls.parseEntryAsXml(en);
+    }
+
+    /**
+     * 根据指定的正则表达式规定的路径，获取指定的文档条目。
+     * 
+     * @param regex
+     *            表示条目路径。被这个正则表达式匹配的条目，才会被返回。<br>
+     *            如果为 null 则表示返回全部条目
+     * @return 符合正则表达式的全部条目
+     */
+    public List<OomlEntry> findEntriesByPath(String regex) {
+        List<OomlEntry> re = new ArrayList<>(list.size());
+        for (OomlEntry en : list) {
+            String rph = en.getPath();
+            if (null == regex || rph.matches(regex)) {
+                re.add(en);
+            }
+        }
+        return re;
+    }
+
+    public OomlRels loadRelationships(OomlEntry en) {
+        String rph = en.getRelsPath();
+        OomlRels rels = relsCache.get(rph);
+        if (null == rels) {
+            OomlEntry ree = this.getEntry(rph);
+            rels = new OomlRels(ree);
+            relsCache.put(rph, rels);
+        }
+        return rels;
+    }
+
+    public void saveAllRelationshipsFromCache() {
+        if (!relsCache.isEmpty()) {
+            for (Map.Entry<String, OomlRels> it : relsCache.entrySet()) {
+                String rph = it.getKey();
+                OomlRels rel = it.getValue();
+                OomlEntry en = this.getEntry(rph);
+                byte[] content = rel.toByte();
+                en.setContent(content);
+            }
+        }
+    }
+
+    public OomlContentTypes loadContentTypes() {
+        if (null == this.contentTypes) {
+            String rph = "[Content_Types].xml";
+            OomlEntry en = this.getEntry(rph);
+            String xml = en.getContentStr();
+            this.contentTypes = new OomlContentTypes(xml);
+        }
+        return this.contentTypes;
+    }
+
+    public void saveContentTypes() {
+        if (null != this.contentTypes) {
+            String rph = "[Content_Types].xml";
+            OomlEntry en = this.getEntry(rph);
+            byte[] content = this.contentTypes.toByte();
+            en.setContent(content);
+        }
+    }
+
     /**
      * 保持顺序的获取本包全部项目
      * <p>
@@ -88,7 +169,13 @@ public class OomlPackage {
      * 重置包内容
      */
     public void reset() {
-        this.list = new LinkedList<>();
-        this.entries = new HashMap<>();
+        this.list.clear();
+        this.entries.clear();
+        this.contentTypes = null;
+        this.clearCache();
+    }
+
+    public void clearCache() {
+        this.relsCache.clear();
     }
 }
