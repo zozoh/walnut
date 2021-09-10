@@ -9,7 +9,7 @@ import org.nutz.walnut.cheap.dom.CheapFilter;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.ooml.OomlEntry;
 import org.nutz.walnut.ooml.OomlPackage;
-import org.nutz.walnut.ooml.OomlRelType;
+import org.nutz.walnut.ooml.OomlRel;
 import org.nutz.walnut.ooml.OomlRels;
 import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
@@ -32,7 +32,7 @@ public class XlsxWorkbook extends XlsxObj {
         this.loadRelationships();
 
         // 解析统一字符串表
-        String target = this.rels.getTargetBy(OomlRelType.SHARED_STRINGS);
+        String target = this.rels.getTargetBy(OomlRel.SHARED_STRINGS);
         String aph = Wpath.appendPath(this.parentPath, target);
         this.loadSharedStrings(aph);
 

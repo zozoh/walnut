@@ -14,20 +14,9 @@ import org.nutz.walnut.util.Wpath;
 
 public class OomlRels {
 
-    private static String PFX = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
-    private static final Map<String, OomlRelType> TYPES = new HashMap<>();
-
-    static {
-        TYPES.put(PFX + "drawing", OomlRelType.DRAWING);
-        TYPES.put(PFX + "image", OomlRelType.IMAGE);
-        TYPES.put(PFX + "sharedStrings", OomlRelType.SHARED_STRINGS);
-        TYPES.put(PFX + "styles", OomlRelType.STYLES);
-        TYPES.put(PFX + "worksheet", OomlRelType.WORKSHEET);
-    }
-
     private String path;
 
-    private Map<String, OomlRelationship> rels;
+    private Map<String, OomlRel> rels;
 
     public OomlRels(OomlEntry en) {
         this(en.getPath(), en.getContentStr());
@@ -42,12 +31,11 @@ public class OomlRels {
 
         List<CheapElement> list = doc.findElements(el -> el.isTagName("Relationship"));
         for (CheapElement el : list) {
-            OomlRelationship rel = new OomlRelationship();
+            OomlRel rel = new OomlRel();
             rel.setId(el.attr("Id"));
             rel.setTarget(el.attr("Target"));
             String type = el.attr("Type");
-            OomlRelType relType = TYPES.get(type);
-            rel.setType(relType);
+            rel.setType(type);
             rels.put(rel.getId(), rel);
         }
     }
@@ -57,10 +45,10 @@ public class OomlRels {
         CheapElement root = doc.root();
         root.attr("xmlns", "http://schemas.openxmlformats.org/package/2006/relationships");
         if (null != rels && !rels.isEmpty()) {
-            for (OomlRelationship rel : rels.values()) {
+            for (OomlRel rel : rels.values()) {
                 CheapElement el = doc.createElement("Relationship");
                 el.attr("Id", rel.getId());
-                el.attr("Type", rel.getTypeName(PFX));
+                el.attr("Type", rel.getType());
                 el.attr("Target", rel.getTarget());
                 root.append(el);
             }
@@ -91,7 +79,7 @@ public class OomlRels {
      * @return 目标在包中的唯一路径
      */
     public String getTargetPath(String id) {
-        OomlRelationship rel = rels.get(id);
+        OomlRel rel = rels.get(id);
         if (null != rel) {
             String target = rel.getTarget();
             return this.getUniqPath(target);
@@ -100,25 +88,26 @@ public class OomlRels {
     }
 
     public String getUniqPath(String rph) {
-        String pph = Wpath.getParent(this.path);
-        String ph = Wn.appendPath(pph, rph);
+        int pos = this.path.indexOf('/');
+        String name = this.path.substring(0, pos);
+        String ph = Wn.appendPath(name, rph);
         return Wpath.getCanonicalPath(ph);
     }
 
-    public OomlRelationship get(String id) {
+    public OomlRel get(String id) {
         return rels.get(id);
     }
 
     public String getTarget(String id) {
-        OomlRelationship rel = rels.get(id);
+        OomlRel rel = rels.get(id);
         if (null != rel) {
             return rel.getTarget();
         }
         return null;
     }
 
-    public OomlRelationship getBy(OomlRelType type) {
-        for (OomlRelationship rel : rels.values()) {
+    public OomlRel getBy(String type) {
+        for (OomlRel rel : rels.values()) {
             if (rel.isType(type)) {
                 return rel;
             }
@@ -126,8 +115,8 @@ public class OomlRels {
         return null;
     }
 
-    public String getTargetBy(OomlRelType type) {
-        OomlRelationship rel = this.getBy(type);
+    public String getTargetBy(String type) {
+        OomlRel rel = this.getBy(type);
         if (null != rel) {
             return rel.getTarget();
         }

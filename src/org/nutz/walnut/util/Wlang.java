@@ -288,6 +288,23 @@ public class Wlang {
         }
     }
 
+    public static int count(Object obj) {
+        if (null == obj)
+            return 0;
+
+        // 数组
+        if (obj.getClass().isArray()) {
+            return Array.getLength(obj);
+        }
+        // 集合
+        else if (obj instanceof Collection) {
+            Collection<?> col = (Collection<?>) obj;
+            return col.size();
+        }
+        // 就是一个对象咯
+        return 1;
+    }
+
     /**
      * 清除数组中的特定值
      *

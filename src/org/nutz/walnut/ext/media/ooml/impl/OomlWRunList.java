@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapText;
@@ -157,7 +158,8 @@ public class OomlWRunList {
 
     private String explainNormal(OomlWPlaceholder ph, NutBean vars) {
         // 获取变量值
-        String val = vars.getString(ph.getName(), ph.getDefaultValue());
+        Object v = Mapl.cell(vars, ph.getName());
+        String val = Ws.sBlank(v, ph.getDefaultValue());
         val = Ws.sBlank(val, "-Empty-");
 
         // 得到开始与结束的标记 <w:r>
@@ -228,7 +230,8 @@ public class OomlWRunList {
      */
     private String explainCheckbox(OomlWPlaceholder ph, NutBean vars) {
         // 获取变量值
-        String val = vars.getString(ph.getName(), ph.getDefaultValue());
+        Object v = Mapl.cell(vars, ph.getName());
+        String val = Ws.sBlank(v, ph.getDefaultValue());
         val = Ws.sBlank(val, "false");
 
         // 准备测试值

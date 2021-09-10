@@ -8,4 +8,6 @@ public interface CheapResourceLoader {
 
     CheapResource loadById(String id);
 
+    String getMime(String typeName);
+
 }

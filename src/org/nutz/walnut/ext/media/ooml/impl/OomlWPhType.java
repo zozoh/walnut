@@ -15,20 +15,10 @@ public enum OomlWPhType {
     /**
      * 段落循环开始
      */
-    P_BEGIN,
+    LOOP_BEGIN,
 
     /**
      * 段落循环结束
      */
-    P_END,
-
-    /**
-     * 表格行循环开始
-     */
-    TR_BEGIN,
-
-    /**
-     * 表格行循环结束
-     */
-    TR_END
+    LOOP_END
 }

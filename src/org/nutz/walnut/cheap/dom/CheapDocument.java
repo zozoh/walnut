@@ -7,6 +7,9 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.cheap.dom.impl.CamelAttrNameConvertor;
+import org.nutz.walnut.cheap.dom.impl.KebabAttrNameConvertor;
+import org.nutz.walnut.cheap.dom.impl.SnakeAttrNameConvertor;
 import org.nutz.walnut.cheap.dom.mutation.CheapDomOperation;
 import org.nutz.walnut.cheap.dom.selector.CheapDomSelector;
 import org.nutz.walnut.util.Ws;
@@ -35,6 +38,10 @@ public class CheapDocument {
 
     private CheapElement $body;
 
+    private CheapAttrCase attrCase;
+
+    private CheapAttrNameConvertor covertAttrName;
+
     /**
      * 不需要结束标记的元素
      */
@@ -44,6 +51,7 @@ public class CheapDocument {
     public CheapDocument() {
         this("html", "head", "body");
         this.setAutoClosedTagsAsHtml();
+        this.setAttrCase(CheapAttrCase.KEBAB);
     }
 
     public CheapDocument(String rootTagName) {
@@ -433,6 +441,34 @@ public class CheapDocument {
 
     public String getBodyTagName() {
         return bodyTagName;
+    }
+
+    public CheapAttrCase getAttrCase() {
+        return attrCase;
+    }
+
+    public void setAttrCase(CheapAttrCase attrCase) {
+        this.attrCase = attrCase;
+        switch (this.attrCase) {
+        case KEBAB:
+            this.covertAttrName = new KebabAttrNameConvertor();
+            break;
+        case CAMEL:
+            this.covertAttrName = new CamelAttrNameConvertor();
+            break;
+        case SNAKE:
+            this.covertAttrName = new SnakeAttrNameConvertor();
+            break;
+        default:
+            this.covertAttrName = null;
+        }
+    }
+
+    public String formatAttrName(String name) {
+        if (null == this.covertAttrName) {
+            return name;
+        }
+        return this.covertAttrName.covert(name);
     }
 
     public CheapDocument ready() {

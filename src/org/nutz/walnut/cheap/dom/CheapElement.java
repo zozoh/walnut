@@ -681,7 +681,7 @@ public class CheapElement extends CheapNode {
     }
 
     public CheapElement attr(String name, Object val) {
-        name = Ws.kebabCase(name);
+        name = this.doc.formatAttrName(name);
         // 移除
         if (null == val) {
             attrs.remove(name);

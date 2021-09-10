@@ -51,4 +51,9 @@ public class WnCheapResourceLoader implements CheapResourceLoader {
         return _by(o);
     }
 
+    @Override
+    public String getMime(String typeName) {
+        return this.io.mimes().getMime(typeName);
+    }
+
 }

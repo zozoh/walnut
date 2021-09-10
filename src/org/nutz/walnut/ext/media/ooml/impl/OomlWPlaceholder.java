@@ -26,7 +26,7 @@ public class OomlWPlaceholder {
         if (null != name) {
             sb.append(name);
         }
-        if (null != type && !this.isNormal()) {
+        if (!this.isNormal()) {
             String typeName = Ws.kebabCase(this.type.toString());
             sb.append('#').append(typeName);
         }
@@ -71,20 +71,6 @@ public class OomlWPlaceholder {
         return ph;
     }
 
-    public boolean isLoop() {
-        return OomlWPhType.P_BEGIN == this.type || OomlWPhType.TR_BEGIN == this.type;
-    }
-
-    public String getLoopEndMark() {
-        if (OomlWPhType.P_BEGIN == this.type) {
-            return String.format("${%s#p-end}", name);
-        }
-        if (OomlWPhType.TR_BEGIN == this.type) {
-            return String.format("${%s#tr-end}", name);
-        }
-        return null;
-    }
-
     public boolean hasName() {
         return !Ws.isBlank(name);
     }
@@ -97,28 +83,20 @@ public class OomlWPlaceholder {
         this.name = varName;
     }
 
-    public boolean isNormal() {
-        return OomlWPhType.NORMAL == type;
+    public boolean isLoopBegin() {
+        return OomlWPhType.LOOP_BEGIN == this.type;
+    }
+
+    public boolean isLoopEnd() {
+        return OomlWPhType.LOOP_END == this.type;
     }
 
     public boolean isCheckbox() {
-        return OomlWPhType.CHECKBOX == type;
+        return OomlWPhType.CHECKBOX == this.type;
     }
 
-    public boolean isPBegin() {
-        return OomlWPhType.P_BEGIN == type;
-    }
-
-    public boolean isPEnd() {
-        return OomlWPhType.P_END == type;
-    }
-
-    public boolean isTrBegin() {
-        return OomlWPhType.TR_BEGIN == type;
-    }
-
-    public boolean isTrEnd() {
-        return OomlWPhType.TR_END == type;
+    public boolean isNormal() {
+        return null == this.type || OomlWPhType.NORMAL == this.type;
     }
 
     public OomlWPhType getType() {

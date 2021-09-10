@@ -8,11 +8,11 @@
 
 ```bash
 ooml @explain
-  [-i ~/path/to.json]     # 指定变量集文件路径，如果没有，则从标准输入读取
+  [-in ~/path/to.json]     # 指定变量集文件路径，如果没有，则从标准输入读取
 ```
 
 # 示例
 
 ```bash
-ooml demo.docx @checkout word/document.xml @explain -i ~/xxx.json
+ooml demo.docx @explain -in ~/xxx.json @pack output.docx
 ```
