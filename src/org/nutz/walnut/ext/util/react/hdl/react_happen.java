@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.util.react.ReactContext;
 import org.nutz.walnut.ext.util.react.ReactFilter;
@@ -23,6 +25,7 @@ import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.ext.util.react.bean.ReactItem;
 import org.nutz.walnut.ext.util.react.bean.ReactType;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class react_happen extends ReactFilter {
@@ -42,6 +45,7 @@ public class react_happen extends ReactFilter {
         actions.put(ReactType.jsc, new ReactJsAction());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, ReactContext fc, ZParams params) {
         List<ReactItem> items = fc.config.getItems();
@@ -55,6 +59,26 @@ public class react_happen extends ReactFilter {
             if (!item.hasActions() || !item.isMatch(fc.vars)) {
                 fc.result.put(item.getDisplayName(), 0);
                 continue;
+            }
+
+            // 增加自定义变量
+            if (item.hasVars()) {
+                for (Map.Entry<String, Object> ven : item.getVars().entrySet()) {
+                    String varName = ven.getKey();
+                    Object varTmpl = ven.getValue();
+                    Object varVal = Wn.explainObj(fc.vars, varTmpl);
+                    if (varVal instanceof Map<?, ?>) {
+                        NutMap varMap = NutMap.WRAP((Map<String, Object>) varVal);
+                        String cmdText = varMap.getString("exec");
+                        String re = sys.exec2(cmdText);
+                        if (varMap.is("type", "json")) {
+                            varVal = Json.fromJson(re);
+                        } else {
+                            varVal = re;
+                        }
+                    }
+                    fc.vars.put(varName, varVal);
+                }
             }
 
             // 执行动作

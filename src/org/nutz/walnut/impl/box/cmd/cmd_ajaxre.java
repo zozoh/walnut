@@ -89,8 +89,11 @@ public class cmd_ajaxre extends JvmExecutor {
         // 得到语言
         String lang = params.getString("lang", sys.getLang());
 
+        // 得到错误码
+        String errCode = params.getString("msg", re.getErrCode());
+
         // 得到多国语言错误消息
-        String errStr = i18ns.getMsg(lang, re.getErrCode());
+        String errStr = i18ns.getMsg(lang, errCode);
 
         if (null == re.getData()) {
             re.setMsg(errStr);

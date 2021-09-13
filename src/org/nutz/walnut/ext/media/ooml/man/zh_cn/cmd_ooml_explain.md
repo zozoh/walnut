@@ -14,5 +14,12 @@ ooml @explain
 # 示例
 
 ```bash
+# 指定一个上下文变量的文件
 ooml demo.docx @explain -in ~/xxx.json @pack output.docx
+
+# 读取一个上下文变量
+o id:xxx | ooml demo.docx @explain @pack output.docx
+
+# 读取一个上下文变量并进行转换
+o id:xxx | jsonx @translate -mapping -only -f ~/xx.json | ooml demo.docx @explain @pack output.docx
 ```

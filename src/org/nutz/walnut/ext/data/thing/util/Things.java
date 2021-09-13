@@ -495,7 +495,8 @@ public abstract class Things {
         // 要读取输入的
         if (cmdText.startsWith("|")) {
             cmdText = cmdText.substring(1);
-            input = Json.toJson(context, JsonFormat.compact().setQuoteName(true));
+            JsonFormat jfmt = JsonFormat.compact().setQuoteName(true).setIgnoreNull(false);
+            input = Json.toJson(context, jfmt);
         }
 
         // 执行

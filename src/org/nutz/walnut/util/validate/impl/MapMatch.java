@@ -19,9 +19,25 @@ public class MapMatch implements WnMatch {
             if (not) {
                 key = key.substring(1).trim();
             }
-            WnMatch m = new AutoMatch(val);
-            if (not) {
-                m = new NotMatch(m);
+            WnMatch m = null;
+            // {key:"[EXISTS]"}
+            if (null != val) {
+                // 存在
+                if (val.equals("[EXISTS]")) {
+                    m = new ExistsMatch(key, not);
+                }
+                // 不存在
+                else if (val.equals("![EXISTS]")) {
+                    not = !not;
+                    m = new ExistsMatch(key, not);
+                }
+            }
+            // 自动匹配
+            if (null == m) {
+                m = new AutoMatch(val);
+                if (not) {
+                    m = new NotMatch(m);
+                }
             }
             matchs.put(key, m);
         }
@@ -38,9 +54,14 @@ public class MapMatch implements WnMatch {
 
         Map<String, Object> map = ((Map<String, Object>) val);
         for (Map.Entry<String, WnMatch> en : matchs.entrySet()) {
-            String key = en.getKey();
             WnMatch m = en.getValue();
-            Object v = Mapl.cell(map, key);
+            Object v;
+            if (m instanceof ExistsMatch) {
+                v = map;
+            } else {
+                String key = en.getKey();
+                v = Mapl.cell(map, key);
+            }
             if (!m.match(v)) {
                 return false;
             }
