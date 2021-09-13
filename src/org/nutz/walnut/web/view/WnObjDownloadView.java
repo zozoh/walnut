@@ -54,8 +54,7 @@ public class WnObjDownloadView implements View {
                              String mimeType,
                              String downloadName,
                              String etag,
-                             String range)
-            throws IOException {
+                             String range) {
         this.re = new WnHttpResponseWriter();
         this.re.setEtag(etag);
         this.re.setContentType(mimeType);

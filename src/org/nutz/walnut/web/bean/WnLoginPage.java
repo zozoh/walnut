@@ -2,9 +2,12 @@ package org.nutz.walnut.web.bean;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.mvc.View;
@@ -90,6 +93,16 @@ public class WnLoginPage {
         // 木有就 404
         if (null == o) {
             return new HttpStatusView(404);
+        }
+
+        // 如果是 HTML 需要执行一下动态模板
+        if (null != this.domainUser && o.isType("html")) {
+            String str = io.readText(o);
+            Tmpl tmpl = Tmpl.parse(str);
+            NutBean c = this.domainUser.getMetaMap();
+            String html = tmpl.render(c);
+            byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
+            return new WnObjDownloadView(buf, null, "text/html", o.name(), o.sha1(), null);
         }
 
         // 显示内容
