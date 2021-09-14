@@ -1,5 +1,10 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.nutz.walnut.util.Ws;
+
 public enum WnGroupRole {
     /**
      * （默认）非组员，不在组内
@@ -36,6 +41,18 @@ public enum WnGroupRole {
         return this.value;
     }
 
+    public static WnGroupRole parseAny(Object role) {
+        if (null == role) {
+            return GUEST;
+        }
+        if (role instanceof Integer) {
+            int v = (Integer) role;
+            return parseInt(v);
+        }
+        String s = role.toString();
+        return parseString(s);
+    }
+
     public static WnGroupRole parseInt(int role) {
         if (0 == role)
             return GUEST;
@@ -48,5 +65,26 @@ public enum WnGroupRole {
         if (-1 == role)
             return BLOCK;
         return GUEST;
+    }
+
+    private static Map<String, WnGroupRole> roles = new HashMap<>();
+    static {
+        roles.put("GUEST", GUEST);
+        roles.put("ADMIN", ADMIN);
+        roles.put("MEMBER", MEMBER);
+        roles.put("CANDIDATE", CANDIDATE);
+        roles.put("BLOCK", BLOCK);
+    }
+
+    public static WnGroupRole parseString(String s) {
+        if (null == s) {
+            return GUEST;
+        }
+        s = Ws.trim(s).toUpperCase();
+        WnGroupRole r = roles.get(s);
+        if (null == r) {
+            return GUEST;
+        }
+        return r;
     }
 }

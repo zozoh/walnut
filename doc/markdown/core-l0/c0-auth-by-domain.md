@@ -60,6 +60,64 @@ key: c0-abd
 ```
 
 --------------------------------------
+# 关于域登录设置的特别说明
+
+## 环境变量
+
+域账号登录后，初始环境变量是在 `~/www/website` （即站点目录）的元数据中指定的。
+譬如，其典型的设置：
+
+```js
+{
+  accounts : "~/accounts",
+  roles    : "~/roles",
+  env : {
+    "!HOME"  : "/home/${domain}/",
+    "THEME" : "deep-blue",
+    "SKY_COLORIZED" : true,
+    "PATH"  : "/bin:/sbin:~/bin",
+    "OPEN"  : "wn.manager",
+    "APP_PATH"  : "/rs/ti/app:/app",
+    "QUIT"      : "/a/login",
+    "VIEW_PATH" : "/mnt/project/${domain}/view/:/rs/ti/view/",
+    "SIDEBAR_PATH" : "~/.ti/sidebar-crystal.json",
+    "ENABLE_CONSOLE" : "yes"
+  },
+  se_dft_du : 86400,
+  se_tmp_du : 60
+}
+```
+
+> 详细请参看[站点模型][w0-site]
+
+## 组和权限
+
+在域的账号数据集(`~/accounts`)中，可以指定特殊元数据:
+
+- `roleInDomain` 在域主组中的系统角色，默认是`GUEST`
+- `roleInOp` 在系统`op`组中的系统橘色，默认是`GUEST`
+
+同时，在域角色数据集(`~/roles`)中，可以指定这两元数据，作为账户的默认值
+
+## 其他角色
+
+在账户系统中，有一个固定的角色名为 `others`，这个角色的权限是在域登录后固定加载的。
+当然，前提是你需要在域角色数据集(`~/roles`)中声明它。
+
+这样，定制权限的时候，可以用 `@others` 指定一个对象的默认访问权限。
+因为**所有人**都是**其他人**
+
+## 主目录访问权限
+
+如果想让某个域内账户用系统会话登录域，那么需要让其至少可以访问主目录。
+有四种办法：
+
+1. 直接添加权限： `pvg: {UID: 511}`
+2. 添加用户某个角色 `pvg: {@user: 511}`
+3. 添加其他角色 `pvg: {@others: 511}`，这会导致所有人都有访问主目录权限
+4. 将用户或者其某个角色设置为 `roleInDomain:10` 表示这个用户为主组成员
+
+--------------------------------------
 # 数据接口
 
 --------------------------------------
@@ -126,4 +184,5 @@ site   : "34t6..8aq1"     # 【选】站点的ID，如果不提供，采用host�
 
 [c0-bam]: ../core-l0/c0-baice-auth-model.md
 [c0-css]: ../core-l0/c0-core-session-service.md
+[w0-site]: ../webs-l0/w0-site.md
 [w0-saa]: ../webs-l0/w0-site-auth-api.md

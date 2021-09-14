@@ -420,7 +420,10 @@ public class WnWebSite {
     }
 
     public NutBean readRoleAsJson(String roleName) {
-        WnObj o = io.check(roleDir, roleName);
+        WnObj o = io.fetch(roleDir, roleName);
+        if (null == o) {
+            return null;
+        }
         return io.readJson(o, NutMap.class);
     }
 

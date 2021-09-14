@@ -194,7 +194,15 @@ public class WnAccount {
             }
             // Others put to "meta"
             else {
-                this.setMeta(key, bean.get(key));
+                Object val = bean.get(key);
+                // If roleInDomain or roleInOp
+                if (null != val) {
+                    if (key.equals(Wn.K_ROLE_IN_OP) || key.equals(Wn.K_ROLE_IN_DOMAIN)) {
+                        WnGroupRole role = WnGroupRole.parseAny(val);
+                        val = role;
+                    }
+                }
+                this.setMeta(key, val);
             }
         }
     }

@@ -48,6 +48,14 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
             }
         }
 
+        // 自己就暗戳戳的指定了 OP 组的权限
+        if ("op".equals(groupName)) {
+            WnGroupRole or = user.getMetaAs(Wn.K_ROLE_IN_OP, WnGroupRole.class);
+            if (null != or) {
+                return or;
+            }
+        }
+
         // 默认组权限： 0 - GUEST
         int role = 0;
 

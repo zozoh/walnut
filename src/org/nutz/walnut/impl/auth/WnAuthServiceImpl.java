@@ -803,9 +803,16 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
                 String roleName = a.getRoleName();
                 WnObj oRole = io.fetch(oRoleDir, roleName);
                 if (null != oRole) {
-                    int roleInDomain = oRole.getInt(Wn.K_ROLE_IN_DOMAIN, 0);
-                    WnGroupRole role = WnGroupRole.parseInt(roleInDomain);
-                    a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                    Object vRoleInDomain = oRole.get(Wn.K_ROLE_IN_DOMAIN);
+                    if (null != vRoleInDomain) {
+                        WnGroupRole role = WnGroupRole.parseAny(vRoleInDomain);
+                        a.setDefaultMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                    }
+                    Object vRoleInOp = oRole.get(Wn.K_ROLE_IN_OP);
+                    if (null != vRoleInOp) {
+                        WnGroupRole role = WnGroupRole.parseAny(vRoleInOp);
+                        a.setDefaultMeta(Wn.K_ROLE_IN_OP, role);
+                    }
                 }
             }
         }
