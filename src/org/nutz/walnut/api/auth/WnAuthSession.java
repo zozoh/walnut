@@ -145,6 +145,8 @@ public class WnAuthSession {
         map.put("unm", this.getMyName());
         map.put("me", this.getMe().toBeanForClient());
         map.put("grp", this.getMyGroup());
+        map.put("by_tp", this.getByType());
+        map.put("by_val", this.getByValue());
         map.put("expi", expi);
         map.put("du", expi - Wn.now());
         map.put("pwd", this.currentPath);
