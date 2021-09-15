@@ -78,12 +78,12 @@ public class cmd_ls extends JvmExecutor {
                     final WnObjTable tabDir = new WnObjTable(keys);
                     sys.out.println(rph + " :");
                     boolean tooMany = __join_children(sys,
-                                                       useColor,
-                                                       briefSize,
-                                                       showHidden,
-                                                       maxN,
-                                                       tab,
-                                                       o);
+                                                      useColor,
+                                                      briefSize,
+                                                      showHidden,
+                                                      maxN,
+                                                      tab,
+                                                      o);
                     sys.out.print(tabDir.toString());
                     if (tooMany) {
                         sys.out.printlnf("... more than %s children exists ...", maxN);
@@ -96,18 +96,21 @@ public class cmd_ls extends JvmExecutor {
     }
 
     private boolean __join_children(final WnSystem sys,
-                                     final boolean useColor,
-                                     final boolean briefSize,
-                                     final boolean showHidden,
-                                     final int maxN,
-                                     final WnObjTable tab,
-                                     WnObj o) {
+                                    final boolean useColor,
+                                    final boolean briefSize,
+                                    final boolean showHidden,
+                                    final int maxN,
+                                    final WnObjTable tab,
+                                    WnObj o) {
+        boolean[] tooMany = new boolean[1];
+        tooMany[0] = false;
         try {
             sys.io.eachChild(o, null, new Each<WnObj>() {
                 public void invoke(int index, WnObj child, int length) {
                     // 超过了最多显示的个数
                     if (index >= maxN) {
-                        throw Lang.makeThrow("cmd.ls.join_child_reach_max");
+                        tooMany[0] = true;
+                        Lang.Break();
                     }
                     // 加入结果集
                     if (!child.isHidden() || showHidden)
@@ -122,7 +125,7 @@ public class cmd_ls extends JvmExecutor {
                 return true;
             throw e;
         }
-        return false;
+        return tooMany[0];
     }
 
 }
