@@ -119,7 +119,7 @@ public class WnOomlDocxExplaining implements OomlExplaining {
      * 6: "it"
      * </pre>
      */
-    private final Pattern PP = Pattern.compile("[$][{]([^}#:]*)(#(loop-(begin|end)))(:([^}]+))?[}]");
+    private final Pattern PP = Pattern.compile("^[$][{]([^}#:]*)(#(loop-(begin|end)))(:([^}]+))?[}]$");
 
     private OomlWPlaceholder getLoopPlaceholder(CheapElement el) {
         String str = Ws.trim(el.getText());
