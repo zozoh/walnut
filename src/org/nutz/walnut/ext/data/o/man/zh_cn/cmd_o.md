@@ -70,6 +70,7 @@ o [options] [[@filter filter-args...]...]
 #
 # 输出
 #
+@zip        # 将上下文对象打包到一个压缩包里
 @json       # 将上下文输出为 JSON
 @ajax       # 将上下输出为 AJAX
 @tmpl       # 将上下文输出为行模板

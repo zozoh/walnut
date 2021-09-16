@@ -15,11 +15,13 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.archive.WnArchiveWriting;
 import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
 import org.nutz.walnut.util.bean.WnObjAnMatrix;
+import org.nutz.walnut.util.obj.WnObjRenaming;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
@@ -79,7 +81,7 @@ public class cmd_zip extends JvmExecutor {
 
             // 开始逐个加入压缩包
             for (WnObj o : oSrcList) {
-                addEntry(sys, oTop, ag, o, quiet, am, hide);
+                addEntry(sys, oTop, ag, null, o, quiet, am, hide);
             }
         }
         // 确保写入
@@ -95,13 +97,14 @@ public class cmd_zip extends JvmExecutor {
         }
     }
 
-    private void addEntry(WnSystem sys,
-                          WnObj oTop,
-                          WnArchiveWriting ag,
-                          WnObj o,
-                          boolean quiet,
-                          WnMatch am,
-                          boolean hide)
+    public static void addEntry(WnSystem sys,
+                                WnObj oTop,
+                                WnArchiveWriting ag,
+                                WnObjRenaming rename,
+                                WnObj o,
+                                boolean quiet,
+                                WnMatch am,
+                                boolean hide)
             throws IOException {
         // 无视隐藏文件
         if (!hide && o.isHidden()) {
@@ -111,7 +114,7 @@ public class cmd_zip extends JvmExecutor {
         if (o.isDIR()) {
             List<WnObj> children = sys.io.getChildren(o, null);
             for (WnObj child : children) {
-                addEntry(sys, oTop, ag, child, quiet, am, hide);
+                addEntry(sys, oTop, ag, rename, child, quiet, am, hide);
             }
         }
         // 无视不符合条件的文件
@@ -122,11 +125,23 @@ public class cmd_zip extends JvmExecutor {
         else {
             String rph = Wn.Io.getRelativePath(oTop, o);
             InputStream ins = sys.io.getInputStream(o, 0);
+            String newName = null;
+            String enPath = rph;
             long len = o.len();
-            if (!quiet) {
-                sys.out.printlnf(" + %s : %s", rph, o.toString());
+            if (null != rename) {
+                newName = rename.getName(o);
+                if (!Ws.isBlank(newName)) {
+                    enPath = Wpath.renamePath(rph, newName);
+                }
             }
-            ag.addFileEntry(rph, ins, len);
+            if (!quiet) {
+                if (null != newName) {
+                    sys.out.printlnf(" + %s >> %s : %s", rph, newName, o.toString());
+                } else {
+                    sys.out.printlnf(" + %s : %s", rph, o.toString());
+                }
+            }
+            ag.addFileEntry(enPath, ins, len);
         }
     }
 

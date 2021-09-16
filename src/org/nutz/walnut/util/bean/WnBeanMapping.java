@@ -13,6 +13,9 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
@@ -136,6 +139,35 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
                 this.put(key, fld);
             }
         }
+    }
+
+    public void setFields(Map<String, Object> fields, WnIo io, NutBean vars) {
+        Map<String, NutMap[]> caches = new HashMap<>();
+        this.setFields(fields, io, vars, caches);
+    }
+
+    public void setFields(Map<String, Object> fields, WnSystem sys) {
+        WnIo io = sys.io;
+        NutBean vars = sys.session.getVars();
+        this.setFields(fields, io, vars);
+    }
+
+    public void loadFrom(String path, WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+        String aph = Wn.normalizeFullPath(path, vars);
+        WnObj o = io.check(null, aph);
+        NutMap map = io.readJson(o, NutMap.class);
+        this.setFields(map, io, vars, caches);
+    }
+
+    public void loadFrom(String path, WnIo io, NutBean vars) {
+        Map<String, NutMap[]> caches = new HashMap<>();
+        this.loadFrom(path, io, vars, caches);
+    }
+
+    public void loadFrom(String path, WnSystem sys) {
+        WnIo io = sys.io;
+        NutBean vars = sys.session.getVars();
+        this.loadFrom(path, io, vars);
     }
 
     /**
