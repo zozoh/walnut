@@ -66,7 +66,7 @@ import org.nutz.web.Webs.Err;
 public abstract class Wn {
 
     public static final String K_ROLE_IN_DOMAIN = "roleInDomain";
-    
+
     public static final String K_ROLE_IN_OP = "roleInOp";
 
     /**
@@ -1415,6 +1415,23 @@ public abstract class Wn {
                 Streams.safeClose(out);
         }
         return cf;
+    }
+
+    /**
+     * 自动展开要更新元数据的【宏】
+     * 
+     * @param meta
+     *            要更新的元数据
+     */
+    public static void explainMetaMacro(Map<String, Object> meta) {
+        for (Map.Entry<String, Object> en : meta.entrySet()) {
+            Object v = en.getValue();
+            if (null != v && v instanceof String) {
+                String s = v.toString();
+                Object v2 = Wn.fmt_str_macro(s);
+                en.setValue(v2);
+            }
+        }
     }
 
     /**

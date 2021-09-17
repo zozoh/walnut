@@ -40,15 +40,8 @@ public class o_update extends OFilter {
         if (meta.isEmpty())
             return;
 
-        // 将日期的字符串，搞一下
-        for (Map.Entry<String, Object> en : meta.entrySet()) {
-            Object v = en.getValue();
-            if (null != v && v instanceof String) {
-                String s = v.toString();
-                Object v2 = Wn.fmt_str_macro(s);
-                en.setValue(v2);
-            }
-        }
+        // 元数据的宏搞一下
+        Wn.explainMetaMacro(meta);
 
         // 执行更新
         for (WnObj o : fc.list) {

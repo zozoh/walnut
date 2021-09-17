@@ -78,11 +78,11 @@ public class o_zip extends OFilter {
 
             // 需要映射
             WnBeanMapping mapping = null;
-            String metaS = params.get("meta");
-            if (null != metaS) {
+            String sMapping = params.get("mapping");
+            if (null != sMapping) {
                 mapping = new WnBeanMapping();
                 // 读取标准输入
-                if ("true".equals(metaS)) {
+                if ("true".equals(sMapping)) {
                     String metaJson = sys.in.readAll();
                     if (!Ws.isBlank(metaJson)) {
                         NutMap meta = Wlang.map(metaJson);
@@ -91,12 +91,19 @@ public class o_zip extends OFilter {
                 }
                 // 必然是一个路径
                 else {
-                    mapping.loadFrom(metaS, sys);
+                    mapping.loadFrom(sMapping, sys);
                 }
                 // 设置映射
                 rename.setMapping(mapping);
                 rename.setOnlyMapping(params.is("only"));
             }
+        }
+
+        // 准备输出文件元数据
+        NutMap meta = null;
+        if (params.has("meta")) {
+            String sMeta = params.getString("meta");
+            meta = Wlang.map(sMeta);
         }
 
         // 准备压缩包
@@ -136,6 +143,12 @@ public class o_zip extends OFilter {
             Streams.safeClose(ag);
             Streams.safeClose(ops);
             sw.stop();
+        }
+
+        // 更新元数据
+        if (null != oZip && null != meta && !meta.isEmpty()) {
+            Wn.explainMetaMacro(meta);
+            sys.io.appendMeta(oZip, meta);
         }
 
         // 主程序就不要输出了

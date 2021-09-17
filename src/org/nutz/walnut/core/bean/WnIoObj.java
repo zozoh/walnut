@@ -427,7 +427,12 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public long createTime() {
-        return this.getLong("ct", -1);
+        try {
+            return this.getLong("ct", -1);
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 
     public WnObj createTime(long ct) {
@@ -437,7 +442,12 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public long syncTime() {
-        return this.getLong("synt", -1);
+        try {
+            return this.getLong("synt", -1);
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 
     @Override
@@ -447,7 +457,12 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public long expireTime() {
-        return this.getLong("expi", -1);
+        try {
+            return this.getLong("expi", -1);
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 
     public WnObj expireTime(long expi) {
@@ -468,7 +483,12 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public long lastModified() {
-        return this.getLong("lm");
+        try {
+            return this.getLong("lm");
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 
     @Override
@@ -478,7 +498,12 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public long nanoStamp() {
-        return this.getLong("nano");
+        try {
+            return this.getLong("nano");
+        }
+        catch (Exception e) {
+            return -1;
+        }
     }
 
     public WnObj nanoStamp(long nano) {
