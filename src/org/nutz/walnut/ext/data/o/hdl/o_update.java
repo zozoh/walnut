@@ -1,7 +1,5 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
-import java.util.Map;
-
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
