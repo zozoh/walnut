@@ -20,14 +20,24 @@ import org.nutz.walnut.util.validate.WnMatch;
  */
 public class AutoMatch implements WnMatch {
 
+    public static WnMatch parse(Object input) {
+        if (null == input) {
+            return new AlwaysMatch(false);
+        }
+        if (input instanceof Boolean) {
+            return new AlwaysMatch((Boolean) input);
+        }
+        return new AutoMatch(input);
+    }
+
     private WnMatch m;
 
     public AutoMatch(Object input) {
-        this.parse(input);
+        this.update(input);
     }
 
     @SuppressWarnings("unchecked")
-    public void parse(Object input) {
+    public AutoMatch update(Object input) {
         // null
         if (null == input) {
             this.m = new NilMatch();
@@ -85,6 +95,8 @@ public class AutoMatch implements WnMatch {
         else {
             throw Er.create("e.match.unsupport", input);
         }
+
+        return this;
     }
 
     @Override
