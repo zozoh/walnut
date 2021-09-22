@@ -22,6 +22,8 @@ import org.nutz.walnut.ext.media.imagic.filter.ScaleImagicFilter;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wpath;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 import com.drew.imaging.ImageMetadataReader;
@@ -110,19 +112,27 @@ public class cmd_imagic extends JvmExecutor {
         holder.size(image.getWidth(), image.getHeight());
 
         // 输出格式是啥呢?
+        String out = params.getString("out");
+        String ofmt = "JPEG";
         if (params.has("format")) {
-            holder.outputFormat(params.get("format"));
-        } else if (params.has("out")) {
-            if (params.get("out").endsWith(".png")) {
-                holder.outputFormat(params.get("PNG"));
-            } else if (params.get("out").endsWith(".bmp")) {
-                holder.outputFormat(params.get("BMP"));
-            } else {
-                holder.outputFormat("JPEG");
-            }
-        } else {
-            holder.outputFormat("JPEG");
+            ofmt = params.getString("format").toUpperCase();
         }
+        // 通过 output 指定
+        else if (Ws.isBlank(out)) {
+            if ("inplace".equals(out)) {
+                ofmt = Wpath.getSuffixName(sourcePath);
+            } else {
+                ofmt = Wpath.getSuffixName(out);
+            }
+        }
+        //
+        // 格式化一下标准的 format 名称
+        //
+        if ("JPG".equals(ofmt)) {
+            ofmt = "JPEG";
+        }
+        holder.outputFormat(ofmt);
+
         // 输出质量有要求吗?
         if (params.has("qa")) {
             holder.outputQuality(Float.parseFloat(params.get("qa")));
@@ -132,7 +142,6 @@ public class cmd_imagic extends JvmExecutor {
         try {
             if (params.has("out")) {
                 // 有输出路径
-                String out = params.get("out");
                 if ("inplace".equals(out)) {
                     out = sourcePath;
                 } else {
@@ -144,6 +153,7 @@ public class cmd_imagic extends JvmExecutor {
                     NutMap meta = new NutMap();
                     meta.put("width", image.getWidth());
                     meta.put("height", image.getHeight());
+                    meta.put("mime", "image/" + ofmt.toLowerCase());
                     sys.io.appendMeta(wobjOut, meta);
                 }
             } else {
