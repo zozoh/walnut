@@ -41,8 +41,10 @@ import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.repo.Base64;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
@@ -539,12 +541,24 @@ public class ObjModule extends AbstractWnModule {
     }
 
     @At("/save/text")
-    public WnObj saveText(@Param("str") String str, @Param("content") String content) {
+    public WnObj saveText(@Param("str") String str,
+                          @Param("content") String content,
+                          @Param("cine") boolean createIfNoExists,
+                          @Param("base64") boolean asBase64) {
         // 获取当前会话
         WnAuthSession se = Wn.WC().checkSession();
+        WnIo io = io();
 
         // 取得对应对象
-        WnObj o = Wn.checkObj(io(), se, str);
+        WnObj o;
+        if (createIfNoExists) {
+            String aph = Wn.normalizeFullPath(str, se);
+            o = io.createIfNoExists(null, aph, WnRace.FILE);
+        }
+        // 必须存在
+        else {
+            o = Wn.checkObj(io, se, str);
+        }
 
         // 确保可读，同时处理链接文件
         o = Wn.WC().whenRead(o, false);
@@ -552,8 +566,15 @@ public class ObjModule extends AbstractWnModule {
         // 处理空
         content = Strings.sNull(content, "");
 
-        // 写入
-        io().writeText(o, content);
+        // 写入: base64
+        if (asBase64) {
+            byte[] bs = Base64.decode(content);
+            io.writeBytes(o, bs);
+        }
+        // 直接写入文本
+        else {
+            io.writeText(o, content);
+        }
 
         // 返回
         return o;

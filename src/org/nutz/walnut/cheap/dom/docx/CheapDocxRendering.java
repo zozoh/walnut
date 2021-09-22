@@ -231,9 +231,11 @@ public class CheapDocxRendering {
             fnm = fnm.replaceAll(">", "&gt;");
 
             // 保证 alt 是安全的
-            alt = alt.replaceAll("&", "&amp;");
-            alt = alt.replaceAll("<", "&lt;");
-            alt = alt.replaceAll(">", "&gt;");
+            if (null != alt) {
+                alt = alt.replaceAll("&", "&amp;");
+                alt = alt.replaceAll("<", "&lt;");
+                alt = alt.replaceAll(">", "&gt;");
+            }
 
             // 创建元素
             Inline inline = ip.createImageInline(fnm, alt, _seq_id1, _seq_id2, false);
