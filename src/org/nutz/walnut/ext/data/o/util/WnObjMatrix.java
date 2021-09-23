@@ -77,7 +77,7 @@ public class WnObjMatrix {
         }
         // ...........................................
         // 自动寻找公共的父
-        int pN = __find_common_pIndex(matrix, len, nMin, oBase);
+        this.pN = __find_common_pIndex(matrix, len, nMin, oBase);
         // ...........................................
         // 得到树的根节点
         // 没有公共的父，那就是根节点咯
