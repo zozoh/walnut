@@ -3,16 +3,20 @@ package org.nutz.walnut.api.hook;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.nutz.lang.Lang;
 import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.lang.stream.VoidOutputStream;
+import org.nutz.log.Log;
 import org.nutz.walnut.api.auth.WnAuthService;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.box.WnBox;
 import org.nutz.walnut.api.box.WnBoxContext;
 import org.nutz.walnut.api.box.WnBoxService;
 import org.nutz.walnut.api.io.WnIo;
+import org.nutz.walnut.util.Wlog;
 
 public class WnHookContext {
+
+    private static final Log log = Wlog.getHOOK();
 
     public WnHookContext(WnBoxService boxes, WnBoxContext bc) {
         this._boxes = boxes;
@@ -25,13 +29,11 @@ public class WnHookContext {
 
     public WnHookService service;
 
-    private static OutputStream VOID_OUT = new VoidOutputStream();
-    private static InputStream VOID_IN = new VoidInputStream();
-
     public void exec(String cmdText) {
         exec(cmdText, null, null, null);
     }
 
+    @SuppressWarnings("resource")
     public void exec(String cmdText, InputStream stdin, OutputStream stdout, OutputStream stderr) {
         WnBox box = _boxes.alloc(0);
 
@@ -41,13 +43,21 @@ public class WnHookContext {
         // 设置沙箱
         box.setup(bc);
 
+        StringBuilder out = new StringBuilder();
+        OutputStream dftOut = Lang.ops(out);
+        InputStream dftIn = new VoidInputStream();
+
         // 设置标准输入输出
-        box.setStderr(stderr == null ? VOID_OUT : stderr);
-        box.setStdout(stdout == null ? VOID_OUT : stdout);
-        box.setStdin(stdin == null ? VOID_IN : stdin);
+        box.setStderr(stderr == null ? dftOut : stderr);
+        box.setStdout(stdout == null ? dftOut : stdout);
+        box.setStdin(stdin == null ? dftIn : stdin);
 
         // 执行
         box.run(cmdText);
+
+        if (log.isInfoEnabled()) {
+            log.infof("command: %s :>\n%s", cmdText, out);
+        }
 
         // 释放
         _boxes.free(box);

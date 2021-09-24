@@ -12,15 +12,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.ContinueLoop;
+import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
+import org.nutz.lang.LoopException;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WalkMode;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.IoCoreTest;
 import org.nutz.walnut.core.bean.WnIoObj;
+import org.nutz.walnut.util.Wn;
 
 public class LocalFileIndexerTest extends IoCoreTest {
 
@@ -37,6 +43,34 @@ public class LocalFileIndexerTest extends IoCoreTest {
     @After
     public void tearDown() throws Exception {
         Files.clearDir(dHome);
+    }
+
+    @Test
+    public void test_each_root_parent_id() {
+        indexer.create(null, "a.js", WnRace.FILE);
+        indexer.create(null, "b.js", WnRace.FILE);
+        WnObj root = indexer.getRoot();
+        List<WnObj> children = new ArrayList<>(2);
+        WnQuery q = Wn.Q.pid(root);
+        indexer.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj ele, int length) {
+                children.add(ele);
+            }
+        });
+        assertEquals(2, children.size());
+        assertEquals("a.js", children.get(0).name());
+        assertEquals("b.js", children.get(1).name());
+    }
+
+    @Test
+    public void test_get_children_root_parent_id() {
+        indexer.create(null, "a.js", WnRace.FILE);
+        indexer.create(null, "b.js", WnRace.FILE);
+        WnObj root = indexer.getRoot();
+        List<WnObj> children = indexer.getChildren(root, null);
+        assertEquals(2, children.size());
+        assertEquals("a.js", children.get(0).name());
+        assertEquals("b.js", children.get(1).name());
     }
 
     @Test

@@ -259,7 +259,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         String pid = q.first().getString("pid");
         File dir = null;
         // 默认用主目录
-        if (Strings.isBlank(pid)) {
+        if (Strings.isBlank(pid) || this.root.isSameId(pid)) {
             dir = this.dHome;
         }
         // 否则选择目录
