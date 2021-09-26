@@ -509,8 +509,18 @@ public class WnAccount {
         return id;
     }
 
+    private WnObjId _oid;
+
+    public WnObjId OID() {
+        if (null == _oid) {
+            _oid = new WnObjId(this.id);
+        }
+        return _oid;
+    }
+
     public void setId(String id) {
         this.id = id;
+        this._oid = null;
     }
 
     public boolean hasName() {

@@ -890,6 +890,8 @@ public class HttpApiModule extends AbstractWnModule {
                     apc.reqMeta.put("http-www-se-ticket", apc.wwwSe.getTicket());
                     // 用户信息
                     apc.reqMeta.put("http-www-me-id", wwwMe.getId());
+                    apc.reqMeta.put("http-www-me-id-home", wwwMe.OID().getHomeId());
+                    apc.reqMeta.put("http-www-me-id-my", wwwMe.OID().getMyId());
                     apc.reqMeta.put("http-www-me-nm", wwwMe.getName());
                     apc.reqMeta.put("http-www-me-nickname", wwwMe.getNickname());
                     apc.reqMeta.put("http-www-me-thumb", wwwMe.getThumb());

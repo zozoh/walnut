@@ -26,6 +26,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
@@ -380,11 +381,11 @@ public abstract class Things {
                 // 准备输入
                 Object src = null;
                 // 从输出流中读取
-                if ("true".equals(read)) {
+                if ("true".equals(read) || Ws.isBlank(read)) {
                     src = sys.in.getInputStream();
                 }
                 // 从文件读取
-                else if (!Strings.isBlank(read)) {
+                else {
                     src = Wn.getObj(sys, read);
                 }
 
