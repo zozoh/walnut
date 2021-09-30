@@ -102,7 +102,7 @@ public class ThingLinkKey {
     }
 
     public boolean hasTarget() {
-        return null != target && (target.hasFilter() || target.hasThingSet());
+        return null != target && target.isAva();
     }
 
     public ThingLinkKeyTarget getTarget() {

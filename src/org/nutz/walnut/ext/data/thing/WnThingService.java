@@ -20,7 +20,7 @@ import org.nutz.walnut.ext.data.thing.impl.FileAddAction;
 import org.nutz.walnut.ext.data.thing.impl.FileDeleteAction;
 import org.nutz.walnut.ext.data.thing.impl.FileGetAction;
 import org.nutz.walnut.ext.data.thing.impl.FileQueryAction;
-import org.nutz.walnut.ext.data.thing.impl.FileReadAction;
+import org.nutz.walnut.ext.data.thing.impl.FileReadAsHttpAction;
 import org.nutz.walnut.ext.data.thing.impl.FileUpdateCountAction;
 import org.nutz.walnut.ext.data.thing.impl.FileUploadAction;
 import org.nutz.walnut.ext.data.thing.impl.GetThingAction;
@@ -171,14 +171,14 @@ public class WnThingService {
         return a.invoke();
     }
 
-    public WnHttpResponseWriter fileRead(String dirName,
+    public WnHttpResponseWriter fileReadAsHttp(String dirName,
                                          WnObj oT,
                                          String fnm,
                                          String etag,
                                          String range,
                                          String userAgent,
                                          boolean quiet) {
-        FileReadAction a = _AD(new FileReadAction(), dirName, oT);
+        FileReadAsHttpAction a = _AD(new FileReadAsHttpAction(), dirName, oT);
         a.fnm = fnm;
         a.etag = etag;
         a.range = range;
@@ -216,7 +216,7 @@ public class WnThingService {
                                           String range,
                                           String userAgent,
                                           boolean quiet) {
-        return this.fileRead("media", oT, fnm, etag, range, userAgent, quiet);
+        return this.fileReadAsHttp("media", oT, fnm, etag, range, userAgent, quiet);
     }
 
     public WnObj mediaUpdateCount(WnObj oT) {
@@ -247,7 +247,7 @@ public class WnThingService {
                                                String range,
                                                String userAgent,
                                                boolean quiet) {
-        return this.fileRead("attachment", oT, fnm, etag, range, userAgent, quiet);
+        return this.fileReadAsHttp("attachment", oT, fnm, etag, range, userAgent, quiet);
     }
 
     public WnObj attachmentUpdateCount(WnObj oT) {

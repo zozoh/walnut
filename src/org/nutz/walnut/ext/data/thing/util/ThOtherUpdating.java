@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.data.thing.util;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -8,17 +9,19 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.WnExecutable;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.util.Wn;
 
 public class ThOtherUpdating {
+
+    private WnIo io;
 
     /**
      * 准备要更新的服务类
@@ -42,8 +45,10 @@ public class ThOtherUpdating {
 
     private WnExecutable executor;
 
-    public ThOtherUpdating(WnExecutable executor) {
+    public ThOtherUpdating(WnIo io, WnExecutable executor) {
+        this.io = io;
         this.executor = executor;
+        this.list = new LinkedList<>();
     }
 
     public boolean isRunCommands() {
@@ -61,9 +66,6 @@ public class ThOtherUpdating {
             return true;
         }
         if (null == meta || meta.isEmpty()) {
-            return true;
-        }
-        if (null == service) {
             return true;
         }
         return false;
@@ -88,7 +90,14 @@ public class ThOtherUpdating {
         // 执行更新
         else {
             for (WnObj ot : this.list) {
-                this.service.updateThing(ot.id(), this.meta, this.executor, null);
+                // 更新数据集
+                if (null != this.service) {
+                    this.service.updateThing(ot.id(), this.meta, this.executor, null);
+                }
+                // 直接更新目标
+                else {
+                    io.appendMeta(ot, this.meta);
+                }
             }
         }
     }
@@ -181,7 +190,7 @@ public class ThOtherUpdating {
                 }
                 // 否则当做模板
                 else {
-                    v2 = Tmpl.exec(str, context);
+                    v2 = Wn.explainObj(context, str);
                 }
 
                 // 最后展开宏

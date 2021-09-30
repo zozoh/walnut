@@ -423,9 +423,9 @@ public abstract class Things {
             // 最后计入输出
             hc.output = ths.fileGet(dirName, oT, fnm, quiet);
         }
-        // 获取某指定文件内容
-        else if (hc.params.has("cat")) {
-            String fnm = hc.params.get("cat");
+        // 获取某指定文件内容（HTTP 流输出）
+        else if (hc.params.has("http")) {
+            String fnm = hc.params.get("http");
             String etag = hc.params.getString("etag");
             String range = hc.params.getString("range");
             String userAgent = null;
@@ -435,7 +435,17 @@ public abstract class Things {
             if (hc.params.is("download")) {
                 userAgent = hc.params.getString("UserAgent");
             }
-            hc.output = ths.fileRead(dirName, oT, fnm, etag, range, userAgent, quiet);
+            hc.output = ths.fileReadAsHttp(dirName, oT, fnm, etag, range, userAgent, quiet);
+        }
+        // 直接输出指定文件内容
+        else if (hc.params.has("cat")) {
+            String fnm = hc.params.get("cat");
+            boolean quiet = hc.params.is("quiet");
+
+            WnObj o = ths.fileGet(dirName, oT, fnm, quiet);
+            if (null != o) {
+                hc.output = sys.io.getInputStream(o, 0);
+            }
         }
         // 那么就是查询咯
         else {

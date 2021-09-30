@@ -29,12 +29,13 @@ thing [TsID] file
   [-get xxx.jpg]          # 获取指定文件的元数据
   [-ufc]                  # 重新计算 Thing 的附件数量和元数据
   [-ukey thumb]           # 将当前文件的 ID 设置到 Thing 对象指定字段
-  [-cat abc.txt]          # 输出指定文件的内容为 HTTP 响应
+  [-http abc.txt]          # 输出指定文件的内容为 HTTP 响应
   [-etag xxx]             # 输出为标准 HTTP 响应，同时根据 etag 判断是否输出 304
   [-range bytes=0-7183]   # 当输出 HTTP 响应时，分段下载表示，符合 Http头的 Range 规范
   [-UserAgent xxx]        # 当输出 HTTP 响应时，指定下载客户端的信息
   [-download false]       # 当输出 HTTP 响应时，开启下载模式，即指定 Content-Disposition
-  [-quiet]                # -cat 和 -get 如果文件不存在是否静默
+  [-cat abc.txt]          # 直接输出指定文件内容
+  [-quiet]                # -http/get/cat 如果文件不存在是否静默
 ```
 
 # 示例

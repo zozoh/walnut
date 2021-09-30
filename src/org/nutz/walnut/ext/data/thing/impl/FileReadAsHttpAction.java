@@ -5,7 +5,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.ThingDataAction;
 import org.nutz.walnut.util.WnHttpResponseWriter;
 
-public class FileReadAction extends ThingDataAction<WnHttpResponseWriter> {
+public class FileReadAsHttpAction extends ThingDataAction<WnHttpResponseWriter> {
 
     public String fnm;
 

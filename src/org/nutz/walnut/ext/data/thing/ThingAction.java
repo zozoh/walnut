@@ -262,13 +262,14 @@ public abstract class ThingAction<T> {
                     }
 
                     // 准备
-                    ThOtherUpdating other = new ThOtherUpdating(executor);
-                    other.service = service;
+                    ThOtherUpdating other = new ThOtherUpdating(io, executor);
 
                     // 指定目标
                     if (lnk.hasTarget()) {
                         ThingLinkKeyTarget lnkTa = lnk.getTarget();
-                        // 准备服务类
+                        lnkTa = lnkTa.clone();
+                        lnkTa.explain(valContext);
+                        // 准备服务类【因为要更新其他ThingSet】
                         if (lnkTa.hasThingSet()) {
                             String tsph = lnkTa.getThingSet();
                             String tsaph = service.normalizeFullPath(tsph);
@@ -276,24 +277,33 @@ public abstract class ThingAction<T> {
                             oTsOther = Things.checkThingSet(oTsOther);
                             other.service = service.gen(oTsOther, false);
                         }
-
-                        // 准备查询
-                        ThQuery tq2;
-
-                        // 寻找对应的记录集合
-                        if (lnkTa.hasFilter()) {
-                            NutMap fltTmpl = lnkTa.getFilter();
-                            NutMap flt = new NutMap();
-                            other.fillMeta(flt, fltTmpl, oT);
-                            tq2 = new ThQuery(flt);
+                        // 直接更新的是一个目标
+                        if (lnkTa.hasId()) {
+                            String id = lnkTa.getId();
+                            WnObj oTa = this.io.get(id);
+                            if (null != oTa) {
+                                other.list.add(oTa);
+                            }
                         }
-                        // 否则
+                        // 否则就是自身的数据集
                         else {
-                            tq2 = new ThQuery();
+                            other.service = service;
+                            // 在数据集中寻找更新目标
+                            // 直接指定了 ID
+                            if (lnkTa.hasId()) {
+                                String id = lnkTa.getId();
+                                WnObj oTa = other.service.getThing(id, false);
+                                other.list.add(oTa);
+                            }
+                            // 寻找对应的记录集合
+                            if (lnkTa.hasFilter()) {
+                                NutMap fltTmpl = lnkTa.getFilter();
+                                NutMap flt = new NutMap();
+                                other.fillMeta(flt, fltTmpl, oT);
+                                ThQuery tq2 = new ThQuery(flt);
+                                other.list = other.service.queryList(tq2);
+                            }
                         }
-
-                        // 查找要修改的目标
-                        other.list = other.service.queryList(tq2);
                     }
                     // 如果没有特别目标，就更新自己，那么就直接修改自己的 meta，不用记录到 others 里了
                     else if (lnk.hasSet()) {
