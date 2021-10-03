@@ -31,8 +31,8 @@ httpout -body ${http-qs} \
 # API(obj): 下载对象内容
 @API .regapi/api/down 'cross/dynamic'
 %COPY:
-httpout -body ${http-qs} \
-  -download true \
+httpout -body ${http-qs-f} \
+  -download '${http-qs-dwnm?true}' \
   -etag  '${http-header-IF-NONE-MATCH?none}' \
   -range '${http-header-RANGE?}'
 %END%

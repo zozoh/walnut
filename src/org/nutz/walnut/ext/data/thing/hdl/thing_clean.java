@@ -109,7 +109,7 @@ public class thing_clean implements JvmHdl {
                     sys.out.printf("rm th:%s > ", oT.id());
 
                 // 删除数据对象
-                WnObj oThData = sys.io.fetch(oData, oT.id());
+                WnObj oThData = sys.io.fetch(oData, oT.myId());
                 if (null != oThData) {
                     sys.io.delete(oThData, true);
                     if (!isQ)

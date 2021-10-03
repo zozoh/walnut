@@ -103,7 +103,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
                     // 硬删除，或者已经是删除的了，那么真正的删除数据对象
                     if (this.hard || oT.getInt("th_live", 0) == Things.TH_DEAD) {
                         // 删除数据对象
-                        WnObj oThData = io.fetch(oData, oT.id());
+                        WnObj oThData = io.fetch(oData, oT.myId());
                         if (null != oThData) {
                             io.delete(oThData, true);
                         }
