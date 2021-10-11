@@ -50,6 +50,10 @@ o [options] [[@filter filter-args...]...]
 @update     # 更新对象的字段
 @remove     # 删除对象
 #
+# 生成序号
+#
+@inc        # 生成序号
+#
 # 操作上下文
 #
 @filter     # 过滤上下文列表对象

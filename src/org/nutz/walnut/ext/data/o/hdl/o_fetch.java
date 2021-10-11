@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -10,10 +11,39 @@ import org.nutz.walnut.util.ZParams;
 public class o_fetch extends OFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(ignore)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
+        // 分析参数
+        boolean ignore = params.is("ignore");
+        WnRace race = null;
+        if (params.has("race")) {
+            race = params.getAs("race", WnRace.class);
+        }
+
+        // 循环处理
         for (String ph : params.vals) {
-            WnObj o = Wn.checkObj(sys, ph);
-            fc.add(o);
+            String aph = Wn.normalizeFullPath(ph, sys);
+            // 没有就创建
+            if (null != race) {
+                WnObj o = sys.io.createIfNoExists(null, aph, race);
+                fc.add(o);
+            }
+            // 没有就忽略
+            else if (ignore) {
+                WnObj o = sys.io.fetch(null, aph);
+                if (null != o) {
+                    fc.add(o);
+                }
+            }
+            // 必须存在
+            else {
+                WnObj o = sys.io.check(null, aph);
+                fc.add(o);
+            }
         }
     }
 
