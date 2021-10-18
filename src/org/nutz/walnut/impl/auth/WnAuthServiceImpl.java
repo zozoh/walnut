@@ -798,20 +798,36 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
      */
     private WnAccount loadAccountDomainRole(WnAccount a) {
         if (null != a && a.hasRoleName()) {
+            // 原先账户元数据里暗戳戳的两个属性
+            Object vDftRoleInDomain = a.getMeta(Wn.K_ROLE_IN_DOMAIN);
+            WnGroupRole dftRoleInDomain = WnGroupRole.parseAny(vDftRoleInDomain, null);
+
+            Object vDftRoleInOp = a.getMeta(Wn.K_ROLE_IN_OP);
+            WnGroupRole dftRoleInOp = WnGroupRole.parseAny(vDftRoleInOp, null);
+
+            // 看看角色里有木有指定更高级的默认值
             WnObj oRoleDir = this.setup.getRoleDir();
             if (null != oRoleDir) {
                 String roleName = a.getRoleName();
                 WnObj oRole = io.fetch(oRoleDir, roleName);
                 if (null != oRole) {
+                    // 域角色
                     Object vRoleInDomain = oRole.get(Wn.K_ROLE_IN_DOMAIN);
                     if (null != vRoleInDomain) {
                         WnGroupRole role = WnGroupRole.parseAny(vRoleInDomain);
-                        a.setDefaultMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                        if (null == dftRoleInDomain || role.isHigherThen(dftRoleInDomain)) {
+                            a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                            dftRoleInDomain = role;
+                        }
                     }
+                    // 系统运维组角色
                     Object vRoleInOp = oRole.get(Wn.K_ROLE_IN_OP);
                     if (null != vRoleInOp) {
                         WnGroupRole role = WnGroupRole.parseAny(vRoleInOp);
-                        a.setDefaultMeta(Wn.K_ROLE_IN_OP, role);
+                        if (null == dftRoleInOp || role.isHigherThen(dftRoleInOp)) {
+                            a.setMeta(Wn.K_ROLE_IN_OP, role);
+                            dftRoleInOp = role;
+                        }
                     }
                 }
             }

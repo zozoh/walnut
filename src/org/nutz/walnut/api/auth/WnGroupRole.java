@@ -41,9 +41,45 @@ public enum WnGroupRole {
         return this.value;
     }
 
-    public static WnGroupRole parseAny(Object role) {
+    /**
+     * 是否比给定的角色权限更高
+     * 
+     * @return 如果比给定的权限更高，返回 true
+     */
+    public boolean isHigherThen(WnGroupRole role) {
         if (null == role) {
-            return GUEST;
+            return true;
+        }
+        if (this.value == role.value) {
+            return false;
+        }
+        // 当前如果是 GUEST，只有 管理员/组员/预备组员都比自己高
+        if (this.value == 0) {
+            return role.value > 0;
+        }
+        // 如果当前是 ADMIN，没有权限比它高
+        if (this.value == 1) {
+            return false;
+        }
+        // 如果当前是 MEMBER，只有管理员比自己高
+        if (this.value == 10) {
+            return role.value == 1;
+        }
+        // 如果当前是 CANDIDATE，管理员和组员都比自己高
+        if (this.value == 100) {
+            return role.value == 1 || role.value == 10;
+        }
+        // 如果当前是黑名单，所有身份都比它高
+        if (this.value < 0) {
+            return role.value > 0;
+        }
+        // 这种情况不可能，总之返回 false 吧
+        return false;
+    }
+
+    public static WnGroupRole parseAny(Object role, WnGroupRole dft) {
+        if (null == role) {
+            return dft;
         }
         if (role instanceof Integer) {
             int v = (Integer) role;
@@ -51,6 +87,10 @@ public enum WnGroupRole {
         }
         String s = role.toString();
         return parseString(s);
+    }
+
+    public static WnGroupRole parseAny(Object role) {
+        return parseAny(role, GUEST);
     }
 
     public static WnGroupRole parseInt(int role) {
