@@ -464,8 +464,18 @@ public class AppModule extends AbstractWnModule {
         WnDomainService domains = new WnDomainService(io());
         WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
         String redirectPath = "/";
+        if (log.isInfoEnabled()) {
+            log.infof("auth_login_by_domain_passwd: - siteId: %s\n - name: %s\n - ajax: %s\n - host: %s",
+                      siteId,
+                      name,
+                      ajax,
+                      hostName);
+        }
         // 防守一波
         if (null == si) {
+            if (log.isWarnEnabled()) {
+                log.warnf("e.auth.login.NilSiteInfo: %s @ %s", siteId, hostName);
+            }
             WebException err = Er.create("e.auth.login.NilSiteInfo");
             if (ajax) {
                 return new ViewWrapper(new AjaxView(), err);
@@ -479,6 +489,9 @@ public class AppModule extends AbstractWnModule {
             } else {
                 view = new ServerRedirectView("/");
             }
+            if (log.isWarnEnabled()) {
+                log.warnf("e.auth.login.domain_without_www: %s @ %s", siteId, hostName);
+            }
             reo = Er.create("e.auth.login.domain_without_www");
             // 包裹返回
             return new ViewWrapper(view, reo);
@@ -489,6 +502,9 @@ public class AppModule extends AbstractWnModule {
             // 如果采用域用户登陆，则校验系统账户
             // 并返回 CookieView
             if (si.oHome.isSameName(name)) {
+                if (log.isInfoEnabled()) {
+                    log.infof("Login as domain-user: %s", name);
+                }
                 WnAuthSession se = auth().loginByPasswd(name, passwd);
                 String appName = se.getVars().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
@@ -496,12 +512,21 @@ public class AppModule extends AbstractWnModule {
             }
             // 采用域用户库来登陆
             else {
+                if (log.isInfoEnabled()) {
+                    log.infof("Login as sub-user: %s", name);
+                }
                 WnAccount user = si.webs.getAuthApi().checkAccount(name);
                 // -----------------------------------------
                 // 检查登录密码，看看是否登录成功
                 if (user.isMatchedRawPasswd(passwd)) {
+                    if (log.isInfoEnabled()) {
+                        log.infof("OK: check passwd");
+                    }
                     // 确保用户是可以访问域主目录的
                     __check_home_accessable(si.oHome, user);
+                    if (log.isInfoEnabled()) {
+                        log.infof("OK: check_home_accessable");
+                    }
 
                     // 特殊会话类型
                     String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
@@ -515,9 +540,17 @@ public class AppModule extends AbstractWnModule {
                     // 更新会话元数据
                     __update_auth_session(se, si.webs, si, byType, byValue);
 
+                    if (log.isInfoEnabled()) {
+                        log.infof("OK: create session: %s : %s", byType, byValue);
+                    }
+
                     // 获取重定向路径
                     String appName = se.getVars().getString("OPEN", "wn.manager");
                     redirectPath = "/a/open/" + appName;
+
+                    if (log.isInfoEnabled()) {
+                        log.infof(">>: %s", redirectPath);
+                    }
 
                     // 准备返回值
                     reo = se;
@@ -525,6 +558,9 @@ public class AppModule extends AbstractWnModule {
                 // -----------------------------------------
                 // 登录失败
                 else {
+                    if (log.isInfoEnabled()) {
+                        log.infof("KO: passwd fail");
+                    }
                     reo = Er.create("e.auth.login.invalid.passwd");
                 }
             }
@@ -543,6 +579,9 @@ public class AppModule extends AbstractWnModule {
         }
         // 通常是账户不存在或者权限错误，进入这个分支
         catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn(e.toString(), e);
+            }
             reo = e;
         }
         // -----------------------------------------
