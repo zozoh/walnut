@@ -808,25 +808,27 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
             // 看看角色里有木有指定更高级的默认值
             WnObj oRoleDir = this.setup.getRoleDir();
             if (null != oRoleDir) {
-                String roleName = a.getRoleName();
-                WnObj oRole = io.fetch(oRoleDir, roleName);
-                if (null != oRole) {
-                    // 域角色
-                    Object vRoleInDomain = oRole.get(Wn.K_ROLE_IN_DOMAIN);
-                    if (null != vRoleInDomain) {
-                        WnGroupRole role = WnGroupRole.parseAny(vRoleInDomain);
-                        if (null == dftRoleInDomain || role.isHigherThen(dftRoleInDomain)) {
-                            a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
-                            dftRoleInDomain = role;
+                String[] roleNames = a.getRoleList();
+                for (String roleName : roleNames) {
+                    WnObj oRole = io.fetch(oRoleDir, roleName);
+                    if (null != oRole) {
+                        // 域角色
+                        Object vRoleInDomain = oRole.get(Wn.K_ROLE_IN_DOMAIN);
+                        if (null != vRoleInDomain) {
+                            WnGroupRole role = WnGroupRole.parseAny(vRoleInDomain);
+                            if (null == dftRoleInDomain || role.isHigherThen(dftRoleInDomain)) {
+                                a.setMeta(Wn.K_ROLE_IN_DOMAIN, role);
+                                dftRoleInDomain = role;
+                            }
                         }
-                    }
-                    // 系统运维组角色
-                    Object vRoleInOp = oRole.get(Wn.K_ROLE_IN_OP);
-                    if (null != vRoleInOp) {
-                        WnGroupRole role = WnGroupRole.parseAny(vRoleInOp);
-                        if (null == dftRoleInOp || role.isHigherThen(dftRoleInOp)) {
-                            a.setMeta(Wn.K_ROLE_IN_OP, role);
-                            dftRoleInOp = role;
+                        // 系统运维组角色
+                        Object vRoleInOp = oRole.get(Wn.K_ROLE_IN_OP);
+                        if (null != vRoleInOp) {
+                            WnGroupRole role = WnGroupRole.parseAny(vRoleInOp);
+                            if (null == dftRoleInOp || role.isHigherThen(dftRoleInOp)) {
+                                a.setMeta(Wn.K_ROLE_IN_OP, role);
+                                dftRoleInOp = role;
+                            }
                         }
                     }
                 }

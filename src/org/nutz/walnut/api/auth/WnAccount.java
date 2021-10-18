@@ -1009,12 +1009,14 @@ public class WnAccount {
 
     public String toString() {
         String px = sysAccount ? "SYS" : "DMN";
-        return String.format("%s<%s:%s:%s>@%s{HOME=%s}",
+        return String.format("%s<%s:%s:%s>@%s[%s/%s]{HOME=%s}",
                              px,
                              name,
                              Strings.sBlank(phone),
                              Strings.sBlank(email),
                              groupName,
+                             this.getMeta(Wn.K_ROLE_IN_DOMAIN),
+                             this.getMeta(Wn.K_ROLE_IN_OP),
                              this.getHomePath());
     }
 
