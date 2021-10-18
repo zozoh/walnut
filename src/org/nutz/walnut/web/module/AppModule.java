@@ -517,7 +517,7 @@ public class AppModule extends AbstractWnModule {
                 }
                 WnAccount user = si.webs.getAuthApi().checkAccount(name);
                 if (log.isInfoEnabled()) {
-                    log.infof("sub user : %s", user.getName(), user.toString());
+                    log.infof("sub user : %s", user.toString());
                 }
                 // -----------------------------------------
                 // 检查登录密码，看看是否登录成功
