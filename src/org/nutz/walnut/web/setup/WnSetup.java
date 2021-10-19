@@ -242,6 +242,7 @@ public class WnSetup implements Setup {
         // -----------------------------------------
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
+
         //
         // 后台任务线程
         //
@@ -250,22 +251,26 @@ public class WnSetup implements Setup {
         this.bgtTask.start();
         log.infof("--> THREAD: %s started", this.bgtTask.getName());
 
-        //
-        // 分钟计划任务线程
-        //
-        Runnable bgSchedule = new WnBgRunScheduleConsumer(sf);
-        this.bgtSchedule = new Thread(bgSchedule, "BGT_SCHEDULE");
-        this.bgtSchedule.start();
-        log.infof("--> THREAD: %s started", this.bgtSchedule.getName());
+        // 默认开始系统后台计划任务
+        boolean sysScheduleEnabled = conf.getBoolean("sys-schedule-enabled", true);
+        if (sysScheduleEnabled) {
+            //
+            // 分钟计划任务线程
+            //
+            Runnable bgSchedule = new WnBgRunScheduleConsumer(sf);
+            this.bgtSchedule = new Thread(bgSchedule, "BGT_SCHEDULE");
+            this.bgtSchedule.start();
+            log.infof("--> THREAD: %s started", this.bgtSchedule.getName());
 
-        //
-        // 定期任务加载线程
-        //
-        int amount = conf.getInt("sys-cron-preload-amount", 5);
-        Runnable bgCron = new WnBgRunCronConsumer(sf, amount);
-        this.bgtCron = new Thread(bgCron, "BGT_CRON");
-        this.bgtCron.start();
-        log.infof("--> THREAD: %s started", this.bgtCron.getName());
+            //
+            // 定期任务加载线程
+            //
+            int amount = conf.getInt("sys-cron-preload-amount", 5);
+            Runnable bgCron = new WnBgRunCronConsumer(sf, amount);
+            this.bgtCron = new Thread(bgCron, "BGT_CRON");
+            this.bgtCron.start();
+            log.infof("--> THREAD: %s started", this.bgtCron.getName());
+        }
 
         log.info("===============================================================");
         log.info("");
