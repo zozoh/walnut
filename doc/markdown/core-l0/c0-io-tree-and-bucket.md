@@ -30,7 +30,7 @@ key: c0-tab
 
  Index     | Type    | Scene
 -----------|---------|-------
-MongoDB    | *nil*   | 默认场景
+MongoDB    | `mongo` | 根数据/大量复杂字段对象
 SQL Table  | `dao`   | 海量数据 dao(name) 
 Memory     | `mem`   | 用完即抛，譬如请求对象 mem(key) 
 LocalFile  | `file`  | 本地文件读写
@@ -61,19 +61,21 @@ mnt : "$IndexType[($Setting)][://$Storage]"
 
  Index | Storage       | Mapping
 -------|---------------|-----------------------
+`mongo`| `GlobalBM`    | `mongo(test)`
+`mongo`| `LocalIoBM`   | `mongo(test)://lbm(Abc)`
 `dao`  | `GlobalBM`    | `dao(abc/t_news)`               
-`dao`  | `LocalBM`     | `dao(abc/t_news)://lbm(Abc)`
+`dao`  | `LocalIoBM`   | `dao(abc/t_news)://lbm(Abc)`
 `dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss`
 `dao`  | `AliyunOssBM` | `dao(abc/t_news)://aliyunoss(news-data)`
 `mem`  | `GlobalBM`    | `mem`                         
-`mem`  | `LocalBM`     | `mem://lbm(Abc)`               
+`mem`  | `LocalIoBM`   | `mem://lbm(Abc)`               
 `file` | `LocalFileBM` | `file://C:/data/demo/`
 `redis`| `GlobalBM`    | `redia`
 `redis`| `GlobalBM`    | `redia(tmp-files)`
-`redis`| `LocalBM`     | `redia(tmp-files)://lbm(Tmp)`
+`redis`| `LocalIoBM`   | `redia(tmp-files)://lbm(Tmp)`
 `mq`   | `GlobalBM`    | `mq`
 `mq`   | `GlobalBM`    | `mq(messages)`
-`mq`   | `LocalBM`     | `mq(notify)://lbm(QueueData)`
+`mq`   | `LocalIoBM`   | `mq(notify)://lbm(QueueData)`
 `mq`   | `AliyunOssBM` | `mq(notify)://aliyunoss`
 
 对于映射对象，它的 ID 结构必须是两段式的：
@@ -415,7 +417,7 @@ $HomeID:$MyID
 ------------------------------------------
 # (草稿)两段式存储
 
-采用 `LocalBM` 存储，有一个问题，就是需要计算一下 SHA1，以便去重。
+采用 `LocalIoBM` 存储，有一个问题，就是需要计算一下 SHA1，以便去重。
 如果这个本地路径映射到了远端(譬如 AliyunOSS)， 那么相当于写入到远端
 然后计算 SHA1，然后发现重复，然后删掉。
 
