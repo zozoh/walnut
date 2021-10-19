@@ -81,8 +81,9 @@ public abstract class Wn {
         return _rt;
     }
 
-    public static void initRuntime(String nodeName) {
+    public static WnSysRuntime initRuntime(String nodeName) {
         _rt = new WnSysRuntime(nodeName);
+        return _rt;
     }
 
     public static long now() {

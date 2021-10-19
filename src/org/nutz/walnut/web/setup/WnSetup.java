@@ -37,6 +37,7 @@ import org.nutz.walnut.ext.sys.websocket.WnWebSocket;
 import org.nutz.walnut.impl.box.JvmExecutorFactory;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnRun;
+import org.nutz.walnut.util.WnSysRuntime;
 import org.nutz.walnut.web.WnConfig;
 import org.nutz.walnut.web.WnInitMount;
 import org.nutz.walnut.web.bgt.WnBgRunCronConsumer;
@@ -109,7 +110,7 @@ public class WnSetup implements Setup {
         // 初始化节点自身信息
         String nodeName = conf.get("wn-node-name");
         log.infof("Init runtime: %s", nodeName);
-        Wn.initRuntime(nodeName);
+        WnSysRuntime rt = Wn.initRuntime(nodeName);
         log.infof(Json.toJson(Wn.getRuntime().toMap(), JsonFormat.nice()));
 
         // 尝试看看组装的结果
@@ -250,6 +251,7 @@ public class WnSetup implements Setup {
         this.bgtTask = new Thread(bgTask, "BGT_TASK");
         this.bgtTask.start();
         log.infof("--> THREAD: %s started", this.bgtTask.getName());
+        rt.props().put("BGT_TASK", true);
 
         // 默认开始系统后台计划任务
         boolean sysScheduleEnabled = conf.getBoolean("sys-schedule-enabled", true);
@@ -261,6 +263,7 @@ public class WnSetup implements Setup {
             this.bgtSchedule = new Thread(bgSchedule, "BGT_SCHEDULE");
             this.bgtSchedule.start();
             log.infof("--> THREAD: %s started", this.bgtSchedule.getName());
+            rt.props().put("BGT_SCHEDULE", true);
 
             //
             // 定期任务加载线程
@@ -270,6 +273,7 @@ public class WnSetup implements Setup {
             this.bgtCron = new Thread(bgCron, "BGT_CRON");
             this.bgtCron.start();
             log.infof("--> THREAD: %s started", this.bgtCron.getName());
+            rt.props().put("BGT_CRON", true);
         }
 
         log.info("===============================================================");

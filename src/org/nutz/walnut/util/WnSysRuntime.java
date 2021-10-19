@@ -62,6 +62,8 @@ public class WnSysRuntime {
     String userName;
     String userTimezone;
 
+    NutMap props;
+
     public WnSysRuntime(String nodeName) {
         WnOS.fillRuntimeInfo(this);
 
@@ -76,6 +78,7 @@ public class WnSysRuntime {
         }
 
         this.nodeStartAtInMs = Wn.now();
+        this.props = new NutMap();
     }
 
     public String getNodeVersion() {
@@ -148,6 +151,10 @@ public class WnSysRuntime {
 
     public String getUserTimezone() {
         return userTimezone;
+    }
+
+    public NutMap props() {
+        return this.props;
     }
 
     public NutMap toMap() {
