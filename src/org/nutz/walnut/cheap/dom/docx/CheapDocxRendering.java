@@ -329,12 +329,17 @@ public class CheapDocxRendering {
         if (hasJustifyContent) {
             Jc jc = factory.createJc();
             String jcs = justifyContent.toUpperCase();
+            // CSS 的样式值，这里应该是 BOTH
+            if ("JUSTIFY".equals(jcs)) {
+                jcs = "BOTH";
+            }
             try {
                 jc.setVal(JcEnumeration.valueOf(jcs));
                 pPr.setJc(jc);
                 setPPr = true;
             }
             catch (Exception e) {
+                // 忍耐这个错误
                 throw Er.wrap(e);
             }
         }
