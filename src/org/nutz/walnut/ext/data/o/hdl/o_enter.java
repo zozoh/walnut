@@ -10,6 +10,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AlwaysMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class o_enter extends OFilter {
@@ -19,7 +20,7 @@ public class o_enter extends OFilter {
         // 防守
         String[] ss = params.vals;
         if (params.vals.length == 0) {
-            ss = Wlang.array("true");
+            ss = Wlang.array("!true");
         }
 
         // 分析参数
@@ -29,8 +30,20 @@ public class o_enter extends OFilter {
         WnMatch[] ms = new WnMatch[ss.length];
         int i = 0;
         for (String val : ss) {
-            Object vo = Json.fromJson(val);
-            WnMatch m = new AutoMatch(vo);
+            WnMatch m;
+            // 强制匹配
+            if ("!true".equals(val)) {
+                m = new AlwaysMatch(true);
+            }
+            // 强制不匹配
+            else if ("!false".equals(val)) {
+                m = new AlwaysMatch(false);
+            }
+            // 自动判断
+            else {
+                Object vo = Json.fromJson(val);
+                m = new AutoMatch(vo);
+            }
             ms[i++] = m;
         }
 

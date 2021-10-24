@@ -21,7 +21,7 @@ public class o_query extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(pager|hidden|append|mine|quiet)$");
+        return ZParams.parse(args, "^(pager|hidden|append|mine|quiet|path)$");
     }
 
     @SuppressWarnings("unchecked")
@@ -104,6 +104,13 @@ public class o_query extends OFilter {
 
         // 执行查询结果
         List<WnObj> list = sys.io.query(q);
+
+        // 确保每个对象有路径属性
+        if (params.is("path")) {
+            for (WnObj o : list) {
+                o.path();
+            }
+        }
 
         // 清除上下文
         if (!params.is("append")) {
