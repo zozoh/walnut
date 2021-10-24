@@ -3,6 +3,7 @@ package org.nutz.walnut.util.validate.impl;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.math.BigDecimal;
 
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.validate.WnMatch;
@@ -61,6 +62,10 @@ public class AutoMatch implements WnMatch {
         // Double
         else if (input instanceof Double) {
             this.m = new DoubleMatch((Double) input);
+        }
+        // BigDecimal
+        else if (input instanceof BigDecimal) {
+            this.m = new BigDecimalMatch((BigDecimal) input);
         }
         // List
         else if (input instanceof Collection<?>) {
