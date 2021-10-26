@@ -130,6 +130,9 @@ public class cmd_zip extends JvmExecutor {
             long len = o.len();
             if (null != rename) {
                 newName = rename.getName(o);
+                // 去掉不合法的字符串
+                newName = newName.replaceAll("['\"\\/]", "_");
+                // 路径改名
                 if (!Ws.isBlank(newName)) {
                     enPath = Wpath.renamePath(rph, newName);
                 }

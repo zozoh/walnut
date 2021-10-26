@@ -112,7 +112,8 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
                             if (Ws.isBlank(ka)) {
                                 continue;
                             }
-                            Object av3 = WnValues.toValue(af, v3);
+                            Object av2 = af.tryValueOptions(val);
+                            Object av3 = WnValues.toValue(af, av2);
                             re.put(ka, av3);
                         }
                     }
