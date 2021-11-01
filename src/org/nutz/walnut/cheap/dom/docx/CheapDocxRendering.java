@@ -708,11 +708,14 @@ public class CheapDocxRendering {
     private int[] evalTableColWidths(CheapElement el, int maxCol, int tableWidth) {
         List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
 
-        // 没有的话，尝试找第一行
+        // 没有的话，尝试找到列最多的那一行
         if (cols.isEmpty()) {
-            CheapElement firstTr = el.findElement(el2 -> el2.isStdTagName("TR"));
-            if (null != firstTr) {
-                cols = firstTr.getChildElements(el2 -> el2.isStdTagName("TD"));
+            List<CheapElement> trs = el.findElements(el2 -> el2.isStdTagName("TR"));
+            for (CheapElement tr : trs) {
+                List<CheapElement> cells = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
+                if (cells.size() > cols.size()) {
+                    cols = cells;
+                }
             }
         }
 
