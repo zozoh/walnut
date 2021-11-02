@@ -65,9 +65,9 @@ class DocxElStyle {
     void updateByElement(CheapElement el) {
         CheapStyle style = el.getStyleObj();
         // 字号(pt)
-        this.fontSize = style.getString("font-size");
+        this.fontSize = style.getString("font-size", this.fontSize);
         // 字体
-        this.fontFamily = style.getString("font-family");
+        this.fontFamily = style.getString("font-family", this.fontFamily);
         // 加粗
         if (style.isMatch("font-weight", "bold")) {
             this.bold = true;
