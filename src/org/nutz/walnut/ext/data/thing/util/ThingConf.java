@@ -42,6 +42,21 @@ public class ThingConf {
         return null != uniqueKeys && uniqueKeys.length > 0;
     }
 
+    public Map<String, ThingUniqueKey> getUniqueKeyNameMap() {
+        Map<String, ThingUniqueKey> map = new HashMap<>();
+        if (null != uniqueKeys) {
+            for (ThingUniqueKey uk : uniqueKeys) {
+                String[] ukNames = uk.getName();
+                if (null != ukNames) {
+                    for (String ukName : ukNames) {
+                        map.put(ukName, uk);
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
     public ThingUniqueKey[] getUniqueKeys() {
         return uniqueKeys;
     }

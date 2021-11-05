@@ -435,7 +435,7 @@ public class Ws {
      * @return 合并后的字符串
      */
     public static <T extends Object> String join(T[] arr, String sep, int off) {
-        return join(arr, sep, 0, arr.length - off);
+        return join(arr, sep, off, arr.length - off);
     }
 
     /**

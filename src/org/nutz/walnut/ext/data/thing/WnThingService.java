@@ -16,6 +16,7 @@ import org.nutz.walnut.ext.data.thing.impl.CleanTmpFileAction;
 import org.nutz.walnut.ext.data.thing.impl.CreateThingAction;
 import org.nutz.walnut.ext.data.thing.impl.CreateTmpFileAction;
 import org.nutz.walnut.ext.data.thing.impl.DeleteThingAction;
+import org.nutz.walnut.ext.data.thing.impl.DuplicateThingAction;
 import org.nutz.walnut.ext.data.thing.impl.FileAddAction;
 import org.nutz.walnut.ext.data.thing.impl.FileDeleteAction;
 import org.nutz.walnut.ext.data.thing.impl.FileGetAction;
@@ -29,6 +30,7 @@ import org.nutz.walnut.ext.data.thing.impl.UpdateThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
 import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
+import org.nutz.walnut.ext.data.thing.util.ThingDuplicateOptions;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.ext.data.thing.util.WnPathNormalizing;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -172,12 +174,12 @@ public class WnThingService {
     }
 
     public WnHttpResponseWriter fileReadAsHttp(String dirName,
-                                         WnObj oT,
-                                         String fnm,
-                                         String etag,
-                                         String range,
-                                         String userAgent,
-                                         boolean quiet) {
+                                               WnObj oT,
+                                               String fnm,
+                                               String etag,
+                                               String range,
+                                               String userAgent,
+                                               boolean quiet) {
         FileReadAsHttpAction a = _AD(new FileReadAsHttpAction(), dirName, oT);
         a.fnm = fnm;
         a.etag = etag;
@@ -363,6 +365,17 @@ public class WnThingService {
         if (null != qr.data)
             return (List<WnObj>) qr.data;
         return null;
+    }
+
+    public List<WnObj> duplicateThing(WnExecutable executor,
+                                      String id,
+                                      ThingDuplicateOptions options) {
+        DuplicateThingAction a = _A(new DuplicateThingAction());
+        a.setExecutor(executor);
+        a.setSrcId(id);
+        a.setConf(this.checkConf());
+        a.setOptions(options);
+        return a.invoke();
     }
 
     public List<WnObj> deleteThing(WnExecutable executor,

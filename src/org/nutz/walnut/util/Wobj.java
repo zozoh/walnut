@@ -272,6 +272,10 @@ public class Wobj {
     public static WnMatch explainObjKeyMatcher(String str) {
         return explainObjKeyMatcher(str, new AlwaysMatch(true));
     }
+    
+    public static WnMatch explainObjKeyMatcher(String str, boolean dft) {
+        return explainObjKeyMatcher(str, new AlwaysMatch(dft));
+    }
 
     public static String evalName(String name, String id) {
         name = Strings.sBlank(name, "${id}");

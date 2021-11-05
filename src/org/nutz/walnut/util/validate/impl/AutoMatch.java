@@ -22,8 +22,12 @@ import org.nutz.walnut.util.validate.WnMatch;
 public class AutoMatch implements WnMatch {
 
     public static WnMatch parse(Object input) {
+        return parse(input, false);
+    }
+
+    public static WnMatch parse(Object input, boolean dft) {
         if (null == input) {
-            return new AlwaysMatch(false);
+            return new AlwaysMatch(dft);
         }
         if (input instanceof Boolean) {
             return new AlwaysMatch((Boolean) input);
