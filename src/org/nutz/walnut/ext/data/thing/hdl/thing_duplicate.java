@@ -40,7 +40,7 @@ public class thing_duplicate implements JvmHdl {
         List<WnObj> list = wts.duplicateThing(sys, thId, opt);
 
         // 准备输出
-        if (hc.params.is("obj") || list.size() == 1) {
+        if (hc.params.is("obj") && list.size() == 1) {
             hc.output = list.get(0);
         }
         // 只输出一个
