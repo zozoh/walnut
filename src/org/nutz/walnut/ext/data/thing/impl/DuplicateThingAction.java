@@ -190,7 +190,7 @@ public class DuplicateThingAction extends ThingAction<List<WnObj>> {
         if (this.options.hasToIds()) {
             WnQuery q = Wn.Q.pid(oIndex);
             String toKey = Ws.sBlank(options.toKey, "id");
-            q.add(Wlang.map(toKey, options.toIds));
+            q.setAll(Wlang.map(toKey, options.toIds));
             oTargetList = io.query(q);
         }
         // 生成新的目标对象
