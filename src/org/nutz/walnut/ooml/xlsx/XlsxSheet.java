@@ -64,28 +64,33 @@ public class XlsxSheet extends XlsxObj {
             rows.add(row);
         }
 
-        // 读取媒体列表
-        XlsxDrawing drawing = new XlsxDrawing(this, drawingId[0]);
-        this.medias = drawing.getMedias();
+        // 如果有外部嵌入的媒体图片等，需要分析一下属于哪个单元格
+        if (drawingId[0] != null) {
+            // 读取媒体列表
+            XlsxDrawing drawing = new XlsxDrawing(this, drawingId[0]);
+            this.medias = drawing.getMedias();
 
-        // 编制媒体列表的索引
-        Map<String, XlsxMedia> mediaMap = new HashMap<>();
-        for (XlsxMedia media : medias) {
-            String key = String.format("%d_%d", media.getFromRowIndex(), media.getFromColIndex());
-            mediaMap.put(key, media);
-        }
-
-        // 搜索一遍所有的单元格
-        int y = 0;
-        for (XlsxRow row : this.rows) {
-            int x = 0;
-            for (XlsxCell cell : row.getCells()) {
-                String key = String.format("%d_%d", y, x);
-                XlsxMedia media = mediaMap.get(key);
-                cell.setMedia(media);
-                x++;
+            // 编制媒体列表的索引
+            Map<String, XlsxMedia> mediaMap = new HashMap<>();
+            for (XlsxMedia media : medias) {
+                String key = String.format("%d_%d",
+                                           media.getFromRowIndex(),
+                                           media.getFromColIndex());
+                mediaMap.put(key, media);
             }
-            y++;
+
+            // 搜索一遍所有的单元格
+            int y = 0;
+            for (XlsxRow row : this.rows) {
+                int x = 0;
+                for (XlsxCell cell : row.getCells()) {
+                    String key = String.format("%d_%d", y, x);
+                    XlsxMedia media = mediaMap.get(key);
+                    cell.setMedia(media);
+                    x++;
+                }
+                y++;
+            }
         }
     }
 

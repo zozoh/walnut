@@ -18,6 +18,10 @@ public class OomlRels {
 
     private Map<String, OomlRel> rels;
 
+    public OomlRels() {
+        rels = new HashMap<>();
+    }
+
     public OomlRels(OomlEntry en) {
         this(en.getPath(), en.getContentStr());
     }

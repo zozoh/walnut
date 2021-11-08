@@ -48,7 +48,14 @@ public class XlsxObj {
     protected void loadRelationships() {
         String relsPath = this.getObjRelsPath();
         OomlEntry re = ooml.getEntry(relsPath);
-        this.rels = new OomlRels(entry.getPath(), re.getContentStr());
+        // 某些电子表格，由于没有嵌入式图片等外部资源，因此没有关系表
+        if (null == re) {
+            this.rels = new OomlRels();
+        }
+        // 加载关系表
+        else {
+            this.rels = new OomlRels(entry.getPath(), re.getContentStr());
+        }
     }
 
 }
