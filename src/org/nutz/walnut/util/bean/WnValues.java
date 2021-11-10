@@ -1,8 +1,10 @@
 package org.nutz.walnut.util.bean;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.bean.val.WnAMSValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnArrayValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnBooleanValueAdaptor;
@@ -37,8 +39,15 @@ public class WnValues {
         return wv.toValue(fld, input);
     }
 
-//    public static String toStr(WnValue fld, Object val) {
-//        WnValueAdaptor wv = map.get(fld.getType());
-//        return wv.toStr(fld, val);
-//    }
+
+    public static Date parseDate(Object input, String datePrefix) {
+        if(null == input) {
+            return null;
+        }
+        if(null!=datePrefix) {
+            String in2 = datePrefix + input.toString();
+            return Wtime.parseDate(in2);
+        }
+        return Wtime.parseAnyDate(input);
+    }
 }

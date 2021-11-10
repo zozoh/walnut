@@ -27,12 +27,16 @@ public class ooml_beans extends OomlFilter {
             return;
         }
 
+        // 值区间
+        int limit = params.getInt("limit", 0);
+        int skip = params.getInt("skip", 0);
+
         // 默认第一行作为标题行
         int headIndex = params.getInt("head", 0);
 
         // 将行转换为对象
         Map<String, String> header = fc.sheet.getHeaderMapping(headIndex);
-        List<NutBean> beans = fc.sheet.toBeans(header, headIndex + 1);
+        List<NutBean> beans = fc.sheet.toBeans(header, headIndex + 1 + skip, limit);
 
         // 转换Bean的键
         beans = fc.tranlateBeans(beans);

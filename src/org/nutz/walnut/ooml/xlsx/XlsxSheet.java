@@ -118,14 +118,23 @@ public class XlsxSheet extends XlsxObj {
     }
 
     public List<NutBean> toBeans(Map<String, String> header, int offset) {
+        return toBeans(header, offset, 0);
+    }
+
+    public List<NutBean> toBeans(Map<String, String> header, int offset, int limit) {
         List<NutBean> list = new ArrayList<>(this.rows.size());
         int y = 0;
+        int count = 0;
         for (XlsxRow row : this.rows) {
             if (y++ < offset) {
                 continue;
             }
             NutBean bean = row.toBean(header);
             list.add(bean);
+            count++;
+            if (limit > 0 && count >= limit) {
+                break;
+            }
         }
         return list;
     }

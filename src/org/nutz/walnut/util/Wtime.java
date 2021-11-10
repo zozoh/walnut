@@ -32,6 +32,8 @@ public abstract class Wtime {
 
     private static Pattern _P_TIME_LONG = Pattern.compile("^(-?[0-9]+)(L)?$");
 
+    private static Pattern _P_OFFSET = Pattern.compile("^=(\\d{2,})[+](\\d+)$");
+
     public static String formatDateTime(Date d) {
         return format(d, "yyyy-MM-dd'T'HH:mm:ss");
     }
@@ -53,10 +55,10 @@ public abstract class Wtime {
     }
 
     public static long parseAMS(String ds, TimeZone tz) {
-        Calendar c = Calendar.getInstance();
+        // Calendar c = Calendar.getInstance();
         Date t = parseDate(ds, tz);
-        c.setTime(t);
-        return c.getTimeInMillis();
+        // c.setTime(t);
+        return t.getTime();
     }
 
     public static Calendar parseCalendar(String ds) {
@@ -84,6 +86,7 @@ public abstract class Wtime {
      * 支持的时间格式字符串为:
      * 
      * <pre>
+     * =1900+44504
      * yyyy-MM-dd HH:mm:ss
      * yyyy-MM-dd HH:mm:ss.SSS
      * yy-MM-dd HH:mm:ss;
@@ -109,7 +112,26 @@ public abstract class Wtime {
             return null;
         }
 
-        Matcher m;
+        // 绝对毫秒数
+        Matcher m = _P_TIME_LONG.matcher(ds);
+        if (m.find()) {
+            long ams = Long.parseLong(m.group(1));
+            return new Date(ams);
+        }
+
+        // 偏移量 "=1900+44504"
+        m = _P_OFFSET.matcher(ds);
+        if (m.find()) {
+            int year = Integer.parseInt(m.group(1));
+            int offd = Integer.parseInt(m.group(2));
+            Calendar c = Wtime.today();
+            c.set(Calendar.YEAR, year);
+            c.set(Calendar.MONTH, 0);
+            c.set(Calendar.DAY_OF_MONTH, 1);
+            c.set(Calendar.DAY_OF_YEAR, offd - 1);
+            return c.getTime();
+        }
+
         String str = null;
         // 一个8位的数字，譬如 20201202
         if (ds.length() == 8 && ds.matches("^\\d{8}$")) {
@@ -118,14 +140,7 @@ public abstract class Wtime {
                                 ds.substring(4, 6),
                                 ds.substring(6, 8));
         }
-        // 绝对毫秒数
-        else {
-            m = _P_TIME_LONG.matcher(ds);
-            if (m.find()) {
-                long ams = Long.parseLong(m.group(1));
-                return new Date(ams);
-            }
-        }
+
         // 看来给的字符串需要认真解析一下 ...
         if (null == str) {
             // 按字符串格式解析

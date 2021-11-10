@@ -256,7 +256,7 @@ public class WnIoImpl2 implements WnIo {
 
         WnIoMapping im = mappings.checkMapping(o);
         im.delete(o, r, this.whenDelete);
-        
+
         // 更新同步时间
         Wn.Io.update_ancestor_synctime(this, o, false, 0);
     }
@@ -960,8 +960,11 @@ public class WnIoImpl2 implements WnIo {
     @Override
     public int each(WnQuery q, Each<WnObj> callback) {
         // 声明了 ID 转到 get(id)
-        String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        // 防止 id:{"$ne":"6nev2ak790imqrf3peb45p4i0f"}
+        NutMap qc = q.first();
+        Object idv = qc.get("id");
+        if (null != idv && (idv instanceof String)) {
+            String id = (String) idv;
             WnObjMapping om = mappings.checkById(id);
             WnIoIndexer indexer = om.getSelfIndexer();
             WnObj o = indexer.get(id);
@@ -976,7 +979,7 @@ public class WnIoImpl2 implements WnIo {
         Each<WnObj> looper = Wn.eachLooping(callback);
 
         // 如果声明了 pid ，则看看有木有映射
-        String pid = q.first().getString("pid");
+        String pid = qc.getString("pid");
         if (!Strings.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)

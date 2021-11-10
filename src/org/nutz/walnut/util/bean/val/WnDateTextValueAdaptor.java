@@ -5,6 +5,7 @@ import java.util.Date;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wtime;
 import org.nutz.walnut.util.bean.WnValue;
+import org.nutz.walnut.util.bean.WnValues;
 
 public class WnDateTextValueAdaptor implements WnValueAdaptor {
 
@@ -13,7 +14,7 @@ public class WnDateTextValueAdaptor implements WnValueAdaptor {
         if (null == input) {
             return null;
         }
-        Date d = Wtime.parseAnyDate(input);
+        Date d = WnValues.parseDate(input, vd.getDatePrefix());
         String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
         return Wtime.format(d, fmt);
     }

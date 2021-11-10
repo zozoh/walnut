@@ -9,7 +9,12 @@ public class WnBooleanValueAdaptor implements WnValueAdaptor {
     @Override
     public Object toValue(WnValue vd, Object input) {
         int bi = 0;
-        if (Castors.me().castTo(input, Boolean.class)) {
+        Object vIn = input;
+        if (null != vIn && vd.hasValues()) {
+            vIn = vd.getValues().get(vIn.toString(), input);
+        }
+        Boolean isTrue = Castors.me().castTo(vIn, Boolean.class);
+        if (null != isTrue && isTrue.booleanValue()) {
             bi = 1;
         }
         WnEnumOptionItem[] options = vd.getOptions();

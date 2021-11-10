@@ -27,6 +27,12 @@ public class WnValue {
 
     private Object emptyAs;
 
+    /**
+     * 譬如 xsls 的日期，通常类型为 "44495"，表示 1900-01-01 之后的 44495 天 <br>
+     * 这种，声明前缀 "=1900+" 则表示这个日期类型是 "=1900+44495" 也就是 "2021-10-26"
+     */
+    private String datePrefix;
+
     private String format;
 
     private String valueRegion;
@@ -161,6 +167,14 @@ public class WnValue {
         this.emptyAs = emptyAs;
     }
 
+    public String getDatePrefix() {
+        return datePrefix;
+    }
+
+    public void setDatePrefix(String datePrefix) {
+        this.datePrefix = datePrefix;
+    }
+
     public boolean hasFormat() {
         return null != format;
     }
@@ -231,6 +245,10 @@ public class WnValue {
 
     public void setSeparator(String separator) {
         this.separator = separator;
+    }
+
+    public boolean hasValues() {
+        return null != values && !values.isEmpty();
     }
 
     public NutMap getValues() {
