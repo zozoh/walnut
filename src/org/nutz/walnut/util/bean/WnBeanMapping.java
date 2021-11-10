@@ -77,55 +77,83 @@ public class WnBeanMapping extends HashMap<String, WnBeanField> {
             return bean;
         }
 
-        for (Map.Entry<String, Object> en : bean.entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            try {
+        // 只有映射
+        if (onlyMapping) {
+            for (Map.Entry<String, WnBeanField> en : this.entrySet()) {
+                String key = en.getKey();
+                WnBeanField fld = en.getValue();
+
+                // 是否忽略 visible/hidden
+                if (fld.isIgnore(bean)) {
+                    continue;
+                }
+
+                Object val;
+                // 获取值: 条件选择
+                if (fld.hasMatchValue()) {
+                    val = fld.tryMatchValue(bean);
+                }
+                // 获取值：直接取值
+                else {
+                    val = bean.get(key);
+                }
+
+                // 无视空
+                if (null == val) {
+                    continue;
+                }
+
+                // 执行映射
+                __map_bean_field_val(re, fld, val, key);
+            }
+        }
+        // 全部方式
+        else {
+            for (Map.Entry<String, Object> en : bean.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+
                 WnBeanField fld = this.get(key);
-                // 如果没有声明字段，看看是否直接加入，还是忽略它
-                // 这个靠传入的参数 onlyMapping 来指定行为。
-                // 譬如 ooml 命令里的 @mapping 就可以用 -only 来开启这个选项
+                // 未声明映射字段，直接 copy
                 if (null == fld) {
-                    if (onlyMapping) {
-                        continue;
-                    }
                     re.put(key, val);
                 }
                 // 执行映射
                 else {
-                    if (onlyMapping) {
-                        if (fld.isIgnore(bean)) {
-                            continue;
-                        }
-                    }
-
-                    String k2 = fld.getName(key);
-                    Object v2 = fld.tryValueOptions(val);
-                    Object v3 = WnValues.toValue(fld, v2);
-                    re.put(k2, v3);
-
-                    // 看看还有没有别名字段
-                    if (fld.hasAliasFields()) {
-                        for (WnBeanField af : fld.getAliasFields()) {
-                            // 木有名字，那么无视
-                            String ka = af.getName(null);
-                            if (Ws.isBlank(ka)) {
-                                continue;
-                            }
-                            Object av2 = af.tryValueOptions(val);
-                            Object av3 = WnValues.toValue(af, av2);
-                            re.put(ka, av3);
-                        }
-                    }
+                    __map_bean_field_val(re, fld, val, key);
                 }
-            }
-            // 搞个容易理解的错误
-            catch (Throwable e) {
-                throw Er.createf("e.bean.mapping.invalid", "field[%s]: %s", key, e.toString());
+
             }
         }
 
         return re;
+    }
+
+    private void __map_bean_field_val(NutMap re, WnBeanField fld, Object val, String key) {
+        try {
+            String k2 = fld.getName(key);
+            Object v2 = fld.tryValueOptions(val);
+            Object v3 = WnValues.toValue(fld, v2);
+            re.put(k2, v3);
+
+            // 看看还有没有别名字段
+            if (fld.hasAliasFields()) {
+                for (WnBeanField af : fld.getAliasFields()) {
+                    // 木有名字，那么无视
+                    String ka = af.getName(null);
+                    if (Ws.isBlank(ka)) {
+                        continue;
+                    }
+                    Object av2 = af.tryValueOptions(val);
+                    Object av3 = WnValues.toValue(af, av2);
+                    re.put(ka, av3);
+                }
+            }
+        }
+        // 搞个容易理解的错误
+        catch (Throwable e) {
+            throw Er.createf("e.bean.mapping.invalid", "field[%s]: %s", key, e.toString());
+        }
     }
 
     public void setFields(Map<String, Object> fields,

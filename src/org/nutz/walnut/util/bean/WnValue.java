@@ -11,6 +11,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.bean.util.WnBeanFieldMatchValue;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
 public class WnValue {
@@ -40,6 +41,8 @@ public class WnValue {
     private String separator;
 
     private NutMap values;
+
+    private WnBeanFieldMatchValue[] matchValue;
 
     private WnEnumOptionItem[] options;
 
@@ -245,6 +248,29 @@ public class WnValue {
 
     public void setSeparator(String separator) {
         this.separator = separator;
+    }
+
+    public Object tryMatchValue(NutBean bean) {
+        if (this.hasMatchValue()) {
+            for (WnBeanFieldMatchValue bfmv : this.matchValue) {
+                if (bfmv.matchTest(bean)) {
+                    return bfmv.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean hasMatchValue() {
+        return null != matchValue && matchValue.length > 0;
+    }
+
+    public WnBeanFieldMatchValue[] getMatchValue() {
+        return matchValue;
+    }
+
+    public void setMatchValue(WnBeanFieldMatchValue[] matchmatchValue) {
+        this.matchValue = matchmatchValue;
     }
 
     public boolean hasValues() {
