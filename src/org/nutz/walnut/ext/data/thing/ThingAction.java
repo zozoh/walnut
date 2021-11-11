@@ -164,9 +164,11 @@ public abstract class ThingAction<T> {
                 if (nbExists == 0)
                     return null;
             }
+            // For insert and UK is required
             if (required) {
                 throw Er.create("e.thing.ukey.required", Json.toJson(ukeys));
             }
+            return null;
         }
 
         // 查一下吧
