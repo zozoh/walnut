@@ -2,6 +2,7 @@ package org.nutz.walnut.ooml.xlsx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -105,13 +106,15 @@ public class XlsxSheet extends XlsxObj {
      */
     public Map<String, String> getHeaderMapping(int rowIndex) {
         XlsxRow row = this.rows.get(rowIndex);
-        Map<String, String> re = new HashMap<>();
+        Map<String, String> re = new LinkedHashMap<>();
         for (XlsxCell cell : row.getCells()) {
             Matcher m = _K_M.matcher(cell.getReference());
             if (m.find()) {
                 String key = m.group(1);
                 String val = Ws.trim(cell.getStringValue());
-                re.put(key, val);
+                if (!Ws.isBlank(val)) {
+                    re.put(key, val);
+                }
             }
         }
         return re;

@@ -49,7 +49,7 @@ public class XlsxWorkbook extends XlsxObj {
         CheapDocument doc = new CheapDocument("sst");
         CheapXmlParsing parser = new CheapXmlParsing(doc);
         doc = parser.parseDoc(input);
-        List<CheapElement> list = doc.findElements(e -> e.isTagName("t"));
+        List<CheapElement> list = doc.findElements(e -> e.isTagName("si"));
         sharedStrings = new String[list.size()];
         int i = 0;
         for (CheapElement el : list) {

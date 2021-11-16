@@ -20,10 +20,15 @@ public class XlsxMedia {
 
         // 找到填充方式
         CheapElement eBlip = el.findElement(e -> e.isTagName("a:blip"));
-        this.referId = eBlip.attr("r:embed");
+        if (null != eBlip) {
+            this.referId = eBlip.attr("r:embed");
+        }
 
         // 得到媒体路径
-        this.path = drawing.rels.getTargetPath(this.referId);
+        if (null != this.referId) {
+            this.path = drawing.rels.getTargetPath(this.referId);
+        }
+
     }
 
     public int getFromColIndex() {

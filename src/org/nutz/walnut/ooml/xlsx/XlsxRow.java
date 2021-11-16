@@ -33,6 +33,20 @@ public class XlsxRow {
         }
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[').append(rowIndex).append(']');
+        if (null == cells) {
+            sb.append(" ~No Cells~ ");
+        } else {
+            for (XlsxCell cell : cells) {
+                sb.append(cell.toString());
+                sb.append(" | ");
+            }
+        }
+        return sb.toString();
+    }
+
     public NutBean toBean(Map<String, String> header) {
         NutMap bean = new NutMap();
         for (XlsxCell cell : cells) {

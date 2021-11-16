@@ -996,11 +996,13 @@ public class Ws {
         int last = length - 1;
         int r = last;
         for (; l < length; l++) {
-            if (!Character.isWhitespace(cs.charAt(l)))
+            char c = cs.charAt(l);
+            if (!Character.isWhitespace(c) && 160 != c)
                 break;
         }
         for (; r > l; r--) {
-            if (!Character.isWhitespace(cs.charAt(r)))
+            char c = cs.charAt(r);
+            if (!Character.isWhitespace(c) && 160 != c)
                 break;
         }
         if (l > r)

@@ -92,7 +92,7 @@ public class OomlRels {
     }
 
     public String getUniqPath(String rph) {
-        int pos = this.path.indexOf('/');
+        int pos = this.path.lastIndexOf('/');
         String name = this.path.substring(0, pos);
         String ph = Wn.appendPath(name, rph);
         return Wpath.getCanonicalPath(ph);

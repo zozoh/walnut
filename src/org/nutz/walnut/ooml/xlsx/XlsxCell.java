@@ -69,6 +69,10 @@ public class XlsxCell {
         }
     }
 
+    public String toString() {
+        return String.format("[<%s>:%s]", reference, value);
+    }
+
     public XlsxWorkbook getWorkbook() {
         return workbook;
     }
