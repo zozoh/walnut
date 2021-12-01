@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "11.37";
+        return "11.38";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "THDUP";
+        return "CHRISTMAS";
     }
 
     /**

@@ -11,7 +11,7 @@ thing '~/${http-qs-ts}' file ${http-qs-id} \
     -http '${http-qs-fnm}' \
     -etag  '${http-header-IF-NONE-MATCH?none}' \
     -range '${http-header-RANGE?}' \
-    -download '${http-qs-d<boolean>?false}' \
+    -download '${http-qs-down<boolean>?false}' \
     -UserAgent '${http-header-USER-AGENT?}'
 %END%
 #---------------------------------------------------------

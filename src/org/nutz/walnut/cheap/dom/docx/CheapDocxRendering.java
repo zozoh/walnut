@@ -587,7 +587,7 @@ public class CheapDocxRendering {
         tr.getContent().add(td);
     }
 
-    private void joinTableRow(Tbl table, CheapElement el) {
+    private void joinTableRow(Tbl table, CheapElement el, List<CheapElement[]> grid, int rowI) {
         Tr tr = factory.createTr();
 
         CheapStyle style = el.getStyleObj();
@@ -604,7 +604,13 @@ public class CheapDocxRendering {
             div.add(jax);
         }
 
-        for (CheapElement child : el.getChildElements()) {
+        // 根据修正过 col-span/row-span 的格子，输出单元格
+        CheapElement[] cells = grid.get(rowI);
+        for (CheapElement child : cells) {
+            // Colspan 会导致grid里有空的占位元素
+            if (null == child) {
+                continue;
+            }
             if (child.isStdTagName("TD") || child.isStdTagName("TH")) {
                 joinTableCell(tr, child);
             }
@@ -669,7 +675,7 @@ public class CheapDocxRendering {
         int[] colsW = this.evalTableColWidths(el, colN, pageTableWidth);
 
         // 针对单元格设置 rowSpan(vMerge (restart))
-        this.evalRowSpanAsVMerge(el, colN, colsW);
+        List<CheapElement[]> grid = this.evalRowSpanAsVMerge(el, colN, colsW);
 
         // 设置表格宽度
         tPr.setTblW(createWidth(pageTableWidth));
@@ -687,19 +693,20 @@ public class CheapDocxRendering {
         table.setTblGrid(tGrid);
 
         // 设置单元格
+        int rowI = 0;
         for (CheapElement child : el.getChildElements()) {
             // THEAD
             // TBODY
             if (child.isStdTagName("THEAD") || child.isStdTagName("TBODY")) {
                 for (CheapElement c2 : child.getChildElements()) {
                     if (c2.isStdTagName("TR")) {
-                        joinTableRow(table, c2);
+                        joinTableRow(table, c2, grid, rowI++);
                     }
                 }
             }
             // TR
             else if (child.isStdTagName("TR")) {
-                joinTableRow(table, child);
+                joinTableRow(table, child, grid, rowI++);
             }
         }
         partItems.add(table);
@@ -783,7 +790,7 @@ public class CheapDocxRendering {
         return ws;
     }
 
-    private int evalRowSpanAsVMerge(CheapElement el, int maxCol, int[] colsW) {
+    private List<CheapElement[]> evalRowSpanAsVMerge(CheapElement el, int maxCol, int[] colsW) {
         // 找到所有的行
         List<CheapElement> trs = el.findElements(el2 -> el2.isStdTagName("TR"));
 
@@ -796,7 +803,7 @@ public class CheapDocxRendering {
             grid.add(cells);
         }
 
-        // 开始想数组填充单元格
+        // 开始向数组填充单元格
         y = 0;
         for (CheapElement tr : trs) {
             List<CheapElement> tds = tr.getChildElements(el2 -> el2.isStdTagName("TD"));
@@ -845,7 +852,7 @@ public class CheapDocxRendering {
             y++;
         }
 
-        return maxCol;
+        return grid;
     }
 
     private TblWidth createWidth(int tableWidth) {
