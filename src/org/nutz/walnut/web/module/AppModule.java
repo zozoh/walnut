@@ -535,10 +535,11 @@ public class AppModule extends AbstractWnModule {
                     String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
                     String byValue = si.siteId + ":passwd";
 
-                    // 获取账号对应的角色
+                    // 获取会话时长设置
+                    int se_du = si.webs.getSite().getSeDftDu();
 
                     // 注册新会话
-                    WnAuthSession se = auth().createSession(user, true);
+                    WnAuthSession se = auth().createSession(user, se_du);
 
                     // 更新会话元数据
                     __update_auth_session(se, si.webs, si, byType, byValue);

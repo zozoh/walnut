@@ -298,7 +298,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     public WnAuthSession touchSession(WnAuthSession se) {
         if (null != se && !se.isDead()) {
             long nowInMs = Wn.now();
-            long se_du = setup.getSessionDefaultDuration();
+            int se_du = se.getDurationInSec();
             se.setExpi(nowInMs + (se_du * 1000L));
             io.appendMeta(se.getObj(), Lang.map("expi", se.getExpi()));
         }
@@ -310,8 +310,15 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     public WnAuthSession createSession(WnAccount user, boolean longSession) {
         NutMap by = Lang.map("by_tp", "transient");
         by.put("by_val", null);
-        long se_du = longSession ? setup.getSessionDefaultDuration()
-                                 : setup.getSessionTransientDuration();
+        int se_du = longSession ? setup.getSessionDefaultDuration()
+                                : setup.getSessionTransientDuration();
+        return createSessionBy(se_du, user, by);
+    }
+
+    @Override
+    public WnAuthSession createSession(WnAccount user, int se_du) {
+        NutMap by = Lang.map("by_tp", "transient");
+        by.put("by_val", null);
         return createSessionBy(se_du, user, by);
     }
 
@@ -319,7 +326,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     public WnAuthSession createSession(WnAuthSession pse, WnAccount user) {
         NutMap by = Lang.map("by_tp", "session");
         by.put("by_val", pse.getId());
-        long se_du = setup.getSessionDefaultDuration();
+        int se_du = setup.getSessionDefaultDuration();
         return createSessionBy(se_du, user, by);
     }
 
@@ -533,7 +540,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         updateUserAvatar(me, headimgurl);
 
         // 创建完毕，收工
-        long se_du = setup.getSessionDefaultDuration();
+        int se_du = setup.getSessionDefaultDuration();
         return createSessionBy(se_du, me, by);
     }
 
@@ -701,7 +708,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_vcode");
         by.put("by_val", account);
-        long se_du = setup.getSessionDefaultDuration();
+        int se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
@@ -723,12 +730,12 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         // 创建会话并返回
         NutMap by = Lang.map("by_tp", "web_passwd");
         by.put("by_val", nameOrIdOrPhoneOrEmail);
-        long se_du = setup.getSessionDefaultDuration();
+        int se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);
         return se;
     }
 
-    private WnAuthSession createSessionBy(long duInSec, WnAccount me, NutMap meta) {
+    private WnAuthSession createSessionBy(int duInSec, WnAccount me, NutMap meta) {
         WnObj oSessionDir = setup.getSessionDir();
         // 过期时间
         long expi = Wn.now() + (duInSec * 1000L);
@@ -739,6 +746,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         WnAuthSession se = new WnAuthSession(ticket, me);
         se.setId(oSe.id());
         se.setExpi(expi);
+        se.setDurationInSec(duInSec);
         se.setObj(oSe);
 
         // 更新会话

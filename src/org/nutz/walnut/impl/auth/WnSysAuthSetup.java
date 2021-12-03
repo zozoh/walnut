@@ -18,13 +18,13 @@ import org.nutz.walnut.util.Wn;
 
 public class WnSysAuthSetup extends AbstractWnAuthSetup {
 
-    private long seDftDu;
+    private int seDftDu;
 
-    private long seTmpDu;
+    private int seTmpDu;
 
     private WnGroupRoleService groupRoles;
 
-    public WnSysAuthSetup(WnIo io, long seDftDu, long seTmpDu) {
+    public WnSysAuthSetup(WnIo io, int seDftDu, int seTmpDu) {
         super(io);
         this.seDftDu = seDftDu;
         this.seTmpDu = seTmpDu;
@@ -65,12 +65,12 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
-    public long getSessionDefaultDuration() {
+    public int getSessionDefaultDuration() {
         return seDftDu;
     }
 
     @Override
-    public long getSessionTransientDuration() {
+    public int getSessionTransientDuration() {
         return seTmpDu;
     }
 

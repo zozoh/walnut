@@ -51,12 +51,12 @@ public interface WnAuthSetup {
     /**
      * @return 默认会话持续时间（秒）
      */
-    long getSessionDefaultDuration();
+    int getSessionDefaultDuration();
 
     /**
      * @return 短会话持续时间（秒）
      */
-    long getSessionTransientDuration();
+    int getSessionTransientDuration();
 
     /**
      * @param codeType

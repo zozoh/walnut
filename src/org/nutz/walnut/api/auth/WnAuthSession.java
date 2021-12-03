@@ -33,6 +33,8 @@ public class WnAuthSession {
 
     private long expi;
 
+    private int durationInSec;
+
     private boolean dead;
 
     private NutMap vars;
@@ -92,6 +94,7 @@ public class WnAuthSession {
         this.id = oSe.id();
         this.ticket = oSe.name();
         this.expi = oSe.expireTime();
+        this.durationInSec = oSe.getInt("duration", 0);
         this.dead = oSe.getBoolean("dead");
         this.currentPath = oSe.getString("pwd", "~");
         this.byType = oSe.getString("by_tp");
@@ -118,6 +121,10 @@ public class WnAuthSession {
         // 过期时间
         if (expi > 0) {
             map.put("expi", expi);
+        }
+        // 持续时间
+        if (expi > 0) {
+            map.put("duration", durationInSec);
         }
         // Dead
         if (this.dead) {
@@ -311,6 +318,14 @@ public class WnAuthSession {
 
     public void setExpi(long expi) {
         this.expi = expi;
+    }
+
+    public int getDurationInSec() {
+        return durationInSec;
+    }
+
+    public void setDurationInSec(int durationInSec) {
+        this.durationInSec = durationInSec;
     }
 
     public boolean isDead() {

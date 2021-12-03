@@ -134,6 +134,17 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * @return 新创建的会话对象
      */
     WnAuthSession createSession(WnAccount user, boolean longSession);
+    
+    /**
+     * 根据指定用户，创建一个顶级会话
+     * 
+     * @param user
+     *            账户对象
+     * @param se_du
+     *            指定会话时长（秒）
+     * @return 新创建的会话对象
+     */
+    WnAuthSession createSession(WnAccount user, int se_du);
 
     /**
      * 为一个会话创建子会话(一定是长会话)

@@ -41,12 +41,12 @@ public class WnWebAuthSetup extends AbstractWnAuthSetup {
     }
 
     @Override
-    public long getSessionDefaultDuration() {
+    public int getSessionDefaultDuration() {
         return site.getSeDftDu();
     }
 
     @Override
-    public long getSessionTransientDuration() {
+    public int getSessionTransientDuration() {
         return site.getSeTmpDu();
     }
 

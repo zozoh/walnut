@@ -21,8 +21,8 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
     private WnIo io;
     private NutMap initEnvs;
     private String rootDefaultPasswd;
-    private long seDftDu;
-    private long seTmpDu;
+    private int seDftDu;
+    private int seTmpDu;
     private String defaultQuitUrl;
 
     // 下面这俩是 on_create 创建的
@@ -58,11 +58,11 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         this.rootDefaultPasswd = rootDefaultPasswd;
     }
 
-    public void setSeDftDu(long seDftDu) {
+    public void setSeDftDu(int seDftDu) {
         this.seDftDu = seDftDu;
     }
 
-    public void setSeTmpDu(long seTmpDu) {
+    public void setSeTmpDu(int seTmpDu) {
         this.seTmpDu = seTmpDu;
     }
 
@@ -293,6 +293,14 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
                 return impl.createSession(user, longSession);
+            }
+        });
+    }
+
+    public WnAuthSession createSession(WnAccount user, int se_du) {
+        return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
+            protected WnAuthSession exec() {
+                return impl.createSession(user, se_du);
             }
         });
     }
