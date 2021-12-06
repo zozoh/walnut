@@ -39,14 +39,23 @@ public class WnValues {
         return wv.toValue(fld, input);
     }
 
-
     public static Date parseDate(Object input, String datePrefix) {
-        if(null == input) {
+        if (null == input) {
             return null;
         }
-        if(null!=datePrefix) {
-            String in2 = datePrefix + input.toString();
-            return Wtime.parseDate(in2);
+        if (null != datePrefix && (input instanceof String)) {
+            String str = (String) input;
+            // 如果输入的是一个整数，那么通常是一个带有前缀的天数
+            int iN = 0;
+            try {
+                iN = Integer.parseInt(str);
+            }
+            catch (Exception e2) {}
+
+            if (iN > 0) {
+                String in2 = datePrefix + str;
+                return Wtime.parseDate(in2);
+            }
         }
         return Wtime.parseAnyDate(input);
     }

@@ -1,5 +1,7 @@
 package org.nutz.walnut.util.bean.val;
 
+import java.util.Date;
+
 import org.nutz.walnut.util.bean.WnValue;
 import org.nutz.walnut.util.bean.WnValues;
 
@@ -12,7 +14,9 @@ public class WnAMSValueAdaptor implements WnValueAdaptor {
         }
         // 尝试解析
         try {
-            return WnValues.parseDate(input, vd.getDatePrefix()).getTime();
+            String datePrefix = vd.getDatePrefix();
+            Date d = WnValues.parseDate(input, datePrefix);
+            return d.getTime();
         }
         // 解析不成功！ 当作不存在
         catch (Throwable e) {
