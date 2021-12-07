@@ -79,13 +79,23 @@ public class ObjModule extends AbstractWnModule {
     @At("/get/**")
     public WnObj get(String str, @Param("aph") boolean isAbsolutePath) {
         str = __format_str(str, isAbsolutePath);
-        return Wn.checkObj(io(), str);
+        WnObj o = Wn.checkObj(io(), str);
+        return o;
     }
 
     @At("/fetch")
     public WnObj fetch(@Param("str") String str) {
         WnAuthSession se = Wn.WC().checkSession();
-        return Wn.checkObj(io(), se, str);
+        WnObj o = Wn.checkObj(io(), se, str);
+        return o;
+    }
+
+    @At("/fetch2")
+    public WnObj fetch2(@Param("str") String str) {
+        WnAuthSession se = Wn.WC().checkSession();
+        WnObj o = Wn.checkObj(io(), se, str);
+        o.path();
+        return o;
     }
 
     /**
