@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;
@@ -12,6 +13,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class o_ancestors extends OFilter {
 
@@ -45,6 +48,14 @@ public class o_ancestors extends OFilter {
             oTop = Wn.checkObj(sys, phTop);
         }
 
+        // 声明了一个条件匹配的顶节点
+        String utilMatch = params.getString("um");
+        WnMatch um = null;
+        if (!Ws.isBlank(utilMatch)) {
+            Object umo = Json.fromJson(utilMatch);
+            um = new AutoMatch(umo);
+        }
+
         // 首先读取祖先节点
         for (WnObj o : fc.list) {
             List<WnObj> ans = new LinkedList<>();
@@ -54,13 +65,20 @@ public class o_ancestors extends OFilter {
                 continue;
 
             // 截取一下顶
-            if (null != oTop) {
+            if (null != oTop || null != um) {
                 // 尝试找一下顶
                 Iterator<WnObj> it = ans.listIterator();
                 boolean foundTop = false;
                 while (it.hasNext()) {
                     WnObj an = it.next();
-                    if (an.isSameId(oTop)) {
+                    // 顶路径
+                    if (null != oTop && an.isSameId(oTop)) {
+                        foundTop = true;
+                        break;
+                    }
+                    // 条件顶节点
+                    if (null != um && um.match(an)) {
+                        oTop = an;
                         foundTop = true;
                         break;
                     }
