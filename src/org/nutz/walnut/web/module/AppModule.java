@@ -36,6 +36,7 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnSecurityImpl;
@@ -45,6 +46,7 @@ import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.bean.WnLoginPage;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -156,6 +158,8 @@ public class AppModule extends AbstractWnModule {
     @Fail("jsp:jsp.show_text")
     public View open(String appName,
                      @Param("ph") String str,
+                     @Param("id") String id,
+                     @Param("m") String matchJson,
                      @ReqHeader("If-None-Match") String etag,
                      HttpServletResponse resp) {
 
@@ -164,10 +168,27 @@ public class AppModule extends AbstractWnModule {
             WnApp app = apps.checkApp(appName);
 
             // 得到数据对象
-            if (Strings.isBlank(str)) {
-                str = app.getSession().getVars().getString("OBJ_DFT_PATH", "~");
+            WnObj oP;
+            // 指定 ID
+            if (!Ws.isBlank(id)) {
+                oP = apps.getObjById(app, id);
             }
-            WnObj obj = apps.getObj(app, str);
+            // 默认用路径
+            else {
+                if (Strings.isBlank(str)) {
+                    str = app.getSession().getVars().getString("OBJ_DFT_PATH", "~");
+                }
+                oP = apps.getObjByPath(app, str);
+            }
+            // 指定查询条件
+            WnObj obj;
+            if (!Ws.isBlank(matchJson)) {
+                WnQuery q = Wn.Q.map(matchJson);
+                q.setvToList("pid", oP.id());
+                obj = apps.getObjByQuery(app, q);
+            } else {
+                obj = oP;
+            }
             app.setObj(obj);
 
             // 检查应用权限: root 组成员免查，可以打开任何 app

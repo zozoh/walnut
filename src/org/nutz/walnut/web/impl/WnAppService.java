@@ -16,6 +16,7 @@ import org.nutz.log.Log;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.titanium.hdl.ti_webdeps;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
@@ -247,11 +248,11 @@ public class WnAppService extends WnRun {
      * 
      * @param app
      *            应用
-     * @param str
+     * @param ph
      *            对象路径。如果是相对路径，则从应用主目录起始查找
      * @return 数据对象，null 表示不存在
      */
-    public WnObj getObj(WnApp app, String str) {
+    public WnObj getObjByPath(WnApp app, String ph) {
         // 获取会话
         WnAuthSession se = app.getSession();
         // NutMap vars = se.getVars();
@@ -260,11 +261,60 @@ public class WnAppService extends WnRun {
         // vars.put("PWD", app.getHome().getRegularPath());
 
         // 默认就是主目录
-        if (Strings.isBlank(str)) {
+        if (Strings.isBlank(ph)) {
             return null;
         }
-        // 指定的用户
-        return Wn.checkObj(io(), se, str);
+        // 获取对象
+        return Wn.checkObj(io(), se, ph);
+    }
+
+    /**
+     * 获取一个数据对象
+     * 
+     * @param app
+     *            应用
+     * @param id
+     *            对象的 ID
+     * @return 数据对象，null 表示不存在
+     */
+    public WnObj getObjById(WnApp app, String id) {
+        // 默认就是主目录
+        if (Strings.isBlank(id)) {
+            return null;
+        }
+        // 获取对象
+        return io().checkById(id);
+    }
+
+    /**
+     * 获取一个数据对象
+     * 
+     * @param app
+     *            应用
+     * @param q
+     *            对象的查询条件
+     * @return 数据对象，null 表示不存在
+     */
+    public WnObj getObjByQuery(WnApp app, WnQuery q) {
+        // 获取会话
+        WnAuthSession se = app.getSession();
+
+        // 必须指定查询条件
+        if (null == q) {
+            return null;
+        }
+        q.setvToList("d0", "home");
+        q.setvToList("d1", se.getMyGroup());
+        q.limit(2);
+
+        List<WnObj> list = io().query(q);
+        if (list.size() == 2) {
+            throw Er.create("e.app.getObjByQuery.MultiObjFound");
+        }
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**
