@@ -119,7 +119,7 @@ www captcha $${site?${dft_site?~/www/website}} \
 # API(auth): 获取图形验证码
 @API .regapi/api/auth/captcha 'cross'{mime:"image/png"}
 %TMPL:
-www captcha $${site?${dft_site?~/www/website}} \
+www captcha $${http-qs-site?${dft_site?~/www/website}} \
   $${http-qs-scene?robot} $${http-qs-account?} \
   -size $${http-qs-size?100x50} \
   -as png

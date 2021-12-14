@@ -18,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 
 public class XlsxSheetHandler extends AbstractPoiSheetHandler {
 
@@ -32,7 +33,7 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
     }
 
     @Override
-    protected List<SheetImage> exportImages(Workbook _wb, List<NutMap> list, NutMap conf) {
+    protected List<SheetImage> exportImages(Workbook _wb, List<NutBean> list, NutMap conf) {
         List<SheetImage> images = new ArrayList<SheetImage>();
         XSSFWorkbook wb = (XSSFWorkbook) _wb;
         int sheetCount = wb.getNumberOfSheets();
@@ -41,7 +42,7 @@ public class XlsxSheetHandler extends AbstractPoiSheetHandler {
         int colOffset = conf.getInt("colOffset", 0);
         String sheetName = conf.getString("sheetName");
         Set<Integer> rows = new HashSet<Integer>();
-        for (NutMap re : list) {
+        for (NutBean re : list) {
             if (re.containsKey("rowIndex")) {
                 rows.add(re.getInt("rowIndex"));
             }

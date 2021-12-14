@@ -23,6 +23,7 @@ import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.media.sheet.SheetImageHolder;
@@ -43,12 +44,12 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
     protected abstract Workbook createWorkbook();
 
-    protected abstract List<SheetImage> exportImages(Workbook wb, List<NutMap> list, NutMap conf);
+    protected abstract List<SheetImage> exportImages(Workbook wb, List<NutBean> list, NutMap conf);
 
     @Override
     public SheetResult read(InputStream ins, NutMap conf) {
         SheetResult result = new SheetResult();
-        List<NutMap> list = new LinkedList<>();
+        List<NutBean> list = new LinkedList<>();
         Workbook wb = null;
         try {
             // 从输入流创建工作表
@@ -72,7 +73,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     }
 
     @Override
-    public void write(OutputStream ops, List<NutMap> list, NutMap conf) {
+    public void write(OutputStream ops, List<NutBean> list, List<String> headKeys, NutMap conf) {
         Workbook wb = null;
         try {
             // 加载工作表
@@ -83,7 +84,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
             }
 
             // 从工作表读取数据
-            this.writeToSheet(wb, list, conf);
+            this.writeToSheet(wb, list, headKeys, conf);
 
             // 写入输出流
             wb.write(ops);
@@ -98,11 +99,15 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
     }
 
     @SuppressWarnings({"deprecation", "rawtypes"})
-    protected void writeToSheet(Workbook wb, List<NutMap> list, NutMap conf) {
+    protected void writeToSheet(Workbook wb,
+                                List<NutBean> list,
+                                List<String> headKeys,
+                                NutMap conf) {
         // 分析参数
         boolean noheader = conf.getBoolean("noheader");
         int rowOffset = conf.getInt("rowOffset", 0);
         int colOffset = conf.getInt("colOffset", 0);
+
         // 读取工作表
         Sheet sheet = __get_sheet(wb, conf);
         // 木有的话，就创建一个
@@ -112,16 +117,24 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
         Drawing drawing = sheet.createDrawingPatriarch();
         // 准备迭代器
-        Iterator<NutMap> it = list.iterator();
+        Iterator<NutBean> it = list.iterator();
         if (!it.hasNext())
             return;
         // ................................
-        // 用第一个对象的键作为标题栏
+        // 准备标题栏
         String[] keys = null; // 准备用第一个对象的 Key 来归纳列标题
         if (!noheader) {
-            NutMap first = list.get(0);
+            // 指定了标题栏
+            if (null != headKeys && !headKeys.isEmpty()) {
+                keys = headKeys.toArray(new String[headKeys.size()]);
+            }
+            // 用第一个对象的键作为标题栏
+            else {
+                NutBean first = list.get(0);
+                keys = first.keySet().toArray(new String[first.size()]);
+            }
+            // 创建标题行
             Row row = sheet.createRow(rowOffset++);
-            keys = first.keySet().toArray(new String[first.size()]);
             for (int i = 0; i < keys.length; i++) {
                 String key = keys[i];
                 Cell cell = row.createCell(colOffset + i);
@@ -133,7 +146,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         // 输出后续数据
         int i = 1;
         int len = list.size();
-        for (NutMap obj : list) {
+        for (NutBean obj : list) {
             // 日志
             this._on_process(i++, len, obj);
 
@@ -200,7 +213,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
         return sheet;
     }
 
-    protected void readFromSheet(Workbook wb, List<NutMap> list, NutMap conf) {
+    protected void readFromSheet(Workbook wb, List<NutBean> list, NutMap conf) {
         // 是否自动添加行号
         boolean addRowIndex = conf.getBoolean("addRowIndex");
         NutMap matcher = conf.getAs("matcher", NutMap.class);

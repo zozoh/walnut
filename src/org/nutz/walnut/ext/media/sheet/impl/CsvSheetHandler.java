@@ -15,8 +15,10 @@ import org.nutz.castor.Castors;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Ws;
 
 public class CsvSheetHandler extends AbstractSheetHandler {
 
@@ -26,7 +28,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
         char[] sep_cs = sep.toCharArray();
 
         // 准备返回
-        List<NutMap> list = new LinkedList<>();
+        List<NutBean> list = new LinkedList<>();
 
         // 首先按行读取
         BufferedReader br = Streams.buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
@@ -59,7 +61,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
     }
 
     @Override
-    public void write(OutputStream ops, List<NutMap> list, NutMap conf) {
+    public void write(OutputStream ops, List<NutBean> list, List<String> headKeys, NutMap conf) {
         String sep = conf.getString("sep", ",");
         boolean noheader = conf.getBoolean("noheader", false);
         String emptyCell = conf.getString("emptyCell", "--");
@@ -69,7 +71,18 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             return;
 
         // 第一个对象的 key 作为标题栏吧
-        NutMap first = list.get(0);
+        String[] keys = null; // 准备用第一个对象的 Key 来归纳列标题
+        if (!noheader) {
+            // 指定了标题栏
+            if (null != headKeys && !headKeys.isEmpty()) {
+                keys = headKeys.toArray(new String[headKeys.size()]);
+            }
+            // 用第一个对象的键作为标题栏
+            else {
+                NutBean first = list.get(0);
+                keys = first.keySet().toArray(new String[first.size()]);
+            }
+        }
 
         Writer writer = new OutputStreamWriter(ops, Encoding.CHARSET_UTF8);
 
@@ -77,20 +90,22 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             String line;
             // 输出标题栏
             if (!noheader) {
-                line = Strings.join(sep, first.keySet()) + "\n";
+                line = Ws.join(keys, sep) + "\n";
                 writer.write(line);
             }
 
             // 依次输出
             int i = 1;
             int len = list.size();
-            for (NutMap map : list) {
+            for (NutBean map : list) {
                 // 日志
                 this._on_process(i++, len, map);
 
                 // 准备输出
                 ArrayList<Object> cells = new ArrayList<>(map.size());
-                for (Object val : map.values()) {
+                for (int x = 0; x < keys.length; x++) {
+                    String key = keys[x];
+                    Object val = map.get(key);
                     // 空值
                     if (null == val) {
                         val = emptyCell;

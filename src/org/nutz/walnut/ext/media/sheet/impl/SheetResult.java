@@ -2,18 +2,17 @@ package org.nutz.walnut.ext.media.sheet.impl;
 
 import java.util.List;
 
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 
 public class SheetResult {
 
-	public List<NutMap> list;
-	
-	public List<SheetImage> images;
-	
-	public SheetResult() {
-	}
+    public List<? extends NutBean> list;
 
-	public SheetResult(List<NutMap> list) {
-		this.list = list;
-	}
+    public List<SheetImage> images;
+
+    public SheetResult() {}
+
+    public SheetResult(List<? extends NutBean> list) {
+        this.list = list;
+    }
 }

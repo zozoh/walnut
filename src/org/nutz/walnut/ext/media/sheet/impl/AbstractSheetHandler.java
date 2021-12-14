@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.media.sheet.impl;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.ext.media.sheet.SheetHandler;
@@ -22,7 +23,7 @@ public abstract class AbstractSheetHandler implements SheetHandler {
         this.process = process;
     }
 
-    protected void _on_process(int i, int len, NutMap obj) {
+    protected void _on_process(int i, int len, NutBean obj) {
         if (null != out && null != process) {
             NutMap map = new NutMap();
             map.putAll(obj);

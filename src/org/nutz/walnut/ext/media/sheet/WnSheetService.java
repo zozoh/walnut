@@ -12,6 +12,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.born.Borning;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
@@ -52,23 +53,27 @@ public class WnSheetService {
         this.io = io;
     }
 
-    public List<NutMap> read(WnObj oSheet, NutMap conf) {
+    public List<? extends NutBean> read(WnObj oSheet, NutMap conf) {
         InputStream ins = io.getInputStream(oSheet, 0);
         String type = oSheet.type();
         return readAndClose(ins, type, conf);
     }
 
-    public List<NutMap> readAndClose(InputStream ins, String type, NutMap conf) {
+    public List<? extends NutBean> readAndClose(InputStream ins, String type, NutMap conf) {
         try {
             SheetHandler sh = __check_handler(type);
             SheetResult result = sh.read(ins, conf);
             if (result.images != null) {
-        		String root = conf.getString("images", "~/.tmp/sheet_images/");
-            	for (SheetImage image : result.images) {
-            		String name = String.format("%d_%d_%d.%s", image.sheetIndex, image.row, image.col, image.type == 0 ? "jpg" : "png");
-            		WnObj wobj = io.createIfNoExists(null, root + "/" + name, WnRace.FILE);
-            		io.writeAndClose(wobj, new ByteArrayInputStream(image.data));
-				}
+                String root = conf.getString("images", "~/.tmp/sheet_images/");
+                for (SheetImage image : result.images) {
+                    String name = String.format("%d_%d_%d.%s",
+                                                image.sheetIndex,
+                                                image.row,
+                                                image.col,
+                                                image.type == 0 ? "jpg" : "png");
+                    WnObj wobj = io.createIfNoExists(null, root + "/" + name, WnRace.FILE);
+                    io.writeAndClose(wobj, new ByteArrayInputStream(image.data));
+                }
             }
             return result.list;
         }
@@ -77,19 +82,24 @@ public class WnSheetService {
         }
     }
 
-    public void write(WnObj oSheet, List<NutMap> list, NutMap conf) {
+    public void write(WnObj oSheet, List<NutBean> list, List<String> headKeys, NutMap conf) {
         OutputStream ops = io.getOutputStream(oSheet, 0);
         String type = oSheet.type();
-        this.writeAndClose(ops, type, list, conf);
-    }
-
-    public void writeAndClose(OutputStream ops, String type, List<NutMap> list, NutMap conf) {
-        this.writeAndClose(ops, type, list, conf, null, null);
+        this.writeAndClose(ops, type, list, headKeys, conf);
     }
 
     public void writeAndClose(OutputStream ops,
                               String type,
-                              List<NutMap> list,
+                              List<NutBean> list,
+                              List<String> headKeys,
+                              NutMap conf) {
+        this.writeAndClose(ops, type, list, headKeys, conf, null, null);
+    }
+
+    public void writeAndClose(OutputStream ops,
+                              String type,
+                              List<NutBean> list,
+                              List<String> headKeys,
                               NutMap conf,
                               WnOutputable out,
                               String process) {
@@ -98,32 +108,34 @@ public class WnSheetService {
             sh.setProcess(out, process);
             // 加载模板文件
             if (conf.has("tmpl") && sh instanceof AbstractPoiSheetHandler) {
-            	WnObj tmp = io.check(null, conf.getString("tmpl"));
-            	try {
-					((AbstractPoiSheetHandler)sh).setTmpl(io.getInputStream(tmp, 0));
-				} catch (IOException e) {
-					throw Lang.wrapThrow(e);
-				}
+                WnObj tmp = io.check(null, conf.getString("tmpl"));
+                try {
+                    ((AbstractPoiSheetHandler) sh).setTmpl(io.getInputStream(tmp, 0));
+                }
+                catch (IOException e) {
+                    throw Lang.wrapThrow(e);
+                }
             }
             // 有图片的话,处理一下
-        	for (NutMap tmp : list) {
-        		NutMap t = null;
-    			for (Map.Entry<String, Object> en : tmp.entrySet()) {
-    				if (en.getValue() != null && en.getValue() instanceof String) {
-    					String val = (String) en.getValue();
-    					if (val.startsWith("image:")) {
-    						SheetImageHolder holder = new WnSheetImageHolder(io, val.substring("image:".length()));
-    						if (t == null)
-    							t = new NutMap();
-    						t.put(en.getKey(), holder);
-    					}
-    				}
-    			}
-    			if (t != null) {
-    				tmp.putAll(t);
-    			}
-    		}
-            sh.write(ops, list, conf);
+            for (NutBean tmp : list) {
+                NutMap t = null;
+                for (Map.Entry<String, Object> en : tmp.entrySet()) {
+                    if (en.getValue() != null && en.getValue() instanceof String) {
+                        String val = (String) en.getValue();
+                        if (val.startsWith("image:")) {
+                            SheetImageHolder holder = new WnSheetImageHolder(io,
+                                                                             val.substring("image:".length()));
+                            if (t == null)
+                                t = new NutMap();
+                            t.put(en.getKey(), holder);
+                        }
+                    }
+                }
+                if (t != null) {
+                    tmp.putAll(t);
+                }
+            }
+            sh.write(ops, list, headKeys, conf);
             Streams.safeFlush(ops);
         }
         finally {

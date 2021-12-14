@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
 public class XlsSheetHandler extends AbstractPoiSheetHandler {
@@ -19,8 +20,8 @@ public class XlsSheetHandler extends AbstractPoiSheetHandler {
     }
 
     @Override
-    protected List<SheetImage> exportImages(Workbook wb, List<NutMap> list, NutMap conf) {
-    	return null;
+    protected List<SheetImage> exportImages(Workbook wb, List<NutBean> list, NutMap conf) {
+        return null;
     }
 
 }

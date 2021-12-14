@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
 
-public class WnBeanMapping extends HashMap<String, WnBeanField> {
+public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     @SuppressWarnings("unchecked")
     public Object translateAny(Object input, boolean onlyMapping) {

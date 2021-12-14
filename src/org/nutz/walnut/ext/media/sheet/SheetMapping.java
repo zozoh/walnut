@@ -10,9 +10,14 @@ import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.meta.Pair;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.bean.WnBeanField;
+import org.nutz.walnut.util.bean.WnBeanMapping;
+import org.nutz.walnut.util.each.WnBreakException;
+import org.nutz.walnut.util.validate.WnMatch;
 
 public class SheetMapping {
 
@@ -20,17 +25,47 @@ public class SheetMapping {
 
     private NutMap matcher;
 
+    private WnMatch omit;
+
+    private WnMatch pick;
+
     private int limit;
 
     private int skip;
 
     private List<SheetField> fields;
 
+    private WnBeanMapping beanMapping;
+
     public SheetMapping() {
         this.filter = null;
         this.matcher = null;
         this.limit = 0;
         this.skip = 0;
+    }
+
+    public WnMatch getOmit() {
+        return omit;
+    }
+
+    public void setOmit(WnMatch omit) {
+        this.omit = omit;
+    }
+
+    public WnMatch getPick() {
+        return pick;
+    }
+
+    public void setPick(WnMatch pick) {
+        this.pick = pick;
+    }
+
+    public WnBeanMapping getBeanMapping() {
+        return beanMapping;
+    }
+
+    public void setBeanMapping(WnBeanMapping beanMapping) {
+        this.beanMapping = beanMapping;
     }
 
     public NutMap getFilter() {
@@ -69,85 +104,130 @@ public class SheetMapping {
         return fields;
     }
 
-    private boolean __is_match(NutMap obj) {
+    public List<String> getHeadKeys() {
+        // 指定了映射: WnBeanMapping
+        if (null != this.beanMapping) {
+            List<String> keys = new ArrayList<>(beanMapping.size());
+            for (WnBeanField fld : beanMapping.values()) {
+                // 自己的键
+                keys.add(fld.getName());
+                // 别名
+                if (fld.hasAliasFields()) {
+                    for (WnBeanField fa : fld.getAliasFields()) {
+                        keys.add(fa.getName());
+                    }
+                }
+            }
+            return keys;
+        }
+
+        // 简易映射
+        if (null != fields && !fields.isEmpty()) {
+            List<String> keys = new ArrayList<>(fields.size());
+            for (SheetField fld : fields) {
+                keys.add(fld.getKey());
+            }
+            return keys;
+        }
+
+        // 啥都木有咯
+        return null;
+    }
+
+    private boolean __is_match(NutBean obj) {
         // 过滤
         if (null != filter && !filter.isEmpty() && filter.match(obj)) {
+            return false;
+        }
+        if (null != omit && omit.match(obj)) {
             return false;
         }
         // 匹配
         if (null != matcher && !matcher.isEmpty() && !matcher.match(obj)) {
             return false;
         }
+        if (null != pick && !pick.match(obj)) {
+            return false;
+        }
         // 匹配的
         return true;
     }
 
-    public List<NutMap> doMapping(List<NutMap> inputList) {
-        List<NutMap> outputList = new ArrayList<>(inputList.size());
+    public List<NutBean> doMapping(List<? extends NutBean> inputList) {
+        List<NutBean> outputList = new ArrayList<>(inputList.size());
 
-        // 没有指定映射的话，所有的字段都变字符串
-        if (null == fields || fields.isEmpty()) {
-            int index = 0;
-            for (NutMap obj : inputList) {
-                // 执行映射
-                NutMap map = new NutMap();
-                for (Map.Entry<String, Object> en : obj.entrySet()) {
-                    String key = en.getKey();
-                    Object val = en.getValue();
-                    if (null != val) {
-                        Mirror<?> mi = Mirror.me(val);
-                        // 原生的话，保留
-                        // 其他的变字符串
-                        if (!mi.isSimple()) {
-                            val = Castors.me().castToString(val);
+        try {
+            // 指定了映射: WnBeanMapping
+            if (null != this.beanMapping) {
+                int index = 0;
+                for (NutBean obj : inputList) {
+                    NutBean map = this.beanMapping.translate(obj, true);
+                    // 尝试过滤并记入结果
+                    index = try_add_to_output_list(outputList, index, map);
+                }
+            }
+            // 简易映射
+            else if (null != fields && !fields.isEmpty()) {
+                int index = 0;
+                for (NutBean obj : inputList) {
+                    // 执行映射
+                    NutMap map = new NutMap();
+                    for (SheetField sf : fields) {
+                        String key = sf.getKey();
+                        Object val = sf.getValue(obj);
+                        map.put(key, val);
+                    }
+                    // 尝试过滤并记入结果
+                    index = try_add_to_output_list(outputList, index, map);
+                }
+            }
+            // 没有指定映射的话，所有的字段都变字符串
+            else {
+                int index = 0;
+                for (NutBean obj : inputList) {
+                    // 执行映射
+                    NutBean map = new NutMap();
+                    for (Map.Entry<String, Object> en : obj.entrySet()) {
+                        String key = en.getKey();
+                        Object val = en.getValue();
+                        if (null != val) {
+                            Mirror<?> mi = Mirror.me(val);
+                            // 原生的话，保留
+                            // 其他的变字符串
+                            if (!mi.isSimple()) {
+                                val = Castors.me().castToString(val);
+                            }
                         }
+                        map.put(key, val);
                     }
-                    map.put(key, val);
-                }
-                // 过滤
-                if (this.__is_match(map)) {
-                    // 自增计数并查看跳过
-                    if (skip > 0 && ++index <= skip) {
-                        continue;
-                    }
-                    // 达到限制
-                    if (limit > 0 && outputList.size() >= limit) {
-                        break;
-                    }
-                    // 加入
-                    outputList.add(map);
+                    // 尝试过滤并记入结果
+                    index = try_add_to_output_list(outputList, index, map);
                 }
             }
         }
-        // 否则按照映射处理
-        else {
-            int index = 0;
-            for (NutMap obj : inputList) {
-                // 执行映射
-                NutMap map = new NutMap();
-                for (SheetField sf : fields) {
-                    String key = sf.getKey();
-                    Object val = sf.getValue(obj);
-                    map.put(key, val);
-                }
-                // 过滤
-                if (this.__is_match(map)) {
-                    // 自增计数并查看跳过
-                    if (skip > 0 && ++index <= skip) {
-                        continue;
-                    }
-                    // 达到限制
-                    if (limit > 0 && outputList.size() >= limit) {
-                        break;
-                    }
-                    // 加入
-                    outputList.add(map);
-                }
-            }
-        }
+        // 声明了退出
+        catch (WnBreakException e) {}
 
         // 嗯，搞定返回吧
         return outputList;
+    }
+
+    private int try_add_to_output_list(List<NutBean> outputList, int index, NutBean map)
+            throws WnBreakException {
+        if (this.__is_match(map)) {
+            index++;
+            // 自增计数并查看跳过
+            if (skip > 0 && index <= skip) {
+                return index;
+            }
+            // 达到限制
+            if (limit > 0 && outputList.size() >= limit) {
+                throw new WnBreakException();
+            }
+            // 加入
+            outputList.add(map);
+        }
+        return index;
     }
 
     private static final Pattern P_KEY = Regex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");

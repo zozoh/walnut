@@ -11,6 +11,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
@@ -43,7 +44,7 @@ public class SheetField {
         return this.title;
     }
 
-    public Object getValue(NutMap obj) {
+    public Object getValue(NutBean obj) {
         // 首先获取值
         Object val = null;
         for (String key : keys) {

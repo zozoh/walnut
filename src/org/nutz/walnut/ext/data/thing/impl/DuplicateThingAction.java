@@ -132,7 +132,7 @@ public class DuplicateThingAction extends ThingAction<List<WnObj>> {
                         thReferDataIds.put(dirName, rIds);
                     }
                 }
-                // 其他的冗余映射，后面会强行重设，所有现在无视
+                // 其他的冗余映射，后面会强行重设，所以现在无视
                 continue;
             }
             // 字符串字段，则看看是否是文件对象引用
@@ -222,15 +222,62 @@ public class DuplicateThingAction extends ThingAction<List<WnObj>> {
                 Map<String, WnObj> copyIdMappings = new HashMap<>();
                 for (WnObj oFile : fCopyList) {
                     String fph = oFile.path();
+
                     // 得到一个相对路径
                     String rph = Wpath.getRelativePath(dirThDataPath, fph);
+
+                    /**
+                     * <pre>
+                    # 在某些时候，出现了下面一种引用
+                    # 一个数据
+                    ~/cases/index/{ID1}
+                     |--[abc] -> ~/cases/data/{ID2}/attachment/abc.pdf
+                    
+                    # 我们为其生成一个复制的数据记录
+                    newId = {ID3}
+                    
+                    # 此时，我们当前的两个路径是这样的
+                    dirDataPath = ~/cases/data/
+                    dirThDataPath = ~/cases/data/{ID1}/
+                    
+                    # 而待 Coopy 的 oFile 对象路径是这样的
+                    ~/cases/data/{ID2}/attachment/abc.pdf
+                    
+                    # 显然，它属于当前数据集的另外一个对象
+                    # 与 `dirThDataPath` 计算相对路径
+                    rph = ../{ID2}/attachment/abc.pdf
+                    # 最终的目标路径是
+                    taFilePath = data/{ID3}/../{ID2}/attachment/abc.pdf
+                    # 整理后路径为
+                    taFilePath = data/{ID2}/attachment/abc.pdf
+                    #
+                    # 显然，这个目标对象，在数据集的另外一个记录内
+                    # 而我们希望生成一个数据记录的完整复刻
+                    # 因此，我们需要将这种特征的对象也要做一下处理
+                    #  - rph 以 ../ 开头
+                    #  - 它的第二层目录是一个 ID
+                    # 这种路径，我们应该将 rph 直接指定为 attachment/abc.pdf
+                    # 这样就能生成一个完整的数据记录复刻了
+                     * </pre>
+                     */
+                    if (rph.startsWith("../")) {
+                        String[] phSS = rph.split("/");
+                        if (phSS.length >= 3 && Wn.isFullObjId(phSS[1])) {
+                            rph = Ws.join(phSS, "/", 2);
+                        }
+                    }
+
                     // 创建目标对象
                     String taFilePh = Wn.appendPath("data", oTarget.id(), rph);
                     WnObj oTaFile = io.createIfNoExists(oTs, taFilePh, WnRace.FILE);
-                    // 执行复制
-                    io.copyData(oFile, oTaFile);
-                    // 记录 ID 映射
-                    copyIdMappings.put(oFile.id(), oTaFile);
+
+                    // 稳一手，确保这两个文件不相等
+                    if (!oTaFile.isSameId(oFile)) {
+                        // 执行复制
+                        io.copyData(oFile, oTaFile);
+                        // 记录 ID 映射
+                        copyIdMappings.put(oFile.id(), oTaFile);
+                    }
                 }
                 // 处理 ID 映射表
                 if (!copyIdMappings.isEmpty()) {
