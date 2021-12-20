@@ -99,7 +99,7 @@ httpparam -in id:$${id} \
 # API(auth): 获取短信验证码
 @API .regapi/api/auth/get_sms_vcode 'cross/json'
 %TMPL:
-www captcha $${site?${dft_site?~/www/website}} \
+www captcha $${http-qs-site?${dft_site?~/www/website}} \
   $${http-qs-scene?auth} $${http-qs-account?} \
   -cap $${http-qs-captcha} \
   -as sms -du 5 \
@@ -109,7 +109,7 @@ www captcha $${site?${dft_site?~/www/website}} \
 # API(auth): 获取邮箱验证码
 @API .regapi/api/auth/get_email_vcode 'cross/json'
 %TMPL:
-www captcha $${site?${dft_site?~/www/website}} \
+www captcha $${http-qs-site?${dft_site?~/www/website}} \
   $${http-qs-scene?auth} $${http-qs-account?} \
   -cap $${http-qs-captcha} \
   -as email -du 20 \
