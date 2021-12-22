@@ -376,7 +376,7 @@ public class CheapDocxRendering {
 
         // 首行缩进
         int indent = -1;
-        if (inCell || "center".equals(align)) {
+        if (inCell || "center".equals(align) || el.isAttr("doc-heading", "no-indent")) {
             indent = 0;
         }
 

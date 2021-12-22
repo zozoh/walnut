@@ -6,6 +6,7 @@ import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.Wtime;
 
 public class cmd_date extends JvmExecutor {
 
@@ -19,7 +20,7 @@ public class cmd_date extends JvmExecutor {
 
         // 从参数里解析日期字符串
         if (params.has("d")) {
-            now = Times.D(params.get("d")).getTime();
+            now = Wtime.parseAnyAMS(params.get("d"));
         }
         // 从参数里解析纳秒字符串
         else if (params.has("dns")) {
