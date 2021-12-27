@@ -16,6 +16,9 @@ public class ZMoSmartAdaptor implements ZMoAdaptor {
 
     @Override
     public Object toJava(ZMoField fld, Object obj) {
+        if (null == obj) {
+            return null;
+        }
         Mirror<?> mi = Mirror.me(obj);
         try {
             return ZMoAs.get(mi).toJava(fld, obj);
@@ -27,6 +30,9 @@ public class ZMoSmartAdaptor implements ZMoAdaptor {
 
     @Override
     public Object toMongo(ZMoField fld, Object obj) {
+        if (null == obj) {
+            return null;
+        }
         Mirror<?> mi = Mirror.me(obj);
         try {
             return ZMoAs.get(mi).toMongo(fld, obj);

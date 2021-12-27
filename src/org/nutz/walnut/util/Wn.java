@@ -1028,6 +1028,8 @@ public abstract class Wn {
 
             // 如果是文件夹
             if (oSrc.isDIR() && oDst.isDIR()) {
+
+                // 内容（子节点）递归 copy
                 Wn.Io.eachChildren(sys.io, oSrc, new Each<WnObj>() {
                     public void invoke(int index, WnObj o, int length) {
                         // 过滤一下
@@ -1040,6 +1042,12 @@ public abstract class Wn {
                         __recur_copy_obj(sys, mode, ph_base, o, oTa, filter, callback);
                     }
                 });
+
+                // 元数据 copy
+                if (isP) {
+                    NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
+                    sys.io.appendMeta(oDst, meta);
+                }
             }
             // 如果是文件
             else if (oSrc.isFILE() && oDst.isFILE()) {
@@ -1055,10 +1063,6 @@ public abstract class Wn {
                 // 元数据 copy
                 if (isP) {
                     NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
-                    // meta.put("mode", oSrc.mode());
-                    // meta.put("group", oSrc.group());
-                    // meta.put("tp", oSrc.type());
-                    // meta.put("mime", oSrc.mime());
                     sys.io.appendMeta(oDst, meta);
                 }
 
