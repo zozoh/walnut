@@ -26,9 +26,9 @@ public class dom_as extends DomFilter {
         // 输出类型
         String type = params.val(0, "html");
         String output;
-        
+
         // 强制静默
-        if(params.is("quiet")) {
+        if (params.is("quiet")) {
             fc.quiet = true;
             return;
         }
@@ -61,6 +61,13 @@ public class dom_as extends DomFilter {
                 output = "";
                 for (CheapElement ele : fc.selected) {
                     output += ele.toMarkup() + "\n";
+                }
+            }
+            // 输出超文本标签
+            else if ("inner".equals(type)) {
+                output = "";
+                for (CheapElement ele : fc.selected) {
+                    output += ele.toInnerMarkup() + "\n";
                 }
             }
             // 输出JSON

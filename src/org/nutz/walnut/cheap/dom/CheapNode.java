@@ -57,6 +57,16 @@ public abstract class CheapNode {
         return sb.toString();
     }
 
+    public String toInnerMarkup() {
+        StringBuilder sb = new StringBuilder();
+        if (this.hasChildren()) {
+            for (CheapNode child : this.children) {
+                child.joinString(sb);
+            }
+        }
+        return sb.toString();
+    }
+
     public abstract String toBrief();
 
     public abstract void joinTree(StringBuilder sb, int depth, String tab);
