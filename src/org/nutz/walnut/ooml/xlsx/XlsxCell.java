@@ -45,27 +45,44 @@ public class XlsxCell {
         this.reference = el.attr("r");
         this.styleIndex = el.attrInt("s");
         this.dataType = TYPES.get(el.attr("t"));
-        CheapElement vEl = el.findElement(e -> e.isTagName("v"));
         String v = null;
-        if (null != vEl)
-            v = vEl.getText();
 
-        // 空值
-        if (null == v) {
-            this.value = null;
+        // 直接指定了行内值
+        if (this.isDataInlineString()) {
+            CheapElement vEl = el.findElement(e -> e.isTagName("t"));
+            if (null != vEl) {
+                this.value = vEl.getText();
+            }
         }
-        // 获取共享字符串
+        // 引用了共享字符串 <v>23</v>
         else if (this.isDataSharedString()) {
-            int i = Integer.parseInt(v);
-            this.value = workbook.getSharedString(i);
+            CheapElement vEl = el.findElement(e -> e.isTagName("v"));
+            if (null != vEl)
+                v = vEl.getText();
+
+            // 空值
+            if (null == v) {
+                this.value = null;
+            }
+            // 获取共享字符串
+            else {
+                int i = Integer.parseInt(v);
+                this.value = workbook.getSharedString(i);
+            }
         }
-        // 格式化对象: 布尔
+        // 布尔
         else if (this.isDataBoolean()) {
+            CheapElement vEl = el.findElement(e -> e.isTagName("v"));
+            if (null != vEl)
+                v = vEl.getText();
             this.value = Castors.me().castTo(v, Boolean.class);
         }
-        // 直接就是值
+        // 其他值
         else {
-            this.value = v;
+            CheapElement vEl = el.findElement(e -> e.isTagName("v"));
+            if (null != vEl)
+                v = vEl.getText();
+            this.value = Castors.me().castTo(v, Boolean.class);
         }
     }
 

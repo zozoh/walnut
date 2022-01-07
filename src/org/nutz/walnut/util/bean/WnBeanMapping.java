@@ -145,7 +145,11 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     if (Ws.isBlank(ka)) {
                         continue;
                     }
-                    Object av2 = af.tryValueOptions(val);
+                    Object av = val;
+                    if (af.isUseMappedValue()) {
+                        av = v3;
+                    }
+                    Object av2 = af.tryValueOptions(av);
                     Object av3 = WnValues.toValue(af, av2);
                     re.put(ka, av3);
                 }

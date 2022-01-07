@@ -23,6 +23,13 @@ public class WnBeanField extends WnValue {
      */
     private WnBeanField[] aliasFields;
 
+    /**
+     * 如果自己是别名字段（AliasField），本属性才有用。
+     * <p>
+     * 表示，自己的【源值】不再是原始值，而是主字段转换后的值
+     */
+    private boolean useMappedValue;
+
     private WnMatch __visible_match;
 
     public WnMatch getVisibleMatch() {
@@ -95,6 +102,14 @@ public class WnBeanField extends WnValue {
 
     public void setAliasFields(WnBeanField[] aliasFields) {
         this.aliasFields = aliasFields;
+    }
+
+    public boolean isUseMappedValue() {
+        return useMappedValue;
+    }
+
+    public void setUseMappedValue(boolean useMappedValue) {
+        this.useMappedValue = useMappedValue;
     }
 
 }
