@@ -5,7 +5,7 @@ import org.nutz.walnut.ext.util.jsonx.JsonXFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class jsonx_lock extends JsonXFilter {
+public class jsonx_ikeys extends JsonXFilter {
 
     @Override
     protected void process(WnSystem sys, JsonXContext ctx, ZParams params) {

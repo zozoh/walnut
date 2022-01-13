@@ -23,6 +23,7 @@ import org.nutz.walnut.ext.data.thing.util.ThingLinkKeyTarget;
 import org.nutz.walnut.ext.data.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnElRuntime;
 import org.nutz.walnut.util.validate.WnMatch;
 
 public abstract class ThingAction<T> {
@@ -236,6 +237,7 @@ public abstract class ThingAction<T> {
                     valContext.putAll(oT);
                     valContext.putAll(meta);
                     valContext.put("@val", val);
+                    valContext.put("G", new WnElRuntime());
 
                     // 看看值是否能匹配上
                     if (lnk.hasMatch()) {
@@ -260,6 +262,16 @@ public abstract class ThingAction<T> {
                                     valContext.put("@g" + i, m.group(i));
                                 }
                             }
+                        }
+                    }
+
+                    // 准备增加更多的自定义变量
+                    if (lnk.hasVars()) {
+                        for (Map.Entry<String, Object> en2 : lnk.getVars().entrySet()) {
+                            String k = en2.getKey();
+                            Object v = en2.getValue();
+                            Object v2 = Wn.explainObj(valContext, v);
+                            valContext.put(k, v2);
                         }
                     }
 

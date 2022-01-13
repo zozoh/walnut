@@ -20,6 +20,8 @@ public class ThingLinkKey {
 
     private ThingLinkKeyTarget target;
 
+    private NutMap vars;
+
     private NutMap set;
 
     private String[] run;
@@ -111,6 +113,18 @@ public class ThingLinkKey {
 
     public void setTarget(ThingLinkKeyTarget target) {
         this.target = target;
+    }
+
+    public boolean hasVars() {
+        return null != vars && !vars.isEmpty();
+    }
+
+    public NutMap getVars() {
+        return vars;
+    }
+
+    public void setVars(NutMap vars) {
+        this.vars = vars;
     }
 
     public boolean hasSet() {

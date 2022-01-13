@@ -119,6 +119,23 @@ public class WnTest {
     }
 
     @Test
+    public void test_explain_obj2() {
+        NutMap context = Lang.map("x:100,name:'xiaobai',male:true");
+        context.put("pet", Lang.map("race:'dog',age:8"));
+        context.put("G", new WnElRuntime());
+
+        NutMap map = Lang.map("n:'=>name.length()',race:'=>pet.race.substring(0,1).toUpperCase()'");
+        NutMap m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals(7, m2.getInt("n"));
+        assertEquals("D", m2.get("race"));
+
+        map = Lang.map("n1:'=>G.count(name)',n2:'=>G.count(abc)'");
+        m2 = (NutMap) Wn.explainObj(context, map);
+        assertEquals(1, m2.getInt("n1"));
+        assertEquals(0, m2.getInt("n2"));
+    }
+
+    @Test
     public void test_s() {
         int mode = Wn.S.WM;
         assertEquals(false, Wn.S.canRead(mode));

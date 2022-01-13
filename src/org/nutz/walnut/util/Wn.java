@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.castor.Castors;
+import org.nutz.el.El;
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
@@ -34,10 +35,12 @@ import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
+import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.lang.util.SimpleContext;
 import org.nutz.mapl.Mapl;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -461,7 +464,7 @@ public abstract class Wn {
     }
 
     private static final Pattern EO1 = Regex.getPattern("^:(:*(=|==|!=|->)(.+))$");
-    private static final Pattern EO2 = Regex.getPattern("^(->)(.+)$");
+    private static final Pattern EO2 = Regex.getPattern("^([-=]>)(.+)$");
     private static final Pattern EO3 = Regex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
     private static final Pattern EO4 = Regex.getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
 
@@ -540,6 +543,11 @@ public abstract class Wn {
                         return context;
                     }
                     return context.getOr(m_val, m_dft);
+                }
+                // => Call EL
+                if ("=>".equals(m_type)) {
+                    Context ctx = new SimpleContext(context);
+                    return El.eval(ctx, m_val);
                 }
                 // Render template
                 if ("->".equals(m_type)) {

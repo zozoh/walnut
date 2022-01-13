@@ -305,6 +305,20 @@ public class Wlang {
         return 1;
     }
 
+    public static int toInt(Object any) {
+        if (null == any) {
+            return 0;
+        }
+        if (any instanceof Number) {
+            Number a = (Number) any;
+            return a.intValue();
+        }
+        if (any instanceof Boolean) {
+            return (Boolean) any ? 1 : 0;
+        }
+        return count(any);
+    }
+
     /**
      * 清除数组中的特定值
      *
