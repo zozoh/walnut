@@ -22,7 +22,7 @@ public class PopIndex implements WnPop {
     }
 
     @Override
-    public List<Object> pop(List<Object> list) {
+    public <T extends Object> List<T> exec(List<T> list) {
         if (null == list || list.isEmpty()) {
             return null;
         }
@@ -32,10 +32,10 @@ public class PopIndex implements WnPop {
         if (index < 0) {
             theI = len + index;
         }
-        // 别越界
-        theI = Math.max(0, Math.min(theI, len - 1));
-        // 移除
-        list.remove(theI);
+        // 移除别越界
+        if (theI >= 0 && theI < len) {
+            list.remove(theI);
+        }
         return list;
     }
 

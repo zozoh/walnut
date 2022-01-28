@@ -8,9 +8,9 @@ import org.nutz.walnut.ext.data.o.util.WnPop;
 public class PopNil implements WnPop {
 
     @Override
-    public List<Object> pop(List<Object> list) {
-        List<Object> re = new ArrayList<Object>(list.size());
-        for (Object li : list) {
+    public <T extends Object> List<T> exec(List<T> list) {
+        List<T> re = new ArrayList<>(list.size());
+        for (T li : list) {
             if (null != li) {
                 re.add(li);
             }

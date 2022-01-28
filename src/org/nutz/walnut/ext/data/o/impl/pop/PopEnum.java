@@ -20,7 +20,7 @@ public class PopEnum extends PopMatch {
 
     @Override
     protected boolean isMatch(Object ele) {
-        if (null != vals) {
+        if (null != vals && vals.length > 0) {
             for (String val : vals) {
                 if (ele.equals(val)) {
                     return true;

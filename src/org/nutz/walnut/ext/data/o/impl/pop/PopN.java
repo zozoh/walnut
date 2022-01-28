@@ -23,19 +23,19 @@ public class PopN implements WnPop {
     }
 
     @Override
-    public List<Object> pop(List<Object> list) {
+    public <T extends Object> List<T> exec(List<T> list) {
         if (null == list) {
             return null;
         }
-        Iterator<Object> it = list.iterator();
+        Iterator<T> it = list.iterator();
         int len = list.size();
         // 从后面
         if (n > 0) {
-            List<Object> re = new ArrayList<>(list.size());
+            List<T> re = new ArrayList<>(list.size());
             int lastI = Math.max(0, len - n);
             int i = 0;
             while (i < lastI && it.hasNext()) {
-                Object li = it.next();
+                T li = it.next();
                 re.add(li);
                 i++;
             }
@@ -43,11 +43,11 @@ public class PopN implements WnPop {
         }
         // 从前面
         else if (n < 0) {
-            List<Object> re = new ArrayList<>(list.size());
+            List<T> re = new ArrayList<>(list.size());
             int firstI = Math.abs(n);
             int i = 0;
             while (it.hasNext()) {
-                Object li = it.next();
+                T li = it.next();
                 if (i >= firstI) {
                     re.add(li);
                 }

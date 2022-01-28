@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface WnPop {
 
-    List<Object> pop(List<Object> list);
+    <T extends Object> List<T> exec(List<T> list);
 
 }

@@ -1,22 +1,27 @@
 package org.nutz.walnut.ext.data.o.util;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.Regex;
-import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.data.o.impl.pop.*;
 import org.nutz.walnut.util.Ws;
 
 public class WnPops {
 
+    public <T extends Object> List<T> exec(List<T> list, String pop) {
+        WnPop po = parse(pop);
+        return po.exec(list);
+    }
+
     public static WnPop parse(String input) {
         // # - nil : 删除全部空数据项目
-        if (null == input || "nil".equals(input)) {
+        if (null == input || "<nil>".equals(input)) {
             return new PopNil();
         }
         // # - all : 清空全部数据
-        if ("all".equals(input)) {
+        if ("<all>".equals(input)) {
             return new PopAll();
         }
         // # - 3 : 从后面弹出最多三个
@@ -48,7 +53,7 @@ public class WnPops {
         }
         // # - [a,b] : 弹出半角逗号分隔的列表里的值
         // # - ![a,b] : 弹出不在半角逗号分隔的列表里的值
-        p = Regex.getPattern("^(!)?\\[(.+)\\]$");
+        p = Regex.getPattern("^(!)?\\[([^\\]]*)\\]$");
         m = p.matcher(input);
         if (m.find()) {
             String str = Ws.trim(m.group(2));
@@ -66,7 +71,8 @@ public class WnPops {
             pm.setNot("!".equals(m.group(1)));
             return pm;
         }
-        throw Er.create("e.pop.invalid", input);
+        // 默认采用 PopEquals
+        return new PopEquals(input);
     }
 
 }

@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.nutz.walnut.ext.app.impl.AppInitServiceTest;
 import org.nutz.walnut.ext.data.fake.AllFakeTest;
+import org.nutz.walnut.ext.data.o.util.WnPopsTest;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncItemTest;
 import org.nutz.walnut.ext.httpapi.HttpApiDynamicRenderTest;
 import org.nutz.walnut.ext.media.ooml.AllOomlTest;
@@ -18,6 +19,7 @@ import org.nutz.walnut.ext.sys.AllSysTest;
                      HttpApiDynamicRenderTest.class,
                      AllOomlTest.class,
                      AllFakeTest.class,
+                     WnPopsTest.class,
                      AllNetTest.class,
                      AllSysTest.class,
                      WnDataSyncItemTest.class,
