@@ -9,7 +9,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>
-		<jetty.version>9.4.44.v20210927</jetty.version>
+		<jetty.version>9.4.28.v20200408</jetty.version>
 	</properties>
 	<licenses>
 		<license>
