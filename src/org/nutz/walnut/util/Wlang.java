@@ -634,6 +634,16 @@ public class Wlang {
         return isCauseBy(cause, causeType);
     }
 
+    public static boolean isEqual(Object a, Object b) {
+        if (null == a && null == b) {
+            return true;
+        }
+        if (null == a || null == b) {
+            return false;
+        }
+        return a.equals(b);
+    }
+
     /**
      * 生成一个未实现的运行时异常
      *

@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.imaging.ImageInfo;
+import org.docx4j.XmlUtils;
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.model.structure.HeaderFooterPolicy;
@@ -21,6 +22,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
 import org.docx4j.openpackaging.parts.WordprocessingML.HeaderPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.Br;
 import org.docx4j.wml.CTBorder;
@@ -32,6 +34,7 @@ import org.docx4j.wml.Drawing;
 import org.docx4j.wml.HpsMeasure;
 import org.docx4j.wml.Jc;
 import org.docx4j.wml.JcEnumeration;
+import org.docx4j.wml.Numbering;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPr;
@@ -77,6 +80,9 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.cheap.dom.CheapText;
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
+import org.nutz.walnut.cheap.dom.docx.num.DocxAbstractNum;
+import org.nutz.walnut.cheap.dom.docx.num.DocxNumbering;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wnum;
 import org.nutz.walnut.util.Ws;
 
@@ -85,6 +91,16 @@ public class CheapDocxRendering {
     private CheapDocument doc;
 
     private WordprocessingMLPackage wp;
+
+    /**
+     * 用来收集整个文档的编号记录
+     */
+    private DocxNumbering numbering;
+
+    /**
+     * 记录当前的列表级别
+     */
+    private DocxAbstractNum _a_num;
 
     /**
      * 如何加载资源。
@@ -116,6 +132,9 @@ public class CheapDocxRendering {
         this.loader = loader;
         this.factory = new ObjectFactory();
         this.pageTableWidth = 8613;
+
+        this.numbering = new DocxNumbering();
+        this._a_num = new DocxAbstractNum();
 
         this.resources = new HashMap<>();
         this._seq_id1 = 1;
@@ -390,7 +409,7 @@ public class CheapDocxRendering {
 
     private int listLvl = 0;
 
-    private int listNumId = 0;
+    private int listNumId = 1;
 
     private void joinLi(List<Object> partItems, CheapElement el) {
         // 搞自己
@@ -414,7 +433,7 @@ public class CheapDocxRendering {
         // The <w:ilvl> element
         Ilvl ilvlElement = factory.createPPrBaseNumPrIlvl();
         numPr.setIlvl(ilvlElement);
-        ilvlElement.setVal(BigInteger.valueOf(this.listLvl));
+        ilvlElement.setVal(BigInteger.valueOf(this.listLvl - 1));
 
         // The <w:numId> element
         NumId numIdElement = factory.createPPrBaseNumPrNumId();
@@ -427,30 +446,55 @@ public class CheapDocxRendering {
         }
 
         // 搞子节点：增加级别
-        this.listLvl++;
         for (CheapElement child : el.getChildElements()) {
             this.dispatchBlock(partItems, child);
         }
-        // 回退级别
-        this.listLvl--;
     }
 
     private void joinOl(List<Object> partItems, CheapElement el) {
-        int oldNumId = this.listNumId;
-        this.listNumId = 1;
+        // 有序列表一定是要开始一个重新编号的
+        if (!this._a_num.isEmpty()) {
+            this.numbering.addNum(this.listNumId, this._a_num);
+            this._a_num.reset();
+        }
+        this.listNumId++;
+        // 推入一定是成功的
+        if (!this._a_num.tryPushLvlForOl(this.listLvl)) {
+            throw Wlang.impossible();
+        }
+        // 记入列表级别成功，层级加1
+        this.listLvl++;
+
         for (CheapElement li : el.getChildElements()) {
             joinLi(partItems, li);
         }
-        this.listNumId = oldNumId;
+
+        // 退出列表，层级回退
+        this.listLvl--;
+
+        // 在文档处理结束时，会检查最后一个编号设定 ...
     }
 
     private void joinUl(List<Object> partItems, CheapElement el) {
-        int oldNumId = this.listNumId;
-        this.listNumId = 2;
+        // 尝试加入一个列表级别，如果加入不成功，则表示有冲突，那么就要开始一个新列表
+        if (!this._a_num.tryPushLvlForUl(this.listLvl)) {
+            this.numbering.addNum(this.listNumId, this._a_num);
+            this.listNumId++;
+            // 重置当前列表，并尝试再推入
+            this._a_num.reset();
+            this._a_num.tryPushLvlForUl(this.listLvl);
+        }
+        // 记入列表级别成功，层级加1
+        this.listLvl++;
+
         for (CheapElement li : el.getChildElements()) {
             joinLi(partItems, li);
         }
-        this.listNumId = oldNumId;
+
+        // 退出列表，层级回退
+        this.listLvl--;
+
+        // 在文档处理结束时，会检查最后一个编号设定 ...
     }
 
     private void joinTableCell(Tr tr, CheapElement el) {
@@ -1235,7 +1279,6 @@ public class CheapDocxRendering {
 
     public WordprocessingMLPackage render() throws Exception {
         // 渲染文档头（页眉和页脚）
-        // TODO ...
         List<SectionWrapper> sections = wp.getDocumentModel().getSections();
         if (null != sections && !sections.isEmpty()) {
             for (int i = 0; i < sections.size(); i++) {
@@ -1257,6 +1300,21 @@ public class CheapDocxRendering {
         List<Object> partItems = part.getContent();
         for (CheapNode node : doc.body().getChildren()) {
             this.dispatchBlock(partItems, node);
+        }
+
+        // 处理文档最后一个编号设定
+        if (!this._a_num.isEmpty()) {
+            this.numbering.addNum(listNumId, _a_num);
+            _a_num.reset();
+        }
+
+        // 设置列表编号的配置
+        if (!numbering.isEmpty()) {
+            String markup = numbering.toMarkup();
+            NumberingDefinitionsPart ndp = new NumberingDefinitionsPart();
+            Numbering numbering = (Numbering) XmlUtils.unmarshalString(markup);
+            ndp.setJaxbElement(numbering);
+            wp.getMainDocumentPart().addTargetPart(ndp);
         }
 
         // 最后保存

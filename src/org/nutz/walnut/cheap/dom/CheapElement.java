@@ -33,16 +33,16 @@ public class CheapElement extends CheapNode {
 
     private boolean autoClosed;
 
-    private CheapElement() {
+    public CheapElement() {
         this.type = CheapNodeType.ELEMENT;
         this.attrs = new NutMap();
     }
 
-    protected CheapElement(String tagName) {
+    public CheapElement(String tagName) {
         this(tagName, null);
     }
 
-    protected CheapElement(String tagName, String className) {
+    public CheapElement(String tagName, String className) {
         this();
         this.setTagName(tagName);
         this.setClassName(className);
@@ -681,7 +681,10 @@ public class CheapElement extends CheapNode {
     }
 
     public CheapElement attr(String name, Object val) {
-        name = this.doc.formatAttrName(name);
+        // 文档提供了属性格式方法
+        if (null != this.doc) {
+            name = this.doc.formatAttrName(name);
+        }
         // 移除
         if (null == val) {
             attrs.remove(name);
