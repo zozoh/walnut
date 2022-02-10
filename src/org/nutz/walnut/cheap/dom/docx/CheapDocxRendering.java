@@ -1029,16 +1029,76 @@ public class CheapDocxRendering {
 
     private final static BooleanDefaultTrue YES = new BooleanDefaultTrue();
 
+    static class CToken {
+        String text;
+        boolean eastAsia;
+
+        CToken(String text, boolean ea) {
+            this.text = text;
+            this.eastAsia = ea;
+        }
+    }
+
     private boolean appendText(List<Object> pContent, CheapText txt, DocxElStyle es) {
         if (txt.isBlank()) {
             return false;
         }
+        String str = txt.decodeText();
+        // 这里要处理一下双引号等符号
+        Pattern _P_CHAR = Pattern.compile("[“”]");
+        List<CToken> sList = new LinkedList<>();
+        Matcher m = _P_CHAR.matcher(str);
+        int lastI = 0;
+        CToken ct;
+        while (m.find()) {
+            int beginI = m.start();
+            // 推入前缀
+            if (lastI < beginI) {
+                ct = new CToken(str.substring(lastI, beginI), false);
+                sList.add(ct);
+            }
+            // 推入当前
+            ct = new CToken(m.group(0), true);
+            sList.add(ct);
+            // 偏移最后下标
+            lastI = m.end();
+        }
+        // 处理最后一项
+        if (lastI < str.length()) {
+            ct = new CToken(str.substring(lastI), false);
+            sList.add(ct);
+        }
 
-        R r = factory.createR();
+        // 循环添加文字部分
+        for (CToken tk : sList) {
+            RPr rPr = __gen_rPr(es);
+            R r = factory.createR();
+
+            if (tk.eastAsia) {
+                RFonts fonts = factory.createRFonts();
+                fonts.setHint(STHint.EAST_ASIA);
+                if (null == rPr) {
+                    rPr = factory.createRPr();
+                }
+                rPr.setRFonts(fonts);
+            }
+
+            if (null != rPr) {
+                r.setRPr(rPr);
+            }
+            Text t = factory.createText();
+            t.setValue(tk.text);
+            r.getContent().add(t);
+            pContent.add(r);
+        }
+
+        return true;
+    }
+
+    private RPr __gen_rPr(DocxElStyle es) {
         if (null != es && es.hasStyle()) {
             // 增加自己的属性
             RPr rPr = factory.createRPr();
-            r.setRPr(rPr);
             if (es.bold) {
                 rPr.setB(YES);
             }
@@ -1067,13 +1127,9 @@ public class CheapDocxRendering {
                 hmCs.setVal(BigInteger.valueOf(fsVal));
                 rPr.setSzCs(hmCs);
             }
+            return rPr;
         }
-        Text t = factory.createText();
-        t.setValue(txt.decodeText());
-        r.getContent().add(t);
-        pContent.add(r);
-
-        return true;
+        return null;
     }
 
     private boolean appendBr(List<Object> pContent, CheapElement el) {
