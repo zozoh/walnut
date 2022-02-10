@@ -134,7 +134,7 @@ public class CheapDocxRendering {
         this.pageTableWidth = 8613;
 
         this.numbering = new DocxNumbering();
-        this._a_num = new DocxAbstractNum();
+        this._a_num = null;
 
         this.resources = new HashMap<>();
         this._seq_id1 = 1;
@@ -433,12 +433,12 @@ public class CheapDocxRendering {
         // The <w:ilvl> element
         Ilvl ilvlElement = factory.createPPrBaseNumPrIlvl();
         numPr.setIlvl(ilvlElement);
-        ilvlElement.setVal(BigInteger.valueOf(this.listLvl - 1));
+        ilvlElement.setVal(BigInteger.valueOf(listLvl - 1));
 
         // The <w:numId> element
         NumId numIdElement = factory.createPPrBaseNumPrNumId();
         numPr.setNumId(numIdElement);
-        numIdElement.setVal(BigInteger.valueOf(this.listNumId));
+        numIdElement.setVal(BigInteger.valueOf(listNumId));
 
         // 设置自己的内容
         if (appendBlockChildren(p, el)) {
@@ -452,47 +452,67 @@ public class CheapDocxRendering {
     }
 
     private void joinOl(List<Object> partItems, CheapElement el) {
-        // 有序列表一定是要开始一个重新编号的
-        if (!this._a_num.isEmpty()) {
-            this.numbering.addNum(this.listNumId, this._a_num);
-            this._a_num.reset();
+        // 初始的，要开始建立一个列表
+        if (null == _a_num) {
+            _a_num = new DocxAbstractNum().asForOL();
+            _a_num.tryPushLvlForOl(listLvl);
         }
-        this.listNumId++;
-        // 推入一定是成功的
-        if (!this._a_num.tryPushLvlForOl(this.listLvl)) {
-            throw Wlang.impossible();
+        // 有前序编号，尝试加入
+        else if (!_a_num.tryPushLvlForOl(listLvl)) {
+            // 如果不成功，隐含的意味着，这个 num 一般不为空，但是还是判断一下吧
+            if (!_a_num.isEmpty()) {
+                numbering.addNum(listNumId, _a_num);
+                listNumId++;
+            }
+            // 重置当前列表，并尝试再推入
+            _a_num = new DocxAbstractNum().asForOL();
+            if (!_a_num.tryPushLvlForOl(listLvl)) {
+                throw Wlang.impossible();
+            }
         }
+
         // 记入列表级别成功，层级加1
-        this.listLvl++;
+        listLvl++;
 
         for (CheapElement li : el.getChildElements()) {
             joinLi(partItems, li);
         }
 
         // 退出列表，层级回退
-        this.listLvl--;
+        listLvl--;
 
         // 在文档处理结束时，会检查最后一个编号设定 ...
     }
 
     private void joinUl(List<Object> partItems, CheapElement el) {
-        // 尝试加入一个列表级别，如果加入不成功，则表示有冲突，那么就要开始一个新列表
-        if (!this._a_num.tryPushLvlForUl(this.listLvl)) {
-            this.numbering.addNum(this.listNumId, this._a_num);
-            this.listNumId++;
-            // 重置当前列表，并尝试再推入
-            this._a_num.reset();
-            this._a_num.tryPushLvlForUl(this.listLvl);
+        // 初始的，要开始建立一个列表
+        if (null == _a_num) {
+            _a_num = new DocxAbstractNum().asForUL();
+            _a_num.tryPushLvlForUl(listLvl);
         }
+        // 有前序编号，尝试加入
+        else if (!_a_num.tryPushLvlForUl(listLvl)) {
+            // 如果不成功，隐含的意味着，这个 num 一般不为空，但是还是判断一下吧
+            if (!_a_num.isEmpty()) {
+                numbering.addNum(listNumId, _a_num);
+                listNumId++;
+            }
+            // 重置当前列表，并尝试再推入
+            _a_num = new DocxAbstractNum().asForUL();
+            if (!_a_num.tryPushLvlForUl(listLvl)) {
+                throw Wlang.impossible();
+            }
+        }
+
         // 记入列表级别成功，层级加1
-        this.listLvl++;
+        listLvl++;
 
         for (CheapElement li : el.getChildElements()) {
             joinLi(partItems, li);
         }
 
         // 退出列表，层级回退
-        this.listLvl--;
+        listLvl--;
 
         // 在文档处理结束时，会检查最后一个编号设定 ...
     }
@@ -1303,9 +1323,9 @@ public class CheapDocxRendering {
         }
 
         // 处理文档最后一个编号设定
-        if (!this._a_num.isEmpty()) {
-            this.numbering.addNum(listNumId, _a_num);
-            _a_num.reset();
+        if (null != _a_num && !_a_num.isEmpty()) {
+            numbering.addNum(listNumId, _a_num);
+            _a_num = null;
         }
 
         // 设置列表编号的配置

@@ -122,20 +122,26 @@ public class DocxNumbering {
     }
 
     public void addNum(int numId, DocxAbstractNum num) {
+        // 首先，尝试将抽象编号的层级自动补充完整，否则文档编辑的时候，切换层级出不来
+        // Word 这个弱智，非要预先定义一些层级才行，也不知道自己自动扩展
+        num.autoFillNilLvls();
         // 找到一个重复的抽象编号
         int aIndex = -1;
-        int len = this.abstractNums.size();
-        for (int i = 0; i < len; i++) {
-            DocxAbstractNum an = this.abstractNums.get(i);
-            if (an.equals(num)) {
-                aIndex = i;
-                break;
+        int len = abstractNums.size();
+        // 无序列表可以尝试去重，有序列表一定要重新开始一个
+        if (num.isForUL()) {
+            for (int i = 0; i < len; i++) {
+                DocxAbstractNum an = abstractNums.get(i);
+                if (an.equals(num)) {
+                    aIndex = i;
+                    break;
+                }
             }
         }
         // 否则增加一个
         if (aIndex < 0) {
-            aIndex = this.abstractNums.size();
-            this.abstractNums.add(num.clone());
+            aIndex = len;
+            abstractNums.add(num.clone());
         }
         // 添加引用编号
         this.nums.add(new NumId(numId, aIndex));
