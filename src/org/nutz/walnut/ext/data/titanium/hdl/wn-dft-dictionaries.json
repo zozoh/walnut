@@ -24,6 +24,11 @@
         {"value": "INT", "text": "i18n:db-col-type-INT"},
         {"value": "FLOAT", "text": "i18n:db-col-type-FLOAT"}]
     },
+    "OrgNodeTypes": {
+      "data" : [
+        {"value": "G", "text": "i18n:wn-org-type-G"},
+        {"value": "P", "text": "i18n:wn-org-type-P"}]
+    },
     "Month" : {
       "data" : [
         {"value": 0, "text": "i18n:Jan"},
