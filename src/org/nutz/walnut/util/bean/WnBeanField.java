@@ -1,6 +1,10 @@
 package org.nutz.walnut.util.bean;
 
+import java.util.Map;
+
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -90,6 +94,15 @@ public class WnBeanField extends WnValue {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void loadOptions(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+        super.loadOptions(io, vars, caches);
+        if (this.hasAliasFields()) {
+            for (WnBeanField af : this.aliasFields) {
+                af.loadOptions(io, vars, caches);
+            }
+        }
     }
 
     public boolean hasAliasFields() {

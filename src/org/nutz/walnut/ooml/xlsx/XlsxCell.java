@@ -79,10 +79,11 @@ public class XlsxCell {
         }
         // 其他值
         else {
+            // 尝试寻找值
             CheapElement vEl = el.findElement(e -> e.isTagName("v"));
             if (null != vEl)
                 v = vEl.getText();
-            this.value = Castors.me().castTo(v, Boolean.class);
+            this.value = v;
         }
     }
 
