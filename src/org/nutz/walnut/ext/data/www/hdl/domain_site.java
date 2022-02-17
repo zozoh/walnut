@@ -33,6 +33,7 @@ public class domain_site implements JvmHdl {
         NutMap re = new NutMap();
         addPart(re, wm, "accountHome", site.getAccountHome());
         addPart(re, wm, "roleHome", site.getRoleHome());
+        re.put("organization", site.getOrganization());
 
         if (site.hasCompanyBy()) {
             re.put("companyBy", site.getCompanyBy());

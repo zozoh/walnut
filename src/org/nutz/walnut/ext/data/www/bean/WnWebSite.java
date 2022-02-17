@@ -12,6 +12,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnOrganization;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -56,6 +57,15 @@ public class WnWebSite {
      * 角色库的索引目录
      */
     private WnObj roleDir;
+    /**
+     * 组织结构树所在文件
+     */
+    private WnObj organizationObj;
+    /**
+     * 组织结构树
+     */
+    private WnOrganization organization;
+
     /**
      * 订单库所在目录(Thing)
      */
@@ -204,6 +214,12 @@ public class WnWebSite {
         roleDir = getThingIndex(bean.getString("roles"));
         if (null != roleDir) {
             roleHome = roleDir.parent();
+        }
+
+        // 组织结构
+        String orgPh = bean.getString("organization");
+        if (!Ws.isBlank(orgPh)) {
+            organizationObj = this.checkDirOrFile(orgPh);
         }
 
         // 公司/组织/结构，组织结构图，业务项目等
@@ -399,6 +415,23 @@ public class WnWebSite {
 
     public boolean hasRoleDir() {
         return null != roleDir;
+    }
+
+    public boolean hasOrganization() {
+        return null != this.organizationObj;
+    }
+
+    public WnObj getOrganizationObj() {
+        return organizationObj;
+    }
+
+    public WnOrganization getOrganization() {
+        if (this.hasOrganization()) {
+            if (null == organization) {
+                organization = io.readJson(organizationObj, WnOrganization.class);
+            }
+        }
+        return organization;
     }
 
     public WnObj fetchRole(String roleName) {

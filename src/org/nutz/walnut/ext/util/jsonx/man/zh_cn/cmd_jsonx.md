@@ -33,6 +33,7 @@ jsonx [options] [[@filter filter-args...]...]
 @set        # 将输入的JSON设置到上下文中（非合并）
 @tab        # 将上下文按照表格输出
 @nil        # 如果上下为空，设置一个默认 JSON 对象
+@flatten    # 将一个树型结构的 JSON 数据转换为一个列表
 ```
 
 本命一开始会自动从标准输入读取 JSON　内容作为初始内容。
