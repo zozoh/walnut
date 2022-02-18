@@ -774,6 +774,8 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
         // 设置一些必要的环境变量
         se.getVars().put(WnAuthSession.V_ROLE, me.getRoleName());
+        se.getVars().put(WnAuthSession.V_DEPT, me.getDeptAsStr());
+        se.getVars().put(WnAuthSession.V_JOBS, me.getJobAsStr());
 
         // 保存会话的环境变量
         this.saveSessionVars(se);

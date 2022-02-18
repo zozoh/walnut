@@ -735,63 +735,114 @@ public class WnIoObj extends NutMap implements WnObj {
         return list;
     }
 
+    /**
+     * 根据给定账户，获取该账户对于当前对象的自定义权限。
+     * <p>
+     * 权限定义在<code>pvg</code>字段内，它支出如下形式
+     * 
+     * <ul>
+     * <li><code>4a98..a123</code> : 直接是用户的 ID
+     * <li><code>@SYS_ADMIN</code> : 角色【域账户】
+     * <li><code>$admin    </code> : 角色【系统账户】
+     * <li><code>@[demo]   </code> : 角色【域账户】
+     * <li><code>$[xiaobai]</code> : 登录名【系统账户】
+     * <li><code>+M0A      </code> : 用户所属职位或部门
+     * </ul>
+     * 
+     * <b>权限示例</b>
+     * 
+     * <pre>
+     * pvg : {
+     *    "@SYS_ADMIN" : "0777",      // 八进制
+     *    "$admin"     : 511,         // 十进制
+     *    "@[demo]"    : "rwxr-xr-x", // 全文本
+     *    "$[xiaobai]" : "rwx",       // 文本，相当于 "rwxrwxrwx"
+     *    "+M0A"       : 7,           // 0-7 整数相当于 "0777"
+     * }
+     * </pre>
+     * 
+     * @param u
+     *            账户对象
+     * 
+     * @return 一个十进制的权限码
+     * 
+     */
     @SuppressWarnings("rawtypes")
     public int getCustomizedPrivilege(WnAccount u) {
-        if (null != u) {
-            // 自己有木有
-            Map map = this.getAs("pvg", Map.class);
-            if (null != map) {
-                // ID 最优先
-                Object pvg = map.get(u.getId());
+        // 防守: 没有指定账户
+        if (null == u) {
+            return Wn.Io.NO_PVG;
+        }
+        // 防守: 没有指定自定义权限集合
+        Map pvg = this.getAs("pvg", Map.class);
+        if (null == pvg || pvg.isEmpty()) {
+            if (this.hasParent()) {
+                return this.parent().getCustomizedPrivilege(u);
+            }
+            return Wn.Io.NO_PVG;
+        }
+        // 准备权限
+        String key;
+        int md = 0;
+        String prefix = u.isSysAccount() ? "$" : "@";
 
-                // 然后看看角色
-                String prefix = u.isSysAccount() ? "$" : "@";
-                boolean hasRoleName = u.hasRoleName();
-                boolean checkedOthers = false;
-                if (null == pvg && hasRoleName) {
-                    for (String role : u.getRoleList()) {
-                        pvg = map.get(prefix + role);
-                        if (!checkedOthers) {
-                            checkedOthers = role.equals("others");
-                        }
-                        if (null != pvg)
-                            break;
-                    }
-                }
-
-                // 如果没有声明，则再校验一下 others权限
-                if (null == pvg && !checkedOthers) {
-                    pvg = map.get(prefix + "others");
-                }
-
-                // 最后处理一下权限值
-                if (null != pvg) {
-                    if (pvg instanceof String) {
-                        String s = (String) pvg;
-                        if (s.startsWith("0")) {
-                            return Wn.Io.modeFromOctalMode(s.substring(1));
-                        }
-                        if (s.matches("^\\d+$")) {
-                            return Integer.parseInt(s);
-                        }
-                        return Wn.Io.modeFromStr(s);
-                    } else if (pvg instanceof Number) {
-                        return ((Number) pvg).intValue();
-                    }
+        // 处理各种自定义的权限
+        // - 4a98..a123 : 直接是用户的 ID
+        key = u.getId();
+        md |= Wn.Io.modeFrom(pvg.get(key), 0);
+        if (md >= 511) {
+            return 511;
+        }
+        // - @[demo] : 角色【域账户】
+        // - $[xiaobai] : 登录名【系统账户】
+        key = prefix + "[" + u.getName() + "]";
+        md |= Wn.Io.modeFrom(pvg.get(key), 0);
+        if (md >= 511) {
+            return 511;
+        }
+        // - @SYS_ADMIN : 角色【域账户】
+        // - $admin : 角色【系统账户】
+        if (u.hasRoleName()) {
+            for (String role : u.getRoleList()) {
+                key = prefix + role;
+                md |= Wn.Io.modeFrom(pvg.get(key), 0);
+                if (md >= 511) {
+                    return 511;
                 }
             }
-
-            // 看看自己的父
-            if (this.hasParent())
-                // try {
-                return this.parent().getCustomizedPrivilege(u);
-            // }
-            // catch (NullPointerException e) {
-            // throw Lang.makeThrow("NPE: %s @ %s", this.name(), unm);
-            // }
         }
+        // - +M0A : 用户所属职位或部门
+        if (u.hasJobs()) {
+            for (String job : u.getJobs()) {
+                key = "+" + job;
+                md |= Wn.Io.modeFrom(pvg.get(key), 0);
+                if (md >= 511) {
+                    return 511;
+                }
+            }
+        }
+        if (u.hasDepts()) {
+            for (String dept : u.getDepts()) {
+                key = "+" + dept;
+                md |= Wn.Io.modeFrom(pvg.get(key), 0);
+                if (md >= 511) {
+                    return 511;
+                }
+            }
+        }
+
+        // 如果还有没获得属性，获得自己父亲
+        // 如果大于了 511(0777) 再去找父就没意义了
+        if (this.hasParent()) {
+            int pMd = this.parent().getCustomizedPrivilege(u);
+            // 如果是 -999(Wn.Io.NO_PVG)需要无视
+            if (pMd > 0) {
+                md |= pMd;
+            }
+        }
+
         // 那就是没有啊
-        return Wn.Io.NO_PVG;
+        return md > 0 ? md : Wn.Io.NO_PVG;
     }
 
     public void setParent(WnObj parent) {

@@ -1,5 +1,6 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.nutz.json.Json;
@@ -10,6 +11,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -24,6 +26,8 @@ public class WnAuthSession {
 
     public static final String V_WWW_SITE_ID = "WWW_SITE_ID";
     public static final String V_ROLE = "ROLE";
+    public static final String V_DEPT = "DEPT";
+    public static final String V_JOBS = "JOBS";
 
     private String id;
 
@@ -291,9 +295,19 @@ public class WnAuthSession {
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String key = en.getKey();
                 Object val = en.getValue();
+                // 无视空值
+                if (null == val) {
+                    continue;
+                }
                 // 无视私有键
                 if (key.startsWith("__")) {
                     continue;
+                }
+                // 数组或者集合，值需要拼合为字符串
+                if (val.getClass().isArray()) {
+                    val = Ws.join((Object[]) val, ",");
+                } else if (val instanceof Collection<?>) {
+                    val = Ws.join((Collection<?>) val, ",");
                 }
                 // 强制大写
                 String k2 = key.toUpperCase();

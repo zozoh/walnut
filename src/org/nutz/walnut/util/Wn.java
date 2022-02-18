@@ -831,15 +831,41 @@ public abstract class Wn {
             return Integer.toOctalString(md);
         }
 
-        public static int modeFromOctalMode(String octalMode) {
+        public static int modeFromOctal(String octalMode) {
             return Integer.parseInt(octalMode, 8);
         }
 
+        public static int modeFromDecimal(int md) {
+            if (md >= 8) {
+                return md;
+            }
+            return md << 6 | md << 3 | md;
+        }
+
         public static int modeFromStr(String mds) {
+            if (null == mds) {
+                return 0;
+            }
             int md = 0;
-            for (int i = 0; i < 3; i++) {
+            int len = mds.length();
+            if (len == 0) {
+                return md;
+            }
+            char c0 = mds.charAt(0);
+            // 八进制 : 0777
+            if ('0' == c0) {
+                return modeFromOctal(mds.substring(1));
+            }
+            // 十进制: 只要开头不是 "rwx-" 就认为是十进制整数
+            if ('r' != c0 && 'w' != c0 && 'x' != c0 && '-' != c0) {
+                int n = Integer.parseInt(mds);
+                return modeFromDecimal(n);
+            }
+            // 支持 : rwxr-xr-x 或 rwx
+            int n = len / 3;
+            for (int i = 0; i < n; i++) {
                 int m = 0;
-                int left = (2 - i) * 3;
+                int left = (n - 1 - i) * 3;
                 char[] cs = mds.substring(left, left + 3).toCharArray();
                 if (cs[0] == 'r')
                     m |= R;
@@ -849,7 +875,22 @@ public abstract class Wn {
                     m |= X;
                 md |= m << (i * 3);
             }
+            if (n == 1) {
+                return md << 6 | md << 3 | md;
+            }
             return md;
+        }
+
+        public static int modeFrom(Object input, int dft) {
+            if (null == input) {
+                return dft;
+            }
+            if (input instanceof Number) {
+                int v = ((Number) input).intValue();
+                return modeFromDecimal(v);
+            }
+            String s = input.toString();
+            return modeFromStr(s);
         }
 
         /**

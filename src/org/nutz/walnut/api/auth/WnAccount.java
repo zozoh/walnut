@@ -41,6 +41,10 @@ public class WnAccount {
 
     private WnHumanSex sex;
 
+    private String[] jobs;
+
+    private String[] depts;
+
     private long loginAt;
 
     /**
@@ -160,6 +164,14 @@ public class WnAccount {
             else if ("sex".equals(key)) {
                 this.setSex(bean.getInt(key));
             }
+            // job
+            else if ("job".equals(key)) {
+                this.setJobs(bean.getAs(key, String[].class));
+            }
+            // dept
+            else if ("dept".equals(key)) {
+                this.setDepts(bean.getAs(key, String[].class));
+            }
             // passwd
             else if ("passwd".equals(key)) {
                 this.setPasswd(bean.getString(key));
@@ -239,8 +251,18 @@ public class WnAccount {
                 bean.put("grp", groupName);
 
             // 业务角色
-            if (!Strings.isBlank(roleName))
+            if (this.hasRoleName())
                 bean.put("role", roleName);
+
+            // 职位
+            if (this.hasJobs()) {
+                bean.put("jobs", jobs);
+            }
+
+            // 部门
+            if (this.hasDepts()) {
+                bean.put("depts", depts);
+            }
 
             // 昵称
             if (!Strings.isBlank(nickname))
@@ -597,6 +619,18 @@ public class WnAccount {
         this.thumb = thumb;
     }
 
+    public boolean isSexUnknown() {
+        return this.sex == null || this.sex == WnHumanSex.UNKNOWN;
+    }
+
+    public boolean isSexMale() {
+        return WnHumanSex.MALE == this.sex;
+    }
+
+    public boolean isSexFemale() {
+        return WnHumanSex.FEMALE == this.sex;
+    }
+
     public WnHumanSex getSex() {
         return sex;
     }
@@ -614,8 +648,42 @@ public class WnAccount {
         this.sex = WnHumanSex.valueOf(sex);
     }
 
-    public boolean isSexUnknown() {
-        return this.sex == null || this.sex == WnHumanSex.UNKNOWN;
+    public boolean hasJobs() {
+        return null != jobs && jobs.length > 0;
+    }
+
+    public String[] getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(String[] jobs) {
+        this.jobs = jobs;
+    }
+
+    public String getJobAsStr() {
+        if (this.hasJobs()) {
+            return Ws.join(jobs, ",");
+        }
+        return null;
+    }
+
+    public boolean hasDepts() {
+        return null != depts && depts.length > 0;
+    }
+
+    public String[] getDepts() {
+        return depts;
+    }
+
+    public String getDeptAsStr() {
+        if (this.hasDepts()) {
+            return Ws.join(depts, ",");
+        }
+        return null;
+    }
+
+    public void setDepts(String[] depts) {
+        this.depts = depts;
     }
 
     public long getLoginAt() {

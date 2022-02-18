@@ -95,7 +95,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
         WnObj oHome = io.createIfNoExists(null, homePath, WnRace.DIR);
         oHome.creator(user.getName());
         oHome.group(user.getGroupName());
-        oHome.mode(Wn.Io.modeFromOctalMode("750"));
+        oHome.mode(Wn.Io.modeFromOctal("750"));
         io.set(oHome, "^(c|g|md)$");
 
         // 更新用户元数据，设置主目录

@@ -760,7 +760,7 @@ public class AppModule extends AbstractWnModule {
 
         // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
         vars.put(WnAuthSession.V_WWW_SITE_ID, si.oWWW.id());
-        vars.put(WnAuthSession.V_ROLE, "@" + se.getMe().getRoleName());
+        vars.put(WnAuthSession.V_ROLE, se.getMe().getRoleName());
 
         // 保存会话
         auth().saveSession(se);
