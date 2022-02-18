@@ -115,12 +115,15 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         if (auth.isMemberOfGroup(u, "root"))
             return o;
 
-        // 自定义权限优先
-        int md = o.getCustomizedPrivilege(u);
+        int md;
 
-        // 采用默认的权限码
-        if (md == Wn.Io.NO_PVG) {
+        // 系统用户，采用标准权限模型
+        if (u.isSysAccount()) {
             md = o.mode();
+        }
+        // 域用户，优先采用自定义权限
+        else {
+            md = o.getCustomizedPrivilege(u, o.mode());
         }
 
         // 本身就是创建者，那么看看 u 部分的权限

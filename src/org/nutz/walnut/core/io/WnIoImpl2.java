@@ -457,7 +457,6 @@ public class WnIoImpl2 implements WnIo {
         // 因为支持回退上一级，所以有可能 p 为空
         if (null == p) {
             p = mappings.getRoot();
-            ;
         }
 
         // 目标是通配符或正则表达式

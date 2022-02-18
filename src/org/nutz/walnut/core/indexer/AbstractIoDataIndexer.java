@@ -215,7 +215,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
      * @param o
      *            要被补全的对象
      */
-    private void _complete_obj_by_parent(WnObj p, WnObj o) {
+    protected void _complete_obj_by_parent(WnObj p, WnObj o) {
         if (null != o) {
             if (null == p) {
                 p = this.root;
@@ -837,20 +837,19 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             }
         }
         q.asc("nm");
-        return this.each(q, callback);
+        return this._each(q, o, callback);
     }
 
     @Override
     public int each(WnQuery q, Each<WnObj> callback) {
-        return _each(q, new Each<WnObj>() {
+        return _each(q, root, new Each<WnObj>() {
             public void invoke(int index, WnObj o, int length) {
-                _complete_obj_by_parent(root, o);
                 callback.invoke(index, o, length);
             }
         });
     }
 
-    protected abstract int _each(WnQuery q, Each<WnObj> callback);
+    protected abstract int _each(WnQuery q, WnObj pHint, Each<WnObj> callback);
 
     @Override
     public long countChildren(WnObj o) {

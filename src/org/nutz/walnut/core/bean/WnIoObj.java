@@ -743,9 +743,7 @@ public class WnIoObj extends NutMap implements WnObj {
      * <ul>
      * <li><code>4a98..a123</code> : 直接是用户的 ID
      * <li><code>@SYS_ADMIN</code> : 角色【域账户】
-     * <li><code>$admin    </code> : 角色【系统账户】
-     * <li><code>@[demo]   </code> : 角色【域账户】
-     * <li><code>$[xiaobai]</code> : 登录名【系统账户】
+     * <li><code>@[demo]   </code> : 用户名【域账户】
      * <li><code>+M0A      </code> : 用户所属职位或部门
      * </ul>
      * 
@@ -763,51 +761,72 @@ public class WnIoObj extends NutMap implements WnObj {
      * 
      * @param u
      *            账户对象
+     * @param dftMode
+     *            如果没有声明自定义权限，返回的默认权限
      * 
      * @return 一个十进制的权限码
-     * 
      */
     @SuppressWarnings("rawtypes")
-    public int getCustomizedPrivilege(WnAccount u) {
+    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
         // 防守: 没有指定账户
         if (null == u) {
-            return Wn.Io.NO_PVG;
+            return dftMode;
         }
         // 防守: 没有指定自定义权限集合
         Map pvg = this.getAs("pvg", Map.class);
         if (null == pvg || pvg.isEmpty()) {
             if (this.hasParent()) {
-                return this.parent().getCustomizedPrivilege(u);
+                return this.parent().getCustomizedPrivilege(u, dftMode);
             }
-            return Wn.Io.NO_PVG;
+            return dftMode;
         }
         // 准备权限
-        String key;
+        boolean found = false;
         int md = 0;
-        String prefix = u.isSysAccount() ? "$" : "@";
+        String key;
+        Object val;
 
         // 处理各种自定义的权限
         // - 4a98..a123 : 直接是用户的 ID
         key = u.getId();
-        md |= Wn.Io.modeFrom(pvg.get(key), 0);
-        if (md >= 511) {
-            return 511;
+        val = pvg.get(key);
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
         }
         // - @[demo] : 角色【域账户】
-        // - $[xiaobai] : 登录名【系统账户】
-        key = prefix + "[" + u.getName() + "]";
-        md |= Wn.Io.modeFrom(pvg.get(key), 0);
-        if (md >= 511) {
-            return 511;
+        key = "@[" + u.getName() + "]";
+        val = pvg.get(key);
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
+        }
+        // - @others : 角色【域账户】
+        val = pvg.get("@others");
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
         }
         // - @SYS_ADMIN : 角色【域账户】
-        // - $admin : 角色【系统账户】
         if (u.hasRoleName()) {
             for (String role : u.getRoleList()) {
-                key = prefix + role;
-                md |= Wn.Io.modeFrom(pvg.get(key), 0);
-                if (md >= 511) {
-                    return 511;
+                key = "@" + role;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
                 }
             }
         }
@@ -815,34 +834,43 @@ public class WnIoObj extends NutMap implements WnObj {
         if (u.hasJobs()) {
             for (String job : u.getJobs()) {
                 key = "+" + job;
-                md |= Wn.Io.modeFrom(pvg.get(key), 0);
-                if (md >= 511) {
-                    return 511;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
                 }
             }
         }
         if (u.hasDepts()) {
             for (String dept : u.getDepts()) {
                 key = "+" + dept;
-                md |= Wn.Io.modeFrom(pvg.get(key), 0);
-                if (md >= 511) {
-                    return 511;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
                 }
             }
+        }
+
+        // 如果已经获得了属性，那么就直接返回
+        if (found) {
+            return md;
         }
 
         // 如果还有没获得属性，获得自己父亲
         // 如果大于了 511(0777) 再去找父就没意义了
         if (this.hasParent()) {
-            int pMd = this.parent().getCustomizedPrivilege(u);
-            // 如果是 -999(Wn.Io.NO_PVG)需要无视
-            if (pMd > 0) {
-                md |= pMd;
-            }
+            return this.parent().getCustomizedPrivilege(u, dftMode);
         }
 
         // 那就是没有啊
-        return md > 0 ? md : Wn.Io.NO_PVG;
+        return md > 0 ? md : dftMode;
     }
 
     public void setParent(WnObj parent) {

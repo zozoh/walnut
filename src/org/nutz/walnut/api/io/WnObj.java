@@ -102,7 +102,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     List<WnObj> parents();
 
-    int getCustomizedPrivilege(WnAccount u);
+    int getCustomizedPrivilege(WnAccount u, int dftMode);
 
     WnObj loadParents(List<WnObj> list, boolean force);
 

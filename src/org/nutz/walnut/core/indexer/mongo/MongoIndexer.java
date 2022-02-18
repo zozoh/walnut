@@ -32,6 +32,7 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.core.indexer.AbstractIoDataIndexer;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Wtime;
 
 import com.mongodb.client.AggregateIterable;
@@ -357,10 +358,13 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    protected int _each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, WnObj pHint, Each<WnObj> callback) {
         // 木有必要迭代
         if (null == callback)
             return 0;
+
+        // 得到节点检查的回调接口
+        WnContext wc = Wn.WC();
 
         // 准备查询
         ZMoDoc qDoc = null == q ? ZMoDoc.NEW() : Mongos.toQueryDoc(q);
@@ -384,7 +388,20 @@ public class MongoIndexer extends AbstractIoDataIndexer {
                 // 获取对象
                 Document dbobj = cu.next();
                 WnIoObj o = Mongos.toWnObj(dbobj);
-                o.setIndexer(this);
+
+                // 根据父对象完成自身未设置的字段
+                this._complete_obj_by_parent(pHint, o);
+
+                // 确保可读
+                o = (WnIoObj) wc.whenAccess(o, true);
+                if (null == o) {
+                    continue;
+                }
+
+                // 自动读取路径
+                if (wc.isAutoPath()) {
+                    o.path();
+                }
 
                 // 回调
                 try {

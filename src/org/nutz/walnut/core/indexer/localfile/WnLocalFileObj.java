@@ -335,8 +335,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public int getCustomizedPrivilege(WnAccount u) {
-        return oHome.getCustomizedPrivilege(u);
+    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
+        return oHome.getCustomizedPrivilege(u, dftMode);
     }
 
     @Override

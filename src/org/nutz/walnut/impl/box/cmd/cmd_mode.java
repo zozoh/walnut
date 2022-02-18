@@ -39,7 +39,7 @@ public class cmd_mode extends JvmExecutor {
         int md;
         if (isForFile) {
             o = Wn.checkObj(sys, input);
-            md = o.getCustomizedPrivilege(me);
+            md = o.getCustomizedPrivilege(me, Wn.Io.NO_PVG);
             if (md < 0 && isReal) {
                 md = o.mode();
             }

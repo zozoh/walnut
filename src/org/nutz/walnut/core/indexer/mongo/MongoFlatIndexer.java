@@ -27,9 +27,9 @@ public class MongoFlatIndexer extends MongoIndexer {
     }
 
     @Override
-    protected int _each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, WnObj pHint, Each<WnObj> callback) {
         q.setv("pid", root.id());
-        return super._each(q, callback);
+        return super._each(q, pHint, callback);
     }
 
     @Override

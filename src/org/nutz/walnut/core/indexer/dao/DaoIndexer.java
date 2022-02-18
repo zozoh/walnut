@@ -50,6 +50,7 @@ import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.jdbc.WnJdbc;
 import org.nutz.walnut.jdbc.WnJdbcExpert;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Ws;
 
 public class DaoIndexer extends AbstractIoDataIndexer {
@@ -362,11 +363,15 @@ public class DaoIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    protected int _each(WnQuery q, Each<WnObj> callback) {
+    protected int _each(WnQuery q, WnObj pHint, Each<WnObj> callback) {
         // 木有必要查询
         if (null == callback) {
             return 0;
         }
+
+        // 得到节点检查的回调接口
+        WnContext wc = Wn.WC();
+
         // 处理查询条件
         WnDaoQuery dq = genDaoQuery(q);
         Condition cond = dq.getCondition();
@@ -376,8 +381,22 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         final WnIoIndexer indexer = this;
         return dao.each(entity, cond, page, new Each<WnIoObj>() {
             public void invoke(int index, WnIoObj o, int length) {
-                if (null != o) {
-                    o.setIndexer(indexer);
+                if (null == o) {
+                    return;
+                }
+                // 根据父对象完成自身未设置的字段
+                o.setIndexer(indexer);
+                _complete_obj_by_parent(pHint, o);
+
+                // 确保可读
+                o = (WnIoObj) wc.whenAccess(o, true);
+                if (null == o) {
+                    return;
+                }
+
+                // 自动读取路径
+                if (wc.isAutoPath()) {
+                    o.path();
                 }
 
                 // 通知回调
