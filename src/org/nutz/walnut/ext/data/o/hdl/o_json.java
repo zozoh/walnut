@@ -14,7 +14,7 @@ public class o_json extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl");
+        return ZParams.parse(args, "cqnl", "^path$");
     }
 
     @Override
@@ -26,7 +26,7 @@ public class o_json extends OFilter {
         String keys = params.val(0);
         WnMatch ma = Wobj.explainObjKeyMatcher(keys);
 
-        Object reo = fc.toOutput(ma);
+        Object reo = fc.toOutput(ma, params.is("path"));
 
         String json = Json.toJson(reo, jfmt);
         sys.out.println(json);

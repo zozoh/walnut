@@ -45,7 +45,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
     @Override
     protected void output(WnSystem sys, OContext fc) {
         if (!fc.quiet) {
-            Object reo = fc.toOutput();
+            Object reo = fc.toOutput(true);
 
             // 输出
             String json = Json.toJson(reo, fc.jfmt);

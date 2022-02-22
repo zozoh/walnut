@@ -10,11 +10,25 @@ import org.nutz.lang.Strings;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
 
     protected Ioc ioc;
+
+    public String[] prepareArgs(String[] args) {
+        String[] re = new String[args.length];
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            if (Ws.isQuoteBy(arg, '"', '"') || Ws.isQuoteBy(arg, '\'', '\'')) {
+                re[i] = arg.substring(1, arg.length() - 1);
+            } else {
+                re[i] = arg;
+            }
+        }
+        return re;
+    }
 
     public abstract void exec(WnSystem sys, String[] args) throws Exception;
 

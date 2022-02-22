@@ -1190,7 +1190,7 @@ public class Ws {
             if (m.group(3) != null) {
                 return Double.parseDouble(n);
             }
-            Integer.parseInt(n);
+            return Integer.parseInt(n);
         }
 
         // Boolean

@@ -73,13 +73,17 @@ public class JsExec {
         // 全局变量
         if (!groovyMode) {
             for (Entry<String, Object> en : globalVars.entrySet()) {
-                bindings.put(en.getKey(), en.getValue());
+                String k = en.getKey();
+                Object v = en.getValue();
+                bindings.put(k, v);
             }
         }
         // 变量
         if (vars != null) {
             for (Entry<String, Object> en : vars.entrySet()) {
-                bindings.put(en.getKey(), en.getValue());
+                String k = en.getKey();
+                Object v = en.getValue();
+                bindings.put(k, v);
             }
         }
         bindings.put("wc", Wn.WC());
@@ -88,7 +92,7 @@ public class JsExec {
         // 生成动态访问的 $wn
         if (!groovyMode)
             jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
-                + jsStr;
+                    + jsStr;
 
         // 执行
         Object obj = ((Compilable) engine).compile(jsStr).eval(bindings);

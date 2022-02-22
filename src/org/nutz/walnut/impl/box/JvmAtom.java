@@ -38,7 +38,9 @@ class JvmAtom extends JvmCmd implements Atom {
     private void __run() {
         try {
             try {
-                executor.exec(sys, args);
+                // 对于 @xxx 的过滤型命令，还是需要保留引号的，因为有可能值就是 '@xxx'
+                String[] args2 = executor.prepareArgs(args);
+                executor.exec(sys, args2);
             }
             catch (Exception e) {
                 // 如果是 Eof 就忍了

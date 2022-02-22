@@ -73,7 +73,11 @@ public abstract class Cmds {
                     }
                     // 还有新内容，也成为一项
                     if (token.hasText()) {
-                        items.add(token.text.toString());
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(token.quoteC);
+                        sb.append(token.text);
+                        sb.append(token.quoteC);
+                        items.add(sb.toString());
                     }
                     // 重置
                     stack.delete(0, stack.length());
@@ -655,7 +659,7 @@ public abstract class Cmds {
                         if (Wn.Cmd.isNoExistsNull(mode)) {
                             list.add(null);
                         }
-                          // 忽略
+                        // 忽略
                         else if (Wn.Cmd.isNoExistsIgnore(mode)) {
 
                         }

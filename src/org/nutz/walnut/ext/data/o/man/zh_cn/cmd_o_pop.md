@@ -29,7 +29,19 @@ o @pop
 # 示例
 
 ```bash
-$demo:> o ~/mytest @push abc -to names
-{"today":4}
+#--------------------------------------------------------
+# 假设有一个对象，names=["A", "B", "C", "D", "E"]
+#--------------------------------------------------------
+# 从后面弹出两个
+$demo:> o abc @pop names:2 @json -cqn "^(id|names)$"
+{"id":"0cnhdbir8sin3q88himugvf40h","names":["A", "B", "C"]}
+
+# 从开始处弹出一个
+$demo:> o abc @pop names:-1 @json -cqn "^(id|names)$"
+{"id":"0cnhdbir8sin3q88himugvf40h","names":["B", "C", "D", "E"]}
+
+# 弹出倒数第二个
+$demo:> o abc @pop names:i-2 @json -cqn "^(id|names)$"
+{"id":"0cnhdbir8sin3q88himugvf40h","names":["A", "B", "C", "E"]}
 ```
 

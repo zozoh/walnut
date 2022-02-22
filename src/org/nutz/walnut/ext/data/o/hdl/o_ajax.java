@@ -15,7 +15,7 @@ public class o_ajax extends o_json {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl");
+        return ZParams.parse(args, "cqnl", "^(path)$");
     }
 
     @Override
@@ -27,7 +27,7 @@ public class o_ajax extends o_json {
         String keys = params.val(0);
         WnMatch ma = Wobj.explainObjKeyMatcher(keys);
 
-        Object data = fc.toOutput(ma);
+        Object data = fc.toOutput(ma, params.is("path"));
 
         AjaxReturn re = Ajax.ok().setData(data);
         String json = Json.toJson(re, jfmt);

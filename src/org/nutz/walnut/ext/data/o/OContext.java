@@ -20,7 +20,7 @@ public class OContext extends JvmFilterContext {
     public boolean keepAsList;
 
     public String subKey;
-    
+
     public NutMap summary;
 
     /**
@@ -33,13 +33,13 @@ public class OContext extends JvmFilterContext {
         this.summary = new NutMap();
     }
 
-    public Object toOutput() {
-        return toOutput(null);
+    public Object toOutput(boolean autoPath) {
+        return toOutput(null, autoPath);
     }
 
-    public Object toOutput(WnMatch km) {
+    public Object toOutput(WnMatch km, boolean autoPath) {
         // 执行字段过滤
-        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km, subKey);
+        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km, subKey, autoPath);
 
         // 不要分页
         if (null == pager) {

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.resource.Scans;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.web.Webs.Err;
 
@@ -74,6 +75,11 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
     }
 
     @Override
+    public String[] prepareArgs(String[] args) {
+        return args;
+    }
+
+    @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         List<String> vals = new ArrayList<>(args.length);
 
@@ -105,6 +111,10 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
                 // 开启新的
                 lastHdl = hdl;
                 lastArgs.clear();
+            }
+            // 拆包字符串
+            else if (Ws.isQuoteBy(arg, '"', '"') || Ws.isQuoteBy(arg, '\'', '\'')) {
+                lastArgs.add(arg.substring(1, arg.length() - 1));
             }
             // 存入 hdl 参数
             else if (null != lastHdl) {

@@ -547,6 +547,7 @@ public abstract class Wn {
                 // => Call EL
                 if ("=>".equals(m_type)) {
                     Context ctx = new SimpleContext(context);
+                    ctx.set("$wn", WnEvalHelper.me());
                     return El.eval(ctx, m_val);
                 }
                 // Render template

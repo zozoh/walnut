@@ -32,14 +32,14 @@ public class CmdsTest {
     public void test_splitCmdArgs3() {
         String[] ss = Cmds.splitCmdArgs("a 'b \\'c \\`d\\` e\\''");
         String s = Ws.join(ss, ";");
-        assertEquals("a;b 'c `d` e'", s);
+        assertEquals("a;'b 'c `d` e''", s);
     }
 
     @Test
     public void test_splitCmdArgs2() {
         String[] ss = Cmds.splitCmdArgs("a 'x\"y\\\"z op\"'");
         String s = Ws.join(ss, ";");
-        assertEquals("a;x\"y\"z op\"", s);
+        assertEquals("a;'x\"y\"z op\"'", s);
     }
 
     @Test
@@ -50,23 +50,23 @@ public class CmdsTest {
 
         ss = Cmds.splitCmdArgs("a'b'c");
         s = Ws.join(ss, ";");
-        assertEquals("a;b;c", s);
+        assertEquals("a;'b';c", s);
 
         ss = Cmds.splitCmdArgs("a 'x y z' c");
         s = Ws.join(ss, ";");
-        assertEquals("a;x y z;c", s);
+        assertEquals("a;'x y z';c", s);
 
         ss = Cmds.splitCmdArgs("a 'x \"y\" z' c");
         s = Ws.join(ss, ";");
-        assertEquals("a;x \"y\" z;c", s);
+        assertEquals("a;'x \"y\" z';c", s);
 
         ss = Cmds.splitCmdArgs("a '''x \"y\" z''' c");
         s = Ws.join(ss, ";");
-        assertEquals("a;x \"y\" z;c", s);
+        assertEquals("a;'x \"y\" z';c", s);
 
         ss = Cmds.splitCmdArgs("a '\\'x \"y\" z\\'' c");
         s = Ws.join(ss, ";");
-        assertEquals("a;'x \"y\" z';c", s);
+        assertEquals("a;''x \"y\" z'';c", s);
     }
 
     @Test

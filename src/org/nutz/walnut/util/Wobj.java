@@ -49,10 +49,14 @@ public class Wobj {
      *            对象列表
      * @param km
      *            字段过滤器
+     * @param autoPath
+     *            自动检查对象，是否都加载好了路径
      * @return 过滤字段后的对象列表
      */
-    public static List<? extends NutBean> filterObjKeys(List<WnObj> list, WnMatch km) {
-        return filterObjKeys(list, km, "id", "children");
+    public static List<? extends NutBean> filterObjKeys(List<WnObj> list,
+                                                        WnMatch km,
+                                                        boolean autoPath) {
+        return filterObjKeys(list, km, "children", autoPath);
     }
 
     /**
@@ -64,11 +68,22 @@ public class Wobj {
      *            字段过滤器
      * @param subKey
      *            哪个字段表示对象的 ID
+     * @param autoPath
+     *            自动检查对象，是否都加载好了路径
      * @return 过滤字段后的对象列表
      */
     public static List<? extends NutBean> filterObjKeys(List<WnObj> list,
                                                         WnMatch km,
-                                                        String subKey) {
+                                                        String subKey,
+                                                        boolean autoPath) {
+        // 自动加载路径字段
+        if (autoPath && null != list && !list.isEmpty()) {
+            if (null == km || km.match("ph")) {
+                for (WnObj o : list) {
+                    o.path();
+                }
+            }
+        }
         return filterObjKeys(list, km, "id", subKey);
     }
 
@@ -272,7 +287,7 @@ public class Wobj {
     public static WnMatch explainObjKeyMatcher(String str) {
         return explainObjKeyMatcher(str, new AlwaysMatch(true));
     }
-    
+
     public static WnMatch explainObjKeyMatcher(String str, boolean dft) {
         return explainObjKeyMatcher(str, new AlwaysMatch(dft));
     }
