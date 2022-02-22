@@ -111,13 +111,15 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
                 // 开启新的
                 lastHdl = hdl;
                 lastArgs.clear();
+
+                continue;
             }
             // 拆包字符串
-            else if (Ws.isQuoteBy(arg, '"', '"') || Ws.isQuoteBy(arg, '\'', '\'')) {
-                lastArgs.add(arg.substring(1, arg.length() - 1));
+            if (Ws.isQuoteBy(arg, '"', '"') || Ws.isQuoteBy(arg, '\'', '\'')) {
+                arg = arg.substring(1, arg.length() - 1);
             }
             // 存入 hdl 参数
-            else if (null != lastHdl) {
+            if (null != lastHdl) {
                 lastArgs.add(arg);
             }
             // 存入全局

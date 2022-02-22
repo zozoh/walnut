@@ -25,6 +25,10 @@ public class ReactItem {
 
     private ReactAction[] actions;
 
+    public String toString() {
+        return this.name;
+    }
+
     public boolean isMatch(Object input) {
         if (null == _wm) {
             return true;
