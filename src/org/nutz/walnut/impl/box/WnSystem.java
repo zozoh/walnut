@@ -374,8 +374,8 @@ public class WnSystem implements WnAuthExecutable {
                 // 最后加上 Others
                 as = site.getRoleAllowActions("others");
                 joinRolePvg(myAvaPvg, as);
-                
-             // 根据职位获取角色权限
+
+                // 根据职位获取角色权限
                 as = site.getOrgAllowActions(me.getJobs());
                 joinRolePvg(myAvaPvg, as);
 
@@ -383,6 +383,10 @@ public class WnSystem implements WnAuthExecutable {
                 as = site.getOrgAllowActions(me.getDepts());
                 joinRolePvg(myAvaPvg, as);
             }
+        }
+        // 系统用户，做一个标识
+        else if (me.isSysAccount()) {
+            myAvaPvg.put("$SYS_USR", true);
         }
 
         return myAvaPvg;
