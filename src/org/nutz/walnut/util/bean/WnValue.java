@@ -36,6 +36,8 @@ public class WnValue {
 
     private String format;
 
+    private String[] replace;
+
     private String valueRegion;
 
     private String separator;
@@ -176,6 +178,18 @@ public class WnValue {
 
     public void setDatePrefix(String datePrefix) {
         this.datePrefix = datePrefix;
+    }
+
+    public boolean hasReplace() {
+        return null != replace && replace.length > 0;
+    }
+
+    public String[] getReplace() {
+        return replace;
+    }
+
+    public void setReplace(String[] replace) {
+        this.replace = replace;
     }
 
     public boolean hasFormat() {

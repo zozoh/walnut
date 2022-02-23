@@ -6,6 +6,7 @@ import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Ws;
 
 public class cmd_run extends JvmExecutor {
 
@@ -29,7 +30,8 @@ public class cmd_run extends JvmExecutor {
                 String val = arg.replaceAll("([\"'])", "\\\\$1");
                 cmds[i++] = val;
             }
-            cmdTmpl = Lang.concatBy(" '%s' ", cmds).toString();
+            // cmdTmpl = Lang.concatBy(" '%s' ", cmds).toString();
+            cmdTmpl = Ws.join(cmds, " ");
 
             // 读取变量集
             varJson = sys.in.readAll();
