@@ -2,6 +2,7 @@ package org.nutz.walnut.impl.box;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -21,6 +22,7 @@ import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.data.www.bean.WnWebSite;
 import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Cmds;
@@ -352,36 +354,44 @@ public class WnSystem implements WnAuthExecutable {
         // 权限表
         NutMap myAvaPvg = new NutMap();
 
-        // 看看是否需要读取
+        // 看看是否需要读取: 只有域用户才需要读取，系统用户不用管
         if (WnAuthSession.V_BT_AUTH_BY_DOMAIN.equals(this.session.getByType())) {
             String siteId = this.session.getVars().getString(WnAuthSession.V_WWW_SITE_ID);
             WnObj oWWW = this.io.get(siteId);
             if (null != oWWW) {
                 WnWebService webs = new WnWebService(this, oWWW);
+                WnWebSite site = webs.getSite();
+                Collection<String> as;
                 // 自己所有的自定义权限
                 if (me.hasRoleName()) {
                     for (String rnm : me.getRoleList()) {
-                        if (!"others".equals(rnm))
-                            readRolePvg(myAvaPvg, webs, rnm);
+                        if (!"others".equals(rnm)) {
+                            as = site.getRoleAllowActions(rnm);
+                            joinRolePvg(myAvaPvg, as);
+                        }
                     }
                 }
                 // 最后加上 Others
-                readRolePvg(myAvaPvg, webs, "others");
+                as = site.getRoleAllowActions("others");
+                joinRolePvg(myAvaPvg, as);
+                
+             // 根据职位获取角色权限
+                as = site.getOrgAllowActions(me.getJobs());
+                joinRolePvg(myAvaPvg, as);
+
+                // 根据部门获取角色权限
+                as = site.getOrgAllowActions(me.getDepts());
+                joinRolePvg(myAvaPvg, as);
             }
         }
 
         return myAvaPvg;
     }
 
-    private void readRolePvg(NutMap myAvaPvg, WnWebService webs, String rnm) {
-        NutBean pvg;
-        pvg = webs.getSite().readRoleAsJson(rnm);
-        if (null != pvg) {
-            for (String key : pvg.keySet()) {
-                boolean val = pvg.getBoolean(key);
-                if (val) {
-                    myAvaPvg.put(key, true);
-                }
+    private void joinRolePvg(NutMap myAvaPvg, Collection<String> as) {
+        if (null != as && !as.isEmpty()) {
+            for (String a : as) {
+                myAvaPvg.put(a, true);
             }
         }
     }

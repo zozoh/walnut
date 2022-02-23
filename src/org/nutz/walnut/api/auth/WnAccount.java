@@ -14,6 +14,8 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
 public class WnAccount {
+    
+    public static final String K_ROLE_ACTIONS = "roleActions";
 
     public static WnAccount create(String name) {
         return create(name, name);

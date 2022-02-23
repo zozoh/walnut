@@ -1,5 +1,9 @@
 package org.nutz.walnut.api.auth;
 
+import java.util.Collection;
+
+import org.nutz.walnut.util.validate.WnMatch;
+
 /**
  * 组织结构节点
  * 
@@ -18,6 +22,29 @@ public class WnOrganization {
     private String[] roleActions;
 
     private WnOrganization[] children;
+
+    public void joinRoleActions(Collection<String> col, WnMatch test) {
+        // 防守
+        if (null == test) {
+            return;
+        }
+        // 添加自己
+        if (this.hasRoleActions() && test.match(id)) {
+            for (String ra : roleActions) {
+                col.add(ra);
+            }
+        }
+        // 添加子节点
+        if (this.hasChildren()) {
+            for (WnOrganization child : children) {
+                child.joinRoleActions(col, test);
+            }
+        }
+    }
+
+    public String toString() {
+        return String.format("[%s] %s: %s", type, id, name);
+    }
 
     public String getId() {
         return id;

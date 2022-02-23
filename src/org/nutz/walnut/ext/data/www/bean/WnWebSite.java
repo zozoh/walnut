@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.www.bean;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnOrganization;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
@@ -458,6 +460,33 @@ public class WnWebSite {
             return null;
         }
         return io.readJson(o, NutMap.class);
+    }
+
+    public List<String> getRoleAllowActions(String roleName) {
+        WnObj o = io.fetch(roleDir, roleName);
+        if (null == o) {
+            return null;
+        }
+        return o.getAsList(WnAccount.K_ROLE_ACTIONS, String.class);
+    }
+
+    public Collection<String> getOrgAllowActions(String[] depts) {
+        HashSet<String> as = new HashSet<>();
+        if (null != depts && depts.length > 0 && this.hasOrganization()) {
+            // 读取组织结构设置
+            WnOrganization wo = this.getOrganization();
+
+            // 准备一个自己所在部门的映射表
+            HashMap<String, Boolean> map = new HashMap<>();
+            for (String dept : depts) {
+                map.put(dept, true);
+            }
+
+            // 记入结果
+            wo.joinRoleActions(as, deptId -> map.containsKey(deptId));
+
+        }
+        return as;
     }
 
     public WnObj getRoleDir() {
