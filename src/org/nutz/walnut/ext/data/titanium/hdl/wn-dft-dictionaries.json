@@ -1,4 +1,26 @@
 {
+    "HmValTypes": {
+      "data": [
+        {"value": "Undefined", "text": "i18n:vt-Undefined"},
+        {"value": "Null"     , "text": "i18n:vt-Null"},
+        {"value": "Number"   , "text": "i18n:vt-Number"},
+        {"value": "Boolean"  , "text": "i18n:vt-Boolean"},
+        {"value": "String"   , "text": "i18n:vt-String"},
+        {"value": "Object"   , "text": "i18n:vt-Object"},
+        {"value": "Array"    , "text": "i18n:vt-Array"},
+        {"value": "Function" , "text": "i18n:vt-Function"},
+        {"value": "Invoking" , "text": "i18n:vt-Invoking"},
+        {"value": "Tmpl"     , "text": "i18n:vt-Tmpl"},
+        {"value": "BoolVar"  , "text": "i18n:vt-BoolVar"},
+        {"value": "GetVar"   , "text": "i18n:vt-GetVar"}
+      ]
+    },
+    "HmArgsPartials": {
+      "data": [
+        {"value": "left", "text": "i18n:hm-args-partial-left", "icon":"zmdi-long-arrow-tab zmdi-hc-flip-horizontal"},
+        {"value": "right", "text": "i18n:hm-args-partial-right", "icon":"zmdi-long-arrow-tab"}
+      ]
+    },
     "JavaTypes" : {
       "data" : [
         {"value":"String", "text":"i18n:java-type-String"},
