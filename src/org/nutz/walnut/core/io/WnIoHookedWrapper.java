@@ -170,11 +170,16 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
     @Override
     public void appendMeta(WnObj o, Object meta) {
+        this.appendMeta(o, meta, false);
+    }
+
+    @Override
+    public void appendMeta(WnObj o, Object meta, boolean keepType) {
         NutBean map = Wn.anyToMap(o, meta);
         List<String> keys = new ArrayList<>(map.size());
         keys.addAll(map.keySet());
         WnContext wc = Wn.WC();
-        io.appendMeta(o, map);
+        io.appendMeta(o, map, keepType);
         o.put("__meta_keys", keys);
         o.put("__meta", map);
         WnObj o2 = wc.doHook("meta", o);

@@ -20,6 +20,8 @@ public class ThingConf {
 
     private ThingField[] fields;
 
+    private boolean updateKeepType;
+
     // zozoh: 先去掉这两个奇怪的键名，用原生的，看看会发生什么
     // @JsonField("lnKeys")
 
@@ -177,6 +179,14 @@ public class ThingConf {
 
     public void setFields(ThingField[] fields) {
         this.fields = fields;
+    }
+
+    public boolean isUpdateKeepType() {
+        return updateKeepType;
+    }
+
+    public void setUpdateKeepType(boolean updateKeepType) {
+        this.updateKeepType = updateKeepType;
     }
 
     public void validate(NutBean meta, boolean ignoreNoExists) {

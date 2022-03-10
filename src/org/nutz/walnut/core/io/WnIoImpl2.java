@@ -25,7 +25,6 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.MimeMap;
 import org.nutz.walnut.api.io.WalkMode;
@@ -47,6 +46,7 @@ import org.nutz.walnut.core.bean.WnObjId;
 import org.nutz.walnut.core.bean.WnObjMapping;
 import org.nutz.walnut.core.stream.WnIoInputStream;
 import org.nutz.walnut.core.stream.WnIoOutputStream;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Wobj;
@@ -1247,12 +1247,25 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void appendMeta(WnObj o, Object meta) {
+        appendMeta(o, meta, false);
+    }
+
+    @Override
+    public void appendMeta(WnObj o, Object meta, boolean keepType) {
         // 转换
         NutBean map = Wn.anyToMap(o, meta);
 
         // 防守
         if (null == map || map.isEmpty()) {
             return;
+        }
+
+        // 暗戳戳的改动一下，因为如果要 keepType（nm 不会导致 tp 自动修改）
+        // 则，直接在 "nm" 后面增加一个后缀
+        if (map.has("nm") && keepType) {
+            String nm = map.getString("nm");
+            map.remove("nm");
+            map.put("nm!", nm);
         }
 
         // 确保有最后修改时间

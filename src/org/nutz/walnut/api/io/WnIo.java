@@ -185,6 +185,8 @@ public interface WnIo {
     void writeMeta(WnObj o, Object meta);
 
     void appendMeta(WnObj o, Object meta);
+    
+    void appendMeta(WnObj o, Object meta, boolean keepType);
 
     String readText(WnObj o);
 

@@ -758,6 +758,11 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
         // 然后改其他的
         if (!map.isEmpty()) {
+            // 恢复暗戳戳的 nm 修改
+            if (map.has("nm!")) {
+                Object nm = map.remove("nm!");
+                map.put("nm", nm);
+            }
             // 确保对象有写权限
             o = Wn.WC().whenMeta(o, false);
 
@@ -782,6 +787,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 不支持改名和移动目录
         if (null != map) {
             map.remove("nm");
+            map.remove("nm!");
             map.remove("pid");
         }
         // 确保对象存在，并有写权限

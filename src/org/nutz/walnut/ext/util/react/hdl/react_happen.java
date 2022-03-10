@@ -26,6 +26,7 @@ import org.nutz.walnut.ext.util.react.bean.ReactItem;
 import org.nutz.walnut.ext.util.react.bean.ReactType;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class react_happen extends ReactFilter {
@@ -70,11 +71,13 @@ public class react_happen extends ReactFilter {
                     if (varVal instanceof Map<?, ?>) {
                         NutMap varMap = NutMap.WRAP((Map<String, Object>) varVal);
                         String cmdText = varMap.getString("exec");
-                        String re = sys.exec2(cmdText);
-                        if (varMap.is("type", "json")) {
-                            varVal = Json.fromJson(re);
-                        } else {
-                            varVal = re;
+                        if (!Ws.isBlank(cmdText)) {
+                            String re = sys.exec2(cmdText);
+                            if (varMap.is("type", "json")) {
+                                varVal = Json.fromJson(re);
+                            } else {
+                                varVal = re;
+                            }
                         }
                     }
                     fc.vars.put(varName, varVal);
