@@ -45,9 +45,9 @@ public class ReactThingClearAction implements ReactActionHandler {
         boolean hard = false;
         Object match = null;
 
-        if (a.hasMeta()) {
-            hard = a.meta.getBoolean("hard");
-            match = a.meta.get("match");
+        if (a.hasParams()) {
+            hard = a.params.getBoolean("hard");
+            match = a.params.get("match");
         }
 
         // 首先执行查询
