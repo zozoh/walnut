@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.data.wf.util;
+package org.nutz.walnut.ext.data.wf.bean;
 
 import org.nutz.walnut.ext.util.react.bean.ReactAction;
 

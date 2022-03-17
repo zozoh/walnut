@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.data.wf.util;
+package org.nutz.walnut.ext.data.wf.bean;
 
 public enum WfNodeType {
 

@@ -12,7 +12,7 @@ thing [TsID] update ID
   [-cate CateID]         # 分类
   [-fields "{..}"]       # 自由字段
   [-match "{..}"]        # 更新前检查数据是否匹配
-                         # 这个 match 就是一个 NutMap.match
+                         # 这个 match 就是一个 AutoMatch
 #----------------------------------------------------
 ```
 

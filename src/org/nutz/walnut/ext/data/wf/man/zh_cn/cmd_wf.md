@@ -44,13 +44,18 @@
 # 用法
 
 ```
-wf [/path/to/workflow.json] @var ... @exec
+wf [/path/to/workflow.json] @[var|process|...]
 ```
 
 # 过滤器列表
 
 ```bash
 @var        # 加载上下文变量
-@config     # 加载工作流配置
-@exec       # 执行工作流
+@current    # 根据上下文变量，确定工作流当前节点的名称
+@process    # 执行一步工作流
+@view       # 查看当前上下文中的信息
+@create     # 根据工作流上下文创建一个标准对象
+@update     # 根据工作流上下文更新一个标准对象
+@thc        # 根据工作流上下文创建一个数据集对象
+@thu        # 根据工作流上下文更新一个数据集对象
 ```

@@ -1,5 +1,6 @@
-package org.nutz.walnut.ext.data.wf.util;
+package org.nutz.walnut.ext.data.wf.bean;
 
+import org.nutz.json.JsonField;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.util.validate.WnMatch;
@@ -11,6 +12,13 @@ public class WfEdge {
 
     private ReactAction[] actions;
 
+    @JsonField(ignore = true)
+    private String fromName;
+
+    @JsonField(ignore = true)
+    private String toName;
+
+    @JsonField(ignore = true)
     private WnMatch _wm;
 
     public WnMatch getMatch() {
@@ -23,6 +31,27 @@ public class WfEdge {
     public boolean isOn(NutMap vars) {
         WnMatch wm = this.getMatch();
         return wm.match(vars);
+    }
+
+    public void setEdgeName(String fromName, String toName) {
+        this.fromName = fromName;
+        this.toName = toName;
+    }
+
+    public String getFromName() {
+        return fromName;
+    }
+
+    public void setFromName(String fromName) {
+        this.fromName = fromName;
+    }
+
+    public String getToName() {
+        return toName;
+    }
+
+    public void setToName(String toName) {
+        this.toName = toName;
     }
 
     public Object getTest() {
