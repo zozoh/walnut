@@ -25,10 +25,10 @@ public class wf_var extends WfFilter {
         String varName = params.val(0);
         String fPath = params.getString("f");
         String oPath = params.getString("o");
-        String pick = params.getString("pick");
+        String pick = params.get("pick");
 
         // 变量过滤器
-        WnMatch mKey = AutoMatch.parse(pick);
+        WnMatch mKey = AutoMatch.parse(pick, true);
 
         // 首先加载变量
         NutMap loadVars = new NutMap();
@@ -47,7 +47,7 @@ public class wf_var extends WfFilter {
 
         // 再次，加载对象元数据
         if (!Ws.isBlank(oPath)) {
-            WnObj o = Wn.checkObj(sys, fPath);
+            WnObj o = Wn.checkObj(sys, oPath);
             joinVars(loadVars, mKey, o);
         }
 

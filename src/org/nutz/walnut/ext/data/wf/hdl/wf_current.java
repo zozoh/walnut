@@ -4,6 +4,7 @@ import org.nutz.walnut.ext.data.wf.WfContext;
 import org.nutz.walnut.ext.data.wf.WfFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class wf_current extends WfFilter {
@@ -13,8 +14,11 @@ public class wf_current extends WfFilter {
         for (String v : params.vals) {
             Object re = Wn.explainObj(fc.vars, v);
             if (null != re) {
-                fc.setCurrentName(re.toString());
-                break;
+                String currentName = re.toString();
+                if (!Ws.isBlank(currentName)) {
+                    fc.setCurrentName(currentName);
+                    break;
+                }
             }
         }
     }
