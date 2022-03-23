@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.data.wf.hdl;
 
-import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.wf.WfContext;
@@ -25,12 +25,6 @@ public class wf_thu extends WfFilter {
             return;
         }
 
-        // 分析参数
-        String ph = params.val_check(0);
-        String id = params.val_check(1);
-        String json = params.val_check(2);
-        NutMap match = params.getMap("match");
-        String asName = params.getString("as");
         boolean force = params.is("force");
 
         // 前序检查
@@ -38,11 +32,25 @@ public class wf_thu extends WfFilter {
             return;
         }
 
-        // 准备更新的元数据
-        NutMap meta = Json.fromJson(NutMap.class, json);
-        if (null == meta || meta.isEmpty()) {
-            return;
+        // 分析参数: 操作目标
+        String ph = params.explainValAsString(fc.vars, 0);
+        if (Ws.isBlank(ph)) {
+            throw Er.create("e.wf.thu.WithoutTargetPh");
         }
+        String id = params.explainValAsString(fc.vars, 1);
+        if (Ws.isBlank(id)) {
+            throw Er.create("e.wf.thu.WithoutTargetPh");
+        }
+
+        // 分析参数: 更新的元数据
+        NutMap meta = params.explainValAsMap(fc.vars, 2);
+        if (null == meta || meta.isEmpty()) {
+            throw Er.create("e.wf.thu.EmptyMeta");
+        }
+
+        // 分析参数: 其他
+        NutMap match = params.explainAsMap(fc.vars, "match");
+        String asName = params.explainAsString(fc.vars, "as");
 
         // 准备 Thing 的服务类
         WnObj oTs = Wn.checkObj(sys, ph);

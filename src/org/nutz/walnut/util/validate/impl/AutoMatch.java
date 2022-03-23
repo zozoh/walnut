@@ -32,7 +32,11 @@ public class AutoMatch implements WnMatch {
         if (input instanceof Boolean) {
             return new AlwaysMatch((Boolean) input);
         }
-        return new AutoMatch(input);
+        AutoMatch am = new AutoMatch(input);
+        if (am.m instanceof ParallelMatch) {
+            ((ParallelMatch) am.m).setDefaultMatch(dft);
+        }
+        return am;
     }
 
     private WnMatch m;
@@ -98,7 +102,12 @@ public class AutoMatch implements WnMatch {
         }
         // String
         else if (input instanceof CharSequence) {
-            this.m = (new AutoStrMatch((CharSequence) input)).getMatch();
+            AutoStrMatch sm = new AutoStrMatch((CharSequence) input);
+            if (sm.isNot()) {
+                this.m = sm;
+            } else {
+                this.m = sm.getMatch();
+            }
         }
         // Unsupported
         else {

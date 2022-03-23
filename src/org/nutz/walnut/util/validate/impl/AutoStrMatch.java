@@ -44,11 +44,11 @@ public class AutoStrMatch implements WnMatch {
                 str = str.substring(1).trim();
             }
             // empty
-            if (Strings.isEmpty(cs) || "[EMPTY]".equals(cs)) {
+            if (Strings.isEmpty(cs) || "[EMPTY]".equals(str)) {
                 this.m = new EmptyMatch();
             }
             // BLANK
-            else if (Strings.isBlank(cs) || "[BLANK]".equals(cs)) {
+            else if (Strings.isBlank(cs) || "[BLANK]".equals(str)) {
                 this.m = new BlankMatch();
             }
             // 通配符
@@ -77,6 +77,14 @@ public class AutoStrMatch implements WnMatch {
             }
 
         }
+    }
+
+    public boolean isNot() {
+        return not;
+    }
+
+    public void setNot(boolean not) {
+        this.not = not;
     }
 
     public WnMatch getMatch() {

@@ -22,9 +22,11 @@ public class WnWorkflow {
         // 逐个判断边是否可以被连通
         for (Map.Entry<String, WfEdge> en : edgeSet.entrySet()) {
             WfEdge edge = en.getValue();
+            // 确保边设置 from -> to
+            String toName = en.getKey();
+            edge.setEdgeName(fromName, toName);
+            // 判断
             if (edge.isOn(vars)) {
-                String toName = en.getKey();
-                edge.setEdgeName(fromName, toName);
                 return edge;
             }
         }

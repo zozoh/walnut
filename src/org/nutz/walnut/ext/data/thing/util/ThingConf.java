@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 
 /**
  * 服务器端对 thing.json 的解析结果
@@ -15,6 +16,16 @@ import org.nutz.lang.util.NutBean;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class ThingConf {
+
+    /**
+     * 当数据创建时，固有的初始字段值
+     */
+    private NutMap initMeta;
+
+    /**
+     * 这里根据条件，自动设置动态的初始值
+     */
+    private ThTestMeta[] testInitMetas;
 
     private ThingUniqueKey[] uniqueKeys;
 
@@ -39,6 +50,30 @@ public class ThingConf {
     private String[] onBeforeDelete;
 
     private String[] onDeleted;
+
+    public boolean hasInitMeta() {
+        return null != initMeta && !initMeta.isEmpty();
+    }
+
+    public NutMap getInitMeta() {
+        return initMeta;
+    }
+
+    public void setInitMeta(NutMap initMeta) {
+        this.initMeta = initMeta;
+    }
+
+    public boolean hasTestInitMetas() {
+        return null != testInitMetas && testInitMetas.length > 0;
+    }
+
+    public ThTestMeta[] getTestInitMetas() {
+        return testInitMetas;
+    }
+
+    public void setTestInitMetas(ThTestMeta[] testMetas) {
+        this.testInitMetas = testMetas;
+    }
 
     public boolean hasUniqueKeys() {
         return null != uniqueKeys && uniqueKeys.length > 0;

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.castor.Castors;
 import org.nutz.el.El;
 import org.nutz.ioc.Ioc;
+import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
@@ -1373,6 +1374,31 @@ public abstract class Wn {
             return new WnQuery().setAll(Lang.mapf(fmt, args));
         }
 
+        public static WnQuery jsonToQuery(String json) {
+            if (Ws.isBlank(json)) {
+                return null;
+            }
+            WnQuery q = new WnQuery();
+            setQuery(q, json);
+            return q;
+        }
+
+        @SuppressWarnings("unchecked")
+        public static void setQuery(WnQuery q, String json) {
+            Object in = Json.fromJson(json);
+            if (in instanceof Map<?, ?>) {
+                NutMap map = NutMap.WRAP((Map<String, Object>) in);
+                q.setAll(map);
+            }
+            // 集合
+            else if (in instanceof Collection<?>) {
+                Collection<Map<String, Object>> col = (Collection<Map<String, Object>>) in;
+                for (Map<String, Object> it : col) {
+                    NutMap map = NutMap.WRAP(it);
+                    q.add(map);
+                }
+            }
+        }
     }
 
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";

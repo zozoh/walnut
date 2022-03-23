@@ -6,11 +6,18 @@ import org.nutz.walnut.util.validate.WnMatch;
 
 public class ParallelMatch implements WnMatch {
 
+    private boolean defaultMatch;
+
     private WnMatch[] ms;
 
     public ParallelMatch(Collection<? extends WnMatch> mlist) {
+        this(mlist, false);
+    }
+
+    public ParallelMatch(Collection<? extends WnMatch> mlist, boolean dft) {
         this.ms = new WnMatch[mlist.size()];
         mlist.toArray(this.ms);
+        this.defaultMatch = dft;
     }
 
     public ParallelMatch(WnMatch... ms) {
@@ -19,8 +26,8 @@ public class ParallelMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        if (null == ms)
-            return false;
+        if (null == ms || ms.length == 0)
+            return defaultMatch;
 
         for (WnMatch m : ms) {
             if (m.match(val))
@@ -28,6 +35,14 @@ public class ParallelMatch implements WnMatch {
         }
 
         return false;
+    }
+
+    public boolean isDefaultMatch() {
+        return defaultMatch;
+    }
+
+    public void setDefaultMatch(boolean defaultMatch) {
+        this.defaultMatch = defaultMatch;
     }
 
 }

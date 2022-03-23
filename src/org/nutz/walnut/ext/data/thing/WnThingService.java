@@ -12,6 +12,7 @@ import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.thing.impl.CleanTmpFileAction;
 import org.nutz.walnut.ext.data.thing.impl.CreateThingAction;
 import org.nutz.walnut.ext.data.thing.impl.CreateTmpFileAction;
@@ -397,6 +398,20 @@ public class WnThingService {
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);
+        return a.invoke();
+    }
+
+    public List<WnObj> deleteThing(WnExecutable executor,
+                                   WnQuery query,
+                                   int maxSafe,
+                                   Object match,
+                                   boolean hard) {
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard);
+        a.setConf(this.checkConf());
+        a.setExecutor(executor);
+        a.setMatch(match);
+        a.setQuery(query);
+        a.setMaxSafeCount(maxSafe);
         return a.invoke();
     }
 

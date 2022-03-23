@@ -12,6 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 
@@ -192,6 +193,107 @@ public class ZParams implements Cloneable {
         return Integer.parseInt(val_check(index));
     }
 
+    public Object explainVal(NutBean vars, int index, String dft) {
+        String v = val(index, dft);
+        if (null == v) {
+            throw Er.create("e.cmd.lack.param.vals", index);
+        }
+        return Wn.explainObj(vars, v);
+    }
+
+    public String explainValAsString(NutBean vars, int index, String dft) {
+        Object v = explainVal(vars, index, dft);
+        return Castors.me().castToString(v);
+    }
+
+    public NutMap explainValAsMap(NutBean vars, int index, NutMap dft) {
+        String json = val(index, null);
+        NutMap map;
+        if (Ws.isBlank(json)) {
+            map = dft;
+        } else {
+            map = Wlang.map(json);
+        }
+        Object v = Wn.explainObj(vars, map);
+        return Castors.me().castTo(v, NutMap.class);
+    }
+
+    public int explainValAsInt(NutBean vars, int index, String dft) {
+        Object v = explainVal(vars, index, dft);
+        return Castors.me().castTo(v, int.class);
+    }
+
+    public boolean explainValAsBool(NutBean vars, int index, String dft) {
+        Object v = explainVal(vars, index, dft);
+        return Castors.me().castTo(v, boolean.class);
+    }
+
+    public Object explainVal(NutBean vars, int index) {
+        return explainVal(vars, index, null);
+    }
+
+    public String explainValAsString(NutBean vars, int index) {
+        return explainValAsString(vars, index, null);
+    }
+
+    public NutMap explainValAsMap(NutBean vars, int index) {
+        return explainValAsMap(vars, index, null);
+    }
+
+    public int explainValAsInt(NutBean vars, int index) {
+        return explainValAsInt(vars, index, null);
+    }
+
+    public boolean explainValAsBool(NutBean vars, int index) {
+        return explainValAsBool(vars, index, null);
+    }
+
+    public Object explain(NutBean vars, String name, Object dft) {
+        Object v = map.get(name, dft);
+        return Wn.explainObj(vars, v);
+    }
+
+    public String explainAsString(NutBean vars, String name, Object dft) {
+        Object v = explain(vars, name, dft);
+        return Castors.me().castToString(v);
+    }
+
+    public NutMap explainAsMap(NutBean vars, String name, NutMap dft) {
+        NutMap map = this.getMap(name, dft);
+        Object v = Wn.explainObj(vars, map);
+        return Castors.me().castTo(v, NutMap.class);
+    }
+
+    public int explainAsInt(NutBean vars, String name, Object dft) {
+        Object v = explain(vars, name, dft);
+        return Castors.me().castTo(v, int.class);
+    }
+
+    public boolean explainAsBool(NutBean vars, String name, Object dft) {
+        Object v = explain(vars, name, dft);
+        return Castors.me().castTo(v, boolean.class);
+    }
+
+    public Object explain(NutBean vars, String name) {
+        return explain(vars, name, null);
+    }
+
+    public String explainAsString(NutBean vars, String name) {
+        return explainAsString(vars, name, null);
+    }
+
+    public NutMap explainAsMap(NutBean vars, String name) {
+        return explainAsMap(vars, name, null);
+    }
+
+    public int explainAsInt(NutBean vars, String name) {
+        return explainAsInt(vars, name, null);
+    }
+
+    public boolean explainAsBool(NutBean vars, String name) {
+        return explainAsBool(vars, name, null);
+    }
+
     public boolean is(boolean dft, String... keys) {
         for (String key : keys) {
             Object v = map.get(key);
@@ -217,9 +319,9 @@ public class ZParams implements Cloneable {
     public void setv(String key, Object val) {
         map.setv(key, val);
     }
-    
+
     public void setDftString(String key, String dft) {
-        if(!this.hasString(key)) {
+        if (!this.hasString(key)) {
             map.put(key, dft);
         }
     }

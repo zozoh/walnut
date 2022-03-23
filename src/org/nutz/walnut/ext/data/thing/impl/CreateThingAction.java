@@ -17,6 +17,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThOtherUpdating;
+import org.nutz.walnut.ext.data.thing.util.ThTestMeta;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
 import org.nutz.walnut.ext.data.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.data.thing.util.Things;
@@ -143,7 +144,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     }
 
     private WnObj __create_one(WnObj oIndex, NutMap meta, int i, int len) {
-        String P = String.format("%%[%d/%d]", i+1, len);
+        String P = String.format("%%[%d/%d]", i + 1, len);
         // 创建或者取得一个一个 Thing
         WnObj oT = null;
         boolean isDuplicated = false;
@@ -192,6 +193,20 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         // if (!meta.has("thumb") && !oT.has("thumb") && oTs.has("th_thumb"))
         // meta.put("thumb", oTs.get("th_thumb"));
 
+        // 设置数据集指定的固有字段初始值
+        if (this.conf.hasInitMeta()) {
+            meta.putAll(this.conf.getInitMeta());
+        }
+        
+        // 根据条件增加新的元数据
+        if(this.conf.hasTestInitMetas()) {
+            for(ThTestMeta tm : conf.getTestInitMetas()) {
+                if(tm.hasMeta() && tm.isMatch(meta)) {
+                    meta.putAll(tm.getMeta());
+                }
+            }
+        }
+        
         // 设置更多的固有属性
         meta.put("th_set", oTs.id());
         meta.put("th_live", Things.TH_LIVE);

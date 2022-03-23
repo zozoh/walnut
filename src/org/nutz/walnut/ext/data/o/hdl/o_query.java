@@ -1,10 +1,6 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -24,7 +20,6 @@ public class o_query extends OFilter {
         return ZParams.parse(args, "^(pager|hidden|append|mine|quiet|path)$");
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         WnQuery q = new WnQuery();
@@ -40,19 +35,7 @@ public class o_query extends OFilter {
         else {
             String json = sys.in.readAll();
             if (!Ws.isBlank(json)) {
-                Object in = Json.fromJson(json);
-                if (in instanceof Map<?, ?>) {
-                    NutMap map = NutMap.WRAP((Map<String, Object>) in);
-                    q.setAll(map);
-                }
-                // 集合
-                else if (in instanceof Collection<?>) {
-                    Collection<Map<String, Object>> col = (Collection<Map<String, Object>>) in;
-                    for (Map<String, Object> it : col) {
-                        NutMap map = NutMap.WRAP(it);
-                        q.add(map);
-                    }
-                }
+                Wn.Q.setQuery(q, json);
             }
         }
 

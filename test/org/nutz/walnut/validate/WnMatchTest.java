@@ -12,6 +12,23 @@ import org.nutz.walnut.util.validate.impl.AutoMatch;
 public class WnMatchTest {
 
     @Test
+    public void test_blank() {
+        AutoMatch m = new AutoMatch(Wlang.map("xyz", "[BLANK]"));
+        NutMap input = Wlang.map("xyz", null);
+        assertTrue(m.match(input));
+
+        input = Wlang.map("xyz", "haha");
+        assertFalse(m.match(input));
+
+        m = new AutoMatch(Wlang.map("xyz", "![BLANK]"));
+        input = Wlang.map("xyz", null);
+        assertFalse(m.match(input));
+
+        input = Wlang.map("xyz", "haha");
+        assertTrue(m.match(input));
+    }
+
+    @Test
     public void test_match_exists2() {
         AutoMatch m = new AutoMatch(Wlang.map("a.b.c", "[EXISTS]"));
         NutMap input = Wlang.map("xyz", null);
