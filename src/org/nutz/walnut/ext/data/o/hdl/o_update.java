@@ -10,6 +10,10 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class o_update extends OFilter {
+    
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(explain)$");
+    }
 
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
