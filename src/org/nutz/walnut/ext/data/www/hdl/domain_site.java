@@ -34,6 +34,8 @@ public class domain_site implements JvmHdl {
         addPart(re, wm, "accountHome", site.getAccountHome());
         addPart(re, wm, "roleHome", site.getRoleHome());
         re.put("organization", site.getOrganization());
+        re.put("pvgOwner", site.getPvgOwner());
+        re.put("pvgMember", site.getPvgMember());
 
         if (site.hasCompanyBy()) {
             re.put("companyBy", site.getCompanyBy());

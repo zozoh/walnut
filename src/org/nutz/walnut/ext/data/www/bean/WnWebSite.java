@@ -92,6 +92,16 @@ public class WnWebSite {
     private String deptBy;
 
     /**
+     * 自定义权限中， owner 的默认权限，默认 7
+     */
+    private int pvgOwner;
+
+    /**
+     * 自定义权限中， memeber 的默认权限，默认 5
+     */
+    private int pvgMember;
+
+    /**
      * 采用什么命令获取工作项目（业务上）的列表
      */
     private String projectBy;
@@ -227,6 +237,8 @@ public class WnWebSite {
         // 公司/组织/结构，组织结构图，业务项目等
         companyBy = bean.getString("companyBy");
         deptBy = bean.getString("deptBy");
+        pvgOwner = bean.getInt("pvg_owner", 7);
+        pvgMember = bean.getInt("pvg_member", 5);
         projectBy = bean.getString("projectBy");
 
         // 支付相关： 产品/订单/优惠券的库（不是索引index，而是库的主目录，必须为 ThingSet）
@@ -507,6 +519,14 @@ public class WnWebSite {
 
     public String getDeptBy() {
         return deptBy;
+    }
+
+    public int getPvgOwner() {
+        return pvgOwner;
+    }
+
+    public int getPvgMember() {
+        return pvgMember;
     }
 
     public boolean hasProjectBy() {

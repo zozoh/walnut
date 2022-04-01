@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
+import java.util.Map;
+
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
@@ -10,11 +12,12 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
 public class o_update extends OFilter {
-    
+
     protected ZParams parseParams(String[] args) {
         return ZParams.parse(args, "^(explain)$");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         // 防守
@@ -41,6 +44,12 @@ public class o_update extends OFilter {
         // 啥都不用干？
         if (meta.isEmpty())
             return;
+
+        // 展开动态赋值
+        if (params.is("explain")) {
+            Object o = Wn.explainObj(fc.vars, meta);
+            meta = NutMap.WRAP((Map<String, Object>) o);
+        }
 
         // 元数据的宏搞一下
         Wn.explainMetaMacro(meta);

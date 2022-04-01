@@ -13,6 +13,8 @@ import org.nutz.walnut.util.validate.WnMatch;
 
 public class OContext extends JvmFilterContext {
 
+    public NutMap vars;
+
     public List<WnObj> list;
 
     public WnPager pager;
@@ -29,6 +31,7 @@ public class OContext extends JvmFilterContext {
     public boolean quiet;
 
     public OContext() {
+        this.vars = new NutMap();
         this.list = new LinkedList<>();
         this.summary = new NutMap();
     }
