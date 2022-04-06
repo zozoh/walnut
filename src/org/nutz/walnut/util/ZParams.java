@@ -181,6 +181,13 @@ public class ZParams implements Cloneable {
         return Integer.parseInt(this.vals[i]);
     }
 
+    public long val_long(int index, long dft) {
+        int i = index >= 0 ? index : vals.length + index;
+        if (i < 0 || i >= vals.length)
+            return dft;
+        return Long.parseLong(this.vals[i]);
+    }
+
     public String val_check(int index) {
         String v = val(index);
         if (null == v) {
@@ -191,6 +198,10 @@ public class ZParams implements Cloneable {
 
     public int val_check_int(int index) {
         return Integer.parseInt(val_check(index));
+    }
+
+    public long val_check_long(int index) {
+        return Long.parseLong(val_check(index));
     }
 
     public Object explainVal(NutBean vars, int index, String dft) {

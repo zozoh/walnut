@@ -389,7 +389,7 @@ public class LocalIoBM extends AbstractIoBM {
         return buck;
     }
 
-    public WnReferApi referApi() {
+    public WnReferApi getReferApi() {
         return this.refers;
     }
 

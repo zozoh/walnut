@@ -5,7 +5,7 @@ import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.WnSystem;
 
-public class refer_add implements JvmHdl {
+public class refer_remove implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -23,7 +23,7 @@ public class refer_add implements JvmHdl {
 
         // 记入引用计数
         WnReferApi refers = sys.services.getReferApi();
-        refers.add(targetId, referIds);
+        refers.remove(targetId, referIds);
     }
 
 }
