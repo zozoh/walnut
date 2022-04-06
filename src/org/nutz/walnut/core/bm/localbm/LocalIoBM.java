@@ -273,7 +273,7 @@ public class LocalIoBM extends AbstractIoBM {
             olen = swap.length();
             lm = swap.lastModified();
         }
-        boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
+
         try {
             // 如果和原来的一样,那就无语了，啥也不用做了
             if (o.isSameSha1(sha1)) {
@@ -286,11 +286,12 @@ public class LocalIoBM extends AbstractIoBM {
             o.len(olen);
 
             // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
+            boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
             if (!isEmptySha1) {
                 File buck = this.getBucketFile(sha1);
 
                 if (!buck.exists()) {
-                    // OSS 映射的文件不支持 move，需要把这个开关关山
+                    // OSS 映射的文件不支持 move，需要把这个开关关闭
                     if (canMoveSwap) {
                         Files.move(swap, buck);
                     }
@@ -303,7 +304,12 @@ public class LocalIoBM extends AbstractIoBM {
                 }
             }
 
-            // 记录引用
+            // 非空的 SHA1，增加引用计数
+            if (!isEmptySha1) {
+                this.refers.add(sha1, o.id());
+            }
+
+            // 删除旧引用
             if (!Wn.Io.isEmptySha1(oldSha1)) {
                 long count = this.refers.remove(oldSha1, o.id());
                 // 木有用了，删掉这个文件
@@ -311,11 +317,6 @@ public class LocalIoBM extends AbstractIoBM {
                     File oldBuck = this.getBucketFile(oldSha1);
                     Files.deleteFile(oldBuck);
                 }
-            }
-
-            // 非空的 SHA1，增加引用计数
-            if (!isEmptySha1) {
-                this.refers.add(sha1, o.id());
             }
 
             // 更新索引
@@ -386,6 +387,10 @@ public class LocalIoBM extends AbstractIoBM {
             throw Er.create("e.io.bm.local.LostBucket", buckId + "::" + Files.getAbsPath(buck));
         }
         return buck;
+    }
+
+    public WnReferApi referApi() {
+        return this.refers;
     }
 
     public File createSwapFile() {

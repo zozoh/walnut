@@ -29,6 +29,9 @@ var ioc = {
             },
             hookApi : {
                 refer : "hookService"
+            },
+            referApi : {
+                refer : "referApi"
             }
         }
     },
