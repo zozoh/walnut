@@ -29,10 +29,6 @@ public class refer_objsha1 implements JvmHdl {
         if (Wn.Io.isEmptySha1(sha1)) {
             return;
         }
-        // 防守: 相等
-        if (o.isSameSha1(sha1)) {
-            return;
-        }
 
         // 获取当前对象的引用接口
         WnIoMapping im = sys.io.getMappingFactory().checkMapping(o);

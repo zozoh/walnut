@@ -74,8 +74,8 @@ public class JvmJsExecContext implements JsExecContext {
         this.se = session;
         this.sys = runner;
         this.in = in;
-        this.out = out;
-        this.err = err;
+        this.out = WnJsOutput.WRAP(out);
+        this.err = WnJsOutput.WRAP(err);
     }
 
     public JvmJsExecContext(WnIo io,

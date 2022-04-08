@@ -50,6 +50,7 @@ import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Wobj;
+import org.nutz.walnut.util.Ws;
 
 public class WnIoImpl2 implements WnIo {
 
@@ -830,11 +831,72 @@ public class WnIoImpl2 implements WnIo {
         WnIoMapping mapping = mappings.checkMapping(p);
         WnIoIndexer indexer = mapping.getIndexer();
         o = indexer.create(p, o);
+        o.put("__is_created", true);
 
         // 更新父节点同步时间
         Wn.Io.update_ancestor_synctime(this, o, false, 0);
 
         return o;
+    }
+
+    @Override
+    public WnObj createIfNoExists(WnObj p, WnObj o) {
+        WnObj o2;
+        // 如果未指定名称，则不会去重
+        if (Ws.isBlank(o.name())) {
+            return this.create(p, o);
+        }
+
+        // 首先父不能为空
+        if (null == p) {
+            p = this.getRoot();
+        }
+
+        // 尝试读取
+        o2 = this.fetch(p, o.name());
+
+        // 存在就更新
+        if (null != o2) {
+            WnRace race = o.race();
+            if (race != null && race != o2.race()) {
+                throw Er.create("e.io.create.invalid.race", o2 + " ! " + race);
+            }
+            this.appendMeta(o2, o);
+            // 更新父节点同步时间
+            Wn.Io.update_ancestor_synctime(this, o2, false, 0);
+        }
+        // 不存在，就创建
+        else {
+            o2 = this.create(p, o);
+        }
+
+        return o2;
+    }
+
+    @Override
+    public WnObj createIfExists(WnObj p, WnObj o) {
+        WnObj o2;
+        // 如果未指定名称，则不会去重
+        if (Ws.isBlank(o.name())) {
+            return this.create(p, o);
+        }
+
+        // 首先父不能为空
+        if (null == p) {
+            p = this.getRoot();
+        }
+
+        // 尝试读取
+        o2 = this.fetch(p, o.name());
+
+        // 存在就先删除
+        if (null != o2) {
+            this.delete(o2);
+        }
+        // 先删除再创建
+        o2 = this.create(p, o);
+
+        return o2;
     }
 
     @Override
@@ -856,9 +918,6 @@ public class WnIoImpl2 implements WnIo {
         o = this.create(p, path, race);
         o.put("__is_created", true);
 
-        // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(this, o, false, 0);
-
         return o;
     }
 
@@ -868,19 +927,14 @@ public class WnIoImpl2 implements WnIo {
         if (null == p || path.startsWith("/")) {
             p = mappings.getRoot();
         }
-        WnIoMapping mapping = mappings.checkMapping(p);
-        WnIoIndexer indexer = mapping.getIndexer();
-        WnObj o = indexer.fetch(p, path);
-        // 如果存在，删了以便创建心的
+
+        WnObj o = this.fetch(p, path);
+        // 如果存在，删了以便创建新的
         if (null != o) {
-            mapping.delete(o, true, this.whenDelete);
+            this.delete(o);
         }
         // 先删除再创建
-        o = indexer.create(p, path, race);
-        o.put("__is_created", true);
-
-        // 更新父节点同步时间
-        Wn.Io.update_ancestor_synctime(this, o, false, 0);
+        o = this.create(p, path, race);
 
         return o;
     }

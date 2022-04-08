@@ -330,6 +330,18 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return o2;
     }
 
+    public WnObj createIfNoExists(WnObj p, WnObj o) {
+        WnObj o2 = io.createIfNoExists(p, o);
+        this.tryAddExpiObj(o2);
+        return o2;
+    }
+
+    public WnObj createIfExists(WnObj p, WnObj o) {
+        WnObj o2 = io.createIfExists(p, o);
+        this.tryAddExpiObj(o2);
+        return o2;
+    }
+
     public MimeMap mimes() {
         return io.mimes();
     }

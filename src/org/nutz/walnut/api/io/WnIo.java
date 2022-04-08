@@ -109,12 +109,6 @@ public interface WnIo {
 
     <T> T getAs(String id, String key, Class<T> classOfT, T dft);
 
-    WnObj create(WnObj p, String path, WnRace race);
-
-    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
-
-    WnObj createById(WnObj p, String id, String name, WnRace race);
-
     WnObj get(String id);
 
     WnObj getIn(WnObj p, String id);
@@ -138,7 +132,7 @@ public interface WnIo {
     List<WnObj> getChildren(WnObj o, String name);
 
     long count(WnQuery q);
-    
+
     /**
      * 根据一个指定条件，对一个键进行聚集汇总计算
      * 
@@ -163,6 +157,16 @@ public interface WnIo {
     void pull(WnQuery query, String key, Object val);
 
     WnObj create(WnObj p, WnObj o);
+    
+    WnObj createIfNoExists(WnObj p, WnObj o);
+    
+    WnObj createIfExists(WnObj p, WnObj o);
+
+    WnObj create(WnObj p, String path, WnRace race);
+
+    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
+
+    WnObj createById(WnObj p, String id, String name, WnRace race);
 
     WnObj createIfNoExists(WnObj p, String path, WnRace race);
 
@@ -185,7 +189,7 @@ public interface WnIo {
     void writeMeta(WnObj o, Object meta);
 
     void appendMeta(WnObj o, Object meta);
-    
+
     void appendMeta(WnObj o, Object meta, boolean keepType);
 
     String readText(WnObj o);

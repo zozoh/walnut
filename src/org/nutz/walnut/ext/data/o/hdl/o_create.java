@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class o_create extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(keep|auto)$");
+        return ZParams.parse(args, "^(keep|auto|upsert)$");
     }
 
     @SuppressWarnings("unchecked")
@@ -63,14 +63,30 @@ public class o_create extends OFilter {
         }
 
         // 准备创建列表
-        List<Object> list = new LinkedList<>();
+        List<Object> list;
 
-        // 看看自己的参数
-        for (String str : params.vals) {
-            if (Strings.isQuoteBy(str, '{', '}')) {
-                list.add(Json.fromJson(str));
+        // 从参数中指定创建对象
+        if (params.vals.length > 0) {
+            list = new ArrayList<>(params.vals.length);
+            for (String str : params.vals) {
+                if (Strings.isQuoteBy(str, '{', '}')) {
+                    list.add(Json.fromJson(str));
+                } else {
+                    list.add(str);
+                }
+            }
+        }
+        // 从标准输入读取
+        else {
+            String json = fc.sys.in.readLine();
+            Object input = Json.fromJson(json);
+            if (input instanceof Collection<?>) {
+                Collection<?> col = (Collection<?>) input;
+                list = new ArrayList<>(col.size());
+                list.addAll(col);
             } else {
-                list.add(str);
+                list = new ArrayList<>(1);
+                list.add(input);
             }
         }
 
@@ -106,11 +122,17 @@ public class o_create extends OFilter {
         }
 
         // 然后依次创建对象，并加入到上下文
+        boolean isUpsert = params.is("upsert");
         for (Object li : list) {
             // 字符串的话，作为文件名
             if (li instanceof CharSequence) {
                 String fname = li.toString();
-                WnObj o = sys.io.create(oP, fname, race);
+                WnObj o;
+                if (isUpsert) {
+                    o = sys.io.createIfNoExists(oP, fname, race);
+                } else {
+                    o = sys.io.create(oP, fname, race);
+                }
                 fc.add(o);
             }
             // 否则作为 Map
@@ -119,7 +141,12 @@ public class o_create extends OFilter {
                 WnObj obj = new WnIoObj();
                 obj.putAll(meta);
                 obj.putDefault("race", race);
-                WnObj o = sys.io.create(oP, obj);
+                WnObj o;
+                if (isUpsert) {
+                    o = sys.io.createIfNoExists(oP, obj);
+                } else {
+                    o = sys.io.create(oP, obj);
+                }
                 fc.add(o);
             }
             // 其他就无视

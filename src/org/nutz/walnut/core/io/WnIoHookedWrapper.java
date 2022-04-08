@@ -121,10 +121,31 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
         return o3;
     }
+    
+    @Override
+    public WnObj createIfNoExists(WnObj p, WnObj o) {
+        WnObj o2 = io.createIfNoExists(p, o);
+        this.tryAddExpiObj(o2);
+        boolean isCreated = o2.getBoolean("__is_created");
+        if (isCreated) {
+            WnContext wc = Wn.WC();
+            return wc.doHook("create", o2);
+        }
+        return o2;
+    }
+
+    @Override
+    public WnObj createIfExists(WnObj p, WnObj o) {
+        WnObj o2 = io.createIfExists(p, o);
+        this.tryAddExpiObj(o2);
+        WnContext wc = Wn.WC();
+        return wc.doHook("create", o2);
+    }
 
     @Override
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
         WnObj o = io.createIfNoExists(p, path, race);
+        this.tryAddExpiObj(o);
         boolean isCreated = o.getBoolean("__is_created");
         if (isCreated) {
             WnContext wc = Wn.WC();
@@ -136,17 +157,15 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     @Override
     public WnObj createIfExists(WnObj p, String path, WnRace race) {
         WnObj o = io.createIfExists(p, path, race);
-        boolean isCreated = o.getBoolean("__is_created");
-        if (isCreated) {
-            WnContext wc = Wn.WC();
-            return wc.doHook("create", o);
-        }
-        return o;
+        this.tryAddExpiObj(o);
+        WnContext wc = Wn.WC();
+        return wc.doHook("create", o);
     }
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
         WnObj o = io.createById(p, id, name, race);
+        this.tryAddExpiObj(o);
         WnContext wc = Wn.WC();
         wc.doHook("create", o);
         return o;
