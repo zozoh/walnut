@@ -36,6 +36,19 @@ public class WnValue {
 
     private String format;
 
+    /**
+     * 如果是字符串型函数，支持转换大小写等CASE。
+     * 
+     * <ul>
+     * <li><code>camel</code> : 单词首字母大写
+     * <li><code>kebab</code> : 中划线分隔
+     * <li><code>snake</code> : 下划线分隔
+     * <li><code>upper</code> : 全大写
+     * <li><code>lower</code> : 全小写
+     * </ul>
+     */
+    private String valueCase;
+
     private String[] replace;
 
     private String valueRegion;
@@ -202,6 +215,18 @@ public class WnValue {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public boolean hasValueCase() {
+        return null != this.valueCase;
+    }
+
+    public String getValueCase() {
+        return valueCase;
+    }
+
+    public void setValueCase(String valueCase) {
+        this.valueCase = valueCase;
     }
 
     public boolean hasValueRegion() {

@@ -1,6 +1,7 @@
 package org.nutz.walnut.util.bean.val;
 
 import org.nutz.castor.Castors;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.WnValue;
 
 public class WnStringValueAdaptor implements WnValueAdaptor {
@@ -28,6 +29,11 @@ public class WnStringValueAdaptor implements WnValueAdaptor {
                 s = s.replaceAll(reps[reps.length - 1], "");
             }
             // 成对
+        }
+        // 转换大小写
+        if (fld.hasValueCase()) {
+            String caseMode = fld.getValueCase();
+            s = Ws.toCase(s, caseMode);
         }
         // 格式化
         if (fld.hasFormat()) {

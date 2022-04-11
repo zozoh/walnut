@@ -21,6 +21,8 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.callback.WnStrToken;
 import org.nutz.walnut.util.callback.WnStrTokenCallback;
 import org.nutz.walnut.util.callback.WnStrTokenType;
+import org.nutz.walnut.util.str.WnStrCaseConvertor;
+import org.nutz.walnut.util.str.WnStrCases;
 
 /**
  * 字符串帮助类
@@ -1404,6 +1406,11 @@ public class Ws {
             return null;
         }
         return input.toLowerCase();
+    }
+
+    public static String toCase(String input, String mode) {
+        WnStrCaseConvertor cc = WnStrCases.check(mode);
+        return cc.covert(input);
     }
 
     public static String upperFirst(String input) {
