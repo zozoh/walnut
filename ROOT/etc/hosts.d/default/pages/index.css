@@ -35,6 +35,15 @@ hr {
 section {
   margin: 1em;
 }
+section.as-icp {
+  font-size: 11px;
+}
+section.as-icp a {
+  color: #666666; text-decoration: none;
+}
+section.as-icp a:hover {
+  color: #0088FF; text-decoration: underline;
+}
 input {
   width:100%; font-size: inherit; padding: .8em;
   outline: none; border:1px solid #08F;

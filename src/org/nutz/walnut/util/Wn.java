@@ -1671,16 +1671,26 @@ public abstract class Wn {
      * @return 系统配置对象
      */
     public static WnSysConf getSysConf(WnIo io) {
-        return Wn.WC().nosecurity(io, new Proton<WnSysConf>() {
+        NutMap conf = getSysConfMap(io);
+        return Wlang.map2Object(conf, WnSysConf.class);
+    }
+
+    /**
+     * @param io
+     *            IO 接口
+     * @return 系统配置对象
+     */
+    public static NutMap getSysConfMap(WnIo io) {
+        return Wn.WC().nosecurity(io, new Proton<NutMap>() {
             @Override
-            protected WnSysConf exec() {
+            protected NutMap exec() {
                 // TODO @peter确认下这个/etc/sysconf是干什么的 默认好像没有这个文件
                 // zzh: 嗯，格式了输出了。 WnSysConf 可以让业务逻辑有机会明确的知道自己所在的服务器地址
                 WnObj oSysConf = io.fetch(null, "/etc/sysconf");
                 if (oSysConf == null) {
-                    return new WnSysConf();
+                    return new NutMap();
                 }
-                return io.readJson(oSysConf, WnSysConf.class);
+                return io.readJson(oSysConf, NutMap.class);
             }
         });
     }

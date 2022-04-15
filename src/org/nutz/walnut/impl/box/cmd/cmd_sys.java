@@ -90,7 +90,7 @@ public class cmd_sys extends JvmExecutor {
         }
         // 默认获取全局配置信息
         else {
-            WnSysConf conf = Wn.getSysConf(sys.io);
+            NutMap conf = Wn.getSysConfMap(sys.io);
             sys.out.println(Json.toJson(conf, jfmt));
         }
     }

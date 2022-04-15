@@ -96,10 +96,13 @@ public class WnLoginPage {
         }
 
         // 如果是 HTML 需要执行一下动态模板
-        if (null != this.domainUser && o.isType("html")) {
+        if (o.isType("html")) {
             String str = io.readText(o);
             Tmpl tmpl = Tmpl.parse(str);
-            NutBean c = this.domainUser.getMetaMap();
+            NutBean c = Wn.getSysConfMap(io);
+            if (null != this.domainUser) {
+                c.putAll(domainUser.getMetaMap());
+            }
             String html = tmpl.render(c);
             byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
             return new WnObjDownloadView(buf, null, "text/html", o.name(), o.sha1(), null);
@@ -172,10 +175,6 @@ public class WnLoginPage {
 
     public void setRange(String range) {
         this.range = range;
-    }
-
-    public HttpServletResponse getResp() {
-        return resp;
     }
 
     public void setResp(HttpServletResponse resp) {

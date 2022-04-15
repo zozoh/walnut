@@ -45,6 +45,10 @@ public class XlsxWorkbook extends XlsxObj {
 
     private void loadSharedStrings(String aph) {
         OomlEntry en = ooml.getEntry(aph);
+        // 防守
+        if (null == en) {
+            return;
+        }
         String input = en.getContentStr();
         CheapDocument doc = new CheapDocument("sst");
         CheapXmlParsing parser = new CheapXmlParsing(doc);
