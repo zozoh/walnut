@@ -17,7 +17,6 @@ import org.nutz.walnut.impl.box.TextTable;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.WnSysConf;
 import org.nutz.walnut.util.WnSysRuntime;
 import org.nutz.walnut.util.ZParams;
 

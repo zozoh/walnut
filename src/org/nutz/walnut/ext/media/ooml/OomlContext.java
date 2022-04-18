@@ -21,7 +21,7 @@ public class OomlContext extends JvmFilterContext {
     public OomlRowMapping mapping;
 
     public boolean onlyMapping;
-    
+
     public OomlEntry currentEntry;
 
     public List<NutBean> tranlateBeans(List<NutBean> beans) {
@@ -31,7 +31,9 @@ public class OomlContext extends JvmFilterContext {
         List<NutBean> list = new ArrayList<>(beans.size());
         for (NutBean bean : beans) {
             NutBean b2 = mapping.toBean(bean, onlyMapping);
-            list.add(b2);
+            if (null != b2) {
+                list.add(b2);
+            }
         }
         return list;
     }
