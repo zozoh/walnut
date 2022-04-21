@@ -43,7 +43,9 @@ public class WnFailProcessor extends ViewProcessor {
             int status = ac.getResponse().getStatus();
             String ph = ac.getRequest().getServletPath();
             String qs = ac.getRequest().getQueryString();
-            if (!Ws.isBlank(qs)) {
+            if (null == qs) {
+                qs = "";
+            } else if (!Ws.isBlank(qs)) {
                 qs = "?" + qs;
             }
             log.infof("🚫KO%d:%dms:%s%s", status, du, ph, qs);
