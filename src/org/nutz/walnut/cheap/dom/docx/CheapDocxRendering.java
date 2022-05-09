@@ -595,39 +595,41 @@ public class CheapDocxRendering {
         List<CheapNode> inlines = new LinkedList<>();
 
         // 逐次处理表格单元格内部的子元素
-        for (CheapNode node : el.getChildren()) {
-            // 文本节点：先保存
-            if (node.isText()) {
-                inlines.add(node);
-                continue;
-            }
-            // Inline 元素：先保存
-            if (node.isElement()) {
-                CheapElement ce = (CheapElement) node;
-                if (ce.isStdTagAs("^(BR|IMG|B|I|U|STRONG|EM|A|SPAN)$")) {
-                    inlines.add(ce);
+        if (el.hasChildren()) {
+            for (CheapNode node : el.getChildren()) {
+                // 文本节点：先保存
+                if (node.isText()) {
+                    inlines.add(node);
                     continue;
                 }
-                // 让下面的块也都具备统一的排列方式
-                if (!Ws.isBlank(align)) {
-                    ce.setStyle("text-align", align);
+                // Inline 元素：先保存
+                if (node.isElement()) {
+                    CheapElement ce = (CheapElement) node;
+                    if (ce.isStdTagAs("^(BR|IMG|B|I|U|STRONG|EM|A|SPAN)$")) {
+                        inlines.add(ce);
+                        continue;
+                    }
+                    // 让下面的块也都具备统一的排列方式
+                    if (!Ws.isBlank(align)) {
+                        ce.setStyle("text-align", align);
+                    }
+                    // 标识一下这个元素在表格内，譬如 P，以便强制去掉首行缩进
+                    ce.attr("in-table-cell", true);
                 }
-                // 标识一下这个元素在表格内，譬如 P，以便强制去掉首行缩进
-                ce.attr("in-table-cell", true);
-            }
-            // 处理块元素之前，看看有没有必要先处理一下已有的元素
-            if (!inlines.isEmpty()) {
-                P p = factory.createP();
-                this.setPStyle(p, styleId, align);
-                List<Object> pContent = p.getContent();
-                if (joinInlineElements(pContent, inlines)) {
-                    tdContent.add(p);
+                // 处理块元素之前，看看有没有必要先处理一下已有的元素
+                if (!inlines.isEmpty()) {
+                    P p = factory.createP();
+                    this.setPStyle(p, styleId, align);
+                    List<Object> pContent = p.getContent();
+                    if (joinInlineElements(pContent, inlines)) {
+                        tdContent.add(p);
+                    }
+                    inlines.clear();
                 }
-                inlines.clear();
-            }
 
-            // 处理块元素
-            this.dispatchBlock(tdContent, node);
+                // 处理块元素
+                this.dispatchBlock(tdContent, node);
+            }
         }
 
         // 处理最后一个
