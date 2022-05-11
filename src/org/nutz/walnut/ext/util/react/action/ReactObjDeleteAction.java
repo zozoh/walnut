@@ -14,18 +14,18 @@ public class ReactObjDeleteAction implements ReactActionHandler {
         }
 
         // 准备目标
-        WnObj o;
-        // 采用路径获取
-        if (a.hasPath()) {
-            o = Wn.checkObj(r.io, a.path);
-        }
-        // 采用 ID 获取
-        else {
-            o = r.io.checkById(a.targetId);
+        String aph = Wn.normalizeFullPath(a.path, r.session);
+        WnObj o = r.io.fetch(null, aph);
+
+        // 如果指明了目标 ID
+        if (null == o && a.hasTargetId()) {
+            o = r.io.get(a.targetId);
         }
 
         // 执行更新
-        r.io.delete(o, true);
+        if (null != o) {
+            r.io.delete(o, true);
+        }
     }
 
 }
