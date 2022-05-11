@@ -58,6 +58,15 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
         }
     }
 
+    // @Override
+    // public long copyData(WnObj a, WnObj b) {
+    // WnContext wc = Wn.WC();
+    // WnObj c = wc.doHook("before_write", b);
+    // long re = io.copyData(a, c);
+    // wc.doHook("write", c);
+    // return re;
+    // }
+
     @Override
     public WnIoMappingFactory getMappingFactory() {
         return io.getMappingFactory();
@@ -121,7 +130,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
 
         return o3;
     }
-    
+
     @Override
     public WnObj createIfNoExists(WnObj p, WnObj o) {
         WnObj o2 = io.createIfNoExists(p, o);

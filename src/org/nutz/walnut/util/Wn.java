@@ -1151,7 +1151,13 @@ public abstract class Wn {
             }
             // 执行快速 copy
             else {
+                // It will update sha1/len/lm
                 io.copyData(src, dst);
+                // Update the tp/mime
+                dst.mime(src.mime());
+                dst.type(src.type());
+                io.set(dst, "^(tp|mime)$");
+
                 WnContext wc = Wn.WC();
                 wc.doHook("write", dst);
             }
