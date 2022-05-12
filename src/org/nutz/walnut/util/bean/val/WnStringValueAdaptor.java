@@ -11,7 +11,15 @@ public class WnStringValueAdaptor implements WnValueAdaptor {
         if (null == input) {
             return fld.getDefaultAs();
         }
-        String s = Castors.me().castToString(input);
+        String s;
+        // 格式化
+        if (fld.hasFormat()) {
+            s = String.format(fld.getFormat(), input);
+        }
+        // 否则直接转字符串
+        else {
+            s = Castors.me().castToString(input);
+        }
         // 成对替换
         if (fld.hasReplace()) {
             String[] reps = fld.getReplace();
@@ -34,10 +42,6 @@ public class WnStringValueAdaptor implements WnValueAdaptor {
         if (fld.hasValueCase()) {
             String caseMode = fld.getValueCase();
             s = Ws.toCase(s, caseMode);
-        }
-        // 格式化
-        if (fld.hasFormat()) {
-            s = String.format(fld.getFormat(), s);
         }
         // 搞定
         return s;
