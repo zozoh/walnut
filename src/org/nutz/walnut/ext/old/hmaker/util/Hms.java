@@ -387,7 +387,7 @@ public final class Hms {
         String ls_ph = Wn.appendPath("~/.hmaker/skin/", skin, "_skin_var.less");
         WnObj oSkinVarSrc = Wn.checkObj(sys, ls_ph);
         oSkinVar = sys.io.create(oSiteHome, ".skin/_skin_var.less", WnRace.FILE);
-        Wn.Io.copyFile(sys.io, oSkinVarSrc, oSkinVar);
+        Wn.Io.copyFileAndDoHook(sys.io, oSkinVarSrc, oSkinVar, false);
         return oSkinVar;
     }
 

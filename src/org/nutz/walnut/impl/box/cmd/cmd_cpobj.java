@@ -18,7 +18,7 @@ public class cmd_cpobj extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
-        ZParams params = ZParams.parse(args, "pmvrdQ");
+        ZParams params = ZParams.parse(args, "pmvrdQ", "^(mime)$");
         String ph_src = Wn.normalizeFullPath(params.val_check(0), sys);
         String ph_dst = Wn.normalizeFullPath(params.val_check(1), sys);
         ph_dst = Disks.getCanonicalPath(ph_dst);
@@ -31,6 +31,7 @@ public class cmd_cpobj extends JvmExecutor {
             WnObjCopying woc = new WnObjCopying(sys.io);
             woc.setRecur(params.is("r"));
             woc.setDropBeforeCopy(params.is("d"));
+            woc.setCopyMime(params.is("mime"));
 
             // 准备所属用户/组
             woc.setOwn(params.get("own"));

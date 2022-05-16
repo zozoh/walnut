@@ -255,7 +255,7 @@ public class DuplicateThingAction extends ThingAction<List<WnObj>> {
                     // 稳一手，确保这两个文件不相等
                     if (null != oTaFile && !oTaFile.isSameId(oFile)) {
                         // 执行复制
-                        Wn.Io.copyFile(io, oFile, oTaFile);
+                        Wn.Io.copyFileAndDoHook(io, oFile, oTaFile, true);
 
                         // 执行字段复制
                         __try_copy_meta_to_refer_file(isStd, oFile, oTaFile, c);

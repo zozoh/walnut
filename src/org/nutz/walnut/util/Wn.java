@@ -1109,7 +1109,7 @@ public abstract class Wn {
                 }
 
                 // 内容 copy
-                copyFile(sys.io, oSrc, oDst);
+                copyFileAndDoHook(sys.io, oSrc, oDst, false);
 
                 // 元数据 copy
                 if (isP) {
@@ -1138,14 +1138,19 @@ public abstract class Wn {
          *            源文件
          * @param dst
          *            目标文件
+         * @param forceSyncTypeAndMime
+         *            复制后，确保目标文件与源文件的 tp/mime 一致
          */
-        public static void copyFile(WnIo io, WnObj src, WnObj dst) {
+        public static void copyFileAndDoHook(WnIo io,
+                                             WnObj src,
+                                             WnObj dst,
+                                             boolean forceSyncTypeAndMime) {
             // 两个必须是文件
             if (!src.isFILE() || !dst.isFILE()) {
                 throw Er.create("e.copy.nofile", src.path() + " ->> " + dst.path());
             }
 
-            // 如果是 Mount 就傻傻的写流
+            // 如果是 Mount 就傻傻的写流；这个时候 IO 应该自动运行 Hook
             if (src.isMount() || src.isLink()) {
                 io.writeAndClose(dst, io.getInputStream(src, 0));
             }
@@ -1154,9 +1159,11 @@ public abstract class Wn {
                 // It will update sha1/len/lm
                 io.copyData(src, dst);
                 // Update the tp/mime
-                dst.mime(src.mime());
-                dst.type(src.type());
-                io.set(dst, "^(tp|mime)$");
+                if (forceSyncTypeAndMime) {
+                    dst.mime(src.mime());
+                    dst.type(src.type());
+                    io.set(dst, "^(tp|mime)$");
+                }
 
                 WnContext wc = Wn.WC();
                 wc.doHook("write", dst);

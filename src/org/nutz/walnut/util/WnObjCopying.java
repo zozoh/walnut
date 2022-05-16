@@ -38,6 +38,11 @@ public class WnObjCopying {
      */
     private boolean dropBeforeCopy;
 
+    /**
+     * 复制的时候也要保证目标文件与元文件 tp/mime 相同
+     */
+    private boolean copyMime;
+
     private WnObj oSrcObj;
     private WnObj oDstObj;
 
@@ -137,7 +142,7 @@ public class WnObjCopying {
             // 重设组
             if (!Strings.isBlank(this.grp))
                 meta.setv("g", this.grp);
-            
+
             // 确保不 copy 缩略图
             meta.remove("thumb");
 
@@ -172,7 +177,7 @@ public class WnObjCopying {
         }
         // 如果是文件，内容 copy
         else if (o_src.isFILE() && o_dst.isFILE()) {
-            Wn.Io.copyFile(io, o_src, o_dst);
+            Wn.Io.copyFileAndDoHook(io, o_src, o_dst, this.copyMime);
         }
         // 靠，不可能
         else {
@@ -203,6 +208,14 @@ public class WnObjCopying {
 
     public void setDropBeforeCopy(boolean dropBeforeCopy) {
         this.dropBeforeCopy = dropBeforeCopy;
+    }
+
+    public boolean isCopyMime() {
+        return copyMime;
+    }
+
+    public void setCopyMime(boolean copyMime) {
+        this.copyMime = copyMime;
     }
 
     public void setCallback(Callback2<WnObj, WnObj> callback) {

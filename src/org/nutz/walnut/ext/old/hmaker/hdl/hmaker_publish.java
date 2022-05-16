@@ -148,7 +148,7 @@ public class hmaker_publish implements JvmHdl {
                 log.infof(" +%s %s",
                           hpc.getProcessInfoAndDoCount(),
                           hpc.getRelativeDestPath(oTaTmplJs));
-                Wn.Io.copyFile(sys.io, tmpl.oJs, oTaTmplJs);
+                Wn.Io.copyFileAndDoHook(sys.io, tmpl.oJs, oTaTmplJs, false);
             }
         }
 
@@ -168,12 +168,12 @@ public class hmaker_publish implements JvmHdl {
             // 添加 JS
             WnObj oTaSkinJs = sys.io.createIfNoExists(oTaSkin, "skin.js", WnRace.FILE);
             log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinJs));
-            Wn.Io.copyFile(sys.io, hpc.oSkinJs, oTaSkinJs);
+            Wn.Io.copyFileAndDoHook(sys.io, hpc.oSkinJs, oTaSkinJs, false);
 
             // 添加 CSS
             WnObj oTaSkinCss = sys.io.createIfNoExists(oTaSkin, "skin.css", WnRace.FILE);
             log.info(" +     add new: " + hpc.getRelativeDestPath(oTaSkinCss));
-            Wn.Io.copyFile(sys.io, hpc.oSkinCss, oTaSkinCss);
+            Wn.Io.copyFileAndDoHook(sys.io, hpc.oSkinCss, oTaSkinCss, false);
 
             // Copy 其他资源
             sys.io.walk(hpc.oSkinHome, new Callback<WnObj>() {
@@ -186,7 +186,7 @@ public class hmaker_publish implements JvmHdl {
                     String rph = hpc.getRelativePath(hpc.oSkinHome, oki);
                     WnObj oTi = sys.io.createIfNoExists(oTaSkin, rph, WnRace.FILE);
                     log.info(" ++ > " + hpc.getRelativeDestPath(oTi));
-                    Wn.Io.copyFile(sys.io, oki, oTi);
+                    Wn.Io.copyFileAndDoHook(sys.io, oki, oTi, false);
                 }
             }, WalkMode.LEAF_ONLY);
         }
@@ -207,7 +207,7 @@ public class hmaker_publish implements JvmHdl {
                 log.infof("    -> %s %s", hpc.getProcessInfoAndDoCount(), oTa.path());
 
                 // 执行内容的 copy
-                Wn.Io.copyFile(sys.io, o, oTa);
+                Wn.Io.copyFileAndDoHook(sys.io, o, oTa, false);
             }
         }
         // 没有需要 copy 的资源，啥也不做
