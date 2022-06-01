@@ -44,8 +44,14 @@
 # 用法
 
 ```
-wf [/path/to/workflow.json] @[var|process|...]
+wf [/path/to/workflow.json ...] [-get xx.xx] @[var|process|...]
 ```
+
+多个路径读取，是一个`fallback`尝试路径。
+
+
+无论是从文件读取的工作流，还是从标准输入里读取的，都可以通过 `-get` 指定读取这个对象的一部分作为工作流内容。
+这样，一个文件或者标准输入，可以承载工作流定义，以及上下文变量两部分信息。
 
 # 过滤器列表
 

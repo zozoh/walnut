@@ -1,20 +1,28 @@
 package org.nutz.walnut.ext.data.wf;
 
+import java.util.Map;
+
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.wf.bean.WnWorkflow;
 import org.nutz.walnut.ext.data.wf.util.Wfs;
 import org.nutz.walnut.impl.box.JvmFilterContext;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 
 public class WfContext extends JvmFilterContext {
+
+    public NutMap input;
 
     public WnWorkflow workflow;
 
     public NutMap vars;
 
     public WfContext() {
+        this.input = new NutMap();
         this.vars = new NutMap();
     }
 
@@ -46,10 +54,30 @@ public class WfContext extends JvmFilterContext {
         vars.put(Wfs.K_NEXT_NAME, name);
     }
 
-    public void loadWorkflow(String ph) {
-        WnObj o = Wn.checkObj(sys, ph);
+    public boolean tryLoadWorkflowFromObj(String ph, String getBy) {
+        WnObj o = Wn.getObj(sys, ph);
+        if (null == o) {
+            return false;
+        }
         String json = sys.io.readText(o);
-        this.workflow = Json.fromJson(WnWorkflow.class, json);
+        NutMap map = Json.fromJson(NutMap.class, json);
+        loadWorkflow(map, getBy);
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void loadWorkflow(Map<String, Object> map, String getBy) {
+        // 采用部分字段转换
+        if (!Ws.isBlank(getBy)) {
+            Object cell = Mapl.cell(map, getBy);
+            Map<String, Object> c2 = (Map<String, Object>) cell;
+            NutMap m2 = NutMap.WRAP(c2);
+            this.workflow = Wlang.map2Object(m2, WnWorkflow.class);
+        }
+        // 顶级转换
+        else {
+            this.workflow = Wlang.map2Object(map, WnWorkflow.class);
+        }
     }
 
 }

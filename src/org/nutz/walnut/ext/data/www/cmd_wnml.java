@@ -45,13 +45,13 @@ public class cmd_wnml extends JvmExecutor {
         }
 
         // 设置上下文
-        context.put("grp", sys.getMyGroup());
-        context.put("fnm", o.name());
-        context.put("rs", "/gu/rs");
-        context.put("CURRENT_PATH", o.path());
+        context.putDefault("grp", sys.getMyGroup());
+        context.putDefault("fnm", o.name());
+        context.putDefault("rs", "/gu/rs");
+        context.putDefault("CURRENT_PATH", o.path());
         String dirPath = o.parent().path();
-        context.put("CURRENT_DIR", dirPath);
-        context.put("SITE_HOME", params.get("home", dirPath));
+        context.putDefault("CURRENT_DIR", dirPath);
+        context.putDefault("SITE_HOME", params.get("home", dirPath));
 
         // 准备服务类
         WnmlService ws = new WnmlService();
