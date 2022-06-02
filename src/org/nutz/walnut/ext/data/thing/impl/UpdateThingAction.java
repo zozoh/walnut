@@ -94,7 +94,9 @@ public class UpdateThingAction extends ThingAction<WnObj> {
         List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
 
         // 更新这个 Thing
-        io.appendMeta(oT, meta, conf.isUpdateKeepType());
+        NutMap metaForUpdate = new NutMap();
+        metaForUpdate.putAll(meta);
+        io.appendMeta(oT, metaForUpdate, conf.isUpdateKeepType());
 
         // 看看是否需要重新获取一下 Thing
         boolean reget = false;

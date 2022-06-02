@@ -624,7 +624,21 @@ public abstract class Wn {
                 String key = en.getKey();
                 Object val = en.getValue();
                 Object v2 = explainObj(context, val);
-                reMap.put(key, v2);
+                // 解构全部对象
+                if ("...".equals(key)) {
+                    if (null != v2 && v2 instanceof Map<?, ?>) {
+                        NutMap vmap = NutMap.WRAP((Map<String, Object>) v2);
+                        reMap.putAll(vmap);
+                    }
+                    // 不能解构，那么抛一个错误
+                    else {
+                        throw Er.create("e.explain.decon.NoMap", key);
+                    }
+                }
+                // 推入对象键
+                else {
+                    reMap.put(key, v2);
+                }
             }
             return reMap;
         }
