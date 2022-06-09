@@ -110,7 +110,10 @@ public class MongoExpiObjTable implements WnExpiObjTable {
         ZMoDoc q = ZMoDoc.NEW("hold", hold);
         q.put("ow", owner);
         DeleteResult dr = co.deleteMany(q);
-        return (int) dr.getDeletedCount();
+        if (dr.wasAcknowledged()) {
+            return (int) dr.getDeletedCount();
+        }
+        return -1;
     }
 
 }

@@ -1,4 +1,28 @@
 {
+    "BoolOptions": {
+      "data": [
+        {
+          "value": false,
+          "text": "否"
+        },
+        {
+          "value": true,
+          "text": "是"
+        }
+      ]
+    },
+    "BoolOptionsReversed": {
+      "data": [
+        {
+          "value": true,
+          "text": "是"
+        },
+        {
+          "value": false,
+          "text": "否"
+        }
+      ]
+    },
     "HmValTypes": {
       "data": [
         {"value": "Undefined", "text": "i18n:vt-Undefined"},
