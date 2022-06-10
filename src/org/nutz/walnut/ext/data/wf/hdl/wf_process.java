@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.data.wf.hdl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.data.wf.WfContext;
 import org.nutz.walnut.ext.data.wf.WfFilter;
+import org.nutz.walnut.ext.data.wf.bean.WfActionElement;
 import org.nutz.walnut.ext.data.wf.bean.WfEdge;
 import org.nutz.walnut.ext.data.wf.bean.WfNode;
 import org.nutz.walnut.ext.util.react.action.ReactActionContext;
@@ -14,9 +15,12 @@ import org.nutz.walnut.util.ZParams;
 
 public class wf_process extends WfFilter {
 
+    private static String AUTO_NEXT = "next";
+    private static String AUTO_CURRENT = "current";
+
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(test)$");
+        return ZParams.parse(args, "^(test|wary)$");
     }
 
     @Override
@@ -25,54 +29,111 @@ public class wf_process extends WfFilter {
         if (!fc.hasWorkflow()) {
             return;
         }
-        // 防守:是否确认了开始节点
-        if (!fc.hasCurrentName()) {
-            return;
-        }
+
         // 分析参数
         boolean isTest = params.is("test");
+        boolean isWary = params.is("wary");
+        String autoMode = params.getString("auto", AUTO_NEXT);
 
+        // 防守:是否确认了开始节点
+        String cuName;
+        if (!fc.hasCurrentName()) {
+            // 谨慎模式下，则直接退出执行
+            if (isWary) {
+                return;
+            }
+            // 寻找起始节点
+            String headName = fc.workflow.findStartNodeName();
+            if (null == headName) {
+                return;
+            }
+            // 设置 NEXT_NAME
+            if (AUTO_NEXT.equals(autoMode)) {
+                fc.setNextName(headName);
+                // 执行节点
+                if (!isTest) {
+                    WfNode node = fc.workflow.getNode(headName);
+                    this.processWfActionElement(sys, fc, node);
+                }
+                return;
+            }
+            // 设置 CURRENT_NEXT
+            if (AUTO_CURRENT.equals(autoMode)) {
+                fc.setCurrentName(headName);
+                cuName = headName;
+            }
+            // 其他的就是瞎几把设，直接退出
+            else {
+                throw Er.create("e.cmd.wf_process.InvalidAutoMode", autoMode);
+            }
+        }
         // 准备开始节点
-        String cuName = fc.getCurrentName();
-
-        // 找到当前节点连通的边
-        WfEdge edge = fc.workflow.tryEdge(cuName, fc.vars);
-
-        // 未找到了连通的边
-        if (null == edge) {
-            return;
+        else {
+            cuName = fc.getCurrentName();
         }
 
-        // 找到目标节点
-        String nextName = edge.getToName();
-        WfNode taNode = fc.workflow.getNode(nextName);
+        // 循环执行，直到触达【状态/尾】节点，或者未找到连通边为止
+        while (true) {
+            // 获得当前节点
+            WfNode node = fc.workflow.getNode(cuName);
 
-        // 未找到对应的节点
-        if (null == taNode) {
-            return;
+            // 【退出点】节点非法，或者已达尾部（防止小贱人乱设置 CURRENT_NAME）
+            if (null == node || node.isTAIL()) {
+                return;
+            }
+
+            // 找到当前节点连通的边
+            WfEdge edge = fc.workflow.tryEdge(cuName, fc.vars);
+
+            // 【退出点】未找到了连通的边
+            if (null == edge) {
+                return;
+            }
+
+            // 找到目标节点
+            String nextName = edge.getToName();
+            WfNode taNode = fc.workflow.getNode(nextName);
+
+            // 【退出点】未找到对应的节点
+            if (null == taNode) {
+                return;
+            }
+
+            // 设置上下文
+            fc.setNextName(nextName);
+
+            // 执行动作项
+            if (!isTest) {
+                // 首先执行边动作
+                this.processWfActionElement(sys, fc, edge);
+
+                // 其次执行节点动作
+                this.processWfActionElement(sys, fc, taNode);
+            }
+
+            // 【退出点】已经是一个状态节点
+            // 状态节点相当于 yield，那么整个处理进程则需挂起
+            if (taNode.isSTATE()) {
+                return;
+            }
+
+            // 继续下一个循环
+            cuName = nextName;
         }
 
-        // 设置上下文
-        fc.setNextName(nextName);
+    }
 
-        // 执行动作项
-        if (!isTest) {
+    private void processWfActionElement(WnSystem sys, WfContext fc, WfActionElement ae) {
+        if (ae.hasActions()) {
             // 准备上下文
             ReactActionContext r = new ReactActionContext();
             r.vars = fc.vars;
             r.runner = sys;
             r.io = sys.io;
             r.session = sys.session;
-            // 边的动作项
-            if (edge.hasActions()) {
-                doActions(edge.getActions(), r);
-            }
-            // 节点的动作项
-            if (taNode.hasActions()) {
-                doActions(taNode.getActions(), r);
-            }
+            // 执行
+            doActions(ae.getActions(), r);
         }
-
     }
 
     private void doActions(ReactAction[] actions, ReactActionContext r) {

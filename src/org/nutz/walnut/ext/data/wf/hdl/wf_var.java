@@ -40,14 +40,16 @@ public class wf_var extends WfFilter {
 
         // 其次加载对象内容
         if (!Ws.isBlank(fPath)) {
-            WnObj o = Wn.checkObj(sys, fPath);
+            String aph = Wn.explainObj(fc.vars, fPath).toString();
+            WnObj o = Wn.checkObj(sys, aph);
             String json = sys.io.readText(o);
             joinVars(loadVars, mKey, json);
         }
 
         // 再次，加载对象元数据
         if (!Ws.isBlank(oPath)) {
-            WnObj o = Wn.checkObj(sys, oPath);
+            String aph = Wn.explainObj(fc.vars, oPath).toString();
+            WnObj o = Wn.checkObj(sys, aph);
             joinVars(loadVars, mKey, o);
         }
 

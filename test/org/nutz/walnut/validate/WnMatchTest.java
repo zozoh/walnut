@@ -2,6 +2,9 @@ package org.nutz.walnut.validate;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
@@ -10,6 +13,19 @@ import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class WnMatchTest {
+
+    @Test
+    public void test_findInArray() {
+        NutMap map = Wlang.map("{'matchMode':'findInArray','matchBy':{'type':'W'}}");
+        AutoMatch m = new AutoMatch(map);
+        List<NutMap> list = new ArrayList<>(3);
+        list.add(Wlang.map("type:'X',age:24"));
+        list.add(Wlang.map("type:'Y',age:25"));
+        assertFalse(m.match(list));
+
+        list.add(Wlang.map("type:'W',age:26"));
+        assertTrue(m.match(list));
+    }
 
     @Test
     public void test_blank() {

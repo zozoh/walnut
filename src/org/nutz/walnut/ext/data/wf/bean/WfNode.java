@@ -1,12 +1,8 @@
 package org.nutz.walnut.ext.data.wf.bean;
 
-import org.nutz.walnut.ext.util.react.bean.ReactAction;
-
-public class WfNode {
+public class WfNode extends WfActionElement {
 
     private WfNodeType type;
-
-    private ReactAction[] actions;
 
     public boolean isHEAD() {
         return WfNodeType.HEAD == type;
@@ -30,18 +26,6 @@ public class WfNode {
 
     public void setType(WfNodeType type) {
         this.type = type;
-    }
-
-    public boolean hasActions() {
-        return null != actions && actions.length > 0;
-    }
-
-    public ReactAction[] getActions() {
-        return actions;
-    }
-
-    public void setActions(ReactAction[] actions) {
-        this.actions = actions;
     }
 
 }

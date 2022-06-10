@@ -98,7 +98,15 @@ public class AutoMatch implements WnMatch {
         }
         // Map
         else if (input instanceof Map<?, ?>) {
-            this.m = new MapMatch((Map<String, Object>) input);
+            Map<String, Object> map = (Map<String, Object>) input;
+            // 搜索列表内容
+            if ("findInArray".equals(map.get("matchMode")) && map.containsKey("matchBy")) {
+                this.m = new MapFindInArrayMatch(map);
+            }
+            // 普通的 Match
+            else {
+                this.m = new MapMatch(map);
+            }
         }
         // String
         else if (input instanceof CharSequence) {

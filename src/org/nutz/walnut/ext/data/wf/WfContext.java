@@ -9,7 +9,6 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.wf.bean.WnWorkflow;
 import org.nutz.walnut.ext.data.wf.util.Wfs;
 import org.nutz.walnut.impl.box.JvmFilterContext;
-import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
@@ -72,11 +71,12 @@ public class WfContext extends JvmFilterContext {
             Object cell = Mapl.cell(map, getBy);
             Map<String, Object> c2 = (Map<String, Object>) cell;
             NutMap m2 = NutMap.WRAP(c2);
-            this.workflow = Wlang.map2Object(m2, WnWorkflow.class);
+            this.workflow = new WnWorkflow(m2);
         }
         // 顶级转换
         else {
-            this.workflow = Wlang.map2Object(map, WnWorkflow.class);
+            NutMap m2 = NutMap.WRAP(map);
+            this.workflow = new WnWorkflow(m2);
         }
     }
 

@@ -2,15 +2,12 @@ package org.nutz.walnut.ext.data.wf.bean;
 
 import org.nutz.json.JsonField;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
-public class WfEdge {
+public class WfEdge extends WfActionElement {
 
     private Object test;
-
-    private ReactAction[] actions;
 
     @JsonField(ignore = true)
     private String fromName;
@@ -60,18 +57,6 @@ public class WfEdge {
 
     public void setTest(Object test) {
         this.test = test;
-    }
-
-    public boolean hasActions() {
-        return null != actions && actions.length > 0;
-    }
-
-    public ReactAction[] getActions() {
-        return actions;
-    }
-
-    public void setActions(ReactAction[] actions) {
-        this.actions = actions;
     }
 
 }
