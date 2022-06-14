@@ -153,6 +153,9 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
             T hdl = hdlFilters.get(i);
             ZParams params = hdlParams.get(i);
             hdl.process(sys, fc, params);
+            if (fc.isBreakExec()) {
+                break;
+            }
         }
 
         // 处理输出

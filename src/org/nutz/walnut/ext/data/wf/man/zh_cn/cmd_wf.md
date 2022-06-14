@@ -62,6 +62,7 @@ wf [/path/to/workflow.json ...] [-get xx.xx] @[var|process|...]
 @view       # 查看当前上下文中的信息
 @create     # 根据工作流上下文创建一个标准对象
 @update     # 根据工作流上下文更新一个标准对象
+@break      # 满足一定条件就退出工作流
 @thc        # 根据工作流上下文创建一个数据集对象
 @thu        # 根据工作流上下文更新一个数据集对象
 ```

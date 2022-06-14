@@ -808,16 +808,18 @@ public class CheapDocxRendering {
         }
 
         // 指定了表格列宽度
-        int[] ws = new int[cols.size()];
+        int[] ws = new int[maxCol];
         int i = 0;
         for (CheapElement col : cols) {
             CheapSize wz = col.getStyleObj().getSize("width", null);
             if (null == wz) {
                 wz = col.attrSize("width", null);
             }
+            // 首先计算这个实际列宽
+            int colW;
             // 没有的话，均分
             if (null == wz) {
-                ws[i++] = this.pageTableWidth / ws.length;
+                colW = this.pageTableWidth / ws.length;
             }
             // 有的话，计算一下
             else {
@@ -830,8 +832,18 @@ public class CheapDocxRendering {
                 } else {
                     w = wz.getValue() * 6;
                 }
-                ws[i++] = (int) (w);
+                colW = (int) (w);
             }
+            // 根据列跨度，搞一个宽度分配
+            int colspan = col.attrInt("colspan", 1);
+            int colWavg = colW / colspan; // 平均列宽
+            int colRema = colW - (colWavg * (colspan - 1)); // 剩余列宽
+            // 分配平均列宽
+            for (int x = 1; x < colspan; x++) {
+                ws[i++] = colWavg;
+            }
+            // 最后一列分配剩余列宽
+            ws[i++] = colRema;
         }
 
         // 最后根据这些宽度，计算一个比例，然后根据 tableWidth 重新调整列宽

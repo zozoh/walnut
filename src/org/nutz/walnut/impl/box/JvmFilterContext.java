@@ -19,17 +19,30 @@ public abstract class JvmFilterContext {
     /**
      * JSON 格式化
      */
-    public JsonFormat jfmt; 
+    public JsonFormat jfmt;
     /**
      * 当前路径对象
      */
     private WnObj _current;
+
+    /**
+     * 是否停止后续过滤器的运行
+     */
+    private boolean breakExec;
 
     public WnObj getCurrentObj() {
         if (null == _current) {
             _current = sys.getCurrentObj();
         }
         return _current;
+    }
+
+    public boolean isBreakExec() {
+        return breakExec;
+    }
+
+    public void setBreakExec(boolean breakExec) {
+        this.breakExec = breakExec;
     }
 
 }

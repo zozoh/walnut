@@ -25,6 +25,11 @@ public class wf_thu extends WfFilter {
             return;
         }
 
+        // 防守: 判断条件
+        if (!isCanGoingOn(fc, params)) {
+            return;
+        }
+
         boolean force = params.is("force");
 
         // 前序检查

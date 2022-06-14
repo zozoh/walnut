@@ -27,6 +27,11 @@ public class wf_thc extends WfFilter {
             return;
         }
 
+        // 防守: 判断条件
+        if (!isCanGoingOn(fc, params)) {
+            return;
+        }
+
         // 分析参数
         String ph = params.val_check(0);
         String json = params.val_check(1);
