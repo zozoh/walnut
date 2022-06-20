@@ -34,6 +34,7 @@ jsonx [options] [[@filter filter-args...]...]
 @tab        # 将上下文按照表格输出
 @nil        # 如果上下为空，设置一个默认 JSON 对象
 @flatten    # 将一个树型结构的 JSON 数据转换为一个列表
+@tmpl       # 根据一个字符串模板，渲染输出
 ```
 
 本命一开始会自动从标准输入读取 JSON　内容作为初始内容。

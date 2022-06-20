@@ -18,7 +18,15 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
 
     @Override
     protected void prepare(WnSystem sys, JsonXContext ctx) {
-        String json = sys.in.readAll();
+        String json;
+        if (ctx.params.vals.length > 0) {
+            json = ctx.params.val(0);
+        }
+        // 来自标准输入
+        else {
+            json = sys.in.readAll();
+        }
+
         if (!Strings.isBlank(json)) {
             ctx.obj = Json.fromJson(json);
         }
