@@ -37,6 +37,7 @@ public class ReactAction {
         this.params = (NutMap) Wn.explainObj(vars, this.params);
         this.targetId = (String) Wn.explainObj(vars, this.targetId);
         this.meta = (NutMap) Wn.explainObj(vars, this.meta);
+        Wn.explainMetaMacro(this.meta);
         this.sort = (NutMap) Wn.explainObj(vars, this.sort);
         this.input = (String) Wn.explainObj(vars, this.input);
     }

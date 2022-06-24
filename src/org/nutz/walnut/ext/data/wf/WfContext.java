@@ -6,6 +6,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.data.wf.bean.WfNodeType;
 import org.nutz.walnut.ext.data.wf.bean.WnWorkflow;
 import org.nutz.walnut.ext.data.wf.util.Wfs;
 import org.nutz.walnut.impl.box.JvmFilterContext;
@@ -51,6 +52,10 @@ public class WfContext extends JvmFilterContext {
 
     public void setNextName(String name) {
         vars.put(Wfs.K_NEXT_NAME, name);
+    }
+
+    public void setNextType(WfNodeType type) {
+        vars.put(Wfs.K_NEXT_TYPE, type);
     }
 
     public boolean tryLoadWorkflowFromObj(String ph, String getBy) {

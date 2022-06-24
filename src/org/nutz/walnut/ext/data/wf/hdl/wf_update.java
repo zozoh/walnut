@@ -45,6 +45,8 @@ public class wf_update extends WfFilter {
         if (null == meta || meta.isEmpty()) {
             return;
         }
+        // 解开更新宏
+        Wn.explainMetaMacro(meta);
 
         // 准备目标对象
         WnObj oTa = Wn.checkObj(sys, ph);

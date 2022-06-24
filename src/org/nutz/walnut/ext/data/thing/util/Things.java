@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -313,14 +312,7 @@ public abstract class Things {
 
     public static NutMap formatMeta(NutMap meta) {
         // 将日期的字符串，搞一下
-        for (Map.Entry<String, Object> en : meta.entrySet()) {
-            Object v = en.getValue();
-            if (null != v && v instanceof String) {
-                String s = v.toString();
-                Object v2 = Wn.fmt_str_macro(s);
-                en.setValue(v2);
-            }
-        }
+        Wn.explainMetaMacro(meta);
         // 返回元数据
         return meta;
     }

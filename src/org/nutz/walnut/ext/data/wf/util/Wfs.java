@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Wn;
 
 public abstract class Wfs {
 
     public static final String K_CURRENT_NAME = "CURRENT_NAME";
     public static final String K_NEXT_NAME = "NEXT_NAME";
+    public static final String K_NEXT_TYPE = "NEXT_TYPE";
 
     public static class AtmlResult {
         public List<NutMap> list;
@@ -25,6 +27,7 @@ public abstract class Wfs {
             re.list = new ArrayList<>(col.size());
             for (Object it : col) {
                 NutMap map = anyToMeta(it);
+                Wn.explainMetaMacro(map);
                 re.list.add(map);
             }
         }
@@ -33,6 +36,7 @@ public abstract class Wfs {
             re.asList = false;
             re.list = new ArrayList<>(1);
             NutMap map = anyToMeta(input);
+            Wn.explainMetaMacro(map);
             re.list.add(map);
         }
         return re;

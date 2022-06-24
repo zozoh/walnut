@@ -101,6 +101,7 @@ public class wf_process extends WfFilter {
 
             // 设置上下文
             fc.setNextName(nextName);
+            fc.setNextType(taNode.getType());
 
             // 执行动作项
             if (!isTest) {

@@ -4,6 +4,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
+import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.ext.data.wf.WfContext;
 import org.nutz.walnut.ext.data.wf.WfFilter;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -52,6 +53,8 @@ public class wf_thu extends WfFilter {
         if (null == meta || meta.isEmpty()) {
             throw Er.create("e.wf.thu.EmptyMeta");
         }
+        // 解开更新宏
+        Things.formatMeta(meta);
 
         // 分析参数: 其他
         NutMap match = params.explainAsMap(fc.vars, "match");

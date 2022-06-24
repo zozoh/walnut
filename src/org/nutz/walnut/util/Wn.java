@@ -1532,12 +1532,14 @@ public abstract class Wn {
      *            要更新的元数据
      */
     public static void explainMetaMacro(Map<String, Object> meta) {
-        for (Map.Entry<String, Object> en : meta.entrySet()) {
-            Object v = en.getValue();
-            if (null != v && v instanceof String) {
-                String s = v.toString();
-                Object v2 = Wn.fmt_str_macro(s);
-                en.setValue(v2);
+        if (null != meta && !meta.isEmpty()) {
+            for (Map.Entry<String, Object> en : meta.entrySet()) {
+                Object v = en.getValue();
+                if (null != v && v instanceof String) {
+                    String s = v.toString();
+                    Object v2 = Wn.fmt_str_macro(s);
+                    en.setValue(v2);
+                }
             }
         }
     }
