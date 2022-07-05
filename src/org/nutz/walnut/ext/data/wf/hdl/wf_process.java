@@ -36,6 +36,7 @@ public class wf_process extends WfFilter {
         String autoMode = params.getString("auto", AUTO_NEXT);
 
         // 防守:是否确认了开始节点
+        WfNode node = null;
         String cuName;
         if (!fc.hasCurrentName()) {
             // 谨慎模式下，则直接退出执行
@@ -50,17 +51,18 @@ public class wf_process extends WfFilter {
             // 设置 NEXT_NAME
             if (AUTO_NEXT.equals(autoMode)) {
                 fc.setNextName(headName);
+                cuName = headName;
                 // 执行节点
                 if (!isTest) {
-                    WfNode node = fc.workflow.getNode(headName);
+                    node = fc.workflow.getNode(headName);
                     this.processWfActionElement(sys, fc, node);
                 }
-                return;
             }
             // 设置 CURRENT_NEXT
-            if (AUTO_CURRENT.equals(autoMode)) {
+            else if (AUTO_CURRENT.equals(autoMode)) {
                 fc.setCurrentName(headName);
                 cuName = headName;
+                node = fc.workflow.getNode(cuName);
             }
             // 其他的就是瞎几把设，直接退出
             else {
@@ -70,13 +72,11 @@ public class wf_process extends WfFilter {
         // 准备开始节点
         else {
             cuName = fc.getCurrentName();
+            node = fc.workflow.getNode(cuName);
         }
 
         // 循环执行，直到触达【状态/尾】节点，或者未找到连通边为止
         while (true) {
-            // 获得当前节点
-            WfNode node = fc.workflow.getNode(cuName);
-
             // 【退出点】节点非法，或者已达尾部（防止小贱人乱设置 CURRENT_NAME）
             if (null == node || node.isTAIL()) {
                 return;
@@ -114,12 +114,13 @@ public class wf_process extends WfFilter {
 
             // 【退出点】已经是一个状态节点
             // 状态节点相当于 yield，那么整个处理进程则需挂起
-            if (taNode.isSTATE()) {
+            if (taNode.isSTATE() && !taNode.isAutoNext()) {
                 return;
             }
 
             // 继续下一个循环
             cuName = nextName;
+            node = fc.workflow.getNode(cuName);
         }
 
     }

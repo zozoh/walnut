@@ -4,6 +4,8 @@ public class WfNode extends WfActionElement {
 
     private WfNodeType type;
 
+    private boolean autoNext;
+
     public boolean isHEAD() {
         return WfNodeType.HEAD == type;
     }
@@ -26,6 +28,14 @@ public class WfNode extends WfActionElement {
 
     public void setType(WfNodeType type) {
         this.type = type;
+    }
+
+    public boolean isAutoNext() {
+        return autoNext;
+    }
+
+    public void setAutoNext(boolean autoNext) {
+        this.autoNext = autoNext;
     }
 
 }
