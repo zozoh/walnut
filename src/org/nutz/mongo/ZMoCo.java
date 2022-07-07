@@ -16,7 +16,6 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.ListIndexesIterable;
-import com.mongodb.client.MapReduceIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.CountOptions;
@@ -245,28 +244,31 @@ public class ZMoCo {
         return dbc.watch(clientSession, pipeline, resultClass);
     }
 
-    public MapReduceIterable<Document> mapReduce(String mapFunction, String reduceFunction) {
-        return dbc.mapReduce(mapFunction, reduceFunction);
-    }
-
-    public <TResult> MapReduceIterable<TResult> mapReduce(String mapFunction,
-                                                          String reduceFunction,
-                                                          Class<TResult> resultClass) {
-        return dbc.mapReduce(mapFunction, reduceFunction, resultClass);
-    }
-
-    public MapReduceIterable<Document> mapReduce(ClientSession clientSession,
-                                                 String mapFunction,
-                                                 String reduceFunction) {
-        return dbc.mapReduce(clientSession, mapFunction, reduceFunction);
-    }
-
-    public <TResult> MapReduceIterable<TResult> mapReduce(ClientSession clientSession,
-                                                          String mapFunction,
-                                                          String reduceFunction,
-                                                          Class<TResult> resultClass) {
-        return dbc.mapReduce(clientSession, mapFunction, reduceFunction, resultClass);
-    }
+    // public MapReduceIterable<Document> mapReduce(String mapFunction, String
+    // reduceFunction) {
+    // return dbc.mapReduce(mapFunction, reduceFunction);
+    // }
+    //
+    // public <TResult> MapReduceIterable<TResult> mapReduce(String mapFunction,
+    // String reduceFunction,
+    // Class<TResult> resultClass) {
+    // return dbc.mapReduce(mapFunction, reduceFunction, resultClass);
+    // }
+    //
+    // public MapReduceIterable<Document> mapReduce(ClientSession clientSession,
+    // String mapFunction,
+    // String reduceFunction) {
+    // return dbc.mapReduce(clientSession, mapFunction, reduceFunction);
+    // }
+    //
+    // public <TResult> MapReduceIterable<TResult> mapReduce(ClientSession
+    // clientSession,
+    // String mapFunction,
+    // String reduceFunction,
+    // Class<TResult> resultClass) {
+    // return dbc.mapReduce(clientSession, mapFunction, reduceFunction,
+    // resultClass);
+    // }
 
     public BulkWriteResult bulkWrite(List<? extends WriteModel<? extends Document>> requests) {
         return dbc.bulkWrite(requests);
