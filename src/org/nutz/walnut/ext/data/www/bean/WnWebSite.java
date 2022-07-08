@@ -13,7 +13,6 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.auth.WnOrganization;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
@@ -474,12 +473,17 @@ public class WnWebSite {
         return io.readJson(o, NutMap.class);
     }
 
-    public List<String> getRoleAllowActions(String roleName) {
+    public NutMap getRoleAllowActions(String roleName) {
+        NutMap re = null;
         WnObj o = io.fetch(roleDir, roleName);
-        if (null == o) {
-            return null;
+        if (null != o) {
+            // return o.getAsList(WnAccount.K_ROLE_ACTIONS, String.class);
+            re = io.readJson(o, NutMap.class);
         }
-        return o.getAsList(WnAccount.K_ROLE_ACTIONS, String.class);
+        if (null == re) {
+            return new NutMap();
+        }
+        return re;
     }
 
     public Collection<String> getOrgAllowActions(String[] depts) {

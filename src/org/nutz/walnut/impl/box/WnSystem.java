@@ -361,27 +361,30 @@ public class WnSystem implements WnAuthExecutable {
             if (null != oWWW) {
                 WnWebService webs = new WnWebService(this, oWWW);
                 WnWebSite site = webs.getSite();
-                Collection<String> as;
+                Collection<String> asList;
+                NutMap asMap;
+
+                // 首先加上 Others
+                asMap = site.getRoleAllowActions("others");
+                myAvaPvg.putAll(asMap);
+
                 // 自己所有的自定义权限
                 if (me.hasRoleName()) {
                     for (String rnm : me.getRoleList()) {
                         if (!"others".equals(rnm)) {
-                            as = site.getRoleAllowActions(rnm);
-                            joinRolePvg(myAvaPvg, as);
+                            asMap = site.getRoleAllowActions(rnm);
+                            myAvaPvg.putAll(asMap);
                         }
                     }
                 }
-                // 最后加上 Others
-                as = site.getRoleAllowActions("others");
-                joinRolePvg(myAvaPvg, as);
 
                 // 根据职位获取角色权限
-                as = site.getOrgAllowActions(me.getJobs());
-                joinRolePvg(myAvaPvg, as);
+                asList = site.getOrgAllowActions(me.getJobs());
+                joinRolePvg(myAvaPvg, asList);
 
                 // 根据部门获取角色权限
-                as = site.getOrgAllowActions(me.getDepts());
-                joinRolePvg(myAvaPvg, as);
+                asList = site.getOrgAllowActions(me.getDepts());
+                joinRolePvg(myAvaPvg, asList);
             }
         }
         // 系统用户，做一个标识

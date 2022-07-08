@@ -15,6 +15,12 @@ import org.nutz.walnut.util.Ws;
 
 public class WnAccount {
     
+    /**
+     * @deprecated 角色权限之前存放再角色的一个属性里，所以才有的这个常量。
+     * 现在（2022-07-08）决定将其转移到 role 的文件内容里。并且格式从 List 变 Map
+     * 因为这样可以具备更大的扩展性。从性能的角度，如果增加了 SHA1 的多级缓存，也应该是没问题的 
+     */
+    @Deprecated 
     public static final String K_ROLE_ACTIONS = "roleActions";
 
     public static WnAccount create(String name) {
