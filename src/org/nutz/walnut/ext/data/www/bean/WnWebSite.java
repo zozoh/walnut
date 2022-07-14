@@ -220,7 +220,11 @@ public class WnWebSite {
         captchaDir = checkDirOrCreate("~/.domain/captcha/" + siteId);
 
         // 账户/角色库路径
-        accountDir = checkThingIndex(bean.getString("accounts"));
+        String accountPath = bean.getString("accounts");
+        if (Ws.isBlank(accountPath)) {
+            throw Er.create("e.www.WebSiteWithoutAccounts", this.siteId);
+        }
+        accountDir = checkThingIndex(accountPath);
         accountHome = accountDir.parent();
         roleDir = getThingIndex(bean.getString("roles"));
         if (null != roleDir) {
