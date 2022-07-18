@@ -6,6 +6,7 @@ import java.util.Map;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
@@ -766,18 +767,17 @@ public class WnIoObj extends NutMap implements WnObj {
      * 
      * @return 一个十进制的权限码
      */
-    @SuppressWarnings("rawtypes")
     public int getCustomizedPrivilege(WnAccount u, int dftMode) {
         // 防守: 没有指定账户
         if (null == u) {
             return dftMode;
         }
         // 防守: 没有指定自定义权限集合
-        Map pvg = this.getAs("pvg", Map.class);
+        NutBean pvg = this.getAs("pvg", NutMap.class);
+        if (this.hasParent()) {
+            pvg = this.parent().joinCustomizedPrivilege(pvg);
+        }
         if (null == pvg || pvg.isEmpty()) {
-            if (this.hasParent()) {
-                return this.parent().getCustomizedPrivilege(u, dftMode);
-            }
             return dftMode;
         }
         // 准备权限
@@ -863,14 +863,76 @@ public class WnIoObj extends NutMap implements WnObj {
             return md;
         }
 
-        // 如果还有没获得属性，获得自己父亲
-        // 如果大于了 511(0777) 再去找父就没意义了
-        if (this.hasParent()) {
-            return this.parent().getCustomizedPrivilege(u, dftMode);
-        }
-
         // 那就是没有啊
         return md > 0 ? md : dftMode;
+    }
+
+    @Override
+    public NutBean joinCustomizedPrivilege(NutBean pvg) {
+        // 得到自己的权限
+        NutMap selfPvg = this.getAs("pvg", NutMap.class);
+
+        boolean isSubEmpty = null == pvg || pvg.isEmpty();
+        boolean isSelfEmpty = null == selfPvg || selfPvg.isEmpty();
+
+        // 防空: 全空
+        if (isSubEmpty && isSelfEmpty) {
+            pvg = new NutMap();
+        }
+        // 防空：输入为空
+        else if (isSubEmpty) {
+            pvg = selfPvg.duplicate();
+        }
+        // 防空：自己为空
+        else if (isSelfEmpty) {
+            /* just return self */
+        }
+        // 两者均不为空，则融合
+        else {
+            int depth = pvg.getInt(Wn.PVG_DEPTH, -1);
+            // 0 表示仅采用自己，那么就直接返回
+            if (depth == 0) {
+                return pvg;
+            }
+
+            // 采用不同的混合模式
+            String blendMode = selfPvg.getString(Wn.PVG_BLEND_MODE, Wn.PVG_BLEND_DEFAULT);
+
+            NutMap map = new NutMap();
+
+            // 默认混合
+            if (Wn.PVG_BLEND_DEFAULT.equals(blendMode)) {
+                map.putAll(selfPvg);
+                map.putAll(pvg);
+            }
+            // 弱混合
+            else if (Wn.PVG_BLEND_WEAK.equals(blendMode)) {
+                /* Just use the pvg */
+                map.putAll(pvg);
+            }
+            // 强混合
+            else if (Wn.PVG_BLEND_STRONG.equals(blendMode)) {
+                map.putAll(selfPvg);
+            }
+            // 不支持的混合模式，那么无视
+
+            // 最后更新深度: 大于 0 的，则要减一
+            if (depth > 0) {
+                map.put(Wn.PVG_DEPTH, depth - 1);
+            }
+            // 如果自己设置了深度，而传入的没设置，就设置一下
+            else if (!pvg.has(Wn.PVG_DEPTH) && selfPvg.has(Wn.PVG_DEPTH)) {
+                map.put(Wn.PVG_DEPTH, selfPvg.get(Wn.PVG_DEPTH));
+            }
+
+            pvg = map;
+        }
+
+        // 递归
+        if (!this.hasParent()) {
+            return pvg;
+        }
+        return this.parent().joinCustomizedPrivilege(pvg);
     }
 
     public void setParent(WnObj parent) {

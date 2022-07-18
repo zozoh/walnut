@@ -104,6 +104,33 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     int getCustomizedPrivilege(WnAccount u, int dftMode);
 
+    /**
+     * 将自己以及自己所有的祖先与给定的自定义权限融合
+     * <p>
+     * 自己的自定义权限支持混合模式<code>.MODE</code>设定:
+     * 
+     * <ul>
+     * <li><code>DEFAULT</code> : 默认混合。或者是 null
+     * <li><code>STRONG</code> : 强制覆盖
+     * <li><code>WEAK</code> : 弱混合
+     * </ul>
+     * 
+     * 同时，传入的自定义权限集合，支持指定深度<code>.DEPTH</code>
+     * 
+     * <ul>
+     * <li><code>&lt;0</code> : 一直合并到根
+     * <li><code>0</code> : 仅采用自己
+     * <li><code>1</code> : 仅向上合并一层
+     * <li><code>2</code> : 仅向上合并两层
+     * </ul>
+     * 
+     * @param pvg
+     *            输入的自定义权限集
+     * 
+     * @return 融合后的自定义权限集合
+     */
+    NutBean joinCustomizedPrivilege(NutBean pvg);
+
     WnObj loadParents(List<WnObj> list, boolean force);
 
     void setParent(WnObj parent);

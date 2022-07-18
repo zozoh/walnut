@@ -340,6 +340,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
+    public NutBean joinCustomizedPrivilege(NutBean pvg) {
+        return oHome.joinCustomizedPrivilege(pvg);
+    }
+
+    @Override
     public WnObj loadParents(List<WnObj> list, boolean force) {
         WnObj p = this.parent();
         p.loadParents(list, force);
