@@ -79,12 +79,13 @@ public class AppModule extends AbstractWnModule {
                       @Param("pg") String page,
                       @Attr("wn_www_grp") String domainName,
                       @Attr("wn_www_host") String host,
+                      @Attr("wn_www_site") String sitePath,
                       @ReqHeader("If-None-Match") String etag,
                       @ReqHeader("Range") String range,
                       HttpServletResponse resp) {
         String uri = req.getRequestURI();
         if (uri.endsWith("/")) {
-            return login_page(null, page, domainName, host, etag, range, resp);
+            return login_page(null, page, domainName, host, sitePath, etag, range, resp);
         }
         return new ServerRedirectView("/a/login/");
     }
@@ -99,6 +100,8 @@ public class AppModule extends AbstractWnModule {
      *            （来自 "wn_www_grp"）本次请求映射的 domain
      * @param host
      *            （来自 "wn_www_host"）本次请求映射的 host
+     * @param sitePath
+     *            （来自 "wn_www_site"）本次请求映射的站点目录
      * @param etag
      *            登录页（资源）的 ETag
      * @param range
@@ -113,6 +116,7 @@ public class AppModule extends AbstractWnModule {
                            @Param("pg") String page,
                            @Attr("wn_www_grp") String domainName,
                            @Attr("wn_www_host") String host,
+                           @Attr("wn_www_site") String sitePath,
                            @ReqHeader("If-None-Match") String etag,
                            @ReqHeader("Range") String range,
                            HttpServletResponse resp) {
@@ -136,6 +140,7 @@ public class AppModule extends AbstractWnModule {
         login.setPageName(page);
         login.setDomainUser(domainUser);
         login.setHost(host);
+        login.setSitePath(sitePath);
         login.setEtag(etag);
         login.setRange(range);
         login.setResp(resp);

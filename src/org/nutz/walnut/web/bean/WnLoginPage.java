@@ -20,6 +20,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.web.view.WnObjDownloadView;
 
 public class WnLoginPage {
@@ -30,6 +31,7 @@ public class WnLoginPage {
     private WnAccount domainUser;
     private String pageName;
     private String host;
+    private String sitePath;
     private String etag;
     private String range;
     private HttpServletResponse resp;
@@ -41,7 +43,10 @@ public class WnLoginPage {
         // ...................................................
         // 映射自用户的域，用户有啥特殊配置没？
         if (null == pageName && null != domainUser) {
-            String loginPath = domainUser.getMetaString("LOGIN_PAGE");
+            String loginPath = sitePath;
+            if (Ws.isBlank(loginPath)) {
+                loginPath = domainUser.getMetaString("LOGIN_PAGE");
+            }
             if (!Strings.isBlank(loginPath)) {
                 // 直接就是重定向
                 if (loginPath.matches("^(https?:)?//.+$")) {
@@ -159,6 +164,14 @@ public class WnLoginPage {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getSitePath() {
+        return sitePath;
+    }
+
+    public void setSitePath(String sitePath) {
+        this.sitePath = sitePath;
     }
 
     public String getEtag() {
