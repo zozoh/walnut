@@ -58,6 +58,22 @@
         {"value":"List", "text":"i18n:java-type-List"},
         {"value":"JSON", "text":"i18n:java-type-JSON"}]
     },
+    "FormFieldTypes" : {
+      "data" : [
+        {"value":"String", "text":"i18n:form-fld-type-String"},
+        {"value":"Number", "text":"i18n:form-fld-type-Number"},
+        {"value":"Integer", "text":"i18n:form-fld-type-Integer"},
+        {"value":"Float", "text":"i18n:form-fld-type-Float"},
+        {"value":"Boolean", "text":"i18n:form-fld-type-Boolean"},
+        {"value":"Object", "text":"i18n:form-fld-type-Object"},
+        {"value":"Array", "text":"i18n:form-fld-type-Array"},
+        {"value":"DateTime", "text":"i18n:form-fld-type-DateTime"},
+        {"value":"AMS", "text":"i18n:form-fld-type-AMS"},
+        {"value":"ASEC", "text":"i18n:form-fld-type-ASEC"},
+        {"value":"Time", "text":"i18n:form-fld-type-Time"},
+        {"value":"Date", "text":"i18n:form-fld-type-Date"},
+        {"value":"Color", "text":"i18n:form-fld-type-Color"}]
+    },
     "ColumnTypes" : {
       "data" : [
         {"value": "AUTO", "text": "i18n:db-col-type-AUTO"},

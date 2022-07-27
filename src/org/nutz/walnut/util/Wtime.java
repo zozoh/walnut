@@ -465,7 +465,7 @@ public abstract class Wtime {
                                          + ")\\s*[)]?\\s*"
                                          + "("
                                          + "([+-])"
-                                         + "([0-9]+[smhd]?)"
+                                         + "([0-9]+[smhdMy]?)"
                                          + ")?$";
     private static final Pattern P_TM_MACRO = Pattern.compile(TM_REG);
 
@@ -493,6 +493,7 @@ public abstract class Wtime {
      * <li><code>monthEnd</code>: 本月最后一日的 23:59:59 的绝对毫秒数
      * <li><code>2021-09-23</code>: 一个绝对日期字符串
      * <li><code>2021-09-23T12:10:18</code>: 一个绝对时间字符串
+     * <li><code>1636387320000</code>: 一个绝对时间毫秒数
      * </ul>
      * 
      * 偏移量可能的值是：
@@ -503,6 +504,8 @@ public abstract class Wtime {
      * <li><code>1h</code> 表示1小时
      * <li><code>1d</code> 表示一天
      * <li><code>1w</code> 表示一周
+     * <li><code>1M</code> 表示一月
+     * <li><code>1y</code> 表示一年
      * <li><code>100</code> 表示 100毫秒</li>
      * </ul>
      * 
@@ -588,6 +591,7 @@ public abstract class Wtime {
                 ms = weekDayInMs(6);
             }
             // 类似 2020-12-05T00:12:32
+            // 或者 1636387320000
             else {
                 ms = parseAMS(current);
             }
@@ -595,13 +599,37 @@ public abstract class Wtime {
             // 嗯要加点偏移量
             //
             if (!Strings.isBlank(offset)) {
-                long off = Wtime.millisecond(dus);
-                // 看是加还是减
-                if ("-".equals(sign)) {
-                    off = off * -1L;
+                // 偏移年/月，不能直接用毫秒数
+                m = P_YM_STR.matcher(dus);
+                if (m.find()) {
+                    int n = Integer.parseInt(m.group(1));
+                    if ("-".equals(sign)) {
+                        n = n * -1;
+                    }
+                    String unit = m.group(2);
+                    Calendar c = Calendar.getInstance();
+                    c.setTimeInMillis(ms);
+                    // 偏移年:y
+                    if ("y".equals(unit)) {
+                        c.add(Calendar.YEAR, n);
+                        ms = c.getTimeInMillis();
+                    }
+                    // 偏移月: M
+                    else {
+                        c.add(Calendar.MONTH, n);
+                        ms = c.getTimeInMillis();
+                    }
                 }
-                // 偏移
-                ms += off;
+                // 直接可以偏移毫秒: s/m/h/d/w
+                else {
+                    long off = Wtime.millisecond(dus);
+                    // 看是加还是减
+                    if ("-".equals(sign)) {
+                        off = off * -1L;
+                    }
+                    // 偏移
+                    ms += off;
+                }
             }
         }
 
@@ -610,6 +638,7 @@ public abstract class Wtime {
     }
 
     private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
+    private static final Pattern P_YM_STR = Pattern.compile("^([-]?[0-9]+)([yM])?$");
 
     /**
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒

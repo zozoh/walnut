@@ -3,6 +3,7 @@ package org.nutz.walnut.util;
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Test;
 import org.nutz.lang.Lang;
@@ -13,6 +14,23 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class WnTest {
+    
+    @Test
+    public void test_evalTimeAndOffset() {
+        long ams;
+        
+        ams = Wtime.valueOf("(2021/11/9)+3d");
+        assertEquals("2021-11-12", Wtime.formatDate(new Date(ams)));
+        
+        ams = Wtime.valueOf("(1636387320000)+3d");
+        assertEquals("2021-11-12", Wtime.formatDate(new Date(ams)));
+        
+        ams = Wtime.valueOf("(2021/11/9)+3M");
+        assertEquals("2022-02-09", Wtime.formatDate(new Date(ams)));
+        
+        ams = Wtime.valueOf("(2021/11/9)+2y");
+        assertEquals("2023-11-09", Wtime.formatDate(new Date(ams)));
+    }
 
     @Test
     public void test_evalDatetimeStrToAMS_2() {
