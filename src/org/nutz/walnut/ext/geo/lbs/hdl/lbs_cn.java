@@ -14,7 +14,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.web.ajax.Ajax;
 
-@JvmHdlParamArgs(value = "cqn", regex = "^(list|ajax|json)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(list|ajax|json|notown)$")
 public class lbs_cn implements JvmHdl {
 
     private static final LbsChina CHINA = LbsChina.getInstance();
@@ -67,9 +67,10 @@ public class lbs_cn implements JvmHdl {
         }
         // 纯粹输出内容
         else {
+            boolean noTownn = hc.params.is("notown");
             Lang.each(re, new Each<LbsChinaAddr>() {
                 public void invoke(int index, LbsChinaAddr lca, int length) {
-                    sys.out.printlnf("%d. %s", index + 1, lca);
+                    sys.out.printlnf("%d. %s", index + 1, lca.toString(noTownn));
                 }
             });
         }

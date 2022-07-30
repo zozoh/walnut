@@ -57,6 +57,7 @@ lbs cn
   [-list]      # 获取其下子地址编码
   [-ajax]      # 「选」按照 AJAX 返回输出，默认按照 JSON 方式
   [-cqn]       # 「选」JSON 输出的格式化方式
+  [-notown]    # 列表模式摘要输出时，是否为 notown 地址打上后缀标识
 ```
 
 ```bash

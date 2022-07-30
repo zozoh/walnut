@@ -586,6 +586,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         map.put("c", creator());
         map.put("g", group());
         map.put("id", id());
+        map.put("pid", parentId());
         map.put("nm", name());
 
         map.put("ph", path());

@@ -60,6 +60,40 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     }
 
     /**
+     * 获取一个本地文件映射对象，并能顺利的取到 pid
+     * 
+     * <pre>
+     * /mnt/dir  ::=>  local_home::/a
+     * |-- b/      
+     *     |-- c/   
+     *     |   |-- d/
+     *     |       |-- x.txt
+     * 
+     * 
+     * </pre>
+     */
+    @Test
+    public void test_get_pid_of_file_mount_file() {
+        // 准备一个本地目录
+        File dHome = setup.getLocalFileHome();
+        File f0 = Files.getFile(dHome, "a/b/c/d/x.txt");
+        Files.createFileIfNoExists(f0);
+
+        File dMntHome = Files.getFile(dHome, "a");
+        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+
+        // 建立映射目录
+        WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
+        io.setMount(oMntDir, "filew://" + phMntHome);
+
+        // 获取文件 /home/demo/dir/a/b/c/d/x.txt
+        WnObj o = io.fetch(null, "/mnt/dir/b/c/d/x.txt");
+        assertEquals(oMntDir.id() + ":b/c/d/x.txt", o.id());
+        assertEquals(oMntDir.id() + ":b/c/d/", o.parentId());
+        assertEquals(o.parentId(), o.getString("pid"));
+    }
+
+    /**
      * 删除一个 filew 映射的文件
      * 
      * <pre>

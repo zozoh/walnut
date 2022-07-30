@@ -55,7 +55,7 @@ public class LbsChina {
 
         // 准备表
         map = new HashMap<>();
-        tops = new ArrayList<>(35);
+        tops = new ArrayList<>(40);
         towns = new HashMap<>();
 
         // 逐行读取

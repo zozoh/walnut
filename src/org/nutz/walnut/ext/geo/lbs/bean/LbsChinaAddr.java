@@ -94,9 +94,13 @@ public class LbsChinaAddr {
     }
 
     public String toString() {
+        return this.toString(true);
+    }
+
+    public String toString(boolean markNoTown) {
         StringBuilder sb = new StringBuilder(this.code);
         sb.append('=').append(this.name);
-        if (this.noTown) {
+        if (markNoTown && this.noTown) {
             sb.append('!');
         }
         return sb.toString();
