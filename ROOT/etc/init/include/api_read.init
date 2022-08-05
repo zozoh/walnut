@@ -20,12 +20,30 @@ httpout -body 'sha1:${http-qs-f}' \
   -range '${http-header-RANGE?}'
 %END%
 #--------------------------------------------------------
+# API(obj):读取对象内容(base64)
+@API .regapi/api/read_base64 'cross/dynamic'
+%COPY:
+httpout -body 'sha1:${http-qs-f}' -base64 -etag '${http-header-IF-NONE-MATCH?none}'
+%END%
+#--------------------------------------------------------
 # API(obj):读取对象内容
 @API .regapi/api/media 'cross/dynamic'
 %COPY:
 httpout -body ${http-qs} \
   -etag  '${http-header-IF-NONE-MATCH?none}' \
   -range '${http-header-RANGE?}'
+%END%
+#--------------------------------------------------------
+# API(obj):读取对象内容(base64)
+@API .regapi/api/read_base64 'cross/dynamic'
+%COPY:
+httpout -body 'sha1:${http-qs-f}' -base64 -etag '${http-header-IF-NONE-MATCH?none}'
+%END%
+#--------------------------------------------------------
+# API(obj):读取对象内容(base64)
+@API .regapi/api/media_base64 'cross/dynamic'
+%COPY:
+httpout -body '${http-qs-f}' -base64 -etag '${http-header-IF-NONE-MATCH?none}'
 %END%
 #--------------------------------------------------------
 # API(obj): 下载对象内容

@@ -16,6 +16,8 @@ httpout xxxx               # 参数就是响应体的内容，如果指定 -body
                            # 只有 -download 模式才有效，因为需要根据
                            # 这个信息编码下载目标名称
    [-mime text/plain]      # 【选】指明内容类型
+   [-base64]               # 【选】指明内容需要进行 base64 编码
+                           # 如果开启这个选项，则 mime 一定会变成 text/plain
    [-download]             # 指定 Content-Disposition 的名称，在这种模式下
                            # -UserAgent 才会生效
                            # 当然，如果 -headers 里指定了  Content-Disposition

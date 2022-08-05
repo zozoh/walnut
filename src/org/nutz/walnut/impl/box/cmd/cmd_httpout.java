@@ -24,7 +24,7 @@ public class cmd_httpout extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 解析参数
-        ZParams params = ZParams.parse(args, "^(debug)$");
+        ZParams params = ZParams.parse(args, "^(debug|base64)$");
 
         // 准备响应对象头部
         WnHttpResponseWriter resp = new WnHttpResponseWriter(params.getString("headers"));
@@ -43,6 +43,8 @@ public class cmd_httpout extends JvmExecutor {
         }
 
         // 指明了内容类型
+        boolean asBase64 = params.is("base64");
+        resp.setAsBase64(asBase64);
         String mime = params.getString("mime");
         if (!Strings.isBlank(mime)) {
             resp.setContentType(mime);
