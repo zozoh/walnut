@@ -39,7 +39,9 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
             }
         }
 
-        Cmds.evalCandidateObjs(sys, fc.params.vals, fc.list, mode);
+        if (fc.params.vals.length > 0) {
+            Cmds.evalCandidateObjs(sys, fc.params.vals, fc.list, mode);
+        }
     }
 
     @Override

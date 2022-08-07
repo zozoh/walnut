@@ -37,19 +37,3 @@
   mime : "text/html"
 }
 %TMPL> mail/zh-cn/resetpasswd.html
-#.........................................................
-# 验证码模板: 注册新用户
-@FILE .mail/i18n/en-us/auth
-{
-  subject: "「${domainName}:Captcha」 user signup",
-  mime : "text/html"
-}
-%TMPL> mail/en-us/auth.html
-#.........................................................
-# 验证码模板: 找回密码
-@FILE .mail/i18n/en-us/resetpasswd
-{
-  subject: "「${domainName}:Captcha${domainName}」 reset user password",
-  mime : "text/html"
-}
-%TMPL> mail/en-us/resetpasswd.html

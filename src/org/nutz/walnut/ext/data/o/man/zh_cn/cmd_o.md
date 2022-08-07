@@ -34,6 +34,7 @@ o [options] [[@filter filter-args...]...]
 @query      # 查询出一组对象
 @get        # 根据 ID 获取一个或几个对象
 @fetch      # 根据路径获取一个或几个对象
+@mime       # 查询对象的 MIME 类型
 #
 # 进一步读取
 #
