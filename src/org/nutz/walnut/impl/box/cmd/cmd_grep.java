@@ -15,6 +15,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_grep extends JvmExecutor {
@@ -71,7 +72,8 @@ public class cmd_grep extends JvmExecutor {
             while (null != (line = br.readLine())) {
                 // 正则
                 if (null != p) {
-                    if (p.matcher(line).find()) {
+                    String trimed = Ws.trim(line);
+                    if (p.matcher(trimed).find()) {
                         sys.out.println(line);
                     }
                 }
