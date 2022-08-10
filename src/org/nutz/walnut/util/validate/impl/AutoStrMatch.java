@@ -57,7 +57,7 @@ public class AutoStrMatch implements WnMatch {
             }
             // 整数范围
             else if (str.matches(Wregion.intRegion())) {
-                this.m = new IntRegionMatch(str);
+                this.m = new LongRegionMatch(str);
             }
             // 长整数范围
             else if (str.matches(Wregion.longRegion())) {
