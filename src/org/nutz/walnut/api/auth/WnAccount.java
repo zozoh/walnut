@@ -14,13 +14,13 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
 public class WnAccount {
-    
+
     /**
-     * @deprecated 角色权限之前存放再角色的一个属性里，所以才有的这个常量。
-     * 现在（2022-07-08）决定将其转移到 role 的文件内容里。并且格式从 List 变 Map
-     * 因为这样可以具备更大的扩展性。从性能的角度，如果增加了 SHA1 的多级缓存，也应该是没问题的 
+     * @deprecated 角色权限之前存放再角色的一个属性里，所以才有的这个常量。 现在（2022-07-08）决定将其转移到 role
+     *             的文件内容里。并且格式从 List 变 Map 因为这样可以具备更大的扩展性。从性能的角度，如果增加了 SHA1
+     *             的多级缓存，也应该是没问题的
      */
-    @Deprecated 
+    @Deprecated
     public static final String K_ROLE_ACTIONS = "roleActions";
 
     public static WnAccount create(String name) {
@@ -235,19 +235,19 @@ public class WnAccount {
         // LOGIN : 登录相关
         if (WnAuths.ABMM.asLOGIN(mode)) {
             // ID
-            if (!Strings.isBlank(id))
+            if (!Ws.isBlank(id))
                 bean.put("id", id);
 
             // Name
-            if (!Strings.isBlank(name))
+            if (!Ws.isBlank(name))
                 bean.put("nm", name);
 
             // 电话
-            if (!Strings.isBlank(phone))
+            if (!Ws.isBlank(phone))
                 bean.put("phone", phone);
 
             // 邮箱
-            if (!Strings.isBlank(email))
+            if (!Ws.isBlank(email))
                 bean.put("email", email);
 
         }
@@ -255,7 +255,7 @@ public class WnAccount {
         // INFO : 账户基本信息
         if (WnAuths.ABMM.asINFO(mode)) {
             // 主组
-            if (!Strings.isBlank(groupName))
+            if (!Ws.isBlank(groupName))
                 bean.put("grp", groupName);
 
             // 业务角色
@@ -273,11 +273,11 @@ public class WnAccount {
             }
 
             // 昵称
-            if (!Strings.isBlank(nickname))
+            if (!Ws.isBlank(nickname))
                 bean.put("nickname", nickname);
 
             // 头像
-            if (!Strings.isBlank(thumb))
+            if (!Ws.isBlank(thumb))
                 bean.put("thumb", thumb);
 
             // 最后登录
@@ -291,7 +291,7 @@ public class WnAccount {
 
         // PASSWD : 盐与密码同在
         if (WnAuths.ABMM.asPASSWD(mode)) {
-            if (!Strings.isBlank(passwd) && !Strings.isBlank(salt)) {
+            if (!Ws.isBlank(passwd) && !Ws.isBlank(salt)) {
                 bean.put("passwd", passwd);
                 bean.put("salt", salt);
             }
@@ -308,7 +308,7 @@ public class WnAccount {
         }
         // WXOPEN : 微信公众号登录信息
         if (WnAuths.ABMM.asWXOPEN(mode)) {
-            if (!Strings.isBlank(this.wxUnionId)) {
+            if (!Ws.isBlank(this.wxUnionId)) {
                 bean.put("wx_unionid", this.wxUnionId);
             }
             if (null != wxGhOpenIds)
@@ -418,7 +418,7 @@ public class WnAccount {
      * @return 昵称是否是原始的，譬如和 openId 或者 union ID 相等
      */
     public boolean hasRawNickname() {
-        if (Strings.isBlank(nickname)
+        if (Ws.isBlank(nickname)
             || nickname.equals(this.wxUnionId)
             || nickname.equals(this.id)
             || nickname.equals("anonymous"))
@@ -452,14 +452,14 @@ public class WnAccount {
     }
 
     public void setLoginStr(String str) {
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             throw Er.create("e.auth.loginstr.blank");
 
         // 首先整理一下字符串，去掉所有的空格
         str = str.replaceAll("[ \t\r\n]", "");
 
         // 确保非空
-        if (Strings.isEmpty(str))
+        if (Ws.isEmpty(str))
             throw Er.create("e.auth.loginstr.empty");
 
         // zozoh: 这个太坑，去掉吧，如果需要检查应该在入口函数等较高级的地方检查
@@ -469,7 +469,7 @@ public class WnAccount {
 
         // 用户 ID
         if (str.startsWith("id:")) {
-            id = Strings.trim(str.substring(3));
+            id = Ws.trim(str.substring(3));
         }
         // 手机
         else if (Strings.isMobile(str)) {
@@ -489,23 +489,36 @@ public class WnAccount {
         }
     }
 
+    private String[] __clone_strings(String[] ss) {
+        if (null == ss) {
+            return null;
+        }
+        String[] list = new String[ss.length];
+        for (int i = 0; i < ss.length; i++) {
+            list[i] = ss[i];
+        }
+        return list;
+    }
+
     public WnAccount clone() {
         WnAccount ta = new WnAccount();
         ta.id = this.id;
         ta.name = this.name;
+        ta.jobs = this.__clone_strings(this.jobs);
+        ta.depts = this.__clone_strings(this.depts);
         this.mergeTo(ta);
         return ta;
     }
 
     public void mergeTo(WnAccount ta) {
         ta.setSysAccount(this.sysAccount);
-        if (!Strings.isBlank(this.email)) {
+        if (!Ws.isBlank(this.email)) {
             ta.email = this.email;
         }
-        if (!Strings.isBlank(this.nickname)) {
+        if (!Ws.isBlank(this.nickname)) {
             ta.nickname = this.nickname;
         }
-        if (!Strings.isBlank(this.thumb)) {
+        if (!Ws.isBlank(this.thumb)) {
             ta.thumb = this.thumb;
         }
         if (null != this.sex) {
@@ -514,13 +527,13 @@ public class WnAccount {
         if (this.loginAt > 0) {
             ta.loginAt = this.loginAt;
         }
-        if (!Strings.isBlank(this.groupName)) {
+        if (!Ws.isBlank(this.groupName)) {
             ta.groupName = this.groupName;
         }
-        if (!Strings.isBlank(this.roleName)) {
+        if (!Ws.isBlank(this.roleName)) {
             ta.roleName = this.roleName;
         }
-        if (!Strings.isBlank(this.passwd) && !Strings.isBlank(this.salt)) {
+        if (!Ws.isBlank(this.passwd) && !Ws.isBlank(this.salt)) {
             ta.passwd = this.passwd;
             ta.salt = this.salt;
         }
@@ -532,7 +545,7 @@ public class WnAccount {
     }
 
     public boolean hasId() {
-        return !Strings.isBlank(id);
+        return !Ws.isBlank(id);
     }
 
     public String getId() {
@@ -554,7 +567,7 @@ public class WnAccount {
     }
 
     public boolean hasName() {
-        return !Strings.isBlank(name);
+        return !Ws.isBlank(name);
     }
 
     public String getName() {
@@ -562,7 +575,7 @@ public class WnAccount {
     }
 
     public String getName(String dft) {
-        return Strings.sBlank(name, dft);
+        return Ws.sBlank(name, dft);
     }
 
     public void setName(String name) {
@@ -570,7 +583,7 @@ public class WnAccount {
     }
 
     public boolean hasPhone() {
-        return !Strings.isBlank(phone);
+        return !Ws.isBlank(phone);
     }
 
     public String getPhone() {
@@ -589,7 +602,7 @@ public class WnAccount {
     }
 
     public boolean hasEmail() {
-        return !Strings.isBlank(email);
+        return !Ws.isBlank(email);
     }
 
     public String getEmail() {
@@ -616,7 +629,7 @@ public class WnAccount {
     }
 
     public boolean hasThumb() {
-        return !Strings.isBlank(thumb);
+        return !Ws.isBlank(thumb);
     }
 
     public String getThumb() {
@@ -652,7 +665,7 @@ public class WnAccount {
     }
 
     public void setSex(String sex) {
-        sex = Strings.sBlank(sex, "UNKNOWN").toUpperCase();
+        sex = Ws.sBlank(sex, "UNKNOWN").toUpperCase();
         this.sex = WnHumanSex.valueOf(sex);
     }
 
@@ -703,7 +716,7 @@ public class WnAccount {
     }
 
     public boolean hasGroupName() {
-        return !Strings.isBlank(groupName);
+        return !Ws.isBlank(groupName);
     }
 
     public String getGroupName() {
@@ -715,7 +728,7 @@ public class WnAccount {
     }
 
     public boolean hasRoleName() {
-        return !Strings.isBlank(roleName);
+        return !Ws.isBlank(roleName);
     }
 
     private String[] _role_list = null;
@@ -732,7 +745,7 @@ public class WnAccount {
     }
 
     public String getRoleName(String dftName) {
-        return Strings.sBlank(roleName, dftName);
+        return Ws.sBlank(roleName, dftName);
     }
 
     public void setRoleName(String role) {
@@ -773,7 +786,7 @@ public class WnAccount {
     }
 
     public boolean hasWxUnionId() {
-        return !Strings.isBlank(this.wxUnionId);
+        return !Ws.isBlank(this.wxUnionId);
     }
 
     public String getWxUnionId() {
@@ -960,7 +973,7 @@ public class WnAccount {
 
     public String getHomePath() {
         String home = this.getMetaString("HOME");
-        if (!Strings.isBlank(home)) {
+        if (!Ws.isBlank(home)) {
             return home;
         }
         if (this.isRoot()) {
@@ -1048,8 +1061,8 @@ public class WnAccount {
     }
 
     public void setRawPasswd(String passwd) {
-        if (!Strings.isBlank(passwd)) {
-            if (Strings.isBlank(this.salt)) {
+        if (!Ws.isBlank(passwd)) {
+            if (Ws.isBlank(this.salt)) {
                 this.salt = R.UU32();
             }
             this.passwd = Wn.genSaltPassword(passwd, salt);
@@ -1057,18 +1070,18 @@ public class WnAccount {
     }
 
     public boolean hasSaltedPasswd() {
-        return !Strings.isBlank(salt) && !Strings.isBlank(passwd);
+        return !Ws.isBlank(salt) && !Ws.isBlank(passwd);
     }
 
     public boolean hasRawPasswd() {
-        return Strings.isBlank(salt) && !Strings.isBlank(passwd);
+        return Ws.isBlank(salt) && !Ws.isBlank(passwd);
     }
 
     public boolean isMatchedRawPasswd(String passwd) {
         if (null == this.passwd) {
             return false;
         }
-        if (Strings.isBlank(salt)) {
+        if (Ws.isBlank(salt)) {
             return this.passwd.equals(passwd);
         }
         String pwd = Wn.genSaltPassword(passwd, salt);
@@ -1085,14 +1098,16 @@ public class WnAccount {
 
     public String toString() {
         String px = sysAccount ? "SYS" : "DMN";
-        return String.format("%s<%s:%s:%s>@%s[%s/%s]{HOME=%s}",
+        return String.format("%s<%s:%s:%s>@%s[%s/%s]JOB(%s)DEPT(%s){HOME=%s}",
                              px,
                              name,
-                             Strings.sBlank(phone),
-                             Strings.sBlank(email),
+                             Ws.sBlank(phone),
+                             Ws.sBlank(email),
                              groupName,
                              this.getMeta(Wn.K_ROLE_IN_DOMAIN),
                              this.getMeta(Wn.K_ROLE_IN_OP),
+                             null == this.jobs ? "" : Ws.join(this.jobs, "+"),
+                             null == this.depts ? "" : Ws.join(this.depts, "+"),
                              this.getHomePath());
     }
 

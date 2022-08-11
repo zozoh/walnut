@@ -736,7 +736,8 @@ public class ObjModule extends AbstractWnModule {
         localMeta.put("name", nm);
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
-        io().appendMeta(o, Lang.map("local", localMeta));
+        NutMap meta = Lang.map("local", localMeta);
+        io().appendMeta(o, meta);
 
         // 返回
         return o;

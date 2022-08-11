@@ -541,7 +541,10 @@ public class WnIoObj extends NutMap implements WnObj {
         if (this.isMount()) {
             mnt = "::" + this.mount();
         }
-        return String.format("%s;ID(%s)%s%s", path(), id(), mnt, lnk);
+        // if (null == this.indexer) {
+        return String.format("%s;ID(%s)%s%s", name(), id(), mnt, lnk);
+        // }
+        // return String.format("%s;ID(%s)%s%s", path(), id(), mnt, lnk);
     }
 
     // -----------------------------------------
