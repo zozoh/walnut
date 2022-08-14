@@ -47,16 +47,16 @@ public class Wobj {
      * 
      * @param list
      *            对象列表
-     * @param km
-     *            字段过滤器
+     * @param kms
+     *            字段过滤器（必须全部符合）
      * @param autoPath
      *            自动检查对象，是否都加载好了路径
      * @return 过滤字段后的对象列表
      */
     public static List<? extends NutBean> filterObjKeys(List<WnObj> list,
-                                                        WnMatch km,
+                                                        WnMatch[] kms,
                                                         boolean autoPath) {
-        return filterObjKeys(list, km, "children", autoPath);
+        return filterObjKeys(list, kms, "children", autoPath);
     }
 
     /**
@@ -64,8 +64,8 @@ public class Wobj {
      * 
      * @param list
      *            对象列表
-     * @param km
-     *            字段过滤器
+     * @param kms
+     *            字段过滤器（必须全部符合）
      * @param subKey
      *            哪个字段表示对象的 ID
      * @param autoPath
@@ -73,18 +73,28 @@ public class Wobj {
      * @return 过滤字段后的对象列表
      */
     public static List<? extends NutBean> filterObjKeys(List<WnObj> list,
-                                                        WnMatch km,
+                                                        WnMatch[] kms,
                                                         String subKey,
                                                         boolean autoPath) {
         // 自动加载路径字段
         if (autoPath && null != list && !list.isEmpty()) {
-            if (null == km || km.match("ph")) {
+            boolean canMatchPath = null == kms || kms.length == 0;
+            if (!canMatchPath) {
+                canMatchPath = true;
+                for (WnMatch km : kms) {
+                    if (!km.match("ph")) {
+                        canMatchPath = true;
+                        break;
+                    }
+                }
+            }
+            if (canMatchPath) {
                 for (WnObj o : list) {
                     o.path();
                 }
             }
         }
-        return filterObjKeys(list, km, "id", subKey);
+        return filterObjKeys(list, kms, "id", subKey);
     }
 
     /**
@@ -92,8 +102,8 @@ public class Wobj {
      * 
      * @param list
      *            输入列表
-     * @param km
-     *            字段过滤器
+     * @param kms
+     *            字段过滤器（必须全部符合）
      * @param subKey
      *            哪个字段表示对象的 ID，如果是 null，则表示 "children"
      * @param subKey
@@ -101,11 +111,11 @@ public class Wobj {
      * @return 过滤字段后的对象列表
      */
     public static List<? extends NutBean> filterObjKeys(List<? extends NutBean> list,
-                                                        WnMatch km,
+                                                        WnMatch[] kms,
                                                         String idKey,
                                                         String subKey) {
         // 无需过滤
-        if (null == km) {
+        if (null == kms || kms.length == 0) {
             return list;
         }
 
@@ -119,11 +129,11 @@ public class Wobj {
         Map<String, NutBean> memo = new HashMap<>();
 
         // 开始吧 ...
-        return __flt_obj_key(list, km, idKey, subKey, memo);
+        return __flt_obj_key(list, kms, idKey, subKey, memo);
     }
 
     public static List<? extends NutBean> __flt_obj_key(List<? extends NutBean> list,
-                                                        WnMatch km,
+                                                        WnMatch[] kms,
                                                         String idKey,
                                                         String subKey,
                                                         Map<String, NutBean> memo) {
@@ -136,7 +146,7 @@ public class Wobj {
             }
 
             // 过滤字段
-            NutBean out = filterObjKeys(o, km);
+            NutBean out = filterObjKeys(o, kms);
 
             // 递归子节点
             if (o.has(subKey)) {
@@ -144,7 +154,7 @@ public class Wobj {
                 memo.put(id, o);
                 // 处理子节点
                 List<? extends NutBean> children = o.getAsList(subKey, NutBean.class);
-                children = __flt_obj_key(children, km, idKey, subKey, memo);
+                children = __flt_obj_key(children, kms, idKey, subKey, memo);
                 out.put(subKey, children);
                 // 嗯，搞定
                 memo.remove(id);
@@ -161,12 +171,12 @@ public class Wobj {
      * 
      * @param o
      *            输入对象
-     * @param km
-     *            字段过滤器
+     * @param kms
+     *            字段过滤器（必须全部符合）
      * @return 过滤字段后的对象
      */
-    public static NutBean filterObjKeys(NutBean o, WnMatch km) {
-        if (null == o || null == km) {
+    public static NutBean filterObjKeys(NutBean o, WnMatch... kms) {
+        if (null == o || null == kms || kms.length == 0) {
             return o;
         }
 
@@ -182,7 +192,14 @@ public class Wobj {
             // continue;
 
             // 判断一下键
-            if (km.match(key)) {
+            boolean ignore = false;
+            for (WnMatch km : kms) {
+                if (!km.match(key)) {
+                    ignore = true;
+                    break;
+                }
+            }
+            if (!ignore) {
                 map.put(key, o.get(key));
             }
 

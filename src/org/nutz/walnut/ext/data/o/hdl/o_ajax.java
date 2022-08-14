@@ -24,10 +24,14 @@ public class o_ajax extends o_json {
 
         fc.keepAsList = fc.params.is("l", fc.keepAsList);
 
-        String keys = params.val(0);
-        WnMatch ma = Wobj.explainObjKeyMatcher(keys);
+        WnMatch[] mas = new WnMatch[params.vals.length];
+        for (int i = 0; i < params.vals.length; i++) {
+            String val = params.vals[i];
+            WnMatch ma = Wobj.explainObjKeyMatcher(val);
+            mas[i] = ma;
+        }
 
-        Object data = fc.toOutput(ma, params.is("path"));
+        Object data = fc.toOutput(params.is("path"), mas);
 
         AjaxReturn re = Ajax.ok().setData(data);
         String json = Json.toJson(re, jfmt);

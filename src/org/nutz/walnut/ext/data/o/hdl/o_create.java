@@ -78,7 +78,7 @@ public class o_create extends OFilter {
         }
         // 从标准输入读取
         else {
-            String json = fc.sys.in.readLine();
+            String json = fc.sys.in.readAll();
             Object input = Json.fromJson(json);
             if (input instanceof Collection<?>) {
                 Collection<?> col = (Collection<?>) input;

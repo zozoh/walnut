@@ -23,10 +23,14 @@ public class o_json extends OFilter {
 
         fc.keepAsList = params.is("l", fc.keepAsList);
 
-        String keys = params.val(0);
-        WnMatch ma = Wobj.explainObjKeyMatcher(keys);
+        WnMatch[] mas = new WnMatch[params.vals.length];
+        for (int i = 0; i < params.vals.length; i++) {
+            String val = params.vals[i];
+            WnMatch ma = Wobj.explainObjKeyMatcher(val);
+            mas[i] = ma;
+        }
 
-        Object reo = fc.toOutput(ma, params.is("path"));
+        Object reo = fc.toOutput(params.is("path"), mas);
 
         String json = Json.toJson(reo, jfmt);
         sys.out.println(json);

@@ -37,12 +37,12 @@ public class OContext extends JvmFilterContext {
     }
 
     public Object toOutput(boolean autoPath) {
-        return toOutput(null, autoPath);
+        return toOutput(autoPath, new WnMatch[0]);
     }
 
-    public Object toOutput(WnMatch km, boolean autoPath) {
+    public Object toOutput(boolean autoPath, WnMatch... kms) {
         // 执行字段过滤
-        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, km, subKey, autoPath);
+        List<? extends NutBean> outputs = Wobj.filterObjKeys(list, kms, subKey, autoPath);
 
         // 不要分页
         if (null == pager) {
