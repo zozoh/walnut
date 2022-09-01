@@ -1,5 +1,8 @@
 package org.nutz.walnut.impl.box.cmd;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
@@ -83,6 +86,12 @@ public class cmd_date extends JvmExecutor {
         // -timems
         else if (params.is("timems")) {
             sys.out.print(Times.format("HH:mm:ss.SSS", Times.D(now)));
+        }
+        // -zone
+        else if (params.is("zone")) {
+            Calendar c = Calendar.getInstance();
+            TimeZone zo = c.getTimeZone();
+            sys.out.printf("%s%s", zo.getDisplayName(), zo.getRawOffset());
         }
         // 默认
         else {
