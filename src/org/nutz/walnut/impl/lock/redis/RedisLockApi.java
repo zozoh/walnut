@@ -13,6 +13,8 @@ import org.nutz.walnut.ext.sys.redis.WedisConfig;
 import org.nutz.walnut.impl.lock.WnLockObj;
 import org.nutz.walnut.util.Wn;
 
+import redis.clients.jedis.params.SetParams;
+
 public class RedisLockApi implements WnLockApi {
 
     private String prefix;
@@ -64,10 +66,10 @@ public class RedisLockApi implements WnLockApi {
     public WnLock tryLock(String lockName, String owner, String hint, long duInMs)
             throws WnLockBusyException, WnLockFailException {
         // 试图占用
-        long ask = canAskLock(lockName, owner);
+        boolean canAsk = canAskLock(lockName, owner);
 
         // 锁服务繁忙
-        if (1 != ask) {
+        if (!canAsk) {
             throw new WnLockBusyException(lockName, owner, hint);
         }
 
@@ -131,10 +133,10 @@ public class RedisLockApi implements WnLockApi {
             return;
         }
         // 试图占用
-        long ask = canAskLock(lockName, lock.getOwner());
+        boolean canAsk = canAskLock(lockName, lock.getOwner());
 
         // 锁服务繁忙
-        if (1 != ask) {
+        if (!canAsk) {
             throw new WnLockBusyException(lock);
         }
 
@@ -195,15 +197,19 @@ public class RedisLockApi implements WnLockApi {
         });
     }
 
-    private long __canAskLock(String lockName, String owner) {
+    private boolean __canAskLock(String lockName, String owner) {
         String askKey = _ASK_KEY(lockName);
-        long ask = Wedis.runGet(conf, jed -> {
-            Long askRe = jed.setnx(askKey, owner);
-            // 申请成功，那么设个过期时间，超过这个时间无论怎样，都让这个锁失效
-            if (1 == askRe) {
-                jed.expire(askKey, (long) askDuration);
-            }
-            return askRe;
+        boolean ask = Wedis.runGet(conf, jed -> {
+            SetParams params = new SetParams();
+            params.nx().ex((long) askDuration);
+            String re = jed.set(askKey, owner, params);
+            return "OK".equals(re);
+            // Long askRe = jed.setnx(askKey, owner);
+            // // 申请成功，那么设个过期时间，超过这个时间无论怎样，都让这个锁失效
+            // if (1 == askRe) {
+            // jed.expire(askKey, (long) askDuration);
+            // }
+            // return askRe == 1;
         });
         return ask;
     }
@@ -217,11 +223,11 @@ public class RedisLockApi implements WnLockApi {
      *            操作者
      * @return 是否可以尝试加锁
      */
-    private long canAskLock(String lockName, String owner) {
-        long ask = __canAskLock(lockName, owner);
+    private boolean canAskLock(String lockName, String owner) {
+        boolean ask = __canAskLock(lockName, owner);
 
         // 未成功获取权限，阻塞，并重试
-        if (ask != 1 && this.askRetryInterval > 0 && this.askRetryTimes > 0) {
+        if (!ask && this.askRetryInterval > 0 && this.askRetryTimes > 0) {
             int retryCount = 0;
             do {
                 // 超过最大重试次数
@@ -235,9 +241,10 @@ public class RedisLockApi implements WnLockApi {
                     Thread.sleep(this.askRetryInterval);
                 }
                 catch (InterruptedException e) {
-                    return 0;
+                    return false;
                 }
-                if ((ask = __canAskLock(lockName, owner)) == 1) {
+                ask = __canAskLock(lockName, owner);
+                if (ask) {
                     break;
                 }
             } while (true);

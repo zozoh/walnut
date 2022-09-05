@@ -115,7 +115,7 @@ public class WnBgRunCronConsumer implements Runnable {
                 }
                 // 忙锁：大家都很抢啊，多等一会儿
                 else if (e2 instanceof WnLockBusyException) {
-                    long ms = R.random(10000, 2000);
+                    long ms = R.random(1000, 2000);
                     log.infof("Fail to askLoack, sleep %dms to retry", ms);
                     Wlang.quiteSleep(ms);
                 }
