@@ -5,5 +5,5 @@ import org.junit.runners.Suite;
 import org.nutz.walnut.impl.lock.redis.RedisLockApiTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({RedisLockApiTest.class})
+@Suite.SuiteClasses({WnLockObjTest.class, RedisLockApiTest.class})
 public class AllLockTest {}

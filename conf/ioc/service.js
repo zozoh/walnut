@@ -162,11 +162,12 @@ var ioc = {
         }
     },
     lockApi : {
-        type : 'org.nutz.walnut.impl.lock.redis.RedisLockApi',
+        type : 'org.nutz.walnut.impl.lock.redis.QuickRedisLockApi',
         args : [{
             refer : "redisConfForLockApi"
         }]
     },
+    
     expiObjTable : {
         type : 'org.nutz.walnut.core.eot.mongo.MongoExpiObjTable',
         args : [{
