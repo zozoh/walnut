@@ -2,17 +2,23 @@ package org.nutz.walnut.util.bean;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.util.WnBeanFieldMatchValue;
 import org.nutz.walnut.util.bean.val.WnValueType;
+import org.nutz.walnut.util.validate.WnMatch;
 
 public class WnValue {
 
@@ -114,23 +120,65 @@ public class WnValue {
             // 动态从文件获取
             else if (null != this.optionsFile) {
                 String aph = Wn.normalizeFullPath(this.optionsFile, vars);
-                NutMap[] list = caches.get(aph);
+                NutMap[] items = caches.get(aph);
                 // 直接读取并加入缓存
-                if (null == list) {
+                if (null == items) {
                     WnObj oFile = io.check(null, aph);
-                    list = io.readJson(oFile, NutMap[].class);
-                    caches.put(aph, list);
+                    // 如果是 JSON 文件
+                    if (oFile.isFILE() && oFile.isType("json")) {
+                        items = io.readJson(oFile, NutMap[].class);
+                    }
+                    // 如果是一个 ThingSet
+                    else if (oFile.isDIR() && oFile.isType("thing_set")) {
+                        WnObj oIndex = io.fetch(oFile, "index");
+                        if (null == oIndex) {
+                            items = new NutMap[0];
+                        } else {
+                            items = loadOptionsFromDir(io, oIndex);
+                        }
+                    }
+                    // 如果就是普通目录
+                    else if (oFile.isDIR()) {
+                        items = loadOptionsFromDir(io, oFile);
+                    }
+                    // 靠，啥也不是
+                    else {
+                        items = new NutMap[0];
+                    }
+                    caches.put(aph, items);
                 }
                 // 准备映射
                 String fromKey = Ws.sBlank(this.optionsFromKey, "text");
                 String toKey = Ws.sBlank(this.optionsToKey, "value");
-                for (NutMap li : list) {
+                for (NutMap li : items) {
                     String from = li.getString(fromKey);
                     Object to = li.get(toKey);
                     __options_map.put(from, to);
                 }
             }
         }
+    }
+
+    private NutMap[] loadOptionsFromDir(WnIo io, WnObj oDir) {
+        NutMap[] items;
+        List<NutMap> list = new LinkedList<>();
+
+        // 过滤字段
+        WnMatch ma = Wobj.explainObjKeyMatcher("#NM");
+
+        // 查询
+        WnQuery q = Wn.Q.pid(oDir);
+        q.limit(2000);
+        io.each(q, new Each<WnObj>() {
+            public void invoke(int index, WnObj obj, int length) {
+                NutMap bean = (NutMap) Wobj.filterObjKeys(obj, ma);
+                list.add(bean);
+            }
+        });
+
+        // 输出
+        items = list.toArray(new NutMap[list.size()]);
+        return items;
     }
 
     public WnValueType getType() {
