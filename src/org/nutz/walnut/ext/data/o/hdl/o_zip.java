@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.data.o.hdl;
 
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -128,9 +130,13 @@ public class o_zip extends OFilter {
             ops = sys.io.getOutputStream(oZip, 0);
             ag = new WnZipArchiveWriting(ops);
 
+            // 准备实体映射以便防重
+            Map<String, Boolean> rphMemo = new HashMap<>();
+
             // 开始逐个加入压缩包
+            int count = 0;
             for (WnObj o : objMat.objs) {
-                cmd_zip.addEntry(sys, oTop, ag, rename, o, quiet, am, hide);
+                count = cmd_zip.addEntry(sys, oTop, ag, rename, o, quiet, am, hide, rphMemo, count);
             }
         }
         // 错误

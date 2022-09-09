@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Stopwatch;
@@ -75,13 +77,17 @@ public class cmd_zip extends JvmExecutor {
             String aphTa = Wn.normalizeFullPath(phTa, sys);
             oZip = sys.io.createIfNoExists(null, aphTa, WnRace.FILE);
 
+            // 准备实体映射以便防重
+            Map<String, Boolean> rphMemo = new HashMap<>();
+
             // 准备输出流
             ops = sys.io.getOutputStream(oZip, 0);
             ag = new WnZipArchiveWriting(ops);
 
             // 开始逐个加入压缩包
+            int count = 0;
             for (WnObj o : oSrcList) {
-                addEntry(sys, oTop, ag, null, o, quiet, am, hide);
+                count = addEntry(sys, oTop, ag, null, o, quiet, am, hide, rphMemo, count);
             }
         }
         // 确保写入
@@ -97,29 +103,31 @@ public class cmd_zip extends JvmExecutor {
         }
     }
 
-    public static void addEntry(WnSystem sys,
-                                WnObj oTop,
-                                WnArchiveWriting ag,
-                                WnObjRenaming rename,
-                                WnObj o,
-                                boolean quiet,
-                                WnMatch am,
-                                boolean hide)
+    public static int addEntry(WnSystem sys,
+                               WnObj oTop,
+                               WnArchiveWriting ag,
+                               WnObjRenaming rename,
+                               WnObj o,
+                               boolean quiet,
+                               WnMatch am,
+                               boolean hide,
+                               Map<String, Boolean> memo,
+                               int count)
             throws IOException {
         // 无视隐藏文件
         if (!hide && o.isHidden()) {
-            return;
+            return count;
         }
         // 目录，递归
         if (o.isDIR()) {
             List<WnObj> children = sys.io.getChildren(o, null);
             for (WnObj child : children) {
-                addEntry(sys, oTop, ag, rename, child, quiet, am, hide);
+                count += addEntry(sys, oTop, ag, rename, child, quiet, am, hide, memo, count);
             }
         }
         // 无视不符合条件的文件
         else if (null != am && !am.match(o)) {
-            return;
+            return count;
         }
         // 文件，写入
         else {
@@ -139,13 +147,26 @@ public class cmd_zip extends JvmExecutor {
             }
             if (!quiet) {
                 if (null != newName) {
-                    sys.out.printlnf(" + %s >> %s : %s", rph, newName, o.toString());
+                    sys.out.printlnf(" %d). %s >> %s : %s", count, rph, newName, o.toString());
                 } else {
-                    sys.out.printlnf(" + %s : %s", rph, o.toString());
+                    sys.out.printlnf(" %d) %s : %s", count, rph, o.toString());
                 }
             }
-            ag.addFileEntry(enPath, ins, len);
+            if (memo.containsKey(enPath)) {
+                if (!quiet) {
+                    sys.out.printlnf(" !!!DUP!!! %d). %s >> %s : %s",
+                                     count,
+                                     rph,
+                                     newName,
+                                     o.toString());
+                }
+            } else {
+                ag.addFileEntry(enPath, ins, len);
+                memo.put(enPath, true);
+            }
+            count++;
         }
+        return count;
     }
 
     private WnObj findCommonParent(List<WnObj> objs) {
