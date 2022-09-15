@@ -12,6 +12,9 @@ public class WnPagerObj {
     private int pageCount;
     private long totalCount;
     private int count;
+    private int skip;
+    private int nextSkip;
+    private int nextPageSkip;
 
     public WnPagerObj() {
         this(100, 5000);
@@ -31,6 +34,7 @@ public class WnPagerObj {
         this.pageSize = limit <= 0 ? defaultLimit
                                    : (maxLimit > 0 ? Math.min(maxLimit, limit) : limit);
         this.pageNumber = skip / this.pageSize + 1;
+        this.skip = skip;
         return this;
     }
 
@@ -126,6 +130,28 @@ public class WnPagerObj {
 
     public void setCount(int count) {
         this.count = count;
+        this.nextSkip = this.skip + count;
+        this.nextPageSkip = this.pageNumber * this.pageSize;
+    }
+
+    public void setSkip(int skip) {
+        this.skip = skip;
+    }
+
+    public int getNextSkip() {
+        return nextSkip;
+    }
+
+    public void setNextSkip(int nextSkip) {
+        this.nextSkip = nextSkip;
+    }
+
+    public int getNextPageSkip() {
+        return nextPageSkip;
+    }
+
+    public void setNextPageSkip(int nextPageSkip) {
+        this.nextPageSkip = nextPageSkip;
     }
 
     /*----------getter/setter---------------*/
