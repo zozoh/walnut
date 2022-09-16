@@ -80,12 +80,19 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.cheap.dom.CheapText;
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
+import org.nutz.walnut.cheap.dom.docx.en.DocxInlineContext;
+import org.nutz.walnut.cheap.dom.docx.en.DocxTable;
 import org.nutz.walnut.cheap.dom.docx.num.DocxAbstractNum;
 import org.nutz.walnut.cheap.dom.docx.num.DocxNumbering;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wnum;
 import org.nutz.walnut.util.Ws;
 
+/**
+ * <a href="https://blog.csdn.net/lindexi_gd/article/details/106810615">OOML 的测量单位</a>
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class CheapDocxRendering {
 
     private CheapDocument doc;
@@ -230,7 +237,7 @@ public class CheapDocxRendering {
         return tagNameStyleMapping.get(el.getStdTagName());
     }
 
-    public Inline createImage(String id, int w, int h) {
+    public Inline createImage(String id, int w, int h, long maxWemu, long maxHemu) {
         try {
             CheapResource cr = this.getResourceById(id);
             if (null == cr)
@@ -275,11 +282,17 @@ public class CheapDocxRendering {
             if (w > 0) {
                 double dW = (double) w;
                 long wEMU = (long) ((dW / dpiW) * 914400L);
+//                if (maxWemu > 0) {
+//                    wEMU = Math.min(wEMU, maxWemu);
+//                }
                 aExt.setCx(wEMU);
             }
             if (h > 0) {
                 double dH = (double) h;
                 long hEMU = (long) ((dH / dpiH) * 914400L);
+//                if (maxHemu > 0) {
+//                    hEMU = Math.min(hEMU, maxHemu);
+//                }
                 aExt.setCy(hEMU);
             }
 
@@ -517,7 +530,7 @@ public class CheapDocxRendering {
         // 在文档处理结束时，会检查最后一个编号设定 ...
     }
 
-    private void joinTableCell(Tr tr, CheapElement el) {
+    private void joinTableCell(Tr tr, CheapElement el, DocxTable dxt, int index) {
         Tc td = factory.createTc();
         TcPr tcPr = factory.createTcPr();
         td.setTcPr(tcPr);
@@ -594,6 +607,9 @@ public class CheapDocxRendering {
         // 收集行内元素
         List<CheapNode> inlines = new LinkedList<>();
 
+        DocxInlineContext ic = new DocxInlineContext();
+        ic.maxWemu = width - dxt.tbPadding * 2;
+
         // 逐次处理表格单元格内部的子元素
         if (el.hasChildren()) {
             for (CheapNode node : el.getChildren()) {
@@ -621,7 +637,7 @@ public class CheapDocxRendering {
                     P p = factory.createP();
                     this.setPStyle(p, styleId, align);
                     List<Object> pContent = p.getContent();
-                    if (joinInlineElements(pContent, inlines)) {
+                    if (joinInlineElements(pContent, inlines, ic)) {
                         tdContent.add(p);
                     }
                     inlines.clear();
@@ -637,7 +653,7 @@ public class CheapDocxRendering {
             P p = factory.createP();
             this.setPStyle(p, styleId, align);
             List<Object> pContent = p.getContent();
-            if (joinInlineElements(pContent, inlines)) {
+            if (joinInlineElements(pContent, inlines, ic)) {
                 tdContent.add(p);
             }
             inlines.clear();
@@ -653,7 +669,7 @@ public class CheapDocxRendering {
         tr.getContent().add(td);
     }
 
-    private void joinTableRow(Tbl table, CheapElement el, List<CheapElement[]> grid, int rowI) {
+    private void joinTableRow(Tbl table, CheapElement el, DocxTable dxt, int rowI) {
         Tr tr = factory.createTr();
 
         CheapStyle style = el.getStyleObj();
@@ -671,14 +687,15 @@ public class CheapDocxRendering {
         }
 
         // 根据修正过 col-span/row-span 的格子，输出单元格
-        CheapElement[] cells = grid.get(rowI);
-        for (CheapElement child : cells) {
+        CheapElement[] cells = dxt.grid.get(rowI);
+        for (int i = 0; i < cells.length; i++) {
+            CheapElement child = cells[i];
             // Colspan 会导致grid里有空的占位元素
             if (null == child) {
                 continue;
             }
             if (child.isStdTagName("TD") || child.isStdTagName("TH")) {
-                joinTableCell(tr, child);
+                joinTableCell(tr, child, dxt, i);
             }
         }
         table.getContent().add(tr);
@@ -703,6 +720,10 @@ public class CheapDocxRendering {
         Tbl table = factory.createTbl();
         TblPr tPr = factory.createTblPr();
         table.setTblPr(tPr);
+
+        // 准备表格渲染上下文
+        DocxTable dxt = new DocxTable();
+
         // 计算表格边框
         CheapSize bo = el.attrSize("border", "0px");
         int border = bo.getIntValue();
@@ -721,27 +742,27 @@ public class CheapDocxRendering {
         CheapSize pad = el.attrSize("cellpadding", "0px");
         int padding = pad.getIntValue();
 
-        int tbPadding = padding * 6;
+        dxt.tbPadding = padding * 12;
         CTTblCellMar mar = factory.createCTTblCellMar();
-        mar.setTop(createWidth(tbPadding));
-        mar.setBottom(createWidth(tbPadding));
-        mar.setLeft(createWidth(tbPadding));
-        mar.setRight(createWidth(tbPadding));
+        mar.setTop(createWidth(dxt.tbPadding));
+        mar.setBottom(createWidth(dxt.tbPadding));
+        mar.setLeft(createWidth(dxt.tbPadding));
+        mar.setRight(createWidth(dxt.tbPadding));
         tPr.setTblCellMar(mar);
 
         // 得到表格最大列
-        int colN = this.getTableColumnsCount(el);
+        dxt.colN = this.getTableColumnsCount(el);
 
         // 防守一个危险的
-        if (colN <= 0) {
+        if (dxt.colN <= 0) {
             return;
         }
 
         // 评估每列的宽度
-        int[] colsW = this.evalTableColWidths(el, colN, pageTableWidth);
+        dxt.colsW = this.evalTableColWidths(el, dxt.colN, pageTableWidth);
 
         // 针对单元格设置 rowSpan(vMerge (restart))
-        List<CheapElement[]> grid = this.evalRowSpanAsVMerge(el, colN, colsW);
+        dxt.grid = this.evalRowSpanAsVMerge(el, dxt.colN, dxt.colsW);
 
         // 设置表格宽度
         tPr.setTblW(createWidth(pageTableWidth));
@@ -750,8 +771,8 @@ public class CheapDocxRendering {
         tPr.setTblLayout(clt);
         // 设置单元格宽度
         TblGrid tGrid = factory.createTblGrid();
-        for (int i = 0; i < colsW.length; i++) {
-            int w = colsW[i];
+        for (int i = 0; i < dxt.colsW.length; i++) {
+            int w = dxt.colsW[i];
             TblGridCol col = factory.createTblGridCol();
             col.setW(BigInteger.valueOf(w));
             tGrid.getGridCol().add(col);
@@ -766,13 +787,13 @@ public class CheapDocxRendering {
             if (child.isStdTagName("THEAD") || child.isStdTagName("TBODY")) {
                 for (CheapElement c2 : child.getChildElements()) {
                     if (c2.isStdTagName("TR")) {
-                        joinTableRow(table, c2, grid, rowI++);
+                        joinTableRow(table, c2, dxt, rowI++);
                     }
                 }
             }
             // TR
             else if (child.isStdTagName("TR")) {
-                joinTableRow(table, child, grid, rowI++);
+                joinTableRow(table, child, dxt, rowI++);
             }
         }
         partItems.add(table);
@@ -1013,10 +1034,14 @@ public class CheapDocxRendering {
     private boolean appendBlockChildren(P p, CheapElement el) {
         List<CheapNode> children = el.getChildren();
         List<Object> pContent = p.getContent();
-        return joinInlineElements(pContent, children);
+        DocxInlineContext ic = new DocxInlineContext();
+        ic.maxWemu = this.pageTableWidth;
+        return joinInlineElements(pContent, children, ic);
     }
 
-    private boolean joinInlineElements(List<Object> pContent, List<CheapNode> children) {
+    private boolean joinInlineElements(List<Object> pContent,
+                                       List<CheapNode> children,
+                                       DocxInlineContext ic) {
         boolean re = false;
         if (null != children) {
             for (CheapNode node : children) {
@@ -1027,7 +1052,7 @@ public class CheapDocxRendering {
                 // 行内元素
                 else if (node.isElement()) {
                     DocxElStyle es = new DocxElStyle();
-                    re |= appendInline(pContent, (CheapElement) node, es);
+                    re |= appendInline(pContent, (CheapElement) node, es, ic);
                 }
             }
         }
@@ -1156,7 +1181,7 @@ public class CheapDocxRendering {
         return true;
     }
 
-    private boolean appendImage(List<Object> pContent, CheapElement el) {
+    private boolean appendImage(List<Object> pContent, CheapElement el, DocxInlineContext ic) {
         // 得到图片的 ID
         String imgId = el.attr("wn-obj-id");
         if (Ws.isBlank(imgId)) {
@@ -1174,7 +1199,7 @@ public class CheapDocxRendering {
         }
 
         // 得到图片元素
-        Inline img = this.createImage(imgId, w, h);
+        Inline img = this.createImage(imgId, w, h, ic.maxWemu, ic.maxHemu);
         if (null == img) {
             return false;
         }
@@ -1189,34 +1214,49 @@ public class CheapDocxRendering {
         return true;
     }
 
-    private boolean appendBold(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean appendBold(List<Object> pContent,
+                               CheapElement el,
+                               DocxElStyle es,
+                               DocxInlineContext ic) {
         es = null == es ? new DocxElStyle() : es.clone();
         es.bold = true;
         es.updateByElement(el);
-        return dispatchInlineChildren(pContent, el, es);
+        return dispatchInlineChildren(pContent, el, es, ic);
     }
 
-    private boolean appendItalic(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean appendItalic(List<Object> pContent,
+                                 CheapElement el,
+                                 DocxElStyle es,
+                                 DocxInlineContext ic) {
         es = null == es ? new DocxElStyle() : es.clone();
         es.italic = true;
         es.updateByElement(el);
-        return dispatchInlineChildren(pContent, el, es);
+        return dispatchInlineChildren(pContent, el, es, ic);
     }
 
-    private boolean appendUnderline(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean appendUnderline(List<Object> pContent,
+                                    CheapElement el,
+                                    DocxElStyle es,
+                                    DocxInlineContext ic) {
         es = null == es ? new DocxElStyle() : es.clone();
         es.underline = true;
         es.updateByElement(el);
-        return dispatchInlineChildren(pContent, el, es);
+        return dispatchInlineChildren(pContent, el, es, ic);
     }
 
-    private boolean appendSpan(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean appendSpan(List<Object> pContent,
+                               CheapElement el,
+                               DocxElStyle es,
+                               DocxInlineContext ic) {
         es = null == es ? new DocxElStyle() : es.clone();
         es.updateByElement(el);
-        return dispatchInlineChildren(pContent, el, es);
+        return dispatchInlineChildren(pContent, el, es, ic);
     }
 
-    private boolean dispatchInlineChildren(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean dispatchInlineChildren(List<Object> pContent,
+                                           CheapElement el,
+                                           DocxElStyle es,
+                                           DocxInlineContext ic) {
         // System.out.printf("dispatchInlineChildren: %s\n", el.toBrief());
         boolean re = false;
         if (el.hasChildren()) {
@@ -1227,14 +1267,17 @@ public class CheapDocxRendering {
                 }
                 // 行内元素
                 else if (node.isElement()) {
-                    re |= appendInline(pContent, (CheapElement) node, es);
+                    re |= appendInline(pContent, (CheapElement) node, es, ic);
                 }
             }
         }
         return re;
     }
 
-    private boolean appendInline(List<Object> pContent, CheapElement el, DocxElStyle es) {
+    private boolean appendInline(List<Object> pContent,
+                                 CheapElement el,
+                                 DocxElStyle es,
+                                 DocxInlineContext ic) {
         // System.out.printf("appendInline: %s\n", el.toBrief());
         boolean re = false;
 
@@ -1244,27 +1287,27 @@ public class CheapDocxRendering {
         }
         // 处理图像
         else if (el.isStdTagName("IMG")) {
-            re |= appendImage(pContent, el);
+            re |= appendImage(pContent, el, ic);
         }
         // 处理加粗
         else if (el.isStdTagName("STRONG") || el.isStdTagName("B")) {
-            re |= appendBold(pContent, el, es);
+            re |= appendBold(pContent, el, es, ic);
         }
         // 处理斜体
         else if (el.isStdTagName("EM") || el.isStdTagName("I")) {
-            re |= appendItalic(pContent, el, es);
+            re |= appendItalic(pContent, el, es, ic);
         }
         // 处理下划线
         else if (el.isStdTagName("U")) {
-            re |= appendUnderline(pContent, el, es);
+            re |= appendUnderline(pContent, el, es, ic);
         }
         // 处理超链接
         else if (el.isStdTagName("A")) {
-            re |= appendUnderline(pContent, el, es);
+            re |= appendUnderline(pContent, el, es, ic);
         }
         // 处理普通文字
         else if (el.isStdTagName("SPAN")) {
-            re |= appendSpan(pContent, el, es);
+            re |= appendSpan(pContent, el, es, ic);
         }
         // 其他的统统无视
         else {
