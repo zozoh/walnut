@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
-import org.nutz.walnut.ooml.measure.*;
 import org.nutz.walnut.ooml.measure.convertor.CmEmusConvertor;
 import org.nutz.walnut.ooml.measure.convertor.CmInchConvertor;
 import org.nutz.walnut.ooml.measure.convertor.ComboMeasureConvertor;
