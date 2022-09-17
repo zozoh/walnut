@@ -1,4 +1,4 @@
-package org.nutz.walnut.ooml.measure;
+package org.nutz.walnut.ooml.measure.convertor;
 
 /**
  * 提供一个转换接口，子类将决定要转换的单位:

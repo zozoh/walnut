@@ -10,6 +10,7 @@ import org.nutz.walnut.core.eot.AllExpiObjTableTest;
 import org.nutz.walnut.cron.WnCronTest;
 import org.nutz.walnut.ext.AllExtTest;
 import org.nutz.walnut.impl.AllImplTest;
+import org.nutz.walnut.ooml.OomlsTest;
 import org.nutz.walnut.util.AllUtilTest;
 import org.nutz.walnut.validate.WnMatchTest;
 
@@ -22,6 +23,7 @@ import org.nutz.walnut.validate.WnMatchTest;
                      AllUtilTest.class,
                      WnCronTest.class,
                      WnMatchTest.class,
+                     OomlsTest.class,
                      AllImplTest.class,
                      AllExtTest.class})
 public class AllWnBaseTest {}

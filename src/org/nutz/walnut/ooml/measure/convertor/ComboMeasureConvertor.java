@@ -1,5 +1,6 @@
-package org.nutz.walnut.ooml.measure;
+package org.nutz.walnut.ooml.measure.convertor;
 
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ooml.Oomls;
 
 public class ComboMeasureConvertor implements MeasureConvertor {
@@ -10,7 +11,11 @@ public class ComboMeasureConvertor implements MeasureConvertor {
         this.convertors = new MeasureConvertor[names.length];
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            this.convertors[i] = Oomls.getMeasureConvertor(name);
+            MeasureConvertor mc = Oomls.getMeasureConvertor(name);
+            if (null == mc) {
+                throw Er.create("e.measure.InvalidCovertor", name);
+            }
+            this.convertors[i] = mc;
         }
     }
 
