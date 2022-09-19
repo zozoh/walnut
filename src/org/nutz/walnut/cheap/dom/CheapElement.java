@@ -773,6 +773,17 @@ public class CheapElement extends CheapNode {
         return new CheapSize(str);
     }
 
+    public CheapSize styleSize(String name) {
+        return styleSize(name, null);
+    }
+
+    public CheapSize styleSize(String name, String dft) {
+        String str = this.getStyle(name, dft);
+        if (Ws.isBlank(str))
+            return null;
+        return new CheapSize(str);
+    }
+
     public String attrString(String name, String dft) {
         return attrs.getString(name, dft);
     }

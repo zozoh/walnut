@@ -2,7 +2,7 @@ package org.nutz.walnut.cheap.dom.docx.en;
 
 public class DocxInlineContext {
 
-    public long maxWemu;
+    public int maxWpx;
 
-    public long maxHemu;
+    public int maxHpx;
 }

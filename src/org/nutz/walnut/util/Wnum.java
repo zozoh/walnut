@@ -40,4 +40,20 @@ public abstract class Wnum {
         return re;
     }
 
+    public static long sum(long... inputs) {
+        long re = 0;
+        for (long n : inputs) {
+            re += n;
+        }
+        return re;
+    }
+
+    public static double sum(double... inputs) {
+        double re = 0;
+        for (double n : inputs) {
+            re += n;
+        }
+        return re;
+    }
+
 }

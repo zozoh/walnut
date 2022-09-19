@@ -6,8 +6,15 @@ import static org.nutz.walnut.ooml.measure.convertor.DpiConvertor.DPI_WIN;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.wml.Body;
+import org.docx4j.wml.SectPr.PgMar;
+import org.docx4j.wml.SectPr.PgSz;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
+import org.nutz.walnut.ooml.measure.bean.OomlPageMeasure;
 import org.nutz.walnut.ooml.measure.convertor.CmEmusConvertor;
 import org.nutz.walnut.ooml.measure.convertor.CmInchConvertor;
 import org.nutz.walnut.ooml.measure.convertor.ComboMeasureConvertor;
@@ -117,6 +124,33 @@ public class Oomls {
         MeasureConvertor mc = convertors.get(name);
         double v = mc.translate((double) input);
         return Math.round(v);
+    }
+
+    public static OomlPageMeasure getDocumentPageMeasure(WordprocessingMLPackage wp) {
+        OomlPageMeasure pm = new OomlPageMeasure();
+        try {
+            Body body = wp.getMainDocumentPart().getContents().getBody();
+            PgSz pgSz = body.getSectPr().getPgSz();
+            double pgW = pgSz.getW().doubleValue();
+            double pgH = pgSz.getH().doubleValue();
+
+            PgMar pgMar = body.getSectPr().getPgMar();
+            double pgT = pgMar.getTop().doubleValue();
+            double pgB = pgMar.getBottom().doubleValue();
+            double pgL = pgMar.getLeft().doubleValue();
+            double pgR = pgMar.getRight().doubleValue();
+
+            pm.setWidth(pgW);
+            pm.setHeight(pgH);
+            pm.setMarginTop(pgT);
+            pm.setMarginBottom(pgB);
+            pm.setMarginLeft(pgL);
+            pm.setMarginRight(pgR);
+        }
+        catch (Docx4JException e) {
+            throw Er.wrap(e);
+        }
+        return pm;
     }
 
     public static CheapDocument parseEntryAsXml(OomlEntry en) {

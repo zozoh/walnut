@@ -3,9 +3,13 @@ package org.nutz.walnut.cheap.css;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.walnut.ooml.measure.bean.OomlMeaUnit;
+import org.nutz.walnut.ooml.measure.bean.OomlMeasure;
+import org.nutz.walnut.util.Ws;
+
 public class CheapSize {
 
-    private static Pattern SZ_P = Pattern.compile("^(-?[.\\d]+)(px|pt|rem|em|%)?$");
+    private static Pattern SZ_P = Pattern.compile("^(-?[.\\d]+)(px|pt|rem|%)?$");
 
     private double value;
 
@@ -24,6 +28,32 @@ public class CheapSize {
             this.value = Double.parseDouble(m.group(1));
             this.unit = m.group(2);
         }
+    }
+
+    public String toString() {
+        if (Ws.isBlank(unit)) {
+            return Double.toString(value);
+        }
+        return value + unit;
+    }
+
+    public OomlMeasure toMeasure() {
+        if ("pt".equals(unit)) {
+            return OomlMeasure.PT(value);
+        }
+        if ("%".equals(unit)) {
+            return OomlMeasure.PCT(value * 50);
+        }
+        if ("rem".equals(unit)) {
+            return OomlMeasure.PX(value * 100);
+        }
+        return OomlMeasure.PX(value);
+    }
+
+    public int toDXA(OomlMeasure base, String osName) {
+        OomlMeasure mea = this.toMeasure();
+        mea.as(OomlMeaUnit.DXA, base, osName);
+        return mea.getInt();
     }
 
     public int getIntValue() {

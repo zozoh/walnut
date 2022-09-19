@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.commons.imaging.ImageInfo;
 import org.docx4j.XmlUtils;
 import org.docx4j.dml.CTPositiveSize2D;
 import org.docx4j.dml.wordprocessingDrawing.Inline;
@@ -84,12 +83,17 @@ import org.nutz.walnut.cheap.dom.docx.en.DocxInlineContext;
 import org.nutz.walnut.cheap.dom.docx.en.DocxTable;
 import org.nutz.walnut.cheap.dom.docx.num.DocxAbstractNum;
 import org.nutz.walnut.cheap.dom.docx.num.DocxNumbering;
+import org.nutz.walnut.ooml.Oomls;
+import org.nutz.walnut.ooml.measure.bean.OomlMeaUnit;
+import org.nutz.walnut.ooml.measure.bean.OomlMeasure;
+import org.nutz.walnut.ooml.measure.bean.OomlPageMeasure;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wnum;
 import org.nutz.walnut.util.Ws;
 
 /**
- * <a href="https://blog.csdn.net/lindexi_gd/article/details/106810615">OOML 的测量单位</a>
+ * <a href="https://blog.csdn.net/lindexi_gd/article/details/106810615">OOML
+ * 的测量单位</a>
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
@@ -122,7 +126,10 @@ public class CheapDocxRendering {
 
     private Map<String, CheapResource> resources;
 
-    private int pageTableWidth;
+    private OomlPageMeasure pageMea;
+    private OomlMeasure pageEditWidth;
+    private OomlMeasure pageEditHeight;
+    private String osName;
 
     /* 采用奇数 */
     private int _seq_id1;
@@ -138,7 +145,12 @@ public class CheapDocxRendering {
         this.wp = wp;
         this.loader = loader;
         this.factory = new ObjectFactory();
-        this.pageTableWidth = 8613;
+
+        // 获取页面宽高以及边距
+        this.pageMea = Oomls.getDocumentPageMeasure(wp);
+        this.pageMea.asDXA(); // 统一度量单位到 dxa
+        this.pageEditWidth = this.pageMea.getEditWidth();
+        this.pageEditHeight = this.pageMea.getEditHeight();
 
         this.numbering = new DocxNumbering();
         this._a_num = null;
@@ -150,6 +162,7 @@ public class CheapDocxRendering {
         this.buildStyleMapping(styleMapping);
 
         this.varsData = null == varsData ? new NutMap() : varsData;
+        this.osName = this.varsData.getString("os", "win");
     }
 
     private Map<String, String> pageStyleMapping;
@@ -237,7 +250,7 @@ public class CheapDocxRendering {
         return tagNameStyleMapping.get(el.getStdTagName());
     }
 
-    public Inline createImage(String id, int w, int h, long maxWemu, long maxHemu) {
+    public Inline createImage(String id, int w, int h, long maxWpx, long maxHpx) {
         try {
             CheapResource cr = this.getResourceById(id);
             if (null == cr)
@@ -266,34 +279,31 @@ public class CheapDocxRendering {
             // 创建元素
             Inline inline = ip.createImageInline(fnm, alt, _seq_id1, _seq_id2, false);
 
+            // 2022-09-19 zozoh: 不需要图像的 dpi 了
+            // 默认采用系统的 dpi
             // 得到图像的 dpi
-            ImageInfo imi = cr.getImageInfo();
-            int dpiW = imi.getPhysicalWidthDpi();
-            if (dpiW < 0) {
-                dpiW = 96;
-            }
-            int dpiH = imi.getPhysicalHeightDpi();
-            if (dpiH < 0) {
-                dpiH = 96;
-            }
+            // ImageInfo imi = cr.getImageInfo();
+            // int dpiW = imi.getPhysicalWidthDpi();
+            // if (dpiW < 0) {
+            // dpiW = 96;
+            // }
+            // int dpiH = imi.getPhysicalHeightDpi();
+            // if (dpiH < 0) {
+            // dpiH = 96;
+            // }
 
             // 处理图像宽高...
             CTPositiveSize2D aExt = inline.getExtent();
             if (w > 0) {
-                double dW = (double) w;
-                long wEMU = (long) ((dW / dpiW) * 914400L);
-//                if (maxWemu > 0) {
-//                    wEMU = Math.min(wEMU, maxWemu);
-//                }
-                aExt.setCx(wEMU);
-            }
-            if (h > 0) {
-                double dH = (double) h;
-                long hEMU = (long) ((dH / dpiH) * 914400L);
-//                if (maxHemu > 0) {
-//                    hEMU = Math.min(hEMU, maxHemu);
-//                }
-                aExt.setCy(hEMU);
+                OomlMeasure mW = OomlMeasure.PX(Math.min(maxWpx, w));
+                long wEMu = mW.as(OomlMeaUnit.EMUS, null, osName).getLong();
+
+                // 得到比例
+                double r = (double) w / (double) h;
+                long hEMu = Math.round((double) wEMu / r);
+
+                aExt.setCx(wEMu);
+                aExt.setCy(hEMu);
             }
 
             return inline;
@@ -566,10 +576,11 @@ public class CheapDocxRendering {
         }
 
         // 宽度
-        int width = el.attrInt("cell-width", 0);
-        if (width > 0) {
-            tcPr.setTcW(this.createWidth(width));
-        }
+        // CheapSize cellW = el.attrSize("cell-width"); // PCT
+        // int dxaW = cellW.toDXA(dxt.width, osName);
+        // if (dxaW > 0) {
+        // tcPr.setTcW(this.createWidth(dxaW));
+        // }
 
         // 水平单元格跨越
         int colspan = el.attrInt("colspan", 1);
@@ -578,6 +589,14 @@ public class CheapDocxRendering {
             gridSpan.setVal(BigInteger.valueOf(colspan));
             tcPr.setGridSpan(gridSpan);
         }
+
+        // 计算宽度
+        int cellWpct = 0;
+        int lastI = Math.min(index + colspan, dxt.colsW.length);
+        for (int x = index; x < lastI; x++) {
+            cellWpct += dxt.colsW[x];
+        }
+        OomlMeasure cellW = OomlMeasure.PCT(cellWpct);
 
         // 垂直的单元格（虚格）
         int rowspan = el.attrInt("rowspan", 1);
@@ -608,7 +627,9 @@ public class CheapDocxRendering {
         List<CheapNode> inlines = new LinkedList<>();
 
         DocxInlineContext ic = new DocxInlineContext();
-        ic.maxWemu = width - dxt.tbPadding * 2;
+        OomlMeasure cellWp = cellW.toDXA(dxt.width, osName);
+        OomlMeasure cW = cellWp.sub(dxt.borderV.mul(2)).sub(dxt.cellPaddingV.mul(2));
+        ic.maxWpx = cW.asPX(dxt.width, osName).getInt();
 
         // 逐次处理表格单元格内部的子元素
         if (el.hasChildren()) {
@@ -726,28 +747,33 @@ public class CheapDocxRendering {
 
         // 计算表格边框
         CheapSize bo = el.attrSize("border", "0px");
-        int border = bo.getIntValue();
+        dxt.borderH = bo.toMeasure().asDXA(pageEditWidth, osName);
+        dxt.borderV = bo.toMeasure().asDXA(pageEditHeight, osName);
+        dxt.borderH8p = (int) (dxt.borderH.toPT(pageEditWidth, osName).getValue() * 8);
+        dxt.borderV8p = (int) (dxt.borderV.toPT(pageEditHeight, osName).getValue() * 8);
 
         // 设置表格边框
         TblBorders tBs = factory.createTblBorders();
-        tBs.setTop(createBorder(border));
-        tBs.setBottom(createBorder(border));
-        tBs.setLeft(createBorder(border));
-        tBs.setRight(createBorder(border));
-        tBs.setInsideH(createBorder(border > 0 ? 1 : 0));
-        tBs.setInsideV(createBorder(border > 0 ? 1 : 0));
+        tBs.setTop(createBorder(dxt.borderH8p));
+        tBs.setBottom(createBorder(dxt.borderH8p));
+        tBs.setLeft(createBorder(dxt.borderV8p));
+        tBs.setRight(createBorder(dxt.borderV8p));
+        tBs.setInsideH(createBorder(dxt.borderH8p));
+        tBs.setInsideV(createBorder(dxt.borderV8p));
         tPr.setTblBorders(tBs);
 
         // 设置表格边距
         CheapSize pad = el.attrSize("cellpadding", "0px");
-        int padding = pad.getIntValue();
+        dxt.cellPaddingH = pad.toMeasure();
+        dxt.cellPaddingV = pad.toMeasure();
+        dxt.cellPaddingHdxa = dxt.cellPaddingH.as(OomlMeaUnit.DXA, pageEditWidth, osName).getInt();
+        dxt.cellPaddingVdxa = dxt.cellPaddingV.as(OomlMeaUnit.DXA, pageEditHeight, osName).getInt();
 
-        dxt.tbPadding = padding * 12;
         CTTblCellMar mar = factory.createCTTblCellMar();
-        mar.setTop(createWidth(dxt.tbPadding));
-        mar.setBottom(createWidth(dxt.tbPadding));
-        mar.setLeft(createWidth(dxt.tbPadding));
-        mar.setRight(createWidth(dxt.tbPadding));
+        mar.setTop(createWidth(dxt.cellPaddingHdxa));
+        mar.setBottom(createWidth(dxt.cellPaddingHdxa));
+        mar.setLeft(createWidth(dxt.cellPaddingVdxa));
+        mar.setRight(createWidth(dxt.cellPaddingVdxa));
         tPr.setTblCellMar(mar);
 
         // 得到表格最大列
@@ -758,14 +784,17 @@ public class CheapDocxRendering {
             return;
         }
 
-        // 评估每列的宽度
-        dxt.colsW = this.evalTableColWidths(el, dxt.colN, pageTableWidth);
+        // 评估每列的宽度 (五十倍百分比: PCT)
+        dxt.colsW = this.evalTableColWidths(el, dxt.colN);
 
         // 针对单元格设置 rowSpan(vMerge (restart))
         dxt.grid = this.evalRowSpanAsVMerge(el, dxt.colN, dxt.colsW);
 
         // 设置表格宽度
-        tPr.setTblW(createWidth(pageTableWidth));
+        CheapSize tabW = el.styleSize("width", "100%");
+        dxt.width = tabW.toMeasure().asDXA(this.pageEditWidth, osName);
+        int tableWidth = dxt.width.getInt();
+        tPr.setTblW(createWidth(tableWidth));
         CTTblLayoutType clt = new CTTblLayoutType();
         clt.setType(STTblLayoutType.FIXED);
         tPr.setTblLayout(clt);
@@ -799,7 +828,12 @@ public class CheapDocxRendering {
         partItems.add(table);
     }
 
-    private int[] evalTableColWidths(CheapElement el, int maxCol, int tableWidth) {
+    /**
+     * @param el
+     * @param maxCol
+     * @return 50倍百分比的比例表示的列宽度列表
+     */
+    private int[] evalTableColWidths(CheapElement el, int maxCol) {
         List<CheapElement> cols = el.findElements(el2 -> el2.isStdTagName("COL"));
 
         // 没有的话，尝试找到列最多的那一行
@@ -813,9 +847,11 @@ public class CheapDocxRendering {
             }
         }
 
+        int pageTableWidth = 5000; // 100% = 5000pct
+        int[] ws = new int[maxCol];
+
         // 没指定？
         if (cols.isEmpty()) {
-            int[] ws = new int[maxCol];
             int cellWidth = pageTableWidth / maxCol;
             int remainWidth = pageTableWidth - (cellWidth * maxCol);
             for (int i = 0; i < maxCol; i++) {
@@ -829,60 +865,45 @@ public class CheapDocxRendering {
         }
 
         // 指定了表格列宽度
-        int[] ws = new int[maxCol];
+        double[] wList = new double[maxCol];
         int i = 0;
         for (CheapElement col : cols) {
-            CheapSize wz = col.getStyleObj().getSize("width", null);
+            CheapSize wz = col.styleSize("width", null);
             if (null == wz) {
                 wz = col.attrSize("width", null);
             }
             // 首先计算这个实际列宽
-            int colW;
+            double colW;
             // 没有的话，均分
             if (null == wz) {
-                colW = this.pageTableWidth / ws.length;
+                colW = pageTableWidth / ws.length;
             }
             // 有的话，计算一下
             else {
-                String unit = wz.getUnit();
-                double w = -1;
-                if ("%".equals(unit)) {
-                    w = this.pageTableWidth * wz.getValue() / 100.0;
-                } else if ("rem".equals(unit)) {
-                    w = 100 * wz.getValue() * 6;
-                } else {
-                    w = wz.getValue() * 6;
-                }
-                colW = (int) (w);
+                colW = wz.getValue();
             }
             // 根据列跨度，搞一个宽度分配
             int colspan = col.attrInt("colspan", 1);
-            int colWavg = colW / colspan; // 平均列宽
-            int colRema = colW - (colWavg * (colspan - 1)); // 剩余列宽
+            double colWavg = colW / colspan; // 平均列宽
             // 分配平均列宽
-            for (int x = 1; x < colspan; x++) {
-                ws[i++] = colWavg;
+            for (int x = 0; x < colspan; x++) {
+                wList[i++] = colWavg;
             }
-            // 最后一列分配剩余列宽
-            ws[i++] = colRema;
         }
 
         // 最后根据这些宽度，计算一个比例，然后根据 tableWidth 重新调整列宽
         // 如果不这么做， word 老版本，或者 wps 会不兼容
-        double cellSumWidth = (double) Wnum.sum(ws);
+        double cellSumWidth = (double) Wnum.sum(wList);
         if (cellSumWidth > 0) {
             double[] cellWs = new double[ws.length];
-            for (int x = 0; x < ws.length; x++) {
-                double cellW = (double) ws[x];
+            for (int x = 0; x < wList.length; x++) {
+                double cellW = wList[x];
                 cellWs[x] = cellW / cellSumWidth;
             }
-            int[] reWs = new int[ws.length];
-            double dTableWidth = (double) tableWidth;
             for (int x = 0; x < ws.length; x++) {
                 double s = cellWs[x];
-                reWs[x] = (int) (dTableWidth * s);
+                ws[x] = (int) Math.round(s * pageTableWidth);
             }
-            return reWs;
         }
 
         // 直接返回吧
@@ -918,7 +939,8 @@ public class CheapDocxRendering {
                     }
                 }
                 if (cellW > 0) {
-                    td.attr("cell-width", cellW);
+                    double pctW = ((double) cellW) / 50;
+                    td.attr("cell-width", pctW + "%");
                 }
 
                 // 搞 rowSpan
@@ -964,7 +986,7 @@ public class CheapDocxRendering {
     private CTBorder createBorder(int border) {
         CTBorder b = factory.createCTBorder();
         b.setVal(0 == border ? STBorder.NONE : STBorder.SINGLE);
-        b.setSz(BigInteger.valueOf(6 * border));
+        b.setSz(BigInteger.valueOf(border));
         b.setSpace(BigInteger.valueOf(0));
         b.setColor("auto");
         return b;
@@ -1035,7 +1057,8 @@ public class CheapDocxRendering {
         List<CheapNode> children = el.getChildren();
         List<Object> pContent = p.getContent();
         DocxInlineContext ic = new DocxInlineContext();
-        ic.maxWemu = this.pageTableWidth;
+        ic.maxWpx = this.pageEditWidth.getPixel(null, osName);
+        ic.maxHpx = this.pageEditHeight.getPixel(null, osName);
         return joinInlineElements(pContent, children, ic);
     }
 
@@ -1190,16 +1213,14 @@ public class CheapDocxRendering {
 
         // 得到元素里声明的宽高
         int w = el.attrInt("width", -1);
-        if (w < 0) {
-            w = el.attrInt("wn-obj-width", -1);
-        }
         int h = el.attrInt("height", -1);
-        if (h < 0) {
+        if (w < 0 || h < 0) {
+            w = el.attrInt("wn-obj-width", -1);
             h = el.attrInt("wn-obj-height", -1);
         }
 
         // 得到图片元素
-        Inline img = this.createImage(imgId, w, h, ic.maxWemu, ic.maxHemu);
+        Inline img = this.createImage(imgId, w, h, ic.maxWpx, ic.maxHpx);
         if (null == img) {
             return false;
         }
