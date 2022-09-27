@@ -5,14 +5,13 @@
 # 用法
 
 ```bash
-thing [TsID] update ID 
-  ["$th_nm"]             # 标题
-  [-brief "xxx"]         # 摘要
-  [-ow "xxx"]            # 所有者
-  [-cate CateID]         # 分类
+thing [TsID] update 
+  [ID1 ID2 ...]          # 多个对象，空格分隔
   [-fields "{..}"]       # 自由字段
   [-match "{..}"]        # 更新前检查数据是否匹配
                          # 这个 match 就是一个 AutoMatch
+  [-l]                   # 如果只有一个对象，也要强制输出数组
+  [-cqn]                 # JSON 格式化方式
 #----------------------------------------------------
 ```
 
@@ -21,13 +20,7 @@ thing [TsID] update ID
 
 # 示例
 
-```bash    
-# 改名
-thing xxx update 45ad6823.. "原力觉醒电影票"
-    
-# 修改简介
-thing xxx update 45ad6823.. -brief "会员半价"
-    
-# 修改更多的信息
-thing xxx update 45ad6823.. -fields "x:100,y:99"
+```bash       
+# 修改信息
+thing xxx update 45ad..6823 -fields "x:100,y:99"
 ```

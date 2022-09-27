@@ -6,11 +6,6 @@
 
 ```bash
 thing [TsID] create 
-        [th_nm]              # 填充 th_nm 字段
-        [-tp "xxx"]          # 填充 tp 字段
-        [-brief "xxx"]       # 填充 brief 字段
-        [-ow "xxx"]          # 填充 th_ow 字段
-        [-cate "xxx"]        # 填充 th_cate 字段 
         [-fields "{..}"]     # 其他字段，上述参数如果有值，会将对应字段覆盖
                              # 如果是数组，则创建多个对象
         [-unique "phone"]    # 指定一个唯一字段，如果设置，添加的时候如果发现已经存在

@@ -416,7 +416,22 @@ public class WnThingService {
     }
 
     public WnObj updateThing(String id, NutMap meta, WnExecutable executor, Object match) {
-        UpdateThingAction a = _A(new UpdateThingAction()).setId(id).setMeta(meta);
+        UpdateThingAction a = _A(new UpdateThingAction()).addIds(id).setMeta(meta);
+        a.setConf(this.checkConf());
+        a.setExecutor(executor);
+        a.setMatch(match);
+        List<WnObj> objs = a.invoke();
+        if (null == objs || objs.size() == 0) {
+            return null;
+        }
+        return objs.get(0);
+    }
+
+    public List<WnObj> updateThings(String[] ids,
+                                    NutMap meta,
+                                    WnExecutable executor,
+                                    Object match) {
+        UpdateThingAction a = _A(new UpdateThingAction()).addIds(ids).setMeta(meta);
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);

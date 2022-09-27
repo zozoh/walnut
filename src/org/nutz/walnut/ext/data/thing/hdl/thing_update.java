@@ -16,7 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
-@JvmHdlParamArgs(value = "cnqVNHQ", regex = "^(quiet|overwrite)$")
+@JvmHdlParamArgs(value = "cnqlVNHQ", regex = "^(quiet|overwrite)$")
 public class thing_update implements JvmHdl {
 
     @Override
@@ -28,17 +28,11 @@ public class thing_update implements JvmHdl {
         // 得到字段
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
         NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
-        Things.fillMetaByParams(meta, hc.params);
+        Things.formatMeta(meta);
 
         // 分析参数
-        String id = hc.params.val_check(0);
+        String[] ids = hc.params.vals;
         NutMap match = hc.params.getMap("match");
-
-        // 设置名称
-        String th_nm = hc.params.val(1);
-        if (!Strings.isBlank(th_nm)) {
-            meta.put("th_nm", th_nm);
-        }
 
         // 看看是否需要safe机制
         if (hc.params.has("safe")) {
@@ -66,7 +60,7 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备调用接口
-        hc.output = wts.updateThing(id, meta, sys, match);
+        hc.output = wts.updateThings(ids, meta, sys, match);
     }
 
 }

@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.thing.impl;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
@@ -14,11 +16,11 @@ import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
-public class UpdateThingAction extends ThingAction<WnObj> {
+public class UpdateThingAction extends ThingAction<List<WnObj>> {
 
     protected WnExecutable executor;
 
-    protected String id;
+    protected List<String> ids;
 
     protected NutMap meta;
 
@@ -26,8 +28,18 @@ public class UpdateThingAction extends ThingAction<WnObj> {
 
     protected ThingConf conf;
 
-    public UpdateThingAction setId(String id) {
-        this.id = id;
+    public UpdateThingAction addIds(String... ids) {
+        if (null == this.ids) {
+            this.ids = new LinkedList<>();
+        }
+        for (String id : ids) {
+            this.ids.add(id);
+        }
+        return this;
+    }
+
+    public UpdateThingAction setIds(List<String> ids) {
+        this.ids = ids;
         return this;
     }
 
@@ -52,7 +64,22 @@ public class UpdateThingAction extends ThingAction<WnObj> {
     }
 
     @Override
-    public WnObj invoke() {
+    public List<WnObj> invoke() {
+        if (this.ids == null) {
+            return null;
+        }
+        List<WnObj> objs = new ArrayList<>(this.ids.size());
+        for (String id : this.ids) {
+            WnObj o = this.updateOne(id);
+            objs.add(o);
+        }
+        return objs;
+    }
+
+    private WnObj updateOne(String id) {
+        // 复制一份元数据
+        NutMap meta = this.meta.duplicate();
+
         // 得到对应对 Thing
         WnObj oT = this.checkThIndex(id);
 

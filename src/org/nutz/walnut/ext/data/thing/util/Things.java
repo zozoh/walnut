@@ -26,7 +26,6 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.ZParams;
 
 public abstract class Things {
 
@@ -251,63 +250,6 @@ public abstract class Things {
         } while (io.exists(oDir, fnm));
         // 创建
         return io.create(oDir, fnm, WnRace.FILE);
-    }
-
-    // /**
-    // * 根据格式如 “TsID[/ThID]” 的字符串，得到 ThingSet 或者 Thing 对象
-    // *
-    // * @param io
-    // * IO 接口
-    // * @param str
-    // * 描述字符串，格式为 TsID[/ThID]
-    // * @return ThingSet 或者 Thing索引对象
-    // */
-    // public static WnObj checkRefer(WnIo io, String str) {
-    // String[] ss = Strings.splitIgnoreBlank(str, "/");
-    // // 指定了 TsID
-    // if (ss.length == 1) {
-    // return io.checkById(ss[0]);
-    // }
-    // // 指定了 TsID/ThId
-    // WnObj oTS = io.checkById(ss[0]);
-    // WnObj oTsIndexHome = checkThingSetDir(io, oTS, "index");
-    // return io.check(oTsIndexHome, ss[1]);
-    // }
-
-    /**
-     * 根据参数填充元数据
-     * 
-     * @param meta
-     *            元数据
-     * 
-     * @param params
-     *            参数表
-     * 
-     * @return 填充完毕的元数据
-     */
-    public static NutMap fillMetaByParams(NutMap meta, ZParams params) {
-        // 摘要
-        if (params.has("brief")) {
-            meta.put("brief", params.get("brief"));
-        }
-
-        // 所有者
-        if (params.has("ow")) {
-            meta.put("th_ow", params.get("ow"));
-        }
-
-        // 分类
-        if (params.has("cate")) {
-            meta.put("th_cate", params.get("cate"));
-        }
-
-        // 内容类型
-        if (params.has("tp")) {
-            meta.put("tp", params.get("tp"));
-        }
-
-        // 返回传入的元数据
-        return formatMeta(meta);
     }
 
     public static NutMap formatMeta(NutMap meta) {
