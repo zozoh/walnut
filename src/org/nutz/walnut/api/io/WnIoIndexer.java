@@ -23,6 +23,8 @@ public interface WnIoIndexer {
 
     boolean existsId(String id);
 
+    boolean exists(WnObj p, String ph);
+
     WnObj checkById(String id);
 
     WnObj check(WnObj p, String path);

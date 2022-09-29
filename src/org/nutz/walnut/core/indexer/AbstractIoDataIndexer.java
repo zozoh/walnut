@@ -594,8 +594,17 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     public WnObj rename(WnObj o, String nm, int mode) {
         Wobj.assertValidName(nm);
         String ph = o.path();
-        ph = Files.renamePath(ph, nm);
-        return move(o, ph, mode);
+        String ph2 = Files.renamePath(ph, nm);
+        // 防守
+        if (ph.equals(ph2)) {
+            return o;
+        }
+        // 检查重名
+        if (this.exists(null, ph2)) {
+            throw Er.create("e.io.obj.exists", ph2);
+        }
+        // 执行移动
+        return move(o, ph2, mode);
     }
 
     @Override

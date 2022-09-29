@@ -52,6 +52,12 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     @Override
+    public boolean exists(WnObj p, String ph) {
+        WnObj o = this.fetch(p, ph);
+        return o != null;
+    }
+
+    @Override
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
         // DEPTH_LEAF_FIRST
         if (WalkMode.DEPTH_LEAF_FIRST == mode) {

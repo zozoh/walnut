@@ -575,13 +575,6 @@ public class CheapDocxRendering {
             catch (Exception e) {}
         }
 
-        // 宽度
-        // CheapSize cellW = el.attrSize("cell-width"); // PCT
-        // int dxaW = cellW.toDXA(dxt.width, osName);
-        // if (dxaW > 0) {
-        // tcPr.setTcW(this.createWidth(dxaW));
-        // }
-
         // 水平单元格跨越
         int colspan = el.attrInt("colspan", 1);
         if (colspan > 1) {
@@ -597,6 +590,17 @@ public class CheapDocxRendering {
             cellWpct += dxt.colsW[x];
         }
         OomlMeasure cellW = OomlMeasure.PCT(cellWpct);
+        OomlMeasure cellWp = cellW.toDXA(dxt.width, osName);
+
+        // 宽度
+        TblWidth tW = this.createWidth(cellWp.getInt());
+        tcPr.setTcW(tW);
+
+        // CheapSize cellW = el.attrSize("cell-width"); // PCT
+        // int dxaW = cellW.toDXA(dxt.width, osName);
+        // if (dxaW > 0) {
+        // tcPr.setTcW(this.createWidth(dxaW));
+        // }
 
         // 垂直的单元格（虚格）
         int rowspan = el.attrInt("rowspan", 1);
@@ -627,7 +631,6 @@ public class CheapDocxRendering {
         List<CheapNode> inlines = new LinkedList<>();
 
         DocxInlineContext ic = new DocxInlineContext();
-        OomlMeasure cellWp = cellW.toDXA(dxt.width, osName);
         OomlMeasure cW = cellWp.sub(dxt.borderV.mul(2)).sub(dxt.cellPaddingV.mul(2));
         ic.maxWpx = cW.asPX(dxt.width, osName).getInt();
 

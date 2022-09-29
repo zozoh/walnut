@@ -284,8 +284,7 @@ public class WnIoImpl2 implements WnIo {
             p = mappings.getRoot();
         }
         WnIoMapping im = mappings.checkMapping(p);
-        WnObj obj = im.getIndexer().fetch(p, path);
-        return null != obj;
+        return im.getIndexer().exists(p, path);
     }
 
     @Override
@@ -555,7 +554,29 @@ public class WnIoImpl2 implements WnIo {
         Wobj.assertValidName(nm);
         String ph = o.path();
         ph = Files.renamePath(ph, nm);
-        return this.move(o, ph, mode);
+
+        // 得到自身的原始的父
+        WnObj oldP = o.parent();
+
+        // TODO 这里还没考虑到在不同的映射间怎么移动的问题
+        try {
+            WnObjMapping om = mappings.checkById(o.id());
+            WnIoIndexer indexer = om.getSelfIndexer();
+            return indexer.rename(o, ph);
+        }
+        // 触发同步
+        finally {
+            if (Wn.MV.isSYNC(mode)) {
+                long now = Wn.now();
+                // 触发同步时间修改
+                Wn.Io.update_ancestor_synctime(this, o, false, now);
+
+                // 如果对象换了父节点，之前的父节点也要被触发修改时间
+                if (!oldP.isSameId(o.parentId())) {
+                    Wn.Io.update_ancestor_synctime(this, oldP, true, now);
+                }
+            }
+        }
     }
 
     @Override
