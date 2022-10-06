@@ -79,6 +79,7 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.cheap.dom.CheapText;
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
+import org.nutz.walnut.cheap.dom.docx.en.DocxBlockContext;
 import org.nutz.walnut.cheap.dom.docx.en.DocxInlineContext;
 import org.nutz.walnut.cheap.dom.docx.en.DocxTable;
 import org.nutz.walnut.cheap.dom.docx.num.DocxAbstractNum;
@@ -411,10 +412,19 @@ public class CheapDocxRendering {
         }
     }
 
-    private void joinP(List<Object> partItems, CheapElement el) {
+    private void joinP(List<Object> partItems, CheapElement el, DocxBlockContext dbc) {
         String styleId = this.getStyleId(el);
         String align = el.getStyle("text-align");
         boolean inCell = el.attrBoolean("in-table-cell");
+
+        // 设置默认的 align
+        if (Ws.isBlank(align)) {
+            if (null != dbc) {
+                align = dbc.align;
+            } else {
+                align = "justify";
+            }
+        }
 
         // 首行缩进
         int indent = -1;
@@ -470,7 +480,7 @@ public class CheapDocxRendering {
 
         // 搞子节点：增加级别
         for (CheapElement child : el.getChildElements()) {
-            this.dispatchBlock(partItems, child);
+            this.dispatchBlock(partItems, child, null);
         }
     }
 
@@ -584,16 +594,14 @@ public class CheapDocxRendering {
         }
 
         // 计算宽度
-        int cellWpct = 0;
-        int lastI = Math.min(index + colspan, dxt.colsW.length);
+        int cellWdxa = 0;
+        int lastI = Math.min(index + colspan, dxt.colsDxas.length);
         for (int x = index; x < lastI; x++) {
-            cellWpct += dxt.colsW[x];
+            cellWdxa += dxt.colsDxas[x];
         }
-        OomlMeasure cellW = OomlMeasure.PCT(cellWpct);
-        OomlMeasure cellWp = cellW.toDXA(dxt.width, osName);
 
         // 宽度
-        TblWidth tW = this.createWidth(cellWp.getInt());
+        TblWidth tW = this.createWidth(cellWdxa);
         tcPr.setTcW(tW);
 
         // CheapSize cellW = el.attrSize("cell-width"); // PCT
@@ -621,8 +629,9 @@ public class CheapDocxRendering {
         }
 
         // 获取单元格段落样式:水平居中
-        String align = el.attr("align");
-        align = style.getString("text-align", align);
+        DocxBlockContext dbc = new DocxBlockContext();
+        dbc.align = el.attr("align");
+        dbc.align = style.getString("text-align", dbc.align);
 
         // 依次搞单元格内容
         List<Object> tdContent = td.getContent();
@@ -631,8 +640,8 @@ public class CheapDocxRendering {
         List<CheapNode> inlines = new LinkedList<>();
 
         DocxInlineContext ic = new DocxInlineContext();
-        OomlMeasure cW = cellWp.sub(dxt.borderV.mul(2)).sub(dxt.cellPaddingV.mul(2));
-        ic.maxWpx = cW.asPX(dxt.width, osName).getInt();
+        // 计算单元格内最大的可用宽度，以便缩放图片等对象
+        ic.maxWpx = cellWdxa - dxt.borderV.getInt() * 2 - dxt.cellPaddingV.getInt() * 2;
 
         // 逐次处理表格单元格内部的子元素
         if (el.hasChildren()) {
@@ -649,17 +658,13 @@ public class CheapDocxRendering {
                         inlines.add(ce);
                         continue;
                     }
-                    // 让下面的块也都具备统一的排列方式
-                    if (!Ws.isBlank(align)) {
-                        ce.setStyle("text-align", align);
-                    }
                     // 标识一下这个元素在表格内，譬如 P，以便强制去掉首行缩进
                     ce.attr("in-table-cell", true);
                 }
                 // 处理块元素之前，看看有没有必要先处理一下已有的元素
                 if (!inlines.isEmpty()) {
                     P p = factory.createP();
-                    this.setPStyle(p, styleId, align);
+                    this.setPStyle(p, styleId, dbc.align);
                     List<Object> pContent = p.getContent();
                     if (joinInlineElements(pContent, inlines, ic)) {
                         tdContent.add(p);
@@ -668,14 +673,14 @@ public class CheapDocxRendering {
                 }
 
                 // 处理块元素
-                this.dispatchBlock(tdContent, node);
+                this.dispatchBlock(tdContent, node, dbc);
             }
         }
 
         // 处理最后一个
         if (!inlines.isEmpty()) {
             P p = factory.createP();
-            this.setPStyle(p, styleId, align);
+            this.setPStyle(p, styleId, dbc.align);
             List<Object> pContent = p.getContent();
             if (joinInlineElements(pContent, inlines, ic)) {
                 tdContent.add(p);
@@ -798,13 +803,18 @@ public class CheapDocxRendering {
         dxt.width = tabW.toMeasure().asDXA(this.pageEditWidth, osName);
         int tableWidth = dxt.width.getInt();
         tPr.setTblW(createWidth(tableWidth));
+
+        // 转换每列的单位（单元格输出的时候，用的到）
+        dxt.convertColsWidthToDxa(osName);
+
+        // 设置表格布局
         CTTblLayoutType clt = new CTTblLayoutType();
         clt.setType(STTblLayoutType.FIXED);
         tPr.setTblLayout(clt);
         // 设置单元格宽度
         TblGrid tGrid = factory.createTblGrid();
-        for (int i = 0; i < dxt.colsW.length; i++) {
-            int w = dxt.colsW[i];
+        for (int i = 0; i < dxt.colsDxas.length; i++) {
+            int w = dxt.colsDxas[i]; // In DXA
             TblGridCol col = factory.createTblGridCol();
             col.setW(BigInteger.valueOf(w));
             tGrid.getGridCol().add(col);
@@ -1010,7 +1020,7 @@ public class CheapDocxRendering {
         if (null == styleId) {
             if (el.hasChildren()) {
                 for (CheapNode child : el.getChildren()) {
-                    dispatchBlock(partItems, child);
+                    dispatchBlock(partItems, child, null);
                 }
             }
         }
@@ -1341,7 +1351,7 @@ public class CheapDocxRendering {
         return re;
     }
 
-    private void dispatchBlock(List<Object> partItems, CheapNode node) {
+    private void dispatchBlock(List<Object> partItems, CheapNode node, DocxBlockContext dbc) {
         // System.out.printf("dispatchBlock: %s\n", node.toBrief());
         if (node.isText()) {
             this.joinText(partItems, (CheapText) node);
@@ -1365,7 +1375,7 @@ public class CheapDocxRendering {
         }
         // 处理段落
         else if (el.isStdTagName("P")) {
-            joinP(partItems, el);
+            joinP(partItems, el, dbc);
         }
         // 处理表格
         else if (el.isStdTagName("TABLE")) {
@@ -1456,7 +1466,7 @@ public class CheapDocxRendering {
         MainDocumentPart part = wp.getMainDocumentPart();
         List<Object> partItems = part.getContent();
         for (CheapNode node : doc.body().getChildren()) {
-            this.dispatchBlock(partItems, node);
+            this.dispatchBlock(partItems, node, null);
         }
 
         // 处理文档最后一个编号设定
