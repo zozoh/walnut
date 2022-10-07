@@ -422,7 +422,15 @@ public class CheapDocxRendering {
             if (null != dbc) {
                 align = dbc.align;
             } else {
-                align = "justify";
+                String headName = el.attr("doc-heading");
+                // 文档标题（副标题）默认居中
+                if ("title".equals(headName) || "sub-title".equals(headName)) {
+                    align = "center";
+                }
+                // 否则默认两端对齐
+                else {
+                    align = "justify";
+                }
             }
         }
 
