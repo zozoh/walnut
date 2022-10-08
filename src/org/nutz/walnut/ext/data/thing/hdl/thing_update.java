@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.thing.hdl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
@@ -15,6 +16,7 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wlang;
 
 @JvmHdlParamArgs(value = "cnqlVNHQ", regex = "^(quiet|overwrite)$")
 public class thing_update implements JvmHdl {
@@ -60,7 +62,16 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备调用接口
-        hc.output = wts.updateThings(ids, meta, sys, match);
+        List<WnObj> list = wts.updateThings(ids, meta, sys, match);
+
+        // 如果是一个对象，并且并未强制 -l，则输出第一个对象
+        if (list.size() == 1 && !hc.params.is("l")) {
+            hc.output = list.get(0);
+        }
+        // 那么就保持输出为一个列表
+        else {
+            hc.output = list;
+        }
     }
 
 }
