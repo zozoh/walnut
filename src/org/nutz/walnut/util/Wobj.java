@@ -220,67 +220,67 @@ public class Wobj {
 
             // 快速字段: 扩展字段加上 nm 字段
             if ("NM".equals(md)) {
-                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]|local"
                       + "|pid|c|m|g|md|tp|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm))$";
             }
             // 快速字段: 扩展字段加上 nm/tp 字段
             else if ("TP".equals(md)) {
-                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]|local"
                       + "|pid|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/ph 字段
             else if ("PH".equals(md)) {
-                str = "!^(race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(race|ct|lm|sha1|data|d[0-9]|local"
                       + "|pid|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/ct 字段
             else if ("TPCT".equals(md)) {
-                str = "!^(ph|race|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|lm|sha1|data|d[0-9]|local"
                       + "|pid|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/pid 字段
             else if ("PID".equals(md)) {
-                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]|local"
                       + "|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/pid 字段
             else if ("Q".equals(md)) {
-                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]|local"
                       + "|c|m|g|md|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm/tp/sha1/mime 等字段
             else if ("SHA1".equals(md)) {
-                str = "!^(ph|race|ct|data|d[0-9]"
+                str = "!^(ph|race|ct|data|d[0-9]|local"
                       + "|pid|c|m|g|md"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段
             else if ("TC".equals(md)) {
-                str = "!^(ph|race|data|d[0-9]"
+                str = "!^(ph|race|data|d[0-9]|local"
                       + "|pid|c|m|g|md"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
             }
             // 快速字段: 扩展字段加上 nm 字段以及时间字段和内容字段以及 Thing 相关字段
             else if ("THC".equals(md)) {
-                str = "!^(ph|race|data|d[0-9]|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
+                str = "!^(ph|race|data|d[0-9]|local|pid|c|m|g|md|ln|mnt|expi|passwd|salt)$";
             }
             // 默认快速字段: 扩展字段
             else {
-                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]"
+                str = "!^(ph|race|ct|lm|sha1|data|d[0-9]|local"
                       + "|nm|pid|c|m|g|md|tp|mime"
                       + "|ln|mnt|expi|passwd|salt"
                       + "|th_(set|live|set_nm|auto_select))$";
