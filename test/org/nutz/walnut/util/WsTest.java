@@ -14,6 +14,14 @@ import org.nutz.walnut.util.callback.WnStrTokenCallback;
 public class WsTest {
 
     @Test
+    public void test_decodeHtmlEntities() {
+        assertEquals("A&B", Ws.decodeHtmlEntities("A&amp;B"));
+        assertEquals("A&ampB", Ws.decodeHtmlEntities("A&ampB"));
+        
+        assertEquals("\n", Ws.decodeHtmlEntities("&#10;"));
+    }
+
+    @Test
     public void test_splitAttrMap2() {
         NutBean map = Ws.splitAttrMap("style=color:red; align=center contenteditable");
         assertEquals("color:red;", map.get("style"));

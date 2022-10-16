@@ -58,6 +58,19 @@ public class ooml_mapping extends OomlFilter {
         else {
             fc.mapping = null;
         }
+
+        // 设置自定义的默认字段
+        if (params.has("defaults")) {
+            NutMap defaults = params.getMap("defaults");
+            fc.mapping.setDefaultMeta(defaults);
+        }
+
+        // 设置自定义的强制覆盖值
+        if (params.has("override")) {
+            NutMap override = params.getMap("override");
+            fc.mapping.setOverrideMeta(override);
+        }
+
     }
 
 }

@@ -3,11 +3,11 @@
       "data": [
         {
           "value": false,
-          "text": "否"
+          "text": "i18n:no"
         },
         {
           "value": true,
-          "text": "是"
+          "text": "i18n:yes"
         }
       ]
     },
@@ -15,11 +15,11 @@
       "data": [
         {
           "value": true,
-          "text": "是"
+          "text": "i18n:yes"
         },
         {
           "value": false,
-          "text": "否"
+          "text": "i18n:no"
         }
       ]
     },

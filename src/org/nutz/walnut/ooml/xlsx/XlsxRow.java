@@ -59,7 +59,8 @@ public class XlsxRow {
                 } else {
                     val = cell.getValue();
                     if (null != val && val instanceof String) {
-                        val = val.toString().trim();
+                        String s2 = val.toString().trim();
+                        val = Ws.decodeHtmlEntities(s2);
                     }
                 }
                 String k2 = header.get(key);
