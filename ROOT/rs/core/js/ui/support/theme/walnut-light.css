@@ -1,0 +1,161 @@
+.cmd-log pre {
+  padding: 8px;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  font-size: 1em;
+  line-height: 1.8em;
+  background: #000;
+  color: #DDD;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+  -webkit-font-smoothing: auto;
+  white-space: pre-wrap;
+}
+.cmd-log pre .msg-info {
+  color: #CCC;
+}
+.cmd-log pre .msg-err {
+  color: #F00;
+}
+.wn-process-panel {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #EEE;
+  color: #666;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+  position: relative;
+}
+.wn-process-panel > header {
+  padding: 12px;
+  font-size: 64px;
+  text-align: center;
+}
+.wn-process-panel > header > h4 {
+  padding: 12px;
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+}
+.wn-process-panel > header > div {
+  display: none;
+  padding: 8px;
+  height: 100px;
+}
+.wn-process-panel > header > [st="ing"] {
+  color: #888;
+}
+.wn-process-panel > header > [st="ok"] {
+  color: #080;
+}
+.wn-process-panel > header > [st="fail"] {
+  color: #F00;
+}
+.wn-process-panel > section {
+  padding: 6px 24px;
+}
+.wn-process-panel > section > .wpp-bar {
+  width: 100%;
+  position: relative;
+  padding-top: 14.5px;
+  padding-left: 80px;
+}
+.wn-process-panel > section > .wpp-bar > em {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 32px;
+  height: 32px;
+  width: 80px;
+  text-align: right;
+  color: #08F;
+  font-style: normal;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+}
+.wn-process-panel > section > .wpp-bar > em:after {
+  display: inline;
+  margin-left: 12px;
+  content: "";
+}
+.wn-process-panel > section > .wpp-bar > b {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #FFF;
+}
+.wn-process-panel > section > .wpp-bar > b > i {
+  display: block;
+  height: 3px;
+  background: #0F0;
+}
+.wn-process-panel > section > .wpp-msg {
+  padding: 8px 8px 8px 80px;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+  color: #888;
+}
+.wn-process-panel > pre {
+  opacity: 0;
+  transition: 0.3s;
+  position: absolute;
+  bottom: 24px;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  margin: 0;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.9);
+  color: #FFF;
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 12px;
+  -webkit-font-smoothing: auto;
+  white-space: pre-wrap;
+}
+.wn-process-panel > footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 24px;
+  line-height: 24px;
+  font-size: 14px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+.wn-process-panel > footer:hover {
+  font-size: 16px;
+}
+.wn-process-panel[st="ing"] footer {
+  color: #000;
+}
+.wn-process-panel[st="ing"] footer > i:first-child {
+  display: none;
+}
+.wn-process-panel[st="ing"] header [st="ing"] {
+  display: block;
+}
+.wn-process-panel[st="ok"] header [st="ok"] {
+  display: block;
+}
+.wn-process-panel[st="ok"] footer {
+  color: #080;
+}
+.wn-process-panel[st="ok"] footer > i:first-child {
+  display: none;
+}
+.wn-process-panel[st="fail"] header [st="fail"] {
+  display: block;
+}
+.wn-process-panel[st="fail"] footer {
+  color: #F00;
+}
+.wn-process-panel[show-log] > pre {
+  opacity: 1;
+  top: 0;
+}
