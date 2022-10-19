@@ -17,7 +17,6 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -49,7 +48,6 @@ import org.nutz.walnut.core.stream.WnIoOutputStream;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
-import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.util.Ws;
 
 public class WnIoImpl2 implements WnIo {
@@ -551,9 +549,11 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        Wobj.assertValidName(nm);
-        String ph = o.path();
-        ph = Files.renamePath(ph, nm);
+        // zozoh@2022-10-19: 不知道为啥脑子抽了，应该在 Indexer 里检查
+        // IO 层没必要检查名称并路径化
+        // Wobj.assertValidName(nm);
+        // String ph = o.path();
+        // ph = Files.renamePath(ph, nm);
 
         // 得到自身的原始的父
         WnObj oldP = o.parent();
@@ -562,7 +562,7 @@ public class WnIoImpl2 implements WnIo {
         try {
             WnObjMapping om = mappings.checkById(o.id());
             WnIoIndexer indexer = om.getSelfIndexer();
-            return indexer.rename(o, ph);
+            return indexer.rename(o, nm);
         }
         // 触发同步
         finally {

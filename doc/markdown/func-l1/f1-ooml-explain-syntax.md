@@ -49,7 +49,7 @@ author: zozoh
 通过判断 `<v:shape>` 的 `alt` 属性，是否以 `=` 开始，就能决定这个图片是否为动态的。
 如果是动态图片，会执行下面的展开逻辑：
 
-```
+```bash
 1. 找到子节点 `<v:imagedata>` 得到 `r:id` 属性
 2. 根据 rId 在 document.xml.rels 文件中找到 <Relationship>，并得到对应的图片路径 media/image1.png
 3. 找到这个图片所在的条目
@@ -57,8 +57,6 @@ author: zozoh
 3.2 否则写入嵌入图片后，将其后缀名进行修改
 3.3 并且，需要确保 [Content_Types].xml 文件中声明了这个扩展名所对应的 MIME 类型
 ```
-
-
 
 # OOML模板展开的逻辑
 
