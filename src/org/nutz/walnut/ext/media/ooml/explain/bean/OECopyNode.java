@@ -11,7 +11,7 @@ public class OECopyNode extends OENode {
 
     @Override
     public void renderTo(CheapElement pEl, NutBean vars) {
-        CheapElement el = this.refer.clone();
+        CheapElement el = this.refer.cloneSelf();
         pEl.append(el);
 
         // 循环子节点

@@ -14,11 +14,11 @@ public class CheapComment extends CheapText {
 
     @Override
     public CheapComment clone() {
-        return this.cloneSelf();
+        return this.cloneNode();
     }
 
     @Override
-    public CheapComment cloneSelf() {
+    public CheapComment cloneNode() {
         return new CheapComment(this.text);
     }
 

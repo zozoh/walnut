@@ -18,11 +18,11 @@ public class CheapText extends CheapRawData {
 
     @Override
     public CheapText clone() {
-        return this.cloneSelf();
+        return this.cloneNode();
     }
 
     @Override
-    public CheapText cloneSelf() {
+    public CheapText cloneNode() {
         return new CheapText(this.text);
     }
 

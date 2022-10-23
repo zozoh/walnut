@@ -29,11 +29,11 @@ public class CheapRawData extends CheapNode {
 
     @Override
     public CheapRawData clone() {
-        return this.cloneSelf();
+        return this.cloneNode();
     }
 
     @Override
-    public CheapRawData cloneSelf() {
+    public CheapRawData cloneNode() {
         return new CheapRawData(this.text);
     }
 
