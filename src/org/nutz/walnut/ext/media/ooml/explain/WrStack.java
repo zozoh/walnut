@@ -5,23 +5,79 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyText;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OENode;
+import org.nutz.walnut.ext.media.ooml.explain.bean.OEPicture;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEPlaceholder;
+import org.nutz.walnut.ooml.OomlEntry;
+import org.nutz.walnut.ooml.OomlPackage;
+import org.nutz.walnut.ooml.OomlRel;
+import org.nutz.walnut.ooml.OomlRels;
 import org.nutz.walnut.util.Ws;
 
 public class WrStack {
+
+    private OomlPackage ooml;
+
+    private OomlEntry entry;
 
     private StringBuilder sb;
 
     private LinkedList<StackItem> items;
 
-    public WrStack() {
+    public WrStack(OomlPackage ooml, OomlEntry entry) {
+        this.ooml = ooml;
+        this.entry = entry;
         this.clear();
     }
 
     static Pattern P_V = Pattern.compile("\\$\\{([^?}]+)(\\?([^}]*))?\\}");
+
+    private OECopyNode tryDrawing(CheapElement r) {
+        CheapElement drawing = r.getFirstChildElement("w:drawing");
+        if (null == drawing) {
+            return null;
+        }
+        // 找到 Link
+        CheapElement hlink = drawing.findElement(el -> {
+            return el.isTagName("a:hlinkClick");
+        });
+        if (null == hlink) {
+            return null;
+        }
+        // 找到链接目标
+        String rId = hlink.attr("r:id");
+        OomlRels rels = ooml.loadRelationships(entry);
+        OomlRel rel = rels.get(rId);
+        if (null == rel) {
+            return null;
+        }
+        String target = rel.getTarget();
+        if (null == target || !target.startsWith("=")) {
+            return null;
+        }
+        String varName = target.substring(1).trim();
+
+        OEPicture pic = new OEPicture();
+        pic.setVarName(varName);
+        pic.setRefer(drawing);
+
+        // 生成返回
+        OECopyNode cr = new OECopyNode();
+        cr.setRefer(r);
+
+        CheapElement rPr = r.getFirstChildElement("w:rPr");
+        if (null != rPr) {
+            OECopyNode crPr = new OECopyNode();
+            crPr.setRefer(rPr);
+            cr.addChild(crPr);
+        }
+        cr.addChild(pic);
+
+        return cr;
+    }
 
     public void push(OENode pNode, CheapElement r) {
         // 图像or超链导致清栈
@@ -164,48 +220,35 @@ public class WrStack {
         CheapElement r;
         String str;
 
+        void genNodeForElement(OENode pNode, CheapNode node) {
+            if (node.isElement()) {
+                CheapElement el = (CheapElement) node;
+                OECopyNode t = new OECopyNode();
+                t.setRefer(el);
+                pNode.addChild(t);
+                if (el.isTagName("w:t")) {
+                    OECopyText ct = new OECopyText();
+                    ct.setText(str);
+                    t.addChild(ct);
+                }
+                // 其他节点
+                else {
+                    for (CheapNode child : el.getChildren()) {
+                        genNodeForElement(t, child);
+                    }
+                }
+            }
+            // 文本
+            else if (node.isText()) {
+                String txt = node.getText();
+                OECopyText ct = new OECopyText();
+                ct.setText(txt);
+                pNode.addChild(ct);
+            }
+        }
+
         void joinToNode(OENode pNode) {
-            // 自己要 copy
-            OECopyNode cn = new OECopyNode();
-            cn.setRefer(r);
-
-            // 子节点的处理
-            r.eachNode(n -> {
-                if (n.isText()) {
-                    String s = n.getText();
-                    if (!Ws.isBlank(s)) {
-                        OECopyText ct = new OECopyText();
-                        ct.setText(s);
-                        cn.addChild(ct);
-                    }
-                    return false;
-                }
-                if (n.isElement()) {
-                    CheapElement el = (CheapElement) n;
-                    if (el.isTagName("w:t")) {
-                        String s = str;
-                        OECopyNode t = new OECopyNode();
-                        t.setRefer(el);
-
-                        OECopyText ct = new OECopyText();
-                        ct.setText(s);
-                        t.addChild(ct);
-
-                        cn.addChild(t);
-                        return false;
-                    }
-                    // 其他复制
-                    else {
-                        OECopyNode cs = new OECopyNode();
-                        cs.setRefer(el);
-                        cn.addChild(cs);
-                    }
-                }
-                return true;
-            });
-
-            // 搞定
-            pNode.addChild(cn);
+            this.genNodeForElement(pNode, r);
         }
 
     }
