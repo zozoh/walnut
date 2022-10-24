@@ -5,6 +5,12 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class OECopyNode extends OENode {
 
+    public static OECopyNode create(CheapElement el) {
+        OECopyNode cn = new OECopyNode();
+        cn.setRefer(el);
+        return cn;
+    }
+
     public OECopyNode() {
         this.type = OENodeType.COPY_NODE;
     }

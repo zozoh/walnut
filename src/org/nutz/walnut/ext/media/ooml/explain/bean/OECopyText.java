@@ -5,6 +5,12 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class OECopyText extends OEItem {
 
+    public static OECopyText create(String text) {
+        OECopyText ct = new OECopyText();
+        ct.setText(text);
+        return ct;
+    }
+
     private String text;
 
     public OECopyText() {
