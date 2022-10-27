@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,6 +10,7 @@ import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class OEHyper extends OEVarItem {
 
@@ -15,10 +18,40 @@ public class OEHyper extends OEVarItem {
 
     private String altText;
 
-    private OECopyNode copy;
+    private List<CheapElement> moreRuns;
 
     public OEHyper() {
         this.type = OENodeType.HYPER;
+        this.moreRuns = new LinkedList<>();
+    }
+
+    private static final String R2 = "HYPERLINK"
+                                     + "\\s*\""
+                                     + "=([^\":]+)"
+                                     + ":"
+                                     + "([^\"]+)"
+                                     + "\"\\s*\\\\o\\s*"
+                                     + "\"([^\"]+)\"";
+    private static final Pattern P2 = Pattern.compile(R2);
+
+    public boolean setMatchAndAltText(String input) {
+        String trim = Ws.trim(input);
+
+        // 2/36 Regin:0/36
+        // 0:[ 2, 36) `HYPERLINK "=num:189" \o "hahahaha"`
+        // 1:[ 14, 17) `num`
+        // 2:[ 18, 21) `189`
+        // 3:[ 27, 35) `hahahaha`
+        Matcher m = P2.matcher(trim);
+        if (!m.find()) {
+            return false;
+        }
+
+        String maInput = m.group(2);
+        this.setVarName(m.group(1));
+        this.match = AutoMatch.parse(maInput);
+        this.altText = m.group(3);
+        return true;
     }
 
     public WnMatch getMatch() {
@@ -29,20 +62,35 @@ public class OEHyper extends OEVarItem {
         this.match = match;
     }
 
-    private static final String REG = "^sym\\s*\\("
-                                      + "\\s*(\\d+)"
-                                      + "\\s*"
-                                      + "(:\\s*(.+)\\s*)?"
-                                      + "\\)$";
-    private static final Pattern P = Pattern.compile(REG);
+    public void addMoreRun(CheapElement r) {
+        moreRuns.add(r);
+    }
+
+    public boolean hasMoreRuns() {
+        return null != moreRuns && !moreRuns.isEmpty();
+    }
+
+    public List<CheapElement> getMoreRuns() {
+        return moreRuns;
+    }
+
+    private static final String R1 = "^sym\\s*\\("
+                                     + "\\s*(\\d+)"
+                                     + "\\s*"
+                                     + "(:\\s*(.+)\\s*)?"
+                                     + "\\)$";
+    private static final Pattern P1 = Pattern.compile(R1);
 
     @Override
     public void renderTo(CheapElement pEl, NutBean vars) {
+        // 复制到目标节点
+        CheapElement el = refer.clone();
+        pEl.append(el);
+
         Object val = vars.get(varName);
         // 采用设置的文字内容
         if (null != match && match.match(val)) {
             if (!Ws.isBlank(altText)) {
-                CheapElement el = refer.clone();
                 CheapElement tOrSym = el.findElement(child -> {
                     return child.isTag("w:v") || child.isTag("w:sym");
                 });
@@ -53,7 +101,7 @@ public class OEHyper extends OEVarItem {
                 // 1:[ 7, 11) `0052`
                 // 2:[ 13, 30) `: Wingdings 2 `
                 // 3:[ 16, 30) `Wingdings 2 `
-                Matcher m = P.matcher(altText);
+                Matcher m = P1.matcher(altText);
                 if (m.find()) {
                     String chav = m.group(1);
                     String font = Ws.trim(m.group(3));
@@ -74,10 +122,15 @@ public class OEHyper extends OEVarItem {
                 tOrSym.remove();
             }
         }
-        // 否则，复制
+        // 采用默认文字设定
         else {
-            copy.renderTo(pEl, vars);
+            if (null != this.moreRuns) {
+                for (CheapElement mr : moreRuns) {
+                    pEl.append(mr.clone());
+                }
+            }
         }
+
     }
 
 }

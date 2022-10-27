@@ -1,13 +1,16 @@
 package org.nutz.walnut.ext.media.ooml.explain;
 
+import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Encoding;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyText;
+import org.nutz.walnut.ext.media.ooml.explain.bean.OEHyper;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OENode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEPicture;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEPlaceholder;
@@ -26,6 +29,8 @@ public class WrStack {
     private StringBuilder sb;
 
     private LinkedList<StackItem> items;
+
+    private OEHyper hyper;
 
     public WrStack(OomlPackage ooml, OomlEntry entry) {
         this.ooml = ooml;
@@ -77,6 +82,60 @@ public class WrStack {
         cr.addChild(pic);
 
         return cr;
+    }
+
+    private boolean tryHyper(OENode pNode, CheapElement r) {
+        CheapElement fldChar = r.getFirstChildElement("w:fldChar");
+        String fcType = null;
+        if (null != fldChar) {
+            fcType = fldChar.attr("w:fldCharType");
+        }
+        // 如果已经在超链里，等到结束
+        if (null != hyper) {
+            // 结束
+            if ("end".equals(fcType)) {
+                pNode.addChild(hyper);
+                this.hyper = null;
+            }
+            // 超链
+            CheapElement instrText = r.getFirstChildElement("w:instrText");
+            if (null != instrText) {
+                String text = instrText.getText();
+                text = Ws.decodeHtmlEntities(text);
+                text = URLDecoder.decode(text, Encoding.CHARSET_UTF8);
+
+                // 尝试赋值
+                if (hyper.setMatchAndAltText(text)) {
+                    return true;
+                }
+
+                // 回退为普通超链
+                items.push(gen_item(hyper.getRefer()));
+                if (hyper.hasMoreRuns()) {
+                    for (CheapElement mr : hyper.getMoreRuns()) {
+                        items.push(gen_item(mr));
+                    }
+                }
+                this.hyper = null;
+                return false;
+
+            }
+            // 分割以及其他普通run
+            hyper.addMoreRun(r);
+            return true;
+        }
+        // 开始一个超链
+        else if ("begin".equals(fcType)) {
+            // 清理之前
+            this.joinAllAndClear(pNode);
+            // 建立一个对象，同时也收集项目
+            // 以便普通超链接回退
+            this.hyper = new OEHyper();
+            this.hyper.setRefer(r);
+            return true;
+        }
+        // 其他，不接受
+        return false;
     }
 
     public void push(OENode pNode, CheapElement r) {
