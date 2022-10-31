@@ -96,6 +96,7 @@ public class WrStack {
             if ("end".equals(fcType)) {
                 pNode.addChild(hyper);
                 this.hyper = null;
+                return true;
             }
             // 超链
             CheapElement instrText = r.getFirstChildElement("w:instrText");
@@ -116,9 +117,9 @@ public class WrStack {
                         items.push(gen_item(mr));
                     }
                 }
+                items.push(gen_item(r));
                 this.hyper = null;
-                return false;
-
+                return true;
             }
             // 分割以及其他普通run
             hyper.addMoreRun(r);
@@ -139,7 +140,17 @@ public class WrStack {
     }
 
     public void push(OENode pNode, CheapElement r) {
-        // 图像or超链导致清栈
+        // 图像导致清栈
+        OECopyNode drawing = tryDrawing(r);
+        if (null != drawing) {
+            this.joinAllAndClear(pNode);
+            pNode.addChild(drawing);
+            return;
+        }
+        // 超链导致清栈
+        if (tryHyper(pNode, r)) {
+            return;
+        }
 
         // 其普通元素压栈后看占位符
         StackItem it = gen_item(r);
@@ -180,7 +191,7 @@ public class WrStack {
      * @param pE
      *            占位符结束
      */
-    CheapElement joinToAndRemove(OENode pNode, int pS, int pE) {
+    private CheapElement joinToAndRemove(OENode pNode, int pS, int pE) {
         FindRe frS = findPos(pS);
         FindRe frE = findPos(pE);
 
@@ -220,7 +231,7 @@ public class WrStack {
         return re;
     }
 
-    void joinAllAndClear(OENode pNode) {
+    public void joinAllAndClear(OENode pNode) {
         for (StackItem it : items) {
             it.joinToNode(pNode);
         }

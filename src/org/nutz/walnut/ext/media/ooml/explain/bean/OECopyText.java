@@ -18,8 +18,9 @@ public class OECopyText extends OEItem {
     }
 
     @Override
-    public void renderTo(CheapElement pEl, NutBean vars) {
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
         pEl.setText(text);
+        return pEl;
     }
 
     public String getText() {

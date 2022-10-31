@@ -4,6 +4,8 @@ public enum OENodeType {
 
     COPY_NODE,
 
+    DEEP_COPY_NODE,
+
     COPY_TEXT,
 
     PLACEHOLDER,

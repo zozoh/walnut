@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.util.Wlang;
 
-public class OEBranch extends OEItem {
+public class OEBranch extends OENode {
 
     private List<OECondition> branches;
 
@@ -15,7 +16,7 @@ public class OEBranch extends OEItem {
     }
 
     @Override
-    public void renderTo(CheapElement pEl, NutBean vars) {
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
         if (this.hasBranches()) {
             for (OECondition bra : branches) {
                 if (bra.isMatch(vars)) {
@@ -24,17 +25,19 @@ public class OEBranch extends OEItem {
                 }
             }
         }
+        return pEl;
     }
 
     public boolean hasBranches() {
         return null != branches && !branches.isEmpty();
     }
 
-    public void addBranch(OECondition condition) {
+    public void addBranch(OECondition cond) {
         if (null == branches) {
             this.branches = new LinkedList<>();
         }
-        this.branches.add(condition);
+        this.branches.add(cond);
+        cond.setParent(this);
     }
 
     public List<OECondition> getBranches() {
@@ -43,6 +46,16 @@ public class OEBranch extends OEItem {
 
     public void setBranches(List<OECondition> branches) {
         this.branches = branches;
+    }
+
+    @Override
+    public void addChild(OEItem node) {
+        throw Wlang.noImplement();
+    }
+
+    @Override
+    public void setChildren(List<OEItem> children) {
+        throw Wlang.noImplement();
     }
 
 }

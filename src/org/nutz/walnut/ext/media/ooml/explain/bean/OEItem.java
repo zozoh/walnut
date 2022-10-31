@@ -9,83 +9,111 @@ import org.nutz.walnut.util.Ws;
 
 public abstract class OEItem {
 
-	protected OENodeType type;
+    protected OENodeType type;
 
-	protected CheapElement refer;
+    protected CheapElement refer;
 
-	/**
-	 * 对应的 ooml 包
-	 */
-	protected OomlPackage ooml;
+    protected OENode parent;
 
-	/**
-	 * 本次渲染对应的实体，譬如 document.xml。 通过这个实体，根据约定，可以得到 Relationship 列表等。
-	 */
-	protected OomlEntry entry;
+    /**
+     * 对应的 ooml 包
+     */
+    protected OomlPackage ooml;
 
-	/**
-	 * 如何加载外部资源。
-	 * 
-	 */
-	protected CheapResourceLoader loader;
+    /**
+     * 本次渲染对应的实体，譬如 document.xml。 通过这个实体，根据约定，可以得到 Relationship 列表等。
+     */
+    protected OomlEntry entry;
 
-	public abstract void renderTo(CheapElement pEl, NutBean vars);
+    /**
+     * 如何加载外部资源。
+     * 
+     */
+    protected CheapResourceLoader loader;
 
-	public void joinTrace(StringBuilder sb, int depth) {
-		String prefix = Ws.repeat("|   ", depth);
-		sb.append(prefix);
-		sb.append("|-- ");
-		sb.append(this.toString());
-	}
+    public abstract CheapElement renderTo(CheapElement pEl, NutBean vars);
 
-	public String toString() {
-		String name = Ws.camelCase(type.toString());
-		name = Ws.upperFirst(name);
-		if (this.hasReferElement()) {
-			String rs = refer.toString();
-			return String.format("{ %s } : %s", rs);
-		}
-		return String.format("{ %s }", name);
-	}
+    public void joinTrace(StringBuilder sb, int depth) {
+        String prefix = Ws.repeat("|   ", depth);
+        sb.append(prefix);
+        sb.append("|-- ");
+        sb.append(this.toString());
+    }
 
-	public OENodeType getType() {
-		return type;
-	}
+    public String toString() {
+        String name = Ws.camelCase(type.toString());
+        name = Ws.upperFirst(name);
+        if (this.hasReferElement()) {
+            String rs = refer.toString();
+            return String.format("{ %s } : %s", rs);
+        }
+        return String.format("{ %s }", name);
+    }
 
-	public boolean hasReferElement() {
-		return null != refer;
-	}
+    public boolean isType(OENodeType nodeType) {
+        return nodeType == this.type;
+    }
 
-	public CheapElement getRefer() {
-		return refer;
-	}
+    public OENodeType getType() {
+        return type;
+    }
 
-	public void setRefer(CheapElement refer) {
-		this.refer = refer;
-	}
+    public boolean hasReferElement() {
+        return null != refer;
+    }
 
-	public OomlPackage getOoml() {
-		return ooml;
-	}
+    public CheapElement getRefer() {
+        return refer;
+    }
 
-	public void setOoml(OomlPackage ooml) {
-		this.ooml = ooml;
-	}
+    public void setRefer(CheapElement refer) {
+        this.refer = refer;
+    }
 
-	public CheapResourceLoader getLoader() {
-		return loader;
-	}
+    public OENode getRoot() {
+        if (null == parent) {
+            if (this instanceof OENode) {
+                return (OENode) this;
+            }
+            return null;
+        }
+        return parent.getRoot();
+    }
 
-	public void setLoader(CheapResourceLoader loader) {
-		this.loader = loader;
-	}
+    public boolean hasParent() {
+        return null != parent;
+    }
 
-	public OomlEntry getEntry() {
-		return entry;
-	}
+    public OENode getParent() {
+        return parent;
+    }
 
-	public void setEntry(OomlEntry entry) {
-		this.entry = entry;
-	}
+    public void setParent(OENode parent) {
+        this.parent = parent;
+    }
+
+    public OomlPackage getOoml() {
+        return ooml;
+    }
+
+    public void setOoml(OomlPackage ooml) {
+        this.ooml = ooml;
+    }
+
+    public CheapResourceLoader getLoader() {
+        return loader;
+    }
+
+    public void setLoader(CheapResourceLoader loader) {
+        this.loader = loader;
+    }
+
+    public OomlEntry getEntry() {
+        return entry;
+    }
+
+    public void setEntry(OomlEntry entry) {
+        this.entry = entry;
+    }
 
 }

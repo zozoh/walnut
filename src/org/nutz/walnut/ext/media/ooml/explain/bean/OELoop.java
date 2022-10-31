@@ -7,30 +7,40 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class OELoop extends OENode {
 
-	private String subName;
+    private String listName;
 
-	public OELoop() {
-		this.type = OENodeType.LOOP;
-	}
+    public OELoop() {
+        this.type = OENodeType.LOOP;
+    }
 
-	@Override
-	public void renderTo(CheapElement pEl, NutBean vars) {
-		Object list = vars.get(varName);
-		// 防空
-		if (null == list || !hasChildren()) {
-			return;
-		}
+    @Override
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
+        Object list = vars.get(listName);
+        // 防空
+        if (null == list || !hasChildren()) {
+            return pEl;
+        }
 
-		if (list instanceof List<?>) {
-			Object old = vars.get(subName);
-			for (Object li : (List<?>) list) {
-				vars.put(subName, li);
-				for (OEItem it : children) {
-					it.renderTo(pEl, vars);
-				}
-			}
-			vars.put(subName, old);
-		}
-	}
+        if (list instanceof List<?>) {
+            Object old = vars.get(varName);
+            for (Object li : (List<?>) list) {
+                vars.put(varName, li);
+                for (OEItem it : children) {
+                    it.renderTo(pEl, vars);
+                }
+            }
+            vars.put(varName, old);
+        }
+
+        return pEl;
+    }
+
+    public String getListName() {
+        return listName;
+    }
+
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
 
 }

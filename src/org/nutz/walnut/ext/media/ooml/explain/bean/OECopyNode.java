@@ -16,9 +16,13 @@ public class OECopyNode extends OENode {
     }
 
     @Override
-    public void renderTo(CheapElement pEl, NutBean vars) {
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
         CheapElement el = this.refer.cloneSelf();
-        pEl.append(el);
+
+        // 加入父节点
+        if (null != pEl) {
+            pEl.append(el);
+        }
 
         // 循环子节点
         if (this.hasChildren()) {
@@ -26,6 +30,9 @@ public class OECopyNode extends OENode {
                 it.renderTo(el, vars);
             }
         }
+
+        // 搞定后返回自己
+        return el;
     }
 
 }

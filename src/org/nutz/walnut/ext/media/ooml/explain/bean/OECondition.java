@@ -9,46 +9,47 @@ import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class OECondition extends OENode {
 
-	private WnMatch match;
+    private WnMatch match;
 
-	public OECondition() {
-		this.type = OENodeType.CONDITION;
-	}
+    public OECondition() {
+        this.type = OENodeType.CONDITION;
+    }
 
-	@Override
-	public void renderTo(CheapElement pEl, NutBean vars) {
-		if (this.hasChildren()) {
-			for (OEItem child : this.children) {
-				child.renderTo(pEl, vars);
-			}
-		}
-	}
+    @Override
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
+        if (this.hasChildren()) {
+            for (OEItem child : this.children) {
+                child.renderTo(pEl, vars);
+            }
+        }
+        return pEl;
+    }
 
-	public boolean isMatch(NutBean vars) {
-		Object v = getMatchVar(vars);
-		return match.match(v);
-	}
+    public boolean isMatch(NutBean vars) {
+        Object v = getMatchVar(vars);
+        return match.match(v);
+    }
 
-	private Object getMatchVar(NutBean vars) {
-		if (Ws.isBlank(varName)) {
-			return vars;
-		}
-		return vars.get(varName);
-	}
+    private Object getMatchVar(NutBean vars) {
+        if (Ws.isBlank(varName)) {
+            return vars;
+        }
+        return vars.get(varName);
+    }
 
-	public void setAsDefaultBranch() {
-		this.match = new AlwaysMatch(true);
-	}
+    public void setAsDefaultBranch() {
+        this.match = new AlwaysMatch(true);
+    }
 
-	public void setMatch(String match) {
-		this.match = AutoMatch.parse(match, false);
-	}
+    public void setMatch(String match) {
+        this.match = AutoMatch.parse(match, false);
+    }
 
-	public WnMatch getMatch() {
-		return match;
-	}
+    public WnMatch getMatch() {
+        return match;
+    }
 
-	public void setMatch(WnMatch match) {
-		this.match = match;
-	}
+    public void setMatch(WnMatch match) {
+        this.match = match;
+    }
 }

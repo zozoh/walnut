@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -81,19 +82,36 @@ public class OEHyper extends OEVarItem {
                                      + "\\)$";
     private static final Pattern P1 = Pattern.compile(R1);
 
+    private CheapElement findTextOrSym(CheapElement r) {
+        return r.findElement(child -> {
+            return child.isTag("w:v") || child.isTag("w:sym");
+        }, child -> {
+            return !child.isTag("w:rPr");
+        });
+    }
+
     @Override
-    public void renderTo(CheapElement pEl, NutBean vars) {
+    public CheapElement renderTo(CheapElement pEl, NutBean vars) {
+        // 找到第一个文字节点，并克隆作为模板
+        CheapElement r = null;
+        for (CheapElement mr : this.moreRuns) {
+            CheapElement tOrSym = findTextOrSym(mr);
+            if (null != tOrSym) {
+                r = mr;
+            }
+        }
+        if (null == r) {
+            return null;
+        }
         // 复制到目标节点
-        CheapElement el = refer.clone();
+        CheapElement el = r.clone();
         pEl.append(el);
 
         Object val = vars.get(varName);
         // 采用设置的文字内容
         if (null != match && match.match(val)) {
             if (!Ws.isBlank(altText)) {
-                CheapElement tOrSym = el.findElement(child -> {
-                    return child.isTag("w:v") || child.isTag("w:sym");
-                });
+                CheapElement tOrSym = findTextOrSym(el);
                 CheapDocument doc = pEl.getOwnerDocument();
                 // 分析 altText 看看是否需要输出符号
                 // 0/31 Regin:0/31
@@ -129,8 +147,22 @@ public class OEHyper extends OEVarItem {
                     pEl.append(mr.clone());
                 }
             }
+            for (CheapNode next : r.getNextSiblings()) {
+                if (!next.isElement()) {
+                    continue;
+                }
+                CheapElement mr = (CheapElement) next;
+                if (!mr.isTagName("w:r")) {
+                    continue;
+                }
+                CheapElement tOrSym = findTextOrSym(mr);
+                if (null != tOrSym) {
+                    pEl.append(mr.clone());
+                }
+            }
         }
 
+        return el;
     }
 
 }
