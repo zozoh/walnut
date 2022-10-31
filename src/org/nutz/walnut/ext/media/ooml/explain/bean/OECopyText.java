@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.media.ooml.explain.bean;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.util.Ws;
 
 public class OECopyText extends OEItem {
 
@@ -15,6 +16,12 @@ public class OECopyText extends OEItem {
 
     public OECopyText() {
         this.type = OENodeType.COPY_TEXT;
+    }
+
+    public String toBrief() {
+        String name = Ws.camelCase(type.toString());
+        name = Ws.upperFirst(name);
+        return String.format("{ %s } : '%s'", name, text);
     }
 
     @Override

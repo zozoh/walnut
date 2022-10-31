@@ -166,8 +166,11 @@ public class WrStack {
         // 1:[ 3, 7) `name`
         // 2:[ 7, 11) `?dft`
         // 3:[ 8, 11) `dft`
-        Matcher m = P_V.matcher(sb);
-        if (m.find()) {
+        while (true) {
+            Matcher m = P_V.matcher(sb);
+            if (!m.find()) {
+                break;
+            }
             int pS = m.start();
             int pE = m.end();
 
@@ -181,7 +184,6 @@ public class WrStack {
             ph.setDftValue(Ws.trim(m.group(3)));
             pNode.addChild(ph);
         }
-
     }
 
     /**
@@ -193,7 +195,7 @@ public class WrStack {
      */
     private CheapElement joinToAndRemove(OENode pNode, int pS, int pE) {
         FindRe frS = findPos(pS);
-        FindRe frE = findPos(pE);
+        FindRe frE = findPos(pE - 1);
 
         int I = 0;
         CheapElement re;
@@ -223,12 +225,23 @@ public class WrStack {
 
         // } 前最后一项是否还余留静态字符
         it = items.removeFirst();
-        if (it.str.length() > frE.offset) {
-            it.str = it.str.substring(frE.offset);
+        int eOff = frE.offset + 1;
+        if (it.str.length() > eOff) {
+            it.str = it.str.substring(eOff);
             items.addFirst(it);
         }
 
+        // 同步一下字符缓冲
+        this.resetStrBuf();
+
         return re;
+    }
+
+    void resetStrBuf() {
+        this.sb = new StringBuilder();
+        for (StackItem it : items) {
+            this.sb.append(it.str);
+        }
     }
 
     public void joinAllAndClear(OENode pNode) {
@@ -302,7 +315,7 @@ public class WrStack {
                     t.addChild(ct);
                 }
                 // 其他节点
-                else {
+                else if (el.hasChildren()) {
                     for (CheapNode child : el.getChildren()) {
                         genNodeForElement(t, child);
                     }

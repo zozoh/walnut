@@ -12,7 +12,7 @@ public abstract class OENode extends OEVarItem {
     protected List<OEItem> children;
 
     public void joinTrace(StringBuilder sb, int depth) {
-        this.joinTrace(sb, depth);
+        super.joinTrace(sb, depth);
         if (this.hasChildren()) {
             for (OEItem it : children) {
                 sb.append("\n");

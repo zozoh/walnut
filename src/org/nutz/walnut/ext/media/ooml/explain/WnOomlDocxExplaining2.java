@@ -13,6 +13,7 @@ import org.nutz.walnut.ext.media.ooml.api.OomlExplaining;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEBranch;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECondition;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyNode;
+import org.nutz.walnut.ext.media.ooml.explain.bean.OEDeepCopyNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEItem;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OELoop;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OENode;
@@ -46,19 +47,25 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
      * <p>
      * 调用 parseCurrent 后，又会回到对齐状态。
      * 
+     * @param canEnterNode
+     *            是否会主动尝试递归子节点
+     * 
      * @return true 可以继续解析， false 表示没有可以解析的节点了
      */
-    private boolean prepareParseNext() {
+    private boolean prepareParseNext(boolean canEnterNode) {
         // 防守
         if (null == currentEL || null == pNode) {
             return false;
         }
+        CheapElement el;
         // 获取当前节点下一个节点
-        CheapElement el = currentEL.getFirstChildElement();
-        // 进入
-        if (null != el) {
-            this.currentEL = el;
-            return true;
+        if (canEnterNode) {
+            el = currentEL.getFirstChildElement();
+            // 进入
+            if (null != el) {
+                this.currentEL = el;
+                return true;
+            }
         }
         // 下一个
         el = currentEL.getNextElement();
@@ -98,7 +105,17 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
                                      + "\\s*\\}";
     private static final Pattern P3 = Pattern.compile(R3);
 
-    private OENode parseCurrent(OENode pNode, CheapElement el) {
+    static class ParseResult {
+        OENode next;
+        boolean doneForCurrent;
+
+        ParseResult(OENode next, boolean doneForCurrent) {
+            this.next = next;
+            this.doneForCurrent = doneForCurrent;
+        }
+    }
+
+    private ParseResult parseCurrent(OENode pNode, CheapElement el) {
         boolean isP = el.isTagName("w:p");
         boolean isTr = el.isTagName("w:tr");
 
@@ -149,17 +166,23 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         return __parse_as_copy(pNode, el);
     }
 
-    private OENode __parse_as_end(OENode pNode) {
+    private ParseResult __parse_as_end(OENode pNode) {
         // 寻找到最近的分支或循环
         OENode p = pNode;
-        while (null != p && !p.isType(OENodeType.BRANCH) && !p.isType(OENodeType.LOOP)) {
+        while (null != p) {
+            if (p.isType(OENodeType.BRANCH)) {
+                break;
+            }
+            if (p.isType(OENodeType.LOOP)) {
+                break;
+            }
             p = p.getParent();
         }
 
-        return p.getParent();
+        return new ParseResult(p.getParent(), true);
     }
 
-    private OENode __parse_as_else(OENode pNode, CheapElement el) {
+    private ParseResult __parse_as_else(OENode pNode, CheapElement el) {
         // 寻找到最近的分支
         OENode p = pNode;
         while (null != p && !p.isType(OENodeType.BRANCH)) {
@@ -180,10 +203,13 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         cond.setAsDefaultBranch();
         br.addBranch(cond);
 
-        return cond;
+        return new ParseResult(cond, true);
     }
 
-    private OENode __parse_as_else_if(OENode pNode, CheapElement el, String varName, String more) {
+    private ParseResult __parse_as_else_if(OENode pNode,
+                                           CheapElement el,
+                                           String varName,
+                                           String more) {
         // 寻找到最近的分支
         OENode p = pNode;
         while (null != p && !p.isType(OENodeType.BRANCH)) {
@@ -202,10 +228,10 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         cond.setMatch(more);
         br.addBranch(cond);
 
-        return cond;
+        return new ParseResult(cond, true);
     }
 
-    private OENode __parse_as_if(OENode pNode, CheapElement el, String varName, String more) {
+    private ParseResult __parse_as_if(OENode pNode, CheapElement el, String varName, String more) {
         OEBranch br = new OEBranch();
         pNode.addChild(br);
         OECondition cond = new OECondition();
@@ -213,19 +239,22 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         cond.setMatch(more);
         br.addBranch(cond);
 
-        return cond;
+        return new ParseResult(cond, true);
     }
 
-    private OENode __parse_as_loop(OENode pNode, CheapElement el, String varName, String more) {
+    private ParseResult __parse_as_loop(OENode pNode,
+                                        CheapElement el,
+                                        String varName,
+                                        String more) {
         OELoop loop = new OELoop();
         loop.setVarName(varName);
         loop.setListName(more);
         pNode.addChild(loop);
 
-        return loop;
+        return new ParseResult(loop, true);
     }
 
-    private OENode __parse_as_p(OENode pNode, CheapElement el) {
+    private ParseResult __parse_as_p(OENode pNode, CheapElement el) {
         // 父节点
         OECopyNode cp = OECopyNode.create(el);
         pNode.addChild(cp);
@@ -233,7 +262,7 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         // 复制属性
         CheapElement pPr = el.getFirstChildElement("w:pPr");
         if (null != pPr) {
-            OECopyNode cppr = OECopyNode.create(pPr);
+            OEDeepCopyNode cppr = OEDeepCopyNode.create(pPr);
             cp.addChild(cppr);
         }
 
@@ -250,28 +279,21 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         rStack.joinAllAndClear(cp);
 
         // 当前节点
-        return cp;
+        return new ParseResult(cp, true);
     }
 
-    private OENode __parse_as_copy(OENode pNode, CheapElement el) {
+    private ParseResult __parse_as_copy(OENode pNode, CheapElement el) {
         OECopyNode cp = OECopyNode.create(el);
         pNode.addChild(cp);
-        return cp;
+        return new ParseResult(cp, false);
     }
 
     private void processXML(OomlEntry en, NutBean vars) {
         // 加载实体对应的 XML
-        this.entry = en;
-        CheapDocument doc = Oomls.parseEntryAsXml(en);
+        CheapDocument doc = parseEntryDocument(en);
 
-        // 从根节点开始处理
-        currentEL = doc.root();
-        pNode = OECopyNode.create(currentEL);
-        OENode rootNode = pNode;
-        while (this.prepareParseNext()) {
-            OENode next = parseCurrent(this.pNode, this.currentEL);
-            this.pNode = next;
-        }
+        // 解析
+        OENode rootNode = prepareRenderNode(doc);
 
         // 渲染
         CheapDocument out = new CheapDocument(null);
@@ -285,6 +307,31 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         String xml = out.toMarkup();
         byte[] buf = xml.getBytes(Encoding.CHARSET_UTF8);
         en.setContent(buf);
+    }
+
+    public CheapDocument parseEntryDocument(OomlEntry en) {
+        this.entry = en;
+        CheapDocument doc = Oomls.parseEntryAsXml(en);
+        return doc;
+    }
+
+    public OENode prepareRenderNode(CheapDocument doc) {
+        // 从根节点开始处理
+        currentEL = doc.root();
+        pNode = OECopyNode.create(currentEL);
+        OENode rootNode = pNode;
+        boolean canEnterNode = true;
+        while (this.prepareParseNext(canEnterNode)) {
+            ParseResult re = parseCurrent(this.pNode, this.currentEL);
+            this.pNode = re.next;
+            canEnterNode = !re.doneForCurrent;
+        }
+
+        // 必要的设置
+        rootNode.setLoader(loader);
+        rootNode.setOoml(ooml);
+        rootNode.setEntry(entry);
+        return rootNode;
     }
 
     @Override

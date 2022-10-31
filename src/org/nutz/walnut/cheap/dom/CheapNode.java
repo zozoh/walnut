@@ -665,7 +665,7 @@ public abstract class CheapNode {
 
     /**
      * @param callback
-     *            回调， 如果返回 false
+     *            回调， 如果返回 false 则停止继续深度遍历
      */
     public void eachNode(CheapNodeFilter callback) {
         if (null == callback) {

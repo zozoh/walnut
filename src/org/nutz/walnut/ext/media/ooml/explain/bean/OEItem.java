@@ -37,15 +37,21 @@ public abstract class OEItem {
         String prefix = Ws.repeat("|   ", depth);
         sb.append(prefix);
         sb.append("|-- ");
-        sb.append(this.toString());
+        sb.append(this.toBrief());
     }
 
     public String toString() {
+        StringBuilder sb = new StringBuilder();
+        this.joinTrace(sb, 0);
+        return sb.toString();
+    }
+
+    public String toBrief() {
         String name = Ws.camelCase(type.toString());
         name = Ws.upperFirst(name);
         if (this.hasReferElement()) {
-            String rs = refer.toString();
-            return String.format("{ %s } : %s", rs);
+            String rs = refer.toBrief();
+            return String.format("{ %s } : %s", name, rs);
         }
         return String.format("{ %s }", name);
     }

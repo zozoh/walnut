@@ -2,6 +2,7 @@ package org.nutz.walnut.ooml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,7 +12,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.nutz.lang.Streams;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.util.archive.WnArchiveWriting;
+import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
 
 /**
  * 封装了一个 <code>OOML</code> 包的实体结构，以及读取方式
@@ -70,6 +74,31 @@ public class OomlPackage {
                 Streams.safeClose(ins);
             }
         }
+    }
+
+    public void writeAndClose(OutputStream ops) {
+        WnArchiveWriting ag = null;
+        try {
+            // 准备输出流
+            ag = new WnZipArchiveWriting(ops);
+            // 逐个写入条目
+            List<OomlEntry> list = this.getEntries();
+            for (OomlEntry en : list) {
+                String rph = en.getPath();
+                byte[] bs = en.getContent();
+                ag.addFileEntry(rph, bs);
+            }
+        }
+        catch (IOException e) {
+            throw Er.wrap(e);
+        }
+        // 确保写入
+        finally {
+            Streams.safeFlush(ag);
+            Streams.safeClose(ag);
+            Streams.safeClose(ops);
+        }
+
     }
 
     /**
