@@ -56,6 +56,10 @@ public abstract class OEItem {
         return String.format("{ %s }", name);
     }
 
+    public boolean isVirtualNode() {
+        return isType(OENodeType.LOOP) || isType(OENodeType.CONDITION) || isType(OENodeType.BRANCH);
+    }
+
     public boolean isType(OENodeType nodeType) {
         return nodeType == this.type;
     }

@@ -3,6 +3,9 @@ package org.nutz.walnut.ooml;
 import static org.nutz.walnut.ooml.measure.convertor.DpiConvertor.DPI_MAC;
 import static org.nutz.walnut.ooml.measure.convertor.DpiConvertor.DPI_WIN;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +14,10 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.Body;
 import org.docx4j.wml.SectPr.PgMar;
 import org.docx4j.wml.SectPr.PgSz;
+import org.nutz.lang.Files;
+import org.nutz.lang.Streams;
+import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.FileVisitor;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.xml.CheapXmlParsing;
@@ -29,6 +36,8 @@ import org.nutz.walnut.ooml.measure.convertor.PtDxaConvertor;
 import org.nutz.walnut.ooml.measure.convertor.PtInchConvertor;
 import org.nutz.walnut.ooml.measure.convertor.PtPxConvertor;
 import org.nutz.walnut.ooml.measure.convertor.PxPtConvertor;
+import org.nutz.walnut.util.archive.WnArchiveWriting;
+import org.nutz.walnut.util.archive.impl.WnZipArchiveWriting;
 
 public class Oomls {
 
@@ -159,6 +168,38 @@ public class Oomls {
         CheapXmlParsing ing = new CheapXmlParsing(doc);
         ing.parseDoc(str);
         return doc;
+    }
+
+    public static void packDirToAndClose(File dir, OutputStream ops) {
+        try {
+            WnArchiveWriting ag = new WnZipArchiveWriting(ops);
+
+            Disks.visitFileWithDir(dir, new FileVisitor() {
+                public void visit(File f) {
+                    if (!f.isFile()) {
+                        return;
+                    }
+                    String rph = Disks.getRelativePath(dir, f);
+                    byte[] bs = Files.readBytes(f);
+                    try {
+                        ag.addFileEntry(rph, bs);
+                    }
+                    catch (IOException e) {
+                        throw Er.wrap(e);
+                    }
+                    System.out.println(rph);
+                }
+
+            }, null);
+
+            Streams.safeFlush(ag);
+            Streams.safeClose(ag);
+        }
+        // 确保写入
+        finally {
+
+            Streams.safeClose(ops);
+        }
     }
 
 }

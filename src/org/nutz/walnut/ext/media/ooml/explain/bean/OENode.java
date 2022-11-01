@@ -7,7 +7,7 @@ import org.nutz.walnut.cheap.api.CheapResourceLoader;
 import org.nutz.walnut.ooml.OomlEntry;
 import org.nutz.walnut.ooml.OomlPackage;
 
-public abstract class OENode extends OEVarItem {
+public abstract class OENode extends OEItem {
 
     protected List<OEItem> children;
 
@@ -61,6 +61,12 @@ public abstract class OENode extends OEVarItem {
         }
         node.setParent(this);
         children.add(node);
+    }
+
+    public void clearChildren() {
+        if (null != children) {
+            children.clear();
+        }
     }
 
     public List<OEItem> getChildren() {

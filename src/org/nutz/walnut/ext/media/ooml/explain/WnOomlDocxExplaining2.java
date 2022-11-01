@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Encoding;
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.api.CheapResourceLoader;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -75,7 +76,9 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
                 return false;
             }
             this.currentEL = el;
-            this.pNode = pNode.getParent();
+            if (!pNode.isVirtualNode()) {
+                this.pNode = pNode.getParent();
+            }
             return true;
         }
         // 退回一级，并下一个
@@ -93,15 +96,15 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
             return false;
         }
         this.currentEL = el;
-        this.pNode = pNode.getParent();
+        if (!pNode.isVirtualNode()) {
+            this.pNode = pNode.getParent();
+        }
         return true;
     }
 
     private static final String R3 = "#\\{"
                                      + "\\s*(loop|if|else-if|else|end)\\s*"
-                                     + "(@"
-                                     + "\\s*([^\\s:]+)"
-                                     + "(\\s*:\\s*(.+))?)?"
+                                     + "(\\s*@\\s*(.*))?"
                                      + "\\s*\\}";
     private static final Pattern P3 = Pattern.compile(R3);
 
@@ -123,29 +126,26 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         // 如果是，则开启一个对应的渲染节点，并递归
         if (isP || isTr) {
             String str = Ws.trim(el.getText());
-            // 0/17 Regin:0/17
-            // 0:[ 0, 17) `#{loop @ it:list}`
+            // 0/21 Regin:0/21
+            // 0:[ 0, 21) `#{loop @ it,I : list}`
             // 1:[ 2, 6) `loop`
-            // 2:[ 7, 16) `@ it:list`
-            // 3:[ 9, 11) `it`
-            // 4:[ 11, 16) `:list`
-            // 5:[ 12, 16) `list`
+            // 2:[ 7, 20) `@ it,I : list`
+            // 3:[ 9, 20) `it,I : list`
             Matcher m = P3.matcher(str);
             if (m.find()) {
                 String type = m.group(1);
-                String varName = m.group(3);
-                String more = m.group(5);
+                String more = m.group(3);
                 // 开启循环
                 if ("loop".equals(type)) {
-                    return __parse_as_loop(pNode, el, varName, more);
+                    return __parse_as_loop(pNode, el, more);
                 }
                 // 开启分支
                 else if ("if".equals(type)) {
-                    return __parse_as_if(pNode, el, varName, more);
+                    return __parse_as_if(pNode, el, more);
                 }
                 // 加入分支
                 else if ("else-if".equals(type)) {
-                    return __parse_as_else_if(pNode, el, varName, more);
+                    return __parse_as_else_if(pNode, el, more);
                 }
                 // 加入默认分支
                 else if ("else".equals(type)) {
@@ -206,10 +206,7 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         return new ParseResult(cond, true);
     }
 
-    private ParseResult __parse_as_else_if(OENode pNode,
-                                           CheapElement el,
-                                           String varName,
-                                           String more) {
+    private ParseResult __parse_as_else_if(OENode pNode, CheapElement el, String more) {
         // 寻找到最近的分支
         OENode p = pNode;
         while (null != p && !p.isType(OENodeType.BRANCH)) {
@@ -218,37 +215,49 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
 
         // 并没有分支，创建一个
         if (null == p) {
-            return __parse_as_if(pNode, el, varName, more);
+            return __parse_as_if(pNode, el, more);
         }
 
         // 并加入
         OEBranch br = (OEBranch) p;
         OECondition cond = new OECondition();
-        cond.setVarName(varName);
         cond.setMatch(more);
         br.addBranch(cond);
 
         return new ParseResult(cond, true);
     }
 
-    private ParseResult __parse_as_if(OENode pNode, CheapElement el, String varName, String more) {
+    private ParseResult __parse_as_if(OENode pNode, CheapElement el, String more) {
         OEBranch br = new OEBranch();
         pNode.addChild(br);
         OECondition cond = new OECondition();
-        cond.setVarName(varName);
         cond.setMatch(more);
         br.addBranch(cond);
 
         return new ParseResult(cond, true);
     }
 
-    private ParseResult __parse_as_loop(OENode pNode,
-                                        CheapElement el,
-                                        String varName,
-                                        String more) {
+    private static final String R4 = "\\s*([^,]+)"
+                                     + "(\\s*,\\s*([^:\t ]+))?"
+                                     + "\\s*:"
+                                     + "\\s*([^:\\t ]+)";
+    private static final Pattern P4 = Pattern.compile(R4);
+
+    private ParseResult __parse_as_loop(OENode pNode, CheapElement el, String more) {
+        // 0/11 Regin:0/11
+        // 0:[ 0, 11) `it,I : list`
+        // 1:[ 0, 2) `it`
+        // 2:[ 2, 4) `,I`
+        // 3:[ 3, 4) `I`
+        // 4:[ 7, 11) `list`
+        Matcher m = P4.matcher(more);
+        if (!m.find()) {
+            throw Er.create("e.ooml.tmpl.InvalidLoop", more);
+        }
         OELoop loop = new OELoop();
-        loop.setVarName(varName);
-        loop.setListName(more);
+        loop.setVarName(m.group(1));
+        loop.setKeyName(m.group(3));
+        loop.setLoopWith(m.group(4));
         pNode.addChild(loop);
 
         return new ParseResult(loop, true);

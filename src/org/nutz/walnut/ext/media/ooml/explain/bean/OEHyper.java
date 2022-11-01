@@ -1,14 +1,15 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
-import org.nutz.walnut.cheap.dom.CheapNode;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -23,35 +24,48 @@ public class OEHyper extends OEVarItem {
 
     public OEHyper() {
         this.type = OENodeType.HYPER;
-        this.moreRuns = new LinkedList<>();
+        this.moreRuns = new ArrayList<>();
     }
 
-    private static final String R2 = "HYPERLINK"
-                                     + "\\s*\""
-                                     + "=([^\":]+)"
-                                     + ":"
-                                     + "([^\"]+)"
-                                     + "\"\\s*\\\\o\\s*"
-                                     + "\"([^\"]+)\"";
+    private static final String R2 = "HYPERLINK\\s*"
+                                     + "\"=(.*)\"" // n:\"[1,89]\"
+                                     + "\\s*\\\\o\\s*" // \o
+                                     + "\"(.*)\""; // "xxxx"
     private static final Pattern P2 = Pattern.compile(R2);
 
+    /**
+     * @param input
+     *            参数格式类似：
+     * 
+     *            <pre>
+     * HYPERLINK "=n:\"[1,89]\"" \o "some tip"
+     *            </pre>
+     * 
+     * @return
+     */
     public boolean setMatchAndAltText(String input) {
         String trim = Ws.trim(input);
-
-        // 2/36 Regin:0/36
-        // 0:[ 2, 36) `HYPERLINK "=num:189" \o "hahahaha"`
-        // 1:[ 14, 17) `num`
-        // 2:[ 18, 21) `189`
-        // 3:[ 27, 35) `hahahaha`
+        trim = trim.replaceAll("[“”]", "\"");
+        // 0/36 Regin:0/36
+        // 0:[ 0, 36) `HYPERLINK "=n:\"[1,89]\"" \o "abcde"`
+        // 1:[ 12, 24) `n:\"[1,89]\"`
+        // 2:[ 30, 35) `abcde`
         Matcher m = P2.matcher(trim);
         if (!m.find()) {
             return false;
         }
 
-        String maInput = m.group(2);
-        this.setVarName(m.group(1));
+        String s = m.group(1);
+        String alt = m.group(2);
+        s = Ws.unescape(s);
+        Object maInput;
+        if (Ws.isQuoteBy(s, '[', ']')) {
+            maInput = Json.fromJson(s);
+        } else {
+            maInput = Wlang.map(s);
+        }
         this.match = AutoMatch.parse(maInput);
-        this.altText = m.group(3);
+        this.altText = Ws.unescape(alt);
         return true;
     }
 
@@ -84,10 +98,18 @@ public class OEHyper extends OEVarItem {
 
     private CheapElement findTextOrSym(CheapElement r) {
         return r.findElement(child -> {
-            return child.isTag("w:v") || child.isTag("w:sym");
+            return child.isTag("w:t") || child.isTag("w:sym");
         }, child -> {
             return !child.isTag("w:rPr");
         });
+    }
+
+    private void dropRunStyle(CheapElement r) {
+        CheapElement rStyle = r.findElement(el -> el.isTagName("w:rStyle"));
+
+        if (null != rStyle) {
+            rStyle.remove();
+        }
     }
 
     @Override
@@ -105,11 +127,11 @@ public class OEHyper extends OEVarItem {
         }
         // 复制到目标节点
         CheapElement el = r.clone();
+        dropRunStyle(el);
         pEl.append(el);
 
-        Object val = vars.get(varName);
         // 采用设置的文字内容
-        if (null != match && match.match(val)) {
+        if (null != match && match.match(vars)) {
             if (!Ws.isBlank(altText)) {
                 CheapElement tOrSym = findTextOrSym(el);
                 CheapDocument doc = pEl.getOwnerDocument();
@@ -132,7 +154,7 @@ public class OEHyper extends OEVarItem {
                 }
                 // 直接输出文本
                 else {
-                    CheapElement t = doc.createElement("t");
+                    CheapElement t = doc.createElement("w:t");
                     t.setText(altText);
                     tOrSym.insertNext(t);
                 }
@@ -144,20 +166,14 @@ public class OEHyper extends OEVarItem {
         else {
             if (null != this.moreRuns) {
                 for (CheapElement mr : moreRuns) {
-                    pEl.append(mr.clone());
-                }
-            }
-            for (CheapNode next : r.getNextSiblings()) {
-                if (!next.isElement()) {
-                    continue;
-                }
-                CheapElement mr = (CheapElement) next;
-                if (!mr.isTagName("w:r")) {
-                    continue;
-                }
-                CheapElement tOrSym = findTextOrSym(mr);
-                if (null != tOrSym) {
-                    pEl.append(mr.clone());
+                    if (mr != r) {
+                        CheapElement tOrSym = findTextOrSym(mr);
+                        if (null != tOrSym) {
+                            CheapElement c2 = mr.clone();
+                            dropRunStyle(c2);
+                            pEl.append(c2);
+                        }
+                    }
                 }
             }
         }

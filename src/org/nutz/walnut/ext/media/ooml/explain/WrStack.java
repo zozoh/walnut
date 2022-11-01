@@ -111,13 +111,13 @@ public class WrStack {
                 }
 
                 // 回退为普通超链
-                items.push(gen_item(hyper.getRefer()));
+                items.add(gen_item(hyper.getRefer()));
                 if (hyper.hasMoreRuns()) {
                     for (CheapElement mr : hyper.getMoreRuns()) {
-                        items.push(gen_item(mr));
+                        items.add(gen_item(mr));
                     }
                 }
-                items.push(gen_item(r));
+                items.add(gen_item(r));
                 this.hyper = null;
                 return true;
             }
@@ -302,6 +302,10 @@ public class WrStack {
     private static class StackItem {
         CheapElement r;
         String str;
+
+        public String toString() {
+            return String.format("【%s】 %s", str, r.toBrief());
+        }
 
         void genNodeForElement(OENode pNode, CheapNode node) {
             if (node.isElement()) {

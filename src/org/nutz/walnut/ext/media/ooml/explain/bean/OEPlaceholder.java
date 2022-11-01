@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 
@@ -14,7 +15,7 @@ public class OEPlaceholder extends OEVarItem {
 
     @Override
     public CheapElement renderTo(CheapElement pEl, NutBean vars) {
-        Object v = vars.get(varName);
+        Object v = Mapl.cell(vars, varName);
         String s = null == v ? dftValue : v.toString();
         CheapElement rPr = refer.clone();
         CheapDocument doc = pEl.getOwnerDocument();

@@ -1,11 +1,14 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.bean.CheapResource;
+import org.nutz.walnut.ooml.OomlContentTypes;
 import org.nutz.walnut.ooml.OomlEntry;
 import org.nutz.walnut.ooml.OomlRel;
 import org.nutz.walnut.ooml.OomlRels;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
 public class OEPicture extends OEVarItem {
@@ -46,13 +49,32 @@ public class OEPicture extends OEVarItem {
         OomlRels rels = ooml.loadRelationships(entry);
         OomlRel rel = rels.get(rId);
         String imgPh = rel.getTarget();
-        String imgRph = rels.getUniqPath(imgPh);
+        String enPath = Files.getParent(entry.getPath());
+        String imgRph = Wn.appendPath(enPath, imgPh);
 
         // 4. 找到这个图片所在的条目
         OomlEntry enImg = ooml.getEntry(imgRph);
 
         // 5. 直接向其写入嵌入图片
         enImg.setContent(img.getContent());
+        
+     // 6. 如果图片的扩展名与嵌入图片不一致
+        String imgType = img.getSuffixName();
+        if ("jpg".equals(imgType)) {
+            imgType = "jpeg";
+        }
+        if (!rel.isTargetType(imgType)) {
+            // 7. 将其后缀名进行修改
+            enImg.renameSuffix(imgType);
+            rel.renameSuffix(imgType);
+
+            // 8. 确保 [Content_Types].xml 文件中声明了这个扩展名所对应的 MIME 类型
+            OomlContentTypes oct = ooml.loadContentTypes();
+            if (!oct.getDefaults().has(imgType)) {
+                String mime = loader.getMime(imgType);
+                oct.getDefaults().put(imgType, mime);
+            }
+        }
 
         // 6. 搞定
         return drawing;

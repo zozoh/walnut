@@ -1,7 +1,9 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AlwaysMatch;
@@ -15,6 +17,11 @@ public class OECondition extends OENode {
         this.type = OENodeType.CONDITION;
     }
 
+    public String toBrief() {
+        String s = super.toBrief();
+        return String.format("%s : Match: `%s`", s, match);
+    }
+
     @Override
     public CheapElement renderTo(CheapElement pEl, NutBean vars) {
         if (this.hasChildren()) {
@@ -26,15 +33,7 @@ public class OECondition extends OENode {
     }
 
     public boolean isMatch(NutBean vars) {
-        Object v = getMatchVar(vars);
-        return match.match(v);
-    }
-
-    private Object getMatchVar(NutBean vars) {
-        if (Ws.isBlank(varName)) {
-            return vars;
-        }
-        return vars.get(varName);
+        return match.match(vars);
     }
 
     public void setAsDefaultBranch() {
@@ -42,7 +41,14 @@ public class OECondition extends OENode {
     }
 
     public void setMatch(String match) {
-        this.match = AutoMatch.parse(match, false);
+        String s = match.replaceAll("[“”]", "\"");
+        Object input;
+        if (Ws.isQuoteBy(s, '[', ']')) {
+            input = Json.fromJson(s);
+        } else {
+            input = Wlang.map(s);
+        }
+        this.match = AutoMatch.parse(input, false);
     }
 
     public WnMatch getMatch() {
