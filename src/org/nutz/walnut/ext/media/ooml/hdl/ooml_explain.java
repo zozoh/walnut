@@ -6,6 +6,7 @@ import org.nutz.walnut.cheap.impl.WnCheapResourceLoader;
 import org.nutz.walnut.ext.media.ooml.OomlContext;
 import org.nutz.walnut.ext.media.ooml.OomlFilter;
 import org.nutz.walnut.ext.media.ooml.api.OomlExplaining;
+import org.nutz.walnut.ext.media.ooml.explain.WnOomlDocxExplaining2;
 import org.nutz.walnut.ext.media.ooml.impl.WnOomlDocxExplaining;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlang;
@@ -29,7 +30,7 @@ public class ooml_explain extends OomlFilter {
 
         // 准备处理方法接口
         CheapResourceLoader loader = new WnCheapResourceLoader(sys);
-        OomlExplaining api = new WnOomlDocxExplaining(fc.ooml, loader);
+        OomlExplaining api = new WnOomlDocxExplaining2(fc.ooml, loader);
 
         // 执行
         api.explain(vars);
