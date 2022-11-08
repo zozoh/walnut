@@ -254,7 +254,7 @@ w:drawing > wp:inline|wp:anchor > a:graphic > a:graphicData > pic:pic > pic:blip
 |-- <w:r>
 |   |-- <w:rPr>
 |   |-- <w:instrText>
-|   |   |-- HYPERLINK &quot;=age:[5,)&quot; \o &quot;√&quot; 
+|   |   |-- HYPERLINK &quot;=√&quot; \o &quot;age:[5,)&quot; 
 |-- <w:r>
 |   |-- <w:rPr>
 |   |-- <w:fldChar w:fldCharType="separate">
@@ -266,7 +266,7 @@ w:drawing > wp:inline|wp:anchor > a:graphic > a:graphicData > pic:pic > pic:blip
 |   |-- <w:fldChar w:fldCharType="end">
 ```
 
-超链接文本解码后（还需要 URLDecode），应该是: `HYPERLINK "=age:[5,)" \o "√"`
+超链接文本解码后（还需要 URLDecode），应该是: `HYPERLINK "=√" \o "age:[5,)"`
 它的意义如下：
 
 ```bash
@@ -275,6 +275,16 @@ age  : 上下文变量名
 "√"  : 如果条件为真，则将文字段替换
 # 特殊字体文字
 "sym(0052:Wingdings 2)
+```
+## 超链接·形式2
+
+```bash
+<w:p>
+|-- <w:pPr>
+|-- <w:hyperlink r:id="rId4" w:tooltip="&quot;case_type&quot;:1" w:history="1">
+|   |-- <w:r>
+|   |   |-- <w:rPr>
+|   |   |-- <w:t>□</w:t>
 ```
 
 # 渲染树

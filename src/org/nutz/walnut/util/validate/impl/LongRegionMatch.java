@@ -13,12 +13,21 @@ public class LongRegionMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        if (null == val || !(val instanceof Number))
+        if (null == val)
             return false;
-
-        Number n = (Number) val;
-        long v = n.longValue();
-
+        
+        long v;
+        if (!(val instanceof Number)) {
+            try {
+                v = Long.parseLong(val.toString());
+            }
+            catch (Throwable e) {
+                return false;
+            }
+        } else {
+            Number n = (Number) val;
+            v = n.longValue();
+        }
         return region.match(v);
 
     }

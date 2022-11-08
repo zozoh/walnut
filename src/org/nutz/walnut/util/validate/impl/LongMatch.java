@@ -12,18 +12,22 @@ public class LongMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        if (null == val) {
+        if (null == val)
             return false;
+
+        long v;
+        if (!(val instanceof Number)) {
+            try {
+                v = Long.parseLong(val.toString());
+            }
+            catch (Throwable e) {
+                return false;
+            }
+        } else {
+            Number n = (Number) val;
+            v = n.longValue();
         }
-        if (val instanceof Number) {
-            return ((Number) val).longValue() == this.n;
-        }
-        try {
-            long v = Long.parseLong(val.toString());
-            return v == this.n;
-        }
-        catch (Exception e) {}
-        return false;
+        return this.n == v;
     }
 
 }

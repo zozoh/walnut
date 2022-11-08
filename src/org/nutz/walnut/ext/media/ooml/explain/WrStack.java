@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.media.ooml.explain;
 
 import java.net.URLDecoder;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +85,36 @@ public class WrStack {
         return cr;
     }
 
+    private OEHyper tryHyper2(OENode pNode, CheapElement r) {
+        if (r.isTagName("w:hyperlink")) {
+            // 找到链接目标
+            String rId = r.attr("r:id");
+            OomlRels rels = ooml.loadRelationships(entry);
+            OomlRel rel = rels.get(rId);
+            if (null == rel) {
+                return null;
+            }
+            String target = rel.getTarget();
+            if (null == target || !target.startsWith("=")) {
+                return null;
+            }
+            String altText = target.substring(1).trim();
+            String tooltip = r.attr("w:tooltip");
+            tooltip = Ws.decodeHtmlEntities(tooltip);
+            OEHyper hy = new OEHyper();
+            hy.setMatchInput(tooltip);
+            hy.setAltText(altText);
+
+            // 继续寻找要显示的文字
+            List<CheapElement> els = r.getChildElements(child -> child.isTagName("w:r"));
+            for (CheapElement el : els) {
+                hy.addMoreRun(el);
+            }
+            return hy;
+        }
+        return null;
+    }
+
     private boolean tryHyper(OENode pNode, CheapElement r) {
         CheapElement fldChar = r.getFirstChildElement("w:fldChar");
         String fcType = null;
@@ -145,6 +176,13 @@ public class WrStack {
         if (null != drawing) {
             this.joinAllAndClear(pNode);
             pNode.addChild(drawing);
+            return;
+        }
+        // 超链导致清栈
+        OEHyper hy = tryHyper2(pNode, r);
+        if (null != hy) {
+            this.joinAllAndClear(pNode);
+            pNode.addChild(hy);
             return;
         }
         // 超链导致清栈

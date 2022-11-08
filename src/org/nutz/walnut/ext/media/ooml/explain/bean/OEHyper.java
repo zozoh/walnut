@@ -46,18 +46,28 @@ public class OEHyper extends OEVarItem {
     public boolean setMatchAndAltText(String input) {
         String trim = Ws.trim(input);
         trim = trim.replaceAll("[“”]", "\"");
-        // 0/36 Regin:0/36
-        // 0:[ 0, 36) `HYPERLINK "=n:\"[1,89]\"" \o "abcde"`
-        // 1:[ 12, 24) `n:\"[1,89]\"`
-        // 2:[ 30, 35) `abcde`
+        // 0:[ 0, 35) `HYPERLINK "=abcde" \o "n:\"[1,89]\"`
+        // 1:[ 12, 17) `abcde`
+        // 2:[ 23, 34) `n:\"[1,89]\`
         Matcher m = P2.matcher(trim);
         if (!m.find()) {
             return false;
         }
 
-        String s = m.group(1);
-        String alt = m.group(2);
+        String alt = m.group(1);
+        String s = m.group(2);
         s = Ws.unescape(s);
+        this.setMatchInput(s);
+        this.altText = Ws.unescape(alt);
+        return true;
+    }
+
+    public WnMatch getMatch() {
+        return match;
+    }
+
+    public void setMatchInput(String s) {
+        s = s.replaceAll("[““]", "\"");
         Object maInput;
         if (Ws.isQuoteBy(s, '[', ']')) {
             maInput = Json.fromJson(s);
@@ -65,12 +75,6 @@ public class OEHyper extends OEVarItem {
             maInput = Wlang.map(s);
         }
         this.match = AutoMatch.parse(maInput);
-        this.altText = Ws.unescape(alt);
-        return true;
-    }
-
-    public WnMatch getMatch() {
-        return match;
     }
 
     public void setMatch(WnMatch match) {
@@ -110,6 +114,14 @@ public class OEHyper extends OEVarItem {
         if (null != rStyle) {
             rStyle.remove();
         }
+    }
+
+    public String getAltText() {
+        return altText;
+    }
+
+    public void setAltText(String altText) {
+        this.altText = altText;
     }
 
     @Override

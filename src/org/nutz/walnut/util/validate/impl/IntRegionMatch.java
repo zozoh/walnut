@@ -13,13 +13,20 @@ public class IntRegionMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        if (null == val || !(val instanceof Number))
+        if (null == val)
             return false;
 
-        Number n = (Number) val;
-        int v = n.intValue();
-        if ((int) n.longValue() != v) {
-            return false;
+        int v;
+        if (!(val instanceof Number)) {
+            try {
+                v = Integer.parseInt(val.toString());
+            }
+            catch (Throwable e) {
+                return false;
+            }
+        } else {
+            Number n = (Number) val;
+            v = n.intValue();
         }
 
         return region.match(v);

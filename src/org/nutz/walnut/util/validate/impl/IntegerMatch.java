@@ -12,18 +12,22 @@ public class IntegerMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        if (null == val) {
+        if (null == val)
             return false;
+
+        int v;
+        if (!(val instanceof Number)) {
+            try {
+                v = Integer.parseInt(val.toString());
+            }
+            catch (Throwable e) {
+                return false;
+            }
+        } else {
+            Number n = (Number) val;
+            v = n.intValue();
         }
-        if (val instanceof Number) {
-            return ((Number) val).intValue() == this.n;
-        }
-        try {
-            int v = Integer.parseInt(val.toString());
-            return v == this.n;
-        }
-        catch (Exception e) {}
-        return false;
+        return this.n == v;
     }
 
 }

@@ -279,7 +279,7 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         WrStack rStack = new WrStack(ooml, this.entry);
 
         // 循环处理
-        List<CheapElement> runs = el.getChildElements(ch -> ch.isTagName("w:r"));
+        List<CheapElement> runs = el.getChildElements(ch -> ch.isTagName("w:r")||ch.isTagName("w:hyperlink"));
         for (CheapElement r : runs) {
             rStack.push(cp, r);
         }
