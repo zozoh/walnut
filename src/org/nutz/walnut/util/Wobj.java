@@ -323,7 +323,7 @@ public class Wobj {
 
     public static boolean isValidName(String name) {
         // 名称不能包括特殊符号
-        if (name.matches("^.*([/\\\\*?#&^%;`'\"]+).*$")) {
+        if (name.matches("^.*([/\\\\*?#^%;`'\"]+).*$")) {
             return false;
         }
         return true;
