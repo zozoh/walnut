@@ -46,7 +46,7 @@ public class WnExpiObjTableCleaner implements Atom {
     @Override
     public void run() {
         try {
-            log.infof("ExpiObjTable(%s) started.", myName);
+            log.infof("ExpiObjTable(%s) started:\n %s", myName, table.toString());
             log.infof("ExpiObjTable(%s)   - sleepInterval : %d", myName, sleepInterval);
             log.infof("ExpiObjTable(%s)   - cleanLimit    : %d", myName, cleanLimit);
             log.infof("ExpiObjTable(%s)   - cleanHold     : %d", myName, cleanHold);

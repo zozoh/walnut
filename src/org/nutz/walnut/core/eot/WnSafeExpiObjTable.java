@@ -31,6 +31,12 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
         this.tryLockDuration = 3000;
     }
 
+    public String toString() {
+        return String.format("%s : lock by %s",
+                             this.getClass().getName(),
+                             locks.getClass().getName());
+    }
+
     @Override
     public void insertOrUpdate(WnExpiObj o) {
         table.insertOrUpdate(o);
