@@ -8,10 +8,6 @@ var ioc = {
             } ]
         } ]
     },
-    lockApi: {
-        type : "org.nutz.walnut.impl.lock.redis.RedisLockApi",
-        args : [{refer:"redisConfForLockApi"}]
-    },
     lockApiByMemory: {
         type : "org.nutz.walnut.impl.lock.memory.MemoryLockApi"
     },
