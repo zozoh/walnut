@@ -14,6 +14,10 @@ public class WnArchiveEntry {
 
     public boolean dir;
 
+    public String toString() {
+        return String.format(" %s: %s : %dbytes", dir ? "D" : "F", name, len);
+    }
+
     public void writeAndClose(InputStream ins, OutputStream ops, byte[] buf) throws IOException {
         try {
             int readed;
