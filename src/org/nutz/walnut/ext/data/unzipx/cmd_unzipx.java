@@ -14,7 +14,7 @@ public class cmd_unzipx extends JvmFilterExecutor<UnzipxContext, UnzipxFilter> {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl", "^(noexists)$");
+        return ZParams.parse(args, "cqnl", "^(noexists|macosx|hidden)$");
     }
 
     @Override
@@ -28,6 +28,9 @@ public class cmd_unzipx extends JvmFilterExecutor<UnzipxContext, UnzipxFilter> {
         fc.oZip = Wn.checkObj(sys, ph);
         String charsetName = fc.params.getString("charset", "UTF-8");
         fc.charset = Charset.forName(charsetName);
+
+        fc.hidden = fc.params.is("hidden");
+        fc.macosx = fc.params.is("macosx");
     }
 
     @Override
