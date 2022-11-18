@@ -31,13 +31,14 @@ public class unzipx_export extends UnzipxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn", "^(flat|quiet)$");
+        return ZParams.parse(args, "vcqn", "^(flat|quiet)$");
     }
 
     @Override
     protected void process(WnSystem sys, UnzipxContext fc, ZParams params) {
         boolean flat = params.is("flat");
         boolean quiet = params.is("quiet");
+        boolean verbose = params.is("v");
         int buf_size = params.getInt("buf", 8192);
         JsonFormat jfmt = Cmds.gen_json_format(params);
         // 得到目标
@@ -61,10 +62,16 @@ public class unzipx_export extends UnzipxFilter {
             }
         }
 
+        if (verbose) {
+            sys.out.printlnf("export %s :", fc.oZip.name());
+        }
+
         // 准备回调
         byte[] buf = new byte[buf_size];
         NutBean metaBeans = metas;
         List<WnObj> list = new LinkedList<>();
+        int[] II = new int[1];
+        II[0] = 1;
         WnArchiveReadingCallback callback = new WnArchiveReadingCallback() {
             public void invoke(WnArchiveEntry en, InputStream zin) throws IOException {
                 NutMap meta = null;
@@ -83,6 +90,9 @@ public class unzipx_export extends UnzipxFilter {
                 // 确保flat
                 if (flat) {
                     nm = Files.getName(nm);
+                }
+                if (verbose) {
+                    sys.out.printlnf("%d). %s -> %s", II[0]++, en.name, nm);
                 }
                 // 創建文件
                 WnObj o = null;
