@@ -53,25 +53,25 @@ public enum WnGroupRole {
         if (this.value == role.value) {
             return false;
         }
-        // 当前如果是 GUEST，只有 管理员/组员/预备组员都比自己高
+        // 当前如果是 GUEST，只比黑名单高
         if (this.value == 0) {
-            return role.value > 0;
+            return role.value < 0;
         }
         // 如果当前是 ADMIN，没有权限比它高
         if (this.value == 1) {
-            return false;
+            return role.value != 1;
         }
-        // 如果当前是 MEMBER，只有管理员比自己高
+        // 如果当前是 MEMBER，比预备和黑名单高
         if (this.value == 10) {
-            return role.value == 1;
+            return role.value >= 100 || role.value <= 0;
         }
-        // 如果当前是 CANDIDATE，管理员和组员都比自己高
+        // 如果当前是 CANDIDATE，比访客和黑名单高
         if (this.value == 100) {
-            return role.value == 1 || role.value == 10;
+            return role.value <= 0;
         }
         // 如果当前是黑名单，所有身份都比它高
         if (this.value < 0) {
-            return role.value > 0;
+            return true;
         }
         // 这种情况不可能，总之返回 false 吧
         return false;

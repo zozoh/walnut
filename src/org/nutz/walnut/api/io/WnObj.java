@@ -107,22 +107,30 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     /**
      * 将自己以及自己所有的祖先与给定的自定义权限融合
      * <p>
-     * 自己的自定义权限支持混合模式<code>.MODE</code>设定:
-     * 
+     * 权限集合键有下面几种形式：
      * <ul>
-     * <li><code>DEFAULT</code> : 默认混合。或者是 null
-     * <li><code>STRONG</code> : 强制覆盖
-     * <li><code>WEAK</code> : 弱混合
+     * <li><code>4a98..a123</code> : 直接是用户的 ID
+     * <li><code>@SYS_ADMIN</code> : 角色【域账户】
+     * <li><code>@[demo]</code> : 用户名【域账户】
+     * <li><code>+M0A</code> : 用户所属职位或部门
      * </ul>
      * 
-     * 同时，传入的自定义权限集合，支持指定深度<code>.DEPTH</code>
-     * 
+     * 值可以是
      * <ul>
-     * <li><code>&lt;0</code> : 一直合并到根
-     * <li><code>0</code> : 仅采用自己
-     * <li><code>1</code> : 仅向上合并一层
-     * <li><code>2</code> : 仅向上合并两层
+     * <li><code>"0777"</code> :  八进制
+     * <li><code>511</code> : 十进制
+     * <li><code>"rwxr-xr-x"</code> : 全文本
+     * <li><code>"rwx"</code> : 文本，相当于 "rwxrwxrwx"
+     * <li><code>7</code> : 0-7 整数相当于 "0777"
      * </ul>
+     * 
+     * 值的混合模式:
+     * <ul>
+     * <li><code>DEFAULT</code> : 默认混合。支持<code>"0777",</code>
+     * <li><code>WEAK</code> : <code>`+DA:-7` 或者 `+DA:"~0777"`</code>
+     * <li><code>STRONG</code> : <code>`+DA:"!rwx"` 或者 `+DA:"!0777"`</code>
+     * </ul>
+     * 
      * 
      * @param pvg
      *            输入的自定义权限集

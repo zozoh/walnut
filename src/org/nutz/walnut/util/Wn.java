@@ -73,12 +73,6 @@ public abstract class Wn {
 
     public static final String K_ROLE_IN_OP = "roleInOp";
 
-    public static final String PVG_BLEND_MODE = ".MODE";
-    public static final String PVG_BLEND_DEFAULT = "DEFAULT";
-    public static final String PVG_BLEND_STRONG = "STRONG";
-    public static final String PVG_BLEND_WEAK = "WEAK";
-    public static final String PVG_DEPTH = ".DEPTH";
-
     /**
      * 记录系统运行时信息
      */

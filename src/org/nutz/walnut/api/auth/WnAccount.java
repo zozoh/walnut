@@ -1023,6 +1023,98 @@ public class WnAccount {
         return false;
     }
 
+    public int evalPvgMode(NutBean pvg, int dftMode) {
+        // 防空
+        if (null == pvg || pvg.isEmpty()) {
+            return dftMode;
+        }
+        // 准备权限
+        boolean found = false;
+        int md = 0;
+        String key;
+        Object val;
+        //
+        // 处理各种自定义的权限
+        //
+        // - 4a98..a123 : 直接是用户的 ID
+        key = this.getId();
+        val = pvg.get(key);
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
+        }
+        // - @[demo] : 角色【域账户】
+        key = "@[" + this.getName() + "]";
+        val = pvg.get(key);
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
+        }
+        // - @others : 角色【域账户】
+        val = pvg.get("@others");
+        if (null != val) {
+            found = true;
+            md |= Wn.Io.modeFrom(val, 0);
+            if (md >= 511) {
+                return 511;
+            }
+        }
+        // - @SYS_ADMIN : 角色【域账户】
+        if (this.hasRoleName()) {
+            for (String role : this.getRoleList()) {
+                key = "@" + role;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
+                }
+            }
+        }
+        // - +M0A : 用户所属职位或部门
+        if (this.hasJobs()) {
+            for (String job : this.getJobs()) {
+                key = "+" + job;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
+                }
+            }
+        }
+        if (this.hasDepts()) {
+            for (String dept : this.getDepts()) {
+                key = "+" + dept;
+                val = pvg.get(key);
+                if (null != val) {
+                    found = true;
+                    md |= Wn.Io.modeFrom(val, 0);
+                    if (md >= 511) {
+                        return 511;
+                    }
+                }
+            }
+        }
+        // 如果已经获得了属性，那么就直接返回
+        if (found) {
+            return md;
+        }
+
+        // 那就是没有啊
+        return md > 0 ? md : dftMode;
+    }
+
     public void putAllMeta(NutBean meta) {
         if (null != meta) {
             for (Map.Entry<String, Object> en : meta.entrySet()) {
