@@ -780,94 +780,7 @@ public class WnIoObj extends NutMap implements WnObj {
         if (this.hasParent()) {
             pvg = this.parent().joinCustomizedPrivilege(pvg);
         }
-        if (null == pvg || pvg.isEmpty()) {
-            return dftMode;
-        }
-        // 准备权限
-        boolean found = false;
-        int md = 0;
-        String key;
-        Object val;
-
-        // 处理各种自定义的权限
-        // - 4a98..a123 : 直接是用户的 ID
-        key = u.getId();
-        val = pvg.get(key);
-        if (null != val) {
-            found = true;
-            md |= Wn.Io.modeFrom(val, 0);
-            if (md >= 511) {
-                return 511;
-            }
-        }
-        // - @[demo] : 角色【域账户】
-        key = "@[" + u.getName() + "]";
-        val = pvg.get(key);
-        if (null != val) {
-            found = true;
-            md |= Wn.Io.modeFrom(val, 0);
-            if (md >= 511) {
-                return 511;
-            }
-        }
-        // - @others : 角色【域账户】
-        val = pvg.get("@others");
-        if (null != val) {
-            found = true;
-            md |= Wn.Io.modeFrom(val, 0);
-            if (md >= 511) {
-                return 511;
-            }
-        }
-        // - @SYS_ADMIN : 角色【域账户】
-        if (u.hasRoleName()) {
-            for (String role : u.getRoleList()) {
-                key = "@" + role;
-                val = pvg.get(key);
-                if (null != val) {
-                    found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
-                    if (md >= 511) {
-                        return 511;
-                    }
-                }
-            }
-        }
-        // - +M0A : 用户所属职位或部门
-        if (u.hasJobs()) {
-            for (String job : u.getJobs()) {
-                key = "+" + job;
-                val = pvg.get(key);
-                if (null != val) {
-                    found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
-                    if (md >= 511) {
-                        return 511;
-                    }
-                }
-            }
-        }
-        if (u.hasDepts()) {
-            for (String dept : u.getDepts()) {
-                key = "+" + dept;
-                val = pvg.get(key);
-                if (null != val) {
-                    found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
-                    if (md >= 511) {
-                        return 511;
-                    }
-                }
-            }
-        }
-
-        // 如果已经获得了属性，那么就直接返回
-        if (found) {
-            return md;
-        }
-
-        // 那就是没有啊
-        return md > 0 ? md : dftMode;
+        return u.evalPvgMode(pvg, dftMode);
     }
 
     @Override
@@ -879,56 +792,31 @@ public class WnIoObj extends NutMap implements WnObj {
         boolean isSelfEmpty = null == selfPvg || selfPvg.isEmpty();
 
         // 防空: 全空
-        if (isSubEmpty && isSelfEmpty) {
+        if (null == pvg) {
             pvg = new NutMap();
         }
-        // 防空：输入为空
-        else if (isSubEmpty) {
-            pvg = selfPvg.duplicate();
-        }
-        // 防空：自己为空
-        else if (isSelfEmpty) {
-            /* just return self */
-        }
+
         // 两者均不为空，则融合
-        else {
-            int depth = pvg.getInt(Wn.PVG_DEPTH, -1);
-            // 0 表示仅采用自己，那么就直接返回
-            if (depth == 0) {
-                return pvg;
+        if (!isSelfEmpty) {
+            for (Map.Entry<String, Object> en : selfPvg.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                WnObjMode om = new WnObjMode(val);
+                // 强混合
+                if (om.isStrong()) {
+                    pvg.put(key, om.getValue());
+                }
+                // 弱混合
+                else if (om.isWeak()) {
+                    if (isSubEmpty) {
+                        pvg.put(key, om.getValue());
+                    }
+                }
+                // 作为默认值
+                else {
+                    pvg.putDefault(key, om.getValue());
+                }
             }
-
-            // 采用不同的混合模式
-            String blendMode = selfPvg.getString(Wn.PVG_BLEND_MODE, Wn.PVG_BLEND_DEFAULT);
-
-            NutMap map = new NutMap();
-
-            // 默认混合
-            if (Wn.PVG_BLEND_DEFAULT.equals(blendMode)) {
-                map.putAll(selfPvg);
-                map.putAll(pvg);
-            }
-            // 弱混合
-            else if (Wn.PVG_BLEND_WEAK.equals(blendMode)) {
-                /* Just use the pvg */
-                map.putAll(pvg);
-            }
-            // 强混合
-            else if (Wn.PVG_BLEND_STRONG.equals(blendMode)) {
-                map.putAll(selfPvg);
-            }
-            // 不支持的混合模式，那么无视
-
-            // 最后更新深度: 大于 0 的，则要减一
-            if (depth > 0) {
-                map.put(Wn.PVG_DEPTH, depth - 1);
-            }
-            // 如果自己设置了深度，而传入的没设置，就设置一下
-            else if (!pvg.has(Wn.PVG_DEPTH) && selfPvg.has(Wn.PVG_DEPTH)) {
-                map.put(Wn.PVG_DEPTH, selfPvg.get(Wn.PVG_DEPTH));
-            }
-
-            pvg = map;
         }
 
         // 递归
