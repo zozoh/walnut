@@ -3,6 +3,10 @@ package org.nutz.walnut.core.bean;
 import org.nutz.walnut.util.Wn;
 
 public class WnObjMode {
+    
+    public static WnObjMode parse(Object input) {
+        return new WnObjMode(input);
+    }
 
     private WnObjModeType type;
 

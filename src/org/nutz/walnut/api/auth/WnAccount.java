@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.core.bean.WnObjId;
+import org.nutz.walnut.core.bean.WnObjMode;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
@@ -1041,7 +1042,8 @@ public class WnAccount {
         val = pvg.get(key);
         if (null != val) {
             found = true;
-            md |= Wn.Io.modeFrom(val, 0);
+            WnObjMode wom = WnObjMode.parse(val);
+            md |= wom.getValue();
             if (md >= 511) {
                 return 511;
             }
@@ -1051,7 +1053,8 @@ public class WnAccount {
         val = pvg.get(key);
         if (null != val) {
             found = true;
-            md |= Wn.Io.modeFrom(val, 0);
+            WnObjMode wom = WnObjMode.parse(val);
+            md |= wom.getValue();
             if (md >= 511) {
                 return 511;
             }
@@ -1060,7 +1063,8 @@ public class WnAccount {
         val = pvg.get("@others");
         if (null != val) {
             found = true;
-            md |= Wn.Io.modeFrom(val, 0);
+            WnObjMode wom = WnObjMode.parse(val);
+            md |= wom.getValue();
             if (md >= 511) {
                 return 511;
             }
@@ -1072,7 +1076,8 @@ public class WnAccount {
                 val = pvg.get(key);
                 if (null != val) {
                     found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
+                    WnObjMode wom = WnObjMode.parse(val);
+                    md |= wom.getValue();
                     if (md >= 511) {
                         return 511;
                     }
@@ -1086,7 +1091,8 @@ public class WnAccount {
                 val = pvg.get(key);
                 if (null != val) {
                     found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
+                    WnObjMode wom = WnObjMode.parse(val);
+                    md |= wom.getValue();
                     if (md >= 511) {
                         return 511;
                     }
@@ -1099,7 +1105,8 @@ public class WnAccount {
                 val = pvg.get(key);
                 if (null != val) {
                     found = true;
-                    md |= Wn.Io.modeFrom(val, 0);
+                    WnObjMode wom = WnObjMode.parse(val);
+                    md |= wom.getValue();
                     if (md >= 511) {
                         return 511;
                     }
