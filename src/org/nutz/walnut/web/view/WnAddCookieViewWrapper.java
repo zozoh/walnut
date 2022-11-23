@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;

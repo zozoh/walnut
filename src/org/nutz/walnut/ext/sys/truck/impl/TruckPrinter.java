@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.sys.truck.impl;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.io.WnObj;
 

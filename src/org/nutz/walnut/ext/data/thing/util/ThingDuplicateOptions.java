@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.validate.WnMatch;
 

@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.sys.dsync.bean;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Ws;

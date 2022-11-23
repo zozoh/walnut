@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.util.react.action;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.util.Wn;

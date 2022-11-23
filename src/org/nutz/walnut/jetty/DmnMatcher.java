@@ -2,7 +2,7 @@ package org.nutz.walnut.jetty;
 
 import java.util.regex.Pattern;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 
 public class DmnMatcher {
 

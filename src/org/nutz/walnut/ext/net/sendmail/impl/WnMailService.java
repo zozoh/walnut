@@ -11,7 +11,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.commons.mail.resolver.DataSourceUrlResolver;
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;

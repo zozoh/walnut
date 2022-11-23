@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.sys.truck;
 
 import java.util.LinkedList;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.ext.sys.truck.impl.TruckPrinter;
 import org.nutz.walnut.ext.sys.truck.impl.WnTruckService;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;

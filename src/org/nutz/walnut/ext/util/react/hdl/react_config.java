@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.util.react.hdl;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.util.react.ReactContext;
 import org.nutz.walnut.ext.util.react.ReactFilter;

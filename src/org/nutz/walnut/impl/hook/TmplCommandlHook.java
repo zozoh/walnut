@@ -1,7 +1,7 @@
 package org.nutz.walnut.impl.hook;
 
 import org.nutz.lang.Strings;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 

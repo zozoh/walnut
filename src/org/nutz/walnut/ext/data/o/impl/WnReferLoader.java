@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.data.o.impl;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;

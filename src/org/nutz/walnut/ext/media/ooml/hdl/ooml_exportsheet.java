@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.img.Images;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;

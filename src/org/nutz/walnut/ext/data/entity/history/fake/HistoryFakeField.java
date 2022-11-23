@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.data.entity.history.fake;
 
 import java.util.Random;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 
 public class HistoryFakeField {
 

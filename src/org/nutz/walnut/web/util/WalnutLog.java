@@ -3,7 +3,7 @@ package org.nutz.walnut.web.util;
 import java.io.PrintStream;
 
 import org.nutz.lang.Times;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.walnut.impl.box.JvmBoxOutput;

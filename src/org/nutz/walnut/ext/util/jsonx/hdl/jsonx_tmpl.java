@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.util.jsonx.JsonXContext;
 import org.nutz.walnut.ext.util.jsonx.JsonXFilter;

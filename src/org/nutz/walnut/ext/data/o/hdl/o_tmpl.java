@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.data.o.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;

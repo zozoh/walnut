@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.old.hmaker.template;
 
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 
 public class HmTemplate {

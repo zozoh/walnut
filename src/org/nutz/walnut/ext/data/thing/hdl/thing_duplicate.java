@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.thing.util.ThingDuplicateOptions;

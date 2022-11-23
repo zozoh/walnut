@@ -26,7 +26,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.ComboOutputStream;
-import org.nutz.lang.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
