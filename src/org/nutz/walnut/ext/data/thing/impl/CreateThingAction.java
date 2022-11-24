@@ -46,6 +46,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     protected int dupCount = 0;
 
+    protected boolean withoutHook;
+
     public CreateThingAction() {
         this.metas = new LinkedList<>();
     }
@@ -108,6 +110,10 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     public CreateThingAction setConf(ThingConf conf) {
         this.conf = conf;
         return this;
+    }
+
+    public void setWithoutHook(boolean withoutHook) {
+        this.withoutHook = withoutHook;
     }
 
     @Override
@@ -197,16 +203,16 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         if (this.conf.hasInitMeta()) {
             meta.putAll(this.conf.getInitMeta());
         }
-        
+
         // 根据条件增加新的元数据
-        if(this.conf.hasTestInitMetas()) {
-            for(ThTestMeta tm : conf.getTestInitMetas()) {
-                if(tm.hasMeta() && tm.isMatch(meta)) {
+        if (this.conf.hasTestInitMetas()) {
+            for (ThTestMeta tm : conf.getTestInitMetas()) {
+                if (tm.hasMeta() && tm.isMatch(meta)) {
                     meta.putAll(tm.getMeta());
                 }
             }
         }
-        
+
         // 设置更多的固有属性
         meta.put("th_set", oTs.id());
         meta.put("th_live", Things.TH_LIVE);
@@ -230,7 +236,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 更新这个 Thing （因为从 uniqueKeys 里得到了之前的记录，这样可以导入防重）
         if (oT.hasID()) {
-            if (null != this.executor) {
+            if (null != this.executor && !this.withoutHook) {
                 // 准备回调上下文（更新）
                 context = new NutMap();
                 context.put("old", oT.clone());
@@ -260,21 +266,23 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             }
         }
 
-        // 如果是第一次创建，则执行附加脚本
-        if (!isDuplicated) {
-            // 看看是否有附加的创建执行脚本
-            String[] on_created = conf.getOnCreated();
-            if (null != this.executor && null != on_created && on_created.length > 0) {
-                Things.runCommands(oT, on_created, executor);
-                re_get = true;
+        if (null != this.executor && !this.withoutHook) {
+            // 如果是第一次创建，则执行附加脚本
+            if (!isDuplicated) {
+                // 看看是否有附加的创建执行脚本
+                String[] on_created = conf.getOnCreated();
+                if (null != this.executor && null != on_created && on_created.length > 0) {
+                    Things.runCommands(oT, on_created, executor);
+                    re_get = true;
+                }
             }
-        }
-        // 否则执行更新回调的附加脚本
-        else if (null != context) {
-            String[] on_updated = conf.getOnUpdated();
-            if (null != on_updated && on_updated.length > 0) {
-                Things.runCommands(context, on_updated, executor);
-                re_get = true;
+            // 否则执行更新回调的附加脚本
+            else if (null != context) {
+                String[] on_updated = conf.getOnUpdated();
+                if (null != on_updated && on_updated.length > 0) {
+                    Things.runCommands(context, on_updated, executor);
+                    re_get = true;
+                }
             }
         }
 

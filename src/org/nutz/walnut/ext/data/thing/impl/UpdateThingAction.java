@@ -28,6 +28,8 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
 
     protected ThingConf conf;
 
+    protected boolean withoutHook;
+
     public UpdateThingAction addIds(String... ids) {
         if (null == this.ids) {
             this.ids = new LinkedList<>();
@@ -61,6 +63,10 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
     public UpdateThingAction setMatch(Object match) {
         this.match = match;
         return this;
+    }
+
+    public void setWithoutHook(boolean withoutHook) {
+        this.withoutHook = withoutHook;
     }
 
     @Override
@@ -106,7 +112,9 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
         context.put("obj", oT);
 
         // 更新前的回调
-        Things.runCommands(context, conf.getOnBeforeUpdate(), executor);
+        if (null != this.executor && !this.withoutHook) {
+            Things.runCommands(context, conf.getOnBeforeUpdate(), executor);
+        }
 
         // 根据唯一键约束检查重复
         if (conf.hasUniqueKeys()) {
@@ -137,9 +145,11 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
         }
 
         // 看看是否有附加的创建执行脚本
-        Things.runCommands(context, conf.getOnUpdated(), executor);
+        if (null != this.executor && !this.withoutHook) {
+            Things.runCommands(context, conf.getOnUpdated(), executor);
+        }
 
-        if (!reget) {
+        if (!reget && !this.withoutHook) {
             if (null != conf.getOnBeforeUpdate() && conf.getOnBeforeUpdate().length > 0) {
                 reget = true;
             }

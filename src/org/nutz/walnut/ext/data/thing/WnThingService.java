@@ -28,6 +28,8 @@ import org.nutz.walnut.ext.data.thing.impl.FileUploadAction;
 import org.nutz.walnut.ext.data.thing.impl.GetThingAction;
 import org.nutz.walnut.ext.data.thing.impl.QueryThingAction;
 import org.nutz.walnut.ext.data.thing.impl.UpdateThingAction;
+import org.nutz.walnut.ext.data.thing.options.ThCreateOptions;
+import org.nutz.walnut.ext.data.thing.options.ThUpdateOptions;
 import org.nutz.walnut.ext.data.thing.util.ThQr;
 import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
@@ -314,11 +316,8 @@ public class WnThingService {
     }
 
     public WnObj createThing(NutMap meta, String uniqueKey, WnExecutable executor) {
-        CreateThingAction a = _A(new CreateThingAction());
-        a.addMeta(meta).setUniqueKey(uniqueKey);
-        a.setConf(this.checkConf());
-        a.setExecutor(executor);
-        return a.invoke().get(0);
+        ThCreateOptions opt = ThCreateOptions.create(uniqueKey, null, executor, null);
+        return this.createOneThing(meta, opt);
     }
 
     public WnObj createThing(NutMap meta,
@@ -326,12 +325,8 @@ public class WnThingService {
                              NutMap fixedMeta,
                              WnExecutable executor,
                              String cmdTmpl) {
-        CreateThingAction a = _A(new CreateThingAction());
-        a.addMeta(meta).setUniqueKey(uniqueKey);
-        a.setConf(this.checkConf());
-        a.setFixedMeta(fixedMeta);
-        a.setExecutor(executor, cmdTmpl);
-        return a.invoke().get(0);
+        ThCreateOptions opt = ThCreateOptions.create(uniqueKey, fixedMeta, executor, cmdTmpl);
+        return this.createOneThing(meta, opt);
     }
 
     public List<WnObj> createThings(List<NutMap> metaList, String uniqueKey) {
@@ -345,12 +340,32 @@ public class WnThingService {
                                     String process,
                                     WnExecutable executor,
                                     String cmdTmpl) {
+        ThCreateOptions opt = ThCreateOptions.create(uniqueKey,
+                                                     fixedMeta,
+                                                     out,
+                                                     process,
+                                                     executor,
+                                                     cmdTmpl);
+        return this.createManyThings(metaList, opt);
+    }
+
+    public WnObj createOneThing(NutMap meta, ThCreateOptions opt) {
         CreateThingAction a = _A(new CreateThingAction());
-        a.addAllMeta(metaList).setUniqueKey(uniqueKey);
+        a.addMeta(meta).setUniqueKey(opt.uniqueKey);
         a.setConf(this.checkConf());
-        a.setProcess(out, process);
-        a.setFixedMeta(fixedMeta);
-        a.setExecutor(executor, cmdTmpl);
+        a.setExecutor(opt.executor);
+        a.setWithoutHook(opt.withoutHook);
+        return a.invoke().get(0);
+    }
+
+    public List<WnObj> createManyThings(List<NutMap> metaList, ThCreateOptions opt) {
+        CreateThingAction a = _A(new CreateThingAction());
+        a.addAllMeta(metaList).setUniqueKey(opt.uniqueKey);
+        a.setConf(this.checkConf());
+        a.setProcess(opt.out, opt.process);
+        a.setFixedMeta(opt.fixedMeta);
+        a.setExecutor(opt.executor, opt.cmdTmpl);
+        a.setWithoutHook(opt.withoutHook);
         return a.invoke();
     }
 
@@ -416,10 +431,24 @@ public class WnThingService {
     }
 
     public WnObj updateThing(String id, NutMap meta, WnExecutable executor, Object match) {
-        UpdateThingAction a = _A(new UpdateThingAction()).addIds(id).setMeta(meta);
+        ThUpdateOptions opt = ThUpdateOptions.create(meta, executor, match);
+        return this.updateOneThing(id, opt);
+    }
+
+    public List<WnObj> updateThings(String[] ids,
+                                    NutMap meta,
+                                    WnExecutable executor,
+                                    Object match) {
+        ThUpdateOptions opt = ThUpdateOptions.create(meta, executor, match);
+        return this.updateManyThings(ids, opt);
+    }
+
+    public WnObj updateOneThing(String id, ThUpdateOptions opt) {
+        UpdateThingAction a = _A(new UpdateThingAction()).addIds(id).setMeta(opt.meta);
         a.setConf(this.checkConf());
-        a.setExecutor(executor);
-        a.setMatch(match);
+        a.setExecutor(opt.executor);
+        a.setMatch(opt.match);
+        a.setWithoutHook(opt.withoutHook);
         List<WnObj> objs = a.invoke();
         if (null == objs || objs.size() == 0) {
             return null;
@@ -427,14 +456,12 @@ public class WnThingService {
         return objs.get(0);
     }
 
-    public List<WnObj> updateThings(String[] ids,
-                                    NutMap meta,
-                                    WnExecutable executor,
-                                    Object match) {
-        UpdateThingAction a = _A(new UpdateThingAction()).addIds(ids).setMeta(meta);
+    public List<WnObj> updateManyThings(String[] ids, ThUpdateOptions opt) {
+        UpdateThingAction a = _A(new UpdateThingAction()).addIds(ids).setMeta(opt.meta);
         a.setConf(this.checkConf());
-        a.setExecutor(executor);
-        a.setMatch(match);
+        a.setExecutor(opt.executor);
+        a.setMatch(opt.match);
+        a.setWithoutHook(opt.withoutHook);
         return a.invoke();
     }
 

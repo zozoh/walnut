@@ -9,6 +9,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
+import org.nutz.walnut.ext.data.thing.options.ThCreateOptions;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -16,7 +17,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
-@JvmHdlParamArgs("cnqihbslVNHQ")
+@JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(nohook)$")
 public class thing_create implements JvmHdl {
 
     @Override
@@ -45,14 +46,23 @@ public class thing_create implements JvmHdl {
                 for (NutMap meta : list) {
                     Things.formatMeta(meta);
                 }
-            hc.output = wts.createThings(list, ukey, fixedMeta, sys.out, process, exec, afterCmd);
+            ThCreateOptions opt = ThCreateOptions.create(ukey,
+                                                         fixedMeta,
+                                                         sys.out,
+                                                         process,
+                                                         exec,
+                                                         afterCmd);
+            opt.withoutHook = hc.params.is("nohook");
+            hc.output = wts.createManyThings(list, opt);
         }
         // 普通对象: 表示创建一条数据
         else {
             NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
             Things.formatMeta(meta);
             // 执行创建
-            hc.output = wts.createThing(meta, ukey, fixedMeta, exec, afterCmd);
+            ThCreateOptions opt = ThCreateOptions.create(ukey, fixedMeta, exec, afterCmd);
+            opt.withoutHook = hc.params.is("nohook");
+            hc.output = wts.createOneThing(meta, opt);
         }
 
     }

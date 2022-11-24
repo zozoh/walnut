@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
+import org.nutz.walnut.ext.data.thing.options.ThUpdateOptions;
 import org.nutz.walnut.ext.data.thing.util.Things;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -17,7 +18,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
 
-@JvmHdlParamArgs(value = "cnqlVNHQ", regex = "^(quiet|overwrite)$")
+@JvmHdlParamArgs(value = "cnqlVNHQ", regex = "^(quiet|nohook)$")
 public class thing_update implements JvmHdl {
 
     @Override
@@ -61,7 +62,9 @@ public class thing_update implements JvmHdl {
         }
 
         // 准备调用接口
-        List<WnObj> list = wts.updateThings(ids, meta, sys, match);
+        ThUpdateOptions opt = ThUpdateOptions.create(meta, sys, match);
+        opt.withoutHook = hc.params.is("nohook");
+        List<WnObj> list = wts.updateManyThings(ids, opt);
 
         // 如果是一个对象，并且并未强制 -l，则输出第一个对象
         if (list.size() == 1 && !hc.params.is("l")) {
