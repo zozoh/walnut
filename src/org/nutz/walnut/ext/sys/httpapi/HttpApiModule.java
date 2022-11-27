@@ -935,7 +935,12 @@ public class HttpApiModule extends AbstractWnModule {
         boolean isPreloaded = false;
         for (NutMap plItem : preloads) {
             Object test = plItem.get("test");
-            AutoMatch am = new AutoMatch(test);
+            WnMatch am = AutoMatch.parse(test, true);
+
+            // 判断是否符合条件
+            if (!am.match(apc.reqMeta)) {
+                continue;
+            }
 
             // 置否需要预先转换
             NutMap appends = plItem.getAs("appends", NutMap.class);
@@ -944,11 +949,6 @@ public class HttpApiModule extends AbstractWnModule {
                 if (null != more && !more.isEmpty()) {
                     apc.reqMeta.putAll(more);
                 }
-            }
-
-            // 判断是否符合条件
-            if (!am.match(apc.reqMeta)) {
-                continue;
             }
 
             // 执行
