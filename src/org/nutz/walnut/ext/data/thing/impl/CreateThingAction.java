@@ -317,7 +317,8 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 输出一下重复
         if (isDuplicated) {
-            if (null != out) {
+            // 只有输出进度模式下才打印警告信息，否则会破坏json语法
+            if (null != process && null != out) {
                 out.println("  - !! isDuplicated");
             }
         }
