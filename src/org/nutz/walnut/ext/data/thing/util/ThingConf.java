@@ -161,7 +161,7 @@ public class ThingConf {
             String key = en.getKey();
             Object val = en.getValue();
             if (null != val && val instanceof Map<?, ?>) {
-                ThingLinkKey lk = Lang.map2Object((Map<?, ?>) val, ThingLinkKey.class);
+                ThingLinkKey lk = new ThingLinkKey((Map<String, Object>) val);
                 reMap.put(key, lk);
             }
         }

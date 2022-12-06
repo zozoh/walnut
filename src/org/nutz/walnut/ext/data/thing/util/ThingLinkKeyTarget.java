@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.thing.util;
 
+import java.util.Map;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wn;
@@ -12,6 +14,15 @@ public class ThingLinkKeyTarget {
     private String thingSet;
 
     private NutMap filter;
+
+    public ThingLinkKeyTarget() {}
+
+    public ThingLinkKeyTarget(Map<String, Object> map) {
+        NutMap bean = NutMap.WRAP(map);
+        this.id = bean.getString("id");
+        this.thingSet = bean.getString("thingSet");
+        this.filter = bean.getAs("filter", NutMap.class);
+    }
 
     public ThingLinkKeyTarget clone() {
         ThingLinkKeyTarget re = new ThingLinkKeyTarget();

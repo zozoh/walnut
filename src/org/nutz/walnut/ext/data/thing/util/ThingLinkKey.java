@@ -1,10 +1,15 @@
 package org.nutz.walnut.ext.data.thing.util;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.each.WnEachIteratee;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
@@ -25,6 +30,32 @@ public class ThingLinkKey {
     private NutMap set;
 
     private String[] run;
+
+    public ThingLinkKey() {}
+
+    public ThingLinkKey(Map<String, Object> map) {
+        NutMap bean = NutMap.WRAP(map);
+        this.testPrimary = bean.get("testPrimary");
+        this.testUpdate = bean.get("testUpdate");
+        this.testUpdate = bean.get("match");
+        this.strict = bean.getBoolean("strict");
+        NutMap ta = bean.getAs("target", NutMap.class);
+        this.target = null == ta ? null : new ThingLinkKeyTarget(ta);
+        this.vars = bean.getAs("vars", NutMap.class);
+        this.set = bean.getAs("set", NutMap.class);
+        Object run = bean.get("run");
+        if (null != run) {
+            List<String> runs = new LinkedList<>();
+            Wlang.each(run, new WnEachIteratee<Object>() {
+                public void invoke(int index, Object ele, Object src) {
+                    if (null != ele) {
+                        runs.add(ele.toString());
+                    }
+                }
+            });
+            this.run = runs.toArray(new String[runs.size()]);
+        }
+    }
 
     public boolean isDoNothing() {
         return !this.hasSet() && !this.hasRun();
