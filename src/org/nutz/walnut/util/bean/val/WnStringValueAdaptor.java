@@ -1,5 +1,8 @@
 package org.nutz.walnut.util.bean.val;
 
+
+import java.util.Collection;
+
 import org.nutz.castor.Castors;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.WnValue;
@@ -15,6 +18,16 @@ public class WnStringValueAdaptor implements WnValueAdaptor {
         // 格式化
         if (fld.hasFormat()) {
             s = String.format(fld.getFormat(), input);
+        }
+        // 集合
+        else if (input.getClass().isArray()) {
+            String sep = Ws.sBlank(fld.getSeparator(), ",");
+            s = Ws.join((Object[]) input, sep);
+        }
+        // 数组
+        else if (input instanceof Collection) {
+            String sep = Ws.sBlank(fld.getSeparator(), ",");
+            s = Ws.join((Collection<?>) input, sep);
         }
         // 否则直接转字符串
         else {

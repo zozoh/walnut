@@ -1,9 +1,12 @@
 package org.nutz.walnut.util.bean;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.nutz.lang.Each;
@@ -79,20 +82,47 @@ public class WnValue {
         this.setType(WnValueType.String);
     }
 
+    @SuppressWarnings("unchecked")
     public Object tryValueOptions(Object input) {
-        if (null != input) {
-            String val = input.toString();
-            if (null != values) {
-                Object v2 = this.values.get(val);
-                if (null != v2) {
-                    return v2;
-                }
+        if (null == input) {
+            return null;
+        }
+        // 集合对象
+        if (input instanceof Collection<?>) {
+            Collection<Object> col = (Collection<Object>) input;
+            List<Object> re = new ArrayList<>(col.size());
+            for (Object ele : col) {
+                Object v2 = this.__get_option_val(ele);
+                re.add(v2);
             }
-            Object v3 = this.getOptionValue(val, input);
-            if (null != v3) {
-                return v3;
+            return re;
+        }
+        // 数组对象
+        if (input.getClass().isArray()) {
+            int len = Array.getLength(input);
+            Object[] re = (Object[]) Array.newInstance(Object.class, len);
+            for (int i = 0; i < len; i++) {
+                Object ele = Array.get(input, i);
+                Object v2 = this.__get_option_val(ele);
+                re[i] = v2;
             }
-            return input;
+            return re;
+        }
+        // 其他对象统统字符串之
+        return __get_option_val(input);
+    }
+
+    protected Object __get_option_val(Object input) {
+        String val = input.toString();
+        if (null != values) {
+            Object v2 = this.values.get(val);
+            if (null != v2) {
+                return v2;
+            }
+        }
+        Object v3 = this.getOptionValue(val, input);
+        if (null != v3) {
+            return v3;
         }
         return input;
     }
