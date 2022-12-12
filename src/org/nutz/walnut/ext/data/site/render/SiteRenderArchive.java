@@ -7,7 +7,7 @@ public class SiteRenderArchive {
     /**
      * 会根据这个路径自动生成 rph
      */
-    private String htmlPth;
+    private String homePath;
 
     /**
      * 符合条件的对象会被渲染
@@ -19,12 +19,12 @@ public class SiteRenderArchive {
      */
     private NutMap recur;
 
-    public String getHtmlPth() {
-        return htmlPth;
+    public String getHomePath() {
+        return homePath;
     }
 
-    public void setHtmlPth(String htmlPth) {
-        this.htmlPth = htmlPth;
+    public void setHomePath(String htmlPth) {
+        this.homePath = htmlPth;
     }
 
     public NutMap getFilter() {

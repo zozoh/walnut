@@ -53,6 +53,10 @@ public class SitePageRenderConfig {
         this.target = target;
     }
 
+    public boolean hasArchives() {
+        return null!=this.archives&& this.archives.length>0;
+    }
+
     public SiteRenderArchive[] getArchives() {
         return archives;
     }
@@ -101,5 +105,4 @@ public class SitePageRenderConfig {
         this.html = html;
     }
 
-    
 }
