@@ -39,6 +39,8 @@ public class SiteArchiveRendering {
             return;
         }
         WnQuery q = Wn.Q.pid(oPAr);
+        q.setAll(filter);
+        
     }
 
     private WnQuery genQuery(WnObj oP) {
