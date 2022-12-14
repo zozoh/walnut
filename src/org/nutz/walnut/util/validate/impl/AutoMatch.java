@@ -1,8 +1,8 @@
 package org.nutz.walnut.util.validate.impl;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 
 import org.nutz.walnut.api.err.Er;

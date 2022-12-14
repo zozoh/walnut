@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,6 +17,12 @@ import org.nutz.walnut.util.Wn;
 public abstract class WWW {
 
     public static final String AT_SEID = "DSEID";
+    
+    public static void joinWWWContext(NutBean context,WnObj oWWW) {
+        String rootPath = oWWW.path();
+        context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
+        context.put("SITE_HOME", rootPath);
+    }
 
     public static NutMap read_conf(WnIo io, String grp) {
         String phConf = Wn.appendPath(Wn.getUsrHome(grp), ".www/www.conf");

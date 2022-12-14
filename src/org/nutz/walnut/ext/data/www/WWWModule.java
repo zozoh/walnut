@@ -309,6 +309,7 @@ public class WWWModule extends AbstractWnModule {
                 }
 
                 // 放置一些上下文的接口
+                // 这段应该可以被废弃了
                 try {
                     WWWPageAPI api = new WWWPageAPI(io(), oHome, sessionDu, oWWW, context);
                     context.put("API", api);
@@ -385,7 +386,7 @@ public class WWWModule extends AbstractWnModule {
                                        String a_path) {
         try {
             NutMap context = _gen_context_by_req(req);
-            String rootPath = oWWW.path();
+            WWW.joinWWWContext(context, oWWW);
             String url = (String) req.getAttribute("wn_www_url");
             if (url == null)
                 url = req.getRequestURL().toString();
@@ -405,8 +406,6 @@ public class WWWModule extends AbstractWnModule {
                 basePath = uriPath;
             }
 
-            context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
-            context.put("SITE_HOME", rootPath);
             context.put("PAGE_PATH", pagePath);
             context.put("URL", url);
             context.put("URI_PATH", uriPath);

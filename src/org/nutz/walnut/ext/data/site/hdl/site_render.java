@@ -19,7 +19,7 @@ public class site_render extends SiteFilter {
         // 准备服务类
         SiteRendering rendering = new SiteRendering(sys, conf);
         rendering.updateLangs(langs);
-        rendering.setTargetHome(targetPath);
+        rendering.updateTargetHome(targetPath);
         
         // 执行
         rendering.render();
