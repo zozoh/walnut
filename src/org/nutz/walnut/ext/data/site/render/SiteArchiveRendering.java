@@ -2,11 +2,8 @@ package org.nutz.walnut.ext.data.site.render;
 
 import java.util.Map;
 
-import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
-import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
-import org.nutz.lang.LoopException;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -59,7 +56,6 @@ public class SiteArchiveRendering {
         });
     }
 
-    @SuppressWarnings("unchecked")
     void renderArchive(WnObj oAr) {
         // 目标输出路径
         NutMap ctx = new NutMap();
