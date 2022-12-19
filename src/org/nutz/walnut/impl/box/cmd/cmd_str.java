@@ -11,25 +11,32 @@ public class cmd_str extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        ZParams params = ZParams.parse(args, null, "^(trim)$");
+        ZParams params = ZParams.parse(args, "n", "^(trim)$");
 
         // 得到输入
         String str = sys.in.readAll();
 
         // 转换
+        String s2;
         if (params.has("decodeURI")) {
             String enc = params.getString("decodeURI", "UTF-8");
-            sys.out.print(URLDecoder.decode(str, enc));
+            s2 = URLDecoder.decode(str, enc);
         }
         // 去掉空白
         else if (params.has("trim")) {
-            sys.out.print(Strings.trim(str));
+            s2 = Strings.trim(str);
         }
         // 默认原样输出
         else {
-            sys.out.print(str);
+            s2 = str;
         }
 
+        // 输出
+        if (params.is("n")) {
+            sys.out.println(s2);
+        } else {
+            sys.out.print(s2);
+        }
     }
 
 }
