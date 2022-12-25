@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.site.render;
 
+import org.nutz.lang.util.NutMap;
+
 /**
  * 指定了一个站点渲染时的配置信息
  * 
@@ -10,9 +12,19 @@ package org.nutz.walnut.ext.data.site.render;
 public class SitePageRenderConfig {
 
     /**
+     * 站点的原始路径，将根据这个路径下的内容进行站点发布
+     */
+    private String home;
+
+    /**
      * 默认输出目录
      */
     private String target;
+
+    /**
+     * 全局上下文变量
+     */
+    private NutMap vars;
 
     /**
      * 渲染哪些归档
@@ -45,6 +57,26 @@ public class SitePageRenderConfig {
      */
     private String html;
 
+    public String getHome() {
+        return home;
+    }
+
+    public void setHome(String home) {
+        this.home = home;
+    }
+
+    public boolean hasVars() {
+        return null != vars && !vars.isEmpty();
+    }
+
+    public NutMap getVars() {
+        return vars;
+    }
+
+    public void setVars(NutMap vars) {
+        this.vars = vars;
+    }
+
     public String getTarget() {
         return target;
     }
@@ -54,7 +86,7 @@ public class SitePageRenderConfig {
     }
 
     public boolean hasArchives() {
-        return null!=this.archives&& this.archives.length>0;
+        return null != this.archives && this.archives.length > 0;
     }
 
     public SiteRenderArchive[] getArchives() {
@@ -71,6 +103,10 @@ public class SitePageRenderConfig {
 
     public void setPages(String[] pages) {
         this.pages = pages;
+    }
+
+    public boolean hasCopyFiles() {
+        return null != copyFiles && copyFiles.length > 0;
     }
 
     public String[] getCopyFiles() {

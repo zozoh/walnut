@@ -4,6 +4,10 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnQuery;
 
 public class SiteRenderArchive {
+    /**
+     * 归档集合的名称
+     */
+    private String name;
 
     /**
      * 从哪里加载归档，也同时会根据这个路径自动生成 rph
@@ -26,6 +30,11 @@ public class SiteRenderArchive {
     private NutMap filter;
 
     /**
+     * 排序
+     */
+    private NutMap sort;
+
+    /**
      * 符合条件的对象会被递归
      */
     private NutMap recur;
@@ -34,6 +43,18 @@ public class SiteRenderArchive {
      * 为了防止意外，要规定一个单层查询最大数据限制，默认2000,
      */
     private int limit;
+
+    public boolean isSameName(String name) {
+        return null != this.name && this.name.equals(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getBase() {
         return base;
@@ -69,6 +90,18 @@ public class SiteRenderArchive {
 
     public void setFilter(NutMap filter) {
         this.filter = filter;
+    }
+
+    public boolean hasSort() {
+        return null != sort && !sort.isEmpty();
+    }
+
+    public NutMap getSort() {
+        return sort;
+    }
+
+    public void setSort(NutMap sort) {
+        this.sort = sort;
     }
 
     public NutMap getRecur() {

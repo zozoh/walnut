@@ -6,24 +6,37 @@
 
 ```json5
 {
+  // 站点的原始路径，将根据这个路径下的内容进行站点发布
+  "home" :"~/website",
   // 默认输出目录
   "target": "~/www/website",
+  // 全局上下文变量
+  "vars":{
+    "rs" : "/"
+  },
   // 渲染哪些归档
   "archives": [
     {
+      // 归档集合的名称
+      "name" :"ar",
       // 从哪里加载归档，也同时会根据这个路径自动生成 rph
       "base" : "~/site/",
       // 输出的目标路径， 默认就是 rph， 渲染器会保证路径以.html结束
       "dist" : "${lang}/${rph}",
       // 一个当前归档元数据为上下文的解释集合，作为渲染 wnml 的上下文
+      // 真正渲染时，与全局的  vars 融合
       "vars":{
         "id" : "=id"
-      }
+      },
       // 符合条件的对象会被渲染
       "filter":{
         "race" :"DIR",
         "tp":"^(category|article)",
-        "publishsed":true
+        "published":true
+      },
+      // 排序
+      "sort":{
+        "sort":1
       },
       // 符合条件的对象会被递归
       "recur":{
@@ -60,9 +73,19 @@
  
 ```bash
 site render
-  [~/wwww/website]       # 指明目标输出目录，将覆盖 conf.target
+  [~/wwww/website]       # 指明目标输出目录，将覆盖 conf.home
   [-conf conf.json]      # 渲染的配置文件路径
   [-langs en_uk,zh_cn]   # 指明输出语言，将覆盖 conf.langs
+  [-ar ar:ID]            # 值为两个部分，一个指定了归档集合的名称
+                         # 后一部分指定了归档的 ID
+                         # 如果没有后一部分，则表示仅仅渲染指定的集合
+  [-copy]                # 强制执行复制。如果声明了-ar默认是不复制文件的
+                         # 即会无视 copyFiles 段的声明 
+  [-page]                # 强制渲染声明的页面。如果声明了-ar默认是不复制文件的
+                         # 即会无视 copyFiles 段的声明 
+  [-json]                #  JSON 模式将不输出日志，而是最后汇总一个json
+                         # 结果集合 {arID:[path1,path2,paht3]
+  [-cqn]                 # json模式下输出json的格式
 ```
 
 -------------------------------------------------------------

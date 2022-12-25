@@ -1,5 +1,10 @@
 package org.nutz.walnut.ext.data.site.render;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
@@ -21,6 +26,12 @@ public class SiteRendering {
 
     WnObj siteHome;
 
+    String archiveId;
+
+    boolean willCopyFiles;
+
+    boolean willRenderPages;
+
     SitePageRenderConfig config;
 
     WnOutputable out;
@@ -34,6 +45,16 @@ public class SiteRendering {
     WnmlRuntime wnmlRuntime;
 
     int I; // 输出计数
+    /**
+     * 指定文档渲染模式下，记录渲染的目标文档 <br>
+     * <code>{arID:[path1,path2,paht3]</code>
+     */
+    NutMap results;
+
+    /**
+     * JSON 模式将不输出日志，而是最后汇总一个json(results)
+     */
+    boolean jsonMode;
 
     public SiteRendering(WnSystem sys, SitePageRenderConfig conf) {
         this.io = sys.io;
@@ -43,14 +64,41 @@ public class SiteRendering {
         this.wnmls = new WnmlService();
         this.wnmlRuntime = new JvmWnmlRuntime(sys);
         this.I = 0;
+        this.results = new NutMap();
+    }
+
+    public boolean isJsonMode() {
+        return jsonMode;
+    }
+
+    public void setJsonMode(boolean jsonMode) {
+        this.jsonMode = jsonMode;
+    }
+
+    public void addResult(WnObj oAr, List<String> paths) {
+        if (jsonMode) {
+            results.put(oAr.id(), paths);
+        }
+    }
+
+    public boolean hasResults() {
+        return null != results && !results.isEmpty();
+    }
+
+    public NutMap getResults() {
+        return results;
     }
 
     public void LOGf(String fmt, Object... args) {
-        out.printlnf(fmt, args);
+        if (!jsonMode) {
+            out.printlnf(fmt, args);
+        }
     }
 
     public void LOG(String msg) {
-        out.println(msg);
+        if (!jsonMode) {
+            out.println(msg);
+        }
     }
 
     public void render() {
@@ -61,13 +109,117 @@ public class SiteRendering {
         if (!this.targetHome.isDIR()) {
             throw Er.create("e.site.render.TargetNotDir", targetHome);
         }
-        // 遍历归档
-        if (config.hasArchives()) {
-            for (SiteRenderArchive ar : config.getArchives()) {
-                SiteArchiveRendering arr = new SiteArchiveRendering(this, ar);
-                arr.renderArchives();
+
+        // 分析归档ID
+        String arName = null;
+        String arId = null;
+        boolean arMode = !Ws.isBlank(this.archiveId);
+        if (arMode) {
+            Matcher m = Pattern.compile("^([^:]+)(:(.+))?$").matcher(this.archiveId);
+            if (m.find()) {
+                arName = m.group(1);
+                arId = m.group(3);
             }
         }
+
+        // 复制文件
+        if (config.hasCopyFiles()) {
+            if (!arMode || this.willCopyFiles) {
+                LOGf("Copy %d file or dirs", config.getCopyFiles().length);
+                for (String cpf : config.getCopyFiles()) {
+                    String[] ss = Ws.splitIgnoreBlank(cpf, "=>");
+                    String phFrom = ss[0];
+                    String phTo = ss.length > 1 ? ss[1] : null;
+                    doCopyFile(phFrom, phTo);
+                }
+            }
+        }
+
+        // 渲染所有归档
+        if (config.hasArchives()) {
+            LOGf("Render %d archive set", config.getArchives().length);
+            for (SiteRenderArchive ar : config.getArchives()) {
+                if (null != arName && !ar.isSameName(arName)) {
+                    continue;
+                }
+                SiteArchiveRendering arr = new SiteArchiveRendering(this, ar);
+                arr.renderArchives(arId);
+            }
+        }
+    }
+
+    void doCopyFile(String phFrom, String phTo) {
+        // 读取源文件
+        WnObj oFrom;
+        // 绝对位置
+        if (phFrom.startsWith("/") || phFrom.startsWith("~/")) {
+            String aph = Wn.normalizeFullPath(phFrom, session);
+            oFrom = io.check(null, aph);
+        }
+        // 来自站点
+        else {
+            oFrom = io.check(this.siteHome, phFrom);
+            if (Ws.isBlank(phTo)) {
+                phTo = phFrom;
+            }
+        }
+
+        // 创建目标
+        WnObj oTo = io.createIfNoExists(targetHome, phTo, oFrom.race());
+        _copy_obj(oFrom, oTo);
+
+    }
+
+    void _copy_obj(WnObj oFrom, WnObj oTo) {
+        LOGf(" - copy : %s >> %s", oFrom.path(), oTo.path());
+        // 目录递归
+        if (oFrom.isDIR() && oTo.isDIR()) {
+            List<WnObj> children = io.getChildren(oFrom, null);
+            for (WnObj child : children) {
+                String nm = child.name();
+                WnObj oToSub = io.createIfNoExists(oTo, nm, child.race());
+                _copy_obj(child, oToSub);
+            }
+        }
+        // 文件复制
+        else if (oFrom.isFILE() && oTo.isFILE()) {
+            io.copyData(oFrom, oTo);
+        }
+    }
+
+    public String getArchiveId() {
+        return archiveId;
+    }
+
+    public void setArchiveId(String archiveId) {
+        this.archiveId = archiveId;
+    }
+
+    public boolean isWillCopyFiles() {
+        return willCopyFiles;
+    }
+
+    public void setWillCopyFiles(boolean willCopyFiles) {
+        this.willCopyFiles = willCopyFiles;
+    }
+
+    public boolean isWillRenderPages() {
+        return willRenderPages;
+    }
+
+    public void setWillRenderPages(boolean willRenderPages) {
+        this.willRenderPages = willRenderPages;
+    }
+
+    public NutMap getGloabalVars() {
+        NutMap re = new NutMap();
+        if (config.hasVars()) {
+            re.putAll(config.getVars());
+        }
+        re.put("CURRENT_DIR", siteHome.path());
+        re.put("rs", "/");
+        re.put("grp", session.getMyGroup());
+        return re;
     }
 
     public WnObj getSiteHome() {
@@ -76,6 +228,23 @@ public class SiteRendering {
 
     public void setSiteHome(WnObj siteHome) {
         this.siteHome = siteHome;
+    }
+
+    public void updateSiteHome(String path) {
+        if (Ws.isBlank(path)) {
+            path = config.getHome();
+        }
+        this.siteHome = checkObj(path);
+
+    }
+
+    public void updateSiteHome(WnObj oSiteHome) {
+        if (null == oSiteHome) {
+            String path = config.getHome();
+            oSiteHome = checkObj(path);
+        }
+        this.siteHome = oSiteHome;
+
     }
 
     public SitePageRenderConfig getConfig() {

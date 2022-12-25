@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.data.site;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 
 public class cmd_site extends JvmFilterExecutor<SiteContext, SiteFilter> {
@@ -23,8 +24,10 @@ public class cmd_site extends JvmFilterExecutor<SiteContext, SiteFilter> {
 
     @Override
     protected void prepare(WnSystem sys, SiteContext fc) {
-        String sitePath = fc.params.val_check(0);
-        fc.oSite = Wn.checkObj(sys, sitePath);
+        String sitePath = fc.params.val(0);
+        if (!Ws.isBlank(sitePath)) {
+            fc.oSite = Wn.checkObj(sys, sitePath);
+        }
     }
 
     @Override

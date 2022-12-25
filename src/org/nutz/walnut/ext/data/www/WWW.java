@@ -20,7 +20,7 @@ public abstract class WWW {
     
     public static void joinWWWContext(NutBean context,WnObj oWWW) {
         String rootPath = oWWW.path();
-        context.put("WWW", oWWW.pickBy("^(id|hm_.+)$"));
+        context.put("WWW", oWWW.pickBy("^(id|c|g|m|hm_.+)$"));
         context.put("SITE_HOME", rootPath);
     }
 
