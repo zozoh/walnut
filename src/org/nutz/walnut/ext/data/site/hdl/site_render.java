@@ -22,9 +22,10 @@ public class site_render extends SiteFilter {
     @Override
     protected void process(WnSystem sys, SiteContext fc, ZParams params) {
         // 分析参数
-        String targetPath = params.val(0);
+
         String[] langs = params.getAs("lang", String[].class);
-        String arId = params.getString("ar");
+        String targetPath = params.getString("target", null);
+        String arName = params.getString("name", null);
 
         // 计时
         Stopwatch sw = Stopwatch.begin();
@@ -38,7 +39,8 @@ public class site_render extends SiteFilter {
         // 准备服务类
         SiteRendering rendering = new SiteRendering(sys, conf);
         rendering.setJsonMode(params.is("json"));
-        rendering.setArchiveId(arId);
+        rendering.setArchiveIds(params.vals);
+        rendering.setArchiveSetName(arName);
         rendering.setWillCopyFiles(params.is("copy"));
         rendering.setWillRenderPages(params.is("page"));
         rendering.updateSiteHome(fc.oSite);

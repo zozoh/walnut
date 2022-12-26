@@ -13,7 +13,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.www.WWW;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.tmpl.Tmpl;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -35,15 +34,25 @@ public class SiteArchiveRendering {
         this.canRecur = AutoMatch.parse(ar.getRecur());
     }
 
-    void renderArchives(String arId) {
+    void renderArchives(String... ids) {
         // 防守
         if (!this.oArHome.isDIR()) {
             throw Er.create("e.site.render.ArHomeNotDir", oArHome);
         }
+        // 得到主目录的 path
+        String homePath = this.oArHome.path();
         ing.LOGf("Render: %s", ar.getBase());
-        if (!Ws.isBlank(arId)) {
-            WnObj oAr = ing.io.checkById(arId);
-            this.renderArchive(oAr);
+
+        if (ids.length > 0) {
+            for (String id : ids) {
+                WnObj oAr = ing.io.checkById(id);
+                String arPath = oAr.path();
+                if (arPath.startsWith(homePath)) {
+                    this.renderArchive(oAr);
+                } else {
+                    ing.LOGf("Ignore [%s] cause out of [%s]", arPath, homePath);
+                }
+            }
         }
         // 整站渲染
         else {
@@ -79,16 +88,16 @@ public class SiteArchiveRendering {
         ctx.put("rph", rph);
         ing.LOGf("%d) %s", ing.I++, rph);
 
-     // 记录渲染的结果路径，这样再次渲染前，调用者有办法清除老的结果
-        List<String > paths = new LinkedList<>();   
+        // 记录渲染的结果路径，这样再次渲染前，调用者有办法清除老的结果
+        List<String> paths = new LinkedList<>();
         if (ing.hasLangs()) {
             for (String lang : ing.getLangs()) {
                 ctx.put("lang", lang);
-                String distPath =__write_dist_html(ctx);
+                String distPath = __write_dist_html(ctx);
                 paths.add(distPath);
             }
         } else {
-            String distPath =__write_dist_html(ctx);
+            String distPath = __write_dist_html(ctx);
             paths.add(distPath);
         }
         ing.addResult(oAr, paths);

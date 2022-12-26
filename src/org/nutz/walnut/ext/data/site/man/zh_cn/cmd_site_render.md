@@ -73,19 +73,18 @@
  
 ```bash
 site render
-  [~/wwww/website]       # 指明目标输出目录，将覆盖 conf.home
-  [-conf conf.json]      # 渲染的配置文件路径
-  [-langs en_uk,zh_cn]   # 指明输出语言，将覆盖 conf.langs
-  [-ar ar:ID]            # 值为两个部分，一个指定了归档集合的名称
-                         # 后一部分指定了归档的 ID
-                         # 如果没有后一部分，则表示仅仅渲染指定的集合
-  [-copy]                # 强制执行复制。如果声明了-ar默认是不复制文件的
-                         # 即会无视 copyFiles 段的声明 
-  [-page]                # 强制渲染声明的页面。如果声明了-ar默认是不复制文件的
-                         # 即会无视 copyFiles 段的声明 
-  [-json]                #  JSON 模式将不输出日志，而是最后汇总一个json
-                         # 结果集合 {arID:[path1,path2,paht3]
-  [-cqn]                 # json模式下输出json的格式
+  [ID, ID ..]               # 可以指定多个归档的 ID
+  [-conf conf.json]         # 渲染的配置文件路径
+  [-target ~/wwww/website]  # 指明目标输出目录，将覆盖 conf.target
+  [-langs en_uk,zh_cn]      # 指明输出语言，将覆盖 conf.langs
+  [-name ar]                # 指定了归档集合的名称,表示仅仅会渲染这个集合
+  [-copy]                   # 强制执行复制。如果声明了-ar默认是不复制文件的
+                            # 即会无视 copyFiles 段的声明 
+  [-page]                   # 强制渲染声明的页面。如果声明了-ar默认是不复制文件的
+                            # 即会无视 copyFiles 段的声明 
+  [-json]                   #  JSON 模式将不输出日志，而是最后汇总一个json
+                            # 结果集合 {arID:[path1,path2,paht3]
+  [-cqn]                    # json模式下输出json的格式
 ```
 
 -------------------------------------------------------------

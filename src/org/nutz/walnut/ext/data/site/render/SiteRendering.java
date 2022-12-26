@@ -1,9 +1,6 @@
 package org.nutz.walnut.ext.data.site.render;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -26,7 +23,8 @@ public class SiteRendering {
 
     WnObj siteHome;
 
-    String archiveId;
+    String archiveSetName;
+    String[] archiveIds;
 
     boolean willCopyFiles;
 
@@ -110,17 +108,10 @@ public class SiteRendering {
             throw Er.create("e.site.render.TargetNotDir", targetHome);
         }
 
+        String[] ids = null == archiveIds ? new String[0] : archiveIds;
+
         // 分析归档ID
-        String arName = null;
-        String arId = null;
-        boolean arMode = !Ws.isBlank(this.archiveId);
-        if (arMode) {
-            Matcher m = Pattern.compile("^([^:]+)(:(.+))?$").matcher(this.archiveId);
-            if (m.find()) {
-                arName = m.group(1);
-                arId = m.group(3);
-            }
-        }
+        boolean arMode = !Ws.isBlank(this.archiveSetName) || ids.length > 0;
 
         // 复制文件
         if (config.hasCopyFiles()) {
@@ -139,11 +130,11 @@ public class SiteRendering {
         if (config.hasArchives()) {
             LOGf("Render %d archive set", config.getArchives().length);
             for (SiteRenderArchive ar : config.getArchives()) {
-                if (null != arName && !ar.isSameName(arName)) {
+                if (null != archiveSetName && !ar.isSameName(archiveSetName)) {
                     continue;
                 }
                 SiteArchiveRendering arr = new SiteArchiveRendering(this, ar);
-                arr.renderArchives(arId);
+                arr.renderArchives(ids);
             }
         }
     }
@@ -187,12 +178,20 @@ public class SiteRendering {
         }
     }
 
-    public String getArchiveId() {
-        return archiveId;
+    public String getArchiveSetName() {
+        return archiveSetName;
     }
 
-    public void setArchiveId(String archiveId) {
-        this.archiveId = archiveId;
+    public void setArchiveSetName(String archiveSetName) {
+        this.archiveSetName = archiveSetName;
+    }
+
+    public String[] getArchiveIds() {
+        return archiveIds;
+    }
+
+    public void setArchiveIds(String[] archiveIds) {
+        this.archiveIds = archiveIds;
     }
 
     public boolean isWillCopyFiles() {
@@ -276,7 +275,6 @@ public class SiteRendering {
             target = config.getTarget();
         }
         this.targetHome = checkObj(target);
-
     }
 
     protected WnObj checkObj(String target) {
@@ -284,8 +282,7 @@ public class SiteRendering {
     }
 
     protected WnObj createTargetFile(String ph) {
-        String aph = Wn.normalizeFullPath(ph, session);
-        return io.createIfNoExists(targetHome, aph, WnRace.FILE);
+        return io.createIfNoExists(targetHome, ph, WnRace.FILE);
     }
 
     private String _wnml_input;
