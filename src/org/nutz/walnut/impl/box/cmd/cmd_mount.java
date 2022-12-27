@@ -52,7 +52,7 @@ public class cmd_mount extends JvmExecutor {
         WnObj o = Wn.checkObj(sys, ph);
 
         // 必须为对应域的管理员，才能执行
-        if (!sys.auth.isAdminOfGroup(me, o.group())) {
+        if (!sys.auth.isAdminOfGroup(me, "root", o.group())) {
             throw Er.create("e.cmd.mount.NotAdmin");
         }
 
