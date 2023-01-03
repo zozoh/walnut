@@ -44,14 +44,31 @@
       },
       // 为了防止意外，要规定一个单层查询最大数据限制，默认2000,
       "limit":2000,
+      // 渲染模板
+      "html": "pub.wnml"
     }
   ],
   // 还需要额外渲染哪些静态网页
   "pages": [
-    "page/ytplayer.json",
-    "page/subscrib.json",
-    "page/subscrib_ok.json",
-  ],
+    {
+      "name" : "site",
+      // 相对路径采用站点源码目录
+      "base" : "page",
+      "dist" : "${lang}/${rph}",
+      "filter":{
+        "race" :"FILE",
+        "nm":  [
+          "page/ytplayer.json",
+          "page/subscrib.json",
+          "page/subscrib_ok.json",
+        ]
+      },
+      "limit":2000,
+      "html": "pub.wnml"
+    }
+  ]
+  
+
   // 需要复制哪些静态资源
   "copyFiles":[
     "css",
@@ -78,10 +95,10 @@ site render
   [-target ~/wwww/website]  # 指明目标输出目录，将覆盖 conf.target
   [-langs en_uk,zh_cn]      # 指明输出语言，将覆盖 conf.langs
   [-name ar]                # 指定了归档集合的名称,表示仅仅会渲染这个集合
-  [-copy]                   # 强制执行复制。如果声明了-ar默认是不复制文件的
-                            # 即会无视 copyFiles 段的声明 
-  [-page]                   # 强制渲染声明的页面。如果声明了-ar默认是不复制文件的
-                            # 即会无视 copyFiles 段的声明 
+  [-copy]                   # 强制执行复制。如果声明了-name默认是不复制文件的,
+                            # 即会无视 copyFiles 和 page 段的声明 
+  [-page]                   # 强制渲染指定接页面。如果声明了-name默认是不复制文件的,
+                            # 即会无视 copyFiles 和 page 段的声明 
   [-json]                   #  JSON 模式将不输出日志，而是最后汇总一个json
                             # 结果集合 {arID:[path1,path2,paht3]
   [-cqn]                    # json模式下输出json的格式
