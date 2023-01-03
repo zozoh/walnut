@@ -1638,9 +1638,9 @@ public abstract class Wn {
      * @return 真实文件对象
      */
     public static WnObj real(WnObj o, WnIo io) {
-        if (null != o && o.isLink()) {
+        String ln = o.link();
+        if (null != o && o.isLink() && null != ln) {
             // String oldPath = o.path();
-            String ln = o.link();
             // 用 ID
             if (ln.startsWith("id:")) {
                 String id = ln.substring("id:".length());

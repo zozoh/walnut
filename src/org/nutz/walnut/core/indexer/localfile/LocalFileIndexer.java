@@ -284,14 +284,30 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         int reLen = limit > 0 ? Math.min(limit, max) : max;
         ArrayList<NutMap> sortedList = new ArrayList<>(reLen);
 
+        // 指定了父对象，需要设置到归档里
+        WnObj oP = q.getParentObj();
+
         // 进入匹配循环
         for (int i = 0; i < max; i++) {
             File f = files[i + skip];
 
             // 准备对象
             NutMap meta = new NutMap();
+            if (f.isDirectory()) {
+                meta.put("race", WnRace.DIR.name());
+            } else if (f.isFile()) {
+                meta.put("race", WnRace.FILE.name());
+            }
             meta.put("nm", f.getName());
-            meta.put("tp", Files.getSuffixName(f));
+            String ftp = Files.getSuffixName(f);
+            if (null != ftp) {
+                ftp = ftp.toLowerCase();
+                meta.put("tp", ftp);
+                String mime = mimes.getMime(ftp, null);
+                if (null != mime) {
+                    meta.put("mime", mime);
+                }
+            }
             meta.put("lm", f.lastModified());
             meta.put("len", f.length());
             meta.put("_file", f);
@@ -328,6 +344,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             NutMap meta = sortedList.get(i);
             File f = meta.getAs("_file", File.class);
             WnLocalFileObj o = new WnLocalFileObj(root, dHome, f, mimes);
+            o.setParent(oP);
             callback.invoke(i, o, max);
         }
 

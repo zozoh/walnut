@@ -66,9 +66,7 @@
       "limit":2000,
       "html": "pub.wnml"
     }
-  ]
-  
-
+  ],
   // 需要复制哪些静态资源
   "copyFiles":[
     "css",

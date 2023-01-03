@@ -1071,6 +1071,7 @@ public class WnIoImpl2 implements WnIo {
             WnIoIndexer indexer = im.getIndexer();
             // 确保 pid 是子ID
             q.setv("pid", oP.myId());
+            q.setParentObj(oP);
             return indexer.each(q, looper);
         }
         // 采用根索引管理器

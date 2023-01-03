@@ -13,6 +13,8 @@ import org.nutz.walnut.util.Wlang;
 
 public class WnQuery {
 
+    private WnObj parentObj;
+
     private int skip;
 
     private int limit;
@@ -27,6 +29,7 @@ public class WnQuery {
 
     public WnQuery clone() {
         WnQuery q = new WnQuery();
+        q.parentObj = parentObj;
         q.skip = skip;
         q.limit = limit;
         if (null != this.sort) {
@@ -40,6 +43,18 @@ public class WnQuery {
             }
         }
         return q;
+    }
+
+    public boolean hasParentObj() {
+        return null != parentObj;
+    }
+
+    public WnObj getParentObj() {
+        return parentObj;
+    }
+
+    public void setParentObj(WnObj parentObj) {
+        this.parentObj = parentObj;
     }
 
     public WnQuery add(NutMap map) {

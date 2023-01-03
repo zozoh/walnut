@@ -278,7 +278,14 @@ public class SiteRendering {
     }
 
     protected WnObj checkObj(String target) {
-        return Wn.checkObj(io, session, target);
+        // 绝对位置
+        if (target.startsWith("~/") || target.startsWith("/")) {
+            return Wn.checkObj(io, session, target);
+        }
+        // 站内文件
+        else {
+            return io.check(this.siteHome, target);
+        }
     }
 
     protected WnObj createTargetFile(String ph) {

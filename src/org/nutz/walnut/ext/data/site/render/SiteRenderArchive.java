@@ -37,7 +37,7 @@ public class SiteRenderArchive {
     /**
      * 符合条件的对象会被递归
      */
-    private NutMap recur;
+    private Object recur;
 
     /**
      * 为了防止意外，要规定一个单层查询最大数据限制，默认2000,
@@ -104,11 +104,11 @@ public class SiteRenderArchive {
         this.sort = sort;
     }
 
-    public NutMap getRecur() {
+    public Object getRecur() {
         return recur;
     }
 
-    public void setRecur(NutMap recur) {
+    public void setRecur(Object recur) {
         this.recur = recur;
     }
 

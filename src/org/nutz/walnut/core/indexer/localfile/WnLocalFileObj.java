@@ -401,11 +401,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean isLink() {
+        // return this.oHome.isLink();
         return false;
     }
 
     @Override
     public String link() {
+        // String homeLink = this.oHome.link();
+        // if (!Ws.isBlank(homeLink)) {
+        // return Wn.appendPath(homeLink, this.rph);
+        // }
         return null;
     }
 

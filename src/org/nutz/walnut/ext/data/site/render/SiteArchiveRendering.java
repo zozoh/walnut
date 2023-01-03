@@ -30,6 +30,9 @@ public class SiteArchiveRendering {
     SiteArchiveRendering(SiteRendering ing, SiteRenderArchive ar) {
         this.ing = ing;
         this.oArHome = ing.checkObj(ar.getBase());
+        // 重新获取依次，因为本地文件映射会修改路径
+        // 我么需要最原始的路径，以便计算相对路径
+        this.oArHome = ing.io.checkById(oArHome.id());
         this.ar = ar;
         this.canRecur = AutoMatch.parse(ar.getRecur());
     }

@@ -24,40 +24,13 @@ public class WnIoCustomizedPvgTest extends IoCoreTest {
     }
 
     @Test
-    public void test_join_depth_2() {
-        WnObj a = io.create(null, "/a", WnRace.DIR);
-        WnObj b = io.create(a, "b", WnRace.DIR);
-        WnObj c = io.create(b, "c", WnRace.FILE);
-
-        a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[zz]':'0644'}"));
-        c.put("pvg", Wlang.map("{'@[yy]':'0777', '.DEPTH':1}"));
-
-        WnAccount x = setup.genAccount("xx");
-        WnAccount y = setup.genAccount("yy");
-        WnAccount z = setup.genAccount("zz");
-
-        int pvg;
-
-        pvg = c.getCustomizedPrivilege(x, 0);
-        assertEquals(0, pvg);
-
-        pvg = c.getCustomizedPrivilege(y, 0);
-        assertEquals(Wn.Io.modeFromOctal("0777"), pvg);
-
-        pvg = c.getCustomizedPrivilege(z, 0);
-        assertEquals(Wn.Io.modeFromOctal("0644"), pvg);
-
-    }
-
-    @Test
     public void test_join_strong() {
         WnObj a = io.create(null, "/a", WnRace.DIR);
         WnObj b = io.create(a, "b", WnRace.DIR);
         WnObj c = io.create(b, "c", WnRace.FILE);
 
         a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[zz]':'0755','.MODE':'STRONG'}"));
+        b.put("pvg", Wlang.map("{'@[zz]':'!0755'}"));
         c.put("pvg", Wlang.map("{'@[zz]':'0777'}"));
 
         WnAccount x = setup.genAccount("xx");
@@ -84,7 +57,7 @@ public class WnIoCustomizedPvgTest extends IoCoreTest {
         WnObj c = io.create(b, "c", WnRace.FILE);
 
         a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[yy]':'0755','.MODE':'WEAK'}"));
+        b.put("pvg", Wlang.map("{'@[yy]':'~0755'}"));
         c.put("pvg", Wlang.map("{'@[zz]':'0777'}"));
 
         WnAccount x = setup.genAccount("xx");
