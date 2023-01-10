@@ -152,6 +152,13 @@ public class WnMailService implements WnMailApi {
             mo.setSslSmtpPort(config.getSmtpPort() + "");
             mo.setSSLOnConnect(true);
         }
+        // STARTTLS
+        else if(config.isStarttls()) {
+            mo.setSSLOnConnect(false);
+            mo.setStartTLSEnabled(true);
+            mo.setStartTLSRequired(true);
+            mo.setSmtpPort(config.getSmtpPort());
+        }
         // 非 SSL
         else {
             mo.setSmtpPort(config.getSmtpPort());
@@ -207,6 +214,7 @@ public class WnMailService implements WnMailApi {
         // 嗯，发送吧
         mo.buildMimeMessage();
         String re = mo.sendMimeMessage();
+        
 
         if (log.isDebugEnabled()) {
             log.debugf("Mail sent: %s", re);

@@ -30,9 +30,14 @@ public class WnMailConfig {
     private String password;
 
     /**
-     * 是否启用 ssl 连接
+     * 是否启用 ssl 连接（比starttls优先）
      */
     private boolean ssl;
+
+    /**
+     * 是否启用 starttls 连接
+     */
+    private boolean starttls;
 
     /**
      * 发送时，默认采用的语言，默认 "zh-cn"
@@ -85,6 +90,14 @@ public class WnMailConfig {
 
     public void setSsl(boolean ssl) {
         this.ssl = ssl;
+    }
+
+    public boolean isStarttls() {
+        return starttls;
+    }
+
+    public void setStarttls(boolean starttls) {
+        this.starttls = starttls;
     }
 
     public String getLang() {
