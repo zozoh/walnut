@@ -35,7 +35,7 @@ public class OomlEntry {
         this.race = en.isDirectory() ? WnRace.DIR : WnRace.FILE;
 
         // 读取实体内容
-        long maxCap = Math.max(this.size + 8192, 1024 * 10240);
+        long maxCap = Math.max(this.size + 8192, 2048 * 10240);
         int readed;
         LinkedByteBuffer buf = new LinkedByteBuffer(8192, 10, (int) maxCap);
         while ((readed = zip.read(bs)) >= 0) {
