@@ -1,3 +1,4 @@
+
 *.class
 .DS_Store
 .tags*
@@ -22,7 +23,7 @@ hs_err_pid*
 /conf/web_local.properties
 build
 mysrc
-
+walnut.iml
 .classpath
 .project
 .settings
