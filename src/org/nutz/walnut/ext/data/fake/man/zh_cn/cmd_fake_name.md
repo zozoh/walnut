@@ -6,6 +6,13 @@
 
 ```bash
 fake [N] @name 
+    [FULL]          # 模式：
+                    #  - FULL(默认)
+                    #  - FULL_WITH_MIDDLE
+                    #  - FULL_NO_MIDDLE
+                    #  - FIRST
+                    #  - MIDDLE
+                    #  - FAMILY
     [-lang zh_cn]   # 语言种类，默认 zh_cn
 ```
 

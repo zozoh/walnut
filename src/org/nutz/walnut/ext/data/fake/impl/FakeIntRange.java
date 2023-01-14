@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.fake.impl;
 
+import org.nutz.walnut.util.Wuu;
+
 public class FakeIntRange {
 
     protected int min;
@@ -16,7 +18,7 @@ public class FakeIntRange {
         // 如果只有一个值，则表示数值
         else {
             int n = Integer.parseInt(input);
-            __tidy(0, n);
+            __tidy(n, n);
         }
     }
 
@@ -32,6 +34,13 @@ public class FakeIntRange {
             this.min = min;
             this.max = max;
         }
+    }
+
+    public int randomN() {
+        if (max > min) {
+            return Wuu.random(min, max);
+        }
+        return min;
     }
 
     public int getMin() {

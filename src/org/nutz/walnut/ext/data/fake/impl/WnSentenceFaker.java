@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.nutz.walnut.ext.data.fake.WnFaker;
 import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
-import org.nutz.walnut.util.Wuu;
 import org.nutz.walnut.ext.data.fake.WnFakes;
 
 public class WnSentenceFaker extends WnWordFaker implements WnFaker<String> {
@@ -34,7 +33,7 @@ public class WnSentenceFaker extends WnWordFaker implements WnFaker<String> {
 
     @Override
     public String next() {
-        int n = Wuu.random(ir.min, ir.max);
+        int n = ir.randomN();
         List<String> list = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             String word = this.word.next();

@@ -6,8 +6,8 @@
 
 ```bash
 fake [N] @text 
-    [$MIN-$MAX]     # 字符范围，或最小字符数
-    [$MAX]          # 最大字符数
+    [$MIN-$MAX]     # 词数范围，或最小词数
+    [$N]            # 固定词数
     [-lang zh_cn]   # 语言种类，默认 zh_cn
 ```
 

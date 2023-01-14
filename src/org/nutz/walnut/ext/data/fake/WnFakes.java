@@ -11,6 +11,7 @@ import org.nutz.walnut.ext.data.fake.impl.WnDateFormatFaker;
 import org.nutz.walnut.ext.data.fake.impl.WnEnumFaker;
 import org.nutz.walnut.ext.data.fake.impl.WnIntTmplFaker;
 import org.nutz.walnut.ext.data.fake.impl.WnIntegerFaker;
+import org.nutz.walnut.ext.data.fake.impl.WnNameFakeMode;
 import org.nutz.walnut.ext.data.fake.impl.WnNameFaker;
 import org.nutz.walnut.ext.data.fake.impl.WnSentenceFaker;
 import org.nutz.walnut.ext.data.fake.impl.WnStaticFaker;
@@ -23,6 +24,7 @@ import org.nutz.walnut.ext.data.fake.lang.WnLangZhFaker;
 import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.Tmpl;
 
 public class WnFakes {
 
@@ -44,10 +46,12 @@ public class WnFakes {
         if ("UU32".equals(input)) {
             return new WnUU32Faker();
         }
-        // 生成 0-100 的整数
-        // "INT",
-        if ("INT".equals(input)) {
-            return new WnIntegerFaker();
+
+        // 生成 随机的多段整数
+        // "INTS:192.168.{100-200}.{0-255}",
+        if (input.startsWith("INTS:")) {
+            input = input.substring(5).trim();
+            return new WnIntTmplFaker(input);
         }
         // 生成 50-100 的整数
         // "INT:50-100",
@@ -55,53 +59,51 @@ public class WnFakes {
             input = input.substring(4).trim();
             return new WnIntegerFaker(input);
         }
-        // 生成 随机的多段整数
-        // "INTS:192.168.{100-200}.{0-255}",
-        if (input.startsWith("INTS:")) {
-            input = input.substring(5).trim();
-            return new WnIntTmplFaker(input);
+        // 生成 0-100 的整数
+        // "INT",
+        if ("INT".equals(input)) {
+            return new WnIntegerFaker();
+        }
+        // 生成随机的字符串
+        // "STR:5-10",
+        if (input.startsWith("STR:")) {
+            input = input.substring(4).trim();
+            return new WnStrFaker(input);
         }
         // 生成随机的字符串
         // "STR",
         else if (input.startsWith("STR")) {
             return new WnStrFaker();
         }
-        // 生成随机的字符串
-        // "STR:5-10",
-        if (input.startsWith("STR:")) {
-            input = input.substring(5).trim();
-            int pos = input.indexOf('-');
-            int min = Integer.parseInt(input.substring(0, pos).trim());
-            int max = Integer.parseInt(input.substring(pos + 1).trim());
-            return new WnStrFaker(min, max);
+        // 生成随机的句子
+        // "SENTENCE:5-10",
+        else if (input.startsWith("SENTENCE:")) {
+            input = input.substring(9).trim();
+            return new WnSentenceFaker(lang, input);
         }
         // 生成随机的句子
         // "SENTENCE",
         if (input.startsWith("SENTENCE")) {
             return new WnSentenceFaker(lang);
         }
-        // 生成随机的句子
-        // "SENTENCE:5-10",
-        else if (input.startsWith("SENTENCE:")) {
+        // 生成随机的文本
+        // "TEXT:5-10",
+        if (input.startsWith("TEXT:")) {
             input = input.substring(5).trim();
-            int pos = input.indexOf('-');
-            int min = Integer.parseInt(input.substring(0, pos).trim());
-            int max = Integer.parseInt(input.substring(pos + 1).trim());
-            return new WnSentenceFaker(lang, min, max);
+            return new WnTextFaker(lang, input);
         }
         // 生成随机的文本
         // "TEXT",
         if (input.startsWith("TEXT")) {
             return new WnTextFaker(lang);
         }
-        // 生成随机的文本
-        // "TEXT:5-10",
-        if (input.startsWith("TEXT:")) {
-            input = input.substring(5).trim();
-            int pos = input.indexOf('-');
-            int min = Integer.parseInt(input.substring(0, pos).trim());
-            int max = Integer.parseInt(input.substring(pos + 1).trim());
-            return new WnTextFaker(lang, min, max);
+        // 生成随机名称
+        // "NAME"
+        if (input.startsWith("NAME:")) {
+            input = input.substring(5).trim().toUpperCase();
+            WnNameFakeMode fm = WnNameFakeMode.valueOf(input);
+
+            return new WnNameFaker(lang, fm);
         }
         // 生成随机名称
         // "NAME"
@@ -155,8 +157,9 @@ public class WnFakes {
         return langFakers.get(lang);
     }
 
-    public static final String TP_NAME0 = "name0";
-    public static final String TP_NAME1 = "name1";
+    public static final String TP_NAME_FAM = "name_fam";
+    public static final String TP_NAME_FIRST = "name_first";
+    public static final String TP_NAME_MID = "name_mid";
     public static final String TP_WORDS = "words";
 
     private static WnFakes _me = null;
@@ -169,6 +172,7 @@ public class WnFakes {
     }
 
     private Map<String, Map<String, WnFakeWord>> dicts;
+    private Map<String, Tmpl> namePatterns = new HashMap<>();
 
     public WnFakes() {
         dicts = new HashMap<>();
@@ -180,14 +184,22 @@ public class WnFakes {
         Map<String, WnFakeWord> re = new HashMap<>();
         String pkg = WnFakes.class.getPackage().getName().replace('.', '/');
         String base = pkg + "/data/" + lang + "/";
-        String[] names = Wlang.array(TP_NAME0, TP_NAME1, TP_WORDS);
+        String[] names = Wlang.array(TP_NAME_FAM, TP_NAME_FIRST, TP_NAME_MID, TP_WORDS);
         for (String name : names) {
             String fph = base + name + ".txt";
             String str = Files.read(fph);
             WnFakeWord fw = new WnFakeWord(str);
             re.put(name, fw);
         }
+        String fph = base + "name.txt";
+        String str = Files.read(fph);
+        Tmpl tmpl = Tmpl.parse(str);
+        namePatterns.put(lang, tmpl);
         return re;
+    }
+
+    public Tmpl getNamePattern(String lang) {
+        return namePatterns.get(lang);
     }
 
     public WnFakeWord getWord(String lang, String type) {

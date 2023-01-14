@@ -18,7 +18,7 @@ public abstract class Wuu {
     }
 
     public static String nextStr(int min, int max) {
-        int n = random(min, max);
+        int n = max > min ? random(min, max) : min;
         char[] cs = new char[n];
         for (int i = 0; i < n; i++) {
             cs[i] = nextChar();

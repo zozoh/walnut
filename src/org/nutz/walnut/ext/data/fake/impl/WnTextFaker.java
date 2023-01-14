@@ -3,7 +3,6 @@ package org.nutz.walnut.ext.data.fake.impl;
 import org.nutz.walnut.ext.data.fake.WnFakes;
 import org.nutz.walnut.ext.data.fake.WnFaker;
 import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
-import org.nutz.walnut.util.Wuu;
 
 public class WnTextFaker extends WnWordFaker implements WnFaker<String> {
 
@@ -31,7 +30,7 @@ public class WnTextFaker extends WnWordFaker implements WnFaker<String> {
 
     @Override
     public String next() {
-        int n = Wuu.random(ir.min, ir.max);
+        int n = ir.randomN();
         StringBuilder sb = new StringBuilder();
         while (sb.length() < n) {
             String word = this.word.next();
