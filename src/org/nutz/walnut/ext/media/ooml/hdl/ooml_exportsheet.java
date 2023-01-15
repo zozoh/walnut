@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.img.Images;
 import org.nutz.lang.Stopwatch;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -40,7 +40,7 @@ public class ooml_exportsheet extends OomlFilter {
         int limit = params.getInt("limit", 0);
         String uniq = params.getString("uniq", null);
         String name = params.getString("name", null);
-        Tmpl nm = Tmpl.parse(name);
+        WnTmpl nm = WnTmpl.parse(name);
 
         // 准备 uniq 的查询条件
         WnQuery q = Wn.Q.pid(oDir);

@@ -21,7 +21,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
@@ -179,7 +179,7 @@ public class cmd_email extends JvmExecutor {
         }
         // 渲染标题
         if (!Strings.isBlank(mc.subject)) {
-            mc.subject = Tmpl.exec(mc.subject, _c, false);
+            mc.subject = WnTmpl.exec(mc.subject, _c, false);
         }
         // ............................................
         // 处理模板:多国语言
@@ -197,7 +197,7 @@ public class cmd_email extends JvmExecutor {
 
             // 渲染消息正文
             String tmpl = io.readText(oTmpl);
-            mc.msg = Tmpl.exec(tmpl, _c, false);
+            mc.msg = WnTmpl.exec(tmpl, _c, false);
         }
         // ............................................
         // 解析收件人及抄送

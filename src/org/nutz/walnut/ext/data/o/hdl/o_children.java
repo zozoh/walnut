@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -51,7 +51,7 @@ public class o_children extends OFilter {
         q.setvToList("pid", o.id());
         q.limit(ing.limit);
         if (null != ing.sort) {
-            String sort2 = Tmpl.exec(ing.sort, o);
+            String sort2 = WnTmpl.exec(ing.sort, o);
             NutMap sortMap = Wlang.map(sort2);
             q.sort(sortMap);
         }

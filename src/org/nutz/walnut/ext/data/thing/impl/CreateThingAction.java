@@ -7,7 +7,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.WnOutputable;
@@ -32,13 +32,13 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     protected List<NutMap> metas;
 
-    protected Tmpl process;
+    protected WnTmpl process;
 
     protected WnOutputable out;
 
     protected WnExecutable executor;
 
-    protected Tmpl cmdTmpl;
+    protected WnTmpl cmdTmpl;
 
     protected NutMap fixedMeta;
 
@@ -64,11 +64,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     public CreateThingAction setProcess(WnOutputable out, String process) {
         this.out = out;
-        this.process = Tmpl.parse(process);
+        this.process = WnTmpl.parse(process);
         return this;
     }
 
-    public CreateThingAction setProcess(WnOutputable out, Tmpl process) {
+    public CreateThingAction setProcess(WnOutputable out, WnTmpl process) {
         this.out = out;
         this.process = process;
         return this;
@@ -87,11 +87,11 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
     public CreateThingAction setExecutor(WnExecutable executor, String cmdTmpl) {
         this.executor = executor;
-        this.cmdTmpl = Tmpl.parse(cmdTmpl);
+        this.cmdTmpl = WnTmpl.parse(cmdTmpl);
         return this;
     }
 
-    public CreateThingAction setExecutor(WnExecutable executor, Tmpl cmdTmpl) {
+    public CreateThingAction setExecutor(WnExecutable executor, WnTmpl cmdTmpl) {
         this.executor = executor;
         this.cmdTmpl = cmdTmpl;
         return this;

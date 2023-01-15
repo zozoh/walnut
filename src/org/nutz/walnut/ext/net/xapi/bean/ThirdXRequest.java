@@ -15,7 +15,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -173,7 +173,7 @@ public class ThirdXRequest {
     }
 
     public void expalinPath(NutBean vars) {
-        this.path = Tmpl.exec(this.path, vars);
+        this.path = WnTmpl.exec(this.path, vars);
     }
 
     public boolean hasPath() {

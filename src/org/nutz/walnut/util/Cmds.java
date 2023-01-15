@@ -8,7 +8,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -378,7 +378,7 @@ public abstract class Cmds {
                                            WnPager wp,
                                            List<NutBean> outs,
                                            String tmplKey) {
-        Tmpl tmpl = Cmds.parse_tmpl(params.get(tmplKey));
+        WnTmpl tmpl = Cmds.parse_tmpl(params.get(tmplKey));
 
         boolean show_index = params.is("i");
 
@@ -577,11 +577,11 @@ public abstract class Cmds {
     }
 
     public static String out_by_tmpl(String tmpl, NutBean context) {
-        return Tmpl.exec(tmpl, "@", context, false);
+        return WnTmpl.exec(tmpl, "@", context, false);
     }
 
-    public static Tmpl parse_tmpl(String tmpl) {
-        return Tmpl.parse(tmpl, "@");
+    public static WnTmpl parse_tmpl(String tmpl) {
+        return WnTmpl.parse(tmpl, "@");
     }
 
     private static void joinObjs(WnSystem sys,

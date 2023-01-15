@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
@@ -318,7 +318,7 @@ public class Wobj {
 
     public static String evalName(String name, String id) {
         name = Strings.sBlank(name, "${id}");
-        return Tmpl.exec(name, Lang.map("id", id));
+        return WnTmpl.exec(name, Lang.map("id", id));
     }
 
     public static boolean isValidName(String name) {

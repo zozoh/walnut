@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.util.jsonx.JsonXContext;
 import org.nutz.walnut.ext.util.jsonx.JsonXFilter;
@@ -18,9 +18,9 @@ public class jsonx_tmpl extends JsonXFilter {
 
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
-        List<Tmpl> tmpls = new ArrayList<>(params.vals.length);
+        List<WnTmpl> tmpls = new ArrayList<>(params.vals.length);
         for (String str : params.vals) {
-            Tmpl tmpl = Tmpl.parse(str);
+            WnTmpl tmpl = WnTmpl.parse(str);
             tmpls.add(tmpl);
         }
 
@@ -39,10 +39,10 @@ public class jsonx_tmpl extends JsonXFilter {
 
                     // 准循环输出模板
                     StringBuilder sb = new StringBuilder();
-                    Iterator<Tmpl> it = tmpls.iterator();
+                    Iterator<WnTmpl> it = tmpls.iterator();
 
                     // 第一个节点
-                    Tmpl tmpl = it.next();
+                    WnTmpl tmpl = it.next();
                     sb.append(tmpl.render(context));
 
                     // 后续节点

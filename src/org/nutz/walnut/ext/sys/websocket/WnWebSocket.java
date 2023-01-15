@@ -26,7 +26,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
@@ -139,7 +139,7 @@ public class WnWebSocket extends Endpoint {
                     log.debug("websocket callback file without ws_usr id=" + id);
                     break;
                 }
-                Tmpl tmpl = Tmpl.parse(callback);
+                WnTmpl tmpl = WnTmpl.parse(callback);
                 NutMap ctx = new NutMap();
                 ctx.put("ok", map.getBoolean("ok", false));
                 ctx.put("args", map.getList("args", Object.class));

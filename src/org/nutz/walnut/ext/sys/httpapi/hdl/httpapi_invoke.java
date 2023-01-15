@@ -8,7 +8,7 @@ import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -138,7 +138,7 @@ public class httpapi_invoke implements JvmHdl {
                 }
                 // .....................................................
                 // 准备执行字符串
-                String cmdText = Tmpl.exec(cmdTmpl, oReq);
+                String cmdText = WnTmpl.exec(cmdTmpl, oReq);
                 sys.exec(cmdText);
             }
         }, false, true);

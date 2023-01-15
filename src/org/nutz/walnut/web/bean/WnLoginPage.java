@@ -6,7 +6,7 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -103,7 +103,7 @@ public class WnLoginPage {
         // 如果是 HTML 需要执行一下动态模板
         if (o.isType("html")) {
             String str = io.readText(o);
-            Tmpl tmpl = Tmpl.parse(str);
+            WnTmpl tmpl = WnTmpl.parse(str);
             NutBean c = Wn.getSysConfMap(io);
             if (null != this.domainUser) {
                 c.putAll(domainUser.getMetaMap());

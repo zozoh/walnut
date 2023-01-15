@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.util.react.hdl;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.util.react.ReactContext;
@@ -21,7 +21,7 @@ public class react_config extends ReactFilter {
     @Override
     protected void process(WnSystem sys, ReactContext fc, ZParams params) {
         for (String v : params.vals) {
-            String ph = Tmpl.exec(v, fc.vars);
+            String ph = WnTmpl.exec(v, fc.vars);
             WnObj oConfig = Wn.getObj(sys, ph);
             if (null == oConfig) {
                 continue;

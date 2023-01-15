@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -50,7 +50,7 @@ public class seq_create implements JvmHdl {
 
         int current = start;
         // Tmpl t = Tmpl.parse(tmpl);
-        Tmpl t = Cmds.parse_tmpl(tmpl);
+        WnTmpl t = Cmds.parse_tmpl(tmpl);
         // 简单序列模式
         if (Strings.isBlank(list_match)) {
             for (int i = 0; i < count; i++) {

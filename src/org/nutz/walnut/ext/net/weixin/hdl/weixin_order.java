@@ -8,7 +8,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.Xmls;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -169,7 +169,7 @@ public class weixin_order implements JvmHdl {
         if (Strings.isBlank(xml)) {
             // 准备订单标题
             String briefT = hc.params.get("brief", "WeixinOrder");
-            String brief = Tmpl.exec(briefT, oOrder);
+            String brief = WnTmpl.exec(briefT, oOrder);
 
             // 准备一个 Map
             NutMap map = new NutMap();

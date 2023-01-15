@@ -23,7 +23,7 @@ import org.nutz.json.JsonException;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
@@ -355,7 +355,7 @@ public class WnmlService {
      * @return 渲染后结果
      */
     private String __process_text(NutMap c, String txt, boolean showKey) {
-        Tmpl tmpl = Tmpl.parse(txt, "#");
+        WnTmpl tmpl = WnTmpl.parse(txt, "#");
         if (tmpl.keys().size() > 0) {
             NutMap c2 = c.duplicate();
             Context context = Lang.context(c2);
@@ -397,7 +397,7 @@ public class WnmlService {
 
     private static class MD_Pair {
         Pattern P;
-        Tmpl tmpl;
+        WnTmpl tmpl;
     }
 
     private void __do_markdown(final WnmlRuntime wrt, final Element ele, NutMap c) {
@@ -421,7 +421,7 @@ public class WnmlService {
                     String repla = eleMedia.attr("replace");
                     MD_Pair mp = new MD_Pair();
                     mp.P = Pattern.compile(regex);
-                    mp.tmpl = Tmpl.parse(repla, "$", "[", "]");
+                    mp.tmpl = WnTmpl.parse(repla, "$", "[", "]");
                     mps[i++] = mp;
                 }
 

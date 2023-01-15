@@ -12,7 +12,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
@@ -319,7 +319,7 @@ public class hmc_dynamic extends AbstractNoneValueCom {
                 if (val instanceof CharSequence) {
                     String str = Strings.trim(val.toString());
                     // 所有 ${xxx} 进行静态替换
-                    str = Tmpl.exec(str, pc);
+                    str = WnTmpl.exec(str, pc);
 
                     // 忽略空值
                     if (Strings.isBlank(str))

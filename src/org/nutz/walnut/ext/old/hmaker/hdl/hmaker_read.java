@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.old.hmaker.util.Hms;
@@ -21,7 +21,7 @@ import org.nutz.web.WebException;
 
 public class hmaker_read implements JvmHdl {
 
-    private Tmpl t_404;
+    private WnTmpl t_404;
 
     private String loadingPageHtml;
 
@@ -114,12 +114,12 @@ public class hmaker_read implements JvmHdl {
         resp.writeTo(ops);
     }
 
-    private Tmpl __load_tmpl(String fnm) {
+    private WnTmpl __load_tmpl(String fnm) {
         File f = Files.findFile("html/" + fnm);
         if (null == f)
             f = Files.findFile("org/nutz/walnut/web/html/" + fnm);
         String html = Files.read(f);
-        Tmpl re = Tmpl.parse(html);
+        WnTmpl re = WnTmpl.parse(html);
         return re;
     }
 

@@ -43,6 +43,7 @@ class TmplStringEle extends TmplDynamicEle {
         // 预处理字段
         this.convertors = new ArrayList<StrEleConvertor>(ss.length);
         for (String s : ss) {
+
             // 截取空白
             if (s.equals("@trim")) {
                 convertors.add(new StrTrimConvertor());
@@ -56,6 +57,10 @@ class TmplStringEle extends TmplDynamicEle {
             else if (s.startsWith(":")) {
                 String input = s.substring(1);
                 convertors.add(new StrMappingConvertor(input));
+            }
+            // 大小写转换
+            else if (s.toLowerCase().matches("^(upper|lower|camel|kebab|snake)$")) {
+                convertors.add(new StrCaseCovertor(s));
             }
             // 默认是字符串格式化
             else {

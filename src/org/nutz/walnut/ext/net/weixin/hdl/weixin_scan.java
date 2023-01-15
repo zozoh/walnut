@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.net.weixin.hdl;
 
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnAccount;
 import org.nutz.walnut.api.io.WnObj;
@@ -90,7 +90,7 @@ public class weixin_scan implements JvmHdl {
 
             // 读取命令模板
             String tmpl = sys.io.readText(obj);
-            String cmdText = Tmpl.exec(tmpl, c);
+            String cmdText = WnTmpl.exec(tmpl, c);
 
             // 执行并输出
             sys.out.print(sys.exec2(cmdText));

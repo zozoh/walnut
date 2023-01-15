@@ -18,7 +18,7 @@ import org.nutz.ioc.Ioc;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.mvc.Mvcs;
@@ -284,7 +284,7 @@ public class WalnutFilter implements Filter {
                 String[] ss = Strings.splitIgnoreBlank(line, "=>");
                 DmnMatcher dm = new DmnMatcher();
                 dm.regex = Pattern.compile(ss[0]);
-                dm.tmpl = Tmpl.parse(ss[1]);
+                dm.tmpl = WnTmpl.parse(ss[1]);
                 _dms.add(dm);
             }
             _dms.trimToSize();

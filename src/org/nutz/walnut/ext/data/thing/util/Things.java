@@ -11,7 +11,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
@@ -241,7 +241,7 @@ public abstract class Things {
         NutMap c = new NutMap();
         c.put("major", Files.getMajorName(fnm));
         c.put("suffix", Files.getSuffix(fnm));
-        Tmpl seg = Cmds.parse_tmpl(dupp);
+        WnTmpl seg = Cmds.parse_tmpl(dupp);
         // 挨个尝试新的文件名
         int i = 1;
         do {
@@ -434,7 +434,7 @@ public abstract class Things {
         }
 
         // 分析命令模板
-        String cmdText = Strings.trim(Tmpl.exec(cmd, context));
+        String cmdText = Strings.trim(WnTmpl.exec(cmd, context));
         String input = null;
 
         // 要读取输入的

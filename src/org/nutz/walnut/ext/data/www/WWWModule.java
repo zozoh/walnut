@@ -16,7 +16,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
@@ -64,16 +64,16 @@ public class WWWModule extends AbstractWnModule {
 
     private static final List<String> ENTRIES = Lang.list("index.wnml", "index.html");
 
-    private Tmpl tmpl_400;
-    private Tmpl tmpl_404;
-    private Tmpl tmpl_500;
+    private WnTmpl tmpl_400;
+    private WnTmpl tmpl_404;
+    private WnTmpl tmpl_500;
 
     private VirtualPageFactory virtualPages;
 
     public WWWModule() {
-        tmpl_400 = Tmpl.parse(Files.read("html/400.wnml"));
-        tmpl_404 = Tmpl.parse(Files.read("html/404.wnml"));
-        tmpl_500 = Tmpl.parse(Files.read("html/500.wnml"));
+        tmpl_400 = WnTmpl.parse(Files.read("html/400.wnml"));
+        tmpl_404 = WnTmpl.parse(Files.read("html/404.wnml"));
+        tmpl_500 = WnTmpl.parse(Files.read("html/500.wnml"));
         virtualPages = new VirtualPageFactory();
     }
 
@@ -568,7 +568,7 @@ public class WWWModule extends AbstractWnModule {
         return o;
     }
 
-    private View gen_errpage(Tmpl tmpl, String path) {
+    private View gen_errpage(WnTmpl tmpl, String path) {
         String msg;
         int code;
         if (tmpl_400 == tmpl) {
@@ -585,7 +585,7 @@ public class WWWModule extends AbstractWnModule {
         return gen_errpage(tmpl, path, msg, code);
     }
 
-    private View gen_errpage(Tmpl tmpl, String path, String msg, int code) {
+    private View gen_errpage(WnTmpl tmpl, String path, String msg, int code) {
         path = Strings.escapeHtml(path);
         NutMap map = Lang.map("url", path);
         map.setv("msg", msg);

@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.old.hmaker.template;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.io.WnObj;
 
 public class HmTemplate {
@@ -8,7 +8,7 @@ public class HmTemplate {
     /**
      * 服务器端渲染代码的模板（占位符模板）
      */
-    public Tmpl dom;
+    public WnTmpl dom;
 
     /**
      * 模板用到的 jquery 插件文件对象

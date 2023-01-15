@@ -34,7 +34,7 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
@@ -566,7 +566,7 @@ public abstract class Wn {
                             return null;
                         }
                     }
-                    return Tmpl.exec(tmpl, context);
+                    return WnTmpl.exec(tmpl, context);
                 }
             }
         }

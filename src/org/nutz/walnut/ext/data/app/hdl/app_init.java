@@ -5,7 +5,7 @@ import java.util.List;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.app.impl.AppInitContext;
@@ -76,7 +76,7 @@ public class app_init implements JvmHdl {
             WnObj oScript = sys.io.fetch(ac.oHome, scriptName);
             if (null != oScript) {
                 String script = sys.io.readText(oScript);
-                script = Tmpl.exec(script, ac.vars);
+                script = WnTmpl.exec(script, ac.vars);
                 sys.out.printlnf("run script:\n%s", script);
                 sys.exec(script);
             }

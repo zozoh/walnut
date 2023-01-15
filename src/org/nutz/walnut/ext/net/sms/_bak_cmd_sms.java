@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.net.sms;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -93,7 +93,7 @@ public class _bak_cmd_sms extends JvmExecutor {
             // 渲染消息
             String str = sys.io.readText(oTmpl);
             NutMap map = Lang.map(sc.msg);
-            sc.msg = Tmpl.exec(str, map, false);
+            sc.msg = WnTmpl.exec(str, map, false);
         }
         // ............................................
         // 检查header是否带有前后缀

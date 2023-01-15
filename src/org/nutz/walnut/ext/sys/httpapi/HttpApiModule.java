@@ -26,7 +26,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.ComboOutputStream;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
@@ -468,7 +468,7 @@ public class HttpApiModule extends AbstractWnModule {
         else {
             cmdPattern = io().readText(apc.oApi);
         }
-        apc.cmdText = Tmpl.exec(cmdPattern, apc.oReq);
+        apc.cmdText = WnTmpl.exec(cmdPattern, apc.oReq);
 
         // 如果是 API 的执行是自动决定的文本
         if (apc.oApi.getBoolean("http-dynamic-header")) {
@@ -682,7 +682,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 得到缓存对象
         boolean lazy = apc.oApi.getBoolean("cache-lazy", true);
-        String ph = Tmpl.exec(cachePath, apc.reqMeta);
+        String ph = WnTmpl.exec(cachePath, apc.reqMeta);
         String aph = Wn.normalizeFullPath(ph, apc.se);
         WnObj oCache = this.io().fetch(null, aph);
         // 木有命中，看看是否需要懒加载
@@ -734,7 +734,7 @@ public class HttpApiModule extends AbstractWnModule {
                 vars.put("sha1Path", sha1Path);
             }
             vars.putAll(oCache);
-            String r_url = Tmpl.exec(redirect, vars);
+            String r_url = WnTmpl.exec(redirect, vars);
 
             // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
             String origin = apc.reqMeta.getString("http-header-ORIGIN");
@@ -967,7 +967,7 @@ public class HttpApiModule extends AbstractWnModule {
                     }
 
                     // 执行命令
-                    Tmpl tmpl = Tmpl.parse(cmd.toString());
+                    WnTmpl tmpl = WnTmpl.parse(cmd.toString());
                     String cmdText = tmpl.render(apc.reqMeta);
                     try {
                         String re = this.exec("api-preload", apc.se, cmdText);
@@ -1016,7 +1016,7 @@ public class HttpApiModule extends AbstractWnModule {
             if (key.startsWith("http-header-")) {
                 String nm = key.substring("http-header-".length()).toUpperCase();
                 String val = Strings.trim(apc.oApi.getString(key));
-                val = Tmpl.exec(val, apc.oReq);
+                val = WnTmpl.exec(val, apc.oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
                     apc.mimeType = Strings.sBlank(apc.mimeType, val);

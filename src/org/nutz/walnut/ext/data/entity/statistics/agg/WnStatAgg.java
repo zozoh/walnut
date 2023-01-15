@@ -15,7 +15,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -188,7 +188,7 @@ public class WnStatAgg extends WnStatistics {
         Map<String, NutBean> map = new HashMap<>();
 
         // 准备键值模板
-        Tmpl keyBy = Tmpl.parse(config.getGroupBy());
+        WnTmpl keyBy = WnTmpl.parse(config.getGroupBy());
 
         // 准备一下查询条件
         String timeKey = config.getSrcTimeBy("ct");

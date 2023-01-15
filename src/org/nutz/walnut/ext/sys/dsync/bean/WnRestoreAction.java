@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.sys.dsync.bean;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Ws;
@@ -51,7 +51,7 @@ public class WnRestoreAction {
         this.test = test;
     }
 
-    private Tmpl _run_tmpl;
+    private WnTmpl _run_tmpl;
 
     public String getRunCommand(NutBean context) {
         // 直接渲染
@@ -63,7 +63,7 @@ public class WnRestoreAction {
             return null;
         }
         // 编译一下命令模板
-        _run_tmpl = Tmpl.parse(run);
+        _run_tmpl = WnTmpl.parse(run);
         // 渲染命令
         return _run_tmpl.render(context);
     }

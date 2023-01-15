@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
 import org.nutz.lang.util.TimeRegion;
@@ -269,7 +269,7 @@ class TimePointRepeater {
         Times.TmInfo tFrom = Times.Ti(null == sFrom ? 0 : sFrom);
         Times.TmInfo tTo = Times.Ti(null == sTo ? 86399 : sTo);
         // 解析模板
-        Tmpl tmpl = Tmpl.parse(i18n.times.region);
+        WnTmpl tmpl = WnTmpl.parse(i18n.times.region);
 
         // 准备上下文
         NutMap c = new NutMap();

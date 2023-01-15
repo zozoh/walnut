@@ -11,13 +11,13 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.fake.WnFaker;
 import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
 public class WnNameFaker extends WnWordFaker implements WnFaker<String> {
 
     private Map<String, WnFakeWord> words;
 
-    private Tmpl tmpl;
+    private WnTmpl tmpl;
 
     public WnNameFaker(String lang) {
         this(lang, WnNameFakeMode.FULL);

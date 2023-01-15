@@ -2,12 +2,12 @@ package org.nutz.walnut.jetty;
 
 import java.util.regex.Pattern;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
 public class DmnMatcher {
 
     public Pattern regex;
 
-    public Tmpl tmpl;
+    public WnTmpl tmpl;
 
 }

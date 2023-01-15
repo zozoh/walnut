@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.sys.truck;
 
 import java.util.LinkedList;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.ext.sys.truck.impl.TruckPrinter;
 import org.nutz.walnut.ext.sys.truck.impl.WnTruckService;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
@@ -38,7 +38,7 @@ public class cmd_truck extends JvmFilterExecutor<TruckContext, TruckFilter> {
         if (!tc.params.is("quiet")) {
             // 如果仅仅是模板输出模式，也没必要收集列表，会太占内存了
             if (tc.params.has("tmpl")) {
-                Tmpl tmpl = Cmds.parse_tmpl(tc.params.get("tmpl"));
+                WnTmpl tmpl = Cmds.parse_tmpl(tc.params.get("tmpl"));
                 tc.printer = new TruckPrinter(sys.out, tmpl);
             }
             // 收集准备返回

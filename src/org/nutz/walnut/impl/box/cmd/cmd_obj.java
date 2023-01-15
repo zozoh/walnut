@@ -17,7 +17,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -410,7 +410,7 @@ public class cmd_obj extends JvmExecutor {
                                  ZParams params,
                                  List<WnObj> list,
                                  String groupCount) {
-        Tmpl tmpl = Tmpl.parse(groupCount);
+        WnTmpl tmpl = WnTmpl.parse(groupCount);
 
         Map<String, Integer> re = new TreeMap<String, Integer>();
 

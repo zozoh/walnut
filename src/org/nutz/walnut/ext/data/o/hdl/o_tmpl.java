@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.data.o.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;
@@ -18,7 +18,7 @@ public class o_tmpl extends OFilter {
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         // 准备模板字符串
         String tmpl = Ws.join(params.vals, " ");
-        Tmpl t = Tmpl.parse(tmpl);
+        WnTmpl t = WnTmpl.parse(tmpl);
 
         // 准备结果列表
         List<String> list = new ArrayList<>(fc.list.size());

@@ -10,7 +10,7 @@ import java.util.List;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -238,7 +238,7 @@ public class WnAppService extends WnRun {
         }
 
         // 渲染视图
-        String html = Tmpl.exec(tmpl, c);
+        String html = WnTmpl.exec(tmpl, c);
 
         return html;
     }

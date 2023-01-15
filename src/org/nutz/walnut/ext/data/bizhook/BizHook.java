@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
@@ -24,7 +24,7 @@ public class BizHook {
     /**
      * 要执行的命令
      */
-    private List<Tmpl> commands;
+    private List<WnTmpl> commands;
 
     public BizHook() {
         match = new ArrayList<>(0);
@@ -44,9 +44,9 @@ public class BizHook {
     }
 
     public void setCommands(String[] cmds) {
-        this.commands = new ArrayList<Tmpl>(cmds.length);
+        this.commands = new ArrayList<WnTmpl>(cmds.length);
         for (String cmd : cmds) {
-            Tmpl tmpl = Tmpl.parse(cmd);
+            WnTmpl tmpl = WnTmpl.parse(cmd);
             this.commands.add(tmpl);
         }
     }
@@ -69,7 +69,7 @@ public class BizHook {
     }
 
     public void runCommands(WnExecutable runner, NutBean context) {
-        for (Tmpl tmpl : this.commands) {
+        for (WnTmpl tmpl : this.commands) {
             String cmdText = tmpl.render(context);
             runner.exec(cmdText);
         }

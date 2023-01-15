@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
 import org.nutz.walnut.ext.data.thing.util.ThingDuplicateOptions;
@@ -71,7 +71,7 @@ public class thing_duplicate implements JvmHdl {
             }
 
             String fnewname = hc.params.getString("fnewname", "${id}-${name?@input}");
-            opt.fNewname = Tmpl.parse(fnewname);
+            opt.fNewname = WnTmpl.parse(fnewname);
         }
 
         // 准备服务类

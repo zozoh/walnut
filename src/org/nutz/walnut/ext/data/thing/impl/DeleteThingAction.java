@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
@@ -42,7 +42,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
      */
     protected Object match;
 
-    protected Tmpl cmdTmpl;
+    protected WnTmpl cmdTmpl;
 
     public DeleteThingAction setIds(Collection<String> ids) {
         this.ids = ids;
@@ -64,7 +64,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
         return this;
     }
 
-    public DeleteThingAction setExecutor(WnExecutable executor, Tmpl cmdTmpl) {
+    public DeleteThingAction setExecutor(WnExecutable executor, WnTmpl cmdTmpl) {
         this.executor = executor;
         this.cmdTmpl = cmdTmpl;
         return this;

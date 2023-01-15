@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.data.app.impl;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -61,10 +61,10 @@ public class AppInitItemContext extends AppInitContext {
                 WnObj o = io.check(oHome, item.getContentFilePath());
                 content = io.readText(o);
                 if (item.hasContentFileVars()) {
-                    content = Tmpl.exec(content, item.getContentFileVars());
+                    content = WnTmpl.exec(content, item.getContentFileVars());
                 }
             }
-            content = Tmpl.exec(content, vars);
+            content = WnTmpl.exec(content, vars);
             // 写入
             io.writeText(obj, content);
             // println("================");
@@ -77,7 +77,7 @@ public class AppInitItemContext extends AppInitContext {
             if (item.hasContentFileVars()) {
                 WnObj o = io.check(oHome, item.getContentFilePath());
                 String content = io.readText(o);
-                content = Tmpl.exec(content, item.getContentFileVars());
+                content = WnTmpl.exec(content, item.getContentFileVars());
                 io.writeText(obj, content);
             }
             // 内容也可以是二进制文件

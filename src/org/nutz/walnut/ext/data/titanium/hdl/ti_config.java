@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.impl.box.JvmHdl;
@@ -33,7 +33,7 @@ public class ti_config implements JvmHdl {
             if (width > 0) {
                 li.put("widthText", "[" + width + "]");
             }
-            String text = Tmpl.exec("${name} : ${type} : ${columnType}${widthText?}", li);
+            String text = WnTmpl.exec("${name} : ${type} : ${columnType}${widthText?}", li);
             String value = li.getString("name");
             field.put("value", value);
             field.put("text", text);

@@ -5,7 +5,8 @@
 # 用法
 
 ```bash
-@remove [REGEX | key ...]  # 一个正则表达式或者是键值，可以是多个
+@remove [REGEX | key ...]  # 一个WnMatch表达式或者是键值，可以是多个
+  [-value]                 # 表达式匹配的是而不是键
 ```
 
 # 示例

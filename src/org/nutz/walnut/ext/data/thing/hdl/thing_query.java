@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.thing.WnThingService;
@@ -43,7 +43,7 @@ public class thing_query implements JvmHdl {
             String phMapping = hc.params.getString("mapping");
             // 动态映射路径
             if (hc.params.is("dynamic_mapping")) {
-                tq.mappingPath = Tmpl.parse(phMapping);
+                tq.mappingPath = WnTmpl.parse(phMapping);
             }
             // 直接指定了映射文件
             else {

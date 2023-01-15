@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.data.o.impl;
 
 import org.nutz.lang.Lang;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
@@ -27,7 +27,7 @@ public class WnReferLoader {
         if (null == referKeys || referKeys.length == 0) {
             return;
         }
-        Tmpl storeKeyTmpl = Tmpl.parse(storeKey);
+        WnTmpl storeKeyTmpl = WnTmpl.parse(storeKey);
         for (String key : referKeys) {
             // 看看是否是 xxx=id 这种形式的键
             boolean asId = false;

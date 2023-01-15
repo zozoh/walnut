@@ -24,7 +24,7 @@ import org.nutz.walnut.ext.data.fake.lang.WnLangZhFaker;
 import org.nutz.walnut.ext.data.fake.util.WnFakeWord;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
 public class WnFakes {
 
@@ -172,7 +172,7 @@ public class WnFakes {
     }
 
     private Map<String, Map<String, WnFakeWord>> dicts;
-    private Map<String, Tmpl> namePatterns = new HashMap<>();
+    private Map<String, WnTmpl> namePatterns = new HashMap<>();
 
     public WnFakes() {
         dicts = new HashMap<>();
@@ -193,12 +193,12 @@ public class WnFakes {
         }
         String fph = base + "name.txt";
         String str = Files.read(fph);
-        Tmpl tmpl = Tmpl.parse(str);
+        WnTmpl tmpl = WnTmpl.parse(str);
         namePatterns.put(lang, tmpl);
         return re;
     }
 
-    public Tmpl getNamePattern(String lang) {
+    public WnTmpl getNamePattern(String lang) {
         return namePatterns.get(lang);
     }
 

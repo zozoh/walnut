@@ -30,7 +30,7 @@ import org.nutz.lang.util.NutMap;
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class Tmpl {
+public class WnTmpl {
 
     // private static final Pattern _P2 =
     // Pattern.compile("([\\w\\d_.\\[\\]'\"-]+)"
@@ -50,16 +50,16 @@ public class Tmpl {
      *
      * @see #parse(String, Pattern, int, int)
      */
-    public static Tmpl parse(String tmpl) {
+    public static WnTmpl parse(String tmpl) {
         if (null == tmpl)
             return null;
-        return new Tmpl(tmpl, null, -1, -1, null);
+        return new WnTmpl(tmpl, null, -1, -1, null);
     }
 
-    public static Tmpl parsef(String fmt, Object... args) {
+    public static WnTmpl parsef(String fmt, Object... args) {
         if (null == fmt)
             return null;
-        return new Tmpl(String.format(fmt, args), null, -1, -1, null);
+        return new WnTmpl(String.format(fmt, args), null, -1, -1, null);
     }
 
     /**
@@ -82,14 +82,14 @@ public class Tmpl {
      *            给定如何显示逃逸字符的回调
      * @return 模板对象
      */
-    public static Tmpl parse(String tmpl,
+    public static WnTmpl parse(String tmpl,
                              Pattern ptn,
                              int groupIndex,
                              int escapeIndex,
                              TmplEscapeStr getEscapeStr) {
         if (null == tmpl)
             return null;
-        return new Tmpl(tmpl, ptn, groupIndex, escapeIndex, getEscapeStr);
+        return new WnTmpl(tmpl, ptn, groupIndex, escapeIndex, getEscapeStr);
     }
 
     /**
@@ -105,7 +105,7 @@ public class Tmpl {
      *            右侧括号
      * @return 模板对象
      */
-    public static Tmpl parse(String tmpl,
+    public static WnTmpl parse(String tmpl,
                              final String startChar,
                              String leftBrace,
                              String rightBrace) {
@@ -127,7 +127,7 @@ public class Tmpl {
                        + startChar
                        + "])";
         Pattern ptn = Pattern.compile(regex);
-        return new Tmpl(tmpl, ptn, 2, 3, new TmplEscapeStr() {
+        return new WnTmpl(tmpl, ptn, 2, 3, new TmplEscapeStr() {
             public String get(Matcher m) {
                 return startChar;
             }
@@ -139,7 +139,7 @@ public class Tmpl {
      * 
      * @see #parse(String, String, String, String)
      */
-    public static Tmpl parse(String tmpl, final String startChar) {
+    public static WnTmpl parse(String tmpl, final String startChar) {
         return parse(tmpl, startChar, "{", "}");
     }
 
@@ -196,12 +196,12 @@ public class Tmpl {
     private List<TmplEle> list;
     private List<String> keys;
 
-    private Tmpl() {
+    private WnTmpl() {
         list = new LinkedList<TmplEle>();
         keys = new LinkedList<String>();
     }
 
-    private Tmpl(Pattern ptn, int grpIdx, int escIdx, TmplEscapeStr getEscapeStr) {
+    private WnTmpl(Pattern ptn, int grpIdx, int escIdx, TmplEscapeStr getEscapeStr) {
         this();
         // 默认的模板占位符
         if (null == ptn) {
@@ -235,7 +235,7 @@ public class Tmpl {
         }
     }
 
-    private Tmpl(String tmpl,
+    private WnTmpl(String tmpl,
                  Pattern ptn,
                  int groupIndex,
                  int escapeIndex,

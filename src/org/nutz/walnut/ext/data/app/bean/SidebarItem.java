@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 
@@ -222,7 +222,7 @@ public class SidebarItem {
             // 兼容直接书写 icon class 的情况
             else {
                 NutMap iconInfo = parseFontIcon(icon, new NutMap());
-                String iconHtml = Tmpl.exec("<i class=\"${className}\"></i>", iconInfo);
+                String iconHtml = WnTmpl.exec("<i class=\"${className}\"></i>", iconInfo);
                 sb.append(iconHtml);
             }
         }

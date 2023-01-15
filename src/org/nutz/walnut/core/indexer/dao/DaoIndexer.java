@@ -29,7 +29,7 @@ import org.nutz.dao.sql.SqlContext;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Trans;
@@ -175,7 +175,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         }
 
         // 拼 SQL
-        String str = Tmpl.exec("SELECT "
+        String str = WnTmpl.exec("SELECT "
                                + "  ${GRP_OUT},"
                                + "  ${FUNC} AS ${AGG_KEY_TO} "
                                + "FROM"

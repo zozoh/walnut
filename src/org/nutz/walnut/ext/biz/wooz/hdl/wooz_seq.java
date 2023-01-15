@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
@@ -35,7 +35,7 @@ public class wooz_seq implements JvmHdl {
         String pj = hc.params.val_check(1);
         // 模板
         String tmplStr = hc.params.val_check(2);
-        Tmpl tmpl = Cmds.parse_tmpl(tmplStr);
+        WnTmpl tmpl = Cmds.parse_tmpl(tmplStr);
 
         int start = hc.params.getInt("start", 1);
         int step = hc.params.getInt("step", 1);

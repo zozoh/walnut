@@ -2,7 +2,7 @@ package org.nutz.walnut.util;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 
 /**
@@ -74,7 +74,7 @@ public class WnSysRuntime {
         // 指定了节点
         else {
             NutMap context = this.toMap();
-            this.nodeName = Tmpl.exec(nodeName, context);
+            this.nodeName = WnTmpl.exec(nodeName, context);
         }
 
         this.nodeStartAtInMs = Wn.now();

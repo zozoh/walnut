@@ -11,7 +11,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.commons.mail.resolver.DataSourceUrlResolver;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import org.nutz.walnut.util.Wlog;
@@ -100,7 +100,7 @@ public class WnMailService implements WnMailApi {
                 String text = io.readText(oTmpl);
                 if (!mail.hasSubject()) {
                     String sub = oTmpl.getString("subject");
-                    String subject = Tmpl.exec(sub, vars);
+                    String subject = WnTmpl.exec(sub, vars);
                     mail.setSubject(subject);
                 }
                 if (null != text) {

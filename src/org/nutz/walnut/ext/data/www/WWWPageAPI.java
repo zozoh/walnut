@@ -9,7 +9,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -161,7 +161,7 @@ public class WWWPageAPI extends WWWAPI {
 
         // 替换一下
         if (null != cookiePath)
-            cookiePath = Tmpl.exec(cookiePath, context);
+            cookiePath = WnTmpl.exec(cookiePath, context);
 
         // 确保可以正确的找到用户库
         WnObj oAcsSet = getAccountSet();

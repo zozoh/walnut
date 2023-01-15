@@ -67,7 +67,7 @@ import org.docx4j.wml.Tr;
 import org.docx4j.wml.TrPr;
 import org.docx4j.wml.U;
 import org.docx4j.wml.UnderlineEnumeration;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
@@ -1444,7 +1444,7 @@ public class CheapDocxRendering {
             if (headP instanceof P) {
                 P p = (P) headP;
                 String str = this.getPText(p);
-                String s2 = Tmpl.exec(str, this.varsData);
+                String s2 = WnTmpl.exec(str, this.varsData);
                 p.getContent().clear();
                 this.setPStyle(p, styleId);
                 this.setPText(p, s2);

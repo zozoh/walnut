@@ -13,7 +13,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.www.WWW;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
@@ -110,7 +110,7 @@ public class SiteArchiveRendering {
     @SuppressWarnings("unchecked")
     private String __write_dist_html(NutMap ctx) {
         // 输出目标
-        String ph = Tmpl.exec(ar.getDist(), ctx);
+        String ph = WnTmpl.exec(ar.getDist(), ctx);
         WnObj oTa = ing.createTargetFile(ph);
         ing.LOGf(" - write to : %s", ph);
         ctx.put("targetPath", ph);

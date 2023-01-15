@@ -24,7 +24,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.mvc.View;
@@ -712,7 +712,7 @@ public class ObjModule extends AbstractWnModule {
                 NutMap c = new NutMap();
                 c.put("major", Files.getMajorName(nm));
                 c.put("suffix", Files.getSuffix(nm));
-                Tmpl seg = Tmpl.parse(tmpl);
+                WnTmpl seg = WnTmpl.parse(tmpl);
                 c.put("nb", i++);
                 fname = seg.render(c);
                 // 一直找到一个不存在的名称
@@ -932,7 +932,7 @@ public class ObjModule extends AbstractWnModule {
                     NutMap c = new NutMap();
                     c.put("major", Files.getMajorName(nm));
                     c.put("suffix", Files.getSuffix(nm));
-                    Tmpl seg = Tmpl.parse(dupp);
+                    WnTmpl seg = WnTmpl.parse(dupp);
                     int i = 1;
                     do {
                         c.put("nb", i++);

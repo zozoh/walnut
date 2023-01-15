@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.util.strx.hdl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.ext.util.strx.StrXContext;
@@ -40,12 +40,12 @@ public class strx_test extends StrXFilter {
 
             // 准备输出: 标准
             if (params.has("out")) {
-                Tmpl tmpl = Tmpl.parse(params.getString("out"));
+                WnTmpl tmpl = WnTmpl.parse(params.getString("out"));
                 fc.data = tmpl.render(c);
             }
             // 准备输出: 错误
             else if (params.has("err")) {
-                Tmpl tmpl = Tmpl.parse(params.getString("err"));
+                WnTmpl tmpl = WnTmpl.parse(params.getString("err"));
                 fc.data = tmpl.render(c);
                 fc.error = true;
             }

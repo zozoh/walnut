@@ -13,7 +13,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.err.Er;
@@ -225,7 +225,7 @@ public class cmd_json extends JvmExecutor {
         // 模板方式输出
         else if (params.has("out")) {
             String out = params.get("out");
-            Tmpl tmpl = Tmpl.parse(out, "@");
+            WnTmpl tmpl = WnTmpl.parse(out, "@");
             // 如果是 Map 则直接渲染
             if (obj instanceof Map<?, ?>) {
                 __output(sys, tmpl, obj);
@@ -322,13 +322,13 @@ public class cmd_json extends JvmExecutor {
                 // 仅仅是合并值
                 if (pos == 0) {
                     // TODO 这里需要来个预解析，否则太慢了
-                    Tmpl tmpl = Tmpl.parse(k2.substring(1), "@");
+                    WnTmpl tmpl = WnTmpl.parse(k2.substring(1), "@");
                     Object v2 = tmpl.render(input);
                     map2.put(key, v2);
                 }
                 // 改键值
                 else if (pos > 0) {
-                    Tmpl tmpl = Tmpl.parse(k2.substring(pos + 1), "@");
+                    WnTmpl tmpl = WnTmpl.parse(k2.substring(pos + 1), "@");
                     Object v2 = tmpl.render(input);
                     k2 = k2.substring(0, pos);
                     map2.put(k2, v2);
@@ -347,7 +347,7 @@ public class cmd_json extends JvmExecutor {
     }
 
     @SuppressWarnings("unchecked")
-    private void __output(WnSystem sys, Tmpl tmpl, Object obj) {
+    private void __output(WnSystem sys, WnTmpl tmpl, Object obj) {
         // 是 Map 就输出
         if (obj instanceof Map<?, ?>) {
             NutMap c = NutMap.WRAP((Map<String, Object>) obj);

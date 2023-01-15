@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.validate.WnMatch;
 
@@ -70,7 +70,7 @@ public class ThingDuplicateOptions {
     /**
      * 一个字符串模板，表示复制后文件的新名称
      */
-    public Tmpl fNewname;
+    public WnTmpl fNewname;
 
     /**
      * 当复制文件时，要 Copy 的字段

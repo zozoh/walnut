@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.data.entity.history.fake;
 
 import java.util.Random;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
 public class HistoryFakeField {
 
@@ -16,7 +16,7 @@ public class HistoryFakeField {
 
     private String[] cans;
 
-    private Tmpl genTmpl;
+    private WnTmpl genTmpl;
 
     public boolean hasSchema() {
         return null != schema;
@@ -36,14 +36,14 @@ public class HistoryFakeField {
 
     public void setGen(String gen) {
         this.gen = gen;
-        this.genTmpl = Tmpl.parse(gen);
+        this.genTmpl = WnTmpl.parse(gen);
     }
 
     public boolean hasGenTmpl() {
         return null != this.genTmpl;
     }
 
-    public Tmpl getGenTmpl() {
+    public WnTmpl getGenTmpl() {
         return genTmpl;
     }
 

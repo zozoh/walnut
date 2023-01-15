@@ -2,7 +2,7 @@ package org.nutz.walnut.impl.box.cmd;
 
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -44,7 +44,7 @@ public class cmd_run extends JvmExecutor {
         // 执行模板
         else {
             NutMap vars = Lang.map(varJson);
-            String cmdText = Tmpl.exec(cmdTmpl, vars);
+            String cmdText = WnTmpl.exec(cmdTmpl, vars);
             sys.exec(cmdText);
         }
     }

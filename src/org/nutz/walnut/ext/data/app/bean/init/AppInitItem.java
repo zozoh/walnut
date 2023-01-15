@@ -4,7 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -251,7 +251,7 @@ public class AppInitItem {
             this.properties = null;
         } else {
             if (null != vars) {
-                json = Tmpl.exec(json, vars);
+                json = WnTmpl.exec(json, vars);
             }
             this.properties = Lang.map(json);
         }
@@ -263,7 +263,7 @@ public class AppInitItem {
                 this.properties = new NutMap();
             }
             if (null != vars) {
-                json = Tmpl.exec(json, vars);
+                json = WnTmpl.exec(json, vars);
             }
             NutMap map = Lang.map(json);
             this.properties.putAll(map);
@@ -304,7 +304,7 @@ public class AppInitItem {
             this.meta = new NutMap();
         }
         if (null != vars) {
-            str = Tmpl.exec(str, vars);
+            str = WnTmpl.exec(str, vars);
         }
         String[] ss = Strings.splitIgnoreBlank(str, "/");
         for (String s : ss) {
@@ -370,7 +370,7 @@ public class AppInitItem {
             this.path = null;
         } else {
             if (null != vars) {
-                this.path = Tmpl.exec(path, vars);
+                this.path = WnTmpl.exec(path, vars);
             } else {
                 this.path = path;
             }
@@ -394,7 +394,7 @@ public class AppInitItem {
             this.linkPath = null;
         } else {
             if (null != vars) {
-                this.linkPath = Tmpl.exec(linkPath, vars);
+                this.linkPath = WnTmpl.exec(linkPath, vars);
             } else {
                 this.linkPath = linkPath;
             }
@@ -419,7 +419,7 @@ public class AppInitItem {
                 this.meta = new NutMap();
             }
             if (null != vars) {
-                json = Tmpl.exec(json, vars);
+                json = WnTmpl.exec(json, vars);
             }
             NutMap map = Lang.map(json);
             this.meta.putAll(map);
@@ -431,7 +431,7 @@ public class AppInitItem {
             this.meta = null;
         } else {
             if (null != vars) {
-                json = Tmpl.exec(json, vars);
+                json = WnTmpl.exec(json, vars);
             }
             this.meta = Lang.map(json);
         }
@@ -494,7 +494,7 @@ public class AppInitItem {
             this.contentFileVars = null;
         } else {
             if (null != vars) {
-                json = Tmpl.exec(json, vars);
+                json = WnTmpl.exec(json, vars);
             }
             this.contentFileVars = Lang.map(json);
         }

@@ -10,7 +10,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
@@ -302,7 +302,7 @@ public class WnPayment {
 
         // 根据模板写入回调脚本
         if (!Strings.isBlank(callback)) {
-            String text = Tmpl.exec(callback, oPayObj, false);
+            String text = WnTmpl.exec(callback, oPayObj, false);
             run.io().writeText(oPayObj, text);
         }
 

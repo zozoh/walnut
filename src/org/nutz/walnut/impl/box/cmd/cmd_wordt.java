@@ -7,7 +7,7 @@ import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
@@ -53,7 +53,7 @@ public class cmd_wordt extends JvmExecutor {
             Paragraph paragraph = wordRange.getParagraph(i);
             String ptext = paragraph.text();
             if (ptext.indexOf("${") != -1) {
-                Tmpl tmpl = Tmpl.parse(ptext);
+                WnTmpl tmpl = WnTmpl.parse(ptext);
                 String ntext = tmpl.render(varMap);
                 if (!ntext.equals(ptext)) {
                     paragraph.replaceText(ptext, ntext);

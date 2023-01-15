@@ -16,7 +16,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.segment.CharSegment;
 import org.nutz.lang.segment.Segment;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Tag;
@@ -74,13 +74,13 @@ public class hmaker_sitemap implements JvmHdl {
         // 看看是不是需要直接写文件
         boolean doWrite = hc.params.is("write");
         // 如果是写模式，那么看看有没有必要输出 process
-        Tmpl process = null;
+        WnTmpl process = null;
         if (hc.params.has("process")) {
             String proc = hc.params.get("process");
             if ("true".equals(proc)) {
                 proc = "${P} - ${nm}";
             }
-            process = Tmpl.parse(proc);
+            process = WnTmpl.parse(proc);
         }
         // ----------------------------------------------
         // 循环处理网页

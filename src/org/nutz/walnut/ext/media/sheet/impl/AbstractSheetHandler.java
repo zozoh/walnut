@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.media.sheet.impl;
 
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
@@ -11,14 +11,14 @@ public abstract class AbstractSheetHandler implements SheetHandler {
 
     protected WnOutputable out;
 
-    protected Tmpl process;
+    protected WnTmpl process;
 
     public void setProcess(WnOutputable out, String process) {
         this.out = out;
-        this.process = Tmpl.parse(process);
+        this.process = WnTmpl.parse(process);
     }
 
-    public void setProcess(WnOutputable out, Tmpl process) {
+    public void setProcess(WnOutputable out, WnTmpl process) {
         this.out = out;
         this.process = process;
     }

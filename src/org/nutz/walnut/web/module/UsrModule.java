@@ -15,7 +15,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -216,7 +216,7 @@ public class UsrModule extends AbstractWnModule {
                 }
 
                 // 执行转换
-                String html = Tmpl.exec(input, context);
+                String html = WnTmpl.exec(input, context);
 
                 // 返回网页
                 return new ViewWrapper(new RawView("text/html"), html);

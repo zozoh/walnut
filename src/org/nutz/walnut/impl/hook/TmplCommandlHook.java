@@ -1,13 +1,13 @@
 package org.nutz.walnut.impl.hook;
 
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.hook.WnHookContext;
 import org.nutz.walnut.api.io.WnObj;
 
 public class TmplCommandlHook extends AbstractWnHook {
 
-    private Tmpl tmpl;
+    private WnTmpl tmpl;
 
     @Override
     public String getType() {
@@ -16,7 +16,7 @@ public class TmplCommandlHook extends AbstractWnHook {
 
     @Override
     protected void _init(String text) {
-        tmpl = Strings.isBlank(text) ? null : Tmpl.parse(text);
+        tmpl = Strings.isBlank(text) ? null : WnTmpl.parse(text);
     }
 
     @Override

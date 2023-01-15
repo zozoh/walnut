@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.auth.WnCaptcha;
 import org.nutz.walnut.api.auth.WnCaptchaService;
@@ -158,7 +158,7 @@ public class www_captcha implements JvmHdl {
             String cmdTmpl = "sms send -r ${account} -t 'i18n:${scene}'"
                              + " -lang '${lang?zh-cn}'"
                              + " 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
-            String cmdText = Tmpl.exec(cmdTmpl, cc);
+            String cmdText = WnTmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
             NutMap acMap = reMap.getAs(cap.getAccount(), NutMap.class);
@@ -190,7 +190,7 @@ public class www_captcha implements JvmHdl {
                              + " @to ${account}"
                              + " @tmpl '${scene}'"
                              + " @vars 'code:\"${code}\",min:${du_in_min},hour:${du_in_hr}'";
-            String cmdText = Tmpl.exec(cmdTmpl, cc);
+            String cmdText = WnTmpl.exec(cmdTmpl, cc);
             String re = sys.exec2(cmdText);
             NutMap reMap = Json.fromJson(NutMap.class, re);
             // 靠，发送失败

@@ -18,7 +18,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
@@ -34,7 +34,7 @@ public class HmPageTranslating extends HmContext {
     /**
      * 网页守护的模板代码
      */
-    private static Tmpl pageGuardTmpl;
+    private static WnTmpl pageGuardTmpl;
 
     private static final Map<String, String> JS_LIB = new HashMap<>();
 
@@ -49,7 +49,7 @@ public class HmPageTranslating extends HmContext {
         JS_LIB.put("@dateformat", "/gu/rs/core/js/ui/dateformat.js");
         JS_LIB.put("@seajs", "#seajsnode!/gu/rs/core/js/seajs/seajs-2.3.0/sea.js");
 
-        pageGuardTmpl = Tmpl.parse(Files.read("org/nutz/walnut/ext/hmaker/util/tmpl_guard.html"));
+        pageGuardTmpl = WnTmpl.parse(Files.read("org/nutz/walnut/ext/hmaker/util/tmpl_guard.html"));
     }
 
     /**

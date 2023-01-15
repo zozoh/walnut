@@ -16,7 +16,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -35,7 +35,7 @@ public class WnStatSum extends WnStatistics {
 
     private WnObj oCacheDir;
 
-    private Tmpl cacheName;
+    private WnTmpl cacheName;
 
     private NutMap sortMap;
 
@@ -55,7 +55,7 @@ public class WnStatSum extends WnStatistics {
         if (this.config.hasCacheDir()) {
             String aph = Wn.normalizeFullPath(config.getCacheDir(), vars);
             this.oCacheDir = io.createIfNoExists(null, aph, WnRace.DIR);
-            this.cacheName = Tmpl.parse(config.getCacheName("web-sum--${@dateBegin}-${@dateEnd}.json"));
+            this.cacheName = WnTmpl.parse(config.getCacheName("web-sum--${@dateBegin}-${@dateEnd}.json"));
         }
     }
 
@@ -176,7 +176,7 @@ public class WnStatSum extends WnStatistics {
         Map<String, NutBean> map = new HashMap<>();
 
         // 准备键值模板
-        Tmpl keyBy = Tmpl.parse(config.getGroupBy());
+        WnTmpl keyBy = WnTmpl.parse(config.getGroupBy());
         String sumBy = config.getSumBy("val");
 
         // 准备一下查询条件

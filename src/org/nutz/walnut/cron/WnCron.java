@@ -10,7 +10,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.born.Borning;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.DateRegion;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
@@ -846,18 +846,18 @@ public class WnCron {
         int yearTo = null == dTo ? -2 : Times.C(dTo).get(Calendar.YEAR);
 
         // 准备模板
-        Tmpl tmpl;
+        WnTmpl tmpl;
         // 没有开始
         if (yearFrom < 0) {
-            tmpl = Tmpl.parse(i18n.dates.no_from);
+            tmpl = WnTmpl.parse(i18n.dates.no_from);
         }
         // 没有结束
         else if (yearTo < 0) {
-            tmpl = Tmpl.parse(i18n.dates.no_to);
+            tmpl = WnTmpl.parse(i18n.dates.no_to);
         }
         // 完整区间
         else {
-            tmpl = Tmpl.parse(i18n.dates.region);
+            tmpl = WnTmpl.parse(i18n.dates.region);
         }
 
         // 准备上下文

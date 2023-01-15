@@ -9,7 +9,7 @@ import java.util.Set;
 import org.nutz.lang.Files;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
@@ -240,7 +240,7 @@ public class HmContext {
             String dfnm = tmpl.info.getDomFileName("dom.wnml");
             WnObj oDomNm = io.fetch(oTmplHome, dfnm);
             if (null != oDomNm) {
-                tmpl.dom = Tmpl.parse(io.readText(oDomNm));
+                tmpl.dom = WnTmpl.parse(io.readText(oDomNm));
             }
 
             // 计入

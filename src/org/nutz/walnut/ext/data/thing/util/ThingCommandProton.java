@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.data.thing.util;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.io.WnObj;
@@ -9,12 +9,12 @@ public class ThingCommandProton extends Proton<String> {
 
     private WnObj oT;
     private NutMap valContext;
-    private Tmpl cmdTmpl;
+    private WnTmpl cmdTmpl;
 
     public ThingCommandProton(WnObj oT, NutMap valContext, String cmdTmpl) {
         this.oT = oT;
         this.valContext = valContext;
-        this.cmdTmpl = Tmpl.parse(cmdTmpl);
+        this.cmdTmpl = WnTmpl.parse(cmdTmpl);
     }
 
     @Override

@@ -10,7 +10,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
@@ -71,7 +71,7 @@ public class TiSidebarService {
         // 动态项目
         if (inIt.hasCommand()) {
             String cmdText = inIt.getCommand();
-            cmdText = Tmpl.exec(cmdText, tmplContext);
+            cmdText = WnTmpl.exec(cmdText, tmplContext);
             String re = Strings.trim(runtime.exec2(cmdText));
 
             // 空
@@ -127,7 +127,7 @@ public class TiSidebarService {
             WnObj o = null;
             if (inIt.hasPath()) {
                 String path = inIt.getPath();
-                path = Tmpl.exec(path, tmplContext);
+                path = WnTmpl.exec(path, tmplContext);
                 String aph = Wn.normalizeFullPath(path, sess);
                 o = io.check(null, aph);
             }
@@ -173,7 +173,7 @@ public class TiSidebarService {
             for (TiSidebarInputItem subIt : inIt.getItems()) {
                 // 这个子对象的路径需要格式化一下
                 if (subIt.hasPath()) {
-                    String ph = Tmpl.exec(subIt.getPath(), o);
+                    String ph = WnTmpl.exec(subIt.getPath(), o);
                     subIt.setPath(ph);
                 }
                 // 计入

@@ -1,6 +1,6 @@
 package org.nutz.walnut.util.obj;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.bean.WnBeanMapping;
@@ -20,7 +20,7 @@ public class WnObjRenamingImpl implements WnObjRenaming {
     /**
      * 重命名模板
      */
-    private Tmpl nameTmpl;
+    private WnTmpl nameTmpl;
 
     @Override
     public String getName(WnObj o) {
@@ -52,16 +52,16 @@ public class WnObjRenamingImpl implements WnObjRenaming {
         this.onlyMapping = onlyMapping;
     }
 
-    public Tmpl getNameTmpl() {
+    public WnTmpl getNameTmpl() {
         return nameTmpl;
     }
 
-    public void setNameTmpl(Tmpl nameTmpl) {
+    public void setNameTmpl(WnTmpl nameTmpl) {
         this.nameTmpl = nameTmpl;
     }
 
     public void setNameTmpl(String str) {
-        this.nameTmpl = Tmpl.parse(str);
+        this.nameTmpl = WnTmpl.parse(str);
     }
 
 }

@@ -17,6 +17,7 @@ public class WnStrCases {
     }
 
     public static WnStrCaseConvertor get(String mode) {
+        mode = mode.toLowerCase();
         return covertors.get(mode);
     }
 

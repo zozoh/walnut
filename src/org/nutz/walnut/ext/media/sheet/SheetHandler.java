@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
@@ -18,6 +18,6 @@ public interface SheetHandler {
 
     void setProcess(WnOutputable out, String process);
 
-    void setProcess(WnOutputable out, Tmpl process);
+    void setProcess(WnOutputable out, WnTmpl process);
 
 }

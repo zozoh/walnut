@@ -1,6 +1,6 @@
 package org.nutz.walnut.ext.util.react.action;
 
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.util.react.bean.ReactAction;
 import org.nutz.walnut.util.Wn;
@@ -22,7 +22,7 @@ public class ReactCommandAction implements ReactActionHandler {
         }
 
         // 展开动作模板
-        String cmdText = Tmpl.exec(tmpl, r.vars);
+        String cmdText = WnTmpl.exec(tmpl, r.vars);
 
         // 执行命令
         r.runner.exec(cmdText);

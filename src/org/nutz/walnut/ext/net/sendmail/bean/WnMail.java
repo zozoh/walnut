@@ -11,7 +11,7 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import org.nutz.walnut.util.tmpl.Tmpl;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
@@ -207,7 +207,7 @@ public class WnMail {
     }
 
     public String getSubject(NutBean vars) {
-        return Tmpl.exec(subject, vars);
+        return WnTmpl.exec(subject, vars);
     }
 
     public String getSubject() {
@@ -340,7 +340,7 @@ public class WnMail {
     }
 
     public String getContent(NutBean vars) {
-        return Tmpl.exec(content, vars);
+        return WnTmpl.exec(content, vars);
     }
 
     public String getContent() {
