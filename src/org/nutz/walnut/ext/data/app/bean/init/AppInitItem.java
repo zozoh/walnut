@@ -341,7 +341,7 @@ public class AppInitItem {
             }
             // AUTH
             else if ("auth".equals(s)) {
-                String json = "{\"http-www-home\":\"~/www/${domain}\","
+                String json = "{\"http-www-home\":\"~/www/${website_home?website}\","
                               + "\"http-www-ticket\":\"http-qs-ticket\","
                               + "\"http-www-auth\":true}";
                 this.addMeta(json, vars);
