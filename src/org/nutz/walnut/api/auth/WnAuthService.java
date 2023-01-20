@@ -134,14 +134,14 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      * @return 新创建的会话对象
      */
     WnAuthSession createSession(WnAccount user, boolean longSession);
-    
+
     /**
      * 根据指定用户，创建一个顶级会话
      * 
      * @param user
      *            账户对象
      * @param se_du
-     *            指定会话时长（秒）
+     *            指定会话时长（秒）指定会话时长（秒） 0 表示默认值
      * @return 新创建的会话对象
      */
     WnAuthSession createSession(WnAccount user, int se_du);
@@ -153,9 +153,11 @@ public interface WnAuthService extends WnGroupRoleService, WnAccountLoader {
      *            父会话对象
      * @param user
      *            账户对象
+     * @param se_du
+     *            指定会话时长（秒） 0 表示默认值
      * @return 自会话对象
      */
-    WnAuthSession createSession(WnAuthSession pse, WnAccount user);
+    WnAuthSession createSession(WnAuthSession pse, WnAccount user, int se_du);
 
     /**
      * 持久化会话的信息字段和变量集

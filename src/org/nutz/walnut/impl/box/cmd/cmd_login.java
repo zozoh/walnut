@@ -60,7 +60,7 @@ public class cmd_login extends JvmExecutor {
 
         // ............................................
         // 执行 & 得到一个新会话
-        WnAuthSession newSe = sys.auth.createSession(sys.session, ta);
+        WnAuthSession newSe = sys.auth.createSession(sys.session, ta, 0);
 
         // 输出这个新会话
         JsonFormat jfmt = Cmds.gen_json_format(params);

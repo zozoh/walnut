@@ -305,10 +305,10 @@ public class WnSysAuthServiceWrapper implements WnAuthService {
         });
     }
 
-    public WnAuthSession createSession(WnAuthSession pse, WnAccount user) {
+    public WnAuthSession createSession(WnAuthSession pse, WnAccount user, int se_du) {
         return Wn.WC().suCoreNoSecurity(impl.io, root, new Proton<WnAuthSession>() {
             protected WnAuthSession exec() {
-                return impl.createSession(pse, user);
+                return impl.createSession(pse, user, se_du);
             }
         });
     }

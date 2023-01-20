@@ -31,6 +31,8 @@ jsonx [options] [[@filter filter-args...]...]
 @merge      # 将输入的JSON合并到上下文中
 @put        # 向上下文中设置更多的值
 @remove     # 从上下文中移除某些键
+@append     # 假设上下文为列表，向其尾部压入更多对象
+@prepend    # 假设上下文为列表，向其首部压入更多对象
 @set        # 将输入的JSON设置到上下文中（非合并）
 @nil        # 如果上下为空，设置一个默认 JSON 对象
 @flatten    # 将一个树型结构的 JSON 数据转换为一个列表

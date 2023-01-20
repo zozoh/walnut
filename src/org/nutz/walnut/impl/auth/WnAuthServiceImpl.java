@@ -323,10 +323,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     }
 
     @Override
-    public WnAuthSession createSession(WnAuthSession pse, WnAccount user) {
+    public WnAuthSession createSession(WnAuthSession pse, WnAccount user, int se_du) {
         NutMap by = Lang.map("by_tp", "session");
         by.put("by_val", pse.getId());
-        int se_du = setup.getSessionDefaultDuration();
         return createSessionBy(se_du, user, by);
     }
 
@@ -738,6 +737,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     private WnAuthSession createSessionBy(int duInSec, WnAccount me, NutMap meta) {
         WnObj oSessionDir = setup.getSessionDir();
         // 过期时间
+        if (duInSec <= 0) {
+            duInSec = setup.getSessionDefaultDuration();
+        }
         long expi = Wn.now() + (duInSec * 1000L);
 
         // 验证通过后，创建会话
