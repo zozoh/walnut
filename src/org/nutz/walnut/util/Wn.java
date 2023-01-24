@@ -235,6 +235,58 @@ public abstract class Wn {
         return Disks.appendPath(phs);
     }
 
+    /**
+     * 组合一组路径，如果是相对路径就拼合，如果是绝对路径就重置。绝对路径包括
+     * 
+     * <ul>
+     * <li><code>~/xxx</code>
+     * <li><code>id:xxx/xxx</code>
+     * <li><code>/xxx/xxx</code>
+     * </ul>
+     * 
+     * @param phs
+     *            一组路径
+     * @return 路径
+     */
+    public static String concatPath(String... phs) {
+        if (null == phs || phs.length == 0) {
+            return "";
+        }
+        // 寻找最后一个绝对路径的位置
+        boolean[] lastIsSlash = null;
+        int pos = -1;
+        for (int i = phs.length - 1; i >= 0; i--) {
+            String ph = phs[i];
+            if (null == ph) {
+                continue;
+            }
+            if (null == lastIsSlash) {
+                if (ph.endsWith("/")) {
+                    lastIsSlash = new boolean[]{true};
+                } else {
+                    lastIsSlash = new boolean[]{false};
+                }
+            }
+            if (ph.startsWith("~") || ph.startsWith("/") || ph.startsWith("id:")) {
+                pos = i;
+                break;
+            }
+        }
+        String re;
+        if (pos > 0) {
+            int n = phs.length - pos;
+            String[] ss = new String[n];
+            System.arraycopy(phs, pos, ss, 0, n);
+            re = Disks.appendPath(ss);
+        } else {
+            re = Disks.appendPath(phs);
+        }
+        if (null != lastIsSlash && lastIsSlash[0] && !re.endsWith("/")) {
+            re += "/";
+        }
+        return re;
+    }
+
     public static Pattern wildcardToRegex(String wildcard) {
         if (null == wildcard)
             return null;

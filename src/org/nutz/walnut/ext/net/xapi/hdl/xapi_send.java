@@ -6,16 +6,18 @@ import java.net.Proxy;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
-import org.nutz.walnut.ext.net.xapi.ThirdXApi;
+import org.nutz.walnut.ext.net.xapi.XApi;
 import org.nutz.walnut.ext.net.xapi.cmd_xapi;
-import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
-import org.nutz.walnut.ext.net.xapi.impl.WnThirdXApi;
+import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
+import org.nutz.walnut.ext.net.xapi.impl.WnXApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
+import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 
+@JvmHdlParamArgs(value = "cnq", regex = "^(force)$")
 public class xapi_send implements JvmHdl {
 
     @Override
@@ -28,15 +30,16 @@ public class xapi_send implements JvmHdl {
         String account = hc.params.val_check(1);
         String path = hc.params.val_check(2);
         String proxyPath = hc.params.getString("proxy");
+        boolean force = hc.params.is("force");
 
         // 准备 API
-        ThirdXApi api = new WnThirdXApi(sys);
+        XApi api = new WnXApi(sys);
 
         // 准备代理
         setupProxy(sys, proxyPath, api);
 
         // 获取请求对象
-        ThirdXRequest req = api.prepare(apiName, account, path, vars);
+        XApiRequest req = api.prepare(apiName, account, path, vars, force);
 
         // 发送请求，并且将流输出
         InputStream ins = api.send(req, InputStream.class);
@@ -44,7 +47,7 @@ public class xapi_send implements JvmHdl {
 
     }
 
-    private void setupProxy(WnSystem sys, String proxyPath, ThirdXApi api) {
+    public static void setupProxy(WnSystem sys, String proxyPath, XApi api) {
         // InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 10080);
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
         // api.setProxy(proxy);

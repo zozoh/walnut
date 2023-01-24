@@ -12,29 +12,12 @@ xapi req
   [-vars {..}]     # 参数表的上下文，如果没有，从标准输入读取
   [-cqn]           # 输出的 JSON 格式化
   [-url]           # 仅仅输出请求的 URL （会自动拼上基础路径和参数）
+  [-cache]         # 仅仅输出请求的缓存键
 ```
 # 示例
 
 ```bash
 # 获取微信公众号用户的信息
-demo@~$ xapi send wxgh demo gh_user_info -vars 'openid:"xxx"'
-{
-    "subscribe": 1, 
-    "openid": "o6_bmjrPTlm6_2sgVt7hMZOPfL2M", 
-    "nickname": "Band", 
-    "sex": 1, 
-    "language": "zh_CN", 
-    "city": "广州", 
-    "province": "广东", 
-    "country": "中国", 
-    "headimgurl":"http://thirdwx.qlo...xCfHe/0",
-    "subscribe_time": 1382694957,
-    "unionid": " o6_bmasdasdsad6_2sgVt7hMZOPfL"
-    "remark": "",
-    "groupid": 0,
-    "tagid_list":[128,2],
-    "subscribe_scene": "ADD_SCENE_QR_CODE",
-    "qr_scene": 98765,
-    "qr_scene_str": ""
-}
+demo@~$ xapi req wxgh funcook gh_user_info -url -vars 'openid:"xxx"'
+https://api.weixin.qq.com/cgi-bin/user/info?access_token=xxx-xxx&openid=xxx&lang=zh_CN
 ```

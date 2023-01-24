@@ -9,4 +9,5 @@ xapi send        # 向第三方平台发送请求
 xapi req         # 获取向第三方平台请求的对象内容
 xapi info        # 获取所有可用 API 列表
 xapi ak          # 判断指定 API 的密钥是否可以正常实用
+xapi wxjssdk     # 专门为微信制作的 JSSDK 接口配置对象
 ```

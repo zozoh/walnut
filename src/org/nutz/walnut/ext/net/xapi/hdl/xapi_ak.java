@@ -1,8 +1,8 @@
 package org.nutz.walnut.ext.net.xapi.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.walnut.ext.net.xapi.ThirdXApi;
-import org.nutz.walnut.ext.net.xapi.impl.WnThirdXApi;
+import org.nutz.walnut.ext.net.xapi.XApi;
+import org.nutz.walnut.ext.net.xapi.impl.WnXApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
@@ -20,7 +20,7 @@ public class xapi_ak implements JvmHdl {
         String account = hc.params.val_check(1);
 
         // 准备 API
-        ThirdXApi api = new WnThirdXApi(sys);
+        XApi api = new WnXApi(sys);
 
         // 判断
         boolean re = api.hasValidAccessKey(apiName, account);

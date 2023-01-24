@@ -1,48 +1,32 @@
 package org.nutz.walnut.ext.net.xapi;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 
-import javax.imageio.ImageIO;
-
-import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
-import org.nutz.lang.Streams;
-import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.cheap.dom.CheapDocument;
-import org.nutz.walnut.cheap.dom.CheapElement;
-import org.nutz.walnut.cheap.xml.CheapXmlParsing;
 import org.nutz.walnut.ext.net.http.HttpConnector;
 import org.nutz.walnut.ext.net.http.HttpContext;
 import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
-import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
-import org.nutz.walnut.ext.net.xapi.impl.DefaultThirdXExpertManager;
+import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
+import org.nutz.walnut.ext.net.xapi.impl.DefaultXApiExpertManager;
 import org.nutz.walnut.util.stream.WnInputStreamFactory;
 
-public abstract class AbstractThirdXApi implements ThirdXApi {
+public abstract class AbstractThirdXApi implements XApi {
 
-    protected ThirdXExpertManager experts;
+    protected XApiExpertManager experts;
 
-    protected ThirdXConfigManager configs;
+    protected XApiConfigManager configs;
 
     private Proxy proxy;
 
     public AbstractThirdXApi() {
-        this(DefaultThirdXExpertManager.getInstance());
+        this(DefaultXApiExpertManager.getInstance());
     }
 
-    public AbstractThirdXApi(ThirdXExpertManager experts) {
+    public AbstractThirdXApi(XApiExpertManager experts) {
         this.experts = experts;
     }
 
@@ -52,8 +36,12 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         return configs.hasValidAccessKey(apiName, account);
     }
 
-    public ThirdXRequest prepare(String apiName, String account, String path, NutBean vars) {
-        ThirdXRequest req = experts.checkExpert(apiName).check(path).clone();
+    public XApiRequest prepare(String apiName,
+                               String account,
+                               String path,
+                               NutBean vars,
+                               boolean force) {
+        XApiRequest req = experts.checkExpert(apiName).check(path).clone();
 
         // 准备上下文变量
         if (null == vars) {
@@ -61,8 +49,12 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         }
 
         // 读取密钥
-        String ak = configs.loadAccessKey(apiName, account, vars, false);
+        String ak = configs.loadAccessKey(apiName, account, vars, force);
         vars.put("@AK", ak);
+
+        // 设置请求信息
+        req.setApiName(apiName);
+        req.setAccount(account);
 
         // 展开头和参数表
         req.expalinPath(vars);
@@ -76,8 +68,13 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
         return req;
     }
 
-    @SuppressWarnings({"unchecked"})
-    public <T> T send(ThirdXRequest xreq, Class<T> classOfT) throws ThirdXException {
+    public <T> T send(XApiRequest xreq, Class<T> classOfT) throws XApiException {
+        // 缓存对象命中就直接返回
+        XApiCacheObj cache = configs.loadReqCache(xreq);
+        if (cache.isMatched()) {
+            return cache.getOutput(classOfT);
+        }
+
         // 准备 URL
         String url = xreq.getBase();
         String path = xreq.getPath();
@@ -125,13 +122,13 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
             resp = c.getResponse();
         }
         catch (IOException e1) {
-            throw new ThirdXException(e1);
+            throw new XApiException(e1);
         }
 
         // 如果出错了
         if (!resp.isStatusOk()) {
             String str = resp.getBodyText();
-            throw new ThirdXException(xreq, "http" + resp.getStatusCode(), str);
+            throw new XApiException(xreq, "http" + resp.getStatusCode(), str);
         }
 
         // 检查一下 响应头
@@ -140,122 +137,28 @@ public abstract class AbstractThirdXApi implements ThirdXApi {
             String str = resp.getBodyText();
             String reason = Json.toJson(respHeaders, JsonFormat.nice());
             reason += "\n" + str;
-            throw new ThirdXException(xreq, "e.xapi.resp.invalid_header", reason);
+            throw new XApiException(xreq, "e.xapi.resp.invalid_header", reason);
         }
 
-        // 无论如何，先考虑流
-        // 输出成字节数组
-        if (classOfT.isArray() && byte.class == classOfT.getComponentType()) {
-            LinkedByteBuffer bytes = new LinkedByteBuffer(8192, 10, 1024 * 1024 * 100);
-            byte[] buf = new byte[8192];
-            int len;
-            try {
-                while ((len = resp.read(buf)) >= 0) {
-                    bytes.write(buf, 0, len);
-                }
-                return (T) bytes.toArray();
-            }
-            catch (IOException e) {
-                throw Lang.wrapThrow(e);
-            }
-        }
-
-        // 输出成 Rader
-        if (classOfT == Reader.class || classOfT == BufferedReader.class) {
-            try {
-                Reader r = new InputStreamReader(resp, Encoding.UTF8);
-                if (classOfT == BufferedReader.class) {
-                    return (T) Streams.buffr(r);
-                }
-                return (T) r;
-            }
-            catch (UnsupportedEncodingException e) {
-                throw Lang.wrapThrow(e);
-            }
-        }
-
-        // 输出成 InputStream
-        if (classOfT == InputStream.class) {
-            return (T) resp;
-        }
-
-        // 准备相应结果
-        String dataType = xreq.getDataType();
-
-        // JSON
-        if ("json".equals(dataType)) {
-            String json = resp.getBodyText();
-            if (classOfT.isAssignableFrom(String.class)) {
-                return (T) json;
-            }
-            // 其他的类字符串
-            if (classOfT.isAssignableFrom(StringBuilder.class)) {
-                return (T) new StringBuilder(json);
-            }
-            // 转换一下
-            return Json.fromJson(classOfT, json);
-        }
-
-        // Pure Text
-        if ("text".equals(dataType)) {
-            String str = resp.getBodyText();
-            return Castors.me().castTo(str, classOfT);
-        }
-
-        // XML
-        if ("xml".equals(dataType)) {
-            String xml = resp.getBodyText();
-
-            // 要解析成 Document
-            if (classOfT.isAssignableFrom(CheapDocument.class)) {
-                CheapDocument doc = new CheapDocument(null);
-                CheapXmlParsing ing = new CheapXmlParsing(doc);
-                doc = ing.parseDoc(xml);
-                return (T) doc;
-            }
-            // 要解析成 Element
-            if (classOfT.isAssignableFrom(CheapElement.class)) {
-                CheapDocument doc = new CheapDocument(null);
-                CheapXmlParsing ing = new CheapXmlParsing(doc);
-                doc = ing.parseDoc(xml);
-                return (T) doc;
-            }
-            // 尝试转换
-            return Castors.me().castTo(xml, classOfT);
-        }
-
-        // 图片
-        if ("png".equals(dataType) || "jpeg".equals(dataType)) {
-            // 转成图片对象
-            if (classOfT.isAssignableFrom(BufferedImage.class)) {
-                try {
-                    return (T) ImageIO.read(resp);
-                }
-                catch (IOException e) {
-                    throw Lang.wrapThrow(e);
-                }
-            }
-        }
-
-        // 不能支持哦
-        throw new ThirdXException(xreq, "resp.convert", dataType);
+        // 输出响应
+        return cache.saveAndOutput(resp, classOfT);
     }
 
     @Override
-    public ThirdXExpertManager getExpertManager() {
+    public XApiExpertManager getExpertManager() {
         return experts;
     }
 
-    public void setExperts(ThirdXExpertManager experts) {
+    public void setExperts(XApiExpertManager experts) {
         this.experts = experts;
     }
 
     @Override
-    public ThirdXConfigManager getConfigManager() {
+    public XApiConfigManager getConfigManager() {
         return configs;
     }
 
-    public void setConfigs(ThirdXConfigManager configLoader) {
+    public void setConfigs(XApiConfigManager configLoader) {
         this.configs = configLoader;
     }
 

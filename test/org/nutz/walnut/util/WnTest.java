@@ -14,20 +14,20 @@ import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.impl.box.WnSystem;
 
 public class WnTest {
-    
+
     @Test
     public void test_evalTimeAndOffset() {
         long ams;
-        
+
         ams = Wtime.valueOf("(2021/11/9)+3d");
         assertEquals("2021-11-12", Wtime.formatDate(new Date(ams)));
-        
+
         ams = Wtime.valueOf("(1636387320000)+3d");
         assertEquals("2021-11-12", Wtime.formatDate(new Date(ams)));
-        
+
         ams = Wtime.valueOf("(2021/11/9)+3M");
         assertEquals("2022-02-09", Wtime.formatDate(new Date(ams)));
-        
+
         ams = Wtime.valueOf("(2021/11/9)+2y");
         assertEquals("2023-11-09", Wtime.formatDate(new Date(ams)));
     }
@@ -189,6 +189,24 @@ public class WnTest {
         assertEquals("a/b/c", Wn.appendPath(null, "a", "b", "c"));
         assertEquals("/a/b/c", Wn.appendPath("/a/", "/b", "c"));
         assertEquals("/a/b/c", Wn.appendPath("/a//b", "c"));
+    }
+
+    @Test
+    public void test_concatPath() {
+        assertEquals("/", Wn.concatPath("/", ""));
+        assertEquals("", Wn.concatPath(null, ""));
+        assertEquals("", Wn.concatPath("", ""));
+
+        assertEquals("a/b/c", Wn.concatPath(null, "a", "b", "c"));
+        assertEquals("/b/c", Wn.concatPath("/a/", "/b", "c"));
+        assertEquals("/a/b/c", Wn.concatPath("/a//b", "c"));
+
+        assertEquals("~/x/y/z/", Wn.concatPath("/a/b", "~/x", "y/z/"));
+        assertEquals("id:xxx/mo/qq", Wn.concatPath("/a/b", "id:xxx/mo", "qq"));
+
+        assertEquals("~/xyz", Wn.concatPath("/a", "b", "~/xyz"));
+        assertEquals("id:xxx", Wn.concatPath("~/a", "b", "id:xxx"));
+        assertEquals("/x/y/z/", Wn.concatPath("~/a", "b", "/x/y/z/"));
     }
 
     @Test

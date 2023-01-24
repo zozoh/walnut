@@ -2,16 +2,17 @@ package org.nutz.walnut.ext.net.xapi.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.net.xapi.ThirdXApi;
+import org.nutz.walnut.ext.net.xapi.XApi;
 import org.nutz.walnut.ext.net.xapi.cmd_xapi;
-import org.nutz.walnut.ext.net.xapi.bean.ThirdXRequest;
-import org.nutz.walnut.ext.net.xapi.impl.WnThirdXApi;
+import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
+import org.nutz.walnut.ext.net.xapi.impl.WnXApi;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Ws;
 
-@JvmHdlParamArgs(value = "cnq", regex = "^(url)$")
+@JvmHdlParamArgs(value = "cnq", regex = "^(url|force)$")
 public class xapi_req implements JvmHdl {
 
     @Override
@@ -23,16 +24,21 @@ public class xapi_req implements JvmHdl {
         String apiName = hc.params.val_check(0);
         String account = hc.params.val_check(1);
         String path = hc.params.val_check(2);
+        boolean force = hc.params.is("force");
 
         // 准备 API
-        ThirdXApi api = new WnThirdXApi(sys);
+        XApi api = new WnXApi(sys);
 
         // 获取请求对象
-        ThirdXRequest req = api.prepare(apiName, account, path, vars);
+        XApiRequest req = api.prepare(apiName, account, path, vars,force);
 
         // 打印请求 URL 完整路径
         if (hc.params.is("url")) {
             sys.out.println(req.toUrl(true));
+        }
+        // 打印请求的缓存键
+        if (hc.params.is("cache")) {
+            sys.out.println(Ws.sBlank(req.checkCacheKey(), "-no-key-"));
         }
         // 打印请求对象
         else {

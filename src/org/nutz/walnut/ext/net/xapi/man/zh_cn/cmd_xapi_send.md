@@ -6,9 +6,9 @@
 
 ```bash
 xapi send 
-  [apiName]         # 应用平台名称
-  [account]         # 平台的账号名
-  [reqName]         # 平台的请求对象名称（具体参见文档 f0-xapi-weixin.md）
+  [apiName]         # 【必】应用平台名称
+  [account]         # 【必】平台的账号名
+  [reqName]         # 【必】平台的请求对象名称（具体参见文档 f0-xapi-weixin.md）
   [-vars {..}]      # 参数表的上下文，如果没有，从标准输入读取
   [-proxy /path/to] # 一个指向 proxy配置文件的路径
                     # 如果该文件存在就启用代理

@@ -1,6 +1,8 @@
 package org.nutz.walnut.ext.net.xapi.bean;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import org.nutz.walnut.ext.net.http.bean.HttpFormPart;
 import org.nutz.walnut.ext.net.util.WnNet;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AlwaysMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -36,9 +39,11 @@ import org.nutz.walnut.util.validate.impl.AutoMatch;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class ThirdXRequest {
+public class XApiRequest {
 
     private String apiName;
+    private String account;
+    private String path;
 
     /**
      * 接口的公共起始路径
@@ -55,25 +60,25 @@ public class ThirdXRequest {
      */
     private int connectTimeout;
 
-    private String path;
-
     private HttpMethod method;
 
     private NutMap headers;
 
     private NutMap params;
 
-    private ThirdXBodyType bodyType;
+    private XApiBodyType bodyType;
 
     private Object body;
 
     private String dataType;
 
+    private XApiReqCache cache;
+
     private NutMap acceptHeader;
 
     private WnMatch matchHeader;
 
-    public ThirdXRequest() {
+    public XApiRequest() {
         timeout = 0;
         connectTimeout = 0;
         method = HttpMethod.GET;
@@ -104,8 +109,8 @@ public class ThirdXRequest {
         return sb.toString();
     }
 
-    public ThirdXRequest clone() {
-        ThirdXRequest req = new ThirdXRequest();
+    public XApiRequest clone() {
+        XApiRequest req = new XApiRequest();
         req.apiName = apiName;
         req.base = base;
         req.timeout = timeout;
@@ -117,13 +122,10 @@ public class ThirdXRequest {
         req.body = body;
         req.bodyType = bodyType;
         req.dataType = dataType;
+        req.cache = cache;
         req.acceptHeader = acceptHeader;
         req.matchHeader = matchHeader;
         return req;
-    }
-
-    public boolean hasApiName() {
-        return !Strings.isBlank(apiName);
     }
 
     public String getApiName() {
@@ -132,6 +134,14 @@ public class ThirdXRequest {
 
     public void setApiName(String apiName) {
         this.apiName = apiName;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public boolean hasBase() {
@@ -295,38 +305,38 @@ public class ThirdXRequest {
     }
 
     public boolean isBodyAsJson() {
-        return ThirdXBodyType.json == bodyType;
+        return XApiBodyType.json == bodyType;
     }
 
     public boolean isBodyAsForm() {
-        return ThirdXBodyType.form == bodyType;
+        return XApiBodyType.form == bodyType;
     }
 
     public boolean isBodyAsMultipart() {
-        return ThirdXBodyType.multipart == bodyType;
+        return XApiBodyType.multipart == bodyType;
     }
 
     public boolean isBodyAsXml() {
-        return ThirdXBodyType.xml == bodyType;
+        return XApiBodyType.xml == bodyType;
     }
 
     public boolean isBodyAsText() {
-        return ThirdXBodyType.text == bodyType;
+        return XApiBodyType.text == bodyType;
     }
 
     public boolean isBodyAsBinary() {
-        return ThirdXBodyType.bin == bodyType;
+        return XApiBodyType.bin == bodyType;
     }
 
     public boolean hasBodyType() {
         return null != bodyType;
     }
 
-    public ThirdXBodyType getBodyType() {
+    public XApiBodyType getBodyType() {
         return bodyType;
     }
 
-    public void setBodyType(ThirdXBodyType bodyType) {
+    public void setBodyType(XApiBodyType bodyType) {
         this.bodyType = bodyType;
     }
 
@@ -350,7 +360,7 @@ public class ThirdXRequest {
         if (this.isBodyAsBinary() || this.isBodyAsText() || !this.hasBodyType()) {
             hc.setBody(this.getBodyInputStream());
         }
-          // 普通表单
+        // 普通表单
         else if (this.isBodyAsForm()) {
             // 无视 body
         }
@@ -435,15 +445,8 @@ public class ThirdXRequest {
         return "bin".equals(dataType);
     }
 
-    public boolean isDataAsImage() {
-        return dataType.matches("^(png|jpeg)$");
-    }
 
-    public boolean isDataAsBinStream() {
-        return this.isDataAsBinary() && this.isDataAsImage();
-    }
-
-    public boolean isDataAsText() {
+    public boolean isDataAsString() {
         return dataType.matches("^(text|json|xml)$");
     }
 
@@ -457,6 +460,76 @@ public class ThirdXRequest {
 
     public void setDataType(String dataType) {
         this.dataType = dataType;
+    }
+
+    public boolean isDataAsJson() {
+        return "json".equals(dataType);
+    }
+
+    public boolean isDataAsXml() {
+        return "xml".equals(dataType);
+    }
+
+    public boolean isDataAsText() {
+        return "text".equals(dataType);
+    }
+
+    private String getCacheKey() {
+        if (null == cache) {
+            return null;
+        }
+        // 只有 GET 请求才有必要缓存
+        if (!isGET()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        if (cache.path) {
+            sb.append(this.path);
+        }
+        if (cache.headers) {
+            sb.append("HEADER=");
+            _join_key_map(sb, this.headers);
+        }
+        if (cache.params) {
+            sb.append("QS=");
+            _join_key_map(sb, this.params);
+        }
+        return Lang.md5(sb);
+    }
+
+    public String checkCacheKey() {
+        String ck = this.getCacheKey();
+        if (Ws.isBlank(ck)) {
+            throw Er.createf("e.xapi.NilCacheKey", "%s/%s/%s", apiName, account, path);
+        }
+        return ck;
+    }
+
+    private void _join_key_map(StringBuilder sb, NutBean bean) {
+        if (null == bean || bean.isEmpty()) {
+            return;
+        }
+        List<String> keys = new ArrayList<>(bean.size());
+        keys.addAll(bean.keySet());
+        Collections.sort(keys);
+        NutMap map = new NutMap();
+        for (String key : keys) {
+            Object val = bean.get(key);
+            map.put(key, val);
+        }
+        WnNet.joinQuery(sb, map, false);
+    }
+
+    public boolean isCacheEnabled() {
+        return null != cache;
+    }
+
+    public XApiReqCache getCache() {
+        return cache;
+    }
+
+    public void setCache(XApiReqCache cache) {
+        this.cache = cache;
     }
 
     public NutMap getAcceptHeader() {
