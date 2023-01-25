@@ -86,7 +86,12 @@ public class WnXapiCacheObj extends NilXapiCacheObj {
         }
         String expiU = req.getCache().getExpiUpdate(ctx);
         Object expi = Wn.fmt_str_macro(expiU);
-        NutMap meta = Wlang.map("expi", expi);
+        long expiInMs = Wn.now() + 3600000L;
+        // 提前十分钟过期以策万全
+        if (expi != null && expi instanceof Number) {
+            expiInMs = ((Number) expi).longValue() - 6000000;
+        }
+        NutMap meta = Wlang.map("expi", expiInMs);
         io.appendMeta(o, meta);
 
         // 输出
