@@ -37,7 +37,7 @@ public class xapi_req implements JvmHdl {
             sys.out.println(req.toUrl(true));
         }
         // 打印请求的缓存键
-        if (hc.params.is("cache")) {
+        else if (hc.params.is("cache")) {
             sys.out.println(Ws.sBlank(req.checkCacheKey(), "-no-key-"));
         }
         // 打印请求对象
