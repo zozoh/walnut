@@ -8,7 +8,6 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
-import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.stream.WnByteInputStream;
 
@@ -31,7 +30,7 @@ public class WnXapiCacheObj extends NilXapiCacheObj {
     }
 
     private WnObj getMatchObj(boolean autoCreate) {
-        if (null != obj) {
+        if (null != obj && !obj.isExpired()) {
             return obj;
         }
         // 自动创建
@@ -48,7 +47,17 @@ public class WnXapiCacheObj extends NilXapiCacheObj {
     @Override
     public boolean isMatched() {
         WnObj obj = this.getMatchObj(false);
-        return null != obj;
+        if(null == obj) {
+            return false;
+        }
+        // 过期没？
+        long cacheExpiAt = obj.getLong("cache_expi_at", -1);
+        // 过期了
+        if(Wn.now()>cacheExpiAt) {
+            return false;
+        }
+        // 嗯有效
+        return true;
     }
 
     @Override
@@ -89,9 +98,13 @@ public class WnXapiCacheObj extends NilXapiCacheObj {
         long expiInMs = Wn.now() + 3600000L;
         // 提前十分钟过期以策万全
         if (expi != null && expi instanceof Number) {
-            expiInMs = ((Number) expi).longValue() - 6000000;
+            expiInMs = ((Number) expi).longValue();
         }
-        NutMap meta = Wlang.map("expi", expiInMs);
+        NutMap meta = new NutMap();
+        // 过期1分钟内必然被删除(回收线程周期），即这个缓存如果过期1分钟后没有被命中则必然没用需要回收
+        meta.put("expi", expiInMs);
+        // 标志一个过期时间，提前5分钟失效
+        meta.put("cache_expi_at", expiInMs - 300000L);
         io.appendMeta(o, meta);
 
         // 输出
