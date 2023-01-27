@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
 
+@SuppressWarnings("unused")
 public interface XApiCacheObj {
 
     boolean isMatched();
