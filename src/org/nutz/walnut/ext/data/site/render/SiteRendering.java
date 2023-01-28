@@ -13,6 +13,7 @@ import org.nutz.walnut.ext.data.www.WnmlRuntime;
 import org.nutz.walnut.ext.data.www.WnmlService;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.util.Ws;
 
 public class SiteRendering {
@@ -37,6 +38,10 @@ public class SiteRendering {
     WnObj targetHome;
 
     String[] langs;
+
+    String markKey;
+    
+    boolean willRecur;
 
     WnmlService wnmls;
 
@@ -322,4 +327,30 @@ public class SiteRendering {
         }
     }
 
+    public boolean hasMarkKey() {
+        return !Ws.isBlank(markKey);
+    }
+
+    public String getMarkKey() {
+        return markKey;
+    }
+
+    public void setMarkKey(String markKey) {
+        // 标记键不能是标准字段
+        if (null != markKey && Wobj.isReserveKey(markKey)) {
+            throw Er.create("e.cmd.site.render.MarkReserveKey", markKey);
+        }
+        this.markKey = markKey;
+    }
+
+    public boolean isWillRecur() {
+        return willRecur;
+    }
+
+    public void setWillRecur(boolean willRecur) {
+        this.willRecur = willRecur;
+    }
+
+    
 }
+

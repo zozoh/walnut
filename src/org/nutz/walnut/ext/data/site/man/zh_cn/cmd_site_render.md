@@ -89,6 +89,7 @@
 ```bash
 site render
   [ID, ID ..]               # 可以指定多个归档的 ID
+  [-r]                      # 指定 ID 模式下，默认不递归，这个选项可以强制递归
   [-conf conf.json]         # 渲染的配置文件路径
   [-target ~/wwww/website]  # 指明目标输出目录，将覆盖 conf.target
   [-langs en_uk,zh_cn]      # 指明输出语言，将覆盖 conf.langs
@@ -99,6 +100,8 @@ site render
                             # 即会无视 copyFiles 和 page 段的声明 
   [-json]                   #  JSON 模式将不输出日志，而是最后汇总一个json
                             # 结果集合 {arID:[path1,path2,paht3]
+  [-mark pub_targets]       # 将归档发布的结果放置到一个归档对象的某个键里以备将来
+                            # 查看发布状态
   [-cqn]                    # json模式下输出json的格式
 ```
 

@@ -16,7 +16,7 @@ import org.nutz.walnut.util.ZParams;
 public class site_render extends SiteFilter {
 
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn", "^(json|copy|page)$");
+        return ZParams.parse(args, "cqnr", "^(json|copy|page)$");
     }
 
     @Override
@@ -26,6 +26,7 @@ public class site_render extends SiteFilter {
         String[] langs = params.getAs("lang", String[].class);
         String targetPath = params.getString("target", null);
         String arName = params.getString("name", null);
+        String markKey = params.getString("mark", null);
 
         // 计时
         Stopwatch sw = Stopwatch.begin();
@@ -44,6 +45,8 @@ public class site_render extends SiteFilter {
         rendering.setWillCopyFiles(params.is("copy"));
         rendering.setWillRenderPages(params.is("page"));
         rendering.updateSiteHome(fc.oSite);
+        rendering.setMarkKey(markKey);
+        rendering.setWillRecur(params.is("r"));
         rendering.updateLangs(langs);
         rendering.updateTargetHome(targetPath);
 

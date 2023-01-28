@@ -352,4 +352,20 @@ public class Wobj {
         return name;
     }
 
+    private static Pattern RESERVE_KEYS = null;
+
+    public static boolean isReserveKey(String key) {
+        if (null == RESERVE_KEYS) {
+            synchronized (Wobj.class) {
+                if (null == RESERVE_KEYS) {
+                    String str = "^(id|nm|ph|race|ct|lm|sha1|data|d[0-9]|local"
+                                 + "|pid|c|m|g|md|tp|mime|len"
+                                 + "|ln|mnt|expi|passwd|salt"
+                                 + "|th_(set|live|set_nm))$";
+                    RESERVE_KEYS = Pattern.compile(str);
+                }
+            }
+        }
+        return RESERVE_KEYS.matcher(key).find();
+    }
 }

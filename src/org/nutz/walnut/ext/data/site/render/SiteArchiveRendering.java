@@ -13,6 +13,7 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.www.WWW;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -54,6 +55,9 @@ public class SiteArchiveRendering {
                     this.renderArchive(oAr);
                 } else {
                     ing.LOGf("Ignore [%s] cause out of [%s]", arPath, homePath);
+                }
+                if(ing.isWillRecur()) {
+                    this.renderChildren(oAr);
                 }
             }
         }
@@ -103,6 +107,14 @@ public class SiteArchiveRendering {
             String distPath = __write_dist_html(ctx);
             paths.add(distPath);
         }
+
+        // 标记到对象上
+        if (ing.hasMarkKey()) {
+            NutMap meta = Wlang.map(ing.getMarkKey(), paths);
+            ing.io.appendMeta(oAr, meta);
+            ing.LOGf(" + mark %s : %s", ing.getMarkKey(), Ws.join(paths, ", "));
+        }
+
         ing.addResult(oAr, paths);
 
     }
