@@ -171,6 +171,11 @@ public class AppModule extends AbstractWnModule {
         try {
             // 得到应用
             WnApp app = apps.checkApp(appName);
+            
+            if(log.isDebugEnabled()) {
+                String envJson = Json.toJson(app.getSession().getVars(), JsonFormat.nice());
+                log.debugf("APP<%s>:%s:%s:%s:%s",appName,str,id,matchJson,envJson);
+            }
 
             // 得到数据对象
             WnObj oP;
