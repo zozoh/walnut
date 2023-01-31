@@ -176,20 +176,20 @@ public class DaoIndexer extends AbstractIoDataIndexer {
 
         // 拼 SQL
         String str = WnTmpl.exec("SELECT "
-                               + "  ${GRP_OUT},"
-                               + "  ${FUNC} AS ${AGG_KEY_TO} "
-                               + "FROM"
-                               + "("
-                               + "    SELECT "
-                               + "      ${AGG_KEY_FROM} AS v0,"
-                               + "      ${GRP_INS}"
-                               + "    FROM ${table} "
-                               + "    ${WHERE?} ${LIMIT_DATA?}"
-                               + ") AS result "
-                               + "GROUP BY ${GRP_BYS} "
-                               + "${ORDER_BY} "
-                               + "${LIMIT_OUTPUT?} ;",
-                               ctx);
+                                 + "  ${GRP_OUT},"
+                                 + "  ${FUNC} AS ${AGG_KEY_TO} "
+                                 + "FROM"
+                                 + "("
+                                 + "    SELECT "
+                                 + "      ${AGG_KEY_FROM} AS v0,"
+                                 + "      ${GRP_INS}"
+                                 + "    FROM ${table} "
+                                 + "    ${WHERE?} ${LIMIT_DATA?}"
+                                 + ") AS result "
+                                 + "GROUP BY ${GRP_BYS} "
+                                 + "${ORDER_BY} "
+                                 + "${LIMIT_OUTPUT?} ;",
+                                 ctx);
 
         // 准备返回结果
         WnAggResult re = new WnAggResult();

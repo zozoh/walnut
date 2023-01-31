@@ -6,7 +6,9 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
@@ -208,7 +210,14 @@ public class LocalFileIndexer extends AbstractIoIndexer {
             }
             // 生成对象
             WnObj ele = _gen_file_obj(o, fi);
-            callback.invoke(i, ele, flist.length);
+            // 回调
+            try {
+                callback.invoke(i, ele, flist.length);
+            }
+            catch (ExitLoop e) {
+                break;
+            }
+            catch (ContinueLoop e) {}
         }
 
         return flist.length;
