@@ -56,7 +56,7 @@ public class SiteArchiveRendering {
                 } else {
                     ing.LOGf("Ignore [%s] cause out of [%s]", arPath, homePath);
                 }
-                if(ing.isWillRecur()) {
+                if (ing.isWillRecur()) {
                     this.renderChildren(oAr);
                 }
             }
@@ -133,6 +133,10 @@ public class SiteArchiveRendering {
         Object re = Wn.explainObj(ctx, ar.getVars());
         if (null != re) {
             context.putAll((Map<String, Object>) re);
+        }
+        String aph = ph;
+        if (!aph.startsWith("/")) {
+            aph = "/" + aph;
         }
         context.put("URI_PATH", ph);
         WWW.joinWWWContext(context, ing.targetHome);
