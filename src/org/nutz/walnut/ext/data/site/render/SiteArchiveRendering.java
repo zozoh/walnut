@@ -138,7 +138,7 @@ public class SiteArchiveRendering {
         if (!aph.startsWith("/")) {
             aph = "/" + aph;
         }
-        context.put("URI_PATH", ph);
+        context.put("URI_PATH", aph);
         WWW.joinWWWContext(context, ing.targetHome);
 
         // 渲染
