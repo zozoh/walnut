@@ -29,7 +29,7 @@ public class xapi_send implements JvmHdl {
         String apiName = hc.params.val_check(0);
         String account = hc.params.val_check(1);
         String path = hc.params.val_check(2);
-        String proxyPath = hc.params.getString("proxy");
+        String proxyPath = hc.params.getString("proxy", "~/.domain/proxy.json");
         boolean force = hc.params.is("force");
 
         // 准备 API
@@ -39,7 +39,8 @@ public class xapi_send implements JvmHdl {
         setupProxy(sys, proxyPath, api);
 
         // 获取请求对象
-        XApiRequest req = api.prepare(apiName, account, path, vars, force);
+        XApiRequest req = api.prepare(apiName, account, path, vars, false);
+        req.setDisableCache(force);
 
         // 发送请求，并且将流输出
         InputStream ins = api.send(req, InputStream.class);
@@ -51,7 +52,7 @@ public class xapi_send implements JvmHdl {
         // InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 10080);
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
         // api.setProxy(proxy);
-        if (!Ws.isBlank(proxyPath)) {
+        if (!Ws.isBlank(proxyPath) && !"none".equals(proxyPath)) {
             WnObj oProxy = Wn.getObj(sys, proxyPath);
             if (null != oProxy) {
                 NutMap proxyConf = sys.io.readJson(oProxy, NutMap.class);

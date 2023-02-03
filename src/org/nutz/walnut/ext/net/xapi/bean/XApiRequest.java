@@ -44,6 +44,7 @@ public class XApiRequest {
     private String apiName;
     private String account;
     private String path;
+    private String key;
 
     /**
      * 接口的公共起始路径
@@ -73,6 +74,8 @@ public class XApiRequest {
     private String dataType;
 
     private XApiReqCache cache;
+
+    private boolean disableCache;
 
     private NutMap acceptHeader;
 
@@ -112,10 +115,12 @@ public class XApiRequest {
     public XApiRequest clone() {
         XApiRequest req = new XApiRequest();
         req.apiName = apiName;
+        req.account = account;
+        req.path = path;
+        req.key = key;
         req.base = base;
         req.timeout = timeout;
         req.connectTimeout = connectTimeout;
-        req.path = path;
         req.method = method;
         req.headers = headers.duplicate();
         req.params = params.duplicate();
@@ -184,6 +189,18 @@ public class XApiRequest {
 
     public void expalinPath(NutBean vars) {
         this.path = WnTmpl.exec(this.path, vars);
+    }
+
+    public boolean hasKey() {
+        return !Ws.isBlank(key);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public boolean hasPath() {
@@ -445,7 +462,6 @@ public class XApiRequest {
         return "bin".equals(dataType);
     }
 
-
     public boolean isDataAsString() {
         return dataType.matches("^(text|json|xml)$");
     }
@@ -494,7 +510,9 @@ public class XApiRequest {
             sb.append("QS=");
             _join_key_map(sb, this.params);
         }
-        return Lang.md5(sb);
+        String md5 = Lang.md5(sb);
+        String name = Ws.sBlank(key, "_anonymity");
+        return name + "-" + md5;
     }
 
     public String checkCacheKey() {
@@ -530,6 +548,14 @@ public class XApiRequest {
 
     public void setCache(XApiReqCache cache) {
         this.cache = cache;
+    }
+
+    public boolean isDisableCache() {
+        return disableCache;
+    }
+
+    public void setDisableCache(boolean disableCache) {
+        this.disableCache = disableCache;
     }
 
     public NutMap getAcceptHeader() {

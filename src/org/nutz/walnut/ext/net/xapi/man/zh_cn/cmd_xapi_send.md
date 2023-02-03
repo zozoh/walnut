@@ -13,6 +13,8 @@ xapi send
   [-proxy /path/to]   # 一个指向 proxy配置文件的路径
                       # 如果该文件存在就启用代理
                       # 文件内容为 {type:"http",host,port} 
+                      # 如果没有指定，会自动寻找 ~/.domain/proxy.json
+                      # 除非指明 "none"
 ```
 # 示例
 

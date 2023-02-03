@@ -3,6 +3,7 @@
   "timeout" : 3000,
   "connectTimeout" : 1000,
   "home" : "~/.xapi/facebook/",
+  "apiCachePath": "api-cache",
   "configFilePath" : "config.json",
   "accessKeyFilePath" : "long_live_access_token",
   "__accessKeyRequest" : {
@@ -28,53 +29,80 @@
         "params" : {
           "access_token" : "=@AK"
         },
-        "dataType" : "json"
+        "dataType" : "json",
+        "cache": {
+            "path": true,
+            "headers": false,
+            "params": true,
+            "expiIn": "86400",
+            "expiUnit": "s"
+        }
       },
       "albums" : {
         "path" : "${version?v10.0}/${id}/albums",
         "method" : "GET",
         "params" : {
-          "access_token" : "=@AK"
-        },
-        "dataType" : "json"
-      },
-      "userPhotos" : {
-        "path" : "${version?v10.0}/${id}/photos",
-        "method" : "GET",
-        "params" : {
           "access_token" : "=@AK",
-          "type" : "uploaded",
-          "fields": "id,link,name,width,height,images",
-          "after": "=after"
+          "fields": "=fields?id,name,place,created_time,description,link,count,cover_photo",
+          "after":"=after"
         },
-        "dataType" : "json"
-      },
-      "album" : {
-        "path" : "${version?v10.0}/${id}",
-        "method" : "GET",
-        "params" : {
-          "access_token" : "=@AK",
-          "fields": "id,name,description,type,updated_time"
-        },
-        "dataType" : "json"
+        "dataType" : "json",
+        "cache": {
+            "path": true,
+            "headers": false,
+            "params": true,
+            "expiIn": "86400",
+            "expiUnit": "s"
+        }
       },
       "photos" : {
         "path" : "${version?v10.0}/${id}/photos",
         "method" : "GET",
         "params" : {
           "access_token" : "=@AK",
-          "fields": "id,link,name,width,height,images"
+          "fields": "=fields?id,link,name,images,width,height",
+          "after": "=after"
         },
-        "dataType" : "json"
+        "dataType" : "json",
+        "cache": {
+            "path": true,
+            "headers": false,
+            "params": true,
+            "expiIn": "86400",
+            "expiUnit": "s"
+        }
+      },
+      "album" : {
+        "path" : "${version?v10.0}/${id}",
+        "method" : "GET",
+        "params" : {
+          "access_token" : "=@AK",
+          "fields": "=fields?id,name,place,created_time,description,link,count,cover_photo"
+        },
+        "dataType" : "json",
+        "cache": {
+            "path": true,
+            "headers": false,
+            "params": true,
+            "expiIn": "86400",
+            "expiUnit": "s"
+        }
       },
       "photo" : {
         "path" : "${version?v10.0}/${id}",
         "method" : "GET",
         "params" : {
           "access_token" : "=@AK",
-          "fields": "id,album,from,icon,link,name,name_tags,webp_images,updated_time,width,height"
+          "fields": "=fields?id,link,name,images,width,height"
         },
-        "dataType" : "json"
+        "dataType" : "json",
+        "cache": {
+            "path": true,
+            "headers": false,
+            "params": true,
+            "expiIn": "1728000",
+            "expiUnit": "s"
+        }
       }
   }
 }

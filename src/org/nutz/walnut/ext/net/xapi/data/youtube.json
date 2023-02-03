@@ -1,85 +1,114 @@
 {
-  "base" : "https://www.googleapis.com/youtube/",
-  "timeout" : 3000,
-  "connectTimeout" : 1000,
-  "home" : "~/.xapi/youtube/",
-  "configFilePath" : "config.json",
-  "accessKeyFilePath" : "access_token",
-  "accessKeyObj" : {
-    "ticket"   : "=apiKey",
-    "expiTime" : 7,
-    "expiTimeUnit" : "d"
-  },
-  "requests" : {
-      "channels" : {
-        "path" : "v3/channels",
-        "method" : "GET",
-        "params" : {
-          "key" : "=@AK",
-          "part" : "=part",
-          "categoryId" : "=categoryId",
-          "forUsername" : "=forUsername",
-          "id" : "=id",
-          "managedByMe" : "=managedByMe",
-          "mine" : "=mine",
-          "hl" : "=hl",
-          "maxResults" : "=maxResults",
-          "onBehalfOfContentOwner" : "=onBehalfOfContentOwner",
-          "pageToken" : "=pageToken"
+    "base": "https://www.googleapis.com/youtube/",
+    "timeout": 3000,
+    "connectTimeout": 1000,
+    "home": "~/.xapi/youtube/",
+    "apiCachePath": "api-cache",
+    "configFilePath": "config.json",
+    "accessKeyFilePath": "access_token",
+    "accessKeyObj": {
+        "ticket": "=apiKey",
+        "expiTime": 7,
+        "expiTimeUnit": "d"
+    },
+    "requests": {
+        "channels": {
+            "path": "v3/channels",
+            "method": "GET",
+            "params": {
+                "key": "=@AK",
+                "part": "=part",
+                "categoryId": "=categoryId",
+                "forUsername": "=forUsername",
+                "id": "=id",
+                "managedByMe": "=managedByMe",
+                "mine": "=mine",
+                "hl": "=hl",
+                "maxResults": "=maxResults",
+                "onBehalfOfContentOwner": "=onBehalfOfContentOwner",
+                "pageToken": "=pageToken"
+            },
+            "dataType": "json",
+            "cache": {
+                "path": true,
+                "headers": false,
+                "params": true,
+                "expiIn": "3600",
+                "expiUnit": "s"
+            }
         },
-        "dataType" : "json"
-      },
-      "playlists" : {
-        "path" : "v3/playlists",
-        "method" : "GET",
-        "params" : {
-          "key" : "=@AK",
-          "part" : "=part",
-          "channelId" : "=channelId",
-          "id" : "=id",
-          "mine" : "=mine",
-          "hl" : "=hl",
-          "maxResults" : "=maxResults",
-          "onBehalfOfContentOwner" : "=onBehalfOfContentOwner",
-          "onBehalfOfContentOwnerChannel" : "=onBehalfOfContentOwnerChannel",
-          "pageToken" : "=pageToken"
+        "playlists": {
+            "path": "v3/playlists",
+            "method": "GET",
+            "params": {
+                "key": "=@AK",
+                "part": "=part",
+                "channelId": "=channelId",
+                "id": "=id",
+                "mine": "=mine",
+                "hl": "=hl",
+                "maxResults": "=maxResults",
+                "onBehalfOfContentOwner": "=onBehalfOfContentOwner",
+                "onBehalfOfContentOwnerChannel": "=onBehalfOfContentOwnerChannel",
+                "pageToken": "=pageToken"
+            },
+            "dataType": "json",
+            "cache": {
+                "path": true,
+                "headers": false,
+                "params": true,
+                "expiIn": "3600",
+                "expiUnit": "s"
+            }
         },
-        "dataType" : "json"
-      },
-      "playlistItems" : {
-        "path" : "v3/playlistItems",
-        "method" : "GET",
-        "params" : {
-          "key" : "=@AK",
-          "part" : "=part",
-          "id" : "=id",
-          "playlistId" : "=playlistId",
-          "maxResults" : "=maxResults",
-          "onBehalfOfContentOwner" : "=onBehalfOfContentOwner",
-          "pageToken" : "=pageToken",
-          "videoId" : "=videoId"
+        "playlistItems": {
+            "path": "v3/playlistItems",
+            "method": "GET",
+            "params": {
+                "key": "=@AK",
+                "part": "=part",
+                "id": "=id",
+                "playlistId": "=playlistId",
+                "maxResults": "=maxResults",
+                "onBehalfOfContentOwner": "=onBehalfOfContentOwner",
+                "pageToken": "=pageToken",
+                "videoId": "=videoId"
+            },
+            "dataType": "json",
+            "cache": {
+                "path": true,
+                "headers": false,
+                "params": true,
+                "expiIn": "3600",
+                "expiUnit": "s"
+            }
         },
-        "dataType" : "json"
-      },
-      "videos" : {
-        "path" : "v3/videos",
-        "method" : "GET",
-        "params" : {
-          "key" : "=@AK",
-          "part" : "=part",
-          "chart" : "=chart",
-          "id" : "=id",
-          "myRating" : "=myRating",
-          "hl" : "=hl",
-          "maxHeight" : "=maxHeight",
-          "maxResults" : "=maxResults",
-          "maxWidth" : "=maxWidth",
-          "onBehalfOfContentOwner" : "=onBehalfOfContentOwner",
-          "pageToken" : "=pageToken",
-          "regionCode" : "=regionCode",
-          "videoCategoryId" : "=videoCategoryId"
-        },
-        "dataType" : "json"
-      }
-  }
+        "videos": {
+            "path": "v3/videos",
+            "method": "GET",
+            "params": {
+                "key": "=@AK",
+                "part": "=part",
+                "chart": "=chart",
+                "id": "=id",
+                "myRating": "=myRating",
+                "hl": "=hl",
+                "maxHeight": "=maxHeight",
+                "maxResults": "=maxResults",
+                "maxWidth": "=maxWidth",
+                "onBehalfOfContentOwner": "=onBehalfOfContentOwner",
+                "pageToken": "=pageToken",
+                "regionCode": "=regionCode",
+                "videoCategoryId": "=videoCategoryId"
+            },
+            "dataType": "json",
+            "cache": {
+                "path": true,
+                "headers": false,
+                "params": true,
+                "expiIn": "3600",
+                "expiUnit": "s"
+            }
+        }
+    }
 }

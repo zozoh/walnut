@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.net.http.HttpConnector;
 import org.nutz.walnut.ext.net.http.HttpContext;
 import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
+import org.nutz.walnut.ext.net.xapi.bean.XApiExpert;
 import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
 import org.nutz.walnut.ext.net.xapi.impl.DefaultXApiExpertManager;
 import org.nutz.walnut.util.stream.WnInputStreamFactory;
@@ -41,7 +42,8 @@ public abstract class AbstractThirdXApi implements XApi {
                                String path,
                                NutBean vars,
                                boolean force) {
-        XApiRequest req = experts.checkExpert(apiName).check(path).clone();
+        XApiExpert exp = experts.checkExpert(apiName);
+        XApiRequest req = exp.check(path).clone();
 
         // 准备上下文变量
         if (null == vars) {
@@ -71,8 +73,10 @@ public abstract class AbstractThirdXApi implements XApi {
     public <T> T send(XApiRequest xreq, Class<T> classOfT) throws XApiException {
         // 缓存对象命中就直接返回
         XApiCacheObj cache = configs.loadReqCache(xreq);
-        if (cache.isMatched()) {
-            return cache.getOutput(classOfT);
+        if (!xreq.isDisableCache()) {
+            if (cache.isMatched()) {
+                return cache.getOutput(classOfT);
+            }
         }
 
         // 准备 URL

@@ -107,6 +107,7 @@ public class XApiExpert {
         XApiRequest req = this.requests.get(key);
         if (null != req) {
             req = req.clone();
+            req.setKey(key);
             req.setApiName(this.name);
             req.setBase(this.base);
             req.setDefaultTimeout(timeout);
