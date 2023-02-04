@@ -62,7 +62,7 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
             c.sendBody();
             resp = c.getResponse();
 
-            // 输入头部
+            // 输出头部
             boolean headerOnly = fc.params.is("H");
             if (fc.params.is("h") || headerOnly) {
                 for (Map.Entry<String, Object> en : resp.getHeaders().entrySet()) {

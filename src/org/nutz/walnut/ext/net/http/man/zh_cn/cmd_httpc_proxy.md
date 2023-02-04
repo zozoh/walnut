@@ -9,6 +9,9 @@
 httpc {URL} @proxy
   [{PORT}]       # 代理的接口
   [{HOST}]       # 代理的地址，默认为 127.0.0.1
+  [-auto]        # 自动检查系统代理设置
+  [-f /path.json]# 指定一个代理配置文件，如果没用就无视
+                 # 如果什么都不声明，默认会检查 ~/.domain/proxy.json
   [-socket]      # 指定代理为 Socket 代理，否则当作 Http 代理
 ```
 
