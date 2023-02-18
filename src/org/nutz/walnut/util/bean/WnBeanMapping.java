@@ -135,7 +135,9 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
             String k2 = fld.getName(key);
             Object v2 = fld.tryValueOptions(val);
             Object v3 = WnValues.toValue(fld, v2);
-            re.put(k2, v3);
+            if (null != v3 || !fld.isIgnoreNull()) {
+                re.put(k2, v3);
+            }
 
             // 看看还有没有别名字段
             if (fld.hasAliasFields()) {
@@ -151,7 +153,9 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     }
                     Object av2 = af.tryValueOptions(av);
                     Object av3 = WnValues.toValue(af, av2);
-                    re.put(ka, av3);
+                    if (null != av3 || !af.isIgnoreNull()) {
+                        re.put(ka, av3);
+                    }
                 }
             }
         }

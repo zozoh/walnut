@@ -16,6 +16,8 @@ public class WnBeanField extends WnValue {
     private Object hidden;
 
     private String name;
+    
+    private boolean ignoreNull;
 
     /**
      * 一个字段还可以转换为几种变种。
@@ -94,6 +96,16 @@ public class WnBeanField extends WnValue {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    
+
+    public boolean isIgnoreNull() {
+        return ignoreNull;
+    }
+
+    public void setIgnoreNull(boolean ignoreNull) {
+        this.ignoreNull = ignoreNull;
     }
 
     public void loadOptions(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
