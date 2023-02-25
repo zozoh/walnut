@@ -8,14 +8,13 @@ import org.nutz.walnut.ext.data.o.OFilter;
 import org.nutz.walnut.ext.data.o.util.WnObjJoin;
 import org.nutz.walnut.ext.data.o.util.WnObjTrans;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.Wcol;
 import org.nutz.walnut.util.ZParams;
 
 public class o_join_many extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(only)$");
+        return ZParams.parse(args, "^(only|fetch)$");
     }
 
     @Override

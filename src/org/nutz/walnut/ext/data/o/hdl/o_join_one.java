@@ -15,7 +15,7 @@ public class o_join_one extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(only)$");
+        return ZParams.parse(args, "^(only|fetch)$");
     }
 
     @Override

@@ -24,7 +24,6 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
 import org.nutz.lang.stream.ComboOutputStream;
 import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
@@ -54,6 +53,7 @@ import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnStr;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -111,7 +111,7 @@ public class HttpApiModule extends AbstractWnModule {
             // 如果有原来的老会话，则记录一下操作会话
             apc.oldSe = null;
             String ticket = Wn.WC().getTicket();
-            if (!Strings.isBlank(ticket)) {
+            if (!Ws.isBlank(ticket)) {
                 apc.oldSe = this.auth().getSession(ticket);
             }
 
@@ -252,7 +252,7 @@ public class HttpApiModule extends AbstractWnModule {
 
     private void __check_api_access_token(final WnHttpApiContext apc) {
         String at = apc.oApi.getString("api-access-token");
-        if (!Strings.isBlank(at)) {
+        if (!Ws.isBlank(at)) {
             // 分析 Key 和 Path
             String atKey, atPath;
             int pos = at.indexOf('=');
@@ -265,7 +265,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
             // 读取 Key
             String atClientKey = apc.reqMeta.getString(atKey);
-            if (Strings.isBlank(atClientKey)) {
+            if (Ws.isBlank(atClientKey)) {
                 throw Er.create("e.api.forbid");
             }
             // 读取验证 key
@@ -284,13 +284,13 @@ public class HttpApiModule extends AbstractWnModule {
     private void __do_www_check_pvg(final WnHttpApiContext apc) {
         String phPvg = apc.oApi.getString("pvg-setup");
         // 如果木有设置，那么看看站点有没有设置
-        if (Strings.isBlank(phPvg)) {
+        if (Ws.isBlank(phPvg)) {
             phPvg = apc.oWWW.getString("pvg_setup");
         }
         String[] assActions = apc.oApi.getArray("pvg-assert", String.class);
 
         // 没设置不检
-        if (Strings.isBlank(phPvg)) {
+        if (Ws.isBlank(phPvg)) {
             return;
         }
 
@@ -314,7 +314,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 开始检查咯
         for (String assA : assActions) {
-            String[] actions = Strings.splitIgnoreBlank(assA, "[|]+");
+            String[] actions = Ws.splitIgnoreBlank(assA, "[|]+");
             if (!apc.bizPvgs.canOne(roleName, actions)) {
                 throw Er.create("e.api.forbid");
             }
@@ -386,8 +386,8 @@ public class HttpApiModule extends AbstractWnModule {
                                                     String origin,
                                                     Callback2<String, String> callback) {
         String allowOrigin = oApi.getString("http-cross-origin");
-        if (!Strings.isBlank(allowOrigin)) {
-            callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", Strings.sBlank(origin, allowOrigin));
+        if (!Ws.isBlank(allowOrigin)) {
+            callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", Ws.sBlank(origin, allowOrigin));
             callback.invoke("ACCESS-CONTROL-ALLOW-METHODS",
                             "GET, POST, PUT, DELETE, OPTIONS, PATCH");
             callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
@@ -406,7 +406,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 得到 api 的主目录，分解要获取的路径
         apc.oApiHome = io().fetch(apc.oHome, ".regapi/api");
-        String[] phs = Strings.splitIgnoreBlank(apc.api, "/");
+        String[] phs = Ws.splitIgnoreBlank(apc.api, "/");
 
         // 依次取得
         for (int i = 0; i < phs.length; i++) {
@@ -432,16 +432,16 @@ public class HttpApiModule extends AbstractWnModule {
             if (oApi.isDIR()) {
                 apc.args.add(ph);
                 String pnm = oApi.getString("api-param-name");
-                if (!Strings.isBlank(pnm)) {
+                if (!Ws.isBlank(pnm)) {
                     apc.params.put(pnm, ph);
                 }
             }
             // 文件，表示的是 * 嘛，那就不要继续了
             else {
-                String arg = Strings.join(i, phs.length - i, "/", phs);
+                String arg = Ws.join(phs, "/", i, phs.length - i);
                 apc.args.add(arg);
                 String pnm = oApi.getString("api-param-name");
-                if (!Strings.isBlank(pnm)) {
+                if (!Ws.isBlank(pnm)) {
                     apc.params.put(pnm, arg);
                 }
                 break;
@@ -665,7 +665,7 @@ public class HttpApiModule extends AbstractWnModule {
             String path = test.getString("path");
 
             // 靠，您忘记写 path了吧，无视你！
-            if (Strings.isBlank(path))
+            if (Ws.isBlank(path))
                 continue;
 
             Object cacheMatch = test.get("match");
@@ -676,7 +676,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
         }
         // 找不到缓存路径，那么就意味着不命中缓存咯
-        if (Strings.isBlank(cachePath)) {
+        if (Ws.isBlank(cachePath)) {
             return false;
         }
 
@@ -708,12 +708,12 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 有缓存，但是匹配不上请求签名
         String fingerKey = apc.oApi.getString("cache-finger-key");
-        if (!Strings.isBlank(fingerKey)) {
+        if (!Ws.isBlank(fingerKey)) {
             String fingerAs = apc.oApi.getString("cache-finger-as", "MD5");
             apc.reqQuerySign = Lang.digest(fingerAs, apc.reqQuery);
             // 得到缓存的签名
             String sign = oCache.getString(fingerKey);
-            if (Strings.isBlank(sign) || !sign.equals(apc.reqQuerySign)) {
+            if (Ws.isBlank(sign) || !sign.equals(apc.reqQuerySign)) {
                 if (lazy) {
                     apc.cacheObj = oCache;
                 }
@@ -726,7 +726,7 @@ public class HttpApiModule extends AbstractWnModule {
         // -----------------------------------------
         // 按照 HTTP 302 的方式输出
         String redirect = apc.oApi.getString("cache-redirect");
-        if (!Strings.isBlank(redirect)) {
+        if (!Ws.isBlank(redirect)) {
             NutMap vars = new NutMap();
             if (oCache.hasSha1()) {
                 String sha1 = oCache.sha1();
@@ -738,7 +738,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
             String origin = apc.reqMeta.getString("http-header-ORIGIN");
-            if (!Strings.isBlank(origin)) {
+            if (!Ws.isBlank(origin)) {
                 __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
                     if (!apc.oApi.has("http-header-" + name)) {
                         apc.resp.setHeader(WnWeb.niceHeaderName(name), value);
@@ -814,11 +814,11 @@ public class HttpApiModule extends AbstractWnModule {
         // 保存 QueryString，同时，看看有没必要更改 mime-type
         apc.reqQuery = apc.req.getQueryString();
         apc.reqMeta.put("http-qs", apc.reqQuery);
-        if (!Strings.isBlank(apc.reqQuery)) {
+        if (!Ws.isBlank(apc.reqQuery)) {
             // 解码
             apc.reqQuery = URLDecoder.decode(apc.reqQuery, "UTF-8");
             // 分析每个请求参数
-            String[] ss = Strings.splitIgnoreBlank(apc.reqQuery, "[&]");
+            String[] ss = Ws.splitIgnoreBlank(apc.reqQuery, "[&]");
             for (String s : ss) {
                 int pos = s.indexOf('=');
                 // 有值
@@ -872,13 +872,13 @@ public class HttpApiModule extends AbstractWnModule {
     private void __do_www_auth(WnHttpApiContext apc) {
         String phWWW = apc.oApi.getString("http-www-home");
         phWWW = (String) Wn.explainObj(apc.reqMeta, phWWW);
-        boolean hasWWWHome = !Strings.isBlank(phWWW);
+        boolean hasWWWHome = !Ws.isBlank(phWWW);
         apc.isNeedWWWAuth = apc.oApi.getBoolean("http-www-auth", hasWWWHome);
         apc.wwwSe = null;
         if (hasWWWHome) {
             String ticketBy = apc.oApi.getString("http-www-ticket", "http-qs-ticket");
             String ticket = apc.reqMeta.getString(ticketBy);
-            if (!Strings.isBlank(ticket)) {
+            if (!Ws.isBlank(ticket)) {
                 apc.oWWW = Wn.checkObj(io(), apc.se, phWWW);
                 String homePath = apc.se.getMe().getHomePath();
                 apc.webs = new WnWebService(io(), homePath, apc.oWWW);
@@ -1015,11 +1015,11 @@ public class HttpApiModule extends AbstractWnModule {
         for (String key : apc.oApi.keySet()) {
             if (key.startsWith("http-header-")) {
                 String nm = key.substring("http-header-".length()).toUpperCase();
-                String val = Strings.trim(apc.oApi.getString(key));
+                String val = Ws.trim(apc.oApi.getString(key));
                 val = WnTmpl.exec(val, apc.oReq);
                 // 指定了响应内容
                 if (nm.equals("CONTENT-TYPE")) {
-                    apc.mimeType = Strings.sBlank(apc.mimeType, val);
+                    apc.mimeType = Ws.sBlank(apc.mimeType, val);
                 }
                 // 指定了下载目标
                 else if (nm.equals("CONTENT-DISPOSITION")) {
@@ -1042,7 +1042,7 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 如果且当前请求是跨域的，则看看是否需要应用默认的跨域设定
         String origin = apc.reqMeta.getString("http-header-ORIGIN");
-        if (!Strings.isBlank(origin)) {
+        if (!Ws.isBlank(origin)) {
             __set_cross_origin_default_headers(apc.oApi, origin, (name, value) -> {
                 if (!apc.oApi.has("http-header-" + name)) {
                     apc.resp.setHeader(WnWeb.niceHeaderName(name), value);
@@ -1051,7 +1051,7 @@ public class HttpApiModule extends AbstractWnModule {
         }
 
         // 最后设定响应内容
-        apc.mimeType = Strings.sBlank(apc.mimeType, "text/html");
+        apc.mimeType = Ws.sBlank(apc.mimeType, "text/html");
         apc.resp.setContentType(apc.mimeType);
     }
 

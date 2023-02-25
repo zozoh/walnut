@@ -26,6 +26,8 @@ public class WnObjJoin {
 
     private Tmpl parentPath;
 
+    private boolean isFetch;
+
     private WnExplain query;
 
     private String toKey;
@@ -56,6 +58,7 @@ public class WnObjJoin {
         query = WnExplains.parse(qo);
 
         // 读取参数
+        isFetch = params.is("fetch");
         toKey = params.getString("to", "...");
         sort = params.getMap("sort");
         limit = params.getInt("limit", 100);
@@ -82,6 +85,13 @@ public class WnObjJoin {
     public List<WnObj> query() {
         Object qo = query.explain(obj);
         WnQuery q = Wn.Q.any(qo);
+        // 仅仅采用指定路径
+        if (q.isEmptyMatch() && null != oP && isFetch) {
+            return Wlang.list(oP);
+        }
+        //
+        // 还是要查询
+        //
         // 指定父对象
         if (null != oP) {
             q.setvToList("pid", oP.id());
@@ -136,6 +146,7 @@ public class WnObjJoin {
         WnObjJoin join = new WnObjJoin(sys);
         join.parentPath = this.parentPath;
         join.query = this.query;
+        join.isFetch = this.isFetch;
         join.toKey = this.toKey;
         join.sort = this.sort;
         join.limit = this.limit;

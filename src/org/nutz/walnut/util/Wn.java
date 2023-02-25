@@ -18,8 +18,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.castor.Castors;
-import org.nutz.el.El;
 import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
@@ -37,15 +35,11 @@ import org.nutz.lang.random.R;
 import org.nutz.walnut.util.each.WnEachIteratee;
 import org.nutz.walnut.util.explain.WnExplain;
 import org.nutz.walnut.util.explain.WnExplains;
-import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Context;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
-import org.nutz.lang.util.SimpleContext;
-import org.nutz.mapl.Mapl;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.walnut.api.auth.WnAccount;
@@ -531,189 +525,10 @@ public abstract class Wn {
      */
     public static Object explainObj(NutBean context, Object obj) {
         WnExplain ex = WnExplains.parse(obj);
-        return ex.explain(context);
-    }
-
-    private static final Pattern EO1 = Regex.getPattern("^:(:*(=|==|!=|->)(.+))$");
-    private static final Pattern EO2 = Regex.getPattern("^([-=]>)(.+)$");
-    private static final Pattern EO3 = Regex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
-    private static final Pattern EO4 = Regex.getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
-
-    /**
-     * 展开一个对象。可以是字符串，数组，集合，Map 等
-     * 
-     * @param context
-     *            上下文
-     * @param obj
-     *            要被展开的对象
-     * @return 展开后的对象
-     */
-    @SuppressWarnings("unchecked")
-    public static Object explainObj2(NutBean context, Object obj) {
-        // 防守
-        if (null == obj)
+        if (null == ex) {
             return null;
-
-        Mirror<?> mi = Mirror.me(obj);
-        // ....................................
-        // String
-        if (mi.isStringLike()) {
-            String str = obj.toString();
-            // Escape
-            Matcher m = EO1.matcher(str);
-            if (m.find()) {
-                return m.group(1);
-            }
-
-            String m_type = null, m_val = null;
-            Object m_dft = null;
-            m = EO2.matcher(str);
-            if (m.find()) {
-                m_type = m.group(1);
-                m_val = Strings.trim(m.group(2));
-            }
-            // Find key in context
-            else {
-                m = EO3.matcher(str);
-                if (m.find()) {
-                    m_type = m.group(1);
-                    m_val = Strings.trim(m.group(2));
-
-                    // 搞默认值，聪明点，根据值的样子改变对象类型，不要傻傻的做成字符串
-                    String dft = Strings.trim(m.group(4));
-                    m_dft = dft;
-                    // starts with "=" auto covert to JS value
-                    if (dft != null) {
-                        if (dft.startsWith("=") || "==".equals(m_type)) {
-                            m_dft = Ws.toJavaValue(dft);
-                        } else {
-                            m_dft = Ws.trim(dft);
-                        }
-                    }
-                }
-            }
-            // Matched
-            if (null != m_type) {
-                // ==xxx # Get Boolean value now
-                if ("==".equals(m_type)) {
-                    Object v = Mapl.cell(context, m_val);
-                    if (null == v)
-                        return Boolean.FALSE;
-                    return Castors.me().castTo(v, Boolean.class);
-                }
-                // !=xxx # Revert Boolean value now
-                if ("==".equals(m_type)) {
-                    Object v = Mapl.cell(context, m_val);
-                    if (null == v)
-                        return Boolean.TRUE;
-                    return !Castors.me().castTo(v, Boolean.class);
-                }
-                // =xxx # Get Value Now
-                if ("=".equals(m_type)) {
-                    if (".." == m_val) {
-                        return context;
-                    }
-                    return context.getOr(m_val, m_dft);
-                }
-                // => Call EL
-                if ("=>".equals(m_type)) {
-                    Context ctx = new SimpleContext(context);
-                    ctx.set("$wn", WnEvalHelper.me());
-                    return El.eval(ctx, m_val);
-                }
-                // Render template
-                if ("->".equals(m_type)) {
-                    String test = null;
-                    String tmpl = m_val;
-                    Matcher m2 = EO4.matcher(m_val);
-                    if (m2.find()) {
-                        test = m2.group(2);
-                        tmpl = m2.group(3);
-                    }
-                    if (null != test) {
-                        Object tv = Mapl.cell(context, test);
-                        if (null == tv || !Castors.me().castTo(tv, Boolean.class)) {
-                            return null;
-                        }
-                    }
-                    return WnTmpl.exec(tmpl, context);
-                }
-            }
         }
-        // ....................................
-        // Array
-        if (mi.isArray()) {
-            int len = Wlang.count(obj);
-            Object[] arr = new Object[len];
-            Wlang.each(obj, new WnEachIteratee<Object>() {
-                public void invoke(int index, Object ele, Object src) {
-                    Object v = explainObj(context, ele);
-                    arr[index] = v;
-                }
-            });
-            return arr;
-        }
-        // ....................................
-        // 集合
-        if (mi.isCollection()) {
-            int len = Wlang.count(obj);
-            List<Object> list = new ArrayList<>(len);
-            Wlang.each(obj, new WnEachIteratee<Object>() {
-                public void invoke(int index, Object ele, Object src) {
-                    Object v = explainObj(context, ele);
-                    list.add(v);
-                }
-            });
-            return list;
-        }
-        // ....................................
-        // Map
-        else if (mi.isMap()) {
-            NutMap map = NutMap.WRAP((Map<String, Object>) obj);
-
-            // 仅仅是映射
-            String valKey = map.getString("key");
-            Object mapping = map.get("mapping");
-            Object dftValue = map.get("dft");
-            if (!Strings.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
-                Object val = context.get(valKey);
-                if (null != val) {
-                    Map<String, Object> valMapping = (Map<String, Object>) mapping;
-                    Object reVal = valMapping.get(val);
-                    if (null == reVal) {
-                        reVal = dftValue;
-                    }
-                    return reVal;
-                }
-                return val;
-            }
-
-            // 递归
-            NutMap reMap = new NutMap();
-            for (Map.Entry<String, Object> en : map.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                Object v2 = explainObj(context, val);
-                // 解构全部对象
-                if ("...".equals(key)) {
-                    if (null != v2 && v2 instanceof Map<?, ?>) {
-                        NutMap vmap = NutMap.WRAP((Map<String, Object>) v2);
-                        reMap.putAll(vmap);
-                    }
-                    // 不能解构，那么抛一个错误
-                    else {
-                        throw Er.create("e.explain.decon.NoMap", key);
-                    }
-                }
-                // 推入对象键
-                else {
-                    reMap.put(key, v2);
-                }
-            }
-            return reMap;
-        }
-        // 其他就直接返回了
-        return obj;
+        return ex.explain(context);
     }
 
     @SuppressWarnings("unchecked")
