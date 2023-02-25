@@ -7,6 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.data.o.util.WnObjTrans;
 import org.nutz.walnut.ext.util.jsonx.JsonXContext;
 import org.nutz.walnut.ext.util.jsonx.JsonXFilter;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -15,6 +16,7 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.bean.WnBeanMapping;
+import org.nutz.walnut.util.explain.WnExplains;
 
 public class jsonx_translate extends JsonXFilter {
 
@@ -58,6 +60,12 @@ public class jsonx_translate extends JsonXFilter {
             NutMap vars = sys.session.getVars();
             bm.setFields(map, sys.io, vars, caches);
             fc.obj = bm.translateAny(fc.obj, isOnly);
+
+            WnObjTrans trans = new WnObjTrans();
+            trans.loadExplainFrom(sys, params);
+            if (trans.hasExplain()) {
+                fc.obj = WnExplains.explainAny(trans.getExplain(), fc.obj);
+            }
         }
         //
         // 普通转换

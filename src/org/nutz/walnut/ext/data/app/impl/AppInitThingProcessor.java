@@ -27,13 +27,22 @@ public class AppInitThingProcessor implements AppInitProcessor {
             // 讲其内所有的文件，都链接到当前数据集下
             List<WnObj> oChildren = ing.io.getChildren(oDir, null);
             for (WnObj oChild : oChildren) {
-                if (!oChild.isFILE()) {
-                    continue;
+                WnObj oF = null;
+                //　File 
+                if (oChild.isFILE()) {
+                    ing.out.printlnf("  + %s -> %s", oChild.name(), oChild.path());
+                    oF = ing.io.createIfNoExists(oTs, oChild.name(), WnRace.FILE);
+                    oF.link(oChild.path());
                 }
-                ing.out.printlnf("  + %s -> %s", oChild.name(), oChild.path());
-                WnObj oF = ing.io.createIfNoExists(oTs, oChild.name(), WnRace.FILE);
-                oF.link(oChild.path());
-                ing.io.set(oF, "^(ln)$");
+                // Dir
+                else if(oChild.isDIR()) {
+                    ing.out.printlnf("  + %s/ -> %s/", oChild.name(), oChild.path());
+                    oF = ing.io.createIfNoExists(oTs, oChild.name(), WnRace.DIR);
+                    oF.link(oChild.path());
+                }
+                if (null != oF) {
+                    ing.io.set(oF, "^(ln)$");
+                }
             }
         }
 

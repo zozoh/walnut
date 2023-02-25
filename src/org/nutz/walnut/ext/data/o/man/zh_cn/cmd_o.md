@@ -45,6 +45,8 @@ o [options] [[@filter filter-args...]...]
 @ancestors  # 查询上下文中的对象的所有祖先对象
 @children   # 读取上下文对象的所有子节点（可递归）
 @list       # 为上下文对象读取多个子节点
+@join_one   # 将其它的数据对象（仅一个）加入本对象
+@join_many  # 将其他的数据对象（可多个）加入本对象
 #
 # 修改删除
 #

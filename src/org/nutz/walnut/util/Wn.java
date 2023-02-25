@@ -34,6 +34,9 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
+import org.nutz.walnut.util.each.WnEachIteratee;
+import org.nutz.walnut.util.explain.WnExplain;
+import org.nutz.walnut.util.explain.WnExplains;
 import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
@@ -516,6 +519,21 @@ public abstract class Wn {
         return sb.toString();
     }
 
+    /**
+     * 展开一个对象。可以是字符串，数组，集合，Map 等
+     * 
+     * @param context
+     *            上下文
+     * @param obj
+     *            要被展开的对象
+     * @return 展开后的对象
+     * @see org.nutz.walnut.util.explain.WnExplain
+     */
+    public static Object explainObj(NutBean context, Object obj) {
+        WnExplain ex = WnExplains.parse(obj);
+        return ex.explain(context);
+    }
+
     private static final Pattern EO1 = Regex.getPattern("^:(:*(=|==|!=|->)(.+))$");
     private static final Pattern EO2 = Regex.getPattern("^([-=]>)(.+)$");
     private static final Pattern EO3 = Regex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
@@ -531,7 +549,7 @@ public abstract class Wn {
      * @return 展开后的对象
      */
     @SuppressWarnings("unchecked")
-    public static Object explainObj(NutBean context, Object obj) {
+    public static Object explainObj2(NutBean context, Object obj) {
         // 防守
         if (null == obj)
             return null;
@@ -625,10 +643,10 @@ public abstract class Wn {
         // ....................................
         // Array
         if (mi.isArray()) {
-            int len = Lang.eleSize(obj);
+            int len = Wlang.count(obj);
             Object[] arr = new Object[len];
-            Lang.each(obj, new Each<Object>() {
-                public void invoke(int index, Object ele, int length) {
+            Wlang.each(obj, new WnEachIteratee<Object>() {
+                public void invoke(int index, Object ele, Object src) {
                     Object v = explainObj(context, ele);
                     arr[index] = v;
                 }
@@ -638,10 +656,10 @@ public abstract class Wn {
         // ....................................
         // 集合
         if (mi.isCollection()) {
-            int len = Lang.eleSize(obj);
+            int len = Wlang.count(obj);
             List<Object> list = new ArrayList<>(len);
-            Lang.each(obj, new Each<Object>() {
-                public void invoke(int index, Object ele, int length) {
+            Wlang.each(obj, new WnEachIteratee<Object>() {
+                public void invoke(int index, Object ele, Object src) {
                     Object v = explainObj(context, ele);
                     list.add(v);
                 }
@@ -751,8 +769,9 @@ public abstract class Wn {
             public void invoke(int index, WnObj obj, int length)
                     throws ExitLoop, ContinueLoop, LoopException {
                 WnObj o = wc.whenAccess(obj, true);
-                if (null == o)
-                    Lang.Continue();
+                if (null == o) {
+                    throw new ContinueLoop();
+                }
                 if (wc.isAutoPath()) {
                     o.path();
                 }
@@ -1127,7 +1146,7 @@ public abstract class Wn {
                 }
                 // 靠！什么鬼！
                 else {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         }
@@ -1190,7 +1209,7 @@ public abstract class Wn {
             }
             // 靠，不可能
             else {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
 
         }
@@ -1445,12 +1464,31 @@ public abstract class Wn {
             return new WnQuery().setv("pid", pid);
         }
 
+        public static WnQuery any(Object qobj) {
+            WnQuery q = new WnQuery();
+            if (null == qobj) {
+                return q;
+            }
+            qobj = Wlang.anyToObj(qobj);
+            Wlang.each(qobj, new WnEachIteratee<Object>() {
+                @SuppressWarnings("unchecked")
+                public void invoke(int index, Object ele, Object src) {
+                    if (null != ele && (ele instanceof Map<?, ?>)) {
+                        NutMap map = NutMap.WRAP((Map<String, Object>) ele);
+                        q.add(map);
+                    }
+                }
+            });
+
+            return q;
+        }
+
         public static WnQuery map(String str) {
-            return new WnQuery().setAll(Lang.map(str));
+            return new WnQuery().setAll(Wlang.map(str));
         }
 
         public static WnQuery mapf(String fmt, Object... args) {
-            return new WnQuery().setAll(Lang.mapf(fmt, args));
+            return new WnQuery().setAll(Wlang.mapf(fmt, args));
         }
 
         public static WnQuery jsonToQuery(String json) {
@@ -1940,7 +1978,7 @@ public abstract class Wn {
             }
             // 当作 JSON
             else {
-                map = Lang.map(str);
+                map = Wlang.map(str);
             }
         }
         // 就是 Map

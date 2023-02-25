@@ -211,6 +211,51 @@ public class Wlang {
     }
 
     /**
+     * 自动处理对象，如果输入是个字符串，尝试自动补全{} 的JSON转换，否则就直接返回
+     * 
+     * @param input
+     *            输入
+     * @return 对象
+     */
+    public static Object anyToObj(Object input) {
+        if (null == input) {
+            return input;
+        }
+        if (input instanceof String) {
+            String str = input.toString();
+            if (Ws.isQuoteBy(str, '{', '}') || Ws.isQuoteBy(str, '[', ']')) {
+                input = Json.fromJson(str);
+            } else {
+                input = Wlang.map(str);
+            }
+
+        }
+        return input;
+    }
+
+    /**
+     * 自动处理对象，如果输入是个字符串，尝试自动补全{} 的JSON转换，否则就直接返回
+     * 
+     * @param input
+     *            输入
+     * @return 对象
+     */
+    @SuppressWarnings("unchecked")
+    public static NutMap anyToMap(Object input) {
+        if (null == input) {
+            return null;
+        }
+        if (input instanceof String) {
+            return Wlang.map(input.toString());
+        }
+        if (input instanceof Map) {
+            return NutMap.WRAP((Map<String, Object>) input);
+        }
+        String json = Json.toJson(input);
+        return Json.fromJson(NutMap.class, json);
+    }
+
+    /**
      * 遍历一个对象，可以支持:
      * <ul>
      * <li>数组

@@ -3,6 +3,8 @@ package org.nutz.walnut.util;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 容器帮助类
@@ -10,6 +12,42 @@ import java.util.Iterator;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class Wcol {
+
+    /**
+     * @param <E>
+     *            容器元素泛型
+     * @param list
+     *            列表
+     * @return 列表中第一个元素
+     */
+    public static <E> E first(List<E> list) {
+        if (null == list || list.isEmpty()) {
+            return null;
+        }
+        if (list instanceof LinkedList<?>) {
+            LinkedList<E> ll = (LinkedList<E>) list;
+            return ll.getFirst();
+        }
+        return list.get(0);
+    }
+
+    /**
+     * @param <E>
+     *            容器元素泛型
+     * @param list
+     *            列表
+     * @return 列表中最后一个元素
+     */
+    public static <E> E last(List<E> list) {
+        if (null == list || list.isEmpty()) {
+            return null;
+        }
+        if (list instanceof LinkedList<?>) {
+            LinkedList<E> ll = (LinkedList<E>) list;
+            return ll.getLast();
+        }
+        return list.get(list.size() - 1);
+    }
 
     /**
      * 将输入容器的内容去重，并填充到输出容器中
