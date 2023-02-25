@@ -3,8 +3,6 @@ package org.nutz.walnut.ext.data.thing.hdl;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.io.WnObj;
@@ -16,6 +14,8 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
 
 @JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(nohook)$")
 public class thing_create implements JvmHdl {
@@ -39,7 +39,7 @@ public class thing_create implements JvmHdl {
         NutMap fixedMeta = hc.params.getMap("fixed");
 
         // 数组：那么就表示创建多条数据咯
-        if (Strings.isQuoteBy(json, '[', ']')) {
+        if (Ws.isQuoteBy(json, '[', ']')) {
             List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
             // 格式化一下传入的字符串宏
             if (!list.isEmpty())
@@ -56,8 +56,14 @@ public class thing_create implements JvmHdl {
             hc.output = wts.createManyThings(list, opt);
         }
         // 普通对象: 表示创建一条数据
-        else {
-            NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
+        else if (!Ws.isBlank(json)) {
+            // 错误字符串，打印到错误输出流
+            if (json.startsWith("e.")) {
+                sys.err.print(json);
+                return;
+            }
+
+            NutMap meta = Wlang.map(json);
             Things.formatMeta(meta);
             // 执行创建
             ThCreateOptions opt = ThCreateOptions.create(ukey, fixedMeta, exec, afterCmd);

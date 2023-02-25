@@ -63,18 +63,21 @@ class JvmAtom extends JvmCmd implements Atom {
 
                 String errMsg = Ws.sBlanks(ue.toString(), ue.getMessage(), ue.getClass().getName());
 
-                // 有必要的话，显示错误堆栈
-                if (log.isWarnEnabled()) {
-                    log.warnf("Atom[%d] ERROR: %s : %s", id, errMsg, ue);
-                }
-
                 // 将错误输出到标准输出
                 if (this.redirectErrToStd) {
+                    // 这样 ajaxre 可以自动判断异常字符串
+                    if (!errMsg.startsWith("e.")) {
+                        errMsg = "e." + errMsg;
+                    }
                     sys.out.println(errMsg);
                     Streams.safeFlush(sys.out);
                 }
                 // 输出到错误输出
                 else {
+                    // 有必要的话，显示错误堆栈
+                    if (log.isWarnEnabled()) {
+                        log.warnf("Atom[%d] ERROR: %s : %s", id, errMsg, ue);
+                    }
                     sys.err.println(errMsg);
                     Streams.safeFlush(sys.err);
                 }

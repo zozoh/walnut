@@ -237,6 +237,10 @@ public class JvmAtomRunner {
         a = atoms[lastIndex];
         if (null == a.redirectPath) {
             a.sys.out = new JvmBoxOutput(out);
+         // 指明将错误输出流合并到标准输出
+            if (a.redirectErrToStd) {
+                a.sys.err = a.sys.out;
+            }
         }
         a.sys.nextId = -1; // 最后一个原子 nextId 为 -1 表示没有后续管道原子处理它的输出
 
@@ -255,6 +259,10 @@ public class JvmAtomRunner {
                 // 否则为下一个原子分配一个空输入
                 else {
                     atoms[i + 1].sys.in = new JvmBoxInput(null);
+                }
+                // 指明将错误输出流合并到标准输出
+                if (a.redirectErrToStd) {
+                    a.sys.err = a.sys.out;
                 }
             }
         }

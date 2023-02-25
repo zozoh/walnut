@@ -15,6 +15,7 @@ import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.ext.data.o.OContext;
 import org.nutz.walnut.ext.data.o.OFilter;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
@@ -79,7 +80,12 @@ public class o_create extends OFilter {
         // 从标准输入读取
         else {
             String json = fc.sys.in.readAll();
-            Object input = Json.fromJson(json);
+            // 错误字符串，打印到错误输出流
+            if (json.startsWith("e.")) {
+                sys.err.print(json);
+                return;
+            }
+            Object input = Wlang.anyToObj(json);
             if (input instanceof Collection<?>) {
                 Collection<?> col = (Collection<?>) input;
                 list = new ArrayList<>(col.size());

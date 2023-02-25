@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.io.WnObj;
@@ -17,6 +15,8 @@ import org.nutz.walnut.impl.box.JvmHdlContext;
 import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wlang;
 
 @JvmHdlParamArgs(value = "cnqlVNHQ", regex = "^(quiet|nohook)$")
 public class thing_update implements JvmHdl {
@@ -29,7 +29,17 @@ public class thing_update implements JvmHdl {
 
         // 得到字段
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
-        NutMap meta = Strings.isBlank(json) ? new NutMap() : Lang.map(json);
+        // 空字符串防守一把
+        if (Ws.isBlank(json)) {
+            return;
+        }
+        // 错误字符串，打印到错误输出流
+        if (json.startsWith("e.")) {
+            sys.err.print(json);
+            return;
+        }
+        // 得到元数据
+        NutMap meta = Wlang.map(json);
         Things.formatMeta(meta);
 
         // 分析参数
@@ -45,13 +55,13 @@ public class thing_update implements JvmHdl {
             }
             // 否则肯定是个map
             else {
-                safe = Lang.map(hc.params.get("safe"));
+                safe = Wlang.map(hc.params.get("safe"));
             }
             if (safe != null) {
                 String actived = safe.getString("actived");
-                Pattern act = Strings.isBlank(actived) ? null : Regex.getPattern(actived);
+                Pattern act = Ws.isBlank(actived) ? null : Regex.getPattern(actived);
                 String locked = safe.getString("locked");
-                Pattern lock = Strings.isBlank(locked) ? null : Regex.getPattern(locked);
+                Pattern lock = Ws.isBlank(locked) ? null : Regex.getPattern(locked);
                 for (String key : new HashSet<>(meta.keySet())) {
                     if (act != null && !act.matcher(key).find())
                         meta.remove(key);

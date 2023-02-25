@@ -15,6 +15,9 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_ajaxre extends JvmExecutor {
 
+    private static String _ER = "^(e.[a-zA-Z0-9._-]+)( *: *(.+))?$";
+    private static Pattern _E = Pattern.compile(_ER, Pattern.MULTILINE);
+
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "cqnse");
@@ -49,7 +52,7 @@ public class cmd_ajaxre extends JvmExecutor {
         // 下面做点判断吧 ...
         else {
             // 看看是不是像错误
-            Matcher m = Pattern.compile("^(e.[a-zA-Z0-9._-]+)( *: *(.+))?$").matcher(str);
+            Matcher m = _E.matcher(str);
             if (m.find()) {
                 String errCode = m.group(1);
                 String reason = Strings.sBlank(m.group(3), null);

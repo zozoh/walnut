@@ -30,6 +30,11 @@ public class o_update extends OFilter {
         // 从标准输入读取
         if (params.vals.length == 0) {
             String json = sys.in.readAll();
+            // 错误字符串，打印到错误输出流
+            if (json.startsWith("e.")) {
+                sys.err.print(json);
+                return;
+            }
             meta = Lang.map(json);
         }
         // 合并一下

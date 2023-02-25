@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.util.jsonx;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import org.nutz.json.JsonException;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Ws;
 
 public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
 
@@ -27,8 +29,18 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
             json = sys.in.readAll();
         }
 
-        if (!Strings.isBlank(json)) {
-            ctx.obj = Json.fromJson(json);
+        if (!Ws.isBlank(json)) {
+            // 错误字符串，打印到错误输出流
+            if (json.startsWith("e.")) {
+                sys.err.print(json);
+                return;
+            }
+            try {
+                ctx.obj = Json.fromJson(json);
+            }
+            catch (JsonException e) {
+                throw Er.create("e.json.InvalidFormat", e.getMessage());
+            }
         }
     }
 
