@@ -13,6 +13,10 @@ o @update
 # 示例
 
 ```bash
-o ~/accounts/index @update 'x:100,y99'
+# 更新字段
+o ~/accounts/index @update 'x:100,y:99'
+
+# 从管道读取
+echo 'x:100,y:99' | o ~/accounts/index @update
 ```
 
