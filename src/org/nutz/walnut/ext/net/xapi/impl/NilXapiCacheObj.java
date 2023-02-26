@@ -25,7 +25,7 @@ public class NilXapiCacheObj implements XApiCacheObj {
 
     protected XApiRequest req;
 
-    NilXapiCacheObj(XApiRequest req) {
+    public NilXapiCacheObj(XApiRequest req) {
         this.req = req;
     }
 

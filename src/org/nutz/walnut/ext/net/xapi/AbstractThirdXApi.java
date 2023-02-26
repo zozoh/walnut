@@ -13,6 +13,7 @@ import org.nutz.walnut.ext.net.http.bean.WnHttpResponse;
 import org.nutz.walnut.ext.net.xapi.bean.XApiExpert;
 import org.nutz.walnut.ext.net.xapi.bean.XApiRequest;
 import org.nutz.walnut.ext.net.xapi.impl.DefaultXApiExpertManager;
+import org.nutz.walnut.ext.net.xapi.impl.NilXapiCacheObj;
 import org.nutz.walnut.util.stream.WnInputStreamFactory;
 
 public abstract class AbstractThirdXApi implements XApi {
@@ -72,11 +73,16 @@ public abstract class AbstractThirdXApi implements XApi {
 
     public <T> T send(XApiRequest xreq, Class<T> classOfT) throws XApiException {
         // 缓存对象命中就直接返回
-        XApiCacheObj cache = configs.loadReqCache(xreq);
-        if (!xreq.isDisableCache()) {
-            if (cache.isMatched()) {
-                return cache.getOutput(classOfT);
+        XApiCacheObj cache;
+        if (xreq.isCacheEnabled()) {
+            cache = configs.loadReqCache(xreq);
+            if (!xreq.isDisableCache()) {
+                if (cache.isMatched()) {
+                    return cache.getOutput(classOfT);
+                }
             }
+        } else {
+            cache = new NilXapiCacheObj(xreq);
         }
 
         // 准备 URL

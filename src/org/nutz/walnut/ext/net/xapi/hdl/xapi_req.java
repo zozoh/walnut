@@ -12,7 +12,7 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Ws;
 
-@JvmHdlParamArgs(value = "cnq", regex = "^(url|force)$")
+@JvmHdlParamArgs(value = "cnqN", regex = "^(url|force)$")
 public class xapi_req implements JvmHdl {
 
     @Override
@@ -25,16 +25,21 @@ public class xapi_req implements JvmHdl {
         String account = hc.params.val_check(1);
         String path = hc.params.val_check(2);
         boolean force = hc.params.is("force");
+        boolean sameLine = !hc.params.is("N");
 
         // 准备 API
         XApi api = new WnXApi(sys);
 
         // 获取请求对象
-        XApiRequest req = api.prepare(apiName, account, path, vars,force);
+        XApiRequest req = api.prepare(apiName, account, path, vars, force);
 
         // 打印请求 URL 完整路径
-        if (hc.params.is("url")) {
-            sys.out.println(req.toUrl(true));
+        if (hc.params.is("curl")) {
+            sys.out.println(req.toCURLCommand(sameLine));
+        }
+        // 打印请求 CURL 的命令
+        else if (hc.params.is("url")) {
+            sys.out.println(req.toUrl());
         }
         // 打印请求的缓存键
         else if (hc.params.is("cache")) {

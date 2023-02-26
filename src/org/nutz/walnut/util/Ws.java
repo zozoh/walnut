@@ -1,5 +1,7 @@
 package org.nutz.walnut.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -803,6 +805,21 @@ public class Ws {
         return sb.toString();
     }
 
+    public static String encodeUrlPair(String key, Object val) {
+        try {
+            if (null != val) {
+                return String.format("%s=%s",
+                                     URLEncoder.encode(key, Encoding.UTF8),
+                                     URLEncoder.encode(val.toString(), Encoding.UTF8));
+            } else {
+                return URLEncoder.encode(key, Encoding.UTF8);
+            }
+        }
+        catch (UnsupportedEncodingException e) {
+            throw Er.wrap(e);
+        }
+    }
+
     /**
      * 将字符串根据转移字符转义
      *
@@ -1394,8 +1411,8 @@ public class Ws {
         }
         catch (Exception e) {}
 
-        // 最后返回自己
-        return v;
+        // 最后返回自己（尝试逃逸）
+        return Ws.unescape(v);
     }
 
     /**

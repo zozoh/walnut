@@ -22,6 +22,7 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
                     files.add(Files.findFile(base + "wxgh.json"));
                     files.add(Files.findFile(base + "youtube.json"));
                     files.add(Files.findFile(base + "fb-graph.json"));
+                    files.add(Files.findFile(base + "chatgpt.json"));
                     ONE = new DefaultXApiExpertManager(files);
                 }
             }

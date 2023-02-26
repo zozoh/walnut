@@ -217,7 +217,7 @@ public class XApiRequest {
 
     private static final Pattern _P = Pattern.compile("^(https?://)(.+)$");
 
-    public String toUrl(boolean ignoreNil) {
+    public String toUrl() {
         // 先搞一下 URL，为了防止 base 和 path 之间重复的 `//`
         // 就有了下面这个有点不好看的代码
         // 不这么写，直接 Wn.appendPath 会导致 `http://` 变成 `http:/`
@@ -243,6 +243,34 @@ public class XApiRequest {
             WnNet.joinQuery(sb, this.params, true, true);
         }
         return sb.toString();
+    }
+
+    public String toCURLCommand(boolean sameLine) {
+        List<String> lines = new LinkedList<>();
+        // 先搞url
+        String url = this.toUrl();
+        lines.add("curl " + url);
+
+        // header
+        if (this.hasHeader()) {
+            for (Map.Entry<String, Object> en : this.headers.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                if (null != val) {
+                    lines.add(String.format("-H '%s: %s'", Ws.upperFirst(key), val));
+                }
+            }
+        }
+
+        // 再搞body
+        if (this.isPOST() && this.hasBody()) {
+            lines.add("-d '" + this.getBodyDataJson() + "'");
+        }
+
+        if (sameLine) {
+            return Ws.join(lines, " ");
+        }
+        return Ws.join(lines, " \\\n");
     }
 
     public boolean isGET() {
@@ -373,13 +401,18 @@ public class XApiRequest {
         if (!this.isPOST() || null == body) {
             return;
         }
+        // JSON
+        if (this.isBodyAsJson()) {
+            String json = this.getBodyDataJson();
+            hc.setBody(json);
+        }
         // 二进制流或者是纯文本
-        if (this.isBodyAsBinary() || this.isBodyAsText() || !this.hasBodyType()) {
+        else if (this.isBodyAsBinary() || this.isBodyAsText() || !this.hasBodyType()) {
             hc.setBody(this.getBodyInputStream());
         }
         // 普通表单
         else if (this.isBodyAsForm()) {
-            // 无视 body
+            hc.setBody(this.getBodyXWWWFormUrlEncoded());
         }
         // 文件上传流
         else if (this.isBodyAsMultipart()) {
@@ -394,11 +427,6 @@ public class XApiRequest {
         else if (this.isBodyAsXml()) {
             String xml = this.getBodyDataXml();
             hc.setBody(xml);
-        }
-        // JSON
-        else if (this.isBodyAsJson()) {
-            String json = this.getBodyDataJson();
-            hc.setBody(json);
         }
         // 其他的不支持
         else {
@@ -420,6 +448,26 @@ public class XApiRequest {
         String str = body.toString();
         byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
         return new ByteInputStream(bs);
+    }
+
+    public String getBodyXWWWFormUrlEncoded() {
+        if (null == body) {
+            return "";
+        }
+        // 直接就是请求体
+        if (body instanceof String) {
+            return body.toString();
+        }
+        // 解析一下
+        NutMap map = Wlang.anyToMap(body);
+        List<String> list = new ArrayList<>(map.size());
+        for (Map.Entry<String, Object> en : map.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+
+            list.add(Ws.encodeUrlPair(key, val));
+        }
+        return Ws.join(list, "&");
     }
 
     @SuppressWarnings("unchecked")
@@ -495,9 +543,9 @@ public class XApiRequest {
             return null;
         }
         // 只有 GET 请求才有必要缓存
-        if (!isGET()) {
-            return null;
-        }
+        // if (!isGET()) {
+        // return null;
+        // }
         StringBuilder sb = new StringBuilder();
         if (cache.path) {
             sb.append(this.path);
@@ -509,6 +557,10 @@ public class XApiRequest {
         if (cache.params) {
             sb.append("QS=");
             _join_key_map(sb, this.params);
+        }
+        if (cache.body) {
+            sb.append("BODY=");
+            sb.append(Json.toJson(this.body));
         }
         String md5 = Lang.md5(sb);
         String name = Ws.sBlank(key, "_anonymity");

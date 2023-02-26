@@ -18,6 +18,10 @@ public class XApiReqCache {
      */
     boolean params;
     /**
+     * 缓存键是否包含请求体
+     */
+    boolean body;
+    /**
      * 过期时间从何处取得，通常类似<code>=resp.expires_in</code>
      * <p>
      * 其中 <code>resp</code>是请求返回的内容解析的结果 得到结果通常时间单位为秒，当然也可以在 expiUnit 指定
@@ -62,6 +66,14 @@ public class XApiReqCache {
 
     public void setParams(boolean params) {
         this.params = params;
+    }
+
+    public boolean isBody() {
+        return body;
+    }
+
+    public void setBody(boolean body) {
+        this.body = body;
     }
 
     public String getExpiIn() {

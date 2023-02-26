@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -100,9 +101,16 @@ public class WnExplains {
                     m_dft = dft;
                     // starts with "=" auto covert to JS value
                     if (dft != null) {
-                        if (dft.startsWith("=") || "==".equals(m_type)) {
-                            m_dft = Ws.toJavaValue(dft);
-                        } else {
+                        // 确定要变java 值
+                        if (dft.startsWith("=")) {
+                            m_dft = Ws.toJavaValue(dft.substring(1).trim());
+                        }
+                        // 布尔的一定要去掉
+                        else if ("==".equals(m_type) || "!=".equals(m_type)) {
+                            m_dft = Castors.me().castTo(dft, boolean.class);
+                        }
+                        // 其他的去掉空白
+                        else {
                             m_dft = Ws.trim(dft);
                         }
                     }
