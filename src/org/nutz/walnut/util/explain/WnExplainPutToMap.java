@@ -24,6 +24,10 @@ public class WnExplainPutToMap {
 
     @SuppressWarnings("unchecked")
     public void putTo(NutBean context, Map<String, Object> map) {
+        // 防守一下
+        if (null == explain) {
+            return;
+        }
         Object val = explain.explain(context);
         if (is_put_all) {
             if (null != val && val instanceof Map<?, ?>) {
