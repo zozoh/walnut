@@ -64,6 +64,8 @@ public class WnValue {
 
     private String separator;
 
+    private String split;
+
     private NutMap values;
 
     private WnBeanFieldMatchValue[] matchValue;
@@ -86,6 +88,10 @@ public class WnValue {
     public Object tryValueOptions(Object input) {
         if (null == input) {
             return null;
+        }
+        // 需要将字符串自动变成数组
+        if ((input instanceof String) && !Ws.isEmpty(this.split)) {
+            input = Ws.splitIgnoreBlank(input.toString(), this.split);
         }
         // 集合对象
         if (input instanceof Collection<?>) {
@@ -365,6 +371,14 @@ public class WnValue {
 
     public void setSeparator(String separator) {
         this.separator = separator;
+    }
+
+    public String getSplit() {
+        return split;
+    }
+
+    public void setSplit(String split) {
+        this.split = split;
     }
 
     public Object tryMatchValue(NutBean bean) {

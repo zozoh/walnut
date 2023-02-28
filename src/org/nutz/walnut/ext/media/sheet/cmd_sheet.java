@@ -55,19 +55,16 @@ public class cmd_sheet extends JvmExecutor {
             inputList = wss.readAndClose(ins, typeInput, confInput);
         }
         // .................................................
-        // 【废】准备过滤器
-        NutMap filter = params.getMap("filter");
-        NutMap matcher = params.getMap("match");
-        if (null != filter)
-            filter.evalSelfForMatching();
-        if (null != matcher)
-            matcher.evalSelfForMatching();
-        // .................................................
         // 准备过滤器
-        NutMap omitBy = params.getMap("omit");
-        NutMap pickBy = params.getMap("pick");
+        Object keysBy = params.get("keys");
+        Object omitBy = params.get("omit");
+        Object pickBy = params.get("pick");
+        WnMatch keys = null;
         WnMatch omit = null;
         WnMatch pick = null;
+        if (null != keysBy) {
+            keys = AutoMatch.parse(keysBy);
+        }
         if (null != omitBy) {
             omit = AutoMatch.parse(omitBy);
         }
@@ -81,8 +78,7 @@ public class cmd_sheet extends JvmExecutor {
         // .................................................
         // 字段映射
         SheetMapping mapping = new SheetMapping();
-        mapping.setFilter(filter);
-        mapping.setMatcher(matcher);
+        mapping.setKeys(keys);
         mapping.setOmit(omit);
         mapping.setPick(pick);
         mapping.setLimit(limit);
@@ -104,9 +100,13 @@ public class cmd_sheet extends JvmExecutor {
             // 默认的简易映射
             else {
                 flds = sys.io.readText(oMapping);
+                mapping.parse(flds);
             }
         }
-        mapping.parse(flds);
+        // 解析映射字段
+        else {
+            mapping.parse(flds);
+        }
 
         // 执行映射
         List<NutBean> outputList = mapping.doMapping(inputList);
@@ -121,6 +121,15 @@ public class cmd_sheet extends JvmExecutor {
         if (!Strings.isBlank(fout)) {
             // 因为输出到文件，所以可以指定想标准输出输出日志
             String process = params.get("process");
+            // 处理自动process
+            if ("<auto>".equalsIgnoreCase(process)) {
+                process = "${P}";
+                int N = Math.min(3, headKeys.size());
+                for (int i = 0; i < N; i++) {
+                    String k = headKeys.get(i);
+                    process += String.format(": ${%s} ", k);
+                }
+            }
             WnOutputable out = null;
             if (!Strings.isBlank(process)) {
                 out = sys.out;

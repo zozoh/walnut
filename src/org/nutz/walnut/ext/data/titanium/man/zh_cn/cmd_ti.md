@@ -19,5 +19,6 @@ ti i18n_tidy       # 整理 i18n 的文件，固定排序等
 ti i18n_compare    # 比较不同语言版本的 i18n，看看有什么疏漏
 ti i18n_zh_ct      # 将简体中文自动转换为繁体中文
 ti webdeps         # 解析 web 的 deps 依赖文件，生成一个引用列表
+ti gen_mapping     # 根据表单或者表格的字段设定，生成映射配置
 ti sidebar_actions # 根据 sidebar 的json内容，生成action文件列表
 ```

@@ -259,68 +259,74 @@ public class LocalIoBM extends AbstractIoBM {
      *             IO 读写发生异常
      */
     void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
+        // 2023-12-28: zozoh 如果传入的 o==null, swap 有，可能造成swap 丢失吧！
         // 无需更新，因为没有对象，对应的句柄肯定已经关闭了
-        if (null == o) {
-            return;
-        }
+        // if (null == o) {
+        // return;
+        // }
         String sha1 = null;
         long olen = 0;
-        long lm = Wn.now();
+        long lm = -1;
         // 某些时候，没有调用写接口的句柄实例，或者仅仅写了空字节的实例
         // 并不会生成 swap 文件
-        if (null != swap) {
+        if (null != swap && null != o) {
             sha1 = Lang.sha1(swap);
             olen = swap.length();
             lm = swap.lastModified();
         }
 
         try {
-            // 如果和原来的一样,那就无语了，啥也不用做了
-            if (o.isSameSha1(sha1)) {
-                return;
-            }
-
-            String oldSha1 = o.sha1();
-            o.sha1(sha1);
-            o.lastModified(lm);
-            o.len(olen);
-
-            // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
-            boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
-            if (!isEmptySha1) {
-                File buck = this.getBucketFile(sha1);
-
-                if (!buck.exists()) {
-                    // OSS 映射的文件不支持 move，需要把这个开关关闭
-                    if (canMoveSwap) {
-                        Files.move(swap, buck);
-                    }
-                    // Copy 的方式移动过去
-                    else {
-                        moveSwapToBuck(swap, buck);
-                    }
-                    // 无论如何，空置一下缓冲
-                    swap = null;
+            if (null != o) {
+                if (lm <= 0) {
+                    lm = Wn.now();
                 }
-            }
-
-            // 非空的 SHA1，增加引用计数
-            if (!isEmptySha1) {
-                this.refers.add(sha1, o.id());
-            }
-
-            // 删除旧引用
-            if (!Wn.Io.isEmptySha1(oldSha1)) {
-                long count = this.refers.remove(oldSha1, o.id());
-                // 木有用了，删掉这个文件
-                if (count <= 0) {
-                    File oldBuck = this.getBucketFile(oldSha1);
-                    Files.deleteFile(oldBuck);
+                // 如果和原来的一样,那就无语了，啥也不用做了
+                if (o.isSameSha1(sha1)) {
+                    return;
                 }
-            }
 
-            // 更新索引
-            indexer.set(o, "^(sha1|len|lm)$");
+                String oldSha1 = o.sha1();
+                o.sha1(sha1);
+                o.lastModified(lm);
+                o.len(olen);
+
+                // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
+                boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
+                if (!isEmptySha1) {
+                    File buck = this.getBucketFile(sha1);
+
+                    if (!buck.exists()) {
+                        // OSS 映射的文件不支持 move，需要把这个开关关闭
+                        if (canMoveSwap) {
+                            Files.move(swap, buck);
+                        }
+                        // Copy 的方式移动过去
+                        else {
+                            moveSwapToBuck(swap, buck);
+                        }
+                        // 无论如何，空置一下缓冲
+                        swap = null;
+                    }
+                }
+
+                // 非空的 SHA1，增加引用计数
+                if (!isEmptySha1) {
+                    this.refers.add(sha1, o.id());
+                }
+
+                // 删除旧引用
+                if (!Wn.Io.isEmptySha1(oldSha1)) {
+                    long count = this.refers.remove(oldSha1, o.id());
+                    // 木有用了，删掉这个文件
+                    if (count <= 0) {
+                        File oldBuck = this.getBucketFile(oldSha1);
+                        Files.deleteFile(oldBuck);
+                    }
+                }
+
+                // 更新索引
+                indexer.set(o, "^(sha1|len|lm)$");
+            }
 
         }
         // 无论如何，尝试移除交换文件

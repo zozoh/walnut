@@ -21,9 +21,7 @@ import org.nutz.walnut.util.validate.WnMatch;
 
 public class SheetMapping {
 
-    private NutMap filter;
-
-    private NutMap matcher;
+    private WnMatch keys;
 
     private WnMatch omit;
 
@@ -38,10 +36,16 @@ public class SheetMapping {
     private WnBeanMapping beanMapping;
 
     public SheetMapping() {
-        this.filter = null;
-        this.matcher = null;
         this.limit = 0;
         this.skip = 0;
+    }
+
+    public WnMatch getKeys() {
+        return keys;
+    }
+
+    public void setKeys(WnMatch keys) {
+        this.keys = keys;
     }
 
     public WnMatch getOmit() {
@@ -68,22 +72,6 @@ public class SheetMapping {
         this.beanMapping = beanMapping;
     }
 
-    public NutMap getFilter() {
-        return filter;
-    }
-
-    public void setFilter(NutMap filter) {
-        this.filter = filter;
-    }
-
-    public NutMap getMatcher() {
-        return matcher;
-    }
-
-    public void setMatcher(NutMap matcher) {
-        this.matcher = matcher;
-    }
-
     public int getLimit() {
         return limit;
     }
@@ -107,45 +95,63 @@ public class SheetMapping {
     public List<String> getHeadKeys() {
         // 指定了映射: WnBeanMapping
         if (null != this.beanMapping) {
-            List<String> keys = new ArrayList<>(beanMapping.size());
-            for (WnBeanField fld : beanMapping.values()) {
+            /*
+             * 因为 isKeyCanOutput 判断的是 fld.name， export 的时候，这个name
+             * 是中文，什么的匹配不到，但是又必须输出header， 就自动判断第一行有的值的键了，改成用 MapEntry.key来判断才好
+             */
+            List<String> beanKeys = new ArrayList<>(beanMapping.size());
+            for (Map.Entry<String, WnBeanField> en : beanMapping.entrySet()) {
                 // 自己的键
-                keys.add(fld.getName());
+
+                String k = en.getKey();
+                if (!isKeyCanOutput(k)) {
+                    continue;
+                }
+                WnBeanField fld = en.getValue();
+                String fldName = fld.getName();
+                if (fldName == null || fldName.matches("^[-]{5,}$")) {
+                    continue;
+                }
+                beanKeys.add(fldName);
                 // 别名
                 if (fld.hasAliasFields()) {
                     for (WnBeanField fa : fld.getAliasFields()) {
-                        keys.add(fa.getName());
+                        String akey = fa.getName();
+                        if (isKeyCanOutput(fldName)) {
+                            beanKeys.add(akey);
+                        }
                     }
                 }
             }
-            return keys;
+            return beanKeys;
         }
 
         // 简易映射
         if (null != fields && !fields.isEmpty()) {
-            List<String> keys = new ArrayList<>(fields.size());
+            List<String> beanKeys = new ArrayList<>(fields.size());
             for (SheetField fld : fields) {
-                keys.add(fld.getKey());
+                String key = fld.getKey();
+                if (isKeyCanOutput(key)) {
+                    beanKeys.add(key);
+                }
             }
-            return keys;
+            return beanKeys;
         }
 
         // 啥都木有咯
         return null;
     }
 
+    private boolean isKeyCanOutput(String key) {
+        return null == this.keys || this.keys.match(key);
+    }
+
     private boolean __is_match(NutBean obj) {
-        // 过滤
-        if (null != filter && !filter.isEmpty() && filter.match(obj)) {
-            return false;
-        }
+        // 省略
         if (null != omit && omit.match(obj)) {
             return false;
         }
         // 匹配
-        if (null != matcher && !matcher.isEmpty() && !matcher.match(obj)) {
-            return false;
-        }
         if (null != pick && !pick.match(obj)) {
             return false;
         }
@@ -159,6 +165,10 @@ public class SheetMapping {
         try {
             // 指定了映射: WnBeanMapping
             if (null != this.beanMapping) {
+                // 设置键过滤器
+                this.beanMapping.setPickKeys(keys);
+
+                // 转换并记入输出列表
                 int index = 0;
                 for (NutBean obj : inputList) {
                     NutBean map = this.beanMapping.translate(obj, true);
@@ -174,6 +184,10 @@ public class SheetMapping {
                     NutMap map = new NutMap();
                     for (SheetField sf : fields) {
                         String key = sf.getKey();
+                        // 不能输出的话就别转换了
+                        if (!this.isKeyCanOutput(key)) {
+                            continue;
+                        }
                         Object val = sf.getValue(obj);
                         map.put(key, val);
                     }

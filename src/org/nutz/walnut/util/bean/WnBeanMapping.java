@@ -19,8 +19,11 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.bean.val.WnValueType;
+import org.nutz.walnut.util.validate.WnMatch;
 
 public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
+
+    private WnMatch pickKeys;
 
     @SuppressWarnings("unchecked")
     public Object translateAny(Object input, boolean onlyMapping) {
@@ -82,6 +85,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         if (onlyMapping) {
             for (Map.Entry<String, WnBeanField> en : this.entrySet()) {
                 String key = en.getKey();
+                if (!this.isKeyCanOutput(key)) {
+                    continue;
+                }
+
                 WnBeanField fld = en.getValue();
 
                 // 是否忽略 visible/hidden
@@ -112,6 +119,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         else {
             for (Map.Entry<String, Object> en : bean.entrySet()) {
                 String key = en.getKey();
+                if (!this.isKeyCanOutput(key)) {
+                    continue;
+                }
+                
                 Object val = en.getValue();
 
                 WnBeanField fld = this.get(key);
@@ -128,6 +139,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         }
 
         return re;
+    }
+
+    private boolean isKeyCanOutput(String key) {
+        return null == this.pickKeys || this.pickKeys.match(key);
     }
 
     private void __map_bean_field_val(NutMap re, WnBeanField fld, Object val, String key) {
@@ -283,4 +298,13 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
             }
         }
     }
+
+    public WnMatch getPickKeys() {
+        return pickKeys;
+    }
+
+    public void setPickKeys(WnMatch pickKeys) {
+        this.pickKeys = pickKeys;
+    }
+
 }
