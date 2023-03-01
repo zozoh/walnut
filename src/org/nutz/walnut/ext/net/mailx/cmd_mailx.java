@@ -13,6 +13,7 @@ import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 
+
 public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
 
     public cmd_mailx() {
