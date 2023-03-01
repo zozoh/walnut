@@ -11,7 +11,7 @@ import org.nutz.walnut.util.Wlang;
 public class TiGenExportMappingAsTable extends TiGenMapping {
 
     @Override
-    protected void joinField(NutMap field) {
+    protected void joinField(NutMap field, String forceFieldType) {
         String title = field.getString("title");
         boolean candidate = field.getBoolean("candidate");
         Object display = field.get("display");

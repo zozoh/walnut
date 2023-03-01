@@ -123,12 +123,20 @@ public class cmd_sheet extends JvmExecutor {
             String process = params.get("process");
             // 处理自动process
             if ("<auto>".equalsIgnoreCase(process)) {
-                process = "${P}";
-                int N = Math.min(3, headKeys.size());
-                for (int i = 0; i < N; i++) {
-                    String k = headKeys.get(i);
-                    process += String.format(": ${%s} ", k);
+                // headKeys 在不指定映射时，为null
+                if (null != headKeys && headKeys.size() > 0) {
+                    process = "${P}";
+                    int N = Math.min(3, headKeys.size());
+                    for (int i = 0; i < N; i++) {
+                        String k = headKeys.get(i);
+                        process += String.format(": ${%s} ", k);
+                    }
                 }
+                // 那么就需要搞一个默认的输出模板了
+                else {
+                    process = "${P} : ${title|nm|id}";
+                }
+
             }
             WnOutputable out = null;
             if (!Strings.isBlank(process)) {

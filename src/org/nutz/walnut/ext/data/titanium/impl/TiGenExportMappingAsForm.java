@@ -10,7 +10,7 @@ import org.nutz.walnut.util.Ws;
 public class TiGenExportMappingAsForm extends TiGenMapping {
 
     @Override
-    protected void joinField(NutMap field) {
+    protected void joinField(NutMap field, String forceFieldType) {
         String title = field.getString("title");
         if (Ws.isBlank(title)) {
             return;
@@ -25,6 +25,9 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
 
         // 字段
         String type = field.getString("type");
+        if (null != forceFieldType && null != type) {
+            type = forceFieldType;
+        }
 
         // 记入映射
         boolean required = field.getBoolean("required");

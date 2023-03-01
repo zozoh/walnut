@@ -24,8 +24,8 @@ ti gen_mapping
 
 ```bash
 # 输出导入数据映射部
-demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f clients.form.fields.json -dicts -qn
+demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f meta-fields.json -dicts -qn
 
 # 输出导出数据映射部
-demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f clients.form.fields.json -dicts -qn
+demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f meta-fields.json -dicts -qn
 ```

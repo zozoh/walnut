@@ -23,6 +23,7 @@ public class ti_gen_mapping implements JvmHdl {
         String as = hc.params.getString("as", "form");
         String fph = hc.params.getString("f");
         String type = hc.params.val(0, "export");
+        String forceFieldType = hc.params.getString("fldt", null);
               
 
         // 读取字段
@@ -59,6 +60,7 @@ public class ti_gen_mapping implements JvmHdl {
         gm.setWhiteList(whiteList);
         gm.setBlackList(blackList);
         gm.setDicts(dictsJson);
+        gm.setForceFieldType(forceFieldType);
 
         // 输出
         NutMap mapping = gm.genMapping(fields);

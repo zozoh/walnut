@@ -22,8 +22,11 @@ public abstract class TiGenMapping {
      * 
      * @param field
      *            表单或者表格字段
+     * @param forceFieldType
+     *            强制修改字段类型（在输出映射时，如果是到excel的映射，需要这个）. 否则 cmd_sheed 只会把数组变JSON
+     * 
      */
-    protected abstract void joinField(NutMap field);
+    protected abstract void joinField(NutMap field, String forceFieldType);
 
     private static final Map<String, Borning<? extends TiGenMapping>> instances = new HashMap<>();
 
@@ -52,13 +55,16 @@ public abstract class TiGenMapping {
 
     private TiDictFactory dicts;
 
+    private String forceFieldType;
+
     public TiGenMapping() {
         mapping = new NutMap();
     }
 
     public NutMap genMapping(List<NutMap> fields) {
+        String fft = Ws.upperFirst(forceFieldType);
         for (NutMap field : fields) {
-            joinField(field);
+            joinField(field, fft);
         }
         return mapping;
     }
@@ -141,6 +147,14 @@ public abstract class TiGenMapping {
         if (null == dicts)
             return null;
         return dicts.getDict(name);
+    }
+
+    public String getForceFieldType() {
+        return forceFieldType;
+    }
+
+    public void setForceFieldType(String forceFieldType) {
+        this.forceFieldType = forceFieldType;
     }
 
 }
