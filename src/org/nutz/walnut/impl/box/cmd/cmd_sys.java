@@ -19,6 +19,7 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnSysRuntime;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.web.WnConfig;
 
 public class cmd_sys extends JvmExecutor {
 
@@ -27,10 +28,11 @@ public class cmd_sys extends JvmExecutor {
         ZParams params = ZParams.parse(args, "cqn", "^(runtime|nice)$");
         JsonFormat jfmt = Cmds.gen_json_format(params);
 
+        NutMap map;
         // 获取运行时信息
         if (params.is("runtime")) {
             WnSysRuntime rt = Wn.getRuntime();
-            NutMap map = rt.toMap();
+            map = rt.toMap();
 
             long now = Wn.now();
             long sta = rt.getNodeStartAtInMs();
@@ -54,43 +56,56 @@ public class cmd_sys extends JvmExecutor {
             s += ti.toString();
             map.put("nodeLive", s);
 
-            // 打印纯粹阅读的
-            if (params.is("nice")) {
-                TextTable tt = new TextTable(2);
-                tt.setShowBorder(true);
-                tt.setCellSpacing(2);
-
-                // 标题
-                tt.addRow(Lang.list("Name", "Value"));
-                tt.addHr();
-
-                // 排序字段看的有条理点
-                Set<String> keys = map.keySet();
-                List<String> list = new ArrayList<>(keys.size());
-                list.addAll(keys);
-                Collections.sort(list);
-
-                // 逐行计入输出表
-                for (String key : list) {
-                    String val = map.getString(key);
-                    tt.addRow(Lang.list(key, val));
-                }
-
-                // 最后一行
-                tt.addHr();
-
-                // 打印
-                sys.out.println(tt.toString());
-            }
-            // 打印JSON
-            else {
-                sys.out.println(Json.toJson(map, jfmt));
-            }
+        }
+        // 获取启动时更详细的配置信息
+        else if (params.is("setup")) {
+            WnConfig conf = this.ioc.get(WnConfig.class, "conf");
+            map = new NutMap();
+            map.putAll(conf);
+        }
+        // 获取启动时更详细的配置信息
+        else if (params.is("sysenv")) {
+            map = new NutMap();
+            map.putAll(System.getenv());
         }
         // 默认获取全局配置信息
         else {
-            NutMap conf = Wn.getSysConfMap(sys.io);
-            sys.out.println(Json.toJson(conf, jfmt));
+            map = Wn.getSysConfMap(sys.io);
+        }
+
+        //
+        // 打印纯粹阅读的
+        //
+        if (params.is("nice")) {
+            TextTable tt = new TextTable(2);
+            tt.setShowBorder(true);
+            tt.setCellSpacing(2);
+
+            // 标题
+            tt.addRow(Lang.list("Name", "Value"));
+            tt.addHr();
+
+            // 排序字段看的有条理点
+            Set<String> keys = map.keySet();
+            List<String> list = new ArrayList<>(keys.size());
+            list.addAll(keys);
+            Collections.sort(list);
+
+            // 逐行计入输出表
+            for (String key : list) {
+                String val = map.getString(key);
+                tt.addRow(Lang.list(key, val));
+            }
+
+            // 最后一行
+            tt.addHr();
+
+            // 打印
+            sys.out.println(tt.toString());
+        }
+        // 打印JSON
+        else {
+            sys.out.println(Json.toJson(map, jfmt));
         }
     }
 
