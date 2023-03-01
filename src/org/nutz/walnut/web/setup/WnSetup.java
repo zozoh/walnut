@@ -28,7 +28,6 @@ import org.nutz.walnut.api.box.WnServiceFactory;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.net.email.WnMailServer;
 import org.nutz.walnut.ext.net.ftpd.WnFtpServer;
 import org.nutz.walnut.ext.net.sshd.srv.WnSshdServer;
 import org.nutz.walnut.ext.sys.quota.JettyMonitorHandler;
@@ -207,7 +206,9 @@ public class WnSetup implements Setup {
 
         ioc.get(WnSshdServer.class);
         ioc.get(WnFtpServer.class);
-        ioc.get(WnMailServer.class);
+        // 不再使用 sendmail ，因为 apache.common.mail 依赖 javamail 1.5 冲突
+        // 因此这个也没用了
+        // ioc.get(WnMailServer.class);
         try {
             log.warn("manual setup websocket ... ");
             ServerContainer sc = (ServerContainer) nc.getServletContext()

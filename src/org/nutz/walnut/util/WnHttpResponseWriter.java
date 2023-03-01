@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,7 +32,7 @@ import org.nutz.walnut.util.range.WnGetLocalFileInputStream;
 import org.nutz.walnut.util.range.WnGetObjInputStream;
 import org.nutz.walnut.util.stream.WnByteInputStream;
 import org.nutz.walnut.web.util.WnWeb;
-import org.subethamail.smtp.util.Base64;
+// import org.subethamail.smtp.util.Base64;
 
 /**
  * 封装 HTTP 流写出逻辑，提供给诸如 `cmd_httpout` 等命令使用 <br>
@@ -442,7 +443,11 @@ public class WnHttpResponseWriter {
                 bytes = ins.readAllBytes();
             }
             // encode base64
-            byte[] base64 = Base64.encodeToByte(bytes, false);
+
+            // org.subethamail.subethasmtp (3.1.7) 没用了，用java 自带的吧
+            // byte[] base64 = Base64.encodeToByte(bytes, false);
+            byte[] base64 = Base64.getEncoder().encode(bytes);
+
             // write
             Streams.write(ops, base64);
         }

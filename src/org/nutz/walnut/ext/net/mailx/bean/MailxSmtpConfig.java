@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.net.mailx.bean;
 
+import org.nutz.walnut.util.Ws;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 
 public class MailxSmtpConfig {
@@ -29,6 +30,11 @@ public class MailxSmtpConfig {
     private String password;
 
     /**
+     * 默认模板采用的语言
+     */
+    private String lang;
+
+    /**
      * SMTP 发送策略
      */
     private TransportStrategy strategy;
@@ -49,12 +55,20 @@ public class MailxSmtpConfig {
         this.port = smtpPort;
     }
 
+    public boolean hasAccount() {
+        return !Ws.isBlank(account);
+    }
+
     public String getAccount() {
         return account;
     }
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public boolean hasAlias() {
+        return !Ws.isBlank(alias);
     }
 
     public String getAlias() {
@@ -71,6 +85,14 @@ public class MailxSmtpConfig {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
     public TransportStrategy getStrategy() {

@@ -11,7 +11,7 @@
   "contentType": "text|html",
   "contentPath": "~/path/to.html",
   "content": "xxxxx",
-  "attachment":[
+  "attachments":[
     "~/path/to/a.zip",
     "~/path/to/b.zip"
   ],

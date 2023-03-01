@@ -122,11 +122,11 @@
 		</dependency>
 		<!--dependency> <groupId>org.nutz</groupId> <artifactId>nutz-web</artifactId> 
 			<version>${project.version}</version> </dependency -->
-		<dependency>
+		<!-- dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-email</artifactId>
 			<version>1.5</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-imaging</artifactId>
@@ -232,12 +232,17 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.25</version>
-		</dependency-->
+		</dependency>
 		<dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.5</version>
+        </dependency-->
+        <!-- dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <version>1.6.2</version>
-        </dependency>
+        </dependency-->
 		<dependency>
             <groupId>org.simplejavamail</groupId>
             <artifactId>simple-java-mail</artifactId>
@@ -274,11 +279,11 @@
 			<artifactId>mongodb-driver-legacy</artifactId>
 			<version>4.6.0</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.subethamail</groupId>
 			<artifactId>subethasmtp</artifactId>
 			<version>3.1.7</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
