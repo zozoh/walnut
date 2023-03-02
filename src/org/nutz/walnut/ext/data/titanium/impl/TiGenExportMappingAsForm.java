@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.titanium.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.titanium.api.TiGenMapping;
@@ -20,20 +21,28 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
         // 纯标题
         if (Ws.isBlank(name)) {
             this.putFieldMapping(title, "----------");
-            return;
         }
-
         // 字段
-        String type = field.getString("type");
-        if (null != forceFieldType && null != type) {
-            type = forceFieldType;
+        else {
+            String type = field.getString("type");
+            if (null != forceFieldType && null != type) {
+                type = forceFieldType;
+            }
+
+            // 记入映射
+            boolean required = field.getBoolean("required");
+            boolean asDft = this.isDefault(name, required);
+
+            __join_one_key(name, title, type, asDft, field);
         }
 
-        // 记入映射
-        boolean required = field.getBoolean("required");
-        boolean asDft = this.isDefault(name, required);
-
-        __join_one_key(name, title, type, asDft, field);
+        // 递归
+        List<NutMap> children = field.getAsList("fields", NutMap.class);
+        if (null != children) {
+            for (NutMap sub : children) {
+                joinField(sub, forceFieldType);
+            }
+        }
     }
 
     protected void __join_one_key(String name,

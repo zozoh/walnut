@@ -1,7 +1,7 @@
 {
   "base": "https://api.openai.com/v1/",
   "timeout": 60000,
-  "connectTimeout": 5000,
+  "connectTimeout": 10000,
   "home": "~/.xapi/chatgpt/",
   "apiCachePath": "api-cache",
   "configFilePath": "config.json",
@@ -29,7 +29,11 @@
         "top_p": "=top_p?=1",
         "n": "=n?=1",
         "stream": "==stream?=false",
-        "logprobs": "=logprobs?=null"
+        "logprobs": "=logprobs?=null",
+        "presence_penalty": "=presence_penalty?=0",
+        "frequency_penalty": "=frequency_penalty?=0",
+        "best_of": "=best_of?=1",
+        "user": "=user?=null"
       },
       "cache": {
         "path": true,
@@ -52,7 +56,7 @@
         "path": true,
         "headers": true,
         "params": true,
-        "expiIn": "600",
+        "expiIn": "86400",
         "expiUnit": "s"
       }
     }
