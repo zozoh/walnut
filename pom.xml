@@ -39,7 +39,7 @@
 
 
 	<repositories>
-		<repository>
+		<!-- repository>
 			<id>nutz-snapshots</id>
 			<url>https://jfrog.nutz.cn/artifactory/snapshots</url>
 			<snapshots>
@@ -59,7 +59,7 @@
 			<releases>
 				<enabled>true</enabled>
 			</releases>
-		</repository>
+		</repository-->
 	</repositories>
 	<dependencies>
 		<dependency>
