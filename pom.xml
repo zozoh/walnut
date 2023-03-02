@@ -203,11 +203,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutz-mipush-sdk</artifactId>
 			<version>3.0.MOD</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.ftpserver</groupId>
 			<artifactId>ftpserver-core</artifactId>
@@ -325,11 +325,11 @@
 			<version>3.9.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>lessc4j</artifactId>
 			<version>2.7.2-SNAPSHOT</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
@@ -378,11 +378,11 @@
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>jst</artifactId>
 			<version>1.0.3</version>
-		</dependency>
+		</dependency-->
 		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
 		<dependency>
 			<groupId>gov.nist.math</groupId>
