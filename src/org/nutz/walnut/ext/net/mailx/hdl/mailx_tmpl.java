@@ -15,9 +15,9 @@ public class mailx_tmpl extends MailxFilter {
 
     @Override
     protected void process(WnSystem sys, MailxContext fc, ZParams params) {
-        String tmplName = params.val_check(0);
+        String tmplPath = params.val_check(0);
 
-        WnObj oTmpl = fc.loadTemplateObj(tmplName);
+        WnObj oTmpl = fc.loadContentObj(tmplPath);
 
         if (null != oTmpl) {
             if (params.has("html")) {

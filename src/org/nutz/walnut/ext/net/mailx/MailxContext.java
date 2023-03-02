@@ -43,15 +43,21 @@ public class MailxContext extends JvmFilterContext {
         return _i18n_dir;
     }
 
-    public WnObj loadTemplateObj(String tmplName) {
+    public WnObj loadContentObj(String path) {
         WnObj oI18n = this.getI18nDir();
         if (null == oI18n || !oI18n.isDIR()) {
             return null;
         }
-        if (Ws.isBlank(lang) || Ws.isBlank(tmplName)) {
+        if (Ws.isBlank(lang) || Ws.isBlank(path)) {
             return null;
         }
-
-        return sys.io.fetch(oI18n, Wn.appendPath(lang, tmplName));
+        String ph;
+        if (Wn.isAbsolutePath(path)) {
+            ph = path;
+        } else {
+            ph = Wn.appendPath(oI18n.path(), lang, path);
+        }
+        String aph = Wn.normalizeFullPath(ph, sys);
+        return sys.io.check(null, aph);
     }
 }

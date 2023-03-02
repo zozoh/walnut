@@ -8,7 +8,7 @@
 {
   "to": "abc@xy.com; xxx@xx.com",
   "subject": "Some Text",
-  "contentType": "text|html",
+  "asHtml": false,
   "contentPath": "~/path/to.html",
   "content": "xxxxx",
   "attachments":[

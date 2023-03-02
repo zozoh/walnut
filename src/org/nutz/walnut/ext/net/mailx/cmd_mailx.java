@@ -70,6 +70,13 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
             mailVars = Json.fromJson(NutMap.class, varJson);
         }
         fc.vars = mailVars;
+        
+        // 读取内容
+        if(fc.mail.hasContentPath()) {
+            WnObj oTmpl = fc.loadContentObj(fc.mail.getContentPath());
+            String content = sys.io.readText(oTmpl);
+            fc.mail.setContent(content);
+        }
 
         // 应用变量
         fc.renderMail();

@@ -54,6 +54,11 @@ public class WnMail {
     String content;
 
     /**
+     * 邮件正文路径（比正文更优先）
+     */
+    String contentPath;
+
+    /**
      * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
      */
     List<String> attachments;
@@ -276,6 +281,18 @@ public class WnMail {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean hasContentPath() {
+        return !Ws.isBlank(contentPath);
+    }
+
+    public String getContentPath() {
+        return contentPath;
+    }
+
+    public void setContentPath(String contentPath) {
+        this.contentPath = contentPath;
     }
 
     public boolean hasAttachments() {

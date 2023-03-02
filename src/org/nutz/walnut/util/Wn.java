@@ -414,7 +414,7 @@ public abstract class Wn {
 
         // 组合上当前目录
         String pwd = vars.getString("PWD", "");
-        if (!ph.startsWith("/") && !ph.startsWith("~")) {
+        if (!isAbsolutePath(ph)) {
             ph = Wn.appendPath(pwd, ph);
         }
 
@@ -445,6 +445,10 @@ public abstract class Wn {
 
         // 返回
         return re;
+    }
+
+    public static boolean isAbsolutePath(String ph) {
+        return ph.startsWith("/") || ph.startsWith("~") || ph.startsWith("id:");
     }
 
     public static String normalizeStr(String str, WnSystem sys) {

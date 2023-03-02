@@ -6,7 +6,7 @@ import org.nutz.walnut.ext.net.mailx.MailxFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-public class mailx_msg extends MailxFilter {
+public class mailx_content extends MailxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {

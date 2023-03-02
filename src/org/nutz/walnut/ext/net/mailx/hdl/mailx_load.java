@@ -9,7 +9,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 
-public class mailx_config extends MailxFilter {
+public class mailx_load extends MailxFilter {
 
     @Override
     protected void process(WnSystem sys, MailxContext fc, ZParams params) {
