@@ -5,9 +5,21 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.cheap.markdown.CheapMarkdownParsing;
 import org.nutz.walnut.util.Ws;
 
 public class Cheaps {
+
+    public static String markdownToHtml(String markdown) {
+        CheapDocument doc = parseMarkdown(markdown);
+        return doc.toHtml();
+    }
+    public static CheapDocument parseMarkdown(String markdown) {
+        CheapMarkdownParsing ing = new CheapMarkdownParsing();
+        CheapDocument doc = ing.invoke(markdown);
+        return doc;
+    }
 
     private static final Pattern EP = Pattern.compile("&(#(\\d{2,4})|(\\w[\\w\\d]+));");
 

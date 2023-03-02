@@ -1,8 +1,0 @@
-<if test="!API.${method}('${path}')">
-  <redirect code="302" text="Found">
-    <url>${path}</url>
-    <http-resp-header>
-      <set-cookie>taph=$${URI_PATH}; Path=${path};</set-cookie>
-     </http-resp-header>
-  </redirect>
-</if>

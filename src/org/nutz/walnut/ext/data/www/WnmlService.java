@@ -24,13 +24,14 @@ import org.nutz.lang.Each;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.walnut.util.tmpl.WnTmpl;
-import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Tag;
 import org.nutz.mapl.Mapl;
-import org.nutz.plugins.zdoc.markdown.Markdown;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.cheap.Cheaps;
+import org.nutz.walnut.cheap.dom.CheapDocument;
+import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.cheap.dom.CheapFilter;
 import org.nutz.walnut.util.JsExec;
 import org.nutz.walnut.util.JsExecContext;
 import org.nutz.walnut.util.Wn;
@@ -439,10 +440,11 @@ public class WnmlService {
                 }
 
                 // 执行转换
-                html = Markdown.toHtml(markdown, new Callback<Tag>() {
-                    public void invoke(Tag tag) {
-                        if (tag.is("img")) {
-                            String src = tag.attr("src");
+                CheapDocument doc = Cheaps.parseMarkdown(markdown);
+                doc.walkElements(new CheapFilter() {
+                    public boolean match(CheapElement el) {
+                        if (el.isTag("img")) {
+                            String src = el.attr("src");
                             for (MD_Pair mp : mps) {
                                 Matcher m = mp.P.matcher(src);
                                 if (m.find()) {
@@ -453,18 +455,21 @@ public class WnmlService {
                                     }
                                     // 得到新路径
                                     String src2 = mp.tmpl.render(cMap);
-                                    tag.attr("src", src2);
+                                    el.attr("src", src2);
                                     // 碰到就截止
                                     break;
                                 }
                             }
                         }
+                        return true;
+
                     }
                 });
+                html = doc.toHtml();
             }
             // 没有指定处理方式
             else {
-                html = Markdown.toHtml(markdown, null);
+                html = Cheaps.markdownToHtml(markdown);
             }
 
             // 重新写入内容
