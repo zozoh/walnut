@@ -70,9 +70,9 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
             mailVars = Json.fromJson(NutMap.class, varJson);
         }
         fc.vars = mailVars;
-        
+
         // 读取内容
-        if(fc.mail.hasContentPath()) {
+        if (fc.mail.hasContentPath()) {
             WnObj oTmpl = fc.loadContentObj(fc.mail.getContentPath());
             String content = sys.io.readText(oTmpl);
             fc.mail.setContent(content);
@@ -109,6 +109,14 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
             String output;
             // 作为 JSON 输出
             if (fc.params.is("json")) {
+                if (re.isOk()) {
+                    output = Json.toJson(re.getData(), fc.jfmt);
+                } else {
+                    output = Json.toJson(re, fc.jfmt);
+                }
+            }
+            // 作为AJAX 输出
+            else if (fc.params.is("ajax")) {
                 output = Json.toJson(re, fc.jfmt);
             }
             // 作为纯文本输出
