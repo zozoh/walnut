@@ -16,7 +16,7 @@ public class WnSysTask {
             String cron = meta.getString("cron");
             return String.format("cron<%s>:%s:%s", userName, cron, command);
         }
-        return String.format("task[%s]<%s>:%s", userName, command);
+        return String.format("task[%s]<%s>:%s", meta.name(), userName, command);
     }
 
     public WnSysTask(WnObj meta, byte[] input) {
