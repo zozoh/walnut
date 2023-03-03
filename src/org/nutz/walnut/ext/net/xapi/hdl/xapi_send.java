@@ -42,6 +42,17 @@ public class xapi_send implements JvmHdl {
         XApiRequest req = api.prepare(apiName, account, path, vars, false);
         req.setDisableCache(force);
 
+        // 过期时间
+        String[] timeout = Ws.splitIgnoreBlank(hc.params.getString("timeout", null), ":");
+        if (null != timeout) {
+            if (timeout.length > 1) {
+                req.setTimeout(Integer.parseInt(timeout[0]) * 1000);
+                req.setConnectTimeout(Integer.parseInt(timeout[1]) * 1000);
+            } else if (timeout.length > 0) {
+                req.setTimeout(Integer.parseInt(timeout[0]) * 1000);
+            }
+        }
+
         // 发送请求，并且将流输出
         InputStream ins = api.send(req, InputStream.class);
         sys.out.writeAndClose(ins);

@@ -15,6 +15,9 @@ xapi send
                       # 文件内容为 {type:"http",host,port} 
                       # 如果没有指定，会自动寻找 ~/.domain/proxy.json
                       # 除非指明 "none"
+  [-timeout 60:10]    # 请求过期（秒）, 可以是`60:10` 或者 `60`
+                      #  - 60 秒 : 连接 Timeout
+                      #  - 10 秒 : 握手 Timeout
 ```
 # 示例
 

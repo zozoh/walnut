@@ -31,10 +31,17 @@ public class jsonx_put extends JsonXFilter {
             }
             // 加入到当前 Map
             else {
+                boolean isDft = params.is("dft");
                 String json = params.val_check(1);
-                Object val = Json.fromJson(json);
+                Object val = json;
+                // 看看是不是对象
+                try {
+                    val = Json.fromJson(json);
+                }
+                catch (Throwable e) {}
                 Map<String, Object> map = (Map<String, Object>) fc.obj;
-                if (params.is("dft")) {
+                
+                if (isDft) {
                     map.putIfAbsent(key, val);
                 } else {
                     map.put(key, val);

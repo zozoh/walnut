@@ -5,15 +5,19 @@
 # 用法
 
 ```bash
-@put [JSON ...]   # 多个 JSON 对象字符串
+@put [JSON ...]   # 多个 JSON 对象字符串，或者普通字符串
 ```
 
 # 示例
 
 ```bash
-# 强制覆盖
-echo '{}' | jsonx @put 'pos' '{x:100}'
-{pos: {x:100}}
+# 加入一个字符串
+echo '{}' | jsonx @put title 'Good Day'
+{title:"Good Day"}
+
+# 加入一个对象
+echo '{}' | jsonx @put pos '{x:100,y:99}'
+{pos:{x:100,y:99}}
 
 # 仅仅作为默认值添加
 echo '{pos:{x:80}}' | jsonx @put -dft 'pos' '{x:100}'
