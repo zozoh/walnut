@@ -67,6 +67,12 @@ public class cmd_task extends JvmHdlExecutor {
         }
     }
 
+    /**
+     * 为了防止命令输出太长，本函数，把过长的部分加省略号
+     * 
+     * @param list 任务对象
+     * @param key 命令存放在对象的哪个键里
+     */
     public static void formatObjCommandField(List<WnObj> list, String key) {
         for (WnObj o : list) {
             Object cmd = o.get(key);

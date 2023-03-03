@@ -57,6 +57,9 @@ public class WnBgRunTaskConsumer implements Runnable {
 
                 // 执行
                 InputStream ins = new ByteInputStream(task.input);
+                
+                // TODO 这里用线程池执行才好
+                // TODO 执行失败，要不要重新加会队列？ 来一个重试次数啥的
                 taskApi.runTask(running, task.meta, user, ins);
 
                 // 任务执行完毕后休息1ms，释放一下 CPU

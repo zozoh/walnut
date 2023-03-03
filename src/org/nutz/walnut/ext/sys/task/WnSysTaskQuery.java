@@ -51,10 +51,6 @@ public class WnSysTaskQuery {
     public void loadFromParams(ZParams params) {
         // 类型就看第一个是不是
         if (params.vals.length > 0) {
-            if (params.vals[0].matches("^(cron|task)$")) {
-                String v0 = params.val(0).toUpperCase();
-                this.type = WnSysTaskType.valueOf(v0);
-            }
             // 第一个值不是类型的话，就是 ID 咯
             String v = params.val(0);
             if (v.matches("^(cron|task)$")) {

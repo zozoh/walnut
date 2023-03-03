@@ -17,15 +17,15 @@ import org.nutz.walnut.impl.box.JvmHdlParamArgs;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlang;
 
-@JvmHdlParamArgs(value="cqn", regex="^(json)$")
+@JvmHdlParamArgs(value = "cqn", regex = "^(json)$")
 public class task_run implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 分析查询参数
         WnAccount me = sys.getMe();
-        boolean isAdmin = sys.auth.isMemberOfGroup(me, "root");
-        WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc, isAdmin);
+        boolean I_am_admin = sys.auth.isMemberOfGroup(me, "root");
+        WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc, I_am_admin);
         int limit = q.getLimit();
 
         // 准备服务类
@@ -52,7 +52,7 @@ public class task_run implements JvmHdl {
             boolean isMyTask = me.isSameName(userName);
 
             // 不是管理员的话，这任务如果不是自己的，就奇怪了
-            if (!isAdmin && !isMyTask) {
+            if (!I_am_admin && !isMyTask) {
                 throw Er.create("e.cmd.task.run.NoMine", task.meta.toString());
             }
 

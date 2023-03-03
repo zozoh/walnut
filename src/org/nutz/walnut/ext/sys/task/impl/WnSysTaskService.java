@@ -164,6 +164,7 @@ public class WnSysTaskService implements WnSysTaskApi {
             WnObj oTask = list.get(0);
             byte[] input = io.readBytes(oTask);
             // 因为是弹出，所以删除
+            // TODO 看来应该移动到某个临时区域（或者做个标志），如果任务执行成功，再真正的删除
             this.removeTask(oTask);
             // 返回给调用者
             return new WnSysTask(oTask, input);
