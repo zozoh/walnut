@@ -56,14 +56,19 @@ public class cmd_sheet extends JvmExecutor {
         }
         // .................................................
         // 准备过滤器
-        Object keysBy = params.get("keys");
+        Object keysBy = params.getString("keys", null);
+        Object namesBy = params.getString("names", null);
         Object omitBy = params.get("omit");
         Object pickBy = params.get("pick");
         WnMatch keys = null;
+        WnMatch names = null;
         WnMatch omit = null;
         WnMatch pick = null;
         if (null != keysBy) {
             keys = AutoMatch.parse(keysBy);
+        }
+        if (null != namesBy) {
+            names = AutoMatch.parse(namesBy);
         }
         if (null != omitBy) {
             omit = AutoMatch.parse(omitBy);
@@ -79,6 +84,7 @@ public class cmd_sheet extends JvmExecutor {
         // 字段映射
         SheetMapping mapping = new SheetMapping();
         mapping.setKeys(keys);
+        mapping.setNames(names);
         mapping.setOmit(omit);
         mapping.setPick(pick);
         mapping.setLimit(limit);

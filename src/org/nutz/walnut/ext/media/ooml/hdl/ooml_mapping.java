@@ -13,6 +13,8 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class ooml_mapping extends OomlFilter {
 
@@ -49,7 +51,23 @@ public class ooml_mapping extends OomlFilter {
 
         // 设置映射方式
         if (!Ws.isBlank(input)) {
+            // 准备字段过滤器
+            Object keysBy = params.getString("keys", null);
+            Object namesBy = params.getString("names", null);
+            WnMatch keys = null;
+            WnMatch names = null;
+            if (null != keysBy) {
+                keys = AutoMatch.parse(keysBy);
+            }
+            if (null != namesBy) {
+                names = AutoMatch.parse(namesBy);
+            }
+
+            // 准备表格映射规则
             fc.mapping = Json.fromJson(OomlRowMapping.class, input);
+            fc.mapping.setPickingFields(keys, names);
+
+            // 编译规则
             NutMap vars = sys.session.getVars();
             Map<String, NutMap[]> caches = new HashMap<>();
             fc.mapping.ready(sys.io, vars, caches);

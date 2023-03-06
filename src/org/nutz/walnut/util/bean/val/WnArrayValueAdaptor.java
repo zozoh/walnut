@@ -18,6 +18,9 @@ public class WnArrayValueAdaptor implements WnValueAdaptor {
         // 字符串的话，就拆分一下
         if (input instanceof String) {
             String sep = vd.getSeparator();
+            if(Ws.isBlank(sep)) {
+                return Wlang.list(input);
+            }
             List<String> ss = Ws.splitIgnoreBlanks((String) input, sep);
             if (ss.isEmpty()) {
                 return vd.getEmptyAs();

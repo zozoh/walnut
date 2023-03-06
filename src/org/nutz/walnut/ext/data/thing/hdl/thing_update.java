@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.thing.hdl;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -45,6 +46,17 @@ public class thing_update implements JvmHdl {
         // 分析参数
         String[] ids = hc.params.vals;
         NutMap match = hc.params.getMap("match");
+
+        // 分析ID 多个ID 可用半角逗号分隔
+        List<String> idList = new LinkedList<>();
+        for (String id : ids) {
+            String[] ss = Ws.splitIgnoreBlank(id);
+            for (String s : ss) {
+                idList.add(s);
+            }
+        }
+        ids = new String[idList.size()];
+        idList.toArray(ids);
 
         // 看看是否需要safe机制
         if (hc.params.has("safe")) {

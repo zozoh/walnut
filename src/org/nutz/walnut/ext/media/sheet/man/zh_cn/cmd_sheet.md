@@ -5,7 +5,7 @@
 ---------------------------------------
 # 用法
 
-```
+```bash
 sheet /path/to/file      # 输入文件，如果为空，则从管道读取
      [-out /path/to/out] # 输入的文件路径，没有就会创建
      [-tpi csv]          # 输入的内容格式，如果是从管道读取，这个必须需要
@@ -25,10 +25,10 @@ sheet /path/to/file      # 输入文件，如果为空，则从管道读取
                          # 由导入命令来填充
                          # ${I} 则表示创建的记录下标（1base）
                          # 特殊值 "<auto>" 表示 "${P}: ${前三个字段}"
-     [-keys AutoMatch]   # 只有匹配的键才会被保留
+     [-keys AutoMatch]   # 只有匹配的键才会被保留(对应 fld.key)
+     [-names AutoMatch]  # 只有匹配的输出字段名才会被保留(对应 fld.name)
      [-pick AutoMatch]   # 仅保留哪些记录
      [-omit AutoMatch]   # 过滤掉哪些记录
-     [- AutoMatch]   # 过滤掉哪些记录
      [-skip 0]           # 从输入列表要跳过的选项，默认 0，从头开始
      [-limit 0]          # 最多输出的条目，默认0，表示不限
 ```

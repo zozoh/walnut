@@ -125,6 +125,17 @@ public class OomlRowMapping {
         this.overrideMeta = overrideMeta;
     }
 
+    /**
+     * @param keys 过滤字段的映射键
+     * @param names 过滤字段的输出名
+     */
+    public void setPickingFields(WnMatch keys, WnMatch names) {
+        if (null != this.mapping) {
+            this.mapping.setPickKeys(keys);
+            this.mapping.setPickNames(names);
+        }
+    }
+
     public WnBeanMapping getMapping() {
         return mapping;
     }

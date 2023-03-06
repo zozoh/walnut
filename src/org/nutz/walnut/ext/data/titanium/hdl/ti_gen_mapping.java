@@ -84,7 +84,12 @@ public class ti_gen_mapping implements JvmHdl {
         NutMap mapping = gm.genMapping(fields);
 
         JsonFormat jfmt = Cmds.gen_json_format(hc.params);
-        String str = Json.toJson(mapping, jfmt);
+        String str;
+        if ("export".equals(type)) {
+            str = Json.toJson(mapping, jfmt);
+        } else {
+            str = Json.toJson(Wlang.map("mapping", mapping), jfmt);
+        }
         sys.out.println(str);
     }
 

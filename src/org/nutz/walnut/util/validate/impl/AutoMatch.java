@@ -29,6 +29,9 @@ public class AutoMatch implements WnMatch {
         if (null == input) {
             return new AlwaysMatch(dft);
         }
+        if (input instanceof WnMatch) {
+            return (WnMatch) input;
+        }
         if (input instanceof Boolean) {
             return new AlwaysMatch((Boolean) input);
         }

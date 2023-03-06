@@ -25,6 +25,8 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     private WnMatch pickKeys;
 
+    private WnMatch pickNames;
+
     @SuppressWarnings("unchecked")
     public Object translateAny(Object input, boolean onlyMapping) {
         Mirror<?> mi = Mirror.me(input);
@@ -90,6 +92,9 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 }
 
                 WnBeanField fld = en.getValue();
+                if (!this.isFieldNameCanOutput(fld)) {
+                    continue;
+                }
 
                 // 是否忽略 visible/hidden
                 if (fld.isIgnore(bean)) {
@@ -122,10 +127,14 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 if (!this.isKeyCanOutput(key)) {
                     continue;
                 }
-                
+
                 Object val = en.getValue();
 
                 WnBeanField fld = this.get(key);
+                if (!this.isFieldNameCanOutput(fld)) {
+                    continue;
+                }
+
                 // 未声明映射字段，直接 copy
                 if (null == fld) {
                     re.put(key, val);
@@ -143,6 +152,14 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     private boolean isKeyCanOutput(String key) {
         return null == this.pickKeys || this.pickKeys.match(key);
+    }
+
+    private boolean isFieldNameCanOutput(WnBeanField fld) {
+        String name = fld.getName();
+        if (null == name) {
+            return false;
+        }
+        return null == this.pickNames || this.pickNames.match(name);
     }
 
     private void __map_bean_field_val(NutMap re, WnBeanField fld, Object val, String key) {
@@ -305,6 +322,14 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     public void setPickKeys(WnMatch pickKeys) {
         this.pickKeys = pickKeys;
+    }
+
+    public WnMatch getPickNames() {
+        return pickNames;
+    }
+
+    public void setPickNames(WnMatch pickNames) {
+        this.pickNames = pickNames;
     }
 
 }

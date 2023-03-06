@@ -23,6 +23,8 @@ public class SheetMapping {
 
     private WnMatch keys;
 
+    private WnMatch names;
+
     private WnMatch omit;
 
     private WnMatch pick;
@@ -46,6 +48,14 @@ public class SheetMapping {
 
     public void setKeys(WnMatch keys) {
         this.keys = keys;
+    }
+
+    public WnMatch getNames() {
+        return names;
+    }
+
+    public void setNames(WnMatch names) {
+        this.names = names;
     }
 
     public WnMatch getOmit() {
@@ -167,6 +177,7 @@ public class SheetMapping {
             if (null != this.beanMapping) {
                 // 设置键过滤器
                 this.beanMapping.setPickKeys(keys);
+                this.beanMapping.setPickNames(names);
 
                 // 转换并记入输出列表
                 int index = 0;

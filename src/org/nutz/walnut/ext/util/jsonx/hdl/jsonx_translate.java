@@ -17,6 +17,8 @@ import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.bean.WnBeanMapping;
 import org.nutz.walnut.util.explain.WnExplains;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class jsonx_translate extends JsonXFilter {
 
@@ -55,10 +57,30 @@ public class jsonx_translate extends JsonXFilter {
             if (!Ws.isBlank(by)) {
                 map = map.getAs(by, NutMap.class);
             }
+
+            // 准备字段过滤器
+            Object keysBy = params.getString("keys", null);
+            Object namesBy = params.getString("names", null);
+            WnMatch keys = null;
+            WnMatch names = null;
+            if (null != keysBy) {
+                keys = AutoMatch.parse(keysBy);
+            }
+            if (null != namesBy) {
+                names = AutoMatch.parse(namesBy);
+            }
+
+            // 准备映射规则
             WnBeanMapping bm = new WnBeanMapping();
+            bm.setPickKeys(keys);
+            bm.setPickNames(names);
+
+            // 编译规则
             Map<String, NutMap[]> caches = new HashMap<>();
             NutMap vars = sys.session.getVars();
             bm.setFields(map, sys.io, vars, caches);
+
+            // 执行映射
             fc.obj = bm.translateAny(fc.obj, isOnly);
 
             WnObjTrans trans = new WnObjTrans();

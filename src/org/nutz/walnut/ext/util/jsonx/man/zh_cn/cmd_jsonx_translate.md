@@ -13,6 +13,8 @@ jsonx @translate
   [-by "key"]           # 映射文件的某个键下面的内容才是映射信息
                         # 只有 -mapping 模式下才有效
   [-only]               # 不在映射集合内的对象，将会被无视
+  [-keys AutoMatch]     # 只有匹配的键才会被保留(对应 fld.key)
+  [-names AutoMatch]    # 只有匹配的输出字段名才会被保留(对应 fld.name)
 ```
 
 # 示例
