@@ -11,6 +11,7 @@ import org.nutz.walnut.util.bean.val.WnBooleanValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnDateTextValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnDateTimeValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnDateValueAdaptor;
+import org.nutz.walnut.util.bean.val.WnFloatValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnIntegerValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnObjectValueAdaptor;
 import org.nutz.walnut.util.bean.val.WnStringValueAdaptor;
@@ -24,6 +25,7 @@ public class WnValues {
     static {
         map = new HashMap<>();
         map.put(WnValueType.Integer, new WnIntegerValueAdaptor());
+        map.put(WnValueType.Float, new WnFloatValueAdaptor());
         map.put(WnValueType.String, new WnStringValueAdaptor());
         map.put(WnValueType.Array, new WnArrayValueAdaptor());
         map.put(WnValueType.Object, new WnObjectValueAdaptor());

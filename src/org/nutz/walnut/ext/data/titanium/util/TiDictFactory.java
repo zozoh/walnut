@@ -45,6 +45,9 @@ public class TiDictFactory {
     }
 
     public TiDict getDict(String name) {
+        if (null == name) {
+            return null;
+        }
         if (name.startsWith("#")) {
             name = name.substring(1).trim();
         }

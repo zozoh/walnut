@@ -7,10 +7,11 @@ import java.util.Map;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.born.Borning;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.data.titanium.impl.TiGenExportMappingAsForm;
-import org.nutz.walnut.ext.data.titanium.impl.TiGenExportMappingAsTable;
-import org.nutz.walnut.ext.data.titanium.impl.TiGenImportMappingAsForm;
-import org.nutz.walnut.ext.data.titanium.impl.TiGenImportMappingAsTable;
+import org.nutz.walnut.ext.data.titanium.WnI18nService;
+import org.nutz.walnut.ext.data.titanium.impl.TiGenExportMappingByForm;
+import org.nutz.walnut.ext.data.titanium.impl.TiGenExportMappingByTable;
+import org.nutz.walnut.ext.data.titanium.impl.TiGenImportMappingByForm;
+import org.nutz.walnut.ext.data.titanium.impl.TiGenImportMappingByTable;
 import org.nutz.walnut.ext.data.titanium.util.TiDict;
 import org.nutz.walnut.ext.data.titanium.util.TiDictFactory;
 import org.nutz.walnut.util.Ws;
@@ -31,10 +32,10 @@ public abstract class TiGenMapping {
     private static final Map<String, Borning<? extends TiGenMapping>> instances = new HashMap<>();
 
     static {
-        instances.put("export_table", Mirror.me(TiGenExportMappingAsTable.class).getBorning());
-        instances.put("export_form", Mirror.me(TiGenExportMappingAsForm.class).getBorning());
-        instances.put("import_table", Mirror.me(TiGenImportMappingAsTable.class).getBorning());
-        instances.put("import_form", Mirror.me(TiGenImportMappingAsForm.class).getBorning());
+        instances.put("export_table", Mirror.me(TiGenExportMappingByTable.class).getBorning());
+        instances.put("export_form", Mirror.me(TiGenExportMappingByForm.class).getBorning());
+        instances.put("import_table", Mirror.me(TiGenImportMappingByTable.class).getBorning());
+        instances.put("import_form", Mirror.me(TiGenImportMappingByForm.class).getBorning());
     }
 
     public static TiGenMapping getInstance(String key) {
@@ -54,6 +55,10 @@ public abstract class TiGenMapping {
     private Map<String, Boolean> blacks;
 
     private TiDictFactory dicts;
+
+    private WnI18nService i18ns;
+
+    private String lang;
 
     private String forceFieldType;
 
@@ -75,6 +80,17 @@ public abstract class TiGenMapping {
 
     public void putFieldMapping(String key, Object val) {
         mapping.put(key, val);
+    }
+
+    public String traslateText(String text) {
+        String re = text;
+        if (null != i18ns) {
+            String s = i18ns.getText(lang, text);
+            if (null != s) {
+                re = s;
+            }
+        }
+        return re;
     }
 
     private Map<String, Boolean> __build_list_map(String[] list) {
@@ -155,6 +171,22 @@ public abstract class TiGenMapping {
 
     public void setForceFieldType(String forceFieldType) {
         this.forceFieldType = forceFieldType;
+    }
+
+    public WnI18nService getI18ns() {
+        return i18ns;
+    }
+
+    public void setI18ns(WnI18nService i18ns) {
+        this.i18ns = i18ns;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 
 }

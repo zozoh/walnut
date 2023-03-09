@@ -18,6 +18,11 @@ ti gen_mapping
                       # 字典的内容。字典格式为 config.dictionary 段的值
   [-white a,b,c]      # [选]表单字段，可以指定默认字段白名单
   [-black a,b,c]      # [选]表单字段，可以指定默认字段黑名单
+  [-load /rs/ti/i18n] # i18n 目录的位置，其内第一层是各个语言目录，
+                      # 名称如"zh-cn"，默认 "/rs/ti/i18n/"
+                      # 多个路径用半角冒号分隔
+  [-lang zh-cn]       # 要输出的语言（会统一转换为kebabCase）
+                      # 因此 zhCn, zh_cn, zh-cn 是等价的
   [-cqn]              # [选]指定JSON输出格式
 ```
 -------------------------------------------------------------
@@ -25,7 +30,7 @@ ti gen_mapping
 
 ```bash
 # 输出导入数据映射部
-demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f meta-fields.json -dicts -qn
+demo:~$  ti config | jsonx @get dictionary | ti gen_mapping export -f meta-fields.json -dicts -qn
 
 # 输出导出数据映射部
 demo:~$  ti config | jsonx @get dictionary | ti gen_mapping import -f meta-fields.json -dicts -qn

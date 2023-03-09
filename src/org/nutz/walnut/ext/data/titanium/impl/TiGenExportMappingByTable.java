@@ -7,12 +7,18 @@ import java.util.Map;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.titanium.api.TiGenMapping;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
 
-public class TiGenExportMappingAsTable extends TiGenMapping {
+public class TiGenExportMappingByTable extends TiGenMapping {
 
     @Override
     protected void joinField(NutMap field, String forceFieldType) {
         String title = field.getString("title");
+        if (Ws.isBlank(title)) {
+            return;
+        }
+        title = this.traslateText(title);
+
         boolean candidate = field.getBoolean("candidate");
         Object display = field.get("display");
         if (null == display) {

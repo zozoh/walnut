@@ -8,7 +8,7 @@ import org.nutz.walnut.ext.data.titanium.api.TiGenMapping;
 import org.nutz.walnut.ext.data.titanium.util.TiDict;
 import org.nutz.walnut.util.Ws;
 
-public class TiGenExportMappingAsForm extends TiGenMapping {
+public class TiGenExportMappingByForm extends TiGenMapping {
 
     @Override
     protected void joinField(NutMap field, String forceFieldType) {
@@ -16,6 +16,7 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
         if (Ws.isBlank(title)) {
             return;
         }
+        title = this.traslateText(title);
 
         String name = field.getString("name");
         // 纯标题
@@ -57,6 +58,14 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
         NutMap v = new NutMap();
         v.put("name", title);
         if (!Ws.isBlank(type)) {
+            if ("AMS".equals(type) || "TiInputDateTime".equals(type)) {
+                type = "DateTime";
+                v.put("format", "yyyy-MM-dd HH:mm:ss");
+            }
+            if ("TiInputDate".equals(type)) {
+                type = "DateTime";
+                v.put("format", "yyyy-MM-dd");
+            }
             v.put("type", type);
         }
         if (asDft) {
@@ -87,7 +96,7 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
 
     protected TiDict getFieldDict(String comType, NutMap comConf) {
         TiDict dict = null;
-        if ("TiLabel".equals(comType)) {
+        if ("TiLabel".equals(comType) || Ws.isBlank(comType)) {
             String dictName = comConf.getString("dict");
             dict = this.getDict(dictName);
         }
@@ -114,7 +123,9 @@ public class TiGenExportMappingAsForm extends TiGenMapping {
 
     protected String getFieldComType(NutMap field) {
         String comType = field.getString("comType", "TiLabel");
-        return Ws.upperFirst(Ws.camelCase(comType));
+        comType = Ws.kebabCase(comType);
+        comType = Ws.camelCase(comType);
+        return Ws.upperFirst(comType);
     }
 
 }

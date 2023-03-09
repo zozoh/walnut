@@ -12,6 +12,12 @@ public class WnAMSValueAdaptor implements WnValueAdaptor {
         if (null == input) {
             return vd.getDefaultAs();
         }
+        if (input instanceof Number) {
+            long ams = ((Number) input).longValue();
+            if (ams <= 0) {
+                return vd.getDefaultAs();
+            }
+        }
         // 尝试解析
         try {
             String datePrefix = vd.getDatePrefix();

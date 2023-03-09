@@ -4,7 +4,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.titanium.util.TiDict;
 import org.nutz.walnut.util.Ws;
 
-public class TiGenImportMappingAsForm extends TiGenExportMappingAsForm {
+public class TiGenImportMappingByForm extends TiGenExportMappingByForm {
 
     @Override
     protected void __join_one_key(String name,

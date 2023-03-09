@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.data.titanium.impl;
 
 import org.nutz.lang.util.NutMap;
 
-public class TiGenImportMappingAsTable extends TiGenExportMappingAsTable {
+public class TiGenImportMappingByTable extends TiGenExportMappingByTable {
 
     @Override
     protected void __join_one_display_key(String key, String ftitle, boolean asDft, NutMap dis) {

@@ -9,6 +9,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.ext.data.titanium.WnI18nService;
 import org.nutz.walnut.ext.data.titanium.api.TiGenMapping;
 import org.nutz.walnut.impl.box.JvmHdl;
 import org.nutz.walnut.impl.box.JvmHdlContext;
@@ -30,6 +31,8 @@ public class ti_gen_mapping implements JvmHdl {
         String type = hc.params.val(0, "export");
         String forceFieldType = hc.params.getString("fldt", null);
         String getKey = hc.params.getString("get");
+        String lang = hc.params.getString("lang", "zh-cn");
+        String i18n = hc.params.getString("i18n", "/rs/ti/i18n/");
 
         // 读取字段
         String json;
@@ -58,6 +61,9 @@ public class ti_gen_mapping implements JvmHdl {
             }
         });
 
+        // 准备多国语言服务
+        WnI18nService i18ns = ti_i18n.createI18nService(sys, lang, i18n);
+
         // 解析字典
         String dictsJson = null;
         String dicts = hc.params.get("dicts");
@@ -79,6 +85,8 @@ public class ti_gen_mapping implements JvmHdl {
         gm.setBlackList(blackList);
         gm.setDicts(dictsJson);
         gm.setForceFieldType(forceFieldType);
+        gm.setI18ns(i18ns);
+        gm.setLang(lang);
 
         // 输出
         NutMap mapping = gm.genMapping(fields);
