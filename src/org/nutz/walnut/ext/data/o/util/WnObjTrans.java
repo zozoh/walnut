@@ -49,7 +49,7 @@ public class WnObjTrans {
     }
 
     public void loadExplainFrom(WnSystem sys, ZParams params) {
-        String exs = params.getString("explain");
+        String exs = params.getString("explain", null);
         if (params.has("explainBy")) {
             String exPh = params.getString("explainBy");
             WnObj oEx = Wn.checkObj(sys, exPh);
