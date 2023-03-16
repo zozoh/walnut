@@ -131,16 +131,15 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 Object val = en.getValue();
 
                 WnBeanField fld = this.get(key);
-                if (!this.isFieldNameCanOutput(fld)) {
-                    continue;
-                }
 
                 // 未声明映射字段，直接 copy
                 if (null == fld) {
-                    re.put(key, val);
+                    if (this.isFieldNameCanOutput(key)) {
+                        re.put(key, val);
+                    }
                 }
                 // 执行映射
-                else {
+                else if (this.isFieldNameCanOutput(fld)) {
                     __map_bean_field_val(re, fld, val, key);
                 }
 
@@ -156,6 +155,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     private boolean isFieldNameCanOutput(WnBeanField fld) {
         String name = fld.getName();
+        return isFieldNameCanOutput(name);
+    }
+
+    protected boolean isFieldNameCanOutput(String name) {
         if (null == name) {
             return false;
         }
