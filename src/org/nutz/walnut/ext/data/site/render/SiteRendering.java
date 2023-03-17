@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.data.site.render;
 
+import java.util.HashMap;
 import java.util.List;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
@@ -179,7 +180,9 @@ public class SiteRendering {
         }
         // 文件复制
         else if (oFrom.isFILE() && oTo.isFILE()) {
-            io.copyData(oFrom, oTo);
+            // 递归链接目录
+            WnObj oRealFrom = Wn.real(oFrom, io, new HashMap<>());
+            io.copyData(oRealFrom, oTo);
         }
     }
 
