@@ -41,6 +41,7 @@ public class site_render extends SiteFilter {
         SiteRendering rendering = new SiteRendering(sys, conf);
         rendering.setJsonMode(params.is("json"));
         rendering.setArchiveIds(params.vals);
+        rendering.setAppJsonPath(params.getString("app", null));
         rendering.setArchiveSetName(arName);
         rendering.setWillCopyFiles(params.is("copy"));
         rendering.setWillRenderPages(params.is("page"));

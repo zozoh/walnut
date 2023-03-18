@@ -14,6 +14,15 @@
   "vars":{
     "rs" : "/"
   },
+  // 一个 WnExplaing 提取出要更新到 app.vars 的对象
+  "appVars": {
+    "base":"=base",
+    "apiBase":"=apiBase",
+    "cdnTmpl":"=cdnTmpl",
+    "rs":"=rs",
+    "lang":"=lang?en_uk",
+    "siteRs":"=siteRs"
+  },
   // 渲染哪些归档
   "archives": [
     {
@@ -90,6 +99,7 @@
 site render
   [ID, ID ..]               # 可以指定多个归档的 ID
   [-r]                      # 指定 ID 模式下，默认不递归，这个选项可以强制递归
+  [-app _app.json]          # 指定应用主配置的路径，如果不指定，则不渲染
   [-conf conf.json]         # 渲染的配置文件路径
   [-target ~/wwww/website]  # 指明目标输出目录，将覆盖 conf.target
   [-langs en_uk,zh_cn]      # 指明输出语言，将覆盖 conf.langs

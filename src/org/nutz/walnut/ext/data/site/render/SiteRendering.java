@@ -2,6 +2,9 @@ package org.nutz.walnut.ext.data.site.render;
 
 import java.util.HashMap;
 import java.util.List;
+
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
@@ -25,6 +28,8 @@ public class SiteRendering {
 
     WnObj siteHome;
 
+    String appJsonPath;
+
     String archiveSetName;
     String[] archiveIds;
 
@@ -41,7 +46,7 @@ public class SiteRendering {
     String[] langs;
 
     String markKey;
-    
+
     boolean willRecur;
 
     WnmlService wnmls;
@@ -118,6 +123,23 @@ public class SiteRendering {
 
         // 分析归档ID
         boolean arMode = !Ws.isBlank(this.archiveSetName) || ids.length > 0;
+
+        // 渲染 _app.json
+        if (config.hasAppVars() && !Ws.isBlank(appJsonPath)) {
+            LOG("Render _app.json");
+            // 读取 _app.json
+            WnObj oAppJson = io.check(this.siteHome, appJsonPath);
+            NutMap app = io.readJson(oAppJson, NutMap.class);
+            // 渲染 appvars
+            NutMap gvars = this.getGloabalVars();
+            Object appVars = Wn.explainObj(gvars, config.getAppVars());
+            app.put("vars", appVars);
+            // 写入到目标
+            WnObj oAppTa = this.createTargetFile(oAppJson.name());
+            String appJson = Json.toJson(app, JsonFormat.nice());
+            io.writeText(oAppTa, appJson);
+            LOGf(" >> %s :\n%s", oAppTa.path(), appJson);
+        }
 
         // 复制文件
         if (config.hasCopyFiles()) {
@@ -254,6 +276,14 @@ public class SiteRendering {
 
     }
 
+    public String getAppJsonPath() {
+        return appJsonPath;
+    }
+
+    public void setAppJsonPath(String appJsonPath) {
+        this.appJsonPath = appJsonPath;
+    }
+
     public SitePageRenderConfig getConfig() {
         return config;
     }
@@ -354,6 +384,4 @@ public class SiteRendering {
         this.willRecur = willRecur;
     }
 
-    
 }
-

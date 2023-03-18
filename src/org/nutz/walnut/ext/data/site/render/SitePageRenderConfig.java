@@ -27,6 +27,11 @@ public class SitePageRenderConfig {
     private NutMap vars;
 
     /**
+     * 一个 WnExplaing 提取出要更新到 app.vars 的对象
+     */
+    private NutMap appVars;
+
+    /**
      * 渲染哪些归档
      */
     private SiteRenderArchive[] archives;
@@ -75,6 +80,18 @@ public class SitePageRenderConfig {
 
     public void setVars(NutMap vars) {
         this.vars = vars;
+    }
+
+    public boolean hasAppVars() {
+        return null != appVars && !appVars.isEmpty();
+    }
+
+    public NutMap getAppVars() {
+        return appVars;
+    }
+
+    public void setAppVars(NutMap appVars) {
+        this.appVars = appVars;
     }
 
     public String getTarget() {
