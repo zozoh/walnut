@@ -7,9 +7,14 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.util.Ws;
 
@@ -45,6 +50,38 @@ public class WnDataSyncItem {
 
     public WnDataSyncItem(WnObj o, String homePath) {
         this.setObj(o, homePath);
+    }
+
+    /**
+     * @return 一个用来过滤本记录的对象
+     */
+    public NutMap getTestMap() {
+        NutMap map = new NutMap();
+        map.put("race", race.toString());
+        map.put("path", path);
+        return map;
+    }
+
+    /**
+     * 从包里加载的记录通常没有obj对象，这时候，可以通过这个函数加载出来。
+     * <p>
+     * 通常是，从压缩包里加载的树，恢复后，通过遍历树可以得到新的ID映射关系
+     * 
+     * @return 加载后的对象
+     */
+    public WnObj loadObj(WnIo io, NutBean vars) {
+        String aph = Wn.normalizeFullPath(path, vars);
+        this.obj = io.fetch(null, aph);
+        return this.obj;
+    }
+
+    public WnObj loadObj(WnIo io, WnAuthSession se) {
+        NutBean vars = se.getVars();
+        return loadObj(io, vars);
+    }
+
+    public WnObj loadObj(WnSystem sys) {
+        return loadObj(sys.io, sys.session);
     }
 
     /**

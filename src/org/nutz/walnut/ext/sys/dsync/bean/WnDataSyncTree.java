@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.archive.WnArchiveSummary;
 
@@ -159,6 +160,14 @@ public class WnDataSyncTree {
 
     public void setName(String confName, String key) {
         this.name = confName + "-" + key;
+    }
+
+    public String getTreeName() {
+        if (null != treeObj) {
+            String nm = treeObj.name();
+            return Wpath.getMajorName(nm);
+        }
+        return null;
     }
 
     public WnObj getTreeObj() {
