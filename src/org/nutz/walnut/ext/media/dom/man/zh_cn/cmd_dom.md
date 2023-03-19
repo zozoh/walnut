@@ -33,6 +33,7 @@ dom [options] [[@filter filter-args...]...]
 @html        # 加载一个 HTML 文档
 @mutate      # 操作 DOM 节点，根据配置修改节点
 @refimg      # 寻找指定的图片节点，修改映射的 ID
+@transattr   # 将当前 dom 指定节点属性，映射到新值
 @reset       # 重置当前操作节点
 @json        # 将上下文内容按照 JSON 输出
 ```
