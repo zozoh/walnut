@@ -14,6 +14,7 @@ import org.nutz.walnut.ext.sys.dsync.bean.WnDataSyncItem;
 import org.nutz.walnut.ext.sys.dsync.bean.WnDataSyncTree;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Cmds;
+import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
@@ -75,6 +76,13 @@ public class dsync_ids extends DSyncFilter {
 
                 if (asId) {
                     WnObj o = it.loadObj(sys);
+                    if (null == o) {
+                        // 可能是路径问题，尝试格式化以后再加载
+                        String ph = it.getPath().replaceAll("[(\\[\\])]", "");
+                        String aph = Wn.normalizeFullPath(ph, sys);
+                        System.out.printf("Fail to load obj: %s : retry : %s\n", it.toString(), aph);
+                        o = sys.io.fetch(null, aph);
+                    }
                     mapV = null == o ? null : o.id();
                 }
                 re.put(oldId, mapV);
