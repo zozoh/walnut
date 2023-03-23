@@ -1,13 +1,14 @@
 package org.nutz.walnut.impl.box.cmd;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 import org.nutz.walnut.util.Wtime;
 
@@ -36,7 +37,7 @@ public class cmd_date extends JvmExecutor {
         // 从管线里
         else if (sys.pipeId > 0) {
             String s = Strings.trim(sys.in.readAll());
-            now = Times.D(s).getTime();
+            now = Wtime.parseAMS(s);
         }
         // 当前时间
         else {
@@ -45,7 +46,9 @@ public class cmd_date extends JvmExecutor {
 
         // -fmt
         if (params.has("fmt")) {
-            sys.out.print(Times.format(params.get("fmt"), Times.D(now)));
+            String fmt = params.getString("fmt");
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, fmt));
         }
         // -ss
         else if (params.is("ss")) {
@@ -61,41 +64,60 @@ public class cmd_date extends JvmExecutor {
         }
         // -full
         else if (params.is("full")) {
-            sys.out.print(Times.D(now).toString());
+            Date d = new Date(now);
+            sys.out.print(d.toString());
         }
         // -dt
         else if (params.is("dt")) {
-            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss"));
         }
         // -dtms
         else if (params.is("dtms")) {
-            sys.out.print(Times.format("yyyy-MM-dd HH:mm:ss.SSS", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS"));
         }
         // -dtt
         else if (params.is("dtt")) {
-            sys.out.print(Times.format("yyyy-MM-dd'T'HH:mm:ss", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss"));
         }
         // -dtms
         else if (params.is("dtmst")) {
-            sys.out.print(Times.format("yyyy-MM-dd'T'HH:mm:ss.SSS", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss.SSS"));
         }
         // -time
         else if (params.is("time")) {
-            sys.out.print(Times.format("HH:mm:ss", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "HH:mm:ss"));
         }
         // -timems
         else if (params.is("timems")) {
-            sys.out.print(Times.format("HH:mm:ss.SSS", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "HH:mm:ss.SSS"));
         }
         // -zone
         else if (params.is("zone")) {
+            WnContext wc = Wn.WC();
+            TimeZone tz = wc.getTimeZone();
+            if (null == tz) {
+                sys.out.print("-no-set-");
+            } else {
+                sys.out.printf("%s%s", tz.getDisplayName(), tz.getRawOffset());
+            }
+
+        }
+        // -zone
+        else if (params.is("syszone")) {
             Calendar c = Calendar.getInstance();
             TimeZone zo = c.getTimeZone();
             sys.out.printf("%s%s", zo.getDisplayName(), zo.getRawOffset());
         }
         // 默认
         else {
-            sys.out.print(Times.format("yy-MM-dd HH:mm:ss", Times.D(now)));
+            Date d = new Date(now);
+            sys.out.print(Wtime.format(d, "yy-MM-dd HH:mm:ss"));
         }
 
         if (!params.is("n"))

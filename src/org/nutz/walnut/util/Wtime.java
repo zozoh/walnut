@@ -47,7 +47,13 @@ public abstract class Wtime {
     }
 
     public static String format(Date d, String fmt) {
-        return new SimpleDateFormat(fmt, Locale.ENGLISH).format(d);
+        WnContext wc = Wn.WC();
+        TimeZone tz = wc.getTimeZone();
+        SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
+        if (null != tz) {
+            formater.setTimeZone(tz);
+        }
+        return formater.format(d);
     }
 
     public static long parseAMS(String ds) {
@@ -110,6 +116,12 @@ public abstract class Wtime {
         // 防守
         if (null == ds) {
             return null;
+        }
+
+        // 采用默认时区
+        if (null == tz) {
+            WnContext wc = Wn.WC();
+            tz = wc.getTimeZone();
         }
 
         // 绝对毫秒数

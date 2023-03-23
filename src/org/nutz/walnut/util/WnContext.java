@@ -2,6 +2,7 @@ package org.nutz.walnut.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,8 @@ public class WnContext extends NutMap {
     private boolean synctime_off;
 
     private WnHookContext hookContext;
+
+    private TimeZone timeZone;
 
     public long _timestamp;
 
@@ -170,6 +173,14 @@ public class WnContext extends NutMap {
 
     public WnHookContext getHookContext() {
         return hookContext;
+    }
+
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     public void setHookContext(WnHookContext hookContext) {

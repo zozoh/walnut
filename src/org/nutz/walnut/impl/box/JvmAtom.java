@@ -1,5 +1,7 @@
 package org.nutz.walnut.impl.box;
 
+import java.util.TimeZone;
+
 import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
@@ -111,6 +113,17 @@ class JvmAtom extends JvmCmd implements Atom {
         // 如果不是父线程运行的，则 copy 父线程变量
         if (parentContext != wc) {
             wc.putAll(parentContext);
+        }
+
+        // 从会话中获得时区
+        String tzName = sys.session.getVars().getString("TIMEZONE", "GMT+8").toUpperCase();
+        TimeZone tZone = null;
+        // 检查一下必须是标准时区 GMT[+-]8
+        if (tzName.matches("^GMT[+-]1?[0-9]$")) {
+            tZone = TimeZone.getTimeZone(tzName);
+        }
+        if(null!=tZone) {
+            wc.setTimeZone(tZone);
         }
 
         // 设置钩子，安全接口，等，然后运行
