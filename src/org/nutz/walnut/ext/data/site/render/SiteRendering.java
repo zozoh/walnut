@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.WnOutputable;
 import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.api.err.Er;
@@ -19,6 +20,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wobj;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
 public class SiteRendering {
 
@@ -48,6 +50,12 @@ public class SiteRendering {
     String markKey;
 
     boolean willRecur;
+
+    String before;
+
+    String after;
+
+    WnExecutable run;
 
     WnmlService wnmls;
 
@@ -382,6 +390,68 @@ public class SiteRendering {
 
     public void setWillRecur(boolean willRecur) {
         this.willRecur = willRecur;
+    }
+
+    public String getBefore() {
+        return before;
+    }
+
+    public void setBefore(String before) {
+        this.before = before;
+        if (Ws.isBlank(before)) {
+            _before = null;
+        } else {
+            _before = WnTmpl.parse(before);
+        }
+    }
+
+    public boolean hasBefore() {
+        return null != _before;
+    }
+
+    private WnTmpl _before;
+
+    public WnTmpl getBeforeTmpl() {
+        return _before;
+    }
+
+    public String getAfter() {
+        return after;
+    }
+
+    public void setAfter(String after) {
+        this.after = after;
+        if (Ws.isBlank(after)) {
+            _after = null;
+        } else {
+            _after = WnTmpl.parse(after);
+        }
+    }
+
+    public boolean hasAfter() {
+        return null != _after;
+    }
+
+    private WnTmpl _after;
+
+    public WnTmpl getAfterTmpl() {
+        return _after;
+    }
+
+    public boolean canRunCommand() {
+        return null != run;
+    }
+
+    public String exec2(String cmdText) {
+        return run.exec2(cmdText);
+    }
+
+    public WnExecutable getRun() {
+        return run;
+    }
+
+    public void setRun(WnExecutable run) {
+        this.run = run;
     }
 
 }

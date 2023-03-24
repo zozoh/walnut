@@ -112,6 +112,8 @@ site render
                             # 结果集合 {arID:[path1,path2,paht3]
   [-mark pub_targets]       # 将归档发布的结果放置到一个归档对象的某个键里以备将来
                             # 查看发布状态
+  [-before 'comman ${xx}']  # 命令模板，发布一个归档前调用
+  [-after  'comman ${xx}']  # 命令模板，发布一个归档后调用
   [-cqn]                    # json模式下输出json的格式
 ```
 

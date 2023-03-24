@@ -50,6 +50,9 @@ public class site_render extends SiteFilter {
         rendering.setWillRecur(params.is("r"));
         rendering.updateLangs(langs);
         rendering.updateTargetHome(targetPath);
+        rendering.setBefore(params.getString("before"));
+        rendering.setAfter(params.getString("after"));
+        rendering.setRun(sys);
 
         // 执行
         rendering.render();

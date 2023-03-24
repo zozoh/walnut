@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -21,6 +23,7 @@ import org.nutz.walnut.ext.media.imagic.filter.RotateImagicFilter;
 import org.nutz.walnut.ext.media.imagic.filter.ScaleImagicFilter;
 import org.nutz.walnut.impl.box.JvmExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wpath;
 import org.nutz.walnut.util.Ws;
@@ -54,7 +57,7 @@ public class cmd_imagic extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 解析一下参数
-        ZParams params = ZParams.parse(args, "^(stream)$");
+        ZParams params = ZParams.parse(args, "cqn", "^(quiet|stream)$");
         // 解析源图片
         BufferedImage image = null;
         String sourcePath = null;
@@ -139,22 +142,23 @@ public class cmd_imagic extends JvmExecutor {
         }
         // 输出到哪里呢?
         OutputStream outs = null;
+        WnObj oOut = null;
         try {
             if (params.has("out")) {
                 // 有输出路径
-                if ("inplace".equals(out)) {
+                if ("~self~".equals(out)) {
                     out = sourcePath;
                 } else {
                     out = Wn.normalizeFullPath(out, sys);
                 }
-                WnObj wobjOut = sys.io.createIfNoExists(null, out, WnRace.FILE);
-                outs = sys.io.getOutputStream(wobjOut, 0);
+                oOut = sys.io.createIfNoExists(null, out, WnRace.FILE);
+                outs = sys.io.getOutputStream(oOut, 0);
                 if (!params.is("stream")) {
                     NutMap meta = new NutMap();
                     meta.put("width", image.getWidth());
                     meta.put("height", image.getHeight());
                     meta.put("mime", "image/" + ofmt.toLowerCase());
-                    sys.io.appendMeta(wobjOut, meta);
+                    sys.io.appendMeta(oOut, meta);
                 }
             } else {
                 outs = sys.out.getOutputStream();
@@ -163,6 +167,13 @@ public class cmd_imagic extends JvmExecutor {
         }
         finally {
             Streams.safeClose(outs);
+        }
+
+        // 最后输出
+        if (null != oOut && !params.is("quiet")) {
+            JsonFormat jfmt = Cmds.gen_json_format(params);
+            String str = Json.toJson(oOut, jfmt);
+            sys.out.println(str);
         }
     }
 
