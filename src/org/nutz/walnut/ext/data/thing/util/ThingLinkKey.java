@@ -37,7 +37,7 @@ public class ThingLinkKey {
         NutMap bean = NutMap.WRAP(map);
         this.testPrimary = bean.get("testPrimary");
         this.testUpdate = bean.get("testUpdate");
-        this.testUpdate = bean.get("match");
+        this.match = bean.get("match");
         this.strict = bean.getBoolean("strict");
         NutMap ta = bean.getAs("target", NutMap.class);
         this.target = null == ta ? null : new ThingLinkKeyTarget(ta);
@@ -69,8 +69,13 @@ public class ThingLinkKey {
         this.testPrimary = testPrimary;
     }
 
+    private WnMatch __test_primary;
+
     public boolean matchTestPrimary(NutBean meta) {
-        return matchTest(meta, testPrimary);
+        if (null == __test_primary) {
+            __test_primary = AutoMatch.parse(testPrimary, true);
+        }
+        return __test_primary.match(meta);
     }
 
     public Object getTestUpdate() {
@@ -81,17 +86,13 @@ public class ThingLinkKey {
         this.testUpdate = testUpdate;
     }
 
-    public boolean matchTestUpdate(NutBean meta) {
-        return matchTest(meta, testUpdate);
-    }
+    private WnMatch __test_update;
 
-    private boolean matchTest(NutBean meta, Object test) {
-        if (null != test) {
-            WnMatch m = new AutoMatch(test);
-            return m.match(meta);
+    public boolean matchTestUpdate(NutBean meta) {
+        if (null == __test_update) {
+            __test_update = AutoMatch.parse(testUpdate, true);
         }
-        // 默认，没有的话永远为真，因为用户不设置 test 条件么
-        return true;
+        return __test_update.match(meta);
     }
 
     public boolean hasMatch() {

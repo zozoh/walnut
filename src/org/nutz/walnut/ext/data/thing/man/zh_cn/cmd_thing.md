@@ -8,13 +8,13 @@
 
 ```bash
 thing [ThingSetID] ACTION [options] 
-        [-json "{..}] [-tmpl "TMPL"] [-N] [-Q]
+        [-json "{..}"] [-tmpl "TMPL"] [-N] [-Q]
     
 - ThingSetID 「选」指代 ThingSet 的ID，默认为当前目录
 - ACTION     默认为 "get"，具体支持的 Action 看后续列表
 - options    根据不同的 ACTION 意义不同
     
-下面是所有子命令都支持的参数:
+# 下面是所有子命令都支持的参数:
     
 -e      输出对象字段的时候，符合正则表达式的字段才会被输出，如果以 ! 开头，表示取反
     
