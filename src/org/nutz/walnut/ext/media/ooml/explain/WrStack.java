@@ -11,6 +11,7 @@ import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECopyText;
+import org.nutz.walnut.ext.media.ooml.explain.bean.OEDeepCopyNode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEHyper;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OENode;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEPicture;
@@ -348,6 +349,15 @@ public class WrStack {
         void genNodeForElement(OENode pNode, CheapNode node) {
             if (node.isElement()) {
                 CheapElement el = (CheapElement) node;
+                // 属性复制
+                if (el.isTagAs("^(w:rPr)$")) {
+                    OEDeepCopyNode cp = OEDeepCopyNode.create(el);
+                    pNode.addChild(cp);
+                    return;
+                }
+                //
+                // 其他节点递归复制
+                //
                 OECopyNode t = new OECopyNode();
                 t.setRefer(el);
                 pNode.addChild(t);

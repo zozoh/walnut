@@ -11,7 +11,7 @@ public abstract class OEVarItem extends OEItem {
     }
 
     public void setVarName(String varName) {
-        this.varName = varName;
+        this.varName = Ws.trim(varName).replaceAll("\\s+", "");
     }
 
     public String toBrief() {

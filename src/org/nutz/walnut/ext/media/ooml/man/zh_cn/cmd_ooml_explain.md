@@ -8,7 +8,9 @@
 
 ```bash
 ooml @explain
-  [-in ~/path/to.json]     # 指定变量集文件路径，如果没有，则从标准输入读取
+  [-in ~/path/to.json]       # 指定变量集文件路径，如果没有，则从标准输入读取
+  [-debug word/document.xml] # 仅仅输出指定实体的模板解析结构
+                             # 如果仅写 -debug 相当于 word/document.xml
 ```
 
 # 示例

@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
+import org.nutz.json.JsonField;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.api.CheapResourceLoader;
 import org.nutz.walnut.cheap.dom.CheapElement;
@@ -13,22 +14,26 @@ public abstract class OEItem {
 
     protected CheapElement refer;
 
+    @JsonField(ignore = true)
     protected OENode parent;
 
     /**
      * 对应的 ooml 包
      */
+    @JsonField(ignore = true)
     protected OomlPackage ooml;
 
     /**
      * 本次渲染对应的实体，譬如 document.xml。 通过这个实体，根据约定，可以得到 Relationship 列表等。
      */
+    @JsonField(ignore = true)
     protected OomlEntry entry;
 
     /**
      * 如何加载外部资源。
      * 
      */
+    @JsonField(ignore = true)
     protected CheapResourceLoader loader;
 
     public abstract CheapElement renderTo(CheapElement pEl, NutBean vars);

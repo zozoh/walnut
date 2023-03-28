@@ -41,7 +41,7 @@ public class OECondition extends OENode {
     }
 
     public void setMatch(String match) {
-        String s = match.replaceAll("[“”]", "\"");
+        String s = match.replaceAll("[“”]", "\"").trim();
         Object input;
         if (Ws.isQuoteBy(s, '[', ']')) {
             input = Json.fromJson(s);

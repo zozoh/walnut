@@ -50,10 +50,12 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
      * 
      * @param canEnterNode
      *            是否会主动尝试递归子节点
+     * @param pNodeIsParent
+     *            pNode 已经被重置为正确的父节点，这里就不需要重置了
      * 
      * @return true 可以继续解析， false 表示没有可以解析的节点了
      */
-    private boolean prepareParseNext(boolean canEnterNode) {
+    private boolean prepareParseNext(boolean canEnterNode, boolean pNodeIsParent) {
         // 防守
         if (null == currentEL || null == pNode) {
             return false;
@@ -68,7 +70,8 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
                 return true;
             }
         }
-        // 下一个
+
+        // 1. 有下一个节点 ...
         el = currentEL.getNextElement();
         if (null != el) {
             // 防守
@@ -76,12 +79,14 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
                 return false;
             }
             this.currentEL = el;
-            if (!pNode.isVirtualNode()) {
+            // loop/condition/branch 等虚节点可以不断接受后续的节点作为自己的子节点
+            if (!pNode.isVirtualNode() && !pNodeIsParent) {
                 this.pNode = pNode.getParent();
             }
             return true;
         }
-        // 退回一级，并下一个
+
+        // 2. 退回一级，并下一个 ..
         do {
             currentEL = currentEL.parentElement();
             pNode = pNode.getParent();
@@ -109,16 +114,29 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
     private static final Pattern P3 = Pattern.compile(R3);
 
     static class ParseResult {
-        OENode next;
+        OENode node;
+        // 当前节点完整解析完了，不要再继续递归进入了
         boolean doneForCurrent;
+        // 返回的的节点就是当前节点的父节点，所以prepare的时候就不要回退了
+        boolean nodeIsParent;
 
         ParseResult(OENode next, boolean doneForCurrent) {
-            this.next = next;
+            this(next, doneForCurrent, false);
+        }
+
+        ParseResult(OENode next, boolean doneForCurrent, boolean nodeIsParent) {
+            this.node = next;
             this.doneForCurrent = doneForCurrent;
+            this.nodeIsParent = nodeIsParent;
         }
     }
 
     private ParseResult parseCurrent(OENode pNode, CheapElement el) {
+        // 这些元素就无脑深层复制了
+        if (el.isTagAs("^w:((tbl|tr|tc|r|p)Pr|tblGrid)$")) {
+            return __parse_as_deep_copy(pNode, el);
+        }
+
         boolean isP = el.isTagName("w:p");
         boolean isTr = el.isTagName("w:tr");
 
@@ -179,7 +197,7 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
             p = p.getParent();
         }
 
-        return new ParseResult(p.getParent(), true);
+        return new ParseResult(p.getParent(), true, true);
     }
 
     private ParseResult __parse_as_else(OENode pNode, CheapElement el) {
@@ -279,7 +297,8 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         WrStack rStack = new WrStack(ooml, this.entry);
 
         // 循环处理
-        List<CheapElement> runs = el.getChildElements(ch -> ch.isTagName("w:r")||ch.isTagName("w:hyperlink"));
+        List<CheapElement> runs = el.getChildElements(ch -> ch.isTagName("w:r")
+                                                            || ch.isTagName("w:hyperlink"));
         for (CheapElement r : runs) {
             rStack.push(cp, r);
         }
@@ -295,6 +314,12 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         OECopyNode cp = OECopyNode.create(el);
         pNode.addChild(cp);
         return new ParseResult(cp, false);
+    }
+
+    private ParseResult __parse_as_deep_copy(OENode pNode, CheapElement el) {
+        OEDeepCopyNode cp = OEDeepCopyNode.create(el);
+        pNode.addChild(cp);
+        return new ParseResult(cp, true);
     }
 
     private void processXML(OomlEntry en, NutBean vars) {
@@ -330,10 +355,12 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         pNode = OECopyNode.create(currentEL);
         OENode rootNode = pNode;
         boolean canEnterNode = true;
-        while (this.prepareParseNext(canEnterNode)) {
+        boolean pNodeIsParent = false;
+        while (this.prepareParseNext(canEnterNode, pNodeIsParent)) {
             ParseResult re = parseCurrent(this.pNode, this.currentEL);
-            this.pNode = re.next;
+            this.pNode = re.node;
             canEnterNode = !re.doneForCurrent;
+            pNodeIsParent = re.nodeIsParent;
         }
 
         // 必要的设置

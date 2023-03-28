@@ -23,6 +23,11 @@ public class ooml_view extends OomlFilter {
     @Override
     protected void process(WnSystem sys, OomlContext fc, ZParams params) {
         OomlEntry en = fc.currentEntry;
+        String enPath = params.val(0);
+        if (!Ws.isBlank(enPath)) {
+            en = fc.ooml.getEntry(enPath);
+        }
+
         if (null == en) {
             sys.err.println("Nil Current Entry");
             return;

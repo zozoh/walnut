@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.mapl.Mapl;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.util.Ws;
 
@@ -21,13 +22,13 @@ public class OELoop extends OENode {
 
     public String toBrief() {
         String s = super.toBrief();
-        return String.format("%s : $<%s>", s, loopWith);
+        return String.format("%s : $<%s> = %s", s, loopWith, varName);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public CheapElement renderTo(CheapElement pEl, NutBean vars) {
-        Object list = vars.get(loopWith);
+        Object list = Mapl.cell(vars, loopWith);
         // 防空
         if (null == list || !hasChildren()) {
             return pEl;
@@ -80,7 +81,7 @@ public class OELoop extends OENode {
     }
 
     public void setVarName(String varName) {
-        this.varName = varName;
+        this.varName = Ws.trim(varName);
     }
 
     public String getVarName() {
@@ -92,7 +93,7 @@ public class OELoop extends OENode {
     }
 
     public void setKeyName(String keyName) {
-        this.keyName = keyName;
+        this.keyName = Ws.trim(keyName);
     }
 
     public String getLoopWith() {
@@ -100,7 +101,7 @@ public class OELoop extends OENode {
     }
 
     public void setLoopWith(String listName) {
-        this.loopWith = listName;
+        this.loopWith = Ws.trim(listName);
     }
 
 }

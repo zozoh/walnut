@@ -1,9 +1,11 @@
 package org.nutz.walnut.ext.media.ooml.explain.bean;
 
+import java.util.List;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.cheap.dom.CheapElement;
 
-public class OEDeepCopyNode extends OEItem {
+public class OEDeepCopyNode extends OENode {
 
     public static OEDeepCopyNode create(CheapElement el) {
         OEDeepCopyNode cn = new OEDeepCopyNode();
@@ -26,6 +28,22 @@ public class OEDeepCopyNode extends OEItem {
 
         // 搞定后返回自己
         return el;
+    }
+
+    @Override
+    public boolean hasChildren() {
+        return false;
+    }
+
+    @Override
+    public void addChild(OEItem node) {}
+
+    @Override
+    public void clearChildren() {}
+
+    @Override
+    public List<OEItem> getChildren() {
+        return null;
     }
 
 }
