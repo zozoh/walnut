@@ -30,6 +30,9 @@ public class thing_create implements JvmHdl {
         String ukey = hc.params.getString("unique", null);
         String json = Cmds.getParamOrPipe(sys, hc.params, "fields", false);
         String process = hc.params.getString("process", null);
+        if ("<auto>".equals(process)) {
+            process = "${P}: ${id} : ${title|abbr|nickname|nm}";
+        }
 
         // 准备后续执行
         String afterCmd = hc.params.getString("after", null);
