@@ -190,6 +190,11 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     Object av3 = WnValues.toValue(af, av2);
                     if (null != av3 || !af.isIgnoreNull()) {
                         re.put(ka, av3);
+
+                        // 别名用来补充主字段的映射
+                        if (null == v3 && null != av3 && k2.equals(ka)) {
+                            v3 = av3;
+                        }
                     }
                 }
             }
