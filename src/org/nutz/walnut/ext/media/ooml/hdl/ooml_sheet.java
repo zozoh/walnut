@@ -16,7 +16,8 @@ public class ooml_sheet extends OomlFilter {
     @Override
     protected void process(WnSystem sys, OomlContext fc, ZParams params) {
         String sheetId = params.getString("id");
-        String sheetName = params.val(0);
+        String sheetName = params.getString("name");
+        int index = params.val_int(0, 0);
 
         // 指定了 ID
         if (!Ws.isBlank(sheetId)) {
@@ -28,7 +29,7 @@ public class ooml_sheet extends OomlFilter {
         }
         // 默认获取第一个
         else {
-            fc.sheet = fc.workbook.getSheet(0);
+            fc.sheet = fc.workbook.getSheet(index);
         }
     }
 
