@@ -13,6 +13,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wtime;
 
 public class WnObjTable {
 
@@ -166,11 +167,11 @@ public class WnObjTable {
     private String __tm(long ms) {
         StringBuilder sb = new StringBuilder();
         Date lm = new Date(ms);
-        sb.append(Strings.alignRight(Times.format("M", lm), 2, ' '));
+        sb.append(Strings.alignRight(Wtime.format(lm, "M"), 2, ' '));
         sb.append(' ');
-        sb.append(Strings.alignRight(Times.format("d", lm), 2, ' '));
+        sb.append(Strings.alignRight(Wtime.format(lm, "d"), 2, ' '));
         sb.append(' ');
-        sb.append(Times.format("HH:mm", lm)).append(' ');
+        sb.append(Wtime.format(lm, "HH:mm")).append(' ');
         return sb.toString();
     }
 
