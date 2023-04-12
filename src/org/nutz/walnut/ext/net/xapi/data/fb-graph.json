@@ -100,7 +100,7 @@
             "path": true,
             "headers": false,
             "params": true,
-            "expiIn": "1728000",
+            "expiIn": "59200",
             "expiUnit": "s"
         }
       }
