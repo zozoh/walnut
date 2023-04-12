@@ -1,0 +1,56 @@
+{
+  "base": "https://api.openai.com/v1/",
+  "timeout": 60000,
+  "connectTimeout": 10000,
+  "home": "~/.xapi/chatgpt/",
+  "apiCachePath": "api-cache",
+  "configFilePath": "config.json",
+  "accessKeyFilePath": "access_token",
+  "accessKeyObj": {
+    "ticket": "=apiKey",
+    "expiTime": 7,
+    "expiTimeUnit": "d"
+  },
+  "requests": {
+    "completions": {
+      "path": "chat/completions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "->Bearer ${@AK}"
+      },
+      "dataType": "json",
+      "bodyType": "json",
+      "body": {
+        "model": "=model?gpt-4",
+        "messages": "=messages",
+        "max_tokens": "=max_tokens?=7",
+        "temperature": "=temperature?=0"
+      },
+      "cache": {
+        "path": true,
+        "headers": true,
+        "params": true,
+        "body": true,
+        "expiIn": "600",
+        "expiUnit": "s"
+      }
+    },
+    "models": {
+      "path": "models",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "->Bearer ${@AK}"
+      },
+      "dataType": "json",
+      "cache": {
+        "path": true,
+        "headers": true,
+        "params": true,
+        "expiIn": "86400",
+        "expiUnit": "s"
+      }
+    }
+  }
+}
