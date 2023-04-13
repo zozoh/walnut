@@ -51,6 +51,19 @@ public class cmd_me extends JvmExecutor {
             // 持久化
             __do_save(sys, me);
         }
+        // 读取变量
+        else if (params.has("get")) {
+            NutMap jsonRe = NutMap.NEW();
+            me.mergeToBean(jsonRe);
+            String key = params.get("get");
+            Object val;
+            if (key.matches("^(passwd|salt|oauth_.+|wx_.+)$")) {
+                val = "******";
+            } else {
+                val = jsonRe.get(key);
+            }
+            sys.out.println(val);
+        }
         // 显示
         else {
             NutMap jsonRe = NutMap.NEW();
