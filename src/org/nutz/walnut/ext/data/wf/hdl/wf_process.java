@@ -56,6 +56,11 @@ public class wf_process extends WfFilter {
                 if (!isTest) {
                     node = fc.workflow.getNode(headName);
                     this.processWfActionElement(sys, fc, node);
+                    // 自动找到一个节点并执行，要不要后续再执行呢？
+                    // 这里看一下，是否有 auto=next 标记就好了
+                    if (null == node || node.isTAIL() || !node.isAutoNext()) {
+                        return;
+                    }
                 }
             }
             // 设置 CURRENT_NEXT
@@ -78,7 +83,7 @@ public class wf_process extends WfFilter {
         // 循环执行，直到触达【状态/尾】节点，或者未找到连通边为止
         while (true) {
             // 【退出点】节点非法，或者已达尾部（防止小贱人乱设置 CURRENT_NAME）
-            if (null == node || node.isTAIL()) {
+            if (null == node || node.isTAIL() ) {
                 return;
             }
 
