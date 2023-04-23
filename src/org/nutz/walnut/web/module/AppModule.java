@@ -2,7 +2,6 @@ package org.nutz.walnut.web.module;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,14 +36,12 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
-import org.nutz.walnut.api.io.WnSecurity;
-import org.nutz.walnut.ext.data.www.impl.WnWebService;
-import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.walnut.impl.srv.WnBoxRunning;
 import org.nutz.walnut.impl.srv.WnDomainService;
 import org.nutz.walnut.impl.srv.WwwSiteInfo;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.Wn.Session;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.web.bean.WnApp;
@@ -171,10 +168,10 @@ public class AppModule extends AbstractWnModule {
         try {
             // 得到应用
             WnApp app = apps.checkApp(appName);
-            
-            if(log.isDebugEnabled()) {
+
+            if (log.isDebugEnabled()) {
                 String envJson = Json.toJson(app.getSession().getVars(), JsonFormat.nice());
-                log.debugf("APP<%s>:%s:%s:%s:%s",appName,str,id,matchJson,envJson);
+                log.debugf("APP<%s>:%s:%s:%s:%s", appName, str, id, matchJson, envJson);
             }
 
             // 得到数据对象
@@ -557,7 +554,7 @@ public class AppModule extends AbstractWnModule {
                         log.infof("OK: check passwd");
                     }
                     // 确保用户是可以访问域主目录的
-                    __check_home_accessable(si.oHome, user);
+                    Session.checkHomeAccessable(io(), auth(), si.oHome, user);
                     if (log.isInfoEnabled()) {
                         log.infof("OK: check_home_accessable");
                     }
@@ -573,7 +570,13 @@ public class AppModule extends AbstractWnModule {
                     WnAuthSession se = auth().createSession(user, se_du);
 
                     // 更新会话元数据
-                    __update_auth_session(se, si.webs, si, byType, byValue);
+                    Session.updateAuthSession(auth(),
+                                              conf.getInitUsrEnvs(),
+                                              se,
+                                              si.webs,
+                                              si.oWWW,
+                                              byType,
+                                              byValue);
 
                     if (log.isInfoEnabled()) {
                         log.infof("OK: create session: %s : %s", byType, byValue);
@@ -686,13 +689,19 @@ public class AppModule extends AbstractWnModule {
                 WnAccount u = seDmn.getMe();
 
                 // 确保用户是可以访问域主目录的
-                __check_home_accessable(si.oHome, u);
+                Session.checkHomeAccessable(io(), auth(), si.oHome, u);
 
                 // 注册新会话
                 seSys = auth().createSession(u, true);
 
                 // 更新会话元数据
-                __update_auth_session(seSys, si.webs, si, byType, byValue);
+                Session.updateAuthSession(auth(),
+                                          conf.getInitUsrEnvs(),
+                                          seSys,
+                                          si.webs,
+                                          si.oWWW,
+                                          byType,
+                                          byValue);
             }
 
             // 准备返回数据
@@ -724,55 +733,5 @@ public class AppModule extends AbstractWnModule {
         // -----------------------------------------
         // 包裹返回
         return new ViewWrapper(view, reo);
-    }
-
-    private void __check_home_accessable(WnObj oHome, WnAccount user) {
-        WnSecurity secu = new WnSecurityImpl(io(), auth());
-        // 不能读，那么注销会话，并返回错误
-        if (!secu.test(oHome, Wn.Io.R, user)) {
-            throw Er.create("e.auth.home.forbidden");
-        }
-    }
-
-    private void __update_auth_session(WnAuthSession se,
-                                       WnWebService webs,
-                                       WwwSiteInfo si,
-                                       String byType,
-                                       String byValue) {
-        // 标注新会话的类型，以便指明用户来源
-        se.setByType(byType);
-        se.setByValue(byValue);
-
-        // 确保用户会话有足够的环境变量
-        NutMap vars = se.getVars();
-
-        // 先搞一轮站点的环境变量，这个要强制加上
-        for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            boolean force = key.startsWith("!");
-            // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
-            // 这样就不用为每个用户设置了。有些时候又希望千人千面。
-            // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
-            if (force) {
-                key = key.substring(1).trim();
-                vars.put(key, val);
-            }
-            // 弱弱的补充一下
-            else {
-                vars.putDefault(key, val);
-            }
-        }
-        // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
-        for (Map.Entry<String, Object> en : conf.getInitUsrEnvs().entrySet()) {
-            vars.putDefault(en.getKey(), en.getValue());
-        }
-
-        // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
-        vars.put(WnAuthSession.V_WWW_SITE_ID, si.oWWW.id());
-        vars.put(WnAuthSession.V_ROLE, se.getMe().getRoleName());
-
-        // 保存会话
-        auth().saveSession(se);
     }
 }

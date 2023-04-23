@@ -53,10 +53,13 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.io.WnSecurity;
+import org.nutz.walnut.ext.data.www.impl.WnWebService;
 import org.nutz.walnut.ext.sys.cron.WnSysCronApi;
 import org.nutz.walnut.ext.sys.schedule.WnSysScheduleApi;
 import org.nutz.walnut.ext.sys.task.WnSysTaskApi;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.impl.io.WnSecurityImpl;
 import org.nutz.web.Webs.Err;
 
 /**
@@ -606,6 +609,69 @@ public abstract class Wn {
             Ctx.set(wc);
         }
         return wc;
+    }
+
+    public static class Session {
+
+        public static void updateAuthSession(WnAuthService auth,
+                                             NutBean initUsrEnvs,
+                                             WnAuthSession se,
+                                             WnWebService webs,
+                                             WnObj oWWW,
+                                             String byType,
+                                             String byValue) {
+            // 标注新会话的类型，以便指明用户来源
+            if (!Ws.isBlank(byType))
+                se.setByType(byType);
+            if (!Ws.isBlank(byValue))
+                se.setByValue(byValue);
+
+            // 确保用户会话有足够的环境变量
+            NutMap vars = se.getVars();
+
+            // 先搞一轮站点的环境变量，这个要强制加上
+            for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                boolean force = key.startsWith("!");
+                // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
+                // 这样就不用为每个用户设置了。有些时候又希望千人千面。
+                // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
+                if (force) {
+                    key = key.substring(1).trim();
+                    vars.put(key, val);
+                }
+                // 弱弱的补充一下
+                else {
+                    vars.putDefault(key, val);
+                }
+            }
+            // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
+            if (null != initUsrEnvs) {
+                for (Map.Entry<String, Object> en : initUsrEnvs.entrySet()) {
+                    vars.putDefault(en.getKey(), en.getValue());
+                }
+            }
+
+            // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
+            vars.put(WnAuthSession.V_WWW_SITE_ID, oWWW.id());
+            vars.put(WnAuthSession.V_ROLE, se.getMe().getRoleName());
+
+            // 保存会话
+            auth.saveSession(se);
+        }
+
+        public static void checkHomeAccessable(WnIo io,
+                                               WnAuthService auth,
+                                               WnObj oHome,
+                                               WnAccount user) {
+            WnSecurity secu = new WnSecurityImpl(io, auth);
+            // 不能读，那么注销会话，并返回错误
+            if (!secu.test(oHome, Wn.Io.R, user)) {
+                throw Er.create("e.auth.home.forbidden");
+            }
+        }
+
     }
 
     public static class Service {

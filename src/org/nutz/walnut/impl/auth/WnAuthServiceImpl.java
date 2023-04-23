@@ -324,8 +324,9 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
     @Override
     public WnAuthSession createSession(WnAuthSession pse, WnAccount user, int se_du) {
-        NutMap by = Lang.map("by_tp", "session");
+        NutMap by = Lang.map("by_tp", WnAuthSession.V_BT_SESSION);
         by.put("by_val", pse.getId());
+        by.put(WnAuthSession.K_PSE_ID, pse.getId());
         return createSessionBy(se_du, user, by);
     }
 

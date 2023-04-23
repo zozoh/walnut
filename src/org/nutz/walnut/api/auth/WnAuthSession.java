@@ -28,6 +28,7 @@ public class WnAuthSession {
     public static final String V_ROLE = "ROLE";
     public static final String V_DEPT = "DEPT";
     public static final String V_JOBS = "JOBS";
+    public static final String K_PSE_ID = "pse_id";
 
     private String id;
 
@@ -150,7 +151,7 @@ public class WnAuthSession {
         map.put("id", id);
         map.put("ticket", ticket);
         if (this.hasParentSession()) {
-            map.put("p_se_id", this.getParentSessionId());
+            map.put("pse_id", this.getParentSessionId());
         }
         map.put("uid", this.getMyId());
         map.put("unm", this.getMyName());
@@ -166,10 +167,13 @@ public class WnAuthSession {
     }
 
     public String getParentSessionId() {
-        if ("session".equals(this.byType)) {
-            return this.byValue;
-        }
-        return null;
+        // 2023-04-24:  采用 by_type/value 
+        // 方式来决定父会话ID 一定是我当时脑袋被门挤了
+        // 这个必须是用一个专有的元数据据呀！
+        // if ("session".equals(this.byType)) {
+        // return this.byValue;
+        // }
+        return this.obj.getString(K_PSE_ID);
     }
 
     public boolean hasParentSession() {

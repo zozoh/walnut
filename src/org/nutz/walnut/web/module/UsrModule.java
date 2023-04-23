@@ -851,8 +851,10 @@ public class UsrModule extends AbstractWnModule {
         if (se.isSameTicket(ticket)) {
             throw Er.create("e.web.u.chse.self");
         }
+        
+        // 会话是域的子账号
 
-        // 得到新会话
+        // 得到新会话:系统会话
         WnAuthSession seNew = auth().checkSession(ticket);
 
         // 退出: 这个新会话必须是当前会话的父会话
