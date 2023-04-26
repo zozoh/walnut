@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "13.04";
+        return "13.05";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "RABBIT(sub_login)";
+        return "RABBIT(o_get_reset)";
     }
 
     /**

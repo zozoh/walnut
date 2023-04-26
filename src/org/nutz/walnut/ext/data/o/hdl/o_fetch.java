@@ -12,7 +12,7 @@ public class o_fetch extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(ignore|fallback)$");
+        return ZParams.parse(args, "^(ignore|fallback|reset)$");
     }
 
     @Override
@@ -24,7 +24,9 @@ public class o_fetch extends OFilter {
         if (params.has("race")) {
             race = params.getAs("race", WnRace.class);
         }
-
+        if (params.is("reset")) {
+            fc.clearAll();
+        }
         // 循环处理
         for (String ph : params.vals) {
             String aph = Wn.normalizeFullPath(ph, sys);

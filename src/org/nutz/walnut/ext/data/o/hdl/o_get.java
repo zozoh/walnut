@@ -11,13 +11,16 @@ public class o_get extends OFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(ignore|fallback)$");
+        return ZParams.parse(args, "^(ignore|fallback|reset)$");
     }
 
     @Override
     protected void process(WnSystem sys, OContext fc, ZParams params) {
         boolean ignore = params.is("ignore");
         boolean fallback = params.is("fallback");
+        if (params.is("reset")) {
+            fc.clearAll();
+        }
         for (String val : params.vals) {
             String[] ids = Ws.splitIgnoreBlank(val);
             for (String id : ids) {

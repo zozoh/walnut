@@ -6,7 +6,7 @@
 # 获取任何一个对象的详情
 @API .regapi/api/obj/get 'cross/json'
 %COPY:
-o @get '${http-qs-id?}' @fetch '${http-qs-ph?}'\
+o @get -reset -fallback '${http-qs-id?}' @fetch -reset -fallback '${http-qs-ph?}'\
   @ancestors ${http-qs-ans?~ignore~} -until ${http-qs-anu?~} \
              ${http-qs-ant<boolean:/-notop>?true} \
              ${http-qs-anself<boolean:/-self>?false} \
