@@ -39,6 +39,7 @@ public class o_get extends OFilter {
                     if (null != o) {
                         fc.add(o);
                     }
+                    break;
                 }
                 // 必须存在
                 WnObj o = sys.io.checkById(id);

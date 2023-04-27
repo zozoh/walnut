@@ -20,6 +20,13 @@ import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class dsync_ids extends DSyncFilter {
+    
+    
+
+    @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "cqn");
+    }
 
     @Override
     protected void process(WnSystem sys, DSyncContext fc, ZParams params) {

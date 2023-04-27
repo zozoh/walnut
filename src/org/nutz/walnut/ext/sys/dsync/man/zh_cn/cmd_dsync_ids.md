@@ -22,5 +22,5 @@ dsync @ids
 # 示例
 
 ```bash
-
+dsync @tree 61ea7d15c314dc1a386a41a65378f9288300e99d @ids -skip 0 -limit 20000 -tree site -as id -qn > ~/.tmp/ar_idmap2.json
 ```
