@@ -37,11 +37,11 @@ public class XApiReqCache {
      * <li><code>s</code> 秒
      * </ul>
      */
-    String expiIUnit;
+    String expiUnit;
 
     public String getExpiUpdate(NutBean vars) {
         Object du = Wn.explainObj(vars, this.expiIn);
-        return String.format("%%ms:now+%s%s", du, Ws.sBlank(this.expiIUnit, "s"));
+        return String.format("%%ms:now+%s%s", du, Ws.sBlank(this.expiUnit, "s"));
     }
 
     public boolean isPath() {
@@ -84,12 +84,12 @@ public class XApiReqCache {
         this.expiIn = expiIn;
     }
 
-    public String getExpiIUnit() {
-        return expiIUnit;
+    public String getExpiUnit() {
+        return expiUnit;
     }
 
-    public void setExpiIUnit(String expiIUnit) {
-        this.expiIUnit = expiIUnit;
+    public void setExpiUnit(String expiIUnit) {
+        this.expiUnit = expiIUnit;
     }
 
 }

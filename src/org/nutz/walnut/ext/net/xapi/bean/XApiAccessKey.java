@@ -65,9 +65,14 @@ public class XApiAccessKey {
     }
 
     public void setNowInMs(long nowInMs) {
+        // 指定过期时间
         if (this.expiTime > 0) {
-            long ms = Wtime.millisecond(expiTime + expiTimeUnit);
+            long ms = Wtime.millisecond(expiTime, expiTimeUnit);
             this.expiAtMs = ms + nowInMs;
+        }
+        // 直接指定了过期绝对时间
+        else if (this.expiAtMs > 0) {
+            this.expiAtMs = Wtime.millisecond(this.expiAtMs, expiTimeUnit);
         }
         // 那么就设置成 0 表示永不过期咯
         else {

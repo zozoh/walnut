@@ -674,27 +674,49 @@ public abstract class Wtime {
             throw Er.create("e.ms.invalid", str);
         long ms = Long.parseLong(m.group(1));
         String unit = m.group(2);
+        return millisecond(ms, unit);
+    }
+
+    /**
+     * 将一个时间值变成毫秒数，那么表示毫秒
+     * 
+     * <ul>
+     * <li><code>"s"</code> 表示秒
+     * <li><code>"m"</code> 表示分钟
+     * <li><code>"h"</code> 表示小时
+     * <li><code>"d"</code> 表示天
+     * <li><code>"w"</code> 表示周
+     * <li><code>null</code> 默认表示毫秒</li>
+     * </ul>
+     * 
+     * @param time
+     *            时间值
+     * @param unit
+     *            时间单位
+     * @return 毫秒数
+     */
+    public static long millisecond(long time, String unit) {
         // s 秒
         if ("s".equals(unit)) {
-            return ms * 1000L;
+            return time * 1000L;
         }
         // m 分
         else if ("m".equals(unit)) {
-            return ms * 60000L;
+            return time * 60000L;
         }
         // h 小时
         else if ("h".equals(unit)) {
-            return ms * 3600000L;
+            return time * 3600000L;
         }
         // d 天
         else if ("d".equals(unit)) {
-            return ms * 86400000L;
+            return time * 86400000L;
         }
         // w 周
         else if ("w".equals(unit)) {
-            return ms * 86400000L * 7;
+            return time * 86400000L * 7;
         }
         // 默认就是毫秒
-        return ms;
+        return time;
     }
 }

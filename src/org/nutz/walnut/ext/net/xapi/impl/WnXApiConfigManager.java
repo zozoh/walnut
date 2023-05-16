@@ -171,6 +171,7 @@ public class WnXApiConfigManager implements XApiConfigManager {
                         req.expalinPath(context);
                         req.explainHeaders(context);
                         req.explainParams(context);
+                        req.explainBody(context);
                         NutMap re = api.send(req, NutMap.class);
 
                         // 转换成标准的请求对象

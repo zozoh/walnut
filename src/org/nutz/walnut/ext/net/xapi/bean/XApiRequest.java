@@ -249,7 +249,7 @@ public class XApiRequest {
         List<String> lines = new LinkedList<>();
         // 先搞url
         String url = this.toUrl();
-        lines.add("curl " + url);
+        lines.add("curl " + this.method + " '" + url + "'");
 
         // header
         if (this.hasHeader()) {
