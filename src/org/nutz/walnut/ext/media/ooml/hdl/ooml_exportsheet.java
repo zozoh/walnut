@@ -125,13 +125,14 @@ public class ooml_exportsheet extends OomlFilter {
 
             // 计数
             count++;
-            if (limit > 0 && count > limit) {
-                break;
-            }
 
             // 打印日志
             if (!quiet) {
                 sys.out.printlnf("[%d/%d] %d. %s", count, sum, i, o.name());
+            }
+            
+            if (limit > 0 && count >= limit) {
+                break;
             }
 
             // 自增下标
