@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.JsonFormat;
+import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.MailxContext;
 import org.nutz.walnut.ext.net.mailx.MailxFilter;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -50,7 +51,7 @@ public class mailx_imap extends MailxFilter {
                 }
             }
         }
-
+        WnObj o = null;
         // 得到搜索条件
         SearchTerm search;
 
