@@ -9,7 +9,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.bean.MailxSmtpConfig;
-import org.nutz.walnut.ext.net.mailx.bean.WnMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
 import org.nutz.walnut.ext.net.mailx.bean.WnMailSecurity;
 import org.nutz.walnut.ext.net.mailx.bean.WnMailSign;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -39,7 +39,7 @@ public class WnMailPosting {
         this.vars = sessionVars;
     }
 
-    public void send(MailxSmtpConfig smtp, WnMail mail) {
+    public void send(MailxSmtpConfig smtp, WnSmtpMail mail) {
         // 小防守一把
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");

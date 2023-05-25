@@ -17,6 +17,6 @@
 mailx @vars '{x:100, y:99}'
 
 # 从标准输入读取元数据
-mailx @vars
+cat abc.json | mailx @vars
 ```
 

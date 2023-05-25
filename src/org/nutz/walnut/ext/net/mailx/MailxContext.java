@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.net.mailx;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.bean.MailxConfig;
-import org.nutz.walnut.ext.net.mailx.bean.WnMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
 import org.nutz.walnut.impl.box.JvmFilterContext;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.Wn;
@@ -12,7 +12,7 @@ public class MailxContext extends JvmFilterContext {
 
     public MailxConfig config;
 
-    public WnMail mail;
+    public WnSmtpMail mail;
 
     public String lang;
 

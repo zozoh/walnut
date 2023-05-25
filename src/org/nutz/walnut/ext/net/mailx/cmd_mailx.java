@@ -6,7 +6,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.bean.MailxConfig;
-import org.nutz.walnut.ext.net.mailx.bean.WnMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
 import org.nutz.walnut.ext.net.mailx.impl.WnMailPosting;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
@@ -49,7 +49,7 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
         fc.config = Json.fromJson(MailxConfig.class, json);
 
         // 准备 Email 构造器
-        fc.mail = new WnMail();
+        fc.mail = new WnSmtpMail();
         fc.vars = new NutMap();
 
         // 更多上下文设置

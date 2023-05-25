@@ -1,108 +1,58 @@
 package org.nutz.walnut.ext.net.mailx.bean;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
-import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 
-/**
- * 封装了一个电子邮件的信息
- * 
- * @author zozoh(zozohtnt@gmail.com)
- */
-public class WnMail {
+public abstract class WnMail {
 
     /**
      * 邮件标题
      */
-    String subject;
+    protected String subject;
 
     /**
      * 收信人
      */
-    String to;
+    protected String to;
 
     /**
      * 抄送
      */
-    String cc;
+    protected String cc;
 
     /**
      * 密送
      */
-    String bcc;
+    protected String bcc;
 
     /**
      * 字符集（默认 UTF-8）
      */
-    String charset;
+    protected String charset;
 
     /**
      * 是否为 HTML内容的邮件
      */
-    boolean asHtml;
+    protected boolean asHtml;
 
     /**
      * 邮件正文
      */
-    String content;
+    protected String content;
 
-    /**
-     * 邮件正文路径（比正文更优先）
-     */
-    String contentPath;
+    public abstract boolean hasAttachments();
 
-    /**
-     * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
-     */
-    List<String> attachments;
+    protected String dumpHeaders() {
+        return null;
+    };
 
-    /**
-     * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
-     */
-    WnMailSecurity security;
-
-    public WnMail clone() {
-        WnMail mail = new WnMail();
-        mail.copyFrom(this);
-        return mail;
-    }
-
-    public void render(NutBean vars) {
-        if (this.hasSubject())
-            subject = WnTmpl.exec(subject, vars);
-
-        if (this.hasTo())
-            to = WnTmpl.exec(to, vars);
-
-        if (this.hasCc())
-            cc = WnTmpl.exec(cc, vars);
-
-        if (this.hasBcc())
-            bcc = WnTmpl.exec(bcc, vars);
-
-        if (this.hasContent())
-            content = WnTmpl.exec(content, vars);
-
-        if (this.hasAttachments()) {
-            List<String> ats = new ArrayList<String>(attachments.size());
-            for (String at : this.attachments) {
-                at = WnTmpl.exec(at, vars);
-                ats.add(at);
-            }
-            this.attachments = ats;
-        }
-
-        if (null != security) {
-            security.render(vars);
-        }
-    }
+    protected abstract String dumpAttachments();
 
     public String toString() {
         return this.toString(new NutMap());
@@ -111,6 +61,11 @@ public class WnMail {
     public String toString(NutBean vars) {
         String HR = Ws.repeat('-', 40);
         List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
+        ss.add(HR);
+        String hs = this.dumpHeaders();
+        if (!Ws.isBlank(hs)) {
+            ss.add(hs);
+        }
         ss.add(HR);
         if (this.hasSubject()) {
             ss.add("Subject: " + this.getSubject(vars));
@@ -133,7 +88,7 @@ public class WnMail {
         }
         if (this.hasAttachments()) {
             ss.add(HR);
-            ss.add("{Att>: " + Ws.join(this.attachments, "; "));
+            ss.add("{Att>: " + dumpAttachments());
         }
         ss.add(HR);
         ss.add("~ END ~");
@@ -141,7 +96,7 @@ public class WnMail {
         return Ws.join(ss, "\n");
     }
 
-    public void copyFrom(WnMail mail) {
+    public void copyFrom(WnSmtpMail mail) {
         if (null == mail)
             return;
 
@@ -159,10 +114,6 @@ public class WnMail {
             this.content = mail.content;
         }
 
-        if (mail.hasAttachments()) {
-            this.attachments = new ArrayList<>(mail.attachments.size());
-            this.attachments.addAll(mail.attachments);
-        }
     }
 
     public WnMailType getType() {
@@ -283,67 +234,12 @@ public class WnMail {
         this.content = content;
     }
 
-    public boolean hasContentPath() {
-        return !Ws.isBlank(contentPath);
-    }
-
-    public String getContentPath() {
-        return contentPath;
-    }
-
-    public void setContentPath(String contentPath) {
-        this.contentPath = contentPath;
-    }
-
-    public boolean hasAttachments() {
-        return null != attachments && !attachments.isEmpty();
-    }
-
-    public List<String> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<String> attachments) {
-        this.attachments = attachments;
-    }
-
-    public void addAttachment(String at) {
-        if (null == attachments) {
-            attachments = new LinkedList<>();
-        }
-        this.attachments.add(at);
-    }
-
-    public void addAttachments(String... aphs) {
-        if (null == aphs || aphs.length == 0)
-            return;
-
-        if (null == attachments) {
-            attachments = new LinkedList<>();
-        }
-        for (String aph : aphs) {
-            attachments.add(aph);
-        }
-    }
-
     public boolean isAsHtml() {
         return asHtml;
     }
 
     public void setAsHtml(boolean asHtml) {
         this.asHtml = asHtml;
-    }
-
-    public boolean hasSecurity() {
-        return null != security;
-    }
-
-    public WnMailSecurity getSecurity() {
-        return security;
-    }
-
-    public void setSecurity(WnMailSecurity security) {
-        this.security = security;
     }
 
 }

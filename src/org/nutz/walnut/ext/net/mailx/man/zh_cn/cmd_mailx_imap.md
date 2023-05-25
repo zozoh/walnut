@@ -11,12 +11,14 @@
   // 邮箱账户
   "account":"demo@abc.com",
   // 邮箱密码
-  "passwd":"xxxxxxx",
+  "password":"xxxxxxx",
   // 值如果没有指定 authProvider， 则采用一个默认的认证实现
   // 除了 office365 以外更多的 Provider 实现正在赶来的路上
-  "authProvider": {
+  "provider": {
     "name": "office365",
     "setup": {
+      "sslEnable": true,
+      "authMechanisms": "XOAUTH2",
       "authority": "https://login.microsoftonli....",
       "clientId": "9b...06",
       // 如果不指定，则相当于获取下面所有权限
@@ -24,13 +26,13 @@
         "offline_access",
         "email",
         "https://outlook.office.com/IMAP.AccessAsUser.All",
-        "https://outlook.office.com/POP.AccessAsUser.All",
-        "https://outlook.office.com/SMTP.Send"
+        //"https://outlook.office.com/POP.AccessAsUser.All",
+        //"https://outlook.office.com/SMTP.Send"
       ],
       // 指明 access_token 的缓存路径
       // 可以是绝对路径，如果是相对路径，则表示与 config 文件
       // 相同的目录。
-      "accessTokenPath": "office356_access_token"
+      "cachePath": "office356_access_token"
     }
   },
   // 收件箱文件夹名称，默认为 INBOX
@@ -43,6 +45,8 @@
 
 ```bash
 @imap
+[INBOX]           # 指定一个收件箱文件夹名称，如果不指定
+                  # 则会采用全局默认配置
 [-to ~/path/to]   # 指定一个要存储的数据集
                   # 如果不指定，则仅仅是打印邮件头
                   # 因为保存邮件的正文和附件，有可能导致邮件被标志已读
@@ -78,4 +82,5 @@ mailx @imap  -flags !SEEN -to ~/mymail
 
 # 收取所有最近邮件，并在控制台打印邮件头
 mailx @imap -json -cqn
+
 ```

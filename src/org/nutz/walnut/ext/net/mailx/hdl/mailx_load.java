@@ -4,7 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.MailxContext;
 import org.nutz.walnut.ext.net.mailx.MailxFilter;
-import org.nutz.walnut.ext.net.mailx.bean.WnMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.ZParams;
@@ -24,7 +24,7 @@ public class mailx_load extends MailxFilter {
             WnObj oConf = Wn.checkObj(sys, ph);
             json = sys.io.readText(oConf);
         }
-        fc.mail = Json.fromJson(WnMail.class, json);
+        fc.mail = Json.fromJson(WnSmtpMail.class, json);
 
     }
 

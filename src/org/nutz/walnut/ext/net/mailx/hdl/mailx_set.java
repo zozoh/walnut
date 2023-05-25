@@ -12,7 +12,7 @@ import org.nutz.walnut.ext.data.thing.util.ThQr;
 import org.nutz.walnut.ext.data.thing.util.ThQuery;
 import org.nutz.walnut.ext.net.mailx.MailxContext;
 import org.nutz.walnut.ext.net.mailx.MailxFilter;
-import org.nutz.walnut.ext.net.mailx.bean.WnMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
@@ -126,7 +126,7 @@ public class mailx_set extends MailxFilter {
         }
 
         // 转换到上下文中
-        WnMail mail = Lang.map2Object(meta, WnMail.class);
+        WnSmtpMail mail = Lang.map2Object(meta, WnSmtpMail.class);
         fc.mail.copyFrom(mail);
     }
 
