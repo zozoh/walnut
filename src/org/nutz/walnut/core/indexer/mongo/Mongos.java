@@ -54,7 +54,7 @@ public class Mongos {
                     if (0 == ss.length) {
                         val = null;
                     } else {
-                        val = Lang.arrayFirst("all", ss);
+                        val = Lang.arrayFirst("%all", ss);
                     }
                 }
                 // 设置到查询条件中
