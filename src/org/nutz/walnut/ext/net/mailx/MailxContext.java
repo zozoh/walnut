@@ -22,6 +22,12 @@ public class MailxContext extends JvmFilterContext {
 
     private WnObj _mail_home;
 
+    /**
+     * 子过滤器（譬如 `@imap`）如果开启了静默模式，那么 mailx 主命令就不会在结束前发送上下文中的邮件了<br>
+     * 即发信和收信在本命令的生命周期中是互斥的。
+     */
+    private boolean quiet;
+
     public void renderMail() {
         mail.render(vars);
     }
@@ -60,4 +66,13 @@ public class MailxContext extends JvmFilterContext {
         String aph = Wn.normalizeFullPath(ph, sys);
         return sys.io.check(null, aph);
     }
+
+    public boolean isQuiet() {
+        return quiet;
+    }
+
+    public void setQuiet(boolean quiet) {
+        this.quiet = quiet;
+    }
+
 }

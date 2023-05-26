@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "13.10";
+        return "13.11";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "RABBIT(o_get_reset)";
+        return "RABBIT(mailx)";
     }
 
     /**

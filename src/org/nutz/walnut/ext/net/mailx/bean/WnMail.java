@@ -75,11 +75,9 @@ public abstract class WnMail {
         ss.add(HR);
         ss.add("To: " + to);
         if (this.hasCc()) {
-            ss.add(HR);
             ss.add("CC: " + cc);
         }
         if (this.hasBcc()) {
-            ss.add(HR);
             ss.add("BCC: " + bcc);
         }
         ss.add(HR);

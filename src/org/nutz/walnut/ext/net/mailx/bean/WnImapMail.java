@@ -1,20 +1,34 @@
 package org.nutz.walnut.ext.net.mailx.bean;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Lang;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.util.Ws;
 
+import jakarta.mail.Address;
+import jakarta.mail.BodyPart;
 import jakarta.mail.Header;
 import jakarta.mail.Message;
 import jakarta.mail.Message.RecipientType;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMultipart;
 
 public class WnImapMail extends WnMail {
 
     private NutMap headers;
+
+    private String from;
+
+    private String contentType;
+
+    private List<WnMailPart> bodyParts;
 
     public WnImapMail() {
         headers = new NutMap();
@@ -37,22 +51,133 @@ public class WnImapMail extends WnMail {
                 headers.addv(h.getName(), h.getValue());
             }
 
+            // Get from
+            this.from = getAddressAsStr(msg.getFrom());
+
             // 设置其他信息
             this.subject = msg.getSubject();
-            this.to = Ws.join(msg.getRecipients(RecipientType.TO), ",");
-            this.cc = Ws.join(msg.getRecipients(RecipientType.CC), ",");
-            this.bcc = Ws.join(msg.getRecipients(RecipientType.BCC), ",");
+            this.to = getAddressAsStr(msg.getRecipients(RecipientType.TO));
+            this.cc = getAddressAsStr(msg.getRecipients(RecipientType.CC));
+            this.bcc = getAddressAsStr(msg.getRecipients(RecipientType.BCC));
 
             this.charset = "UTF-8";
+            this.contentType = msg.getContentType();
 
             // if (mail.hasContent()) {
             // this.asHtml = msg.i
             // this.content = mail.content;
             // }
+            // 读取邮件正文
+            Object body = msg.getContent();
+            if (body instanceof MimeMultipart) {
+                MimeMultipart mparts = (MimeMultipart) body;
+                int n = mparts.getCount();
+                this.bodyParts = new ArrayList<>(n);
+                for (int i = 0; i < n; i++) {
+                    /*
+                     * text/plain; charset=gb18030 text/html; charset=gb18030
+                     * multipart/alternative; application/octet-stream;
+                     * charset=gb18030;
+                     */
+                    BodyPart part = mparts.getBodyPart(i);
+                    WnMailPart mp = new WnMailPart(part);
+                    this.bodyParts.add(mp);
+
+                }
+            }
+            // 默认就傻傻的直接字符串了
+            else {
+                this.content = body.toString();
+            }
+
+            // 读取邮件附件
         }
         catch (Exception e) {
             throw Er.wrap(e);
         }
+    }
+
+    protected String getAddressAsStr(Address[] addresses) {
+        // 防守一把
+        if (null == addresses) {
+            return null;
+        }
+        List<String> list = new ArrayList<>(addresses.length);
+        for (Address adr : addresses) {
+            InternetAddress iadr = (InternetAddress) adr;
+            String person = iadr.getPersonal();
+            String address = iadr.getAddress();
+            if (Ws.isBlank(person)) {
+                list.add(address);
+            } else {
+                list.add(String.format("<%s=%s>", person, address));
+            }
+        }
+        return Ws.join(list, ",");
+    }
+
+    public String toString() {
+        return this.dumpString(true);
+    }
+
+    public String toString(NutBean vars) {
+        return this.dumpString(true);
+    }
+
+    public String dumpString(boolean showHeader) {
+        String HR = Ws.repeat('-', 40);
+        String HR2 = Ws.repeat('.', 40);
+        List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
+        ss.add(HR);
+        ss.add("Content-Type: " + contentType);
+        // 显示头
+        if (showHeader) {
+            String hs = this.dumpHeaders();
+
+            if (!Ws.isBlank(hs)) {
+                ss.add(hs);
+            }
+            ss.add(HR);
+        }
+
+        // 标题
+        if (this.hasSubject()) {
+            ss.add("Subject: " + this.getSubject(new NutMap()));
+        } else {
+            ss.add("-No Title-");
+        }
+        ss.add(HR);
+        ss.add("From: " + from);
+        ss.add("To  : " + to);
+        if (this.hasCc()) {
+            ss.add("CC: " + cc);
+        }
+        if (this.hasBcc()) {
+            ss.add("BCC: " + bcc);
+        }
+
+        // 正文及附件
+        ss.add(HR);
+        if (this.hasBody()) {
+            int n = this.bodyParts.size();
+            for (int i = 0; i < n; i++) {
+                WnMailPart part = this.bodyParts.get(i);
+                ss.add(HR2);
+                ss.add(String.format("%d/%d) BODY PART", i + 1, n));
+                ss.add(HR2);
+                ss.add(part.toString());
+            }
+        } else {
+            ss.add("<~No Body~>");
+        }
+
+        ss.add("~ END ~");
+
+        return Ws.join(ss, "\n");
+    }
+
+    public boolean hasBody() {
+        return null != this.bodyParts && this.bodyParts.size() > 0;
     }
 
     @Override
@@ -68,6 +193,22 @@ public class WnImapMail extends WnMail {
     @Override
     protected String dumpAttachments() {
         return null;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
 }

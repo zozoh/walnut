@@ -1,8 +1,11 @@
 package org.nutz.walnut.ext.net.mailx.hdl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.MailxContext;
@@ -11,6 +14,7 @@ import org.nutz.walnut.ext.net.mailx.bean.WnImapMail;
 import org.nutz.walnut.ext.net.mailx.provider.MailStoreProvider;
 import org.nutz.walnut.ext.net.mailx.provider.MailStoreProviders;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
@@ -18,6 +22,7 @@ import org.nutz.walnut.util.ZParams;
 import com.sun.mail.imap.IMAPFolder;
 
 import jakarta.mail.Flags;
+import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Store;
 import jakarta.mail.MessagingException;
@@ -28,15 +33,21 @@ import jakarta.mail.search.AndTerm;
 
 public class mailx_imap extends MailxFilter {
 
+    private static Log log = Wlog.getCMD();
+
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqn", "^(decrypt|or|json)$");
+        return ZParams.parse(args, "cqn", "^(decrypt|or|json|header)$");
     }
 
     @Override
     protected void process(WnSystem sys, MailxContext fc, ZParams params) {
+        // 禁止发送
+        fc.setQuiet(true);
+
         // JsonFormat jfmt = Cmds.gen_json_format(params);
         boolean isOr = params.is("or");
+        boolean showHeader = params.is("header");
         // boolean isDecrypt = params.is("decrypt");
         // boolean isJson = params.is("json");
 
@@ -52,25 +63,38 @@ public class mailx_imap extends MailxFilter {
 
         // 分析查询 flag
         String[] ss = params.getAs("flags", String[].class);
-        List<SearchTerm> terms = new ArrayList<>(ss.length);
-        // Flags flags = new Flags();
+        int n = null == ss ? 0 : ss.length;
+        List<SearchTerm> terms = new ArrayList<>(n);
         // 默认标签
-        if (null == ss || ss.length == 0) {
+        if (n == 0) {
             terms.add(new FlagTerm(new Flags(Flags.Flag.RECENT), true));
         }
         // 分析标签
         else {
-            for (String f : params.vals) {
+            for (String f : ss) {
+                boolean set = true;
+                // 预处理标记，支持 `!XXXX`
                 if (f.startsWith("!")) {
                     f = f.substring(1);
-                    terms.add(new FlagTerm(new Flags(f), false));
-                } else {
-                    terms.add(new FlagTerm(new Flags(f), true));
+                    set = false;
                 }
+                // 获取标记
+                f = f.toUpperCase();
+                Flags.Flag fg = MAIL_FLAGS.get(f);
+                if (null == fg) {
+                    throw Er.create("e.cmd.mailx.imap.InvalideFlag", f);
+                }
+                terms.add(new FlagTerm(new Flags(fg), set));
             }
         }
 
+        // 防守
+        if (null == fc.config.imap) {
+            throw Er.create("e.mailx.imap.NilImapConfig");
+        }
+
         Store store = null;
+        String HR = Ws.repeat('#', 80);
         try {
             // 获取邮箱交互类
             MailStoreProvider provider;
@@ -86,12 +110,15 @@ public class mailx_imap extends MailxFilter {
             String folderName = Ws.sBlank(params.val(0, fc.config.imap.getInboxName()), "INBOX");
             IMAPFolder folder = (IMAPFolder) store.getFolder(folderName);
             LOG(sys, debug, "Get folder: [%s]", folderName);
+            folder.open(Folder.READ_WRITE);
+            LOG(sys, debug, "Open folder: [%s]", folder.toString());
 
             // 得到搜索条件
             SearchTerm term;
 
             if (terms.size() == 1) {
-                term = terms.get(0);
+                // term = terms.get(0);
+                term = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
             } else {
                 SearchTerm[] tt = terms.toArray(new SearchTerm[terms.size()]);
                 if (isOr) {
@@ -103,22 +130,23 @@ public class mailx_imap extends MailxFilter {
 
             // 收取到消息
             Message[] messages = folder.search(term);
-            LOG(sys, debug, "find %s messages", messages.length);
+            int N = messages.length;
+            LOG(sys, debug, "find %s messages", N);
 
             // 循环处理消息
-            int N = messages.length;
-
             for (int i = 0; i < N; i++) {
                 Message msg = messages[i];
                 WnImapMail mail = new WnImapMail(msg);
                 LOG(sys,
                     debug,
-                    " > %d/%d) <%s>: %s\n%s",
+                    "%s\n# %d/%d) <%s>: %s\n%s\n%s",
+                    HR,
                     i,
                     N,
                     Ws.join(msg.getFrom(), ","),
                     msg.getSubject(),
-                    mail.toString());
+                    HR,
+                    mail.dumpString(showHeader));
             }
 
         }
@@ -141,7 +169,22 @@ public class mailx_imap extends MailxFilter {
         if (showDebug) {
             String msg = String.format(fmt, args);
             sys.out.println(msg);
+
+        }
+        if (log.isInfoEnabled()) {
+            log.infof(fmt, args);
         }
     }
 
+    private static Map<String, Flags.Flag> MAIL_FLAGS = new HashMap<>();
+
+    static {
+        MAIL_FLAGS.put("ANSWERED", Flags.Flag.ANSWERED);
+        MAIL_FLAGS.put("DELETED", Flags.Flag.DELETED);
+        MAIL_FLAGS.put("DRAFT", Flags.Flag.DRAFT);
+        MAIL_FLAGS.put("FLAGGED", Flags.Flag.FLAGGED);
+        MAIL_FLAGS.put("RECENT", Flags.Flag.RECENT);
+        MAIL_FLAGS.put("SEEN", Flags.Flag.SEEN);
+        MAIL_FLAGS.put("USER", Flags.Flag.USER);
+    }
 }

@@ -61,6 +61,9 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
 
     @Override
     protected void output(WnSystem sys, MailxContext fc) {
+        if (fc.isQuiet() || null == fc.mail) {
+            return;
+        }
         // 如果设置，尝试转换变量
         NutMap mailVars = fc.vars;
         if (!Ws.isBlank(fc.varTrans)) {

@@ -603,6 +603,9 @@ public class Ws {
      * @return 合并后的字符串
      */
     public static <T extends Object> String join(T[] arr, String sep) {
+        if (null == arr) {
+            return null;
+        }
         return join(arr, sep, 0, arr.length);
     }
 
