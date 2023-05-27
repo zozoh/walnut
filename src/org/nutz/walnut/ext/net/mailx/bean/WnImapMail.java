@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.net.mailx.bean;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -22,15 +23,21 @@ import jakarta.mail.internet.MimeMultipart;
 
 public class WnImapMail extends WnMail {
 
+    private String contentType;
+
+    /**
+     * 从 contentType 里获取的属性，譬如 charset 或者 name 或者 boundary
+     */
+    private NutMap attrs;
+
     private NutMap headers;
 
     private String from;
 
-    private String contentType;
-
     private List<WnMailPart> bodyParts;
 
     public WnImapMail() {
+        attrs = new NutMap();
         headers = new NutMap();
     }
 
@@ -61,7 +68,7 @@ public class WnImapMail extends WnMail {
             this.bcc = getAddressAsStr(msg.getRecipients(RecipientType.BCC));
 
             this.charset = "UTF-8";
-            this.contentType = msg.getContentType();
+            this.setContentType(msg.getContentType());
 
             // if (mail.hasContent()) {
             // this.asHtml = msg.i
@@ -124,6 +131,18 @@ public class WnImapMail extends WnMail {
         return this.dumpString(true);
     }
 
+    private String dumpAttrs() {
+        StringBuilder sb = new StringBuilder();
+        WnMailPart.joinHeaders(sb, this.attrs, "");
+        return sb.toString();
+    }
+
+    private String dumpHeaders() {
+        StringBuilder sb = new StringBuilder();
+        WnMailPart.joinHeaders(sb, this.headers, "");
+        return sb.toString();
+    }
+
     public String dumpString(boolean showHeader) {
         String HR = Ws.repeat('-', 40);
         String HR2 = Ws.repeat('.', 40);
@@ -132,12 +151,14 @@ public class WnImapMail extends WnMail {
         ss.add("Content-Type: " + contentType);
         // 显示头
         if (showHeader) {
-            String hs = this.dumpHeaders();
-
-            if (!Ws.isBlank(hs)) {
-                ss.add(hs);
-            }
+            String as = this.dumpAttrs();
             ss.add(HR);
+            ss.add("[#MSG ATTRS]");
+            ss.add(as);
+            String hs = this.dumpHeaders();
+            ss.add(HR);
+            ss.add("[#MSG HEAD]");
+            ss.add(hs);
         }
 
         // 标题
@@ -163,7 +184,7 @@ public class WnImapMail extends WnMail {
             for (int i = 0; i < n; i++) {
                 WnMailPart part = this.bodyParts.get(i);
                 ss.add(HR2);
-                ss.add(String.format("%d/%d) BODY PART", i + 1, n));
+                ss.add(String.format("# %d/%d) BODY PART", i + 1, n));
                 ss.add(HR2);
                 ss.add(part.toString());
             }
@@ -176,13 +197,13 @@ public class WnImapMail extends WnMail {
         return Ws.join(ss, "\n");
     }
 
-    public boolean hasBody() {
-        return null != this.bodyParts && this.bodyParts.size() > 0;
+    public Charset getMessageCharset() {
+        String cs = this.attrs.getString("charset", this.charset);
+        return Charset.forName(cs);
     }
 
-    @Override
-    protected String dumpHeaders() {
-        return Json.toJson(headers, JsonFormat.nice());
+    public boolean hasBody() {
+        return null != this.bodyParts && this.bodyParts.size() > 0;
     }
 
     @Override
@@ -208,7 +229,7 @@ public class WnImapMail extends WnMail {
     }
 
     public void setContentType(String contentType) {
-        this.contentType = contentType;
+        this.contentType = Ws.evalContentType(contentType, this.attrs);
     }
 
 }

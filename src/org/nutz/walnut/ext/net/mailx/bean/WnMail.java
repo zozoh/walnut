@@ -48,10 +48,6 @@ public abstract class WnMail {
 
     public abstract boolean hasAttachments();
 
-    protected String dumpHeaders() {
-        return null;
-    };
-
     protected abstract String dumpAttachments();
 
     public String toString() {
@@ -62,10 +58,6 @@ public abstract class WnMail {
         String HR = Ws.repeat('-', 40);
         List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
-        String hs = this.dumpHeaders();
-        if (!Ws.isBlank(hs)) {
-            ss.add(hs);
-        }
         ss.add(HR);
         if (this.hasSubject()) {
             ss.add("Subject: " + this.getSubject(vars));
