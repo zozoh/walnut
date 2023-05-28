@@ -10,7 +10,6 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
-import org.nutz.walnut.ext.net.mailx.bean.MailxConfig;
 import org.nutz.walnut.ext.net.mailx.bean.MailxImapConifg;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -46,8 +45,7 @@ public class Office365StoreProvider implements MailStoreProvider {
     }
 
     @Override
-    public Store createStrore(MailxConfig xconf) {
-        MailxImapConifg imap = xconf.imap;
+    public Session createSession(MailxImapConifg imap) {
         NutMap setup = imap.getProvider().getSetup();
 
         Properties props = new Properties();
@@ -62,9 +60,11 @@ public class Office365StoreProvider implements MailStoreProvider {
 
         // 获取会话
         Session session = Session.getInstance(props);
+        return session;
+    }
 
-        // 获取连接
-
+    @Override
+    public Store createStrore(Session session, MailxImapConifg imap) {
         try {
             Store store = session.getStore("imap");
             String host = Ws.sBlank(imap.getHost(), "outlook.office365.com");
@@ -82,7 +82,7 @@ public class Office365StoreProvider implements MailStoreProvider {
     }
 
     @SuppressWarnings("unchecked")
-    public String getAccessToken(MailxImapConifg imap) throws Exception {
+    private String getAccessToken(MailxImapConifg imap) throws Exception {
         NutMap setup = imap.getProvider().getSetup();
         String cachePath = setup.getString("cachePath");
 

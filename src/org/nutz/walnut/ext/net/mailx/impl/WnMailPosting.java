@@ -10,16 +10,14 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.bean.MailxSmtpConfig;
 import org.nutz.walnut.ext.net.mailx.bean.WnSmtpMail;
+import org.nutz.walnut.ext.net.mailx.util.Mailx;
 import org.nutz.walnut.ext.net.mailx.bean.WnMailSecurity;
-import org.nutz.walnut.ext.net.mailx.bean.WnMailSign;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.Ws;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.Pkcs12Config;
-import org.simplejavamail.api.mailer.config.Pkcs12Config.Pkcs12ConfigBuilder;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 
@@ -103,23 +101,7 @@ public class WnMailPosting {
             if (secu.isSMIME()) {
                 // 签名设置
                 if (secu.hasSign()) {
-                    WnMailSign sign = secu.getSign();
-                    Pkcs12ConfigBuilder bu = Pkcs12Config.builder();
-                    Pkcs12Config pkcs12;
-
-                    String storePath = sign.getStorePath();
-                    String storePasswd = sign.getStorePassword();
-                    String keyAlias = sign.getKeyAlias();
-                    String keyPassword = Ws.sBlank(sign.getKeyPassword(), "");
-
-                    WnObj oStore = Wn.checkObj(io, vars, storePath);
-                    byte[] bs = io.readBytes(oStore);
-
-                    pkcs12 = bu.pkcs12Store(bs)
-                               .storePassword(storePasswd)
-                               .keyAlias(keyAlias)
-                               .keyPassword(keyPassword)
-                               .build();
+                    Pkcs12Config pkcs12 = Mailx.createPkcs12Config(io, vars, secu);
                     builder.signWithSmime(pkcs12);
                 }
 

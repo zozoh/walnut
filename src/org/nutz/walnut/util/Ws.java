@@ -1724,35 +1724,4 @@ public class Ws {
         return re;
     }
 
-    /**
-     * 解析 HTTP 或者 Email 里面的 contnentType 符串 ，譬如
-     * <code>Content-Type: text/html;charset="gb18030" </code> 将被返回 "text/html"
-     * 以及将 charset=gb18030 添加到返回属性集里
-     * 
-     * @param contentType
-     *            内容类型字符串
-     * @param attrs
-     *            返回属性集合
-     * @return 一个标准的 contentType 字符串
-     */
-    public static String evalContentType(String contentType, NutBean attrs) {
-        if (null == contentType) {
-            return null;
-        }
-        String[] ss = Ws.splitIgnoreBlank(contentType, ";");
-
-        // 之后的看属性
-        for (int i = 0; i < ss.length; i++) {
-            String s = ss[i];
-            int pos = s.indexOf('=');
-            if (pos > 0) {
-                String name = s.substring(0, pos).trim();
-                String value = s.substring(pos + 1);
-                attrs.put(name, value);
-            }
-        }
-        // 第一个就是 contentType
-
-        return ss[0];
-    }
 }

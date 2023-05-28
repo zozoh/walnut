@@ -2,26 +2,37 @@ package org.nutz.walnut.ext.net.mailx.bean;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
-import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.ext.net.mailx.util.Mailx;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.Wtime;
+
+import com.sun.mail.imap.IMAPMessage;
 
 import jakarta.mail.Address;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Header;
 import jakarta.mail.Message;
 import jakarta.mail.Message.RecipientType;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMultipart;
 
 public class WnImapMail extends WnMail {
+
+    private int number;
+
+    private String messageId;
+
+    private long receiveAt;
 
     private String contentType;
 
@@ -32,9 +43,9 @@ public class WnImapMail extends WnMail {
 
     private NutMap headers;
 
-    private String from;
+    private String sender;
 
-    private List<WnMailPart> bodyParts;
+    protected List<WnMailPart> bodyParts;
 
     public WnImapMail() {
         attrs = new NutMap();
@@ -43,38 +54,36 @@ public class WnImapMail extends WnMail {
 
     public WnImapMail(Message msg) {
         this();
-        this.fromMessage(msg);
+        this.fromMessage(msg, null);
     }
 
-    public void fromMessage(Message msg) {
+    public WnImapMail(Message msg, String asContent) {
+        this();
+        this.fromMessage(msg, asContent);
+    }
+
+    public void fromMessage(Message msg, String asContent) {
         if (null == msg)
             return;
-
+        // 读取消息信息
         try {
-            // 读取头
-            Enumeration<Header> hs = msg.getAllHeaders();
-            while (hs.hasMoreElements()) {
-                Header h = hs.nextElement();
-                headers.addv(h.getName(), h.getValue());
-            }
+            IMAPMessage imsg = (IMAPMessage) msg;
+            this.receiveAt = msg.getReceivedDate().getTime();
+            this.messageId = imsg.getMessageID();
+            this.number = msg.getMessageNumber();
+        }
+        catch (MessagingException e) {
+            throw Er.wrap(e);
+        }
+        // 读取头
+        this.loadHeadInfo(msg);
 
-            // Get from
-            this.from = getAddressAsStr(msg.getFrom());
+        // 读取邮件正文
+        this.loadBody(msg, asContent);
+    }
 
-            // 设置其他信息
-            this.subject = msg.getSubject();
-            this.to = getAddressAsStr(msg.getRecipients(RecipientType.TO));
-            this.cc = getAddressAsStr(msg.getRecipients(RecipientType.CC));
-            this.bcc = getAddressAsStr(msg.getRecipients(RecipientType.BCC));
-
-            this.charset = "UTF-8";
-            this.setContentType(msg.getContentType());
-
-            // if (mail.hasContent()) {
-            // this.asHtml = msg.i
-            // this.content = mail.content;
-            // }
-            // 读取邮件正文
+    protected void loadBody(Message msg, String asContent) {
+        try {
             Object body = msg.getContent();
             if (body instanceof MimeMultipart) {
                 MimeMultipart mparts = (MimeMultipart) body;
@@ -87,7 +96,8 @@ public class WnImapMail extends WnMail {
                      * charset=gb18030;
                      */
                     BodyPart part = mparts.getBodyPart(i);
-                    WnMailPart mp = new WnMailPart(part);
+                    WnMailPart mp = new WnMailPart(part, asContent);
+
                     this.bodyParts.add(mp);
 
                 }
@@ -98,6 +108,31 @@ public class WnImapMail extends WnMail {
             }
 
             // 读取邮件附件
+        }
+        catch (Exception e) {
+            throw Er.wrap(e);
+        }
+    }
+
+    protected void loadHeadInfo(Message msg) {
+        try {
+            Enumeration<Header> hs = msg.getAllHeaders();
+            while (hs.hasMoreElements()) {
+                Header h = hs.nextElement();
+                headers.addv(h.getName(), h.getValue());
+            }
+
+            // Get from
+            this.sender = getAddressAsStr(msg.getFrom());
+
+            // 设置其他信息
+            this.subject = msg.getSubject();
+            this.to = getAddressAsStr(msg.getRecipients(RecipientType.TO));
+            this.cc = getAddressAsStr(msg.getRecipients(RecipientType.CC));
+            this.bcc = getAddressAsStr(msg.getRecipients(RecipientType.BCC));
+
+            this.charset = "UTF-8";
+            this.setContentType(msg.getContentType());
         }
         catch (Exception e) {
             throw Er.wrap(e);
@@ -123,6 +158,33 @@ public class WnImapMail extends WnMail {
         return Ws.join(list, ",");
     }
 
+    public NutBean toMeta(boolean includeHeader) {
+        NutMap meta = new NutMap();
+        // 基本信息
+        meta.put("msg_number", this.number);
+        meta.put("msg_id", this.messageId);
+        meta.put("msg_receive_at", this.receiveAt);
+        meta.put("title", this.getSubject());
+        meta.put("msg_sender", this.getSender());
+        meta.put("msg_to", this.getTo());
+        meta.put("msg_cc", this.getCc());
+        meta.put("msg_bcc", this.getBcc());
+        meta.put("msg_content_type", this.getContentType());
+        meta.put("msg_charset", this.getMessageCharset());
+
+        // 消息属性
+        if (null != this.attrs) {
+            meta.put("msg_attrs", this.attrs);
+        }
+
+        // 其他更多消息头
+        if (null != this.headers && includeHeader) {
+            meta.put("msg_head", this.headers);
+        }
+
+        return meta;
+    }
+
     public String toString() {
         return this.dumpString(true);
     }
@@ -133,13 +195,13 @@ public class WnImapMail extends WnMail {
 
     private String dumpAttrs() {
         StringBuilder sb = new StringBuilder();
-        WnMailPart.joinHeaders(sb, this.attrs, "");
+        Mailx.joinHeaders(sb, this.attrs, "");
         return sb.toString();
     }
 
     private String dumpHeaders() {
         StringBuilder sb = new StringBuilder();
-        WnMailPart.joinHeaders(sb, this.headers, "");
+        Mailx.joinHeaders(sb, this.headers, "");
         return sb.toString();
     }
 
@@ -148,6 +210,10 @@ public class WnImapMail extends WnMail {
         String HR2 = Ws.repeat('.', 40);
         List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
+        ss.add(String.format("[%s]%s %s",
+                             number,
+                             messageId,
+                             Wtime.formatDateTime(new Date(this.receiveAt))));
         ss.add("Content-Type: " + contentType);
         // 显示头
         if (showHeader) {
@@ -168,7 +234,7 @@ public class WnImapMail extends WnMail {
             ss.add("-No Title-");
         }
         ss.add(HR);
-        ss.add("From: " + from);
+        ss.add("From: " + sender);
         ss.add("To  : " + to);
         if (this.hasCc()) {
             ss.add("CC: " + cc);
@@ -216,12 +282,36 @@ public class WnImapMail extends WnMail {
         return null;
     }
 
-    public String getFrom() {
-        return from;
+    public int getNumber() {
+        return number;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public long getReceiveAt() {
+        return receiveAt;
+    }
+
+    public void setReceiveAt(long receiveAt) {
+        this.receiveAt = receiveAt;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String from) {
+        this.sender = from;
     }
 
     public String getContentType() {
@@ -229,7 +319,7 @@ public class WnImapMail extends WnMail {
     }
 
     public void setContentType(String contentType) {
-        this.contentType = Ws.evalContentType(contentType, this.attrs);
+        this.contentType = Mailx.evalContentType(contentType, this.attrs);
     }
 
 }

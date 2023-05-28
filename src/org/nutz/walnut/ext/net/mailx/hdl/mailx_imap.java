@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.net.mailx.hdl;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +12,19 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.net.mailx.MailxContext;
 import org.nutz.walnut.ext.net.mailx.MailxFilter;
 import org.nutz.walnut.ext.net.mailx.bean.WnImapMail;
+import org.nutz.walnut.ext.net.mailx.bean.WnImapPkcs12Mail;
+import org.nutz.walnut.ext.net.mailx.bean.WnMailSecurity;
 import org.nutz.walnut.ext.net.mailx.provider.MailStoreProvider;
 import org.nutz.walnut.ext.net.mailx.provider.MailStoreProviders;
+import org.nutz.walnut.ext.net.mailx.util.Mailx;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
+import org.simplejavamail.api.mailer.config.Pkcs12Config;
+import org.simplejavamail.utils.mail.smime.SmimeKey;
+import org.simplejavamail.utils.mail.smime.SmimeKeyStore;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -26,6 +33,7 @@ import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Store;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
 import jakarta.mail.search.SearchTerm;
 import jakarta.mail.search.FlagTerm;
 import jakarta.mail.search.OrTerm;
@@ -48,8 +56,9 @@ public class mailx_imap extends MailxFilter {
         // JsonFormat jfmt = Cmds.gen_json_format(params);
         boolean isOr = params.is("or");
         boolean showHeader = params.is("header");
-        // boolean isDecrypt = params.is("decrypt");
+        boolean isAutoDecrypt = params.is("decrypt");
         // boolean isJson = params.is("json");
+        String asContent = params.getString("content");
 
         // 得到输出目标
         String taPath = params.getString("to");
@@ -104,7 +113,8 @@ public class mailx_imap extends MailxFilter {
             } else {
                 provider = MailStoreProviders.me().createDefaultProvider(sys);
             }
-            store = provider.createStrore(fc.config);
+            Session session = provider.createSession(fc.config.imap);
+            store = provider.createStrore(session, fc.config.imap);
 
             // 获取查询目录
             String folderName = Ws.sBlank(params.val(0, fc.config.imap.getInboxName()), "INBOX");
@@ -136,7 +146,27 @@ public class mailx_imap extends MailxFilter {
             // 循环处理消息
             for (int i = 0; i < N; i++) {
                 Message msg = messages[i];
-                WnImapMail mail = new WnImapMail(msg);
+                WnImapMail mail;
+                String contentType = Mailx.evalContentType(msg.getContentType(), null);
+
+                // 加密邮件尝试解密
+                if (isAutoDecrypt && "application/pkcs7-mime".equals(contentType)) {
+                    WnMailSecurity secu = fc.mail.getSecurity();
+                    Pkcs12Config pkcs12 = Mailx.createPkcs12Config(sys, secu);
+                    ByteArrayInputStream storeIns = new ByteArrayInputStream(pkcs12.getPkcs12StoreData());
+                    char[] storePasswd = pkcs12.getStorePassword();
+                    SmimeKeyStore keyStore = new SmimeKeyStore(storeIns, storePasswd);
+                    String keyAlias = secu.getSign().getKeyAlias();
+                    String keyPasswd = secu.getSign().getKeyPassword();
+                    SmimeKey smimeKey = keyStore.getPrivateKey(keyAlias, keyPasswd.toCharArray());
+
+                    mail = new WnImapPkcs12Mail(session, smimeKey);
+                    mail.fromMessage(msg, asContent);
+                }
+                // 普通邮件
+                else {
+                    mail = new WnImapMail(msg, asContent);
+                }
                 LOG(sys,
                     debug,
                     "%s\n# %d/%d) <%s>: %s\n%s\n%s",

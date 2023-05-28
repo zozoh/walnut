@@ -6,12 +6,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 
 import org.bouncycastle.util.io.Streams;
-import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.net.mailx.util.Mailx;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 import jakarta.mail.BodyPart;
 import jakarta.mail.Header;
@@ -33,6 +34,12 @@ public class WnMailPart {
      */
     private String fileName;
 
+    /**
+     * 根据头里面的 <code>Content-Disposition</code>来判断是否是附件 <br>
+     * <code>Content-Disposition: attachment; filename="=?gb18030?B?uL28/i50eHQ=?="</code>
+     */
+    private boolean attachment;
+
     private NutMap headers;
 
     private byte[] data;
@@ -44,47 +51,67 @@ public class WnMailPart {
      */
     private String content;
 
-    public WnMailPart(BodyPart part) throws MessagingException, IOException {
+    /**
+     * @param part
+     *            邮件的数据段
+     * @param asContent
+     *            一个 AutoMatch （可以是字符串或者正则）指定某种 contentType 强制转换为正文内容
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public WnMailPart(BodyPart part, String asContent) throws MessagingException, IOException {
         this.attrs = new NutMap();
         this.setContentType(part.getContentType());
+
+        // 加载文件名称（如果是附件的话）
+        String fnm = part.getFileName();
+        if (null != fnm) {
+            this.fileName = MimeUtility.decodeText(fnm);
+        }
 
         // 加载头
         this.headers = new NutMap();
         Enumeration<Header> ih = part.getAllHeaders();
         while (ih.hasMoreElements()) {
             Header h = ih.nextElement();
-            this.headers.addv(h.getName(), h.getValue());
+            String name = h.getName();
+            String value = h.getValue();
+            this.headers.addv(name, value);
+            //
+            // 对于附件的头信息，特殊处理，提取出解码后的文件名
+            //
+            if ("Content-Disposition".equalsIgnoreCase(name)) {
+                NutMap props = new NutMap();
+                String cdType = Mailx.evalContentType(value, props);
+                this.attachment = "attachment".equals(cdType);
+                fnm = props.getString("filename");
+                this.fileName = MimeUtility.decodeText(fnm);
+            }
         }
         // 这是一个包裹父类，里面混合了超文本以及纯文本内容
-        if (this.isAlternative()) {
-            Object body = part.getContent();
-            if (body instanceof MimeMultipart) {
-                MimeMultipart mparts = (MimeMultipart) body;
-                int n = mparts.getCount();
-                this.parts = new ArrayList<>(n);
-                for (int i = 0; i < n; i++) {
-                    BodyPart sub = mparts.getBodyPart(i);
-                    WnMailPart mp = new WnMailPart(sub);
-                    this.parts.add(mp);
+        Object body = part.getContent();
+        if (body instanceof MimeMultipart) {
+            MimeMultipart mparts = (MimeMultipart) body;
+            int n = mparts.getCount();
+            this.parts = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
+                BodyPart sub = mparts.getBodyPart(i);
+                WnMailPart mp = new WnMailPart(sub, asContent);
+                this.parts.add(mp);
 
-                }
-            } else {
-                this.content = body.toString();
             }
         }
         // 其他的直接加载二进制内容
         else {
-            String fnm = part.getFileName();
-            if (null != fnm) {
-                this.fileName = MimeUtility.decodeText(fnm);
-            }
             InputStream ins = part.getInputStream();
             data = Streams.readAll(ins);
         }
 
         // 如果是文本内容，也转换一遍文本
-        if (this.isText()) {
-            this.content = new String(this.data, this.getCharset());
+        if (this.isText() || this.isContentType(asContent)) {
+            Charset c = this.getCharset();
+            String text = new String(this.data, c);
+            this.setContent(text);
         }
     }
 
@@ -99,10 +126,10 @@ public class WnMailPart {
         if (this.isAttachment()) {
             sb.append(String.format("\n%s[Attachment]: %s", prefix, this.fileName));
         }
-        sb.append(String.format("\n%s[ATTR:]", prefix));
-        joinHeaders(sb, this.attrs, prefix);
-        sb.append(String.format("\n%s[HEAD:]", prefix));
-        joinHeaders(sb, this.headers, prefix);
+        sb.append(String.format("\n%s[ATTR]:", prefix));
+        Mailx.joinHeaders(sb, this.attrs, prefix);
+        sb.append(String.format("\n%s[HEAD]:", prefix));
+        Mailx.joinHeaders(sb, this.headers, prefix);
 
         if (this.isAlternative()) {
             String HR = Ws.repeat('~', 60);
@@ -122,23 +149,8 @@ public class WnMailPart {
             sb.append(String.format("\n%s<DATA: %s>",
                                     prefix,
                                     String.format("%d bytes", data.length)));
-            if (this.isText()) {
+            if (null != this.content) {
                 sb.append("\n").append(this.content);
-            }
-        }
-    }
-
-    static void joinHeaders(StringBuilder sb, NutMap map, String prefix) {
-        for (Map.Entry<String, Object> en : map.entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            sb.append("\n").append(prefix).append(" - ").append(key).append(": ");
-            if (null != val) {
-                if (val instanceof CharSequence) {
-                    sb.append(val.toString());
-                } else {
-                    sb.append(Json.toJson(val));
-                }
             }
         }
     }
@@ -157,7 +169,15 @@ public class WnMailPart {
     }
 
     public boolean isAttachment() {
-        return "application/octet-stream".equals(this.contentType);
+        return this.attachment;
+    }
+
+    public boolean isContentType(String contentType) {
+        if (null == contentType) {
+            return false;
+        }
+        WnMatch wm = AutoMatch.parse(contentType.toLowerCase(), false);
+        return wm.match(this.contentType.toLowerCase());
     }
 
     public String getContentType() {
@@ -165,7 +185,7 @@ public class WnMailPart {
     }
 
     public void setContentType(String contentType) {
-        this.contentType = Ws.evalContentType(contentType, this.attrs);
+        this.contentType = Mailx.evalContentType(contentType, this.attrs);
     }
 
     public NutMap getHeaders() {
