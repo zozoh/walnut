@@ -28,7 +28,7 @@ public class JsonSheetHandler extends AbstractSheetHandler {
         JsonFormat jfmt = JsonFormat.forLook().setQuoteName(true);
         jfmt.putAll(conf);
         if (headKeys != null && !headKeys.isEmpty()) {
-            jfmt.setActived("^(" + Ws.join(headKeys, "|") + "$");
+            jfmt.setActived("^(" + Ws.join(headKeys, "|") + ")$");
         }
         Writer writer = new OutputStreamWriter(ops, Encoding.CHARSET_UTF8);
         Json.toJson(writer, list, jfmt);
