@@ -83,7 +83,7 @@ public class WnImapMail extends WnMail {
         int n = Math.max(bodyParts.size(), 5);
         List<WnMailPart> list = new ArrayList<>(n);
         for (WnMailPart part : bodyParts) {
-            part.joinAttachment(list, asContent);
+            part.joinAttachmentPart(list, asContent);
         }
         return list;
     }
@@ -197,7 +197,7 @@ public class WnImapMail extends WnMail {
         meta.put("msg_cc", this.getCc());
         meta.put("msg_bcc", this.getBcc());
         meta.put("msg_content_type", this.getContentType());
-        meta.put("msg_charset", this.getMessageCharset());
+        meta.put("msg_charset", this.getMessageCharset().toString());
 
         // 消息属性
         if (null != this.attrs) {

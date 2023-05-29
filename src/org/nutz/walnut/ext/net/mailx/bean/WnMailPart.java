@@ -184,14 +184,14 @@ public class WnMailPart {
         }
     }
 
-    public void joinAttachment(List<WnMailPart> list, String asContent) {
+    public void joinAttachmentPart(List<WnMailPart> list, String asContent) {
         if (this.isAttachment() && !this.isContentType(asContent)) {
             list.add(this);
         }
         // 还有子块，递归
         else if (null != parts) {
             for (WnMailPart sub : parts) {
-                sub.joinContentPart(list, asContent);
+                sub.joinAttachmentPart(list, asContent);
             }
         }
     }

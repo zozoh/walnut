@@ -87,4 +87,6 @@ mailx @imap  -flags !SEEN -to ~/mymail
 # 收取所有最近邮件，并在控制台打印邮件头
 mailx @imap -json -cqn
 
+# 读取所有未读邮件，并自动解密（根据 test.secuy的设置），并存入指定数据集
+mailx @load ~/tmp/test.secuy.json @imap -flags !SEEN -decrypt -content 'Application/EDIFACT' -to ~/myemails
 ```

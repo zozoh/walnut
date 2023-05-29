@@ -42,6 +42,9 @@ public abstract class Mailx {
                 if (pos > 0) {
                     String name = s.substring(0, pos).trim();
                     String value = s.substring(pos + 1);
+                    if (Ws.isQuoteBy(value, '"', '"')) {
+                        value = Json.fromJson(value).toString();
+                    }
                     attrs.put(name, value);
                 }
             }
