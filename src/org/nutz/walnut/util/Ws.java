@@ -17,7 +17,6 @@ import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.api.err.Er;

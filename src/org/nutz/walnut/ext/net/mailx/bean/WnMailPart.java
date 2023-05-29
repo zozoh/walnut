@@ -172,6 +172,30 @@ public class WnMailPart {
         return this.attachment;
     }
 
+    public void joinContentPart(List<WnMailPart> list, String asContent) {
+        if (this.isText() || this.isContentType(asContent)) {
+            list.add(this);
+        }
+        // 还有子块，递归
+        else if (null != parts) {
+            for (WnMailPart sub : parts) {
+                sub.joinContentPart(list, asContent);
+            }
+        }
+    }
+
+    public void joinAttachment(List<WnMailPart> list, String asContent) {
+        if (this.isAttachment() && !this.isContentType(asContent)) {
+            list.add(this);
+        }
+        // 还有子块，递归
+        else if (null != parts) {
+            for (WnMailPart sub : parts) {
+                sub.joinContentPart(list, asContent);
+            }
+        }
+    }
+
     public boolean isContentType(String contentType) {
         if (null == contentType) {
             return false;
@@ -202,6 +226,10 @@ public class WnMailPart {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public boolean hasFileName() {
+        return !Ws.isBlank(fileName);
     }
 
     public String getFileName() {

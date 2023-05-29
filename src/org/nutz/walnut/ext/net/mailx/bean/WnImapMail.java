@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Lang;
@@ -59,6 +60,32 @@ public class WnImapMail extends WnMail {
     public WnImapMail(Message msg, String asContent) {
         this();
         this.fromMessage(msg, asContent);
+    }
+
+    public List<WnMailPart> findContentParts(String asContent) {
+        if (null == bodyParts) {
+            return new LinkedList<>();
+        }
+
+        int n = Math.max(bodyParts.size(), 5);
+        List<WnMailPart> list = new ArrayList<>(n);
+        for (WnMailPart part : bodyParts) {
+            part.joinContentPart(list, asContent);
+        }
+        return list;
+    }
+
+    public List<WnMailPart> findAttachmentParts(String asContent) {
+        if (null == bodyParts) {
+            return new LinkedList<>();
+        }
+
+        int n = Math.max(bodyParts.size(), 5);
+        List<WnMailPart> list = new ArrayList<>(n);
+        for (WnMailPart part : bodyParts) {
+            part.joinAttachment(list, asContent);
+        }
+        return list;
     }
 
     public void fromMessage(Message msg, String asContent) {
@@ -157,13 +184,14 @@ public class WnImapMail extends WnMail {
         return Ws.join(list, ",");
     }
 
-    public NutBean toMeta(boolean includeHeader) {
+    public NutMap toMeta(boolean includeHeader) {
         NutMap meta = new NutMap();
         // 基本信息
-        meta.put("msg_number", this.number);
-        meta.put("msg_id", this.messageId);
-        meta.put("msg_receive_at", this.receiveAt);
+        meta.put("nm", this.messageId);
         meta.put("title", this.getSubject());
+        meta.put("sort", this.number);
+        meta.put("msg_receive_at", this.receiveAt);
+        meta.put("msg_subject", this.getSubject());
         meta.put("msg_sender", this.getSender());
         meta.put("msg_to", this.getTo());
         meta.put("msg_cc", this.getCc());
@@ -190,6 +218,14 @@ public class WnImapMail extends WnMail {
 
     public String toString(NutBean vars) {
         return this.dumpString(true);
+    }
+
+    public String toBrief() {
+        return String.format("[%s]%s : %s : %s",
+                             this.number,
+                             this.messageId,
+                             this.getSender(),
+                             this.getSubject());
     }
 
     private String dumpAttrs() {
