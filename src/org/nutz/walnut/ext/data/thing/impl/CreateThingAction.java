@@ -150,7 +150,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     }
 
     private WnObj __create_one(WnObj oIndex, NutMap meta, int i, int len) {
-        String P = String.format("%%[%d/%d]", i + 1, len);
+        String P = String.format("%%[%d/%d]", i, len);
         // 创建或者取得一个一个 Thing
         WnObj oT = null;
         boolean isDuplicated = false;
