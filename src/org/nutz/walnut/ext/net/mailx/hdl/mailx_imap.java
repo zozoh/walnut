@@ -75,6 +75,7 @@ public class mailx_imap extends MailxFilter {
         }
         // boolean hasTarget = null != oTa;
         boolean debug = null == oTa;
+        debug = params.is("debug", debug);
 
         // 得到数据集的服务类
         WnThingService wts = null;
@@ -151,7 +152,7 @@ public class mailx_imap extends MailxFilter {
                 if (null != wts) {
                     WnObj oMail = __create_mail_obj(sys,
                                                     showHeader,
-                                                    isJson,
+                                                    debug,
                                                     asContent,
                                                     wts,
                                                     N,
@@ -200,14 +201,14 @@ public class mailx_imap extends MailxFilter {
 
     protected WnObj __create_mail_obj(WnSystem sys,
                                       boolean showHeader,
-                                      boolean isJson,
+                                      boolean debug,
                                       String asContent,
                                       WnThingService wts,
                                       int N,
                                       int i,
                                       WnImapMail mail) {
         // 不是 JSON 输出，也要打印到控制台
-        LOG(sys, !isJson, "%d/%d) %s", i, N, mail.toBrief());
+        LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
         NutMap meta = mail.toMeta(showHeader);
 
         // 寻找正文
@@ -228,7 +229,7 @@ public class mailx_imap extends MailxFilter {
 
         // 创建对象
         WnObj oMail = wts.createThing(meta, "nm");
-        LOG(sys, !isJson, "     -> %s", oMail.toString());
+        LOG(sys, debug, "     -> %s", oMail.toString());
         // 写入正文
         if (null != text) {
             sys.io.writeText(oMail, text);
@@ -238,13 +239,13 @@ public class mailx_imap extends MailxFilter {
         if (null != attachments) {
             int x = 0;
             int M = attachments.size();
-            LOG(sys, !isJson, "     ++ %d attachments:", M);
+            LOG(sys, debug, "     ++ %d attachments:", M);
             for (WnMailPart att : attachments) {
                 x++;
                 String fnm = att.getFileName();
                 byte[] data = att.getData();
                 WnObj oAtt = wts.fileAdd(null, oMail, fnm, data, null, true);
-                LOG(sys, !isJson, "     -> %d. %s => %s", x, fnm, oAtt);
+                LOG(sys, debug, "     -> %d. %s => %s", x, fnm, oAtt);
             }
         }
         return oMail;
