@@ -1,9 +1,9 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
 
-class TmplDoubleEle extends TmplDynamicEle {
+public class TmplDoubleEle extends TmplDynamicEle {
 
     public TmplDoubleEle(String key, String fmt, String dft) {
         super("double", key, fmt, dft);

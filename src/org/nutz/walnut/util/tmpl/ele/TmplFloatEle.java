@@ -1,9 +1,9 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
 
-class TmplFloatEle extends TmplDynamicEle {
+public class TmplFloatEle extends TmplDynamicEle {
 
     public TmplFloatEle(String key, String fmt, String dft) {
         super("float", key, fmt, dft);

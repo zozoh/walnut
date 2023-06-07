@@ -1,8 +1,8 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.lang.util.NutBean;
 
-interface TmplEle {
+public interface TmplEle {
 
     void join(StringBuilder sb, NutBean context, boolean showKey);
 

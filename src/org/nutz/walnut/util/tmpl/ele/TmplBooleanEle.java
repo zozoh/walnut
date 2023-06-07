@@ -1,10 +1,10 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 
-class TmplBooleanEle extends TmplDynamicEle {
+public class TmplBooleanEle extends TmplDynamicEle {
 
     // [false, true]
     private String[] texts;

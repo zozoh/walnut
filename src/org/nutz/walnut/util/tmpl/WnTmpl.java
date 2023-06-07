@@ -10,6 +10,17 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.tmpl.ele.TmplBooleanEle;
+import org.nutz.walnut.util.tmpl.ele.TmplDateEle;
+import org.nutz.walnut.util.tmpl.ele.TmplDoubleEle;
+import org.nutz.walnut.util.tmpl.ele.TmplEle;
+import org.nutz.walnut.util.tmpl.ele.TmplEscapeStr;
+import org.nutz.walnut.util.tmpl.ele.TmplFloatEle;
+import org.nutz.walnut.util.tmpl.ele.TmplIntEle;
+import org.nutz.walnut.util.tmpl.ele.TmplJsonEle;
+import org.nutz.walnut.util.tmpl.ele.TmplLongEle;
+import org.nutz.walnut.util.tmpl.ele.TmplStaticEle;
+import org.nutz.walnut.util.tmpl.ele.TmplStringEle;
 
 /**
  * 占位符支持 `${路径<类型:格式>?默认值}` 的写法
@@ -83,10 +94,10 @@ public class WnTmpl {
      * @return 模板对象
      */
     public static WnTmpl parse(String tmpl,
-                             Pattern ptn,
-                             int groupIndex,
-                             int escapeIndex,
-                             TmplEscapeStr getEscapeStr) {
+                               Pattern ptn,
+                               int groupIndex,
+                               int escapeIndex,
+                               TmplEscapeStr getEscapeStr) {
         if (null == tmpl)
             return null;
         return new WnTmpl(tmpl, ptn, groupIndex, escapeIndex, getEscapeStr);
@@ -106,9 +117,9 @@ public class WnTmpl {
      * @return 模板对象
      */
     public static WnTmpl parse(String tmpl,
-                             final String startChar,
-                             String leftBrace,
-                             String rightBrace) {
+                               final String startChar,
+                               String leftBrace,
+                               String rightBrace) {
         if (null == tmpl)
             return null;
         String regex = "((?<!["
@@ -236,10 +247,10 @@ public class WnTmpl {
     }
 
     private WnTmpl(String tmpl,
-                 Pattern ptn,
-                 int groupIndex,
-                 int escapeIndex,
-                 TmplEscapeStr getEscapeStr) {
+                   Pattern ptn,
+                   int groupIndex,
+                   int escapeIndex,
+                   TmplEscapeStr getEscapeStr) {
         this(ptn, groupIndex, escapeIndex, getEscapeStr);
 
         // 开始解析

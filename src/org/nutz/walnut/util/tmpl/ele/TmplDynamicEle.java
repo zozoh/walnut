@@ -1,10 +1,10 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.mapl.Mapl;
 
-abstract class TmplDynamicEle implements TmplEle {
+public abstract class TmplDynamicEle implements TmplEle {
 
     private String _type;
 

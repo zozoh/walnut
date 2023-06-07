@@ -1,9 +1,9 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
 
-class TmplLongEle extends TmplDynamicEle {
+public class TmplLongEle extends TmplDynamicEle {
 
     public TmplLongEle(String key, String fmt, String dft) {
         super("long", key, fmt, dft);

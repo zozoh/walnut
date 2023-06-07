@@ -1,8 +1,8 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.lang.util.NutBean;
 
-class TmplStaticEle implements TmplEle {
+public class TmplStaticEle implements TmplEle {
 
     private String str;
 

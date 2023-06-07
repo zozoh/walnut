@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import java.util.Date;
 
@@ -6,7 +6,7 @@ import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 
-class TmplDateEle extends TmplDynamicEle {
+public class TmplDateEle extends TmplDynamicEle {
 
     public TmplDateEle(String key, String fmt, String dft) {
         super("date", key, fmt, dft);

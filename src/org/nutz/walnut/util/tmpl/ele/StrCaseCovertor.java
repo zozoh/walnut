@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.walnut.util.str.WnStrCaseConvertor;
 import org.nutz.walnut.util.str.WnStrCases;

@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import org.nutz.lang.Strings;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-class TmplStringEle extends TmplDynamicEle {
+public class TmplStringEle extends TmplDynamicEle {
 
     private List<StrEleConvertor> convertors;
 

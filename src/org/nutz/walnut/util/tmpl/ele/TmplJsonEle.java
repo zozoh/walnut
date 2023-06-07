@@ -1,4 +1,4 @@
-package org.nutz.walnut.util.tmpl;
+package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
