@@ -28,6 +28,7 @@ o [Path] [[@filter filter-args...]...]
 @sheet        # 输出上下文的某一个工作表
 @rows         # 输出当前工作表的行数据
 @medias       # 输出当前工作表关联的所有媒体
+@mapping      # 指定工作表输出的映射方式
 @beans        # 输出当前工作表数据对象列表
 @exportsheet  # 将当前工作表数据对象输出到一个目录里
 @checkout     # 将指定条目设置为当前条目
