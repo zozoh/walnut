@@ -755,10 +755,10 @@ public class Ws {
                                                    '\\');
 
     // 解码过程表: 转义字符串 -> 真正字符
-    private static final Wchar.EscapeTable STR_UNESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_UNESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
 
     // 编码过程表: 真正字符 -> 转义字符串
-    private static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeReverTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeReverTable(STR_ESC_TS);
 
     /**
      * 将字符串根据转移字符转义
