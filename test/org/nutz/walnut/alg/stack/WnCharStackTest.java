@@ -8,14 +8,14 @@ public class WnCharStackTest {
 
     @Test
     public void test_simple() {
-        WnCharStack cs = new WnCharStack("{", '}');
+        WnCharStack cs = new WnCharStack('{', '}');
         String re = cs.process("A {{x:100}} B");
         assertEquals("{x:100}", re);
     }
 
     @Test
     public void test_toArray() {
-        WnCharStack cs = new WnCharStack("{", '}');
+        WnCharStack cs = new WnCharStack('{', '}');
         String[] ss = cs.processAsArray("{{x:100}} {<abc>} {x:{n:t,b:{q:0}}}");
         assertEquals(3, ss.length);
         assertEquals("{x:100}", ss[0]);
@@ -31,6 +31,9 @@ public class WnCharStackTest {
 
         re = cs.process("\"ab\\nc\"");
         assertEquals("ab\nc", re);
+
+        re = cs.process("'\"ab\\nc\"'");
+        assertEquals("\"ab\nc\"", re);
     }
 
     @Test

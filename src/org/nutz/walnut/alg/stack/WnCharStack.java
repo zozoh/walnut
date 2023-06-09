@@ -25,10 +25,10 @@ import org.nutz.walnut.util.Ws;
  * <pre>
  * 譬如界定字符为 '{' 与 '}' ，逃逸标识符为 '\'
  * 
- * [\]  <-- 栈顶表示逃逸，下一个接收的字符将会逃逸并压入下一层缓冲，逃逸失败则抛错
- * [{]  <-- 每个压栈符，将堆栈升高 --> 并对应一个字符缓冲 [...]
- * [{]  <-- 如果上层堆栈弹出，则将字符（包括压/退栈符）都存入本层缓冲
- * [{]  <-- 最后一层缓冲弹出，并不包括压/退栈符
+ * [ \ ]  <-- 栈顶表示逃逸，下一个接收的字符将会逃逸并压入下一层缓冲，逃逸失败则抛错
+ * [ { ]  <-- 每个压栈符，将堆栈升高 --> 并对应一个字符缓冲 [...]
+ * [ { ]  <-- 如果上层堆栈弹出，则将字符（包括压/退栈符）都存入本层缓冲
+ * [ { ]  <-- 最后一层缓冲弹出，并不包括压/退栈符
  * </pre>
  * 
  * 当初始状态，即并未有压栈符进入堆栈，则会一直跳过输入的字符串，直到遇到第一个压栈符才开始正式的分析操做<br>
@@ -37,9 +37,9 @@ import org.nutz.walnut.util.Ws;
  * 因此本堆栈有下面几种状态
  * 
  * <ul>
- * <li><code>S0</code> 休眠态： 未曾压栈，对于字符默认是 REJECT
- * <li><code>S1</code> 激活态： 已经压栈，对于字符默认是 ACCEPT
- * <li><code>S9</code> 完成态： 已经清栈，对于字符默认是 DONE
+ * <li><code>S0</code> 休眠态： 未曾压栈，对于输入默认是 REJECT
+ * <li><code>S1</code> 激活态： 已经压栈，对于输入默认是 ACCEPT
+ * <li><code>S9</code> 完成态： 已经清栈，对于输入默认是 DONE
  * </ul>
  * 
  * <pre>
@@ -58,6 +58,9 @@ import org.nutz.walnut.util.Ws;
  */
 public class WnCharStack {
 
+    /**
+     * 内部状态
+     */
     enum Status {
         S0, S1, S9
     }
@@ -65,7 +68,13 @@ public class WnCharStack {
     /**
      * 压栈符
      */
-    private String cPush;
+    private char cPush;
+
+    /**
+     * 候选压栈符：主要是动态决定 " 还是 ' 作为压栈符 <br>
+     * 如果有候选压栈符，则重置时，也需要将 cPush 标记为 0
+     */
+    private char[] canPush;
 
     /**
      * 退栈符，0 表示退栈符，与压栈符成对出现
@@ -84,24 +93,26 @@ public class WnCharStack {
 
     private char topC;
 
-    private StringBuilder topSb;
+    private StringBuilder topBuf;
 
     private LinkedCharArray stackC;
 
-    private LinkedList<StringBuilder> stackSb;
+    private LinkedList<StringBuilder> stackBuf;
 
     private Status status;
 
-    public WnCharStack(String cPush, char cPop) {
+    public WnCharStack(char cPush, char cPop) {
         this(cPush, cPop, '\\', Ws.STR_UNESC_TAB);
     }
 
-    public WnCharStack(String cPush) {
-        this(cPush, (char) 0, '\\', Ws.STR_UNESC_TAB);
+    public WnCharStack(String canPushs) {
+        this((char) 0, (char) 0, '\\', Ws.STR_UNESC_TAB);
+        this.setCanPush(canPushs.toCharArray());
     }
 
-    public WnCharStack(String cPush, char cPop, char cEscaper, EscapeTable escTable) {
+    public WnCharStack(char cPush, char cPop, char cEscaper, EscapeTable escTable) {
         this.cPush = cPush;
+        this.canPush = null;
         this.cPop = cPop;
         this.cEscaper = cEscaper;
         this.escTable = escTable;
@@ -114,19 +125,19 @@ public class WnCharStack {
         sb.append(cEscaper).append('\'');
         if (Status.S0 != this.status) {
             // 栈顶
-            sb.append(String.format("\n[ '%s' ] >> (\"%s\")", this.topC, this.topSb));
+            sb.append(String.format("\n[ %s ] >> (\"%s\")", this.topC, this.topBuf));
             // 后续栈
-            if (stackSb.size() > 0) {
-                StringBuilder[] sbs = stackSb.toArray(new StringBuilder[stackSb.size()]);
+            if (stackBuf.size() > 0) {
+                StringBuilder[] sbs = stackBuf.toArray(new StringBuilder[stackBuf.size()]);
                 int N = stackC.size();
                 for (int i = 0; i < N; i++) {
                     char c = stackC.get(N - i - 1);
                     int IS = sbs.length - i - 1;
 
                     if (IS >= 0) {
-                        sb.append(String.format("\n[ '%s' ] >> (\"%s\")", c, sbs[IS]));
+                        sb.append(String.format("\n[ %s ] >> (\"%s\")", c, sbs[IS]));
                     } else {
-                        sb.append(String.format("\n[ '%s' ]", c));
+                        sb.append(String.format("\n[ %s ]", c));
                     }
                 }
             }
@@ -137,23 +148,36 @@ public class WnCharStack {
     private void reset() {
         this.status = Status.S0;
         this.topC = 0;
-        this.topSb = null;
+        this.topBuf = null;
         this.stackC = null;
-        this.stackSb = null;
+        this.stackBuf = null;
+        if (null != this.canPush) {
+            this.cPush = (char) 0;
+        }
     }
 
     public WnStackPushResult push(char c) {
         // 休眠态
         if (Status.S0 == this.status) {
+            // 没有压栈付，从候选压栈符里选择
+            if (this.cPush == 0 && null != this.canPush) {
+                for (char ca : this.canPush) {
+                    // 确定了本次压栈符
+                    if (ca == c) {
+                        this.cPush = ca;
+                        break;
+                    }
+                }
+            }
             // 只有压栈付才能接受
-            if (this.cPush.indexOf(c) < 0) {
+            if (this.cPush != c) {
                 return WnStackPushResult.REJECT;
             }
             // 接受压栈符
             this.topC = c;
-            this.topSb = new StringBuilder();
+            this.topBuf = new StringBuilder();
             this.stackC = new LinkedCharArray();
-            this.stackSb = new LinkedList<>();
+            this.stackBuf = new LinkedList<>();
             this.status = Status.S1;
             return WnStackPushResult.ACCEPT;
         }
@@ -165,7 +189,7 @@ public class WnCharStack {
                 if (0 == c2) {
                     throw Er.create("e.char.stack.InvalidEscapeChar", c);
                 }
-                topSb.append(c2);
+                topBuf.append(c2);
                 this.topC = this.stackC.popLast();
                 return WnStackPushResult.ACCEPT;
             }
@@ -183,22 +207,22 @@ public class WnCharStack {
                     return WnStackPushResult.DONE;
                 }
                 // 弹出一层
-                StringBuilder sb = this.stackSb.pop();
-                sb.append(this.topC).append(this.topSb).append(c);
-                this.topSb = sb;
+                StringBuilder sb = this.stackBuf.pop();
+                sb.append(this.topC).append(this.topBuf).append(c);
+                this.topBuf = sb;
                 this.topC = this.stackC.popLast();
                 return WnStackPushResult.ACCEPT;
             }
             // 压栈符
-            if (cPush.indexOf(c) >= 0) {
+            if (cPush == c) {
                 this.stackC.push(this.topC);
-                this.stackSb.push(topSb);
+                this.stackBuf.push(topBuf);
                 this.topC = c;
-                this.topSb = new StringBuilder();
+                this.topBuf = new StringBuilder();
                 return WnStackPushResult.ACCEPT;
             }
             // 其他字符默认计入缓冲
-            this.topSb.append(c);
+            this.topBuf.append(c);
             return WnStackPushResult.ACCEPT;
         }
         // 完成态
@@ -210,10 +234,10 @@ public class WnCharStack {
 
     public String getContentAndReset() {
         // 小防守一下，S0 是 null 的
-        if (null == this.topSb) {
+        if (null == this.topBuf) {
             return null;
         }
-        String s = this.topSb.toString();
+        String s = this.topBuf.toString();
         this.reset();
         return s;
     }
@@ -258,12 +282,20 @@ public class WnCharStack {
         return list.toArray(new String[n]);
     }
 
-    public String getcPush() {
+    public char getcPush() {
         return cPush;
     }
 
-    public void setcPush(String cPush) {
+    public void setcPush(char cPush) {
         this.cPush = cPush;
+    }
+
+    public char[] getCanPush() {
+        return canPush;
+    }
+
+    public void setCanPush(char[] canPush) {
+        this.canPush = canPush;
     }
 
     public char getcPop() {
