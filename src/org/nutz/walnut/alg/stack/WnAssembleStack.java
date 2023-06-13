@@ -39,7 +39,14 @@ import org.nutz.walnut.util.Wlang;
  *   +------ getListAndReset ---------+
  * </pre>
  * 
+ * 退栈通常是一个时机，调用者会根据当前状态组合,构建自己的树形结构，<br>
+ * 这个在 XML 等树形文档结构非常常用
+ * 
  * @author zozoh(zozohtnt@gmail.com)
+ */
+/**
+ * @author zozoh(zozohtnt@gmail.com)
+ * @param <T>
  */
 public abstract class WnAssembleStack<T> {
 
@@ -79,6 +86,17 @@ public abstract class WnAssembleStack<T> {
     protected abstract T unescape(T obj);
 
     protected abstract void resetPusher();
+
+    /**
+     * @param top
+     *            栈顶元素
+     * @param list
+     *            当前缓冲元素
+     * @param current
+     *            当前元素（导致退栈的元素）
+     * @return 如果返回的不为空， 则需要压入下一层缓冲
+     */
+    protected abstract List<T> whenPop(T top, List<T> list, T current);
 
     protected void reset() {
         this.status = Status.S0;
@@ -128,6 +146,7 @@ public abstract class WnAssembleStack<T> {
             }
             // 退栈元素
             if (this.isPoper(obj)) {
+                List<T> eles = this.whenPop(this.topC, topBuf, obj);
                 // 最底层栈了
                 if (this.stackC.isEmpty()) {
                     this.status = Status.S9;
@@ -135,8 +154,9 @@ public abstract class WnAssembleStack<T> {
                 }
                 // 弹出一层
                 List<T> buf = this.stackBuf.pop();
-                buf.add(this.topC);
-                buf.addAll(buf);
+                if (null != eles && !eles.isEmpty()) {
+                    buf.addAll(eles);
+                }
                 buf.add(obj);
                 this.topBuf = buf;
                 this.topC = this.stackC.removeLast();
