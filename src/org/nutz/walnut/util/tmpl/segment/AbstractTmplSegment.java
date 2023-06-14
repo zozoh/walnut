@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public abstract class AbstractTmplSegment implements TmplSegment {
 
@@ -28,13 +30,30 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     }
 
     @Override
-    public boolean canAddChild() {
+    public boolean isCanAddChild() {
         return true;
+    }
+
+    @Override
+    public boolean isCanAcceptElement() {
+        return false;
+    }
+
+    @Override
+    public void addElement(TmplEle ele) {
+        throw Wlang.noImplement();
     }
 
     @Override
     public void addChild(TmplSegment seg) {
         children.add(seg);
+    }
+
+    @Override
+    public String toString() {
+        String name = this.getClass().getSimpleName();
+        int pos = name.indexOf("TmplSegment");
+        return name.substring(0, pos);
     }
 
 }

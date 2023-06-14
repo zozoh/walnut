@@ -8,15 +8,15 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
-public class TmplBlockSegment implements TmplSegment {
+public class BlockTmplSegment implements TmplSegment {
 
     protected List<TmplEle> elements;
 
-    public TmplBlockSegment() {
+    public BlockTmplSegment() {
         elements = new LinkedList<>();
     }
 
-    public TmplBlockSegment(List<TmplEle> eles) {
+    public BlockTmplSegment(List<TmplEle> eles) {
         this();
         this.addElements(eles);
     }
@@ -59,8 +59,13 @@ public class TmplBlockSegment implements TmplSegment {
     }
 
     @Override
-    public boolean canAddChild() {
+    public boolean isCanAddChild() {
         return false;
+    }
+
+    @Override
+    public boolean isCanAcceptElement() {
+        return true;
     }
 
     @Override
@@ -69,11 +74,7 @@ public class TmplBlockSegment implements TmplSegment {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (TmplEle ele : elements) {
-            sb.append(ele);
-        }
-        return sb.toString();
+        return "Block";
     }
 
 }

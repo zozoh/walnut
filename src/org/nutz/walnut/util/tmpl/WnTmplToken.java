@@ -2,9 +2,20 @@ package org.nutz.walnut.util.tmpl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.nutz.json.Json;
 import org.nutz.walnut.alg.stack.WnCharStack;
 import org.nutz.walnut.alg.stack.WnStackPushResult;
+import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.ele.TmplEle;
+import org.nutz.walnut.util.tmpl.ele.TmplStaticEle;
+import org.nutz.walnut.util.tmpl.segment.*;
+import org.nutz.walnut.util.tmpl.segment.TmplSegment;
+import org.nutz.walnut.util.validate.WnMatch;
+import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class WnTmplToken {
 
@@ -59,7 +70,7 @@ public class WnTmplToken {
                     // 解析完毕
                     if (WnStackPushResult.DONE == re) {
                         String s = stack.getContentAndReset();
-                        list.add(new WnTmplToken().asVar(s));
+                        list.add(new WnTmplToken().asDynamic(s));
                         break;
                     }
                     i++;
@@ -83,24 +94,144 @@ public class WnTmplToken {
         return list;
     }
 
+    private WnTmplTokenRace race;
+
     private WnTmplTokenType type;
 
     private String content;
 
     public String toString() {
-        return String.format("<%s>: '%s'", type, content);
+        return String.format("<%s>: '%s'", race, content);
     }
 
-    public WnTmplToken asVar(String content) {
-        this.type = WnTmplTokenType.VAR;
+    public WnTmplToken asDynamic(String content) {
+        this.race = WnTmplTokenRace.DYNAMIC;
         this.content = content;
-        return this;
+        return this.valueOf();
     }
 
     public WnTmplToken asText(String content) {
-        this.type = WnTmplTokenType.TEXT;
+        this.race = WnTmplTokenRace.TEXT;
         this.content = content;
+        return this.valueOf();
+    }
+
+    private static String REGEXP = "^#(if|else-if|else|end|loop)(.*)$";
+    private static Pattern _P = Pattern.compile(REGEXP);
+
+    public WnTmplToken valueOf() {
+        // 动态符号，深入解析
+        if (this.isRaceDynamic()) {
+            String str = Ws.trim(content);
+            Matcher m = _P.matcher(str);
+            if (m.find()) {
+                String stype = m.group(1);
+                String st = Ws.snakeCase(stype).toUpperCase();
+                this.type = WnTmplTokenType.valueOf(st);
+                this.content = Ws.trim(m.group(2));
+            }
+            // 那就是普通占位符咯
+            else {
+                this.type = WnTmplTokenType.VAR;
+                this.content = str;
+            }
+        }
+
         return this;
+    }
+
+    public TmplSegment createSegment() {
+        // 动态符号
+        if (this.isRaceDynamic()) {
+            // #if | #else-if
+            if (this.isTypeIf() || this.isTypeElseIf()) {
+                ConditionTmplSegment sg_if = new ConditionTmplSegment();
+                WnMatch wm = this.genMatchByContent();
+                sg_if.setMatch(wm);
+                return sg_if;
+            }
+            // #else
+            if (this.isTypeElse()) {
+                ConditionTmplSegment sg_if = new ConditionTmplSegment();
+                return sg_if;
+            }
+            // #loop
+            if (this.isTypeLoop()) {
+                LoopTmplSegment sg_loop = new LoopTmplSegment();
+                sg_loop.valueOf(content);
+                return sg_loop;
+            }
+
+        }
+
+        // 静态文本或者动态变量： 创建一个普通块
+        BlockTmplSegment block = new BlockTmplSegment();
+        TmplEle ele = this.createElement();
+        block.addElement(ele);
+        return block;
+    }
+
+    public TmplEle createElement() {
+        // 静态文本
+        if (this.isRaceText()) {
+            return new TmplStaticEle(this.content);
+        }
+        // 动态变量
+        if (this.isTypeVar()) {
+            return WnTmpl.createTmplEle(this.content);
+        }
+        // 其他不能创建
+        throw Wlang.impossible();
+    }
+
+    public WnMatch genMatchByContent() {
+        String json = content;
+        if (!Ws.isQuoteBy(content, '[', ']') && !Ws.isQuoteBy(content, '{', '}')) {
+            json = "{" + json + "}";
+        }
+        Object input = Json.fromJson(json);
+        return AutoMatch.parse(input);
+
+    }
+
+    public boolean isRaceDynamic() {
+        return WnTmplTokenRace.DYNAMIC == this.race;
+    }
+
+    public boolean isRaceText() {
+        return WnTmplTokenRace.TEXT == this.race;
+    }
+
+    public WnTmplTokenRace getRace() {
+        return race;
+    }
+
+    public void setRace(WnTmplTokenRace race) {
+        this.race = race;
+    }
+
+    public boolean isTypeIf() {
+        return WnTmplTokenType.IF == type;
+    }
+
+    public boolean isTypeElseIf() {
+        return WnTmplTokenType.ELSE_IF == type;
+    }
+
+    public boolean isTypeElse() {
+        return WnTmplTokenType.ELSE == type;
+    }
+
+    public boolean isTypeEnd() {
+        return WnTmplTokenType.END == type;
+    }
+
+    public boolean isTypeVar() {
+        return WnTmplTokenType.VAR == type;
+    }
+
+    public boolean isTypeLoop() {
+        return WnTmplTokenType.LOOP == type;
     }
 
     public WnTmplTokenType getType() {

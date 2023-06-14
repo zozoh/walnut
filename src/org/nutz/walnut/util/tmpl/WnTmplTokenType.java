@@ -2,6 +2,6 @@ package org.nutz.walnut.util.tmpl;
 
 public enum WnTmplTokenType {
 
-    TEXT, VAR
+    IF, ELSE_IF, ELSE, END, LOOP, VAR
 
 }

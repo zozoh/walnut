@@ -16,4 +16,10 @@ public interface WnStack<T> {
     int search(T item);
 
     public List<T> popUtil(Predicate<T> filter, boolean includesive);
+
+    T[] popUtilAsArray(Predicate<T> filter, boolean includesive, Class<T> classOfT);
+
+    List<T> popAll();
+
+    T[] popAllAsArray(Class<T> classOfT);
 }

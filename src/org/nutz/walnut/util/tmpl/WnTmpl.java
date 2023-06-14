@@ -13,6 +13,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.tmpl.ele.TmplBooleanEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDateEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDoubleEle;
+import org.nutz.walnut.util.tmpl.ele.TmplDynamicEle;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 import org.nutz.walnut.util.tmpl.ele.TmplEscapeStr;
 import org.nutz.walnut.util.tmpl.ele.TmplFloatEle;
@@ -286,55 +287,10 @@ public class WnTmpl {
                 }
                 // 否则根据占位符语法解析一下
                 else {
-                    Matcher m2 = _P2.matcher(s_match);
-
-                    if (!m2.find())
-                        throw Lang.makeThrow("Fail to parse tmpl key '%s'", m.group(1));
-
-                    String key = m2.group(1);
-                    String type = Strings.sNull(m2.group(3), "string");
-                    String fmt = m2.group(5);
-                    String dft = m2.group(7);
-
+                    TmplDynamicEle ele = createTmplEle(s_match);
+                    list.add(ele);
                     // 记录键
-                    keys.add(key);
-
-                    // 创建元素
-                    if ("string".equals(type)) {
-                        list.add(new TmplStringEle(key, fmt, dft));
-                    }
-                    // int
-                    else if ("int".equals(type)) {
-                        list.add(new TmplIntEle(key, fmt, dft));
-                    }
-                    // long
-                    else if ("long".equals(type)) {
-                        list.add(new TmplLongEle(key, fmt, dft));
-                    }
-                    // boolean
-                    else if ("boolean".equals(type)) {
-                        list.add(new TmplBooleanEle(key, fmt, dft));
-                    }
-                    // float
-                    else if ("float".equals(type)) {
-                        list.add(new TmplFloatEle(key, fmt, dft));
-                    }
-                    // double
-                    else if ("double".equals(type)) {
-                        list.add(new TmplDoubleEle(key, fmt, dft));
-                    }
-                    // date
-                    else if ("date".equals(type)) {
-                        list.add(new TmplDateEle(key, fmt, dft));
-                    }
-                    // json
-                    else if ("json".equals(type)) {
-                        list.add(new TmplJsonEle(key, fmt, dft));
-                    }
-                    // 靠不可能
-                    else {
-                        throw Lang.impossible();
-                    }
+                    keys.add(ele.getKey());
                 }
             }
             // 记录
@@ -346,6 +302,55 @@ public class WnTmpl {
             list.add(new TmplStaticEle(tmpl.substring(lastIndex)));
         }
 
+    }
+
+    public static TmplDynamicEle createTmplEle(String s_match) {
+        Matcher m2 = _P2.matcher(s_match);
+
+        if (!m2.find())
+            throw Lang.makeThrow("Fail to parse tmpl key '%s'", s_match);
+
+        String key = m2.group(1);
+        String type = Strings.sNull(m2.group(3), "string");
+        String fmt = m2.group(5);
+        String dft = m2.group(7);
+
+        // 创建元素
+        if ("string".equals(type)) {
+            return new TmplStringEle(key, fmt, dft);
+        }
+        // int
+        if ("int".equals(type)) {
+            return new TmplIntEle(key, fmt, dft);
+        }
+        // long
+        if ("long".equals(type)) {
+            return new TmplLongEle(key, fmt, dft);
+        }
+        // boolean
+        if ("boolean".equals(type)) {
+            return new TmplBooleanEle(key, fmt, dft);
+        }
+        // float
+        if ("float".equals(type)) {
+            return new TmplFloatEle(key, fmt, dft);
+        }
+        // double
+        if ("double".equals(type)) {
+            return new TmplDoubleEle(key, fmt, dft);
+        }
+        // date
+        if ("date".equals(type)) {
+            return new TmplDateEle(key, fmt, dft);
+        }
+        // json
+        if ("json".equals(type)) {
+            return new TmplJsonEle(key, fmt, dft);
+        }
+        // 靠不可能
+        else {
+            throw Lang.impossible();
+        }
     }
 
     public String render(NutBean context) {

@@ -21,7 +21,7 @@ public class BranchTmplSegment extends AbstractTmplSegment {
     }
 
     public void addCondition(WnMatch match, List<TmplEle> elements) {
-        TmplBlockSegment block = new TmplBlockSegment(elements);
+        BlockTmplSegment block = new BlockTmplSegment(elements);
         ConditionTmplSegment cnd = new ConditionTmplSegment(match, block);
         this.addChild(cnd);
     }

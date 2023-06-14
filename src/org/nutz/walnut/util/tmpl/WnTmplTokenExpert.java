@@ -1,6 +1,5 @@
 package org.nutz.walnut.util.tmpl;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import org.nutz.walnut.alg.stack.WnCharStack;

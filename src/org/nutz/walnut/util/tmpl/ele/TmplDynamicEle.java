@@ -102,4 +102,8 @@ public abstract class TmplDynamicEle implements TmplEle {
 
     protected abstract String _val(Object val);
 
+    public String getKey() {
+        return key;
+    }
+
 }
