@@ -27,7 +27,13 @@ public abstract class AbstractTmplSegment implements TmplSegment {
         }
     }
 
-    public void addSegment(TmplSegment seg) {
+    @Override
+    public boolean canAddChild() {
+        return true;
+    }
+
+    @Override
+    public void addChild(TmplSegment seg) {
         children.add(seg);
     }
 

@@ -14,7 +14,7 @@ public class ConditionTmplSegment extends AbstractTmplSegment {
     public ConditionTmplSegment(WnMatch match, TmplSegment seg) {
         super();
         this.match = match;
-        this.addSegment(seg);
+        this.addChild(seg);
     }
 
     @Override

@@ -7,5 +7,9 @@ public interface TmplSegment {
     void renderTo(NutBean context, boolean showKey, StringBuilder sb);
 
     boolean isEnable(NutBean context);
+    
+    boolean canAddChild();
+    
+    void addChild(TmplSegment child);
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public class TmplBlockSegment implements TmplSegment {
@@ -55,6 +56,16 @@ public class TmplBlockSegment implements TmplSegment {
         for (TmplEle ele : elements) {
             ele.join(sb, context, showKey);
         }
+    }
+
+    @Override
+    public boolean canAddChild() {
+        return false;
+    }
+
+    @Override
+    public void addChild(TmplSegment child) {
+        throw Wlang.noImplement();
     }
 
     public String toString() {
