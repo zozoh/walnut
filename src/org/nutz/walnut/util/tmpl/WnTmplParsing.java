@@ -45,7 +45,7 @@ public class WnTmplParsing {
         for (WnTmplToken t : this.tokens) {
             // #end: 弹出堆栈到 Branch 或者 loop，并压入栈顶对象
             // 如果栈顶元素不能接受子，则会弹出到可以接受子的对象，再压入
-            // 如果栈空了，则直接计入根 tmp
+            // 如果栈空了，则直接计入根 tmpl
             if (t.isTypeEnd()) {
                 // 弹出到 Branch
                 TmplSegment[] sgs = stack.popUtilAsArray(new Predicate<>() {
@@ -54,7 +54,7 @@ public class WnTmplParsing {
                     }
                 }, true, TmplSegment.class);
 
-                // 确保最后一个一定是 Branch
+                // 确保最后一个一定是 Branch/Loop
                 TmplSegment lastSeg = sgs[sgs.length - 1];
                 if (!(lastSeg instanceof BranchTmplSegment)
                     && !(lastSeg instanceof LoopTmplSegment)) {
