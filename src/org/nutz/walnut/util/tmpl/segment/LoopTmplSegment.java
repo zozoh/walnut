@@ -23,6 +23,15 @@ public class LoopTmplSegment extends AbstractTmplSegment {
      */
     private String looperName;
 
+    /**
+     * 下标变量，开始的数值，默认 0
+     */
+    private int base;
+
+    public LoopTmplSegment() {
+        this.base = 0;
+    }
+
     @Override
     public void renderTo(NutBean context, boolean showKey, StringBuilder sb) {
         if (null == children) {
@@ -37,11 +46,12 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         Object obj = Mapl.cell(context, looperName);
 
         // 迭代逻辑
+        final int baseI = this.base;
         WnEachIteratee<Object> iteratee = new WnEachIteratee<Object>() {
             public void invoke(int index, Object ele, Object src) {
                 context.put(varName, ele);
                 if (null != indexName) {
-                    context.put(indexName, index);
+                    context.put(indexName, index + baseI);
                 }
 
                 for (TmplSegment seg : children) {
@@ -66,8 +76,8 @@ public class LoopTmplSegment extends AbstractTmplSegment {
      * 解析一个字符串,格式类似下面的字符串
      * 
      * <pre>
-     * {var},{index} :{looper}
-     *   it ,index   : alist
+     * {var},{index}=${base} :{looper}
+     *   it ,index=2   : alist
      * </pre>
      * 
      * @param input
@@ -76,14 +86,26 @@ public class LoopTmplSegment extends AbstractTmplSegment {
      */
     public LoopTmplSegment valueOf(String input) {
         String[] ss = Ws.splitIgnoreBlank(input, ":");
+        // 只有 looper alist
         if (ss.length == 1) {
             this.looperName = ss[0];
-        } else if (ss.length > 1) {
+        }
+        // it,index : alist
+        else if (ss.length > 1) {
             this.looperName = ss[1];
             String[] vv = Ws.splitIgnoreBlank(ss[0]);
             this.varName = vv[0];
+            // it,index=1 : alist
             if (vv.length > 1) {
-                this.indexName = vv[1];
+                String ixName = vv[1];
+                int pos = ixName.indexOf('=');
+                if (pos > 0) {
+                    this.indexName = ixName.substring(0, pos);
+                    this.base = Integer.parseInt(ixName.substring(pos + 1).trim());
+                } else {
+                    this.indexName = ixName;
+                }
+
             }
         }
         return this;
@@ -111,6 +133,14 @@ public class LoopTmplSegment extends AbstractTmplSegment {
 
     public void setLooperName(String looperName) {
         this.looperName = looperName;
+    }
+
+    public int getBase() {
+        return base;
+    }
+
+    public void setBase(int base) {
+        this.base = base;
     }
 
 }

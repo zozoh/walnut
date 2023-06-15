@@ -38,6 +38,12 @@ public class WnTmplX extends AbstractTmplSegment {
         return x.render(context, showKey);
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        this.joinDebugTree(sb, 0);
+        return sb.toString();
+    }
+
     public String render(NutBean context) {
         return render(context, false);
     }
