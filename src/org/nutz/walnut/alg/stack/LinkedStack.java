@@ -82,7 +82,8 @@ public class LinkedStack<T> implements WnStack<T> {
         StringBuilder sb = new StringBuilder();
         int i = stack.size() - 1;
         for (T obj : stack) {
-            sb.append(String.format("%02d) [ %10s ]\n", i, obj.toString()));
+            String name = obj.getClass().getSimpleName();
+            sb.append(String.format("%02d) [ %20s ]\n", i--, name));
         }
         return sb.toString();
     }

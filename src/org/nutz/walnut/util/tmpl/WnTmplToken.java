@@ -23,6 +23,11 @@ public class WnTmplToken {
         return parseToArray(s.toCharArray());
     }
 
+    public static WnTmplToken[] parseToArray(WnTmplTokenExpert expert, char[] cs) {
+        List<WnTmplToken> list = parse(expert, cs);
+        return list.toArray(new WnTmplToken[list.size()]);
+    }
+
     public static WnTmplToken[] parseToArray(char[] cs) {
         List<WnTmplToken> list = parse(cs);
         return list.toArray(new WnTmplToken[list.size()]);
@@ -33,12 +38,18 @@ public class WnTmplToken {
     }
 
     public static List<WnTmplToken> parse(char[] cs) {
-        WnTmplTokenExpert expert = new WnTmplTokenExpert("$$", "${", '}');
-        return parse(expert, cs);
+        return parse(null, cs);
     }
 
     public static List<WnTmplToken> parse(WnTmplTokenExpert expert, char[] cs) {
+        // 默认符号解析专家类
+        if (null == expert) {
+            expert = new WnTmplTokenExpert("$$", "${", '}');
+        }
+
+        // 准备符号结果列表
         List<WnTmplToken> list = new LinkedList<>();
+
         // 准备解析栈
         WnCharStack stack = expert.createCharStack();
 
@@ -101,6 +112,9 @@ public class WnTmplToken {
     private String content;
 
     public String toString() {
+        if (this.isRaceDynamic()) {
+            return String.format("<%s#%s>: '%s'", race, type, content);
+        }
         return String.format("<%s>: '%s'", race, content);
     }
 

@@ -25,6 +25,8 @@ import org.nutz.walnut.util.tmpl.segment.TmplSegment;
  */
 public class WnTmplParsing {
 
+    private WnTmplTokenExpert expert;
+
     private WnTmplToken[] tokens;
 
     private LinkedStack<TmplSegment> stack;
@@ -38,7 +40,7 @@ public class WnTmplParsing {
         this.tmpl = new WnTmplX();
 
         // 解析符号表
-        this.tokens = WnTmplToken.parseToArray(cs);
+        this.tokens = WnTmplToken.parseToArray(expert, cs);
 
         // 循环符号表
         stack = new LinkedStack<>();
@@ -76,12 +78,36 @@ public class WnTmplParsing {
                         }
                     }, true, TmplSegment.class);
 
-                    // 从头开始向下合并
-                    margeDown(tops);
+                    // 为了防止
+                    // 01) [ Loop ]
+                    // 00) [ Block ]
+                    // 这种堆栈，需要从后向前确认一个最终能接受子的对象
+                    int lastI = tops.length - 1;
+                    for (; lastI >= 0; lastI--) {
+                        TmplSegment it = tops[lastI];
+                        if (it.isCanAddChild()) {
+                            break;
+                        }
+                    }
 
-                    // 最后一个元素还需要压回到栈顶
-                    TmplSegment top = tops[tops.length - 1];
-                    stack.push(top);
+                    // 如果 lastI 不是最后一个，那么堆栈必然被弹空了，将这些元素统统压入根即可
+                    for (int x = tops.length - 1; x > lastI; x--) {
+                        TmplSegment it = tops[x];
+                        tmpl.addChild(it);
+                    }
+
+                    // 从头开始向下合并
+                    TmplSegment top = margeDown(tops, lastI);
+
+                    // 将之前组合好的 lastSeg 压入最后一个元素，并将 top 要压回到栈顶
+                    if (null != top) {
+                        top.addChild(lastSeg);
+                        stack.push(top);
+                    }
+                    // 那么就是根咯
+                    else {
+                        tmpl.addChild(lastSeg);
+                    }
                 }
             }
             // #if 压栈 Branch+Condition
@@ -140,20 +166,39 @@ public class WnTmplParsing {
         // 如果堆栈里还有东西也一并弹出
         if (!stack.isEmpty()) {
             TmplSegment[] list = stack.popAllAsArray(TmplSegment.class);
+
+            // 看看栈底的对象，找到一个能计入子对象的，其他都先入根
+            int lastI = list.length - 1;
+            for (; lastI >= 0; lastI--) {
+                TmplSegment it = list[lastI];
+                tmpl.addChild(it);
+            }
+
             // 从头开始向下合并
-            margeDown(list);
-            // 最后计入根
-            TmplSegment sg = list[list.length - 1];
-            tmpl.addChild(sg);
+            TmplSegment top = margeDown(list, lastI);
+
+            // 将之前组合好的 lastSeg 压入最后一个元素，并将 top 要压回到栈顶
+            if (null != top) {
+                tmpl.addChild(top);
+            }
+
         }
 
         // 搞定
         return this.tmpl;
     }
 
-    private void margeDown(TmplSegment[] sgs) {
+    private TmplSegment margeDown(TmplSegment[] sgs) {
         // 倒序合并
         int lastI = sgs.length - 1;
+        return margeDown(sgs, lastI);
+    }
+
+    private TmplSegment margeDown(TmplSegment[] sgs, int lastI) {
+        if (lastI < 0 || lastI >= sgs.length) {
+            return null;
+        }
+        // 倒序合并
         TmplSegment current = sgs[lastI];
         for (int i = lastI - 1; i >= 0; i--) {
             TmplSegment sg = sgs[i];
@@ -162,6 +207,15 @@ public class WnTmplParsing {
                 current = sg;
             }
         }
+        return sgs[lastI];
+    }
+
+    public WnTmplTokenExpert getExpert() {
+        return expert;
+    }
+
+    public void setExpert(WnTmplTokenExpert expert) {
+        this.expert = expert;
     }
 
 }

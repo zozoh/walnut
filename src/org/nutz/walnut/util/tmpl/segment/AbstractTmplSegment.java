@@ -17,20 +17,6 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     }
 
     @Override
-    public void joinDebugTree(StringBuilder sb, int indent) {
-        if (indent > 0) {
-            sb.append(Ws.repeat("|   ", indent));
-        }
-        sb.append('<').append(this.toTypeName()).append('>');
-        if (null != this.children) {
-            for (TmplSegment child : children) {
-                sb.append('\n');
-                child.joinDebugTree(sb, indent + 1);
-            }
-        }
-    }
-
-    @Override
     public boolean isEnable(NutBean context) {
         return true;
     }
@@ -65,14 +51,33 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     }
 
     @Override
+    public void joinDebugTree(StringBuilder sb, int indent) {
+        if (indent > 0) {
+            sb.append(Ws.repeat("|   ", indent));
+        }
+        sb.append('<').append(this.toTypeName()).append('>');
+        if (null != this.children) {
+            for (TmplSegment child : children) {
+                sb.append('\n');
+                child.joinDebugTree(sb, indent + 1);
+            }
+        }
+    }
+
+    @Override
     public String toString() {
-        return toTypeName();
+        StringBuilder sb = new StringBuilder();
+        this.joinDebugTree(sb, 0);
+        return sb.toString();
     }
 
     private String toTypeName() {
         String name = this.getClass().getSimpleName();
         int pos = name.indexOf("TmplSegment");
-        return name.substring(0, pos);
+        if (pos > 0) {
+            return name.substring(0, pos);
+        }
+        return name;
     }
 
 }

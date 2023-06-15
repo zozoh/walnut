@@ -3,6 +3,7 @@ package org.nutz.walnut.util.tmpl;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.tmpl.segment.AbstractTmplSegment;
 
 /**
@@ -12,10 +13,15 @@ import org.nutz.walnut.util.tmpl.segment.AbstractTmplSegment;
  */
 public class WnTmplX extends AbstractTmplSegment {
 
-    public static WnTmplX parse(String input) {
+    public static WnTmplX parse(WnTmplTokenExpert expert, String input) {
         char[] cs = input.toCharArray();
         WnTmplParsing ing = new WnTmplParsing();
+        ing.setExpert(expert);
         return ing.parse(cs);
+    }
+
+    public static WnTmplX parse(String input) {
+        return parse(null, input);
     }
 
     public static WnTmplX parsef(String fmt, Object... args) {
@@ -38,17 +44,14 @@ public class WnTmplX extends AbstractTmplSegment {
         return x.render(context, showKey);
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        this.joinDebugTree(sb, 0);
-        return sb.toString();
-    }
-
     public String render(NutBean context) {
         return render(context, false);
     }
 
     public String render(NutBean context, boolean showKey) {
+        if (null == context) {
+            context = new NutMap();
+        }
         StringBuilder sb = new StringBuilder();
         this.renderTo(context, showKey, sb);
         return sb.toString();

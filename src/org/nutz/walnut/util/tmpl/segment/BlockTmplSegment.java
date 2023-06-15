@@ -23,18 +23,6 @@ public class BlockTmplSegment implements TmplSegment {
     }
 
     @Override
-    public void joinDebugTree(StringBuilder sb, int indent) {
-        if (indent > 0) {
-            sb.append(Ws.repeat("|   ", indent));
-        }
-        sb.append("<Block>");
-        for (TmplEle ele : elements) {
-            ele.join(sb, null, true);
-        }
-
-    }
-
-    @Override
     public boolean isEnable(NutBean context) {
         return true;
     }
@@ -86,8 +74,22 @@ public class BlockTmplSegment implements TmplSegment {
         throw Wlang.noImplement();
     }
 
+    @Override
+    public void joinDebugTree(StringBuilder sb, int indent) {
+        if (indent > 0) {
+            sb.append(Ws.repeat("|   ", indent));
+        }
+        sb.append("<Block>");
+        for (TmplEle ele : elements) {
+            ele.join(sb, null, true);
+        }
+
+    }
+
     public String toString() {
-        return "Block";
+        StringBuilder sb = new StringBuilder();
+        this.joinDebugTree(sb, 0);
+        return sb.toString();
     }
 
 }

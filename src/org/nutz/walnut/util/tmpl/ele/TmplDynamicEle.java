@@ -8,7 +8,7 @@ public abstract class TmplDynamicEle implements TmplEle {
 
     private String _type;
 
-    private String key;
+    protected String key;
 
     // 标识键是否包括 '[' ']' 或者 '.' 等可以被 Mapl 解析的取值路径
     private boolean _is_key_as_path;
@@ -20,6 +20,8 @@ public abstract class TmplDynamicEle implements TmplEle {
     private String _dft_key;
 
     protected String fmt;
+
+    protected TmplDynamicEle() {}
 
     protected TmplDynamicEle(String type, String key, String fmt, String dft_str) {
         this._type = type;

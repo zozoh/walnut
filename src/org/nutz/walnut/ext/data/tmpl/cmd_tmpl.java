@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.data.tmpl;
 
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
-import org.nutz.walnut.util.tmpl.WnTmpl;
+import org.nutz.walnut.util.tmpl.WnTmplX;
 
 public class cmd_tmpl extends JvmFilterExecutor<TmplContext, TmplFilter> {
 
@@ -21,8 +21,8 @@ public class cmd_tmpl extends JvmFilterExecutor<TmplContext, TmplFilter> {
     @Override
     protected void output(WnSystem sys, TmplContext fc) {
         if (!fc.quiet) {
-            WnTmpl t = WnTmpl.parse(fc.tmpl);
-            String s = t.render(fc.vars);
+            WnTmplX t = WnTmplX.parse(fc.expert, fc.tmpl);
+            String s = t.render(fc.vars, fc.showKeys);
             sys.out.println(s);
         }
     }

@@ -14,6 +14,7 @@ import org.nutz.walnut.util.tmpl.ele.TmplBooleanEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDateEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDoubleEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDynamicEle;
+import org.nutz.walnut.util.tmpl.ele.TmplElEle;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 import org.nutz.walnut.util.tmpl.ele.TmplEscapeStr;
 import org.nutz.walnut.util.tmpl.ele.TmplFloatEle;
@@ -276,22 +277,10 @@ public class WnTmpl {
             }
             // 否则分析键
             else {
-                // 如果是 `=` 开头，直接就作为字符串好了
-                // 这个特殊处理，可以用来把占位符和 El 结合起来
-                // 如果想输出一个占位符是 El 表达式，那么写个 = ， 就会被认为是字符串默认保留
-                // 如果渲染的时候，对 key 进行判断，发现是 = 开头的 key，用 El 预先渲染并填入上下文就好了
-                // TODO 这个是不是应该搞一个 TmplElEle 呢？
-                if (s_match.startsWith("=")) {
-                    keys.add(s_match);
-                    list.add(new TmplStringEle(s_match, null, null));
-                }
-                // 否则根据占位符语法解析一下
-                else {
-                    TmplDynamicEle ele = createTmplEle(s_match);
-                    list.add(ele);
-                    // 记录键
-                    keys.add(ele.getKey());
-                }
+                TmplDynamicEle ele = createTmplEle(s_match);
+                list.add(ele);
+                // 记录键
+                keys.add(ele.getKey());
             }
             // 记录
             lastIndex = m.end();
@@ -305,6 +294,19 @@ public class WnTmpl {
     }
 
     public static TmplDynamicEle createTmplEle(String s_match) {
+        // 如果是 `=` 开头，直接就作为字符串好了
+        // 这个特殊处理，可以用来把占位符和 El 结合起来
+        // 如果想输出一个占位符是 El 表达式，那么写个 = ， 就会被认为是字符串默认保留
+        // 如果渲染的时候，对 key 进行判断，发现是 = 开头的 key，用 El 预先渲染并填入上下文就好了
+        // TODO 这个是不是应该搞一个 TmplElEle 呢？
+        if (s_match.startsWith("=")) {
+            String el = s_match.substring(1).trim();
+            return new TmplElEle(el);
+        }
+
+        //
+        // 依次判断各种占位符
+        //
         Matcher m2 = _P2.matcher(s_match);
 
         if (!m2.find())
