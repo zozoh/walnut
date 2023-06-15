@@ -6,6 +6,7 @@ import java.util.List;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public class BlockTmplSegment implements TmplSegment {
@@ -19,6 +20,18 @@ public class BlockTmplSegment implements TmplSegment {
     public BlockTmplSegment(List<TmplEle> eles) {
         this();
         this.addElements(eles);
+    }
+
+    @Override
+    public void joinDebugTree(StringBuilder sb, int indent) {
+        if (indent > 0) {
+            sb.append(Ws.repeat("|   ", indent));
+        }
+        sb.append("<Block>");
+        for (TmplEle ele : elements) {
+            ele.join(sb, null, true);
+        }
+
     }
 
     @Override

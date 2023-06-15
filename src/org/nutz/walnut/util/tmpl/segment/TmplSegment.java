@@ -15,6 +15,8 @@ public interface TmplSegment {
 
     void addChild(TmplSegment child);
 
-    public void addElement(TmplEle ele);
+    void addElement(TmplEle ele);
+
+    void joinDebugTree(StringBuilder sb, int indent);
 
 }

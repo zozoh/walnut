@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public abstract class AbstractTmplSegment implements TmplSegment {
@@ -13,6 +14,20 @@ public abstract class AbstractTmplSegment implements TmplSegment {
 
     public AbstractTmplSegment() {
         this.children = new LinkedList<>();
+    }
+
+    @Override
+    public void joinDebugTree(StringBuilder sb, int indent) {
+        if (indent > 0) {
+            sb.append(Ws.repeat("|   ", indent));
+        }
+        sb.append('<').append(this.toTypeName()).append('>');
+        if (null != this.children) {
+            for (TmplSegment child : children) {
+                sb.append('\n');
+                child.joinDebugTree(sb, indent + 1);
+            }
+        }
     }
 
     @Override
@@ -51,6 +66,10 @@ public abstract class AbstractTmplSegment implements TmplSegment {
 
     @Override
     public String toString() {
+        return toTypeName();
+    }
+
+    private String toTypeName() {
         String name = this.getClass().getSimpleName();
         int pos = name.indexOf("TmplSegment");
         return name.substring(0, pos);
