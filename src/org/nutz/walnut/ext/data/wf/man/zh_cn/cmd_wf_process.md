@@ -26,8 +26,10 @@ wf ... @process
   [-wary]      # 谨慎模式，在这个模式下，当上下文没有合法CURRENT_NAME时，
                # 将直接退出工作流执行
   [-auto next] # 自动寻找到的开始节点，是当作 NEXT_NAME 还是 CURRENT_NAME
-               #  - next : 当作 NEXT_NAME, 执行节点，不尝试边【默认】
+               #  - next : 当作 NEXT_NAME, 执行节点，不尝试边，除非节点明确要尝试边【默认】
                #  - current : 当作 CURRENT_NAME，不执行节点，但尝试边
+  [-redo]      # 重入模式，这个模式仅仅是执行当前节点，并不尝试边,
+               # 这个模式下必须明确指定工作流当前节点，否则什么也不做
 ```
 
 # 示例

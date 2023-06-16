@@ -20,7 +20,7 @@ public class wf_process extends WfFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(test|wary)$");
+        return ZParams.parse(args, "^(test|wary|redo)$");
     }
 
     @Override
@@ -34,10 +34,39 @@ public class wf_process extends WfFilter {
         boolean isTest = params.is("test");
         boolean isWary = params.is("wary");
         String autoMode = params.getString("auto", AUTO_NEXT);
+        boolean isRedo = params.is("redo");
 
         // 防守:是否确认了开始节点
         WfNode node = null;
         String cuName;
+
+        // 重入模式，必须指定一个有效的当前节点
+        if (isRedo) {
+            if (fc.hasCurrentName()) {
+                cuName = fc.getCurrentName();
+                node = fc.workflow.getNode(cuName);
+            } else {
+                throw Er.create("e.wf.NeedNodeName");
+            }
+            // 未找到节点，抛个错
+            if (null == node) {
+                throw Er.create("e.wf.InvalidNodeName", cuName);
+            }
+
+            // 设置上下文
+            fc.setNextName(cuName);
+            fc.setNextType(node.getType());
+
+            // 执行节点
+            if (!isTest) {
+                this.processWfActionElement(sys, fc, node);
+            }
+
+            // 重入模式就不尝试边了
+            return;
+        }
+
+        // 没有当前节点，则看自动模式是什么
         if (!fc.hasCurrentName()) {
             // 谨慎模式下，则直接退出执行
             if (isWary) {
@@ -48,7 +77,7 @@ public class wf_process extends WfFilter {
             if (null == headName) {
                 return;
             }
-            // 设置 NEXT_NAME
+            // 设置 NEXT_NAME，如果是
             if (AUTO_NEXT.equals(autoMode)) {
                 fc.setNextName(headName);
                 cuName = headName;
@@ -83,7 +112,7 @@ public class wf_process extends WfFilter {
         // 循环执行，直到触达【状态/尾】节点，或者未找到连通边为止
         while (true) {
             // 【退出点】节点非法，或者已达尾部（防止小贱人乱设置 CURRENT_NAME）
-            if (null == node || node.isTAIL() ) {
+            if (null == node || node.isTAIL()) {
                 return;
             }
 
