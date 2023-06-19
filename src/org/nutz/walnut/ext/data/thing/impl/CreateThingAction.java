@@ -230,7 +230,10 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
         }
 
         // 根据链接键，自动修改元数据，返回的值是一组后续更新脚本
-        List<ThOtherUpdating> others = evalOtherUpdating(oT, meta, this.conf, this.executor);
+        List<ThOtherUpdating> others = null;
+        if (!this.withoutHook) {
+            others = evalOtherUpdating(oT, meta, this.conf, this.executor);
+        }
 
         NutMap context = null;
 
