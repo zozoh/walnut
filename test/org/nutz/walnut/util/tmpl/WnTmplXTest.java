@@ -95,6 +95,17 @@ public class WnTmplXTest {
         String str = WnTmplX.exec(tmpl, vars);
         assertEquals("1.xiaobai;2.xiaohei;", str);
     }
+    
+    @Test
+    public void test_branch_if_note() {
+        NutMap vars = Wlang.map("{a:100,b:20}");
+
+        String str = WnTmplX.exec("${#if not a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
+        assertEquals("A=100", str);
+
+        str = WnTmplX.exec("${#if not a:'[0,100]'}A=${a}${#else}B=${b}${#end}", vars);
+        assertEquals("B=20", str);
+    }
 
     @Test
     public void test_branch_if() {

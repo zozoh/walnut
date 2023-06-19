@@ -16,6 +16,7 @@ import org.nutz.walnut.util.tmpl.segment.*;
 import org.nutz.walnut.util.tmpl.segment.TmplSegment;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
+import org.nutz.walnut.util.validate.impl.NotMatch;
 
 public class WnTmplToken {
 
@@ -200,11 +201,21 @@ public class WnTmplToken {
 
     public WnMatch genMatchByContent() {
         String json = content;
+        boolean not = false;
+        if (json.startsWith("not")) {
+            not = true;
+            json = json.substring(3).trim();
+        }
+
         if (!Ws.isQuoteBy(content, '[', ']') && !Ws.isQuoteBy(content, '{', '}')) {
             json = "{" + json + "}";
         }
         Object input = Json.fromJson(json);
-        return AutoMatch.parse(input);
+        WnMatch wm = AutoMatch.parse(input);
+        if (not) {
+            wm = new NotMatch(wm);
+        }
+        return wm;
 
     }
 
