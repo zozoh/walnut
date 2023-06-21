@@ -146,9 +146,9 @@ public class wf_process extends WfFilter {
                 this.processWfActionElement(sys, fc, taNode);
             }
 
-            // 【退出点】已经是一个状态节点
-            // 状态节点相当于 yield，那么整个处理进程则需挂起
-            if (taNode.isSTATE() && !taNode.isAutoNext()) {
+            // 【退出点】不是结束，而且也不需要自动尝试
+            // 相当于 yield，那么整个处理进程则需挂起
+            if (!taNode.isTAIL() && !taNode.isAutoNext()) {
                 return;
             }
 
