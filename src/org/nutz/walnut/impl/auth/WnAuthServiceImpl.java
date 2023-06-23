@@ -246,6 +246,11 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
             WnAccountLoader accLoader = new WnAccountLoaderImpl(io, site.getAccountDir(), false);
             WnAccount a = accLoader.getAccountById(uid);
 
+            // 读取不到帐号
+            if (null == a) {
+                return null;
+            }
+
             // 会话暗戳戳的指定了当前用户针对域的角色
             int roleInDomain = oSe.getInt(Wn.K_ROLE_IN_DOMAIN, Integer.MIN_VALUE);
             if (roleInDomain != Integer.MIN_VALUE) {
