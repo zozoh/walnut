@@ -71,12 +71,12 @@ mailx @config ics @subject xxx @attchment ~/a.edi @send
 
 
 # 发送邮件
-mailx @to a@b.c b@8.com @subject xxx @attchment ~/a.edi \
+mailx @to a@b.c b@8.com @subject xxx @at ~/a.edi \
       @sign -type smime -store_passwd xxx  -alias xxx -priv_passwd xxx ~/path.store.pfx \
       @encrypt -type smime ~/some.cer
 
 # 发送邮件
-mailx @from xx@xx.com @to a@b.c @subject xxx @attchment ~/a.edi \
+mailx @from xx@xx.com @to a@b.c @subject xxx @at ~/a.edi \
       @sign -conf ~/sign.json \
       @encrypt -conf ~/encrypt.json \
       @save ~/outbox/index
