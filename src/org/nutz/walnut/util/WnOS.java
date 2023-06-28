@@ -44,6 +44,7 @@ public abstract class WnOS {
             // Jvm 分析的系统信息
             log.info(" - load sys properties ...");
             rt.nodeVersion = WnVersion.getName();
+            rt.nodeVersionNumber = WnVersion.get();
             rt.javaVersion = System.getProperty("java.version");
             rt.osArch = System.getProperty("os.arch");
             rt.osName = System.getProperty("os.name").replace(" ", "");

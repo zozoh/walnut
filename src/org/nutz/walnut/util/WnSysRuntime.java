@@ -18,6 +18,11 @@ public class WnSysRuntime {
     String nodeVersion;
 
     /**
+     * 系统版本(纯号码）
+     */
+    String nodeVersionNumber;
+
+    /**
      * 节点唯一名称
      */
     String nodeName;
@@ -87,6 +92,14 @@ public class WnSysRuntime {
 
     public void setNodeVersion(String version) {
         this.nodeVersion = version;
+    }
+
+    public String getNodeVersionNumber() {
+        return nodeVersionNumber;
+    }
+
+    public void setNodeVersionNumber(String nodeVersionNumber) {
+        this.nodeVersionNumber = nodeVersionNumber;
     }
 
     public String getNodeName() {
