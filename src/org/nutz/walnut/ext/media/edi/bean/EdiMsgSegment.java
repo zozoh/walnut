@@ -12,7 +12,7 @@ public class EdiMsgSegment {
 
     private List<EdiMsgComponent> components;
     
-    public EdiMsgSegment valueOf(String input, EdiMsgSetup setup) {
+    public EdiMsgSegment valueOf(String input, EdiMsgAdvice setup) {
         return this;
     }
 

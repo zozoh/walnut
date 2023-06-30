@@ -4,7 +4,7 @@ import java.util.List;
 
 public class EdiMsgPack {
 
-    private EdiMsgSetup setup;
+    private EdiMsgAdvice advice;
 
     private List<EdiMsgEntry> entries;
 
@@ -12,12 +12,12 @@ public class EdiMsgPack {
         return this;
     }
 
-    public EdiMsgSetup getSetup() {
-        return setup;
+    public EdiMsgAdvice getAdvice() {
+        return advice;
     }
 
-    public void setSetup(EdiMsgSetup setup) {
-        this.setup = setup;
+    public void setAdvice(EdiMsgAdvice advice) {
+        this.advice = advice;
     }
 
     public List<EdiMsgEntry> getEntries() {
