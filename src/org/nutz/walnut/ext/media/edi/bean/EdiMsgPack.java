@@ -1,10 +1,17 @@
 package org.nutz.walnut.ext.media.edi.bean;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import org.nutz.walnut.ext.media.edi.util.EdiMsgParsing;
 
 public class EdiMsgPack {
 
     private EdiMsgAdvice advice;
+
+    private EdiMsgSegment head;
+
+    private EdiMsgSegment tail;
 
     private List<EdiMsgEntry> entries;
 
@@ -17,6 +24,40 @@ public class EdiMsgPack {
 
             // 逐个解析后面的行
             char[] cs = input.substring(pos + 1).trim().toCharArray();
+            this.entries = new LinkedList<>();
+            EdiMsgParsing ing = new EdiMsgParsing(advice, cs);
+            EdiMsgSegment seg = ing.nextSegment();
+            EdiMsgEntry en = null;
+            while (null != seg) {
+                // 记入消息
+                if (null != en) {
+                    // 结束消息,记入当前包
+                    if (seg.isTag("UNT")) {
+                        en.setTail(seg);
+                        this.entries.add(en);
+                        en = null;
+                    }
+                    // 报文行，记入消息
+                    else {
+                        en.addSegments(seg);
+                    }
+                }
+                // 消息开始
+                else if (seg.isTag("UNH")) {
+                    en = new EdiMsgEntry(seg);
+                }
+                // 包开始
+                else if (seg.isTag("UNB")) {
+                    this.head = seg;
+
+                }
+                // 包结束
+                else if (seg.isTag("UNZ")) {
+                    this.tail = seg;
+                    break;
+                }
+                seg = ing.nextSegment();
+            }
         }
         return this;
     }
@@ -29,12 +70,32 @@ public class EdiMsgPack {
         this.advice = advice;
     }
 
+    public EdiMsgSegment getHead() {
+        return head;
+    }
+
+    public void setHead(EdiMsgSegment head) {
+        this.head = head;
+    }
+
+    public EdiMsgSegment getTail() {
+        return tail;
+    }
+
+    public void setTail(EdiMsgSegment tail) {
+        this.tail = tail;
+    }
+
     public List<EdiMsgEntry> getEntries() {
         return entries;
     }
 
     public void setEntries(List<EdiMsgEntry> entries) {
         this.entries = entries;
+    }
+
+    public void addEntry(EdiMsgEntry entry) {
+        this.entries.add(entry);
     }
 
 }

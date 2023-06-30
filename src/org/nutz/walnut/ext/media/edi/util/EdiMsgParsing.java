@@ -25,7 +25,8 @@ public class EdiMsgParsing {
     private char topC;
 
     public EdiMsgSegment nextSegment() {
-        while (this.I < this.cs.length>) {
+        EdiMsgSegment seg = null;
+        while (this.I < this.cs.length) {
             char c = this.cs[this.I++];
             // 逃逸字符
             if (topC == A.escaper) {
@@ -33,34 +34,45 @@ public class EdiMsgParsing {
             }
             // 元素结束
             else if (c == A.element) {
-                String str = stack.popAll();
-                elements.add(new EdiMsgElement(str));
+                this.closeElement();
             }
             // 组件结束
-            else if(c == A.component) {
-                this.tryCloseElement();
+            else if (c == A.component) {
                 // 尝试清空字符缓冲或许它是另外一个元素
-                if(!stack.isEmpty()) {
-                    String str = stack.popAll();
-                    elements.add(new EdiMsgElement(str));
+                if (!stack.isEmpty()) {
+                    this.closeElement();
                 }
+
                 // 组装一个组件
-                EdiMsgComponent com = new EdiMsgComponent(this.elements);
-                this.elements = new LinkedList<>();
-                this.components.add(com);
+                this.closeComponent();
             }
             // 行结束
-            else if(c == A.segment) {
-                
+            else if (c == A.segment) {
+                // 尝试清空字符缓冲或许它是另外一个元素
+                if (!stack.isEmpty()) {
+                    this.closeElement();
+                }
+
+                // 组装一个组件
+                if (!components.isEmpty()) {
+                    this.closeComponent();
+                }
+
+                seg = new EdiMsgSegment(this.components);
             }
         }
+        return seg;
     }
-    
-    private void tryCloseElement() {
-        if(!stack.isEmpty()) {
-            String str = stack.popAll();
-            elements.add(new EdiMsgElement(str));
-        }
+
+    private void closeComponent() {
+        EdiMsgComponent com = new EdiMsgComponent(this.elements);
+        this.elements = new LinkedList<>();
+        this.components.add(com);
+    }
+
+    private void closeElement() {
+        String str = stack.popAll();
+        elements.add(new EdiMsgElement(str));
     }
 
     public void reset() {

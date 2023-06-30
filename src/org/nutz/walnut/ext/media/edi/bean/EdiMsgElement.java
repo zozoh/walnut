@@ -15,20 +15,27 @@ public class EdiMsgElement {
             value = null;
         }
         // 特殊标记
-        else if(s.matches("^[A-Z]{2,3}$")) {
+        else if (s.matches("^[A-Z]{2,3}$")) {
             type = EdiMsgElementType.TAG;
             value = s;
         }
         // 数字
-        else if(s.matches("^[0-9].$")) {
+        else if (s.matches("^[0-9].$")) {
             type = EdiMsgElementType.NUMBER;
             value = s;
         }
         // 默认就是自由文本
-        else{
+        else {
             type = EdiMsgElementType.TEXT;
             value = s;
         }
+    }
+
+    public boolean isTag(String name) {
+        if (EdiMsgElementType.TAG == this.type) {
+            return null != value && value.equals(name);
+        }
+        return false;
     }
 
     public EdiMsgElementType getType() {

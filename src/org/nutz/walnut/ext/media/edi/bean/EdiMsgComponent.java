@@ -19,6 +19,14 @@ public class EdiMsgComponent {
         return null;
     }
 
+    public boolean isFirstElement(String name) {
+        if (elements.size() > 0) {
+            EdiMsgElement ele0 = elements.get(0);
+            return ele0.isTag(name);
+        }
+        return false;
+    }
+
     public List<EdiMsgElement> getElements() {
         return elements;
     }

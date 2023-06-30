@@ -11,9 +11,19 @@ import java.util.List;
 public class EdiMsgSegment {
 
     private List<EdiMsgComponent> components;
-    
-    public EdiMsgSegment valueOf(String input, EdiMsgAdvice setup) {
-        return this;
+
+    public EdiMsgSegment() {}
+
+    public EdiMsgSegment(List<EdiMsgComponent> components) {
+        this.components = components;
+    }
+
+    public boolean isTag(String name) {
+        if (components.size() > 0) {
+            EdiMsgComponent com = components.get(0);
+            return com.isFirstElement(name);
+        }
+        return false;
     }
 
     public List<EdiMsgComponent> getComponents() {
