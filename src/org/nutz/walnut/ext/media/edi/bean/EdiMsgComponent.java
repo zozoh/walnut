@@ -6,6 +6,12 @@ public class EdiMsgComponent {
 
     private List<EdiMsgElement> elements;
 
+    public EdiMsgComponent() {}
+
+    public EdiMsgComponent(List<EdiMsgElement> elements) {
+        this.elements = elements;
+    }
+
     public EdiMsgElementType getFirstElementType() {
         if (null != elements && elements.size() > 0) {
             return elements.get(0).getType();

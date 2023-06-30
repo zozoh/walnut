@@ -9,6 +9,15 @@ public class EdiMsgPack {
     private List<EdiMsgEntry> entries;
 
     public EdiMsgPack valueOf(String input) {
+        // 寻找第一个报文头
+        int pos = input.indexOf('\n');
+        if (pos > 0) {
+            String una = input.substring(0, pos).trim();
+            advice = new EdiMsgAdvice(una);
+
+            // 逐个解析后面的行
+            char[] cs = input.substring(pos + 1).trim().toCharArray();
+        }
         return this;
     }
 

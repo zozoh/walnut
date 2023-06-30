@@ -15,6 +15,8 @@ public class EdiMsgAdvice {
 
     public char segment;
 
+    public EdiMsgAdvice() {}
+
     public EdiMsgAdvice(String input) {
         if (input.startsWith("UNA")) {
             char[] cs = input.substring(3).toCharArray();
@@ -37,4 +39,5 @@ public class EdiMsgAdvice {
         sb.append(segment);
         return sb.toString();
     }
+    
 }
