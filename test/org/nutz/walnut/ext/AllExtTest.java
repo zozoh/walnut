@@ -7,7 +7,7 @@ import org.nutz.walnut.ext.data.fake.AllFakeTest;
 import org.nutz.walnut.ext.data.o.util.WnPopsTest;
 import org.nutz.walnut.ext.dsync.bean.WnDataSyncItemTest;
 import org.nutz.walnut.ext.httpapi.HttpApiDynamicRenderTest;
-import org.nutz.walnut.ext.media.ooml.AllOomlTest;
+import org.nutz.walnut.ext.media.AllMediasTest;
 import org.nutz.walnut.ext.mq.WnMqMessageTest;
 import org.nutz.walnut.ext.net.AllNetTest;
 import org.nutz.walnut.ext.sys.AllSysTest;
@@ -17,7 +17,7 @@ import org.nutz.walnut.ext.sys.AllSysTest;
                      /* AllBulkTest.class, */
                      AppInitServiceTest.class,
                      HttpApiDynamicRenderTest.class,
-                     AllOomlTest.class,
+                     AllMediasTest.class,
                      AllFakeTest.class,
                      WnPopsTest.class,
                      AllNetTest.class,

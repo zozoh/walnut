@@ -31,6 +31,17 @@ public class EdiMsgElement {
         }
     }
 
+    public void joinString(StringBuilder sb) {
+        if (null != this.value) {
+            sb.append(this.value);
+        }
+
+    }
+
+    public String toString() {
+        return String.format("<%s>:%s", this.type, this.value);
+    }
+
     public boolean isTag(String name) {
         if (EdiMsgElementType.TAG == this.type) {
             return null != value && value.equals(name);

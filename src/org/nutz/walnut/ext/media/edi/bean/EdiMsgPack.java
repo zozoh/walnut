@@ -5,15 +5,23 @@ import java.util.List;
 
 import org.nutz.walnut.ext.media.edi.util.EdiMsgParsing;
 
-public class EdiMsgPack {
+public class EdiMsgPack extends EdiMsgItem {
 
-    private EdiMsgAdvice advice;
+    public static EdiMsgPack parse(String input) {
+        EdiMsgPack pack = new EdiMsgPack();
+        pack.valueOf(input);
+        return pack;
+    }
 
     private EdiMsgSegment head;
 
     private EdiMsgSegment tail;
 
     private List<EdiMsgEntry> entries;
+
+    public EdiMsgPack() {
+        super(null);
+    }
 
     public EdiMsgPack valueOf(String input) {
         // 寻找第一个报文头
@@ -44,7 +52,7 @@ public class EdiMsgPack {
                 }
                 // 消息开始
                 else if (seg.isTag("UNH")) {
-                    en = new EdiMsgEntry(seg);
+                    en = new EdiMsgEntry(advice, seg);
                 }
                 // 包开始
                 else if (seg.isTag("UNB")) {
@@ -62,12 +70,25 @@ public class EdiMsgPack {
         return this;
     }
 
-    public EdiMsgAdvice getAdvice() {
-        return advice;
-    }
+    @Override
+    public void joinString(StringBuilder sb) {
+        char endl = '\n';
+        sb.append(advice.toString()).append(endl);
+        if (null != this.head) {
+            this.head.joinString(sb);
+            sb.append(endl);
+        }
 
-    public void setAdvice(EdiMsgAdvice advice) {
-        this.advice = advice;
+        if (null != this.entries) {
+            for (EdiMsgEntry en : this.entries) {
+                en.joinString(sb);
+            }
+        }
+
+        if (null != this.tail) {
+            this.tail.joinString(sb);
+            sb.append(endl);
+        }
     }
 
     public EdiMsgSegment getHead() {

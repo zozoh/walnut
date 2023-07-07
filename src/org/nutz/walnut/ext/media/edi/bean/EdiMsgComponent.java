@@ -2,14 +2,30 @@ package org.nutz.walnut.ext.media.edi.bean;
 
 import java.util.List;
 
-public class EdiMsgComponent {
+public class EdiMsgComponent extends EdiMsgItem {
 
     private List<EdiMsgElement> elements;
 
-    public EdiMsgComponent() {}
+    public EdiMsgComponent(EdiMsgAdvice advice) {
+        super(advice);
+    }
 
-    public EdiMsgComponent(List<EdiMsgElement> elements) {
+    public EdiMsgComponent(EdiMsgAdvice advice, List<EdiMsgElement> elements) {
+        this(advice);
         this.elements = elements;
+    }
+
+    @Override
+    public void joinString(StringBuilder sb) {
+        if (null != elements) {
+            int i = 0;
+            for (EdiMsgElement ele : this.elements) {
+                if ((i++) > 0) {
+                    sb.append(advice.element);
+                }
+                ele.joinString(sb);
+            }
+        }
     }
 
     public EdiMsgElementType getFirstElementType() {

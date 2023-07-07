@@ -24,6 +24,34 @@ public class EdiMsgParsing {
 
     private char topC;
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("I: %d => %c", this.I, this.topC));
+        sb.append("\n<stack>: ").append(stack.toArray());
+        dumpList(sb.append('\n'), "@components", this.components);
+        dumpList(sb.append('\n'), "@elements", this.elements);
+        sb.append("\n------------------------------");
+        sb.append('\n').append("cs[]:");
+        sb.append("\n------------------------------");
+        sb.append('\n').append(cs);
+
+        return sb.toString();
+    }
+
+    private void dumpList(StringBuilder sb, String name, LinkedList<?> list) {
+        if (null == list || list.isEmpty()) {
+            sb.append(name).append(": nil");
+        } else {
+            int N = list.size();
+            sb.append(name).append(": ").append(N);
+            for (int i = 0; i < N; i++) {
+                Object com = list.get(i);
+                sb.append(String.format("\n - %d/%d) %s", i, N, com.toString()));
+            }
+        }
+    }
+
     public EdiMsgSegment nextSegment() {
         EdiMsgSegment seg = null;
         while (this.I < this.cs.length) {
@@ -31,6 +59,7 @@ public class EdiMsgParsing {
             // 逃逸字符
             if (topC == A.escaper) {
                 stack.push(c);
+                topC = 0; // 逃逸了一下，就不要将逃逸字符标记为栈顶字符了吧 ...
             }
             // 元素结束
             else if (c == A.element) {
@@ -58,14 +87,22 @@ public class EdiMsgParsing {
                     this.closeComponent();
                 }
 
-                seg = new EdiMsgSegment(this.components);
+                seg = new EdiMsgSegment(A, this.components);
+                this.components = new LinkedList<>();
+                this.I++;
+                break;
+            }
+            // 普通字符
+            else {
+                stack.push(c);
+                this.topC = c;
             }
         }
         return seg;
     }
 
     private void closeComponent() {
-        EdiMsgComponent com = new EdiMsgComponent(this.elements);
+        EdiMsgComponent com = new EdiMsgComponent(A, this.elements);
         this.elements = new LinkedList<>();
         this.components.add(com);
     }
@@ -73,12 +110,6 @@ public class EdiMsgParsing {
     private void closeElement() {
         String str = stack.popAll();
         elements.add(new EdiMsgElement(str));
-    }
-
-    public void reset() {
-        this.elements.clear();
-        this.components.clear();
-        this.stack.clear();
         this.topC = 0;
     }
 

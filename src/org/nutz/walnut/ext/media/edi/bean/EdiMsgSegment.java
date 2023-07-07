@@ -3,19 +3,35 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.List;
 
 /**
- * 一个EDI 报文行
+ * 一个 EDI 报文行
  * 
  * @author zozoh
  *
  */
-public class EdiMsgSegment {
+public class EdiMsgSegment extends EdiMsgItem {
 
     private List<EdiMsgComponent> components;
 
-    public EdiMsgSegment() {}
+    public EdiMsgSegment(EdiMsgAdvice advice) {
+        super(advice);
+    }
 
-    public EdiMsgSegment(List<EdiMsgComponent> components) {
+    public EdiMsgSegment(EdiMsgAdvice advice, List<EdiMsgComponent> components) {
+        this(advice);
         this.components = components;
+    }
+
+    @Override
+    public void joinString(StringBuilder sb) {
+        if (null != this.components) {
+            int i = 0;
+            for (EdiMsgComponent com : this.components) {
+                if ((i++) > 0) {
+                    sb.append(advice.component);
+                }
+                com.joinString(sb);
+            }
+        }
     }
 
     public boolean isTag(String name) {
