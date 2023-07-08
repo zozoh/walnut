@@ -21,6 +21,29 @@ public class EdiMsgEntry extends EdiMsgItem {
         this.segments = new LinkedList<>();
     }
 
+    public EdiMsgSegment findSegment(String name) {
+        if (null != segments) {
+            for (EdiMsgSegment seg : segments) {
+                if (seg.isTag(name)) {
+                    return seg;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<EdiMsgSegment> findSegments(String name) {
+        List<EdiMsgSegment> list = new LinkedList<>();
+        if (null != segments) {
+            for (EdiMsgSegment seg : segments) {
+                if (seg.isTag(name)) {
+                    list.add(seg);
+                }
+            }
+        }
+        return list;
+    }
+
     public void joinString(StringBuilder sb) {
         char[] endl = new char[]{this.advice.segment, '\n'};
         if (null != this.head) {

@@ -102,6 +102,14 @@ public class EdiMsgPack extends EdiMsgItem {
         }
     }
 
+    public EdiMsgEntry getEntry(int index) {
+        return this.entries.get(index);
+    }
+
+    public EdiMsgEntry getFirstEntry() {
+        return this.getEntry(0);
+    }
+
     public EdiMsgSegment getHead() {
         return head;
     }
