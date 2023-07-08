@@ -72,8 +72,8 @@ public class EdiMsgPack extends EdiMsgItem {
 
     @Override
     public void joinString(StringBuilder sb) {
-        char endl = '\n';
-        sb.append(advice.toString()).append(endl);
+        char[] endl = new char[]{this.advice.segment, '\n'};
+        sb.append(advice.toString()).append('\n');
         if (null != this.head) {
             this.head.joinString(sb);
             sb.append(endl);
@@ -88,6 +88,17 @@ public class EdiMsgPack extends EdiMsgItem {
         if (null != this.tail) {
             this.tail.joinString(sb);
             sb.append(endl);
+        }
+    }
+
+    /**
+     * 对内部的每个Entry 都执行打包，并计算报文条数
+     */
+    public void packEntry() {
+        if (null != this.entries) {
+            for (EdiMsgEntry en : this.entries) {
+                en.packEntry();
+            }
         }
     }
 

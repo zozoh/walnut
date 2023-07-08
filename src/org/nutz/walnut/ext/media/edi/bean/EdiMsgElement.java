@@ -8,6 +8,11 @@ public class EdiMsgElement {
 
     private String value;
 
+    public EdiMsgElement(EdiMsgElementType type, Object val) {
+        this.type = type;
+        this.value = null == val ? null : val.toString();
+    }
+
     public EdiMsgElement(String input) {
         String s = null == input ? null : input.trim();
         if (Ws.isBlank(s)) {

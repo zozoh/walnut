@@ -22,7 +22,7 @@ public class EdiMsgEntry extends EdiMsgItem {
     }
 
     public void joinString(StringBuilder sb) {
-        char[] endl = new char[]{'\n'};
+        char[] endl = new char[]{this.advice.segment, '\n'};
         if (null != this.head) {
             this.head.joinString(sb);
             sb.append(endl);
@@ -31,7 +31,7 @@ public class EdiMsgEntry extends EdiMsgItem {
         if (null != this.segments) {
             for (EdiMsgSegment seg : this.segments) {
                 seg.joinString(sb);
-                sb.append(this.advice.segment).append(endl);
+                sb.append(endl);
             }
         }
 
@@ -39,6 +39,14 @@ public class EdiMsgEntry extends EdiMsgItem {
             this.tail.joinString(sb);
             sb.append(endl);
         }
+    }
+
+    public void packEntry() {
+        int n = 2;
+        if (null != this.segments) {
+            n += this.segments.size();
+        }
+        this.tail.setComponent(1, n);
     }
 
     public EdiMsgSegment getHead() {

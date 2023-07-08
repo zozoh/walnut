@@ -2,6 +2,9 @@ package org.nutz.walnut.ext.media.edi.bean;
 
 import java.util.List;
 
+import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.util.Wlang;
+
 /**
  * 一个 EDI 报文行
  * 
@@ -40,6 +43,28 @@ public class EdiMsgSegment extends EdiMsgItem {
             return com.isFirstElement(name);
         }
         return false;
+    }
+
+    public void setComponent(int index, String str) {
+        EdiMsgElement ele = new EdiMsgElement(str);
+        EdiMsgComponent com = new EdiMsgComponent(advice, Wlang.list(ele));
+        this.setComponent(index, com);
+    }
+
+    public void setComponent(int index, Integer n) {
+        EdiMsgElement ele = new EdiMsgElement(EdiMsgElementType.NUMBER, n);
+        EdiMsgComponent com = new EdiMsgComponent(advice, Wlang.list(ele));
+        this.setComponent(index, com);
+    }
+
+    public void setComponent(int index, EdiMsgComponent com) {
+        if (null == this.components) {
+            throw Er.create("e.edi.segment.componentsWithoutInit");
+        }
+        if (index < 0 || index >= components.size()) {
+            throw Er.create("e.edi.segment.componentOutOfBound", index);
+        }
+        this.components.set(index, com);
     }
 
     public List<EdiMsgComponent> getComponents() {
