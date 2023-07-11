@@ -3,22 +3,22 @@ package org.nutz.walnut.ext.media.edi.util;
 import java.util.LinkedList;
 
 import org.nutz.lang.util.LinkedCharArray;
-import org.nutz.walnut.ext.media.edi.bean.EdiMsgAdvice;
-import org.nutz.walnut.ext.media.edi.bean.EdiMsgComponent;
-import org.nutz.walnut.ext.media.edi.bean.EdiMsgElement;
-import org.nutz.walnut.ext.media.edi.bean.EdiMsgSegment;
+import org.nutz.walnut.ext.media.edi.bean.EdiAdvice;
+import org.nutz.walnut.ext.media.edi.bean.EdiComponent;
+import org.nutz.walnut.ext.media.edi.bean.EdiElement;
+import org.nutz.walnut.ext.media.edi.bean.EdiSegment;
 
-public class EdiMsgParsing {
+public class EdiInterchangeParsing {
 
-    private EdiMsgAdvice A;
+    private EdiAdvice A;
 
     private char[] cs;
 
     private int I;
 
-    private LinkedList<EdiMsgComponent> components;
+    private LinkedList<EdiComponent> components;
 
-    private LinkedList<EdiMsgElement> elements;
+    private LinkedList<EdiElement> elements;
 
     private LinkedCharArray stack;
 
@@ -52,8 +52,8 @@ public class EdiMsgParsing {
         }
     }
 
-    public EdiMsgSegment nextSegment() {
-        EdiMsgSegment seg = null;
+    public EdiSegment nextSegment() {
+        EdiSegment seg = null;
         while (this.I < this.cs.length) {
             char c = this.cs[this.I++];
             // 逃逸字符
@@ -87,7 +87,7 @@ public class EdiMsgParsing {
                     this.closeComponent();
                 }
 
-                seg = new EdiMsgSegment(A, this.components);
+                seg = new EdiSegment(A, this.components);
                 this.components = new LinkedList<>();
                 this.I++;
                 break;
@@ -102,18 +102,18 @@ public class EdiMsgParsing {
     }
 
     private void closeComponent() {
-        EdiMsgComponent com = new EdiMsgComponent(A, this.elements);
+        EdiComponent com = new EdiComponent(A, this.elements);
         this.elements = new LinkedList<>();
         this.components.add(com);
     }
 
     private void closeElement() {
         String str = stack.popAll();
-        elements.add(new EdiMsgElement(str));
+        elements.add(new EdiElement(str));
         this.topC = 0;
     }
 
-    public EdiMsgParsing(EdiMsgAdvice a, char[] cs) {
+    public EdiInterchangeParsing(EdiAdvice a, char[] cs) {
         this.A = a;
         this.cs = cs;
         this.I = 0;

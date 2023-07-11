@@ -3,27 +3,27 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EdiMsgEntry extends EdiMsgItem {
+public class EdiMessage extends EdiItem {
 
-    private EdiMsgSegment head;
+    private EdiSegment head;
 
-    private EdiMsgSegment tail;
+    private EdiSegment tail;
 
-    private List<EdiMsgSegment> segments;
+    private List<EdiSegment> segments;
 
-    public EdiMsgEntry(EdiMsgAdvice advice) {
+    public EdiMessage(EdiAdvice advice) {
         super(advice);
     }
 
-    public EdiMsgEntry(EdiMsgAdvice advice, EdiMsgSegment head) {
+    public EdiMessage(EdiAdvice advice, EdiSegment head) {
         this(advice);
         this.head = head;
         this.segments = new LinkedList<>();
     }
 
-    public EdiMsgSegment findSegment(String name) {
+    public EdiSegment findSegment(String name) {
         if (null != segments) {
-            for (EdiMsgSegment seg : segments) {
+            for (EdiSegment seg : segments) {
                 if (seg.isTag(name)) {
                     return seg;
                 }
@@ -32,10 +32,10 @@ public class EdiMsgEntry extends EdiMsgItem {
         return null;
     }
 
-    public List<EdiMsgSegment> findSegments(String name) {
-        List<EdiMsgSegment> list = new LinkedList<>();
+    public List<EdiSegment> findSegments(String name) {
+        List<EdiSegment> list = new LinkedList<>();
         if (null != segments) {
-            for (EdiMsgSegment seg : segments) {
+            for (EdiSegment seg : segments) {
                 if (seg.isTag(name)) {
                     list.add(seg);
                 }
@@ -52,7 +52,7 @@ public class EdiMsgEntry extends EdiMsgItem {
         }
 
         if (null != this.segments) {
-            for (EdiMsgSegment seg : this.segments) {
+            for (EdiSegment seg : this.segments) {
                 seg.joinString(sb);
                 sb.append(endl);
             }
@@ -72,31 +72,31 @@ public class EdiMsgEntry extends EdiMsgItem {
         this.tail.setComponent(1, n);
     }
 
-    public EdiMsgSegment getHead() {
+    public EdiSegment getHead() {
         return head;
     }
 
-    public void setHead(EdiMsgSegment head) {
+    public void setHead(EdiSegment head) {
         this.head = head;
     }
 
-    public EdiMsgSegment getTail() {
+    public EdiSegment getTail() {
         return tail;
     }
 
-    public void setTail(EdiMsgSegment tail) {
+    public void setTail(EdiSegment tail) {
         this.tail = tail;
     }
 
-    public List<EdiMsgSegment> getSegments() {
+    public List<EdiSegment> getSegments() {
         return segments;
     }
 
-    public void addSegments(EdiMsgSegment segment) {
+    public void addSegments(EdiSegment segment) {
         this.segments.add(segment);
     }
 
-    public void setSegments(List<EdiMsgSegment> segments) {
+    public void setSegments(List<EdiSegment> segments) {
         this.segments = segments;
     }
 

@@ -685,6 +685,32 @@ public class Ws {
     }
 
     /**
+     * 将字符串按半角逗号，拆分成数组，空元素将被设置为null
+     *
+     * @param s
+     *            字符串
+     * @return 字符串数组
+     */
+    public static String[] splitTrimed(String s) {
+        return splitTrimed(s, ",");
+    }
+
+    /**
+     * 将字符串按半角逗号，拆分成数组，空元素将被设置为null
+     *
+     * @param s
+     *            字符串
+     * @return 字符串数组
+     */
+    public static String[] splitTrimed(String s, String regex) {
+        String[] ss = s.split(regex);
+        for (int i = 0; i < ss.length; i++) {
+            ss[i] = ss[i].trim();
+        }
+        return ss;
+    }
+
+    /**
      * 将字符串按半角逗号，拆分成数组，空元素将被忽略
      *
      * @param s

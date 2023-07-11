@@ -3,39 +3,39 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.walnut.ext.media.edi.util.EdiMsgParsing;
+import org.nutz.walnut.ext.media.edi.util.EdiInterchangeParsing;
 
-public class EdiMsgPack extends EdiMsgItem {
+public class EdiInterchange extends EdiItem {
 
-    public static EdiMsgPack parse(String input) {
-        EdiMsgPack pack = new EdiMsgPack();
-        pack.valueOf(input);
-        return pack;
+    public static EdiInterchange parse(String input) {
+        EdiInterchange ic = new EdiInterchange();
+        ic.valueOf(input);
+        return ic;
     }
 
-    private EdiMsgSegment head;
+    private EdiSegment head;
 
-    private EdiMsgSegment tail;
+    private EdiSegment tail;
 
-    private List<EdiMsgEntry> entries;
+    private List<EdiMessage> entries;
 
-    public EdiMsgPack() {
+    public EdiInterchange() {
         super(null);
     }
 
-    public EdiMsgPack valueOf(String input) {
+    public EdiInterchange valueOf(String input) {
         // 寻找第一个报文头
         int pos = input.indexOf('\n');
         if (pos > 0) {
             String una = input.substring(0, pos).trim();
-            advice = new EdiMsgAdvice(una);
+            advice = new EdiAdvice(una);
 
             // 逐个解析后面的行
             char[] cs = input.substring(pos + 1).trim().toCharArray();
             this.entries = new LinkedList<>();
-            EdiMsgParsing ing = new EdiMsgParsing(advice, cs);
-            EdiMsgSegment seg = ing.nextSegment();
-            EdiMsgEntry en = null;
+            EdiInterchangeParsing ing = new EdiInterchangeParsing(advice, cs);
+            EdiSegment seg = ing.nextSegment();
+            EdiMessage en = null;
             while (null != seg) {
                 // 记入消息
                 if (null != en) {
@@ -52,7 +52,7 @@ public class EdiMsgPack extends EdiMsgItem {
                 }
                 // 消息开始
                 else if (seg.isTag("UNH")) {
-                    en = new EdiMsgEntry(advice, seg);
+                    en = new EdiMessage(advice, seg);
                 }
                 // 包开始
                 else if (seg.isTag("UNB")) {
@@ -80,7 +80,7 @@ public class EdiMsgPack extends EdiMsgItem {
         }
 
         if (null != this.entries) {
-            for (EdiMsgEntry en : this.entries) {
+            for (EdiMessage en : this.entries) {
                 en.joinString(sb);
             }
         }
@@ -96,45 +96,45 @@ public class EdiMsgPack extends EdiMsgItem {
      */
     public void packEntry() {
         if (null != this.entries) {
-            for (EdiMsgEntry en : this.entries) {
+            for (EdiMessage en : this.entries) {
                 en.packEntry();
             }
         }
     }
 
-    public EdiMsgEntry getEntry(int index) {
+    public EdiMessage getEntry(int index) {
         return this.entries.get(index);
     }
 
-    public EdiMsgEntry getFirstEntry() {
+    public EdiMessage getFirstEntry() {
         return this.getEntry(0);
     }
 
-    public EdiMsgSegment getHead() {
+    public EdiSegment getHead() {
         return head;
     }
 
-    public void setHead(EdiMsgSegment head) {
+    public void setHead(EdiSegment head) {
         this.head = head;
     }
 
-    public EdiMsgSegment getTail() {
+    public EdiSegment getTail() {
         return tail;
     }
 
-    public void setTail(EdiMsgSegment tail) {
+    public void setTail(EdiSegment tail) {
         this.tail = tail;
     }
 
-    public List<EdiMsgEntry> getEntries() {
+    public List<EdiMessage> getEntries() {
         return entries;
     }
 
-    public void setEntries(List<EdiMsgEntry> entries) {
+    public void setEntries(List<EdiMessage> entries) {
         this.entries = entries;
     }
 
-    public void addEntry(EdiMsgEntry entry) {
+    public void addEntry(EdiMessage entry) {
         this.entries.add(entry);
     }
 

@@ -12,9 +12,9 @@ public class WnTmplTokenTest {
         WnTmplToken[] tks = WnTmplToken.parseToArray(s);
         assertEquals(5, tks.length);
         assertEquals("<TEXT>: 'A'", tks[0].toString());
-        assertEquals("<VAR>: 'B'", tks[1].toString());
+        assertEquals("<DYNAMIC#VAR>: 'B'", tks[1].toString());
         assertEquals("<TEXT>: 'C'", tks[2].toString());
-        assertEquals("<VAR>: 'D'", tks[3].toString());
+        assertEquals("<DYNAMIC#VAR>: 'D'", tks[3].toString());
         assertEquals("<TEXT>: 'E'", tks[4].toString());
     }
 
@@ -24,9 +24,9 @@ public class WnTmplTokenTest {
         WnTmplToken[] tks = WnTmplToken.parseToArray(s);
         assertEquals(5, tks.length);
         assertEquals("<TEXT>: 'A'", tks[0].toString());
-        assertEquals("<VAR>: '{B}'", tks[1].toString());
+        assertEquals("<DYNAMIC#VAR>: '{B}'", tks[1].toString());
         assertEquals("<TEXT>: 'C'", tks[2].toString());
-        assertEquals("<VAR>: '{{D}}'", tks[3].toString());
+        assertEquals("<DYNAMIC#VAR>: '{{D}}'", tks[3].toString());
         assertEquals("<TEXT>: 'E'", tks[4].toString());
     }
 

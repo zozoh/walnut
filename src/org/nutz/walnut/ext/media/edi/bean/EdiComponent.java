@@ -1,18 +1,20 @@
 package org.nutz.walnut.ext.media.edi.bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.Ws;
 
-public class EdiMsgComponent extends EdiMsgItem {
+public class EdiComponent extends EdiItem {
 
-    private List<EdiMsgElement> elements;
+    private List<EdiElement> elements;
 
-    public EdiMsgComponent(EdiMsgAdvice advice) {
+    public EdiComponent(EdiAdvice advice) {
         super(advice);
     }
 
-    public EdiMsgComponent(EdiMsgAdvice advice, List<EdiMsgElement> elements) {
+    public EdiComponent(EdiAdvice advice, List<EdiElement> elements) {
         this(advice);
         this.elements = elements;
     }
@@ -21,7 +23,7 @@ public class EdiMsgComponent extends EdiMsgItem {
     public void joinString(StringBuilder sb) {
         if (null != elements) {
             int i = 0;
-            for (EdiMsgElement ele : this.elements) {
+            for (EdiElement ele : this.elements) {
                 if ((i++) > 0) {
                     sb.append(advice.element);
                 }
@@ -30,7 +32,7 @@ public class EdiMsgComponent extends EdiMsgItem {
         }
     }
 
-    public EdiMsgElementType getFirstElementType() {
+    public EdiElementType getFirstElementType() {
         if (null != elements && elements.size() > 0) {
             return elements.get(0).getType();
         }
@@ -39,7 +41,7 @@ public class EdiMsgComponent extends EdiMsgItem {
 
     public boolean isFirstElement(String name) {
         if (elements.size() > 0) {
-            EdiMsgElement ele0 = elements.get(0);
+            EdiElement ele0 = elements.get(0);
             return ele0.isTag(name);
         }
         return false;
@@ -49,7 +51,7 @@ public class EdiMsgComponent extends EdiMsgItem {
         if (null == this.elements || this.elements.isEmpty()) {
             return true;
         }
-        for (EdiMsgElement ele : this.elements) {
+        for (EdiElement ele : this.elements) {
             if (!ele.isEmpty()) {
                 return false;
             }
@@ -64,21 +66,51 @@ public class EdiMsgComponent extends EdiMsgItem {
         }
         int N = Math.min(elements.size(), keys.length);
         for (int i = 0; i < N; i++) {
-            EdiMsgElement ele = elements.get(i);
+            String key = keys[i];
+            if (Ws.isBlank(key)) {
+                continue;
+            }
+            EdiElement ele = elements.get(i);
             if (ele.isEmpty()) {
                 continue;
             }
-            String key = keys[i];
             Object val = ele.getValue();
             bean.put(key, val);
         }
     }
 
-    public List<EdiMsgElement> getElements() {
+    /**
+     * 获取所有元素的值，如果只有一个元素有值，则直接返回这个值，<br>
+     * 如果没有元素有值，则返回<code>null</code>。<br>
+     * 超过一个元素有值，则返回一个列表。
+     * 
+     * @return 元素的值
+     */
+    public Object getElementsValue() {
+        ArrayList<Object> list = new ArrayList<>(this.elements.size());
+
+        for (EdiElement ele : elements) {
+            if (ele.isEmpty()) {
+                continue;
+            }
+            list.add(ele.getValue());
+        }
+
+        int N = list.size();
+        if (0 == N) {
+            return null;
+        }
+        if (1 == N) {
+            return list.get(0);
+        }
+        return list;
+    }
+
+    public List<EdiElement> getElements() {
         return elements;
     }
 
-    public void setElements(List<EdiMsgElement> elements) {
+    public void setElements(List<EdiElement> elements) {
         this.elements = elements;
     }
 

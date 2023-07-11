@@ -14,15 +14,15 @@ import org.nutz.walnut.util.Ws;
  * @author zozoh
  *
  */
-public class EdiMsgSegment extends EdiMsgItem {
+public class EdiSegment extends EdiItem {
 
-    private List<EdiMsgComponent> components;
+    private List<EdiComponent> components;
 
-    public EdiMsgSegment(EdiMsgAdvice advice) {
+    public EdiSegment(EdiAdvice advice) {
         super(advice);
     }
 
-    public EdiMsgSegment(EdiMsgAdvice advice, List<EdiMsgComponent> components) {
+    public EdiSegment(EdiAdvice advice, List<EdiComponent> components) {
         this(advice);
         this.components = components;
     }
@@ -31,7 +31,7 @@ public class EdiMsgSegment extends EdiMsgItem {
     public void joinString(StringBuilder sb) {
         if (null != this.components) {
             int i = 0;
-            for (EdiMsgComponent com : this.components) {
+            for (EdiComponent com : this.components) {
                 if ((i++) > 0) {
                     sb.append(advice.component);
                 }
@@ -70,7 +70,7 @@ public class EdiMsgSegment extends EdiMsgItem {
         }
         int N = Math.min(keys.length, this.components.size());
         for (int i = 0; i < N; i++) {
-            EdiMsgComponent com = this.components.get(i);
+            EdiComponent com = this.components.get(i);
             if (com.isEmpty()) {
                 continue;
             }
@@ -80,19 +80,29 @@ public class EdiMsgSegment extends EdiMsgItem {
             // 创建新对象
             if (pos > 0) {
                 String key = str.substring(0, pos).trim();
-                String[] ks = Ws.splitIgnoreBlank(str.substring(pos + 1));
+                String[] ks = Ws.splitTrimed(str.substring(pos + 1));
                 NutMap map = new NutMap();
-                com.fillBean(bean, ks);
+                com.fillBean(map, ks);
                 bean.put(key, map);
             }
             // 那么就是搞到主对象里咯
             else {
                 // 多个键
-                String[] ks = Ws.splitIgnoreBlank(str);
+                String[] ks = Ws.splitTrimed(str);
                 if (ks.length > 1) {
                     com.fillBean(bean, ks);
                 }
                 // 一个键，那么就尝试归纳组件元素，是一个数组还是单个值
+                else if (ks.length == 1) {
+                    if (!Ws.isBlank(ks[0])) {
+                        Object val = com.getElementsValue();
+                        bean.put(ks[0], val);
+                    }
+                }
+                // 不可能啊
+                else {
+                    throw Wlang.impossible();
+                }
             }
         }
 
@@ -100,25 +110,25 @@ public class EdiMsgSegment extends EdiMsgItem {
 
     public boolean isTag(String name) {
         if (components.size() > 0) {
-            EdiMsgComponent com = components.get(0);
+            EdiComponent com = components.get(0);
             return com.isFirstElement(name);
         }
         return false;
     }
 
     public void setComponent(int index, String str) {
-        EdiMsgElement ele = new EdiMsgElement(str);
-        EdiMsgComponent com = new EdiMsgComponent(advice, Wlang.list(ele));
+        EdiElement ele = new EdiElement(str);
+        EdiComponent com = new EdiComponent(advice, Wlang.list(ele));
         this.setComponent(index, com);
     }
 
     public void setComponent(int index, Integer n) {
-        EdiMsgElement ele = new EdiMsgElement(EdiMsgElementType.NUMBER, n);
-        EdiMsgComponent com = new EdiMsgComponent(advice, Wlang.list(ele));
+        EdiElement ele = new EdiElement(EdiElementType.NUMBER, n.toString());
+        EdiComponent com = new EdiComponent(advice, Wlang.list(ele));
         this.setComponent(index, com);
     }
 
-    public void setComponent(int index, EdiMsgComponent com) {
+    public void setComponent(int index, EdiComponent com) {
         if (null == this.components) {
             throw Er.create("e.edi.segment.componentsWithoutInit");
         }
@@ -128,11 +138,11 @@ public class EdiMsgSegment extends EdiMsgItem {
         this.components.set(index, com);
     }
 
-    public List<EdiMsgComponent> getComponents() {
+    public List<EdiComponent> getComponents() {
         return components;
     }
 
-    public void setComponents(List<EdiMsgComponent> components) {
+    public void setComponents(List<EdiComponent> components) {
         this.components = components;
     }
 

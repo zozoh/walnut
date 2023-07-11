@@ -1,10 +1,10 @@
 package org.nutz.walnut.ext.media.edi.bean;
 
-public abstract class EdiMsgItem {
+public abstract class EdiItem {
 
-    protected EdiMsgAdvice advice;
+    protected EdiAdvice advice;
 
-    public EdiMsgItem(EdiMsgAdvice advice) {
+    public EdiItem(EdiAdvice advice) {
         this.advice = advice;
     }
 
@@ -16,11 +16,11 @@ public abstract class EdiMsgItem {
         return sb.toString();
     }
 
-    public EdiMsgAdvice getAdvice() {
+    public EdiAdvice getAdvice() {
         return advice;
     }
 
-    public void setAdvice(EdiMsgAdvice advice) {
+    public void setAdvice(EdiAdvice advice) {
         this.advice = advice;
     }
 }

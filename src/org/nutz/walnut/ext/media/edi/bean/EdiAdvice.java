@@ -1,7 +1,7 @@
 package org.nutz.walnut.ext.media.edi.bean;
 
 // UNA:+.? '
-public class EdiMsgAdvice {
+public class EdiAdvice {
 
     public char element;
 
@@ -15,9 +15,9 @@ public class EdiMsgAdvice {
 
     public char segment;
 
-    public EdiMsgAdvice() {}
+    public EdiAdvice() {}
 
-    public EdiMsgAdvice(String input) {
+    public EdiAdvice(String input) {
         if (input.startsWith("UNA")) {
             char[] cs = input.substring(3).toCharArray();
             element = cs[0];
