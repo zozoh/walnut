@@ -6,11 +6,16 @@ public class EdiMsgElement {
 
     private EdiMsgElementType type;
 
-    private String value;
+    private Object value;
 
     public EdiMsgElement(EdiMsgElementType type, Object val) {
         this.type = type;
-        this.value = null == val ? null : val.toString();
+        this.value = val;
+        if (null == val) {
+            this.type = EdiMsgElementType.EMPTY;
+        } else if (val instanceof Number) {
+            this.type = EdiMsgElementType.NUMBER;
+        }
     }
 
     public EdiMsgElement(String input) {
@@ -27,7 +32,7 @@ public class EdiMsgElement {
         // 数字
         else if (s.matches("^[0-9].$")) {
             type = EdiMsgElementType.NUMBER;
-            value = s;
+            value = Integer.parseInt(s);
         }
         // 默认就是自由文本
         else {
@@ -54,6 +59,22 @@ public class EdiMsgElement {
         return false;
     }
 
+    public boolean isTag() {
+        return EdiMsgElementType.TAG == this.type;
+    }
+
+    public boolean isText() {
+        return EdiMsgElementType.TEXT == this.type;
+    }
+
+    public boolean isEmpty() {
+        return EdiMsgElementType.EMPTY == this.type;
+    }
+
+    public boolean isNumber() {
+        return EdiMsgElementType.NUMBER == this.type;
+    }
+
     public EdiMsgElementType getType() {
         return type;
     }
@@ -62,11 +83,11 @@ public class EdiMsgElement {
         this.type = type;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 }

@@ -2,6 +2,8 @@ package org.nutz.walnut.ext.media.edi.bean;
 
 import java.util.List;
 
+import org.nutz.lang.util.NutBean;
+
 public class EdiMsgComponent extends EdiMsgItem {
 
     private List<EdiMsgElement> elements;
@@ -41,6 +43,35 @@ public class EdiMsgComponent extends EdiMsgItem {
             return ele0.isTag(name);
         }
         return false;
+    }
+
+    public boolean isEmpty() {
+        if (null == this.elements || this.elements.isEmpty()) {
+            return true;
+        }
+        for (EdiMsgElement ele : this.elements) {
+            if (!ele.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void fillBean(NutBean bean, String... keys) {
+        // 防空
+        if (null == bean) {
+            return;
+        }
+        int N = Math.min(elements.size(), keys.length);
+        for (int i = 0; i < N; i++) {
+            EdiMsgElement ele = elements.get(i);
+            if (ele.isEmpty()) {
+                continue;
+            }
+            String key = keys[i];
+            Object val = ele.getValue();
+            bean.put(key, val);
+        }
     }
 
     public List<EdiMsgElement> getElements() {
