@@ -3,6 +3,8 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNH;
+
 public class EdiMessage extends EdiItem {
 
     private EdiSegment head;
@@ -72,19 +74,23 @@ public class EdiMessage extends EdiItem {
         this.tail.setComponent(1, n);
     }
 
-    public EdiSegment getHead() {
+    public SG_UNH getHeader() {
+        return new SG_UNH(head);
+    }
+
+    public EdiSegment getHeadSegment() {
         return head;
     }
 
-    public void setHead(EdiSegment head) {
+    public void setHeadSegment(EdiSegment head) {
         this.head = head;
     }
 
-    public EdiSegment getTail() {
+    public EdiSegment getTailSegment() {
         return tail;
     }
 
-    public void setTail(EdiSegment tail) {
+    public void setTailSegment(EdiSegment tail) {
         this.tail = tail;
     }
 

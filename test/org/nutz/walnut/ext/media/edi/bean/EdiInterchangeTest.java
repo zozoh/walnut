@@ -5,6 +5,12 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNB;
+import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNH;
+import org.nutz.walnut.ext.media.edi.bean.segment.SG_UCI;
+import org.nutz.walnut.ext.media.edi.loader.EdiLoaders;
+import org.nutz.walnut.ext.media.edi.loader.ICLoader;
+import org.nutz.walnut.ext.media.edi.reply.EdiReplyIC;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.tmpl.WnTmplX;
 
@@ -16,35 +22,77 @@ public class EdiInterchangeTest {
     }
 
     @Test
+    public void test_UNH() {
+        String input = _read_input("c03");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        SG_UNH mh = msg.getHeader();
+        assertEquals("000001", mh.getRefNumber());
+        assertEquals("CUSRES", mh.getTypeId());
+        assertEquals("D", mh.getTypeVersion());
+        assertEquals("99B", mh.getTypeReleaseNumber());
+        assertEquals("UN", mh.getControlingAgency());
+    }
+
+    @Test
+    public void test_UNB() {
+        String input = _read_input("c03");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        SG_UNB h = ic.getHeader();
+        assertEquals("UNOC", h.getSyntaxId());
+        assertEquals("3", h.getSyntaxVersion());
+        assertEquals("AAA336C", h.getCreator());
+        assertEquals(null, h.getCreatorIdCode());
+        assertEquals("AAA336C", h.getOwner());
+        assertEquals("AAR399A", h.getRecipient());
+        assertEquals(null, h.getRecipientIdCode());
+        assertEquals(null, h.getRecipientRoutingAddress());
+        assertEquals("230627", h.getTransDate());
+        assertEquals("0139", h.getTransTime());
+        assertEquals("00000000000047", h.getControlRefNumber());
+        assertEquals(null, h.getRecipientRefPassword());
+        assertEquals(null, h.getRecipientRefPasswordQualifier());
+        assertEquals(null, h.getApplicationReference());
+        assertEquals("1", h.getProcessingPriorityCode());
+        assertEquals(null, h.getRequested());
+        assertEquals("1", h.getTest());
+    }
+
+    @Test
     public void test_UCI() {
+        ICLoader loader = EdiLoaders.getInterchangeLoader();
+        
         String input = _read_input("c_error");
         EdiInterchange ic = EdiInterchange.parse(input);
 
-        NutMap bean = new NutMap();
-        EdiSegment UCI = ic.getFirstEntry().findSegment("UCI");
-        UCI.fillBean(bean, "tagName", "crn", "Creator,,Owner", "Recipient", "code");
-        assertEquals("UCI", bean.getString("tagName"));
-        assertEquals("23062600000024", bean.getString("crn"));
-        assertEquals("AAR399A", bean.getString("Creator"));
-        assertEquals("AAR399A", bean.getString("Owner"));
-        assertEquals("AAA336C", bean.getString("Recipient"));
-        assertEquals("4", bean.getString("code"));
+        EdiMessage msg = ic.getFirstMessage();
         
+        EdiReplyIC ric = loader.trans(msg);
+        SG_UCI uci = ric.getUCI();
+        assertEquals("23062600000024", uci.getRefNumber());
+        assertEquals("AAR399A", uci.getCreator());
+        assertEquals("AAR399A", uci.getOwner());
+        assertEquals("AAA336C", uci.getRecipient());
+        assertEquals("4", uci.getActionCode());
+        assertTrue(uci.isRejected());
+        assertFalse(uci.isNotExplicitlyRejected());
+
         //
-        //  测试成功
+        // 测试成功
         //
         input = _read_input("c_ok");
         ic = EdiInterchange.parse(input);
 
-        bean = new NutMap();
-        UCI = ic.getFirstEntry().findSegment("UCI");
-        UCI.fillBean(bean, "tagName", "crn", "Creator,,Owner", "Recipient", "code");
-        assertEquals("UCI", bean.getString("tagName"));
-        assertEquals("23062700000009", bean.getString("crn"));
-        assertEquals("AAR399A", bean.getString("Creator"));
-        assertEquals("AAR399A", bean.getString("Owner"));
-        assertEquals("AAA336C", bean.getString("Recipient"));
-        assertEquals("7", bean.getString("code"));
+        msg = ic.getFirstMessage();
+        ric = loader.trans(msg);
+        uci = ric.getUCI();
+        assertEquals("23062700000009", uci.getRefNumber());
+        assertEquals("AAR399A", uci.getCreator());
+        assertEquals("AAR399A", uci.getOwner());
+        assertEquals("AAA336C", uci.getRecipient());
+        assertEquals("7", uci.getActionCode());
+        assertFalse(uci.isRejected());
+        assertTrue(uci.isNotExplicitlyRejected());
     }
 
     @Test
@@ -54,7 +102,7 @@ public class EdiInterchangeTest {
         ic.packEntry();
 
         NutMap bean = new NutMap();
-        EdiSegment head = ic.getHead();
+        EdiSegment head = ic.getHeadSegment();
         head.fillBean(bean, "type", "part: p1,p2", null, null, null, "n1", null, "n2");
         assertEquals("UNB", bean.getString("type"));
         NutMap part = bean.getAs("part", NutMap.class);
@@ -63,9 +111,9 @@ public class EdiInterchangeTest {
         assertEquals(1, bean.getInt("n1"));
         assertEquals(1, bean.getInt("n2"));
 
-        EdiMessage en = ic.getFirstEntry();
+        EdiMessage en = ic.getFirstMessage();
         bean = new NutMap();
-        head = en.getHead();
+        head = en.getHeadSegment();
         head.fillBean(bean, "type", "nb");
         assertEquals("UNH", bean.getString("type"));
         assertEquals(1, bean.getInt("nb"));

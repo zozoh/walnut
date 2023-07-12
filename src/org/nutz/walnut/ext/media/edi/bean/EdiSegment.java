@@ -75,6 +75,9 @@ public class EdiSegment extends EdiItem {
                 continue;
             }
             String str = keys[i];
+            if (Ws.isBlank(str)) {
+                continue;
+            }
             int pos = str.indexOf(':');
 
             // 创建新对象

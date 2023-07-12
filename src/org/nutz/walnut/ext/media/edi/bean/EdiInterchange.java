@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNB;
 import org.nutz.walnut.ext.media.edi.util.EdiInterchangeParsing;
 
 public class EdiInterchange extends EdiItem {
@@ -41,7 +42,7 @@ public class EdiInterchange extends EdiItem {
                 if (null != en) {
                     // 结束消息,记入当前包
                     if (seg.isTag("UNT")) {
-                        en.setTail(seg);
+                        en.setTailSegment(seg);
                         this.entries.add(en);
                         en = null;
                     }
@@ -106,23 +107,27 @@ public class EdiInterchange extends EdiItem {
         return this.entries.get(index);
     }
 
-    public EdiMessage getFirstEntry() {
+    public EdiMessage getFirstMessage() {
         return this.getEntry(0);
     }
 
-    public EdiSegment getHead() {
+    public SG_UNB getHeader() {
+        return new SG_UNB(head);
+    }
+
+    public EdiSegment getHeadSegment() {
         return head;
     }
 
-    public void setHead(EdiSegment head) {
+    public void setHeadSegment(EdiSegment head) {
         this.head = head;
     }
 
-    public EdiSegment getTail() {
+    public EdiSegment getTailSegment() {
         return tail;
     }
 
-    public void setTail(EdiSegment tail) {
+    public void setTailSegment(EdiSegment tail) {
         this.tail = tail;
     }
 
