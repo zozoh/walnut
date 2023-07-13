@@ -53,10 +53,15 @@ public class CLREGRLoader implements EdiMsgLoader<EdiReplyCLREGR> {
             seg = finder.next("ERP");
             // 收集全部错误
             List<EdiReplyError> errList = new ArrayList<>();
-            while (null != seg) {
-                List<EdiSegment> errs = finder.nextUntil(false, "ERP");
-                // TODO 必然是三条报文，需要加载为 EdiReplyError
-
+            while (!finder.isEnd()) {
+                List<EdiSegment> errs = finder.nextUntil(false, "^(ERP|UNT|CNT)$");
+                // 看来找不到错误了，那么退出循环
+                if (errs.isEmpty() || !errs.get(0).is("ERC")) {
+                    break;
+                }
+                // 必然是三条报文，需要加载为 EdiReplyError
+                EdiReplyError err = new EdiReplyError(errs);
+                errList.add(err);
             }
             // 记入错误
             EdiReplyError[] errs = new EdiReplyError[errList.size()];

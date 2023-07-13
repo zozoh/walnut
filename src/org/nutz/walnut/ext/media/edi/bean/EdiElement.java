@@ -20,7 +20,7 @@ public class EdiElement {
             value = null;
         }
         // 特殊标记
-        else if (s.matches("^[A-Z]{2,3}$")) {
+        else if (s.matches("^[A-Z]{2,10}$")) {
             type = EdiElementType.TAG;
             value = s;
         }

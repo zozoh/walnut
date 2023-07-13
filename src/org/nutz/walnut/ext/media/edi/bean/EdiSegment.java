@@ -40,6 +40,12 @@ public class EdiSegment extends EdiItem {
         }
     }
 
+    public NutBean getBean(String... keys) {
+        NutMap bean = new NutMap();
+        this.fillBean(bean, keys);
+        return bean;
+    }
+
     /**
      * 根据指定的键，按顺序填充对象。
      * <p>

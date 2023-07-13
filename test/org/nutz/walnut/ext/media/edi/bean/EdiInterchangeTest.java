@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.media.edi.bean;
 
 import static org.junit.Assert.*;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -11,8 +12,11 @@ import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNB;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNH;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_FTX;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UCI;
+import org.nutz.walnut.ext.media.edi.loader.CLREGRLoader;
 import org.nutz.walnut.ext.media.edi.loader.EdiLoaders;
 import org.nutz.walnut.ext.media.edi.loader.ICLoader;
+import org.nutz.walnut.ext.media.edi.reply.EdiReplyCLREGR;
+import org.nutz.walnut.ext.media.edi.reply.EdiReplyError;
 import org.nutz.walnut.ext.media.edi.reply.EdiReplyIC;
 import org.nutz.walnut.ext.media.edi.util.EdiSegmentFinder;
 import org.nutz.walnut.util.Wlang;
@@ -23,6 +27,74 @@ public class EdiInterchangeTest {
     private String _read_input(String name) {
         String txt = Files.read("org/nutz/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
         return txt.replaceAll("\r\n", "\n").trim();
+    }
+
+    @Test
+    public void test_parse_ok() {
+        String input = _read_input("re_ok");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        CLREGRLoader loader = EdiLoaders.CLREG.getLoader();
+        EdiReplyCLREGR re = loader.trans(msg);
+        assertFalse(re.isFailed());
+        assertTrue(re.isSuccess());
+        EdiReplyError[] errs = re.getErrors();
+        assertNull(errs);
+
+        assertEquals("ABN", re.getType());
+        assertEquals("14165610382", re.getCode());
+        assertEquals("7N170STPSUIBEP6PH1D4E6ESHF", re.getReferId());
+        assertEquals("7n170stpsuibep6ph1d4e6eshf", re.getReferIdInLower());
+    }
+
+    @Test
+    public void test_parse_error() {
+        String input = _read_input("re_error");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        CLREGRLoader loader = EdiLoaders.CLREG.getLoader();
+        EdiReplyCLREGR re = loader.trans(msg);
+        assertTrue(re.isFailed());
+        assertFalse(re.isSuccess());
+        EdiReplyError[] errs = re.getErrors();
+        assertEquals(12, errs.length);
+
+        List<EdiReplyError> errList = Wlang.list(errs);
+        Iterator<EdiReplyError> it = errList.iterator();
+        EdiReplyError err;
+
+        err = it.next();
+        assertEquals("ADVICE:MS5201:THIS TRANSACTION WAS REJECTED", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0404:ADDRESS TYPE SUPPLIED ALONG WITH ABN BUT NO CAC SUPPLIED",
+                     err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0405:BUSINESS ADDRESS LINE 1 NOT ALLOWED WITH ABN", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0420:BUSINESS ADDRESS LOCALITY SUPPLIED WITHOUT A VALID CLIENT TYPE",
+                     err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0422:ADDRESS LOCALITY NOT ALLOWED WITH ABN", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0425:BUSINESS ADDRESS POST CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
+                     err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0427:ADDRESS POST CODE NOT ALLOWED WITH ABN", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0436:BUSINESS ADDRESS STATE CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
+                     err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0438:BUSINESS ADDRESS COUNTRY CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
+                     err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0440:ADDRESS STATE CODE NOT ALLOWED WITH ABN", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0441:ADDRESS COUNTRY CODE NOT ALLOWED WITH ABN", err.toString());
+        err = it.next();
+        assertEquals("ERROR:CL0467:PREFIX CODE ONLY ALLOWED WITH AP, FA OR BP CONTACT ADDRESS",
+                     err.toString());
+
+        assertFalse(it.hasNext());
     }
 
     @Test

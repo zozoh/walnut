@@ -22,7 +22,7 @@ public class EdiSegmentFinder {
     }
 
     public boolean isEnd() {
-        return it.hasNext();
+        return !it.hasNext();
     }
 
     public EdiSegment prev(String... tags) {
