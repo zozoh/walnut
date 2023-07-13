@@ -95,7 +95,7 @@ public class EdiInterchange extends EdiItem {
     /**
      * 对内部的每个Entry 都执行打包，并计算报文条数
      */
-    public void packEntry() {
+    public void packMessages() {
         if (null != this.entries) {
             for (EdiMessage en : this.entries) {
                 en.packEntry();

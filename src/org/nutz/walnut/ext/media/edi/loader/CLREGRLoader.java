@@ -14,7 +14,7 @@ import org.nutz.walnut.ext.media.edi.util.EdiSegmentFinder;
 public class CLREGRLoader implements EdiMsgLoader<EdiReplyCLREGR> {
 
     @Override
-    public EdiReplyCLREGR trans(EdiMessage msg) {
+    public EdiReplyCLREGR load(EdiMessage msg) {
         EdiReplyCLREGR re = new EdiReplyCLREGR();
         EdiSegmentFinder finder = msg.getFinder();
         EdiSegment seg;

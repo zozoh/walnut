@@ -8,9 +8,9 @@ import org.nutz.walnut.ext.media.edi.reply.EdiReplyIC;
 public class ICLoader implements EdiMsgLoader<EdiReplyIC> {
 
     @Override
-    public EdiReplyIC trans(EdiMessage en) {
+    public EdiReplyIC load(EdiMessage msg) {
         EdiReplyIC re = new EdiReplyIC();
-        EdiSegment UCI = en.findSegment("UCI");
+        EdiSegment UCI = msg.findSegment("UCI");
         if (null == UCI) {
             return null;
         }

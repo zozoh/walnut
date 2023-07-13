@@ -6,6 +6,6 @@ public interface EdiMsgLoader<T> {
 
     Class<T> getResultType();
 
-    T trans(EdiMessage en);
+    T load(EdiMessage msg);
 
 }
