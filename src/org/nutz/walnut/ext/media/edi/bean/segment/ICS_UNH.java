@@ -10,7 +10,7 @@ import org.nutz.walnut.util.Wlang;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class SG_UNH {
+public class ICS_UNH {
 
     private String refNumber;
 
@@ -22,9 +22,9 @@ public class SG_UNH {
 
     private String controlingAgency;
 
-    public SG_UNH() {}
+    public ICS_UNH() {}
 
-    public SG_UNH(EdiSegment seg) {
+    public ICS_UNH(EdiSegment seg) {
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null,
                                     "refNumber",
@@ -33,7 +33,7 @@ public class SG_UNH {
         this.valueOf(bean);
     }
 
-    public SG_UNH valueOf(NutBean bean) {
+    public ICS_UNH valueOf(NutBean bean) {
         this.refNumber = bean.getString("refNumber");
         this.typeId = bean.getString("typeId");
         this.typeVersion = bean.getString("typeVersion");

@@ -112,11 +112,31 @@ public class EdiSegment extends EdiItem {
     }
 
     public boolean isTag(String name) {
-        if (components.size() > 0) {
-            EdiComponent com = components.get(0);
-            return com.isFirstElement(name);
+        return is(name);
+    }
+
+    public boolean is(String... tags) {
+        if (null == components) {
+            return false;
         }
-        return false;
+        if (tags.length > 0) {
+            int N = tags.length;
+            if (components.size() < N) {
+                return false;
+            }
+            int i = 0;
+            for (EdiComponent com : components) {
+                if (i >= N) {
+                    break;
+                }
+                String tag = tags[i++];
+                if (!com.is(tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return components.size() > 0;
     }
 
     public void setComponent(int index, String str) {

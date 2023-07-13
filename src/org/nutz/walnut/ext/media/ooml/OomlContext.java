@@ -30,8 +30,11 @@ public class OomlContext extends JvmFilterContext {
         }
         List<NutBean> list = new ArrayList<>(beans.size());
         for (NutBean bean : beans) {
+            if (null == bean || bean.isEmpty()) {
+                continue;
+            }
             NutBean b2 = mapping.toBean(bean, onlyMapping);
-            if (null != b2) {
+            if (null != b2 && !b2.isEmpty()) {
                 list.add(b2);
             }
         }

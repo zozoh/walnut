@@ -49,7 +49,13 @@ public class EdiElement {
 
     public boolean isTag(String name) {
         if (EdiElementType.TAG == this.type) {
-            return null != value && value.equals(name);
+            if (null == value) {
+                return false;
+            }
+            if (name.startsWith("^")) {
+                return value.matches(name);
+            }
+            return value.equals(name);
         }
         return false;
     }

@@ -40,11 +40,31 @@ public class EdiComponent extends EdiItem {
     }
 
     public boolean isFirstElement(String name) {
-        if (elements.size() > 0) {
-            EdiElement ele0 = elements.get(0);
-            return ele0.isTag(name);
+        return is(name);
+    }
+
+    public boolean is(String... tags) {
+        if (null == elements) {
+            return false;
         }
-        return false;
+        if (tags.length > 0) {
+            int N = tags.length;
+            if (elements.size() < N) {
+                return false;
+            }
+            int i = 0;
+            for (EdiElement ele : elements) {
+                if (i >= N) {
+                    break;
+                }
+                String tag = tags[i++];
+                if (!ele.isTag(tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return elements.size() > 0;
     }
 
     public boolean isEmpty() {

@@ -5,7 +5,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.media.edi.bean.EdiSegment;
 import org.nutz.walnut.util.Wlang;
 
-public class SG_UCI {
+public class ICS_UCI {
 
     private String refNumber;
 
@@ -23,9 +23,9 @@ public class SG_UCI {
 
     private String actionCode;
 
-    public SG_UCI() {}
+    public ICS_UCI() {}
 
-    public SG_UCI(EdiSegment seg) {
+    public ICS_UCI(EdiSegment seg) {
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null,
                                     "refNumber",
@@ -36,7 +36,7 @@ public class SG_UCI {
         this.valueOf(bean);
     }
 
-    public SG_UCI valueOf(NutBean bean) {
+    public ICS_UCI valueOf(NutBean bean) {
         this.refNumber = bean.getString("refNumber");
         this.creator = bean.getString("creator");
         this.creatorIdCode = bean.getString("creatorIdCode");

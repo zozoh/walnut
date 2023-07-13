@@ -51,6 +51,10 @@ public class EdiReplyCLREGR {
         return referIdInLower;
     }
 
+    public boolean isFailed() {
+        return !this.success;
+    }
+
     public boolean isSuccess() {
         return success;
     }

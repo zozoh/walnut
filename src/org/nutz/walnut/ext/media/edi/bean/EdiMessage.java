@@ -3,7 +3,8 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNH;
+import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNH;
+import org.nutz.walnut.ext.media.edi.util.EdiSegmentFinder;
 
 public class EdiMessage extends EdiItem {
 
@@ -23,10 +24,10 @@ public class EdiMessage extends EdiItem {
         this.segments = new LinkedList<>();
     }
 
-    public EdiSegment findSegment(String name) {
+    public EdiSegment findSegment(String... tags) {
         if (null != segments) {
             for (EdiSegment seg : segments) {
-                if (seg.isTag(name)) {
+                if (seg.is(tags)) {
                     return seg;
                 }
             }
@@ -34,16 +35,20 @@ public class EdiMessage extends EdiItem {
         return null;
     }
 
-    public List<EdiSegment> findSegments(String name) {
+    public List<EdiSegment> findSegments(String... tags) {
         List<EdiSegment> list = new LinkedList<>();
         if (null != segments) {
             for (EdiSegment seg : segments) {
-                if (seg.isTag(name)) {
+                if (seg.is(tags)) {
                     list.add(seg);
                 }
             }
         }
         return list;
+    }
+
+    public EdiSegmentFinder getFinder() {
+        return new EdiSegmentFinder(this.segments);
     }
 
     public void joinString(StringBuilder sb) {
@@ -74,8 +79,8 @@ public class EdiMessage extends EdiItem {
         this.tail.setComponent(1, n);
     }
 
-    public SG_UNH getHeader() {
-        return new SG_UNH(head);
+    public ICS_UNH getHeader() {
+        return new ICS_UNH(head);
     }
 
     public EdiSegment getHeadSegment() {

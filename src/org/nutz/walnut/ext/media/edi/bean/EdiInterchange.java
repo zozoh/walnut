@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.walnut.ext.media.edi.bean.segment.SG_UNB;
+import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNB;
 import org.nutz.walnut.ext.media.edi.util.EdiInterchangeParsing;
 
 public class EdiInterchange extends EdiItem {
@@ -111,8 +111,8 @@ public class EdiInterchange extends EdiItem {
         return this.getEntry(0);
     }
 
-    public SG_UNB getHeader() {
-        return new SG_UNB(head);
+    public ICS_UNB getHeader() {
+        return new ICS_UNB(head);
     }
 
     public EdiSegment getHeadSegment() {

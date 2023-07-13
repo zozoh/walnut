@@ -10,7 +10,7 @@ import org.nutz.walnut.util.Wlang;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class SG_UNB {
+public class ICS_UNB {
 
     private String syntaxId;
 
@@ -48,9 +48,9 @@ public class SG_UNB {
 
     private String test;
 
-    public SG_UNB() {}
+    public ICS_UNB() {}
 
-    public SG_UNB(EdiSegment seg) {
+    public ICS_UNB(EdiSegment seg) {
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null,
                                     "syntaxId,syntaxVersion",
@@ -68,7 +68,7 @@ public class SG_UNB {
         this.valueOf(bean);
     }
 
-    public SG_UNB valueOf(NutBean bean) {
+    public ICS_UNB valueOf(NutBean bean) {
         this.syntaxId = bean.getString("syntaxId");
         this.syntaxVersion = bean.getString("syntaxVersion");
         this.creator = bean.getString("creator");
