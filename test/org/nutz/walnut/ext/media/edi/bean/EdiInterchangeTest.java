@@ -10,6 +10,8 @@ import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNB;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNH;
+import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNT;
+import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNZ;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_FTX;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UCI;
 import org.nutz.walnut.ext.media.edi.loader.CLREGRLoader;
@@ -294,6 +296,64 @@ public class EdiInterchangeTest {
         ic.packMessages();
         String s3 = ic.toString().trim();
         assertEquals(in2, s3);
+    }
+
+    @Test
+    public void test_04() {
+        String input = _read_input("c04");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        //
+        // 测试头部
+        //
+        ICS_UNB h = ic.getHeader();
+        assertEquals("UNOC", h.getSyntaxId());
+        assertEquals("3", h.getSyntaxVersion());
+        assertEquals("AAA336C", h.getCreator());
+        assertEquals(null, h.getCreatorIdCode());
+        assertEquals("AAA336C", h.getOwner());
+        assertEquals("AAR399A", h.getRecipient());
+        assertEquals(null, h.getRecipientIdCode());
+        assertEquals(null, h.getRecipientRoutingAddress());
+        assertEquals("230627", h.getTransDate());
+        assertEquals("1357", h.getTransTime());
+        assertEquals("00000000000052", h.getControlRefNumber());
+        assertEquals(null, h.getRecipientRefPassword());
+        assertEquals(null, h.getRecipientRefPasswordQualifier());
+        assertEquals(null, h.getApplicationReference());
+        assertEquals(null, h.getProcessingPriorityCode());
+        assertEquals(null, h.getRequested());
+        assertEquals("1", h.getTest());
+        //
+        // 测试尾部
+        //
+        ICS_UNZ t = ic.getTail();
+        assertEquals(1, t.getMessageCount());
+        assertEquals("00000000000052", t.getControlRefNumber());
+
+        //
+        // 测试消息
+        //
+        EdiMessage msg = ic.getFirstMessage();
+        ICS_UNH mh = msg.getHeader();
+        assertEquals("000001", mh.getRefNumber());
+        assertEquals("CONTRL", mh.getTypeId());
+        assertEquals("D", mh.getTypeVersion());
+        assertEquals("3", mh.getTypeReleaseNumber());
+        assertEquals("UN", mh.getControlingAgency());
+
+        ICS_UNT mt = msg.getTail();
+        assertEquals(7, mt.getSegmentCount());
+        assertEquals("000001", mt.getRefNumber());
+
+        EdiSegment uci_sg = msg.findSegment("UCI");
+        ICS_UCI uci = new ICS_UCI(uci_sg);
+        assertEquals("23062700000008", uci.getRefNumber());
+        assertEquals("AAR399A", uci.getCreator());
+        assertEquals("AAR399A", uci.getOwner());
+        assertEquals("AAA336C", uci.getRecipient());
+        assertEquals("4", uci.getActionCode());
+        assertTrue(uci.isRejected());
+        assertFalse(uci.isNotExplicitlyRejected());
     }
 
 }

@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNH;
+import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNT;
 import org.nutz.walnut.ext.media.edi.util.EdiSegmentFinder;
+import org.nutz.walnut.util.Ws;
 
 public class EdiMessage extends EdiItem {
 
@@ -71,7 +73,21 @@ public class EdiMessage extends EdiItem {
         }
     }
 
-    public void packEntry() {
+    @Override
+    public void joinTree(StringBuilder sb, int depth) {
+        int r = depth - 1;
+        String prefix = r > 0 ? Ws.repeat("|    ", r) : "";
+        prefix += "|-- ";
+        int i = 0;
+        for (EdiSegment seg : segments) {
+            sb.append('\n').append(prefix);
+            sb.append('[').append(i++).append("] ");
+            sb.append(seg.toString());
+            seg.joinTree(sb, depth + 1);
+        }
+    }
+
+    public void packSelf() {
         int n = 2;
         if (null != this.segments) {
             n += this.segments.size();
@@ -89,6 +105,14 @@ public class EdiMessage extends EdiItem {
 
     public void setHeadSegment(EdiSegment head) {
         this.head = head;
+    }
+
+    public int getSegmentCount() {
+        return this.getTail().getSegmentCount();
+    }
+
+    public ICS_UNT getTail() {
+        return new ICS_UNT(tail);
     }
 
     public EdiSegment getTailSegment() {

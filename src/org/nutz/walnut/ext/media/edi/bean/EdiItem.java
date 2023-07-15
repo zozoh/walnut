@@ -1,7 +1,10 @@
 package org.nutz.walnut.ext.media.edi.bean;
 
+import org.nutz.json.JsonField;
+
 public abstract class EdiItem {
 
+    @JsonField(ignore = true)
     protected EdiAdvice advice;
 
     public EdiItem(EdiAdvice advice) {
@@ -9,6 +12,8 @@ public abstract class EdiItem {
     }
 
     public abstract void joinString(StringBuilder sb);
+    
+    public abstract void joinTree(StringBuilder sb, int depth);
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

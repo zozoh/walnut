@@ -55,6 +55,16 @@ public class ICS_UNH {
         return typeId;
     }
 
+    public boolean isType(String type) {
+        if (null == typeId || null == type) {
+            return false;
+        }
+        if (type.startsWith("^")) {
+            return typeId.matches(type);
+        }
+        return typeId.equals(type);
+    }
+
     public void setTypeId(String typeId) {
         this.typeId = typeId;
     }

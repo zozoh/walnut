@@ -54,7 +54,8 @@ public class EdiInterchangeParsing {
 
     public EdiSegment nextSegment() {
         EdiSegment seg = null;
-        while (this.I < this.cs.length) {
+        int N = this.cs.length;
+        while (this.I < N) {
             char c = this.cs[this.I++];
             // 逃逸字符
             if (topC == A.escaper) {
@@ -89,7 +90,14 @@ public class EdiInterchangeParsing {
 
                 seg = new EdiSegment(A, this.components);
                 this.components = new LinkedList<>();
-                this.I++;
+                // 行结束后，向后寻找第一个不是换行符的位置，这样可以兼容无换行符，以及有换行符的两种报文形式
+                for (; I < N; I++) {
+                    char next = cs[I];
+                    if ('\r' == next || '\n' == next) {
+                        continue;
+                    }
+                    break;
+                }
                 break;
             }
             // 普通字符

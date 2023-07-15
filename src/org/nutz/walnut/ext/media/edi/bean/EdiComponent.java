@@ -32,6 +32,11 @@ public class EdiComponent extends EdiItem {
         }
     }
 
+    @Override
+    public void joinTree(StringBuilder sb, int depth) {
+        this.joinString(sb);
+    }
+
     public EdiElementType getFirstElementType() {
         if (null != elements && elements.size() > 0) {
             return elements.get(0).getType();

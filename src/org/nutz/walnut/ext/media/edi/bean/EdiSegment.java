@@ -40,6 +40,19 @@ public class EdiSegment extends EdiItem {
         }
     }
 
+    @Override
+    public void joinTree(StringBuilder sb, int depth) {
+        int r = depth - 1;
+        String prefix = r > 0 ? Ws.repeat("|    ", r) : "";
+        prefix += "|-- ";
+        int i = 0;
+        for (EdiComponent com : components) {
+            sb.append('\n').append(prefix);
+            sb.append('[').append(i++).append("] ");
+            com.joinTree(sb, depth + 1);
+        }
+    }
+
     public NutBean getBean(String... keys) {
         NutMap bean = new NutMap();
         this.fillBean(bean, keys);
