@@ -1,0 +1,85 @@
+UNA:+.? '
+UNB+UNOC:3+${_H.Creator}::${_H.Owner}+${_H.Recipient}+${_H.TransmissionDate}:${_H.TransmissionTime}+${_H.ControlReferenceNumber}++++1++1'
+UNH+${_H.MessageReferenceNumber?1}+CUSCAR:D:99B:UN'
+#
+# 这里是报文的正文
+#
+BGM+101:::CLREG+${CLREG.SenderReference}:${CLREG.SenderReferenceVersion?1}+9'
+${#if "BP.type":"ORG","BP.reg_num_primary":"![BLANK]"}
+RFF+ABN:${BP.reg_num_primary}'
+${#else-if "BP.type":"ORG"}
+RFF+AQU:ORG
+${#else-if "BP.type":"IND"}
+RFF+AQU:IND
+${#end}
+#
+# 联系人，目的
+#
+FTX+CNP+++${C.contact_name}:${purpose?EXPORT}'
+#
+# BP 的组织识别名称，如果是 ABN 组织则无需这段信息
+#
+${#if not "BP.type":"ORG","BP.reg_num_primary":"![BLANK]"}
+TDT+1'
+LOC+ZZZ+:::${BP.name}'
+${#end}
+#
+# 托运信息 下面就是固定就好
+#
+CNI+1'
+RFF+1'
+GID+1'
+#
+# 地址信息
+# 如果是组织且有 ABN 但是没有 CAC，不发这条报文
+#
+${#if not "BP.type":"ORG","BP.reg_num_primary":"![BLANK]","BP.reg_num_second":"[BLANK]"}
+FTX+ATY+BA++${A.address_1}:${A.address_2?}:${A.city}:${A.postcode}:${A.state}+${A.country}'
+${#end}
+#
+# 联系人信息 - phone
+#
+${#if not "C.phone":"[BLANK]"}
+FTX+CAT+BP+${C.phone_prefix}+${C.phone}:${C.phone_comments}'
+${#end}
+#
+# 联系人信息 - after_hours_phone
+#
+${#if not "C.after_hours_phone":"[BLANK]"}
+FTX+CAT+AP+${C.after_hours_phone_prefix}+${C.after_hours_phone}:${C.after_hours_phone_comments}'
+${#end}
+#
+# 联系人信息 - mobile
+# ERC+CL0467:6:95
+# PREFIX CODE ONLY ALLOWED WITH AP, FA OR BP CONTACT ADDRESS
+#
+${#if not "C.mobile":"[BLANK]"}
+FTX+CAT+MO++${C.mobile}:${C.mobile_comments}'
+${#end}
+#
+# 联系人信息 - Email
+#
+${#if not "C.email":"[BLANK]"}
+FTX+CAT+EA++${C.email}'
+${#end}
+#
+# 联系人地址
+#
+${#if not CA:"[BLANK]"}
+FTX+CAT+BA++${CA.address_1}:${CA.address_2?}:${CA.city}:${CA.postcode}:${CA.state}+${CA.country}'
+${#end}
+#
+# 采用尺寸信息来传递角色信息
+#
+${#loop roleName : clientRoles}
+MEA+RN+:::${roleName}'
+${#end}
+#
+# 个人的信息
+#
+${#if "BP.type":"IND"}
+AUT+GE+${BP.gender}'
+DTM+329:${BP.dob<date:yyyyMMdd>}:102'
+${#end}
+UNT+14+1'
+UNZ+${_H.MessageCount?1}+${_H.ControlReferenceNumber}'

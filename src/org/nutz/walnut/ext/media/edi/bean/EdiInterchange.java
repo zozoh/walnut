@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.media.edi.bean;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNB;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNZ;
 import org.nutz.walnut.ext.media.edi.util.EdiInterchangeParsing;
@@ -12,8 +13,13 @@ public class EdiInterchange {
 
     public static EdiInterchange parse(String input) {
         EdiInterchange ic = new EdiInterchange();
-        ic.valueOf(input);
-        return ic;
+        try {
+            ic.valueOf(input);
+            return ic;
+        }
+        catch (Throwable e) {
+            throw Er.create("e.edi.ParseFail", e);
+        }
     }
 
     private EdiAdvice advice;

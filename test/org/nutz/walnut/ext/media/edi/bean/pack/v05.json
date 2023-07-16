@@ -1,0 +1,72 @@
+{
+  "_H": {
+    "Creator": "AAR399A",
+    "Owner": "AAR399A",
+    "Recipient": "AAA336C",
+    "ControlReferenceNumber": "23071600000003",
+    "TransmissionDate": "230716",
+    "TransmissionTime": "0141"
+  },
+  "CLREG": {
+    "SenderReference": "PSC8NFBLH4HD3OLH6SAN2D0ODP"
+  },
+  "BP": {
+    "reg_num_primary": "14165610382",
+    "code": "AUSPTYBNE",
+    "type": "ORG",
+    "name": "AUSDIGI PTY LTD",
+    "name_other": "PupeRG",
+    "unloco": "AUBNE",
+    "loareceived": "NO"
+  },
+  "A": {
+    "company_name": "AUSDIGI PTY LTD",
+    "country": "AU",
+    "state": "QLD",
+    "address_1": "21 PEMBROKE STREET",
+    "address_name": "21 PEMBROKE STREET MAUDSLAND QLD AUSTRALIA",
+    "city": "MAUDSLAND",
+    "consignment_delivery_address": "YES",
+    "consignment_pickup_address": "YES",
+    "mobile": "?+61414643116",
+    "postal_address": "YES",
+    "postcode": "4210",
+    "primary_address": "YES",
+    "unloco": "AUBNE"
+  },
+  "C": {
+    "contact_name": "Somebody",
+    "job_title": "CXO",
+    "working_address": "ups38pd748jgiq6mlk47uj7g3k",
+    "phone": "18895900123",
+    "after_hours_phone": "1996678323",
+    "after_hours_phone_comments": "after houers phone",
+    "mobile": "?+61415705675",
+    "mobile_comments": "mobile",
+    "phone_comments": "this is phone",
+    "after_hours_phone_prefix": "?+50",
+    "mobile_prefix": "?+50",
+    "phone_prefix": "?+50"
+  },
+  "CA": {
+    "company_name": "AUSDIGI PTY LTD",
+    "country": "AU",
+    "state": "QLD",
+    "address_1": "21 PEMBROKE STREET",
+    "address_name": "21 PEMBROKE STREET MAUDSLAND QLD AUSTRALIA",
+    "city": "MAUDSLAND",
+    "consignment_delivery_address": "YES",
+    "consignment_pickup_address": "YES",
+    "mobile": "?+61414643116",
+    "postal_address": "YES",
+    "postcode": "4210",
+    "primary_address": "YES",
+    "unloco": "AUBNE"
+  },
+  "purpose": "EXPORT",
+  "clientRoles": [
+    "IMPORTER",
+    "EXPORTER",
+    "SUPPLIER"
+  ]
+}

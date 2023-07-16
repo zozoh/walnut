@@ -6,8 +6,8 @@
 
 ```bash
 edi @msg 
-    [IC]      # 解析报文对象的类型
-              #  - IC : 控制报文返回
+    [AUTO]    # 解析报文对象的类型
+              #  - CONTRL : 控制报文返回
               #  - CLREGR : 注册接口返回
               #  - AUTO : 根据报文的内容自行决定【默认】
     [-cqn]    # 输出的 JSON 格式化
@@ -17,5 +17,5 @@ edi @msg
 # 示例
 
 ```bash
-edi @load ~/demo.edi.txt @parse @msg IC -cqn
+edi @load ~/demo.edi.txt @parse @msg -cqn
 ```

@@ -14,12 +14,14 @@ import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNT;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNZ;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_FTX;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UCI;
+import org.nutz.walnut.ext.media.edi.loader.CLNTDUPLoader;
 import org.nutz.walnut.ext.media.edi.loader.CLREGRLoader;
 import org.nutz.walnut.ext.media.edi.loader.EdiMsgs;
-import org.nutz.walnut.ext.media.edi.loader.ICLoader;
+import org.nutz.walnut.ext.media.edi.loader.CONTRLLoader;
+import org.nutz.walnut.ext.media.edi.reply.EdiReplyCLNTDUP;
 import org.nutz.walnut.ext.media.edi.reply.EdiReplyCLREGR;
 import org.nutz.walnut.ext.media.edi.reply.EdiReplyError;
-import org.nutz.walnut.ext.media.edi.reply.EdiReplyIC;
+import org.nutz.walnut.ext.media.edi.reply.EdiReplyCONTRL;
 import org.nutz.walnut.ext.media.edi.util.EdiSegmentFinder;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.tmpl.WnTmplX;
@@ -29,6 +31,20 @@ public class EdiInterchangeTest {
     private String _read_input(String name) {
         String txt = Files.read("org/nutz/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
         return txt.replaceAll("\r\n", "\n").trim();
+    }
+
+    @Test
+    public void test_parse_dup() {
+        String input = _read_input("re_dup");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        CLNTDUPLoader loader = EdiMsgs.getCLNTDUPLoader();
+        EdiReplyCLNTDUP re = loader.load(msg);
+
+        assertEquals("CCI", re.getType());
+        assertEquals("AAA3436797Y", re.getCode());
+        assertEquals("28558C74B757460991741B177754D009", re.getReferId());
+        assertEquals("28558c74b757460991741b177754d009", re.getReferIdInLower());
     }
 
     @Test
@@ -138,15 +154,15 @@ public class EdiInterchangeTest {
 
     @Test
     public void test_UCI() {
-        ICLoader loader = EdiMsgs.getInterchangeLoader();
+        CONTRLLoader loader = EdiMsgs.getInterchangeLoader();
 
         String input = _read_input("c_error");
         EdiInterchange ic = EdiInterchange.parse(input);
 
         EdiMessage msg = ic.getFirstMessage();
 
-        EdiReplyIC ric = loader.load(msg);
-        ICS_UCI uci = ric.getUCI();
+        EdiReplyCONTRL ric = loader.load(msg);
+        ICS_UCI uci = ric.getUci();
         assertEquals("23062600000024", uci.getRefNumber());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());
@@ -163,7 +179,7 @@ public class EdiInterchangeTest {
 
         msg = ic.getFirstMessage();
         ric = loader.load(msg);
-        uci = ric.getUCI();
+        uci = ric.getUci();
         assertEquals("23062700000009", uci.getRefNumber());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());

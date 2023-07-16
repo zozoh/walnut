@@ -1,0 +1,75 @@
+UNA:+.? '
+UNB+UNOC:3+AAR399A::AAR399A+AAA336C+230716:0149+23071600000005++++1++1'
+UNH+1+CUSCAR:D:99B:UN'
+#
+# 这里是报文的正文
+#
+BGM+101:::CLREG+72QAOJK2U0J77QP686B68C34DO:1+9'
+
+RFF+ABN:14165610382'
+
+#
+# 联系人，目的
+#
+FTX+CNP+++Somebody:EXPORT'
+#
+# BP 的组织识别名称，如果是 ABN 组织则无需这段信息
+#
+
+#
+# 托运信息 下面就是固定就好
+#
+CNI+1'
+RFF+1'
+GID+1'
+#
+# 地址信息
+# 如果是组织且有 ABN 但是没有 CAC，不发这条报文
+#
+
+#
+# 联系人信息 - phone
+#
+
+FTX+CAT+BP+?+50+18895900123:this is phone'
+
+#
+# 联系人信息 - after_hours_phone
+#
+
+FTX+CAT+AP+?+50+1996678323:after houers phone'
+
+#
+# 联系人信息 - mobile
+# ERC+CL0467:6:95
+# PREFIX CODE ONLY ALLOWED WITH AP, FA OR BP CONTACT ADDRESS
+#
+
+FTX+CAT+MO++?+61415705675:mobile'
+
+#
+# 联系人信息 - Email
+#
+
+#
+# 联系人地址
+#
+
+FTX+CAT+BA++21 PEMBROKE STREET::MAUDSLAND:4210:QLD+AU'
+
+#
+# 采用尺寸信息来传递角色信息
+#
+
+MEA+RN+:::IMPORTER'
+
+MEA+RN+:::EXPORTER'
+
+MEA+RN+:::SUPPLIER'
+
+#
+# 个人的信息
+#
+
+UNT+14+1'
+UNZ+1+23071600000005'

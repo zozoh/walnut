@@ -7,15 +7,19 @@ import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UCI;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class EdiReplyIC {
+public class EdiReplyCONTRL extends EdiReplyObj {
 
     private ICS_UCI uci;
 
-    public ICS_UCI getUCI() {
+    public EdiReplyCONTRL() {
+        super("CONTRL");
+    }
+
+    public ICS_UCI getUci() {
         return uci;
     }
 
-    public void setUCI(ICS_UCI uci) {
+    public void setUci(ICS_UCI uci) {
         this.uci = uci;
     }
 

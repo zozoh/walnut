@@ -21,7 +21,7 @@ public class CLREGRLoader implements EdiMsgLoader<EdiReplyCLREGR> {
         ICS_FTX t;
 
         // 如果能找到 ABN 或者 CCID 就算成功
-        seg = finder.next("FTX", "^(ABN|CCID)$");
+        seg = finder.next("FTX", "^(ABN|CCI)$");
         if (null != seg) {
             t = new ICS_FTX(seg);
             re.setSuccess(true);
@@ -33,7 +33,7 @@ public class CLREGRLoader implements EdiMsgLoader<EdiReplyCLREGR> {
             re.setSuccess(false);
         }
 
-        // 首先确定参考 ID
+        // 确定参考 ID
         finder.reset();
         seg = finder.next("RFF", "ABO");
         if (null != seg) {

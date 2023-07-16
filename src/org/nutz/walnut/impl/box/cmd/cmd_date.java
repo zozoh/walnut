@@ -104,7 +104,7 @@ public class cmd_date extends JvmExecutor {
             if (null == tz) {
                 sys.out.print("-no-set-");
             } else {
-                sys.out.printf("%s%s", tz.getDisplayName(), tz.getRawOffset());
+                sys.out.printf("%s/%s", tz.getDisplayName(), tz.getRawOffset());
             }
 
         }

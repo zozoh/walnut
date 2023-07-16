@@ -29,6 +29,7 @@ import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.ZParams;
+import org.nutz.walnut.util.tmpl.WnTmplX;
 import org.simplejavamail.api.mailer.config.Pkcs12Config;
 import org.simplejavamail.utils.mail.smime.SmimeKey;
 import org.simplejavamail.utils.mail.smime.SmimeKeyStore;
@@ -65,6 +66,7 @@ public class mailx_imap extends MailxFilter {
         boolean isAutoDecrypt = params.is("decrypt");
         boolean isJson = params.is("json");
         String asContent = params.getString("content");
+        String after = params.getString("after", null);
 
         // 得到输出目标
         String taPath = params.getString("to");
@@ -157,7 +159,8 @@ public class mailx_imap extends MailxFilter {
                                                     wts,
                                                     N,
                                                     i,
-                                                    mail);
+                                                    mail,
+                                                    after);
                     // 计入结果
                     outputs.add(oMail);
                 }
@@ -206,7 +209,8 @@ public class mailx_imap extends MailxFilter {
                                       WnThingService wts,
                                       int N,
                                       int i,
-                                      WnImapMail mail) {
+                                      WnImapMail mail,
+                                      String after) {
         // 不是 JSON 输出，也要打印到控制台
         LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
         NutMap meta = mail.toMeta(showHeader);
@@ -246,6 +250,22 @@ public class mailx_imap extends MailxFilter {
                 byte[] data = att.getData();
                 WnObj oAtt = wts.fileAdd(null, oMail, fnm, data, null, true);
                 LOG(sys, debug, "     -> %d. %s => %s", x, fnm, oAtt);
+            }
+        }
+
+        // 执行回调
+        if (!Ws.isBlank(after)) {
+            String input = after;
+            // 命令来自一个文件
+            if (after.startsWith("o:")) {
+                String path = after.substring(2).trim();
+                WnObj oAfter = Wn.checkObj(sys, path);
+                input = sys.io.readText(oAfter);
+            }
+            // 渲染命令
+            if (!Ws.isBlank(input)) {
+                String cmdText = WnTmplX.exec(input, oMail);
+                sys.exec(cmdText);
             }
         }
         return oMail;

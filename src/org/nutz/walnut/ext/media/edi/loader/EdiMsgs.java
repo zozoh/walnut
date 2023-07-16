@@ -2,8 +2,11 @@ package org.nutz.walnut.ext.media.edi.loader;
 
 import java.util.HashMap;
 
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.media.edi.bean.EdiMessage;
+import org.nutz.walnut.ext.media.edi.bean.EdiSegment;
 import org.nutz.walnut.ext.media.edi.bean.segment.ICS_UNH;
 
 /**
@@ -16,17 +19,27 @@ public abstract class EdiMsgs {
     private static HashMap<String, EdiMsgLoader<?>> loaders = new HashMap<>();
 
     static {
-        loaders.put("IC", new ICLoader());
+        loaders.put("CONTRL", new CONTRLLoader());
         loaders.put("CLREGR", new CLREGRLoader());
+        loaders.put("CLNTDUP", new CLNTDUPLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
         ICS_UNH unh = msg.getHeader();
         if (unh.isType("CONTRL")) {
-            return "IC";
+            return "CONTRL";
         }
-        // 自定义类型
-        return "CLREGR";
+        // 根据BGM 判断
+        if (unh.isType("CUSRES")) {
+            EdiSegment seg = msg.findSegment("BGM");
+            NutBean bean = new NutMap();
+            seg.fillBean(bean, null, "code,,,type");
+            // 可能为 CLREGR 或者 CLNTDUP 等
+            if (bean.has("type")) {
+                return bean.getString("type");
+            }
+        }
+        throw Er.create("e.edi.failLoaderType", msg.toString());
     }
 
     public static EdiMsgLoader<?> getLoader(String key) {
@@ -41,12 +54,16 @@ public abstract class EdiMsgs {
         return loader;
     }
 
-    public static ICLoader getInterchangeLoader() {
-        return (ICLoader) loaders.get("IC");
+    public static CONTRLLoader getInterchangeLoader() {
+        return (CONTRLLoader) loaders.get("CONTRL");
     }
 
     public static CLREGRLoader getCLREGRLoader() {
         return (CLREGRLoader) loaders.get("CLREGR");
+    }
+
+    public static CLNTDUPLoader getCLNTDUPLoader() {
+        return (CLNTDUPLoader) loaders.get("CLNTDUP");
     }
 
 }
