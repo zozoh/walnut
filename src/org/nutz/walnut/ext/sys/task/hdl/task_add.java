@@ -68,7 +68,12 @@ public class task_add implements JvmHdl {
             String userName = hc.params.getString("u");
             me = sys.auth.checkAccount(userName);
         }
-        oTask.put("user", me.getName());
+        // 如果是域子账号，则用域主账号的名称
+        if (me.isSysAccount()) {
+            oTask.put("user", me.getName());
+        } else {
+            oTask.put("user", me.getGroupName());
+        }
 
         // 准备服务类
         WnSysTaskApi taskApi = sys.services.getTaskApi();
