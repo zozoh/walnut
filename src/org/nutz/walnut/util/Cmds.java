@@ -1,6 +1,7 @@
 package org.nutz.walnut.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.nutz.json.Json;
@@ -478,16 +479,39 @@ public abstract class Cmds {
             tt.addRow(cols);
             tt.addHr();
         }
+
+        // 准备一个二维数组
+        // [[key, type, formater]...]
+        List<String[]> headers = new ArrayList<>(cols.length);
+        for (String col : cols) {
+            String[] ks = Ws.splitIgnoreBlank(col, ":");
+            headers.add(ks);
+        }
+
         // 主体
         int i = indexBase;
         for (NutBean map : outs) {
             List<String> cells = new ArrayList<String>(cols.length);
-            for (String key : cols) {
+            for (String[] col : headers) {
+                String key = col[0];
                 if ("#".equals(key)) {
                     cells.add("" + (i++));
                     continue;
                 }
+                // 尝试按照时间格式化
                 Object v = Mapl.cell(map, key);
+
+                if (col.length > 1) {
+                    if ("time".equals(col[1])) {
+                        if (null != v && v instanceof Number) {
+                            long ams = ((Number) v).longValue();
+                            String format = col.length > 2 ? col[2] : "yyyy-MM-dd HH:mm:ss";
+                            Date d = new Date(ams);
+                            v = Wtime.format(d, format);
+                        }
+                    }
+                }
+
                 cells.add(v == null ? null : v.toString());
             }
             tt.addRow(cells);
