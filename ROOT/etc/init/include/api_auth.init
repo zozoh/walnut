@@ -61,39 +61,40 @@ www account '$${http-qs-site?${dft_site?~/www/website}}' \
 @API .regapi/api/auth/login_by_wxcode 'cross/json'
 %TMPL:
 httpparam -in id:$${id} \
-  | run www auth $$${site?${dft_site?~/www/website}} $$${code?} -wxcode $$${ct?mp} -ajax -cqn
+  | tmpl @load 'www auth $$${site?${dft_site?~/www/website}} $$${code?} -wxcode $$${ct?mp} -ajax -cqn' @vars \
+  | run
 %END%
 #---------------------------------------------------------
 # API(auth): 账号密码登录
 @API .regapi/api/auth/login_by_passwd 'cross/json'
 %TMPL:
 httpparam -in id:$${id} \
-  | run www auth $$${site?${dft_site?~/www/website}} $$${name?} -p $$${passwd?} -ajax -cqn
+  | tmpl @load 'www auth $$${site?${dft_site?~/www/website}} $$${name?} -p $$${passwd?} -ajax -cqn' @vars \
+  | run
 %END%
 #---------------------------------------------------------
 # API(auth): 短信密码登录
 @API .regapi/api/auth/login_by_phone 'cross/json'
 %TMPL:
 httpparam -in id:$${id} \
-  | run www auth $$${site?${dft_site?~/www/website}} \
-    $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn
+  | tmpl @load 'www auth $$${site?${dft_site?~/www/website}} $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn' @vars \
+  | run
 %END%
 #---------------------------------------------------------
 # API(auth): 邮件密码登录
 @API .regapi/api/auth/login_by_email 'cross/json'
 %TMPL:
 httpparam -in id:$${id} \
-  | run www auth $$${site?${dft_site?~/www/website}} \
-    $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn
+  | tmpl @load 'www auth $$${site?${dft_site?~/www/website}} $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ajax -cqn' @vars \
+  | run
 %END%
 #---------------------------------------------------------
 # API(auth): 绑定手机/邮箱
 @API .regapi/api/auth/bind_account 'cross/json'
 %TMPL:
 httpparam -in id:$${id} \
-  | run www auth $$${site?${dft_site?~/www/website}} \
-    $$${name?} -scene $$${scene?auth} -v $$${vcode?} \
-    -ticket $$${ticket?-nil-} -ajax -cqn
+  | tmpl @load 'www auth $$${site?${dft_site?~/www/website}} $$${name?} -scene $$${scene?auth} -v $$${vcode?} -ticket $$${ticket?-nil-} -ajax -cqn' @vars \
+  | run
 %END%
 #---------------------------------------------------------
 # API(auth): 获取短信验证码
