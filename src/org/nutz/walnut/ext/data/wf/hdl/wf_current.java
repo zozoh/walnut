@@ -11,6 +11,7 @@ public class wf_current extends WfFilter {
 
     @Override
     protected void process(WnSystem sys, WfContext fc, ZParams params) {
+        fc.reloadVars();
         for (String v : params.vals) {
             Object re = Wn.explainObj(fc.vars, v);
             if (null != re) {

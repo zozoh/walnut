@@ -56,7 +56,8 @@ wf [/path/to/workflow.json ...] [-get xx.xx] @[var|process|...]
 # 过滤器列表
 
 ```bash
-@var        # 加载上下文变量
+@var        # 设置上下文变量
+@reload     # 主动加载上下文变量
 @current    # 根据上下文变量，确定工作流当前节点的名称
 @process    # 执行一步工作流
 @view       # 查看当前上下文中的信息

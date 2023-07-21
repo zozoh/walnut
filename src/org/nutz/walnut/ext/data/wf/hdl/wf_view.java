@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.data.wf.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.ext.data.wf.WfContext;
 import org.nutz.walnut.ext.data.wf.WfFilter;

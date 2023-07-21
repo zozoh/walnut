@@ -1,6 +1,7 @@
 package org.nutz.walnut.ext.data.wf.util;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
@@ -8,7 +9,7 @@ public class WfVarSelectItem {
 
     private Object test;
 
-    private Object value;
+    private NutMap value;
 
     private WnMatch _m;
 
@@ -35,11 +36,11 @@ public class WfVarSelectItem {
         this.test = test;
     }
 
-    public Object getValue() {
+    public NutMap getValue() {
         return value;
     }
 
-    public void setValue(Object value) {
+    public void setValue(NutMap value) {
         this.value = value;
     }
 

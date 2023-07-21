@@ -133,14 +133,21 @@ public class wf_process extends WfFilter {
                 return;
             }
 
+            // 每次执行之前，确保重新加载了动态变量
+            fc.reloadVars();
+
             // 设置上下文
             fc.setNextName(nextName);
             fc.setNextType(taNode.getType());
 
             // 执行动作项
             if (!isTest) {
+
                 // 首先执行边动作
                 this.processWfActionElement(sys, fc, edge);
+
+                // 每次执行之前，确保重新加载了动态变量
+                fc.reloadVars();
 
                 // 其次执行节点动作
                 this.processWfActionElement(sys, fc, taNode);
