@@ -11,6 +11,7 @@ import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.core.bean.WnIoObj;
 import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.web.WebConfig;
 
 public class WnConfig extends WebConfig {
@@ -19,6 +20,20 @@ public class WnConfig extends WebConfig {
         super(Streams.fileInr(path));
         putAll(System.getProperties());
         putAll(System.getenv());
+    }
+
+    // Chrome 51 开始，浏览器的 Cookie 新增加了一个SameSite属性，
+    // 用来防止 CSRF 攻击和用户追踪。
+    // 为此默认的，我们需要为 Cookie 模板增加一个 SameSite 属性
+    // Set-Cookie: CookieName=CookieValue; SameSite=None; Secure
+    // - Strict: 完全不发
+    // - Lax： 大多数情况不发
+    // - None: 总是发，需要配合 Secure 属性
+    // @see https://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html
+    public WnTmpl getCookieTmpl() {
+        String str = this.get("dft_cookie",
+                              String.format("%s=${ticket}; SameSite=None; Secure", Wn.AT_SEID));
+        return WnTmpl.parse(str);
     }
 
     public String[] getWebIocPkgs() {
