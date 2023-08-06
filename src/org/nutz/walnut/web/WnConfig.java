@@ -34,7 +34,7 @@ public class WnConfig extends WebConfig {
     // @see https://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html
     public WnTmpl getCookieTmpl(boolean asHttps) {
         String str = String.format("%s=${ticket};", Wn.AT_SEID);
-        String sameSite = this.get("COOKIE_SAME_SITE", "Auto").toLowerCase();
+        String sameSite = this.get("cookie_same_site", "Auto").toLowerCase();
         // 总是发，这样再前端套 https 代理时，也会强制发
         if ("none".equals(sameSite)) {
             str += "SameSite=None; Secure";
