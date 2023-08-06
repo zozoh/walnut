@@ -3,6 +3,8 @@ package org.nutz.walnut.web;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.nutz.json.Json;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -30,10 +32,23 @@ public class WnConfig extends WebConfig {
     // - Lax： 大多数情况不发
     // - None: 总是发，需要配合 Secure 属性
     // @see https://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html
-    public WnTmpl getCookieTmpl() {
-        String str = this.get("dft_cookie",
-                              String.format("%s=${ticket}; SameSite=None; Secure", Wn.AT_SEID));
+    public WnTmpl getCookieTmpl(boolean asHttps) {
+        String str = String.format("%s=${ticket};", Wn.AT_SEID);
+        String sameSite = this.get("cookie_same_site", "None").toLowerCase();
+        if ("none".equals(sameSite)) {
+            if (asHttps) {
+                str += "SameSite=None; Secure";
+            }
+        } else if ("strict".equals(sameSite)) {
+            str += "SameSite=Strict";
+        }
         return WnTmpl.parse(str);
+    }
+
+    public WnTmpl getCookieTmpl(HttpServletRequest req) {
+        String protocol = req.getProtocol().toLowerCase();
+        boolean asHttps = "https".equals(protocol);
+        return getCookieTmpl(asHttps);
     }
 
     public String[] getWebIocPkgs() {

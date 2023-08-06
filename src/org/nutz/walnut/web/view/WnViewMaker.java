@@ -3,9 +3,6 @@ package org.nutz.walnut.web.view;
 import org.nutz.ioc.Ioc;
 import org.nutz.mvc.View;
 import org.nutz.mvc.ViewMaker;
-import org.nutz.walnut.util.Wn;
-import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.web.WnConfig;
 import org.nutz.web.ajax.AjaxView;
 
@@ -22,23 +19,11 @@ public class WnViewMaker implements ViewMaker {
         // - None: 总是发，需要配合 Secure 属性
         // @see https://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html
         WnConfig conf = ioc.get(WnConfig.class, "conf");
-        String dft_cookie = conf.get("dft_cookie",
-                                     String.format("%s=${ticket}; SameSite=None; Secure",
-                                                   Wn.AT_SEID));
-
-        String[] ss = Ws.splitIgnoreBlank(value);
-        String cookie_t = dft_cookie;
         String path = value;
-        if (null != ss && ss.length > 1) {
-            cookie_t = Ws.sBlank(dft_cookie, ss[0]);
-            path = ss[1];
-
-        }
-        WnTmpl cookie = WnTmpl.parse(cookie_t);
 
         // 设置 cookie 并重定向
         if ("++cookie>>".equals(type)) {
-            return new WnAddCookieViewWrapper(cookie, path);
+            return new WnAddCookieViewWrapper(conf, path);
         }
         // 从 cookie 移除并重定向
         else if ("--cookie>>".equals(type)) {
@@ -46,7 +31,7 @@ public class WnViewMaker implements ViewMaker {
         }
         // 设置 cookie 并输出 AJAX 返回
         else if ("++cookie->ajax".equals(type)) {
-            return new WnAddCookieViewWrapper(cookie, new AjaxView(), path);
+            return new WnAddCookieViewWrapper(conf, new AjaxView(), path);
         }
 
         // 呃，不认识了 ...

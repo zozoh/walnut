@@ -44,7 +44,6 @@ import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.Wn.Session;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.walnut.web.bean.WnApp;
 import org.nutz.walnut.web.bean.WnLoginPage;
 import org.nutz.walnut.web.filter.WnAsUsr;
@@ -399,7 +398,8 @@ public class AppModule extends AbstractWnModule {
      * @return 输出视图
      */
     @At
-    public View sys_login_by_passwd(@Param("name") String name,
+    public View sys_login_by_passwd(HttpServletRequest req,
+                                    @Param("name") String name,
                                     @Param("passwd") String passwd,
                                     @Param("ajax") boolean ajax,
                                     @ReqHeader("Referer") String referer) {
@@ -409,10 +409,8 @@ public class AppModule extends AbstractWnModule {
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
-                WnTmpl cookie = conf.getCookieTmpl();
                 Object reo = se.toMapForClient();
-                return new ViewWrapper(new WnAddCookieViewWrapper(cookie, new AjaxView(), null),
-                                       reo);
+                return new ViewWrapper(new WnAddCookieViewWrapper(conf, new AjaxView(), null), reo);
             }
             // 直接跳转到用户的主应用
             return __get_session_default_view(se);
@@ -438,9 +436,7 @@ public class AppModule extends AbstractWnModule {
     private View __get_session_default_view(WnAuthSession se) {
         String appName = se.getVars().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
-        // 获取 cookie 模板
-        WnTmpl cookie = conf.getCookieTmpl();
-        return new ViewWrapper(new WnAddCookieViewWrapper(cookie, url), se);
+        return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), se);
     }
 
     /**
@@ -463,9 +459,7 @@ public class AppModule extends AbstractWnModule {
             // 退到父会话
             if (null != pse && !pse.isDead()) {
                 Object reo = pse.toMapForClient();
-                // 获取 cookie 模板
-                WnTmpl cookie = conf.getCookieTmpl();
-                return new ViewWrapper(new WnAddCookieViewWrapper(cookie, view, null), reo);
+                return new ViewWrapper(new WnAddCookieViewWrapper(conf, view, null), reo);
             }
         }
 
@@ -611,17 +605,14 @@ public class AppModule extends AbstractWnModule {
                 }
             }
 
-            // 获取 cookie 模板
-            WnTmpl cookie = conf.getCookieTmpl();
-
             // 根据选项包裹返回视图
             // AJAX 视图
             if (ajax) {
-                view = new WnAddCookieViewWrapper(cookie, new AjaxView(), null);
+                view = new WnAddCookieViewWrapper(conf, new AjaxView(), null);
             }
             // 重定向视图
             else {
-                view = new WnAddCookieViewWrapper(cookie, redirectPath);
+                view = new WnAddCookieViewWrapper(conf, redirectPath);
             }
             // 返回
             return new ViewWrapper(view, reo);
@@ -718,16 +709,13 @@ public class AppModule extends AbstractWnModule {
             // 准备返回数据
             NutMap se = seSys.toMapForClient();
 
-            // 获取 cookie 模板
-            WnTmpl cookie = conf.getCookieTmpl();
-
             // 返回AJAX 视图
             if (ajax) {
-                view = new WnAddCookieViewWrapper(cookie, new AjaxView(), null);
+                view = new WnAddCookieViewWrapper(conf, new AjaxView(), null);
             }
             // 重定向视图
             else {
-                view = new WnAddCookieViewWrapper(cookie, "/");
+                view = new WnAddCookieViewWrapper(conf, "/");
             }
 
             // 包裹数据对象并返回
