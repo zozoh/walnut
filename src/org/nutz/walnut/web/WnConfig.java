@@ -33,21 +33,21 @@ public class WnConfig extends WebConfig {
     // - None: 总是发，需要配合 Secure 属性
     // @see https://www.ruanyifeng.com/blog/2019/09/cookie-samesite.html
     public WnTmpl getCookieTmpl(boolean asHttps) {
-        String str = String.format("%s=${ticket};", Wn.AT_SEID);
+        String str = String.format("%s=${ticket}", Wn.AT_SEID);
         String sameSite = this.get("cookie_same_site", "Auto").toLowerCase();
         // 总是发，这样再前端套 https 代理时，也会强制发
         if ("none".equals(sameSite)) {
-            str += "SameSite=None; Secure";
+            str += "; SameSite=None; Secure";
         }
         // 如果 https 就总是发
         if ("auto".equals(sameSite)) {
             if (asHttps) {
-                str += "SameSite=None; Secure";
+                str += "; SameSite=None; Secure";
             }
         }
         // 强制
         else if ("strict".equals(sameSite)) {
-            str += "SameSite=Strict";
+            str += "; SameSite=Strict";
         }
         return WnTmpl.parse(str);
     }

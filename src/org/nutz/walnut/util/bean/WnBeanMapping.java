@@ -27,6 +27,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     private WnMatch pickNames;
 
+    private WnIo io;
+
+    private NutBean vars;
+
     @SuppressWarnings("unchecked")
     public Object translateAny(Object input, boolean onlyMapping) {
         Mirror<?> mi = Mirror.me(input);
@@ -101,14 +105,54 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     continue;
                 }
 
-                Object val;
+                Object val = null;
                 // 获取值: 条件选择
                 if (fld.hasMatchValue()) {
                     val = fld.tryMatchValue(bean);
                 }
+                // 从参考对象读取, 譬如:
+                // id:pet_id -> birthday
+                // ph:pet_path -> birthday
+                // 如果
+                // pet_id -> birthday
+                // 相当于
+                // id:pet_id -> birthday
+                else if (key.indexOf("->") > 0) {
+                    String[] ss = Ws.splitIgnoreBlank(key, "->");
+                    // 依次获取对象
+                    NutBean obj = bean;
+                    for (int i = 0; i < ss.length - 1; i++) {
+                        String k = ss[i];
+                        String[] kk = Ws.splitIgnoreBlank(k, ":");
+                        String type = "id";
+                        String kv = k;
+                        if (kk.length > 1) {
+                            type = kk[0];
+                            kv = kk[1];
+                        }
+                        // 用 ID
+                        if ("id".equals(type)) {
+                            String id = obj.getString(kv);
+                            obj = io.get(id);
+                        }
+                        // 用路径
+                        else if ("ph".equals(type)) {
+                            String ph = obj.getString(kv);
+                            String aph = Wn.normalizeFullPath(ph, vars);
+                            obj = io.fetch(null, aph);
+                        }
+                        if (null == obj) {
+                            break;
+                        }
+                    }
+                    if (obj != null) {
+                        String k = ss[ss.length - 1];
+                        val = getFallback(obj, k);
+                    }
+                }
                 // 获取值：直接取值
                 else {
-                    val = bean.get(key);
+                    val = getFallback(bean, key);
                 }
 
                 // 无视空
@@ -147,6 +191,24 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         }
 
         return re;
+    }
+
+    public static Object getFallback(NutBean bean, String key) {
+        Object v = null;
+        String[] ks = Ws.splitIgnoreBlank(key, "[|,;]");
+        if (ks.length == 1) {
+            v = bean.get(ks[0]);
+        }
+        // 依次重试
+        else if (ks.length > 1) {
+            for (String k : ks) {
+                v = bean.get(k);
+                if (null != v) {
+                    return v;
+                }
+            }
+        }
+        return v;
     }
 
     private boolean isKeyCanOutput(String key) {
@@ -210,6 +272,8 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                           NutBean vars,
                           Map<String, NutMap[]> caches) {
         this.clear();
+        this.io = io;
+        this.vars = vars;
         for (Map.Entry<String, Object> en : fields.entrySet()) {
             WnBeanField fld = transEntryToField(en, io, vars, caches);
             if (null != fld) {
@@ -253,6 +317,8 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void checkFields(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+        this.io = io;
+        this.vars = vars;
         for (Map.Entry en : super.entrySet()) {
             WnBeanField fld = transEntryToField(en, io, vars, caches);
             if (null != fld) {
