@@ -17,11 +17,14 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
 import org.nutz.walnut.api.io.agg.WnAggResult;
+import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.core.WnIoMappingFactory;
 
 public interface WnIo {
+
+    WnLockApi getLockApi();
 
     WnIoMappingFactory getMappingFactory();
 
@@ -157,9 +160,9 @@ public interface WnIo {
     void pull(WnQuery query, String key, Object val);
 
     WnObj create(WnObj p, WnObj o);
-    
+
     WnObj createIfNoExists(WnObj p, WnObj o);
-    
+
     WnObj createIfExists(WnObj p, WnObj o);
 
     WnObj create(WnObj p, String path, WnRace race);

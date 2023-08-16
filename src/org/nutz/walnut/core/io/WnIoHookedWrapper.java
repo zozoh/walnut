@@ -11,6 +11,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
+import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.core.WnIoActionCallback;
@@ -66,6 +67,11 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     // wc.doHook("write", c);
     // return re;
     // }
+
+    @Override
+    public WnLockApi getLockApi() {
+        return io.getLockApi();
+    }
 
     @Override
     public WnIoMappingFactory getMappingFactory() {

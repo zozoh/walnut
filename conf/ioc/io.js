@@ -127,14 +127,14 @@ var ioc = {
     rawIo: {
         type : 'org.nutz.walnut.core.io.WnIoImpl2',
         fields: {
-            mappings: {refer:"ioMappingFactory"}
+            mappings: {refer:"ioMappingFactory"},
+            locks: {refer: "lockApi"},
         }
     },
     io : {
         type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
         fields: {
             io: {refer:"rawIo"},
-            locks: {refer: "lockApi"},
             expiTable: {refer: "safeExpiObjTable"}
         }
     }

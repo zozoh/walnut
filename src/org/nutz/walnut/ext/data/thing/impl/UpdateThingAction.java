@@ -5,18 +5,27 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 import org.nutz.walnut.api.WnExecutable;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
+import org.nutz.walnut.api.lock.WnLock;
+import org.nutz.walnut.api.lock.WnLockApi;
+import org.nutz.walnut.api.lock.WnLockBusyException;
+import org.nutz.walnut.api.lock.WnLockFailException;
+import org.nutz.walnut.api.lock.WnLockNotSameException;
 import org.nutz.walnut.ext.data.thing.ThingAction;
 import org.nutz.walnut.ext.data.thing.util.ThOtherUpdating;
 import org.nutz.walnut.ext.data.thing.util.ThingConf;
 import org.nutz.walnut.ext.data.thing.util.ThingUniqueKey;
 import org.nutz.walnut.ext.data.thing.util.Things;
+import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.validate.WnMatch;
 import org.nutz.walnut.util.validate.impl.AutoMatch;
 
 public class UpdateThingAction extends ThingAction<List<WnObj>> {
+
+    private static final Log log = Wlog.getCMD();
 
     protected WnExecutable executor;
 
@@ -29,6 +38,8 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
     protected ThingConf conf;
 
     protected boolean withoutHook;
+
+    protected WnLockApi locks;
 
     public UpdateThingAction addIds(String... ids) {
         if (null == this.ids) {
@@ -74,10 +85,58 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
         if (this.ids == null) {
             return null;
         }
+
+        // 需要做个线程标识，如果当前正在更新一个对象，那么本次更新导致的对当前对象再次更新就要禁止
+        // 以便防止无限递归，这个颗粒度应该是以对象为单位的
+        // 也就是说如果当前数据集配置了更新回调，就要做这样的防护
+        WnLockApi locks = io.getLockApi();
+        boolean needCheckLock = !this.withoutHook
+                                && (conf.hasOnBeforeUpdate() || conf.hasOnUpdated());
+
         List<WnObj> objs = new ArrayList<>(this.ids.size());
         for (String id : this.ids) {
-            WnObj o = this.updateOne(id);
-            objs.add(o);
+            if (log.isDebugEnabled()) {
+                log.debugf("try th update: %s", id);
+            }
+            WnLock lock = null;
+            try {
+                if (needCheckLock) {
+                    String lockName = "th-update-infinite-" + id;
+                    lock = locks.tryLock(lockName, "ThingUpdate", "Prevent infinite", 30000);
+                }
+                // 可以更新了
+                WnObj o = this.updateOne(id);
+                // 记入更新对象
+                objs.add(o);
+            }
+            // 忙锁
+            catch (WnLockBusyException e) {
+                if (log.isInfoEnabled()) {
+                    log.infof("skip th update: %s , Locks Busy", id);
+                }
+                continue;
+            }
+            // 占用锁
+            catch (WnLockFailException e) {
+                if (log.isInfoEnabled()) {
+                    log.infof("skip th update: %s , Used", id);
+                }
+                continue;
+            }
+            // 释放更新锁
+            finally {
+                if (null != lock) {
+                    try {
+                        locks.freeLock(lock);
+                    }
+                    catch (WnLockBusyException | WnLockNotSameException e) {
+                        if (log.isWarnEnabled()) {
+                            String msg = lock.toString();
+                            log.warn("Fail to free Lock:" + msg, e);
+                        }
+                    }
+                }
+            }
         }
         return objs;
     }

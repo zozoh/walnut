@@ -63,6 +63,14 @@ public class ThingConf {
         this.initMeta = initMeta;
     }
 
+    public boolean hasOnBeforeUpdate() {
+        return null != onBeforeUpdate && onBeforeUpdate.length > 0;
+    }
+
+    public boolean hasOnUpdated() {
+        return null != onUpdated && onUpdated.length > 0;
+    }
+
     public boolean hasTestInitMetas() {
         return null != testInitMetas && testInitMetas.length > 0;
     }

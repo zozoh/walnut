@@ -36,6 +36,7 @@ import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.WnSecurity;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
 import org.nutz.walnut.api.io.agg.WnAggResult;
+import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoActionCallback;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
@@ -53,6 +54,16 @@ import org.nutz.walnut.util.Ws;
 public class WnIoImpl2 implements WnIo {
 
     private static final Log log = Wlog.getIO();
+
+    /**
+     * 锁服务
+     */
+    private WnLockApi locks;
+
+    @Override
+    public WnLockApi getLockApi() {
+        return locks;
+    }
 
     /**
      * 映射工厂类

@@ -24,7 +24,6 @@ import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.api.io.WnRace;
 import org.nutz.walnut.api.io.agg.WnAggOptions;
 import org.nutz.walnut.api.io.agg.WnAggResult;
-import org.nutz.walnut.api.lock.WnLockApi;
 import org.nutz.walnut.core.WnIoHandle;
 import org.nutz.walnut.core.WnIoHandleMutexException;
 import org.nutz.walnut.util.Wn;
@@ -32,8 +31,6 @@ import org.nutz.walnut.util.Wn;
 public abstract class AbstractWnIoWrapper implements WnIo {
 
     protected WnExpiObjTable expiTable;
-
-    protected WnLockApi locks;
 
     protected WnIo io;
 

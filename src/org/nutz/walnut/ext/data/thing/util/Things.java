@@ -432,6 +432,7 @@ public abstract class Things {
         if (null == context || null == executor || Strings.isBlank(cmd)) {
             return;
         }
+        
 
         // 分析命令模板
         String cmdText = Strings.trim(WnTmpl.exec(cmd, context));
