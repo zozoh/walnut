@@ -144,6 +144,9 @@ public class o_create extends OFilter {
             // 否则作为 Map
             else if (li instanceof Map<?, ?>) {
                 NutMap meta = NutMap.WRAP((Map<String, Object>) li);
+                // 元数据的宏搞一下
+                Wn.explainMetaMacro(meta);
+
                 WnObj obj = new WnIoObj();
                 obj.putAll(meta);
                 obj.putDefault("race", race);
