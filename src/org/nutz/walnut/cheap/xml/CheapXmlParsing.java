@@ -255,7 +255,7 @@ public class CheapXmlParsing {
                 String text = input.substring(pos, s);
                 String trimLower = Ws.trim(text).toLowerCase();
                 // HTML 文档声明
-                if (trimLower.matches("^<!doctype\s+html>")) {
+                if (trimLower.matches("^<!doctype\\s+html>")) {
                     CheapDocType dt = new CheapDocType();
                     dt.setHtml(true);
                     this.pushNode(dt);
