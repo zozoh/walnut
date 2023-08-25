@@ -16,6 +16,11 @@ import org.nutz.walnut.util.Ws;
 
 public class CheapDocument {
 
+    /**
+     * 可以是 Html 的 DOCTYPE, 也可以是 xml 的文档声明
+     */
+    private CheapDocType docType;
+
     private NutBean metas;
 
     /**
@@ -79,6 +84,18 @@ public class CheapDocument {
         }
     }
 
+    public boolean hasDocType() {
+        return null != docType;
+    }
+
+    public CheapDocType getDocType() {
+        return docType;
+    }
+
+    public void setDocType(CheapDocType docType) {
+        this.docType = docType;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
@@ -94,6 +111,12 @@ public class CheapDocument {
 
     public String toMarkup() {
         StringBuilder sb = new StringBuilder();
+        // 文档声明
+        if (this.docType != null) {
+            this.docType.joinString(sb);
+            sb.append("\n");
+        }
+
         // 加入开头
         for (CheapNode node : prevNodes) {
             node.joinString(sb);
@@ -387,7 +410,7 @@ public class CheapDocument {
         return this.$body;
     }
 
-    public boolean hasHeadNodes() {
+    public boolean hasPrevNodes() {
         return null != prevNodes && !prevNodes.isEmpty();
     }
 
@@ -475,11 +498,11 @@ public class CheapDocument {
         if (null != this.$root) {
             this.$root.rebuildChildrenIndex();
             // 看看有木有 head
-            if (null == this.$head) {
+            if (null == this.$head && !Ws.isBlank(this.headTagName)) {
                 this.$head = this.$root.getFirstChildElement(this.headTagName);
             }
             // 看看有木有 body
-            if (null == this.$body) {
+            if (null == this.$body && !Ws.isBlank(this.bodyTagName)) {
                 this.$body = this.$root.getFirstChildElement(this.bodyTagName);
             }
         }

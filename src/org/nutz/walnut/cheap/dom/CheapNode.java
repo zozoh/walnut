@@ -995,6 +995,10 @@ public abstract class CheapNode {
         return this.isProp("CheapFormated", true);
     }
 
+    public boolean hasProps() {
+        return null != props && !props.isEmpty();
+    }
+
     public boolean isProp(String name, Object val) {
         return props.is(name, val);
     }
@@ -1004,7 +1008,7 @@ public abstract class CheapNode {
         return this;
     }
 
-    public CheapNode props(Map<String, Object> bean) {
+    public CheapNode propsPutAll(Map<String, Object> bean) {
         if (null != bean) {
             props.putAll(bean);
         }

@@ -9,9 +9,11 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.walnut.cheap.dom.CheapComment;
+import org.nutz.walnut.cheap.dom.CheapDocType;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 import org.nutz.walnut.cheap.dom.CheapNode;
+import org.nutz.walnut.cheap.dom.CheapNodeType;
 import org.nutz.walnut.cheap.dom.CheapRawData;
 import org.nutz.walnut.cheap.dom.CheapText;
 import org.nutz.walnut.util.Ws;
@@ -110,6 +112,12 @@ public class CheapXmlParsing {
         CheapNode node;
         while (it.hasNext()) {
             node = it.next();
+            // 文档声明，则记录一下
+            if (node.isType(CheapNodeType.DOC_TYPE)) {
+                doc.setDocType((CheapDocType) node);
+                continue;
+            }
+            // 遇到头，表示截止
             if (it == headEl) {
                 break;
             }
@@ -173,6 +181,12 @@ public class CheapXmlParsing {
         // 一直找到 root
         while (it.hasNext()) {
             CheapNode rootNode = it.next();
+            // 文档声明，则记录一下
+            if (rootNode.isType(CheapNodeType.DOC_TYPE)) {
+                doc.setDocType((CheapDocType) rootNode);
+                continue;
+            }
+            // 看看是否可以作为根节点
             if (rootNode.isElement()) {
                 CheapElement el = (CheapElement) rootNode;
                 if (null == rootTagName || el.isStdTagName(rootTagName)) {
@@ -239,8 +253,28 @@ public class CheapXmlParsing {
             // 前置
             if (s > pos) {
                 String text = input.substring(pos, s);
-                CheapText $t = doc.createTextNode(text);
-                this.pushNode($t);
+                String trimLower = Ws.trim(text).toLowerCase();
+                // HTML 文档声明
+                if (trimLower.matches("^<!doctype\s+html>")) {
+                    CheapDocType dt = new CheapDocType();
+                    dt.setHtml(true);
+                    this.pushNode(dt);
+                }
+                // XML 文档声明
+                else if (trimLower.startsWith("<?xml") && trimLower.endsWith("?>")) {
+                    CheapDocType dt = new CheapDocType();
+                    dt.setHtml(false);
+                    int end = trimLower.length() - 2;
+                    String attrs = text.substring(5, end);
+                    NutMap attMap = Ws.splitAttrMap(attrs);
+                    dt.propsPutAll(attMap);
+                    this.pushNode(dt);
+                }
+                // 作为普通文本节点
+                else {
+                    CheapText $t = doc.createTextNode(text);
+                    this.pushNode($t);
+                }
             }
 
             // 指向下一个位置

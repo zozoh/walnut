@@ -6,10 +6,28 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.walnut.cheap.AbstractCheapParsingTest;
+import org.nutz.walnut.cheap.dom.CheapDocType;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
 
 public class CheapXmlParsingTest extends AbstractCheapParsingTest {
+
+    @Test
+    public void test_xml_doc_code() {
+        String input = _Fxml("t_xml_h0");
+        CheapDocument doc = new CheapDocument(null);
+        CheapXmlParsing ing = new CheapXmlParsing(doc);
+        ing.parseDoc(input);
+
+        String xml = doc.toMarkup();
+        assertEquals(input, xml);
+        CheapDocType dt = doc.getDocType();
+        assertFalse(dt.isHtml());
+        assertTrue(dt.isXml());
+        assertEquals("1.0", dt.prop("version"));
+        assertEquals("UTF-8", dt.prop("encoding"));
+        assertEquals("yes", dt.prop("standalone"));
+    }
 
     @Test
     public void test_select_3() {

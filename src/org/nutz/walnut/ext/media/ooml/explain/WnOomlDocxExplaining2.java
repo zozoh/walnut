@@ -10,6 +10,7 @@ import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.cheap.api.CheapResourceLoader;
 import org.nutz.walnut.cheap.dom.CheapDocument;
 import org.nutz.walnut.cheap.dom.CheapElement;
+import org.nutz.walnut.cheap.dom.CheapNode;
 import org.nutz.walnut.ext.media.ooml.api.OomlExplaining;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OEBranch;
 import org.nutz.walnut.ext.media.ooml.explain.bean.OECondition;
@@ -332,6 +333,23 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
         // 渲染
         CheapDocument out = new CheapDocument(null);
         CheapElement outRoot = doc.root().cloneSelf();
+        if (doc.hasDocType()) {
+            out.setDocType(doc.getDocType().cloneNode());
+        }
+
+        // 复制首尾节点
+        if (doc.hasPrevNodes()) {
+            for (CheapNode prev : doc.getPrevNodes()) {
+                out.addPrevNode(prev.clone());
+            }
+        }
+        if (doc.hasTailNodes()) {
+            for (CheapNode tail : doc.getTailNodes()) {
+                out.addTailNodes(tail.clone());
+            }
+        }
+
+        // 渲染根节点
         out.setRootElement(outRoot);
         for (OEItem it : rootNode.getChildren()) {
             it.renderTo(outRoot, vars);
