@@ -14,7 +14,7 @@ public class WnObjCacheItem {
     }
 
     public boolean isExpired() {
-        return Wn.now() > expireAt;
+        return expireAt > 0 && Wn.now() > expireAt;
     }
 
     public WnObj get() {

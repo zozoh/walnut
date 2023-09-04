@@ -5,7 +5,12 @@
 # 用法
 
 ```bash
-@put [JSON ...]   # 多个 JSON 对象字符串，或者普通字符串
+@put
+    [key]         # 键名
+    [value]       # 值或者是 JSON 对象|数组
+    -dft          # 将值作为默认值
+    -path         # 键名用 .  作为路径
+    -raw          # 键值不要自动转换对象，直接用字符串
 ```
 
 # 示例
@@ -26,5 +31,9 @@ echo '{pos:{x:80}}' | jsonx @put -dft 'pos' '{x:100}'
 # 将当前对象记入一个新 map
 echo '{x:100}' | jsonx @put 'pos'
 {pos: {x:100}}
+
+# 设置值到深层对象
+echo '{x:100}' | jsonx @put -path 'pet.name' 'xiaobai'
+{x:100, pet: {name:"xiaobai}}
 ```
 

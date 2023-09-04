@@ -6,6 +6,7 @@ import org.nutz.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.bean.WnBeanMapping;
+import org.nutz.walnut.util.obj.WnObjJoinFields;
 
 public class ThQuery {
 
@@ -13,12 +14,14 @@ public class ThQuery {
 
     public WnPager wp;
 
-    //public String[] tss;
-    
+    public WnObjJoinFields joinFields;
+
+    // public String[] tss;
+
     public WnBeanMapping mapping;
-    
+
     public WnTmpl mappingPath;
-    
+
     public boolean mappingOnly;
 
     public String[] sha1Fields;

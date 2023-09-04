@@ -3,48 +3,42 @@ package org.nutz.walnut.ext.util.jsonx.hdl;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.nutz.json.Json;
 import org.nutz.walnut.ext.util.jsonx.JsonXContext;
 import org.nutz.walnut.ext.util.jsonx.JsonXFilter;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.ZParams;
 
-import com.alibaba.fastjson.JSON;
-
 public class jsonx_append extends JsonXFilter {
+    @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(path)$");
+    }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
+        // 分析参数
+        boolean asPath = params.is("path");
+        String toKey = params.getString("to");
+
         // 确保上下文是列表
-        Collection<Object> col;
-        
-        if(null == fc.obj) {
-            col = new LinkedList<Object>();
-            fc.obj = col;
-        }
-        // 本身就是列表
-        else if(fc.obj instanceof Collection<?>) {
-            col = (Collection<Object>)fc.obj;
-        }
-        // 本身需要变成列表
-        else {
-            col = new LinkedList<Object>();
-            col.add(fc.obj);
-            fc.obj = col;
-        }
-        
+        LinkedList<Object> list = fc.checkList(toKey, asPath);
+
         // 逐个解析值，并插入集合
-        for(String val : params.vals) {
-            Object vo = JSON.parse(val);
-            if(vo instanceof Collection<?>) {
-                for(Object ve:(Collection<?>)vo) {
-                    col.add(ve);
+        for (String val : params.vals) {
+            Object vo = val;
+            try {
+                vo = Json.fromJson(val);
+            }
+            catch (Throwable e) {}
+            if (vo instanceof Collection<?>) {
+                for (Object ve : (Collection<?>) vo) {
+                    list.add(ve);
                 }
-            }else {
-                col.add(vo);
+            } else {
+                list.add(vo);
             }
         }
     }
-    
 
 }

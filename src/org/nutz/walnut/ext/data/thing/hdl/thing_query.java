@@ -20,6 +20,7 @@ import org.nutz.walnut.util.Cmds;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnPager;
 import org.nutz.walnut.util.bean.WnBeanMapping;
+import org.nutz.walnut.util.obj.WnObjJoinFields;
 
 @JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(maponly|dynamic_mapping|pager|content|obj)$")
 public class thing_query implements JvmHdl {
@@ -36,6 +37,13 @@ public class thing_query implements JvmHdl {
         // ..............................................
         // 准备查询条件
         tq.qStr = Cmds.getParamOrPipe(sys, hc.params, 0);
+
+        // ..............................................
+        // 连接键
+        if (hc.params.has("join")) {
+            String join = hc.params.getString("join");
+            tq.joinFields = new WnObjJoinFields(join);
+        }
 
         // ..............................................
         // 准备映射
