@@ -15,6 +15,7 @@ import org.nutz.walnut.util.tmpl.AllTmplTest;
                      WtimeTest.class,
                      WcharTest.class,
                      WnTest.class,
+                     WnumTest.class,
                      WnSortTest.class,
                      WregionTest.class,
                      ZParamsTest.class,

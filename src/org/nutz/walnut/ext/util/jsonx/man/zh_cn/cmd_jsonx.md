@@ -47,6 +47,7 @@ jsonx [options] [[@filter filter-args...]...]
 @read       # 从一个或多个文件读取JSON内容
 @filter     # 保留符合过滤条件的上下文集合中的对象
 @omit       # 移除符合过滤条件的上下文集合中的对象
+@item       # 从上下文列表中获取一个元素
 #
 # 读取&过滤
 #
