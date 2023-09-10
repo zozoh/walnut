@@ -54,14 +54,16 @@ public class MailxContext extends JvmFilterContext {
         if (null == oI18n || !oI18n.isDIR()) {
             return null;
         }
-        if (Ws.isBlank(lang) || Ws.isBlank(path)) {
+        String tLang = Ws.sBlank(this.lang, config.smtp.getLang());
+        tLang = Ws.sBlank(tLang, "zh-cn");
+        if (Ws.isBlank(tLang) || Ws.isBlank(path)) {
             return null;
         }
         String ph;
         if (Wn.isAbsolutePath(path)) {
             ph = path;
         } else {
-            ph = Wn.appendPath(oI18n.path(), lang, path);
+            ph = Wn.appendPath(oI18n.path(), tLang, path);
         }
         String aph = Wn.normalizeFullPath(ph, sys);
         return sys.io.check(null, aph);
