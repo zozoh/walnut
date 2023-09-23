@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
@@ -35,18 +34,18 @@ public class BlockTmplSegment implements TmplSegment {
         elements.addAll(eles);
     }
 
-    public String render(NutBean context) {
-        return render(context, true);
-    }
-
-    public String render(NutBean context, boolean showKey) {
-        if (null == context) {
-            context = new NutMap();
-        }
-        StringBuilder sb = new StringBuilder();
-        renderTo(context, showKey, sb);
-        return sb.toString();
-    }
+//    public String render(NutBean context) {
+//        return render(context, true);
+//    }
+//
+//    public String render(NutBean context, boolean showKey) {
+//        if (null == context) {
+//            context = new NutMap();
+//        }
+//        StringBuilder sb = new StringBuilder();
+//        renderTo(context, showKey, sb);
+//        return sb.toString();
+//    }
 
     public void renderTo(NutBean context, StringBuilder sb) {
         this.renderTo(context, true, sb);
