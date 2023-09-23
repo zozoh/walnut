@@ -14,10 +14,33 @@ import org.nutz.walnut.util.callback.WnStrTokenCallback;
 public class WsTest {
 
     @Test
+    public void test_splitQuote() {
+        List<String> list = Ws.splitQuote("'A,B',C,\"'D;E'\",F");
+        String[] ll = list.toArray(new String[4]);
+        String[] ss = Wlang.array("'A,B'", "C", "\"'D;E'\"", "F");
+        assertEquals(ss.length, ll.length);
+        assertEquals(ss.length, 4);
+        assertEquals(ss[0], ll[0]);
+        assertEquals(ss[1], ll[1]);
+        assertEquals(ss[2], ll[2]);
+        assertEquals(ss[3], ll[3]);
+
+        list = Ws.splitQuote("'A,B',C,\"'D;E'\",F", false);
+        ll = list.toArray(new String[4]);
+        ss = Wlang.array("A,B", "C", "'D;E'", "F");
+        assertEquals(ss.length, ll.length);
+        assertEquals(ss.length, 4);
+        assertEquals(ss[0], ll[0]);
+        assertEquals(ss[1], ll[1]);
+        assertEquals(ss[2], ll[2]);
+        assertEquals(ss[3], ll[3]);
+    }
+
+    @Test
     public void test_decodeHtmlEntities() {
         assertEquals("A&B", Ws.decodeHtmlEntities("A&amp;B"));
         assertEquals("A&ampB", Ws.decodeHtmlEntities("A&ampB"));
-        
+
         assertEquals("\n", Ws.decodeHtmlEntities("&#10;"));
     }
 

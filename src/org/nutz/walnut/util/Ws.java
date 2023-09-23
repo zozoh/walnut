@@ -910,6 +910,18 @@ public class Ws {
         return splitQuote(str, quote, '\\', false, true, seps);
     }
 
+    public static List<String> splitQuote(String str) {
+        return splitQuote(str, true);
+    }
+
+    public static List<String> splitQuote(String str, boolean keepQuote) {
+        return splitQuote(str, false, keepQuote);
+    }
+
+    public static List<String> splitQuote(String str, boolean ignoreBlank, boolean keepQuote) {
+        return splitQuote(str, "\"'", '\\', ignoreBlank, keepQuote, ",;、，； \t\r\n");
+    }
+
     /**
      * 将字符串按照某个或几个分隔符拆分。 其中，遇到字符串 "xxx" 或者 'xxx' 并不拆分
      *
@@ -917,7 +929,7 @@ public class Ws {
      *            要被拆分的字符串
      * @param quote
      *            支持的引号字符集合
-     * @param eacapeChar
+     * @param escapeChar
      *            转义字符，在 quote,可以逃逸结束引用
      * @param ignoreBlank
      *            是否忽略空白项目
@@ -929,12 +941,12 @@ public class Ws {
      */
     public static List<String> splitQuote(String str,
                                           String quote,
-                                          char eacapeChar,
+                                          char escapeChar,
                                           boolean ignoreBlank,
                                           boolean keepQuote,
-                                          String ss) {
+                                          String seps) {
         char[] qucs = quote.toCharArray();
-        char[] seps = ss.toCharArray();
+        char[] spcs = seps.toCharArray();
         List<String> list = new LinkedList<String>();
         char[] cs = str.toCharArray();
         StringBuilder sb = new StringBuilder();
@@ -942,7 +954,7 @@ public class Ws {
         for (int i = 0; i < cs.length; i++) {
             char c = cs[i];
             // 引用外，且遇到分隔符号就拆分
-            if (0 == quoteBy && Wchar.isIn(seps, c)) {
+            if (0 == quoteBy && Wchar.isIn(spcs, c)) {
                 if (!ignoreBlank || !Ws.isBlank(sb)) {
                     String s2 = sb.toString();
                     if (ignoreBlank)
@@ -954,18 +966,8 @@ public class Ws {
             }
             // 在引用里
             if (0 != quoteBy) {
-                // 结束引用
-                if (quoteBy == c) {
-                    if (keepQuote) {
-                        sb.append(c);
-                    }
-                    list.add(sb.toString());
-                    quoteBy = 0;
-                    sb = new StringBuilder();
-                    continue;
-                }
                 // 逃逸字符
-                if (eacapeChar == c) {
+                if (escapeChar == c) {
                     sb.append(c);
                     if (i < cs.length) {
                         c = cs[++i];
@@ -973,6 +975,17 @@ public class Ws {
                     }
                     continue;
                 }
+                // 结束引用
+                if (quoteBy == c) {
+                    if (keepQuote) {
+                        sb.append(c);
+                    }
+                    quoteBy = 0;
+                    continue;
+                }
+                // 那么就是引用咯
+                sb.append(c);
+                continue;
             }
             // 开始引用
             if (Wchar.isIn(qucs, c)) {

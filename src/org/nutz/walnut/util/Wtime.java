@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.walnut.api.err.Er;
+import org.nutz.walnut.ext.sys.datex.bean.WnHolidays;
 
 /**
  * 日期时间相关的帮助函数
@@ -44,6 +45,10 @@ public abstract class Wtime {
 
     public static String formatTime(Date d) {
         return format(d, "HH:mm:ss");
+    }
+
+    public static String format(Calendar c, String fmt) {
+        return format(c.getTime(), fmt);
     }
 
     public static String format(Date d, String fmt) {
@@ -434,6 +439,45 @@ public abstract class Wtime {
 
     public static long fromTodayInMs(int offset) {
         return fromToday(offset).getTimeInMillis();
+    }
+
+    public static Calendar from(Calendar c, int offset, WnHolidays holidays) {
+        // 不偏移
+        if (0 == offset) {
+            return c;
+        }
+        // 未指定节假日
+        if (null == holidays) {
+            int d2 = c.get(Calendar.DAY_OF_MONTH);
+            d2 += offset;
+            c.set(Calendar.DAY_OF_MONTH, d2);
+        }
+        // 偏移需要考虑节假日: 向后偏移
+        else if (offset > 0) {
+            int n = offset;
+            while (n > 0) {
+                int d2 = c.get(Calendar.DAY_OF_MONTH);
+                d2++;
+                c.set(Calendar.DAY_OF_MONTH, d2);
+                if (holidays.isWordDay(c)) {
+                    n--;
+                }
+            }
+        }
+        // 偏移需要考虑节假日: 向前
+        else {
+            int n = Math.abs(offset);
+            while (n > 0) {
+                int d2 = c.get(Calendar.DAY_OF_MONTH);
+                d2--;
+                c.set(Calendar.DAY_OF_MONTH, d2);
+                if (holidays.isWordDay(c)) {
+                    n--;
+                }
+            }
+        }
+        // 返回
+        return c;
     }
 
     /**

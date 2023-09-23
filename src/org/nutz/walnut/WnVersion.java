@@ -11,14 +11,14 @@ public final class WnVersion {
      * @return 版本号
      */
     public static String get() {
-        return "13.41";
+        return "13.43";
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "RABBIT(NAP)";
+        return "RABBIT(DATEX)";
     }
 
     /**

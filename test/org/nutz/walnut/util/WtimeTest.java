@@ -5,9 +5,46 @@ import static org.junit.Assert.*;
 import java.util.Calendar;
 import java.util.Date;
 import org.junit.Test;
+import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.sys.datex.bean.WnHolidays;
 import org.nutz.walnut.util.time.WnDayTime;
 
 public class WtimeTest {
+
+    @Test
+    public void test_from_offset_holiday() {
+        NutMap holimap = new NutMap();
+        holimap.put("2023-09-30", "work");
+        holimap.put("2023-10-01", "off");
+        holimap.put("2023-10-02", "off");
+        holimap.put("2023-10-03", "off");
+        holimap.put("2023-10-04", "off");
+        holimap.put("2023-10-05", "off");
+        holimap.put("2023-10-06", "off");
+        holimap.put("2023-10-07", "off");
+        holimap.put("2023-10-08", "work");
+        WnHolidays holidays = new WnHolidays();
+        holidays.load(holimap);
+        Calendar c = Wtime.parseCalendar("2023-09-28");
+        Wtime.from(c, 5, holidays);
+        assertEquals("2023-10-10", Wtime.format(c, "yyyy-MM-dd"));
+
+        
+        c = Wtime.parseCalendar("2023-09-18");
+        Wtime.from(c, -3, holidays);
+        assertEquals("2023-09-13", Wtime.format(c, "yyyy-MM-dd"));
+    }
+
+    @Test
+    public void test_from_offset() {
+        Calendar c = Wtime.parseCalendar("2023-09-17");
+        Wtime.from(c, 20, null);
+        assertEquals("2023-10-07", Wtime.format(c, "yyyy-MM-dd"));
+
+        c = Wtime.parseCalendar("2023-09-02");
+        Wtime.from(c, -3, null);
+        assertEquals("2023-08-30", Wtime.format(c, "yyyy-MM-dd"));
+    }
 
     @Test
     public void test_parse_offset2() {
