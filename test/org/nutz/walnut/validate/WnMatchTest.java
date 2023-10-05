@@ -159,21 +159,9 @@ public class WnMatchTest {
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("x:100");
-        vli = new AutoMatch(map);
-        assertTrue(vli.match(obj));
-
         map = Lang.map("y:99");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
-
-        map = Lang.map("y:99");
-        vli = new AutoMatch(map);
-        assertTrue(vli.match(obj));
-
-        map = Lang.map("y:98");
-        vli = new AutoMatch(map);
-        assertFalse(vli.match(obj));
 
         map = Lang.map("y:98");
         vli = new AutoMatch(map);
