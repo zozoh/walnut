@@ -90,7 +90,7 @@ public class LinkedStack<T> implements WnStack<T> {
 
     @Override
     public int search(T item) {
-        int index = 1;
+        int index = 0;
         for (T element : stack) {
             if (element.equals(item)) {
                 return index;
