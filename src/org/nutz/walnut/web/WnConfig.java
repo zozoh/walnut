@@ -40,7 +40,7 @@ public class WnConfig extends WebConfig {
             str += "; SameSite=None; Secure";
         }
         // 如果 https 就总是发
-        if ("auto".equals(sameSite)) {
+        else if ("auto".equals(sameSite)) {
             if (asHttps) {
                 str += "; SameSite=None; Secure";
             }
