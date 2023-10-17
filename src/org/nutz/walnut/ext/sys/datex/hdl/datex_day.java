@@ -19,7 +19,7 @@ public class datex_day extends DatexFilter {
     @Override
     protected void process(WnSystem sys, DatexContext fc, ZParams params) {
         boolean inMonth = params.is("inmonth");
-        boolean workday = params.is("workday");
+        String mode = params.get("mode", "auto");
 
         // 确保在月内
         int expectY = -1;
@@ -38,11 +38,8 @@ public class datex_day extends DatexFilter {
         // 偏移
         int off = params.getInt("i", 0);
         if (off != 0) {
-            WnHolidays holi = null;
-            if (workday) {
-                holi = fc.holidays;
-            }
-            Wtime.from(fc.now, off, holi);
+            WnHolidays holi = fc.holidays;
+            Wtime.from(fc.now, off, holi, mode);
         }
 
         if (expectM >= 0) {

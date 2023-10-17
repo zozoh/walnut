@@ -44,6 +44,11 @@ public class WnHolidays {
         return t;
     }
 
+    /**
+     * @param c
+     *            日期
+     * @return 是否是工作日
+     */
     public boolean isWordDay(Calendar c) {
         String key = Wtime.format(c.getTime(), "yyyy-MM-dd");
         HolidayType dt = getDayType(key);
@@ -56,6 +61,11 @@ public class WnHolidays {
         return !this.isWeekend(c);
     }
 
+    /**
+     * @param c
+     *            日期
+     * @return 是否是休息日
+     */
     public boolean isOffDay(Calendar c) {
         String key = Wtime.format(c.getTime(), "yyyy-MM-dd");
         HolidayType dt = getDayType(key);
@@ -68,6 +78,11 @@ public class WnHolidays {
         return this.isWeekend(c);
     }
 
+    /**
+     * @param c
+     *            日期
+     * @return 是否是周末
+     */
     public boolean isWeekend(Calendar c) {
         if (null == this.weekend || weekend.length == 0) {
             return false;

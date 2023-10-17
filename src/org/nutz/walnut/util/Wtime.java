@@ -441,18 +441,61 @@ public abstract class Wtime {
         return fromToday(offset).getTimeInMillis();
     }
 
-    public static Calendar from(Calendar c, int offset, WnHolidays holidays) {
+    /**
+     * @param c
+     *            日期对象
+     * @param offset
+     *            偏移
+     * @param holidays
+     *            节假日表
+     * @param mode
+     *            偏移模式
+     *            <ul>
+     *            <li><code>'w'</code>:
+     *            指明偏移仅仅偏移工作日，如果上下文加载了节假日表，会更真实，否则将会仅仅跳过法定周末
+     *            <li><code>'d'</code>: 仅仅偏移自然日
+     *            <li><code>'dw'</code>:偏移自然日，但是最后一天如果落入节假日，则向后顺延到第一个遇到的工作日
+     *            <li><code>'wd'</code>:偏移自然日，但是最后一天如果落入节假日，则向前提前到第一个遇到的工作日
+     *            <li><code>'auto'</code>: 如果 offset小于0 则相当于 'wd'，大于0 则相当于 'dw'
+     *            </ul>
+     * @return
+     */
+    public static Calendar from(Calendar c, int offset, WnHolidays holidays, String mode) {
         // 不偏移
         if (0 == offset) {
             return c;
         }
-        // 未指定节假日
-        if (null == holidays) {
+        if ("auto".equals(mode) || null == mode) {
+            mode = offset < 0 ? "wd" : "dw";
+        }
+        // 未指定节假日, 则相当于直接偏移自然日
+        if (null == holidays || mode.matches("^(d|dw|wd)$")) {
             int d2 = c.get(Calendar.DAY_OF_MONTH);
             d2 += offset;
             c.set(Calendar.DAY_OF_MONTH, d2);
+            // 混合模式偏移，确保偏移落入工作日
+            if (null != holidays && mode.matches("^(dw|wd)$")) {
+                if (holidays.isOffDay(c)) {
+                    // 向前寻找第一个工作日
+                    if ("wd".equals(mode)) {
+                        do {
+                            d2 = c.get(Calendar.DAY_OF_MONTH);
+                            d2--;
+                            c.set(Calendar.DAY_OF_MONTH, d2);
+                        } while (holidays.isOffDay(c));
+                    }
+                    // 向后寻找第一个工作日
+                    else {
+                        do {
+                            d2 = c.get(Calendar.DAY_OF_MONTH);
+                            d2++;
+                            c.set(Calendar.DAY_OF_MONTH, d2);
+                        } while (holidays.isOffDay(c));
+                    }
+                }
+            }
         }
-        // 偏移需要考虑节假日: 向后偏移
+        // 纯工作日偏移：偏移需要考虑节假日: 向后偏移
         else if (offset > 0) {
             int n = offset;
             while (n > 0) {
@@ -464,7 +507,7 @@ public abstract class Wtime {
                 }
             }
         }
-        // 偏移需要考虑节假日: 向前
+        // 纯工作日偏移：偏移需要考虑节假日: 向前
         else {
             int n = Math.abs(offset);
             while (n > 0) {
