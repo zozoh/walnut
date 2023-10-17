@@ -1,10 +1,13 @@
 package org.nutz.walnut.ext.sys.datex.hdl;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.nutz.walnut.ext.sys.datex.DatexContext;
 import org.nutz.walnut.ext.sys.datex.DatexFilter;
 import org.nutz.walnut.impl.box.WnSystem;
+import org.nutz.walnut.util.Wn;
+import org.nutz.walnut.util.WnContext;
 import org.nutz.walnut.util.ZParams;
 
 public class datex_time extends DatexFilter {
@@ -24,6 +27,13 @@ public class datex_time extends DatexFilter {
         int sec = inSec - inMin * 60;
         int min = inMin - inHou * 60;
         int hou = inHou;
+
+        // 设置一下时区
+        WnContext wc = Wn.WC();
+        TimeZone tz = wc.getTimeZone();
+        if (null != tz) {
+            fc.now.setTimeZone(tz);
+        }
 
         fc.now.set(Calendar.HOUR_OF_DAY, hou);
         fc.now.set(Calendar.MINUTE, min);
