@@ -26,7 +26,7 @@ demo> fake 3 @name
 汪艳红
 
 # 随机输出三个英文姓名
-demo> fake 3 @name
+demo> fake 3 @name -lang en_us
 Bit Rose
 Lorina Hunter
 Sheron Fox

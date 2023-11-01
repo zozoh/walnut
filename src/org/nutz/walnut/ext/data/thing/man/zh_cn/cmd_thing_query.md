@@ -11,6 +11,7 @@ thing [TsID] query
             [-t "c0,c1,c2.."]
             [-pager]
             [-mapping /path/to/mapping.json]
+            [-mapping_fallback /path/to/mapping.json]
             [-maponly]
             [-dynamic_mapping]
             [-limit 10]
@@ -31,6 +32,7 @@ thing [TsID] query
 - pager  显示分页信息，JSON 输出时，输出类似 {list:[..],pager:{..}} 的格式
             在 limit 小于等于 0 时，本参数依然无效
 - mapping 一个采用`WnBeanMapping`的JSON 文件路径
+- mapping_fallback 如果 mapping文件找不到，采用这个映射
 - maponly 如果声明了 Mapping，则只输出被映射的字段
 - dynamic_mapping 如果声明了，上面的 mapping 参数则作为一个路径模板
                   上下文占位符就是查询出来的每个对象

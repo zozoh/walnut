@@ -11,6 +11,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.api.io.WnQuery;
 import org.nutz.walnut.ext.data.thing.ThingAction;
@@ -146,7 +147,16 @@ public class QueryThingAction extends ThingAction<ThQr> {
                 String amph = Wn.normalizeFullPath(mph, vars);
                 WnBeanMapping bm = mappings.get(amph);
                 if (null == bm) {
-                    WnObj oBm = io.check(null, amph);
+                    WnObj oBm = io.fetch(null, amph);
+                    if (null == oBm) {
+                        if (null != tq.mappingPathFallback) {
+                            mph = tq.mappingPathFallback.render(oT);
+                            amph = Wn.normalizeFullPath(mph, vars);
+                            oBm = io.check(null, amph);
+                        } else {
+                            throw Er.create("e.io.obj.noexists", amph);
+                        }
+                    }
                     bm = io.readJson(oBm, WnBeanMapping.class);
                     bm.checkFields(io, vars, caches);
                     mappings.put(amph, bm);

@@ -52,6 +52,10 @@ public class thing_query implements JvmHdl {
             // 动态映射路径
             if (hc.params.is("dynamic_mapping")) {
                 tq.mappingPath = WnTmpl.parse(phMapping);
+                if (hc.params.hasString("mapping_fallback")) {
+                    String fallbackPath = hc.params.getString("mapping_fallback");
+                    tq.mappingPathFallback = WnTmpl.parse(fallbackPath);
+                }
             }
             // 直接指定了映射文件
             else {

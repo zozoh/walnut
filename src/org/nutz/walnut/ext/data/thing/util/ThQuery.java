@@ -22,6 +22,8 @@ public class ThQuery {
 
     public WnTmpl mappingPath;
 
+    public WnTmpl mappingPathFallback;
+
     public boolean mappingOnly;
 
     public String[] sha1Fields;
