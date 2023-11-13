@@ -462,9 +462,9 @@ public abstract class Wtime {
      */
     public static Calendar from(Calendar c, int offset, WnHolidays holidays, String mode) {
         // 不偏移
-        if (0 == offset) {
-            return c;
-        }
+        // if (0 == offset) {
+        // return c;
+        // }
         if ("auto".equals(mode) || null == mode) {
             mode = offset < 0 ? "wd" : "dw";
         }
