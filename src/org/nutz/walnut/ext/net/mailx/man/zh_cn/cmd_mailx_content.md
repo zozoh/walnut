@@ -15,6 +15,6 @@
 # 示例
 
 ```bash
-mailx @msg Hello world
+mailx @content Hello world
 ```
 
