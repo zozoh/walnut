@@ -49,7 +49,7 @@ mailx
 #-------------------------------------
 # 设置内容
 #-------------------------------------
-@msg        # 邮件正文
+@content    # 邮件正文
 @tmpl       # 邮件模板
 @at         # 邮件附件
 #-------------------------------------
@@ -67,16 +67,16 @@ mailx
 
 ```bash 
 # 发送邮件
-mailx @config ics @subject xxx @attchment ~/a.edi @send
+mailx @config ics @sub xxx @attchment ~/a.edi @send
 
 
 # 发送邮件
-mailx @to a@b.c b@8.com @subject xxx @at ~/a.edi \
+mailx @to a@b.c b@8.com @sub xxx @at ~/a.edi \
       @sign -type smime -store_passwd xxx  -alias xxx -priv_passwd xxx ~/path.store.pfx \
       @encrypt -type smime ~/some.cer
 
 # 发送邮件
-mailx @from xx@xx.com @to a@b.c @subject xxx @at ~/a.edi \
+mailx @from xx@xx.com @to a@b.c @sub xxx @at ~/a.edi \
       @sign -conf ~/sign.json \
       @encrypt -conf ~/encrypt.json \
       @save ~/outbox/index
