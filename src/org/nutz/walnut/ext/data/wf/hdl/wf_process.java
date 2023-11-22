@@ -155,13 +155,16 @@ public class wf_process extends WfFilter {
 
             // 【退出点】不是结束，而且也不需要自动尝试
             // 相当于 yield，那么整个处理进程则需挂起
-            if (!taNode.isTAIL() && !taNode.isAutoNext()) {
+            if (taNode.isTAIL()) {
+                return;
+            }
+            if (!taNode.isAutoNext()) {
                 return;
             }
 
             // 继续下一个循环
             cuName = nextName;
-            node = fc.workflow.getNode(cuName);
+            node = taNode;
         }
 
     }
