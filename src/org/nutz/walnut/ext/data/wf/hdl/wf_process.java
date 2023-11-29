@@ -84,7 +84,10 @@ public class wf_process extends WfFilter {
                 // 执行节点
                 if (!isTest) {
                     node = fc.workflow.getNode(headName);
-                    this.processWfActionElement(sys, fc, node);
+                    if (node != null) {
+                        fc.setNextType(node.getType());
+                        this.processWfActionElement(sys, fc, node);
+                    }
                     // 自动找到一个节点并执行，要不要后续再执行呢？
                     // 这里看一下，是否有 auto=next 标记就好了
                     if (null == node || node.isTAIL() || !node.isAutoNext()) {
@@ -142,13 +145,12 @@ public class wf_process extends WfFilter {
 
             // 执行动作项
             if (!isTest) {
-
                 // 首先执行边动作
                 this.processWfActionElement(sys, fc, edge);
-
                 // 每次执行之前，确保重新加载了动态变量
-                fc.reloadVars();
-
+                if (edge.hasActions()) {
+                    fc.reloadVars();
+                }
                 // 其次执行节点动作
                 this.processWfActionElement(sys, fc, taNode);
             }

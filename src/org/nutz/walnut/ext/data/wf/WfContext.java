@@ -35,7 +35,6 @@ public class WfContext extends JvmFilterContext {
         this.input = new NutMap();
         this.vars = new NutMap();
         this.varLoaders = new LinkedList<>();
-        this.varLoaders = new LinkedList<>();
     }
 
     public void addVarLoader(WfVarLoader loader) {
