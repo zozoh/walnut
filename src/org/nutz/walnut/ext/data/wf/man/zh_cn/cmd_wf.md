@@ -59,6 +59,7 @@ wf [/path/to/workflow.json ...] [-get xx.xx] @[var|process|...]
 @var        # 设置上下文变量
 @reload     # 主动加载上下文变量
 @current    # 根据上下文变量，确定工作流当前节点的名称
+@decorate   # 修饰执行的动作相关配置，主要是参数，也可能是元数据
 @process    # 执行一步工作流
 @view       # 查看当前上下文中的信息
 @create     # 根据工作流上下文创建一个标准对象
