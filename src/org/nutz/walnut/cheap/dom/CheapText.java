@@ -10,7 +10,8 @@ public class CheapText extends CheapRawData {
 
     protected CheapText(String text) {
         this.type = CheapNodeType.TEXT;
-        this.text = text;
+        // 这里需要对文字进行关键字逃逸
+        this.text = Ws.escapeHTML(text);
         this.treeDisplayName = "!TEXT";
         this.treeDisplayLeftQuoteChar = '"';
         this.treeDisplayRightQuoteChar = '"';

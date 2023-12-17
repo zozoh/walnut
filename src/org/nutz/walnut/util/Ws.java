@@ -328,6 +328,27 @@ public class Ws {
 
     private static Pattern P_HTML_EN = Pattern.compile("&(#([0-9]+)|([a-z]+));");
 
+    public static String escapeHTML(String s) {
+        StringBuilder sb = new StringBuilder(Math.max(16, s.length()));
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+            case '<':
+                sb.append("&lt;");
+                break;
+            case '>':
+                sb.append("&gt;");
+                break;
+            case '&':
+                sb.append("&amp;");
+                break;
+            default:
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String decodeHtmlEntities(String text) {
         if (null == text) {
             return null;

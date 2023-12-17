@@ -36,7 +36,7 @@ public class ooml_explain extends OomlFilter {
             varJson = sys.in.readAll();
         }
         NutMap vars = Ws.isBlank(varJson) ? new NutMap() : Wlang.map(varJson);
-
+        
         // 准备处理方法接口
         CheapResourceLoader loader = new WnCheapResourceLoader(sys);
         WnOomlDocxExplaining2 api = new WnOomlDocxExplaining2(fc.ooml, loader);
