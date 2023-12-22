@@ -329,6 +329,9 @@ public class Ws {
     private static Pattern P_HTML_EN = Pattern.compile("&(#([0-9]+)|([a-z]+));");
 
     public static String escapeHTML(String s) {
+        if (null == s) {
+            return s;
+        }
         StringBuilder sb = new StringBuilder(Math.max(16, s.length()));
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
