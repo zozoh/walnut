@@ -1,5 +1,7 @@
 package org.nutz.walnut.ext.data.wf.hdl;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.data.wf.WfContext;
 import org.nutz.walnut.ext.data.wf.WfFilter;
@@ -32,10 +34,14 @@ public class wf_process extends WfFilter {
 
         // 分析参数
         boolean isTest = params.is("test");
+        boolean isMock = params.is("mock");
         boolean isWary = params.is("wary");
         String autoMode = params.getString("auto", AUTO_NEXT);
         boolean isRedo = params.is("redo");
 
+        if (isMock) {
+            fc.setBreakExec(true);
+        }
         // 防守:是否确认了开始节点
         WfNode node = null;
         String cuName;
@@ -59,7 +65,7 @@ public class wf_process extends WfFilter {
 
             // 执行节点
             if (!isTest) {
-                this.processWfActionElement(sys, fc, node);
+                this.processWfActionElement(sys, fc, node, isMock);
             }
 
             // 重入模式就不尝试边了
@@ -86,7 +92,7 @@ public class wf_process extends WfFilter {
                     node = fc.workflow.getNode(headName);
                     if (node != null) {
                         fc.setNextType(node.getType());
-                        this.processWfActionElement(sys, fc, node);
+                        this.processWfActionElement(sys, fc, node, isMock);
                     }
                     // 自动找到一个节点并执行，要不要后续再执行呢？
                     // 这里看一下，是否有 auto=next 标记就好了
@@ -146,13 +152,13 @@ public class wf_process extends WfFilter {
             // 执行动作项
             if (!isTest) {
                 // 首先执行边动作
-                this.processWfActionElement(sys, fc, edge);
+                this.processWfActionElement(sys, fc, edge, isMock);
                 // 每次执行之前，确保重新加载了动态变量
                 if (edge.hasActions()) {
                     fc.reloadVars();
                 }
                 // 其次执行节点动作
-                this.processWfActionElement(sys, fc, taNode);
+                this.processWfActionElement(sys, fc, taNode, isMock);
             }
 
             // 【退出点】不是结束，而且也不需要自动尝试
@@ -171,21 +177,23 @@ public class wf_process extends WfFilter {
 
     }
 
-    private void processWfActionElement(WnSystem sys, WfContext fc, WfActionElement ae) {
+    private void processWfActionElement(WnSystem sys, WfContext fc, WfActionElement ae, boolean isMock) {
         if (ae.hasActions()) {
             // 准备上下文
             ReactActionContext r = new ReactActionContext();
             r.vars = fc.vars;
             r.runner = sys;
+            r.out = sys.out;
             r.io = sys.io;
             r.session = sys.session;
             // 执行
-            doActions(ae.getActions(), r);
+            doActions(ae.getActions(), r, isMock);
         }
     }
 
-    private void doActions(ReactAction[] actions, ReactActionContext r) {
-        for (ReactAction a : actions) {
+    private void doActions(ReactAction[] actions, ReactActionContext r, boolean isMock) {
+        for (int i = 0; i < actions.length; i++) {
+            ReactAction a = actions[i];
             // 获取执行器
             ReactActionHandler hdl = WnReacts.getActionHandler(a);
             if (null == hdl) {
@@ -195,8 +203,13 @@ public class wf_process extends WfFilter {
             // 根据上下文，处理动作对象属性
             a.explain(r.vars);
 
-            // 执行
-            hdl.run(r, a);
+            if (isMock) {
+                String json = Json.toJson(a, JsonFormat.nice().setIgnoreNull(false));
+                r.out.printlnf("action[%s] = %s", i, json);
+            } else {
+                // 执行
+                hdl.run(r, a);
+            }
         }
     }
 
