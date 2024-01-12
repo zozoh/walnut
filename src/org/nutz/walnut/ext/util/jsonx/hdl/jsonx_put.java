@@ -1,5 +1,6 @@
 package org.nutz.walnut.ext.util.jsonx.hdl;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.nutz.json.Json;
@@ -72,6 +73,14 @@ public class jsonx_put extends JsonXFilter {
                 else {
                     map.put(key, val);
                 }
+            }
+        }
+        // 对于列表，
+        else if (fc.obj instanceof Collection<?> || fc.obj.getClass().isArray()) {
+            String key = params.val_check(0);
+            // 记入新 Map
+            if (params.vals.length == 1) {
+                fc.obj = Lang.map(key, fc.obj);
             }
         }
     }
