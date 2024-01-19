@@ -117,6 +117,7 @@ public class WfContext extends JvmFilterContext {
         String json = sys.io.readText(o);
         NutMap map = Json.fromJson(NutMap.class, json);
         loadWorkflow(map, getBy);
+        this.vars.put("WORKFLOW_NAME", o.name());
         return true;
     }
 
