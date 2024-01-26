@@ -77,7 +77,12 @@
       evt.stopPropagation();
     };
     var on_dblclick_ui_arena_con = function (evt) {
-      this.arena.find(".ui-console-inbox").focus();
+      if ($(evt.target).is("span") && !$(evt.target).is("span.ui-console-ps")) {
+        // 什么也不干
+        evt.stopPropagation();
+      } else {
+        this.arena.find(".ui-console-inbox").focus();
+      }
     };
     //=======================================================================
     return ZUI.def("ui.console", {
