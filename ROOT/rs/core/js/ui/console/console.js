@@ -60,9 +60,10 @@
     // 点击 .ui-arena 应该聚焦到输入框
     var on_click_to_focus_input = function (evt) {
       // 没有选择文本，才聚焦
-      if (!$z.getSelectedTexts()) {
-        this.arena.find(".ui-console-inbox").focus();
-      }
+      //   if (!$z.getSelectedTexts()) {
+      //     this.arena.find(".ui-console-inbox").focus();
+      //   }
+      this.arena.find(".ui-console-inbox").focus();
     };
     //=======================================================================
     return ZUI.def("ui.console", {
@@ -112,7 +113,8 @@
       events: {
         "keypress .ui-console-inbox": on_keypress_at_inbox,
         "keydown  .ui-console-inbox": on_keydown_at_inbox,
-        "click .ui-arena .focus-input": on_click_to_focus_input
+        "click .ui-arena .focus-input": on_click_to_focus_input,
+        "dblclick .ui-arena": on_click_to_focus_input
       },
       //...................................................................
       clearScreen: function () {
@@ -249,7 +251,7 @@
           .data("on_key_enter", callback)
           .focus()
           .click();
-        UI.arena.click();
+          on_click_to_focus_input.apply(UI);
       },
       //...................................................................
       on_cmd_wait: function () {
