@@ -19,15 +19,16 @@ body.zui-app-wn_console {
   position: fixed;
   top: 0;
   right: 0;
-  width: 24px;
-  height: 24px;
+  width: 42px;
+  height: 42px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   color: #fff;
   opacity: 0.4;
-  border-radius: 0 0 0 4px;
+  border-radius: 0 0 0 20px;
+  z-index: 999;
 }
 .ui-console > .ui-arena > .focus-input:hover {
   color: #000;

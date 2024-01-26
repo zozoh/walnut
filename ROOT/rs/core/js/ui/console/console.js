@@ -74,7 +74,9 @@
     };
     // 点击 .ui-arena 应该聚焦到输入框
     var on_click_ui_arena_con = function (evt) {
-      evt.stopPropagation();
+      if ($(evt.target).is("span") && !$(evt.target).is("span.ui-console-ps")) {
+        evt.stopPropagation();
+      }
     };
     //=======================================================================
     return ZUI.def("ui.console", {
