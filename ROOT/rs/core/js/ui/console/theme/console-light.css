@@ -4,15 +4,35 @@ body.zui-app-wn_console {
 }
 .ui-console {
   background: #000;
-  color: #CCC;
+  color: #ccc;
 }
 .ui-console > .ui-arena {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
   padding: 10px;
+  position: relative;
 }
-.ui-console *,
+.ui-console > .ui-arena > .focus-input {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #FFF;
+  opacity: 0.4;
+  border-radius: 0 0 0 4px;
+}
+.ui-console > .ui-arena > .focus-input:hover {
+  color: #000;
+  background-color: #ff0;
+  opacity: 1;
+}
+.ui-console,
 .ui-console input.ui-console-inbox {
   font-family: Monaco, Consolas, Courier New;
   font-size: 13px;
@@ -56,10 +76,10 @@ input.ui-console-inbox {
   border: 0;
   outline: none;
   background: rgba(255, 255, 255, 0);
-  color: #CCC;
+  color: #ccc;
   margin-left: -1px;
 }
-.ui-console-block[objs-mode=short] .ui-console-obj {
+.ui-console-block[objs-mode="short"] .ui-console-obj {
   display: inline-block;
   vertical-align: middle;
   min-width: 100px;
@@ -68,19 +88,19 @@ input.ui-console-inbox {
 .ui-console-obj-DIR {
   color: #52c7e5;
 }
-.ui-console-block[objs-mode=long] .ui-console-obj span[att] {
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att] {
   margin: 0 4px;
   display: inline-block;
   vertical-align: middle;
 }
-.ui-console-block[objs-mode=long] .ui-console-obj span[att=ow] {
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att="ow"] {
   min-width: 80px;
   text-align: left;
 }
-.ui-console-block[objs-mode=long] .ui-console-obj span[att=len] {
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att="len"] {
   min-width: 60px;
 }
-/*-----------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------/
 /* 给出控制台高亮颜色 */
 /*-----------------------------------------------------------------------*/
 /*
@@ -118,25 +138,25 @@ input.ui-console-inbox {
   color: #000;
 }
 .ui-console-f-color31 {
-  color: #A00;
+  color: #a00;
 }
 .ui-console-f-color32 {
-  color: #AFA;
+  color: #afa;
 }
 .ui-console-f-color33 {
-  color: #FF0;
+  color: #ff0;
 }
 .ui-console-f-color34 {
-  color: #88F;
+  color: #88f;
 }
 .ui-console-f-color35 {
-  color: #F8F;
+  color: #f8f;
 }
 .ui-console-f-color36 {
-  color: #AAF;
+  color: #aaf;
 }
 .ui-console-f-color37 {
-  color: #FFF;
+  color: #fff;
 }
 /*
     40 black
@@ -170,5 +190,5 @@ input.ui-console-inbox {
   background: #088;
 }
 .ui-console-f-bgcolor47 {
-  background: #FFF;
+  background: #fff;
 }

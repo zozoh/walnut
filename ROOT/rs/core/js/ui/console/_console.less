@@ -1,100 +1,123 @@
 body.zui-app-wn_console {
-    background: #000;
-    margin: 0;
+  background: #000;
+  margin: 0;
 }
 
 .ui-console {
-    background: #000;
-    color: #CCC;
+  background: #000;
+  color: #ccc;
 }
 
 .ui-console > .ui-arena {
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
-    padding: 10px;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  padding: 10px;
+  position: relative;
 }
 
-.ui-console *, .ui-console input.ui-console-inbox {
-    font-family: Monaco, Consolas, Courier New;
-    font-size: 13px;
-    -webkit-font-smoothing: auto;
+.ui-console > .ui-arena > .focus-input {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #FFF;
+  opacity: 0.4;
+  border-radius: 0 0 0 4px;
+}
+.ui-console > .ui-arena > .focus-input:hover {
+  color: #000;
+  background-color: #ff0;
+  opacity: 1;
+}
+
+.ui-console,
+.ui-console input.ui-console-inbox {
+  font-family: Monaco, Consolas, Courier New;
+  font-size: 13px;
+  -webkit-font-smoothing: auto;
 }
 
 .ui-console-block {
-    line-height: 19px;
-    margin: 0;
-    width: 100%;
-    word-wrap: break-word;
-    word-break: break-all;
-    padding: 0;
+  line-height: 19px;
+  margin: 0;
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  padding: 0;
 }
 
 pre.ui-console-block {
-    white-space: pre-wrap;
-    tab-size:4; -moz-tab-size:4;
+  white-space: pre-wrap;
+  tab-size: 4;
+  -moz-tab-size: 4;
 }
 
 .ui-console-error {
-    color: red;
+  color: red;
 }
 
 .ui-console-block:after {
-    content: "";
-    clear: both;
-    height: 1px;
-    line-height: 1px;
-    overflow: hidden;
-    display: block;
+  content: "";
+  clear: both;
+  height: 1px;
+  line-height: 1px;
+  overflow: hidden;
+  display: block;
 }
 
 .ui-console-prompt {
-    position: relative;
+  position: relative;
 }
 
 .ui-console-prompt .ui-console-ps {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
 }
 
 input.ui-console-inbox {
-    width: 100%;
-    border: 0;
-    outline: none;
-    background: rgba(255, 255, 255, 0);
-    color: #CCC;
-    margin-left: -1px;
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: rgba(255, 255, 255, 0);
+  color: #ccc;
+  margin-left: -1px;
 }
 
-.ui-console-block[objs-mode=short] .ui-console-obj {
-    display: inline-block;
-    vertical-align: middle;
-    min-width: 100px;
-    margin: 0 10px;
+.ui-console-block[objs-mode="short"] .ui-console-obj {
+  display: inline-block;
+  vertical-align: middle;
+  min-width: 100px;
+  margin: 0 10px;
 }
 
 .ui-console-obj-DIR {
-    color: #52c7e5;
+  color: #52c7e5;
 }
 
-.ui-console-block[objs-mode=long] .ui-console-obj span[att] {
-    margin: 0 4px;
-    display: inline-block;
-    vertical-align: middle;
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att] {
+  margin: 0 4px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
-.ui-console-block[objs-mode=long] .ui-console-obj span[att=ow] {
-    min-width: 80px;
-    text-align: left;
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att="ow"] {
+  min-width: 80px;
+  text-align: left;
 }
 
-.ui-console-block[objs-mode=long] .ui-console-obj span[att=len] {
-    min-width: 60px;
+.ui-console-block[objs-mode="long"] .ui-console-obj span[att="len"] {
+  min-width: 60px;
 }
 
-/*-----------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------/
 /* 给出控制台高亮颜色 */
 /*-----------------------------------------------------------------------*/
 /*
@@ -110,15 +133,15 @@ input.ui-console-inbox {
 }
 
 .ui-console-f-font1 {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .ui-console-f-font2 {
-    opacity: 0.618;
+  opacity: 0.618;
 }
 
 .ui-console-f-font3 {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .ui-console-f-font5 {
@@ -128,7 +151,7 @@ input.ui-console-inbox {
 }
 
 .ui-console-f-font8 {
-    display: none;
+  display: none;
 }
 
 /*
@@ -142,35 +165,35 @@ input.ui-console-inbox {
     37 white  
 */
 .ui-console-f-color30 {
-    color: #000;
+  color: #000;
 }
 
 .ui-console-f-color31 {
-    color: #A00;
+  color: #a00;
 }
 
 .ui-console-f-color32 {
-    color: #AFA;
+  color: #afa;
 }
 
 .ui-console-f-color33 {
-    color: #FF0;
+  color: #ff0;
 }
 
 .ui-console-f-color34 {
-    color: #88F;
+  color: #88f;
 }
 
 .ui-console-f-color35 {
-    color: #F8F;
+  color: #f8f;
 }
 
 .ui-console-f-color36 {
-    color: #AAF;
+  color: #aaf;
 }
 
 .ui-console-f-color37 {
-    color: #FFF;
+  color: #fff;
 }
 
 /*
@@ -184,33 +207,33 @@ input.ui-console-inbox {
     47 white
 */
 .ui-console-f-bgcolor40 {
-    background: black;
+  background: black;
 }
 
 .ui-console-f-bgcolor41 {
-    background: red;
+  background: red;
 }
 
 .ui-console-f-bgcolor42 {
-    background: green;
+  background: green;
 }
 
 .ui-console-f-bgcolor43 {
-    background: #880;
+  background: #880;
 }
 
 .ui-console-f-bgcolor44 {
-    background: blue;
+  background: blue;
 }
 
 .ui-console-f-bgcolor45 {
-    background: #808;
+  background: #808;
 }
 
 .ui-console-f-bgcolor46 {
-    background: #088;
+  background: #088;
 }
 
 .ui-console-f-bgcolor47 {
-    background: #FFF;
+  background: #fff;
 }
