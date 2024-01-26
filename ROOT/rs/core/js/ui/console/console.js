@@ -58,12 +58,23 @@
     };
 
     // 点击 .ui-arena 应该聚焦到输入框
-    var on_click_to_focus_input = function (evt) {
+    var on_click_to_focus_input = function (_evt) {
       // 没有选择文本，才聚焦
       //   if (!$z.getSelectedTexts()) {
       //     this.arena.find(".ui-console-inbox").focus();
       //   }
       this.arena.find(".ui-console-inbox").focus();
+    };
+    // 点击 .ui-arena 应该聚焦到输入框
+    var on_click_ui_arena = function () {
+      // 没有选择文本，才聚焦
+      if (!$z.getSelectedTexts()) {
+        this.arena.find(".ui-console-inbox").focus();
+      }
+    };
+    // 点击 .ui-arena 应该聚焦到输入框
+    var on_click_ui_arena_con = function (evt) {
+      evt.stopPropagation();
     };
     //=======================================================================
     return ZUI.def("ui.console", {
@@ -113,7 +124,9 @@
       events: {
         "keypress .ui-console-inbox": on_keypress_at_inbox,
         "keydown  .ui-console-inbox": on_keydown_at_inbox,
-        "click .ui-arena .focus-input": on_click_to_focus_input
+        "click .ui-arena .focus-input": on_click_to_focus_input,
+        "click .ui-arena": on_click_ui_arena,
+        "click .ui-arena-con": on_click_ui_arena_con
       },
       //...................................................................
       clearScreen: function () {
@@ -235,7 +248,9 @@
       },
       on_show_err: function (s) {
         if (s[s.length - 1] == "\n") s = s.substring(0, s.length - 1);
-        this.arena.append(this.ccode("error").text(this.msg(s)));
+        $(".ui-arena-con", this.arena).append(
+          this.ccode("error").text(this.msg(s))
+        );
       },
       //...................................................................
       _prompt: function (ps, callback, isPassword) {
@@ -250,7 +265,7 @@
           .data("on_key_enter", callback)
           .focus()
           .click();
-          on_click_to_focus_input.apply(UI);
+        on_click_to_focus_input.apply(UI);
       },
       //...................................................................
       on_cmd_wait: function () {
