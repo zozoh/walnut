@@ -113,8 +113,7 @@
       events: {
         "keypress .ui-console-inbox": on_keypress_at_inbox,
         "keydown  .ui-console-inbox": on_keydown_at_inbox,
-        "click .ui-arena .focus-input": on_click_to_focus_input,
-        "dblclick .ui-arena": on_click_to_focus_input
+        "click .ui-arena .focus-input": on_click_to_focus_input
       },
       //...................................................................
       clearScreen: function () {
