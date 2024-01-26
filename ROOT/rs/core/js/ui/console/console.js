@@ -74,9 +74,10 @@
     };
     // 点击 .ui-arena 应该聚焦到输入框
     var on_click_ui_arena_con = function (evt) {
-      if ($(evt.target).is("span") && !$(evt.target).is("span.ui-console-ps")) {
-        evt.stopPropagation();
-      }
+      evt.stopPropagation();
+    };
+    var on_dblclick_ui_arena_con = function (evt) {
+      this.arena.find(".ui-console-inbox").focus();
     };
     //=======================================================================
     return ZUI.def("ui.console", {
@@ -128,7 +129,8 @@
         "keydown  .ui-console-inbox": on_keydown_at_inbox,
         "click .ui-arena .focus-input": on_click_to_focus_input,
         "click .ui-arena": on_click_ui_arena,
-        "click .ui-arena-con": on_click_ui_arena_con
+        "click .ui-arena-con": on_click_ui_arena_con,
+        "dblclick .ui-arena-con": on_dblclick_ui_arena_con
       },
       //...................................................................
       clearScreen: function () {
