@@ -17,10 +17,14 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
 
 public class JsExec {
+
+    private static final Log log = Wlog.getCMD();
 
     public static String dft_engine_nm = "nashorn";
 
@@ -88,6 +92,10 @@ public class JsExec {
         }
         bindings.put("wc", Wn.WC());
         bindings.put("sys", jsc);
+        bindings.put("_TRACE_ID", R.UU32());
+        if (!bindings.containsKey("log")) {
+            bindings.put("log", log);
+        }
 
         // 生成动态访问的 $wn
         if (!groovyMode)
