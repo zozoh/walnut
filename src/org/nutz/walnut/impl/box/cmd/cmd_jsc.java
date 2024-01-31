@@ -32,7 +32,8 @@ public class cmd_jsc extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        log.info("init exec");
+        if (log.isTraceEnabled())
+            log.trace("init exec");
 
         // 得到运行器
         JsExec JE = JsExec.me();
