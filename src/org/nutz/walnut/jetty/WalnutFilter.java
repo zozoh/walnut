@@ -71,6 +71,7 @@ public class WalnutFilter implements Filter {
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
         String usrip = Lang.getIP(req);
         String host = req.getHeader("Host");
+        String method = req.getMethod();
         int port = req.getLocalPort();
 
         // 容忍 HEADER 里没有 Host 字段的情况
@@ -120,7 +121,7 @@ public class WalnutFilter implements Filter {
                     } else {
                         qs = "";
                     }
-                    log.infof("🌍<%s>:%s:%s:%s%s", usrip, host, port, path, qs);
+                    log.infof("🌍[%s]<%s>:%s:%s:%s%s", method, usrip, host, port, path, qs);
                 }
             }
 
@@ -231,7 +232,7 @@ public class WalnutFilter implements Filter {
                 }
             }
         }
-          //
+        //
         else {
             // 这个通常还是要记录一下日志的
             // if (log.isDebugEnabled()) {
