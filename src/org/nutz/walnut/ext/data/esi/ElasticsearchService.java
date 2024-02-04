@@ -35,7 +35,7 @@ import org.nutz.walnut.api.io.WnObj;
 @IocBean(create = "init", depose = "close", name = "esi")
 public class ElasticsearchService implements BulkProcessor.Listener {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Inject
     protected PropertiesProxy conf;

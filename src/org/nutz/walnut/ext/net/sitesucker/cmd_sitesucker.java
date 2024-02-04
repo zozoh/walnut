@@ -32,7 +32,7 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_sitesucker extends JvmExecutor {
 
-    private static Log log = Wlog.getEXT();
+    private static Log log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

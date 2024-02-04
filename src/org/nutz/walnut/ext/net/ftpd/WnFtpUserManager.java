@@ -24,7 +24,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean
 public class WnFtpUserManager extends AbstractUserManager {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Inject
     protected WnRun wnRun;

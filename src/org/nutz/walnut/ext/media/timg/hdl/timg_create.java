@@ -38,7 +38,7 @@ import org.nutz.web.Webs.Err;
 @JvmHdlParamArgs(value="cqn", regex="^(keep|debug|fmd5|force|silencemp3)$")
 public class timg_create implements JvmHdl {
     
-    protected static final Log log = Wlog.getEXT();
+    protected static final Log log = Wlog.getCMD();
     
     public static Map<String, CartonBuilder> builders = new LinkedHashMap<>();
 

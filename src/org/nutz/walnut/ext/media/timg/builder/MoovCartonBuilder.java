@@ -17,7 +17,7 @@ import org.nutz.walnut.ext.media.timg.CartonCtx;
  */
 public class MoovCartonBuilder extends AbstractCartonBuilder {
     
-    protected static final Log log = Wlog.getEXT();
+    protected static final Log log = Wlog.getCMD();
 
     public MoovParam curParam;
     public MoovParam nextParam;

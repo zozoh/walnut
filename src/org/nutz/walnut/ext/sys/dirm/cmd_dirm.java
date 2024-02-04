@@ -24,7 +24,7 @@ import org.nutz.walnut.util.ZParams;
  */
 public class cmd_dirm extends JvmExecutor {
 
-    private Log log = Wlog.getEXT();
+    private Log log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

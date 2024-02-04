@@ -18,7 +18,7 @@ import org.nutz.walnut.util.Wn;
 
 public class FtpUtil {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public static FtpConfig conf(WnObj wobj, WnIo io) {
         return io.readJson(wobj, FtpConfig.class);

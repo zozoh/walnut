@@ -35,7 +35,7 @@ import com.paypal.orders.PurchaseUnitRequest;
  */
 public class PaypalPay3x extends WnPay3x {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public static String PP_STAT = "paypal_stat"; // Paypal支付单状态
     public static String PP_RE = "paypal_re"; // 最后查询的状态

@@ -19,7 +19,7 @@ import org.nutz.walnut.util.Wlog;
  */
 public class LbsChina {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private static LbsChina _me = null;
 

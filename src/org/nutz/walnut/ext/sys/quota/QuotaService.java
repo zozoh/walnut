@@ -37,7 +37,7 @@ import com.mongodb.client.MongoCursor;
 @IocBean(create = "init", depose = "depose", name = "quota")
 public class QuotaService {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Inject("java:$mongoDB.getCollection('obj')")
     protected ZMoCo co;

@@ -42,7 +42,7 @@ import org.nutz.web.ajax.Ajax;
  */
 public class cmd_email extends JvmExecutor {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {

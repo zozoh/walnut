@@ -36,7 +36,7 @@ import org.nutz.walnut.util.Wlog;
 @JvmHdlParamArgs(value="cqn", regex="^(clean|write|json)$")
 public class wooz_comp_result implements JvmHdl {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

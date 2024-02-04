@@ -15,7 +15,7 @@ import org.nutz.weixin.repo.com.qq.weixin.mp.aes.AesException;
 
 public class aes_decode implements JvmHdl {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

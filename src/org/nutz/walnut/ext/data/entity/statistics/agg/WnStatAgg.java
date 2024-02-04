@@ -35,7 +35,7 @@ import org.nutz.walnut.util.Wtime;
 
 public class WnStatAgg extends WnStatistics {
 
-    private static Log log = Wlog.getEXT();
+    private static Log log = Wlog.getCMD();
 
     private WnStatAggConfig config;
 

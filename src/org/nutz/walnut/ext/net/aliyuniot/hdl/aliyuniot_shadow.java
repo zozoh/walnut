@@ -35,7 +35,7 @@ import com.aliyuncs.profile.IClientProfile;
 @JvmHdlParamArgs(value="cqn", regex="^dry$")
 public class aliyuniot_shadow implements JvmHdl {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
     
     public static ExecutorService es = Executors.newFixedThreadPool(16, new ThreadFactory() {
         public Thread newThread(Runnable r) {

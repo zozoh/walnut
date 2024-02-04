@@ -20,7 +20,7 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public cmd_mailx() {
         super(MailxContext.class, MailxFilter.class);

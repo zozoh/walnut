@@ -21,7 +21,7 @@ import org.subethamail.smtp.helper.SimpleMessageListener;
 @IocBean
 public class WnSmtpMailListener implements SimpleMessageListener {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
     
     @Inject
     protected WnRun wnRun;

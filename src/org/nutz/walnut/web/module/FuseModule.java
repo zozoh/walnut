@@ -31,7 +31,7 @@ import org.nutz.walnut.web.filter.FuseActionFilter;
 @Filters({@By(type = FuseActionFilter.class, args = "ioc:fuseActionFilter")})
 public class FuseModule extends AbstractWnModule {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @At
     @Ok("raw")

@@ -23,7 +23,7 @@ import org.nutz.weixin.util.Wxs;
  */
 public class WxScanPay3x extends AbstractWeixinPay3x {
 
-    //private static final Log log = Wlog.getEXT();
+    //private static final Log log = Wlog.getCMD();
 
     @Override
     public WnPay3xRe send(WnPayObj po, String... args) {

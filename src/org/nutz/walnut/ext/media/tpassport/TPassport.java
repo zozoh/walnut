@@ -30,7 +30,7 @@ public class TPassport {
 
     private static LRUCache<String, Font> fontCache = new LRUCache<>(128);
     private static LRUCache<String, BufferedImage> bgCache = new LRUCache<>(128);
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private WnSystem sys;
     private BufferedImage im;

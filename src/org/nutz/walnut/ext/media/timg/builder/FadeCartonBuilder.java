@@ -12,7 +12,7 @@ import org.nutz.walnut.ext.media.timg.CartonCtx;
 
 public class FadeCartonBuilder extends AbstractCartonBuilder {
 
-    protected static final Log log = Wlog.getEXT();
+    protected static final Log log = Wlog.getCMD();
 
     @Override
     public void _invoke(CartonCtx ctx) {

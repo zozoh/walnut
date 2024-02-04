@@ -32,7 +32,7 @@ import com.aliyun.oss.model.ObjectMetadata;
 
 public class WnAliyunOssService {
 	
-	private static final Log log = Wlog.getEXT();
+	private static final Log log = Wlog.getCMD();
 
 	public OSS oss;
 	public String bucketName;

@@ -13,7 +13,7 @@ import org.nutz.walnut.util.ZParams;
 
 public class cmd_truck extends JvmFilterExecutor<TruckContext, TruckFilter> {
 
-    // private static final Log log = Wlog.getEXT();
+    // private static final Log log = Wlog.getCMD();
 
     public cmd_truck() {
         super(TruckContext.class, TruckFilter.class);

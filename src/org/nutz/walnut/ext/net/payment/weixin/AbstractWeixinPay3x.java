@@ -30,7 +30,7 @@ public abstract class AbstractWeixinPay3x extends WnPay3x {
     protected static final String KEY_wxpay_result = "wxpay_result";
     protected static final String KEY_wxpay_st = "wxpay_st";
 
-    // private Log log = Wlog.getEXT();
+    // private Log log = Wlog.getCMD();
 
     /**
      * 调用微信的统一下单接口

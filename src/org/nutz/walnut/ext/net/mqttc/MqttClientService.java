@@ -27,7 +27,7 @@ import org.nutz.web.Webs.Err;
 @IocBean(depose = "depose")
 public class MqttClientService {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Inject
     protected WnIo io;

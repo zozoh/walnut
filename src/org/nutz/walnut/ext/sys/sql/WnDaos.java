@@ -24,7 +24,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 
 public abstract class WnDaos {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private static Map<String, DataSource> dss = new HashMap<>();
 

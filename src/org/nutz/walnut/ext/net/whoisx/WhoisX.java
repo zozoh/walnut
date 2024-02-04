@@ -27,7 +27,7 @@ import org.nutz.walnut.ext.media.mediax.util.Mxs;
 
 public abstract class WhoisX {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public static WhoInfo query(String host) {
         for (int i = 0; i < 3; i++) {

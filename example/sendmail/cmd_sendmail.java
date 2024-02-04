@@ -21,7 +21,7 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_sendmail extends JvmFilterExecutor<SendmailContext, SendmailFilter> {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public cmd_sendmail() {
         super(SendmailContext.class, SendmailFilter.class);

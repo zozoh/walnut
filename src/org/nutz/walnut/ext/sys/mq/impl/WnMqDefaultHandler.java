@@ -16,7 +16,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean
 public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void inovke(WnMqMessage msg) {

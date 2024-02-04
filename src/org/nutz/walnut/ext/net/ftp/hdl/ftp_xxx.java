@@ -12,7 +12,7 @@ import org.nutz.walnut.impl.box.WnSystem;
 
 public abstract class ftp_xxx implements JvmHdl {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         FTPClient client = null;

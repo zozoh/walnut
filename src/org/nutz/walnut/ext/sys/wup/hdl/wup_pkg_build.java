@@ -17,7 +17,7 @@ import org.nutz.walnut.impl.box.WnSystem;
  */
 public class wup_pkg_build implements JvmHdl {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String app = hc.params.val_check(0);

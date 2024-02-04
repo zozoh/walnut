@@ -68,7 +68,7 @@ import org.nutz.web.WebException;
 @Filters(@By(type = WnAsUsr.class, args = {"root"}))
 public class HttpApiModule extends AbstractWnModule {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @At("/?/**")
     @Ok("void")

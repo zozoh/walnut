@@ -40,7 +40,7 @@ import org.nutz.walnut.util.WnRun;
 @IocBean(create = "init")
 public class WnWebSocket extends Endpoint {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
 

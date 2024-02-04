@@ -26,7 +26,7 @@ import org.nutz.walnut.util.Wn;
 
 public class WnMailService implements WnMailApi {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private WnMailConfig config;
 

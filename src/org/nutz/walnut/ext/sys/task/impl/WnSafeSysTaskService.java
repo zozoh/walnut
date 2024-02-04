@@ -22,7 +22,7 @@ import org.nutz.walnut.util.Wn;
 
 public class WnSafeSysTaskService implements WnSysTaskApi {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public static final String LOCK_NAME = "WN_SYS_TASKS";
 

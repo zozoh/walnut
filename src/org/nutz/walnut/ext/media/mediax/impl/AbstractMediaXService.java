@@ -26,7 +26,7 @@ import org.nutz.walnut.ext.media.mediax.bean.MxAccount;
  */
 public abstract class AbstractMediaXService implements MediaXService {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private Map<String, Borning<MediaXAPI>> map;
 

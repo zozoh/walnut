@@ -20,7 +20,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(value="cqn")
 public class modbus_decode implements JvmHdl {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

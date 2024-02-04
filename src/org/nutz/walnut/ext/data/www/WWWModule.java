@@ -58,7 +58,7 @@ import org.nutz.web.WebException;
 @Fail("void")
 public class WWWModule extends AbstractWnModule {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     // private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
 

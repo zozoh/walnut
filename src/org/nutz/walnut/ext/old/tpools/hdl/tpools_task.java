@@ -16,7 +16,7 @@ import org.nutz.walnut.util.WnRun;
 
 public class tpools_task implements JvmHdl {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     protected MyPools pools;
 

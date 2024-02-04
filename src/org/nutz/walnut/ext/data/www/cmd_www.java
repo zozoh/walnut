@@ -29,7 +29,7 @@ import org.nutz.web.ajax.Ajax;
  */
 public class cmd_www extends JvmHdlExecutor {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     public static WnObj checkSite(WnSystem sys, JvmHdlContext hc) {
         String site = hc.params.val_check(0);

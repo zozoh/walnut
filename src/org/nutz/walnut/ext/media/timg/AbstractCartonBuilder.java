@@ -21,7 +21,7 @@ import org.nutz.walnut.api.io.WnObj;
 
 public abstract class AbstractCartonBuilder implements CartonBuilder {
     
-    protected static final Log log = Wlog.getEXT();
+    protected static final Log log = Wlog.getCMD();
 
     public void add(CartonCtx ctx, byte[] buf) {
         File f = Files.createFileIfNoExists(new File(String.format("%s/images/T%06d.png", ctx.tmpDir, ctx.lastFrameIndex)));

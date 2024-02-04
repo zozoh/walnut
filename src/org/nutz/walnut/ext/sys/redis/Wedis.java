@@ -22,7 +22,7 @@ import redis.clients.jedis.JedisPool;
 
 public abstract class Wedis {
 
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     private static Map<String, JedisPool> jedis = new HashMap<>();
 

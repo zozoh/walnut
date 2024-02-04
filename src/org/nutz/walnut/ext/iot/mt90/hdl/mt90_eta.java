@@ -29,7 +29,7 @@ import org.nutz.walnut.util.Wn;
 @JvmHdlParamArgs(value="cqn", regex="^(kml|gpx|gpsFixed|simple|lineOnly|debug|tomap|all|precise)$")
 public class mt90_eta extends mt90_parse {
     
-    private static final Log log = Wlog.getEXT();
+    private static final Log log = Wlog.getCMD();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {

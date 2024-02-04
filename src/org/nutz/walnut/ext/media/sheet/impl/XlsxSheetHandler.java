@@ -22,7 +22,7 @@ import org.nutz.lang.util.NutBean;
 
 public class XlsxSheetHandler extends AbstractPoiSheetHandler {
 
-    // private static final Log log = Wlog.getEXT();
+    // private static final Log log = Wlog.getCMD();
 
     protected Workbook createWorkbook(InputStream ins) throws IOException {
         return new XSSFWorkbook(ins);
