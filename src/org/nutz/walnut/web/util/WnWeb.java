@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback2;
 import org.nutz.walnut.api.io.WnObj;
 
 public abstract class WnWeb {
@@ -160,6 +161,14 @@ public abstract class WnWeb {
         catch (UnsupportedEncodingException e) {
             throw Lang.wrapThrow(e);
         }
+    }
+
+    public static void setCrossDomainHeaders(String origin, Callback2<String, String> callback) {
+        callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", origin);
+        callback.invoke("ACCESS-CONTROL-ALLOW-METHODS", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
+                        "Origin, Content-Type, Accept, X-Requested-With");
+        callback.invoke("ACCESS-CONTROL-ALLOW-CREDENTIALS", "true");
     }
 
     // 禁止实例化

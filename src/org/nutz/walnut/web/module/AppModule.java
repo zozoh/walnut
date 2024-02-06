@@ -736,4 +736,16 @@ public class AppModule extends AbstractWnModule {
         // 包裹返回
         return new ViewWrapper(view, reo);
     }
+
+    @At("/me")
+    @Ok("ajax")
+    @Fail("ajax")
+    public NutMap getMe(final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+        WnAuthSession se = Wn.WC().checkSession();
+        return se.toMapForClient();
+    }
+
 }

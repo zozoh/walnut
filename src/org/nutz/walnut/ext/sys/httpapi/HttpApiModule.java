@@ -387,12 +387,8 @@ public class HttpApiModule extends AbstractWnModule {
                                                     Callback2<String, String> callback) {
         String allowOrigin = oApi.getString("http-cross-origin");
         if (!Ws.isBlank(allowOrigin)) {
-            callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", Ws.sBlank(origin, allowOrigin));
-            callback.invoke("ACCESS-CONTROL-ALLOW-METHODS",
-                            "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-            callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
-                            "Origin, Content-Type, Accept, X-Requested-With");
-            callback.invoke("ACCESS-CONTROL-ALLOW-CREDENTIALS", "true");
+            origin = Ws.sBlank(origin, allowOrigin);
+            WnWeb.setCrossDomainHeaders(origin, callback);
         }
     }
 
