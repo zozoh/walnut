@@ -488,7 +488,11 @@ public class AppModule extends AbstractWnModule {
                                             @Param("name") String name,
                                             @Param("passwd") String passwd,
                                             @Param("ajax") boolean ajax,
-                                            @Attr("wn_www_host") String hostName) {
+                                            @Attr("wn_www_host") String hostName,
+                                            final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
+            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
+        });
         View view = null;
         Object reo = null;
         WnDomainService domains = new WnDomainService(io());
@@ -593,7 +597,7 @@ public class AppModule extends AbstractWnModule {
                     }
 
                     // 准备返回值
-                    reo = se;
+                    reo = se.toMapForClient();
                 }
                 // -----------------------------------------
                 // 登录失败
@@ -744,7 +748,7 @@ public class AppModule extends AbstractWnModule {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
-        WnAuthSession se = Wn.WC().checkSession();
+        WnAuthSession se = Wn.WC().checkSession(auth());
         return se.toMapForClient();
     }
 

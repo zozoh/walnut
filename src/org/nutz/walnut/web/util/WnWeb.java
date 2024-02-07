@@ -167,7 +167,7 @@ public abstract class WnWeb {
         callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", origin);
         callback.invoke("ACCESS-CONTROL-ALLOW-METHODS", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
         callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
-                        "Origin, Content-Type, Accept, X-Requested-With");
+                        "Origin, Content-Type, Accept, X-Requested-With, X-Walnut-Ticket");
         callback.invoke("ACCESS-CONTROL-ALLOW-CREDENTIALS", "true");
     }
 

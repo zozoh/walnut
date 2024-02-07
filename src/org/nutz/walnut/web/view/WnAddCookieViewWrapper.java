@@ -28,8 +28,10 @@ public class WnAddCookieViewWrapper implements View {
     public WnAddCookieViewWrapper(WnConfig conf, View view, String value) {
         this.conf = conf;
         this.view = view;
-        String path = Ws.sBlank(value, "/");
-        this.view = new ServerRedirectView(path);
+        if (null == view) {
+            String path = Ws.sBlank(value, "/");
+            this.view = new ServerRedirectView(path);
+        }
     }
 
     @Override

@@ -527,6 +527,7 @@ public class WnContext extends NutMap {
      *            Cookie 名称列表
      */
     public void copyCookieItems(HttpServletRequest req, String[] cookieNames) {
+        // 从 cookie 获得 SEID
         Cookie[] cookies = req.getCookies();
         if (null != cookies)
             for (Cookie co : cookies) {

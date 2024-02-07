@@ -13,6 +13,7 @@ import org.nutz.walnut.impl.io.WnEvalLink;
 import org.nutz.walnut.util.Wlog;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.util.Ws;
 
 public class CreateWnContext extends AbstractProcessor {
 
@@ -40,21 +41,38 @@ public class CreateWnContext extends AbstractProcessor {
     }
 
     public static void setupWnContext(WnContext wc, HttpServletRequest req) {
-        //if (!wc.hasSEID()) {
+        // if (!wc.hasSEID()) {
+        if (null != req) {
+            // 从 header 里获取 Session 的 ID
+            String ticket = req.getHeader("X-Walnut-Ticket");
+            // System.out.printf("Initial ticket=%s\n", ticket);
+            // Enumeration<String> hnms = req.getHeaderNames();
+            // while (hnms.hasMoreElements()) {
+            // String hnm = hnms.nextElement();
+            // String val = req.getHeader(hnm);
+            // System.out.printf("!!! %s=%s\n", hnm, val);
+            // }
+            // ticket = req.getHeader("X-Walnut-Ticket");
+            // System.out.printf("=== Get Again=%s\n", ticket);
             // 从 cookie 里获取 Session 的 ID
-            if (null != req) {
+            if (Ws.isBlank(ticket)) {
                 wc.copyCookieItems(req, Lang.array(Wn.AT_SEID));
             }
-            // 显示准备接受调用
-            if (log.isInfoEnabled()) {
-                wc._timestamp = Wn.now();
-                if (log.isDebugEnabled()) {
-                    log.debugf("ACCEPT: %s", req.getServletPath());
-                }
-            } else {
-                wc._timestamp = -1;
+            // 恢复票据
+            else {
+                wc.setTicket(ticket);
             }
-        //}
+        }
+        // 显示准备接受调用
+        if (log.isInfoEnabled()) {
+            wc._timestamp = Wn.now();
+            if (log.isDebugEnabled()) {
+                log.debugf("ACCEPT: %s", req.getServletPath());
+            }
+        } else {
+            wc._timestamp = -1;
+        }
+        // }
     }
 
 }
