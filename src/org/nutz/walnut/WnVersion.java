@@ -18,7 +18,7 @@ public final class WnVersion {
      * @return 版本代号
      */
     public static String alias() {
-        return "RABBIT(LOG)";
+        return "LOONG(AME)";
     }
 
     /**
