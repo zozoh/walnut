@@ -752,4 +752,35 @@ public class AppModule extends AbstractWnModule {
         return se.toMapForClient();
     }
 
+    /**
+     * 注销当前系统会话
+     * 
+     * @param ajax
+     *            返回的会话是否用 Ajax 形式包裹
+     * @return 输出视图
+     */
+    @At
+    @Ok("ajax")
+    @Fail("ajax")
+    public NutMap sys_ajax_logout(final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+        WnContext wc = Wn.WC();
+        NutMap re = new NutMap();
+        if (wc.hasTicket()) {
+            String ticket = wc.getTicket();
+            re.put("ticket", ticket);
+            // 退出登录
+            WnAuthSession pse = auth().logout(ticket, 0);
+
+            // 退到父会话
+            if (null != pse && !pse.isDead()) {
+                re.put("parent", pse.toMapForClient());
+            }
+        }
+
+        return re;
+    }
+
 }
