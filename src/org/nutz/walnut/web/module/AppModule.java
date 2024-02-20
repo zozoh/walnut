@@ -351,11 +351,21 @@ public class AppModule extends AbstractWnModule {
                     @Param("cmd") String cmdText,
                     @Param("in") String in,
                     @Param("ffb") boolean forceFlushBuffer,
-                    HttpServletRequest req,
+                    final HttpServletRequest req,
                     final HttpServletResponse resp)
             throws IOException {
         // String cmdText = Streams.readAndClose(req.getReader());
         // cmdText = URLDecoder.decode(cmdText, "UTF-8");
+
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+
+        // Options 无视
+        if (WnWeb.isRequestOptions(req)) {
+            return;
+        }
 
         // 找到 app 所在目录
         WnApp app = apps.checkApp(appName);
@@ -489,10 +499,15 @@ public class AppModule extends AbstractWnModule {
                                             @Param("passwd") String passwd,
                                             @Param("ajax") boolean ajax,
                                             @Attr("wn_www_host") String hostName,
+                                            final HttpServletRequest req,
                                             final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
             resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         View view = null;
         Object reo = null;
         WnDomainService domains = new WnDomainService(io());
@@ -744,10 +759,14 @@ public class AppModule extends AbstractWnModule {
     @At("/me")
     @Ok("ajax")
     @Fail("ajax")
-    public NutMap getMe(final HttpServletResponse resp) {
+    public NutMap getMe(final HttpServletRequest req, final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         WnAuthSession se = Wn.WC().checkSession(auth());
         return se.toMapForClient();
     }
@@ -762,10 +781,14 @@ public class AppModule extends AbstractWnModule {
     @At
     @Ok("ajax")
     @Fail("ajax")
-    public NutMap sys_ajax_logout(final HttpServletResponse resp) {
+    public NutMap sys_ajax_logout(final HttpServletRequest req, final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         WnContext wc = Wn.WC();
         NutMap re = new NutMap();
         if (wc.hasTicket()) {

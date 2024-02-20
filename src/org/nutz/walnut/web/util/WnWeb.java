@@ -3,6 +3,7 @@ package org.nutz.walnut.web.util;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Encoding;
@@ -12,6 +13,11 @@ import org.nutz.lang.util.Callback2;
 import org.nutz.walnut.api.io.WnObj;
 
 public abstract class WnWeb {
+
+    public static boolean isRequestOptions(HttpServletRequest req) {
+        String method = req.getMethod();
+        return "OPTIONS".equals(method);
+    }
 
     /**
      * 根据对象，判断是否应该返回用户的浏览器下载目标。

@@ -19,6 +19,7 @@ import org.nutz.walnut.api.hook.WnHookService;
 import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.util.Wn;
 import org.nutz.walnut.util.WnContext;
+import org.nutz.walnut.web.util.WnWeb;
 import org.nutz.web.ajax.AjaxReturn;
 import org.nutz.web.ajax.AjaxView;
 
@@ -77,6 +78,10 @@ public class WnCheckSession implements ActionFilter {
 
     @Override
     public View match(ActionContext ac) {
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(ac.getRequest())) {
+            return null;
+        }
 
         WnContext wc = Wn.WC();
         Ioc ioc = ac.getIoc();
