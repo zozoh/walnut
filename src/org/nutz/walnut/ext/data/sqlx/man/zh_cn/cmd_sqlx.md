@@ -13,6 +13,11 @@
 |-- pet.update.sql
 |-- pet.query.sql
 |-- pet.delete.sql
+
+#-----------------------
+# 例如 pet.query.sql哼哼哼哼哼哼。
+#-----------------------
+SELECT * FROM t_pet LIMIT ${limit<int>?100},${skip<int>?0}
 ```
 
 每个 SQL 文件实际上就是一个模板，它支持 `cmd_tmpl` 同样的语法。
@@ -88,36 +93,6 @@ Prepare Statement:
 @exec       # 执行指定的 SQL
 @trans      # 事务相关操作
 @json       # 定义输出结果的 JSON 格式化方式
-```
-
-```bash
-sqlx @vars '{name:"xiaobai", age:18}' @exec insert pet.add
-
-~/.sqlx/
-|-- pet.add.sql
-
-#-----------------------
-SELECT * FROM t_pet LIMIT ${limit<int>?100},${skip<int>?0}
-```
-
-```bash
-sqlx begin Trans A
-
-... 执行脚本其他逻辑 ...
-
-sqlx select
-
-o @query .....
-
-sys.exec(sqlx update)
-
-... 执行脚本其他逻辑 ...
-
-sys.exec(sqlx insert)
-
-... 执行脚本其他逻辑 ...
-
-sqlx @commit Trans A
 ```
 
 
