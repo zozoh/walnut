@@ -155,7 +155,7 @@ public class WnTmplToken {
         return this;
     }
 
-    public TmplSegment createSegment() {
+    public TmplSegment createSegment(WnTmplElementMaker tknMaker) {
         // 动态符号
         if (this.isRaceDynamic()) {
             // #if | #else-if
@@ -181,18 +181,24 @@ public class WnTmplToken {
 
         // 静态文本或者动态变量： 创建一个普通块
         BlockTmplSegment block = new BlockTmplSegment();
-        TmplEle ele = this.createElement();
+        TmplEle ele = this.createElement(tknMaker);
         block.addElement(ele);
         return block;
     }
 
-    public TmplEle createElement() {
+    public TmplEle createElement(WnTmplElementMaker tknMaker) {
         // 静态文本
         if (this.isRaceText()) {
             return new TmplStaticEle(this.content);
         }
         // 动态变量
         if (this.isTypeVar()) {
+            if (null != tknMaker) {
+                TmplEle ele = tknMaker.make(this.content);
+                if (null != ele) {
+                    return ele;
+                }
+            }
             return WnTmpl.createTmplEle(this.content);
         }
         // 其他不能创建

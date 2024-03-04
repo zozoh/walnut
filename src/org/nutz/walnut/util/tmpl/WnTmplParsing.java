@@ -25,6 +25,8 @@ import org.nutz.walnut.util.tmpl.segment.TmplSegment;
  */
 public class WnTmplParsing {
 
+    private WnTmplElementMaker tknMaker;
+
     private WnTmplTokenExpert expert;
 
     private WnTmplToken[] tokens;
@@ -33,7 +35,9 @@ public class WnTmplParsing {
 
     private WnTmplX tmpl;
 
-    public WnTmplParsing() {}
+    public WnTmplParsing(WnTmplElementMaker tknMaker) {
+        this.tknMaker = tknMaker;
+    }
 
     public WnTmplX parse(char[] cs) {
         // 根对象
@@ -114,7 +118,7 @@ public class WnTmplParsing {
             else if (t.isTypeIf()) {
                 BranchTmplSegment br = new BranchTmplSegment();
                 stack.push(br);
-                TmplSegment sg = t.createSegment();
+                TmplSegment sg = t.createSegment(this.tknMaker);
                 stack.push(sg);
             }
             // #else-if/else 检查栈顶的条件为 Branch+Condition
@@ -140,12 +144,12 @@ public class WnTmplParsing {
                 stack.push(lastSeg);
 
                 // 创建当前的条件
-                TmplSegment sg = t.createSegment();
+                TmplSegment sg = t.createSegment(this.tknMaker);
                 stack.push(sg);
             }
             // #loop 将会压栈 Loop
             else if (t.isTypeLoop()) {
-                TmplSegment sg = t.createSegment();
+                TmplSegment sg = t.createSegment(this.tknMaker);
                 stack.push(sg);
             }
             // 其他则肯定是静态文本或者占位符，作为元素压入栈顶
@@ -157,7 +161,7 @@ public class WnTmplParsing {
                     stack.push(block);
                     top = block;
                 }
-                TmplEle ele = t.createElement();
+                TmplEle ele = t.createElement(this.tknMaker);
                 top.addElement(ele);
 
             }

@@ -21,7 +21,7 @@ public class cmd_tmpl extends JvmFilterExecutor<TmplContext, TmplFilter> {
     @Override
     protected void output(WnSystem sys, TmplContext fc) {
         if (!fc.quiet) {
-            WnTmplX t = WnTmplX.parse(fc.expert, fc.tmpl);
+            WnTmplX t = WnTmplX.parse(null, fc.expert, fc.tmpl);
             String s = t.render(fc.vars, fc.showKeys);
             sys.out.println(s);
         }

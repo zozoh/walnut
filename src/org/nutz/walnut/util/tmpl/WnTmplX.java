@@ -13,15 +13,17 @@ import org.nutz.walnut.util.tmpl.segment.AbstractTmplSegment;
  */
 public class WnTmplX extends AbstractTmplSegment {
 
-    public static WnTmplX parse(WnTmplTokenExpert expert, String input) {
+    public static WnTmplX parse(WnTmplElementMaker tknMaker,
+                                WnTmplTokenExpert expert,
+                                String input) {
         char[] cs = input.toCharArray();
-        WnTmplParsing ing = new WnTmplParsing();
+        WnTmplParsing ing = new WnTmplParsing(tknMaker);
         ing.setExpert(expert);
         return ing.parse(cs);
     }
 
     public static WnTmplX parse(String input) {
-        return parse(null, input);
+        return parse(null, null, input);
     }
 
     public static WnTmplX parsef(String fmt, Object... args) {

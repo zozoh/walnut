@@ -28,7 +28,7 @@ SELECT * FROM t_pet LIMIT ${limit<int>?100},${skip<int>?0}
 # 假设上下文变量为
 vars = {name:"xiaobai", race:"cat", color:"white", age:6}
 
-# ${@vars=upsert; omit=^(race)}
+# ${@vars=upsert; omit=a,b,c}
 # 它将会从上下文变量中提取除了  race 以外所有的变量并生成
 # 适合 update 以及 insert 的字段列表：
 SQL Template: 
@@ -37,7 +37,7 @@ SQL Template:
 Prepare Statement:
     ["xiaobai", "white", 6]
 
-# ${@vars=where; pick=^(name|color|age)}
+# ${@vars=where; pick=^(name|color|age); ignoreNil;}
 # 它将会从上下文变量中提取 name|color|age 这三个变量并生成:
 SQL Template: 
     name=? AND color=? AND age=?
