@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.tmpl.ele.TmplBooleanEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDateEle;
 import org.nutz.walnut.util.tmpl.ele.TmplDoubleEle;
@@ -360,13 +359,12 @@ public class WnTmpl {
     }
 
     public String render(NutBean context, boolean showKey) {
-        StringBuilder sb = new StringBuilder();
-        if (null == context)
-            context = new NutMap();
+        WnTmplRenderContext rc = new WnTmplRenderContext(context);
+        rc.showKey = showKey;
         for (TmplEle ele : list) {
-            ele.join(sb, context, showKey);
+            ele.join(rc);
         }
-        return sb.toString();
+        return rc.sb.toString();
     }
 
     public List<String> keys() {

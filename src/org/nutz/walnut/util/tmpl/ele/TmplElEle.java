@@ -1,8 +1,8 @@
 package org.nutz.walnut.util.tmpl.ele;
 
 import org.nutz.el.El;
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.SimpleContext;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class TmplElEle extends TmplDynamicEle {
 
@@ -19,12 +19,12 @@ public class TmplElEle extends TmplDynamicEle {
     }
 
     @Override
-    public void join(StringBuilder sb, NutBean context, boolean showKey) {
+    public void join(WnTmplRenderContext rc) {
         SimpleContext ctx = new SimpleContext();
-        ctx.putAll(context);
+        ctx.putAll(rc.context);
         Object obj = el.eval(ctx);
         if (null != obj) {
-            sb.append(obj);
+            rc.sb.append(obj);
         }
     }
 

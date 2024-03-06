@@ -3,6 +3,7 @@ package org.nutz.walnut.util.tmpl.ele;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.mapl.Mapl;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public abstract class TmplDynamicEle implements TmplEle {
 
@@ -62,15 +63,16 @@ public abstract class TmplDynamicEle implements TmplEle {
         return sb.append('}').toString();
     }
 
-    public void join(StringBuilder sb, NutBean context, boolean showKey) {
+    @Override
+    public void join(WnTmplRenderContext rc) {
         // 看看有没有值
-        Object val = __get_val(context, key);
+        Object val = __get_val(rc.context, key);
 
         // 试图用默认键取值
         if (null == val) {
             // 默认键
             if (null != _dft_key) {
-                val = __get_val(context, _dft_key);
+                val = __get_val(rc.context, _dft_key);
             }
             // 默认值
             else if (null != _dft_val) {
@@ -83,13 +85,13 @@ public abstract class TmplDynamicEle implements TmplEle {
 
         // 如果木值
         if (null == str) {
-            if (showKey) {
-                sb.append("${").append(key).append('}');
+            if (rc.showKey) {
+                rc.sb.append("${").append(key).append('}');
             }
         }
         // 否则填充
         else {
-            sb.append(str);
+            rc.sb.append(str);
         }
     }
 

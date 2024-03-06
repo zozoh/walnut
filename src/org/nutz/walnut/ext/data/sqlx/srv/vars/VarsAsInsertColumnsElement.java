@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsInsertColumnsElement extends SqlVarsElement {
 
@@ -12,14 +13,14 @@ public class VarsAsInsertColumnsElement extends SqlVarsElement {
     }
 
     @Override
-    public void join(StringBuilder sb, NutBean context, boolean showKey) {
-        NutBean bean = this.getBean(context);
+    public void join(WnTmplRenderContext rc) {
+        NutBean bean = this.getBean(rc.context);
         int i = 0;
         for (Map.Entry<String, Object> en : bean.entrySet()) {
             if (i > 0) {
-                sb.append(",");
+                rc.sb.append(",");
             }
-            sb.append(en.getKey());
+            rc.sb.append(en.getKey());
             i++;
         }
     }

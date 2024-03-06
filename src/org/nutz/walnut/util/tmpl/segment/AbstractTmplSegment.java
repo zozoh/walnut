@@ -7,6 +7,7 @@ import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public abstract class AbstractTmplSegment implements TmplSegment {
@@ -23,10 +24,10 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     }
 
     @Override
-    public void renderTo(NutBean context, boolean showKey, StringBuilder sb) {
+    public void renderTo(WnTmplRenderContext rc) {
         if (null != children) {
             for (TmplSegment seg : children) {
-                seg.renderTo(context, showKey, sb);
+                seg.renderTo(rc);
             }
         }
     }

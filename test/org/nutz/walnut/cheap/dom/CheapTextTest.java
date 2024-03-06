@@ -8,13 +8,13 @@ public class CheapTextTest {
 
     @Test
     public void test_entities() {
-        CheapText t = new CheapText("A&nbsp;B");
+        CheapText t = new CheapText("A&nbsp;B", true);
         assertEquals("A B", t.decodeText());
 
-        t = new CheapText("&hellip;&hellip;");
+        t = new CheapText("&hellip;&hellip;", true);
         assertEquals("……", t.decodeText());
         
-        t = new CheapText("：&ldquo;X");
+        t = new CheapText("：&ldquo;X", true);
         assertEquals("：“X", t.decodeText());
     }
 

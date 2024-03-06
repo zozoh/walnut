@@ -3,6 +3,7 @@ package org.nutz.walnut.ext.data.sqlx.srv.vars;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsInsertValuesElement extends SqlVarsElement {
 
@@ -11,13 +12,13 @@ public class VarsAsInsertValuesElement extends SqlVarsElement {
     }
 
     @Override
-    public void join(StringBuilder sb, NutBean context, boolean showKey) {
-        NutBean bean = this.getBean(context);
+    public void join(WnTmplRenderContext rc) {
+        NutBean bean = this.getBean(rc.context);
         for (int i = 0; i < bean.size(); i++) {
             if (i > 0) {
-                sb.append(",");
+                rc.sb.append(",");
             }
-            sb.append('?');
+            rc.sb.append('?');
         }
     }
 

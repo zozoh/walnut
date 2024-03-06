@@ -7,6 +7,7 @@ import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public class BlockTmplSegment implements TmplSegment {
@@ -76,13 +77,14 @@ public class BlockTmplSegment implements TmplSegment {
     }
 
     public void renderTo(NutBean context, StringBuilder sb) {
-        this.renderTo(context, true, sb);
+        WnTmplRenderContext rc = new WnTmplRenderContext(sb, context);
+        this.renderTo(rc);
     }
 
     @Override
-    public void renderTo(NutBean context, boolean showKey, StringBuilder sb) {
+    public void renderTo(WnTmplRenderContext rc) {
         for (TmplEle ele : elements) {
-            ele.join(sb, context, showKey);
+            ele.join(rc);
         }
     }
 
@@ -107,8 +109,9 @@ public class BlockTmplSegment implements TmplSegment {
             sb.append(Ws.repeat("|   ", indent));
         }
         sb.append("<Block>");
+        WnTmplRenderContext rc = new WnTmplRenderContext(sb, true);
         for (TmplEle ele : elements) {
-            ele.join(sb, null, true);
+            ele.join(rc);
         }
 
     }

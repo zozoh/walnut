@@ -11,6 +11,10 @@ public class WnSqlTmpl {
 
     public static WnSqlTmpl parse(String input) {
         WnSqlElementMaker tknMaker = new WnSqlElementMaker();
+        return parse(input, tknMaker);
+    }
+
+    public static WnSqlTmpl parse(String input, WnSqlElementMaker tknMaker) {
         char[] cs = input.toCharArray();
         WnTmplParsing ing = new WnTmplParsing(tknMaker);
         ing.setExpert(null);
@@ -36,12 +40,17 @@ public class WnSqlTmpl {
      * @return 渲染后的 SQL 模板
      */
     public String render(NutBean context, List<String> params) {
+        SqlRenderContext rc = new SqlRenderContext();
+        rc.context = context;
+        rc.showKey = true;
+        rc.params = params;
         tmpl.eachDynamicElement((i, ele) -> {
             if (ele instanceof SqlVarsElement) {
                 ((SqlVarsElement) ele).joinParams(context, params);
             }
         });
-        return tmpl.render(context, true);
+        tmpl.renderTo(rc);
+        return rc.sb.toString();
     }
 
     public String toString() {

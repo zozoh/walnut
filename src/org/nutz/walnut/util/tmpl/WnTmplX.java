@@ -3,7 +3,6 @@ package org.nutz.walnut.util.tmpl;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.tmpl.segment.AbstractTmplSegment;
 
 /**
@@ -51,12 +50,10 @@ public class WnTmplX extends AbstractTmplSegment {
     }
 
     public String render(NutBean context, boolean showKey) {
-        if (null == context) {
-            context = new NutMap();
-        }
-        StringBuilder sb = new StringBuilder();
-        this.renderTo(context, showKey, sb);
-        return sb.toString();
+        WnTmplRenderContext rc = new WnTmplRenderContext(context);
+        rc.showKey = showKey;
+        this.renderTo(rc);
+        return rc.sb.toString();
     }
 
 }

@@ -1,13 +1,13 @@
 package org.nutz.walnut.util.tmpl.ele;
 
-import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public interface TmplEle {
-    
+
     boolean isDynamic();
-    
+
     String getContent();
 
-    void join(StringBuilder sb, NutBean context, boolean showKey);
+    void join(WnTmplRenderContext rc);
 
 }

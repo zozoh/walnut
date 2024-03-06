@@ -1,6 +1,6 @@
 package org.nutz.walnut.util.tmpl.ele;
 
-import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class TmplStaticEle implements TmplEle {
 
@@ -21,8 +21,8 @@ public class TmplStaticEle implements TmplEle {
     }
 
     @Override
-    public void join(StringBuilder sb, NutBean context, boolean showKey) {
-        sb.append(str);
+    public void join(WnTmplRenderContext rc) {
+        rc.sb.append(str);
     }
 
     @Override

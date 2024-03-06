@@ -1,10 +1,10 @@
 package org.nutz.walnut.util.tmpl.segment;
 
-import org.nutz.lang.util.NutBean;
 import org.nutz.mapl.Mapl;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
 import org.nutz.walnut.util.each.WnEachIteratee;
+import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class LoopTmplSegment extends AbstractTmplSegment {
 
@@ -33,29 +33,29 @@ public class LoopTmplSegment extends AbstractTmplSegment {
     }
 
     @Override
-    public void renderTo(NutBean context, boolean showKey, StringBuilder sb) {
+    public void renderTo(WnTmplRenderContext rc) {
         if (null == children) {
             return;
         }
-        Object oldVar = context.get(varName);
+        Object oldVar = rc.context.get(varName);
         Object oldInx = null;
         if (null != indexName) {
-            oldInx = context.get(indexName);
+            oldInx = rc.context.get(indexName);
         }
         // 得到循环对象
-        Object obj = Mapl.cell(context, looperName);
+        Object obj = Mapl.cell(rc.context, looperName);
 
         // 迭代逻辑
         final int baseI = this.base;
         WnEachIteratee<Object> iteratee = new WnEachIteratee<Object>() {
             public void invoke(int index, Object ele, Object src) {
-                context.put(varName, ele);
+                rc.context.put(varName, ele);
                 if (null != indexName) {
-                    context.put(indexName, index + baseI);
+                    rc.context.put(indexName, index + baseI);
                 }
 
                 for (TmplSegment seg : children) {
-                    seg.renderTo(context, showKey, sb);
+                    seg.renderTo(rc);
                 }
             }
         };
@@ -65,9 +65,9 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         }
         // 恢复
         finally {
-            context.put(varName, oldVar);
+            rc.context.put(varName, oldVar);
             if (null != indexName) {
-                context.put(indexName, oldInx);
+                rc.context.put(indexName, oldInx);
             }
         }
     }
