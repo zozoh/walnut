@@ -319,35 +319,35 @@ public class WnTmpl {
 
         // 创建元素
         if ("string".equals(type)) {
-            return new TmplStringEle(key, fmt, dft);
+            return new TmplStringEle(key, fmt, dft).setContent(s_match);
         }
         // int
         if ("int".equals(type)) {
-            return new TmplIntEle(key, fmt, dft);
+            return new TmplIntEle(key, fmt, dft).setContent(s_match);
         }
         // long
         if ("long".equals(type)) {
-            return new TmplLongEle(key, fmt, dft);
+            return new TmplLongEle(key, fmt, dft).setContent(s_match);
         }
         // boolean
         if ("boolean".equals(type)) {
-            return new TmplBooleanEle(key, fmt, dft);
+            return new TmplBooleanEle(key, fmt, dft).setContent(s_match);
         }
         // float
         if ("float".equals(type)) {
-            return new TmplFloatEle(key, fmt, dft);
+            return new TmplFloatEle(key, fmt, dft).setContent(s_match);
         }
         // double
         if ("double".equals(type)) {
-            return new TmplDoubleEle(key, fmt, dft);
+            return new TmplDoubleEle(key, fmt, dft).setContent(s_match);
         }
         // date
         if ("date".equals(type)) {
-            return new TmplDateEle(key, fmt, dft);
+            return new TmplDateEle(key, fmt, dft).setContent(s_match);
         }
         // json
         if ("json".equals(type)) {
-            return new TmplJsonEle(key, fmt, dft);
+            return new TmplJsonEle(key, fmt, dft).setContent(s_match);
         }
         // 靠不可能
         else {

@@ -3,6 +3,7 @@ package org.nutz.walnut.util.tmpl.segment;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
@@ -43,6 +44,59 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     @Override
     public void addElement(TmplEle ele) {
         throw Wlang.noImplement();
+    }
+
+    @Override
+    public void eachElement(Callback2<Integer, TmplEle> callback) {
+        if (null != children) {
+            final int[] IS = new int[]{0};
+            final Callback2<Integer, TmplEle> each = new Callback2<>() {
+                public void invoke(Integer _i, TmplEle ele) {
+                    int i = IS[0];
+                    callback.invoke(i, ele);
+                    IS[0]++;
+                }
+            };
+            for (TmplSegment child : children) {
+                child.eachElement(each);
+            }
+        }
+    }
+
+    @Override
+    public void eachDynamicElement(Callback2<Integer, TmplEle> callback) {
+        if (null != children) {
+            final int[] IS = new int[]{0};
+            final Callback2<Integer, TmplEle> each = new Callback2<>() {
+                public void invoke(Integer _i, TmplEle ele) {
+                    if (!ele.isDynamic()) {
+                        return;
+                    }
+                    int i = IS[0];
+                    callback.invoke(i, ele);
+                    IS[0]++;
+                }
+            };
+            for (TmplSegment child : children) {
+                child.eachElement(each);
+            }
+        }
+    }
+
+    @Override
+    public void joinDynamicElements(List<TmplEle> list) {
+        if (null != children) {
+            for (TmplSegment child : children) {
+                child.joinDynamicElements(list);
+            }
+        }
+    }
+
+    @Override
+    public List<TmplEle> getDynamicElements() {
+        List<TmplEle> list = new LinkedList<>();
+        this.joinDynamicElements(list);
+        return list;
     }
 
     @Override

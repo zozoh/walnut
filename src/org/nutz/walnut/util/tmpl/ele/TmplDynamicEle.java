@@ -6,6 +6,8 @@ import org.nutz.mapl.Mapl;
 
 public abstract class TmplDynamicEle implements TmplEle {
 
+    private String content;
+
     private String _type;
 
     protected String key;
@@ -106,6 +108,21 @@ public abstract class TmplDynamicEle implements TmplEle {
 
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public boolean isDynamic() {
+        return true;
+    }
+
+    @Override
+    public String getContent() {
+        return this.content;
+    }
+
+    public TmplDynamicEle setContent(String content) {
+        this.content = content;
+        return this;
     }
 
 }

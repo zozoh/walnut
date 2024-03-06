@@ -3,6 +3,7 @@ package org.nutz.walnut.util.tmpl;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
@@ -10,8 +11,37 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.walnut.util.Wlang;
+import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
 public class WnTmplXTest {
+
+    @Test
+    public void test_get_dyn_elements() {
+        WnTmplX t = WnTmplX.parse("A-${@a}-B${@b}");
+        String[] varNames = new String[2];
+        List<TmplEle> list = t.getDynamicElements();
+        t.eachDynamicElement((i, ele) -> {
+            if (ele.isDynamic()) {
+                varNames[i] = ele.getContent();
+            }
+        });
+        assertEquals(2, list.size());
+        assertEquals("@a", list.get(0).getContent());
+        assertEquals("@b", list.get(1).getContent());
+    }
+
+    @Test
+    public void test_each_dyn_elements() {
+        WnTmplX t = WnTmplX.parse("A-${@a}-B${@b}");
+        String[] varNames = new String[2];
+        t.eachDynamicElement((i, ele) -> {
+            if (ele.isDynamic()) {
+                varNames[i] = ele.getContent();
+            }
+        });
+        assertEquals("@a", varNames[0]);
+        assertEquals("@b", varNames[1]);
+    }
 
     @Test
     public void test_loop_in_loop() {
@@ -95,7 +125,7 @@ public class WnTmplXTest {
         String str = WnTmplX.exec(tmpl, vars);
         assertEquals("1.xiaobai;2.xiaohei;", str);
     }
-    
+
     @Test
     public void test_branch_if_note() {
         NutMap vars = Wlang.map("{a:100,b:20}");

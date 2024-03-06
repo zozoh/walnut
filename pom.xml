@@ -31,35 +31,18 @@
 			<url>http://wendal.net/</url>
 		</developer>
 	</developers>
-	<!-- scm>
-		<connection>scm:git:git://github.com/nutzam/nutz.git</connection>
-		<developerConnection>scm:git:git://github.com/nutzam/nutz.git</developerConnection>
-		<url>git://github.com/nutzam/nutz.git</url>
-	</scm-->
+	<!-- scm> <connection>scm:git:git://github.com/nutzam/nutz.git</connection> 
+		<developerConnection>scm:git:git://github.com/nutzam/nutz.git</developerConnection> 
+		<url>git://github.com/nutzam/nutz.git</url> </scm -->
 
 
 	<repositories>
-		<!-- repository>
-			<id>nutz-snapshots</id>
-			<url>https://jfrog.nutz.cn/artifactory/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-		<repository>
-			<id>nutz-libs</id>
-			<url>https://jfrog.nutz.cn/artifactory/lib-releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository-->
+		<!-- repository> <id>nutz-snapshots</id> <url>https://jfrog.nutz.cn/artifactory/snapshots</url> 
+			<snapshots> <enabled>true</enabled> <updatePolicy>always</updatePolicy> </snapshots> 
+			<releases> <enabled>false</enabled> </releases> </repository> <repository> 
+			<id>nutz-libs</id> <url>https://jfrog.nutz.cn/artifactory/lib-releases</url> 
+			<snapshots> <enabled>false</enabled> </snapshots> <releases> <enabled>true</enabled> 
+			</releases> </repository -->
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -72,7 +55,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
-<!--			<scope>provided</scope>-->
+			<!-- <scope>provided</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -122,11 +105,8 @@
 		</dependency>
 		<!--dependency> <groupId>org.nutz</groupId> <artifactId>nutz-web</artifactId> 
 			<version>${project.version}</version> </dependency -->
-		<!-- dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-email</artifactId>
-			<version>1.5</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-email</artifactId> 
+			<version>1.5</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-imaging</artifactId>
@@ -167,16 +147,10 @@
 			<artifactId>nutz-plugins-xmlbind</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-plugins-zdoc</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-integration-json4excel</artifactId>
-			<version>${project.version}</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>nutz-plugins-zdoc</artifactId> 
+			<version>${project.version}</version> </dependency> <dependency> <groupId>org.nutz</groupId> 
+			<artifactId>nutz-integration-json4excel</artifactId> <version>${project.version}</version> 
+			</dependency -->
 		<dependency>
 			<groupId>com.qiniu</groupId>
 			<artifactId>qiniu-java-sdk</artifactId>
@@ -203,11 +177,8 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-mipush-sdk</artifactId>
-			<version>3.0.MOD</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>nutz-mipush-sdk</artifactId> 
+			<version>3.0.MOD</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.ftpserver</groupId>
 			<artifactId>ftpserver-core</artifactId>
@@ -223,67 +194,47 @@
 			<artifactId>simplecaptcha</artifactId>
 			<version>1.2.2</version>
 		</dependency>
-		<!--dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
-        </dependency-->
-		<!-- dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.25</version>
+		<!--dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
+			<version>1.7.25</version> </dependency -->
+		<!-- dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
+			<version>1.7.25</version> </dependency> <dependency> <groupId>org.apache.commons</groupId> 
+			<artifactId>commons-email</artifactId> <version>1.5</version> </dependency -->
+		<!-- dependency> <groupId>com.sun.mail</groupId> <artifactId>javax.mail</artifactId> 
+			<version>1.6.2</version> </dependency -->
+		<dependency>
+			<groupId>org.simplejavamail</groupId>
+			<artifactId>simple-java-mail</artifactId>
+			<version>7.5.2</version>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>1.5</version>
-        </dependency-->
-        <!-- dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
-        </dependency-->
+			<groupId>org.simplejavamail</groupId>
+			<artifactId>smime-module</artifactId>
+			<version>7.8.1</version>
+		</dependency>
 		<dependency>
-            <groupId>org.simplejavamail</groupId>
-            <artifactId>simple-java-mail</artifactId>
-            <version>7.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.simplejavamail</groupId>
-            <artifactId>smime-module</artifactId>
-            <version>7.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>2.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.17.1</version>
-        </dependency>
-        <!-- dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <optional>true</optional>
-        </dependency-->
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>2.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<!-- dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
+			<version>1.2.17</version> <optional>true</optional> </dependency -->
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver-legacy</artifactId>
 			<version>4.6.0</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.subethamail</groupId>
-			<artifactId>subethasmtp</artifactId>
-			<version>3.1.7</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.subethamail</groupId> <artifactId>subethasmtp</artifactId> 
+			<version>3.1.7</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -325,11 +276,8 @@
 			<version>3.9.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>lessc4j</artifactId>
-			<version>2.7.2-SNAPSHOT</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>lessc4j</artifactId> 
+			<version>2.7.2-SNAPSHOT</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
@@ -378,11 +326,8 @@
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<!-- dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>jst</artifactId>
-			<version>1.0.3</version>
-		</dependency-->
+		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>jst</artifactId> 
+			<version>1.0.3</version> </dependency -->
 		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
 		<dependency>
 			<groupId>gov.nist.math</groupId>
@@ -471,10 +416,10 @@
 			<version>2.14.1</version>
 		</dependency>
 		<dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>msal4j</artifactId>
-            <version>1.13.4</version>
-        </dependency>
+			<groupId>com.microsoft.azure</groupId>
+			<artifactId>msal4j</artifactId>
+			<version>1.13.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>

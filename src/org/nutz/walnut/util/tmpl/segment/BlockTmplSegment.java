@@ -3,6 +3,7 @@ package org.nutz.walnut.util.tmpl.segment;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
 import org.nutz.walnut.util.Wlang;
 import org.nutz.walnut.util.Ws;
@@ -34,18 +35,45 @@ public class BlockTmplSegment implements TmplSegment {
         elements.addAll(eles);
     }
 
-//    public String render(NutBean context) {
-//        return render(context, true);
-//    }
-//
-//    public String render(NutBean context, boolean showKey) {
-//        if (null == context) {
-//            context = new NutMap();
-//        }
-//        StringBuilder sb = new StringBuilder();
-//        renderTo(context, showKey, sb);
-//        return sb.toString();
-//    }
+    @Override
+    public void eachElement(Callback2<Integer, TmplEle> callback) {
+        if (null != elements) {
+            int i = 0;
+            for (TmplEle ele : elements) {
+                callback.invoke(i++, ele);
+            }
+        }
+    }
+
+    @Override
+    public void eachDynamicElement(Callback2<Integer, TmplEle> callback) {
+        if (null != elements) {
+            int i = 0;
+            for (TmplEle ele : elements) {
+                if (ele.isDynamic()) {
+                    callback.invoke(i++, ele);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void joinDynamicElements(List<TmplEle> list) {
+        if (null != elements) {
+            for (TmplEle ele : elements) {
+                if (ele.isDynamic()) {
+                    list.add(ele);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<TmplEle> getDynamicElements() {
+        List<TmplEle> list = new LinkedList<>();
+        this.joinDynamicElements(list);
+        return list;
+    }
 
     public void renderTo(NutBean context, StringBuilder sb) {
         this.renderTo(context, true, sb);
