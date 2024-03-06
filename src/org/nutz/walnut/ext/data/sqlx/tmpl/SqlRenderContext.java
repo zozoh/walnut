@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.data.sqlx.srv;
+package org.nutz.walnut.ext.data.sqlx.tmpl;
 
 import java.util.List;
 

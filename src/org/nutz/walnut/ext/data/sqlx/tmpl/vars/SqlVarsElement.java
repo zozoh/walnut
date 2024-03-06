@@ -1,6 +1,5 @@
-package org.nutz.walnut.ext.data.sqlx.srv.vars;
+package org.nutz.walnut.ext.data.sqlx.tmpl.vars;
 
-import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
@@ -80,8 +79,6 @@ public abstract class SqlVarsElement implements TmplEle {
         }
         return bean;
     }
-
-    public abstract void joinParams(NutBean context, List<String> params);
 
     @Override
     public boolean isDynamic() {

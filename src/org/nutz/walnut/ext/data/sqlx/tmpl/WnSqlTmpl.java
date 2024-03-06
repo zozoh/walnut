@@ -1,9 +1,8 @@
-package org.nutz.walnut.ext.data.sqlx.srv;
+package org.nutz.walnut.ext.data.sqlx.tmpl;
 
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.walnut.ext.data.sqlx.srv.vars.SqlVarsElement;
 import org.nutz.walnut.util.tmpl.WnTmplParsing;
 import org.nutz.walnut.util.tmpl.WnTmplX;
 
@@ -36,7 +35,7 @@ public class WnSqlTmpl {
      * @param context
      *            变量上下文
      * @param params
-     *            参数表，如果传 null，则无视
+     *            参数表，如果传 null，则无视,将模板转换为传统的 SQL 语句
      * @return 渲染后的 SQL 模板
      */
     public String render(NutBean context, List<String> params) {
@@ -44,14 +43,10 @@ public class WnSqlTmpl {
         rc.context = context;
         rc.showKey = true;
         rc.params = params;
-        tmpl.eachDynamicElement((i, ele) -> {
-            if (ele instanceof SqlVarsElement) {
-                ((SqlVarsElement) ele).joinParams(context, params);
-            }
-        });
         tmpl.renderTo(rc);
         return rc.sb.toString();
     }
+    
 
     public String toString() {
         return tmpl.toString();

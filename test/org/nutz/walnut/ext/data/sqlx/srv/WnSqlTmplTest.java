@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.lang.util.NutMap;
+import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
 public class WnSqlTmplTest {
 
@@ -35,6 +36,9 @@ public class WnSqlTmplTest {
         assertEquals(2, params.size());
         assertEquals("a", params.get(0));
         assertEquals("b", params.get(1));
+        
+        sql = sqlt.render(context, null);
+        assertEquals("INSERT INTO t_pet(a,b) VALUES ('A',100)", sql);
     }
 
     @Test
@@ -48,5 +52,8 @@ public class WnSqlTmplTest {
         assertEquals(2, params.size());
         assertEquals("a", params.get(0));
         assertEquals("b", params.get(1));
+        
+        sql = sqlt.render(context, null);
+        assertEquals("UPDATE t_pet SET a='A',b=100", sql);
     }
 }

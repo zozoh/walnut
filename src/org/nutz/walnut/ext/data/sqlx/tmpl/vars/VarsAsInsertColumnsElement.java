@@ -1,6 +1,5 @@
-package org.nutz.walnut.ext.data.sqlx.srv.vars;
+package org.nutz.walnut.ext.data.sqlx.tmpl.vars;
 
-import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
@@ -17,15 +16,15 @@ public class VarsAsInsertColumnsElement extends SqlVarsElement {
         NutBean bean = this.getBean(rc.context);
         int i = 0;
         for (Map.Entry<String, Object> en : bean.entrySet()) {
+            // 模板字段分隔符
             if (i > 0) {
                 rc.sb.append(",");
             }
+            // 记入模板字段
             rc.sb.append(en.getKey());
+            // 计数
             i++;
         }
     }
-
-    @Override
-    public void joinParams(NutBean context, List<String> params) {}
 
 }

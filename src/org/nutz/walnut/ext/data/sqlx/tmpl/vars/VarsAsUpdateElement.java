@@ -1,10 +1,10 @@
-package org.nutz.walnut.ext.data.sqlx.srv.vars;
+package org.nutz.walnut.ext.data.sqlx.tmpl.vars;
 
-import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.walnut.ext.data.sqlx.srv.SqlRenderContext;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
+import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
 import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsUpdateElement extends SqlVarsElement {
@@ -22,21 +22,27 @@ public class VarsAsUpdateElement extends SqlVarsElement {
         NutBean bean = this.getBean(rc.context);
         int i = 0;
         for (Map.Entry<String, Object> en : bean.entrySet()) {
-            if (null != src) {
-                src.params.add(en.getKey());
-            }
+
+            // 模板字段分隔符
             if (i > 0) {
                 rc.sb.append(",");
             }
-            rc.sb.append(en.getKey()).append("=?");
+
+            // 记入动态参数
+            if (null != src && null != src.params) {
+                src.params.add(en.getKey());
+                src.sb.append(en.getKey()).append("=?");
+            }
+            // 采用传统的 SQL 方式
+            else {
+                Object val = en.getValue();
+                String vs = WnSqls.valueToSqlExp(val);
+                rc.sb.append(en.getKey()).append('=').append(vs);
+            }
+
+            // 计数
             i++;
         }
-    }
-
-    @Override
-    public void joinParams(NutBean context, List<String> params) {
-        NutBean bean = this.getBean(context);
-        params.addAll(bean.keySet());
     }
 
 }

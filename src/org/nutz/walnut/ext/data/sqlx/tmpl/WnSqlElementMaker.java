@@ -1,10 +1,10 @@
-package org.nutz.walnut.ext.data.sqlx.srv;
+package org.nutz.walnut.ext.data.sqlx.tmpl;
 
 import org.nutz.walnut.api.err.Er;
-import org.nutz.walnut.ext.data.sqlx.srv.vars.VarsAsInsertColumnsElement;
-import org.nutz.walnut.ext.data.sqlx.srv.vars.VarsAsInsertValuesElement;
-import org.nutz.walnut.ext.data.sqlx.srv.vars.VarsAsUpdateElement;
-import org.nutz.walnut.ext.data.sqlx.srv.vars.VarsAsWhereElement;
+import org.nutz.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertColumnsElement;
+import org.nutz.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertValuesElement;
+import org.nutz.walnut.ext.data.sqlx.tmpl.vars.VarsAsUpdateElement;
+import org.nutz.walnut.ext.data.sqlx.tmpl.vars.VarsAsWhereElement;
 import org.nutz.walnut.util.tmpl.WnTmplElementMaker;
 import org.nutz.walnut.util.tmpl.ele.TmplEle;
 
