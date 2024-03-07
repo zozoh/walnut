@@ -30,7 +30,7 @@ public class VarsAsUpdateElement extends SqlVarsElement {
 
             // 记入动态参数
             if (null != src && null != src.params) {
-                src.params.add(en.getKey());
+                src.params.add(en.getValue());
                 src.sb.append(en.getKey()).append("=?");
             }
             // 采用传统的 SQL 方式

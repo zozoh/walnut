@@ -38,7 +38,7 @@ public class WnSqlTmpl {
      *            参数表，如果传 null，则无视,将模板转换为传统的 SQL 语句
      * @return 渲染后的 SQL 模板
      */
-    public String render(NutBean context, List<String> params) {
+    public String render(NutBean context, List<Object> params) {
         SqlRenderContext rc = new SqlRenderContext();
         rc.context = context;
         rc.showKey = true;

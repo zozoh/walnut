@@ -2,7 +2,11 @@ package org.nutz.walnut.ext.data.sqlx.ast;
 
 import java.util.List;
 
+import org.nutz.walnut.ext.data.sqlx.expert.SqlDialect;
+
 public abstract class SqlCriteriaNode {
+
+    protected SqlDialect dialect;
 
     private boolean not;
 
@@ -38,6 +42,22 @@ public abstract class SqlCriteriaNode {
         this.not = !this.not;
     }
 
+    public void and(SqlCriteriaNode next) {
+        this.nextJoin = SqlCriJoin.AND;
+        this.nextNode = next;
+        if (next != null) {
+            next.dialect = this.dialect;
+        }
+    }
+
+    public void or(SqlCriteriaNode next) {
+        this.nextJoin = SqlCriJoin.OR;
+        this.nextNode = next;
+        if (next != null) {
+            next.dialect = this.dialect;
+        }
+    }
+
     public boolean hasNextNode() {
         return null != nextNode;
     }
@@ -46,8 +66,11 @@ public abstract class SqlCriteriaNode {
         return nextNode;
     }
 
-    public void setNextNode(SqlCriteriaNode nextNode) {
-        this.nextNode = nextNode;
+    public void setNextNode(SqlCriteriaNode next) {
+        this.nextNode = next;
+        if (next != null) {
+            next.dialect = this.dialect;
+        }
     }
 
     public SqlCriJoin getNextJoin() {
@@ -56,6 +79,14 @@ public abstract class SqlCriteriaNode {
 
     public void setNextJoin(SqlCriJoin nextJoin) {
         this.nextJoin = nextJoin;
+    }
+
+    public SqlDialect getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(SqlDialect expert) {
+        this.dialect = expert;
     }
 
 }

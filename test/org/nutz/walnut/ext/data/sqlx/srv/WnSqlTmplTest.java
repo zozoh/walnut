@@ -30,12 +30,12 @@ public class WnSqlTmplTest {
                    + " VALUES (${@vars=insert.values; pick=a,b})";
         NutMap context = NutMap.WRAP("{a:'A',b:100,c:false,d:'D'}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<String> params = new ArrayList<>(2);
+        List<Object> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("INSERT INTO t_pet(a,b) VALUES (?,?)", sql);
         assertEquals(2, params.size());
-        assertEquals("a", params.get(0));
-        assertEquals("b", params.get(1));
+        assertEquals("A", params.get(0));
+        assertEquals(100, params.get(1));
         
         sql = sqlt.render(context, null);
         assertEquals("INSERT INTO t_pet(a,b) VALUES ('A',100)", sql);
@@ -46,12 +46,12 @@ public class WnSqlTmplTest {
         String s = "UPDATE t_pet SET ${@vars=update; pick=a,b}";
         NutMap context = NutMap.WRAP("{a:'A',b:100,c:false,d:'D'}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<String> params = new ArrayList<>(2);
+        List<Object> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("UPDATE t_pet SET a=?,b=?", sql);
         assertEquals(2, params.size());
-        assertEquals("a", params.get(0));
-        assertEquals("b", params.get(1));
+        assertEquals("A", params.get(0));
+        assertEquals(100, params.get(1));
         
         sql = sqlt.render(context, null);
         assertEquals("UPDATE t_pet SET a='A',b=100", sql);
