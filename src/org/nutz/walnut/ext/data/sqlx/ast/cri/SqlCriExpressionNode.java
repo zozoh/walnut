@@ -1,4 +1,6 @@
-package org.nutz.walnut.ext.data.sqlx.ast;
+package org.nutz.walnut.ext.data.sqlx.ast.cri;
+
+import org.nutz.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 
 public abstract class SqlCriExpressionNode extends SqlCriteriaNode {
 

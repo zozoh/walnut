@@ -1,7 +1,8 @@
-package org.nutz.walnut.ext.data.sqlx.ast;
+package org.nutz.walnut.ext.data.sqlx.ast.cri;
 
 import java.util.List;
 
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
 
 public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
@@ -14,8 +15,8 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
     }
 
     @Override
-    public void joinParams(List<Object> params) {
-        params.add(this.regex);
+    protected void _join_self_params(List<SqlCriParam> params) {
+        params.add(new SqlCriParam(name, regex));
     }
 
     @Override

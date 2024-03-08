@@ -18,10 +18,10 @@ public class VarsAsInsertColumnsElement extends SqlVarsElement {
         for (Map.Entry<String, Object> en : bean.entrySet()) {
             // 模板字段分隔符
             if (i > 0) {
-                rc.sb.append(",");
+                rc.out.append(",");
             }
             // 记入模板字段
-            rc.sb.append(en.getKey());
+            rc.out.append(en.getKey());
             // 计数
             i++;
         }

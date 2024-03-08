@@ -22,7 +22,7 @@ public class TmplStaticEle implements TmplEle {
 
     @Override
     public void join(WnTmplRenderContext rc) {
-        rc.sb.append(str);
+        rc.out.append(str);
     }
 
     @Override

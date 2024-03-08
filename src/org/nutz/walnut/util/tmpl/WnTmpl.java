@@ -364,7 +364,7 @@ public class WnTmpl {
         for (TmplEle ele : list) {
             ele.join(rc);
         }
-        return rc.sb.toString();
+        return rc.out.toString();
     }
 
     public List<String> keys() {

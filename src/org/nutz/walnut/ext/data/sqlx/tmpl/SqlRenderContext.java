@@ -6,6 +6,6 @@ import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
 
 public class SqlRenderContext extends WnTmplRenderContext {
 
-    public List<Object> params;
+    public List<SqlCriParam> params;
 
 }

@@ -1,4 +1,4 @@
-package org.nutz.walnut.ext.data.sqlx.ast;
+package org.nutz.walnut.ext.data.sqlx.ast.cri;
 
 import java.util.Date;
 import java.util.List;
@@ -8,12 +8,13 @@ import org.nutz.lang.util.FloatRegion;
 import org.nutz.lang.util.IntRegion;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.Region;
-import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
 import org.nutz.walnut.util.Wregion;
 
 public class SqlCriExpRangeNode extends SqlCriExpressionNode {
 
-    public static SqlCriExpRangeNode tryParse(String name, String s) {
+    public static SqlCriExpRangeNode tryParse(String name, String str) {
+        String s = Wregion.extend_rg_macro(str);
         // 整数范围
         if (s.matches(Wregion.intRegion())) {
             IntRegion rg = Region.Int(s);
@@ -38,8 +39,8 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         }
         // 日期范围当做毫秒数
         else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
-            String str = s.substring(2);
-            DateRegion rg = Region.Date(str);
+            String s2 = s.substring(2);
+            DateRegion rg = Region.Date(s2);
 
             LongRegion rg2 = new LongRegion();
             rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());
@@ -58,55 +59,62 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         return null;
     }
 
-    private Region<?> range;
+    private SqlCriExpSimpleNode left;
+
+    private SqlCriExpSimpleNode right;
 
     public SqlCriExpRangeNode(String name, Region<?> range) {
         super(name);
-        this.range = range;
+        if (!range.isNull()) {
+            Object l = range.left();
+            if (null != l) {
+                if (range.isLeftOpen()) {
+                    this.left = new SqlCriExpSimpleGtNode(name, l);
+                } else {
+                    this.left = new SqlCriExpSimpleGteNode(name, l);
+                }
+            }
+
+            Object r = range.right();
+            if (null != r) {
+                if (range.isRightOpen()) {
+                    this.right = new SqlCriExpSimpleLtNode(name, r);
+                } else {
+                    this.right = new SqlCriExpSimpleLteNode(name, r);
+                }
+            }
+        }
     }
 
     @Override
-    public void joinParams(List<Object> params) {
-        if (range.isRegion()) {
-            if (null != range.left()) {
-                params.add(range.left());
-            }
-            if (null != range.right()) {
-                params.add(range.right());
-            }
+    protected void _join_self_params(List<SqlCriParam> params) {
+        if (null != left) {
+            left._join_self_params(params);
+        }
+        if (null != right) {
+            right._join_self_params(params);
         }
     }
 
     @Override
     protected void _join_self(StringBuilder sb, boolean useParams) {
-        // 采用语句参数
-        if (useParams) {
-            if (null != range.left()) {
-                sb.append(this.name);
-                sb.append(range.leftOpt(">", ">="));
-                sb.append("?");
-            }
-            if (null != range.right()) {
-                sb.append(this.name);
-                sb.append(range.rightOpt("<", "<="));
-                sb.append("?");
-            }
+        // 范围
+        if (null != left && null != right) {
+            sb.append("(");
+            left._join_self(sb, useParams);
+            sb.append(" AND ");
+            right._join_self(sb, useParams);
+            sb.append(")");
         }
-        // 采用普通语句
-        else {
-            if (null != range.left()) {
-                String left = WnSqls.valueToSqlExp(range.left());
-                sb.append(this.name);
-                sb.append(range.leftOpt(">", ">="));
-                sb.append(left);
-            }
-            if (null != range.right()) {
-                String right = WnSqls.valueToSqlExp(range.right());
-                sb.append(this.name);
-                sb.append(range.rightOpt("<", "<="));
-                sb.append(right);
-            }
+        // 仅左值
+        else if (null != left) {
+            left._join_self(sb, useParams);
         }
+        // 仅右值
+        else if (null != right) {
+            right._join_self(sb, useParams);
+        }
+
     }
 
 }

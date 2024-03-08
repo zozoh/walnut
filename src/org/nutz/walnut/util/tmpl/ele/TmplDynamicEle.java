@@ -86,12 +86,12 @@ public abstract class TmplDynamicEle implements TmplEle {
         // 如果木值
         if (null == str) {
             if (rc.showKey) {
-                rc.sb.append("${").append(key).append('}');
+                rc.out.append("${").append(key).append('}');
             }
         }
         // 否则填充
         else {
-            rc.sb.append(str);
+            rc.out.append(str);
         }
     }
 

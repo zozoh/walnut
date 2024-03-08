@@ -53,7 +53,7 @@ public class WnTmplX extends AbstractTmplSegment {
         WnTmplRenderContext rc = new WnTmplRenderContext(context);
         rc.showKey = showKey;
         this.renderTo(rc);
-        return rc.sb.toString();
+        return rc.out.toString();
     }
 
 }

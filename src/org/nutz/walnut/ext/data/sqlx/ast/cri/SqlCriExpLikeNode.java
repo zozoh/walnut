@@ -1,8 +1,9 @@
-package org.nutz.walnut.ext.data.sqlx.ast;
+package org.nutz.walnut.ext.data.sqlx.ast.cri;
 
 import java.util.List;
 
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
 
 public class SqlCriExpLikeNode extends SqlCriExpressionNode {
 
@@ -14,8 +15,8 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
     }
 
     @Override
-    public void joinParams(List<Object> params) {
-        params.add(this.like);
+    protected void _join_self_params(List<SqlCriParam> params) {
+        params.add(new SqlCriParam(name, like));
     }
 
     @Override
@@ -47,5 +48,5 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
             }
         }
     }
-    
+
 }

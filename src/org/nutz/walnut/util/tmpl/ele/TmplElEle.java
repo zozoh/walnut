@@ -24,7 +24,7 @@ public class TmplElEle extends TmplDynamicEle {
         ctx.putAll(rc.context);
         Object obj = el.eval(ctx);
         if (null != obj) {
-            rc.sb.append(obj);
+            rc.out.append(obj);
         }
     }
 
