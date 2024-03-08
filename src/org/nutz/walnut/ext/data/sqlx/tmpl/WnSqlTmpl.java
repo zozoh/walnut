@@ -3,10 +3,17 @@ package org.nutz.walnut.ext.data.sqlx.tmpl;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.walnut.ext.data.sqlx.loader.SqlEntry;
 import org.nutz.walnut.util.tmpl.WnTmplParsing;
 import org.nutz.walnut.util.tmpl.WnTmplX;
 
 public class WnSqlTmpl {
+    
+    public static WnSqlTmpl parse(SqlEntry sqle) {
+        WnSqlElementMaker tknMaker = new WnSqlElementMaker(sqle);
+        String input = sqle.getContent();
+        return parse(input, tknMaker);
+    }
 
     public static WnSqlTmpl parse(String input) {
         WnSqlElementMaker tknMaker = new WnSqlElementMaker();

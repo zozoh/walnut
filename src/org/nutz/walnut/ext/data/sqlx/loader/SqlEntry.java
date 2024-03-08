@@ -1,28 +1,46 @@
 package org.nutz.walnut.ext.data.sqlx.loader;
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.Streams;
 import org.nutz.walnut.util.Ws;
 
 public class SqlEntry {
 
-    static Pattern _P = Pattern.compile("^@([a-z0-9_]+)=(.+)$");
+    public static List<SqlEntry> load(InputStream ins) {
+        try {
+            Reader r = Streams.utf8r(ins);
+            String str = Streams.readAndClose(r);
+            return load(str);
+        }
+        finally {
+            Streams.safeClose(ins);
+        }
+    }
+
+    static Pattern _P = Pattern.compile("^@([a-z0-9_]+)\\s*=\\s*(.+)$");
 
     public static List<SqlEntry> load(String input) {
-        List<SqlEntry> list = new LinkedList<>();
         String[] lines = input.split("\r?\n");
+        return loadLines(lines);
+    }
+
+    public static List<SqlEntry> loadLines(String[] lines) {
+        List<SqlEntry> list = new LinkedList<>();
 
         SqlEntry en = null;
         StringBuilder sb = null;
         for (String line : lines) {
             // 特殊注释行，就开始一个新实体
             if (line.startsWith("--")) {
-                // 推入老实体
-                if (null != en && en.hasName()) {
+                // 推入老实体： 如果标识了元数据，且已经开始读取内容行
+                if (null != en && en.hasName() && sb.length() > 0) {
                     en.content = Ws.trim(sb);
                     list.add(en);
                     // 清理老实体
@@ -49,11 +67,19 @@ public class SqlEntry {
             // 其他行，就作为 SQL 模板
             else if (null != sb) {
                 if (sb.length() > 0) {
-                    sb.append('\n');
+                    sb.append(' ');
                 }
                 sb.append(line);
             }
         }
+        // 推入最后一个实体
+        if (null != en && en.hasName()) {
+            en.content = Ws.trim(sb);
+            list.add(en);
+            // 清理老实体
+            en = null;
+        }
+        // 返回列表
         return list;
     }
 

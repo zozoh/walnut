@@ -12,11 +12,11 @@ public abstract class SqlVarsElement implements TmplEle {
 
     private String content;
 
-    protected String[] picks;
+    protected String[] pick;
 
-    protected String[] omits;
+    protected String[] omit;
 
-    protected boolean ignoreNil;
+    protected Boolean ignoreNil;
 
     /**
      * 处理这样的占位符:
@@ -37,11 +37,11 @@ public abstract class SqlVarsElement implements TmplEle {
             for (String s : ss) {
                 // pick=name,color,age
                 if (s.startsWith("pick=")) {
-                    this.picks = Ws.splitIgnoreBlank(s.substring(5));
+                    this.pick = Ws.splitIgnoreBlank(s.substring(5));
                 }
                 // omit=city,country
                 else if (s.startsWith("omit=")) {
-                    this.omits = Ws.splitIgnoreBlank(s.substring(5));
+                    this.omit = Ws.splitIgnoreBlank(s.substring(5));
                 }
                 // ignoreNil
                 else if (s.equals("ignoreNil")) {
@@ -58,15 +58,15 @@ public abstract class SqlVarsElement implements TmplEle {
 
     protected NutBean getBean(NutBean context) {
         NutBean bean = new NutMap();
-        if (this.picks != null) {
-            bean = context.pick(this.picks);
+        if (this.pick != null) {
+            bean = context.pick(this.pick);
         } else {
             bean.putAll(context);
         }
-        if (this.omits != null) {
-            bean = bean.omit(this.omits);
+        if (this.omit != null) {
+            bean = bean.omit(this.omit);
         }
-        if (this.ignoreNil) {
+        if (null!=this.ignoreNil && this.ignoreNil.booleanValue()) {
             NutBean bean2 = new NutMap();
             for (Map.Entry<String, Object> en : bean.entrySet()) {
                 Object val = en.getValue();
@@ -92,6 +92,42 @@ public abstract class SqlVarsElement implements TmplEle {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean hasPick() {
+        return null != pick;
+    }
+
+    public String[] getPick() {
+        return pick;
+    }
+
+    public void setPick(String[] picks) {
+        this.pick = picks;
+    }
+
+    public boolean hasOmit() {
+        return null != omit;
+    }
+
+    public String[] getOmit() {
+        return omit;
+    }
+
+    public void setOmit(String[] omits) {
+        this.omit = omits;
+    }
+
+    public boolean hasIgnoreNil() {
+        return null != ignoreNil;
+    }
+
+    public boolean isIgnoreNil() {
+        return ignoreNil;
+    }
+
+    public void setIgnoreNil(Boolean ignoreNil) {
+        this.ignoreNil = ignoreNil;
     }
 
 }
