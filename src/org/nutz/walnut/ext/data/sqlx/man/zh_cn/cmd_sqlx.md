@@ -32,10 +32,10 @@
 -- @pick=x,y,z
 -- @ignoreNil=true
 -- 通过访问 pet.query 即可获取本条语句的模板
-SELECT * FROM t_pet WHERE ${vars=where};
+SELECT * FROM t_pet WHERE ${@vars=where};
 -------------------------------------------------
 -- @name=update
-UPDATE t_pet SET${vars=update} WHERE id=?;
+UPDATE t_pet SET${@vars=update} WHERE id=?;
 ```
 
 # 用法
@@ -46,5 +46,6 @@ UPDATE t_pet SET${vars=update} WHERE id=?;
 @vars       # 为当前上下文指定变量集合
 @exec       # 执行指定的 SQL
 @trans      # 事务相关操作
+@view       # 测试 SQL 的渲染结果
 @json       # 定义输出结果的 JSON 格式化方式
 ```

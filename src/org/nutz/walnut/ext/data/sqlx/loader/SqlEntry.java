@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
+import org.nutz.json.Json;
 import org.nutz.lang.Streams;
 import org.nutz.walnut.util.Ws;
 
@@ -94,6 +95,31 @@ public class SqlEntry {
     private Boolean defaultIgnoreNil;
 
     private String content;
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (null != name) {
+            sb.append("@[").append(this.name).append("] ");
+        }
+        if (null != type) {
+            sb.append("<").append(this.type).append("> ");
+        }
+        if (null != defaultPick) {
+            sb.append("pick=(").append(Json.toJson(defaultPick));
+            sb.append("); ");
+        }
+        if (null != defaultOmit) {
+            sb.append("omit=(").append(Json.toJson(defaultOmit));
+            sb.append("); ");
+        }
+        if (null != this.defaultIgnoreNil && this.defaultIgnoreNil) {
+            sb.append("!NIL");
+        }
+        if (null != this.content) {
+            sb.append("\n   >> ").append(this.content);
+        }
+        return sb.toString();
+    }
 
     public void set(String key, String val) {
         String str = Ws.trim(val);

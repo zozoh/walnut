@@ -665,7 +665,7 @@ public class Ws {
         StringBuilder sb = new StringBuilder();
         if (len > 0) {
             int lastI = Math.min(arr.length - 1, off + len);
-            for (int i = off; i <= lastI; i++) {
+            for (int i = off; i < lastI; i++) {
                 if (i > off)
                     sb.append(sep);
                 sb.append(arr[i]);

@@ -18,7 +18,7 @@ import org.nutz.walnut.util.Ws;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnSqlHolder implements SqlEntryHolder {
+public class WnSqlHolder implements SqlHolder {
 
     private WnIo io;
     private WnObj oDir;
@@ -29,18 +29,34 @@ public class WnSqlHolder implements SqlEntryHolder {
     }
 
     public WnSqlHolder(WnIo io, WnObj oHome) {
+        this();
         this.io = io;
         this.oDir = oHome;
     }
 
     public WnSqlHolder(WnIo io, WnAuthSession session) {
+        this();
         this.io = io;
         this.oDir = Wn.checkObj(io, session, "~/.sqlx");
     }
 
     public WnSqlHolder(WnSystem sys) {
+        this();
         this.io = sys.io;
         this.oDir = Wn.checkObj(sys, "~/.sqlx");
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder(String.format("CACHE %d Items", cache.size()));
+        int i = 1;
+        for (Map.Entry<String, SqlEntry> en : cache.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            sb.append("\n--------------------------------------------");
+            sb.append(String.format("\n%d) %s => %s", i++, key, val.toString()));
+        }
+        sb.append("\n--------------------------------------------");
+        return sb.toString();
     }
 
     @Override
@@ -68,7 +84,7 @@ public class WnSqlHolder implements SqlEntryHolder {
 
     private SqlEntry loadEntry(String key) {
         SqlEntry sqle = null;
-        String[] ss = Ws.splitIgnoreBlank(key, ".");
+        String[] ss = Ws.splitIgnoreBlank(key, "[.]");
         if (ss.length < 2) {
             throw Er.create("e.sqlx.invalidKeyPath", key);
         }
@@ -79,7 +95,7 @@ public class WnSqlHolder implements SqlEntryHolder {
         String path = Ws.join(ss, "/", 0, ss.length - 1) + ".sql";
 
         // 获取对象
-        WnObj obj = Wn.checkObj(io, oDir, path);
+        WnObj obj = io.check(oDir, path);
         String str = io.readText(obj);
 
         // 解析并循环计入缓存
@@ -95,6 +111,11 @@ public class WnSqlHolder implements SqlEntryHolder {
         }
 
         return sqle;
+    }
+
+    @Override
+    public void reset() {
+        cache.clear();
     }
 
 }

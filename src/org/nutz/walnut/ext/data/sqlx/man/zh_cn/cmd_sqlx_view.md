@@ -13,7 +13,6 @@
 ```bash
 sqlx @view 
   [sqlName]      # sql 模板的名称
-  [-tidy]        # 移除行注释和头注释
 ```
 
 
