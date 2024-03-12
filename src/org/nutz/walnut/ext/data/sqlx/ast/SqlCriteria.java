@@ -75,7 +75,7 @@ public abstract class SqlCriteria {
             ex = strToExp(key, val.toString());
         }
         // 数字类型
-        else if (val instanceof Number) {
+        else if ((val instanceof Number) || (val instanceof Boolean)) {
             ex = new SqlCriExpSimpleEqNode(key, val);
         }
         // 范围

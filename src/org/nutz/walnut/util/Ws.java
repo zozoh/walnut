@@ -664,7 +664,7 @@ public class Ws {
     public static <T extends Object> String join(T[] arr, String sep, int off, int len) {
         StringBuilder sb = new StringBuilder();
         if (len > 0) {
-            int lastI = Math.min(arr.length - 1, off + len);
+            int lastI = Math.min(arr.length, off + len);
             for (int i = off; i < lastI; i++) {
                 if (i > off)
                     sb.append(sep);

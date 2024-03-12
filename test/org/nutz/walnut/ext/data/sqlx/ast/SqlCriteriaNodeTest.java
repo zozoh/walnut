@@ -13,6 +13,25 @@ import org.nutz.walnut.util.Wlang;
 public class SqlCriteriaNodeTest {
 
     @Test
+    public void test_true() {
+        List<SqlCriParam> params = new ArrayList<>(5);
+        NutMap q = Wlang.map("a: true");
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
+
+        assertEquals("a=1", cri.toSql(false));
+        assertEquals("a=?", cri.toSql(true));
+
+        cri.setNot(true);
+        assertEquals("NOT a=1", cri.toSql(false));
+        assertEquals("NOT a=?", cri.toSql(true));
+
+        params.clear();
+        cri.joinParams(params);
+        assertEquals(1, params.size());
+        assertEquals("a=true", params.get(0).toString());
+    }
+
+    @Test
     public void test_or_list() {
         List<SqlCriParam> params = new ArrayList<>(5);
         NutMap q1 = Wlang.map("'!a':'[100,]'");

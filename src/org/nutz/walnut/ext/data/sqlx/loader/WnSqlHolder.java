@@ -78,7 +78,7 @@ public class WnSqlHolder implements SqlHolder {
         if (null == sqle) {
             throw Er.create("e.sqlx.entry.NotExist", key + "@" + oDir.id());
         }
-        WnSqlTmpl sqlt = WnSqlTmpl.parse(sqle.getContent());
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(sqle);
         return sqlt;
     }
 
