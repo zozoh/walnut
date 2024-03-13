@@ -7,14 +7,14 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.util.Wlang;
 
 public class SqlCriteriaNodeTest {
 
     @Test
     public void test_true() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("a: true");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
@@ -33,7 +33,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_or_list() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q1 = Wlang.map("'!a':'[100,]'");
         NutMap q2 = Wlang.map("b:20,c:'[45,]'");
         List<Object> q = Wlang.list(q1, q2);
@@ -56,7 +56,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_not_not() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("'!a': '[100,]'");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
@@ -75,7 +75,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_name_not() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("'!a':'AA',x:{$lt:8},'!y':'(,20]'");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
@@ -96,7 +96,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_like_and_enum() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("a:'*A?B',b:[1,'X','Y']");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
@@ -118,7 +118,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_range_and_regexp() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("a:'[100,300)',b:'^xyz'");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
@@ -139,7 +139,7 @@ public class SqlCriteriaNodeTest {
 
     @Test
     public void test_null_eq() {
-        List<SqlCriParam> params = new ArrayList<>(5);
+        List<SqlParam> params = new ArrayList<>(5);
         NutMap q = Wlang.map("a:'AAA',b:null,c:''");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 

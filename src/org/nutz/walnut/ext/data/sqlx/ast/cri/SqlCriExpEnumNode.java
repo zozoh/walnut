@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
 import org.nutz.walnut.util.Ws;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 
 public class SqlCriExpEnumNode extends SqlCriExpressionNode {
 
@@ -17,12 +17,12 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
     }
 
     @Override
-    protected void _join_self_params(List<SqlCriParam> params) {
+    protected void _join_self_params(List<SqlParam> params) {
         if (null != vals) {
             for (int i = 0; i < vals.length; i++) {
                 Object v = vals[i];
                 String k = name + "." + i;
-                params.add(new SqlCriParam(k, v));
+                params.add(new SqlParam(k, v));
             }
         }
     }

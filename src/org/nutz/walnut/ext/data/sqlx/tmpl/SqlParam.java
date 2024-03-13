@@ -4,14 +4,14 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 
-public class SqlCriParam {
+public class SqlParam {
 
-    public SqlCriParam(Map.Entry<String, Object> en) {
+    public SqlParam(Map.Entry<String, Object> en) {
         this.name = en.getKey();
         this.value = en.getValue();
     }
 
-    public SqlCriParam(String name, Object value) {
+    public SqlParam(String name, Object value) {
         this.name = name;
         this.value = value;
     }

@@ -2,6 +2,7 @@ package org.nutz.walnut.ext.data.sqlx.tmpl;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
@@ -14,6 +15,24 @@ import org.nutz.walnut.util.Wtime;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public abstract class WnSqls {
+
+    public static String[] getSqlParamsName(List<SqlParam> list) {
+        String[] re = new String[list.size()];
+        int i = 0;
+        for (SqlParam li : list) {
+            re[i++] = li.getName();
+        }
+        return re;
+    }
+
+    public static Object[] getSqlParamsValue(List<SqlParam> list) {
+        Object[] re = new Object[list.size()];
+        int i = 0;
+        for (SqlParam li : list) {
+            re[i++] = li.getValue();
+        }
+        return re;
+    }
 
     public static String escapeSqlValue(String s) {
         return s.replaceAll("'", "''");

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.lang.util.NutMap;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
 public class WnSqlTmplTest {
@@ -17,7 +17,7 @@ public class WnSqlTmplTest {
         String s = "SELECT * FROM t_pet WHERE ${@vars=where; pick=a,b}";
         NutMap context = NutMap.WRAP("{a:'(100,500)',b:{$lt:6,$gte:9}}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<SqlCriParam> params = new ArrayList<>(2);
+        List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)", sql);
         assertEquals(4, params.size());
@@ -35,7 +35,7 @@ public class WnSqlTmplTest {
         String s = "SELECT * FROM t_pet WHERE ${@vars=where; pick=a,b}";
         NutMap context = NutMap.WRAP("{a:'A',b:100}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<SqlCriParam> params = new ArrayList<>(2);
+        List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("SELECT * FROM t_pet WHERE a=? AND b=?", sql);
         assertEquals(2, params.size());
@@ -52,7 +52,7 @@ public class WnSqlTmplTest {
                    + " VALUES (${@vars=insert.values; pick=a,b})";
         NutMap context = NutMap.WRAP("{a:'A',b:100,c:false,d:'D'}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<SqlCriParam> params = new ArrayList<>(2);
+        List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("INSERT INTO t_pet(a,b) VALUES (?,?)", sql);
         assertEquals(2, params.size());
@@ -68,7 +68,7 @@ public class WnSqlTmplTest {
         String s = "UPDATE t_pet SET ${@vars=update; pick=a,b}";
         NutMap context = NutMap.WRAP("{a:'A',b:100,c:false,d:'D'}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
-        List<SqlCriParam> params = new ArrayList<>(2);
+        List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
         assertEquals("UPDATE t_pet SET a=?,b=?", sql);
         assertEquals(2, params.size());

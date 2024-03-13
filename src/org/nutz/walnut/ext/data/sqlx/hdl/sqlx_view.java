@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.walnut.ext.data.sqlx.SqlxContext;
 import org.nutz.walnut.ext.data.sqlx.SqlxFilter;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Ws;
@@ -26,7 +26,7 @@ public class sqlx_view extends SqlxFilter {
         WnSqlTmpl t = fc.sqls.get(sqlName);
 
         // 参数模式
-        List<SqlCriParam> criParams = null;
+        List<SqlParam> criParams = null;
         if (params.is("p")) {
             criParams = new LinkedList<>();
         }
@@ -41,7 +41,7 @@ public class sqlx_view extends SqlxFilter {
             sys.out.printlnf("Show %s params", criParams.size());
             sys.out.println(HR);
             int i = 1;
-            for (SqlCriParam pa : criParams) {
+            for (SqlParam pa : criParams) {
                 sys.out.printlnf(" %d) %s => %s", i++, pa.getName(), Json.toJson(pa.getValue()));
             }
         }

@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.walnut.api.err.Er;
 import org.nutz.walnut.ext.data.sqlx.loader.SqlHolder;
+import org.nutz.walnut.ext.data.sqlx.processor.QueryProcessor;
 import org.nutz.walnut.ext.sys.sql.WnDaoAuth;
 import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.impl.box.JvmFilterContext;
@@ -30,8 +31,19 @@ public class SqlxContext extends JvmFilterContext {
 
     private Connection conn;
 
+    public QueryProcessor query;
+
+    public Object result;
+
     public SqlxContext() {
         this.vars = new NutMap();
+        this.query = new QueryProcessor();
+    }
+
+    public void prepareToRun(WnSystem sys) {
+        if (null == this.getConnection(sys)) {
+            throw Er.create("e.cmd.sqlx.FailToGetConnection");
+        }
     }
 
     public Connection getConnection(WnSystem sys) {
@@ -55,6 +67,9 @@ public class SqlxContext extends JvmFilterContext {
     public void closeConnection() {
         if (null != conn) {
             try {
+                if (log.isTraceEnabled()) {
+                    log.trace(Wlog.msg("conn.closed"));
+                }
                 conn.close();
             }
             catch (SQLException e) {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.nutz.walnut.ext.data.sqlx.ast.SqlCriJoin;
 import org.nutz.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.util.Wlang;
 
 public class SqlCriGroupNode extends SqlCriteriaNode {
@@ -71,7 +71,7 @@ public class SqlCriGroupNode extends SqlCriteriaNode {
     }
 
     @Override
-    protected void _join_self_params(List<SqlCriParam> params) {
+    protected void _join_self_params(List<SqlParam> params) {
         if (null != headNode) {
             headNode.joinParams(params);
         }

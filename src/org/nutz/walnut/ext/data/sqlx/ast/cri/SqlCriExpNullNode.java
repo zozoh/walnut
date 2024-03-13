@@ -2,7 +2,7 @@ package org.nutz.walnut.ext.data.sqlx.ast.cri;
 
 import java.util.List;
 
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 
 public class SqlCriExpNullNode extends SqlCriExpressionNode {
 
@@ -11,7 +11,7 @@ public class SqlCriExpNullNode extends SqlCriExpressionNode {
     }
 
     @Override
-    protected void _join_self_params(List<SqlCriParam> params) {}
+    protected void _join_self_params(List<SqlParam> params) {}
 
     @Override
     protected void _join_self(StringBuilder sb, boolean useParams) {

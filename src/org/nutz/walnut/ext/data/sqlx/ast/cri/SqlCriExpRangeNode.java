@@ -8,7 +8,7 @@ import org.nutz.lang.util.FloatRegion;
 import org.nutz.lang.util.IntRegion;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.Region;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.util.Wregion;
 
 public class SqlCriExpRangeNode extends SqlCriExpressionNode {
@@ -87,7 +87,7 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
     }
 
     @Override
-    protected void _join_self_params(List<SqlCriParam> params) {
+    protected void _join_self_params(List<SqlParam> params) {
         if (null != left) {
             left._join_self_params(params);
         }

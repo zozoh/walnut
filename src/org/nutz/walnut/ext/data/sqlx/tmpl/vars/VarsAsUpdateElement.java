@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.data.sqlx.tmpl.vars;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 import org.nutz.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
 import org.nutz.walnut.ext.data.sqlx.tmpl.WnSqls;
 import org.nutz.walnut.util.tmpl.WnTmplRenderContext;
@@ -31,7 +31,7 @@ public class VarsAsUpdateElement extends SqlVarsElement {
 
             // 记入动态参数
             if (null != src && null != src.params) {
-                src.params.add(new SqlCriParam(en));
+                src.params.add(new SqlParam(en));
                 src.out.append(en.getKey()).append("=?");
             }
             // 采用传统的 SQL 方式

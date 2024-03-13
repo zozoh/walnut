@@ -3,7 +3,7 @@ package org.nutz.walnut.ext.data.sqlx.ast;
 import java.util.List;
 
 import org.nutz.walnut.ext.data.sqlx.expert.SqlDialect;
-import org.nutz.walnut.ext.data.sqlx.tmpl.SqlCriParam;
+import org.nutz.walnut.ext.data.sqlx.tmpl.SqlParam;
 
 public abstract class SqlCriteriaNode {
 
@@ -19,11 +19,11 @@ public abstract class SqlCriteriaNode {
 
     private SqlCriJoin nextJoin;
 
-    protected abstract void _join_self_params(List<SqlCriParam> params);
+    protected abstract void _join_self_params(List<SqlParam> params);
 
     protected abstract void _join_self(StringBuilder sb, boolean useParams);
 
-    public void joinParams(List<SqlCriParam> params) {
+    public void joinParams(List<SqlParam> params) {
         _join_self_params(params);
         if (null != nextNode) {
             nextNode.joinParams(params);

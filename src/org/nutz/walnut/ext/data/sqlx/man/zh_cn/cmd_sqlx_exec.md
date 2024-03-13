@@ -14,18 +14,17 @@
 --------------------------------------------------
 -- <pet.sql>
 --------------------------------------------------
--- name : query1
--- type : select
--- omit : a,b,c
--- pick : x,y,z
--- sqlx @exec pet.query1
-SELECT * FROM ${table_name} WHERE ${limit<int>?500} LIMIT ${@vars=where};
-
--- name : change
--- type : update
--- omit : a,b,c
--- pick : x,y,z
-UPDATE ${table_name} SET ${@vars=upsert} WHERE ${@vars=where; pick=id};
+-- @name = query
+-- @type = select
+-- @omit = limit,skip
+-- > sqlx @select pet.query
+SELECT * FROM t_pet WHERE ${@vars=where}; LIMIT ${skip<int>?0}, ${limit<int>?50};
+--------------------------------------------------
+-- @name = change
+-- @type = update
+-- @omit = a,b,c
+-- @pick = x,y,z
+UPDATE t_pet SET ${@vars=upsert} WHERE ${@vars=where; pick=id};
 ```
 
 # 用法
