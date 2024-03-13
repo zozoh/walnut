@@ -47,5 +47,6 @@ UPDATE t_pet SET${@vars=update} WHERE id=?;
 @exec       # 执行指定的 SQL
 @trans      # 事务相关操作
 @view       # 测试 SQL 的渲染结果
+@cache      # 处理 SQL 的缓存
 @json       # 定义输出结果的 JSON 格式化方式
 ```

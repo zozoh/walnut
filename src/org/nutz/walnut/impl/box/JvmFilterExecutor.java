@@ -74,6 +74,8 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
         }
     }
 
+    protected void onFinished(WnSystem sys, C context) {}
+
     @Override
     public String[] prepareArgs(String[] args) {
         return args;
@@ -149,13 +151,18 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
         // 依次调用处理器
         int n = hdlFilters.size();
 
-        for (int i = 0; i < n; i++) {
-            T hdl = hdlFilters.get(i);
-            ZParams params = hdlParams.get(i);
-            hdl.process(sys, fc, params);
-            if (fc.isBreakExec()) {
-                break;
+        try {
+            for (int i = 0; i < n; i++) {
+                T hdl = hdlFilters.get(i);
+                ZParams params = hdlParams.get(i);
+                hdl.process(sys, fc, params);
+                if (fc.isBreakExec()) {
+                    break;
+                }
             }
+        }
+        finally {
+            this.onFinished(sys, fc);
         }
 
         // 处理输出

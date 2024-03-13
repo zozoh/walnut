@@ -26,14 +26,18 @@ public abstract class WnDaos {
 
     private static final Log log = Wlog.getCMD();
 
-    private static Map<String, DataSource> dss = new HashMap<>();
+    private static Map<String, DataSource> dataSources = new HashMap<>();
 
     private static Map<String, NutDao> daos = new HashMap<>();
 
     public static DataSource getDataSource(WnDaoConfig conf) {
         WnDaoAuth info = conf.getAuth();
+        return getDataSource(info);
+    }
+
+    public static DataSource getDataSource(WnDaoAuth info) {
         String key = info.toKey();
-        DataSource ds = dss.get(key);
+        DataSource ds = dataSources.get(key);
         if (null == ds) {
             synchronized (WnDaos.class) {
                 ds = __get_or_create_datasource(info, key);
@@ -42,9 +46,9 @@ public abstract class WnDaos {
         return ds;
     }
 
-    private static DataSource __get_or_create_datasource(WnDaoAuth info, String key) {
+    public static DataSource __get_or_create_datasource(WnDaoAuth info, String key) {
         DataSource ds;
-        ds = dss.get(key);
+        ds = dataSources.get(key);
         if (null == ds) {
             if (log.isDebugEnabled()) {
                 log.debugf("setup datasource: %s", key);
@@ -56,9 +60,8 @@ public abstract class WnDaos {
             dataSource.setMaxActive(info.getMaxActive());
             dataSource.setMaxWait(info.getMaxWait());
             dataSource.setTestWhileIdle(info.isTestWhileIdle());
-
-            dss.put(key, dataSource);
-            ds = dataSource;
+            ds = new WnDataSource(dataSource);
+            dataSources.put(key, ds);
         }
         return ds;
     }
@@ -77,7 +80,6 @@ public abstract class WnDaos {
                         log.debugf("setup dao: %s", key);
                     }
                     DataSource ds = __get_or_create_datasource(auth, key);
-
                     // Create Dao
                     dao = new NutDao(ds);
                     daos.put(key, dao);
@@ -99,23 +101,23 @@ public abstract class WnDaos {
             DataSource ds = dao.getDataSource();
             Streams.safeClose((Closeable) ds);
             daos.remove(key);
-            dss.remove(key);
+            dataSources.remove(key);
         }
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnIo io,
-                                                           String path,
-                                                           NutMap vars) {
+                                                       WnIo io,
+                                                       String path,
+                                                       NutMap vars) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj oConf = io.check(null, aph);
         return loadConfig(configType, io, oConf, vars);
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnIo io,
-                                                           WnObj oConf,
-                                                           NutMap vars) {
+                                                       WnIo io,
+                                                       WnObj oConf,
+                                                       NutMap vars) {
         T conf = io.readJson(oConf, configType);
         String ph = "~/.dao/" + conf.getDaoName() + ".dao.json";
         String aph = Wn.normalizeFullPath(ph, vars);
@@ -137,28 +139,28 @@ public abstract class WnDaos {
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnIo io,
-                                                           String path,
-                                                           WnAuthSession se) {
+                                                       WnIo io,
+                                                       String path,
+                                                       WnAuthSession se) {
         return loadConfig(configType, io, path, se.getVars());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnSystem sys,
-                                                           String path) {
+                                                       WnSystem sys,
+                                                       String path) {
         return loadConfig(configType, sys.io, path, sys.session);
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnIo io,
-                                                           WnObj oConf,
-                                                           WnAuthSession se) {
+                                                       WnIo io,
+                                                       WnObj oConf,
+                                                       WnAuthSession se) {
         return loadConfig(configType, io, oConf, se.getVars());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
-                                                           WnSystem sys,
-                                                           WnObj oConf) {
+                                                       WnSystem sys,
+                                                       WnObj oConf) {
         return loadConfig(configType, sys.io, oConf, sys.session);
     }
 

@@ -2,6 +2,7 @@ package org.nutz.walnut.util;
 
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.walnut.api.auth.WnAuthSession;
 import org.nutz.walnut.util.log.WnLogWrapper;
 
 public class Wlog {
@@ -56,6 +57,26 @@ public class Wlog {
 
     public static Log getMAIN() {
         return new WnLogWrapper(Logs.getLog("MAIN"));
+    }
+
+    public static String msgf(String fmt, Object... args) {
+        String s = String.format(fmt, args);
+        return msg(s);
+    }
+
+    public static String msg(String str) {
+        WnContext wc = Wn.WC();
+        WnAuthSession se = wc.getSession();
+        String tkt;
+        String unm;
+        if (null != se) {
+            tkt = se.getTicket();
+            unm = se.getMyName();
+        } else {
+            tkt = wc.getTicket();
+            unm = wc.getMyName();
+        }
+        return String.format("%s:%s> %s", unm, tkt, str);
     }
 
 }

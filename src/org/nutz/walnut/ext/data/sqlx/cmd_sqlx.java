@@ -7,6 +7,7 @@ import org.nutz.walnut.api.io.WnIo;
 import org.nutz.walnut.api.io.WnObj;
 import org.nutz.walnut.ext.data.sqlx.loader.SqlHolder;
 import org.nutz.walnut.ext.data.sqlx.loader.WnSqlHolder;
+import org.nutz.walnut.ext.sys.sql.WnDaos;
 import org.nutz.walnut.impl.box.JvmFilterExecutor;
 import org.nutz.walnut.impl.box.WnSystem;
 import org.nutz.walnut.util.Wn;
@@ -40,9 +41,19 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
     }
 
     @Override
+    protected void onFinished(WnSystem sys, SqlxContext fc) {
+        fc.closeConnection();
+    }
+
+    @Override
     protected void prepare(WnSystem sys, SqlxContext fc) {
-        WnObj oDir = Wn.checkObj(sys, "~/.sqlx");
+        String daoName = fc.params.val(0, "default");
+        fc.auth = WnDaos.loadAuth(sys, daoName);
+        
+        String dirPath = fc.params.getString("conf", "~/.sqlx");
+        WnObj oDir = Wn.checkObj(sys, dirPath);
         fc.sqls = getSqlHolder(sys.io, oDir);
+
     }
 
     @Override
