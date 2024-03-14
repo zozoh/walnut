@@ -1,0 +1,120 @@
+<html>
+<head>
+  <title>Test Full</title>
+  <meta name="author" content="zozoh">
+  <meta name="keywords" content="Test,Unit,Markdown">
+</head>
+<body>
+  <h1 class="as-md" md-line="9">Test basice syntax</h1>
+  <p class="as-md" md-line="11">
+    We support <b class="as-md">bold</b> and <i class="as-md">Italic</i>, and<br class="as-md" md-line="11">
+    the <strong class="as-md">Strong</strong> and <em class="as-md">Emphasize</em> was supported also.
+  </p>
+  <p class="as-md" md-line="14">
+    And <del class="as-md">Line Through</del> was avaliable too.
+  </p>
+  <h2 class="as-md" md-line="16">Link</h2>
+  <p class="as-md" md-line="18">There are two kinds of linkes:</p>
+  <ol class="as-md" md-line="20" md-level="0">
+    <li class="as-md" md-line="20">
+      <a class="as-md" href="http://target.com" target="_blank" alt="new tab">Normal link</a>
+    </li>
+    <li class="as-md" md-line="21">
+      <a class="as-md is-ref" href="#link1">Refer linke</a>
+    </li>
+  </ol>
+  <dl class="as-md" md-line="23">
+    <dfn class="as-md" md-line="23" name="link1">http://refer.com/path/to/page</dfn>
+  </dl>
+  <h2 class="as-md" md-line="25">Image</h2>
+  <p class="as-md" md-line="27">We support image like:</p>
+  <ul class="as-md" md-line="29" md-level="0">
+    <li class="as-md" md-line="29">
+      <img class="as-md" src="src/to/1.png">
+    </li>
+    <li class="as-md" md-line="30">
+      <img class="as-md" title="with title" src="src/to/2.jpeg" width="3rem" height="300" alt="The alt">
+    </li>
+  </ul>
+  <hr class="as-md" md-line="32" md-hr-size="31">
+  <h2 class="as-md" md-line="33">Block Quote</h2>
+  <blockquote class="as-md" md-line="35">
+    <p class="as-md" md-line="35">Block quote</p>
+    <pre class="as-md" md-line="36" md-code-type="FENCED" md-code-content="js" md-code-prefix="```">let code = "Inner block quote";</pre>
+    <p class="as-md" md-line="39">Nest list is supported also</p>
+    <ul class="as-md" md-line="40" md-level="0">
+      <li class="as-md" md-line="40">
+        A
+        <ul class="as-md" md-line="41" md-level="1">
+          <li class="as-md" md-line="41">X</li>
+          <li class="as-md" md-line="42">Y</li>
+        </ul>
+      </li>
+      <li class="as-md" md-line="43">B</li>
+    </ul>
+  </blockquote>
+  <hr class="as-md" md-line="45" md-hr-size="31">
+  <h2 class="as-md" md-line="46">List support</h2>
+  <h3 class="as-md" md-line="48">Unordered list</h3>
+  <ul class="as-md" md-line="50" md-level="0">
+    <li class="as-md" md-line="50">
+      list item
+      <ul class="as-md" md-line="51" md-level="1">
+        <li class="as-md" md-line="51">
+          sublist item
+          <pre class="as-md" md-line="52" md-code-type="FENCED" md-code-content="js" md-code-prefix="```">Nest code inside list</pre>
+        </li>
+      </ul>
+    </li>
+    <li class="as-md" md-line="55">list item2</li>
+  </ul>
+  <h3 class="as-md" md-line="57">Ordered list</h3>
+  <ol class="as-md" md-line="59" md-level="0">
+    <li class="as-md" md-line="59">
+      list item
+      <ol class="as-md" md-line="60" md-level="1">
+        <li class="as-md" md-line="60">
+          sublist item
+          <ul class="as-md" md-line="61" md-level="2">
+            <li class="as-md" md-line="61">Unorder list insdie</li>
+          </ul>
+        </li>
+        <li class="as-md" md-line="62">sublist item2</li>
+      </ol>
+    </li>
+    <li class="as-md" md-line="63">list item2</li>
+  </ol>
+  <hr class="as-md" md-line="65" md-hr-size="31">
+  <h2 class="as-md" md-line="66">Code support</h2>
+  <pre class="as-md" md-line="68" md-code-type="INDENT">Indent code
+block
+</pre>
+  <pre class="as-md" md-line="71" md-code-type="FENCED" md-code-content="js" md-code-prefix="```">{
+  name : "Fenced code block"
+}</pre>
+  <hr class="as-md" md-line="77" md-hr-size="31">
+  <h1 class="as-md" md-line="78">Customized HTML Tag</h1>
+  <blockquote class="as-md" md-line="80">
+    <p class="as-md" md-line="80">We also support customized html</p>
+  </blockquote>
+  <p class="as-md" md-line="82">
+    In any place of document: 
+    <div>
+      You just can add the HTML tag
+      <main>
+        Any <b>H5</b> tags was supported.
+        <span style="color:blue;">CSS Style is work well</span> Event you can:
+        <table>
+          <tr>
+            <td rowspan="2" valign="top">A</td><td>B</td>
+          </tr>
+          <tr>
+            <td>C</td>
+          </tr>
+        </table>
+        add a table ...
+      </main>
+    </div>
+  </p>
+</body>
+</html>

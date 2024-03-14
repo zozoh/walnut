@@ -11,7 +11,7 @@ import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.ZMoDoc;
 import org.nutz.mongo.entity.ZMoEntity;
 import org.nutz.mongo.entity.ZMoField;
-import org.nutz.walnut.util.Wlang;
+import com.site0.walnut.util.Wlang;
 
 public class ZMoCollectionAdaptor implements ZMoAdaptor {
 

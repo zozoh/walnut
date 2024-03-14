@@ -1,0 +1,62 @@
+{
+  "base" : "http://open.api.tianyancha.com/services/open/",
+  "timeout" : 3000,
+  "connectTimeout" : 1000,
+  "home" : "~/.xapi/tianyancha/",
+  "configFilePath" : "config.json",
+  "accessKeyFilePath" : "access_token",
+  "accessKeyObj" : {
+    "ticket"   : "=token",
+    "expiTime" : 7,
+    "expiTimeUnit" : "d"
+  },
+  "requests" : {
+      "838" : {
+        "path" : "ipr/tm/2.0",
+        "method" : "GET",
+        "headers" : {
+          "Authorization" : "=@AK"
+        },
+        "params" : {
+          "keyword" : "=k",
+          "tmClass" : "=tmc",
+          "appDateBegin" : "=db",
+          "appDateEnd" : "=de",
+          "pageSize" : "=pgsz",
+          "pageNum" : "=pn",
+          "status" : "=st"
+        },
+        "dataType" : "json"
+      },
+      "1051" : {
+        "path" : "ipr/tm/detail/2.0",
+        "method" : "GET",
+        "headers" : {
+          "Authorization" : "=@AK"
+        },
+        "params" : {
+          "regNo" : "=n",
+          "intCls" : "=c"
+        },
+        "dataType" : "json"
+      },
+      "1061" : {
+        "path" : "ipr/tm/search",
+        "method" : "GET",
+        "headers" : {
+          "Authorization" : "=@AK"
+        },
+        "params" : {
+          "keyword" : "=k",
+          "tmClass" : "=tmc",
+          "searchType" : "=t",
+          "appDateBegin" : "=db",
+          "appDateEnd" : "=de",
+          "pageSize" : "=pgsz",
+          "pageNum" : "=pn",
+          "status" : "=st"
+        },
+        "dataType" : "json"
+      }
+    }
+}

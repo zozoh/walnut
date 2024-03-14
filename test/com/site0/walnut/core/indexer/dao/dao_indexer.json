@@ -1,0 +1,92 @@
+{
+  "auth": {
+      "url": "${jdbc-url}",
+      "username": "${jdbc-username}",
+      "password": "${jdbc-password}"
+  }, 
+  "tableName": "t_obj",
+  "autoCreate" : true,
+  "fields": [{
+      "name": "live",
+      "type": "Integer",
+      "columnType" : "BOOLEAN",
+      "width": 1,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "age",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "weight",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "nb",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "x",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "y",
+      "type": "Integer",
+      "columnType" : "INT",
+      "width": 4,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "realname",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "alias",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "brief",
+      "type": "String",
+      "columnType" : "VARCHAR",
+      "width": 20,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }, {
+      "name": "pets",
+      "type": "JSON",
+      "columnType" : "VARCHAR",
+      "width": 50,
+      "notNull": false,
+      "insert": true,
+      "update": true
+  }],
+  "objKeys" : ["id","nm","race","pid","tp","mime", "md", "ct","lm", ".."],
+  "indexes": []
+}

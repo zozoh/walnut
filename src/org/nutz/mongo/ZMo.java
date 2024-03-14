@@ -24,7 +24,7 @@ import org.nutz.mongo.entity.ZMoEntityMaker;
 import org.nutz.mongo.entity.ZMoField;
 import org.nutz.mongo.entity.ZMoGeneralMapEntity;
 import org.nutz.mongo.fieldfilter.ZMoFF;
-import org.nutz.walnut.api.err.Er;
+import com.site0.walnut.api.err.Er;
 
 import com.mongodb.DBObject;
 

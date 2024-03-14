@@ -14,7 +14,7 @@ import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.adaptor.ZMoAs;
-import org.nutz.walnut.api.err.Er;
+import com.site0.walnut.api.err.Er;
 
 /**
  * 包裹了 DBObject，并提供了一些更便利的方法

@@ -1,0 +1,6 @@
+{
+    "type"   : "CMD",
+    "user"   : "demo",
+    "secret" : "XXYYZZ",
+    "body"   : "echo  'hello' > ~/abc.txt"
+}

@@ -1,6 +1,6 @@
 var ioc = {
 	mongoDB : {
-		type : 'org.nutz.walnut.util.MongoDB',
+		type : 'com.site0.walnut.util.MongoDB',
 		events : {
 			create : "on_create",
 			depose : "on_depose"

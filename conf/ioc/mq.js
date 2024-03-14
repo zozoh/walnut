@@ -1,6 +1,6 @@
 var ioc = {
 	messageQueueApi : {
-		type : 'org.nutz.walnut.ext.mq.rocketmq.WnRocketMqApi',
+		type : 'com.site0.walnut.ext.mq.rocketmq.WnRocketMqApi',
 		fields : {
 			host : {
 				java : '$conf.get("mq-host", "localhost")'

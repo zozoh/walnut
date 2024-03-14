@@ -1,6 +1,0 @@
-total 16
--rw-r--r-- 1 root root    0 May  8 16:35 abc
-drwxr-xr-x 2 root root 4096 Apr 16 12:54 [0m[01;34mbin[0m
-drwxr-xr-x 3 root root 4096 Apr 16 11:39 [01;34mDownload[0m
-drwxr-xr-x 3 root root 4096 Apr 16 11:39 [01;34mgoproj[0m
-drwxr-xr-x 4 root root 4096 Apr 16 12:00 [01;34mworkspace[0m

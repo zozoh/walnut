@@ -1,0 +1,19 @@
+----------------------------949109308418366359677655
+Content-Disposition: form-data; name="name"
+
+test_upload
+----------------------------949109308418366359677655
+Content-Disposition: form-data; name="f1"; filename="hello.txt"
+Content-Type: text/plain
+
+[hello]
+----------------------------949109308418366359677655
+Content-Disposition: form-data; name="f2"; filename="world.txt"
+Content-Type: text/plain
+
+[world]
+----------------------------949109308418366359677655
+Content-Disposition: form-data; name="age"
+
+13
+----------------------------949109308418366359677655--

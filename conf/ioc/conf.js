@@ -1,10 +1,10 @@
 var ioc = {
 	conf : {
-		type : 'org.nutz.walnut.web.WnConfig',
+		type : 'com.site0.walnut.web.WnConfig',
 		args : [ 'web.properties' ]
 	},
 	webscan : {
-		type : 'org.nutz.walnut.web.WnModuleScanner',
+		type : 'com.site0.walnut.web.WnModuleScanner',
 		fields : {
 			pkgs : {
 				java : '$conf.webModulePkgs'
@@ -12,7 +12,7 @@ var ioc = {
 		}
 	},
 	loader : {
-		type : 'org.nutz.walnut.web.WnIocLoader',
+		type : 'com.site0.walnut.web.WnIocLoader',
 		args : [ {
 			refer : 'conf'
 		} ]

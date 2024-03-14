@@ -1,0 +1,198 @@
+[{
+  "name": "id",
+  "type": "String",
+  "columnType" : "CHAR",
+  "width": 26,
+  "notNull": true,
+  "insert": true,
+  "update": false
+}, {
+  "name": "pid",
+  "type": "String",
+  "columnType" : "CHAR",
+  "width": 26,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "nm",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 50,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "title",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 100,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "c",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "m",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "g",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "md",
+  "type": "Integer",
+  "columnType" : "INT",
+  "width": 4,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "race",
+  "type": "String",
+  "columnType" : "INT",
+  "default": "1",
+  "width": 1,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "tp",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "mime",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 50,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "sha1",
+  "type": "String",
+  "columnType" : "CHAR",
+  "width": 40,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "ln",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 500,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "mnt",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 200,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "lbls",
+  "type": "SArray",
+  "columnType" : "VARCHAR",
+  "width": 200,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "len",
+  "type": "Long",
+  "columnType" : "INT",
+  "default": "0",
+  "width": 16,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "d0",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "d1",
+  "type": "String",
+  "columnType" : "VARCHAR",
+  "width": 20,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "ct",
+  "type": "Long",
+  "columnType" : "INT",
+  "width": 16,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "lm",
+  "type": "Long",
+  "columnType" : "INT",
+  "width": 16,
+  "notNull": true,
+  "insert": true,
+  "update": true
+}, {
+  "name": "st",
+  "type": "Long",
+  "columnType" : "INT",
+  "default": "0",
+  "width": 16,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "expi",
+  "type": "Long",
+  "columnType" : "INT",
+  "default": "0",
+  "width": 16,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "th_live",
+  "type": "Integer",
+  "columnType" : "INT",
+  "default": "0",
+  "width": 1,
+  "notNull": false,
+  "insert": true,
+  "update": true
+}, {
+  "name": "..",
+  "type": "String",
+  "columnName" : "metas",
+  "columnType" : "TEXT",
+  "notNull": false,
+  "insert": true,
+  "update": true
+}]

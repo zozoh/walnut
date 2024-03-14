@@ -1,6 +1,6 @@
 var ioc = {
     redisConfForIoRefers : {
-        type : 'org.nutz.walnut.ext.sys.redis.WedisConfig',
+        type : 'com.site0.walnut.ext.sys.redis.WedisConfig',
         fields : {
             host : {
                 java : '$conf.get("redis-host")'
@@ -20,7 +20,7 @@ var ioc = {
         }
     },
     redisConfForIoBM : {
-        type : 'org.nutz.walnut.ext.sys.redis.WedisConfig',
+        type : 'com.site0.walnut.ext.sys.redis.WedisConfig',
         fields : {
             host : {
                 java : '$conf.get("redis-host")'
@@ -40,7 +40,7 @@ var ioc = {
         }
     },
     redisConfForIoHandle : {
-        type : 'org.nutz.walnut.ext.sys.redis.WedisConfig',
+        type : 'com.site0.walnut.ext.sys.redis.WedisConfig',
         fields : {
             host : {
                 java : '$conf.get("redis-host")'
@@ -60,7 +60,7 @@ var ioc = {
         }
     },
     redisConfForLockApi : {
-        type : 'org.nutz.walnut.ext.sys.redis.WedisConfig',
+        type : 'com.site0.walnut.ext.sys.redis.WedisConfig',
         fields : {
             host : {
                 java : '$conf.get("redis-host")'

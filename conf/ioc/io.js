@@ -1,6 +1,6 @@
 var ioc = {
     mimes : {
-        type : 'org.nutz.walnut.core.MimeMapImpl',
+        type : 'com.site0.walnut.core.MimeMapImpl',
         args : [ {
             type : 'org.nutz.ioc.impl.PropertiesProxy',
             args : [ {
@@ -9,35 +9,35 @@ var ioc = {
         } ]
     },
     lockApiByMemory: {
-        type : "org.nutz.walnut.impl.lock.memory.MemoryLockApi"
+        type : "com.site0.walnut.impl.lock.memory.MemoryLockApi"
     },
     referApi: {
-        type : "org.nutz.walnut.core.refer.redis.RedisReferService",
+        type : "com.site0.walnut.core.refer.redis.RedisReferService",
         args : [{refer:"redisConfForIoRefers"}]
     },
     referApiByMongo: {
-        type : "org.nutz.walnut.core.refer.mongo.MongoReferService",
+        type : "com.site0.walnut.core.refer.mongo.MongoReferService",
         args : [{java : '$mongoDB.getCollection("refs")'}]
     },
     redisBM : {
-        type : 'org.nutz.walnut.core.bm.redis.RedisBM',
+        type : 'com.site0.walnut.core.bm.redis.RedisBM',
         args : [{refer : 'redisConfForIoBM'}]
     },
     ioHandleManager : {
-        type : "org.nutz.walnut.core.hdl.redis.RedisIoHandleManager",
+        type : "com.site0.walnut.core.hdl.redis.RedisIoHandleManager",
         args : [
             {refer : "ioMappingFactory"},
             {java  : '$conf.getInt("hdl-timeout", 20)'},
             {refer : "redisConfForIoHandle"}]
     },
     ioHandleManagerByMemory : {
-        type : "org.nutz.walnut.core.hdl.memory.MemoryIoHandleManager",
+        type : "com.site0.walnut.core.hdl.memory.MemoryIoHandleManager",
         args : [
             {refer : "ioMappingFactory"},
             {java  : '$conf.getInt("hdl-timeout", 20)'}]
     },
     globalBM : {
-        type : 'org.nutz.walnut.core.bm.localbm.LocalIoBM',
+        type : 'com.site0.walnut.core.bm.localbm.LocalIoBM',
         args : [
             {refer : 'ioHandleManager'},
             {java  :'$conf.get("global-bm-bucket")'},
@@ -47,28 +47,28 @@ var ioc = {
         ]
     },
     globalIndexer : {
-        type : 'org.nutz.walnut.core.indexer.mongo.MongoIndexer',
+        type : 'com.site0.walnut.core.indexer.mongo.MongoIndexer',
         args : [
             {java  : '$conf.rootTreeNode'},
             {refer : 'mimes'}, 
             {java  : '$mongoDB.getCollection("obj")'}]
     },
     mongoFlatIndexerFactory : {
-        type : "org.nutz.walnut.core.mapping.indexer.MongoFlatIndexerFactory",
+        type : "com.site0.walnut.core.mapping.indexer.MongoFlatIndexerFactory",
         args : [
             {refer:"mimes"},
             {refer:"mongoDB"}]
     },
     localFileIndexerFactory : {
-        type : "org.nutz.walnut.core.mapping.indexer.LocalFileIndexerFactory",
+        type : "com.site0.walnut.core.mapping.indexer.LocalFileIndexerFactory",
         args : [{refer:"mimes"}]
     },
     localFileWIndexerFactory : {
-        type : "org.nutz.walnut.core.mapping.indexer.LocalFileWIndexerFactory",
+        type : "com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory",
         args : [{refer:"mimes"}]
     },
     daoIndexerFactory : {
-        type : "org.nutz.walnut.core.mapping.indexer.DaoIndexerFactory",
+        type : "com.site0.walnut.core.mapping.indexer.DaoIndexerFactory",
         fields: {
             ioc   : {refer: "$Ioc"},
             authServiceName: "sysAuthService",
@@ -81,13 +81,13 @@ var ioc = {
         }
     },
     localIoBMFactory : {
-        type : "org.nutz.walnut.core.mapping.bm.LocalIoBMFactory",
+        type : "com.site0.walnut.core.mapping.bm.LocalIoBMFactory",
         fields : {
             bms : {}
         }
     },
     redisBMFactory: {
-        type : "org.nutz.walnut.core.mapping.bm.RedisBMFactory",
+        type : "com.site0.walnut.core.mapping.bm.RedisBMFactory",
         fields : {
             io  : {refer:"io"},
             bms : {
@@ -96,15 +96,15 @@ var ioc = {
         }
     },
     localFileBMFactory : {
-        type : "org.nutz.walnut.core.mapping.bm.LocalFileBMFactory",
+        type : "com.site0.walnut.core.mapping.bm.LocalFileBMFactory",
         args : [{refer:"ioHandleManager"}]
     },
     localFileWBMFactory : {
-        type : "org.nutz.walnut.core.mapping.bm.LocalFileWBMFactory",
+        type : "com.site0.walnut.core.mapping.bm.LocalFileWBMFactory",
         args : [{refer:"ioHandleManager"}]
     },
     ioMappingFactory : {
-        type : 'org.nutz.walnut.core.mapping.WnIoMappingFactoryImpl',
+        type : 'com.site0.walnut.core.mapping.WnIoMappingFactoryImpl',
         fields : {
             globalIndexer : {refer:"globalIndexer"},
             globalBM : {refer:"globalBM"},
@@ -125,14 +125,14 @@ var ioc = {
         }
     },
     rawIo: {
-        type : 'org.nutz.walnut.core.io.WnIoImpl2',
+        type : 'com.site0.walnut.core.io.WnIoImpl2',
         fields: {
             mappings: {refer:"ioMappingFactory"},
             locks: {refer: "lockApi"},
         }
     },
     io : {
-        type : 'org.nutz.walnut.core.io.WnIoHookedWrapper',
+        type : 'com.site0.walnut.core.io.WnIoHookedWrapper',
         fields: {
             io: {refer:"rawIo"},
             expiTable: {refer: "safeExpiObjTable"}

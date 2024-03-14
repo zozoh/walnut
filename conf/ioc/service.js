@@ -10,7 +10,7 @@ var ioc = {
         }
     },
     serviceFactory : {
-        type : 'org.nutz.walnut.api.box.WnServiceFactory',
+        type : 'com.site0.walnut.api.box.WnServiceFactory',
         fields : {
             authApi : {
                 refer : "sysAuthService"
@@ -36,7 +36,7 @@ var ioc = {
         }
     },
     sysAuthService : {
-        type : 'org.nutz.walnut.impl.auth.WnSysAuthServiceWrapper',
+        type : 'com.site0.walnut.impl.auth.WnSysAuthServiceWrapper',
         parent : "ioService",
         fields : {
             initEnvs : {
@@ -57,7 +57,7 @@ var ioc = {
         }
     },
     safeSysTaskService : {
-        type : 'org.nutz.walnut.ext.sys.task.impl.WnSafeSysTaskService',
+        type : 'com.site0.walnut.ext.sys.task.impl.WnSafeSysTaskService',
         fields : {
             tasks : {
                 refer : 'sysTaskService'
@@ -71,7 +71,7 @@ var ioc = {
         }
     },
     sysTaskService : {
-        type : 'org.nutz.walnut.ext.sys.task.impl.WnSysTaskService',
+        type : 'com.site0.walnut.ext.sys.task.impl.WnSysTaskService',
         parent : "ioService",
         fields : {
             auth : {
@@ -80,7 +80,7 @@ var ioc = {
         }
     },
     safeSysScheduleService : {
-        type : 'org.nutz.walnut.ext.sys.schedule.impl.WnSafeSysScheduleService',
+        type : 'com.site0.walnut.ext.sys.schedule.impl.WnSafeSysScheduleService',
         fields : {
             schedules : {
                 refer : 'sysScheduleService'
@@ -100,7 +100,7 @@ var ioc = {
         }
     },
     sysScheduleService : {
-        type : 'org.nutz.walnut.ext.sys.schedule.impl.WnSysScheduleService',
+        type : 'com.site0.walnut.ext.sys.schedule.impl.WnSysScheduleService',
         parent : "ioService",
         fields : {
             auth : {
@@ -115,7 +115,7 @@ var ioc = {
         }
     },
     sysCronService : {
-        type : 'org.nutz.walnut.ext.sys.cron.impl.WnSysCronService',
+        type : 'com.site0.walnut.ext.sys.cron.impl.WnSysCronService',
         parent : "ioService",
         fields : {
             auth : {
@@ -124,7 +124,7 @@ var ioc = {
         }
     },
     sessionService : {
-        type : 'org.nutz.walnut.impl.usr.IoWnSessionService',
+        type : 'com.site0.walnut.impl.usr.IoWnSessionService',
         parent : "ioService",
         fields : {
             usrs : {
@@ -136,7 +136,7 @@ var ioc = {
         }
     },
     jvmExecutorFactory : {
-        type : 'org.nutz.walnut.impl.box.JvmExecutorFactory',
+        type : 'com.site0.walnut.impl.box.JvmExecutorFactory',
         fields : {
             scanPkgs : {
                 java : '$conf.jvmboxPkgs'
@@ -147,13 +147,13 @@ var ioc = {
         }
     },
     boxService : {
-        type : 'org.nutz.walnut.impl.box.JvmBoxService',
+        type : 'com.site0.walnut.impl.box.JvmBoxService',
         args : [ {
             refer : "jvmExecutorFactory"
         } ]
     },
     hookService : {
-        type : 'org.nutz.walnut.impl.hook.CachedWnHookService',
+        type : 'com.site0.walnut.impl.hook.CachedWnHookService',
         parent : "ioService",
         fields : {
             esi : {
@@ -162,20 +162,20 @@ var ioc = {
         }
     },
     lockApi : {
-        type : 'org.nutz.walnut.impl.lock.redis.QuickRedisLockApi',
+        type : 'com.site0.walnut.impl.lock.redis.QuickRedisLockApi',
         args : [{
             refer : "redisConfForLockApi"
         }]
     },
     
     expiObjTable : {
-        type : 'org.nutz.walnut.core.eot.mongo.MongoExpiObjTable',
+        type : 'com.site0.walnut.core.eot.mongo.MongoExpiObjTable',
         args : [{
             java  : '$mongoDB.getCollection("expi")'
         }]
     },
     safeExpiObjTable : {
-        type : 'org.nutz.walnut.core.eot.WnSafeExpiObjTable',
+        type : 'com.site0.walnut.core.eot.WnSafeExpiObjTable',
         fields : {
             table : {
                 refer : 'expiObjTable'

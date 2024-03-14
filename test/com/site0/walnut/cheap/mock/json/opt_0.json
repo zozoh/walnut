@@ -1,0 +1,7 @@
+{
+  "selector" : ["p"],
+  "mutation" : {
+    "className" : "as-p",
+    "text" : "X"
+  }
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walnut OS</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%; background: #08F;
+  font-size: 18px;
+  padding: 6em 0;
+}
+form {
+  margin: 0 auto; text-align: center;
+  width: 24em; padding:1em;
+  background: rgba(255, 255, 255, 0.3);
+}
+hr {
+  height:1px; border:0;
+  border-top:1px solid rgba(255, 255, 255, 0.3);
+}
+h1 {
+  padding:0; margin:0;
+  line-height: 2em; font-size: 2em;
+}
+section {
+  margin: 1em;
+}
+input {
+  width:100%; font-size: inherit; padding: 1em;
+  outline: none; border:1px solid #08F;
+}
+button {
+  width:100%; padding: 1em; font-size: inherit;
+  background: #08F; color:#FFF;
+  border:0; outline: none;
+  cursor: pointer;
+}
+button:hover {
+  background: #F80; color:#FFF;
+}
+</style>
+</head>
+<body class="main-body">
+<form method="POST" action="/a/sys_login_by_passwd">
+  <h1>Walnut OS</h1>
+  <hr>
+  <section>
+    <input name="name" placeholder="User Name" spellcheck="false">
+  </section>
+  <section>
+    <input name="passwd" placeholder="Password" type="password" spellcheck="false">
+  </section>
+  <section>
+    <button>Sign in</button>
+  </section>
+</form>
+</body>
+</html>

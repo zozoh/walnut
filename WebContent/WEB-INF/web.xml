@@ -6,7 +6,7 @@
 	<!-- access log -->
     <filter>
         <filter-name>alog</filter-name>
-        <filter-class>org.nutz.walnut.jetty.AccessLogFilter</filter-class>
+        <filter-class>com.site0.walnut.jetty.AccessLogFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>alog</filter-name>
@@ -16,7 +16,7 @@
 	<!-- walnut domain 转换 -->
     <filter>
         <filter-name>walnutFilter</filter-name>
-        <filter-class>org.nutz.walnut.jetty.WalnutFilter</filter-class>
+        <filter-class>com.site0.walnut.jetty.WalnutFilter</filter-class>
         <init-param>
             <param-name>nutzFilterName</param-name>
             <param-value>nutz</param-value>
@@ -42,7 +42,7 @@
 		<filter-class>org.nutz.mvc.NutFilter</filter-class>
 		<init-param>
 			<param-name>modules</param-name>
-			<param-value>org.nutz.walnut.web.WnMainModule</param-value>
+			<param-value>com.site0.walnut.web.WnMainModule</param-value>
 		</init-param>
 		<init-param>
 			<param-name>ignore</param-name>
