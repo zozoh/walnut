@@ -1,5 +1,11 @@
 package com.site0.walnut;
 
+import java.io.File;
+
+import org.nutz.json.Json;
+import org.nutz.lang.Files;
+import org.nutz.lang.util.NutMap;
+
 /**
  * 记录一下版本号
  * 
@@ -7,18 +13,31 @@ package com.site0.walnut;
  */
 public final class WnVersion {
 
+    // 编译时，会自动读取 pom.xml 来获取版本了
+    private static String _version = "0.0";
+    private static String _alias = "DEV";
+
+    static {
+        File f = Files.findFile("version.json");
+        if (null != f) {
+            NutMap vinfo = Json.fromJsonFile(NutMap.class, f);
+            _version = vinfo.getString("version", _version);
+            _alias = vinfo.getString("alias", _alias);
+        }
+    }
+
     /**
      * @return 版本号
      */
     public static String get() {
-        return "13.70";
+        return _version;
     }
 
     /**
      * @return 版本代号
      */
     public static String alias() {
-        return "LOONG[Z]";
+        return _alias;
     }
 
     /**
