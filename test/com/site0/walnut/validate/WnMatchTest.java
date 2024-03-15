@@ -1,13 +1,14 @@
 package com.site0.walnut.validate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;

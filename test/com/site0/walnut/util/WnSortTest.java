@@ -1,9 +1,8 @@
 package com.site0.walnut.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 
 public class WnSortTest {

@@ -1,13 +1,15 @@
 package com.site0.walnut.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
 

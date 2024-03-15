@@ -1,15 +1,15 @@
 package com.site0.walnut.util.tmpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
